@@ -9,20 +9,23 @@ properties:
     description: "Service template alias."
     example: "generic-service"
   comment:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Service template comment."
-    nullable: true
   service_template_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Template ID of the service template."
     minimum: 1
-    nullable: true
     example: null
   check_command_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Check command ID."
     minimum: 1
-    nullable: true
     example: null
   check_command_args:
     type: array
@@ -102,8 +105,9 @@ properties:
 
       When enabled, the contact definition will not override the definitions on template levels, it will be appended instead.
   notification_interval:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of "time units" to wait before re-notifying a contact that this service is still down or unreachable.
 
@@ -135,15 +139,17 @@ properties:
       example: A value equal to 5 corresponds to the selected options WARNING and CRITICAL
     example: 5
   first_notification_delay:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of "time units" to wait before sending out the first problem notification when this service enters a non-OK state.
 
       With the default time unit of 60s, this number will mean multiples of 1 minute.
   recovery_notification_delay:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of "time units" to wait before sending out the recovery notification when this service enters an OK state.
 
@@ -188,10 +194,11 @@ properties:
       * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
     example: 2
   event_handler_command_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Event handler command ID."
     minimum: 1
-    nullable: true
     example: null
   event_handler_command_args:
     type: array
@@ -200,42 +207,49 @@ properties:
       description: "Command arguments of the event handler."
     example: [ "80", "90" ]
   graph_template_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "ID of the default graph template that will be used for this service."
     minimum: 1
-    nullable: true
     example: null
   note:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Define an optional note."
-    nullable: true
     maxLength: 65535
   note_url:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Define an optional URL that can be used to provide more information about the service."
     maxLength: 65535
-    nullable: true
   action_url:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Define an optional URL that can be used to specify actions to be performed on the service."
-    nullable: true
     maxLength: 65535
   icon_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Define the image ID that should be associated with this service template."
     minimum: 1
-    nullable: true
     example: null
   icon_alternative:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Define an optional string that is used as an alternative description for the icon."
-    nullable: true
     maxLength: 200
   severity_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Severity ID."
     minimum: 1
-    nullable: true
   host_templates:
     type: array
     description: "IDs of host templates linked to this service template."

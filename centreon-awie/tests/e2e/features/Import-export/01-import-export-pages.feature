@@ -6,10 +6,12 @@ Feature: AWIE configuration export and import
   Background:
     Given a super administrator is logged in
 
+  @MON-205084
   Scenario: contacts are exported as a downloadable archive
     When the user exports the contacts from the AWIE export page
     Then an export archive is generated
 
+  @MON-205083
   Scenario: the import page is ready to receive an archive
     When the user opens the AWIE import page
     Then the import form accepts a zip archive

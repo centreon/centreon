@@ -6,12 +6,17 @@ import {
   checkMetricsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-import { setUserFilter } from '../common';
+import { searchInput, setUserFilter } from '../common';
 
 const serviceOk = 'service_test_ok';
 const serviceInDtName = 'service_downtime_1';
 const secondServiceInDtName = 'service_downtime_2';
 const serviceInAcknowledgementName = 'service_ack_1';
+
+const monitoringServerSelectorLabel = 'Monitoring server';
+const selectedMonitoringServer = 'Central';
+const otherMonitoringServer = 'Poller test';
+const monitoringServerSearchCriteria = /monitoring_server:Central/;
 
 before(() => {
   cy.intercept({
@@ -163,6 +168,11 @@ beforeEach(() => {
   cy.intercept('/centreon/api/latest/monitoring/resources*').as(
     'monitoringEndpoint'
   );
+
+  cy.intercept('GET', `${INTERCEPTORS.api.realtime_monitoring_servers}?*`, {
+    fixture: 'resources/realtimeMonitoringServers.json'
+  }).as('getMonitoringServers');
+
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
@@ -690,6 +700,55 @@ Then(
     });
   }
 );
+
+Given(
+  'the monitoring server selector lists the available monitoring servers',
+  () => {
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
+      '@getFilters',
+      '@monitoringEndpoint'
+    ]);
+
+    cy.contains('Unhandled alerts').should('be.visible');
+
+    cy.getByLabel({ label: 'Filter options' }).click();
+    cy.getByTestId({ testId: monitoringServerSelectorLabel }).click();
+
+    cy.wait('@getMonitoringServers');
+
+    cy.contains('[role="option"]', selectedMonitoringServer).should(
+      'be.visible'
+    );
+    cy.contains('[role="option"]', otherMonitoringServer).should('be.visible');
+  }
+);
+
+When('I select a monitoring server and apply the filter', () => {
+  cy.contains('[role="option"]', selectedMonitoringServer).click();
+
+  cy.getByTestId({ testId: monitoringServerSelectorLabel })
+    .parent()
+    .contains(selectedMonitoringServer);
+
+  cy.getByTestId({ testId: 'Filter Search' }).click();
+});
+
+Then('the resources are filtered by the selected monitoring server', () => {
+  cy.get(searchInput)
+    .invoke('val')
+    .should('match', monitoringServerSearchCriteria);
+});
+
+When('I clear the applied monitoring server filter', () => {
+  cy.getByTestId({ testId: 'Filter Clear' }).click();
+  cy.getByTestId({ testId: 'Filter Search' }).click();
+});
+
+Then('the resources are no longer filtered by any monitoring server', () => {
+  cy.get(searchInput)
+    .invoke('val')
+    .should('not.match', monitoringServerSearchCriteria);
+});
 
 afterEach(() => {
   cy.deleteAllEventViewFilters();

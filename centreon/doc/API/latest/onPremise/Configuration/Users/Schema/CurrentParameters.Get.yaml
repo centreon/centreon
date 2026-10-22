@@ -26,8 +26,9 @@ properties:
     example: Europe/Paris
 
   locale:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: Locale of the current user
     example: en_US
 
@@ -63,14 +64,16 @@ properties:
     default: compact
 
   default_page:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: Default page for the current user
     example: '/main.php?p=60901'
 
   dashboard:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       global_user_role:
         type: string

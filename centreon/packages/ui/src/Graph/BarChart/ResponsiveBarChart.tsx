@@ -91,6 +91,9 @@ const ResponsiveBarChart = ({
   zoomPreview,
   annotationEvent
 }: Props): ReactElement => {
+  const maxLeftAxisCharactersRef = useRef(0);
+  const maxRightAxisCharactersRef = useRef(0);
+
   const { title, timeSeries, baseAxis, lines } = graphData || {};
 
   const { classes, cx } = useTooltipStyles();
@@ -111,23 +114,14 @@ const ResponsiveBarChart = ({
   const [firstUnit, secondUnit] = getUnits(displayedLines);
   const allUnits = getUnits(lines || []);
 
-  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
-    useComputeYAxisMaxCharacters({
-      axis,
-      firstUnit,
-      graphData,
-      secondUnit,
-      thresholds,
-      thresholdUnit
-    });
-
   const { legendRef, graphWidth, graphHeight, titleRef } =
     useComputeBaseChartDimensions({
       hasSecondUnit: Boolean(secondUnit),
       height,
       legendDisplay: legend?.display,
       legendPlacement: legend?.placement,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      maxLeftAxisCharacters: maxLeftAxisCharactersRef.current,
+      maxRightAxisCharacters: maxRightAxisCharactersRef.current,
       title,
       units: allUnits,
       width
@@ -202,6 +196,22 @@ const ResponsiveBarChart = ({
 
   const leftScale = yScalesPerUnit[firstUnit ?? allUnits[0]];
   const rightScale = yScalesPerUnit[secondUnit ?? allUnits[1]];
+
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      axis,
+      base: baseAxis,
+      displayedLines,
+      graphHeight,
+      graphWidth,
+      isHorizontal,
+      leftScale,
+      rightScale
+    });
+
+  maxRightAxisCharactersRef.current = maxRightAxisCharacters;
+  maxLeftAxisCharactersRef.current = maxLeftAxisCharacters;
+
   const pixelsToShift = computPixelsToShiftMouse(xScaleLinear);
 
   useEffect(
@@ -286,9 +296,8 @@ const ResponsiveBarChart = ({
             graphHeight={graphHeight}
             graphWidth={graphWidth - (isHorizontal ? 0 : margin.left - 15)}
             gridLinesType={axis?.gridLinesType}
-            hasSecondUnit={Boolean(secondUnit)}
             leftScale={leftScale}
-            maxAxisCharacters={maxLeftAxisCharacters}
+            maxLeftAxisCharacters={maxLeftAxisCharacters}
             orientation={isHorizontal ? 'horizontal' : 'vertical'}
             rightScale={rightScale}
             showGridLines={showGridLines}

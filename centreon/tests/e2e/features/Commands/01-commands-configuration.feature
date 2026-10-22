@@ -51,6 +51,7 @@ Feature: Configuration of a command
     Then Arguments of this command are displayed for the service
     And the admin user can configure those arguments on the service form
 
+  @MON-205041
   Scenario: Displaying the number of services using a check command
     Given a check command is configured
     And a service is configured
@@ -59,6 +60,7 @@ Feature: Configuration of a command
     And the admin user saves the configuration
     Then the "Used by services" column for the check command is updated accordingly
 
+  @MON-205040
   Scenario: Displaying the number of hosts using a check command
     Given a check command is configured
     And a host is configured

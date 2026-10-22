@@ -1,11 +1,11 @@
 <h3 style="text-align: center;"> Gorgone configuration file :</h3>
 <br>
 <div class="gorgone_config_file">
-    <pre id='configuration_file' style="overflow-x: auto;">{$args}</pre>
+    <pre id='configuration_file' style="overflow-x: auto;">{$args|escape}</pre>
     <br>
     <pre id='command_configuration_file' style="overflow-x: auto; display: none">
 cat &lt;&lt;EOF &gt; /etc/centreon-gorgone/config.d/40-gorgoned.yaml
-{$args}
+{$args|escape}
 EOF</pre>
     {if $gorgoneError == '0'}
     <div style="text-align: center;">

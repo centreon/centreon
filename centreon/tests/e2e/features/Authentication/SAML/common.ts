@@ -116,9 +116,9 @@ const removeContact = (): Cypress.Chainable => {
 };
 
 export {
-  initializeSamlUser,
-  removeContact,
   configureSaml,
+  initializeSamlUser,
   navigateToSamlConfigPage,
+  removeContact,
   saveSamlFormIfEnabled
 };

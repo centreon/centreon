@@ -59,8 +59,22 @@ class CentreonMonitoringPoller extends CentreonConfigurationObjects
 
         if (! $centreon->user->admin) {
             $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-            $queryPoller .= 'AND instances.instance_id IN ('
-                . $acl->getPollerString('ID', $this->pearDBMonitoring) . ') ';
+            // getPollerString('ID') returns nagios_server.id (config) values; translate them
+            // to the Snowflake UIDs (nagios_server.uid) that match instances.instance_id.
+            // Legacy pollers unaware of the Snowflake UID still report nagios_server.id as
+            // instance_id, so keep the id in the allowlist as a fallback for mixed-version platforms.
+            $aclPollerIds = $acl->getPollerString('ID', $this->pearDBMonitoring);
+            $runtimeIds = [];
+            if ($aclPollerIds !== '') {
+                $uidResult = $this->pearDB->query(
+                    'SELECT id, uid FROM nagios_server WHERE id IN (' . $aclPollerIds . ')'
+                );
+                while ($uidRow = $uidResult->fetchRow()) {
+                    $runtimeIds[] = $uidRow['uid'];
+                    $runtimeIds[] = $uidRow['id'];
+                }
+            }
+            $queryPoller .= 'AND instances.instance_id IN (' . ($runtimeIds === [] ? '0' : implode(',', $runtimeIds)) . ') ';
         }
 
         $queryPoller .= ' ORDER BY name ';

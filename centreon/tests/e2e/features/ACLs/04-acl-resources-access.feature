@@ -32,6 +32,13 @@ Feature: ACL Resources Access administration
     When I modify some properties such as name, description, comments or status
     Then the modifications are saved
 
+  # Cloud: identical
+  @MON-208725
+  Scenario: Browsing every tab of one existing Resources access record
+    Given one existing Resources access
+    When I open the Resources access for editing
+    Then every tab of the form can be opened by clicking on it
+
   @MON-37872
   Scenario: Delete one existing Resources access record
     Given one existing Resources access

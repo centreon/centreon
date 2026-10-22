@@ -1,0 +1,28 @@
+meta {
+  name: GET /logout - Logout unprivileged user - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/logout
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Logout is successful", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    bru.deleteEnvVar("authToken");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

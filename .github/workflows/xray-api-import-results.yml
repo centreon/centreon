@@ -65,7 +65,7 @@ jobs:
       # Checkout the repository sources
       # -------------------------------
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # -------------------------------
       # Authenticate with Xray API
@@ -81,7 +81,7 @@ jobs:
       # Download artifacts from the previous job
       # -------------------------------
       - name: Download artifacts
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: ${{ inputs.artifact_pattern }}
           path: ${{ inputs.report_path }}
@@ -129,7 +129,7 @@ jobs:
             results_file="merged-junit.xml"
             import_endpoint="https://xray.cloud.getxray.app/api/v2/import/execution/junit/multipart"
           else
-            mapfile -t files < <(find "$REPORT_PATH" -type f -path "*xray-reports*" \( -name "report.json" -o -name "cucumber-report.json" \))
+            mapfile -t files < <(find "$REPORT_PATH" -type f \( -name "report.json" -o -name "cucumber-report.json" -o -name "*-report.json" \))
             results_file="cucumber-report-merged.json"
             import_endpoint="https://xray.cloud.getxray.app/api/v2/import/execution/cucumber/multipart"
           fi
@@ -150,22 +150,38 @@ jobs:
 
           echo "Importing $results_file ($RESULT_FORMAT) with Jira fields parameters into Xray..."
 
-          response=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
-            -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" \
-            -F "results=@$results_file" \
-            -F "info=@issueJiraFields.json" \
-            "$import_endpoint")
+          # Retry the import on transient failures (network, 429, 5xx) except 504 (may duplicate the Test Execution).
+          max_retries=5
+          retry_delay=2
+          attempt=0
+          while :; do
+            response=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
+              -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" \
+              -F "results=@$results_file" \
+              -F "info=@issueJiraFields.json" \
+              "$import_endpoint" || true)
 
-          http_code=$(echo "$response" | sed -n 's/.*HTTP_CODE://p')
-          body=$(echo "$response" | sed 's/HTTP_CODE:.*//')
+            http_code=$(echo "$response" | sed -n 's/.*HTTP_CODE://p')
+            body=$(echo "$response" | sed 's/HTTP_CODE:.*//')
+            [ -z "$http_code" ] && http_code="000"
 
-          echo "HTTP code: $http_code"
-          echo "Response: $body"
+            echo "HTTP code: $http_code"
+            echo "Response: $body"
 
-          if [ "$http_code" -ne 200 ]; then
+            if [ "$http_code" -eq 200 ]; then
+              break
+            fi
+
+            if [ "$attempt" -lt "$max_retries" ] && { [ "$http_code" = "000" ] || [ "$http_code" = "429" ] || { [ "$http_code" -ge 500 ] && [ "$http_code" != "504" ]; }; }; then
+              echo "Transient import failure (HTTP $http_code), retry $((attempt + 1))/$max_retries in ${retry_delay}s"
+              attempt=$((attempt + 1))
+              sleep "$retry_delay"
+              continue
+            fi
+
             echo "ERROR: Import failed for $results_file with Jira fields parameters into Xray"
             exit 1
-          fi
+          done
 
           test_execution_key=$(jq -r '.key // empty' <<<"$body")
           echo "Created/updated Test Execution: $test_execution_key"

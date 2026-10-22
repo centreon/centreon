@@ -2,7 +2,6 @@ import { equals, isNil } from 'ramda';
 import type { RefCallback } from 'react';
 import useResizeObserver from 'use-resize-observer';
 
-import { margin } from '../../Chart/common';
 import { margins } from '../margins';
 import { useMarginTop } from '../useMarginTop';
 
@@ -15,7 +14,8 @@ interface UseComputeBaseChartDimensionsProps {
   legendHeight?: number;
   legendPlacement?: string;
   width: number;
-  maxAxisCharacters: number;
+  maxLeftAxisCharacters: number;
+  maxRightAxisCharacters: number;
   title?: string;
   units: Array<string>;
 }
@@ -32,9 +32,9 @@ export const useComputeBaseChartDimensions = ({
   height,
   legendDisplay,
   legendPlacement,
-  hasSecondUnit,
   legendHeight,
-  maxAxisCharacters,
+  maxLeftAxisCharacters,
+  maxRightAxisCharacters,
   units,
   title
 }: UseComputeBaseChartDimensionsProps): UseComputeBaseChartDimensionsState => {
@@ -63,8 +63,8 @@ export const useComputeBaseChartDimensions = ({
   const graphWidth =
     width > 0
       ? width -
-        (hasSecondUnit ? maxAxisCharacters * 2 : maxAxisCharacters) * 6 -
-        (hasSecondUnit ? margins.left * 0.8 : margin.left) -
+        (maxLeftAxisCharacters * 5 + maxRightAxisCharacters * 5) -
+        margins.left / 2 -
         legendBoundingWidth
       : 0;
   const graphHeight =

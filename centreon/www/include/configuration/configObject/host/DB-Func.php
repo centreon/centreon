@@ -28,17 +28,23 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger as AdaptationLogger;
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Application\HostTemplateServicesCleaner;
 use Core\Infrastructure\Common\Api\Router;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -401,10 +407,8 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     $selectHostStatement = $pearDB->prepare('SELECT * FROM host WHERE host_id = :hostId LIMIT 1');
     foreach ($hosts as $key => $value) {
         if (false === ($key = filter_var($key, FILTER_VALIDATE_INT))) {
@@ -417,13 +421,29 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
             continue;
         }
         $row['host_id'] = null;
-        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        // Bound 0..999 server-side (the listing input's maxlength="3" is
+        // client-only) so a forged dupNbr cannot drive unbounded duplication.
+        $dupCount = filter_var(
+            $nbrDup[$key] ?? 0,
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 0, 'max_range' => 999]]
+        );
         if ($dupCount === false) {
+            AdaptationLogger::create(LogChannelEnum::WEB)->warning(
+                'Host duplication skipped: invalid duplication count',
+                ['sourceHostId' => (int) $key, 'submitted' => $nbrDup[$key] ?? null]
+            );
+
             continue;
         }
         $originalHostName = $row['host_name'];
+        $skippedNames = [];
+        $skippedTotal = 0;
         for ($i = 1; $i <= $dupCount; $i++) {
             $hostName = null;
+            // Reset per copy: after a skipped name, a stale id from the previous
+            // iteration would replay the ACL update below for the wrong copy.
+            $maxId = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if ($key2 == 'host_name') {
@@ -437,7 +457,12 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     $fields['host_name'] = $hostName;
                 }
             }
-            if (hasHostNameNeverUsed($hostName)) {
+            // The name has to be free among BOTH hosts and templates. Host templates
+            // duplicate through this same function — hostTemplateModel.php requires
+            // this file and calls multipleHostInDB() — and they carry
+            // host_register = '0', so a host-only check never sees the template copy
+            // it has just made.
+            if (hasHostNameNeverUsed($hostName) && hasHostTemplateNeverUsed($hostName)) {
                 $columns = array_keys($row);
                 $placeholders = array_map(fn ($col) => ':' . $col, $columns);
                 $insertHostQuery = 'INSERT INTO host (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
@@ -496,51 +521,53 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     } elseif (file_exists($path . '../service/DB-Func.php')) {
                         require_once $path . '../configObject/service/DB-Func.php';
                     }
-                    $hostInf = $maxId;
-                    $serviceArr = [];
-                    $serviceNbr = [];
-                    // Get all Services link to the Host
-                    $svcRelStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
-                    $svcRelStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
-                    $svcRelStatement->execute();
-                    $dbResult = $svcRelStatement;
-                    $countStatement = $pearDB->prepare(
-                        'SELECT COUNT(*)
-                        FROM host_service_relation
-                        WHERE service_service_id = :service_service_id'
-                    );
-                    $insertStatement = $pearDB->prepare(
-                        'INSERT INTO host_service_relation
-                        VALUES (NULL, NULL, :host_id, NULL, :service_service_id)'
-                    );
-                    while ($service = $dbResult->fetch()) {
-                        // If the Service is link with several Host, we keep this property and don't duplicate it,
-                        // just create a new relation with the new Host
-                        $countStatement->bindValue(
-                            ':service_service_id',
-                            (int) $service['service_service_id'],
-                            PDO::PARAM_INT
+                    // Register Host -> Duplicate the Service list
+                    if ($row['host_register'] == 1) {
+                        $hostInf = $maxId;
+                        $serviceArr = [];
+                        $serviceNbr = [];
+                        // Get all Services link to the Host
+                        $svcRelStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
+                        $svcRelStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                        $svcRelStatement->execute();
+                        $dbResult = $svcRelStatement;
+                        $countStatement = $pearDB->prepare(
+                            'SELECT COUNT(*)
+                            FROM host_service_relation
+                            WHERE service_service_id = :service_service_id'
                         );
-                        $countStatement->execute();
-                        $mulHostSv = $countStatement->fetch(PDO::FETCH_ASSOC);
-                        if ($mulHostSv['COUNT(*)'] > 1) {
-                            $insertStatement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
-                            $insertStatement->bindValue(
+                        $insertStatement = $pearDB->prepare(
+                            'INSERT INTO host_service_relation
+                            VALUES (NULL, NULL, :host_id, NULL, :service_service_id)'
+                        );
+                        while ($service = $dbResult->fetch()) {
+                            // If the Service is link with several Host, we keep this property and don't duplicate it,
+                            // just create a new relation with the new Host
+                            $countStatement->bindValue(
                                 ':service_service_id',
                                 (int) $service['service_service_id'],
                                 PDO::PARAM_INT
                             );
-                            $insertStatement->execute();
-                        } else {
-                            $serviceArr[$service['service_service_id']] = $service['service_service_id'];
-                            $serviceNbr[$service['service_service_id']] = 1;
+                            $countStatement->execute();
+                            $mulHostSv = $countStatement->fetch(PDO::FETCH_ASSOC);
+                            if ($mulHostSv['COUNT(*)'] > 1) {
+                                $insertStatement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
+                                $insertStatement->bindValue(
+                                    ':service_service_id',
+                                    (int) $service['service_service_id'],
+                                    PDO::PARAM_INT
+                                );
+                                $insertStatement->execute();
+                            } else {
+                                $serviceArr[$service['service_service_id']] = $service['service_service_id'];
+                                $serviceNbr[$service['service_service_id']] = 1;
+                            }
                         }
-                    }
-                    // Register Host -> Duplicate the Service list
-                    if ($row['host_register'] == 1) {
                         multipleServiceInDB($serviceArr, $serviceNbr, $hostInf, 0);
                     } else {
-                        // Host Template -> Link to the existing Service Template List
+                        // Host Template -> Link to the existing Service Template List. Do not
+                        // reintroduce the host branch's COUNT(*) > 1 insert before this loop: a
+                        // service template shared by several hosts would be related twice.
                         $svcTplStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
                         $svcTplStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
                         $svcTplStatement->execute();
@@ -731,7 +758,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         && str_starts_with(VaultConfiguration::VAULT_PATH_PATTERN, $row['host_snmp_community'])
                         || $macroPasswords !== []
                     ) {
-                        if ($vaultConfiguration !== null) {
+                        if ($vaultEligibilityService->shouldUseVault()) {
                             /** @var ReadVaultRepositoryInterface $readVaultRepository */
                             $readVaultRepository = $kernel->getContainer()->get(
                                 ReadVaultRepositoryInterface::class
@@ -764,10 +791,25 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         object_name: $hostName,
                         action_type: ActionLog::ACTION_TYPE_ADD
                     );
+                } else {
+                    // Insert returned no id (misconfigured AUTO_INCREMENT): no copy
+                    // was created, so account for it like a skipped name.
+                    ++$skippedTotal;
+                    if (count($skippedNames) < 20) {
+                        $skippedNames[] = $hostName ?? '(unnamed)';
+                    }
+                }
+            } else {
+                // Aggregated, not logged per name: one record per colliding name
+                // would multiply disk writes within the duplication loop.
+                ++$skippedTotal;
+                if (count($skippedNames) < 20) {
+                    $skippedNames[] = $hostName ?? '(unnamed)';
                 }
             }
-            // if all duplication names are already used, next value is never set
-            if (isset($maxId)) {
+            // Falsy covers both "no insert this round" (null) and the insert
+            // branch's own rejected lastInsertId of 0.
+            if ($maxId) {
                 $centreon->user->access->updateACL([
                     'type' => 'HOST',
                     'id' => $maxId,
@@ -775,6 +817,19 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     'duplicate_host' => (int) $key,
                 ]);
             }
+        }
+
+        if ($skippedTotal > 0) {
+            // The page reloads unchanged, so this is the operator's only clue
+            // about the copies that never appeared.
+            AdaptationLogger::create(LogChannelEnum::WEB)->warning(
+                'Host duplication skipped: generated name already taken by a host or host template, or the insert returned no id',
+                [
+                    'sourceHostId' => (int) $key,
+                    'names' => $skippedNames,
+                    'skippedTotal' => $skippedTotal,
+                ]
+            );
         }
     }
     CentreonACL::duplicateHostAcl($hostAcl);
@@ -843,8 +898,8 @@ function updateHostInDB_MC($hostId = null)
     updateHost_MC($hostId);
 
     if ($isCloudPlatform) {
-        resetHostHostParent($hostId);
-        resetHostHostChild($hostId);
+        // Parent/child host relations are managed on the add/modify form only (not massive change),
+        // so they must be left untouched here to avoid wiping existing relationships.
         resetHostContactGroup($hostId);
         resetHostContact($hostId);
     }
@@ -987,7 +1042,6 @@ function resetUnwantedParameters(array $bindParams): array
 {
     $paramsToReset = [
         'timeperiod_tp_id2',
-        'host_freshness_threshold',
         'host_low_flap_threshold',
         'host_high_flap_threshold',
         'host_notification_interval',
@@ -999,7 +1053,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_comment',
         'host_checks_enabled',
         'host_obsess_over_host',
-        'host_check_freshness',
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
@@ -1021,7 +1074,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_passive_checks_enabled',
         'host_notifications_enabled',
         'host_obsess_over_host',
-        'host_check_freshness',
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
@@ -1185,215 +1237,6 @@ function deleteHostServiceMultiTemplate($hID, $scndHID, $host_list, $antiLoop = 
     $dbResult->closeCursor();
 }
 
-function updateHost($hostId = null, $isMassiveChange = false, $configuration = null)
-{
-    global $form, $pearDB, $centreon, $isCloudPlatform;
-
-    $hostObj = new CentreonHost($pearDB);
-
-    if (! $hostId) {
-        return;
-    }
-
-    $host = new CentreonHost($pearDB);
-
-    $ret = [];
-
-    $ret = ! isset($configuration) ? $form->getSubmitValues() : $configuration;
-
-    $kernel = Kernel::createForWeb();
-    /** @var Logger $logger */
-    $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
-
-    // Retrieve UUID for vault path before updating values in database.
-    $vaultPath = null;
-    if ($vaultConfiguration !== null) {
-        $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
-    }
-
-    if (! $isCloudPlatform) {
-        if (! isset($ret['contact_additive_inheritance'])) {
-            $ret['contact_additive_inheritance'] = '0';
-        }
-        if (! isset($ret['cg_additive_inheritance'])) {
-            $ret['cg_additive_inheritance'] = '0';
-        }
-    }
-
-    $server_id = $ret['nagios_server_id'] ?? $form->getSubmitValue('nagios_server_id');
-
-    if (! isset($server_id) || $server_id == '' || $server_id == 0) {
-        $server_id = null;
-    }
-
-    if (! $isCloudPlatform) {
-        if (isset($ret['command_command_id_arg1']) && $ret['command_command_id_arg1'] != null) {
-            $ret['command_command_id_arg1'] = str_replace("\n", '#BR#', $ret['command_command_id_arg1']);
-            $ret['command_command_id_arg1'] = str_replace("\t", '#T#', $ret['command_command_id_arg1']);
-            $ret['command_command_id_arg1'] = str_replace("\r", '#R#', $ret['command_command_id_arg1']);
-        }
-        if (isset($ret['command_command_id_arg2']) && $ret['command_command_id_arg2'] != null) {
-            $ret['command_command_id_arg2'] = str_replace("\n", '#BR#', $ret['command_command_id_arg2']);
-            $ret['command_command_id_arg2'] = str_replace("\t", '#T#', $ret['command_command_id_arg2']);
-            $ret['command_command_id_arg2'] = str_replace("\r", '#R#', $ret['command_command_id_arg2']);
-        }
-    }
-
-    $ret['host_name'] = $host->checkIllegalChar($ret['host_name'], $server_id);
-    if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
-        unset($ret['host_snmp_community']);
-    }
-    $bindParams = sanitizeFormHostParameters($ret);
-
-    if ($isCloudPlatform) {
-        $bindParams = resetUnwantedParameters($bindParams);
-        $bindParams = resetHostTypeSpecificParams(
-            $bindParams,
-            isset($ret['host_register']) && $ret['host_register'] === '0' ? true : false
-        );
-    }
-
-    $rq = 'UPDATE host SET ';
-    foreach (array_keys($bindParams) as $token) {
-        $rq .= ltrim($token, ':') . ' = ' . $token . ', ';
-    }
-    $rq = rtrim($rq, ', ');
-    $rq .= ' WHERE host_id = :hostId';
-    $stmt = $pearDB->prepare($rq);
-    foreach ($bindParams as $token => $bindValues) {
-        foreach ($bindValues as $paramType => $value) {
-            $stmt->bindValue($token, $value, $paramType);
-        }
-    }
-    $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
-    $stmt->execute();
-
-    // Update multiple templates
-    if (isset($_REQUEST['tpSelect'])) {
-        // Cleanup host service link to host template to be removed
-        $newTp = [];
-        foreach ($_POST['tpSelect'] as $tmpl) {
-            $newTp[$tmpl] = $tmpl;
-        }
-
-        $tplStatement = $pearDB->prepare('SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId');
-        $tplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-        $tplStatement->execute();
-        while ($hst = $tplStatement->fetch()) {
-            if (! isset($newTp[$hst['host_tpl_id']])) {
-                deleteHostServiceMultiTemplate($hostId, $hst['host_tpl_id'], $newTp);
-            }
-        }
-
-        // Set template
-        $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
-    } elseif (isset($ret['use']) && $ret['use']) {
-        $already_stored = [];
-        $tplTab = preg_split("/\,/", $ret['use']);
-        $j = 0;
-        $deleteTplStatement = $pearDB->prepare('DELETE FROM `host_template_relation` WHERE `host_host_id` = :hostId');
-        $deleteTplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-        $deleteTplStatement->execute();
-        $insertTplStatement = $pearDB->prepare('INSERT INTO host_template_relation (`host_host_id`, `host_tpl_id`, `order`) VALUES (:hostId, :tplId, :tplOrder)');
-        foreach ($tplTab as $val) {
-            $tplId = getMyHostID($val);
-            if (! isset($already_stored[$tplId]) && $tplId) {
-                $insertTplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-                $insertTplStatement->bindValue(':tplId', (int) $tplId, PDO::PARAM_INT);
-                $insertTplStatement->bindValue(':tplOrder', $j, PDO::PARAM_INT);
-                $insertTplStatement->execute();
-                $j++;
-                $already_stored[$tplId] = 1;
-            }
-        }
-    } else {
-        // Cleanup host service link to host template to be removed
-        $newTp = [];
-
-        $tplStatement = $pearDB->prepare('SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId');
-        $tplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-        $tplStatement->execute();
-        while ($hst = $tplStatement->fetch()) {
-            if (! isset($newTp[$hst['host_tpl_id']])) {
-                deleteHostServiceMultiTemplate($hostId, $hst['host_tpl_id'], $newTp);
-            }
-        }
-
-        // Set template
-        $hostObj->setTemplates($hostId, []);
-    }
-
-    // Update demand macros
-    if (
-        isset($_REQUEST['macroInput'], $_REQUEST['macroValue'])
-    ) {
-        $macroDescription = [];
-        foreach ($_REQUEST as $nam => $ele) {
-            if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
-                foreach ($matches as $match) {
-                    $macroDescription[$match[1]] = $ele;
-                }
-            }
-        }
-        $hostObj->insertMacro(
-            $hostId,
-            $_REQUEST['macroInput'],
-            $_REQUEST['macroValue'],
-            $_REQUEST['macroPassword'] ?? [],
-            $macroDescription,
-            false,
-            $ret['command_command_id'] ?? false
-        );
-    } else {
-        $deleteMacroStatement = $pearDB->prepare('DELETE FROM on_demand_macro_host WHERE host_host_id = :hostId');
-        $deleteMacroStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-        $deleteMacroStatement->execute();
-    }
-
-    if (isset($ret['criticality_id'])) {
-        setHostCriticality($hostId, $ret['criticality_id']);
-    }
-
-    // If there is a vault configuration write into vault
-    if ($vaultConfiguration !== null) {
-        /** @var ReadVaultRepositoryInterface $readVaultRepository */
-        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
-
-        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
-        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
-        $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
-        try {
-            updateHostSecretsInVault(
-                $readVaultRepository,
-                $writeVaultRepository,
-                $logger,
-                $vaultPath,
-                (int) $hostId,
-                $hostObj->getFormattedMacros(),
-                $bindParams[':host_snmp_community'][PDO::PARAM_STR] ?? null
-            );
-        } catch (Throwable $ex) {
-            error_log((string) $ex);
-        }
-    }
-
-    // Logs
-    // Prepare value for changelog
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog(
-        object_type: ActionLog::OBJECT_TYPE_HOST,
-        object_id: $hostId,
-        object_name: $ret['host_name'],
-        action_type: ActionLog::ACTION_TYPE_CHANGE,
-        fields: $fields
-    );
-    $centreon->user->access->updateACL(['type' => 'HOST', 'id' => $hostId, 'action' => 'UPDATE']);
-}
-
 function updateHost_MC($hostId = null)
 {
     global $form, $pearDB, $centreon, $isCloudPlatform;
@@ -1407,14 +1250,12 @@ function updateHost_MC($hostId = null)
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
 
     // Retrieve UUID for vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
@@ -1439,7 +1280,7 @@ function updateHost_MC($hostId = null)
         }
         if ($command->isCentreonMonitoringAgentCommand()) {
             $submittedValues['host_check_freshness']['host_check_freshness'] = '1';
-            $submittedValues['host_freshness_threshold'] = 120;
+            $submittedValues['host_freshness_threshold'] = Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
         }
     }
     // For Centreon 2, we no longer need "host_template_model_htm_id" in Nagios 3
@@ -1486,17 +1327,67 @@ function updateHost_MC($hostId = null)
         $statement->execute();
     }
     // update multiple templates
-    if (isset($_REQUEST['tpSelect'])) {
-        $oldTp = [];
-        if (isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0) {
-            $tplStatement = $pearDB->prepare('SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId');
-            $tplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-            $tplStatement->execute();
-            while ($hst = $tplStatement->fetch()) {
-                $oldTp[$hst['host_tpl_id']] = $hst['host_tpl_id'];
+    if (isset($_REQUEST['tpSelect']) && is_array($_REQUEST['tpSelect'])) {
+        $hostIdParameter = QueryParameters::create([QueryParameter::int('hostId', (int) $hostId)]);
+        $findTemplateIds = static fn (): array => array_map('intval', $pearDB->fetchFirstColumn(
+            'SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId',
+            $hostIdParameter
+        ));
+        $previousTemplateIds = $findTemplateIds();
+        $isIncrementalMode = isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0;
+        // Replacement mode may unlink templates: their services deployed on the host must go.
+        // Host templates are skipped, they have no deployed services.
+        $cleanRemovedTemplateServices = ! $isIncrementalMode
+            && (string) $pearDB->fetchOne(
+                'SELECT `host_register` FROM `host` WHERE `host_id` = :hostId',
+                $hostIdParameter
+            ) === '1';
+        if ($isIncrementalMode) {
+            // Keep the current templates and only add the selected ones.
+            $hostObj->setTemplates(
+                $hostId,
+                $_REQUEST['tpSelect'],
+                array_combine($previousTemplateIds, $previousTemplateIds)
+            );
+        } elseif (! $cleanRemovedTemplateServices) {
+            $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
+        } else {
+            // The cleaner writes through another connection, so both steps cannot share one transaction.
+            // The new templates are only committed once the cleanup succeeded: on failure the host keeps
+            // its previous templates and services, and the mass change goes on with the other hosts.
+            $ownTransaction = ! $pearDB->isTransactionActive();
+            try {
+                if ($ownTransaction) {
+                    $pearDB->startTransaction();
+                }
+                $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
+
+                /** @var HostTemplateServicesCleaner $hostTemplateServicesCleaner */
+                $hostTemplateServicesCleaner = $kernel->getContainer()->get(HostTemplateServicesCleaner::class);
+                // Read back what was saved: setTemplates() drops templates that would create an inheritance loop.
+                $hostTemplateServicesCleaner->cleanServicesFromRemovedTemplates(
+                    (int) $hostId,
+                    $previousTemplateIds,
+                    $findTemplateIds()
+                );
+
+                if ($ownTransaction) {
+                    $pearDB->commitTransaction();
+                }
+            } catch (Throwable $ex) {
+                // A transaction opened by the caller is the caller's to roll back.
+                if (! $ownTransaction) {
+                    throw $ex;
+                }
+                if ($pearDB->isTransactionActive()) {
+                    $pearDB->rollBackTransaction();
+                }
+                $logger->error('Failed to replace the host templates, previous templates kept', [
+                    'host_id' => (int) $hostId,
+                    'exception' => $ex,
+                ]);
             }
         }
-        $hostObj->setTemplates($hostId, $_REQUEST['tpSelect'], $oldTp);
     }
 
     // Update on demand macros
@@ -1525,7 +1416,7 @@ function updateHost_MC($hostId = null)
     }
 
     // If there is a vault configuration write into vault.
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         try {
             /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
@@ -2757,11 +2648,12 @@ function insertHostInAPI(array $formData): int|false
             updateHostTemplateService($hostId);
         }
 
+        if (! $isTemplate) {
+            updateHostHostParent($hostId, $formData);
+            updateHostHostChild($hostId);
+        }
+
         if (! $isCloudPlatform) {
-            if (! $isTemplate) {
-                updateHostHostParent($hostId, $formData);
-                updateHostHostChild($hostId);
-            }
             updateHostContactGroup($hostId, $formData);
             updateHostContact($hostId, $formData);
         }
@@ -2846,6 +2738,34 @@ function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, b
     return $response['content']['id'] ?? null;
 }
 
+function getHostRelationsSnapshot(int $hostId): array
+{
+    global $pearDB;
+
+    $queryParameters = QueryParameters::create([QueryParameter::int('hostId', $hostId)]);
+
+    $queries = [
+        'groups' => 'SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = :hostId',
+        'categories' => 'SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = :hostId',
+        'templates' => 'SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = :hostId ORDER BY `order`',
+        'parents' => 'SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = :hostId',
+        'children' => 'SELECT host_host_id FROM host_hostparent_relation WHERE host_parent_hp_id = :hostId',
+        'contactGroups' => 'SELECT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = :hostId',
+        'contacts' => 'SELECT contact_id FROM contact_host_relation WHERE host_host_id = :hostId',
+    ];
+
+    $snapshot = [];
+    foreach ($queries as $key => $sql) {
+        $ids = array_map('intval', $pearDB->fetchFirstColumn($sql, $queryParameters));
+        if ($key !== 'templates') {
+            sort($ids);
+        }
+        $snapshot[$key] = $ids;
+    }
+
+    return $snapshot;
+}
+
 /**
  * @param int $hostId
  * @param array $formData
@@ -2859,6 +2779,18 @@ function updateHostInAPI(int $hostId, array $formData): bool
     try {
         $isTemplate = (int) $formData['host_register'] === 0;
         $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
+        $relationsBefore = null;
+        try {
+            $relationsBefore = getHostRelationsSnapshot($hostId);
+        } catch (Throwable $ex) {
+            AdaptationLogger::create(LogChannelEnum::WEB)->error(
+                'Failed to snapshot host relations before update',
+                [
+                    'hostId' => $hostId,
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
+        }
 
         updateByApi($formData, $isCloudPlatform, $basePath, $isTemplate);
 
@@ -2866,11 +2798,12 @@ function updateHostInAPI(int $hostId, array $formData): bool
             updateHostTemplateService($hostId);
         }
 
+        if (! $isTemplate) {
+            updateHostHostParent($hostId, $formData);
+            updateHostHostChild($hostId);
+        }
+
         if (! $isCloudPlatform) {
-            if (! $isTemplate) {
-                updateHostHostParent($hostId, $formData);
-                updateHostHostChild($hostId);
-            }
             updateHostContactGroup($hostId, $formData);
             updateHostContact($hostId, $formData);
         }
@@ -2880,6 +2813,26 @@ function updateHostInAPI(int $hostId, array $formData): bool
             || $isCloudPlatform === true
         ) {
             createHostTemplateService($hostId);
+        }
+
+        try {
+            if ($relationsBefore !== null && getHostRelationsSnapshot($hostId) !== $relationsBefore) {
+                $centreon->CentreonLogAction->insertLog(
+                    object_type: ActionLog::OBJECT_TYPE_HOST,
+                    object_id: $hostId,
+                    object_name: (string) ($formData['host_name'] ?? ''),
+                    action_type: ActionLog::ACTION_TYPE_CHANGE,
+                    fields: CentreonLogAction::prepareChanges($formData),
+                );
+            }
+        } catch (Throwable $ex) {
+            AdaptationLogger::create(LogChannelEnum::WEB)->error(
+                'Failed to record host relation-change action log',
+                [
+                    'hostId' => $hostId,
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
         }
 
         // Update conf change flag for poller
@@ -3061,6 +3014,12 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
             $formData['macroInput'] ?? [],
             $formData['macroValue'] ?? []
         ),
+        'freshness_checked' => isset($formData['host_check_freshness']['host_check_freshness'])
+            ? (int) $formData['host_check_freshness']['host_check_freshness']
+            : null,
+        'freshness_threshold' => isset($formData['host_freshness_threshold']) && $formData['host_freshness_threshold'] !== ''
+            ? (int) $formData['host_freshness_threshold']
+            : null,
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,
@@ -3203,6 +3162,12 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
             $formData['macroInput'] ?? [],
             $formData['macroValue'] ?? []
         ),
+        'freshness_checked' => isset($formData['host_check_freshness']['host_check_freshness'])
+            ? (int) $formData['host_check_freshness']['host_check_freshness']
+            : null,
+        'freshness_threshold' => isset($formData['host_freshness_threshold']) && $formData['host_freshness_threshold'] !== ''
+            ? (int) $formData['host_freshness_threshold']
+            : null,
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,
@@ -3305,7 +3270,7 @@ function validateParentChildAreNotCircular(array $fields): array|true
     if ($common) {
         $hostIds = [];
         foreach ($common as $hostId) {
-            $hostIds[':host' . $hostId] = $hostId;
+            $hostIds[':host' . (int) $hostId] = (int) $hostId;
         }
         $hostIdsAsString = implode(',', array_keys($hostIds));
         $statement = $pearDB->prepare("SELECT host_name FROM host WHERE host_id IN ({$hostIdsAsString})");

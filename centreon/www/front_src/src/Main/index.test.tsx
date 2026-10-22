@@ -4,6 +4,7 @@ import {
   screen,
   waitFor
 } from '@centreon/ui/test/testRenderer';
+import { isAdditiveInheritanceEnabledAtom } from '@centreon/ui-context';
 
 import axios from 'axios';
 
@@ -22,7 +23,8 @@ import { retrievedFederatedModule } from '../federatedModules/mocks';
 import { labelConnect } from '../Login/translatedLabels';
 import { retrievedNavigation } from '../Navigation/mocks';
 import { navigationEndpoint } from '../Navigation/useNavigation';
-import Provider from './Provider';
+import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
+import Provider, { store } from './Provider';
 import {
   retrievedActionsAcl,
   retrievedLoginConfiguration,
@@ -33,6 +35,7 @@ import {
   retrievedWeb
 } from './testUtils';
 import { labelCentreonIsLoading } from './translatedLabels';
+import { areUserParametersLoadedAtom } from './useUser';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -76,6 +79,12 @@ const mockDefaultGetRequests = (): void => {
       data: retrievedUser
     })
     .mockResolvedValueOnce({
+      data: {
+        feature_flags: {},
+        is_cloud_platform: false
+      }
+    })
+    .mockResolvedValueOnce({
       data: retrievedWeb
     })
     .mockResolvedValueOnce({
@@ -101,6 +110,30 @@ const mockDefaultGetRequests = (): void => {
     });
 };
 
+// Answered by URL rather than in call order, so a request added or moved in
+// the start-up sequence cannot hand one endpoint another one's response.
+const mockGetRequestsByUrl = (parameters: object): void => {
+  const responses: Array<[string, unknown]> = [
+    [
+      platformInstallationStatusEndpoint,
+      { has_upgrade_available: false, is_installed: true }
+    ],
+    [userEndpoint, retrievedUser],
+    ['platform/features', { feature_flags: {}, is_cloud_platform: false }],
+    ['platform/versions', retrievedWeb],
+    ['allTranslations', retrievedTranslations],
+    [navigationEndpoint, retrievedNavigation],
+    [parametersEndpoint, parameters],
+    [aclEndpoint, retrievedActionsAcl]
+  ];
+
+  mockedAxios.get.mockImplementation((url: string) =>
+    Promise.resolve({
+      data: responses.find(([endpoint]) => url.includes(endpoint))?.[1] ?? null
+    })
+  );
+};
+
 const mockRedirectFromLoginPageGetRequests = (): void => {
   mockedAxios.get
     .mockResolvedValueOnce({
@@ -111,6 +144,12 @@ const mockRedirectFromLoginPageGetRequests = (): void => {
     })
     .mockResolvedValueOnce({
       data: retrievedUser
+    })
+    .mockResolvedValueOnce({
+      data: {
+        feature_flags: {},
+        is_cloud_platform: false
+      }
     })
     .mockResolvedValueOnce({
       data: retrievedWeb
@@ -235,10 +274,15 @@ describe('Main', () => {
   beforeEach(() => {
     mockedAxios.get.mockReset();
     window.history.pushState({}, '', '/');
+    // Provider.tsx's jotai store is a module-level singleton shared across
+    // every render() in this file, so state set by one test (the user is
+    // loaded, the install status is known...) otherwise leaks into the next.
+    store.set(areUserParametersLoadedAtom, null);
+    store.set(platformInstallationStatusAtom, null);
+    store.set(isAdditiveInheritanceEnabledAtom, false);
   });
 
-  // biome-ignore lint/suspicious/noFocusedTests: To migrate to Cypress
-  it.only('displays the login page when the path is "/login" and the user is not connected', async () => {
+  it('displays the login page when the path is "/login" and the user is not connected', async () => {
     window.history.pushState({}, '', '/login');
     mockNotConnectedGetRequests();
 
@@ -291,7 +335,9 @@ describe('Main', () => {
 
     renderMain();
 
-    expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -314,18 +360,13 @@ describe('Main', () => {
 
     renderMain();
 
-    expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
-
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        platformInstallationStatusEndpoint,
-        cancelTokenRequestParam
-      );
+      expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
     });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        userEndpoint,
+        platformInstallationStatusEndpoint,
         cancelTokenRequestParam
       );
     });
@@ -338,13 +379,18 @@ describe('Main', () => {
     });
   });
 
-  it('does not redirect the user to the upgrade page when the retrieved web versions contains an available version and the user is connected', async () => {
+  // While an upgrade is pending, the database may miss the tables the
+  // platform APIs read (useMain.ts skips loadUser(), versions and features),
+  // so even a connected user must be sent to the upgrade page first.
+  it('redirects the user to the upgrade page without loading the user when the retrieved web versions contains an available version and the user is connected', async () => {
     window.history.pushState({}, '', '/');
     mockUpgradeAndUserConnectedGetRequests();
 
     renderMain();
 
-    expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -354,18 +400,16 @@ describe('Main', () => {
     });
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        userEndpoint,
-        cancelTokenRequestParam
+      expect(decodeURI(window.location.href)).toBe(
+        // biome-ignore lint: test purpose
+        'http://localhost/install/upgrade.php'
       );
     });
 
-    await waitFor(() => {
-      expect(decodeURI(window.location.href)).toBe(
-        // biome-ignore lint: test purpose
-        'http://localhost/monitoring/resources'
-      );
-    });
+    expect(mockedAxios.get).not.toHaveBeenCalledWith(
+      userEndpoint,
+      expect.anything()
+    );
   });
 
   it('gets the translations, navigation data and the parameters related to the account when the user is already connected', async () => {
@@ -374,7 +418,9 @@ describe('Main', () => {
 
     renderMain();
 
-    expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -397,20 +443,39 @@ describe('Main', () => {
       );
     });
 
-    expect(mockedAxios.get).toHaveBeenCalledWith(
-      parametersEndpoint,
-      cancelTokenRequestParam
-    );
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        parametersEndpoint,
+        cancelTokenRequestParam
+      );
+    });
 
-    expect(mockedAxios.get).toHaveBeenCalledWith(
-      aclEndpoint,
-      cancelTokenRequestParam
-    );
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        aclEndpoint,
+        cancelTokenRequestParam
+      );
+    });
 
-    expect(mockedAxios.get).toHaveBeenCalledWith(
-      internalTranslationEndpoint,
-      cancelTokenRequestParam
-    );
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        internalTranslationEndpoint,
+        cancelTokenRequestParam
+      );
+    });
+  });
+
+  it('turns additive inheritance on when the platform parameters say so', async () => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      is_additive_inheritance_enabled: true
+    });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(isAdditiveInheritanceEnabledAtom)).toBe(true);
+    });
   });
 
   it('redirects the user to his default page when the current location is the login page and the user is connected', async () => {
@@ -419,7 +484,9 @@ describe('Main', () => {
 
     renderMain();
 
-    expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -443,7 +510,7 @@ describe('Main', () => {
     });
   });
 
-  it('displays a message when the authentication from an external provider fails ', () => {
+  it('displays a message when the authentication from an external provider fails ', async () => {
     window.history.pushState(
       {},
       '',
@@ -453,6 +520,8 @@ describe('Main', () => {
 
     renderMain();
 
-    expect(screen.getByText('Authentication failed')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Authentication failed')).toBeInTheDocument();
+    });
   });
 });

@@ -1,7 +1,7 @@
 ## :memo: Prerequisites
 
 * docker
-* docker compose >= 2
+* docker compose >= 2.20 (HTTPS mode uses the `!override` YAML tag and `service_completed_successfully`)
 
 ## :rocket: Quick start
 
@@ -13,9 +13,101 @@ docker compose -f .github/docker/docker-compose.yml up -d --wait
 
 Centreon web should be accessible at `http://localhost:4000/centreon`
 
+## :lock: HTTP / HTTPS mode
+
+The stack runs in **HTTP** mode by default. HTTPS mode is opt-in via the `docker-compose.tls.yml` overlay — production-faithful, using the official Centreon HTTPS Apache vhost ([`packaging/src/centreon-apache-https.conf`](../../packaging/src/centreon-apache-https.conf)) that customer deployments run.
+
+```bash
+# HTTP (default)
+docker compose -f .github/docker/docker-compose.yml up -d --wait
+# → http://localhost:4000/centreon
+
+# HTTPS
+docker compose \
+  -f .github/docker/docker-compose.yml \
+  -f .github/docker/docker-compose.tls.yml \
+  up -d --wait
+# → https://localhost:4443/centreon (cert is self-signed)
+```
+
+### Ports
+
+In HTTPS mode, **both** `:80` and `:443` are mapped. `:80` runs the production `:80 → :443` redirect block; `:443` serves the API/UI. This mirrors the production deployment shape where a user typing `http://centreon.example.com/` is redirected to `https://`.
+
+| Service         | HTTP mode  | HTTPS mode             |
+|-----------------|------------|------------------------|
+| `web`           | `4000:80`  | `4000:80` + `4443:443` |
+| `remote-server` | `4001:80`  | `4001:80` + `4444:443` |
+
+Following the redirect from the host fails because the production template's redirect target preserves the request port (`%{HTTP_HOST}` → `localhost:4000`, which is HTTP-only on the host side) — this is the upstream template's behavior. To validate:
+
+* **Redirect emission**: `curl -I http://localhost:4000/centreon/` returns `302 Found` with the expected `Location: https://localhost:4000/centreon/`.
+* **Full chain at production-default ports** (inside the container): `docker compose exec -T web curl -kL http://localhost/centreon/api/latest/platform/versions` follows `:80 → :443 → 200`.
+
+### What HTTPS mode layers on top
+
+The overlay adds:
+
+* **`certgen`** one-shot — issues a Root CA + multi-SAN leaf cert into the `certs` named volume on first `up` (covering `web`, `remote-server`, `db`, `db-remote`, `localhost`, `127.0.0.1`). CA persists across `up` cycles; `docker compose down -v` wipes it.
+* **`web` / `remote-server`** — install the CA into the OS trust store, drop the official Apache HTTPS vhost (same cipher list, HSTS, `X-Frame-Options`, cookie hardening, FCGI to `php-fpm:9042`, `:80 → :443` redirect as production — only cert paths differ), write `/usr/share/centreon/.env` with `DATABASE_SSL_*` keys for the PHP-side [`DatabaseTLSResolver`](../../src/App/Shared/Infrastructure/Database/DatabaseTLSResolver.php), and patch the gorgone DB DSN with `mysql_ssl=1;mysql_ssl_ca_file=…;mysql_ssl_verify_server_cert=1` (RHEL images only, see the trixie note below).
+* **`db` / `db-remote`** — *offer* TLS via `--ssl-cert` / `--ssl-key` but **do not** enforce it (no `--require-secure-transport=ON`). Clients that opt in (PHP via `DatabaseTLSResolver`, the `mysql` CLI via the `[client]` drop-in) negotiate TLS; the install wizard's legacy plaintext path keeps working. See [Known limitations](#known-limitations) for the rationale and how the smoke workflow guards against silent regression to all-plaintext.
+* **Centreon Broker** — the install-time `db_ssl_*` JSON keys (existing Centreon support) are emitted automatically when `DATABASE_SSL_ENABLED=1` is in `.env`.
+
+### Trusting the dev CA
+
+```bash
+# Copy the CA out of the running stack
+docker compose -f .github/docker/docker-compose.yml -f .github/docker/docker-compose.tls.yml \
+  cp web:/etc/pki/centreon-tls/rootCA.pem /tmp/centreon-dev-ca.pem
+
+# Verified curl (no -k)
+curl --cacert /tmp/centreon-dev-ca.pem https://localhost:4443/centreon/api/latest/platform/versions
+
+# OS trust store (Linux example)
+sudo cp /tmp/centreon-dev-ca.pem /usr/local/share/ca-certificates/centreon-dev-ca.crt
+sudo update-ca-certificates
+```
+
+### Requirements
+
+> [!NOTE]
+> HTTPS mode needs `DatabaseTLSResolver` in the `WEB_IMAGE`. This class is part of `centreon-web` since the 26.07 develop/unstable line (added by [#9237](https://github.com/centreon/centreon/pull/9237)). If you point `WEB_IMAGE` at an older build, the `04-tls.sh` entrypoint hook fails fast with a copy-pasteable error so the misconfig is loud rather than silent.
+
+### Known limitations
+
+> [!NOTE]
+> **DB TLS is offered, not enforced (no `--require-secure-transport=ON`).** The Centreon install wizard (legacy PHP path) connects to the DB before Symfony Dotenv has populated `$_ENV`, so `DatabaseTLSResolver` reads no `DATABASE_SSL_*` keys and PDO falls back to plaintext. Enforcing secure transport server-side rejects those wizard connections with a misleading "Access denied (using password: YES)" on MariaDB 10.x and the install fails before creating the schema. The pattern mirrors [centreon/centreon#10620](https://github.com/centreon/centreon/pull/10620)'s `configure_db_tls()` in `unattended.sh`. To prove TLS is still being used in practice, the smoke workflow asserts that the DB's `Ssl_accepts` global status counter is `> 0` after install — a silent regression to all-plaintext fails the smoke. Upstream follow-up: have `DatabaseTLSResolver` fall back to `getenv()` (or set `variables_order = "EGPCS"` in php-cli.ini) so the install wizard's CLI bootstrap reaches the resolver.
+
+> [!NOTE]
+> **Side-by-side HTTP + HTTPS stacks from the same checkout** is a planned future feature. Today, two `up` invocations from the same directory collide on container/volume names regardless of port mapping. Pick one mode per checkout. (Port `4443` was chosen with the future side-by-side mode in mind.)
+
+> [!NOTE]
+> **Gorgone DB-TLS on Debian images (`centreon-web-trixie`)** is currently impacted by a DBD::mysql 4.053 + libmariadb 3.x API mismatch — the old `MYSQL_OPT_SSL_ENFORCE` option was removed without a DBD::mysql-compatible replacement. Web (PHP via PR #9237), Broker, and DB-side TLS are unaffected on this image; only the gorgone Perl→DB path is impacted. On trixie the `16-tls-gorgone.sh` hook is therefore a no-op and gorgone connects to the DB in plaintext (the DB does not enforce TLS). Follow-up: gorgone support for DBD::MariaDB, which has been validated as a working alternative.
+
+> [!NOTE]
+> **DB image compatibility** — HTTPS mode has been validated against the following combinations, all passing end-to-end (web container `(healthy)`, API returns 200, all hardening headers present):
+>
+> | `WEB_IMAGE` (OS variant) | `MYSQL_IMAGE`                    | Status |
+> |---|---|---|
+> | `centreon-web-alma9`     | `bitnamilegacy/mariadb:10.11`   | ✅ |
+> | `centreon-web-alma9`     | `bitnamilegacy/mysql:8.0`       | ✅ |
+> | `centreon-web-alma10`    | `bitnamilegacy/mariadb:11.8`    | ✅ |
+> | `centreon-web-alma10`    | `bitnamilegacy/mysql:8.4`       | ✅ |
+> | `centreon-web-trixie`    | `bitnamilegacy/mariadb:11.8`    | ✅ web/broker — gorgone plaintext (see note above) |
+> | `centreon-web-trixie`    | `bitnamilegacy/mysql:8.4`       | ✅ web/broker — gorgone plaintext (see note above) |
+>
+> Two operational notes that matter for the MySQL family in particular:
+>
+> 1. **`ulimits: nofile: 32000`** is set on the `db` service in the base compose. Without it, Centreon's install on bitnami MySQL images runs out of file descriptors mid-install (the PHP install scripts + dump loading open many concurrent connections + tables) and leaves the install half-complete with `Unknown database 'centreon'` errors. MariaDB images don't hit this limit.
+> 2. **MySQL 8.4 servers log a `[Warning] [MY-015011] Failed to validate certificate`** at startup because the docker-compose stack does not pass `--ssl-ca` to mysqld (deliberately omitted — it was previously included but caused MySQL to embed the Root CA in its presented chain, which strict OpenSSL clients on alma9 rejected with `self-signed certificate in certificate chain`). The warning is informational; TLS continues to work normally.
+
+### Cert generation image
+
+The certgen image is built locally from [`.github/docker/certgen/`](certgen/Dockerfile) (alpine + openssl, same shape as [`centreon-images/.../gen_cert.sh`](https://github.com/centreon/centreon-images/blob/main/aws/centreon-ova-builder/ova_files/centreon-central/gen_cert.sh) minus the Apache / platform concerns). Override with `CERTGEN_IMAGE=…` to pin a published image.
+
 ## :toolbox: Custom database image
 
-By default, MariaDB 10.11 is used to store Centreon data (configuration & monitoring).
+By default, MariaDB 11.8 is used to store Centreon data (configuration & monitoring).
 This can be overridden with the `MYSQL_IMAGE` environment variable using one of the following ways:
 * *Preferred*: Export environment variable directly in your terminal (ex: `export MYSQL_IMAGE=bitnami/mysql:8.1`)
 * *Alternative*: Add a new line to environment file `.github/docker/.env` with MYSQL_IMAGE value (ex: `MYSQL_IMAGE=bitnami/mysql:8.1`)
@@ -58,9 +150,10 @@ Docker compose has a useful feature which is called `profile`.
 It allows to run additional services (containers) by specifying profiles which are declared in `docker-compose.yml`.
 Currently, the following profiles are available:
 * `poller`: register automatically a poller to centreon web image (:danger: EXPERIMENTAL)
+* `poller-container`: create a poller via the API and install it with the real `centreon/install-poller` Docker flow, fully automated (see [Poller container setup](#electric_plug-poller-container-setup))
 * `remote-server`: run a Remote Server alongside the Central, each with its own database — registers automatically (see [Remote Server setup](#satellite-remote-server-setup))
 * `glpi`: must be used with `centreon-open-tickets` image to link glpi automatically in open-tickets providers
-* `vault`: register automatically hashicorp vault and migrate credentials
+* `vault`: run a hashicorp vault (dev mode) and migrate credentials automatically (see [Vault setup](#lock-vault-setup))
 * `openid`: run a docker image of keycloak
   * Add the following entry to your **/etc/hosts** : `127.0.0.1 sso-proxy`
   * :warning: On Windows: **C:\Windows\System32\drivers\etc\hosts**
@@ -145,10 +238,77 @@ docker logs $(docker ps -qf "name=remote-server") 2>&1 | grep -i "step\|register
 The following environment variables are available to customize the setup:
 
 * `WEB_IMAGE`: centreon-web image to use for both Central and Remote Server (default: `docker.centreon.com/centreon/centreon-web-alma9:develop`)
-* `CENTREON_WEB_OS`: OS variant used to resolve the registration script path (`alma9`, `bookworm`, `jammy` — default: `alma9`)
+* `CENTREON_WEB_OS`: OS variant used to resolve entrypoint-script bind-mount paths; must match `WEB_IMAGE`'s OS (`alma9`, `alma10`, `trixie` — default: `alma9`)
 * `REMOTE_SERVER_NAME`: name displayed for the Remote Server in the Central UI (default: `remote-server`)
 * `CENTRAL_API_USERNAME`: API account used for registration (default: `admin`)
 * `CENTRAL_API_PASSWORD`: password for the API account (default: `Centreon!2021`)
+
+## :electric_plug: Poller container setup
+
+Use the `poller-container` profile to test a Docker poller installed via `centreon/install-poller`'s real `--type docker` flow, without any manual UI click-through or config editing.
+
+Run the following command from the **repository root directory**:
+
+```bash
+docker compose --profile poller-container -f .github/docker/docker-compose.yml up -d --wait
+```
+
+This runs a one-shot orchestrator container that:
+1. Logs in to the Central API and creates a poller-type API token
+2. Creates the poller via `POST /configuration/pollers` with `central_address: web`, so the generated install command already targets the `web` service by name — no `host.docker.internal`/`localhost` juggling needed
+3. Runs the real `install.sh --type docker` with `--no-start`, attaches the generated poller stack to a shared `centreon-poller-test` Docker network, then starts it
+4. Waits (up to 15 minutes) for the poller's first successful ping, checked via Gorgone's own local API on the Central (`http://web:8085/api/internal/constatus`, already enabled by default — polling `.data["<poller id>"].ping_ok`) rather than the poller's logs or raw TCP state: the poller's own Gorgone only loads the `engine`+`pullwss` modules (not `proxy`), so it cannot report its own connection status — only the Central can. Then calls `configuration/monitoring-servers/{id}/generate-and-reload` to export the poller's monitoring configuration
+5. Restarts `centengine` on the poller with `docker compose exec gorgone sudo systemctl restart centengine` — `generate-and-reload` only exports the configuration, it does not restart the engine; on this split-container poller, centengine and gorgone are separate containers, so the restart goes through gorgone's systemctl shim, which relays it to the centengine container over gRPC (Gorgone doesn't run as root, hence `sudo`)
+
+Follow the sequence in the logs:
+
+```bash
+docker compose -f .github/docker/docker-compose.yml logs poller-container
+```
+
+> [!NOTE]
+> The generated install command is never logged — it embeds `--poller_token`, `--appsecret` and `--salt`, so printing it would leak those secrets into Docker logs.
+
+The poller should appear as **running** in `Configuration > Pollers` on the Central once the orchestrator logs "Done" (Gorgone also auto-restarts in the background as soon as it detects the new poller — no manual `gorgoned` restart needed).
+
+The following environment variables are available to customize the setup:
+
+* `POLLER_NAME`: name of the created poller (default: `poller-container`) — use a different value to create several pollers side by side, or after a previous one was torn down
+* `CENTRAL_API_USERNAME` / `CENTRAL_API_PASSWORD`: API account used for registration (default: `admin` / `Centreon!2021`)
+
+To tear down, **two separate Compose projects** are involved and must both be torn down:
+
+1. The poller stack itself (`centengine`/`gorgone`), generated and started by the orchestrator via the mounted Docker socket — this is its own Compose project, named after `POLLER_NAME` (`poller-container` by default), entirely separate from this repo's `docker-compose.yml`. Tear it down by project name (works even without the generated file on hand, purely from the containers'/volumes' Compose labels):
+   ```bash
+   docker compose -p poller-container down -v
+   ```
+   (replace `poller-container` with whatever `POLLER_NAME` you used)
+2. Then the orchestrator's own project:
+   ```bash
+   docker compose --profile poller-container -f .github/docker/docker-compose.yml down -v
+   ```
+
+Doing only step 2 leaves the poller's `centengine`/`gorgone` containers running and still attached to `centreon-poller-test`, which then fails to be removed with a `Resource is still in use` warning — always run step 1 first (or anytime after) to fully clean up.
+
+> [!NOTE]
+> This profile mounts the host's Docker socket (`/var/run/docker.sock`) into the orchestrator container so it can start the poller's own `centengine`/`gorgone` containers as siblings — local dev/test only, never enabled by default or in CI.
+
+## :lock: Vault setup
+
+The `vault` profile runs a HashiCorp Vault (dev mode) and migrates Centreon credentials into it automatically. All the `VAULT_*` values referenced below are test credentials already set in the committed `.env`, so there is nothing to fill in.
+
+* The `web` and `vault` services must be started together, otherwise the auto-configuration does not trigger.
+* Vault UI available at `https://127.0.0.1:8200/ui` (self-signed HTTPS, accept the browser warning).
+* Log in with method **Token**, using the root token from `VAULT_DEV_ROOT_TOKEN_ID` in `.env`.
+* Centreon authenticates via AppRole (policy `central`, secrets stored under `centreon/`) with `VAULT_ROLE_ID` / `VAULT_SECRET_ID` from `.env`. The UI has no AppRole login, so to sign in as this identity, exchange them for a token and paste it in the Token field:
+
+```bash
+# load VAULT_ROLE_ID / VAULT_SECRET_ID from the committed .env into the shell
+set -a; . .github/docker/.env; set +a
+# exchange them for a Vault token (-k trusts the self-signed cert), print only the token
+curl -sk -X POST --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}" \
+  https://127.0.0.1:8200/v1/auth/approle/login | jq -r .auth.client_token
+```
 
 ## :hand: Stop services
 
@@ -163,4 +323,6 @@ Do not forget to specify profiles if you used them. Otherwise, additional servic
 ```bash
 docker compose --profile poller --profile vault -f .github/docker/docker-compose.yml down
 docker compose --profile remote-server -f .github/docker/docker-compose.yml down
+docker compose -p poller-container down -v   # tear down the poller stack first — see "Poller container setup"
+docker compose --profile poller-container -f .github/docker/docker-compose.yml down -v
 ```

@@ -316,7 +316,7 @@ msgstr "Lista de acceso"
 
 #: centreon/www/install/front_translate.php
 msgid "Access group"
-msgstr ""
+msgstr "Grupo de acceso"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "Access groups"
@@ -479,6 +479,10 @@ msgstr "Nombre de la acción."
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Action URL"
 msgstr "URL d`action"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Action access"
+msgstr "Acceso a las acciones"
 
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Action access list link"
@@ -2009,6 +2013,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "Breadcrumb copied"
 msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Broker"
+msgstr "Broker"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module"
@@ -3898,6 +3906,10 @@ msgid "Create a dashboard"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Create a host"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Create a new resource access rule"
 msgstr ""
 
@@ -5533,6 +5545,34 @@ msgid "Drag handle"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Drag to reorder"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Picked up row {{position}}"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Reordering cancelled, row {{position}} returned to its original position"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Row {{position}} dropped at position {{newPosition}}"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Row {{position}} moved to position {{newPosition}}"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "To pick up a row, press space or enter. Use the arrow keys to move it, then press space or enter to drop it, or escape to cancel."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Drop or"
 msgstr ""
 
@@ -6106,6 +6146,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "Ends at"
 msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Engine"
+msgstr "Engine"
 
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Engine Directories"
@@ -9777,6 +9821,10 @@ msgstr ""
 msgid "Host group (%s) not found"
 msgstr ""
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Host group dependency"
+msgstr "Dependencia del grupo de hosts"
+
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Host groups"
@@ -12389,7 +12437,7 @@ msgid "Modify Vendor"
 msgstr "Editar un constructor"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a  host category"
+msgid "Modify a host category"
 msgstr "Editar una categoría de host"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
@@ -15313,6 +15361,10 @@ msgstr "Nombre del recurso"
 msgid "Resource Type"
 msgstr ""
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Resource access"
+msgstr "Acceso a los recursos"
+
 #: centreon/www/install/front_translate.php
 msgid "Resource access rule name"
 msgstr ""
@@ -16445,6 +16497,10 @@ msgstr "Latencia del control de servicio."
 msgid "Service dependency"
 msgstr "Dependencia del servicio"
 
+#: centreon/www/install/front_translate.php
+msgid "Service deployment failed."
+msgstr ""
+
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
 msgid "Service description cannot be empty"
 msgstr ""
@@ -16461,6 +16517,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "Service group"
 msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Service group dependency"
+msgstr "Dependencia del grupo de servicios"
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 msgid "Service group state"
@@ -16734,6 +16794,10 @@ msgstr "Servicios por host"
 #: centreon/www/install/menu_translation.php
 msgid "Services by host group"
 msgstr "Servicios por grupo de invitados"
+
+#: centreon/www/install/front_translate.php
+msgid "Services deployed successfully!"
+msgstr ""
 
 #: centreon/www/include/monitoring/status/Services/serviceGridJS.php
 #: centreon/www/include/monitoring/status/Services/serviceSummaryJS.php
@@ -18065,6 +18129,15 @@ msgstr ""
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 #, php-format
 msgid "The host severity icon with id '%d' does not exist"
+msgstr ""
+
+#: centreon/src/Core/Host/Application/Exception/HostException.php
+#: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
+#, php-format
+msgid ""
+"The license does not allow the host templates with ID(s) '%s': they come "
+"from or inherit from licensed Monitoring Connectors, and the license is "
+"invalid or its host limit is reached"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -19674,7 +19747,7 @@ msgid "View Vendor"
 msgstr "Visualizar un constructor"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "View a  host category"
+msgid "View a host category"
 msgstr "Ver una categoría de host"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
@@ -20066,6 +20139,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the Dashboards interface!"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the Hosts interface!"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -25408,7 +25485,7 @@ msgstr ""
 # msgstr ""
 
 #: unknown
-# msgid "Docker compose"
+# msgid "Container"
 # msgstr ""
 
 #: unknown
@@ -25438,3 +25515,27 @@ msgstr ""
 #: unknown
 # msgid "Failed to create poller"
 # msgstr ""
+
+#: unknown
+# msgid "Enter your poller information"
+# msgstr ""
+
+#: unknown
+# msgid "Poller name"
+# msgstr ""
+
+#: unknown
+# msgid "Poller address"
+# msgstr ""
+
+#: unknown
+# msgid "Centreon Central address, as seen by this poller"
+# msgstr ""
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not available"
+msgstr "Este grupo de contactos no está disponible"
+
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact is not available"
+msgstr "Este contacto no está disponible"

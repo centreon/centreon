@@ -1,0 +1,97 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Domain\Repository;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
+use App\Shared\Domain\Collection;
+
+interface HostTemplateRepository
+{
+    /**
+     * @return \IteratorAggregate<int, HostTemplate>&\Countable
+     */
+    public function findAll(?HostTemplateCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * Every requested id's name, for bulk display purposes (e.g. a sibling aggregate that only
+     * references a host template by id). An id absent from the result no longer exists.
+     *
+     * @param Collection<HostTemplateId> $ids
+     *
+     * @return Collection<HostTemplateName> indexed by host template id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * Every requested host's icon inherited from its template chain, resolved like legacy
+     * getMyHostExtendedInfoImage(): templates are walked depth-first by relation order and the
+     * first icon found wins. The host's own icon is ignored. A host with no inherited icon is
+     * absent from the result.
+     *
+     * @param Collection<HostId> $hostIds
+     *
+     * @return Collection<MediaId> indexed by host id
+     */
+    public function findInheritedIconIds(Collection $hostIds): Collection;
+
+    /**
+     * The full multi-level inheritance line of the given direct templates, with what a host inherits
+     * from each (its own macros, its check command, the check commands of its linked service
+     * templates): each direct template (in the given order) followed by its own ancestors,
+     * depth-first by relation `order`, nearest to the host first, each template appearing once (its
+     * nearest position). Only active templates are kept, at every level, like legacy
+     * getTemplateChain(); an id that is not an active host template is skipped.
+     *
+     * @param Collection<HostTemplateId> $directTemplateIds the host's (or template's) direct templates, in order
+     *
+     * @return Collection<HostTemplate>
+     */
+    public function findInheritanceLine(Collection $directTemplateIds): Collection;
+
+    /**
+     * The service templates the given host templates provide: the ones linked to the templates
+     * themselves, and to their ancestors (the whole inheritance chain, active or not).
+     *
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @return list<int> service template ids
+     */
+    public function findServiceTemplateIds(Collection $templateIds): array;
+
+    /**
+     * The host templates of the Monitoring Connectors, and every template inheriting from them.
+     * Empty when the plugin pack manager module, which provides the Monitoring Connectors, is not
+     * installed.
+     *
+     * @param list<string> $excludedConnectorSlugs the Monitoring Connectors whose templates are left out
+     *
+     * @return Collection<HostTemplateId>
+     */
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection;
+}

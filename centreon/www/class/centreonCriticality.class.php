@@ -258,20 +258,32 @@ class CentreonCriticality
         $limit = null,
     ) {
         $sql = 'SELECT hc_id, hc_name, level, icon_id, hc_comment
-                FROM hostcategories 
+                FROM hostcategories
                 WHERE level IS NOT NULL ';
+        $bindParams = [];
         if (! is_null($searchString) && $searchString != '') {
-            $sql .= " AND hc_name LIKE '%" . $this->db->escape($searchString) . "%' ";
+            $sql .= ' AND hc_name LIKE :searchString ';
+            $bindParams[':searchString'] = '%' . $searchString . '%';
         }
         if (! is_null($orderBy) && ! is_null($sort)) {
+            // ORDER BY column and direction cannot be bound as parameters, so they
+            // are validated against explicit allowlists.
+            $allowedOrderBy = ['hc_id', 'hc_name', 'level', 'icon_id', 'hc_comment'];
+            $allowedSort = ['ASC', 'DESC'];
+            $orderBy = in_array($orderBy, $allowedOrderBy, true) ? $orderBy : 'level';
+            $sort = in_array(strtoupper((string) $sort), $allowedSort, true) ? strtoupper((string) $sort) : 'ASC';
             $sql .= " ORDER BY {$orderBy} {$sort} ";
         }
         if (! is_null($offset) && ! is_null($limit)) {
-            $sql .= " LIMIT {$offset},{$limit}";
+            $sql .= ' LIMIT ' . (int) $offset . ',' . (int) $limit;
         }
-        $res = $this->db->query($sql);
+        $res = $this->db->prepare($sql);
+        foreach ($bindParams as $param => $value) {
+            $res->bindValue($param, $value, PDO::PARAM_STR);
+        }
+        $res->execute();
         $elements = [];
-        while ($row = $res->fetchRow()) {
+        while ($row = $res->fetch()) {
             $elements[$row['hc_id']] = [];
             $elements[$row['hc_id']]['hc_name'] = $row['hc_name'];
             $elements[$row['hc_id']]['level'] = $row['level'];

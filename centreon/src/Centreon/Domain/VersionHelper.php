@@ -35,6 +35,7 @@ class VersionHelper
     public const GT = '>';
     public const LE = '<=';
     public const GE = '>=';
+    public const API_VERSION_PATTERN = 'latest|beta|v\d+(\.\d+)?';
 
     /**
      * Compare two version numbers.

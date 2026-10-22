@@ -24,10 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -37,6 +37,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
+use App\MonitoringConfiguration\Infrastructure\InvalidGorgoneCommunicationTypeException;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 
@@ -47,6 +49,9 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class DbalPollerTransformer implements TransformerInterface
 {
+    /**
+     * @throws InvalidGorgoneCommunicationTypeException When the stored communication type maps to no enum case
+     */
     public function transform(mixed $from): mixed
     {
         return new Poller(
@@ -60,13 +65,14 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             uid: new PollerUid((int) $from['poller_uid']),
             globalMacros: new Collection([], GlobalMacro::class),
             pollerCommands: new Collection([], PollerCommand::class),
-            brokerConfiguration: new BrokerConfiguration(
+            centralAddress: $this->centralAddressFromDatabase($from['central_address'] ?? null),
+            brokerInformation: new BrokerInformation(
                 reloadCommand: $from['broker_reload_command'],
                 configurationPath: $from['centreonbroker_cfg_path'],
                 modulesPath: $from['centreonbroker_module_path'],
                 logsPath: $from['centreonbroker_logs_path'],
             ),
-            engineConfiguration: new EngineConfiguration(
+            engineInformation: new EngineInformation(
                 startCommand: $from['engine_start_command'],
                 stopCommand: $from['engine_stop_command'],
                 restartCommand: $from['engine_restart_command'],
@@ -83,12 +89,44 @@ final readonly class DbalPollerTransformer implements TransformerInterface
                 snmpTrapPathConf: $from['snmp_trapd_path_conf'],
             ),
             gorgoneConfiguration: new GorgoneConfiguration(
-                communicationType: GorgoneCommunicationTypeEnum::from((int) $from['gorgone_communication_type']),
+                communicationType: GorgoneCommunicationTypeMapping::fromDatabase(
+                    $from['gorgone_communication_type'],
+                    $from['poller_id']
+                ),
                 gorgonePort: (int) ($from['gorgone_port'] ?? 5556),
                 sshPort: (int) ($from['ssh_port'] ?? 22),
                 useRemoteServerAsProxy: $from['remote_server_use_as_proxy'] === '1',
             ),
             cmaCertificates: null,
         );
+    }
+
+    /**
+     * CentralAddress accepts no scheme, but rows written by the older install modal may carry a
+     * full URL: it used to send window.location.href on cloud platforms. Reduce them to
+     * host[:port] so hydration keeps working — their base path cannot be told apart from the
+     * page path of the stored URL. Unreadable values become null, which the installation-command
+     * endpoint reports as "no central address configured".
+     */
+    private function centralAddressFromDatabase(mixed $value): ?CentralAddress
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        if (str_contains($value, '://')) {
+            $host = parse_url($value, PHP_URL_HOST);
+            if (! is_string($host) || $host === '') {
+                return null;
+            }
+            $port = parse_url($value, PHP_URL_PORT);
+            $value = is_int($port) ? sprintf('%s:%d', $host, $port) : $host;
+        }
+
+        try {
+            return new CentralAddress($value);
+        } catch (\InvalidArgumentException) {
+            return null;
+        }
     }
 }

@@ -4,19 +4,15 @@ properties:
     type: integer
     description: "Media ID"
     example: 1
-    nullable: false
   name:
     type: string
     description: "Media filename"
     example: "logo.png"
-    nullable: false
   directory:
     type: string
     description: "Media directory"
     example: "logos"
-    nullable: false
   url:
     type: string
     description: "Media URL"
     example: "/centreon/img/media/logo.png"
-    nullable: false

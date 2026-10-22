@@ -52,11 +52,25 @@ if (! isset($_POST['data']) && ! isset($_REQUEST['action'])) {
     if (! isset($actions[$action])) {
         $resultat = ['code' => 1, 'msg' => 'Action not good.'];
     } elseif (
-        in_array($action, ['get-form-config', 'save-form-config', 'validate-format-popup'], true)
+        in_array($action, ['get-form-config', 'save-form-config'], true)
         && $centreon->user->access->page(60420) === CentreonACL::ACL_ACCESS_NONE
     ) {
         // Rule configuration actions require access to the Open Tickets "Rules"
         // page (topology 60420); a bare authenticated session is not enough.
+        $resultat = ['code' => 1, 'msg' => 'Insufficient privileges.'];
+    } elseif (
+        in_array(
+            $action,
+            ['validate-format-popup', 'submit-ticket', 'close-ticket', 'upload-file', 'remove-file'],
+            true
+        )
+        && $centreon->user->access->page(60421) === CentreonACL::ACL_ACCESS_NONE
+    ) {
+        // Ticket-flow actions (open/submit a ticket, manage its attachments and
+        // close it) are operator actions gated on the Open Tickets "Create
+        // Ticket" page (topology 60421), not the rule configuration page
+        // (60420), so ACL-restricted users can work with tickets without access
+        // to the rules configuration.
         $resultat = ['code' => 1, 'msg' => 'Insufficient privileges.'];
     } else {
         include $actions[$action];

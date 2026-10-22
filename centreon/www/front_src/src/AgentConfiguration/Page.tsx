@@ -40,7 +40,7 @@ const WelcomePage = ({ labels, dataTestId, onCreate }: WelcomePageProps) => {
     if (!isLoading && (!isClear || (isClear && isNotEmpty(data?.result)))) {
       setIsWelcomePageDisplayed(false);
     }
-  }, [isLoading]);
+  }, [isLoading, isClear, data]);
 
   if (isLoading && isNil(data)) {
     return <LoadingSkeleton />;

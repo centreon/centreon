@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ -n "${LDAP_HOST:-}" ] && timeout 0.2 getent ahostsv4 "${LDAP_HOST}"; then
-  MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE auth_ressource SET ar_enable = '1' WHERE ar_name = 'openldap'"
+  MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" mysql -h${MYSQL_HOST} -uroot "${MYSQL_DB_CONFIGURATION:-centreon}" -e "UPDATE auth_ressource SET ar_enable = '1' WHERE ar_name = 'openldap'"
 fi
 
 if [ -n "${OPENID_HOST:-}" ] && timeout 0.2 getent ahostsv4 "${OPENID_HOST}"; then

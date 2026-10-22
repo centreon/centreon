@@ -8,11 +8,13 @@ Feature: Service downtime start and stop
   Background:
     Given a passive service is monitored
 
+  @MON-205058
   Scenario: a fixed downtime becomes active during its time window
     Given a fixed downtime is scheduled on the service for the next minutes
     When the downtime start time is reached
     Then the service downtime is active
 
+  @MON-205057
   Scenario: a fixed downtime ends when its time window is over
     Given a fixed downtime is scheduled on the service for the next minutes
     And the service downtime is active

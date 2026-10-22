@@ -1,4 +1,9 @@
 api_platform:
     resource: .
     type: api_platform
-    prefix: '/api/latest'
+    prefix: '/api'
+
+# Backward-compat alias: only already-migrated operations are duplicated under /api/latest, see LegacyApiPrefixAliasLoader.
+api_platform_legacy:
+    resource: 'App\Shared\Infrastructure\ApiPlatform\Routing\LegacyApiPrefixAliasLoader'
+    type: service

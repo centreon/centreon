@@ -1,0 +1,15 @@
+<svg data-name="View service" height="24" id="View_service" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg" >
+  <rect data-name="Rectangle 1650" fill="#6eaff8" height="24" id="Rectangle_1650" rx="4" width="24" />
+  <g data-name="Groupe 2458" id="Groupe_2458" transform="translate(1 2)">
+    <circle cx="2" cy="2" data-name="Ellipse 192" fill="#000" id="Ellipse_192" r="2" transform="translate(2 2)" />
+    <path d="M-2.979,0h16" data-name="Tracé 2976" fill="none" id="Tracé_2976" stroke="#000" stroke-width="2" transform="translate(6.979 4)" />
+  </g>
+  <g data-name="Groupe 2459" id="Groupe_2459" transform="translate(1 2)">
+    <circle cx="2" cy="2" data-name="Ellipse 193" fill="#000" id="Ellipse_193" r="2" transform="translate(2 8)" />
+    <path d="M-2.979,0h16" data-name="Tracé 2977" fill="none" id="Tracé_2977" stroke="#000" stroke-width="2" transform="translate(6.979 10)" />
+  </g>
+  <g data-name="Groupe 2460" id="Groupe_2460" transform="translate(1 3)">
+    <circle cx="2" cy="2" data-name="Ellipse 194" fill="#000" id="Ellipse_194" r="2" transform="translate(2 13)" />
+    <path d="M-2.979,0h16" data-name="Tracé 2978" fill="none" id="Tracé_2978" stroke="#000" stroke-width="2" transform="translate(6.979 15)" />
+  </g>
+</svg>

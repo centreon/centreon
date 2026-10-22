@@ -113,10 +113,18 @@
             data: {data: triggerValue},
             success: function (response) {
                 var xmlDoc = (typeof response === 'string') ? jQuery.parseXML(response) : response;
-                jQuery("[name=param_" + targetId + "]").find('option').remove().end();
+                var targetSelect = document.querySelector('[name="param_' + targetId + '"]');
+                if (targetSelect === null) {
+                    return;
+                }
+                targetSelect.options.length = 0;
                 jQuery(xmlDoc).find('option').each(function () {
-                    jQuery("[name=param_" + targetId + "]").append(new Option(jQuery(this).find('label').text(),
-                        triggerValue + '-' + jQuery(this).find('id').text(), true, true));
+                    var option = document.createElement('option');
+                    option.textContent = jQuery(this).find('label').text();
+                    option.value = triggerValue + '-' + jQuery(this).find('id').text();
+                    option.selected = true;
+                    option.defaultSelected = true;
+                    targetSelect.add(option);
                 });
             }
         });

@@ -40,9 +40,9 @@ final class DbmsVersionValidatorTest extends TestCase
 
     public function testMariaDbVersionMeetsMinimum(): void
     {
-        $this->mockDbVersion('10.11.6-MariaDB', 'MariaDB Server');
+        $this->mockDbVersion('11.8.2-MariaDB', 'MariaDB Server');
 
-        $validator = $this->createValidator('10.5', '8.4');
+        $validator = $this->createValidator('11.8', '8.0');
 
         $validator->validateOrFail();
         $this->expectNotToPerformAssertions();
@@ -50,21 +50,21 @@ final class DbmsVersionValidatorTest extends TestCase
 
     public function testMariaDbVersionTooLow(): void
     {
-        $this->mockDbVersion('10.3.39-MariaDB', 'MariaDB Server');
+        $this->mockDbVersion('11.4.5-MariaDB', 'MariaDB Server');
 
-        $validator = $this->createValidator('10.5', '8.4');
+        $validator = $this->createValidator('11.8', '8.0');
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageMatches('/MariaDB version 10\.5 required/');
+        $this->expectExceptionMessageMatches('/MariaDB version 11\.8 required/');
 
         $validator->validateOrFail();
     }
 
     public function testMariaDbDetectedFromVersionString(): void
     {
-        $this->mockDbVersion('10.11.6-MariaDB', 'Source distribution');
+        $this->mockDbVersion('11.8.2-MariaDB', 'Source distribution');
 
-        $validator = $this->createValidator('10.5', '8.4');
+        $validator = $this->createValidator('11.8', '8.0');
 
         $validator->validateOrFail();
         $this->expectNotToPerformAssertions();
@@ -74,7 +74,7 @@ final class DbmsVersionValidatorTest extends TestCase
     {
         $this->mockDbVersion('8.4.3', 'MySQL Community Server - GPL');
 
-        $validator = $this->createValidator('10.5', '8.4');
+        $validator = $this->createValidator('11.8', '8.0');
 
         $validator->validateOrFail();
         $this->expectNotToPerformAssertions();
@@ -82,12 +82,12 @@ final class DbmsVersionValidatorTest extends TestCase
 
     public function testMySqlVersionTooLow(): void
     {
-        $this->mockDbVersion('8.0.36', 'MySQL Community Server - GPL');
+        $this->mockDbVersion('5.7.44', 'MySQL Community Server - GPL');
 
-        $validator = $this->createValidator('10.5', '8.4');
+        $validator = $this->createValidator('11.8', '8.0');
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageMatches('/MySQL version 8\.4 required/');
+        $this->expectExceptionMessageMatches('/MySQL version 8\.0 required/');
 
         $validator->validateOrFail();
     }
@@ -96,7 +96,7 @@ final class DbmsVersionValidatorTest extends TestCase
     {
         $this->connection->method('fetchAllAssociative')->willReturn([]);
 
-        $validator = $this->createValidator('10.5', '8.4');
+        $validator = $this->createValidator('11.8', '8.0');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/Cannot retrieve/');

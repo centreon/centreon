@@ -111,6 +111,10 @@ final class InternalApiClient
      * This ensures the request stays on the local server and doesn't go through
      * proxies, load balancers, or external network infrastructure.
      *
+     * When $internalApiBaseUrl explicitly defines a scheme (e.g. "http://host"), that
+     * scheme is honored; otherwise the request scheme is used. This allows an internal
+     * HTTPS -> HTTP redirection even when the external request is HTTPS.
+     *
      * @param string $url The original URL (may contain external hostname)
      *
      * @throws \RuntimeException When required parameters are null and cannot be resolved from the URL
@@ -146,6 +150,16 @@ final class InternalApiClient
             if ($localUrl !== null) {
                 if ($serverPort !== null && ! str_contains($localUrl, ':')) {
                     $localUrl .= ':' . $serverPort;
+                }
+                // Honor the scheme explicitly defined in the base URL so an internal
+                // HTTPS -> HTTP redirection stays possible even when the external request
+                // is HTTPS (e.g. behind a TLS-terminating proxy). Fall back to the request
+                // scheme when the base URL does not define one.
+                $baseScheme = str_contains($internalApiBaseUrl, '://')
+                    ? parse_url($internalApiBaseUrl, PHP_URL_SCHEME)
+                    : null;
+                if (is_string($baseScheme) && $baseScheme !== '') {
+                    $requestScheme = $baseScheme;
                 }
                 if ($requestScheme === null) {
                     throw new \RuntimeException(

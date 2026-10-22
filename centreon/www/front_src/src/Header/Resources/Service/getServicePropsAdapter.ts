@@ -1,6 +1,6 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
-import type { CounterProps, SelectEntry, SubMenuProps } from '@centreon/ui';
+import type { CounterProps, SelectEntry } from '@centreon/ui';
 import { SeverityCode } from '@centreon/ui';
 
 import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
@@ -8,6 +8,7 @@ import type { ServiceStatusResponse } from '../../api/decoders';
 import {
   criticalCriterias,
   getResourcesUrl,
+  getServiceCriterias,
   okCriterias,
   pendingCriterias,
   unhandledStateCriterias,
@@ -27,6 +28,7 @@ import {
   labelOk,
   labelOkStatusServices,
   labelPending,
+  labelPendingStatusServices,
   labelServices,
   labelUnknown,
   labelUnknownStatusServices,
@@ -35,10 +37,10 @@ import {
 } from './translatedLabels';
 
 export interface ServicesPropsAdapterOutput {
+  allLink: string;
+  allOnClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   buttonLabel: string;
   counters: CounterProps['counters'];
-  hasPending: boolean;
-  items: SubMenuProps['items'];
 }
 
 type GetServicePropsAdapter = Adapter<
@@ -51,12 +53,14 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   applyFilter,
   navigate,
   t,
-  data
+  data,
+  installedModules
 }) => {
-  const resourceTypeCriterias = {
-    name: 'resource_types',
-    value: []
-  };
+  const resourceTypeCriterias = getServiceCriterias({
+    isAnomalyDetectionInstalled: installedModules.includes(
+      'centreon-anomaly-detection'
+    )
+  });
   const stateCriterias = { name: 'states', value: [] };
 
   const allStatusesServicesCriterias = [
@@ -74,6 +78,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   });
 
   const unhandledCriticalServicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     states: unhandledStateCriterias.value,
     statuses: criticalCriterias.value as Array<SelectEntry>
   });
@@ -87,6 +92,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       });
 
   const unhandledWarningServicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     states: unhandledStateCriterias.value,
     statuses: warningCriterias.value as Array<SelectEntry>
   });
@@ -100,6 +106,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       });
 
   const unhandledUnknownServicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     states: unhandledStateCriterias.value,
     statuses: unknownCriterias.value as Array<SelectEntry>
   });
@@ -113,6 +120,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       });
 
   const okServicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     statuses: okCriterias.value as Array<SelectEntry>
   });
 
@@ -125,6 +133,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       });
 
   const servicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     statuses: allStatusesServicesCriterias
   });
 
@@ -139,6 +148,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
         }
       });
   const pendingServicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     statuses: pendingCriterias.value as Array<SelectEntry>
   });
 
@@ -197,7 +207,8 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       }),
       severityCode: SeverityCode.Pending,
       shortCount: data.pending,
-      to: pendingServicesLink
+      to: pendingServicesLink,
+      topCounterAriaLabel: t(labelPendingStatusServices)
     },
     unknown: {
       count: formatUnhandledOverTotal(
@@ -232,30 +243,26 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   };
 
   return {
+    allLink: servicesLink,
+    allOnClick: config.all.onClick,
     buttonLabel: t(labelServices),
-    counters: ['critical', 'warning', 'unknown', 'ok'].map((statusName) => {
-      const { to, shortCount, topCounterAriaLabel, onClick, severityCode } =
-        config[statusName as keyof typeof config];
-
-      return {
-        ariaLabel: topCounterAriaLabel,
-        count: shortCount,
-        onClick,
-        severityCode,
-        to
-      };
-    }),
-    hasPending: Number(data.pending) > 0,
-    items: ['critical', 'warning', 'unknown', 'ok', 'pending', 'all'].map(
-      (status) => {
-        const { onClick, severityCode, count, label, to } =
-          config[status as keyof typeof config];
+    counters: ['critical', 'warning', 'unknown', 'ok', 'pending'].map(
+      (statusName) => {
+        const {
+          to,
+          shortCount,
+          count,
+          topCounterAriaLabel,
+          onClick,
+          severityCode
+        } = config[statusName as keyof typeof config];
 
         return {
+          ariaLabel: topCounterAriaLabel,
+          count: shortCount,
+          detail: count,
           onClick,
           severityCode,
-          submenuCount: count,
-          submenuTitle: label,
           to
         };
       }

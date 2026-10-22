@@ -15,6 +15,20 @@ on:
         description: Branch or tag on which the doc files are fetched
         required: true
         default: ""
+      set_as_default:
+        type: choice
+        description: Also publish to the unversioned root path (on-prem only). auto = only if the doc is the highest major on the s3
+        required: false
+        default: "false"
+        options:
+          - "false"
+          - "true"
+          - auto
+      dry_run:
+        type: boolean
+        description: Print what would be copied, write nothing and skip the CloudFront invalidation
+        required: false
+        default: false
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -23,7 +37,7 @@ jobs:
   check-inputs:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Verify that the workflow is run in a develop context
         uses: ./.github/actions/verify-run-in-develop-context
@@ -49,7 +63,7 @@ jobs:
       doc_version: ${{ steps.build-openapi-documentation.outputs.doc_version }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Build OpenAPI documentation
         uses: ./.github/actions/build-openapi-documentation
@@ -63,12 +77,14 @@ jobs:
     runs-on: documentation
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/publish-openapi-documentation
         with:
           doc_version: ${{ needs.build-openapi-documentation.outputs.doc_version }}
           module_name: ${{ inputs.module_name }}
           openapi_file_reference: ${{ inputs.openapi_file_reference }}
+          set_as_default: ${{ inputs.set_as_default }}
+          dry_run: ${{ inputs.dry_run }}
           cloudfront_role_doc_production: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}

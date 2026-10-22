@@ -37,6 +37,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -44,6 +45,7 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
@@ -94,6 +96,7 @@ final class PartialUpdateServiceTemplate
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -282,7 +285,7 @@ final class PartialUpdateServiceTemplate
         $this->debug('Start transaction');
         $this->storageEngine->startTransaction();
         try {
-            if ($this->writeVaultRepository->isVaultConfigured()) {
+            if ($this->vaultEligibilityService->shouldUseVault()) {
                 $this->retrieveServiceUuidFromVault($serviceTemplate->getId());
             }
 
@@ -404,10 +407,10 @@ final class PartialUpdateServiceTemplate
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($directMacros)
                 : $directMacros,
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,
@@ -564,7 +567,7 @@ final class PartialUpdateServiceTemplate
                 }
                 if ($command->isCentreonMonitoringAgentCommand()) {
                     $serviceTemplate->setCheckFreshness(YesNoDefaultConverter::fromInt(1));
-                    $serviceTemplate->setFreshnessThreshold(120);
+                    $serviceTemplate->setFreshnessThreshold(Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD);
                 }
             }
 
@@ -680,7 +683,7 @@ final class PartialUpdateServiceTemplate
      */
     private function updateMacroInVault(Macro $macro, string $action): Macro
     {
-        if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
+        if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
             $macroPrefixName = '_SERVICE' . $macro->getName();
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,

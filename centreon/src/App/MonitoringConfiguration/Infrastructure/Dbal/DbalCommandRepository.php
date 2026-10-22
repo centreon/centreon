@@ -25,6 +25,9 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
@@ -33,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -57,6 +61,7 @@ use Webmozart\Assert\Assert;
  */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
 {
+    use DbalCriteriaApplierTrait;
     public const TABLE_NAME = 'command';
     public const CONNECTOR_JOIN_TABLE_NAME = 'connector';
 
@@ -138,7 +143,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         }
 
         // if no pagination
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -155,8 +161,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         return new InMemoryPaginator(
             items: new Collection(array_map(fn (array $row): Command => $this->createCommand($row), $rows), Command::class),
             totalItems: $count,
-            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
-            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -214,6 +220,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
                     $command->commandLine->extractHostMacros(),
                     $command->commandLine->extractServiceMacros()
                 );
+                // macros are re-inserted on save: reload them to expose the new ids
+                $command->setStoredMacros(fn (): array => $this->findStoredMacros($command->id()));
             }
         });
     }
@@ -304,6 +312,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
                 $command->commandLine->extractHostMacros(),
                 $command->commandLine->extractServiceMacros()
             );
+            // macros are re-inserted on save: reload them to expose the new ids
+            $command->setStoredMacros(fn (): array => $this->findStoredMacros($command->id()));
         });
     }
 
@@ -365,7 +375,9 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             ));
         }
 
-        $this->sort($qb, 'cm', $criteria);
+        $this->applySort($qb, 'cm', $criteria);
+        // last sort key: name, type and status are not unique, and pagination must stay deterministic
+        $qb->addOrderBy('cm.command_id');
     }
 
     /**
@@ -408,11 +420,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         foreach ($hostMacros as $macroName) {
             $this->connection->executeStatement(
-                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_type)',
                 [
                     'cmd_id' => $commandId->value,
                     'macro_name' => $macroName,
-                    'macro_description' => '',
                     'macro_type' => '1',
                 ]
             );
@@ -420,11 +431,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         foreach ($serviceMacros as $macroName) {
             $this->connection->executeStatement(
-                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_type)',
                 [
                     'cmd_id' => $commandId->value,
                     'macro_name' => $macroName,
-                    'macro_description' => '',
                     'macro_type' => '2',
                 ]
             );
@@ -460,8 +470,38 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     {
         $command = $this->transformer->transform($row);
         $command->addConnector(fn (): ?Connector => $this->connectorRepository->findByCommand($command));
+        $command->setStoredMacros(fn (): array => $this->findStoredMacros($command->id()));
 
         return $command;
+    }
+
+    /**
+     * @return list<CommandMacro>
+     */
+    private function findStoredMacros(CommandId $commandId): array
+    {
+        /** @var list<array{command_macro_id: int, command_macro_name: string, command_macro_type: string|null}> $rows */
+        $rows = $this->connection->createQueryBuilder()
+            ->select('command_macro_id', 'command_macro_name', 'command_macro_type')
+            ->from('on_demand_macro_command')
+            ->where('command_command_id = :cmd_id')
+            ->orderBy('command_macro_id')
+            ->setParameter('cmd_id', $commandId->value)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $macros = [];
+        foreach ($rows as $row) {
+            // the type column is nullable: a macro without type can not be matched to the command line
+            $type = $row['command_macro_type'] !== null
+                ? CommandMacroTypeEnum::tryFrom((int) $row['command_macro_type'])
+                : null;
+            if ($type !== null) {
+                $macros[] = new CommandMacro(new CommandMacroId((int) $row['command_macro_id']), $row['command_macro_name'], $type);
+            }
+        }
+
+        return $macros;
     }
 
     private function countOnQueryBuilder(QueryBuilder $qb): int
@@ -469,6 +509,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $qb = clone $qb; // avoid modifying the initial query builder
 
         $count = $qb
+            ->resetOrderBy()
             ->select('COUNT(DISTINCT cm.command_id)')
             ->setFirstResult(0) // reset any pagination
             ->setMaxResults(null)
@@ -482,11 +523,12 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
     private function paginate(QueryBuilder $qb, CommandCriteria $criteria): void
     {
-        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             return;
         }
 
-        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
-            ->setMaxResults($criteria->getItemsPerPage());
+        $qb->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->itemsPerPage);
     }
 }

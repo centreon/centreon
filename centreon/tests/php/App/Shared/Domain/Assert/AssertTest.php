@@ -64,6 +64,9 @@ class AssertTest extends TestCase
             'trailing hyphen' => ['bad-'],
             'label too long (64 chars)' => [str_repeat('a', 64)],
             'hostname too long (254 chars)' => [str_repeat('a', 254)],
+            // Both "$" of the pattern would match right before this one.
+            'trailing newline' => ["host01\n"],
+            'trailing newline on an FQDN' => ["host.example.com\n"],
         ];
     }
 

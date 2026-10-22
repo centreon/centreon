@@ -73,7 +73,7 @@ export const condensedOptions: PanelOptions = {
 
 export const services = [
   {
-    color: 'rgb(136, 185, 34)',
+    color: 'rgb(159, 199, 78)',
     eq: 0,
     name: 'Ping',
     status: 'ok'
@@ -97,13 +97,13 @@ export const services = [
     status: 'unknown'
   },
   {
-    color: 'rgb(253, 155, 39)',
+    color: 'rgb(252, 196, 129)',
     eq: 0,
     name: 'Passive',
     status: 'warning'
   },
   {
-    color: 'rgb(255, 102, 102)',
+    color: 'rgb(255, 110, 110)',
     eq: 0,
     name: 'Centreon_Pass',
     status: 'critical'

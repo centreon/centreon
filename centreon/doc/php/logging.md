@@ -120,7 +120,7 @@ public function handle(Envelope $envelope, StackInterface $stack): Envelope
 
         return $envelope;
     } catch (\Throwable $th) {
-        $this->connection->rollBack();
+        $this->rollBackKeepingCause(); // a failing rollback never replaces $th
 
         throw $th;
     }
@@ -133,6 +133,7 @@ Key points:
 - **DBAL connection.** The middleware is autowired on `doctrine.dbal.default_connection`. Legacy repositories that go through direct PDO (cf. the dual Centreon connection — `ContactRepositoryRDB`, `DbReadAccessGroupRepository`) are **not covered** by this transaction. Any transactional write must therefore go through DBAL to commit alongside the rest of the command.
 - **Granularity = 1 command = 1 transaction.** All mutations emitted by a handler (through several aggregate repositories or several calls on the same one) commit or roll back as a block. This is the guarantee that frees handlers from any `beginTransaction` / `commit` boilerplate.
 - **On throw.** The rollback is complete then the exception is propagated to the next middleware — concretely the `LoggingMiddleware`, which logs the error **after** the rollback. The log therefore reflects the final persistent state, not the "transaction in progress" state.
+- **A failing rollback never replaces the cause.** When the server already ended the transaction (deadlock victim, lost connection), the rollback itself fails with "There is no active transaction". That DBAL failure is logged at `debug` level and absorbed, and the original exception is the one propagated. Any other `Throwable` raised by the rollback is not absorbed.
 - **No nesting.** Wiring a second transactional middleware or reopening a transaction from the handler does **not** create a nested transaction — DBAL handles this with a counter, but the inner `commit` is a no-op. If a write path must live outside the bus (CLI, batch), introduce a `TransactionalRunnerInterface` port at that boundary rather than reinventing the transaction on the handler side.
 
 ---
@@ -148,6 +149,8 @@ Key points:
 > Uniform coverage is guaranteed not by this middleware but by the **processors registered globally on every channel** — see [§6](#6-http--security-processors-web-route-token). Any error, regardless of its entry point into Monolog, traverses `ExceptionFormatterProcessor` (shape `{exceptions: [{type, message, code, file, line, trace}, …]}`) and `WebProcessor` / `RouteProcessor` / `TokenProcessor` (HTTP / security enrichment).
 >
 > Assumed blind spots: dedicated channels in the `!exclude` list of `web_finger_crossed` (`event`, `doctrine`, `console`, `deprecation`, `authentication`, `token`, `password`, `plugin-pack-manager`, `upgrade`), the `console` channel in CLI, and PHP fatals before kernel boot (parse error, OOM).
+>
+> One more blind spot, by **level** rather than by channel: `web_finger_crossed` buffers with `action_level: error` and declares no `passthru_level`, so a buffered record that never triggers a flush is dropped when the buffer is cleared. Unless an `error` or higher record activates the handler later in the same request — in which case the buffer is flushed and the earlier records are written as context — a `warning` is not "a lower-priority line", it is **no line at all** in `prod.web.log`. Since `LegacyHttpExceptionListener` logs every 4xx at `warning` (only 5xx reach `critical`), client errors — malformed pagination, unknown sort column, rejected payload — normally leave no trace on the platform log and are diagnosed from the HTTP access log. This is deliberate: `prod.web.log` carries incidents, not client mistakes.
 
 The middleware emits a record on the Monolog `app` channel (Symfony default) for every dispatch:
 
@@ -464,7 +467,7 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 | Excluded channel | Reason |
 |------------------|--------|
 | `event`, `doctrine`, `console` | Internal Symfony / DBAL noise — not desired in `prod.web.log`. |
-| `deprecation` | dedicated file `prod.deprecations.log`. |
+| `deprecation` | disabled in prod by default (Monolog `NullHandler` — records discarded). In dev, written to `dev.deprecations.log` via a `rotating_file` handler. To re-enable in prod, override the `deprecation` handler in a local `monolog.yaml`; `logrotate/centreon` still declares `prod.deprecations.log` so the override path inherits the standard rotation policy. |
 | `authentication` | merged into `prod.access.log` on the centreon-web side (see the backward-compatibility note below for `login.log`). |
 | `token` | dedicated file `prod.token.log`. |
 | `password`, `plugin-pack-manager`, `upgrade` | dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
@@ -487,12 +490,12 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 In production, the `prod.*.log` files are rotated by **logrotate** (config `centreon/logrotate/centreon`, deployed to `/etc/logrotate.d/centreon`). The files listed:
 
 - `prod.web.log` (catch-all)
-- `prod.deprecations.log`
 - `prod.access.log` (authentication)
 - `prod.token.log`
 - `prod.password.log`
 - `prod.upgrade.log`
 - `prod.plugin-pack-manager.log`
+- `prod.deprecations.log` — file is not created in the default configuration (`NullHandler`); the entry is retained so operators who override the `deprecation` handler locally inherit rotation. `missingok` in the shared block covers the absent-file case.
 
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` + `delaycompress` + `copytruncate`.
 
@@ -612,6 +615,7 @@ flowchart LR
 | `AUTHENTICATION` | `authentication` | `access` | `prod.access.log` |
 | `PASSWORD` | `password` | `password` | `prod.password.log` |
 | `PLUGIN_PACK_MANAGER` | `plugin-pack-manager` | `plugin-pack-manager` | `prod.plugin-pack-manager.log` |
+| `POLLER_INSTALL` | `poller-install` | `poller-install` | `prod.poller-install.log` |
 | `TOKEN` | `token` | `token` | `prod.token.log` |
 | `UPGRADE` | `upgrade` | `upgrade` | `prod.upgrade.log` |
 | `WEB` | `web` | `web` | `prod.web.log` |
@@ -724,7 +728,7 @@ Four siblings of `Adaptation\Log\Logger` expose a **constrained, semantic API** 
 | `Adaptation\Log\LoggerPassword` | `password` | `prod.password.log` | `success`, `warning` |
 | `Adaptation\Log\LoggerToken` | `token` | `prod.token.log` | `success`, `warning` |
 | `Adaptation\Log\LoggerAuthentication` | `authentication` | `prod.access.log` | `loginSuccess`, `loginFailure`, `logout`, `tokenRefreshSuccess`, `tokenRefreshFailure`, `unauthorized`, `forbidden` |
-| `Adaptation\Log\LoggerUpgrade` | `upgrade` | `prod.upgrade.log` | `start`, `success`, `failure`, `step`, `stepCompleted`, `stepFailure`, `info`, `error` |
+| `Adaptation\Log\LoggerUpgrade` | `upgrade` | `prod.upgrade.log` | `start`, `success`, `failure`, `step`, `stepCompleted`, `stepFailure`, `info`, `warning`, `error` |
 
 They exist for two reasons:
 
@@ -957,6 +961,7 @@ The legacy web upgrade splits the flow across two steps: `process_step4.php` run
 use Adaptation\Log\LoggerUpgrade;
 
 LoggerUpgrade::create()->info($version, "Adding column X to table Y");
+LoggerUpgrade::create()->warning($version, "Central address could not be resolved, falling back");
 LoggerUpgrade::create()->error($version, "Schema check failed", $exception);
 
 LoggerUpgrade::create()->stepFailure($version, $stepName, $message, $exception);
@@ -972,6 +977,7 @@ LoggerUpgrade::create()->step($version, $stepName, $message);
 | `stepCompleted($version, $stepName, $durationMs, $message)` | `INFO` | Sub-step **completion**. `status: completed`, carries `duration_ms` in the context (not just the message), so completed steps are queryable without parsing text. |
 | `stepFailure($version, $stepName, $message, $e)` | `ERROR` | A bracketed step threw. Emitted by the step bracket itself (e.g. `UpdateCommandHandler::runStep`, `DbWriteUpdateRepository::executeStep`, or `process_step5.php` for `post_update`). An upgrade script must **not** re-emit it for `php_script` (the bracket already logs the re-thrown exception); a script only emits it for `php_script_rollback`, when the rollback itself fails. |
 | **`info($version, $message)`** | `INFO` | **Trace a meaningful action** (entering a function, finished an `ALTER TABLE`, skipped because already migrated, …). This is the workhorse inside upgrade scripts. |
+| **`warning($version, $message, $e)`** | `WARNING` | **Signal a degraded but non-fatal outcome** (a value could not be resolved and a fallback was used, an optional step was skipped). The upgrade carries on and the operator gets a line to check afterwards. Pass the throwable when the fallback was decided inside a `catch`, otherwise the cause of the degradation is lost. |
 | **`error($version, $message, $e)`** | `ERROR` | Free-form error inside a script that you choose not to re-throw (rare — usually you re-throw and let the surrounding `try/catch` call `stepFailure`). |
 
 ### Recommended pattern

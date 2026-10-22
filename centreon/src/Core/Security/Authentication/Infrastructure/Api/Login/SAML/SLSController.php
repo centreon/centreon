@@ -47,8 +47,10 @@ final class SLSController extends AbstractController
         $this->info('SAML SLS invoked');
 
         // The IdP callback relies on the native PHP session ($_SESSION['LogoutRequestID']).
+        // Suppressed: session_start() can still warn (e.g. headers already sent) even after
+        // this guard, in which case the empty/missing session below already yields a controlled error.
         if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
+            @session_start();
         }
 
         try {

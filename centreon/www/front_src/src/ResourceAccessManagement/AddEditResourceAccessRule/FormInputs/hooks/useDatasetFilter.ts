@@ -1,15 +1,13 @@
 import {
   buildListingEndpoint,
-  QueryParameter,
-  SelectEntry
+  type QueryParameter,
+  type SelectEntry
 } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { useFormikContext } from 'formik';
 import { useAtom, useAtomValue } from 'jotai';
 import {
-  always,
-  cond,
   equals,
   flatten,
   has,
@@ -20,14 +18,17 @@ import {
   path,
   pluck,
   propEq,
-  reject,
-  T
+  reject
 } from 'ramda';
-import { ChangeEvent, useMemo } from 'react';
+import { type ChangeEvent, useMemo } from 'react';
 
 import { baseEndpoint } from '../../../../api/endpoint';
 import { selectedDatasetFiltersAtom } from '../../../atom';
-import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
+import {
+  type Dataset,
+  type ResourceAccessRule,
+  ResourceTypeEnum
+} from '../../../models';
 import {
   labelAllBusinessViewsSelected,
   labelAllHostGroupsSelected,
@@ -558,11 +559,7 @@ const useDatasetFilter = (
       });
     };
 
-  const getSearchField = (resourceType: ResourceTypeEnum): string =>
-    cond([
-      [equals('host'), always('host.name')],
-      [T, always('name')]
-    ])(resourceType);
+  const getSearchField = (): string => 'name';
 
   return {
     addResource,

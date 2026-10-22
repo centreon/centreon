@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
@@ -33,13 +34,23 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
+use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
+use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-import-type RowTypeAlias from DbalGlobalMacroRepository as GlobalMacroRowTypeAlias
@@ -53,7 +64,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uid: int,
- *   gorgone_communication_type: '1'|'2',
+ *   gorgone_communication_type: string,
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
@@ -71,6 +82,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   centreonconnector_path: string|null,
  *   init_script_centreontrapd: string|null,
  *   snmp_trapd_path_conf: string|null,
+ *   central_address: string|null,
  * }
  * @phpstan-type JoinRowTypeAlias = array{
  *   poller_id: int,
@@ -81,7 +93,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uid: int,
- *   gorgone_communication_type: '1'|'2',
+ *   gorgone_communication_type: string,
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
@@ -99,6 +111,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   centreonconnector_path: string|null,
  *   init_script_centreontrapd: string|null,
  *   snmp_trapd_path_conf: string|null,
+ *   central_address: string|null,
  *   gm_resource_id: int,
  *   gm_resource_name: string,
  *   gm_resource_line: string,
@@ -128,6 +141,8 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
 
         #[Autowire(service: DbalGlobalMacroTransformer::class)]
         private TransformerInterface $globalMacroTransformer,
+
+        private ResourceAccessRepository $resourceAccessRepository,
 
         private bool $withCmaCertificates = false,
     ) {
@@ -173,21 +188,21 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ->setParameter('is_activated', $poller->isActivated ? '1' : '0')
                 ->setParameter('poller_type', $poller->pollerType->value)
                 ->setParameter('uid', $poller->uid->value)
-                ->setParameter('gorgone_communication_type', $poller->gorgoneConfiguration->communicationType->value)
+                ->setParameter('gorgone_communication_type', GorgoneCommunicationTypeMapping::toDatabase($poller->gorgoneConfiguration->communicationType))
                 ->setParameter('gorgone_port', $poller->gorgoneConfiguration->gorgonePort)
                 ->setParameter('ssh_port', $poller->gorgoneConfiguration->sshPort)
                 ->setParameter('remote_server_use_as_proxy', $poller->gorgoneConfiguration->useRemoteServerAsProxy ? '1' : '0')
-                ->setParameter('engine_start_command', $poller->engineConfiguration->startCommand)
-                ->setParameter('engine_stop_command', $poller->engineConfiguration->stopCommand)
-                ->setParameter('engine_restart_command', $poller->engineConfiguration->restartCommand)
-                ->setParameter('engine_reload_command', $poller->engineConfiguration->reloadCommand)
-                ->setParameter('nagios_bin', $poller->engineConfiguration->binaryPath)
-                ->setParameter('nagiostats_bin', $poller->engineConfiguration->statisticsBinaryPath)
-                ->setParameter('nagios_perfdata', $poller->engineConfiguration->perfdataFilePath)
-                ->setParameter('broker_reload_command', $poller->brokerConfiguration->reloadCommand)
-                ->setParameter('centreonbroker_cfg_path', $poller->brokerConfiguration->configurationPath)
-                ->setParameter('centreonbroker_module_path', $poller->brokerConfiguration->modulesPath)
-                ->setParameter('centreonbroker_logs_path', $poller->brokerConfiguration->logsPath)
+                ->setParameter('engine_start_command', $poller->engineInformation->startCommand)
+                ->setParameter('engine_stop_command', $poller->engineInformation->stopCommand)
+                ->setParameter('engine_restart_command', $poller->engineInformation->restartCommand)
+                ->setParameter('engine_reload_command', $poller->engineInformation->reloadCommand)
+                ->setParameter('nagios_bin', $poller->engineInformation->binaryPath)
+                ->setParameter('nagiostats_bin', $poller->engineInformation->statisticsBinaryPath)
+                ->setParameter('nagios_perfdata', $poller->engineInformation->perfdataFilePath)
+                ->setParameter('broker_reload_command', $poller->brokerInformation->reloadCommand)
+                ->setParameter('centreonbroker_cfg_path', $poller->brokerInformation->configurationPath)
+                ->setParameter('centreonbroker_module_path', $poller->brokerInformation->modulesPath)
+                ->setParameter('centreonbroker_logs_path', $poller->brokerInformation->logsPath)
                 ->setParameter('centreonconnector_path', $poller->connectorConfiguration->connectorPath)
                 ->setParameter('init_script_centreontrapd', $poller->trapConfiguration->initScriptPath)
                 ->setParameter('snmp_trapd_path_conf', $poller->trapConfiguration->snmpTrapPathConf)
@@ -207,6 +222,33 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         }
 
         $this->setId($poller, new PollerId($pollerId));
+        $this->linkGlobalMacros($poller);
+
+        $centralTopologyId = $this->connection->createQueryBuilder()
+            ->select('id')
+            ->from('platform_topology')
+            ->where("type = 'central'")
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
+
+        $this->connection->createQueryBuilder()
+            ->insert('platform_topology')
+            ->values([
+                'address' => ':address',
+                'central_address' => ':centralAddress',
+                'name' => ':name',
+                'type' => "'poller'",
+                'parent_id' => ':parentId',
+                'server_id' => ':serverId',
+                'pending' => "'0'",
+            ])
+            ->setParameter('address', $poller->address->value)
+            ->setParameter('centralAddress', $poller->centralAddress?->value)
+            ->setParameter('name', $poller->name->value)
+            ->setParameter('parentId', is_int($centralTopologyId) || is_string($centralTopologyId) ? (int) $centralTopologyId : null)
+            ->setParameter('serverId', $pollerId)
+            ->executeStatement();
     }
 
     public function findOneByName(PollerName $name): ?Poller
@@ -214,7 +256,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select(...self::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::TABLE_NAME, 'p')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->where('p.name = :name')
             ->setParameter('name', $name->value)
             ->setMaxResults(1);
@@ -234,7 +278,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select(...self::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::TABLE_NAME, 'p')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->where('p.ns_ip_address = :address')
             ->setParameter('address', $address->value)
             ->setMaxResults(1);
@@ -253,8 +299,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns(), ...DbalGlobalMacroRepository::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::GLOBAL_MACRO_JOIN_TABLE_NAME, 'pg1')
             ->innerJoin('pg1', self::TABLE_NAME, 'p', 'p.id = pg1.instance_id')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->leftJoin('p', self::GLOBAL_MACRO_JOIN_TABLE_NAME, 'pg2', 'pg2.instance_id = p.id')
             ->leftJoin('pg2', DbalGlobalMacroRepository::TABLE_NAME, 'gm', 'gm.resource_id = pg2.resource_id') // ensures still filter on relevant pollers
             ->where('pg1.resource_id = :resource_id')
@@ -291,11 +339,73 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return $this->createPollers($pollerRows, $globalMacroRows);
     }
 
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (PollerId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], PollerName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('id', 'name')
+            ->from(self::TABLE_NAME)
+            ->where($qb->expr()->in('id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{id: int|string, name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['id']] = new PollerName($row['name']);
+        }
+
+        return new Collection($names, PollerName::class);
+    }
+
+    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(...self::getSelectColumns())
+            // a correlated subquery, not a JOIN: platform_topology.server_id carries no UNIQUE
+            // constraint, and a JOIN fan-out here would corrupt LIMIT/OFFSET-based pagination
+            ->addSelect('(SELECT pt.central_address FROM platform_topology pt WHERE pt.server_id = p.id LIMIT 1) AS central_address')
+            ->from(self::TABLE_NAME, 'p')
+            ->orderBy('p.id'); // required for deterministic pagination
+
+        if ($criteria instanceof PollerCriteria) {
+            $this->filterByPollerCriteria($qb, $criteria);
+        }
+
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
+            /** @var array<RowTypeAlias> $rows */
+            $rows = $qb->executeQuery()->fetchAllAssociative();
+
+            return $this->createPollers($rows);
+        }
+
+        $this->paginatePollers($qb, $criteria);
+
+        $count = $this->countPollersOnQueryBuilder($qb); // counts a clone, so this order has no effect on either result
+
+        /** @var array<RowTypeAlias> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return new InMemoryPaginator(
+            items: $this->createPollers($rows),
+            totalItems: $count,
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
+        );
+    }
+
     public function get(PollerId $pollerId): Poller
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::TABLE_NAME, 'p')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->where('p.id = :poller_id')
             ->setParameter('poller_id', $pollerId->value);
 
@@ -317,6 +427,30 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return $poller;
     }
 
+    /**
+     * @param AggregateRoot<AggregateRootId>&PollerScopedInterface $resource
+     */
+    public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
+    {
+        // Only Host implements PollerScopedInterface today — extend this match when a second
+        // poller-scoped resource type needs the same bookkeeping (see PollerScopedInterface).
+        if (! $resource instanceof Host) {
+            throw new \LogicException(sprintf('No poller mapping for aggregate %s.', $resource::class));
+        }
+
+        $this->flagIdAsChanged($resource->pollerId);
+    }
+
+    public function flagIdAsChanged(PollerId $pollerId): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->update(self::TABLE_NAME)
+            ->set('updated', $qb->createNamedParameter('1'))
+            ->where('id = :poller_id')
+            ->setParameter('poller_id', $pollerId->value)
+            ->executeStatement();
+    }
+
     public function withCmaCertificates(): self
     {
         return new self(
@@ -324,6 +458,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             realTimeConnection: $this->realTimeConnection,
             pollerTransformer: $this->pollerTransformer,
             globalMacroTransformer: $this->globalMacroTransformer,
+            resourceAccessRepository: $this->resourceAccessRepository,
             withCmaCertificates: true,
         );
     }
@@ -363,13 +498,77 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         ];
     }
 
+    private function filterByPollerCriteria(QueryBuilder $qb, PollerCriteria $criteria): void
+    {
+        if (($name = $criteria->getName()) !== null) {
+            $qb->andWhere($qb->expr()->like('p.name', $qb->createNamedParameter('%' . $name . '%')));
+        }
+
+        if ($criteria->isActiveOnly()) {
+            $qb->andWhere($qb->expr()->eq('p.ns_activate', $qb->createNamedParameter('1')));
+        }
+
+        if ($criteria->excludeUnknownCentral()) {
+            // a central not registered as a remote server's address is excluded, matching legacy's
+            // "isLocalhost() && address not in remoteServersIps" rule, expressed here in SQL to keep
+            // pagination correct. EXISTS rather than a JOIN: remote_servers.ip carries no UNIQUE
+            // constraint, and a JOIN fan-out here would corrupt LIMIT/OFFSET-based pagination.
+            $qb->andWhere($qb->expr()->or(
+                $qb->expr()->neq('p.localhost', $qb->createNamedParameter('1')),
+                'EXISTS (SELECT 1 FROM remote_servers rs WHERE rs.ip = p.ns_ip_address)',
+            ));
+        }
+
+        if (($viewerId = $criteria->getViewerId()) instanceof \App\Security\Domain\Aggregate\UserId) {
+            $accessiblePollerIds = $this->resourceAccessRepository->findAccessiblePollerIds($viewerId);
+            if ($accessiblePollerIds instanceof Collection) {
+                $ids = [];
+                foreach ($accessiblePollerIds as $pollerId) {
+                    $ids[] = $pollerId->value;
+                }
+
+                $qb->andWhere($qb->expr()->in(
+                    'p.id',
+                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
+                ));
+            }
+        }
+    }
+
+    private function paginatePollers(QueryBuilder $qb, PollerCriteria $criteria): void
+    {
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
+            return;
+        }
+
+        $qb->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->itemsPerPage);
+    }
+
+    private function countPollersOnQueryBuilder(QueryBuilder $qb): int
+    {
+        $qb = clone $qb; // avoid modifying the initial query builder
+
+        $count = $qb
+            ->select('COUNT(DISTINCT p.id)')
+            ->setFirstResult(0) // reset any pagination
+            ->setMaxResults(null)
+            ->executeQuery()
+            ->fetchOne();
+
+        Assert::integer($count);
+
+        return $count;
+    }
+
     private function loadCmaCertificates(Poller $poller): void
     {
         $qb = $this->realTimeConnection->createQueryBuilder();
         $qb->select('i.cma_certificate_sha AS certificate_sha', 'i.cma_certificate_cn  AS certificate_cn')
             ->from('instances', 'i')
-            ->where('i.instance_id = :poller_id')
-            ->setParameter('poller_id', $poller->id()->value);
+            ->where('i.instance_id = :poller_uid')
+            ->setParameter('poller_uid', $poller->uid->value);
 
         $row = $qb->executeQuery()->fetchAssociative() ?: [];
         $certSha = ($row['certificate_sha'] ?? '') !== '' ? $row['certificate_sha'] : null;
@@ -390,8 +589,8 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
      */
     private function createPollers(array $rows, ?array $globalMacroRowsByPollerId = null): Collection
     {
-        // fetch all global macros of given pollers
-        if ($globalMacroRowsByPollerId !== null && $rows !== []) {
+        // fetch all global macros of given pollers in a single batch, unless the caller already provided them
+        if ($globalMacroRowsByPollerId === null && $rows !== []) {
             $globalMacroQb = $this->connection->createQueryBuilder();
             $globalMacroQb->select('p.id AS poller_id', ...DbalGlobalMacroRepository::getSelectColumns())
                 ->from(self::TABLE_NAME, 'p')
@@ -409,7 +608,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
              */
             $globalMacroRowsByPollerId = [];
             foreach ($globalMacroRows as $globalMacrosRow) {
-                $globalMacroRowsByPollerId['poller_id'][] = $globalMacrosRow;
+                $globalMacroRowsByPollerId[$globalMacrosRow['poller_id']][] = $globalMacrosRow;
             }
         }
 
@@ -418,7 +617,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             $pollerId = $row['poller_id'];
             $pollers[$pollerId] ??= $this->createPoller(
                 $row,
-                $globalMacroRowsByPollerId[$pollerId] ?? null,
+                $globalMacroRowsByPollerId[$pollerId] ?? [],
             );
         }
 
@@ -459,5 +658,24 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         );
 
         return $poller;
+    }
+
+    private function linkGlobalMacros(Poller $poller): void
+    {
+        /** @var PollerId $pollerId */
+        $pollerId = $poller->id();
+
+        foreach ($poller->globalMacros as $globalMacro) {
+            $this->connection->executeStatement(
+                <<<'SQL'
+                    INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
+                    VALUES (:resource_id, :instance_id)
+                    SQL,
+                [
+                    'resource_id' => $globalMacro->id()->value,
+                    'instance_id' => $pollerId->value,
+                ],
+            );
+        }
     }
 }

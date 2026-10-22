@@ -6,31 +6,36 @@ properties:
     description: "Host group name"
     example: "MySQL-Servers"
   alias:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     maxLength: 200
     description: "Host group alias"
     example: "All MySQL Servers"
   icon_id:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: "ID of the hostgroup Icon"
     example: 1
   geo_coords:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     maxLength: 32
     description: "Geographical coordinates use by Centreon Map module to position element on map"
     example: "48.51,2.20"
   comment:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Host group comment"
     example: "This is a comment"
   hosts:
-    type: array
+    type:
+      - array
+      - 'null'
     description: "Hosts linked to this host group"
-    nullable: true
     example: [1, 2, 3]
     items:
       type: integer

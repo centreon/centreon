@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationType
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerTransformer;
+use App\MonitoringConfiguration\Infrastructure\InvalidGorgoneCommunicationTypeException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -56,18 +57,18 @@ final class DbalPollerTransformerTest extends TestCase
         self::assertSame(PollerTypeEnum::VM, $poller->pollerType);
         self::assertSame(123456789012345, $poller->uid->value);
 
-        self::assertSame('/usr/sbin/centengine', $poller->engineConfiguration->startCommand);
-        self::assertSame('/usr/sbin/centengine -s', $poller->engineConfiguration->stopCommand);
-        self::assertSame('/usr/sbin/centengine -r', $poller->engineConfiguration->restartCommand);
-        self::assertSame('/usr/sbin/centengine -R', $poller->engineConfiguration->reloadCommand);
-        self::assertSame('/usr/sbin/centengine-bin', $poller->engineConfiguration->binaryPath);
-        self::assertSame('/usr/sbin/centenginestats', $poller->engineConfiguration->statisticsBinaryPath);
-        self::assertSame('/var/log/centreon-engine/service-perfdata', $poller->engineConfiguration->perfdataFilePath);
+        self::assertSame('/usr/sbin/centengine', $poller->engineInformation->startCommand);
+        self::assertSame('/usr/sbin/centengine -s', $poller->engineInformation->stopCommand);
+        self::assertSame('/usr/sbin/centengine -r', $poller->engineInformation->restartCommand);
+        self::assertSame('/usr/sbin/centengine -R', $poller->engineInformation->reloadCommand);
+        self::assertSame('/usr/sbin/centengine-bin', $poller->engineInformation->binaryPath);
+        self::assertSame('/usr/sbin/centenginestats', $poller->engineInformation->statisticsBinaryPath);
+        self::assertSame('/var/log/centreon-engine/service-perfdata', $poller->engineInformation->perfdataFilePath);
 
-        self::assertSame('service cbd reload', $poller->brokerConfiguration->reloadCommand);
-        self::assertSame('/etc/centreon-broker', $poller->brokerConfiguration->configurationPath);
-        self::assertSame('/usr/share/centreon/lib/centreon-broker', $poller->brokerConfiguration->modulesPath);
-        self::assertSame('/var/log/centreon-broker', $poller->brokerConfiguration->logsPath);
+        self::assertSame('service cbd reload', $poller->brokerInformation->reloadCommand);
+        self::assertSame('/etc/centreon-broker', $poller->brokerInformation->configurationPath);
+        self::assertSame('/usr/share/centreon/lib/centreon-broker', $poller->brokerInformation->modulesPath);
+        self::assertSame('/var/log/centreon-broker', $poller->brokerInformation->logsPath);
 
         self::assertSame('/usr/lib64/centreon-connector', $poller->connectorConfiguration->connectorPath);
 
@@ -103,10 +104,10 @@ final class DbalPollerTransformerTest extends TestCase
 
         $poller = $this->transformer->transform($row);
 
-        self::assertNull($poller->engineConfiguration->startCommand);
-        self::assertNull($poller->engineConfiguration->binaryPath);
-        self::assertNull($poller->engineConfiguration->statisticsBinaryPath);
-        self::assertNull($poller->brokerConfiguration->reloadCommand);
+        self::assertNull($poller->engineInformation->startCommand);
+        self::assertNull($poller->engineInformation->binaryPath);
+        self::assertNull($poller->engineInformation->statisticsBinaryPath);
+        self::assertNull($poller->brokerInformation->reloadCommand);
         self::assertNull($poller->connectorConfiguration->connectorPath);
         self::assertNull($poller->trapConfiguration->initScriptPath);
         self::assertSame(5556, $poller->gorgoneConfiguration->gorgonePort);
@@ -129,6 +130,49 @@ final class DbalPollerTransformerTest extends TestCase
         $poller = $this->transformer->transform($row);
 
         self::assertSame(PollerTypeEnum::Docker, $poller->pollerType);
+    }
+
+    public function testTransformKeepsValidCentralAddress(): void
+    {
+        $row = $this->buildRow(['central_address' => 'central.example.com:8443/platform']);
+
+        $poller = $this->transformer->transform($row);
+
+        self::assertSame('central.example.com:8443/platform', $poller->centralAddress?->value);
+    }
+
+    public function testTransformReducesLegacySchemeCentralAddressToHostAndPort(): void
+    {
+        $row = $this->buildRow(['central_address' => 'https://central.example.com:8443/centreon/monitoring/resources?tab=details']);
+
+        $poller = $this->transformer->transform($row);
+
+        self::assertSame('central.example.com:8443', $poller->centralAddress?->value);
+    }
+
+    public function testTransformNullsUnreadableLegacyCentralAddress(): void
+    {
+        $row = $this->buildRow(['central_address' => 'not a valid address!']);
+
+        $poller = $this->transformer->transform($row);
+
+        self::assertNull($poller->centralAddress);
+    }
+
+    /**
+     * The mapping itself is covered by GorgoneCommunicationTypeMappingTest; what matters here is
+     * that hydration propagates the rejection instead of swallowing it, and that the poller it
+     * names is the one being read. The id differs from the fixture's default on purpose —
+     * asserting the default would hold just as well against a hardcoded one.
+     */
+    public function testTransformPropagatesAnUnmappableCommunicationType(): void
+    {
+        $row = $this->buildRow(['poller_id' => 7, 'gorgone_communication_type' => '']);
+
+        $this->expectException(InvalidGorgoneCommunicationTypeException::class);
+        $this->expectExceptionMessage('for poller #7');
+
+        $this->transformer->transform($row);
     }
 
     /**

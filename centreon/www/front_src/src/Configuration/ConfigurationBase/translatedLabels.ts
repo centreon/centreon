@@ -78,3 +78,15 @@ export const labelSingleDuplicateResourcesConfirmation = (type: string) =>
 
 // Form
 export const labelSave = 'Save';
+
+export const labelClose = 'Close';
+export const labelReset = 'Reset';
+export const labelDoYouWantToResetTheForm = 'Do you want to reset the form?';
+export const labelMassChange = 'Mass Change';
+export const labelApply = 'Apply';
+export const labelApplyChangesTo = (type: string) =>
+  `The changes will be applied to {{count}} ${type}.`;
+export const labelFailedToUpdateResources = (type: string) =>
+  `Failed to update the ${type}`;
+// Followed by the names of the rows that failed.
+export const labelFailedToUpdateSomeResources = 'An error occurred';

@@ -48,7 +48,7 @@ const GraphValueTooltip = ({
         equals('hidden', tooltip?.mode) ? null : (
           <GraphValueTooltipContent
             base={baseAxis}
-            isSingleMode={equals('single', tooltip?.mode)}
+            mode={tooltip?.mode}
             // @ts-expect-error - suppressing pre-existing type mismatch
             sortOrder={tooltip?.sortOrder}
           />

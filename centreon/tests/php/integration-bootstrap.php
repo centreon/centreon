@@ -72,7 +72,12 @@ $centreonTables = $centreonPdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN
 if ($centreonTables === []) {
     $centreonPdo->exec(file_get_contents($projectDir . '/www/install/createTables.sql'));
     $centreonPdo->exec('SET FOREIGN_KEY_CHECKS=0');
-    $centreonPdo->exec(file_get_contents($projectDir . '/www/install/insertBaseConf.sql'));
+    $insertBaseConf = str_replace(
+        '@admin_password@',
+        password_hash('Centreon!2021', PASSWORD_BCRYPT),
+        file_get_contents($projectDir . '/www/install/insertBaseConf.sql')
+    );
+    $centreonPdo->exec($insertBaseConf);
     $centreonPdo->exec(file_get_contents($projectDir . '/www/install/insertTopology.sql'));
     $centreonPdo->exec('SET FOREIGN_KEY_CHECKS=1');
 }

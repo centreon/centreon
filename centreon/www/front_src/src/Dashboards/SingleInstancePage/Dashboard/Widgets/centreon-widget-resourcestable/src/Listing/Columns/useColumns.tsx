@@ -33,6 +33,7 @@ import {
   labelInformation,
   labelLastCheck,
   labelMonitoringServer,
+  labelNotes,
   labelOpenedOn,
   labelParent,
   labelParentAlias,
@@ -57,6 +58,8 @@ import SubItem from './ServiceSubItemColumn/SubItem';
 import SeverityColumn from './Severity';
 import StateColumn from './State';
 import StatusColumn from './Status';
+import ActionUrlColumn from './Url/Action';
+import NotesUrlColumn from './Url/Notes';
 
 interface ColumnProps {
   displayType?: DisplayType;
@@ -275,6 +278,26 @@ const useColumns = ({
       sortField: 'severity_level',
       type: ColumnType.component,
       width: 'minmax(50px, auto)'
+    },
+    {
+      Component: NotesUrlColumn,
+      getRenderComponentOnRowUpdateCondition: T,
+      id: 'notes_url',
+      label: t(labelNotes),
+      rowMemoProps: ['links'],
+      shortLabel: 'N',
+      sortable: false,
+      type: ColumnType.component
+    },
+    {
+      Component: ActionUrlColumn,
+      getRenderComponentOnRowUpdateCondition: T,
+      id: 'action_url',
+      label: t(labelAction),
+      rowMemoProps: ['links'],
+      shortLabel: 'A',
+      sortable: false,
+      type: ColumnType.component
     },
     {
       Component: StateColumn,

@@ -8,6 +8,7 @@ Feature: Recurrent downtime on a host
   Background:
     Given a user logged in with the Europe/Paris timezone
 
+  @MON-205056
   Scenario: a recurrent downtime on a host is scheduled
     When a recurrent downtime on a host is applied
     Then a host downtime is scheduled

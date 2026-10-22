@@ -1,0 +1,29 @@
+{
+  "result": [
+    {
+      "id": 1,
+      "name": "Central",
+      "address": "127.0.0.1",
+      "is_running": true,
+      "last_alive": 1727092481,
+      "version": "24.09.0",
+      "description": null
+    },
+    {
+      "id": 2,
+      "name": "Poller test",
+      "address": "127.0.0.2",
+      "is_running": true,
+      "last_alive": 1727092481,
+      "version": "24.09.0",
+      "description": null
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "search": {},
+    "sort_by": {},
+    "total": 2
+  }
+}

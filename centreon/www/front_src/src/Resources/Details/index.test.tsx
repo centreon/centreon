@@ -3,14 +3,14 @@
 import {
   getSearchQueryParameterValue,
   getUrlQueryParameters,
-  setUrlQueryParameters
+  setUrlQueryParameters,
+  TestQueryProvider
 } from '@centreon/ui';
 import {
   act,
   fireEvent,
   RenderResult,
   render,
-  screen,
   waitFor
 } from '@centreon/ui/test/testRenderer';
 import {
@@ -21,19 +21,23 @@ import {
 
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+import fetchMock from 'jest-fetch-mock';
 import { createStore, Provider } from 'jotai';
 import mockDate from 'mockdate';
 import { equals, path, reject } from 'ramda';
 import { BrowserRouter } from 'react-router';
 
+// The Graph tab's time period lives in these @centreon/ui atoms, which the
+// package does not export.
+import { changeCustomTimePeriodDerivedAtom } from '../../../../../packages/ui/src/TimePeriods/timePeriodsAtoms';
 import { CriteriaNames } from '../Filter/Criterias/models';
+import { getCriteriaValueDerivedAtom } from '../Filter/filterAtoms';
 import { defaultGraphOptions } from '../Graph/Performance/ExportableGraphWithTimeline/graphOptionsAtoms';
 import { buildResourcesEndpoint } from '../Listing/api/endpoint';
 import useListing from '../Listing/useListing';
 import { ResourceType } from '../models';
 import { cancelTokenRequestParam } from '../testUtils';
 import Context, { ResourceContext } from '../testUtils/Context';
-import useFilter from '../testUtils/useFilter';
 import useLoadDetails from '../testUtils/useLoadDetails';
 import {
   label1Day,
@@ -73,7 +77,6 @@ import {
   labelYesterday
 } from '../translatedLabels';
 import Details from '.';
-import { DetailsUrlQueryParameters } from './models';
 import { CustomTimePeriodProperty } from './tabs/Graph/models';
 import { buildListTimelineEventsEndpoint } from './tabs/Timeline/api';
 import { getTypeIds } from './tabs/Timeline/Event';
@@ -99,6 +102,12 @@ jest.mock('@visx/visx', () => {
     }
   };
 });
+
+// jsdom does no layout, so the chart would never leave its loading state.
+jest.mock('use-resize-observer', () => ({
+  __esModule: true,
+  default: (): unknown => ({ height: 280, ref: jest.fn(), width: 500 })
+}));
 
 const resourceServiceUuid = 'h1-s1';
 const resourceServiceId = 1;
@@ -193,12 +202,21 @@ const retrievedNotificationContacts = {
 };
 
 const retrievedDetails = {
+  acknowledged: false,
   acknowledgement: {
+    author_id: 1,
     author_name: 'Admin',
     comment: 'Acknowledged by Admin',
+    deletion_time: '',
     entry_time: '2020-03-18T18:57:59Z',
-    is_persistent: true,
-    is_sticky: true
+    host_id: resourceHostId,
+    id: 1,
+    is_notify_contacts: false,
+    is_persistent_comment: true,
+    is_sticky: true,
+    poller_id: 1,
+    service_id: resourceServiceId,
+    state: 0
   },
   active_checks: false,
   alias: 'Central-Centreon',
@@ -227,10 +245,9 @@ const retrievedDetails = {
   fqdn: 'central.centreon.com',
   groups,
   id: resourceServiceId,
+  in_downtime: true,
   information:
     'OK - 127.0.0.1 rta 0.100ms lost 0%\n OK - 127.0.0.1 rta 0.99ms lost 0%\n OK - 127.0.0.1 rta 0.98ms lost 0%\n OK - 127.0.0.1 rta 0.97ms lost 0%',
-  is_acknowledged: false,
-  is_in_downtime: true,
   last_check: '2020-05-18T16:00Z',
   last_notification: '2020-07-18T17:30:00Z',
   last_status_change: '2020-04-18T15:00Z',
@@ -504,40 +521,20 @@ const retrievedServices = {
   ]
 };
 
-const retrievedFilters = {
-  data: {
-    meta: {
-      limit: 30,
-      page: 1,
-      total: 0
-    },
-    result: []
-  }
-};
-
 const currentDateIsoString = '2020-01-21T06:00:00.000Z';
 const start = '2020-01-20T06:00:00.000Z';
 
 const mockedParametersDataTimeLineDownload = {
   conditions: [
     {
-      field: 'date',
-      values: {
-        $gt: start,
-        $lt: currentDateIsoString
-      }
-    }
-  ],
-  lists: [
-    {
       field: 'type',
-      values: [
-        'event',
-        'notification',
-        'comment',
-        'acknowledgement',
-        'downtime'
-      ]
+      values: {
+        $in: ['event', 'notification', 'comment', 'acknowledgement', 'downtime']
+      }
+    },
+    {
+      field: '$and',
+      value: [{ date: { $gt: start } }, { date: { $lt: currentDateIsoString } }]
     }
   ]
 };
@@ -547,7 +544,6 @@ let context: ResourceContext;
 const DetailsTest = (): JSX.Element => {
   const listingState = useListing();
   const detailState = useLoadDetails();
-  useFilter();
 
   useDetails();
 
@@ -557,11 +553,13 @@ const DetailsTest = (): JSX.Element => {
   } as ResourceContext;
 
   return (
-    <BrowserRouter>
-      <Context.Provider value={context}>
-        <Details />
-      </Context.Provider>
-    </BrowserRouter>
+    <TestQueryProvider>
+      <BrowserRouter>
+        <Context.Provider value={context}>
+          <Details />
+        </Context.Provider>
+      </BrowserRouter>
+    </TestQueryProvider>
   );
 };
 
@@ -577,9 +575,15 @@ const retrievedUser = {
 };
 const mockRefreshInterval = 60;
 
-const store = createStore();
-store.set(userAtom, retrievedUser);
-store.set(refreshIntervalAtom, mockRefreshInterval);
+let store = createStore();
+
+const resetStore = (): void => {
+  store = createStore();
+  store.set(userAtom, retrievedUser);
+  store.set(refreshIntervalAtom, mockRefreshInterval);
+};
+
+resetStore();
 
 const DetailsWithJotai = (): JSX.Element => (
   <Provider store={store}>
@@ -588,6 +592,26 @@ const DetailsWithJotai = (): JSX.Element => (
 );
 
 const renderDetails = (): RenderResult => render(<DetailsWithJotai />);
+
+// The Graph tab fetches its data through `fetch` (useFetchQuery), not axios.
+const mockGraphTabFetch = ({
+  performanceGraph = retrievedPerformanceGraphData,
+  timeline = retrievedTimeline
+} = {}): void => {
+  fetchMock.mockResponse((request) =>
+    Promise.resolve({
+      body: JSON.stringify(
+        request.url.includes(retrievedDetails.links.endpoints.timeline)
+          ? timeline
+          : performanceGraph
+      ),
+      headers: { 'Content-Type': 'application/json' }
+    })
+  );
+};
+
+const getFetchedUrls = (): Array<string> =>
+  fetchMock.mock.calls.map(([url]) => url as string);
 
 const mockedLocalStorageGetItem = jest.fn();
 const mockedLocalStorageSetItem = jest.fn();
@@ -601,9 +625,14 @@ jest.mock('react-router', () => ({
 Storage.prototype.getItem = mockedLocalStorageGetItem;
 Storage.prototype.setItem = mockedLocalStorageSetItem;
 
-describe.skip(Details, () => {
+describe(Details, () => {
   beforeEach(() => {
     mockDate.set(currentDateIsoString);
+    // DetailsWithJotai's store used to be a single module-level singleton
+    // reused across every render() in this file, so atom state set by one
+    // test (selected tab, expanded rows, filter criteria...) leaked into
+    // the next. Give each test a fresh store instead.
+    resetStore();
   });
 
   afterEach(() => {
@@ -611,6 +640,7 @@ describe.skip(Details, () => {
     mockedAxios.get.mockReset();
     mockedLocalStorageSetItem.mockReset();
     mockedLocalStorageGetItem.mockReset();
+    fetchMock.resetMocks();
   });
 
   // To migrate to Cypress
@@ -618,71 +648,63 @@ describe.skip(Details, () => {
     [label1Day, '2020-01-20T06:00:00.000Z', 20],
     [label7Days, '2020-01-14T06:00:00.000Z', 100],
     [label31Days, '2019-12-21T06:00:00.000Z', 500]
-  ])(`queries performance graphs and timelines with %p period when the Graph tab is selected and "Display events" option is activated`, async (period, startIsoString, timelineEventsLimit) => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
+  ])(
+    `queries performance graphs and timelines with %p period when the Graph tab is selected and "Display events" option is activated`,
+    async (period, startIsoString, timelineEventsLimit) => {
+      mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+      mockGraphTabFetch();
 
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedTimeline })
-      .mockResolvedValueOnce({ data: retrievedTimeline });
+      setUrlQueryParameters([
+        {
+          name: 'details',
+          value: serviceDetailsGraphUrlParameters
+        }
+      ]);
 
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsGraphUrlParameters
-      }
-    ]);
+      const { getByText, findByText } = renderDetails();
 
-    const { getByText, findByText } = renderDetails();
+      await waitFor(() => {
+        expect(getByText(period) as HTMLElement).toBeEnabled();
+      });
 
-    await waitFor(() => {
-      expect(getByText(period) as HTMLElement).toBeEnabled();
-    });
+      await userEvent.click(getByText(period) as HTMLElement);
 
-    userEvent.click(getByText(period) as HTMLElement);
+      await waitFor(() => {
+        expect(getFetchedUrls()).toContain(
+          `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startIsoString}&end=${currentDateIsoString}`
+        );
+      });
 
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=${startIsoString}&end=${currentDateIsoString}`,
-        expect.anything()
-      );
-    });
+      await findByText(labelDisplayEvents);
+      userEvent.click(getByText(labelDisplayEvents));
 
-    await findByText(labelDisplayEvents);
-    userEvent.click(getByText(labelDisplayEvents));
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        buildListTimelineEventsEndpoint({
-          endpoint: retrievedDetails.links.endpoints.timeline,
-          parameters: {
-            limit: timelineEventsLimit,
-            search: {
-              conditions: [
-                {
-                  field: 'date',
-                  values: {
-                    $gt: startIsoString,
-                    $lt: currentDateIsoString
+      await waitFor(() => {
+        expect(getFetchedUrls()).toContain(
+          `./api/latest${buildListTimelineEventsEndpoint({
+            endpoint: retrievedDetails.links.endpoints.timeline,
+            parameters: {
+              limit: timelineEventsLimit,
+              search: {
+                conditions: [
+                  {
+                    field: 'date',
+                    values: {
+                      $gt: startIsoString,
+                      $lt: currentDateIsoString
+                    }
                   }
-                }
-              ]
+                ]
+              }
             }
-          }
-        }),
-        expect.anything()
-      );
-    });
-  });
+          })}`
+        );
+      });
+    }
+  );
 
   it('displays event annotations when the corresponding switch is triggered and the Graph tab is clicked', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
-      .mockResolvedValueOnce({
-        data: retrievedTimeline
-      });
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -695,7 +717,11 @@ describe.skip(Details, () => {
       renderDetails();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledTimes(2);
+      expect(getFetchedUrls()).toEqual([
+        expect.stringContaining(
+          retrievedDetails.links.endpoints.performance_graph
+        )
+      ]);
     });
 
     expect(queryByLabelText(labelComment)).toBeNull();
@@ -736,7 +762,7 @@ describe.skip(Details, () => {
 
     await waitFor(() =>
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-        retrievedDetails.command_line
+        `sudo -u centreon-engine ${retrievedDetails.command_line}`
       )
     );
   });
@@ -761,18 +787,13 @@ describe.skip(Details, () => {
             page: 1,
             search: {
               conditions: [
+                { field: 'type', values: { $in: getTypeIds() } },
                 {
-                  field: 'date',
-                  values: {
-                    $gt: '2020-01-20T06:00:00.000Z',
-                    $lt: '2020-01-21T06:00:00.000Z'
-                  }
-                }
-              ],
-              lists: [
-                {
-                  field: 'type',
-                  values: getTypeIds()
+                  field: '$and',
+                  value: [
+                    { date: { $gt: '2020-01-20T06:00:00.000Z' } },
+                    { date: { $lt: '2020-01-21T06:00:00.000Z' } }
+                  ]
                 }
               ]
             }
@@ -873,17 +894,15 @@ describe.skip(Details, () => {
             search: {
               conditions: [
                 {
-                  field: 'date',
-                  values: {
-                    $gt: '2020-01-20T06:00:00.000Z',
-                    $lt: '2020-01-21T06:00:00.000Z'
-                  }
-                }
-              ],
-              lists: [
-                {
                   field: 'type',
-                  values: reject(equals('event'))(getTypeIds())
+                  values: { $in: reject(equals('event'))(getTypeIds()) }
+                },
+                {
+                  field: '$and',
+                  value: [
+                    { date: { $gt: '2020-01-20T06:00:00.000Z' } },
+                    { date: { $lt: '2020-01-21T06:00:00.000Z' } }
+                  ]
                 }
               ]
             }
@@ -924,23 +943,20 @@ describe.skip(Details, () => {
 
     expect(getByLabelText(labelViewReport)).toBeInTheDocument();
 
-    userEvent.click(getByTestId(labelViewLogs));
+    await userEvent.click(getByTestId(labelViewLogs));
 
     expect(mockedNavigate).toHaveBeenCalledWith('/logs');
 
-    userEvent.click(getByTestId(labelViewReport));
+    await userEvent.click(getByTestId(labelViewReport));
 
     expect(mockedNavigate).toHaveBeenCalledWith('/reporting');
   });
 
   it('sets the details according to the details URL query parameter when given', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({
-        data: retrievedDetails
-      })
-      .mockResolvedValue({
-        data: retrievedPerformanceGraphData
-      });
+    mockedAxios.get.mockResolvedValueOnce({
+      data: retrievedDetails
+    });
+    mockGraphTabFetch();
 
     const retrievedServiceDetails = {
       id: 2,
@@ -966,7 +982,7 @@ describe.skip(Details, () => {
       }
     ]);
 
-    const { getByText } = renderDetails();
+    const { findByText, getByText } = renderDetails();
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -975,59 +991,29 @@ describe.skip(Details, () => {
       );
     });
 
-    await waitFor(() => expect(getByText(labelDetails)).toBeInTheDocument());
-
-    fireEvent.click(getByText(labelDetails));
-
-    const tabFromUrlQueryParameters = path(
-      ['details', 'tab'],
-      getUrlQueryParameters()
-    );
+    fireEvent.click(await findByText(labelDetails));
 
     await waitFor(() => {
-      expect(tabFromUrlQueryParameters).toEqual('details');
+      expect(path(['details', 'tab'], getUrlQueryParameters())).toEqual(
+        'details'
+      );
     });
 
-    userEvent.click(getByText(labelGraph));
+    await userEvent.click(getByText(labelGraph));
 
-    userEvent.click(getByText(label7Days));
-
-    const updatedDetailsFromQueryParameters = getUrlQueryParameters()
-      .details as DetailsUrlQueryParameters;
-
+    // The Graph tab keeps its selected time period to itself, so only the
+    // resource, the tab and the tab parameters are kept in the URL.
     await waitFor(() => {
-      expect(updatedDetailsFromQueryParameters).toEqual({
-        customTimePeriod: {
-          end: '2020-01-21T06:00:00.000Z',
-          start: '2020-01-14T06:00:00.000Z'
-        },
-        id: 2,
-        resourcesDetailsEndpoint:
-          'api/latest/monitoring/resources/hosts/1/services/2',
-        selectedTimePeriodId: 'last_7_days',
-        tab: 'graph',
-        tabParameters: {
-          graph: {
-            options: {
-              displayEvents: {
-                id: 'displayEvents',
-                label: labelDisplayEvents,
-                value: false
-              }
-            }
-          },
-          services: {
-            options: {
-              displayEvents: {
-                id: 'displayEvents',
-                label: labelDisplayEvents,
-                value: false
-              }
-            }
-          }
-        },
-        uuid: 'h3-s2'
-      });
+      expect(getUrlQueryParameters().details).toEqual(
+        expect.objectContaining({
+          id: 2,
+          resourcesDetailsEndpoint:
+            'api/latest/monitoring/resources/hosts/1/services/2',
+          tab: 'graph',
+          tabParameters: retrievedServiceDetails.tabParameters,
+          uuid: 'h3-s2'
+        })
+      );
     });
   });
 
@@ -1090,7 +1076,7 @@ describe.skip(Details, () => {
     const { getByText, queryByText } = renderDetails();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledTimes(3);
+      expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     });
 
     expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -1160,13 +1146,8 @@ describe.skip(Details, () => {
       })
       .mockResolvedValueOnce({
         data: retrievedServices
-      })
-      .mockResolvedValueOnce({
-        data: retrievedPerformanceGraphData
-      })
-      .mockResolvedValueOnce({
-        data: retrievedPerformanceGraphData
       });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -1183,20 +1164,18 @@ describe.skip(Details, () => {
 
     await findByText(retrievedPerformanceGraphData.global.title);
 
-    userEvent.click(getByText(label7Days) as HTMLElement);
+    await userEvent.click(getByText(label7Days) as HTMLElement);
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        'ping-performance?start=2020-01-14T06:00:00.000Z&end=2020-01-21T06:00:00.000Z',
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        './api/latestping-performance?start=2020-01-14T06:00:00.000Z&end=2020-01-21T06:00:00.000Z'
       );
     });
   });
 
   it('queries performance graphs with a custom timeperiod when the Graph tab is selected and a custom time period is selected', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValue({ data: retrievedPerformanceGraphData });
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -1210,38 +1189,34 @@ describe.skip(Details, () => {
     const endISOString = '2020-01-21T06:00:00.000Z';
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`
       );
     });
 
     act(() => {
-      context.changeCustomTimePeriod?.({
+      store.set(changeCustomTimePeriodDerivedAtom, {
         date: new Date(startISOString),
         property: CustomTimePeriodProperty.start
       });
     });
     act(() => {
-      context.changeCustomTimePeriod?.({
+      store.set(changeCustomTimePeriodDerivedAtom, {
         date: new Date(endISOString),
         property: CustomTimePeriodProperty.end
       });
     });
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`,
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`
       );
     });
   });
 
   it('displays the correct date time on pickers when the Graph tab is selected and a time period is selected', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -1250,85 +1225,48 @@ describe.skip(Details, () => {
       }
     ]);
 
-    const { getByText } = renderDetails();
+    const { findByText, getByText } = renderDetails();
 
     const startISOString = '2020-01-20T06:00:00.000Z';
     const endISOString = '2020-01-21T06:00:00.000Z';
 
     act(() => {
-      context.changeCustomTimePeriod?.({
+      store.set(changeCustomTimePeriodDerivedAtom, {
         date: new Date(startISOString),
         property: CustomTimePeriodProperty.start
       });
     });
     act(() => {
-      context.changeCustomTimePeriod?.({
+      store.set(changeCustomTimePeriodDerivedAtom, {
         date: new Date(endISOString),
         property: CustomTimePeriodProperty.end
       });
     });
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`
       );
     });
 
-    expect(getByText('01/20/2020 7:00 AM')).toBeInTheDocument();
+    expect(await findByText('01/20/2020 7:00 AM')).toBeInTheDocument();
     expect(getByText('01/21/2020 7:00 AM')).toBeInTheDocument();
 
-    userEvent.click(getByText(label7Days) as HTMLElement);
+    await userEvent.click(getByText(label7Days) as HTMLElement);
 
-    expect(getByText('01/14/2020 7:00 AM')).toBeInTheDocument();
+    expect(await findByText('01/14/2020 7:00 AM')).toBeInTheDocument();
     expect(getByText('01/21/2020 7:00 AM')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-14T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-14T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`
       );
     });
   });
 
   it('displays an error message when Graph tab is selected and the start date of the time period is the same as the end date', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
-
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: {
-          ...serviceDetailsGraphUrlParameters,
-          customTimePeriod: {
-            end: '2021-11-02T21:00:00.000Z',
-            start: '2021-11-02T21:00:00.000Z',
-            timelineLimit: 20,
-            xAxisTickFormat: 'LT'
-          }
-        }
-      }
-    ]);
-
-    const { getByLabelText, getByText } = renderDetails();
-
-    userEvent.click(getByLabelText(labelCompactTimePeriod));
-
-    await waitFor(() => {
-      expect(getByText(labelEndDateGreaterThanStartDate)).toBeInTheDocument();
-    });
-  });
-
-  it.each([
-    [labelForward, '2020-01-20T18:00:00.000Z', '2020-01-21T18:00:00.000Z'],
-    [labelBackward, '2020-01-19T18:00:00.000Z', '2020-01-20T18:00:00.000Z']
-  ])(`queries performance graphs with a custom timeperiod when the Graph tab is selected and the "%p" icon is clicked`, async (iconLabel, startISOString, endISOString) => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -1337,40 +1275,78 @@ describe.skip(Details, () => {
       }
     ]);
 
-    const { getByLabelText } = renderDetails();
+    const { findByLabelText, findByText } = renderDetails();
+
+    await findByText(retrievedPerformanceGraphData.global.title);
 
     act(() => {
-      context.changeCustomTimePeriod?.({
-        date: new Date('2020-01-20T06:00:00.000Z'),
+      store.set(changeCustomTimePeriodDerivedAtom, {
+        date: new Date(currentDateIsoString),
         property: CustomTimePeriodProperty.start
       });
     });
-
     act(() => {
-      context.changeCustomTimePeriod?.({
-        date: new Date('2020-01-21T06:00:00.000Z'),
+      store.set(changeCustomTimePeriodDerivedAtom, {
+        date: new Date(currentDateIsoString),
         property: CustomTimePeriodProperty.end
       });
     });
 
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
-      );
-    });
+    await userEvent.click(await findByLabelText(labelCompactTimePeriod));
 
-    await waitFor(() => expect(getByLabelText(iconLabel)).toBeInTheDocument());
-
-    userEvent.click(getByLabelText(iconLabel));
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`,
-        cancelTokenRequestParam
-      );
-    });
+    expect(
+      await findByText(labelEndDateGreaterThanStartDate)
+    ).toBeInTheDocument();
   });
+
+  it.each([
+    [labelBackward, 0, '2020-01-19T18:00:00.000Z', '2020-01-20T18:00:00.000Z'],
+    [labelForward, 1, '2020-01-20T18:00:00.000Z', '2020-01-21T18:00:00.000Z']
+  ])(
+    `queries performance graphs with a shifted time period when the Graph tab is selected and the "%s" zone is clicked`,
+    async (_, zoneIndex, startISOString, endISOString) => {
+      mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+      mockGraphTabFetch();
+
+      setUrlQueryParameters([
+        {
+          name: 'details',
+          value: serviceDetailsGraphUrlParameters
+        }
+      ]);
+
+      const { container, findByText } = renderDetails();
+
+      act(() => {
+        store.set(changeCustomTimePeriodDerivedAtom, {
+          date: new Date('2020-01-20T06:00:00.000Z'),
+          property: CustomTimePeriodProperty.start
+        });
+      });
+      act(() => {
+        store.set(changeCustomTimePeriodDerivedAtom, {
+          date: new Date('2020-01-21T06:00:00.000Z'),
+          property: CustomTimePeriodProperty.end
+        });
+      });
+
+      await findByText(retrievedPerformanceGraphData.global.title);
+
+      const timeShiftZone = container.querySelectorAll(
+        'rect[class*="translationZone"]'
+      )[zoneIndex];
+
+      fireEvent.mouseOver(timeShiftZone);
+      await findByText('time shift icon');
+      fireEvent.click(timeShiftZone);
+
+      await waitFor(() => {
+        expect(getFetchedUrls()).toContain(
+          `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`
+        );
+      });
+    }
+  );
 
   it('displays retrieved metrics when the selected Resource is a meta service and the metrics tab is selected', async () => {
     const service = retrievedServices.result[0];
@@ -1422,10 +1398,8 @@ describe.skip(Details, () => {
   });
 
   it('displays Min, Max and Average values in the legend when the Graph tab is selected', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
-      .mockResolvedValueOnce({ data: retrievedTimeline });
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -1434,21 +1408,17 @@ describe.skip(Details, () => {
       }
     ]);
 
-    const { getByLabelText, getByText } = renderDetails();
+    const { findByTestId, getByTestId } = renderDetails();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`
       );
     });
 
-    await waitFor(() => expect(getByLabelText(labelMin)).toBeInTheDocument());
-    expect(getByText('N/A')).toBeInTheDocument();
-    expect(getByLabelText(labelMax)).toBeInTheDocument();
-    expect(getByText('2.46k')).toBeInTheDocument();
-    expect(getByLabelText(labelAvg)).toBeInTheDocument();
-    expect(getByText('1.23k')).toBeInTheDocument();
+    expect(await findByTestId(labelMin)).toHaveTextContent(`${labelMin}: N/A`);
+    expect(getByTestId(labelMax)).toHaveTextContent(`${labelMax}: 2.46k`);
+    expect(getByTestId(labelAvg)).toHaveTextContent(`${labelAvg}: 1.23k`);
   });
 
   it('filters on a group when the corresponding chip is clicked and the Details tab is selected', async () => {
@@ -1473,12 +1443,14 @@ describe.skip(Details, () => {
       expect(getByLabelText('Linux-servers Chip')).toBeInTheDocument()
     );
 
-    userEvent.hover(getByLabelText('Linux-servers Chip'));
-    userEvent.click(getByLabelText('Linux-servers Filter'));
+    fireEvent.mouseEnter(getByLabelText('Linux-servers Chip'));
+    fireEvent.click(getByLabelText('Linux-servers Filter'));
 
     await waitFor(() => {
-      expect(context.getCriteriaValue?.(CriteriaNames.serviceGroups)).toEqual([
-        { id: 0, name: 'Linux-servers' }
+      expect(
+        store.get(getCriteriaValueDerivedAtom)(CriteriaNames.serviceGroups)
+      ).toEqual([
+        { formattedName: 'Linux-servers', id: 0, name: 'Linux-servers' }
       ]);
     });
   });
@@ -1563,14 +1535,10 @@ describe.skip(Details, () => {
     expect(queryByText(labelCommand)).toBeInTheDocument();
   });
 
-  it('queries the performance graphs with the time period selected in the "Timeline" tab when the "Graph" tab is selected and the "Timeline" tab was selected', async () => {
+  it('queries the timeline events with the time period selected in the "Timeline" tab', async () => {
     mockedAxios.get
       .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedTimeline })
-      .mockResolvedValueOnce({ data: retrievedTimeline })
-      .mockResolvedValueOnce(retrievedFilters)
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
+      .mockResolvedValue({ data: retrievedTimeline });
 
     setUrlQueryParameters([
       {
@@ -1579,84 +1547,46 @@ describe.skip(Details, () => {
       }
     ]);
 
-    const { getByText } = renderDetails();
+    const { findByText, getByText } = renderDetails();
+
+    const getTimelineEndpoint = (startIsoString: string): string =>
+      buildListTimelineEventsEndpoint({
+        endpoint: retrievedDetails.links.endpoints.timeline,
+        parameters: {
+          limit: 30,
+          page: 1,
+          search: {
+            conditions: [
+              { field: 'type', values: { $in: getTypeIds() } },
+              {
+                field: '$and',
+                value: [
+                  { date: { $gt: startIsoString } },
+                  { date: { $lt: currentDateIsoString } }
+                ]
+              }
+            ]
+          }
+        }
+      });
 
     await waitFor(() =>
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        buildListTimelineEventsEndpoint({
-          endpoint: retrievedDetails.links.endpoints.timeline,
-          parameters: {
-            limit: 30,
-            page: 1,
-            search: {
-              conditions: [
-                {
-                  field: 'date',
-                  values: {
-                    $gt: '2020-01-20T06:00:00.000Z',
-                    $lt: '2020-01-21T06:00:00.000Z'
-                  }
-                }
-              ],
-              lists: [
-                {
-                  field: 'type',
-                  values: getTypeIds()
-                }
-              ]
-            }
-          }
-        }),
+        getTimelineEndpoint('2020-01-20T06:00:00.000Z'),
         cancelTokenRequestParam
       )
     );
 
-    await waitFor(() =>
-      expect(
-        screen.getByText('INITIAL HOST STATE: Centreon-Server;UP;HARD;1;')
-      ).toBeInTheDocument()
-    );
+    await findByText('INITIAL HOST STATE: Centreon-Server;UP;HARD;1;');
 
-    userEvent.click(getByText(label7Days) as HTMLElement);
+    await userEvent.click(getByText(label7Days) as HTMLElement);
 
     await waitFor(() =>
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        buildListTimelineEventsEndpoint({
-          endpoint: retrievedDetails.links.endpoints.timeline,
-          parameters: {
-            limit: 30,
-            page: 1,
-            search: {
-              conditions: [
-                {
-                  field: 'date',
-                  values: {
-                    $gt: '2020-01-14T06:00:00.000Z',
-                    $lt: '2020-01-21T06:00:00.000Z'
-                  }
-                }
-              ],
-              lists: [
-                {
-                  field: 'type',
-                  values: getTypeIds()
-                }
-              ]
-            }
-          }
-        }),
-        expect.anything()
+        getTimelineEndpoint('2020-01-14T06:00:00.000Z'),
+        cancelTokenRequestParam
       )
     );
-
-    userEvent.click(getByText(labelGraph));
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-14T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
-      );
-    });
   });
 
   it('displays contacts and contact groups when the notification tab is clicked', async () => {
@@ -1725,7 +1655,7 @@ describe.skip(Details, () => {
     const { getByTestId } = renderDetails();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledTimes(3);
+      expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     });
 
     fireEvent.click(getByTestId(labelExportToCSV));

@@ -171,8 +171,14 @@ foreach ($servers as $config) {
         . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" "
         . "name='dupNbr[" . $config['id'] . "]' />";
 
-    if (! isset($nagiosInfo[$config['uid']]['is_currently_running'])) {
-        $nagiosInfo[$config['uid']]['is_currently_running'] = 0;
+    // instances.instance_id holds the Snowflake uid for up-to-date pollers; legacy pollers
+    // (older Engine/Broker) still report their config id as instance_id. Resolve the runtime
+    // row by uid, then fall back to the config id so a mixed-version platform shows the real
+    // running state.
+    $runtimeKey = isset($nagiosInfo[$config['uid']]) ? $config['uid'] : $config['id'];
+
+    if (! isset($nagiosInfo[$runtimeKey]['is_currently_running'])) {
+        $nagiosInfo[$runtimeKey]['is_currently_running'] = 0;
     }
 
     // Manage flag for changes
@@ -183,9 +189,9 @@ foreach ($servers as $config) {
 
     // Manage flag for update time
     $lastUpdateTimeFlag = 0;
-    if (! isset($nagiosInfo[$config['uid']]['last_alive'])) {
+    if (! isset($nagiosInfo[$runtimeKey]['last_alive'])) {
         $lastUpdateTimeFlag = 0;
-    } elseif (time() - $nagiosInfo[$config['uid']]['last_alive'] > 10 * 60) {
+    } elseif (time() - $nagiosInfo[$runtimeKey]['last_alive'] > 10 * 60) {
         $lastUpdateTimeFlag = 1;
     }
 
@@ -197,26 +203,25 @@ foreach ($servers as $config) {
     $cfg_id = $dbResult2->rowCount() ? $dbResult2->fetch() : -1;
 
     $uptime = '-';
-    $isRunning = (isset($nagiosInfo[$config['uid']]['is_currently_running'])
-        && $nagiosInfo[$config['uid']]['is_currently_running'] == 1)
+    $isRunning = (isset($nagiosInfo[$runtimeKey]['is_currently_running'])
+        && $nagiosInfo[$runtimeKey]['is_currently_running'] == 1)
         ? true
         : false;
-    $version = $nagiosInfo[$config['uid']]['version'] ?? _('N/A');
-    $updateTime = (isset($nagiosInfo[$config['uid']]['last_alive'])
-        && $nagiosInfo[$config['uid']]['last_alive'])
-        ? $nagiosInfo[$config['uid']]['last_alive']
+    $version = $nagiosInfo[$runtimeKey]['version'] ?? _('N/A');
+    $updateTime = (isset($nagiosInfo[$runtimeKey]['last_alive'])
+        && $nagiosInfo[$runtimeKey]['last_alive'])
+        ? $nagiosInfo[$runtimeKey]['last_alive']
         : '-';
+    $isRemoteServer = in_array($config['ns_ip_address'], $remotesServerIPs);
     $serverType = $config['localhost'] ? _('Central') : _('Poller');
-    $serverType = in_array($config['ns_ip_address'], $remotesServerIPs)
-        ? _('Remote Server')
-        : $serverType;
+    $serverType = $isRemoteServer ? _('Remote Server') : $serverType;
 
     if (
-        isset($nagiosInfo[$config['uid']]['is_currently_running'])
-        && $nagiosInfo[$config['uid']]['is_currently_running'] == 1
+        isset($nagiosInfo[$runtimeKey]['is_currently_running'])
+        && $nagiosInfo[$runtimeKey]['is_currently_running'] == 1
     ) {
         $now = new DateTime();
-        $startDate = (new DateTime())->setTimestamp($nagiosInfo[$config['uid']]['program_start_time']);
+        $startDate = (new DateTime())->setTimestamp($nagiosInfo[$runtimeKey]['program_start_time']);
         $interval = date_diff($now, $startDate);
         if (intval($interval->format('%a')) >= 2) {
             $uptime = $interval->format('%a days');
@@ -232,7 +237,7 @@ foreach ($servers as $config) {
     }
 
     $pollerProcessId = $isRunning
-        ? $nagiosInfo[$config['uid']]['process_id']
+        ? $nagiosInfo[$runtimeKey]['process_id']
         : '-';
 
     // Manage different styles between each line
@@ -251,8 +256,9 @@ foreach ($servers as $config) {
         'RowMenu_gorgone_protocol' => $config['gorgone_communication_type'],
         'RowMenu_link' => $serverLink,
         'RowMenu_type' => $serverType,
+        'RowMenu_isPoller' => ! $config['localhost'] && ! $isRemoteServer,
         'RowMenu_is_running' => $isRunning ? _('Yes') : _('No'),
-        'RowMenu_is_runningFlag' => $nagiosInfo[$config['uid']]['is_currently_running'],
+        'RowMenu_is_runningFlag' => $nagiosInfo[$runtimeKey]['is_currently_running'],
         'RowMenu_is_default' => $config['is_default'] ? _('Yes') : _('No'),
         'RowMenu_hasChanged' => $confChangedMessage,
         'RowMenu_pid' => $pollerProcessId,

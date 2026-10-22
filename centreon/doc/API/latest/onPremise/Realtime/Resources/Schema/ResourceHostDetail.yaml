@@ -30,8 +30,9 @@ properties:
     description: "FQDN of the Host Resource"
     example: "localhost|127.0.0.1"
   alias:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Alias given to the Host Resource"
     example: "central"
   status:
@@ -121,16 +122,18 @@ properties:
     description: "Indicates whether the check script is active or not"
     example: true
   parent:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id:
         type: integer
         description: "ID of the parent"
         example: 12
   icon:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       name:
         type: string
@@ -165,12 +168,14 @@ properties:
         description: "Name of the host category"
         example: "All-Cpu-Services"
       configuration_uri:
-        type: string
-        nullable: true
+        type:
+          - string
+          - 'null'
         description: "Internal URI to reach category configuration"
   severity:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id:
         type: integer
@@ -208,8 +213,9 @@ properties:
             description: "URL of the icon"
             example: "baseUri/ppm/dog.png"
   acknowledgement:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id:
         type: integer
@@ -245,9 +251,10 @@ properties:
         description: "Short description of the acknowledgement"
         example: "Acknowledged by admin"
       deletion_time:
-        type: string
+        type:
+          - string
+          - 'null'
         format: date-time
-        nullable: true
         description: "Date of the request for cancellation of the acknowledgement (ISO8601)"
       entry_time:
         type: string
@@ -286,18 +293,21 @@ properties:
       type: object
       properties:
         start_time:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           format: date-time
           description: "Scheduled start date of the downtime (ISO8601)"
         end_time:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           format: date-time
           description: "Scheduled end date of the downtime (ISO8601)"
         actual_start_time:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           format: date-time
           description: "Actual start date of the downtime (ISO8601)"
         id:
@@ -309,13 +319,15 @@ properties:
           format: date-time
           description: "Date of the request to create the downtime (ISO8601)"
         author_id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: "ID of the contact who requested the downtime"
           example: 3
         author_name:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: "Name of the contact who requested the downtime"
           example: "admin"
         host_id:
@@ -331,19 +343,22 @@ properties:
           description: "Indicates whether the downtime has been cancelled or not"
           example: false
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: "Comment of set on the downtime"
           example: "Downtime set by admin"
         deletion_time:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: "Date of cancellation of downtime (ISO8601)"
           example: null
         duration:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: "Downtime duration in seconds"
           example: 7200
         internal_id:
@@ -359,38 +374,45 @@ properties:
           description: "Indicates whether the downtime has started"
           example: true
   timezone:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Timezone configured on the Host resource"
     example: 'Europe/Paris'
   duration:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Duration since last status change"
     example: "2h 3m"
   next_check:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     format: date-time
     description: "Scheduled date for the next check (ISO8601)"
   last_check:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     format: date-time
     description: "Date of the last check (ISO8601)"
   last_time_with_no_issue:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     format: date-time
     description: "Date of the last time Host Resource was UP (ISO8601)"
   last_status_change:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     format: date-time
     description: "Date of the last status change (ISO8601)"
   last_notification:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     format: date-time
     description: "Date of the last notification sent (ISO8601)"
   tries:
@@ -404,30 +426,35 @@ properties:
         type: object
         properties:
           configuration:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "configuration uri"
             example: "/centreon/main.php?p=60101&o=c&host_id=11"
           logs:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "logs uri"
             example: "/centreon/main.php?p=20301&h=11"
           reporting:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "reporting uri"
             example: "/centreon/main.php?p=307&host=11"
       endpoints:
         type: object
         properties:
           notification_policy:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "Host resource notification policy endpoint"
             example: "/centreon/api/v22.04/monitoring/hosts/202/notification-policy"
           timeline:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "resource timeline endpoint"
             example: "/centreon/api/latest/monitoring/hosts/11/timeline"

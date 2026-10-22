@@ -26,10 +26,12 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Com
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource;
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class ListCommandsProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/commands';
+    use ClearsInstalledPlatformRows;
+    private const BASE_ENDPOINT = '/api/configuration/commands';
 
     protected function setUp(): void
     {
@@ -37,6 +39,7 @@ final class ListCommandsProviderTest extends ApiTestCase
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->clearInstalledPlatformRows($connection, 'command');
 
         $commands = [
             ['command_id' => 1, 'command_name' => 'check_host_alive', 'command_line' => '$USER1$/check_icmp -H $HOSTADDRESS$', 'command_type' => 2],
@@ -170,7 +173,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         $this->login();
 
         // call PATCH to deactivate a command
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -248,6 +251,66 @@ final class ListCommandsProviderTest extends ApiTestCase
         $members = (array) $response->toArray()['member'];
         $this->assertCount(9, $members);
         $this->assertEquals('submit-service-check-result', $members[0]['name']);
+    }
+
+    public function testItSortsCommandsByActivationStatus(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->update('command', ['command_activate' => '0'], ['command_id' => 3]);
+
+        $this->login();
+
+        // the status column of the shared listing sends sort[is_activated]
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => ['is_activated' => 'asc']]]);
+        self::assertResponseIsSuccessful();
+        /** @var list<array{name: string, is_activated: bool}> $ascending */
+        $ascending = (array) $response->toArray()['member'];
+        self::assertSame('check_centreon_cpu', $ascending[0]['name']);
+        self::assertFalse($ascending[0]['is_activated']);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => ['is_activated' => 'desc']]]);
+        self::assertResponseIsSuccessful();
+        /** @var list<array{name: string, is_activated: bool}> $descending */
+        $descending = (array) $response->toArray()['member'];
+        self::assertTrue($descending[0]['is_activated']);
+        self::assertSame('check_centreon_cpu', $descending[count($descending) - 1]['name']);
+    }
+
+    public function testItRejectsAnUnknownSortField(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => ['command_line' => 'asc']]]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsASortFieldThatIsNotAPlainFieldName(): void
+    {
+        $this->login();
+
+        $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            ['query' => ['sort' => ['command_id, (SELECT SLEEP(5))' => 'asc']]]
+        );
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsAnUnknownSortDirection(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => ['name' => 'upward']]]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsAScalarSortParameter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => 'name']]);
+        self::assertResponseStatusCodeSame(400);
     }
 
     public function testItShouldIgnoreUnknownOperator(): void
@@ -374,5 +437,21 @@ final class ListCommandsProviderTest extends ApiTestCase
 
         $this->assertContains('Check', $commandTypes);
         $this->assertNotContains('Miscellaneous', $commandTypes);
+    }
+
+    public function testItRejectsAScalarNameFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => 'check_host_alive']]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItIgnoresAnEmptyNameFilterValue(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['eq' => '']]]);
+        self::assertResponseIsSuccessful();
     }
 }

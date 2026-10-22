@@ -130,6 +130,14 @@
 
         <tr class="list_lvl_1">
           <td class="ListColLvl1_name" colspan="2">
+            <h4>{$form.header.treatment}</h4>
+          </td>
+        </tr>
+        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="check_freshness"> {$form.service_check_freshness.label}</td><td class="FormRowValue">{$form.service_check_freshness.html}</td></tr>
+        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="freshness_threshold"> {$form.service_freshness_threshold.label}</td><td class="FormRowValue">{$form.service_freshness_threshold.html}&nbsp;{$seconds}</td></tr>
+
+        <tr class="list_lvl_1">
+          <td class="ListColLvl1_name" colspan="2">
             <h4>{$form.header.classification}</h4>
           </td>
         </tr>

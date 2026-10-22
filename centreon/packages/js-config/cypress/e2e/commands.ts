@@ -532,6 +532,8 @@ Cypress.Commands.add(
 interface StartContainersProps {
   composeFile?: string;
   databaseImage?: string;
+  dbConfiguration?: string;
+  dbStorage?: string;
   moduleName?: string;
   openidImage?: string;
   profiles?: Array<string>;
@@ -546,6 +548,8 @@ Cypress.Commands.add(
   ({
     composeFile,
     databaseImage = Cypress.env('DATABASE_IMAGE'),
+    dbConfiguration = Cypress.env('MYSQL_DB_CONFIGURATION'),
+    dbStorage = Cypress.env('MYSQL_DB_STORAGE'),
     moduleName = 'centreon-web',
     openidImage = `ghcr.io/centreon/centreon/keycloak:${Cypress.env(
       'OPENID_IMAGE_VERSION'
@@ -579,6 +583,8 @@ Cypress.Commands.add(
         {
           composeFile: composeFilePath,
           databaseImage,
+          dbConfiguration,
+          dbStorage,
           openidImage,
           profiles,
           samlImage,

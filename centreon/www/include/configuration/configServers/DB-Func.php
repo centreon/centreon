@@ -22,6 +22,8 @@
 use App\Kernel;
 use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerator;
 use App\Shared\Domain\Assert\Assert;
+use Centreon\Domain\Gorgone\Command\NodesSync;
+use Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface;
 use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
@@ -37,6 +39,49 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-config/centreonMainCfg.class
 
 const ZMQ = 1;
 const SSH = 2;
+const PULL = 3;
+const PULLWSS = 4;
+
+const GORGONE_DEFAULT_PORTS = [
+    ZMQ => 5556,
+    SSH => 22,
+    PULL => 5556,
+    PULLWSS => 8086,
+];
+
+/**
+ * Notify the Gorgone `centreon` module that the list of connected nodes changed.
+ * Called after nagios_server insert/update. No-op unless
+ * gorgone_communication_type is PullWSS. Fire-and-forget: any failure is
+ * logged and swallowed so a Gorgone outage cannot break the poller save.
+ *
+ * @param int|string|null $gorgoneCommunicationType raw value from the poller form
+ *                                                  (nagios_server.gorgone_communication_type).
+ *                                                  Expected to be one of ZMQ|SSH|PULL|PULLWSS or null;
+ *                                                  any non-numeric string casts to 0 and is treated
+ *                                                  as "not PullWSS".
+ * @param int|null $pollerId identifier of the server just persisted, used as log context
+ */
+function triggerGorgoneNodesSyncIfPullwss($gorgoneCommunicationType, ?int $pollerId = null): void
+{
+    if ((int) $gorgoneCommunicationType !== PULLWSS) {
+        return;
+    }
+
+    try {
+        Kernel::createForWeb()
+            ->getContainer()
+            ->get(GorgoneServiceInterface::class)
+            ->send(new NodesSync());
+    } catch (Throwable $exception) {
+        CentreonLog::create()->warning(
+            CentreonLog::TYPE_BUSINESS_LOG,
+            'Failed to trigger Gorgone nodes sync',
+            ['source' => 'poller_form', 'poller_id' => $pollerId],
+            $exception,
+        );
+    }
+}
 
 /**
  * Retrieve the next available suffixes for this server name from database
@@ -547,6 +592,11 @@ function insertServerInDB(array $data): int
         $deployAgentConfiguration($request);
     }
     addUserRessource($id);
+
+    triggerGorgoneNodesSyncIfPullwss(
+        $data['gorgone_communication_type']['gorgone_communication_type'] ?? null,
+        $id,
+    );
 
     return $id;
 }
@@ -1089,6 +1139,11 @@ function updateServer(int $id, array $data): void
         $instanceObj = new CentreonInstance($pearDB);
         $instanceObj->setCommands($id, $_REQUEST['pollercmd']);
     }
+
+    triggerGorgoneNodesSyncIfPullwss(
+        $data['gorgone_communication_type']['gorgone_communication_type'] ?? null,
+        $id,
+    );
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($data);

@@ -26,4 +26,6 @@ namespace App\MonitoringConfiguration\Domain\Security;
 enum PollerPermissionEnum: string
 {
     case CanCreateEdit = 'can_create_edit_poller';
+    case CanRead = 'can_read_poller';
+    case CanReadAndWrite = 'can_read_and_write_poller';
 }

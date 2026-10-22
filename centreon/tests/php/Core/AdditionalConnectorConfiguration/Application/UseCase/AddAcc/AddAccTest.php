@@ -42,8 +42,10 @@ use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new AddAccPresenterStub();
@@ -54,7 +56,10 @@ beforeEach(function (): void {
         factory: $this->factory = $this->createMock(AccFactory::class),
         dataStorageEngine: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
-        flags: $this->flags = new FeatureFlags(false, ''),
+        vaultEligibilityService: $this->vaultEligibilityService = new VaultEligibilityService(
+            new FeatureFlags(false, ''),
+            $this->createMock(ReadVaultConfigurationRepositoryInterface::class),
+        ),
         writeVaultAccRepositories: $this->writeVaultAccRepositories = new \ArrayIterator([]),
         writeMonitoringServerRepository: $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
     );

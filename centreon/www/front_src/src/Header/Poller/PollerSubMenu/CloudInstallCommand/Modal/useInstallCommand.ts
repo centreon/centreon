@@ -4,8 +4,9 @@ import {
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
+import { platformFeaturesAtom } from '@centreon/ui-context';
 
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -14,9 +15,33 @@ import { labelFailedToCreatePoller } from '../../../translatedLabels';
 import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from '../atoms';
 import type { CloudInstallCommandFormValues } from '../models';
 
+// On cloud, the whole application (including /poller/install.sh) is served
+// under the platform base path, and behind proxies/NAT only the browser knows
+// the client-reachable address — so the central address is host + <base href>,
+// never derived server-side.
+export const centralWebAddress = {
+  get: (): string => `${window.location.host}${centreonBaseURL}`
+};
+
+const normalizeAddress = (address?: string): string | undefined => {
+  const trimmed = address?.trim();
+
+  if (!trimmed?.includes('://')) {
+    return trimmed?.replace(/\/+$/, '');
+  }
+
+  try {
+    const url = new URL(trimmed);
+
+    return `${url.host}${url.pathname}`.replace(/\/+$/, '');
+  } catch {
+    return trimmed;
+  }
+};
+
 interface PollerResponse {
   id: number;
-  command: string;
+  installation_command: string;
 }
 
 interface UseInstallCommandState {
@@ -30,6 +55,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
   const [isOpen, setIsOpen] = useAtom(isModalOpenAtom);
   const setGeneratedCommand = useSetAtom(generatedCommandAtom);
   const setPollerId = useSetAtom(pollerIdAtom);
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
 
   const { showErrorMessage } = useSnackbar();
 
@@ -45,12 +71,19 @@ export const useInstallCommand = (): UseInstallCommandState => {
 
   const submit = useCallback(async (values: CloudInstallCommandFormValues) => {
     try {
+      const centralAddress = normalizeAddress(
+        platformFeatures?.isCloudPlatform
+          ? centralWebAddress.get()
+          : values?.centralAddress
+      );
+
       const pollerResponse = await createPoller({
         payload: {
           address: values.pollerAddress.trim(),
+          central_address: centralAddress,
           name: values.pollerName.trim(),
-          poller_type: values.environment,
-          token: values?.token?.name
+          poller_token_name: values?.token?.name,
+          poller_type: values.environment
         }
       });
 
@@ -65,12 +98,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
 
       setPollerId(pollerId);
 
-      const centralUrl = `${window.location.origin}${centreonBaseURL}`;
-      const command = (response?.command || '')
-        .split('<CENTRAL_URL>')
-        .join(centralUrl);
-
-      setGeneratedCommand(command);
+      setGeneratedCommand(response?.installation_command || '');
     } catch {
       showErrorMessage(t(labelFailedToCreatePoller));
     }

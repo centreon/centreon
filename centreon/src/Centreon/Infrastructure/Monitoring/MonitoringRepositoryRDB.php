@@ -328,12 +328,9 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
               AND h.enabled = \'1\'
               AND h.name NOT LIKE \'_Module_BAM%\''
             . $accessGroupFilter
-            . ' LEFT JOIN `:dbstg`.`services` srv
-              ON srv.host_id = h.host_id
-              AND srv.enabled = \'1\'
-            LEFT JOIN `:dbstg`.`hosts_hostgroups` hg
+            . ' INNER JOIN `:dbstg`.`hosts_hostgroups` hg
               ON hg.host_id = h.host_id
-              AND hg.hostgroup_id IN (' . str_repeat('?,', count($hostsGroupsIds) - 1)
+            WHERE hg.hostgroup_id IN (' . str_repeat('?,', count($hostsGroupsIds) - 1)
             . '?) ORDER BY h.name ASC';
 
         $request = $this->translateDbName($request);
@@ -482,12 +479,11 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $this->sqlRequestTranslator->setConcordanceArray($hostGroupConcordanceArray);
 
-        $sqlExtraParameters = [];
         $subRequest = '';
         if (! $this->isAdmin()) {
-            $sqlExtraParameters = [':contact_id' => [\PDO::PARAM_INT => $this->contact->getId()]];
-
-            // Not an admin, we must to filter on contact
+            // Not an admin: filter on the access groups already resolved from the contact by
+            // MonitoringService::filterByContact(). Joining the contact / contact group ACL
+            // tables here would be redundant.
             $subRequest
                 .= ' INNER JOIN `:db`.acl_resources_hg_relations hgr
                     ON hgr.hg_hg_id = hg.hostgroup_id
@@ -500,14 +496,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     ON grp.acl_group_id IN ('
                 . $this->accessGroupIdToString($this->accessGroups)
                 . ') AND grp.acl_group_activate = \'1\'
-                    AND grp.acl_group_id = rgr.acl_group_id
-                LEFT JOIN `:db`.acl_group_contacts_relations gcr
-                    ON gcr.acl_group_id = grp.acl_group_id
-                LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
-                    ON gcgr.acl_group_id = grp.acl_group_id
-                LEFT JOIN `:db`.contactgroup_contact_relation cgcr
-                    ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
-                    AND (cgcr.contact_contact_id = :contact_id OR gcr.contact_contact_id = :contact_id)';
+                    AND grp.acl_group_id = rgr.acl_group_id';
         }
 
         // This join will only be added if a search parameter corresponding to one of the host or Service parameter
@@ -581,13 +570,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $statement = $this->db->prepare($request);
 
         foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
-
-        // We bind extra parameters according to access rights
-        foreach ($sqlExtraParameters as $key => $data) {
             $type = key($data);
             $value = $data[$type];
             $statement->bindValue($key, $value, $type);
@@ -1403,12 +1385,11 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $this->sqlRequestTranslator->setConcordanceArray($serviceGroupConcordanceArray);
 
-        $sqlExtraParameters = [];
         $subRequest = '';
         if (! $this->isAdmin()) {
-            $sqlExtraParameters = [':contact_id' => [\PDO::PARAM_INT => $this->contact->getId()]];
-
-            // Not an admin, we must to filter on contact
+            // Not an admin: filter on the access groups already resolved from the contact by
+            // MonitoringService::filterByContact(). Joining the contact / contact group ACL
+            // tables here would be redundant.
             $subRequest
                 .= ' INNER JOIN `:db`.acl_resources_sg_relations sgr
                     ON sgr.sg_id = sg.servicegroup_id
@@ -1421,15 +1402,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     ON grp.acl_group_id IN ('
                 . $this->accessGroupIdToString($this->accessGroups)
                 . ') AND grp.acl_group_activate = \'1\'
-                    AND grp.acl_group_id = rgr.acl_group_id
-                LEFT JOIN `:db`.acl_group_contacts_relations gcr
-                    ON gcr.acl_group_id = grp.acl_group_id
-                LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
-                    ON gcgr.acl_group_id = grp.acl_group_id
-                LEFT JOIN `:db`.contactgroup_contact_relation cgcr
-                    ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
-                    AND cgcr.contact_contact_id = :contact_id
-                    OR gcr.contact_contact_id = :contact_id';
+                    AND grp.acl_group_id = rgr.acl_group_id';
         }
 
         // This join will only be added if a search parameter corresponding to one of the host or Service parameter
@@ -1518,12 +1491,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             $statement->bindValue($key, $value, $type);
         }
 
-        // We bind extra parameters according to access rights
-        foreach ($sqlExtraParameters as $key => $data) {
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
         $statement->execute();
 
         $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
@@ -1752,12 +1719,11 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             return $serviceGroups;
         }
 
-        $sqlExtraParameters = [];
         $subRequest = '';
         if (! $this->isAdmin()) {
-            $sqlExtraParameters = [':contact_id' => [\PDO::PARAM_INT => $this->contact->getId()]];
-
-            // Not an admin, we must to filter on contact
+            // Not an admin: filter on the access groups already resolved from the contact by
+            // MonitoringService::filterByContact(). Joining the contact / contact group ACL
+            // tables here would be redundant.
             $subRequest
                 .= ' INNER JOIN `:db`.acl_resources_sg_relations sgr
                     ON sgr.sg_id = sg.servicegroup_id
@@ -1770,15 +1736,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     ON grp.acl_group_id IN ('
                 . $this->accessGroupIdToString($this->accessGroups)
                 . ') AND grp.acl_group_activate = \'1\'
-                    AND grp.acl_group_id = rgr.acl_group_id
-                LEFT JOIN `:db`.acl_group_contacts_relations gcr
-                    ON gcr.acl_group_id = grp.acl_group_id
-                LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
-                    ON gcgr.acl_group_id = grp.acl_group_id
-                LEFT JOIN `:db`.contactgroup_contact_relation cgcr
-                    ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
-                    AND cgcr.contact_contact_id = :contact_id
-                    OR gcr.contact_contact_id = :contact_id';
+                    AND grp.acl_group_id = rgr.acl_group_id';
         }
 
         $subRequest
@@ -1816,13 +1774,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
 
         $statement = $this->db->prepare($request);
-
-        // We bind extra parameters according to access rights
-        foreach ($sqlExtraParameters as $key => $data) {
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
 
         // bind where clause without search parameters
         $statement->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
