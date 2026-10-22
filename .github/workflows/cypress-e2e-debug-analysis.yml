@@ -105,8 +105,12 @@ jobs:
             pre-existing / environment-related and unrelated to the diff (explain why — e.g. a \
             timing-sensitive wait, a known-flaky selector pattern, an infra timeout)? If the same \
             scenario fails on more than one combo, say so instead of repeating the analysis. \
-            Write your conclusion directly to \$GITHUB_STEP_SUMMARY as markdown: one heading per \
-            failing scenario, a bold verdict, then your reasoning. Do not edit any repository \
+            Write your conclusion directly to \$GITHUB_STEP_SUMMARY as markdown, one heading per \
+            failing scenario, each with exactly these three parts in this order: a '**Verdict:**' \
+            line stating caused by this PR's diff or flaky/pre-existing, an 'Explanation' section \
+            with your reasoning (cite the specific line(s)/change or the flaky pattern), and a \
+            'Proposed fix' section with a concrete, actionable suggestion (e.g. the exact line to \
+            revert or change, or how to stabilize a flaky step). Do not edit any repository \
             files, do not open a PR or post a comment anywhere — \$GITHUB_STEP_SUMMARY is the \
             only output. Stop once you have written it." \
             --allowedTools "Bash,Read,Grep,Glob" \
