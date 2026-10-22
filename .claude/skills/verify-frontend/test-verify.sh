@@ -199,7 +199,7 @@ reset
 
 # Interrupted: the running step and the temporary tsconfig are cleaned up.
 printf 'export const y = 2;\n' >> "${src}/Hosts/Form/form.tsx"
-(cd "${repo}" && STUB_SLEEP='tsc' "${SCRIPT}" --fast > /dev/null 2>&1) &
+(cd "${repo}" && exec env STUB_SLEEP='tsc' "${SCRIPT}" --fast > /dev/null 2>&1) &
 pid=$!
 for _ in 1 2 3 4 5 6 7 8 9 10; do [[ -f "${TMP}/sleep.pid" ]] && break; sleep 1; done
 kill -TERM "${pid}"
