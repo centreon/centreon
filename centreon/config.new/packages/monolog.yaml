@@ -35,6 +35,8 @@ monolog:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.web.log"
             level: debug
+            # Group-writable: console commands run by group members (e.g. centreon-broker) append to it too.
+            file_permission: 0664
             # Rotation handled by logrotate; do NOT use `rotating_file` (fights over the filename suffix).
             formatter: monolog.formatter.line
 
@@ -67,6 +69,7 @@ when@dev:
                 path: "%kernel.logs_dir%/%kernel.environment%.web.log"
                 max_files: 14
                 level: debug
+                file_permission: 0664
                 formatter: monolog.formatter.line
             console:
                 type: console
