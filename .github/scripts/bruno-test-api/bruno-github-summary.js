@@ -56,9 +56,17 @@ report.forEach((iteration) => {
   });
 });
 
+// A passing collection adds nothing worth reading to the run's Summary tab — with 40+
+// collections per run, printing one all-green table per collection just buries the ones
+// that actually failed. Stay silent here; the caller still redirects stdout to
+// $GITHUB_STEP_SUMMARY, so no output means no block for this collection.
+if (failed === 0) {
+  process.exit(0);
+}
+
 const avgTime = total ? Math.round(totalTime / total) : 0;
-const globalStatus = failed === 0 ? "SUCCESS ✅" : "FAILED ❌";
-const globalColor = failed === 0 ? "#16a34a" : "#dc2626";
+const globalStatus = "FAILED ❌";
+const globalColor = "#dc2626";
 
 // ------------------------
 // Header (LOGO VIA URL)
