@@ -19,7 +19,6 @@
  *
  */
 
-
 declare(strict_types=1);
 
 namespace Tests\Core\AgentConfiguration\Application\UseCase\CreateHostForAgentConfiguration;
