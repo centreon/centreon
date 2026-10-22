@@ -51,7 +51,7 @@ final class HostResourceSortDocumentationTest extends TestCase
             }
         }
 
-        $sortable = array_keys((new HostCriteria())->getFieldMapping());
+        $sortable = array_keys(HostCriteria::unscoped()->getFieldMapping());
 
         sort($documented);
         sort($sortable);

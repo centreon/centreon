@@ -33,7 +33,7 @@ final class MediaCriteriaTest extends TestCase
 
     public function testWithNameReturnsANewInstanceAndLeavesTheOriginalUnchanged(): void
     {
-        $criteria = new MediaCriteria();
+        $criteria = MediaCriteria::unscoped();
 
         $withName = $criteria->withName('foo');
 
@@ -46,7 +46,7 @@ final class MediaCriteriaTest extends TestCase
     {
         // stringNotEmpty(), not notEmpty(): notEmpty() relies on PHP's empty(), which wrongly
         // treats "0" as empty. A media legitimately named "0" must not be rejected.
-        $criteria = (new MediaCriteria())->withName('0');
+        $criteria = MediaCriteria::unscoped()->withName('0');
 
         self::assertSame('0', $criteria->getName());
     }
@@ -55,6 +55,6 @@ final class MediaCriteriaTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        (new MediaCriteria())->withName('');
+        MediaCriteria::unscoped()->withName('');
     }
 }

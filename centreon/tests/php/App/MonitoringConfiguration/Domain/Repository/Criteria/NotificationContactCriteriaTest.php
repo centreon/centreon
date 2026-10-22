@@ -33,7 +33,7 @@ final class NotificationContactCriteriaTest extends TestCase
 
     public function testWithNameReturnsANewInstanceAndLeavesTheOriginalUnchanged(): void
     {
-        $criteria = new NotificationContactCriteria();
+        $criteria = NotificationContactCriteria::unscoped();
 
         $withName = $criteria->withName('foo');
 
@@ -46,7 +46,7 @@ final class NotificationContactCriteriaTest extends TestCase
     {
         // stringNotEmpty(), not notEmpty(): notEmpty() relies on PHP's empty(), which wrongly
         // treats "0" as empty. A contact legitimately named "0" must not be rejected.
-        $criteria = (new NotificationContactCriteria())->withName('0');
+        $criteria = NotificationContactCriteria::unscoped()->withName('0');
 
         self::assertSame('0', $criteria->getName());
     }
@@ -55,6 +55,6 @@ final class NotificationContactCriteriaTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        (new NotificationContactCriteria())->withName('');
+        NotificationContactCriteria::unscoped()->withName('');
     }
 }

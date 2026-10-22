@@ -88,7 +88,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->insertHostTemplate($templateName);
         $this->insertRegularHost($hostName);
 
-        $names = $this->names($this->repository->findAll(new HostTemplateCriteria()->withoutAccessScope()));
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()));
 
         self::assertContains($templateName, $names);
         self::assertNotContains($hostName, $names, 'A regular host (host_register = 1) must not appear among host templates.');
@@ -102,7 +102,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $excludedId = $this->insertHostTemplate($excludedName);
 
         $names = $this->names($this->repository->findAll(
-            (new HostTemplateCriteria())->withoutAccessScope()->withName($this->tag)->withExcludedIds(new Collection([new HostTemplateId($excludedId)], HostTemplateId::class))
+            HostTemplateCriteria::unscoped()->withName($this->tag)->withExcludedIds(new Collection([new HostTemplateId($excludedId)], HostTemplateId::class))
         ));
 
         self::assertContains($keptName, $names);
@@ -115,7 +115,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->insertHostTemplate("other-{$this->tag}");
 
         $names = $this->names($this->repository->findAll(
-            (new HostTemplateCriteria())->withoutAccessScope()->withId(new HostTemplateId($wantedId))
+            HostTemplateCriteria::unscoped()->withId(new HostTemplateId($wantedId))
         ));
 
         self::assertSame(["wanted-{$this->tag}"], $names);
@@ -126,7 +126,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->insertHostTemplate("match-{$this->tag}");
         $this->insertHostTemplate("other-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new HostTemplateCriteria())->withoutAccessScope()->withName("match-{$this->tag}")));
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()->withName("match-{$this->tag}")));
 
         self::assertSame(["match-{$this->tag}"], $names);
     }
@@ -140,7 +140,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded templates cannot skew the total.
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            (new HostTemplateCriteria())->withoutAccessScope()->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            HostTemplateCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -198,12 +198,12 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         // the actor's ACL grants BOTH the severity and the regular category
         $actorId = new UserId($this->createContactRestrictedToHostCategories([$severityId, $regularId]));
 
-        $names = $this->names($this->repository->findAll((new HostTemplateCriteria())->withActor(TestActingUsers::restricted($actorId->value))));
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::forActor(TestActingUsers::restricted($actorId->value))));
 
         self::assertContains("acl-severity-{$this->tag}", $names);
         self::assertNotContains("acl-regular-{$this->tag}", $names, 'A template linked only to a regular (levelless) category is excluded even though that category is in the ACL — legacy scopes by severities.');
         self::assertNotContains($uncategorizedName, $names, 'A template with no category is excluded for a restricted actor.');
-        self::assertContains($uncategorizedName, $this->names($this->repository->findAll((new HostTemplateCriteria())->withActor(TestActingUsers::unrestricted($actorId->value)))), 'An unrestricted actor is not scoped by ACL.');
+        self::assertContains($uncategorizedName, $this->names($this->repository->findAll(HostTemplateCriteria::forActor(TestActingUsers::unrestricted($actorId->value)))), 'An unrestricted actor is not scoped by ACL.');
     }
 
     public function testFindAllReturnsAllTemplatesForAActorWithNoCategoryRestriction(): void
@@ -217,7 +217,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         // ACL resource without any host-category relation → no restriction → sees everything
         $actorId = new UserId($this->createContactRestrictedToHostCategories([]));
 
-        $names = $this->names($this->repository->findAll((new HostTemplateCriteria())->withActor(TestActingUsers::restricted($actorId->value))));
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::forActor(TestActingUsers::restricted($actorId->value))));
 
         self::assertContains("acl-in-{$this->tag}", $names);
         self::assertContains($uncategorizedName, $names);
@@ -237,7 +237,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
 
         $actorId = new UserId($this->createContactRestrictedToHostCategories([$regularId]));
 
-        $criteria = (new HostTemplateCriteria())->withActor(TestActingUsers::restricted($actorId->value));
+        $criteria = HostTemplateCriteria::forActor(TestActingUsers::restricted($actorId->value));
 
         self::assertSame([], $this->names($this->repository->findAll($criteria)), 'An actor granted only regular categories sees no host template.');
 

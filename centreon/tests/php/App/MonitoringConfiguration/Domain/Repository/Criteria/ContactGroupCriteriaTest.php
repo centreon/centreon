@@ -34,7 +34,7 @@ final class ContactGroupCriteriaTest extends TestCase
 {
     public function testWithNameLeavesTheOriginalUnchanged(): void
     {
-        $criteria = new ContactGroupCriteria();
+        $criteria = ContactGroupCriteria::unscoped();
 
         $new = $criteria->withName('Supervisors');
 
@@ -44,7 +44,7 @@ final class ContactGroupCriteriaTest extends TestCase
 
     public function testWithPaginationLeavesTheOriginalUnchanged(): void
     {
-        $criteria = new ContactGroupCriteria();
+        $criteria = ContactGroupCriteria::unscoped();
 
         $new = $criteria->withPagination(2, 10);
 
@@ -55,43 +55,39 @@ final class ContactGroupCriteriaTest extends TestCase
         self::assertSame(10, $pagination->itemsPerPage);
     }
 
-    public function testWithActorScopesToWhatTheActorMayAccess(): void
+    public function testForActorScopesToWhatTheActorMayAccess(): void
     {
-        $scope = (new ContactGroupCriteria())->withActor(TestActingUsers::restricted(7))->accessScope($this->scopeOf(...), ContactGroupId::class);
+        $scope = ContactGroupCriteria::forActor(TestActingUsers::restricted(7))->accessScope($this->scopeOf(...), ContactGroupId::class);
 
         self::assertSame([7], $scope->allowedIdValues());
     }
 
-    public function testACriteriaNeitherScopedNorOptedOutFailsClosed(): void
+    public function testWithersKeepTheActor(): void
     {
-        $criteria = new ContactGroupCriteria();
-        $criteria->withActor(TestActingUsers::restricted(7));
+        $criteria = ContactGroupCriteria::forActor(TestActingUsers::restricted(7))->withName('Supervisors')->withPagination(1, 10);
 
-        $this->expectException(\LogicException::class);
-
-        $criteria->accessScope($this->scopeOf(...), ContactGroupId::class);
+        self::assertSame([7], $criteria->accessScope($this->scopeOf(...), ContactGroupId::class)->allowedIdValues());
     }
 
-    public function testACriteriaWithoutAccessScopeIsUnrestricted(): void
+    public function testAnUnscopedCriteriaIsUnrestricted(): void
     {
-        $scope = (new ContactGroupCriteria())->withoutAccessScope()->accessScope(
-            static fn (ActingUser $actor): never => self::fail('An opted-out criteria must not resolve any scope.'),
+        $scope = ContactGroupCriteria::unscoped()->accessScope(
+            static fn (ActingUser $actor): never => self::fail('An unscoped criteria must not resolve any scope.'),
             ContactGroupId::class,
         );
 
         self::assertTrue($scope->isUnrestricted());
     }
 
-    public function testWithActorScopesAnOptedOutCriteriaAgain(): void
+    public function testACriteriaCannotBeBuiltWithoutChoosingItsScope(): void
     {
-        $scope = (new ContactGroupCriteria())->withoutAccessScope()->withActor(TestActingUsers::restricted(7))->accessScope($this->scopeOf(...), ContactGroupId::class);
-
-        self::assertFalse($scope->isUnrestricted());
+        // Fail closed by construction: only forActor() and unscoped() build a criteria.
+        self::assertTrue((new \ReflectionMethod(ContactGroupCriteria::class, '__construct'))->isPrivate());
     }
 
     public function testWithNameDeduplicates(): void
     {
-        $criteria = (new ContactGroupCriteria())
+        $criteria = ContactGroupCriteria::unscoped()
             ->withName('Supervisors')
             ->withName('Supervisors');
 
@@ -101,28 +97,28 @@ final class ContactGroupCriteriaTest extends TestCase
     public function testWithNameAcceptsAZeroName(): void
     {
         // "0" is a legitimate name: the guard must be stringNotEmpty, not notEmpty (which uses empty()).
-        self::assertSame(['0'], (new ContactGroupCriteria())->withName('0')->getNames());
+        self::assertSame(['0'], ContactGroupCriteria::unscoped()->withName('0')->getNames());
     }
 
     public function testWithNameRejectsAnEmptyName(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        (new ContactGroupCriteria())->withName('');
+        ContactGroupCriteria::unscoped()->withName('');
     }
 
     public function testWithPaginationRejectsANonPositivePage(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        (new ContactGroupCriteria())->withPagination(0, 10);
+        ContactGroupCriteria::unscoped()->withPagination(0, 10);
     }
 
     public function testWithPaginationRejectsANonPositiveItemsPerPage(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        (new ContactGroupCriteria())->withPagination(1, 0);
+        ContactGroupCriteria::unscoped()->withPagination(1, 0);
     }
 
     /**

@@ -95,7 +95,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->insertHostGroup(301, 'HostGroup-A');
         $this->insertHostGroup(302, 'HostGroup-B');
 
-        $hostGroups = iterator_to_array($this->repository->findAll(new HostGroupCriteria()->withoutAccessScope()));
+        $hostGroups = iterator_to_array($this->repository->findAll(HostGroupCriteria::unscoped()));
 
         self::assertCount(2, $hostGroups);
         self::assertContainsOnlyInstancesOf(HostGroup::class, $hostGroups);
@@ -106,7 +106,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->insertHostGroup(301, 'Linux-Servers');
         $this->insertHostGroup(302, 'Windows-Servers');
 
-        $criteria = (new HostGroupCriteria())->withoutAccessScope()->withName('Linux');
+        $criteria = HostGroupCriteria::unscoped()->withName('Linux');
 
         $hostGroups = iterator_to_array($this->repository->findAll($criteria));
 
@@ -120,7 +120,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->insertHostGroup(302, 'HostGroup-B');
         $this->insertHostGroup(303, 'HostGroup-C');
 
-        $criteria = (new HostGroupCriteria())->withoutAccessScope()->withPagination(page: 2, itemsPerPage: 1);
+        $criteria = HostGroupCriteria::unscoped()->withPagination(page: 2, itemsPerPage: 1);
 
         $paginator = $this->repository->findAll($criteria);
 
@@ -139,13 +139,13 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $contactId = $this->createContact('restricted-user');
         $this->restrictContactToHostGroups($contactId, [302]);
 
-        $criteria = (new HostGroupCriteria())->withActor(TestActingUsers::restricted($contactId));
+        $criteria = HostGroupCriteria::forActor(TestActingUsers::restricted($contactId));
 
         $hostGroups = iterator_to_array($this->repository->findAll($criteria));
 
         self::assertCount(1, $hostGroups);
         self::assertSame(['HostGroup-B'], $this->extractNames($hostGroups));
-        self::assertContains('HostGroup-A', $this->extractNames(iterator_to_array($this->repository->findAll((new HostGroupCriteria())->withActor(TestActingUsers::unrestricted($contactId))))), 'An unrestricted actor is not scoped by ACL.');
+        self::assertContains('HostGroup-A', $this->extractNames(iterator_to_array($this->repository->findAll(HostGroupCriteria::forActor(TestActingUsers::unrestricted($contactId))))), 'An unrestricted actor is not scoped by ACL.');
     }
 
     private function insertHostGroup(int $id, string $name): void

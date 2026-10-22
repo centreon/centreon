@@ -92,7 +92,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $name = "media-{$this->tag}.png";
         $this->insertMedia($name, $this->defaultDirId);
 
-        $names = $this->names($this->repository->findAll(new MediaCriteria()->withoutAccessScope()));
+        $names = $this->names($this->repository->findAll(MediaCriteria::unscoped()));
 
         self::assertContains($name, $names);
     }
@@ -102,7 +102,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $this->insertMedia("match-{$this->tag}.png", $this->defaultDirId);
         $this->insertMedia("other-{$this->tag}.png", $this->defaultDirId);
 
-        $names = $this->names($this->repository->findAll((new MediaCriteria())->withoutAccessScope()->withName("match-{$this->tag}")));
+        $names = $this->names($this->repository->findAll(MediaCriteria::unscoped()->withName("match-{$this->tag}")));
 
         self::assertSame(["match-{$this->tag}.png"], $names);
     }
@@ -116,7 +116,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded media cannot skew the total.
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            (new MediaCriteria())->withoutAccessScope()->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            MediaCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -132,7 +132,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $this->insertMedia("with-dir-{$this->tag}.png", $dirId);
 
         /** @var list<Media> $medias */
-        $medias = iterator_to_array($this->repository->findAll((new MediaCriteria())->withoutAccessScope()->withName("with-dir-{$this->tag}")));
+        $medias = iterator_to_array($this->repository->findAll(MediaCriteria::unscoped()->withName("with-dir-{$this->tag}")));
 
         self::assertCount(1, $medias);
         self::assertSame("custom-dir-{$this->tag}", $medias[0]->directory->value);
@@ -147,7 +147,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         // one Access Group flagged all_image_folders='1': matches legacy's "sees everything" shortcut
         $this->linkContactToAclResourceForImageFolders($actorId, restrictToImageFolderIds: [], allImageFolders: true);
 
-        $names = $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestActingUsers::restricted($actorId))));
+        $names = $this->names($this->repository->findAll(MediaCriteria::forActor(TestActingUsers::restricted($actorId))));
 
         self::assertContains("{$accessibleName}.png", $names);
     }
@@ -165,11 +165,11 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $actorId = $this->createActor();
         $this->linkContactToAclResourceForImageFolders($actorId, restrictToImageFolderIds: [$restrictedDirId], allImageFolders: false);
 
-        $names = $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestActingUsers::restricted($actorId))));
+        $names = $this->names($this->repository->findAll(MediaCriteria::forActor(TestActingUsers::restricted($actorId))));
 
         self::assertContains($accessibleName, $names);
         self::assertNotContains($inaccessibleName, $names, 'Media in a folder not granted to the actor must be excluded.');
-        self::assertContains($inaccessibleName, $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestActingUsers::unrestricted($actorId)))), 'An unrestricted actor is not scoped by ACL.');
+        self::assertContains($inaccessibleName, $this->names($this->repository->findAll(MediaCriteria::forActor(TestActingUsers::unrestricted($actorId)))), 'An unrestricted actor is not scoped by ACL.');
     }
 
     public function testFindAllReturnsNoMediaForARestrictedActorWithNoAccessGroup(): void
@@ -179,7 +179,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         // an actor whose own contact record carries no ACL group relation at all
         $actorId = $this->createActor();
 
-        $names = $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestActingUsers::restricted($actorId))));
+        $names = $this->names($this->repository->findAll(MediaCriteria::forActor(TestActingUsers::restricted($actorId))));
 
         self::assertSame([], $names, 'An actor with no active Access Group is restricted and sees no media.');
     }
@@ -191,7 +191,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $actorId = $this->createActor();
 
         $result = $this->repository->findAll(
-            (new MediaCriteria())->withActor(TestActingUsers::restricted($actorId))->withPagination(1, 10)
+            MediaCriteria::forActor(TestActingUsers::restricted($actorId))->withPagination(1, 10)
         );
 
         self::assertInstanceOf(

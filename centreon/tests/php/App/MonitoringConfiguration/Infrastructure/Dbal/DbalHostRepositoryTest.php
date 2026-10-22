@@ -106,7 +106,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->linkHostToTemplate($hostId, $templateOneId);
         $this->linkHostToTemplate($hostId, $templateTwoId);
 
-        $hosts = iterator_to_array($this->repository->findAll(new HostCriteria()->withoutAccessScope()));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()));
 
         self::assertCount(1, $hosts);
         $host = $hosts[0];
@@ -131,7 +131,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->linkHostToTemplate($hostId, $templateOneId);
         $this->linkHostToTemplate($hostId, $templateTwoId);
 
-        self::assertCount(1, iterator_to_array($this->repository->findAll(new HostCriteria()->withoutAccessScope())));
+        self::assertCount(1, iterator_to_array($this->repository->findAll(HostCriteria::unscoped())));
     }
 
     public function testItTreatsAnEmptyAliasAsNull(): void
@@ -139,7 +139,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $pollerId = $this->createPoller('Central');
         $this->createHost('server-03', $pollerId, alias: '');
 
-        $host = iterator_to_array($this->repository->findAll(new HostCriteria()->withoutAccessScope()))[0];
+        $host = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()))[0];
 
         self::assertNull($host->alias);
     }
@@ -150,7 +150,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->createHostTemplate('a-template');
         $this->createHost('a-real-host', $pollerId);
 
-        $hosts = iterator_to_array($this->repository->findAll(new HostCriteria()->withoutAccessScope()));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()));
 
         self::assertCount(1, $hosts);
         self::assertSame('a-real-host', $hosts[0]->name->value);
@@ -173,7 +173,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $matchingId = $this->createHost('web-frontend', $pollerId);
         $this->createHost('database-backend', $pollerId);
 
-        $hosts = iterator_to_array($this->repository->findAll((new HostCriteria())->withoutAccessScope()->withName('front')));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()->withName('front')));
 
         self::assertCount(1, $hosts);
         self::assertSame($matchingId, $hosts[0]->id()->value);
@@ -187,7 +187,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->linkHostToTemplate($matchingId, $templateId);
         $this->createHost('host-without-template', $pollerId);
 
-        $hosts = iterator_to_array($this->repository->findAll((new HostCriteria())->withoutAccessScope()->withTemplateId($templateId)));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()->withTemplateId($templateId)));
 
         self::assertCount(1, $hosts);
         self::assertSame($matchingId, $hosts[0]->id()->value);
@@ -201,7 +201,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->linkHostToGroup($matchingId, $groupId);
         $this->createHost('ungrouped-host', $pollerId);
 
-        $hosts = iterator_to_array($this->repository->findAll((new HostCriteria())->withoutAccessScope()->withGroupId($groupId)));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()->withGroupId($groupId)));
 
         self::assertCount(1, $hosts);
         self::assertSame($matchingId, $hosts[0]->id()->value);
@@ -214,7 +214,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $matchingId = $this->createHost('on-poller-one', $pollerOneId);
         $this->createHost('on-poller-two', $pollerTwoId);
 
-        $hosts = iterator_to_array($this->repository->findAll((new HostCriteria())->withoutAccessScope()->withPollerId($pollerOneId)));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()->withPollerId($pollerOneId)));
 
         self::assertCount(1, $hosts);
         self::assertSame($matchingId, $hosts[0]->id()->value);
@@ -226,7 +226,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->createHost('active-host', $pollerId, activated: true);
         $inactiveId = $this->createHost('inactive-host', $pollerId, activated: false);
 
-        $hosts = iterator_to_array($this->repository->findAll((new HostCriteria())->withoutAccessScope()->withActivated(false)));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()->withActivated(false)));
 
         self::assertCount(1, $hosts);
         self::assertSame($inactiveId, $hosts[0]->id()->value);
@@ -239,7 +239,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
             $this->createHost('host-' . $hostNumber, $pollerId);
         }
 
-        $result = $this->repository->findAll((new HostCriteria())->withoutAccessScope()->withPagination(1, 2));
+        $result = $this->repository->findAll(HostCriteria::unscoped()->withPagination(1, 2));
 
         self::assertInstanceOf(InMemoryPaginator::class, $result);
         self::assertSame(3, $result->getTotalItems());
@@ -254,7 +254,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $actorId = new UserId(42);
         // No entry in $this->accessGroupRepository->groupIdsByUserId: the actor belongs to no group.
 
-        $hosts = iterator_to_array($this->repository->findAll((new HostCriteria())->withActor(TestActingUsers::restricted($actorId->value))));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::forActor(TestActingUsers::restricted($actorId->value))));
 
         self::assertCount(0, $hosts);
     }
@@ -271,7 +271,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->linkHostToAcl($accessibleId, $groupId);
         // The restricted host is deliberately not linked to any centreon_acl row for this group.
 
-        $hosts = iterator_to_array($this->repository->findAll((new HostCriteria())->withActor(TestActingUsers::restricted($actorId->value))));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::forActor(TestActingUsers::restricted($actorId->value))));
 
         self::assertCount(1, $hosts);
         self::assertSame($accessibleId, $hosts[0]->id()->value);
@@ -283,16 +283,16 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->createHost('unrestricted-host', $pollerId);
 
         // No entry in $this->accessGroupRepository->groupIdsByUserId: scoped, this user would see nothing.
-        self::assertCount(1, iterator_to_array($this->repository->findAll((new HostCriteria())->withActor(TestActingUsers::unrestricted(42)))));
+        self::assertCount(1, iterator_to_array($this->repository->findAll(HostCriteria::forActor(TestActingUsers::unrestricted(42)))));
     }
 
-    public function testWithoutActorEveryHostIsSeenRegardlessOfAcl(): void
+    public function testAnUnscopedCriteriaSeesEveryHostRegardlessOfAcl(): void
     {
-        // No withActor() call: the criteria carry no ACL scoping at all.
+        // An unscoped criteria carries no ACL scoping at all.
         $pollerId = $this->createPoller('Central');
         $this->createHost('unrestricted-host', $pollerId);
 
-        self::assertCount(1, iterator_to_array($this->repository->findAll(new HostCriteria()->withoutAccessScope())));
+        self::assertCount(1, iterator_to_array($this->repository->findAll(HostCriteria::unscoped())));
     }
 
     public function testUpdateActivationStatusPersistsTheFlag(): void
@@ -701,7 +701,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
 
         self::assertGreaterThan(0, $host->id()->value);
 
-        $hosts = iterator_to_array($this->repository->findAll(new HostCriteria()->withoutAccessScope()));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()));
         self::assertCount(1, $hosts);
         $persisted = array_values($hosts)[0];
         self::assertSame('server-01', $persisted->name->value);
@@ -1043,7 +1043,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $pollerId = $this->createPoller('Central');
         $this->createHost('no-icon-host', $pollerId);
 
-        $host = iterator_to_array($this->repository->findAll(new HostCriteria()->withoutAccessScope()))[0];
+        $host = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()))[0];
 
         self::assertNull($host->extendedInformations?->iconId);
     }
@@ -1054,7 +1054,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $imgId = $this->createImage('server.png');
         $this->createHost('iconed-host', $pollerId, iconId: $imgId);
 
-        $host = iterator_to_array($this->repository->findAll(new HostCriteria()->withoutAccessScope()))[0];
+        $host = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()))[0];
 
         self::assertNotNull($host->extendedInformations?->iconId);
         self::assertSame($imgId, $host->extendedInformations->iconId->value);
@@ -1079,7 +1079,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
             'nagios_server_id' => $pollerId,
         ]);
 
-        $hosts = iterator_to_array($this->repository->findAll(new HostCriteria()->withoutAccessScope()));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()));
 
         self::assertCount(1, $hosts);
         self::assertSame($hostId, $hosts[0]->id()->value);
@@ -1464,7 +1464,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->linkHostToTemplate($hostId, $secondTemplateId, order: 0);
         $this->linkHostToTemplate($hostId, $firstTemplateId, order: 1);
 
-        $hosts = iterator_to_array($this->repository->findAll(new HostCriteria()->withoutAccessScope()));
+        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::unscoped()));
 
         self::assertSame(
             [$secondTemplateId, $firstTemplateId],

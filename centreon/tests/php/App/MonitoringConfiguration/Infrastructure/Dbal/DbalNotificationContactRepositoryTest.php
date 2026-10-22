@@ -69,7 +69,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $name = "contact-{$this->tag}";
         $this->insertContact($name);
 
-        $names = $this->names($this->repository->findAll(new NotificationContactCriteria()->withoutAccessScope()));
+        $names = $this->names($this->repository->findAll(NotificationContactCriteria::unscoped()));
 
         self::assertContains($name, $names);
     }
@@ -83,7 +83,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $keptName = "kept-{$this->tag}";
         $this->insertContact($keptName);
 
-        $names = $this->names($this->repository->findAll(new NotificationContactCriteria()->withoutAccessScope()));
+        $names = $this->names($this->repository->findAll(NotificationContactCriteria::unscoped()));
 
         self::assertContains($keptName, $names);
     }
@@ -95,7 +95,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $unregisteredName = "unregistered-{$this->tag}";
         $this->insertContact($unregisteredName, registered: false);
 
-        $names = $this->names($this->repository->findAll(new NotificationContactCriteria()->withoutAccessScope()));
+        $names = $this->names($this->repository->findAll(NotificationContactCriteria::unscoped()));
 
         self::assertContains($registeredName, $names);
         self::assertNotContains($unregisteredName, $names, 'A non-registered contact (contact_register = 0) must never appear.');
@@ -106,7 +106,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->insertContact("match-{$this->tag}");
         $this->insertContact("other-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withoutAccessScope()->withName("match-{$this->tag}")));
+        $names = $this->names($this->repository->findAll(NotificationContactCriteria::unscoped()->withName("match-{$this->tag}")));
 
         self::assertSame(["match-{$this->tag}"], $names);
     }
@@ -117,7 +117,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->insertContact($name, alias: "findme-{$this->tag}");
         $this->insertContact("other-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withoutAccessScope()->withName("findme-{$this->tag}")));
+        $names = $this->names($this->repository->findAll(NotificationContactCriteria::unscoped()->withName("findme-{$this->tag}")));
 
         self::assertSame([$name], $names, 'The search must also match contact_alias: users often know a contact by their alias rather than their full name.');
     }
@@ -131,7 +131,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded contacts cannot skew the total.
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            (new NotificationContactCriteria())->withoutAccessScope()->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            NotificationContactCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -151,11 +151,11 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $aclGroupId = $this->createAccessGroupForActor($actorId);
         $this->linkContactToAccessGroup($accessibleId, $aclGroupId);
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($actorId))));
+        $names = $this->names($this->repository->findAll(NotificationContactCriteria::forActor(TestActingUsers::restricted($actorId))));
 
         self::assertContains($accessibleName, $names);
         self::assertNotContains($inaccessibleName, $names, 'A contact with no ACL group relation at all is excluded.');
-        self::assertContains($inaccessibleName, $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::unrestricted($actorId)))), 'An unrestricted actor is not scoped by ACL.');
+        self::assertContains($inaccessibleName, $this->names($this->repository->findAll(NotificationContactCriteria::forActor(TestActingUsers::unrestricted($actorId)))), 'An unrestricted actor is not scoped by ACL.');
     }
 
     public function testFindAllRestrictsToContactsBelongingToAContactGroupLinkedToActorAccessGroup(): void
@@ -171,7 +171,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->addContactToContactGroup($accessibleId, $contactGroupId);
         $this->linkContactGroupToAccessGroup($contactGroupId, $aclGroupId);
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($actorId))));
+        $names = $this->names($this->repository->findAll(NotificationContactCriteria::forActor(TestActingUsers::restricted($actorId))));
 
         self::assertContains($accessibleName, $names);
         self::assertNotContains(
@@ -188,7 +188,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         // an actor whose own contact record carries no ACL group relation at all
         $actorId = $this->createActor();
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($actorId))));
+        $names = $this->names($this->repository->findAll(NotificationContactCriteria::forActor(TestActingUsers::restricted($actorId))));
 
         self::assertSame([], $names, 'An actor with no active Access Group is restricted and sees no contact.');
     }
@@ -200,7 +200,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $actorId = $this->createActor();
 
         $result = $this->repository->findAll(
-            (new NotificationContactCriteria())->withActor(TestActingUsers::restricted($actorId))->withPagination(1, 10)
+            NotificationContactCriteria::forActor(TestActingUsers::restricted($actorId))->withPagination(1, 10)
         );
 
         self::assertInstanceOf(
@@ -228,7 +228,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->addContactToContactGroup($contactId, $contactGroupId);
         $this->linkContactGroupToAccessGroup($contactGroupId, $aclGroupId);
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($actorId))));
+        $names = $this->names($this->repository->findAll(NotificationContactCriteria::forActor(TestActingUsers::restricted($actorId))));
 
         self::assertSame(1, array_count_values($names)[$name] ?? 0, 'A contact matching both ACL branches at once must still appear exactly once.');
     }

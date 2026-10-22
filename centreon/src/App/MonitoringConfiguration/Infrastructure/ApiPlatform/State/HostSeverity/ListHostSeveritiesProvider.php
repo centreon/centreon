@@ -66,7 +66,10 @@ final readonly class ListHostSeveritiesProvider implements ProviderInterface
     {
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
-        $criteria = new HostSeverityCriteria();
+
+        // Unrestricted users (super admins and Cloud tenant admins, matching legacy
+        // FindHostSeverities::isUserAdmin) see every host severity; others are scoped to their accessible severities.
+        $criteria = HostSeverityCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -78,10 +81,6 @@ final readonly class ListHostSeveritiesProvider implements ProviderInterface
         /** @var array{name?: mixed} $filters */
         $filters = $context['filters'] ?? [];
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
-
-        // Unrestricted users (super admins and Cloud tenant admins, matching legacy
-        // FindHostSeverities::isUserAdmin) see every host severity; others are scoped to their accessible severities.
-        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $hostSeverities = $this->repository->findAll($criteria);
         $resources = [];

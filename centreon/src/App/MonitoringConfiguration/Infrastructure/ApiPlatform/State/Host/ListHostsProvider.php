@@ -88,7 +88,7 @@ final readonly class ListHostsProvider implements ProviderInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $criteria = new HostCriteria();
+        $criteria = HostCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -117,8 +117,6 @@ final readonly class ListHostsProvider implements ProviderInterface
         }
 
         $criteria = $this->handleSort($filters, $criteria);
-
-        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $hosts = $this->repository->findAll($criteria);
         $hostList = array_values(iterator_to_array($hosts));

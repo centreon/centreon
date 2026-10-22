@@ -29,59 +29,46 @@ use App\Shared\Domain\Aggregate\AggregateRootId;
 
 /**
  * ACL scoping shared by the listing criteria that restrict results to what the acting user is allowed
- * to see. It fails closed: a criteria must either be scoped to an actor or explicitly opt out, so a
- * forgotten scoping cannot silently return every resource.
+ * to see. It fails closed by construction: a criteria is either scoped to an actor with {@see forActor()}
+ * or explicitly opts out with {@see unscoped()}, so a forgotten scoping cannot silently return every
+ * resource.
  */
 trait ActorScopedCriteriaTrait
 {
-    private ?ActingUser $actor = null;
+    /**
+     * @param ActingUser|null $actor null only for an {@see unscoped()} criteria
+     */
+    private function __construct(
+        private readonly ?ActingUser $actor,
+    ) {
+    }
 
-    private bool $accessScoped = true;
-
-    public function withActor(ActingUser $actor): self
+    public static function forActor(ActingUser $actor): static
     {
-        $new = clone $this;
-        $new->actor = $actor;
-        $new->accessScoped = true;
-
-        return $new;
+        return new static($actor);
     }
 
     /**
      * For a read that must see every resource whoever asks, as a listing legacy never scoped.
      */
-    public function withoutAccessScope(): self
+    public static function unscoped(): static
     {
-        $new = clone $this;
-        $new->actor = null;
-        $new->accessScoped = false;
-
-        return $new;
+        return new static(null);
     }
 
     /**
      * The scope the results are restricted to: what the actor may access, as `$resolve` tells, or every
-     * resource once {@see withoutAccessScope()} was called.
+     * resource for an {@see unscoped()} criteria.
      *
      * @template T of AggregateRootId
      *
      * @param \Closure(ActingUser): AccessScope<T> $resolve
      * @param class-string<T> $idClass
      *
-     * @throws \LogicException when neither withActor() nor withoutAccessScope() was called
-     *
      * @return AccessScope<T>
      */
     public function accessScope(\Closure $resolve, string $idClass): AccessScope
     {
-        if (! $this->accessScoped) {
-            return AccessScope::unrestricted($idClass);
-        }
-
-        if (! $this->actor instanceof ActingUser) {
-            throw new \LogicException(sprintf('"%s" must be scoped with withActor(), or explicitly opt out with withoutAccessScope().', static::class));
-        }
-
-        return $resolve($this->actor);
+        return $this->actor instanceof ActingUser ? $resolve($this->actor) : AccessScope::unrestricted($idClass);
     }
 }

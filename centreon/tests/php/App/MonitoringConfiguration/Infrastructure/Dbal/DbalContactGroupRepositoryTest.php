@@ -67,7 +67,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
     {
         $expected = $this->countContactGroups();
 
-        $result = $this->repository->findAll(new ContactGroupCriteria()->withoutAccessScope());
+        $result = $this->repository->findAll(ContactGroupCriteria::unscoped());
 
         self::assertCount($expected, iterator_to_array($result));
     }
@@ -79,7 +79,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
             self::markTestSkipped('No contact group in the dataset.');
         }
 
-        $result = $this->repository->findAll((new ContactGroupCriteria())->withoutAccessScope()->withPagination(1, 1));
+        $result = $this->repository->findAll(ContactGroupCriteria::unscoped()->withPagination(1, 1));
 
         self::assertInstanceOf(Paginator::class, $result);
         self::assertCount(1, iterator_to_array($result));
@@ -142,7 +142,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         $this->insertContactGroup("haystack_{$suffix}");
 
         $names = $this->names($this->repository->findAll(
-            (new ContactGroupCriteria())->withoutAccessScope()->withName("needle_{$suffix}")
+            ContactGroupCriteria::unscoped()->withName("needle_{$suffix}")
         ));
 
         self::assertContains("needle_{$suffix}", $names);
@@ -157,7 +157,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         $this->insertContactGroup("gamma_{$suffix}");
 
         $names = $this->names($this->repository->findAll(
-            (new ContactGroupCriteria())->withoutAccessScope()->withName("alpha_{$suffix}")->withName("beta_{$suffix}")
+            ContactGroupCriteria::unscoped()->withName("alpha_{$suffix}")->withName("beta_{$suffix}")
         ));
 
         self::assertContains("alpha_{$suffix}", $names);
@@ -172,7 +172,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         $this->insertContactGroup("ldap_{$suffix}", type: 'ldap');
 
         $contactGroups = iterator_to_array($this->repository->findAll(
-            (new ContactGroupCriteria())->withoutAccessScope()->withName($suffix)
+            ContactGroupCriteria::unscoped()->withName($suffix)
         ));
         $typesByName = [];
         foreach ($contactGroups as $contactGroup) {
@@ -190,7 +190,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         $this->insertContactGroup("ldap_{$suffix}", type: 'ldap');
 
         $names = $this->names($this->repository->findAll(
-            (new ContactGroupCriteria())->withoutAccessScope()->withName($suffix)->withExcludeLdap(true)
+            ContactGroupCriteria::unscoped()->withName($suffix)->withExcludeLdap(true)
         ));
 
         self::assertContains("local_{$suffix}", $names);
@@ -207,7 +207,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         $this->insertContactGroup("untyped_{$suffix}", type: null);
 
         $contactGroups = iterator_to_array($this->repository->findAll(
-            (new ContactGroupCriteria())->withoutAccessScope()->withName($suffix)->withExcludeLdap(true)
+            ContactGroupCriteria::unscoped()->withName($suffix)->withExcludeLdap(true)
         ));
 
         self::assertCount(1, $contactGroups);
@@ -234,7 +234,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
             'cg_activate' => '1',
         ]);
 
-        $names = $this->names($this->repository->findAll(new ContactGroupCriteria()->withoutAccessScope()));
+        $names = $this->names($this->repository->findAll(ContactGroupCriteria::unscoped()));
 
         self::assertContains("named_{$suffix}", $names);
         self::assertNotContains('', $names);
@@ -264,10 +264,10 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
 
         // No access group, no membership: the actor sees nothing — and the paginated call must
         // still return an (empty) Paginator, not a bare Collection.
-        $criteria = (new ContactGroupCriteria())->withActor(TestActingUsers::restricted($actorId));
+        $criteria = ContactGroupCriteria::forActor(TestActingUsers::restricted($actorId));
 
         self::assertCount(0, iterator_to_array($this->repository->findAll($criteria)));
-        self::assertContains("group_{$suffix}", $this->names($this->repository->findAll((new ContactGroupCriteria())->withActor(TestActingUsers::unrestricted($actorId)))), 'An unrestricted actor is not scoped by ACL.');
+        self::assertContains("group_{$suffix}", $this->names($this->repository->findAll(ContactGroupCriteria::forActor(TestActingUsers::unrestricted($actorId)))), 'An unrestricted actor is not scoped by ACL.');
 
         $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
         self::assertInstanceOf(Paginator::class, $paginated);
@@ -324,7 +324,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
     private function scopedNames(int $actorId): array
     {
         return $this->names($this->repository->findAll(
-            (new ContactGroupCriteria())->withActor(TestActingUsers::restricted($actorId))
+            ContactGroupCriteria::forActor(TestActingUsers::restricted($actorId))
         ));
     }
 

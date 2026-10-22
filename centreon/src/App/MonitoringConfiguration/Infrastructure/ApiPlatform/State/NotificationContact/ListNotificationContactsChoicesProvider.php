@@ -67,7 +67,7 @@ final readonly class ListNotificationContactsChoicesProvider implements Provider
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $criteria = new NotificationContactCriteria();
+        $criteria = NotificationContactCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -81,8 +81,6 @@ final readonly class ListNotificationContactsChoicesProvider implements Provider
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-
-        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $contacts = $this->repository->findAll($criteria);
         $resources = [];
