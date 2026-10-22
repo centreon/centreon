@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
