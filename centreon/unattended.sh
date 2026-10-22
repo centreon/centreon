@@ -1487,8 +1487,9 @@ function api_curl() {
 # - $1 : session cookie
 # - $2 : wizard step php script
 # - $3 : request body (optional)
+# - $4 : file receiving the response body (optional, discarded by default)
 function install_wizard_post() {
-	api_curl "install wizard step ${2}" /dev/null \
+	api_curl "install wizard step ${2}" "${4:-/dev/null}" \
 		"http://${central_ip}/centreon/install/steps/process/${2}" \
 		--request POST \
 		--header 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
@@ -1531,6 +1532,17 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "createDbUser.php"
 	install_wizard_post ${sessionID} "insertBaseConf.php"
 	install_wizard_post ${sessionID} "partitionTables.php"
+	# 404: older releases lack this step. A failure still answers 200, with "result":1.
+	local migrations_response
+	migrations_response=$(mktemp)
+	API_EXTRA_OK="404" install_wizard_post ${sessionID} "migrateDatabases.php" "" "$migrations_response"
+	if grep -q '"result":1' "$migrations_response"; then
+		local failure
+		failure=$(head -c 400 "$migrations_response" | tr -d '\n')
+		rm -f "$migrations_response"
+		error_and_exit "install wizard step migrateDatabases.php: database migrations failed (response: ${failure})"
+	fi
+	rm -f "$migrations_response"
 	install_wizard_post ${sessionID} "generationCache.php"
 	INSTALLED_EXTENSIONS='modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-it-edition-extensions&modules%5B%5D=centreon-autodiscovery-server'
 	install_wizard_post ${sessionID} "process_step8.php" "$INSTALLED_EXTENSIONS"
@@ -1564,8 +1576,8 @@ function play_update_api () {
 
 	log "INFO" "Update Centreon using API"
 
-	local api_body message modules module widgets widget clear_line status status_message
-	local -a module_information widget_information
+	local api_body message modules widgets widget clear_line status status_message
+	local -a widget_information
 	api_body=$(mktemp)
 
 	# APIv2 login -> token
@@ -1606,25 +1618,40 @@ function play_update_api () {
 		--header "centreon-auth-token: ${tokenv1}"
 	message=$(cat "$api_body")
 
-	# Update each module whose current version differs from the available one
+	# Update each outdated module
 	# '[]?' tolerates a valid "no modules" response (empty/missing list); a jq parse error
 	# (malformed/non-JSON body) still exits non-zero and fails hard.
-	modules=$(echo "${message}" | jq '.result.module.entities[]? | "\(.id)|\(.version.current)|\(.version.available)"') || error_and_exit "Failed to parse the module list from the API response (invalid JSON)"
-	for module in ${modules}; do
-		clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< "${module}")
-		IFS="|" read -a module_information <<< "${clear_line}"
-		if [ "${module_information[1]}" != "${module_information[2]}" ]; then
-			api_curl "update of ${module_information[0]} module" "$api_body" \
-				"${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${module_information[0]}&type=module" \
-				--request POST \
-				--header "centreon-auth-token: ${tokenv1}"
-			status=$(jq '.status' "$api_body") || true
-			status_message=$(jq '.result.message' "$api_body") || true
-			if [ "${status}" = "false" ]; then
-				log "WARN" "Error during update of ${module_information[0]} module: ${status_message}"
-			fi
+	local outdated_modules=()
+	modules=$(echo "${message}" | jq -r '.result.module.entities[]? | select(.version.outdated == true) | .id') || error_and_exit "Failed to parse the module list from the API response (invalid JSON)"
+	if [ -n "${modules}" ]; then
+		mapfile -t outdated_modules <<< "${modules}"
+	fi
+	local module
+	for module in "${outdated_modules[@]}"; do
+		# The cache is cleared once, below: HTTP errors must not prevent it.
+		API_EXTRA_OK="500 502 504" api_curl "update of ${module} module" "$api_body" \
+			"${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${module}&type=module&clearCache=0" \
+			--request POST \
+			--header "centreon-auth-token: ${tokenv1}"
+		status=$(jq '.status' "$api_body") || true
+		status_message=$(jq '.result.message' "$api_body") || true
+		if [ "${API_HTTP_CODE}" != "200" ]; then
+			log "WARN" "Error during update of ${module} module: HTTP ${API_HTTP_CODE}"
+		elif [ "${status}" = "false" ]; then
+			log "WARN" "Error during update of ${module} module: ${status_message}"
 		fi
 	done
+	if [ "${#outdated_modules[@]}" -gt 0 ]; then
+		# 404: older releases lack this action, but ignore clearCache=0, so each of their updates cleared the cache.
+		API_EXTRA_OK="404 500 502 504" api_curl "cache clear" "$api_body" \
+			"${central_ip}/centreon/api/index.php?object=centreon_module&action=clearCache" \
+			--request POST \
+			--header "centreon-auth-token: ${tokenv1}"
+		status=$(jq '.status' "$api_body") || true
+		if [ "${API_HTTP_CODE}" != "404" ] && { [ "${API_HTTP_CODE}" != "200" ] || [ "${status}" = "false" ]; }; then
+			log "WARN" "The cache could not be cleared (HTTP ${API_HTTP_CODE}): run 'php /usr/share/centreon/bin/console cache:clear' and 'php /usr/share/centreon/bin/console.new cache:clear'"
+		fi
+	fi
 
 	# Update each widget whose current version differs from the available one
 	# see the module list above: tolerate an empty list, fail hard on malformed JSON.

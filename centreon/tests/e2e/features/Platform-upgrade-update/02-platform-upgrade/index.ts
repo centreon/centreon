@@ -65,10 +65,15 @@ beforeEach(() => {
     url: INTERCEPTORS.pages.step5_upgrade
   }).as('getStep5');
 
-  cy.intercept({
-    method: 'POST',
-    url: INTERCEPTORS.pages.generation_cache
-  }).as('generatingCache');
+  // Its first calls list and upgrade the modules.
+  cy.intercept(
+    { method: 'POST', url: INTERCEPTORS.pages.upgrade_modules },
+    (request) => {
+      if (String(request.body).includes('action=clearCache')) {
+        request.alias = 'generatingCache';
+      }
+    }
+  );
 
   cy.intercept(`${INTERCEPTORS.api.monitor_resources}*`).as(
     'monitoringEndpoint'
