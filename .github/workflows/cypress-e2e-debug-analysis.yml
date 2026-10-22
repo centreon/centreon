@@ -36,6 +36,13 @@ jobs:
   analyze:
     runs-on: ubuntu-24.04
     steps:
+      # Re-running this job (e.g. a second debug re-run after fixing a token) can otherwise
+      # leave a previous attempt's summary visible alongside the new one on the run's Summary
+      # page. Truncate unconditionally, before anything else, so only this attempt's content
+      # ever shows.
+      - name: Reset step summary for this attempt
+        run: echo -n "" > "$GITHUB_STEP_SUMMARY"
+
       - name: Get database identifier
         id: get-db-id
         env:
