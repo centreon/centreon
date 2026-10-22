@@ -254,9 +254,14 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $actorId = new UserId(42);
         // No entry in $this->accessGroupRepository->groupIdsByUserId: the actor belongs to no group.
 
-        $hosts = iterator_to_array($this->repository->findAll(HostCriteria::forActor(TestActingUsers::restricted($actorId->value))));
+        $criteria = HostCriteria::forActor(TestActingUsers::restricted($actorId->value));
 
-        self::assertCount(0, $hosts);
+        self::assertCount(0, iterator_to_array($this->repository->findAll($criteria)));
+
+        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        self::assertInstanceOf(InMemoryPaginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
+        self::assertSame(0, $paginated->getTotalItems());
+        self::assertCount(0, iterator_to_array($paginated));
     }
 
     public function testActorSeesOnlyHostsAccessibleThroughItsGroups(): void

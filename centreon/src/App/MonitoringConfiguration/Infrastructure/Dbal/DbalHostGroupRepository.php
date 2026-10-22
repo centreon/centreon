@@ -28,8 +28,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -47,6 +49,7 @@ use Webmozart\Assert\Assert;
  */
 final readonly class DbalHostGroupRepository extends DbalRepository implements HostGroupRepository
 {
+    use DbalCriteriaApplierTrait;
     public const TABLE_NAME = 'hostgroup';
 
     /**
@@ -86,12 +89,17 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
 
     public function findAll(HostGroupCriteria $criteria): \IteratorAggregate&\Countable
     {
+        $scope = $criteria->accessScope($this->accessScopes->hostGroups(...), HostGroupId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, HostGroup::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'hg')
             ->orderBy('hg.hg_id'); // required for deterministic pagination
 
-        $this->filterByHostGroupCriteria($qb, $criteria);
+        $this->filterByHostGroupCriteria($qb, $criteria, $scope);
 
         $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
@@ -127,13 +135,15 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
         ];
     }
 
-    private function filterByHostGroupCriteria(QueryBuilder $qb, HostGroupCriteria $criteria): void
+    /**
+     * @param AccessScope<HostGroupId> $scope
+     */
+    private function filterByHostGroupCriteria(QueryBuilder $qb, HostGroupCriteria $criteria, AccessScope $scope): void
     {
         if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('hg.hg_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        $scope = $criteria->accessScope($this->accessScopes->hostGroups(...), HostGroupId::class);
         if (! $scope->isUnrestricted()) {
             $qb->andWhere($qb->expr()->in(
                 'hg.hg_id',

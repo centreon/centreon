@@ -291,6 +291,27 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         self::assertContains('Poller-B', array_map(static fn (Poller $poller): string => $poller->name->value, iterator_to_array($this->repository->findAll(PollerCriteria::forActor(TestActingUsers::unrestricted($actorId->value))))), 'An unrestricted actor is not scoped by ACL.');
     }
 
+    public function testFindAllReturnsAnEmptyPaginatorForARestrictedActorGrantedNoPoller(): void
+    {
+        $this->insertPoller(2, 'Poller-A');
+
+        // A resource without any poller relation grants every poller; one whose only relation has no
+        // poller (a NULL left behind) grants none: the actor is restricted to no poller.
+        $actorId = $this->createRestrictedContact(accessiblePollerIds: []);
+        $this->connection->insert('acl_resources_poller_relations', [
+            'acl_res_id' => $this->connection->fetchOne("SELECT acl_res_id FROM acl_resources WHERE acl_res_name = 'restricted-resource'"),
+            'poller_id' => null,
+        ]);
+        $criteria = PollerCriteria::forActor(TestActingUsers::restricted($actorId));
+
+        self::assertCount(0, $this->repository->findAll($criteria));
+
+        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        self::assertInstanceOf(Paginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
+        self::assertSame(0, $paginated->getTotalItems());
+        self::assertCount(0, $paginated);
+    }
+
     public function testFlagAsChangedSetsTheUpdatedColumn(): void
     {
         $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);

@@ -148,6 +148,21 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         self::assertContains('HostGroup-A', $this->extractNames(iterator_to_array($this->repository->findAll(HostGroupCriteria::forActor(TestActingUsers::unrestricted($contactId))))), 'An unrestricted actor is not scoped by ACL.');
     }
 
+    public function testFindAllReturnsAnEmptyPaginatorForARestrictedActorWithNoAccessGroup(): void
+    {
+        $this->insertHostGroup(301, 'HostGroup-A');
+
+        // no access group at all: the actor is restricted to no host group
+        $criteria = HostGroupCriteria::forActor(TestActingUsers::restricted($this->createContact('restricted-user')));
+
+        self::assertCount(0, iterator_to_array($this->repository->findAll($criteria)));
+
+        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        self::assertInstanceOf(InMemoryPaginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
+        self::assertSame(0, $paginated->getTotalItems());
+        self::assertCount(0, iterator_to_array($paginated));
+    }
+
     private function insertHostGroup(int $id, string $name): void
     {
         $this->connection->insert('hostgroup', ['hg_id' => $id, 'hg_name' => $name]);

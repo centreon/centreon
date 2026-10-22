@@ -448,7 +448,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     {
         $scope = $criteria->accessScope($this->accessScopes->hosts(...), HostId::class);
         if ($scope->allowsNothing()) {
-            return new Collection([], Host::class);
+            return $this->emptyResult($criteria, Host::class);
         }
 
         $qb = $this->connection->createQueryBuilder();
