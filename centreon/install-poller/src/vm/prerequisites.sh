@@ -36,11 +36,6 @@ function _vmDetectDistribution() {
   local distrib="${ID}${VERSION_ID}"
 
   case "${distrib}" in
-    "debian12"*)
-      consoleError "Debian 12 (Bookworm) is no longer supported: no Centreon packages are published for it. Please use Debian 13 (Trixie)."
-      logError "Unsupported distribution: ${distrib} (no bookworm packages)"
-      exit 1
-      ;;
     "debian13"*)
       _PKG_COMMAND="apt"
       consoleInfo "Distribution: Debian 13 (Trixie): OK"
