@@ -93,7 +93,7 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
     {
         $scope = $criteria->accessScope($this->accessScopes->contacts(...), NotificationContactId::class);
         if ($scope->allowsNothing()) {
-            return $this->emptyResult($criteria);
+            return $this->emptyResult($criteria, NotificationContact::class);
         }
 
         $qb = $this->connection->createQueryBuilder();
@@ -136,27 +136,6 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         return new InMemoryPaginator(
             items: $this->createNotificationContacts($rows),
             totalItems: $count,
-            currentPage: $pagination->page,
-            itemsPerPage: $pagination->itemsPerPage,
-        );
-    }
-
-    /**
-     * A restricted actor with no accessible contact short-circuits before any query runs. When
-     * pagination was requested, the response must still carry the pagination envelope (page, page
-     * size, totalItems: 0) instead of degrading to a bare array — the client can't otherwise tell
-     * "zero matches" from "pagination metadata omitted".
-     */
-    private function emptyResult(NotificationContactCriteria $criteria): \IteratorAggregate&\Countable
-    {
-        $pagination = $criteria->getPagination();
-        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
-            return new Collection([], NotificationContact::class);
-        }
-
-        return new InMemoryPaginator(
-            items: new Collection([], NotificationContact::class),
-            totalItems: 0,
             currentPage: $pagination->page,
             itemsPerPage: $pagination->itemsPerPage,
         );

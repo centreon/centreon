@@ -90,6 +90,13 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
 
     public function findAll(ContactGroupCriteria $criteria): \IteratorAggregate&\Countable
     {
+        // ACL data-scoping: a non-admin actor only sees the contact groups reachable through
+        // their access groups or their own membership.
+        $scope = $criteria->accessScope($this->accessScopes->contactGroups(...), ContactGroupId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, ContactGroup::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'cg')
@@ -99,13 +106,7 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
             ->andWhere("cg.cg_name IS NOT NULL AND cg.cg_name != ''")
             ->orderBy('cg.cg_id'); // required for deterministic pagination
 
-        // ACL data-scoping: a non-admin actor only sees the contact groups reachable through
-        // their access groups or their own membership.
-        $scope = $criteria->accessScope($this->accessScopes->contactGroups(...), ContactGroupId::class);
-        if ($scope->allowsNothing()) {
-            // No accessible contact group: match nothing, but keep the normal (paginator) shape.
-            $qb->andWhere('1 = 0');
-        } elseif (! $scope->isUnrestricted()) {
+        if (! $scope->isUnrestricted()) {
             $qb->andWhere($qb->expr()->in(
                 'cg.cg_id',
                 $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)

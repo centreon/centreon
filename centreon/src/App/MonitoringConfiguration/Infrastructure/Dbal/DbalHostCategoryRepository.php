@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -93,6 +94,14 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
 
     public function findAll(HostCategoryCriteria $criteria): \IteratorAggregate&\Countable
     {
+        // An empty scope means the actor is restricted on host categories yet granted
+        // none (e.g. their ACL points only at severities): they see nothing. Mirrors legacy, where
+        // hasRestrictedAccessToHostCategories is true but findAllByAccessGroupIds returns no row.
+        $scope = $criteria->accessScope($this->accessScopes->hostCategories(...), HostCategoryId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, HostCategory::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select('hc.hc_id', 'hc.hc_name')
             ->from(self::TABLE_NAME, 'hc')
@@ -101,7 +110,7 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
             ->where('hc.level IS NULL')
             ->orderBy('hc.hc_id'); // required for deterministic pagination
 
-        $this->filterByCriteria($qb, $criteria);
+        $this->filterByCriteria($qb, $criteria, $scope);
 
         $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
@@ -128,28 +137,24 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
         );
     }
 
-    private function filterByCriteria(QueryBuilder $qb, HostCategoryCriteria $criteria): void
+    /**
+     * @param AccessScope<HostCategoryId> $scope
+     */
+    private function filterByCriteria(QueryBuilder $qb, HostCategoryCriteria $criteria, AccessScope $scope): void
     {
         if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('hc.hc_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        $this->filterByAccessScope($qb, $criteria);
+        $this->filterByAccessScope($qb, $scope);
     }
 
-    private function filterByAccessScope(QueryBuilder $qb, HostCategoryCriteria $criteria): void
+    /**
+     * @param AccessScope<HostCategoryId> $scope
+     */
+    private function filterByAccessScope(QueryBuilder $qb, AccessScope $scope): void
     {
-        $scope = $criteria->accessScope($this->accessScopes->hostCategories(...), HostCategoryId::class);
         if ($scope->isUnrestricted()) {
-            return;
-        }
-
-        // An empty scope means the actor is restricted on host categories yet granted
-        // none (e.g. their ACL points only at severities): they see nothing. Mirrors legacy, where
-        // hasRestrictedAccessToHostCategories is true but findAllByAccessGroupIds returns no row.
-        if ($scope->allowsNothing()) {
-            $qb->andWhere('1 = 0');
-
             return;
         }
 

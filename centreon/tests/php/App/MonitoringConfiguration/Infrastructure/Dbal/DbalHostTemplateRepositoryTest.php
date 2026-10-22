@@ -237,9 +237,14 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
 
         $actorId = new UserId($this->createContactRestrictedToHostCategories([$regularId]));
 
-        $result = $this->repository->findAll((new HostTemplateCriteria())->withActor(TestActingUsers::restricted($actorId->value)));
+        $criteria = (new HostTemplateCriteria())->withActor(TestActingUsers::restricted($actorId->value));
 
-        self::assertSame([], $this->names($result), 'An actor granted only regular categories sees no host template.');
+        self::assertSame([], $this->names($this->repository->findAll($criteria)), 'An actor granted only regular categories sees no host template.');
+
+        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        self::assertInstanceOf(Paginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
+        self::assertSame(0, $paginated->getTotalItems());
+        self::assertSame([], $this->names($paginated));
     }
 
     public function testFindInheritedIconIdsReturnsTheIconOfADirectTemplate(): void

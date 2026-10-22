@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostSeverityCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
@@ -67,6 +68,14 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
 
     public function findAll(HostSeverityCriteria $criteria): \IteratorAggregate&\Countable
     {
+        // An empty scope means the actor is restricted on host severities yet granted
+        // none (e.g. their ACL points only at levelless categories): they see nothing. Mirrors legacy,
+        // where hasRestrictedAccessToHostSeverities is true but findAllByAccessGroups returns no row.
+        $scope = $criteria->accessScope($this->accessScopes->hostSeverities(...), HostSeverityId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, HostSeverity::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select('hc.hc_id', 'hc.hc_name')
             ->from(self::TABLE_NAME, 'hc')
@@ -75,7 +84,7 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
             ->where('hc.level IS NOT NULL')
             ->orderBy('hc.hc_id'); // required for deterministic pagination
 
-        $this->filterByCriteria($qb, $criteria);
+        $this->filterByCriteria($qb, $criteria, $scope);
 
         $pagination = $criteria->getPagination();
         if (! $pagination instanceof Pagination) {
@@ -118,28 +127,24 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
         return is_string($name) && $name !== '' ? new HostSeverityName($name) : null;
     }
 
-    private function filterByCriteria(QueryBuilder $qb, HostSeverityCriteria $criteria): void
+    /**
+     * @param AccessScope<HostSeverityId> $scope
+     */
+    private function filterByCriteria(QueryBuilder $qb, HostSeverityCriteria $criteria, AccessScope $scope): void
     {
         if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('hc.hc_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        $this->filterByAccessScope($qb, $criteria);
+        $this->filterByAccessScope($qb, $scope);
     }
 
-    private function filterByAccessScope(QueryBuilder $qb, HostSeverityCriteria $criteria): void
+    /**
+     * @param AccessScope<HostSeverityId> $scope
+     */
+    private function filterByAccessScope(QueryBuilder $qb, AccessScope $scope): void
     {
-        $scope = $criteria->accessScope($this->accessScopes->hostSeverities(...), HostSeverityId::class);
         if ($scope->isUnrestricted()) {
-            return;
-        }
-
-        // An empty scope means the actor is restricted on host severities yet granted
-        // none (e.g. their ACL points only at levelless categories): they see nothing. Mirrors legacy,
-        // where hasRestrictedAccessToHostSeverities is true but findAllByAccessGroups returns no row.
-        if ($scope->allowsNothing()) {
-            $qb->andWhere('1 = 0');
-
             return;
         }
 

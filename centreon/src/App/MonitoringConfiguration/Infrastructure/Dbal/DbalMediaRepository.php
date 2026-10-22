@@ -85,7 +85,7 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
     {
         $scope = $criteria->accessScope($this->accessScopes->imageFolders(...), MediaDirectoryId::class);
         if ($scope->allowsNothing()) {
-            return $this->emptyResult($criteria);
+            return $this->emptyResult($criteria, Media::class);
         }
 
         $qb = $this->connection->createQueryBuilder();
@@ -153,27 +153,6 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
         }
 
         return new Collection($medias, Media::class);
-    }
-
-    /**
-     * A restricted actor with no accessible image folder short-circuits before any query runs.
-     * When pagination was requested, the response must still carry the pagination envelope (page,
-     * page size, totalItems: 0) instead of degrading to a bare array — the client can't otherwise
-     * tell "zero matches" from "pagination metadata omitted".
-     */
-    private function emptyResult(MediaCriteria $criteria): \IteratorAggregate&\Countable
-    {
-        $pagination = $criteria->getPagination();
-        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
-            return new Collection([], Media::class);
-        }
-
-        return new InMemoryPaginator(
-            items: new Collection([], Media::class),
-            totalItems: 0,
-            currentPage: $pagination->page,
-            itemsPerPage: $pagination->itemsPerPage,
-        );
     }
 
     private function filterByCriteria(QueryBuilder $qb, MediaCriteria $criteria): void

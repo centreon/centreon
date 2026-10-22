@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -83,13 +84,21 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
     public function findAll(HostTemplateCriteria $criteria): \IteratorAggregate&\Countable
     {
+        // An empty scope means the actor is restricted but grants no accessible severity: they must see
+        // nothing (fail-closed), matching legacy, which returns [] for a user with no access group and
+        // filters out every severity-less template once a category restriction applies.
+        $scope = $criteria->accessScope($this->accessScopes->hostSeverities(...), HostSeverityId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, HostTemplate::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select('h.host_id', 'h.host_name')
             ->from(self::TABLE_NAME, 'h')
             ->where('h.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
             ->orderBy('h.host_id'); // required for deterministic pagination
 
-        $this->filterByCriteria($qb, $criteria);
+        $this->filterByCriteria($qb, $criteria, $scope);
 
         $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
@@ -551,7 +560,10 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         return null;
     }
 
-    private function filterByCriteria(QueryBuilder $qb, HostTemplateCriteria $criteria): void
+    /**
+     * @param AccessScope<HostSeverityId> $scope
+     */
+    private function filterByCriteria(QueryBuilder $qb, HostTemplateCriteria $criteria, AccessScope $scope): void
     {
         if (($id = $criteria->getId()) instanceof HostTemplateId) {
             $qb->andWhere($qb->expr()->eq('h.host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)));
@@ -565,23 +577,15 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             $qb->andWhere($qb->expr()->notIn('h.host_id', $qb->createNamedParameter($excludedIds, ArrayParameterType::INTEGER)));
         }
 
-        $this->filterByAccessScope($qb, $criteria);
+        $this->filterByAccessScope($qb, $scope);
     }
 
-    private function filterByAccessScope(QueryBuilder $qb, HostTemplateCriteria $criteria): void
+    /**
+     * @param AccessScope<HostSeverityId> $scope
+     */
+    private function filterByAccessScope(QueryBuilder $qb, AccessScope $scope): void
     {
-        $scope = $criteria->accessScope($this->accessScopes->hostSeverities(...), HostSeverityId::class);
         if ($scope->isUnrestricted()) {
-            return;
-        }
-
-        // An empty scope means the actor is restricted but grants no accessible severity: they must see
-        // nothing (fail-closed), matching legacy, which returns [] for a user with no access group and
-        // filters out every severity-less template once a category restriction applies. Forcing an
-        // always-false predicate avoids emitting an `IN ()` the driver would reject.
-        if ($scope->allowsNothing()) {
-            $qb->andWhere('1 = 0');
-
             return;
         }
 

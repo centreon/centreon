@@ -150,9 +150,14 @@ final class DbalHostSeverityRepositoryTest extends KernelTestCase
         // the actor's ACL grants only a levelless category → restricted, but to zero severities
         $actorId = new UserId($this->createContactRestrictedToHostCategories([$categoryId]));
 
-        $names = $this->names($this->repository->findAll((new HostSeverityCriteria())->withActor(TestActingUsers::restricted($actorId->value))));
+        $criteria = (new HostSeverityCriteria())->withActor(TestActingUsers::restricted($actorId->value));
 
-        self::assertSame([], $names, 'An actor granted only categories is restricted and sees no severity.');
+        self::assertSame([], $this->names($this->repository->findAll($criteria)), 'An actor granted only categories is restricted and sees no severity.');
+
+        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        self::assertInstanceOf(Paginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
+        self::assertSame(0, $paginated->getTotalItems());
+        self::assertSame([], $this->names($paginated));
     }
 
     public function testItFindsASeverityByItsId(): void
