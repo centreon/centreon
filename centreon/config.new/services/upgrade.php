@@ -22,6 +22,8 @@
 declare(strict_types=1);
 
 use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Centreon\LegacyContainer;
+use Pimple\Container;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -40,8 +42,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         // TODO: replace with '%env(_CENTREON_MYSQL_MIN_VERSION_)%' once Delivery adds this env var.
         ->set('upgrade.min_mysql_version', '8.0')
         ->set('upgrade.modules_dir', '%env(_CENTREON_PATH_)%www/modules')
-        ->set('upgrade.widgets_dir', '%env(_CENTREON_PATH_)%www/widgets')
-        ->set('upgrade.centreon_path', '%env(_CENTREON_PATH_)%');
+        ->set('upgrade.widgets_dir', '%env(_CENTREON_PATH_)%www/widgets');
 
     $services = $containerConfigurator->services();
 
@@ -71,4 +72,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->load('App\\Upgrade\\', __DIR__ . '/../../src/App/Upgrade');
+
+    $services->set('upgrade.legacy_container', Container::class)
+        ->factory([LegacyContainer::class, 'getInstance']);
 };

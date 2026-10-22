@@ -21,10 +21,13 @@
 
 namespace CentreonModule\Domain\Repository;
 
+use App\Upgrade\Domain\MigrationSet;
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 
 class ModulesInformationsRepository extends ServiceEntityRepository
 {
+    private const string TABLE_EXISTS_QUERY = 'SELECT 1 FROM `information_schema`.`tables` WHERE `table_schema` = DATABASE() AND `table_name` = :table';
+
     /**
      * Get an associative array of all modules vs versions.
      *
@@ -44,6 +47,36 @@ class ModulesInformationsRepository extends ServiceEntityRepository
         }
 
         return $result;
+    }
+
+    /**
+     * @return list<string>|null class names without namespace, null when the module name cannot have migrations
+     */
+    public function findExecutedMigrations(string $module): ?array
+    {
+        if (! MigrationSet::isModuleName($module)) {
+            return null;
+        }
+
+        $table = MigrationSet::module($module)->table();
+
+        // Created by the first migration run. Checked first: a failing query is logged as an SQL error.
+        $stmt = $this->db->prepare(self::TABLE_EXISTS_QUERY);
+        $stmt->bindValue(':table', $table, \PDO::PARAM_STR);
+        $stmt->execute();
+        if ($stmt->fetch() === false) {
+            return [];
+        }
+
+        $stmt = $this->db->prepare("SELECT `version` FROM `{$table}`");
+        $stmt->execute();
+
+        $migrations = [];
+        while ($row = $stmt->fetch()) {
+            $migrations[] = substr(strrchr('\\' . $row['version'], '\\'), 1);
+        }
+
+        return $migrations;
     }
 
     /**

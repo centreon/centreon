@@ -21,36 +21,29 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Infrastructure;
+namespace App\Upgrade\Infrastructure\Legacy;
 
 use App\Upgrade\Application\CacheClearer;
-use Psr\Log\LoggerInterface;
+use CentreonLegacy\Core\Cache\CacheClearer as LegacyCacheClearerService;
+use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
+use Pimple\Container;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Process\Process;
 
-final readonly class SymfonyCacheClearer implements CacheClearer
+/**
+ * The one the module upgrades use: the upgrade fails as they do when the legacy kernel cache cannot be cleared.
+ */
+final readonly class LegacyCacheClearer implements CacheClearer
 {
     public function __construct(
-        #[Autowire(param: 'kernel.project_dir')]
-        private string $projectDir,
-        private LoggerInterface $logger,
+        #[Autowire(service: 'upgrade.legacy_container')]
+        private Container $legacyContainer,
     ) {
     }
 
     public function clear(): void
     {
-        $this->logger->info('Clearing Symfony cache');
-
-        foreach (['bin/console', 'bin/console.new'] as $console) {
-            $process = new Process(['php', $console, 'cache:clear'], $this->projectDir);
-            $process->run();
-
-            if (! $process->isSuccessful()) {
-                $this->logger->warning('Cache clear returned a non-zero exit code', [
-                    'console' => $console,
-                    'output' => $process->getErrorOutput(),
-                ]);
-            }
-        }
+        /** @var LegacyCacheClearerService $cacheClearer */
+        $cacheClearer = $this->legacyContainer[LegacyServiceProvider::CENTREON_LEGACY_CACHE_CLEARER];
+        $cacheClearer->clear();
     }
 }

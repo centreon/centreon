@@ -26,7 +26,11 @@ import useNavigation from '../../Navigation/useNavigation';
 import { appliedFilterCriteriasAtom } from '../Filter/filterAtoms';
 import { labelInstallAll, labelUpdateAll } from '../translatedLabels';
 import { deleteExtension } from './api';
-import { buildEndPoint, buildExtensionEndPoint } from './api/endpoint';
+import {
+  buildEndPoint,
+  buildExtensionEndPoint,
+  clearCacheEndpoint
+} from './api/endpoint';
 import ExtensionDeletePopup from './ExtensionDeleteDialog';
 import ExtensionDetailsPopup from './ExtensionDetailsDialog';
 import ExtensionsHolder from './ExtensionsHolder';
@@ -38,6 +42,7 @@ import {
   ExtensionsStatus,
   InstallOrUpdateExtensionResult
 } from './models';
+import updateSequentially from './updateSequentially';
 
 const useStyles = makeStyles()((theme) => ({
   contentWrapper: {
@@ -184,9 +189,57 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
     if (entities.length <= 0 || !entities) {
       return;
     }
-    entities.forEach((entity) => {
-      updateById(entity.id, entity.type);
-    });
+    const ids = entities.map(({ id }) => id);
+    setExtensionsUpdatingStatusByIds(ids, true);
+    updateSequentially({
+      clearCache: () =>
+        sendUpdateOrInstallExtensionRequests({
+          endpoint: clearCacheEndpoint
+        }).then(({ status, result }) => {
+          if (!status) {
+            showErrorMessage(result.message as string);
+          }
+        }),
+      extensions: entities,
+      update: ({ id, type }) =>
+        sendUpdateOrInstallExtensionRequests({
+          endpoint: buildEndPoint({
+            action: 'update',
+            clearCache: false,
+            id,
+            type
+          })
+        }).then(({ status, result }) => {
+          if (!status) {
+            showErrorMessage(result.message as string);
+          } else {
+            showSuccessMessage('update succeeded');
+          }
+        })
+    })
+      .then(() =>
+        sendExtensionsRequests({
+          endpoint: buildExtensionEndPoint({
+            action: 'list',
+            criteriaSearch: getFilterCriteria('search'),
+            criteriaStatus: getFilterCriteria('statuses'),
+            criteriaTypes: getFilterCriteria('types')
+          })
+        })
+      )
+      .then(({ status, result }) => {
+        if (status) {
+          const data = result as Extensions;
+          setExtension({
+            module: data.module ?? { entities: [] },
+            widget: data.widget ?? { entities: [] }
+          });
+        }
+      })
+      .finally(() => {
+        setExtensionsUpdatingStatusByIds(ids, false);
+        reloadNavigation();
+      });
   };
 
   const installAllEntities = (): void => {
@@ -200,7 +253,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
   };
 
   const updateById = (id: string, type: string): void => {
-    setExtensionsUpdatingStatusByIds(id, true);
+    setExtensionsUpdatingStatusByIds([id], true);
     sendUpdateOrInstallExtensionRequests({
       endpoint: buildEndPoint({
         action: 'update',
@@ -232,7 +285,9 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
             widget: data.widget ?? { entities: [] }
           });
         }
-        setExtensionsUpdatingStatusByIds(id, false);
+      })
+      .finally(() => {
+        setExtensionsUpdatingStatusByIds([id], false);
         reloadNavigation();
       });
   };
@@ -276,15 +331,13 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
   };
 
   const setExtensionsUpdatingStatusByIds = (
-    id: string,
+    ids: Array<string>,
     updating: boolean
   ): void => {
-    let statuses = extensionsUpdatingStatus;
-    statuses = {
+    setExtensionsUpdatingStatus((statuses) => ({
       ...statuses,
-      [id]: updating
-    };
-    setExtensionsUpdatingStatus(statuses);
+      ...Object.fromEntries(ids.map((id) => [id, updating]))
+    }));
   };
 
   const setExtensionsInstallingStatusByIds = (

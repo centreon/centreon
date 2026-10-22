@@ -146,6 +146,23 @@ class UtilsTest extends TestCase
         $this->service->executePhpFile($fileName);
     }
 
+    public function testAPhpFileCannotRunTwiceInTheSameProcess(): void
+    {
+        $this->container['realtime_db'] = new Mock\CentreonDB();
+        $fileName = tempnam(sys_get_temp_dir(), 'upgrade_');
+        file_put_contents($fileName, '<?php $GLOBALS["upgrade_runs"] = ($GLOBALS["upgrade_runs"] ?? 0) + 1;');
+
+        try {
+            $this->service->executePhpFile($fileName);
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessage('already ran in this process');
+            $this->service->executePhpFile($fileName);
+        } finally {
+            $this->assertSame(1, $GLOBALS['upgrade_runs']);
+            unlink($fileName);
+        }
+    }
+
     public function testExecuteSqlFile(): void
     {
         $file = $this->fileSystem->createFile('/tmp/conf.sql', "SELECT 'OK';");
@@ -159,6 +176,50 @@ class UtilsTest extends TestCase
             $isException = true;
         }
         $this->assertFalse($isException);
+    }
+
+    public function testExecuteSqlFileSkipsTheQueriesAlreadyExecutedAndReportsProgress(): void
+    {
+        $this->fileSystem->createFile('/tmp/upgrade.sql', "SELECT 1;\nSELECT 2;\nSELECT 3;\n");
+        // The first query is not registered: executing it again would throw.
+        $this->container['configuration_db']->addResultSet('SELECT 2;', []);
+        $this->container['configuration_db']->addResultSet('SELECT 3;', []);
+
+        $executed = [];
+        $this->service->executeSqlFile(
+            $this->fileSystem->path('/tmp/upgrade.sql'),
+            [],
+            false,
+            1,
+            static function (int $count) use (&$executed): void {
+                $executed[] = $count;
+            }
+        );
+
+        $this->assertSame([2, 3], $executed);
+    }
+
+    public function testExecuteSqlFileCountsADelimitedBlockAsASingleQueryWhenSkipping(): void
+    {
+        $this->fileSystem->createFile(
+            '/tmp/upgrade.sql',
+            "-- A comment; not a query\nSELECT 1;\nDELIMITER \$\nCREATE PROCEDURE p() BEGIN\n  SELECT 2;\nEND\$\nDELIMITER ;\nSELECT 3;\n",
+        );
+        // Only the last query is registered: executing one of the first two again would throw.
+        $this->container['configuration_db']->addResultSet('SELECT 3;', []);
+
+        $executed = [];
+        $this->service->executeSqlFile(
+            $this->fileSystem->path('/tmp/upgrade.sql'),
+            [],
+            false,
+            2,
+            static function (int $count) use (&$executed): void {
+                $executed[] = $count;
+            }
+        );
+
+        $this->assertSame([3], $executed);
     }
 
     public function testExecuteSqlFileWithWithUnexistsFileAndRealtimeDb(): void
