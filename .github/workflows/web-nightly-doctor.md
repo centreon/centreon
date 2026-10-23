@@ -49,6 +49,10 @@ tools:
 safe-outputs:
   # Preview only (step summary) until the diagnoses are validated.
   staged: true
+  # staged does not cover gh-aw's own failure and no-op issues.
+  report-failure-as-issue: false
+  noop:
+    report-as-issue: false
   create-issue:
     title-prefix: "[nightly failure] "
     labels: [ci]
