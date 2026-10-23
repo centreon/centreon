@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingMedia;
