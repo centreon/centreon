@@ -34,7 +34,10 @@ permissions:
   pull-requests: read
   copilot-requests: write
 
-engine: copilot
+# Explicit model: "auto" resolves to an unpriced utility model under org billing (github/gh-aw#63117).
+engine:
+  id: copilot
+  model: claude-sonnet-5-5
 
 tools:
   github:
