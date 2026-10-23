@@ -1309,7 +1309,9 @@ jobs:
       image_name: centreon-web
       database_image: bitnamilegacy/${{ matrix.database }}
       os: ${{ matrix.operating_system }}
-      features_path: tests/e2e/features
+      # TEMPORARY, provisional scoping to validate the debug-analysis CI pipeline quickly —
+      # revert to tests/e2e/features before merging.
+      features_path: tests/e2e/features/Additional-connectors
       major_version: ${{ needs.get-environment.outputs.major_version }}
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
