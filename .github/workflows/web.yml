@@ -1250,9 +1250,6 @@ jobs:
       jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  # GitHub secret names only allow [A-Za-z0-9_], so a CLAUDE_CODE_OAUTH_TOKEN_<login>
-  # secret can't exist as-is for any login containing a hyphen (e.g. garnier-quentin).
-  # Contributors with such logins must store their token under the hyphen-free name.
   resolve-debug-analysis-actor:
     runs-on: ubuntu-24.04
     outputs:
