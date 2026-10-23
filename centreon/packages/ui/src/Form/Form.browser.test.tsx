@@ -1,15 +1,19 @@
 import { Typography } from '@mui/material';
 
+import { ThemeMode, userAtom } from '@centreon/ui-context';
+
 import { faker } from '@faker-js/faker';
 import { rs } from '@rstest/core';
 import { render } from '@test-setup/render';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useFormikContext } from 'formik';
+import { createStore, Provider } from 'jotai';
 import { object } from 'yup';
 
 import type { SelectEntry } from '..';
 import { Button } from '../components';
+import ThemeProvider from '../ThemeProvider';
 import { Form } from './Form';
 import { type InputProps, InputType } from './Inputs/models';
 
@@ -441,5 +445,109 @@ describe('Form with sections', () => {
       'aria-selected',
       'true'
     );
+  });
+});
+
+// The theme mode comes from the user atom, and the Tailwind tokens from the
+// `dark` class on the document.
+const initializeFormTitles = (themeMode: ThemeMode): void => {
+  const store = createStore();
+  store.set(userAtom, { ...store.get(userAtom), themeMode });
+
+  document.documentElement.classList.toggle(
+    'dark',
+    themeMode === ThemeMode.dark
+  );
+
+  render(
+    <Provider store={store}>
+      <ThemeProvider>
+        <Form
+          areGroupsOpen
+          groups={[{ name: 'Titles section', order: 1 }]}
+          initialValues={{ gridField: '', topLevelField: '' }}
+          inputs={[
+            {
+              additionalLabel: 'Top level block title',
+              fieldName: 'topLevelField',
+              group: 'Titles section',
+              label: 'Top level field',
+              type: InputType.Text
+            },
+            {
+              fieldName: '',
+              grid: {
+                columns: [
+                  {
+                    additionalLabel: 'Grid block title',
+                    fieldName: 'gridField',
+                    label: 'Grid field',
+                    type: InputType.Text
+                  }
+                ]
+              },
+              group: 'Titles section',
+              label: 'Grid',
+              type: InputType.Grid
+            }
+          ]}
+          isCollapsible
+          submit={rs.fn()}
+          validationSchema={object()}
+        />
+      </ThemeProvider>
+    </Provider>
+  );
+};
+
+const textPrimaryColor = {
+  [ThemeMode.dark]: 'rgb(255, 255, 255)',
+  [ThemeMode.light]: 'rgb(0, 0, 0)'
+};
+
+[ThemeMode.light, ThemeMode.dark].forEach((themeMode) => {
+  describe(`Form titles in ${themeMode} mode`, () => {
+    beforeEach(() => {
+      expect.hasAssertions();
+    });
+    beforeEach(() => initializeFormTitles(themeMode));
+
+    afterEach(() => {
+      document.documentElement.classList.remove('dark');
+    });
+
+    it('displays the section title in 16px medium on a 24px line', async () => {
+      const title = await screen.findByText('Titles section');
+
+      expect(title).toHaveStyle({
+        fontSize: '16px',
+        fontWeight: '500',
+        lineHeight: '24px'
+      });
+    });
+
+    it('rounds the collapsible section header with an 8px radius', async () => {
+      expect(await screen.findByLabelText('Titles section')).toHaveStyle({
+        borderRadius: '8px'
+      });
+    });
+
+    it('displays the grid block title in 16px bold with the text colour', async () => {
+      expect(await screen.findByText('Grid block title')).toHaveStyle({
+        color: textPrimaryColor[themeMode],
+        fontSize: '16px',
+        fontWeight: '700',
+        lineHeight: '24px'
+      });
+    });
+
+    it('displays the top level block title like the grid block title', async () => {
+      expect(await screen.findByText('Top level block title')).toHaveStyle({
+        color: textPrimaryColor[themeMode],
+        fontSize: '16px',
+        fontWeight: '700',
+        lineHeight: '24px'
+      });
+    });
   });
 });

@@ -45,8 +45,7 @@ const Grid = ({
           <Box key={key as string} sx={{ width: '100%' }}>
             {field.additionalLabel && (
               <Typography
-                className={field?.additionalLabelClassName}
-                sx={{ color: 'primary.main', marginBottom: 0.5 }}
+                className={`mb-1 text-base font-bold text-text-primary ${field?.additionalLabelClassName || ''}`}
                 variant="h6"
               >
                 {field.additionalLabel}

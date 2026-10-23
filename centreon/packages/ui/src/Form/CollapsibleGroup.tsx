@@ -10,7 +10,6 @@ import {
 
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import type { Group } from './Inputs/models';
 
@@ -23,22 +22,6 @@ interface Props {
   isCollapsible: boolean;
 }
 
-const useStyles = makeStyles()((theme) => ({
-  expandCollapseIcon: {
-    justifySelf: 'flex-end'
-  },
-  groupTitleContainer: {
-    alignItems: 'center',
-    columnGap: theme.spacing(1),
-    display: 'flex',
-    flexDirection: 'row'
-  },
-  title: {},
-  tooltip: {
-    maxWidth: theme.spacing(60)
-  }
-}));
-
 const CollapsibleGroup = ({
   children,
   isCollapsible,
@@ -47,7 +30,6 @@ const CollapsibleGroup = ({
   defaultIsOpen = false,
   className
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles();
   const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(isCollapsible && defaultIsOpen);
@@ -56,7 +38,7 @@ const CollapsibleGroup = ({
     setIsOpen((currentIsOpen) => !currentIsOpen);
   };
 
-  const containerClassName = className || '';
+  const containerClassName = `flex items-center gap-x-2 ${className || ''}`;
 
   const CollapseIcon = isOpen ? ExpandLess : ExpandMore;
   const ContainerComponent = useCallback(
@@ -66,7 +48,7 @@ const CollapsibleGroup = ({
       isCollapsible ? (
         <ListItemButton
           aria-label={group?.name}
-          className={`${cx(classes.groupTitleContainer, containerClassName)} bg-background-listing-header`}
+          className={`${containerClassName} bg-background-listing-header rounded-lg`}
           dense
           disableGutters
           disableRipple
@@ -75,18 +57,9 @@ const CollapsibleGroup = ({
           {containerComponentChildren}
         </ListItemButton>
       ) : (
-        <Box className={cx(classes.groupTitleContainer, containerClassName)}>
-          {containerComponentChildren}
-        </Box>
+        <Box className={containerClassName}>{containerComponentChildren}</Box>
       ),
-    [
-      isCollapsible,
-      classes.groupTitleContainer,
-      containerClassName,
-      cx,
-      group?.name,
-      toggle
-    ]
+    [isCollapsible, containerClassName, group?.name, toggle]
   );
 
   return (
@@ -100,7 +73,7 @@ const CollapsibleGroup = ({
             data-testid={`${group?.name}-header`}
           >
             <Typography
-              className="groupText scroll-m-12 snap-start"
+              className="groupText scroll-m-12 snap-start text-base font-medium"
               variant="h6"
               {...group?.titleAttributes}
               data-section-group-form-id={group?.name}
@@ -110,7 +83,7 @@ const CollapsibleGroup = ({
             {group?.EndIcon && (
               <Tooltip
                 classes={{
-                  tooltip: classes.tooltip
+                  tooltip: 'max-w-120'
                 }}
                 placement="top"
                 title={group?.TooltipContent ? <group.TooltipContent /> : ''}
