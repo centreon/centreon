@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriod;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TimePeriodCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalTimePeriodRepository;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalTimePeriodTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\TimePeriodTransformer;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
@@ -50,7 +50,7 @@ final class DbalTimePeriodRepositoryTest extends KernelTestCase
 
         // The repository is a private service; construct it directly from the always-public
         // DBAL connection rather than relying on the container exposing it.
-        $this->repository = new DbalTimePeriodRepository($this->connection, new DbalTimePeriodTransformer());
+        $this->repository = new DbalTimePeriodRepository($this->connection, new TimePeriodTransformer());
 
         // unique per test run so assertions are isolated from the pre-seeded time periods
         $this->tag = Uuid::v4()->toRfc4122();

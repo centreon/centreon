@@ -35,7 +35,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<RowTypeAlias, Connector>
  */
-final readonly class DbalConnectorTransformer implements TransformerInterface
+final readonly class ConnectorTransformer implements TransformerInterface
 {
     public function transform(mixed $from): Connector
     {

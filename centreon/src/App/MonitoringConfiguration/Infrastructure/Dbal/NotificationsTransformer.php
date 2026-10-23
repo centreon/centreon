@@ -30,7 +30,7 @@ use App\Shared\Infrastructure\Dbal\TriStateColumnTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * Write-side counterpart of {@see DbalHostTransformer}: turns a {@see Notifications} value object
+ * Write-side counterpart of {@see HostTransformer}: turns a {@see Notifications} value object
  * into the `host` table's own storage formats, which the domain deliberately knows nothing about.
  *
  * A null block transforms to exactly what legacy writes for a payload carrying no notification
@@ -49,7 +49,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<?Notifications, NotificationColumnsTypeAlias>
  */
-final readonly class DbalNotificationsTransformer implements TransformerInterface
+final readonly class NotificationsTransformer implements TransformerInterface
 {
     use TriStateColumnTrait;
 

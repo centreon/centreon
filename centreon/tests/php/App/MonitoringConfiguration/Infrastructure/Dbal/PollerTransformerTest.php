@@ -26,20 +26,20 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\PollerTransformer;
 use App\MonitoringConfiguration\Infrastructure\InvalidGorgoneCommunicationTypeException;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @phpstan-import-type RowTypeAlias from DbalPollerRepository
  */
-final class DbalPollerTransformerTest extends TestCase
+final class PollerTransformerTest extends TestCase
 {
-    private DbalPollerTransformer $transformer;
+    private PollerTransformer $transformer;
 
     protected function setUp(): void
     {
-        $this->transformer = new DbalPollerTransformer();
+        $this->transformer = new PollerTransformer();
     }
 
     public function testTransformMapsAllFields(): void

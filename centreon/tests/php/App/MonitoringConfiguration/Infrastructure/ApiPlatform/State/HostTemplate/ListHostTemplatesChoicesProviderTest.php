@@ -36,7 +36,7 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_HOSTS_R[W]
     // (Configuration > Hosts > Hosts), bridged to HostPermissionEnum via
-    // DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const HOST_TOPOLOGY_PAGES = [6, 601, 60101];
 
     // CentreonACL access rights, see Centreon\Domain\Repository\TopologyRepository

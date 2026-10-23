@@ -710,7 +710,7 @@ final class GetHostProviderTest extends ApiTestCase
 
     /**
      * Grants the "Configuration > Hosts > Hosts" read-only topology access, the legacy menu role
-     * bridged to HostPermissionEnum::CanRead via DbalCredentialTransformer::LEGACY_PERMISSION_MAP
+     * bridged to HostPermissionEnum::CanRead via CredentialTransformer::LEGACY_PERMISSION_MAP
      * (topology_page 60101; access_right = 2 is read-only).
      *
      * @return int the Access Group id, reusable to scope centreon_acl rows
