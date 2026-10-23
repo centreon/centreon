@@ -1,6 +1,6 @@
 ---
 description: |
-  Investigates failed scheduled (nightly) runs of the web workflow, separates
+  Investigates failed nightly runs of the web workflow, separates
   infrastructure noise from real regressions, and reports the root cause in a
   GitHub issue. Proof of concept: it never pushes code nor opens pull requests.
 
@@ -11,8 +11,16 @@ on:
     branches:
       - develop
       - "dev-[2-9][0-9].[0-9][0-9].x"
+  # Replays the investigation on a past run.
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "ID of a failed web run to investigate"
+        required: true
+        type: string
 
-if: ${{ github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event == 'schedule' }}
+# develop nightlies are scheduled, dev-* ones are dispatched with a "web nightly <branch>" run name.
+if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'failure' && (github.event.workflow_run.event == 'schedule' || (github.event.workflow_run.event == 'workflow_dispatch' && startsWith(github.event.workflow_run.display_title, 'web nightly ')))) }}
 
 # copilot-requests: inference billed to the organization Copilot plan, no PAT needed.
 permissions:
@@ -29,6 +37,8 @@ tools:
     toolsets: [repos, issues, pull_requests, actions]
 
 safe-outputs:
+  # Preview only (step summary) until the diagnoses are validated.
+  staged: true
   create-issue:
     title-prefix: "[nightly failure] "
     labels: [ci]
@@ -52,18 +62,15 @@ evidence-backed next steps.
 ## Run context
 
 - **Repository**: ${{ github.repository }}
-- **Workflow run**: ${{ github.event.workflow_run.id }}
-- **Run URL**: ${{ github.event.workflow_run.html_url }}
-- **Head SHA**: ${{ github.event.workflow_run.head_sha }}
+- **Workflow run ID**: ${{ github.event.inputs.run_id || github.event.workflow_run.id }}
 
 ## Investigation protocol
 
 ### 1. Triage the failure
 
-1. Read the run to get its branch, list its jobs and retrieve the logs of the
-   failed ones. Start with
-   the earliest failed job and its first meaningful error, not later errors that
-   are only consequences.
+1. Read the run to get its URL, branch and head SHA, list its jobs and retrieve
+   the logs of the failed ones. Start with the earliest failed job and its first
+   meaningful error, not later errors that are only consequences.
 2. Record the failing job and step, the primary error message, and relevant file
    paths, test names, dependency versions or timing information.
 
@@ -95,7 +102,8 @@ an uncertain diagnosis.
 
 ### 4. Correlate repository context
 
-1. Compare with the previous scheduled run of `web` on the same branch: if it
+1. Compare with the previous nightly run of `web` on the same branch (scheduled
+   on `develop`, run name starting with `web nightly ` elsewhere): if it
    succeeded, inspect the commits between both head SHAs and identify the ones
    that plausibly affect the failing job.
 2. Inspect the workflow configuration when the failure may come from triggers,
