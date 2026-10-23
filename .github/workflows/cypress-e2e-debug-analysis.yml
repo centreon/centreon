@@ -18,7 +18,7 @@ on:
 
 jobs:
   analyze:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Check that debug logging is enabled for this run
         id: debug-check
