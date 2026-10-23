@@ -11,6 +11,10 @@ on:
     branches:
       - develop
       - "dev-[2-9][0-9].[0-9][0-9].x"
+  # TEMPORARY: registers the workflow so it can be dispatched before merge; jobs are skipped by `if`.
+  pull_request:
+    paths:
+      - ".github/workflows/web-nightly-doctor.*"
   # Replays the investigation on a past run.
   workflow_dispatch:
     inputs:
@@ -49,6 +53,12 @@ safe-outputs:
     required-labels: [ci]
     required-title-prefix: "[nightly failure] "
     max: 1
+
+# One slot per investigated run: failures of several branches must not cancel each other.
+concurrency:
+  group: "gh-aw-${{ github.workflow }}-${{ inputs.run_id || github.event.workflow_run.id || github.run_id }}"
+  cancel-in-progress: false
+  job-discriminator: ${{ inputs.run_id || github.event.workflow_run.id || github.run_id }}
 
 timeout-minutes: 15
 ---
