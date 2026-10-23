@@ -136,10 +136,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         #[Autowire(service: 'doctrine.dbal.realtime_connection')]
         private Connection $realTimeConnection,
 
-        #[Autowire(service: DbalPollerTransformer::class)]
+        #[Autowire(service: PollerTransformer::class)]
         private TransformerInterface $pollerTransformer,
 
-        #[Autowire(service: DbalGlobalMacroTransformer::class)]
+        #[Autowire(service: GlobalMacroTransformer::class)]
         private TransformerInterface $globalMacroTransformer,
 
         private ResourceAccessRepository $resourceAccessRepository,
