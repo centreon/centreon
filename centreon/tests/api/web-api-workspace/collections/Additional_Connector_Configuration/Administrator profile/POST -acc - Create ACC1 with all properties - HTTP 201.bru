@@ -55,13 +55,6 @@ tests {
   });
 }
 
-script:post-response {
-  // TEMPORARY, provisional breakage to validate the debug-analysis CI pipeline (post-response
-  // script error path, i.e. postResponseTestResults) — revert before merging.
-  const body = res.getBody();
-  const firstVcenterTagId = body.parameters.vcenters[0].tags[0].id;
-}
-
 settings {
   encodeUrl: true
   timeout: 0
