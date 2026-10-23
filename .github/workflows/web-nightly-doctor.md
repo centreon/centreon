@@ -42,6 +42,8 @@ permissions:
 # Work on the tip of the failing branch so the fix applies cleanly.
 checkout:
   ref: ${{ github.event.workflow_run.head_branch || inputs.branch }}
+  # origin/<base> is needed to build the pull request patch.
+  fetch: ["develop", "dev-*"]
 
 # Explicit model: "auto" resolves to an unpriced utility model under org billing (github/gh-aw#63117).
 engine:
