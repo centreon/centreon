@@ -114,9 +114,7 @@ const Macros = ({
 
   return (
     <div className="flex flex-col gap-2" data-testid={dataTestId}>
-      <Typography className="font-bold" variant="body1">
-        {label}
-      </Typography>
+      <Typography className="text-base font-bold">{label}</Typography>
       <div className="flex flex-wrap gap-x-4 gap-y-1">
         {legend.map(({ label: legendLabel, parent }) => (
           <Typography
