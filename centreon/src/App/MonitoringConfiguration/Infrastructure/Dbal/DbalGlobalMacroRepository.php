@@ -59,7 +59,7 @@ final readonly class DbalGlobalMacroRepository extends DbalRepository implements
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
-        #[Autowire(service: DbalGlobalMacroTransformer::class)]
+        #[Autowire(service: GlobalMacroTransformer::class)]
         private TransformerInterface $transformer,
 
         private DbalPollerRepository $pollerRepository,

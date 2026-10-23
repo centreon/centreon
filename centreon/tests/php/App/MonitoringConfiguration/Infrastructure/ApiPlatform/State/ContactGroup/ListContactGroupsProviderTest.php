@@ -35,7 +35,7 @@ final class ListContactGroupsProviderTest extends ApiTestCase
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_R
     // (Configuration > Users > Contact Groups), bridged to ContactGroupPermissionEnum::CanRead
-    // via DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // via CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const CONTACT_GROUP_READ_TOPOLOGY_PAGES = [6, 603, 60302];
 
     private Connection $connection;

@@ -35,7 +35,7 @@ final class ListNotificationContactsProviderTest extends ApiTestCase
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_USERS_CONTACTS__USERS_R
     // (Configuration > Users > "Contacts / Users"), bridged to NotificationContactPermissionEnum::CanRead
-    // via DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // via CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const NOTIFICATION_CONTACT_READ_TOPOLOGY_PAGES = [6, 603, 60301];
 
     private Connection $connection;

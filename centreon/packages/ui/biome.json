@@ -13,7 +13,7 @@
 	},
 	"overrides": [
 		{
-			"includes": ["**/*.test.tsx"],
+			"includes": ["**/*.test.tsx", "!**/*.browser.test.tsx"],
 			"formatter": { "enabled": false },
 			"assist": { "enabled": false }
 		}
