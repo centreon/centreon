@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
@@ -374,12 +375,43 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         ));
     }
 
-    /**
-     * @throws \LogicException
-     */
     public function findAccessibleServiceGroupIds(UserId $userId): ?Collection
     {
-        throw new \LogicException('Not implemented yet');
+        // Built on the active ACL resources only (acl_res_activate = '1'): an inactive resource grants
+        // neither its "all service groups" flag nor its relations. Disabled service groups stay
+        // accessible: sg_activate is not read, whereas legacy centreonACL hides them
+        // from restricted users unless an ACL resource grants all service groups.
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // Like host groups, service groups carry an explicit "all service groups" flag on the ACL
+        // resource (acl_resources.all_servicegroups); a resource without relation rows grants none.
+        $allServiceGroupsQb = $this->connection->createQueryBuilder();
+        $allServiceGroupsQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources', 'res', "res.acl_res_id = accessible_res.acl_res_id AND res.all_servicegroups = '1'")
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($allServiceGroupsQb->getSQL(), ['contactId' => $userId->value]) !== false) {
+            return null;
+        }
+
+        // No flag anywhere: the union of service-group relations across every accessible resource,
+        // naturally empty for a user with no accessible resource or no relation.
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arsr.sg_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_sg_relations', 'arsr', 'arsr.acl_res_id = accessible_res.acl_res_id')
+            ->where('arsr.sg_id IS NOT NULL');
+
+        /** @var list<array{sg_id: int|numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return new Collection(
+            array_map(static fn (array $row): ServiceGroupId => new ServiceGroupId((int) $row['sg_id']), $rows),
+            ServiceGroupId::class,
+        );
     }
 
     public function findImageFolderAccessScope(UserId $userId): AccessScope
