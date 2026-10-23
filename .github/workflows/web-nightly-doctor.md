@@ -58,9 +58,7 @@ tools:
     toolsets: [repos, issues, pull_requests, actions]
 
 safe-outputs:
-  # Preview only (step summary) until the diagnoses are validated.
-  staged: true
-  # staged does not cover gh-aw's own failure and no-op issues.
+  # No gh-aw failure or no-op issues: the run summary is enough.
   report-failure-as-issue: false
   noop:
     report-as-issue: false
