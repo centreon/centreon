@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -49,6 +50,9 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     /** @var AccessScope<HostGroupId> */
     public AccessScope $hostGroupScope;
+
+    /** @var ?Collection<ServiceGroupId> null means unrestricted, matching the real contract */
+    public ?Collection $accessibleServiceGroupIds = null;
 
     /** @var AccessScope<MediaDirectoryId> */
     public AccessScope $imageFolderScope;
@@ -129,6 +133,13 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
 
         return $this->hostGroupScope;
+    }
+
+    public function findAccessibleServiceGroupIds(UserId $userId): ?Collection
+    {
+        ++$this->accessListLoads;
+
+        return $this->accessibleServiceGroupIds;
     }
 
     public function findContactAccessScope(UserId $userId): AccessScope

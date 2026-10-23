@@ -374,6 +374,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         ));
     }
 
+    /**
+     * @throws \LogicException
+     */
+    public function findAccessibleServiceGroupIds(UserId $userId): ?Collection
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
     public function findImageFolderAccessScope(UserId $userId): AccessScope
     {
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
