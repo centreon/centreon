@@ -50,6 +50,14 @@ inputs:
     required: false
     default: ""
 
+outputs:
+  manifest:
+    description: "Path of the JSON manifest of the delivered packages, empty when nothing was delivered"
+    value: ${{ steps.deliver-rpm.outputs.manifest || steps.deliver-deb.outputs.manifest }}
+  manifest_artifact:
+    description: "Name of the artifact holding the manifest of a testing delivery, empty otherwise"
+    value: ${{ steps.upload-manifest.outcome == 'success' && steps.manifest-artifact.outputs.name || '' }}
+
 runs:
   using: "composite"
   steps:
@@ -183,3 +191,27 @@ runs:
       run: |
         ${{ github.action_path }}/../../scripts/pulp/check-deb.sh ||
           echo "::warning::Pulp delivery verification failed for ${MODULE_NAME} on ${DISTRIB} (non-blocking during the Artifactory-to-Pulp migration, see the run summary table)"
+
+    # Testing deliveries keep their manifest as an artifact for later jobs of the run.
+    - name: Prepare delivery manifest artifact
+      id: manifest-artifact
+      if: inputs.stability == 'testing' && inputs.delivery_type != 'feature' && (steps.deliver-rpm.outputs.manifest != '' || steps.deliver-deb.outputs.manifest != '')
+      shell: bash
+      env:
+        CACHE_KEY: ${{ inputs.cache_key }}
+      run: |
+        # artifact names only keep [A-Za-z0-9._-]: cache keys can carry a branch name with a /
+        echo "name=pulp-manifest-${CACHE_KEY//[^A-Za-z0-9._-]/-}" >> "$GITHUB_OUTPUT"
+
+    - name: Upload delivery manifest
+      id: upload-manifest
+      if: steps.manifest-artifact.outcome == 'success'
+      # the packages are already delivered: a missing manifest is reported by its consumer, not here
+      continue-on-error: true
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: ${{ steps.manifest-artifact.outputs.name }}
+        path: ${{ steps.deliver-rpm.outputs.manifest || steps.deliver-deb.outputs.manifest }}
+        retention-days: 30
+        overwrite: true
+        if-no-files-found: error
