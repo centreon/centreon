@@ -38,7 +38,7 @@ final readonly class HostCategoryTransformer implements TransformerInterface
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): HostCategory
+    public function transform(mixed $from, array $extraData = []): HostCategory
     {
         return new HostCategory(
             id: new HostCategoryId($from['hc_id']),

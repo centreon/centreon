@@ -23,25 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
-use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
-use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceBuilder;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceExtraDataFetcher;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
-use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -964,77 +951,39 @@ final class PutHostProcessorTest extends ApiTestCase
     }
 
     /**
-     * PutHostProcessor shapes its Cloud-sensitive output from its own $isCloudPlatform (bound from
-     * IS_CLOUD_PLATFORM), which cannot be flipped per test through the env. Force it by replacing
-     * the container's processor with one built with the desired value, reusing its real
-     * dependencies. Must run before the request is made (same technique as the sibling
-     * CreateHostProcessorTest::forcePlatform()).
+     * $isCloudPlatform (bound from IS_CLOUD_PLATFORM) is read by PutHostProcessor for the input, and
+     * by the Cloud-sensitive transformers for the output; it cannot be flipped per test through the
+     * env. Force it by replacing the container's processor with one built with the desired value,
+     * reusing its real dependencies. Must run before the request is made (same technique as the
+     * sibling CreateHostProcessorTest::forcePlatform()).
      */
     private function forcePlatform(bool $isCloudPlatform): void
     {
         $container = self::getContainer();
 
-        /** @var HostResourceTransformer $transformer */
-        $transformer = $container->get(HostResourceTransformer::class);
-        /** @var HostNotificationsTransformer $notificationsTransformer */
-        $notificationsTransformer = $container->get(HostNotificationsTransformer::class);
-        /** @var HostRepository $hostRepository */
-        $hostRepository = $container->get(HostRepository::class);
-        /** @var PollerRepository $pollerRepository */
-        $pollerRepository = $container->get(PollerRepository::class);
-        /** @var HostGroupRepository $hostGroupRepository */
-        $hostGroupRepository = $container->get(HostGroupRepository::class);
-        /** @var CommandRepository $commandRepository */
-        $commandRepository = $container->get(CommandRepository::class);
-        /** @var HostTemplateRepository $hostTemplateRepository */
-        $hostTemplateRepository = $container->get(HostTemplateRepository::class);
-        /** @var HostCategoryRepository $hostCategoryRepository */
-        $hostCategoryRepository = $container->get(HostCategoryRepository::class);
-        /** @var HostSeverityRepository $hostSeverityRepository */
-        $hostSeverityRepository = $container->get(HostSeverityRepository::class);
-        /** @var TimezoneRepository $timezoneRepository */
-        $timezoneRepository = $container->get(TimezoneRepository::class);
-        /** @var MediaRepository $mediaRepository */
-        $mediaRepository = $container->get(MediaRepository::class);
-        /** @var MediaUrlGenerator $mediaUrlGenerator */
-        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
-        /** @var TimePeriodRepository $timePeriodRepository */
-        $timePeriodRepository = $container->get(TimePeriodRepository::class);
-        /** @var ResourceAccessRepository $resourceAccessRepository */
-        $resourceAccessRepository = $container->get(ResourceAccessRepository::class);
-        /** @var HostMacroTransformer $macroTransformer */
-        $macroTransformer = $container->get(HostMacroTransformer::class);
-        /** @var InheritedHostMacrosResolver $inheritedHostMacrosResolver */
-        $inheritedHostMacrosResolver = $container->get(InheritedHostMacrosResolver::class);
-        /** @var Security $security */
-        $security = $container->get(Security::class);
-
-        $resourceBuilder = new HostResourceBuilder(
-            $transformer,
-            $notificationsTransformer,
-            $hostRepository,
-            $pollerRepository,
-            $hostGroupRepository,
-            $commandRepository,
-            $hostTemplateRepository,
-            $hostCategoryRepository,
-            $hostSeverityRepository,
-            $timezoneRepository,
-            $mediaRepository,
-            $mediaUrlGenerator,
-            $timePeriodRepository,
-            $resourceAccessRepository,
-            $macroTransformer,
-            $inheritedHostMacrosResolver,
-            $isCloudPlatform,
-        );
-
         /** @var CommandBus $commandBus */
         $commandBus = $container->get(CommandBus::class);
+        /** @var Security $security */
+        $security = $container->get(Security::class);
+        /** @var HostRepository $hostRepository */
+        $hostRepository = $container->get(HostRepository::class);
+        /** @var HostResourceExtraDataFetcher $extraDataFetcher */
+        $extraDataFetcher = $container->get(HostResourceExtraDataFetcher::class);
+        /** @var MediaUrlGenerator $mediaUrlGenerator */
+        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
+        $transformer = HostResourceTransformerFactory::create($isCloudPlatform, $mediaUrlGenerator);
 
         $container->set(
             PutHostProcessor::class,
-            new PutHostProcessor($commandBus, $security, $hostRepository, $macroTransformer, $resourceBuilder, $isCloudPlatform),
+            new PutHostProcessor(
+                $commandBus,
+                $transformer,
+                $security,
+                $hostRepository,
+                $extraDataFetcher,
+                new HostMacroTransformer(),
+                $isCloudPlatform,
+            ),
         );
     }
 

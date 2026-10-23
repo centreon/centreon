@@ -11254,22 +11254,6 @@ components:
     ListCommandResource:
       type: object
       properties:
-        used_hosts_count:
-          description: 'Number of hosts using this command'
-          type: integer
-          example: 10
-        used_host_templates_count:
-          description: 'Number of host templates using this command'
-          type: integer
-          example: 100
-        used_services_count:
-          description: 'Number of services using this command'
-          type: integer
-          example: 5
-        used_service_templates_count:
-          description: 'Number of service templates using this command'
-          type: integer
-          example: 50
         id:
           type: integer
         name:
@@ -11295,6 +11279,22 @@ components:
         is_from_monitoring_connector:
           description: 'Indicates whether the command comes from a monitoring connector'
           type: boolean
+        used_hosts_count:
+          description: 'Number of hosts using this command'
+          type: integer
+          example: 10
+        used_host_templates_count:
+          description: 'Number of host templates using this command'
+          type: integer
+          example: 100
+        used_services_count:
+          description: 'Number of services using this command'
+          type: integer
+          example: 5
+        used_service_templates_count:
+          description: 'Number of service templates using this command'
+          type: integer
+          example: 50
     ListCommandResource.jsonld:
       allOf:
         -
@@ -11302,22 +11302,6 @@ components:
         -
           type: object
           properties:
-            used_hosts_count:
-              description: 'Number of hosts using this command'
-              type: integer
-              example: 10
-            used_host_templates_count:
-              description: 'Number of host templates using this command'
-              type: integer
-              example: 100
-            used_services_count:
-              description: 'Number of services using this command'
-              type: integer
-              example: 5
-            used_service_templates_count:
-              description: 'Number of service templates using this command'
-              type: integer
-              example: 50
             id:
               type: integer
             name:
@@ -11343,6 +11327,22 @@ components:
             is_from_monitoring_connector:
               description: 'Indicates whether the command comes from a monitoring connector'
               type: boolean
+            used_hosts_count:
+              description: 'Number of hosts using this command'
+              type: integer
+              example: 10
+            used_host_templates_count:
+              description: 'Number of host templates using this command'
+              type: integer
+              example: 100
+            used_services_count:
+              description: 'Number of services using this command'
+              type: integer
+              example: 5
+            used_service_templates_count:
+              description: 'Number of service templates using this command'
+              type: integer
+              example: 50
     Plugins:
       type: object
       required:
@@ -11782,18 +11782,6 @@ components:
     Host.HostCollectionOutput:
       type: object
       properties:
-        poller:
-          $ref: '#/components/schemas/HostPollerOutput'
-        templates:
-          type: array
-          items:
-            $ref: '#/components/schemas/HostTemplateOutput'
-        icon:
-          anyOf:
-            -
-              $ref: '#/components/schemas/HostIconOutput'
-            -
-              type: 'null'
         id:
           type: integer
         name:
@@ -11806,6 +11794,18 @@ components:
           type: string
         activated:
           type: boolean
+        poller:
+          $ref: '#/components/schemas/HostPollerOutput'
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateOutput'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput'
+            -
+              type: 'null'
     Host.HostCollectionOutput.jsonld:
       allOf:
         -
@@ -11813,18 +11813,6 @@ components:
         -
           type: object
           properties:
-            poller:
-              $ref: '#/components/schemas/HostPollerOutput.jsonld'
-            templates:
-              type: array
-              items:
-                $ref: '#/components/schemas/HostTemplateOutput.jsonld'
-            icon:
-              anyOf:
-                -
-                  $ref: '#/components/schemas/HostIconOutput.jsonld'
-                -
-                  type: 'null'
             id:
               type: integer
             name:
@@ -11837,6 +11825,18 @@ components:
               type: string
             activated:
               type: boolean
+            poller:
+              $ref: '#/components/schemas/HostPollerOutput.jsonld'
+            templates:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostTemplateOutput.jsonld'
+            icon:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostIconOutput.jsonld'
+                -
+                  type: 'null'
     HostPollerOutput:
       type: object
       properties:
@@ -11886,6 +11886,30 @@ components:
     Host:
       type: object
       properties:
+        id:
+          type: integer
+        name:
+          type: string
+        alias:
+          type:
+            - string
+            - 'null'
+        address:
+          type: string
+        activated:
+          type: boolean
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
+        is_snmp_community_defined:
+          description: 'Whether an SNMP community is set. The community itself is never returned.'
+          type: boolean
         poller:
           $ref: '#/components/schemas/HostPollerOutput'
         templates:
@@ -11938,30 +11962,6 @@ components:
               $ref: '#/components/schemas/HostNotificationsOutput'
             -
               type: 'null'
-        id:
-          type: integer
-        name:
-          type: string
-        alias:
-          type:
-            - string
-            - 'null'
-        address:
-          type: string
-        activated:
-          type: boolean
-        snmp_version:
-          type:
-            - string
-            - 'null'
-          enum:
-            - '1'
-            - 2c
-            - '3'
-            - null
-        is_snmp_community_defined:
-          description: 'Whether an SNMP community is set. The community itself is never returned.'
-          type: boolean
     Host.CreateHostInput:
       type: object
       required:
@@ -12079,6 +12079,30 @@ components:
         -
           type: object
           properties:
+            id:
+              type: integer
+            name:
+              type: string
+            alias:
+              type:
+                - string
+                - 'null'
+            address:
+              type: string
+            activated:
+              type: boolean
+            snmp_version:
+              type:
+                - string
+                - 'null'
+              enum:
+                - '1'
+                - 2c
+                - '3'
+                - null
+            is_snmp_community_defined:
+              description: 'Whether an SNMP community is set. The community itself is never returned.'
+              type: boolean
             poller:
               $ref: '#/components/schemas/HostPollerOutput.jsonld'
             templates:
@@ -12131,30 +12155,6 @@ components:
                   $ref: '#/components/schemas/HostNotificationsOutput.jsonld'
                 -
                   type: 'null'
-            id:
-              type: integer
-            name:
-              type: string
-            alias:
-              type:
-                - string
-                - 'null'
-            address:
-              type: string
-            activated:
-              type: boolean
-            snmp_version:
-              type:
-                - string
-                - 'null'
-              enum:
-                - '1'
-                - 2c
-                - '3'
-                - null
-            is_snmp_community_defined:
-              description: 'Whether an SNMP community is set. The community itself is never returned.'
-              type: boolean
     HostGroupOutput:
       type: object
       properties:

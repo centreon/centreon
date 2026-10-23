@@ -27,14 +27,22 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationType
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use App\Shared\Infrastructure\TransformerInterface;
+use Webmozart\Assert\Assert;
 
 /**
- * @implements TransformerInterface<Poller, PollerResource>
+ * The installation command is built by the caller: it depends on the poller token and the central
+ * URL of the creation request, which the poller does not hold.
+ *
+ * @phpstan-type ExtraDataTypeAlias array{installationCommand?: string}
+ *
+ * @implements TransformerInterface<Poller, PollerResource, ExtraDataTypeAlias>
  */
 final readonly class ResourcePollerTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): PollerResource
+    public function transform(mixed $from, array $extraData = []): PollerResource
     {
+        Assert::keyExists($extraData, 'installationCommand');
+
         return new PollerResource(
             id: $from->id()->value,
             name: $from->name->value,
@@ -43,6 +51,7 @@ final readonly class ResourcePollerTransformer implements TransformerInterface
             centralAddress: $from->centralAddress?->value,
             uid: (string) $from->uid->value,
             gorgoneCommunicationType: $this->communicationTypeToString($from->gorgoneConfiguration->communicationType),
+            installationCommand: $extraData['installationCommand'],
         );
     }
 

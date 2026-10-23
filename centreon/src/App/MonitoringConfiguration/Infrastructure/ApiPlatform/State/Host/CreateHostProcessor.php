@@ -59,21 +59,29 @@ use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
 /**
+ * @phpstan-import-type ExtraDataTypeAlias from HostResourceTransformer as HostResourceExtraDataTypeAlias
+ *
  * @implements ProcessorInterface<CreateHostInput, HostResource>
  */
 final readonly class CreateHostProcessor implements ProcessorInterface
 {
+    /**
+     * @param TransformerInterface<Host, HostResource, HostResourceExtraDataTypeAlias> $transformer
+     */
     public function __construct(
         private CommandBus $commandBus,
+        #[Autowire(service: HostResourceTransformer::class)]
+        private TransformerInterface $transformer,
         private Security $security,
         private HostRepository $hostRepository,
+        private HostResourceExtraDataFetcher $extraDataFetcher,
         private HostMacroTransformer $macroTransformer,
-        private HostResourceBuilder $resourceBuilder,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -143,8 +151,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         // response omits the key rather than advertising a feature that platform lacks.
         $notifications = $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications);
         $alias = $this->trimmedOrNull($data->alias);
-        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId;
 
+        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId;
         $command = new CreateHostCommand(
             name: new HostName($data->name),
             address: new HostAddress($data->address),
@@ -176,12 +184,11 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         Assert::isInstanceOf($host, Host::class);
 
         // The own macros are read back as stored, since their ids are only assigned on insertion.
-        return $this->resourceBuilder->build(
-            $host->with(checkOptions: $host->checkOptions->with(
-                macros: array_values($this->hostRepository->findMacros($host->id())->toArray()),
-            )),
-            $viewerId,
-        );
+        $host = $host->with(checkOptions: $host->checkOptions->with(
+            macros: array_values($this->hostRepository->findMacros($host->id())->toArray()),
+        ));
+
+        return $this->transformer->transform($host, $this->extraDataFetcher->fetch($host, $viewerId));
     }
 
     private function triStateOrDefault(?TriStateEnum $value): TriStateEnum

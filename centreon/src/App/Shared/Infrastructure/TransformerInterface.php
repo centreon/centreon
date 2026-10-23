@@ -24,15 +24,23 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure;
 
 /**
+ * A transformer builds its whole output, calling other transformers when needed, but never fetches
+ * anything: what $from does not carry (related names, a value computed by the caller...) is
+ * resolved by the caller and passed through $extraData.
+ *
+ * Since $extraData defaults to [], every key of a TExtraData shape must be optional.
+ *
  * @template TFrom
  * @template TTo
+ * @template TExtraData of array<string, mixed> = array{}
  */
 interface TransformerInterface
 {
     /**
      * @param TFrom $from
+     * @param TExtraData $extraData
      *
      * @return TTo
      */
-    public function transform(mixed $from): mixed;
+    public function transform(mixed $from, array $extraData = []): mixed;
 }

@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class CommandChoicesTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): CommandChoicesOutput
+    public function transform(mixed $from, array $extraData = []): CommandChoicesOutput
     {
         return new CommandChoicesOutput(
             id: $from->id()->value,
