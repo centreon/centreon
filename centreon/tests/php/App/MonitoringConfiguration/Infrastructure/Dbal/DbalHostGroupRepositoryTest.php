@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostGroupRepository;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostGroupTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\HostGroupTransformer;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
@@ -57,7 +57,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         // integration tests may leave around the same connection.
         $this->repository = new DbalHostGroupRepository(
             $this->connection,
-            new DbalHostGroupTransformer(),
+            new HostGroupTransformer(),
             new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
         );
     }

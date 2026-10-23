@@ -60,7 +60,7 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
-        #[Autowire(service: DbalCredentialTransformer::class)]
+        #[Autowire(service: CredentialTransformer::class)]
         private TransformerInterface $transformer,
 
         private AccessGroupRepository $accessGroupRepository,

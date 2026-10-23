@@ -35,7 +35,7 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_TEMPLATES_R
     // (Configuration > Hosts > Templates), bridged to HostTemplatePermissionEnum::CanRead
-    // via DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // via CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const HOST_TEMPLATE_READ_TOPOLOGY_PAGES = [6, 601, 60103];
 
     private Connection $connection;

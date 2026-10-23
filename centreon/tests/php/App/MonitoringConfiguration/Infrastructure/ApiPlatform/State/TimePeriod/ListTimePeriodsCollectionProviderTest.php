@@ -35,7 +35,7 @@ final class ListTimePeriodsCollectionProviderTest extends ApiTestCase
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_USERS_TIME_PERIODS_R
     // (Configuration > Users > Time Periods), bridged to TimePeriodPermissionEnum::CanRead
-    // via DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // via CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const TIME_PERIOD_READ_TOPOLOGY_PAGES = [6, 603, 60304];
 
     // CentreonACL access rights, see Centreon\Domain\Repository\TopologyRepository

@@ -30,8 +30,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostRepository;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTransformer;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\HostTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\NotificationsTransformer;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
@@ -69,8 +69,8 @@ final class DbalHostRepositoryLockOrderTest extends TestCase
 
         $repository = new DbalHostRepository(
             $connection,
-            new DbalHostTransformer(),
-            new DbalNotificationsTransformer(),
+            new HostTransformer(),
+            new NotificationsTransformer(),
             new AccessScopeResolver($this->createMock(ResourceAccessRepository::class)),
         );
 
