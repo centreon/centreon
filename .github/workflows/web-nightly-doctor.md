@@ -67,8 +67,11 @@ safe-outputs:
     labels: [ci]
     draft: true
     max: 1
-    # The branch of the failed run, not the workflow's own ref (shallow clones share no history).
-    base-branch: ${{ github.event.workflow_run.head_branch || inputs.branch }}
+    # develop first; a dev-* branch only when the faulty code no longer exists on develop.
+    base-branch: develop
+    allowed-base-branches:
+      - develop
+      - "dev-[2-9][0-9].[0-9][0-9].x"
     fallback-as-issue: false
     # PAT so that the pull request triggers CI and can change workflow files (GITHUB_TOKEN can do neither).
     github-token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
@@ -77,6 +80,79 @@ safe-outputs:
     required-labels: [ci]
     required-title-prefix: "[nightly fix] "
     max: 1
+  jobs:
+    create-jira-ticket:
+      description: "Create the MON Technical Jira ticket of the fix pull request (DevSecOps squad, Backports field) and link it from the pull request"
+      runs-on: ubuntu-latest
+      needs: [safe_outputs]
+      if: needs.safe_outputs.outputs.created_pr_url != ''
+      permissions:
+        pull-requests: write
+      output: "The Jira ticket will be created and linked once the pull request exists."
+      inputs:
+        summary:
+          description: "Ticket summary: the conventional commit title of the fix"
+          required: true
+          type: string
+        description:
+          description: "Plain text: what failed in the nightly, the root cause and the fix"
+          required: true
+          type: string
+        backports:
+          description: "Comma-separated maintained dev-* branches that contain the same faulty code, besides the pull request base (empty if none)"
+          required: false
+          type: string
+      steps:
+        - name: Create the Jira ticket and link it from the pull request
+          env:
+            JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+            JIRA_USER_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+            JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+            GH_TOKEN: ${{ github.token }}
+            PR_URL: ${{ needs.safe_outputs.outputs.created_pr_url }}
+            PR_NUMBER: ${{ needs.safe_outputs.outputs.created_pr_number }}
+          run: |
+            set -euo pipefail
+            item=$(jq -c 'first(.items[] | select(.type == "create_jira_ticket"))' "$GH_AW_AGENT_OUTPUT")
+            if [ -z "$item" ]; then
+              echo "No create_jira_ticket output, nothing to do."
+              exit 0
+            fi
+            if [ "${GH_AW_SAFE_OUTPUTS_STAGED:-false}" = "true" ]; then
+              echo "Staged mode, ticket not created: $item"
+              exit 0
+            fi
+            auth=(--user "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" --header "Accept: application/json")
+
+            # Keep only the branches the Backports field accepts.
+            allowed=$(curl -sSf "${auth[@]}" "$JIRA_BASE_URL/rest/api/3/issue/createmeta/MON/issuetypes/10209?maxResults=100" \
+              | jq -c '[.fields[] | select(.fieldId == "customfield_11168") | .allowedValues[].value]')
+            backports=$(jq -c --argjson allowed "$allowed" \
+              '[(.backports // "") | split(",")[] | gsub("^\\s+|\\s+$"; "") | select(. as $b | $b != "" and ($allowed | index($b)) != null)] | unique | map({value: .})' <<< "$item")
+
+            payload=$(jq -n --argjson item "$item" --argjson backports "$backports" --arg pr "$PR_URL" '{
+              fields: {
+                project: {key: "MON"},
+                issuetype: {id: "10209"},
+                summary: $item.summary,
+                customfield_10902: {id: "10524"},
+                customfield_11168: $backports,
+                labels: ["nightly-doctor"],
+                description: {type: "doc", version: 1, content: (
+                  [{type: "paragraph", content: [{type: "text", text: "This ticket was created automatically by the web nightly doctor.", marks: [{type: "em"}]}]}]
+                  + [$item.description | split("\n")[] | select(length > 0) | {type: "paragraph", content: [{type: "text", text: .}]}]
+                  + [{type: "paragraph", content: [{type: "text", text: "Pull request: "}, {type: "text", text: $pr, marks: [{type: "link", attrs: {href: $pr}}]}]}]
+                )}
+              }
+            }')
+            key=$(curl -sSf "${auth[@]}" --header "Content-Type: application/json" \
+              --data "$payload" "$JIRA_BASE_URL/rest/api/3/issue" | jq -r .key)
+            echo "Created $key"
+
+            body=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json body --jq .body)
+            printf '%s\n\n## Links\n\n- Fixes: [%s](%s/browse/%s)\n' "$body" "$key" "$JIRA_BASE_URL" "$key" > pr-body.md
+            gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" -X PATCH -F body=@pr-body.md > /dev/null
+            echo "### Jira ticket [$key]($JIRA_BASE_URL/browse/$key) created for $PR_URL" >> "$GITHUB_STEP_SUMMARY"
 
 # One slot per investigated run: failures of several branches must not cancel each other.
 concurrency:
@@ -164,12 +240,27 @@ to it with the new run link instead of opening another pull request.
 
 To open a pull request:
 
-1. Make the smallest change that fixes the root cause on the checked-out
-   branch. Do not refactor, reformat or touch unrelated files.
-2. Commit with a conventional commit message such as
+1. Choose the target branch. Fixes land on `develop` first and are backported:
+   compare the faulty code with `origin/develop` (for example with
+   `git show origin/develop:<path>`). If `develop` has the same faulty code,
+   target `develop`; otherwise target the branch of the failed run.
+2. List the backports: the maintained `dev-*` branches, other than the target,
+   whose faulty code is the same. Maintained branches are the ones with a
+   `web nightly <branch>` run of `web` in the last 7 days; compare each with
+   `git show origin/<branch>:<path>`.
+3. Create the fix branch from the target (`git checkout -b <name>
+origin/<target>`) and make the smallest change that fixes the root cause. Do
+   not refactor, reformat or touch unrelated files.
+4. Commit with a conventional commit message such as
    `fix(ci): run clear-branch-cache after deliver-pulp`.
-3. Open the pull request against the branch of the failed run (`develop` or the
-   `dev-*` branch), titled `<conventional commit message>`, with this body:
+5. Open the pull request with `base` set to the target branch, titled
+   `<conventional commit message>`, with the body below.
+6. Call `create_jira_ticket` once, with the conventional commit message as
+   summary, a plain-text description (what failed, root cause, fix, run link)
+   and the backports as a comma-separated list. It creates the Jira ticket after
+   the pull request and adds the `Fixes:` link to it.
+
+Pull request body:
 
 ```markdown
 ## Description
@@ -180,6 +271,7 @@ To open a pull request:
 - **Failed job and step**: [job and step]
 - **Classification**: [code or test, dependency or toolchain, workflow configuration]
 - **Confidence**: high
+- **Backports**: [comma-separated dev-* branches, or none]
 
 ## Evidence
 
@@ -187,5 +279,5 @@ To open a pull request:
 
 ## How to test
 
-[How a reviewer can check the fix, usually the next nightly on that branch]
+[How a reviewer can check the fix, usually the next nightly on the target branch]
 ```
