@@ -48,6 +48,7 @@ mkdir -p "${web}/node_modules/.bin" "${TMP}/bin" "${src}/Hosts/Specs" "${src}/Ho
 stub='#!/usr/bin/env bash
 name="$(basename "$0")"
 printf "%s|%s %s\n" "$(pwd)" "${name}" "$*" >> "${CALLS}"
+printf "<%s>" "$@" >> "${CALLS}.args"; echo >> "${CALLS}.args"
 if [[ "${name}" == tsc && "$1" == -p ]]; then cp "$2" "${TMPDIR}/tsconfig-copy.json"; fi
 if [[ -n "${STUB_SLEEP:-}" && "${name} $*" =~ ${STUB_SLEEP} ]]; then sleep 60 & echo $! > "${TMPDIR}/sleep.pid"; wait; fi
 if [[ -n "${STUB_FAIL:-}" && "${name} $*" =~ ${STUB_FAIL} ]]; then printf "%b" "${STUB_OUT:-failed}"; exit 1; fi
@@ -71,6 +72,9 @@ done
 printf 'export const b = 1;\n' > "${ui}/src/Button/index.ts"
 printf 'export const t = 1;\n' > "${ui}/src/Button/index.test.ts"
 printf '{}\n' > "${web}/biome.json"
+snap="${web}/cypress/visual-testing-snapshots/www/front_src/src/Legacy/Listing/Listing.cypress.spec.tsx"
+mkdir -p "${snap}"
+printf 'png' > "${snap}/shows the listing.snap.png"
 for i in 1 2 3 4 5 6; do
   mkdir -p "${src}/Many${i}"
   printf 'export const x = 1;\n' > "${src}/Many${i}/a.tsx"
@@ -85,7 +89,8 @@ verify() {
   local dir="$1"
   shift
   : > "${CALLS}"
-  rm -f "${TMP}/tsconfig-copy.json"
+  : > "${CALLS}.args"
+  rm -f "${TMP}/tsconfig-copy.json" "${TMP}/sleep.pid"
   rc=0
   (cd "${dir}" && "${SCRIPT}" "$@") > "${TMP}/out" 2>&1 || rc=$?
 }
@@ -185,7 +190,7 @@ reset
 # A path with a space reaches the tools as one argument.
 printf 'export const s = 1;\n' > "${src}/Hosts/with space.ts"
 verify "${repo}"
-check yes "$(called 'biome check .*Hosts/with space.ts')" 'space in a path kept whole'
+check yes "$(grep -q '/Hosts/with space.ts>' "${CALLS}.args" && echo yes || echo no)" 'space in a path kept as one argument'
 reset
 
 # A hung step is killed after the limit and fails the run.
@@ -198,6 +203,7 @@ check no "$(alive)" 'timeout: process tree killed'
 reset
 
 # Interrupted: the running step and the temporary tsconfig are cleaned up.
+rm -f "${TMP}/sleep.pid"
 printf 'export const y = 2;\n' >> "${src}/Hosts/Form/form.tsx"
 (cd "${repo}" && exec env STUB_SLEEP='tsc' "${SCRIPT}" --fast > /dev/null 2>&1) &
 pid=$!
@@ -207,6 +213,62 @@ wait "${pid}" 2> /dev/null || true
 sleep 1
 check no "$(alive)" 'interrupt: running step killed'
 check 0 "$(find "${web}" -name '.tsconfig.verify.*' | wc -l | tr -d ' ')" 'interrupt: temporary tsconfig removed'
+reset
+
+# A file name that cannot be passed safely: reported, not checked.
+printf 'x\n' > "${src}/Hosts/bad\"name.ts"
+verify "${repo}"
+check yes "$(said 'not checked \(unsupported file name\)')" 'quote in a name: reported'
+check no "$(called 'bad.name')" 'quote in a name: not passed to a tool'
+check 2 "${rc}" 'quote in a name only: nothing verified, exit 2'
+reset
+
+# A rename: the old location's tests run too.
+git mv "${src}/Hosts/utils.ts" "${src}/Plain/utils.ts"
+verify "${repo}"
+check yes "$(called 'pnpm rstest:run .*Hosts/Specs/Hosts.browser.test.tsx')" 'rename: tests of the old directory run'
+check yes "$(called 'pnpm type-check')" 'rename: full type-check'
+reset
+
+# A changed visual snapshot runs its spec, not the snapshot folder.
+printf 'png2' > "${snap}/shows the listing.snap.png"
+verify "${repo}"
+check yes "$(called 'pnpm cypress:run --spec www/front_src/src/Legacy/Listing/Listing.cypress.spec.tsx$')" 'snapshot: its spec runs'
+check no "$(called 'snap.png|visual-testing-snapshots')" 'snapshot: folder never passed as a spec'
+check 0 "${rc}" 'snapshot: exit 0'
+reset
+
+# A deleted packages/ui configuration file is a configuration change.
+printf '{}\n' > "${ui}/jest.config.cjs"
+git add -A && git commit -qm config && git update-ref refs/remotes/origin/develop HEAD
+git rm -q "${ui}/jest.config.cjs"
+verify "${repo}"
+check yes "$(said 'configuration changed')" 'deleted ui config: configuration change'
+check 3 "${rc}" 'deleted ui config: exit 3'
+reset
+
+# A deleted file outside the frontend changes nothing to verify.
+mkdir -p "${web}/src" && printf '<?php\n' > "${web}/src/Foo.php"
+git add -A && git commit -qm php && git update-ref refs/remotes/origin/develop HEAD
+git rm -q "${web}/src/Foo.php"
+verify "${repo}"
+check 2 "${rc}" 'deleted backend file: exit 2'
+reset
+
+# A deleted asset: tsc does not see a missing import, so it is listed.
+mkdir -p "${src}/Assets" && printf '<svg/>\n' > "${src}/Assets/logo.svg"
+git add -A && git commit -qm svg && git update-ref refs/remotes/origin/develop HEAD
+git rm -q "${src}/Assets/logo.svg"
+verify "${repo}"
+check yes "$(said 'deleted, its importers were not checked: .*logo.svg')" 'deleted asset: listed'
+check 3 "${rc}" 'deleted asset: exit 3'
+reset
+
+# A nested *.config.ts is code, not configuration.
+printf 'export const c = 1;\n' > "${src}/Hosts/table.config.ts"
+verify "${repo}"
+check no "$(said 'configuration changed')" 'nested config.ts: not configuration'
+check yes "$(called 'rstest:run .*Hosts.browser.test.tsx')" 'nested config.ts: its tests run'
 reset
 
 printf '%d/%d checks passed\n' "$((total - failures))" "${total}"

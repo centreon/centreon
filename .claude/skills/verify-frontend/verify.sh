@@ -60,10 +60,13 @@ root="$(git rev-parse --show-toplevel 2> /dev/null)" || not_verified 'Not in a g
 cd "${root}" || not_verified "Cannot enter ${root}."
 web="${root}/centreon"
 ui="${web}/packages/ui"
-logs="$(mktemp -d "${TMPDIR:-/tmp}/verify-frontend.XXXXXX")"
+logs="$(mktemp -d "${TMPDIR:-/tmp}/verify-frontend.XXXXXX")" ||
+  not_verified 'Cannot create a temporary directory.'
 
 failed=0
 gaps=()  # what was not checked, listed before the result
+snapshots=() # specs whose visual snapshots changed
+cypress=()   # Cypress specs to run
 job=''   # process group of the running step, killed on interrupt
 temps=() # temporary tsconfig files, removed on exit
 
@@ -133,7 +136,7 @@ unique() {
 # Cypress specs (browser tests first at the same level). The first line is
 # the kind, "browser" or "cypress"; nothing when none is found.
 related_tests() {
-  local dir stop found kind
+  local dir stop found kind pattern
   dir="$(dirname "$1")"
   case "${dir}" in
     "${ui}"/*) stop="${ui}/src" ;;
@@ -144,11 +147,9 @@ related_tests() {
   done
   while [[ "${dir}" == "${stop}" || "${dir}" == "${stop}"/* ]]; do
     for kind in browser cypress; do
-      if [[ "${kind}" == 'browser' ]]; then
-        found="$(ls "${dir}"/*.browser.test.tsx "${dir}"/Specs/*.browser.test.tsx 2> /dev/null || true)"
-      else
-        found="$(ls "${dir}"/*.cypress.spec.tsx "${dir}"/Specs/*.cypress.spec.tsx 2> /dev/null || true)"
-      fi
+      # Regular files only: snapshot folders are named after their spec.
+      if [[ "${kind}" == 'browser' ]]; then pattern='*.browser.test.tsx'; else pattern='*.cypress.spec.tsx'; fi
+      found="$(find "${dir}" "${dir}/Specs" -maxdepth 1 -type f -name "${pattern}" 2> /dev/null | sort)"
       if [[ -n "${found}" ]]; then
         printf '%s\n%s\n' "${kind}" "${found}"
         return 0
@@ -164,7 +165,7 @@ related_tests() {
 typecheck_scoped() {
   local dir="$1" config="$2" log="$3" ambient="$4" tmp includes file rc
   shift 4
-  tmp="$(mktemp "${dir}/.tsconfig.verify.XXXXXX")"
+  tmp="$(mktemp "${dir}/.tsconfig.verify.XXXXXX")" || return 1
   temps+=("${tmp}")
   includes="${ambient}"
   for file in "$@"; do
@@ -179,42 +180,92 @@ typecheck_scoped() {
 
 [[ -x "${web}/node_modules/.bin/biome" ]] ||
   not_verified 'Dependencies are not installed: run pnpm install in centreon/.'
-merge_base="$(git merge-base HEAD "${base}" 2> /dev/null)" ||
+git rev-parse --quiet --verify --end-of-options "${base}^{commit}" > /dev/null &&
+  merge_base="$(git merge-base HEAD "${base}" 2> /dev/null)" ||
   not_verified "Unknown base ${base}: git fetch origin, or pass --base."
 
 # Changed paths, NUL-separated so any file name is safe.
-{ git diff -z --name-only --diff-filter=ACMR "${merge_base}" > "${logs}/changed" &&
+{ git diff -z --no-renames --name-only --diff-filter=ACMR "${merge_base}" > "${logs}/changed" &&
   git ls-files -z --others --exclude-standard >> "${logs}/changed" &&
-  git diff -z --name-only --diff-filter=D "${merge_base}" > "${logs}/deleted"; } ||
+  git diff -z --no-renames --name-only --diff-filter=D "${merge_base}" > "${logs}/deleted"; } ||
   not_verified 'git could not list the changed files.'
 
-code=() deleted=() configs=() outside=0
-while IFS= read -r -d '' path; do
+# Prints what a path is for the checks: snapshot, config, code or outside.
+classify() {
+  local path="$1" rest
   case "${path}" in
-    centreon/package.json | centreon/pnpm-lock.yaml | centreon/biome.json | centreon/tsconfig*.json | \
-      centreon/*.config.ts | centreon/*.config.js | centreon/*.config.*.js | centreon/setupTest.js | \
-      centreon/packages/js-config/* | centreon/packages/ui-context/* | centreon/test-setup/* | centreon/cypress/* | \
-      centreon/packages/ui/package.json | centreon/packages/ui/biome.json | centreon/packages/ui/tsconfig*.json | \
-      centreon/packages/ui/*.config.* | centreon/packages/ui/.storybook/*)
-      configs+=("${path}")
+    centreon/cypress/visual-testing-snapshots/* | centreon/packages/ui/cypress/visual-testing-snapshots/*)
+      echo snapshot
+      return
       ;;
-    centreon/www/front_src/* | centreon/packages/ui/*) code+=("${root}/${path}") ;;
+    centreon/packages/js-config/* | centreon/packages/ui-context/* | centreon/test-setup/* | \
+      centreon/cypress/* | centreon/packages/ui/.storybook/* | centreon/packages/ui/cypress/*)
+      echo config
+      return
+      ;;
+  esac
+  # Top-level configuration files only (a nested *.config.ts is code).
+  rest="${path#centreon/packages/ui/}"
+  [[ "${rest}" == "${path}" ]] && rest="${path#centreon/}"
+  if [[ "${rest}" != "${path}" && "${rest}" != */* ]]; then
+    case "${rest}" in
+      package.json | pnpm-lock.yaml | biome.json | tsconfig*.json | *.config.* | setupTest.js)
+        echo config
+        return
+        ;;
+    esac
+  fi
+  case "${path}" in
+    centreon/www/front_src/* | centreon/packages/ui/*) echo code ;;
+    *) echo outside ;;
+  esac
+}
+
+code=() deleted=() configs=() outside=0
+# Reads NUL-separated paths with their state: changed or deleted.
+while IFS= read -r -d '' entry; do
+  state="${entry%%:*}"
+  path="${entry#*:}"
+  # A name no tool can be given safely (control characters, quote,
+  # backslash) is reported, not checked.
+  if [[ "${path}" == *[[:cntrl:]\"\\]* ]]; then
+    gaps+=("not checked (unsupported file name): $(printf '%q' "${path}")")
+    continue
+  fi
+  case "$(classify "${path}")" in
+    snapshot)
+      # A visual snapshot belongs to the spec its folder is named after.
+      spec="${path%%/cypress/visual-testing-snapshots/*}/${path#*/cypress/visual-testing-snapshots/}"
+      snapshots+=("${root}/${spec%/*}")
+      ;;
+    config)
+      if [[ "${state}" == deleted ]]; then configs+=("${path} (deleted)"); else configs+=("${path}"); fi
+      ;;
+    code)
+      if [[ "${state}" == deleted ]]; then deleted+=("${root}/${path}"); else code+=("${root}/${path}"); fi
+      ;;
     *) outside=$((outside + 1)) ;;
   esac
-done < <(sort -zu "${logs}/changed")
-while IFS= read -r -d '' path; do
-  case "${path}" in
-    centreon/www/front_src/* | centreon/packages/ui/*) deleted+=("${root}/${path}") ;;
-    centreon/*) configs+=("${path} (deleted)") ;;
-  esac
-done < "${logs}/deleted"
+done < <(
+  sort -zu "${logs}/changed" | while IFS= read -r -d '' path; do printf 'changed:%s\0' "${path}"; done
+  while IFS= read -r -d '' path; do printf 'deleted:%s\0' "${path}"; done < "${logs}/deleted"
+)
 
-if ((${#code[@]} + ${#deleted[@]} + ${#configs[@]} == 0)); then
+for spec in "${snapshots[@]+"${snapshots[@]}"}"; do
+  if [[ -f "${spec}" ]]; then
+    cypress+=("${spec}")
+  else
+    gaps+=("snapshot changed but its spec is missing: ${spec#"${root}"/}")
+  fi
+done
+
+if ((${#code[@]} + ${#deleted[@]} + ${#configs[@]} + ${#snapshots[@]} == 0)); then
+  ((${#gaps[@]} > 0)) && printf 'Not checked:\n' && printf '  - %s\n' "${gaps[@]}"
   not_verified "Nothing to verify: no frontend change since ${base} (${outside} other changed path(s))."
 fi
 
 # Route the changed files to the checks.
-lint=() app_code=() app_specs=() ui_code=() jest=() browser=() cypress=() untested=() ui_touched=0
+lint=() app_code=() app_specs=() ui_code=() jest=() browser=() untested=() ui_touched=0
 for file in "${code[@]+"${code[@]}"}" "${deleted[@]+"${deleted[@]}"}"; do
   [[ "${file}" == "${ui}"/* ]] && ui_touched=1
   if [[ -f "${file}" ]]; then
@@ -249,7 +300,13 @@ for file in "${code[@]+"${code[@]}"}" "${deleted[@]+"${deleted[@]}"}"; do
   fi
   related="$(related_tests "${file}")"
   if [[ -z "${related}" ]]; then
-    if [[ -f "${file}" && ! -f "${file%.*}.test.ts" && ! -f "${file%.*}.test.tsx" ]]; then
+    if [[ ! -f "${file}" ]]; then
+      # tsc does not report a missing asset (declared modules): say so.
+      case "${file}" in
+        *.ts | *.tsx) ;;
+        *) gaps+=("deleted, its importers were not checked: ${file#"${root}"/}") ;;
+      esac
+    elif [[ ! -f "${file%.*}.test.ts" && ! -f "${file%.*}.test.tsx" ]]; then
       untested+=("${file#"${root}"/}")
     fi
     continue
@@ -260,8 +317,8 @@ for file in "${code[@]+"${code[@]}"}" "${deleted[@]+"${deleted[@]}"}"; do
   done <<< "${related#*$'\n'}"
 done
 
-printf 'verify-frontend since %s: %d changed, %d deleted, %d config file(s)\n' \
-  "${base}" "${#code[@]}" "${#deleted[@]}" "${#configs[@]}"
+printf 'verify-frontend since %s: %d changed, %d deleted, %d config, %d snapshot spec(s)\n' \
+  "${base}" "${#code[@]}" "${#deleted[@]}" "${#configs[@]}" "${#snapshots[@]}"
 
 # 1. Biome, as CI runs it; the whole package when the configuration changed.
 limit=120
