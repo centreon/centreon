@@ -35,8 +35,13 @@ const PageHeaderTitle = ({
   );
 
   return (
-    <div className={cx(classes.pageHeaderTitle, isInline && 'min-w-0')}>
-      <span className={cx(isInline && 'items-baseline')}>
+    <div
+      className={cx(
+        classes.pageHeaderTitle,
+        isInline && cx(classes.pageHeaderTitleInline, 'min-w-0')
+      )}
+    >
+      <span>
         <MuiTypography
           aria-label="page header title"
           className={cx(isInline && 'shrink-0')}

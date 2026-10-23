@@ -125,6 +125,11 @@ const useStyles = makeStyles()((theme) => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   },
+  pageHeaderTitleInline: {
+    '& > span': {
+      alignItems: 'baseline'
+    } as CSSObject
+  },
   pageHeaderTitleSeparator: {
     color: theme.palette.header.page.description,
     flexShrink: 0,
