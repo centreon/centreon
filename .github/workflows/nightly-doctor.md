@@ -155,6 +155,16 @@ safe-outputs:
               --data "$payload" "$JIRA_BASE_URL/rest/api/3/issue" | jq -r .key)
             echo "Created $key"
 
+            transition=$(curl -sSf "${auth[@]}" "$JIRA_BASE_URL/rest/api/3/issue/$key/transitions" \
+              | jq -r 'first(.transitions[] | select(.to.name == "NEED REFINEMENT") | .id) // empty')
+            if [ -n "$transition" ]; then
+              curl -sSf "${auth[@]}" --header "Content-Type: application/json" \
+                --data "{\"transition\": {\"id\": \"$transition\"}}" "$JIRA_BASE_URL/rest/api/3/issue/$key/transitions"
+              echo "Moved $key to NEED REFINEMENT"
+            else
+              echo "::warning::No transition to NEED REFINEMENT available for $key"
+            fi
+
             body=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json body --jq .body)
             printf '%s\n\n## Links\n\n- Fixes: [%s](%s/browse/%s)\n' "$body" "$key" "$JIRA_BASE_URL" "$key" > pr-body.md
             gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" -X PATCH -F body=@pr-body.md > /dev/null
