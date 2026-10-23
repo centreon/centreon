@@ -51,6 +51,7 @@ printf "%s|%s %s\n" "$(pwd)" "${name}" "$*" >> "${CALLS}"
 printf "<%s>" "$@" >> "${CALLS}.args"; echo >> "${CALLS}.args"
 if [[ "${name}" == tsc && "$1" == -p ]]; then cp "$2" "${TMPDIR}/tsconfig-copy.json"; fi
 if [[ -n "${STUB_SLEEP:-}" && "${name} $*" =~ ${STUB_SLEEP} ]]; then sleep 60 & echo $! > "${TMPDIR}/sleep.pid"; wait; fi
+if [[ -n "${STUB_READ:-}" && "${name} $*" =~ ${STUB_READ} ]]; then cat > /dev/null; fi
 if [[ -n "${STUB_FAIL:-}" && "${name} $*" =~ ${STUB_FAIL} ]]; then printf "%b" "${STUB_OUT:-failed}"; exit 1; fi
 exit 0'
 for bin in "${web}/node_modules/.bin/biome" "${web}/node_modules/.bin/tsc" "${TMP}/bin/pnpm"; do
@@ -107,6 +108,7 @@ reset() {
 verify "${repo}"
 check 2 "${rc}" 'no change: exit 2'
 check yes "$(said '^RESULT: NOT VERIFIED$')" 'no change: NOT VERIFIED'
+check 0 "$(find "${TMP}" -maxdepth 1 -name 'verify-frontend.*' | wc -l | tr -d ' ')" 'no change: no log directory left'
 verify "${repo}" --fsat
 check 2 "${rc}" 'unknown option: exit 2'
 verify "${repo}" --base
@@ -167,6 +169,8 @@ reset
 for i in 1 2 3 4 5 6; do printf 'export const y = 2;\n' >> "${src}/Many${i}/a.tsx"; done
 verify "${repo}"
 check 5 "$(grep -c 'cypress:run' "${CALLS}")" 'cap: 5 Cypress specs run'
+STUB_READ='cypress' verify "${repo}"
+check 5 "$(grep -c 'cypress:run' "${CALLS}")" 'stdin: a step reading it does not eat the spec list'
 check yes "$(said 'Cypress spec not run \(more than 5\)')" 'cap: skipped spec listed'
 check 3 "${rc}" 'cap: exit 3'
 reset

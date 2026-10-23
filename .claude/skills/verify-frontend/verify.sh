@@ -69,6 +69,7 @@ snapshots=() # specs whose visual snapshots changed
 cypress=()   # Cypress specs to run
 job=''   # process group of the running step, killed on interrupt
 temps=() # temporary tsconfig files, removed on exit
+keep_logs=0 # the log directory is kept only once its path is printed
 
 cleanup() {
   if [[ -n "${job}" ]]; then
@@ -77,6 +78,7 @@ cleanup() {
   if ((${#temps[@]} > 0)); then
     rm -f "${temps[@]}"
   fi
+  ((keep_logs == 1)) || rm -rf "${logs}"
 }
 trap cleanup EXIT
 trap 'cleanup; trap - EXIT; exit 130' INT
@@ -102,7 +104,8 @@ run() {
   local log="$1" dir="$2" max="${VERIFY_FRONTEND_TIMEOUT:-${limit}}" waited=0 rc
   shift 2
   set -m
-  (cd "${dir}" && exec "$@") > "${log}" 2>&1 &
+  # No stdin: with job control on, bash would not detach it.
+  (cd "${dir}" && exec "$@") < /dev/null > "${log}" 2>&1 &
   job=$!
   set +m
   while kill -0 "${job}" 2> /dev/null; do
@@ -456,6 +459,7 @@ if ((${#configs[@]} > 0)); then
 fi
 
 printf 'Logs: %s\n' "${logs}"
+keep_logs=1
 if ((failed == 1)); then
   echo 'RESULT: FAIL'
   exit 1
