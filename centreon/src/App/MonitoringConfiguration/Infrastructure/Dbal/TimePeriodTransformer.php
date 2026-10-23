@@ -33,7 +33,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<RowTypeAlias,TimePeriod>
  */
-final readonly class DbalTimePeriodTransformer implements TransformerInterface
+final readonly class TimePeriodTransformer implements TransformerInterface
 {
     /**
      * @param RowTypeAlias $from

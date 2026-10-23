@@ -37,7 +37,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<RowTypeAlias, AgentConfiguration>
  */
-final readonly class DbalAgentConfigurationTransformer implements TransformerInterface
+final readonly class AgentConfigurationTransformer implements TransformerInterface
 {
     /**
      * @param RowTypeAlias $data

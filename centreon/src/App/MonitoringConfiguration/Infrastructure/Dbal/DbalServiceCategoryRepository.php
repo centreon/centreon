@@ -45,7 +45,7 @@ final readonly class DbalServiceCategoryRepository extends DbalRepository implem
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
-        #[Autowire(service: DbalServiceCategoryTransformer::class)]
+        #[Autowire(service: ServiceCategoryTransformer::class)]
         private TransformerInterface $transformer,
     ) {
     }

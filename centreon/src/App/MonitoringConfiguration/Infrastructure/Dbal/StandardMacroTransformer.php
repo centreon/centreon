@@ -33,7 +33,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<RowTypeAlias,StandardMacro>
  */
-final readonly class DbalStandardMacroTransformer implements TransformerInterface
+final readonly class StandardMacroTransformer implements TransformerInterface
 {
     /**
      * @param RowTypeAlias $from

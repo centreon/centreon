@@ -27,8 +27,8 @@ use App\MonitoringConfiguration\Domain\Security\HostCategoryPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostSeverityPermissionEnum;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\Permission;
+use App\Security\Infrastructure\Dbal\CredentialTransformer;
 use App\Security\Infrastructure\Dbal\DbalCredentialRepository;
-use App\Security\Infrastructure\Dbal\DbalCredentialTransformer;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -39,7 +39,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @phpstan-import-type RowTypeAlias from DbalCredentialRepository
  */
-final class DbalCredentialTransformerTest extends TestCase
+final class CredentialTransformerTest extends TestCase
 {
     #[DataProvider('adminshipProvider')]
     public function testAdminshipIsMappedToRoles(
@@ -128,6 +128,6 @@ final class DbalCredentialTransformerTest extends TestCase
             'action_rules' => [],
         ];
 
-        return (new DbalCredentialTransformer())->transform($row);
+        return (new CredentialTransformer())->transform($row);
     }
 }

@@ -49,7 +49,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<RowTypeAlias, Credential>
  */
-final readonly class DbalCredentialTransformer implements TransformerInterface
+final readonly class CredentialTransformer implements TransformerInterface
 {
     /**
      * A legacy topology role maps to one new permission, or — when a single legacy role governs
