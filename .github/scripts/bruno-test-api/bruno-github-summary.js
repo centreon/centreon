@@ -37,6 +37,27 @@ if (!fs.existsSync(mergedFile)) {
 
 const report = JSON.parse(fs.readFileSync(mergedFile, "utf-8"));
 
+function failingChecks(requestResult) {
+  return [
+    ...(requestResult.assertionResults || []),
+    ...(requestResult.testResults || []),
+    ...(requestResult.preRequestTestResults || []),
+    ...(requestResult.postResponseTestResults || []),
+  ].filter((check) => check.status === "fail");
+}
+
+function requestFailed(requestResult, failedChecks) {
+  return requestResult.status !== "pass" || failedChecks.length > 0;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 // ------------------------
 // Global stats
 // ------------------------
@@ -49,16 +70,18 @@ report.forEach((iteration) => {
   (iteration.results || []).forEach((requestResult) => {
     total++;
     totalTime += requestResult.response?.responseTime || 0;
-    // Count by the request's overall result (assertions + tests + error),
-    // not by the HTTP status: negative-path tests legitimately expect 4xx.
-    if (requestResult.status === "pass") success++;
-    else failed++;
+    if (requestFailed(requestResult, failingChecks(requestResult))) failed++;
+    else success++;
   });
 });
 
+if (failed === 0) {
+  process.exit(0);
+}
+
 const avgTime = total ? Math.round(totalTime / total) : 0;
-const globalStatus = failed === 0 ? "SUCCESS ✅" : "FAILED ❌";
-const globalColor = failed === 0 ? "#16a34a" : "#dc2626";
+const globalStatus = "FAILED ❌";
+const globalColor = "#dc2626";
 
 // ------------------------
 // Header (LOGO VIA URL)
@@ -119,16 +142,21 @@ report.forEach((iteration) => {
     const bg = row % 2 === 0 ? "#f8fafc" : "#ffffff";
     const status = requestResult.response?.status ?? "-";
     const time = requestResult.response?.responseTime ?? "-";
-    const ok = requestResult.status === "pass";
+    const failedChecks = failingChecks(requestResult);
+    const ok = !requestFailed(requestResult, failedChecks);
     const color = ok ? "#16a34a" : "#dc2626";
 
-    const message =
-      requestResult.response?.data?.message || requestResult.error || "";
+    const message = escapeHtml(
+      failedChecks.map((check) => check.error).filter(Boolean).join("; ") ||
+      requestResult.response?.data?.message ||
+      requestResult.error ||
+      ""
+    );
 
     html += `
 <tr style="background:${bg};">
-  <td style="padding:8px;">${requestResult.test?.filename}</td>
-  <td style="padding:8px; text-align:center;">${requestResult.request?.method}</td>
+  <td style="padding:8px;">${escapeHtml(requestResult.test?.filename)}</td>
+  <td style="padding:8px; text-align:center;">${escapeHtml(requestResult.request?.method)}</td>
   <td style="padding:8px; text-align:center; color:${color}; font-weight:bold;">
     ${ok ? "✅" : "❌"} ${status}
   </td>
