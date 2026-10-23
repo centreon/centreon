@@ -2,6 +2,11 @@ name: bruno-api-debug-analysis
 
 on:
   workflow_call:
+    inputs:
+      triggering_actor:
+        description: "github.triggering_actor from the caller — the user who triggered this run (e.g. via 'Re-run with debug logging'), not github.actor which stays the original run's user"
+        required: true
+        type: string
     secrets:
       claude_code_oauth_token:
         description: "Resolved by the caller from secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] — this workflow has no access to the full secret store to do that lookup itself."
@@ -20,47 +25,74 @@ jobs:
         if: steps.debug-check.outputs.is_debug == 'true'
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.claude_code_oauth_token }}
+          TRIGGERING_ACTOR: ${{ inputs.triggering_actor }}
         run: |
           if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+            secret_actor="${TRIGGERING_ACTOR//-/_}"
             {
               echo "## AI failure analysis skipped"
               echo ""
-              echo "No Claude token configured for @$GITHUB_ACTOR. To enable this analysis on your debug re-runs:"
+              echo "No Claude token configured for @$TRIGGERING_ACTOR. To enable this analysis on your debug re-runs:"
               echo '```'
               echo "claude setup-token"
-              echo "gh secret set CLAUDE_CODE_OAUTH_TOKEN_$GITHUB_ACTOR --repo ${{ github.repository }}"
+              echo "gh secret set CLAUDE_CODE_OAUTH_TOKEN_$secret_actor --repo ${{ github.repository }}"
               echo '```'
             } >> "$GITHUB_STEP_SUMMARY"
-            echo "has_token=false" >> "$GITHUB_OUTPUT"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
           else
-            echo "has_token=true" >> "$GITHUB_OUTPUT"
+            echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Checkout sources
-        if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        if: ${{ steps.token-check.outputs.ready == 'true' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Download Bruno reports (JSON + HTML + JUnit)
-        if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
+        if: ${{ steps.token-check.outputs.ready == 'true' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: bruno-report-*
           path: debug-analysis/bruno-reports
           merge-multiple: true
 
+      - name: Check whether any Bruno request actually failed
+        id: failure-check
+        if: ${{ steps.token-check.outputs.ready == 'true' }}
+        run: |
+          failures=0
+          for merged in debug-analysis/bruno-reports/*-merged.json; do
+            [ -e "$merged" ] || continue
+            count=$(jq '[.[].results[]? | select(.status != "pass" or ([.assertionResults[]?, .testResults[]?, .preRequestTestResults[]?, .postResponseTestResults[]?] | map(select(.status == "fail")) | length > 0))] | length' "$merged")
+            failures=$((failures + count))
+          done
+          echo "This run has $failures failing Bruno request(s) across all collections."
+          echo "has_failures=$( [ "$failures" -gt 0 ] && echo true || echo false )" >> "$GITHUB_OUTPUT"
+
+      - name: Explain why no Claude analysis will run
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'false' }}
+        run: |
+          {
+            echo "## 🐛 Debug analysis — run attempt ${{ github.run_attempt }}"
+            echo ""
+            echo "No failing request was found in the Bruno reports, so no AI analysis was run."
+            echo "The job failure likely comes from a different step (e.g. docker compose up, Xray import)."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Get PR diff
-        if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' && github.event.pull_request != null }}
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' && github.event.pull_request != null }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} > debug-analysis/pr.diff || true
 
       - name: Install Claude Code CLI
-        if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
-        run: npm install -g @anthropic-ai/claude-code
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' }}
+        run: npm install -g @anthropic-ai/claude-code@2.1.287
 
       - name: Analyze failures with Claude
         id: claude-analysis
-        if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' }}
         continue-on-error: true
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.claude_code_oauth_token }}
@@ -75,29 +107,34 @@ jobs:
             PR's diff (cite the specific line(s)/change), or does it look flaky / pre-existing / \
             environment-related and unrelated to the diff (explain why — e.g. a timing/ordering \
             issue between requests, test data left over from another collection, an infra \
-            timeout)? Write your conclusion directly to \$GITHUB_STEP_SUMMARY as markdown, one \
-            heading per failing request, each with exactly these three parts in this order: a \
-            '**Verdict:**' line stating caused by this PR's diff or flaky/pre-existing, an \
-            'Explanation' section with your reasoning (cite the specific line(s)/change or the \
-            flaky pattern), and a 'Proposed fix' section with a concrete, actionable suggestion \
-            (e.g. the exact line to revert or change, or how to stabilize a flaky request). Do \
-            not edit any repository files, do not open a PR or post a comment anywhere — \
-            \$GITHUB_STEP_SUMMARY is the only output. Stop once you have written it."
+            timeout)? Write your conclusion as markdown to the file debug-analysis/summary.md \
+            (create it), one heading per failing request, each with exactly these three parts in \
+            this order: a '**Verdict:**' line stating caused by this PR's diff or \
+            flaky/pre-existing, an 'Explanation' section with your reasoning (cite the specific \
+            line(s)/change or the flaky pattern), and a 'Proposed fix' section with a concrete, \
+            actionable suggestion (e.g. the exact line to revert or change, or how to stabilize a \
+            flaky request). Do not edit any other repository file, do not open a PR or post a \
+            comment anywhere — debug-analysis/summary.md is the only output. Stop once you have \
+            written it."
 
-      - name: Ensure a summary was written
-        if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' && steps.claude-analysis.outcome != 'success' }}
+      - name: Write debug analysis summary
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' && !cancelled() }}
         run: |
           {
             echo "## 🐛 Debug analysis — run attempt ${{ github.run_attempt }}"
             echo ""
-            echo "### AI failure analysis did not complete"
-            echo ""
-            echo "The analysis step did not produce a verdict (outcome: ${{ steps.claude-analysis.outcome }})."
-            echo "Check the run logs and, if present, the \`claude-debug-analysis.jsonl\` artifact for details."
+            if [ -s debug-analysis/summary.md ]; then
+              cat debug-analysis/summary.md
+            else
+              echo "### AI failure analysis did not complete"
+              echo ""
+              echo "The analysis step did not produce a verdict (outcome: ${{ steps.claude-analysis.outcome }})."
+              echo "Check the run logs and, if present, the \`claude-debug-analysis.jsonl\` artifact for details."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload analysis transcript
-        if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' && !cancelled() }}
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' && !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bruno-debug-analysis

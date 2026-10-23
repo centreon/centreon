@@ -41,11 +41,21 @@ function failingChecks(requestResult) {
   return [
     ...(requestResult.assertionResults || []),
     ...(requestResult.testResults || []),
+    ...(requestResult.preRequestTestResults || []),
+    ...(requestResult.postResponseTestResults || []),
   ].filter((check) => check.status === "fail");
 }
 
-function requestFailed(requestResult) {
-  return requestResult.status !== "pass" || failingChecks(requestResult).length > 0;
+function requestFailed(requestResult, failedChecks) {
+  return requestResult.status !== "pass" || failedChecks.length > 0;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 // ------------------------
@@ -60,7 +70,7 @@ report.forEach((iteration) => {
   (iteration.results || []).forEach((requestResult) => {
     total++;
     totalTime += requestResult.response?.responseTime || 0;
-    if (requestFailed(requestResult)) failed++;
+    if (requestFailed(requestResult, failingChecks(requestResult))) failed++;
     else success++;
   });
 });
@@ -132,20 +142,21 @@ report.forEach((iteration) => {
     const bg = row % 2 === 0 ? "#f8fafc" : "#ffffff";
     const status = requestResult.response?.status ?? "-";
     const time = requestResult.response?.responseTime ?? "-";
-    const ok = !requestFailed(requestResult);
+    const failedChecks = failingChecks(requestResult);
+    const ok = !requestFailed(requestResult, failedChecks);
     const color = ok ? "#16a34a" : "#dc2626";
 
-    const failedChecks = failingChecks(requestResult);
-    const message =
+    const message = escapeHtml(
       failedChecks.map((check) => check.error).filter(Boolean).join("; ") ||
       requestResult.response?.data?.message ||
       requestResult.error ||
-      "";
+      ""
+    );
 
     html += `
 <tr style="background:${bg};">
-  <td style="padding:8px;">${requestResult.test?.filename}</td>
-  <td style="padding:8px; text-align:center;">${requestResult.request?.method}</td>
+  <td style="padding:8px;">${escapeHtml(requestResult.test?.filename)}</td>
+  <td style="padding:8px; text-align:center;">${escapeHtml(requestResult.request?.method)}</td>
   <td style="padding:8px; text-align:center; color:${color}; font-weight:bold;">
     ${ok ? "✅" : "❌"} ${status}
   </td>

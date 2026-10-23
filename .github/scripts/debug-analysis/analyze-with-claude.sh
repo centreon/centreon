@@ -3,16 +3,14 @@ set -euo pipefail
 
 PROMPT="$1"
 
-echo "## 🐛 Debug analysis — run attempt ${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_STEP_SUMMARY"
-
 claude -p "$PROMPT" \
-  --allowedTools "Bash,Read,Grep,Glob" \
+  --tools "Read,Grep,Glob,Write" \
   --permission-mode bypassPermissions \
   --max-budget-usd 3 \
   --verbose \
   --output-format stream-json \
   | tee claude-debug-analysis.jsonl \
-  | jq -R --unbuffered '
+  | jq -R -r --unbuffered '
       try (fromjson) catch empty
       | if .type == "assistant" then
           (.message.content // [])[] |
