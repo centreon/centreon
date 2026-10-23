@@ -124,19 +124,6 @@ const useStyles = makeStyles()((theme) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
-  },
-  pageHeaderTitleInline: {
-    '& > span': {
-      alignItems: 'baseline'
-    } as CSSObject
-  },
-  pageHeaderTitleSeparator: {
-    color: theme.palette.header.page.description,
-    flexShrink: 0,
-    fontFamily: theme.typography.h5.fontFamily,
-    fontSize: theme.typography.h5.fontSize,
-    fontWeight: theme.typography.fontWeightLight,
-    lineHeight: '1'
   }
 }));
 

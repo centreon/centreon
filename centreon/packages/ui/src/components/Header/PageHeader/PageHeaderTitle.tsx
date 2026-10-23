@@ -34,34 +34,53 @@ const PageHeaderTitle = ({
     </TextOverflowTooltip>
   );
 
-  return (
-    <div
-      className={cx(
-        classes.pageHeaderTitle,
-        isInline && cx(classes.pageHeaderTitleInline, 'min-w-0')
-      )}
+  const titleElement = (
+    <MuiTypography
+      aria-label="page header title"
+      className={cx(isInline && 'shrink-0')}
+      variant="h1"
     >
+      {title}
+    </MuiTypography>
+  );
+
+  const actionsElement = actions && (
+    <div className={classes.pageHeaderTitleActions}>{actions}</div>
+  );
+
+  if (isInline) {
+    return (
+      <div className={cx(classes.pageHeaderTitle, 'min-w-0')}>
+        {/* The row sits one level below, out of the rules that
+        `pageHeaderTitle` applies to its direct children. */}
+        <div className="min-w-0">
+          <div className="flex min-w-0 items-baseline gap-4">
+            {titleElement}
+            {description && (
+              <>
+                <span
+                  aria-hidden
+                  className="shrink-0 text-2xl font-light leading-none text-header-page-description"
+                >
+                  |
+                </span>
+                <div className="min-w-0">{descriptionElement}</div>
+              </>
+            )}
+            {actionsElement}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={classes.pageHeaderTitle}>
       <span>
-        <MuiTypography
-          aria-label="page header title"
-          className={cx(isInline && 'shrink-0')}
-          variant="h1"
-        >
-          {title}
-        </MuiTypography>
-        {isInline && description && (
-          <>
-            <span aria-hidden className={classes.pageHeaderTitleSeparator}>
-              |
-            </span>
-            <div className="min-w-0">{descriptionElement}</div>
-          </>
-        )}
-        {actions && (
-          <div className={classes.pageHeaderTitleActions}>{actions}</div>
-        )}
+        {titleElement}
+        {actionsElement}
       </span>
-      {!isInline && descriptionElement}
+      {descriptionElement}
     </div>
   );
 };
