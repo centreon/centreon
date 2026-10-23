@@ -150,7 +150,11 @@ const Page = <TFilters,>({
       <PageLayout.Header>
         <PageHeader>
           <PageHeader.Main>
-            <PageHeader.Title title={labels.title} />
+            <PageHeader.Title
+              description={labels.description}
+              descriptionPosition="inline"
+              title={labels.title}
+            />
           </PageHeader.Main>
           {!!navbar && (
             <PageHeader.Actions>

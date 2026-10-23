@@ -121,6 +121,24 @@ dropped).
 - Branch `MON-XXXXXX-short-description` (CI requires the Jira key), targeting `develop` unless based on a `dev-XX.XX.x` series; conventional commits (`fix(web): ...`), one Jira key per PR.
 - Enable the gitleaks hooks once with `git config core.hooksPath .githooks`; never bypass them with `--no-verify`.
 
+## Verify, don't assume
+
+For developers and AI agents alike: do not state a fact, or justify a choice,
+that you have not checked in the current session. A lawyer does not cite a law
+they have not read.
+
+- Check before saying: read the file, `git grep`, run the command, read the
+  computed style in the browser. A memory, an earlier read or "it is usually
+  so" is not a check.
+- A "because X" is a claim too. Do not justify a decision (in code, a PR or a
+  review reply) with a cause you did not test. When something behaves
+  unexpectedly, find the cause (computed style for CSS, the actual error for a
+  failing test) before working around it.
+- Re-read the rule that applies, this file included, before acting. If you
+  must deviate from it, say so and why before doing it, not after a review.
+- In a PR or a review, say what ran, what did not, and what could not be seen
+  (a rendered UI, a CI-only job). Mark the rest as unverified.
+
 ## Do not
 
 - Update snapshots wholesale to make a test pass. Run the one test file,
