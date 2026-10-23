@@ -37,7 +37,10 @@ permissions:
 # Explicit model: "auto" resolves to an unpriced utility model under org billing (github/gh-aw#63117).
 engine:
   id: copilot
-  model: claude-sonnet-5-5
+  model: copilot/gpt-5.6-terra
+  # The org Copilot policy decides which models are enabled.
+  fallback-models:
+    [copilot/claude-sonnet-5, copilot/gpt-5.4, copilot/gpt-5-mini]
 
 tools:
   github:
