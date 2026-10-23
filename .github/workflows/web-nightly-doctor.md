@@ -136,6 +136,10 @@ distinguish the root cause from its symptoms, and read the jobs, `needs` and
 conditions of the workflows involved: a failure can come from job ordering
 rather than from the failing step itself. Assign high, medium or low confidence.
 
+When a cache entry or an artifact is missing, find every job of the same run
+that saves, restores or deletes it, and compare their start and end times with
+the failing job: a job that deletes it too early is a high-confidence cause.
+
 ### 4. Correlate repository context
 
 1. Compare with the previous nightly run of `web` on the same branch (scheduled
