@@ -64,6 +64,11 @@ final class DbalModuleRepository implements ModuleRepository
         }
     }
 
+    public function isInstalled(string $module): bool
+    {
+        return $this->configConnection->fetchOne('SELECT 1 FROM `modules_informations` WHERE `name` = ?', [$module]) !== false;
+    }
+
     private function upgradeModuleIfNeeded(string $moduleName): void
     {
         if (in_array($moduleName, $this->alreadyUpgraded, true)) {

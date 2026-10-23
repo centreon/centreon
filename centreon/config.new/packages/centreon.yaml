@@ -1,0 +1,3 @@
+parameters:
+    # Upgrade target. Bumped by the release chore PR, checked by the check-version-consistency action.
+    centreon.version: '26.12.0'
