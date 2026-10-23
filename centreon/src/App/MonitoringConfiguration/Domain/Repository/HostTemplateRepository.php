@@ -36,7 +36,7 @@ interface HostTemplateRepository
     /**
      * @return \IteratorAggregate<int, HostTemplate>&\Countable
      */
-    public function findAll(?HostTemplateCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(HostTemplateCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
      * Every requested id's name, for bulk display purposes (e.g. a sibling aggregate that only

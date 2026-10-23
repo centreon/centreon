@@ -67,7 +67,9 @@ final readonly class ListContactGroupsProvider implements ProviderInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $criteria = new ContactGroupCriteria();
+        // ACL data-scoping: an admin (unrestricted access) sees everything; anyone else is
+        // scoped to the contact groups they may see, resolved by the repository from the actor.
+        $criteria = ContactGroupCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -83,12 +85,6 @@ final readonly class ListContactGroupsProvider implements ProviderInterface
                 $criteria = $criteria->withName($value);
             }
         }
-
-        // ACL data-scoping: an admin (unrestricted access) sees everything; anyone else is
-        // scoped to the contact groups they may see, resolved by the repository from the viewer.
-        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
 
         $contactGroups = $this->repository->findAll($criteria);
         $resources = [];

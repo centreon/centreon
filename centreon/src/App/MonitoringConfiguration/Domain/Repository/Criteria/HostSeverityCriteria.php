@@ -23,18 +23,16 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
-use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Repository\PaginableCriteria;
 use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 use Webmozart\Assert\Assert;
 
 final class HostSeverityCriteria implements PaginableCriteria
 {
+    use ActorScopedCriteriaTrait;
     use PaginableCriteriaTrait;
 
     private ?string $name = null;
-
-    private ?UserId $viewerId = null;
 
     public function withName(string $name): self
     {
@@ -47,24 +45,8 @@ final class HostSeverityCriteria implements PaginableCriteria
         return $new;
     }
 
-    /**
-     * @param UserId|null $viewerId the user to scope results for, or null when no ACL restriction applies (e.g. an admin)
-     */
-    public function withViewerId(?UserId $viewerId): self
-    {
-        $new = clone $this;
-        $new->viewerId = $viewerId;
-
-        return $new;
-    }
-
     public function getName(): ?string
     {
         return $this->name;
-    }
-
-    public function getViewerId(): ?UserId
-    {
-        return $this->viewerId;
     }
 }

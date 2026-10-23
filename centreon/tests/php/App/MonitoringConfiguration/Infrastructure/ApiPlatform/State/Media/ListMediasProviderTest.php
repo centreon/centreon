@@ -151,7 +151,7 @@ final class ListMediasProviderTest extends ApiTestCase
 
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
         self::assertResponseIsSuccessful();
-        self::assertSame([], (array) $response->toArray()['member'], 'A viewer with no active Access Group is restricted and sees no media.');
+        self::assertSame([], (array) $response->toArray()['member'], 'An actor with no active Access Group is restricted and sees no media.');
     }
 
     public function testItAllowsEverythingForAUserWithAnAllImageFoldersAclResource(): void
@@ -195,7 +195,7 @@ final class ListMediasProviderTest extends ApiTestCase
         self::assertSame(
             [$accessibleName],
             array_column((array) $response->toArray()['member'], 'name'),
-            'Only media in the folder granted to the viewer is returned.'
+            'Only media in the folder granted to the actor is returned.'
         );
     }
 

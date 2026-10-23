@@ -33,7 +33,7 @@ final class HostCriteria implements PaginableCriteria, SortableCriteria
 {
     use PaginableCriteriaTrait;
     use SortableCriteriaTrait;
-    use ViewerScopedCriteriaTrait;
+    use ActorScopedCriteriaTrait;
 
     private ?string $name = null;
 

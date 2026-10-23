@@ -68,6 +68,7 @@ use App\MonitoringConfiguration\Domain\Exception\ReservedHostMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\NoValue;
@@ -89,7 +90,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepositor
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
-use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
@@ -125,7 +126,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         $commandRepository = new FakeCommandRepository();
         $this->commandRepository = $commandRepository;
 
-        $resourceAccessRepository = new FakeResourceAccessRepository();
+        $resourceAccessRepository = $this->repository->resourceAccess;
 
         $this->handler = new PatchHostCommandHandler(
             $this->repository,
@@ -137,7 +138,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
                 new FakeTimePeriodRepository(),
                 new FakeMediaRepository(),
                 $commandRepository,
-                $resourceAccessRepository,
+                new AccessScopeResolver($resourceAccessRepository),
             ),
             new HostRelationsUpdater(
                 new FakeHostGroupRepository(),
@@ -146,7 +147,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
                 $this->repository,
                 new FakeNotificationContactRepository(),
                 new FakeContactGroupRepository(),
-                $resourceAccessRepository,
+                new AccessScopeResolver($resourceAccessRepository),
                 new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
                     new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
                     $hostTemplateRepository,
@@ -262,7 +263,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         try {
             ($this->handler)(new PatchHostCommand(
                 id: new HostId(self::HOST_ID),
-                updatedBy: 1,
+                actor: TestActingUsers::unrestricted(1),
                 snmpCommunity: 'a-new-community',
                 macros: MacroChanges::upsert([
                     new HostMacroChange(new HostMacroName('TOKEN'), 'secret::vault::monitoring/hosts/other-uuid::_HOSTTOKEN', true),
@@ -739,7 +740,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             templateIds: $scenario['templateChange'] ?? new NoValue(),
             macros: $scenario['changes'],
         ));
@@ -911,7 +912,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         try {
             ($this->handler)(new PatchHostCommand(
                 id: new HostId(self::HOST_ID),
-                updatedBy: 1,
+                actor: TestActingUsers::unrestricted(1),
                 snmpCommunity: 'a-community',
                 macros: MacroChanges::upsert([new HostMacroChange(new HostMacroName('TOKEN'), 'secret', true)]),
             ));
@@ -980,7 +981,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
     {
         return ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             snmpCommunity: $community ?? new NoValue(),
             macros: $macros,
         ));
