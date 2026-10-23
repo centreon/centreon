@@ -132,6 +132,11 @@ RUN bash -e <<EOF
 apt-get update
 
 if [[ "$STABILITY" == "stable" ]]; then
+  # protobuf-lib must be pinned too when it exists: apt takes the newest one, which engine and broker reject
+  PROTOBUF_PIN=
+  if apt-cache madison centreon-protobuf-lib | grep -qF "| ${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-"; then
+    PROTOBUF_PIN="centreon-protobuf-lib=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1"
+  fi
   apt-get install -y \
     centreon-common=${MAJOR_VERSION}.${COMMON_MINOR_VERSION}-*+deb12u1 \
     centreon-gorgone=${MAJOR_VERSION}.${GORGONE_MINOR_VERSION}-*+deb12u1 \
@@ -147,7 +152,8 @@ if [[ "$STABILITY" == "stable" ]]; then
     centreon-broker-cbmod=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
     centreon-connector-perl=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
     centreon-connector-ssh=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
-    centreon-connector=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1
+    centreon-connector=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
+    \$PROTOBUF_PIN
 else
   apt-get install -y \
     centreon-common \
