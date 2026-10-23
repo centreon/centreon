@@ -77,3 +77,29 @@ own() {
   chmod "$2" "$3" || echo "WARN: could not chmod $3"
 }
 {{- end -}}
+
+{{/* Proxy env vars (both cases); localhost and the in-pod names never go through it. */}}
+{{- define "centreon-poller.proxyEnv" -}}
+{{- with .Values.proxy }}
+{{- if .http }}
+{{- $noProxy := list "localhost" "127.0.0.1" "centengine" }}
+{{- if $.Values.vmware.enabled }}
+{{- $noProxy = append $noProxy "centreon-vmware" }}
+{{- end }}
+{{- with .noProxy }}
+{{- $noProxy = append $noProxy . }}
+{{- end }}
+{{- range $name, $value := dict "http_proxy" .http "https_proxy" (.https | default .http) "no_proxy" (join "," $noProxy) }}
+- { name: {{ $name }}, value: {{ $value | quote }} }
+- { name: {{ upper $name }}, value: {{ $value | quote }} }
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{/* apt proxy file: `sudo apt-get` drops the proxy env vars. */}}
+{{- define "centreon-poller.proxyMount" -}}
+{{- if .Values.proxy.http -}}
+- { name: apt-proxy, mountPath: /etc/apt/apt.conf.d/99centreon-poller-proxy, subPath: 99centreon-poller-proxy, readOnly: true }
+{{- end -}}
+{{- end -}}
