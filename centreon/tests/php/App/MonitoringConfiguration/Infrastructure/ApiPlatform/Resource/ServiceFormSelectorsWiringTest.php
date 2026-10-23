@@ -117,6 +117,18 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
             'reused' => false,
             'on_premise_only' => true,
         ],
+        'hosts' => [
+            'uri' => '/api/configuration/services/hosts',
+            'message' => 'You are not allowed to access hosts',
+            'reused' => false,
+            'on_premise_only' => false,
+        ],
+        'service_groups' => [
+            'uri' => '/api/configuration/services/service_groups',
+            'message' => 'You are not allowed to access service groups',
+            'reused' => false,
+            'on_premise_only' => false,
+        ],
     ];
 
     private Connection $connection;
