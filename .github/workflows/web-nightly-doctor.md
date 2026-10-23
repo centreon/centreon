@@ -162,6 +162,8 @@ concurrency:
   job-discriminator: ${{ inputs.run_id || github.event.workflow_run.id || github.run_id }}
 
 timeout-minutes: 20
+# Per-run cap (1 AIC = 0.01 USD); observed runs use 57-93.
+max-ai-credits: 300
 ---
 
 # Web nightly failure doctor
@@ -186,6 +188,12 @@ The repository is checked out at the tip of the branch of that run.
    meaningful error, not later errors that are only consequences.
 2. Record the failing job and step, the primary error message, and relevant file
    paths, test names, dependency versions or timing information.
+3. When many jobs fail (for example most e2e or API test jobs), do not read
+   every log. Group the failed jobs by their first error, read two or three
+   representative logs, and look for a shared upstream cause: a container that
+   does not start or become healthy (docker logs, entrypoint, healthcheck), the
+   database startup, the image built by a `dockerize` job, or a common setup
+   step. Report it as one root cause.
 
 ### 2. Rule out infrastructure noise first
 
