@@ -56,7 +56,7 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
-        #[Autowire(service: DbalHostGroupTransformer::class)]
+        #[Autowire(service: HostGroupTransformer::class)]
         private TransformerInterface $transformer,
         private ResourceAccessRepository $resourceAccessRepository,
     ) {

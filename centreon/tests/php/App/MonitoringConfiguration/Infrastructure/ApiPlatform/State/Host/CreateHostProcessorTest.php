@@ -3036,7 +3036,7 @@ final class CreateHostProcessorTest extends ApiTestCase
     /**
      * Grants the "Configuration > Hosts > Hosts" read-write topology access — the legacy menu
      * role bridged to HostPermissionEnum::CanReadAndWrite via
-     * DbalCredentialTransformer::LEGACY_PERMISSION_MAP (topology_page 60101). access_right = 1
+     * CredentialTransformer::LEGACY_PERMISSION_MAP (topology_page 60101). access_right = 1
      * is read-write (2 would be read-only), see DbalCredentialRepository::MENU_ACCESS_READ_WRITE.
      */
     private function grantHostReadAndWriteTopologyRole(int $contactId): int
