@@ -85,7 +85,9 @@ computed style before falling back.
   as in HostGroups) and `useValidationSchema.ts` (Yup); submit through
   `useMutationQuery`.
 - Labels: English constants in `translatedLabels.ts`; `t()` only ever takes
-  those constants, never a string literal.
+  those constants, never a string literal. Dynamic values use i18next
+  interpolation, never concatenation: `'Exit {{name}}'` with
+  `t(labelExit, { name })`.
 
 ## Tests
 
