@@ -82,7 +82,8 @@ function getContactgroups(array $cg): array
     global $pearDB;
 
     $contactGroups = [];
-    $cg = array_map('intval', $cg);
+    // Reindex: callers may pass arrays with non-sequential keys (e.g. after array_unique)
+    $cg = array_values(array_map('intval', $cg));
     if ($cg === []) {
         return $contactGroups;
     }
@@ -112,7 +113,8 @@ function getContacts(array $contacts): array
     global $pearDB;
 
     $contactsResult = [];
-    $contacts = array_map('intval', $contacts);
+    // Reindex: callers may pass arrays with non-sequential keys (e.g. after array_unique)
+    $contacts = array_values(array_map('intval', $contacts));
     if ($contacts === []) {
         return $contactsResult;
     }
