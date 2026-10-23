@@ -337,10 +337,9 @@ jobs:
           echo "::warning::ghcr.io delivery failed for chart ${{ matrix.chart }} ${{ steps.candidate.outputs.version }}. It is available on Harbor but was NOT published to ghcr.io — see the 'Promote to ghcr.io' step."
         shell: bash
 
-  promote-to-pulp-dev:
+  promote-to-pulp:
     needs: [get-environment, get-charts, lint]
     if: |
-      vars.PULP_DEV_REGISTRY != '' &&
       needs.get-environment.outputs.stability == 'stable' &&
       github.event_name == 'push' &&
       needs.get-charts.outputs.charts != '[]' &&
@@ -358,7 +357,7 @@ jobs:
       fail-fast: false
       matrix:
         chart: ${{ fromJSON(needs.get-charts.outputs.charts) }}
-    name: promote ${{ matrix.chart }} to Pulp dev
+    name: promote ${{ matrix.chart }} to Pulp
     env:
       CHART_DIR: .github/helm/${{ matrix.chart }}
       CHART_REPOSITORY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/charts
@@ -418,18 +417,27 @@ jobs:
           CHART_REF="/tmp/candidate/${{ matrix.chart }}-$VERSION.tgz" bash .github/scripts/helm-chart-images-check.sh
         shell: bash
 
-      - name: Promote to Pulp dev
-        id: promote-pulp-dev
+      - name: Resolve Pulp registry host
+        id: pulp-registry
+        env:
+          PULP_API_URL: ${{ vars.PULP_API_URL }}
+        run: |
+          host="${PULP_API_URL#*://}"
+          echo "host=${host%%/*}" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Promote to Pulp
+        id: promote-pulp
         env:
           SOURCE_REF: ${{ steps.candidate.outputs.ref }}
-          DEST_IMAGE: ${{ vars.PULP_DEV_REGISTRY }}/default/centreon/charts/${{ matrix.chart }}
+          DEST_IMAGE: ${{ steps.pulp-registry.outputs.host }}/default/centreon/charts/${{ matrix.chart }}
           DEST_TAGS: ${{ steps.candidate.outputs.version }}
-          PULP_OIDC_AUDIENCE: ${{ vars.PULP_DEV_OIDC_AUDIENCE }}
+          PULP_OIDC_AUDIENCE: ${{ vars.PULP_OIDC_AUDIENCE }}
         run: bash .github/scripts/docker-promote.sh
         shell: bash
 
-      - name: Warn if Pulp dev delivery failed
+      - name: Warn if Pulp delivery failed
         if: failure()
         run: |
-          echo "::warning::Pulp dev delivery of chart ${{ matrix.chart }} failed. ghcr.io delivery is unaffected."
+          echo "::warning::Pulp delivery of chart ${{ matrix.chart }} failed. ghcr.io delivery is unaffected."
         shell: bash
