@@ -434,29 +434,7 @@ paths:
                   result:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ServiceCategory'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    post:
-      operationId: _api_/configuration/services/categories_post
-      tags:
-        - 'Service category'
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.Host.Category'
+                      $ref: '#/components/schemas/Configuration.Service.Category'
                   meta:
                     $ref: '#/components/schemas/Meta'
         '403':
