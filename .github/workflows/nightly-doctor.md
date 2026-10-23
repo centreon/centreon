@@ -1,13 +1,18 @@
 ---
 description: |
-  Investigates failed nightly runs of the web workflow, separates
+  Investigates failed nightly runs of the repository workflows, separates
   infrastructure noise from real regressions, and opens a draft pull request
-  with the fix when the root cause is in the repository. Infrastructure and
-  flaky failures are only reported in the run summary.
+  with the fix and its Jira ticket when the root cause is in the repository.
+  Infrastructure and flaky failures are only reported in the run summary.
 
 on:
   workflow_run:
-    workflows: ["web"]
+    workflows:
+      - web
+      - open-tickets
+      - docker-web-dependencies
+      - nightly-cod-platform-deploy
+      - nightly-cod-platform-destroy
     types: [completed]
     branches:
       - develop
@@ -15,12 +20,12 @@ on:
   # TEMPORARY: registers the workflow so it can be dispatched before merge; jobs are skipped by `if`.
   pull_request:
     paths:
-      - ".github/workflows/web-nightly-doctor.*"
+      - ".github/workflows/nightly-doctor.*"
   # Replays the investigation on a past run.
   workflow_dispatch:
     inputs:
       run_id:
-        description: "ID of a failed web run to investigate"
+        description: "ID of a failed nightly run to investigate"
         required: true
         type: string
       branch:
@@ -28,8 +33,8 @@ on:
         required: true
         type: string
 
-# develop nightlies are scheduled, dev-* ones are dispatched with a "web nightly <branch>" run name.
-if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'failure' && (github.event.workflow_run.event == 'schedule' || (github.event.workflow_run.event == 'workflow_dispatch' && startsWith(github.event.workflow_run.display_title, 'web nightly ')))) }}
+# develop nightlies are scheduled, dev-* ones are dispatched with a "<workflow> nightly <branch>" run name.
+if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'failure' && (github.event.workflow_run.event == 'schedule' || (github.event.workflow_run.event == 'workflow_dispatch' && startsWith(github.event.workflow_run.display_title, format('{0} nightly ', github.event.workflow_run.name))))) }}
 
 # copilot-requests: inference billed to the organization Copilot plan, no PAT needed.
 permissions:
@@ -140,7 +145,7 @@ safe-outputs:
                 customfield_11168: $backports,
                 labels: ["nightly-doctor"],
                 description: {type: "doc", version: 1, content: (
-                  [{type: "paragraph", content: [{type: "text", text: "This ticket was created automatically by the web nightly doctor.", marks: [{type: "em"}]}]}]
+                  [{type: "paragraph", content: [{type: "text", text: "This ticket was created automatically by the nightly doctor.", marks: [{type: "em"}]}]}]
                   + [$item.description | split("\n")[] | select(length > 0) | {type: "paragraph", content: [{type: "text", text: .}]}]
                   + [{type: "paragraph", content: [{type: "text", text: "Pull request: "}, {type: "text", text: $pr, marks: [{type: "link", attrs: {href: $pr}}]}]}]
                 )}
@@ -166,11 +171,13 @@ timeout-minutes: 20
 max-ai-credits: 300
 ---
 
-# Web nightly failure doctor
+# Nightly failure doctor
 
-Investigate the failed nightly run of the `web` workflow, identify its root
-cause and, when the cause is in this repository, open a draft pull request that
-fixes it.
+Investigate the failed nightly run below, identify its root cause and, when the
+cause is in this repository, open a draft pull request that fixes it. The run
+belongs to one of the nightly workflows of this repository (`web`,
+`open-tickets`, `docker-web-dependencies`, `nightly-cod-platform-*`); read that
+workflow file first.
 
 ## Run context
 
@@ -183,7 +190,7 @@ The repository is checked out at the tip of the branch of that run.
 
 ### 1. Triage the failure
 
-1. Read the run to get its URL, branch and head SHA, list its jobs and retrieve
+1. Read the run to get its workflow, URL, branch and head SHA, list its jobs and retrieve
    the logs of the failed ones. Start with the earliest failed job and its first
    meaningful error, not later errors that are only consequences.
 2. Record the failing job and step, the primary error message, and relevant file
@@ -227,8 +234,9 @@ the failing job: a job that deletes it too early is a high-confidence cause.
 
 ### 4. Correlate repository context
 
-1. Compare with the previous nightly run of `web` on the same branch (scheduled
-   on `develop`, run name starting with `web nightly ` elsewhere): if it
+1. Compare with the previous nightly run of the same workflow on the same branch
+   (scheduled on `develop`, run name starting with `<workflow> nightly `
+   elsewhere): if it
    succeeded, inspect the commits between both head SHAs and identify the ones
    that plausibly affect the failing job.
 2. Check whether the checked-out branch tip already fixes the failure (a commit
@@ -255,7 +263,8 @@ To open a pull request:
    target `develop`; otherwise target the branch of the failed run.
 2. List the backports: the maintained `dev-*` branches, other than the target,
    whose faulty code is the same. Maintained branches are the ones with a
-   `web nightly <branch>` run of `web` in the last 7 days; compare each with
+   `web nightly <branch>` run of the `web` workflow in the last 7 days; compare
+   each with
    `git show origin/<branch>:<path>`.
 3. Create the fix branch from the target (`git checkout -b <name>
 origin/<target>`) and make the smallest change that fixes the root cause. Do
@@ -288,5 +297,5 @@ Pull request body:
 
 ## How to test
 
-[How a reviewer can check the fix, usually the next nightly on the target branch]
+[How a reviewer can check the fix, usually the next nightly of that workflow on the target branch]
 ```
