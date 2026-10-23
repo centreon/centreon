@@ -1497,6 +1497,46 @@ function install_wizard_post() {
 }
 #========= end of function install_wizard_post()
 
+#========= begin of function run_db_root_sql()
+# run SQL (stdin or extra args) as DB root over the local socket; the password goes through MYSQL_PWD,
+# never on the command line. Output is raw, without column names.
+#
+function run_db_root_sql() {
+	local -a client=(mysql)
+	if [[ "$dbms" == "MariaDB" ]]; then
+		command -v mariadb >/dev/null 2>&1 && client=(mariadb)
+	else
+		# our [client] cnf forces VERIFY_CA; the local socket does not need TLS (see secure_dbms_setup).
+		client=(mysql --ssl-mode=DISABLED)
+	fi
+	MYSQL_PWD="$db_root_password" "${client[@]}" -u root -N -B -r "$@"
+}
+#========= end of function run_db_root_sql()
+
+#========= begin of function mirror_db_account_on_loopback()
+# with DB TLS, the wizard and then Centreon connect over TCP to 127.0.0.1. The server matches such a client
+# against <user>@localhost only through a reverse lookup of 127.0.0.1 (never with skip-name-resolve), and
+# createDbUser.php only grants <user>@localhost. Mirror the account on <user>@127.0.0.1: same password,
+# same grants. Can be re-run.
+# - $1 : DB user
+# - $2 : DB user password
+function mirror_db_account_on_loopback() {
+	local user="$1" password="$2" grants
+	log "INFO" "Mirroring DB account $user@localhost on $user@127.0.0.1"
+	if ! grants=$(run_db_root_sql -e "SHOW GRANTS FOR '$user'@'localhost'"); then
+		error_and_exit "Could not read the grants of the DB account $user@localhost"
+	fi
+	if ! run_db_root_sql <<-EOF
+		CREATE USER IF NOT EXISTS '$user'@'127.0.0.1' IDENTIFIED BY '${password//\'/\'\'}';
+		$(sed -E "s/@([\`'])localhost\1/@\1127.0.0.1\1/g; s/\$/;/" <<<"$grants")
+		FLUSH PRIVILEGES;
+	EOF
+	then
+		error_and_exit "Could not create the DB account $user@127.0.0.1"
+	fi
+}
+#========= end of function mirror_db_account_on_loopback()
+
 #========= begin of function play_install_wizard()
 function play_install_wizard() {
 	log "INFO" "Playing install wizard"
@@ -1507,9 +1547,13 @@ function play_install_wizard() {
 	enc_centreon_admin_password=$(urlencode "$centreon_admin_password")
 
 	# With DB TLS, connect over TCP: an empty address becomes localhost (Unix socket), where TLS fails.
-	# 127.0.0.1 is in the server certificate SAN, and createDbUser.php still creates the user @localhost.
+	# 127.0.0.1 is in the server certificate SAN. createDbUser.php only grants @localhost, so the root and
+	# centreon accounts are mirrored on @127.0.0.1 (see mirror_db_account_on_loopback).
 	local db_address=""
-	[[ "$tls" == "enabled" ]] && db_address="127.0.0.1"
+	if [[ "$tls" == "enabled" ]]; then
+		db_address="127.0.0.1"
+		mirror_db_account_on_loopback root "$db_root_password"
+	fi
 
 	sessionID=$(curl -s -v "http://${central_ip}/centreon/install/install.php" 2>&1 | grep Set-Cookie | awk '{print $3}') || true
 	[ -n "$sessionID" ] || error_and_exit "Could not obtain an install-wizard session cookie from ${central_ip}"
@@ -1533,6 +1577,9 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "installConfigurationDb.php"
 	install_wizard_post ${sessionID} "installStorageDb.php"
 	install_wizard_post ${sessionID} "createDbUser.php"
+	if [[ "$tls" == "enabled" ]]; then
+		mirror_db_account_on_loopback centreon "$db_centreon_password"
+	fi
 	install_wizard_post ${sessionID} "insertBaseConf.php"
 	install_wizard_post ${sessionID} "partitionTables.php"
 	install_wizard_post ${sessionID} "generationCache.php"
