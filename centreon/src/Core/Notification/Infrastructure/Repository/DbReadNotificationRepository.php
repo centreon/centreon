@@ -26,7 +26,6 @@ namespace Core\Notification\Infrastructure\Repository;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
@@ -569,9 +568,6 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findAll(?RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-        $sqlTranslator?->getRequestParameters()->setConcordanceStrictMode(
-            RequestParameters::CONCORDANCE_MODE_STRICT
-        );
         $sqlTranslator?->setConcordanceArray([
             'id' => 'id',
             'name' => 'name',
