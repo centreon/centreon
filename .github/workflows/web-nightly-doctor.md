@@ -69,9 +69,8 @@ safe-outputs:
     labels: [ci]
     draft: true
     max: 1
-    allowed-base-branches:
-      - develop
-      - "dev-[2-9][0-9].[0-9][0-9].x"
+    # The branch of the failed run, not the workflow's own ref (shallow clones share no history).
+    base-branch: ${{ github.event.workflow_run.head_branch || inputs.branch }}
     fallback-as-issue: false
     # PAT so that the pull request triggers CI and can change workflow files (GITHUB_TOKEN can do neither).
     github-token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
