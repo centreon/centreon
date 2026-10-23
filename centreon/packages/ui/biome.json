@@ -5,7 +5,8 @@
 			"**",
 			"!**/*{.,-}min.js",
 			"!**/mockServiceWorker.js",
-			"!**/*.test.tsx"
+			"!**/*.test.tsx",
+			"**/*.browser.test.tsx"
 		]
 	},
 	"plugins": ["../js-config/biome/plugins/noLocalhost.grit"]
