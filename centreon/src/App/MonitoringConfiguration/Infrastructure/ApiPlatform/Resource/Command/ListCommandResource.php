@@ -29,6 +29,7 @@ use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCommandsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCommandsProvider;
 
@@ -37,6 +38,16 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
     uriTemplate: '/configuration/hosts/commands',
     openapi: false,
     security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+    securityMessage: 'You are not allowed to access commands',
+    itemUriTemplate: '/configuration/commands/{id}',
+    output: CommandChoicesOutput::class,
+    provider: ListCommandsChoicesProvider::class,
+)]
+#[GetCollection(
+    shortName: 'Command',
+    uriTemplate: '/configuration/services/commands',
+    openapi: false,
+    security: 'is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
     securityMessage: 'You are not allowed to access commands',
     itemUriTemplate: '/configuration/commands/{id}',
     output: CommandChoicesOutput::class,

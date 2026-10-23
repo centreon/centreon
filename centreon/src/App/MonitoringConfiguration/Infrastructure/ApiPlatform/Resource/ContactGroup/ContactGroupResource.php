@@ -30,8 +30,10 @@ use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\ContactGroupPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup\ListContactGroupsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup\ListContactGroupsProvider;
+use App\Shared\Infrastructure\ApiPlatform\Routing\PlatformCondition;
 
 #[ApiResource(
     shortName: 'ContactGroup',
@@ -40,6 +42,16 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup\Li
             uriTemplate: '/configuration/hosts/contact_groups',
             openapi: false,
             security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access contact groups',
+            itemUriTemplate: '/configuration/contact_groups/{id}',
+            output: ContactGroupChoicesOutput::class,
+            provider: ListContactGroupsChoicesProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/configuration/services/contact_groups',
+            condition: PlatformCondition::ON_PREMISE_ONLY,
+            openapi: false,
+            security: 'is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access contact groups',
             itemUriTemplate: '/configuration/contact_groups/{id}',
             output: ContactGroupChoicesOutput::class,
