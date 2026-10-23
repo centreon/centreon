@@ -1,6 +1,6 @@
 export const labelHosts = 'Hosts';
 export const labelHostsDescription =
-  'Configure the hosts monitored by your platform';
+  'Configure the hosts monitored by your platform.';
 export const labelName = 'Name';
 export const labelAlias = 'Alias';
 export const labelIpAddress = 'IP Address / DNS';
