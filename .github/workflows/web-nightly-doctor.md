@@ -37,9 +37,10 @@ permissions:
 # Explicit model: "auto" resolves to an unpriced utility model under org billing (github/gh-aw#63117).
 engine:
   id: copilot
-  # Models with cache-write pricing get prompt_cache_breakpoint, rejected by the Copilot API.
-  model: copilot/gpt-5.4
-  fallback-models: [copilot/gpt-5-mini]
+  # Must be in the workflow's live Copilot catalog and have no cache-write pricing
+  # (prompt_cache_breakpoint is rejected by the Copilot API).
+  model: copilot/gpt-5.3-codex
+  fallback-models: [copilot/gpt-4.1]
 
 tools:
   github:
