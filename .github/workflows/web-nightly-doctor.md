@@ -113,6 +113,7 @@ safe-outputs:
             PR_NUMBER: ${{ needs.safe_outputs.outputs.created_pr_number }}
           run: |
             set -euo pipefail
+            JIRA_BASE_URL="${JIRA_BASE_URL%/}"
             item=$(jq -c 'first(.items[] | select(.type == "create_jira_ticket"))' "$GH_AW_AGENT_OUTPUT")
             if [ -z "$item" ]; then
               echo "No create_jira_ticket output, nothing to do."
