@@ -60,9 +60,6 @@ src/Centreon*
 www/modules/centreon-*
 !www/widgets/require.php
 
-.lighthouseci
-lighthouse/report
-lighthouse/build
 manifest.json
 cypress/results
 
