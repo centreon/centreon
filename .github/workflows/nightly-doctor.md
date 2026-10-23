@@ -262,7 +262,11 @@ To open a pull request:
    `git show origin/develop:<path>`). If `develop` has the same faulty code,
    target `develop`; otherwise target the branch of the failed run.
 2. List the backports: the maintained `dev-*` branches, other than the target,
-   whose faulty code is the same. Maintained branches are the ones with a
+   where the defect is present. Check the defect itself (the missing input, the
+   wrong `needs`, the faulty line), not whether the whole file is identical: the
+   files usually differ elsewhere. A workflow dispatched to another branch runs
+   that branch's own workflow file, so a fix for a dispatch failure must reach
+   every dispatched branch. Maintained branches are the ones with a
    `web nightly <branch>` run of the `web` workflow in the last 7 days; compare
    each with
    `git show origin/<branch>:<path>`.
