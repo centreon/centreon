@@ -46,7 +46,7 @@ runs:
       with:
         artifactory_token: ${{ inputs.artifactory_token }}
 
-    - if: steps.artifactory.outputs.available == 'true'
+    - if: ${{ steps.artifactory.outputs.available == 'true' }}
       uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
       env:
         JF_URL: https://centreon.jfrog.io
@@ -59,7 +59,7 @@ runs:
         distrib: ${{ inputs.distrib }}
 
     - name: Publish DEBs
-      if: steps.artifactory.outputs.available == 'true'
+      if: ${{ steps.artifactory.outputs.available == 'true' }}
       env:
         VERSION: ${{ inputs.version }}
         DISTRIB: ${{ inputs.distrib }}
