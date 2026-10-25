@@ -262,10 +262,12 @@ local to the root cause. Otherwise finish with a no-op that explains the
 diagnosis and what a maintainer should check.
 
 Before changing code, search open pull requests whose title starts with
-`[nightly fix] `. If one already fixes the same defect in the same files, add
-one comment to it with the new run link instead of opening another pull
-request. The same kind of defect in another file (for example another workflow)
-is not covered by it: open a separate pull request that links the related one.
+`[nightly fix] ` and, for each candidate, list the files it changes (pull
+request files API). It covers this failure only if the file you would fix is in
+that list: then add one comment to it with the new run link instead of opening
+another pull request. Otherwise it is not a duplicate, even for the same kind
+of defect (for example the same race in another workflow): open a separate pull
+request whose description links the related one.
 
 Before opening a pull request, explain from the evidence why the current code
 produces the failure and why your change alters that behavior. A change that
