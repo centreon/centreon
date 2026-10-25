@@ -262,8 +262,15 @@ local to the root cause. Otherwise finish with a no-op that explains the
 diagnosis and what a maintainer should check.
 
 Before changing code, search open pull requests whose title starts with
-`[nightly fix] `. If one already addresses the same root cause, add one comment
-to it with the new run link instead of opening another pull request.
+`[nightly fix] `. If one already fixes the same defect in the same files, add
+one comment to it with the new run link instead of opening another pull
+request. The same kind of defect in another file (for example another workflow)
+is not covered by it: open a separate pull request that links the related one.
+
+Before opening a pull request, explain from the evidence why the current code
+produces the failure and why your change alters that behavior. A change that
+only rewrites code with the same semantics fixes nothing: if you cannot show
+the behavior change, finish with a no-op instead.
 
 To open a pull request:
 
