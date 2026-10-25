@@ -92,6 +92,7 @@ safe-outputs:
       needs: [safe_outputs]
       if: needs.safe_outputs.outputs.created_pr_url != ''
       permissions:
+        contents: read
         pull-requests: write
       output: "The Jira ticket will be created and linked once the pull request exists."
       inputs:
@@ -130,11 +131,45 @@ safe-outputs:
             fi
             auth=(--user "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" --header "Accept: application/json")
 
-            # Keep only the branches the Backports field accepts.
+            # Backports: maintained dev-* branches (Backports field values) where every line the fix
+            # removes is present and the fix itself is not; computed here, the agent's list is advisory.
             allowed=$(curl -sSf "${auth[@]}" "$JIRA_BASE_URL/rest/api/3/issue/createmeta/MON/issuetypes/10209?maxResults=100" \
               | jq -c '[.fields[] | select(.fieldId == "customfield_11168") | .allowedValues[].value]')
-            backports=$(jq -c --argjson allowed "$allowed" \
-              '[(.backports // "") | split(",")[] | gsub("^\\s+|\\s+$"; "") | select(. as $b | $b != "" and ($allowed | index($b)) != null)] | unique | map({value: .})' <<< "$item")
+            base=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json baseRefName --jq .baseRefName)
+            gh pr diff "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" > pr.diff
+            export BRANCHES
+            BRANCHES=$(jq -r '.[] | select(test("^dev-[0-9]{2}\\.[0-9]{2}\\.x$"))' <<< "$allowed" | grep -vxF "$base" || true)
+            computed=$(python3 - pr.diff <<'PY'
+            import os, subprocess, sys
+            repo = os.environ["GITHUB_REPOSITORY"]
+            changes, path = {}, None
+            for line in open(sys.argv[1], encoding="utf-8", errors="replace"):
+                line = line.rstrip("\n")
+                if line.startswith("+++ "):
+                    path = line[6:] if line.startswith("+++ b/") else None
+                    if path:
+                        changes[path] = {"removed": [], "added": []}
+                elif line.startswith("--- ") or path is None:
+                    continue
+                elif line[:1] in "-+" and line[1:].strip():
+                    changes[path]["removed" if line[0] == "-" else "added"].append(line[1:].strip())
+
+            def has_defect(branch):
+                for file, c in changes.items():
+                    res = subprocess.run(["gh", "api", "-H", "Accept: application/vnd.github.raw",
+                                          f"repos/{repo}/contents/{file}?ref={branch}"], capture_output=True, text=True)
+                    lines = {l.strip() for l in res.stdout.splitlines()}
+                    if res.returncode != 0 or not all(l in lines for l in c["removed"]):
+                        return False
+                    if c["added"] and all(l in lines for l in c["added"]):
+                        return False
+                return bool(changes)
+
+            print(",".join(b for b in os.environ["BRANCHES"].split() if has_defect(b)))
+            PY
+            )
+            echo "Backports: computed=[$computed] agent=[$(jq -r '.backports // ""' <<< "$item")]"
+            backports=$(jq -cn --arg list "$computed" '$list | split(",") | map(select(. != "")) | map({value: .})')
 
             payload=$(jq -n --argjson item "$item" --argjson backports "$backports" --arg pr "$PR_URL" '{
               fields: {
@@ -165,7 +200,8 @@ safe-outputs:
               echo "::warning::No transition to NEED REFINEMENT available for $key"
             fi
 
-            body=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json body --jq .body)
+            body=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json body --jq .body \
+              | BACKPORTS="${computed//,/, }" python3 -c 'import os, re, sys; print(re.sub(r"(?m)^- \*\*Backports\*\*:.*$", "- **Backports**: " + (os.environ["BACKPORTS"] or "none"), sys.stdin.read()), end="")')
             printf '%s\n\n## Links\n\n- Fixes: [%s](%s/browse/%s)\n' "$body" "$key" "$JIRA_BASE_URL" "$key" > pr-body.md
             gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" -X PATCH -F body=@pr-body.md > /dev/null
             echo "### Jira ticket [$key]($JIRA_BASE_URL/browse/$key) created for $PR_URL" >> "$GITHUB_STEP_SUMMARY"
