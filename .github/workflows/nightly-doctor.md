@@ -38,6 +38,9 @@ on:
         default: false
         type: boolean
 
+# The analyzed run id in the title links this run to its nightly in the daily report.
+run-name: "nightly doctor ${{ github.event.workflow_run.id || inputs.run_id || github.run_id }}"
+
 # develop nightlies are scheduled, dev-* ones are dispatched with a "<workflow> nightly <branch>" run name.
 if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'failure' && (github.event.workflow_run.event == 'schedule' || (github.event.workflow_run.event == 'workflow_dispatch' && startsWith(github.event.workflow_run.display_title, format('{0} nightly ', github.event.workflow_run.name))))) }}
 
@@ -216,6 +219,12 @@ safe-outputs:
 jobs:
   triage:
     runs-on: ubuntu-latest
+    # Queued per analyzed workflow, so the second of two simultaneous identical failures sees the
+    # signature recorded by the first; the agent itself is not serialized.
+    concurrency:
+      group: nightly-doctor-triage-${{ github.event.workflow_run.workflow_id || 'replay' }}
+      cancel-in-progress: false
+      queue: max
     permissions:
       actions: read
     outputs:
@@ -335,6 +344,7 @@ jobs:
             analyze=true reason="new failure $SIGNATURE"
           fi
           echo "analyze=$analyze" >> "$GITHUB_OUTPUT"
+          echo "triage decision: $reason"
           echo "### Nightly doctor triage: $reason (agent runs: $analyze)" >> "$GITHUB_STEP_SUMMARY"
           echo "$SIGNATURE" > .nightly-doctor-signature
 
