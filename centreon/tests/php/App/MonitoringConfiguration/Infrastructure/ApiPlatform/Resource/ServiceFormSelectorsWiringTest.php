@@ -245,8 +245,9 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     }
 
     /**
-     * Accepted defect (decision C3): API Platform rejects "page < 1" before the provider runs, with an
-     * exception the local exception_to_status does not map. A global fix must update this test on purpose.
+     * Known defect, kept on purpose: API Platform rejects "page < 1" before the provider runs, with an
+     * exception the local exception_to_status does not map, so it ends as HTTP 500. A global fix must update
+     * this test on purpose.
      */
     public function testAPageBelowOneIsAnUnhandledServerError(): void
     {
