@@ -6,7 +6,10 @@ import { IconButton, TextField } from '@centreon/ui';
 import { type ChangeEvent, type ReactElement, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { labelClear, labelRevertToPreviousPassword } from '../translatedLabels';
+import {
+  labelClear,
+  labelRevertToPreviousPassword
+} from '../../translatedLabels';
 
 const mask = '********';
 

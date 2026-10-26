@@ -19,7 +19,7 @@ import {
   labelPassword,
   labelTemplateInheritance,
   labelValue
-} from '../translatedLabels';
+} from '../../translatedLabels';
 import InheritanceRow, {
   InheritanceSwatch,
   type InheritanceTone
@@ -30,8 +30,13 @@ import {
   type MacroParent,
   type MacroRow
 } from './macroRows';
+import type { InheritedMacrosConfig } from './models';
 import StoredSecretField from './StoredSecretField';
 import useInheritedMacros from './useInheritedMacros';
+
+export type MacrosProps = InputPropsWithoutGroup & {
+  inheritance: InheritedMacrosConfig;
+};
 
 const maxVisibleRows = 10;
 
@@ -46,13 +51,15 @@ const legend: Array<{ label: string; parent: MacroParent }> = [
   { label: labelCommandInheritance, parent: 'command' }
 ];
 
-// The host's macros, `$_HOST<NAME>$`, in order: its own, then the inherited ones.
+// A resource's custom macros, `$_HOST<NAME>$` on a host, in order: its own,
+// then the inherited ones. The rows' test ids derive from `dataTestId`.
 const Macros = ({
   dataTestId,
   fieldName,
   getDisabled,
+  inheritance,
   label
-}: InputPropsWithoutGroup): ReactElement => {
+}: MacrosProps): ReactElement => {
   const { t } = useTranslation();
   const {
     errors,
@@ -63,7 +70,7 @@ const Macros = ({
     values
   } = useFormikContext<FormikValues>();
 
-  useInheritedMacros(fieldName);
+  useInheritedMacros({ config: inheritance, fieldName });
 
   const macros = (getIn(values, fieldName) ?? []) as Array<MacroRow>;
   const disabled = !!getDisabled?.(values);

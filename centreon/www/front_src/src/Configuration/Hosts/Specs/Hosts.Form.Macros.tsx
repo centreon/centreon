@@ -3,13 +3,12 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
-import { getHostTemplateMacrosEndpoint } from '../api/endpoints';
 import {
-  labelAddNewEntry,
-  labelAlreadyExists,
   labelCommandInheritance,
   labelTemplateInheritance
-} from '../translatedLabels';
+} from '../../ConfigurationBase/translatedLabels';
+import { getHostTemplateMacrosEndpoint } from '../api/endpoints';
+import { labelAddNewEntry, labelAlreadyExists } from '../translatedLabels';
 import initialize from './initialize';
 import { untouchedCheckOptionsPayload } from './utils';
 
