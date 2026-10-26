@@ -7,10 +7,10 @@ import {
   labelFillAllArgumentsOrNone
 } from '../../translatedLabels';
 import {
+  checkOptions as checkOptionsSection,
   getCheckOptionsSchema,
-  serviceConfiguration,
   toCheckOptionsPayload
-} from './serviceConfiguration';
+} from './checkOptions';
 
 const t = ((label: string) => label) as unknown as TFunction;
 
@@ -134,7 +134,7 @@ describe('Service check options', () => {
 
   // Data Processing (MON-213085) reads it to force the freshness check.
   it('tells a Centreon Monitoring Agent command from the detail', async () => {
-    const decoder = serviceConfiguration.detailDecoders.checkCommand;
+    const decoder = checkOptionsSection.detailDecoders.checkCommand;
 
     expect(
       await decoder.decodeToPromise({

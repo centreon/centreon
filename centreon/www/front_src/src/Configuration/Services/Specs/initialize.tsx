@@ -27,13 +27,10 @@ import {
   serviceTemplatesEndpoint
 } from '../api/endpoints';
 import { getServiceTemplateMacrosEndpoint } from '../Form/ServiceMacros';
-// MON-213087: Extended Info section (F41-F50).
-import {
-  serviceFormGraphTemplatesEndpoint,
-  serviceFormMediasEndpoint,
-  serviceFormServiceCategoriesEndpoint,
-  serviceFormServiceSeveritiesEndpoint
-} from '../Form/sections/extendedInfo';
+import { serviceFormCommandsEndpoint } from '../Form/sections/checkOptions';
+// MON-213087: Extended Info fields (F41-F50), in Monitoring engine and
+// Relations since MON-213119.
+import { serviceFormMediasEndpoint } from '../Form/sections/monitoringEngine';
 import {
   serviceFormContactGroupsEndpoint,
   serviceFormContactsEndpoint,
@@ -41,10 +38,12 @@ import {
 } from '../Form/sections/notifications';
 // MON-213084: Relations section selectors.
 import {
+  serviceFormGraphTemplatesEndpoint,
+  serviceFormServiceCategoriesEndpoint,
   serviceFormServiceGroupsEndpoint,
+  serviceFormServiceSeveritiesEndpoint,
   serviceFormTrapsEndpoint
 } from '../Form/sections/relations';
-import { serviceFormCommandsEndpoint } from '../Form/sections/serviceConfiguration';
 import {
   emptyListingResponse,
   getCommandsResponse,

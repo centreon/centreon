@@ -14,7 +14,9 @@ import { servicesBaseEndpoint } from '../../api/endpoints';
 import type { NamedEntity } from '../../models';
 import {
   labelAcknowledgementTimeout,
+  labelAdvanced,
   labelArgs,
+  labelAutoRemediation,
   labelCheckFreshness,
   labelCritical,
   labelDataProcessing,
@@ -28,8 +30,8 @@ import {
   labelFreshnessControlOptions,
   labelFreshnessThreshold,
   labelHighFlapThreshold,
-  labelHistoryOptions,
   labelLowFlapThreshold,
+  labelMiscellaneous,
   labelMustBeIntegerBetweenZeroAndOneHundred,
   labelMustBeIntegerOfAtLeastOne,
   labelMustBePositiveIntegerOrZero,
@@ -39,13 +41,15 @@ import {
   labelRetainNonStatusInformation,
   labelRetainStatusInformation,
   labelSeconds,
+  labelServiceComments,
+  labelServiceMustBeAtMostCharacters,
   labelStalkingOptions,
   labelUnknown,
   labelWarning,
   labelYes
 } from '../../translatedLabels';
+import { serviceFormCommandsEndpoint } from './checkOptions';
 import type { FormSection, FormValues } from './models';
-import { serviceFormCommandsEndpoint } from './serviceConfiguration';
 
 // Copied from `Hosts/Form/triState.ts`, `commandArguments.ts` and
 // `selector.ts` rather than imported, as the skeleton copied the section
@@ -87,13 +91,8 @@ const textToArguments = (text: string): Array<string> => {
 // What the engine reads as a line break, a tab or a carriage return.
 const forbiddenArgumentTokens = ['#BR#', '#T#', '#R#'];
 
-// Placeholder until the backend exposes it: modeled on
-// `/configuration/hosts/commands`. No type filter, the event handler may be
-// any command.
-// The commands selector, shared with the check command (MON-213083); the
-// event handler takes any type.
-export { serviceFormCommandsEndpoint };
-
+// The event handler reads the check command's selector (MON-213083) with no
+// type filter: it may be any command.
 const namedEntitiesListDecoder = buildListingDecoder({
   apiFormat: 'JSON-LD',
   entityDecoder: JsonDecoder.object<NamedEntity>(
@@ -148,9 +147,18 @@ interface DataProcessingValues {
   stalkingOptions: StalkingOptionsValues;
 }
 
-interface DataProcessingDetail {
+interface AdvancedDetail {
+  comment: string;
   dataProcessing: DataProcessingValues;
 }
+
+// The length the API refuses beyond (F50).
+const commentMaxLength = 65535;
+
+// The detail endpoint leaves unset values out rather than sending null.
+const optionalStringDecoder = JsonDecoder.optional(
+  JsonDecoder.nullable(JsonDecoder.string)
+).map((value) => value ?? '');
 
 const toStalkingOptionsValues = (
   letters: Array<string>
@@ -234,6 +242,10 @@ const dataProcessingDecoder = JsonDecoder.object<DataProcessingValues>(
     stalkingOptions: 'stalking_options'
   }
 );
+
+// The API refuses a blank string: none is null.
+const toApiText = (value: string | undefined): string | null =>
+  value?.trim() || null;
 
 const toApiNumber = (value: OptionalNumber | undefined): number | null =>
   value === '' || value === undefined ? null : Number(value);
@@ -379,27 +391,14 @@ const getEventHandlerBlock = ({
               label: t(labelArgs),
               text: { placeholder: '!arg1!arg2' },
               type: InputType.Text
-            },
-            // Legacy shows it at the top of the tab, alone with the
-            // acknowledgement timeout; it runs the OCSP command after each
-            // check, the closest block is this one.
-            getTriStateInput({
-              fieldName: 'obsessOverService',
-              label: t(labelObsessOverService)
-            })
+            }
           ])
     ],
     name: 'event-handler',
-    title: t(labelEventHandler)
+    title: t(labelAutoRemediation)
   });
 
-const getFreshnessBlock = ({
-  isCloudPlatform,
-  t
-}: {
-  isCloudPlatform: boolean;
-  t: TFunction;
-}): InputPropsWithoutGroup =>
+const getFreshnessBlock = (t: TFunction): InputPropsWithoutGroup =>
   getBlock({
     columns: [
       getTriStateInput({
@@ -414,19 +413,25 @@ const getFreshnessBlock = ({
         label: t(labelFreshnessThreshold),
         min: 0,
         unit: t(labelSeconds)
-      }),
-      ...(isCloudPlatform
-        ? []
-        : [
-            getNumberInput({
-              fieldName: 'acknowledgmentTimeout',
-              label: t(labelAcknowledgementTimeout),
-              min: 1
-            })
-          ])
+      })
     ],
     name: 'freshness',
     title: t(labelFreshnessControlOptions)
+  });
+
+// On-premise only. The Figma panel titles it "Data Processing", below the
+// freshness options.
+const getAcknowledgementBlock = (t: TFunction): InputPropsWithoutGroup =>
+  getBlock({
+    columns: [
+      getNumberInput({
+        fieldName: 'acknowledgmentTimeout',
+        label: t(labelAcknowledgementTimeout),
+        min: 1
+      })
+    ],
+    name: 'acknowledgement',
+    title: t(labelDataProcessing)
   });
 
 const getFlappingBlock = (t: TFunction): InputPropsWithoutGroup =>
@@ -454,9 +459,19 @@ const getFlappingBlock = (t: TFunction): InputPropsWithoutGroup =>
     title: t(labelFlappingOptions)
   });
 
-const getHistoryBlock = (t: TFunction): InputPropsWithoutGroup =>
+// NOT IN THE FIGMA PANEL: Obsess over service (F28), Retain status / non
+// status information (F35, F36) and Stalking options (F37). The md spec and
+// the API have them, the mockup does not: kept here, on-premise only, until
+// PM/UX decide to place or drop them (stack-notes/figma.md, "Differences to
+// decide").
+const getNotInMockupBlock = (t: TFunction): InputPropsWithoutGroup =>
   getBlock({
     columns: [
+      // It runs the OCSP command after each check.
+      getTriStateInput({
+        fieldName: 'obsessOverService',
+        label: t(labelObsessOverService)
+      }),
       getTriStateInput({
         fieldName: 'retainStatusInformation',
         label: t(labelRetainStatusInformation)
@@ -482,22 +497,48 @@ const getHistoryBlock = (t: TFunction): InputPropsWithoutGroup =>
         type: InputType.Grid
       }
     ],
-    name: 'history',
-    title: t(labelHistoryOptions)
+    name: 'not-in-mockup',
+    title: t(labelMiscellaneous)
   });
 
-// The legacy "Data Processing" tab (F28–F40).
-export const dataProcessing: FormSection<DataProcessingDetail> = {
-  defaultValues: { dataProcessing: defaultDataProcessing },
+// F50, on-premise only. Sent in the API's `extended_informations` with the
+// Monitoring engine fields: each section writes its own keys of it.
+const getCommentInput = (t: TFunction): InputPropsWithoutGroup => ({
+  dataTestId: 'service-form-comments',
+  fieldName: 'comment',
+  label: t(labelServiceComments),
+  text: { multilineRows: 3 },
+  type: InputType.Text
+});
+
+// The Figma panel's last section: the legacy Data Processing tab (F28–F40)
+// and the comment of the legacy Extended Info tab (F50).
+export const advanced: FormSection<AdvancedDetail> = {
+  defaultValues: { comment: '', dataProcessing: defaultDataProcessing },
   detailDecoders: {
+    // `extended_informations.comment`; the rest of that object is Monitoring
+    // engine's.
+    comment: JsonDecoder.optional(
+      JsonDecoder.nullable(
+        JsonDecoder.object<{ comment: string }>(
+          { comment: optionalStringDecoder },
+          'Comments'
+        )
+      )
+    ).map((value) => value?.comment ?? ''),
     dataProcessing: JsonDecoder.optional(
       JsonDecoder.nullable(dataProcessingDecoder)
     ).map((value) => value ?? defaultDataProcessing)
   },
-  detailKeyMap: { dataProcessing: 'data_processing' },
+  detailKeyMap: {
+    comment: 'extended_informations',
+    dataProcessing: 'data_processing'
+  },
+  // Auto-remediation | Freshness and Data Processing | Flapping, then the
+  // block the mockup lacks and the comment, full width.
   getInputs: ({ isCloudPlatform, t }) => {
     const eventHandler = getEventHandlerBlock({ isCloudPlatform, t });
-    const freshness = getFreshnessBlock({ isCloudPlatform, t });
+    const freshness = getFreshnessBlock(t);
 
     return [
       {
@@ -505,17 +546,39 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
         grid: {
           className: isCloudPlatform
             ? 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2'
-            : 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2 @[1100px]:grid-cols-4',
+            : 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2 @[1100px]:grid-cols-3',
           columns: isCloudPlatform
             ? [eventHandler, freshness]
-            : [eventHandler, freshness, getFlappingBlock(t), getHistoryBlock(t)]
+            : [
+                eventHandler,
+                {
+                  fieldName: 'data-processing-freshness-column',
+                  grid: {
+                    className: 'grid-cols-1 gap-y-4',
+                    columns: [freshness, getAcknowledgementBlock(t)]
+                  },
+                  label: 'service-form-data-processing-freshness-column',
+                  type: InputType.Grid
+                },
+                getFlappingBlock(t)
+              ]
         },
         label: 'service-form-data-processing-layout',
         type: InputType.Grid
-      }
+      },
+      ...(isCloudPlatform ? [] : [getNotInMockupBlock(t), getCommentInput(t)])
     ];
   },
   getSchema: ({ isCloudPlatform, t }) => ({
+    comment: string()
+      .trim()
+      .max(
+        commentMaxLength,
+        t(labelServiceMustBeAtMostCharacters, {
+          label: t(labelServiceComments),
+          max: commentMaxLength
+        })
+      ),
     dataProcessing: object({
       freshnessThreshold: getIntegerSchema({
         message: t(labelMustBePositiveIntegerOrZero),
@@ -540,7 +603,7 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
       })
     })
   }),
-  label: labelDataProcessing,
+  label: labelAdvanced,
   toPayload: (values, { isCloudPlatform }) => {
     const dataProcessingValues = (values.dataProcessing ??
       defaultDataProcessing) as DataProcessingValues;
@@ -583,7 +646,11 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
                 dataProcessingValues.stalkingOptions?.[letter]?.checked
             )
         })
-      }
+      },
+      // Refused on cloud, where the server keeps it unset.
+      ...(!isCloudPlatform && {
+        extended_informations: { comment: toApiText(values.comment as string) }
+      })
     };
   }
 };

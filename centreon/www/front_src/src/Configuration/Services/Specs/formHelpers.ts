@@ -4,10 +4,8 @@ import { interceptAPIRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import {
-  serviceFormHostsEndpoint,
-  serviceFormServiceTemplatesEndpoint
-} from '../Form/sections/serviceConfiguration';
+import { serviceFormServiceTemplatesEndpoint } from '../Form/sections/checkOptions';
+import { serviceFormHostsEndpoint } from '../Form/sections/generalInformation';
 import {
   getServiceFormHostsResponse,
   getServiceFormServiceTemplatesResponse

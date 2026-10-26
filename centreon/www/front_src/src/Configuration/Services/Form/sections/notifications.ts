@@ -35,11 +35,11 @@ import {
   labelMustBePositiveIntegerOrZero,
   labelNo,
   labelNone,
+  labelNotification,
   labelNotificationEnabled,
   labelNotificationInterval,
   labelNotificationOptions,
   labelNotificationPeriod,
-  labelNotifications,
   labelRecovery,
   labelRecoveryNotificationDelay,
   labelUnknown,
@@ -440,7 +440,7 @@ export const notifications: FormSection<NotificationsDetail> = {
   }),
   // The tab does not exist on cloud, where notifications keep their defaults.
   isAvailable: ({ isCloudPlatform }) => !isCloudPlatform,
-  label: labelNotifications,
+  label: labelNotification,
   toPayload: (values, { isAdditiveInheritanceEnabled }) => {
     const notificationsValues = (values.notifications ??
       defaultNotifications) as NotificationsValues;
