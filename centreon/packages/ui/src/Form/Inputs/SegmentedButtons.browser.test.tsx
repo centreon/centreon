@@ -129,6 +129,19 @@ describe('Segmented buttons', () => {
     );
   });
 
+  it('stays inside a column narrower than its segments', async () => {
+    initialize({ columnWidth: 200 });
+
+    const group = await screen.findByTestId('enabled');
+    const wrapper = group.parentElement as HTMLElement;
+
+    expect(wrapper.getBoundingClientRect().width).toBeLessThanOrEqual(200);
+    expect(wrapper.scrollWidth).toBeGreaterThan(wrapper.clientWidth);
+    expect((await button('Default')).scrollWidth).toBeLessThanOrEqual(
+      (await button('Default')).clientWidth
+    );
+  });
+
   it('widens every segment to the longest label, without wrapping', async () => {
     const longLabel = 'Inherit from the host template';
 
