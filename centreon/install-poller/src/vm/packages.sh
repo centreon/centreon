@@ -238,9 +238,7 @@ function _vmInstallPackages() {
   logInfo "Installing centreon-poller and jq"
 
   if [ "${_PKG_COMMAND}" = "apt" ]; then
-    # Keep locally modified conffiles (centengine.cfg...) without prompting:
-    # they are pushed by the central, and curl | bash has no tty to answer
-    # dpkg, which fails on EOF. The package version lands as *.dpkg-dist.
+    # Keep central-pushed conffiles: curl | bash has no tty for dpkg prompts.
     commandExitOnError "Cannot install Centreon poller packages" \
       env DEBIAN_FRONTEND=noninteractive apt install -y \
         -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold \
