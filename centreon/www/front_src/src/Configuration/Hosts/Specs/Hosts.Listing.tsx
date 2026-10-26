@@ -4,6 +4,7 @@ import { screen, within } from '@testing-library/react';
 import {
   labelCreateHost,
   labelHosts,
+  labelHostsDescription,
   labelWelcomeToHosts
 } from '../translatedLabels';
 import initialize from './initialize';
@@ -22,6 +23,15 @@ export default () => {
       expect(request.url.searchParams.get('itemsPerPage')).toBe('10');
 
       expect(await screen.findByText(labelHosts)).toBeVisible();
+    });
+
+    it('displays the subtitle next to the page title', async () => {
+      initialize();
+
+      expect(await screen.findByText(labelHostsDescription)).toBeVisible();
+      expect(screen.getByLabelText('page header title')).toHaveTextContent(
+        labelHosts
+      );
     });
 
     it('displays the hosts returned by the API', async () => {

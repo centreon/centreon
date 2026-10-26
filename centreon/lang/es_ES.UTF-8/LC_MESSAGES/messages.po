@@ -3528,6 +3528,10 @@ msgid "Configure service"
 msgstr "Configurar el servicio"
 
 #: centreon/www/install/front_translate.php
+msgid "Configure the hosts monitored by your platform."
+msgstr "Configure los hosts supervisados por su plataforma."
+
+#: centreon/www/install/front_translate.php
 msgid "Confirm"
 msgstr ""
 
