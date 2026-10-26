@@ -24,9 +24,15 @@ spec:
     metadata:
       labels:
         {{- include "centreon-poller.selectorLabels" . | nindent 8 }}
-      {{- with .Values.podAnnotations }}
+      {{- if or .Values.podAnnotations .Values.proxy.http }}
       annotations:
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.proxy.http }}
+        # The proxy env vars come from a Secret: roll the pod when it changes.
+        checksum/proxy: {{ include (print $.Template.BasePath "/secret-proxy.yaml") . | sha256sum }}
+        {{- end }}
       {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}
@@ -343,8 +349,10 @@ spec:
         {{- end }}
         {{- if .Values.proxy.http }}
         - name: apt-proxy
-          configMap:
-            name: {{ $fullname }}-proxy
+          secret:
+            secretName: {{ $fullname }}-proxy
+            items:
+              - { key: 99centreon-poller-proxy, path: 99centreon-poller-proxy }
         {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

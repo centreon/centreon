@@ -187,9 +187,10 @@ persistence:
   gorgoneData: 1Gi      # /var/lib/centreon-gorgone (keys, history)
   trapsConfig: 100Mi    # /etc/snmp/centreon_traps (traps.enabled)
 
-# Outbound HTTP(S) proxy (e.g. http://proxy.example.com:3128): proxy env vars
-# for every container, plus an apt.conf.d file since `sudo apt-get` (plugin
-# installs) drops them. localhost and the in-pod names are always in noProxy.
+# Outbound HTTP(S) proxy (e.g. http://proxy.example.com:3128, credentials
+# allowed): proxy env vars for every container, plus an apt.conf.d file since
+# `sudo apt-get` (plugin installs) drops them, both from the Secret
+# <release>-proxy. localhost and the in-pod names are always in noProxy.
 proxy:
   http: ""
   https: ""             # defaults to http

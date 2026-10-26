@@ -78,10 +78,10 @@ own() {
 }
 {{- end -}}
 
-{{/* Proxy env vars (both cases); localhost and the in-pod names never go through it. */}}
-{{- define "centreon-poller.proxyEnv" -}}
+{{/* Proxy variables, as YAML for the proxy Secret; localhost and the in-pod
+     names never go through it. */}}
+{{- define "centreon-poller.proxyVars" -}}
 {{- with .Values.proxy }}
-{{- if .http }}
 {{- $noProxy := list "localhost" "127.0.0.1" "centengine" }}
 {{- if $.Values.vmware.enabled }}
 {{- $noProxy = append $noProxy "centreon-vmware" }}
@@ -89,9 +89,21 @@ own() {
 {{- with .noProxy }}
 {{- $noProxy = append $noProxy . }}
 {{- end }}
-{{- range $name, $value := dict "http_proxy" .http "https_proxy" (.https | default .http) "no_proxy" (join "," $noProxy) }}
-- { name: {{ $name }}, value: {{ $value | quote }} }
-- { name: {{ upper $name }}, value: {{ $value | quote }} }
+{{- dict "http_proxy" .http "https_proxy" (.https | default .http) "no_proxy" (join "," $noProxy) | toYaml }}
+{{- end }}
+{{- end -}}
+
+{{/* Proxy env vars (both cases), read from the proxy Secret so that
+     credentials in the URLs stay out of the pod spec. */}}
+{{- define "centreon-poller.proxyEnv" -}}
+{{- if .Values.proxy.http }}
+{{- range $name := list "http_proxy" "https_proxy" "no_proxy" }}
+{{- range $var := list $name (upper $name) }}
+- name: {{ $var }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "centreon-poller.fullname" $ }}-proxy
+      key: {{ $var }}
 {{- end }}
 {{- end }}
 {{- end }}

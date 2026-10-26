@@ -168,8 +168,10 @@ proxy:
   reaches its engine in the pod. Add the central or any direct destination
   to `noProxy` if the proxy must not see it.
 - Plugin installs run `sudo apt-get`, which drops these variables: the
-  proxy is also written to `/etc/apt/apt.conf.d/99centreon-poller-proxy`
-  (ConfigMap `<release>-proxy`).
+  proxy is also written to `/etc/apt/apt.conf.d/99centreon-poller-proxy`.
+- Both come from the Secret `<release>-proxy`, so credentials in the URLs
+  (`http://user:password@proxy.example.com:3128`) stay out of the pod spec.
+  The pod restarts when the proxy values change.
 
 For anything else to mount (corporate CA, apt config…), use `extraVolumes`
 with `gorgone.extraVolumeMounts`, `engine.extraVolumeMounts` or
