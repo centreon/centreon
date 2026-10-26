@@ -110,3 +110,42 @@ export const exclusiveCheckboxGroup = (): JSX.Element => (
     validationSchema={object()}
   />
 );
+
+export const segmentedButtons = (): JSX.Element => (
+  <Form
+    initialValues={{
+      activeChecks: 'use_default',
+      updateMode: 'incremental'
+    }}
+    inputs={[
+      {
+        fieldName: 'activeChecks',
+        group: '',
+        label: 'Active checks enabled',
+        segmentedButtons: {
+          options: [
+            { label: 'Yes', value: 'true' },
+            { label: 'No', value: 'false' },
+            { label: 'Default', value: 'use_default' }
+          ]
+        },
+        type: InputType.SegmentedButtons
+      },
+      {
+        fieldName: 'updateMode',
+        group: '',
+        label: 'Update mode (long labels)',
+        segmentedButtons: {
+          options: [
+            { label: 'Incremental', value: 'incremental' },
+            { label: 'Replacement', value: 'replacement' },
+            { label: 'Inherit from the host template', value: 'inherit' }
+          ]
+        },
+        type: InputType.SegmentedButtons
+      }
+    ]}
+    submit={submit}
+    validationSchema={object()}
+  />
+);
