@@ -64,8 +64,7 @@ Cypress.Commands.add('verifyAccFieldValues', (body: Acc) => {
     });
   cy.get('#vCenternamevalue').should('have.value', body.vCenternames[0]);
   cy.get('#URLvalue').should('have.value', body.url);
-  // TEMPORARY, provisional breakage to validate the debug-analysis CI pipeline — revert before merging.
-  cy.get('#Portvalue').should('have.value', '9999');
+  cy.get('#Portvalue').should('have.value', body.port);
 });
 
 Cypress.Commands.add('saveAcc', () => {
