@@ -187,6 +187,10 @@ INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`,
 -- add cloud notifications configuration page
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`,`topology_feature_flag`) VALUES ('Notifications', '/configuration/notifications', '1', '1', 604, 60413, 1, 1,'notification');
 
+-- New Services page (React), dark-launched behind the `services_configuration` feature flag.
+-- 60299 is a temporary page id: the legacy Services by host page (60201) stays in place.
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_feature_flag`) VALUES ('Services by host', '/configuration/services', '1', '1', 602, 60299, 10, 1, 'services_configuration');
+
 -- add resource access management page
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_feature_flag`) VALUES ( 'Resource Access Management', '/administration/resource-access/rules', '1', '1', 502, 50206, 1, 1, 'resource_access_management');
 

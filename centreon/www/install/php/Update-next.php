@@ -107,6 +107,26 @@ $updateCentreonMonitoringAgentFreshnessThreshold = function () use ($pearDB, &$e
     LoggerUpgrade::create()->info($version, "Updated the freshness threshold of {$updatedServices} service(s) and service template(s)");
 };
 
+/**
+ * Add the new Services page (React), dark-launched behind the `services_configuration` feature flag.
+ * 60299 is a temporary page id: the legacy Services by host page (60201) stays in place.
+ */
+$addServicesConfigurationTopology = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add the new Services page to the topology';
+    LoggerUpgrade::create()->info($version, 'Adding the new Services page to the topology');
+
+    $insertedRows = $pearDB->insert(
+        <<<'SQL'
+            INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_feature_flag`)
+            SELECT 'Services by host', '/configuration/services', '1', '1', 602, 60299, 10, 1, 'services_configuration'
+            FROM DUAL
+            WHERE NOT EXISTS (SELECT 1 FROM `topology` WHERE `topology_page` = 60299)
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, "Added {$insertedRows} new Services page topology row(s)");
+};
+
 try {
     LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
@@ -125,6 +145,7 @@ try {
     // TODO add your function calls to update the configuration database data here
     $removeDuplicateHostGroupRelations();
     $updateCentreonMonitoringAgentFreshnessThreshold();
+    $addServicesConfigurationTopology();
 
     $errorMessage = 'Unable to commit the configuration database transaction';
     $pearDB->commitTransaction();
