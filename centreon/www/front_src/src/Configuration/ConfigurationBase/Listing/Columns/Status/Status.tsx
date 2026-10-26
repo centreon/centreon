@@ -14,6 +14,7 @@ import {
   labelEnableDisable,
   labelEnabled
 } from '../../../translatedLabels';
+import { listingDataTestIds } from '../../dataTestIds';
 import useStyles from './Status.styles';
 import useStatus from './useStatus';
 
@@ -45,7 +46,7 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
         checked={checked}
         className={classes.switch}
         color="primary"
-        data-testid={`${labelEnableDisable}_${row.id}`}
+        data-testid={listingDataTestIds.row.enableDisable(row.id)}
         disabled={isMutating || !canChange}
         onClick={change}
         size="small"
