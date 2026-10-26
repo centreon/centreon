@@ -73,7 +73,7 @@ const openEditionModal = async (): Promise<void> => {
   );
 };
 
-// What the form shows in both modes, from the snapshots.
+// The form's sections, in both modes.
 const expectFormSections = (): void => {
   [
     labelGeneralInformation,
@@ -136,7 +136,6 @@ export default (): void => {
       expect(getField(labelComments)).toBeEmptyDOMElement();
       expect(getField(labelComments)).toHaveValue('');
 
-      // From the snapshot.
       expectFormSections();
       await expectSubmitButton(false);
 
@@ -162,7 +161,6 @@ export default (): void => {
 
       expect(getField(labelComments)).toHaveValue('some comment');
 
-      // From the snapshot.
       expectFormSections();
       await expectSubmitButton(false);
 
@@ -176,7 +174,7 @@ export default (): void => {
 
       await expectSubmitButton(false);
 
-      // From the snapshot: the form can still be left.
+      // The form can still be left.
       expect(getButtonByText('Cancel')).toBeEnabled();
 
       await closeModal();
@@ -187,10 +185,16 @@ export default (): void => {
       await openEditionModal();
 
       await userEvent.clear(getField(labelName));
+      // Leaving the field shows its error.
+      await userEvent.tab();
 
+      // The validation pass flags the cleared name.
+      await waitFor(() =>
+        expect(getField(labelName)).toHaveAttribute('aria-invalid', 'true')
+      );
       await expectSubmitButton(false);
 
-      // From the snapshot: the other values are kept.
+      // The other values are kept.
       expect(getField(labelName)).toHaveValue('');
       expect(getField(labelCommandLine)).toHaveValue(commandLine);
 
@@ -216,7 +220,7 @@ export default (): void => {
 
       await expectSubmitButton(true);
 
-      // From the snapshot: the values entered, the optional fields left empty.
+      // The values entered, the optional fields left empty.
       expect(getField(labelName)).toHaveValue('New name');
       expect(getCheckbox('Notification')).toBeChecked();
       expect(getField(labelCommandLine)).toHaveValue(
@@ -338,7 +342,7 @@ export default (): void => {
           type: 'Discovery'
         });
 
-        // From the snapshot: the modal is closed, back to the listing.
+        // The modal is closed, back to the listing.
         await waitFor(() =>
           expect(screen.queryByText(labelAddCommand)).not.toBeInTheDocument()
         );
@@ -371,7 +375,7 @@ export default (): void => {
 
         expect(await screen.findByText('Command updated')).toBeVisible();
 
-        // From the snapshot: the modal is closed, back to the listing.
+        // The modal is closed, back to the listing.
         await waitFor(() =>
           expect(screen.queryByText(labelModifyCommand)).not.toBeInTheDocument()
         );
@@ -392,8 +396,8 @@ export default (): void => {
           await screen.findByText('Do you want to leave this page?')
         ).toBeVisible();
 
-        // From the snapshot: what the popup says and offers, and the error
-        // shown on the form behind it.
+        // What the popup says and offers, and the error shown on the form
+        // behind it.
         const dialog = (await screen.findAllByRole('dialog')).at(
           -1
         ) as HTMLElement;
@@ -421,7 +425,7 @@ export default (): void => {
           await screen.findByText('Do you want to save the changes?')
         ).toBeVisible();
 
-        // From the snapshot: what the popup says and offers.
+        // What the popup says and offers.
         const dialog = (await screen.findAllByRole('dialog')).at(
           -1
         ) as HTMLElement;

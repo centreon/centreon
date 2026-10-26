@@ -99,7 +99,7 @@ export default (): void => {
         expect(element).toBeVisible();
       });
 
-      // From the snapshot: an empty search bar, the advanced filters closed.
+      // An empty search bar, the advanced filters closed.
       expect(getSearchBar()).toHaveValue('');
       expect(screen.getByTestId('Filters')).toBeVisible();
       expect(screen.queryByTestId('advanced-filters')).not.toBeInTheDocument();
@@ -118,7 +118,7 @@ export default (): void => {
       ).toBeVisible();
       expect(getClearButton()).toBeVisible();
 
-      // From the snapshot: every type and status unchecked, nothing to clear.
+      // Every type and status unchecked, nothing to clear.
       filterCheckboxes.forEach((label) => {
         // `Check ` ends with a space the text matcher trims.
         expect(within(panel).getByText(label.trim())).toBeVisible();
@@ -157,7 +157,7 @@ export default (): void => {
 
       await waitFor(() => expect(getSearchBar()).toHaveValue('abc'));
 
-      // From the snapshot: one changed filter, which can now be cleared.
+      // One changed filter, which can now be cleared.
       await waitFor(() =>
         expect(getChangedFiltersBadge()).toHaveTextContent(/^1$/)
       );
@@ -198,8 +198,8 @@ export default (): void => {
 
       await waitForRequest('@getCommands');
 
-      // The name typed above may send a debounced request of its own: the
-      // last one carries every filter.
+      // The name typed in the advanced filters sends no request of its own:
+      // the search button's request carries every filter.
       await waitForFilteredListing();
     });
 
@@ -245,7 +245,7 @@ export default (): void => {
         expect(getLastListingUrl()).not.toContain('is_activated=true');
       });
 
-      // From the snapshot: nothing left to clear.
+      // Nothing left to clear.
       await waitFor(() => expect(getClearButton()).toBeDisabled());
     });
   });

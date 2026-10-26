@@ -92,8 +92,7 @@ const scrollModalToBottom = (): void => {
   body.scrollTop = body.scrollHeight;
 };
 
-// What the validation snapshots showed: the message is under that field, and
-// marks it as invalid.
+// The message is under that field, and marks it as invalid.
 const expectErrorOn = async (
   input: HTMLElement,
   message: string
@@ -231,7 +230,7 @@ export default (): void => {
         });
       });
 
-      // What the snapshot showed: each of the two vCenters can be removed.
+      // Each of the two vCenters can be removed.
       expect(screen.getAllByTestId(labelRemoveVCenterESX)).toHaveLength(2);
 
       expect(screen.getByText(labelAddvCenterESX)).toBeVisible();
@@ -270,7 +269,7 @@ export default (): void => {
       expect(getSubmitButton()).toHaveTextContent(new RegExp(`^${labelSave}$`));
       expect(getSubmitButton()).toBeDisabled();
 
-      // What the snapshot showed: the form can still be cancelled.
+      // The form can still be cancelled.
       expect(getCancelButton()).toBeEnabled();
 
       await closeModal();
@@ -286,6 +285,10 @@ export default (): void => {
 
       await waitFor(() => expect(nameInput).toHaveValue('VMWare1'));
       await userEvent.clear(nameInput);
+      await clickOutideTheField();
+
+      // The validation pass flags the cleared name.
+      await expectErrorOn(nameInput, labelRequired);
 
       scrollModalToBottom();
 
@@ -310,8 +313,7 @@ export default (): void => {
       expect(getSubmitButton()).toHaveTextContent(new RegExp(`^${labelSave}$`));
       await waitFor(() => expect(getSubmitButton()).toBeEnabled());
 
-      // What the snapshot showed: the selected poller, and the password
-      // typed in a masked field.
+      // The selected poller, and the password typed in a masked field.
       expect(
         within(
           screen.getByTestId(labelSelectPollers).parentElement as HTMLElement
@@ -351,8 +353,8 @@ export default (): void => {
         expect(screen.getAllByTestId('parameterGroup')).toHaveLength(2)
       );
 
-      // What the snapshot showed: the new group comes with its own default
-      // name, the default URL and no credentials; each group can be removed.
+      // The new group comes with its own default name, the default URL and no
+      // credentials; each group can be removed.
       expect(getParameterInputs('vCenter name')[1]).toHaveValue('my_vcenter_1');
       expect(getParameterInputs('URL')[1]).toHaveValue(
         'https://<ip_hostname>/sdk'
@@ -418,8 +420,7 @@ export default (): void => {
           await screen.findByText(labelAteastOnePollerIsRequired)
         ).toBeVisible();
 
-        // What the snapshot showed: the poller is removed, the error is on
-        // the pollers field.
+        // The poller is removed, the error is on the pollers field.
         await expectErrorOn(
           screen.getByTestId(labelSelectPollers),
           labelAteastOnePollerIsRequired
@@ -469,7 +470,7 @@ export default (): void => {
           (await screen.findAllByText(labelVcenterNameMustBeUnique))[0]
         ).toBeVisible();
 
-        // What the snapshot showed: both names are flagged.
+        // Both names are flagged.
         await expectErrorOn(first, labelVcenterNameMustBeUnique);
         await expectErrorOn(second, labelVcenterNameMustBeUnique);
 
@@ -523,7 +524,7 @@ export default (): void => {
         await clickOutideTheField();
 
         expect(await screen.findByText(labelRequired)).toBeVisible();
-        // What the snapshot showed: only the cleared username is flagged.
+        // Only the cleared username is flagged.
         await expectErrorOn(username, labelRequired);
         expect(screen.getAllByText(labelRequired)).toHaveLength(1);
 
@@ -560,8 +561,8 @@ export default (): void => {
 
         await clickOutideTheField();
 
-        // Something the same validation shows: a name too short, so the
-        // check below runs once the form has validated.
+        // Trigger a visible error, so the absence check below runs after
+        // validation.
         const nameInput = await getNameInput();
 
         await userEvent.clear(nameInput);
@@ -584,7 +585,7 @@ export default (): void => {
 
         expect(await screen.findByText(labelInvalidPortNumber)).toBeVisible();
         await expectErrorOn(getPortInput(), labelInvalidPortNumber);
-        // What the snapshot showed: the cleared port falls back to 0.
+        // The cleared port falls back to 0.
         expect(getPortInput()).toHaveValue(0);
 
         await closeModal();
@@ -615,8 +616,8 @@ export default (): void => {
 
         await clickOutideTheField();
 
-        // Something the same validation shows: a name too short, so the
-        // check below runs once the form has validated.
+        // Trigger a visible error, so the absence check below runs after
+        // validation.
         await userEvent.type(await getNameInput(), 'ab');
         await clickOutideTheField();
         expect(await screen.findByText(labelNameMustBeAtLeast)).toBeVisible();
@@ -672,10 +673,16 @@ export default (): void => {
 
         for (const invalidUrl of ['abc', '170.600.12', 'http://exa_mple.com']) {
           await userEvent.clear(url);
+          await clickOutideTheField();
+          // The emptied field is flagged as required, so the error checked
+          // below cannot be left over from the previous value.
+          await expectErrorOn(url, labelRequired);
+
           await userEvent.type(url, invalidUrl);
 
           await clickOutideTheField();
 
+          expect(url).toHaveValue(invalidUrl);
           expect(await screen.findByText(labelMustBeAvalidURL)).toBeVisible();
           await expectErrorOn(url, labelMustBeAvalidURL);
         }
@@ -753,7 +760,7 @@ export default (): void => {
           type: 'vmware_v6'
         });
 
-        // What the snapshot showed: the modal is closed.
+        // The modal is closed.
         await waitFor(() =>
           expect(
             screen.queryByText(labelAddAnAdditionalConfiguration)
@@ -789,8 +796,6 @@ export default (): void => {
           description: 'Description for VMWare1',
           name: 'Updated name',
           parameters: {
-            // The Cypress spec expected 1000 here, an artefact of how its
-            // typing met the 0 the cleared field shows; typing 100 sends 100.
             port: 100,
             vcenters: [
               {
@@ -817,7 +822,7 @@ export default (): void => {
           await screen.findByText(labelAdditionalConnectorUpdated)
         ).toBeInTheDocument();
 
-        // What the snapshot showed: the modal is closed.
+        // The modal is closed.
         await waitFor(() =>
           expect(
             screen.queryByText(labelModifyConnectorConfiguration)
@@ -847,8 +852,8 @@ export default (): void => {
           await screen.findByText('Do you want to leave this page?')
         ).toBeVisible();
 
-        // What the snapshot showed: the dialog explains the changes are
-        // lost, and offers to stay or to leave.
+        // The dialog explains the changes are lost, and offers to stay or to
+        // leave.
         expect(
           screen.getByText(
             'Your changes will not be saved if you leave this page.'
@@ -873,7 +878,7 @@ export default (): void => {
           await screen.findByText('Do you want to save the changes?')
         ).toBeVisible();
 
-        // What the snapshot showed: the dialog offers to discard or to save.
+        // The dialog offers to discard or to save.
         expect(
           screen.getByText(
             'If you click on Discard, your changes will not be saved.'

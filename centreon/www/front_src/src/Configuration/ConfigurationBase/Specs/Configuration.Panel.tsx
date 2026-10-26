@@ -20,11 +20,6 @@ import initialize, {
 } from './initialize';
 import { groups, inputs } from './utils';
 
-interface Options {
-  // The panel renders the same pixels whatever the resource type.
-  hasSnapshots: boolean;
-}
-
 const getByTestIdInDocument = (dataTestId: string): HTMLElement | null =>
   document.querySelector(`[data-testid="${dataTestId}"]`);
 
@@ -64,7 +59,7 @@ const openForCreation = async (): Promise<void> => {
   await userEvent.click(screen.getByTestId('add-resource'));
 };
 
-export default (resourceType: string, { hasSnapshots }: Options): void => {
+export default (resourceType: string): void => {
   const resource = toResource(resourceType);
   const resourceName = `${resource} 1`;
 
@@ -120,20 +115,18 @@ export default (resourceType: string, { hasSnapshots }: Options): void => {
           document.querySelector('button[data-testid="cancel"]')
         ).not.toBeInTheDocument();
 
-        if (hasSnapshots) {
-          // What the screenshot showed: the empty form, its groups in order.
-          inputs.forEach(({ label }) => {
-            expect(getField(label)).toHaveValue('');
-          });
+        // The empty form, its groups in order.
+        inputs.forEach(({ label }) => {
+          expect(getField(label)).toHaveValue('');
+        });
 
-          const [firstGroup, secondGroup] = groups.map(({ name }) =>
-            screen.getByText(name)
-          );
+        const [firstGroup, secondGroup] = groups.map(({ name }) =>
+          screen.getByText(name)
+        );
 
-          expect(firstGroup.getBoundingClientRect().top).toBeLessThan(
-            secondGroup.getBoundingClientRect().top
-          );
-        }
+        expect(firstGroup.getBoundingClientRect().top).toBeLessThan(
+          secondGroup.getBoundingClientRect().top
+        );
       });
 
       it('offers no resource action while creating', async () => {
@@ -210,8 +203,7 @@ export default (resourceType: string, { hasSnapshots }: Options): void => {
       });
 
       it('keeps the panel and its actions inside a page too narrow for it', async () => {
-        // Cypress shrank the viewport to 700x590; here the page is given that
-        // size, so its right edge stands for the viewport's.
+        // A 700x590 screen: the page's right edge stands for the screen's.
         mount({ screenSize: { height: 590, width: 700 } });
 
         await waitForListing();
@@ -364,18 +356,16 @@ export default (resourceType: string, { hasSnapshots }: Options): void => {
         expect(getPanelButton(panelDataTestIds.duplicate)).toBeVisible();
         expect(getPanelButton(panelDataTestIds.delete)).toBeVisible();
 
-        if (hasSnapshots) {
-          // What the screenshot showed: the resource enabled, nothing to
-          // reset yet, the loaded values in the form.
-          expect(getEnableToggle()).toBeChecked();
-          expect(getPanelButton(panelDataTestIds.reset)).toBeDisabled();
+        // The resource enabled, nothing to reset yet, the loaded values in
+        // the form.
+        expect(getEnableToggle()).toBeChecked();
+        expect(getPanelButton(panelDataTestIds.reset)).toBeDisabled();
 
-          const response = getDetailsResponse(resource);
+        const response = getDetailsResponse(resource);
 
-          inputs.forEach(({ fieldName, label }) => {
-            expect(getField(label)).toHaveValue(response[fieldName]);
-          });
-        }
+        inputs.forEach(({ fieldName, label }) => {
+          expect(getField(label)).toHaveValue(response[fieldName]);
+        });
       });
 
       it('shows form fields organized into groups, with each field initialized with the value received from the API', async () => {

@@ -29,8 +29,8 @@ export default (): void => {
 
       expect(await screen.findByText('check_host_alive')).toBeVisible();
 
-      // From the snapshot: the first ten of the eleven commands, in the
-      // order of the answer, sorted by name.
+      // The first ten of the eleven commands, in the order of the answer,
+      // sorted by name.
       const rows = screen.getAllByRole('row').slice(1);
 
       expect(rows).toHaveLength(10);
@@ -78,8 +78,7 @@ export default (): void => {
 
         expect(request.url.href).toContain(`sort[${id}]=desc`);
 
-        // From the snapshots: the clicked column is the sorted one, and in
-        // descending order.
+        // The clicked column is the sorted one, and in descending order.
         await waitFor(() =>
           expect(
             getSortLabel(label).querySelector(

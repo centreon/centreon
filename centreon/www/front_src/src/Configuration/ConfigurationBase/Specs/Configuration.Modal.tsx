@@ -75,7 +75,7 @@ export default (resourceType: string): void => {
           screen.queryByTestId(panelDataTestIds.content)
         ).not.toBeInTheDocument();
 
-        // What the screenshot showed: the form can be cancelled.
+        // The form can be cancelled.
         expect(screen.getByText(labelCancel)).toBeVisible();
 
         await userEvent.click(screen.getByLabelText('close'));
@@ -111,7 +111,7 @@ export default (resourceType: string): void => {
           name: 'Name abc'
         });
 
-        // What the screenshot showed: the modal closed on a success message.
+        // The modal closed on a success message.
         expect(
           await screen.findByText(
             labelResourceCreated(capitalize(resourceType))
@@ -141,7 +141,7 @@ export default (resourceType: string): void => {
         });
         expect(getSubmitButton()).toBeDisabled();
 
-        // What the screenshot showed: the form can be cancelled.
+        // The form can be cancelled.
         expect(screen.getByText(labelCancel)).toBeVisible();
 
         await userEvent.click(screen.getByLabelText('close'));
@@ -186,7 +186,7 @@ export default (resourceType: string): void => {
           name: 'Name abc'
         });
 
-        // What the screenshot showed: the modal closed on a success message.
+        // The modal closed on a success message.
         expect(
           await screen.findByText(
             labelResourceUpdated(capitalize(resourceType))

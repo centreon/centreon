@@ -34,8 +34,7 @@ const getRowCheckbox = (id: number): HTMLElement =>
   screen.getByLabelText(`Select row ${id}`);
 
 // Row 2 is deactivated: its checkbox is disabled, but the cell around it still
-// selects the row (Cypress forced the click through). The click lands on the
-// cell, as a user's does.
+// selects the row. The click lands on the cell, as a user's does.
 const selectRows = async (): Promise<void> => {
   await userEvent.click(getRowCheckbox(1));
   await userEvent.click(
@@ -61,14 +60,19 @@ const expectDialogButtons = async (confirmLabel: string): Promise<void> => {
   expect(within(dialog).getByText(labelCancel)).toBeVisible();
 };
 
-// What every success screenshot showed once the snackbar appeared: the dialog
-// closed, and the selection cleared with it. The selection is read from More
-// actions, which needs one: the last clicked row checkbox can keep showing its
-// previous state until its row renders again, so it proves nothing here.
-const expectDialogClosedAndSelectionCleared = async (): Promise<void> => {
+// Once the success snackbar appeared: the dialog closed.
+const expectDialogClosed = async (): Promise<void> => {
   await waitFor(() =>
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   );
+};
+
+// Once the success snackbar appeared: the dialog closed, and the selection
+// cleared with it. The selection is read from More actions, which needs one:
+// the last clicked row checkbox can keep showing its previous state until its
+// row renders again, so it proves nothing here.
+const expectDialogClosedAndSelectionCleared = async (): Promise<void> => {
+  await expectDialogClosed();
   expect(screen.getByTestId(labelMoreActions)).toBeDisabled();
 };
 
@@ -142,7 +146,7 @@ export default (resourceType: string): void => {
           )
         ).toBeVisible();
 
-        await expectDialogClosedAndSelectionCleared();
+        await expectDialogClosed();
       });
 
       it('sends a delete request for multiple resources and displays a success message', async () => {
@@ -188,7 +192,7 @@ export default (resourceType: string): void => {
 
         expect(screen.getByText(labelDuplications)).toBeVisible();
 
-        // What the screenshot showed: one duplication by default.
+        // One duplication by default.
         expect(screen.getAllByLabelText(labelDuplications)[0]).toHaveValue(1);
         await expectDialogButtons(labelDuplicate);
       });
@@ -238,7 +242,7 @@ export default (resourceType: string): void => {
           )
         ).toBeVisible();
 
-        await expectDialogClosedAndSelectionCleared();
+        await expectDialogClosed();
       });
 
       it('sends a duplicate request for multiple resources and displays a success message', async () => {

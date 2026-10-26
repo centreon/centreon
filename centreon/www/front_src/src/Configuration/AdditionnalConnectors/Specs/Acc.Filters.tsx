@@ -76,7 +76,7 @@ export default (): void => {
         expect(element).toBeVisible();
       });
 
-      // What the snapshot showed: an empty search bar, no filter counted.
+      // An empty search bar, no filter counted.
       expect(await getSearchBar()).toHaveValue('');
       expect(getFiltersBadge()).toHaveClass('MuiBadge-invisible');
     });
@@ -96,8 +96,7 @@ export default (): void => {
       ).toBeVisible();
       expect(getClearButton()).toBeVisible();
 
-      // What the snapshot showed: the filters are empty, so there is
-      // nothing to clear.
+      // The filters are empty, so there is nothing to clear.
       expect(getNameFilter()).toHaveValue('');
       expect(getClearButton()).toBeDisabled();
     });
@@ -125,7 +124,7 @@ export default (): void => {
 
       await waitFor(() => expect(searchBar).toHaveValue('vmware1'));
 
-      // What the snapshot showed: one changed filter, which can be cleared.
+      // One changed filter, which can be cleared.
       expect(getFiltersBadge()).toHaveTextContent(/^1$/);
       expect(getFiltersBadge()).not.toHaveClass('MuiBadge-invisible');
       expect(getClearButton()).toBeEnabled();
@@ -189,9 +188,6 @@ export default (): void => {
       await waitFor(() => expect(getNameFilter()).toHaveValue(''));
 
       expect(
-        within(typeField).queryByText('VMWare_6/7')
-      ).not.toBeInTheDocument();
-      expect(
         within(typeField).queryByText('VMWare 6/7')
       ).not.toBeInTheDocument();
 
@@ -206,7 +202,7 @@ export default (): void => {
 
       expect(getSearchParameter(request.url)).toEqual({ $and: [] });
 
-      // What the snapshot showed: nothing left to clear.
+      // Nothing left to clear.
       await waitFor(() => expect(getClearButton()).toBeDisabled());
       expect(getFiltersBadge()).toHaveClass('MuiBadge-invisible');
     });

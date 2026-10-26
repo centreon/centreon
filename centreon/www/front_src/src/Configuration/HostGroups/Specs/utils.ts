@@ -7,7 +7,7 @@ import {
   labelResourceAccessRule
 } from '../translatedLabels';
 
-// One-pixel images: what the tests read is the icon's name, not its picture.
+// Tiny inline images: the tests read the icon's name, not its picture.
 const cypressLogo =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAFUlEQVR42mNg6O4mDY1qGNUwfDUAAED3FhAEZJ4nAAAAAElFTkSuQmCC';
 const centreonWallpaper =

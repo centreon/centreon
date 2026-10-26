@@ -23,8 +23,7 @@ export default () => {
       expect(within(advancedFilters).getAllByText(labelName)[0]).toBeVisible();
       expect(within(advancedFilters).getAllByText(labelAlias)[0]).toBeVisible();
 
-      // What the screenshot showed: the status filter, unchecked, and the
-      // clear and search actions.
+      // The status filter, unchecked, and the clear and search actions.
       expect(within(advancedFilters).getByText('Status')).toBeVisible();
       expect(
         within(advancedFilters).getByRole('checkbox', { name: 'Enabled' })

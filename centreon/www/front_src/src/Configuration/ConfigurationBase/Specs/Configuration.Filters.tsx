@@ -1,4 +1,4 @@
-import { waitForRequest } from '@test-setup/api';
+import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -99,8 +99,10 @@ export default (resourceType: ResourceType) => {
       expect(getSearchParameter(request.url)).toEqual({
         $and: [{ $or: [{ name: { $rg: `${resourceType} 1` } }] }]
       });
+      // One request for the whole typed name, after the initial listing.
+      expect(getRequestCalls('@getAll')).toHaveLength(2);
 
-      // What the screenshot showed: the typed name counts as one filter.
+      // The typed name counts as one filter.
       await waitFor(() => expectFiltersBadge(1));
       expect(searchBar).toHaveValue(`${resourceType} 1`);
     });
@@ -132,8 +134,8 @@ export default (resourceType: ResourceType) => {
         ]
       });
 
-      // What the screenshot showed: three filters applied, the name mirrored
-      // in the search bar, and something to clear.
+      // Three filters applied, the name mirrored in the search bar, and
+      // something to clear.
       await waitFor(() => expectFiltersBadge(3));
       expect(screen.getAllByPlaceholderText(labelSearch)[0]).toHaveValue(
         `${resourceType} 1`
@@ -163,8 +165,7 @@ export default (resourceType: ResourceType) => {
 
       expect(getSearchParameter(request.url)).toEqual({ $and: [] });
 
-      // What the screenshot showed: every field emptied, nothing left to
-      // clear.
+      // Every field emptied, nothing left to clear.
       await waitFor(() => expect(getTextFilter(labelName)).toHaveValue(''));
       expect(getTextFilter(labelAlias)).toHaveValue('');
       expect(
@@ -178,9 +179,6 @@ export default (resourceType: ResourceType) => {
     });
 
     describe('Single connected autocomplete', () => {
-      // Storage is cleared before and after each test by the test setup, as
-      // the Cypress spec did here with `cy.clearLocalStorage()`.
-
       it('sends a listing request matching the selected id when a value is selected in the single connected autocomplete filter', async () => {
         initializeWithSingleConnectedAutocomplete(resourceType);
 
@@ -198,7 +196,7 @@ export default (resourceType: ResourceType) => {
           $and: [{ $or: [{ 'host_template.id': { $eq: 1 } }] }]
         });
 
-        // What the screenshot showed: the template counts as one filter.
+        // The template counts as one filter.
         await waitFor(() => expectFiltersBadge(1));
         expect(getHostTemplateInput()).toHaveValue('host template 1');
         expect(screen.getByTestId(labelClear)).toBeEnabled();
@@ -217,7 +215,7 @@ export default (resourceType: ResourceType) => {
           .closest('.MuiAutocomplete-root')
           ?.querySelector('button[title="Clear"]') as HTMLElement;
 
-        // Shown on hover only: Cypress clicked it with `force`.
+        // Shown on hover only.
         await userEvent.click(clearButton, { pointerEventsCheck: 0 });
 
         await waitFor(() => expect(getHostTemplateInput()).toHaveValue(''));
@@ -228,7 +226,7 @@ export default (resourceType: ResourceType) => {
 
         expect(getSearchParameter(request.url)).toEqual({ $and: [] });
 
-        // What the screenshot showed: no filter left, nothing to clear.
+        // No filter left, nothing to clear.
         await waitFor(() =>
           expect(screen.getByTestId(labelClear)).toBeDisabled()
         );
@@ -249,7 +247,7 @@ export default (resourceType: ResourceType) => {
           expect(getHostTemplateInput()).toHaveValue('host template 1')
         );
 
-        // `cy.mount` replaced the page it mounted before.
+        // Mounted again, as a user coming back to the page.
         unmount();
 
         initializeWithSingleConnectedAutocomplete(resourceType);
@@ -262,7 +260,7 @@ export default (resourceType: ResourceType) => {
           expect(getHostTemplateInput()).toHaveValue('host template 1')
         );
 
-        // What the screenshot showed: the kept template counts as a filter.
+        // The kept template counts as a filter.
         expectFiltersBadge(1);
       });
     });
@@ -308,7 +306,7 @@ export default (resourceType: ResourceType) => {
       // Checked once the listing is shown, so not before the page settled.
       expect(screen.queryByTestId(labelFilters)).not.toBeInTheDocument();
 
-      // What the screenshot showed: the search bar itself stays.
+      // The search bar itself stays.
       expect(screen.getAllByTestId('search-bar')[0]).toBeVisible();
     });
   });

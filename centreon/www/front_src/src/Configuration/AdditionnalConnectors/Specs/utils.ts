@@ -1,5 +1,4 @@
-// The mocked API responses, from the former Cypress fixtures under
-// `cypress/fixtures/ACC/`.
+// The mocked API responses.
 
 const creators = [
   'Alice',

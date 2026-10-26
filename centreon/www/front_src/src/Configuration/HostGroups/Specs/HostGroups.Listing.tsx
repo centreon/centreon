@@ -30,8 +30,7 @@ export default () => {
       await waitForRequest('@getAllHostGroups');
       expect(await screen.findByText('host group 0')).toBeVisible();
 
-      // What the screenshot showed: the data columns only, no row selection,
-      // no creation nor bulk actions.
+      // The data columns only, no row selection, no creation nor bulk actions.
       expect(getColumnHeaders()).toEqual([
         'Name',
         'Alias',
@@ -53,8 +52,8 @@ export default () => {
 
       expect(await screen.findByText('Host groups')).toBeVisible();
 
-      // What the screenshot showed: the creation and bulk actions, the search
-      // bar, the columns, the eight host groups and their status.
+      // The creation and bulk actions, the search bar, the columns, the eight
+      // host groups and their status.
       expect(await screen.findByText('host group 7')).toBeVisible();
       expect(screen.getByTestId('add-resource')).toBeEnabled();
       expect(screen.getByText('More actions')).toBeVisible();
@@ -135,8 +134,6 @@ export default () => {
         ).toBeVisible();
         expect(await within(tooltip).findByText('host 1')).toBeVisible();
 
-        // What the screenshot showed: the hosts of that host group with that
-        // status, in a list.
         const { request } = await waitForRequest('@getHosts');
 
         expect(
@@ -155,6 +152,8 @@ export default () => {
             { $or: [{ is_activated: { $eq: String(isEnabledHost) } }] }
           ]
         });
+
+        // The hosts of that host group with that status, in a list.
         ['host 0', 'host 2', 'host 3', 'host 4', 'host 6', 'host 7'].forEach(
           (host) => {
             expect(within(tooltip).getByText(host)).toBeVisible();
@@ -173,8 +172,7 @@ export default () => {
 
         const tooltip = await screen.findByRole('tooltip');
 
-        // Cypress checked the disabled title and the enabled message; the
-        // screenshot showed the title and the message of each tooltip.
+        // The tooltip shows the column's title and its empty message.
         expect(
           within(tooltip).getByText(
             isEnabledHost ? labelEnabledHosts : labelDisabledHosts

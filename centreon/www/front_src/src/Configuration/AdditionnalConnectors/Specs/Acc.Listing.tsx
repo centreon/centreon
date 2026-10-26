@@ -36,8 +36,8 @@ export default (): void => {
       expect(await screen.findByText('VMWare1')).toBeVisible();
       expect(screen.getByText('Description for VMWare1')).toBeVisible();
 
-      // What the snapshot showed: the ten connectors of the page in order,
-      // with their columns, and the total.
+      // The ten connectors of the page in order, with their columns, and the
+      // total.
       const rows = screen.getAllByRole('row').slice(1);
 
       expect(rows).toHaveLength(10);
@@ -112,7 +112,7 @@ export default (): void => {
           [id]: 'desc'
         });
 
-        // What the snapshots showed: the clicked column is the sorted one.
+        // The clicked column is the sorted one.
         await waitFor(() =>
           expect(screen.getByLabelText(`Column ${label}`)).toHaveClass(
             'Mui-active',

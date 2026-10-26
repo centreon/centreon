@@ -66,8 +66,8 @@ export default () => {
 
         expect(await screen.findByText('View a host group')).toBeVisible();
 
-        // What the screenshot showed: every field filled in from the API and
-        // read-only, the access rules on a cloud platform only.
+        // Every field filled in from the API and read-only, the access rules on
+        // a cloud platform only.
         const comments = await getInput(labelComments);
 
         await waitFor(() =>
@@ -126,8 +126,8 @@ export default () => {
           expect(await getInput(labelGeographicCoordinates)).toHaveValue('');
           expect(await getInput(labelComments)).toHaveValue('');
 
-          // What the screenshot showed: the groups as tabs on a cloud
-          // platform only, and the fields editable.
+          // The groups as tabs on a cloud platform only, and the fields
+          // editable.
           if (isCloudPlatform) {
             expect(
               screen.getByTestId('tab-General information')
@@ -189,8 +189,7 @@ export default () => {
             getPayload({}).comment
           );
 
-          // What the screenshot showed: the icon selected, with its preview,
-          // and the fields editable.
+          // The icon selected, with its preview, and the fields editable.
           expect(screen.getByTestId(labelIcon)).toHaveValue('cypress_logo');
           expect(
             within(modal).getByRole('img', { name: 'cypress_logo' })
@@ -266,8 +265,7 @@ export default () => {
 
           expect(request.body).toEqual(getPayload({ isCloudPlatform }));
 
-          // What the screenshot showed: the modal closed and the success
-          // message.
+          // The modal closed and the success message.
           expect(await screen.findByText('Host group created')).toBeVisible();
           await waitFor(() =>
             expect(screen.queryByTestId('Modal')).not.toBeInTheDocument()
@@ -302,7 +300,7 @@ export default () => {
 
           expect(await screen.findByText('Host group updated')).toBeVisible();
 
-          // What the screenshot showed: the modal closed.
+          // The modal closed.
           await waitFor(() =>
             expect(screen.queryByTestId('Modal')).not.toBeInTheDocument()
           );
@@ -333,8 +331,7 @@ export default () => {
       ).toBeVisible();
       expect(getSubmit()).toBeDisabled();
 
-      // What the first screenshot showed: the error flags the coordinates
-      // field.
+      // The error flags the coordinates field.
       expect(coordinates).toHaveAttribute('aria-invalid', 'true');
       expect(nameInput).toHaveAttribute('aria-invalid', 'false');
 
@@ -346,7 +343,7 @@ export default () => {
         screen.queryByText(labelInvalidCoordinateFormat)
       ).not.toBeInTheDocument();
 
-      // What the second screenshot showed: the field no longer in error.
+      // The field no longer in error.
       expect(coordinates).toHaveAttribute('aria-invalid', 'false');
 
       await userEvent.click(screen.getByLabelText('close'));
@@ -370,9 +367,18 @@ export default () => {
 
       await userEvent.click(screen.getByTestId('tab-General information'));
 
+      await waitFor(() =>
+        expect(nameInput).toHaveAttribute('aria-invalid', 'true')
+      );
+
       await userEvent.type(nameInput, 'name');
 
-      await waitFor(() => expect(nameInput).toHaveValue('name'));
+      // The validation pass that clears the name's error leaves the access
+      // rules required.
+      await waitFor(() =>
+        expect(nameInput).toHaveAttribute('aria-invalid', 'false')
+      );
+      expect(nameInput).toHaveValue('name');
       expect(getSubmit()).toBeDisabled();
 
       await userEvent.click(screen.getByTestId(labelApplyResourceAccessRule));
@@ -383,7 +389,7 @@ export default () => {
 
       await waitFor(() => expect(getSubmit()).toBeEnabled());
 
-      // What the screenshot showed: the rule selected in the list.
+      // The rule selected in the list.
       expect(screen.getByRole('option', { name: 'rule 1' })).toHaveAttribute(
         'aria-selected',
         'true'

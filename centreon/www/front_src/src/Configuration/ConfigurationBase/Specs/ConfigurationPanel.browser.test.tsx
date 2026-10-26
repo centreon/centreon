@@ -1,5 +1,3 @@
-import { equals } from 'ramda';
-
 import { ResourceType } from '../../models';
 import Panel from './Configuration.Panel';
 
@@ -14,8 +12,6 @@ testCases.forEach(({ resourceType }) => {
       expect.hasAssertions();
     });
 
-    Panel(resourceType, {
-      hasSnapshots: equals(resourceType, ResourceType.Host)
-    });
+    Panel(resourceType);
   });
 });

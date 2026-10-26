@@ -168,9 +168,9 @@ interface Props {
   formPanelWidth?: number;
   panelWidth?: number;
   searchParams?: string;
-  // The screen the page is shown on, for the tests Cypress ran under
-  // `cy.viewport`. The rstest viewport cannot be resized from a test, so the
-  // page is given that size and `window.innerWidth` reports that width.
+  // The screen size the page is laid out for: the page gets that size and
+  // `window.innerWidth` reports its width (the browser viewport is fixed). CSS
+  // media queries still see the real viewport.
   screenSize?: ScreenSize;
 }
 
@@ -213,8 +213,8 @@ const initialize = ({
 
   const store = createStore();
 
-  // Always set: the store is new for each test but localStorage is not, so a
-  // width one test drags to would otherwise open the next one.
+  // Seeds the width the user last dragged the panel to; `null` lets the screen
+  // decide.
   store.set(panelWidthAtom, panelWidth ?? null);
 
   // A client of its own, so no cache leaks from one test to the next.

@@ -38,8 +38,8 @@ export default (resourceType: string): void => {
     it('renders the layout with all components', async () => {
       expect(await screen.findByText(pluralizedResourceType)).toBeVisible();
 
-      // What the screenshot showed: the columns in order, every row of the
-      // response, each toggle reflecting its row, and the pagination.
+      // The columns in order, every row of the response, each toggle reflecting
+      // its row, and the pagination.
       const columnLabels = [
         labelName,
         labelAlias,
@@ -99,8 +99,7 @@ export default (resourceType: string): void => {
 
       expect(advancedFilters).toBeVisible();
 
-      // What the screenshot showed: every declared filter, empty, with nothing
-      // to clear yet.
+      // Every declared filter, empty, with nothing to clear yet.
       const filters = within(advancedFilters);
 
       expect(filters.getAllByTestId(labelName)[1]).toHaveValue('');
