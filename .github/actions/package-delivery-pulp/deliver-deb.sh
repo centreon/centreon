@@ -15,12 +15,32 @@ PULP_DOMAIN="${PULP_DOMAIN:-default}"
 PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
 
 STABLE_ROOT="${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/${STABLE_BASE_PATH:-$BASE_PATH}}"
-# the dists listing is only served on the domain path, not through the legacy front
-STABLE_REPOSITORY_ROOT="$PULP_STABLE_DOMAIN/${STABLE_BASE_PATH:-$BASE_PATH}"
 
-# print a stable repository file (empty output = 404, i.e. not published).
+# per-stability repositories sharing the legacy front's pool, in the order it
+# resolves a pool path (stable -> testing-release -> testing-hotfix -> unstable):
+# the first one publishing a file name serves it to every suite of the family
+FAMILY_STABLE_BASE_PATH="${STABLE_BASE_PATH:-$BASE_PATH}"
+FAMILY_REPOSITORIES=("$FAMILY_STABLE_BASE_PATH")
+if [[ "$FAMILY_STABLE_BASE_PATH" == *stable ]]; then
+  FAMILY_REPOSITORIES+=(
+    "${FAMILY_STABLE_BASE_PATH%stable}testing-release"
+    "${FAMILY_STABLE_BASE_PATH%stable}testing-hotfix"
+    "${FAMILY_STABLE_BASE_PATH%stable}unstable"
+  )
+fi
+# a target outside the front cascade still shares its pool between its suites
+TARGET_RANK=""
+for rank in "${!FAMILY_REPOSITORIES[@]}"; do
+  [[ "${FAMILY_REPOSITORIES[$rank]}" == "$BASE_PATH" ]] && TARGET_RANK=$rank
+done
+if [[ -z "$TARGET_RANK" ]]; then
+  TARGET_RANK=${#FAMILY_REPOSITORIES[@]}
+  FAMILY_REPOSITORIES+=("$BASE_PATH")
+fi
+
+# print a published repository file (empty output = 404, i.e. not published).
 # Fails closed (non-zero) on anything but a clean 404.
-fetch_stable_file() {
+fetch_published_file() {
   local url=$1 out_file http_code
   out_file=$(mktemp)
   http_code=$(content_curl -sSL --retry 3 --retry-delay 5 -o "$out_file" -w '%{http_code}' "$url" 2>/dev/null || echo 000)
@@ -29,104 +49,163 @@ fetch_stable_file() {
     200) cat "$out_file"; rm -f "$out_file" ;;
     *)
       rm -f "$out_file"
-      echo "::error::Cannot read $url (HTTP $http_code) to guard the stable packages; refusing to deliver. Retry once the content endpoint is reachable." >&2
+      echo "::error::Cannot read $url (HTTP $http_code) to guard the published packages; refusing to deliver. Retry once the content endpoint is reachable." >&2
       return 1
       ;;
   esac
 }
 
-# print one "suite package version architecture sha256 filename" line per
-# package the stable repository publishes. The publication lays every suite out
-# in one flat pool (pool/main/<prefix>/<name>/<file>), so a build published in
-# another version's stable suite shares the delivered file's pool path, and the
-# legacy front resolves pool paths stable first.
-load_stable_packages() {
-  local listing listed suites suite root release arches a packages
-  listing=$(fetch_stable_file "$PULP_CONTENT_URL/$STABLE_REPOSITORY_ROOT/dists/") || return 1
-  listed=$(grep -oE 'href="(\./)?[^"/?]+/"' <<< "$listing" | sed -E 's|href="(\./)?([^"/?]+)/"|\2|' | grep -vx '\.\.' || true)
-  # a listing without any link isn't the expected directory index: guarding
-  # the target suite only would let a shared-pool collision through
-  if [[ -n "$listing" ]] && ! grep -q 'href="' <<< "$listing"; then
-    echo "::error::Cannot parse the stable suites from $STABLE_REPOSITORY_ROOT/dists/; refusing to deliver." >&2
-    return 1
-  fi
-  suites=$(printf '%s\n' "$STABLE_SUITE" "$listed" | awk 'NF && !seen[$0]++')
-  for suite in $suites; do
-    root=$STABLE_REPOSITORY_ROOT
-    [[ "$suite" == "$STABLE_SUITE" ]] && root=$STABLE_ROOT
-    release=$(fetch_stable_file "$PULP_CONTENT_URL/$root/dists/$suite/Release") || return 1
-    # no Release yet (fresh suite) -> nothing published
-    [[ -z "$release" ]] && continue
-    # "Architecture: all" packages are listed in every binary-<arch>/Packages
-    # index the suite advertises; there is no binary-all index (404, skipped)
-    arches=$(awk -F': ' '/^Architectures:/ {print $2}' <<< "$release")
-    for a in $arches; do
-      packages=$(fetch_stable_file "$PULP_CONTENT_URL/$root/dists/$suite/main/binary-$a/Packages") || return 1
-      [[ -z "$packages" ]] && continue
-      awk -v s="$suite" '
-        BEGIN { RS = ""; FS = "\n" }
-        {
-          n = v = ar = h = f = ""
-          for (i = 1; i <= NF; i++) {
-            if ($i ~ /^Package: /) n = substr($i, 10)
-            else if ($i ~ /^Version: /) v = substr($i, 10)
-            else if ($i ~ /^Architecture: /) ar = substr($i, 15)
-            else if ($i ~ /^SHA256: /) h = substr($i, 9)
-            else if ($i ~ /^Filename: /) f = substr($i, 11)
+# print one "rank repository suite package version architecture sha256 filename"
+# line per package the family's repositories publish (rank = position in the
+# front cascade). The publication lays every suite out in one flat pool
+# (pool/main/<prefix>/<name>/<file>), so every suite publishing a package
+# version shares one pool path: pulp keeps a single build per (package,
+# version, arch) per repository, and the legacy front serves the first
+# repository's file to the whole family.
+load_published_packages() {
+  local rank repository domain listing listed suites suite root release arches a packages
+  for rank in "${!FAMILY_REPOSITORIES[@]}"; do
+    repository=${FAMILY_REPOSITORIES[$rank]}
+    domain=$PULP_DOMAIN
+    [[ "$rank" -eq 0 ]] && domain=$PULP_STABLE_DOMAIN
+    # the dists listing is only served on the domain path, not through the legacy front
+    listing=$(fetch_published_file "$PULP_CONTENT_URL/$domain/$repository/dists/") || return 1
+    listed=$(grep -oE 'href="(\./)?[^"/?]+/"' <<< "$listing" | sed -E 's|href="(\./)?([^"/?]+)/"|\2|' | grep -vx '\.\.' || true)
+    # a listing without any link isn't the expected directory index: guarding
+    # the target suite only would let a shared-pool collision through
+    if [[ -n "$listing" ]] && ! grep -q 'href="' <<< "$listing"; then
+      echo "::error::Cannot parse the suites from $domain/$repository/dists/; refusing to deliver." >&2
+      return 1
+    fi
+    suites=$listed
+    [[ "$rank" -eq 0 ]] && suites=$(printf '%s\n' "$STABLE_SUITE" "$listed" | awk 'NF && !seen[$0]++')
+    for suite in $suites; do
+      root=$domain/$repository
+      [[ "$rank" -eq 0 && "$suite" == "$STABLE_SUITE" ]] && root=$STABLE_ROOT
+      release=$(fetch_published_file "$PULP_CONTENT_URL/$root/dists/$suite/Release") || return 1
+      # no Release yet (fresh suite) -> nothing published
+      [[ -z "$release" ]] && continue
+      # "Architecture: all" packages are listed in every binary-<arch>/Packages
+      # index the suite advertises; there is no binary-all index (404, skipped)
+      arches=$(awk -F': ' '/^Architectures:/ {print $2}' <<< "$release")
+      for a in $arches; do
+        packages=$(fetch_published_file "$PULP_CONTENT_URL/$root/dists/$suite/main/binary-$a/Packages") || return 1
+        [[ -z "$packages" ]] && continue
+        awk -v r="$rank" -v repo="$repository" -v s="$suite" '
+          BEGIN { RS = ""; FS = "\n" }
+          {
+            n = v = ar = h = f = ""
+            for (i = 1; i <= NF; i++) {
+              if ($i ~ /^Package: /) n = substr($i, 10)
+              else if ($i ~ /^Version: /) v = substr($i, 10)
+              else if ($i ~ /^Architecture: /) ar = substr($i, 15)
+              else if ($i ~ /^SHA256: /) h = substr($i, 9)
+              else if ($i ~ /^Filename: /) f = substr($i, 11)
+            }
+            if (n != "") print r, repo, s, n, v, ar, h, f
           }
-          if (n != "") print s, n, v, ar, h, f
-        }
-      ' <<< "$packages"
+        ' <<< "$packages"
+      done
     done
   done
 }
 
-# the stable repository holds a single build per (package, version, arch) for
-# every suite: when another version's stable suite already publishes this
-# package version, deliver that exact build instead of the local one, so the
-# testing index matches the served file and the promotion can associate it
-# with this version's stable suite too
-adopt_stable_build() {
-  local file=$1 name version arch sha256 entry other_suite stable_sha256 stable_filename tmp_file
+# print a digest of what a deb installs, blind to what a rebuild of unchanged
+# sources changes: mtimes, the description (it embeds the commit) and the owner
+# spelling (root/root or 0/0 depending on the nfpm version)
+deb_fingerprint() {
+  local file=$1 dir
+  dir=$(mktemp -d)
+  if ! {
+    dpkg-deb -e "$file" "$dir/control" &&
+      dpkg-deb -x "$file" "$dir/data" &&
+      awk '/^Description:/ { skip = 1; next } skip && /^[ \t]/ { next } { skip = 0; print }' "$dir/control/control" &&
+      (cd "$dir/control" && find . -type f ! -path ./control -print0 | LC_ALL=C sort -z | xargs -0r sha256sum) &&
+      dpkg-deb -c "$file" | awk '{ split($2, o, "/"); for (i = 1; i <= 2; i++) if (o[i] == "root") o[i] = 0; $2 = o[1] "/" o[2]; $4 = $5 = ""; print }' | LC_ALL=C sort &&
+      (cd "$dir/data" && find . -type f -print0 | LC_ALL=C sort -z | xargs -0r sha256sum)
+  } > "$dir/manifest"; then
+    rm -rf "$dir"
+    return 1
+  fi
+  sha256sum "$dir/manifest" | cut -d' ' -f1
+  rm -rf "$dir"
+}
+
+# when another suite of the family publishes another build of this package
+# version, deliver the build the legacy front serves first instead of the local
+# one if both install the same thing (a rebuild), so every index matches the
+# served file. A build differing in content needs a version bump: testing
+# refuses it where the other build would mask it or be evicted by it; unstable,
+# whose unversioned packages are rebuilt on every push, delivers it with a warning.
+adopt_published_build() {
+  local file=$1 name version arch sha256 entry rank repository suite published_sha256 filename domain tmp_file
+  local local_fingerprint published_fingerprint reason
   name=$(dpkg-deb -f "$file" Package)
   version=$(dpkg-deb -f "$file" Version)
   arch=$(dpkg-deb -f "$file" Architecture)
   sha256=$(sha256sum "$file" | cut -d' ' -f1)
   # already in this version's stable suite: assert_not_in_stable refuses it
-  if awk -v s="$STABLE_SUITE" -v n="$name" -v v="$version" -v a="$arch" \
-       '$1 == s && $2 == n && $3 == v && $4 == a { found = 1 } END { exit found ? 0 : 1 }' "$STABLE_PACKAGES"; then
+  if [[ "${STABILITY:-}" != "unstable" ]] && awk -v s="$STABLE_SUITE" -v n="$name" -v v="$version" -v a="$arch" \
+       '$1 == 0 && $3 == s && $4 == n && $5 == v && $6 == a { found = 1 } END { exit found ? 0 : 1 }' "$PUBLISHED_PACKAGES"; then
     return 0
   fi
-  entry=$(awk -v s="$STABLE_SUITE" -v n="$name" -v v="$version" -v a="$arch" -v h="$sha256" \
-    '$1 != s && $2 == n && $3 == v && $4 == a && $5 != h { print $1, $5, $6; exit }' "$STABLE_PACKAGES")
+  entry=$(awk -v t="$BASE_PATH" -v s="$SUITE" -v n="$name" -v v="$version" -v a="$arch" -v h="$sha256" '
+    !($2 == t && $3 == s) && $4 == n && $5 == v && $6 == a && $7 != h && (best == "" || $1 < best_rank) { best_rank = $1; best = $0 }
+    END { if (best != "") print best }
+  ' "$PUBLISHED_PACKAGES")
   [[ -z "$entry" ]] && return 0
-  read -r other_suite stable_sha256 stable_filename <<< "$entry"
+  read -r rank repository suite _ _ _ published_sha256 filename <<< "$entry"
+  domain=$PULP_DOMAIN
+  [[ "$rank" -eq 0 ]] && domain=$PULP_STABLE_DOMAIN
 
   tmp_file=$(mktemp)
-  if ! content_curl -fsSL --retry 3 --retry-delay 5 -o "$tmp_file" "$PULP_CONTENT_URL/$STABLE_REPOSITORY_ROOT/$stable_filename"; then
+  if ! content_curl -fsSL --retry 3 --retry-delay 5 -o "$tmp_file" "$PULP_CONTENT_URL/$domain/$repository/$filename"; then
     rm -f "$tmp_file"
-    echo "::error::Cannot download the $other_suite build of $name $version ($arch) to deliver it instead of the local one; refusing to deliver."
+    echo "::error::Cannot download the $suite build of $name $version ($arch) to compare it with the local one; refusing to deliver."
     return 1
   fi
-  if [[ "$(sha256sum "$tmp_file" | cut -d' ' -f1)" != "$stable_sha256" \
+  if [[ "$(sha256sum "$tmp_file" | cut -d' ' -f1)" != "$published_sha256" \
      || "$(dpkg-deb -f "$tmp_file" Package)" != "$name" \
      || "$(dpkg-deb -f "$tmp_file" Version)" != "$version" \
      || "$(dpkg-deb -f "$tmp_file" Architecture)" != "$arch" ]]; then
     rm -f "$tmp_file"
-    echo "::error::The downloaded $other_suite build of $name $version ($arch) doesn't match its index entry; refusing to deliver."
+    echo "::error::The downloaded $suite build of $name $version ($arch) doesn't match its index entry; refusing to deliver."
     return 1
   fi
-  mv -f "$tmp_file" "$file"
-  chmod 644 "$file"
-  ADOPTED[$file]=1
-  echo "::warning::$name $version ($arch) is already published in the stable suite $other_suite (sha256 $stable_sha256): delivering that build instead of the local one (sha256 $sha256). Bump the package version to ship a distinct build."
+  if ! local_fingerprint=$(deb_fingerprint "$file") || ! published_fingerprint=$(deb_fingerprint "$tmp_file"); then
+    rm -f "$tmp_file"
+    echo "::error::Cannot compare the content of $name $version ($arch) with its $suite build; refusing to deliver."
+    return 1
+  fi
+
+  if [[ "$local_fingerprint" == "$published_fingerprint" ]]; then
+    mv -f "$tmp_file" "$file"
+    chmod 644 "$file"
+    ADOPTED[$file]=1
+    echo "::notice::$name $version ($arch) is already published in $suite (sha256 $published_sha256) with the same content: delivering that build instead of the local rebuild (sha256 $sha256), both share one pool path."
+    return 0
+  fi
+  rm -f "$tmp_file"
+
+  if ((rank < TARGET_RANK)); then
+    reason="the legacy front serves the $suite build for $SUITE too"
+  elif ((rank == TARGET_RANK)); then
+    reason="it replaces the $suite build in $repository"
+  else
+    reason="the legacy front serves it for $suite too"
+  fi
+  if [[ "${STABILITY:-}" != "unstable" ]] && ((rank <= TARGET_RANK)); then
+    echo "::error::$name $version ($arch) differs in content from the build published in $suite (sha256 $published_sha256) and shares its pool path: $reason. Refusing to deliver it to $SUITE; bump the package version."
+    return 1
+  fi
+  echo "::warning::$name $version ($arch) differs in content from the build published in $suite (sha256 $published_sha256) and shares its pool path: delivering the local build (sha256 $sha256), $reason. Bump the package version."
 }
 
 # refuse delivering a package version already published in the stable suite
 # (pulp dedupes by (package, version, arch) repository-wide, so re-delivering
 # would silently evict the stable one), or another build of a version published
 # in any other stable suite (same pool path, the stable file would be served;
-# adopt_stable_build normally replaced it beforehand). The release_components
+# adopt_published_build normally replaced it beforehand). The release_components
 # api isn't listable by the OIDC ci-user (403), so this reads the served
 # Packages indexes loaded into STABLE_PACKAGES.
 assert_not_in_stable() {
@@ -171,17 +250,18 @@ fi
 
 REPOSITORY_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.pulp_href')
 
-# loaded once, read by every assert_not_in_stable (parallel uploads included);
-# adoptions happen before anything reads the local files' checksums
+# loaded once, read by every adopt_published_build and assert_not_in_stable
+# (parallel uploads included); adoptions happen before anything reads the local
+# files' checksums
+PUBLISHED_PACKAGES=$(mktemp)
 STABLE_PACKAGES=$(mktemp)
 declare -A ADOPTED=()
-if [[ "${STABILITY:-}" != "unstable" ]]; then
-  refresh_pulp_token
-  load_stable_packages > "$STABLE_PACKAGES"
-  for FILE in "${FILES[@]}"; do
-    adopt_stable_build "$FILE"
-  done
-fi
+refresh_pulp_token
+load_published_packages > "$PUBLISHED_PACKAGES"
+awk '$1 == 0 { print $3, $4, $5, $6, $7, $8 }' "$PUBLISHED_PACKAGES" > "$STABLE_PACKAGES"
+for FILE in "${FILES[@]}"; do
+  adopt_published_build "$FILE"
+done
 
 # record every delivered package in the manifest for the verification step,
 # publish, and write the manifest
@@ -214,10 +294,10 @@ DELIVER_FILES=("${FILES[@]}")
 if ((${#ADOPTED[@]} > 0)); then
   TARGET_ROOT="${LEGACY_BASE_PATH:-$PULP_DOMAIN/$BASE_PATH}"
   TARGET_SHA256S=""
-  TARGET_RELEASE=$(fetch_stable_file "$PULP_CONTENT_URL/$TARGET_ROOT/dists/$SUITE/Release")
+  TARGET_RELEASE=$(fetch_published_file "$PULP_CONTENT_URL/$TARGET_ROOT/dists/$SUITE/Release")
   read -ra TARGET_ARCHES <<< "$(awk -F': ' '/^Architectures:/ {print $2}' <<< "$TARGET_RELEASE")"
   for a in "${TARGET_ARCHES[@]}"; do
-    TARGET_SHA256S+=$(fetch_stable_file "$PULP_CONTENT_URL/$TARGET_ROOT/dists/$SUITE/main/binary-$a/Packages" | awk -F': ' '/^SHA256:/ {print $2}')
+    TARGET_SHA256S+=$(fetch_published_file "$PULP_CONTENT_URL/$TARGET_ROOT/dists/$SUITE/main/binary-$a/Packages" | awk -F': ' '/^SHA256:/ {print $2}')
     TARGET_SHA256S+=$'\n'
   done
   DELIVER_FILES=()
