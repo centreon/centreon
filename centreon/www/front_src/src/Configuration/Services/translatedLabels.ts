@@ -130,3 +130,11 @@ export const labelFillAllArgumentsOrNone =
 // Wording to confirm with UX: no legacy string says it.
 export const labelArgumentsForbiddenTokens =
   'Arguments must not contain #BR#, #T# or #R#';
+// MON-213088: mass change. Update mode, Incremental and Replacement are the
+// Hosts wording; Removal and the warning wait for UX.
+export const labelUpdateMode = 'Update mode';
+export const labelIncremental = 'Incremental';
+export const labelReplacement = 'Replacement';
+export const labelRemoval = 'Removal';
+export const labelReplacementOverwritesLists =
+  'The lists set to Replacement will overwrite those of every selected service, and empty them when left blank.';

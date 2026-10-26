@@ -163,6 +163,10 @@ export interface APIType {
   apiFormat?: 'Standard' | 'JSON-LD';
   methods?: {
     update?: Method;
+    // The mass change's own write, when it differs from the edit's: a module
+    // whose edit replaces the record still patches it from a selection.
+    // Falls back to `update`.
+    massUpdate?: Method;
     enable?: Method;
     disable?: Method;
   };

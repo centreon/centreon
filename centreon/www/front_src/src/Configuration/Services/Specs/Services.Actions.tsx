@@ -7,7 +7,8 @@ import {
   labelDelete,
   labelDisable,
   labelDuplicate,
-  labelEnable
+  labelEnable,
+  labelMassChange
 } from '../../ConfigurationBase/translatedLabels';
 import initialize from './initialize';
 
@@ -102,7 +103,14 @@ export default () => {
         within(menu)
           .getAllByRole('menuitem')
           .map((entry) => entry.textContent)
-      ).toEqual([labelDuplicate, labelEnable, labelDisable, labelDelete]);
+      ).toEqual([
+        labelDuplicate,
+        labelEnable,
+        labelDisable,
+        labelDelete,
+        // MON-213088
+        labelMassChange
+      ]);
     });
 
     it('deletes every selected service, one request each', async () => {

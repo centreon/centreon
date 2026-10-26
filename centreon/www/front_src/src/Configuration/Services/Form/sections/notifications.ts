@@ -7,7 +7,7 @@ import {
 import type { FormikValues } from 'formik';
 import { path } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
-import { boolean, number, object } from 'yup';
+import { mixed, number, object } from 'yup';
 
 // Pure helpers of the Hosts form, imported rather than copied: the selectors
 // answer in the same Hydra shape and the Yes / No / Default values are the
@@ -33,6 +33,7 @@ import {
   labelLinkedContactGroups,
   labelLinkedContacts,
   labelMustBePositiveIntegerOrZero,
+  labelNo,
   labelNone,
   labelNotificationEnabled,
   labelNotificationInterval,
@@ -42,8 +43,10 @@ import {
   labelRecovery,
   labelRecoveryNotificationDelay,
   labelUnknown,
-  labelWarning
+  labelWarning,
+  labelYes
 } from '../../translatedLabels';
+import { getUpdateModeInput, withUpdateMode } from '../updateMode';
 import type { FormSection } from './models';
 
 // Placeholders until the backend exposes the service form selectors
@@ -57,9 +60,21 @@ export const serviceFormTimePeriodsEndpoint =
 // A number field holds `''` until something is typed.
 type OptionalNumber = number | '';
 
+// A switch in the form; Yes or No in a mass change, unpicked (`null`) until
+// the user says, since a switch has no "unchanged".
+type MassChangeBoolean = boolean | 'true' | 'false' | null;
+
+const toApiBoolean = (value: MassChangeBoolean): boolean | null =>
+  value === 'true' || value === 'false' ? value === 'true' : value;
+
+const massChangeBooleanOptions = [
+  { label: labelYes, value: 'true' },
+  { label: labelNo, value: 'false' }
+];
+
 interface NotificationsValues {
-  contactAdditiveInheritance: boolean;
-  contactGroupAdditiveInheritance: boolean;
+  contactAdditiveInheritance: MassChangeBoolean;
+  contactGroupAdditiveInheritance: MassChangeBoolean;
   contactGroups: Array<NamedEntity>;
   contacts: Array<NamedEntity>;
   enabled: TriState;
@@ -70,7 +85,7 @@ interface NotificationsValues {
   recoveryDelay: OptionalNumber;
   timeperiod: NamedEntity | null;
   // F16: the service notifies its host's contacts and contact groups only.
-  useOnlyContactsFromHost: boolean;
+  useOnlyContactsFromHost: MassChangeBoolean;
 }
 
 // Optional: the section, and so its fields, does not exist on cloud.
@@ -109,7 +124,7 @@ const optionalNumberDecoder = JsonDecoder.optional(
 ).map((value): OptionalNumber => value ?? '');
 
 const optionalBooleanDecoder = JsonDecoder.optional(JsonDecoder.boolean).map(
-  (value) => value ?? false
+  (value): MassChangeBoolean => value ?? false
 );
 
 const optionalEntitiesDecoder = (name: string) =>
@@ -170,7 +185,9 @@ const getDelaySchema = (message: string) =>
     .min(0, message);
 
 const isUsingOnlyContactsFromHost = (values: FormikValues): boolean =>
-  !!path(['notifications', 'useOnlyContactsFromHost'], values);
+  !!toApiBoolean(
+    path(['notifications', 'useOnlyContactsFromHost'], values) ?? null
+  );
 
 const getNumberInput = ({
   fieldName,
@@ -194,7 +211,7 @@ export const notifications: FormSection<NotificationsDetail> = {
       JsonDecoder.nullable(notificationsDecoder)
     ).map((value) => value ?? defaultNotifications)
   },
-  getInputs: ({ t, isAdditiveInheritanceEnabled }) => {
+  getInputs: ({ t, isAdditiveInheritanceEnabled, isMassChange }) => {
     const enabled = {
       dataTestId: 'service-form-notifications-enabled',
       fieldName: 'notifications.enabled',
@@ -205,24 +222,40 @@ export const notifications: FormSection<NotificationsDetail> = {
 
     // Yes empties the service's own recipients, as legacy does in JS; the
     // server clears them too (D9).
-    const useOnlyContactsFromHost: InputPropsWithoutGroup = {
-      change: ({ setFieldValue, value }) => {
-        setFieldValue('notifications.useOnlyContactsFromHost', value);
-
-        if (!value) {
-          return;
-        }
-
-        setFieldValue('notifications.contacts', []);
-        setFieldValue('notifications.contactGroups', []);
-        setFieldValue('notifications.contactAdditiveInheritance', false);
-        setFieldValue('notifications.contactGroupAdditiveInheritance', false);
-      },
+    const useOnlyContactsFromHostField = {
       dataTestId: 'service-form-notifications-use-only-contacts-from-host',
       fieldName: 'notifications.useOnlyContactsFromHost',
-      label: t(labelInheritContactsFromHost),
-      type: InputType.Switch
+      label: t(labelInheritContactsFromHost)
     };
+
+    // In a mass change, Yes leaves each service's own recipients to the
+    // server, which clears them (D9): emptying the lists here would only mean
+    // "add nothing".
+    const useOnlyContactsFromHost: InputPropsWithoutGroup = isMassChange
+      ? {
+          ...useOnlyContactsFromHostField,
+          segmentedButtons: { options: massChangeBooleanOptions },
+          type: InputType.SegmentedButtons
+        }
+      : {
+          ...useOnlyContactsFromHostField,
+          change: ({ setFieldValue, value }) => {
+            setFieldValue('notifications.useOnlyContactsFromHost', value);
+
+            if (!value) {
+              return;
+            }
+
+            setFieldValue('notifications.contacts', []);
+            setFieldValue('notifications.contactGroups', []);
+            setFieldValue('notifications.contactAdditiveInheritance', false);
+            setFieldValue(
+              'notifications.contactGroupAdditiveInheritance',
+              false
+            );
+          },
+          type: InputType.Switch
+        };
 
     const contacts = {
       connectedAutocomplete: buildSelector({
@@ -266,11 +299,18 @@ export const notifications: FormSection<NotificationsDetail> = {
               className: 'grid-cols-[1fr_auto]',
               columns: [
                 selector,
-                {
-                  ...toggle,
-                  getDisabled: isUsingOnlyContactsFromHost,
-                  type: InputType.Switch
-                }
+                isMassChange
+                  ? {
+                      ...toggle,
+                      getDisabled: isUsingOnlyContactsFromHost,
+                      segmentedButtons: { options: massChangeBooleanOptions },
+                      type: InputType.SegmentedButtons
+                    }
+                  : {
+                      ...toggle,
+                      getDisabled: isUsingOnlyContactsFromHost,
+                      type: InputType.Switch
+                    }
               ]
             },
             label: `${selector.dataTestId}-row`,
@@ -357,7 +397,9 @@ export const notifications: FormSection<NotificationsDetail> = {
                       'service-form-notifications-contact-group-additive-inheritance',
                     fieldName: 'notifications.contactGroupAdditiveInheritance',
                     label: t(labelContactGroupAdditiveInheritance)
-                  })
+                  }),
+                  // One choice for contacts and contact groups, as on Hosts.
+                  ...(isMassChange ? [getUpdateModeInput('contacts', t)] : [])
                 ]
               },
               label: 'service-form-notifications-recipients',
@@ -367,7 +409,15 @@ export const notifications: FormSection<NotificationsDetail> = {
               fieldName: 'notifications-when',
               grid: {
                 className: 'grid-cols-1',
-                columns: [options, delays]
+                columns: [
+                  withUpdateMode({
+                    field: 'notificationOptions',
+                    input: options,
+                    isMassChange,
+                    t
+                  }),
+                  delays
+                ]
               },
               label: 'service-form-notifications-when',
               type: InputType.Grid
@@ -384,7 +434,8 @@ export const notifications: FormSection<NotificationsDetail> = {
       firstDelay: getDelaySchema(t(labelMustBePositiveIntegerOrZero)),
       interval: getDelaySchema(t(labelMustBePositiveIntegerOrZero)),
       recoveryDelay: getDelaySchema(t(labelMustBePositiveIntegerOrZero)),
-      useOnlyContactsFromHost: boolean()
+      // `'true'` or `'false'` in a mass change, or `null` while unpicked.
+      useOnlyContactsFromHost: mixed().nullable()
     })
   }),
   // The tab does not exist on cloud, where notifications keep their defaults.
@@ -393,19 +444,21 @@ export const notifications: FormSection<NotificationsDetail> = {
   toPayload: (values, { isAdditiveInheritanceEnabled }) => {
     const notificationsValues = (values.notifications ??
       defaultNotifications) as NotificationsValues;
-    const { useOnlyContactsFromHost } = notificationsValues;
+    const useOnlyContactsFromHost = toApiBoolean(
+      notificationsValues.useOnlyContactsFromHost
+    );
 
     return {
       notifications: {
         // Left to their server default where the form does not show them,
         // and off when the host's recipients replace the service's own.
         ...(isAdditiveInheritanceEnabled && {
-          contact_additive_inheritance:
-            !useOnlyContactsFromHost &&
-            notificationsValues.contactAdditiveInheritance,
-          contact_group_additive_inheritance:
-            !useOnlyContactsFromHost &&
-            notificationsValues.contactGroupAdditiveInheritance
+          contact_additive_inheritance: useOnlyContactsFromHost
+            ? false
+            : toApiBoolean(notificationsValues.contactAdditiveInheritance),
+          contact_group_additive_inheritance: useOnlyContactsFromHost
+            ? false
+            : toApiBoolean(notificationsValues.contactGroupAdditiveInheritance)
         }),
         contact_groups: useOnlyContactsFromHost
           ? []

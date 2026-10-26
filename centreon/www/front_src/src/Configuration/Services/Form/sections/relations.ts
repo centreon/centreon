@@ -14,6 +14,7 @@ import {
   labelServiceGroups,
   labelServiceTraps
 } from '../../translatedLabels';
+import { withUpdateMode } from '../updateMode';
 import type { FormSection, SectionContext } from './models';
 
 // Placeholders until the backend exposes them, on the model of the hosts'
@@ -88,35 +89,46 @@ const toIds = (entities: Array<{ id: number }> | null | undefined) =>
 
 const getRelationInputs = ({
   t,
-  isCloudPlatform
+  isCloudPlatform,
+  isMassChange
 }: SectionContext): Array<InputPropsWithoutGroup> => [
-  {
-    connectedAutocomplete: buildSelector({
-      endpoint: serviceFormServiceGroupsEndpoint,
-      entityDecoder: namedEntityDecoder,
-      queryKey: 'service-form-service-groups'
-    }),
-    dataTestId: 'service-form-service-groups',
-    fieldName: 'serviceGroups',
-    // Unlike the host groups of a host, optional on cloud too.
-    label: t(labelServiceGroups),
-    type: InputType.MultiConnectedAutocomplete
-  },
+  withUpdateMode({
+    field: 'serviceGroups',
+    input: {
+      connectedAutocomplete: buildSelector({
+        endpoint: serviceFormServiceGroupsEndpoint,
+        entityDecoder: namedEntityDecoder,
+        queryKey: 'service-form-service-groups'
+      }),
+      dataTestId: 'service-form-service-groups',
+      fieldName: 'serviceGroups',
+      // Unlike the host groups of a host, optional on cloud too.
+      label: t(labelServiceGroups),
+      type: InputType.MultiConnectedAutocomplete
+    },
+    isMassChange,
+    t
+  }),
   // Traps are an on-premise feature: the cloud API refuses them.
   ...(isCloudPlatform
     ? []
     : [
-        {
-          connectedAutocomplete: buildSelector({
-            endpoint: serviceFormTrapsEndpoint,
-            entityDecoder: trapDecoder,
-            queryKey: 'service-form-traps'
-          }),
-          dataTestId: 'service-form-traps',
-          fieldName: 'traps',
-          label: t(labelServiceTraps),
-          type: InputType.MultiConnectedAutocomplete
-        }
+        withUpdateMode({
+          field: 'traps',
+          input: {
+            connectedAutocomplete: buildSelector({
+              endpoint: serviceFormTrapsEndpoint,
+              entityDecoder: trapDecoder,
+              queryKey: 'service-form-traps'
+            }),
+            dataTestId: 'service-form-traps',
+            fieldName: 'traps',
+            label: t(labelServiceTraps),
+            type: InputType.MultiConnectedAutocomplete
+          },
+          isMassChange,
+          t
+        })
       ])
 ];
 
