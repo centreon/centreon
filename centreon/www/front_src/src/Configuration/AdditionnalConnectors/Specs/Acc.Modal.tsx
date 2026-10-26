@@ -1,3 +1,6 @@
+import { waitForRequest } from '@test-setup/api';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { equals, keys } from 'ramda';
 
 import { ParameterKeys } from '../models';
@@ -47,658 +50,838 @@ const vcenters = [
   }
 ];
 
-const clickOutideTheField = () => cy.findByTestId('Modal-header').click();
+const clickOutideTheField = async (): Promise<void> => {
+  await userEvent.click(screen.getByTestId('Modal-header'));
+};
+
+const openCreationModal = async (): Promise<void> => {
+  await waitForRequest('@getConnectors');
+  await userEvent.click(await screen.findByTestId('add-resource'));
+};
+
+const openEditionModal = async (): Promise<void> => {
+  await waitForRequest('@getConnectors');
+  await userEvent.click(await screen.findByText('VMWare1'));
+};
+
+// The text field and its input share the test id: the input.
+const getNameInput = async (): Promise<HTMLInputElement> =>
+  (await screen.findAllByTestId(labelName)).find(
+    (element) => element.tagName === 'INPUT'
+  ) as HTMLInputElement;
+
+const getParameterInputs = (parameter: string): Array<HTMLInputElement> =>
+  Array.from(
+    document.querySelectorAll<HTMLInputElement>(
+      `input[data-testid="${parameter}_value"]`
+    )
+  );
+
+const getPortInput = (): HTMLInputElement =>
+  document.querySelector('input[name="port"]') as HTMLInputElement;
+
+const getSubmitButton = (): HTMLButtonElement =>
+  document.querySelector('button[data-testid="submit"]') as HTMLButtonElement;
+
+const getCancelButton = (): HTMLButtonElement =>
+  document.querySelector('button[data-testid="cancel"]') as HTMLButtonElement;
+
+const scrollModalToBottom = (): void => {
+  const body = screen.getByTestId('modal-body');
+
+  body.scrollTop = body.scrollHeight;
+};
+
+// What the validation snapshots showed: the message is under that field, and
+// marks it as invalid.
+const expectErrorOn = async (
+  input: HTMLElement,
+  message: string
+): Promise<void> => {
+  const field = input.closest('.MuiFormControl-root') as HTMLElement;
+
+  expect(await within(field).findByText(message)).toBeVisible();
+  expect(input).toHaveAttribute('aria-invalid', 'true');
+};
+
+const closeModal = async (): Promise<void> => {
+  await userEvent.click(screen.getAllByLabelText('close')[0]);
+};
+
+const fillMandatoryFields = async (): Promise<void> => {
+  await userEvent.type(await getNameInput(), 'New name');
+
+  await userEvent.click(screen.getByTestId(labelSelectPollers));
+
+  await userEvent.click(await screen.findByText('poller1'));
+
+  await userEvent.click(screen.getByTestId(labelSelectPollers));
+
+  const [url] = getParameterInputs('URL');
+
+  await userEvent.clear(url);
+  await userEvent.type(url, 'http://10.10.10.10/sdk');
+
+  await userEvent.type(getParameterInputs('Username')[0], 'username');
+  await userEvent.type(getParameterInputs('Password')[0], 'password');
+};
 
 export default (): void => {
   describe('Modal', () => {
-    beforeEach(initialize);
+    beforeEach(() => {
+      initialize();
+    });
 
-    it('displays form fields with default values when the Modal is opened in Creation Mode', () => {
-      cy.waitForRequest('@getConnectors');
+    it('displays form fields with default values when the Modal is opened in Creation Mode', async () => {
+      await openCreationModal();
 
-      cy.get(`[data-testid="add-resource"]`).click();
+      expect(
+        await screen.findByText(labelAddAnAdditionalConfiguration)
+      ).toBeVisible();
 
-      cy.findByText(labelAddAnAdditionalConfiguration).should('be.visible');
+      const nameInput = await getNameInput();
 
-      cy.findAllByTestId(labelName)
-        .eq(1)
-        .should('be.visible')
-        .should('have.value', '');
+      expect(nameInput).toBeVisible();
+      expect(nameInput).toHaveValue('');
 
-      cy.findByLabelText(labelDescription)
-        .should('be.visible')
-        .should('have.value', '');
+      expect(screen.getByLabelText(labelDescription)).toBeVisible();
+      expect(screen.getByLabelText(labelDescription)).toHaveValue('');
 
-      cy.findByTestId(labelType)
-        .parent()
-        .children()
-        .first()
-        .should('be.visible')
-        .should('have.text', 'VMWare 6/7');
+      const type = screen.getByTestId(labelType).parentElement
+        ?.firstElementChild as HTMLElement;
 
-      cy.findByTestId(labelSelectPollers).should('be.visible');
+      expect(type).toBeVisible();
+      expect(type).toHaveTextContent(/^VMWare 6\/7$/);
 
-      cy.findByText(labelvCenterESX).should('be.visible');
-      cy.findAllByTestId('parameterGroup').should('have.length', 1);
+      expect(screen.getByTestId(labelSelectPollers)).toBeVisible();
+
+      expect(screen.getByText(labelvCenterESX)).toBeVisible();
+      expect(screen.getAllByTestId('parameterGroup')).toHaveLength(1);
 
       keys(defaultParameters).forEach((parameter) => {
-        cy.get(`input[data-testid="${parameter}_value"`)
-          .should('be.visible')
-          .should('have.value', defaultParameters[parameter])
-          .should('not.be.disabled');
+        const [input] = getParameterInputs(parameter);
+
+        expect(input).toBeVisible();
+        expect(input).toHaveValue(defaultParameters[parameter]);
+        expect(input).toBeEnabled();
       });
 
-      cy.findByText(labelAddvCenterESX)
-        .should('be.visible')
-        .should('not.be.disabled');
+      expect(screen.getByText(labelAddvCenterESX)).toBeVisible();
+      expect(screen.getByLabelText(labelAddvCenterESX)).toBeEnabled();
 
-      cy.get('input[name="port"]')
-        .scrollIntoView()
-        .should('be.visible')
-        .should('have.value', 5700)
-        .should('not.be.disabled');
+      getPortInput().scrollIntoView();
+      expect(getPortInput()).toBeVisible();
+      expect(getPortInput()).toHaveValue(5700);
+      expect(getPortInput()).toBeEnabled();
 
-      cy.get(`button[data-testid="cancel"`)
-        .should('have.text', labelCancel)
-        .should('not.be.disabled');
+      expect(getCancelButton()).toHaveTextContent(
+        new RegExp(`^${labelCancel}$`)
+      );
+      expect(getCancelButton()).toBeEnabled();
 
-      cy.get(`button[data-testid="submit"`)
-        .should('have.text', labelSave)
-        .should('be.disabled');
+      expect(getSubmitButton()).toHaveTextContent(new RegExp(`^${labelSave}$`));
+      expect(getSubmitButton()).toBeDisabled();
 
-      cy.findByLabelText('close').click();
+      await closeModal();
     });
-    it('displays form fields with the selected ACC values when the Modal is opened in Edition Mode', () => {
-      cy.waitForRequest('@getConnectors');
+    it('displays form fields with the selected ACC values when the Modal is opened in Edition Mode', async () => {
+      await openEditionModal();
 
-      cy.contains('VMWare1').click();
+      expect(
+        await screen.findByText(labelModifyConnectorConfiguration)
+      ).toBeVisible();
 
-      cy.findByText(labelModifyConnectorConfiguration).should('be.visible');
+      const nameInput = await getNameInput();
 
-      cy.findAllByTestId(labelName)
-        .eq(1)
-        .should('be.visible')
-        .should('have.value', 'VMWare1');
+      await waitFor(() => expect(nameInput).toHaveValue('VMWare1'));
+      expect(nameInput).toBeVisible();
 
-      cy.findByLabelText(labelDescription)
-        .should('be.visible')
-        .should('have.value', 'Description for VMWare1');
+      expect(screen.getByLabelText(labelDescription)).toBeVisible();
+      expect(screen.getByLabelText(labelDescription)).toHaveValue(
+        'Description for VMWare1'
+      );
 
-      cy.findByTestId(labelType)
-        .parent()
-        .children()
-        .first()
-        .should('be.visible')
-        .should('have.text', 'VMWare 6/7');
+      const type = screen.getByTestId(labelType).parentElement
+        ?.firstElementChild as HTMLElement;
 
-      cy.findByText('Poller1').should('be.visible');
-      cy.findByText('Poller2').should('be.visible');
+      expect(type).toBeVisible();
+      expect(type).toHaveTextContent(/^VMWare 6\/7$/);
 
-      cy.matchImageSnapshot();
+      expect(await screen.findByText('Poller1')).toBeVisible();
+      expect(screen.getByText('Poller2')).toBeVisible();
 
-      cy.findByTestId('modal-body').scrollTo('bottom');
+      scrollModalToBottom();
 
-      cy.findByText(labelvCenterESX).should('be.visible');
-      cy.findAllByTestId('parameterGroup').should('have.length', 2);
+      expect(screen.getByText(labelvCenterESX)).toBeVisible();
+      expect(screen.getAllByTestId('parameterGroup')).toHaveLength(2);
 
       vcenters.forEach((vcenter, index) => {
         keys(vcenter).forEach((parameter) => {
+          const input = getParameterInputs(parameter)[index];
+
+          expect(input).toBeVisible();
+
           if (equals(parameter, 'Password')) {
-            cy.get(`input[data-testid="${parameter}_value"`)
-              .eq(index)
-              .should('be.visible')
-              .should('have.value', maskedPassword)
-              .should('be.disabled');
+            expect(input).toHaveValue(maskedPassword);
+            expect(input).toBeDisabled();
           } else {
-            cy.get(`input[data-testid="${parameter}_value"`)
-              .eq(index)
-              .should('be.visible')
-              .should('have.value', vcenter[parameter])
-              .should('not.be.disabled');
+            expect(input).toHaveValue(vcenter[parameter]);
+            expect(input).toBeEnabled();
           }
         });
       });
 
-      cy.findByText(labelAddvCenterESX)
-        .should('be.visible')
-        .should('not.be.disabled');
+      // What the snapshot showed: each of the two vCenters can be removed.
+      expect(screen.getAllByTestId(labelRemoveVCenterESX)).toHaveLength(2);
 
-      cy.get('input[name="port"]')
-        .scrollIntoView()
-        .should('be.visible')
-        .should('have.value', 443)
-        .should('not.be.disabled');
+      expect(screen.getByText(labelAddvCenterESX)).toBeVisible();
+      expect(screen.getByLabelText(labelAddvCenterESX)).toBeEnabled();
 
-      cy.get(`button[data-testid="cancel"`)
-        .should('have.text', labelCancel)
-        .should('not.be.disabled');
+      getPortInput().scrollIntoView();
+      expect(getPortInput()).toBeVisible();
+      expect(getPortInput()).toHaveValue(443);
+      expect(getPortInput()).toBeEnabled();
 
-      cy.get(`button[data-testid="submit"`)
-        .should('have.text', labelSave)
-        .should('be.disabled');
+      expect(getCancelButton()).toHaveTextContent(
+        new RegExp(`^${labelCancel}$`)
+      );
+      expect(getCancelButton()).toBeEnabled();
 
-      cy.findByLabelText('close').click();
+      expect(getSubmitButton()).toHaveTextContent(new RegExp(`^${labelSave}$`));
+      expect(getSubmitButton()).toBeDisabled();
+
+      await closeModal();
     });
 
-    it('disables the save button when no change has been made to the modal form', () => {
-      cy.waitForRequest('@getConnectors');
+    it('disables the save button when no change has been made to the modal form', async () => {
+      await openEditionModal();
 
-      cy.contains('VMWare1').click();
+      expect(
+        await screen.findByText(labelModifyConnectorConfiguration)
+      ).toBeVisible();
 
-      cy.findByText(labelModifyConnectorConfiguration).should('be.visible');
+      // The connector is loaded.
+      await waitFor(async () =>
+        expect(await getNameInput()).toHaveValue('VMWare1')
+      );
 
-      cy.findByTestId('modal-body').scrollTo('bottom');
+      scrollModalToBottom();
 
-      cy.get(`button[data-testid="submit"`)
-        .should('have.text', labelSave)
-        .should('be.disabled');
+      expect(getSubmitButton()).toHaveTextContent(new RegExp(`^${labelSave}$`));
+      expect(getSubmitButton()).toBeDisabled();
 
-      cy.matchImageSnapshot();
+      // What the snapshot showed: the form can still be cancelled.
+      expect(getCancelButton()).toBeEnabled();
 
-      cy.findByLabelText('close').click();
+      await closeModal();
     });
-    it('disables the save button when there is error(s) in the form', () => {
-      cy.waitForRequest('@getConnectors');
+    it('disables the save button when there is error(s) in the form', async () => {
+      await openEditionModal();
 
-      cy.contains('VMWare1').click();
+      expect(
+        await screen.findByText(labelModifyConnectorConfiguration)
+      ).toBeVisible();
 
-      cy.findByText(labelModifyConnectorConfiguration).should('be.visible');
+      const nameInput = await getNameInput();
 
-      cy.findAllByTestId(labelName).eq(1).clear();
+      await waitFor(() => expect(nameInput).toHaveValue('VMWare1'));
+      await userEvent.clear(nameInput);
 
-      cy.findByTestId('modal-body').scrollTo('bottom');
+      scrollModalToBottom();
 
-      cy.get(`button[data-testid="submit"`)
-        .should('have.text', labelSave)
-        .should('be.disabled');
+      expect(getSubmitButton()).toHaveTextContent(new RegExp(`^${labelSave}$`));
+      expect(getSubmitButton()).toBeDisabled();
 
-      cy.findByLabelText('close').click();
-      cy.contains('Leave').click();
+      await closeModal();
+      await userEvent.click(await screen.findByText('Leave'));
     });
-    it('enables the create button when all mandatory fields are filled', () => {
-      cy.waitForRequest('@getConnectors');
+    it('enables the create button when all mandatory fields are filled', async () => {
+      await openCreationModal();
 
-      cy.get(`[data-testid="add-resource"]`).click();
+      expect(
+        await screen.findByText(labelAddAnAdditionalConfiguration)
+      ).toBeVisible();
 
-      cy.findByText(labelAddAnAdditionalConfiguration).should('be.visible');
+      expect(getSubmitButton()).toHaveTextContent(new RegExp(`^${labelSave}$`));
+      expect(getSubmitButton()).toBeDisabled();
 
-      cy.get(`button[data-testid="submit"`)
-        .should('have.text', labelSave)
-        .should('be.disabled');
+      await fillMandatoryFields();
 
-      cy.findAllByTestId(labelName).eq(1).type('New name');
+      expect(getSubmitButton()).toHaveTextContent(new RegExp(`^${labelSave}$`));
+      await waitFor(() => expect(getSubmitButton()).toBeEnabled());
 
-      cy.findByTestId(labelSelectPollers).click();
+      // What the snapshot showed: the selected poller, and the password
+      // typed in a masked field.
+      expect(
+        within(
+          screen.getByTestId(labelSelectPollers).parentElement as HTMLElement
+        ).getByText('poller1')
+      ).toBeVisible();
+      expect(getParameterInputs('Password')[0]).toHaveAttribute(
+        'type',
+        'password'
+      );
 
-      cy.contains('poller1').click();
-
-      cy.findByTestId(labelSelectPollers).click();
-
-      cy.get(`input[data-testid="URL_value"`)
-        .clear()
-        .type('http://10.10.10.10/sdk');
-
-      cy.get(`input[data-testid="Username_value"`).type('username');
-      cy.get(`input[data-testid="Password_value"`).type('password');
-
-      cy.get(`button[data-testid="submit"`)
-        .should('have.text', labelSave)
-        .should('not.be.disabled');
-
-      cy.matchImageSnapshot();
-
-      cy.findByLabelText('close').click();
-      cy.findByLabelText('Discard').click();
-    });
-
-    it('hides Delete Parameter Group buttons when there is only one parameter group', () => {
-      cy.waitForRequest('@getConnectors');
-
-      cy.get(`[data-testid="add-resource"]`).click();
-      cy.findByTestId(labelRemoveVCenterESX).should('not.exist');
-
-      cy.findByLabelText('close').click();
+      await closeModal();
+      await userEvent.click(await screen.findByLabelText('Discard'));
     });
 
-    it(`adds a new parameter group when "Add vCenter ESX" button is clicked`, () => {
-      cy.waitForRequest('@getConnectors');
+    it('hides Delete Parameter Group buttons when there is only one parameter group', async () => {
+      await openCreationModal();
 
-      cy.get(`[data-testid="add-resource"]`).click();
+      // The form is displayed, with its single group.
+      expect(await screen.findAllByTestId('parameterGroup')).toHaveLength(1);
+      expect(
+        screen.queryByTestId(labelRemoveVCenterESX)
+      ).not.toBeInTheDocument();
 
-      cy.findAllByTestId('parameterGroup').should('have.length', 1);
-
-      cy.findByText(labelAddvCenterESX).click();
-
-      cy.findByTestId('modal-body').scrollTo('bottom');
-
-      cy.findAllByTestId('parameterGroup').should('have.length', 2);
-
-      cy.matchImageSnapshot();
-
-      cy.findByLabelText('close').click();
-      cy.findByLabelText('Leave').click();
+      await closeModal();
     });
-    it(`removes a parameter group when the ${labelRemoveVCenterESX} button is clicked`, () => {
-      cy.waitForRequest('@getConnectors');
 
-      cy.get(`[data-testid="add-resource"]`).click();
+    it(`adds a new parameter group when "Add vCenter ESX" button is clicked`, async () => {
+      await openCreationModal();
 
-      cy.findByText(labelAddvCenterESX).click();
+      expect(await screen.findAllByTestId('parameterGroup')).toHaveLength(1);
 
-      cy.findByTestId('modal-body').scrollTo('bottom');
+      await userEvent.click(screen.getByText(labelAddvCenterESX));
 
-      cy.findAllByTestId(labelRemoveVCenterESX).should('have.length', 2);
+      scrollModalToBottom();
 
-      cy.findAllByTestId('parameterGroup').should('have.length', 2);
+      await waitFor(() =>
+        expect(screen.getAllByTestId('parameterGroup')).toHaveLength(2)
+      );
 
-      cy.findAllByTestId(labelRemoveVCenterESX).first().click();
+      // What the snapshot showed: the new group comes with its own default
+      // name, the default URL and no credentials; each group can be removed.
+      expect(getParameterInputs('vCenter name')[1]).toHaveValue('my_vcenter_1');
+      expect(getParameterInputs('URL')[1]).toHaveValue(
+        'https://<ip_hostname>/sdk'
+      );
+      expect(getParameterInputs('Username')[1]).toHaveValue('');
+      expect(getParameterInputs('Password')[1]).toHaveValue('');
+      expect(screen.getAllByTestId(labelRemoveVCenterESX)).toHaveLength(2);
+      expect(getSubmitButton()).toBeDisabled();
 
-      cy.findAllByTestId('parameterGroup').should('have.length', 1);
+      await closeModal();
+      await userEvent.click(await screen.findByLabelText('Leave'));
+    });
+    it(`removes a parameter group when the ${labelRemoveVCenterESX} button is clicked`, async () => {
+      await openCreationModal();
 
-      cy.findByLabelText('close').click();
-      cy.findByLabelText('Leave').click();
+      await userEvent.click(await screen.findByText(labelAddvCenterESX));
+
+      scrollModalToBottom();
+
+      expect(await screen.findAllByTestId(labelRemoveVCenterESX)).toHaveLength(
+        2
+      );
+
+      expect(screen.getAllByTestId('parameterGroup')).toHaveLength(2);
+
+      await userEvent.click(screen.getAllByTestId(labelRemoveVCenterESX)[0]);
+
+      await waitFor(() =>
+        expect(screen.getAllByTestId('parameterGroup')).toHaveLength(1)
+      );
+
+      await closeModal();
+      await userEvent.click(await screen.findByLabelText('Leave'));
     });
 
     describe('Form validation', () => {
-      it('validates that the name field is required', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
+      it('validates that the name field is required', async () => {
+        await openCreationModal();
 
-        cy.findAllByTestId(labelName).eq(1).clear();
+        const nameInput = await getNameInput();
 
-        clickOutideTheField();
+        await userEvent.clear(nameInput);
 
-        cy.contains(labelRequired).should('be.visible');
+        await clickOutideTheField();
 
-        cy.findByLabelText('close').click();
+        expect(await screen.findByText(labelRequired)).toBeVisible();
+        await expectErrorOn(nameInput, labelRequired);
+
+        await closeModal();
       });
 
-      it('validates that at least one poller is required', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
+      it('validates that at least one poller is required', async () => {
+        await openCreationModal();
 
-        cy.findByTestId(labelSelectPollers).click();
+        await userEvent.click(await screen.findByTestId(labelSelectPollers));
 
-        cy.contains('poller1').click();
-        clickOutideTheField();
+        await userEvent.click(await screen.findByText('poller1'));
+        await clickOutideTheField();
 
-        cy.findByTestId('CancelIcon').click();
+        await userEvent.click(await screen.findByTestId('CancelIcon'));
 
-        cy.matchImageSnapshot();
+        expect(
+          await screen.findByText(labelAteastOnePollerIsRequired)
+        ).toBeVisible();
 
-        cy.contains(labelAteastOnePollerIsRequired).should('be.visible');
+        // What the snapshot showed: the poller is removed, the error is on
+        // the pollers field.
+        await expectErrorOn(
+          screen.getByTestId(labelSelectPollers),
+          labelAteastOnePollerIsRequired
+        );
+        expect(screen.queryByText('poller1')).not.toBeInTheDocument();
 
-        cy.findByLabelText('close').click();
+        await closeModal();
       });
 
-      it('validates that vCenter name field is required', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
+      it('validates that vCenter name field is required', async () => {
+        await openCreationModal();
 
-        cy.get(`input[data-testid="vCenter name_value"`).clear();
+        await screen.findAllByTestId('parameterGroup');
+        const [vCenterName] = getParameterInputs('vCenter name');
 
-        clickOutideTheField();
+        await userEvent.clear(vCenterName);
 
-        cy.contains(labelRequired).should('be.visible');
+        await clickOutideTheField();
 
-        cy.matchImageSnapshot();
+        expect(await screen.findByText(labelRequired)).toBeVisible();
+        await expectErrorOn(vCenterName, labelRequired);
 
-        cy.findByLabelText('close').click();
-        cy.contains('Leave').click();
+        await closeModal();
+        await userEvent.click(await screen.findByText('Leave'));
       });
 
-      it('validates that vCenter name must be unique for its own ACC', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
+      it('validates that vCenter name must be unique for its own ACC', async () => {
+        await openCreationModal();
 
-        cy.findByText(labelAddvCenterESX).click();
+        await userEvent.click(await screen.findByText(labelAddvCenterESX));
 
-        cy.get(`input[data-testid="vCenter name_value"`)
-          .eq(0)
-          .clear()
-          .type('vcenter1');
-
-        cy.get(`input[data-testid="vCenter name_value"`)
-          .eq(1)
-          .clear()
-          .type('vcenter1');
-
-        clickOutideTheField();
-
-        cy.contains(labelVcenterNameMustBeUnique).should('be.visible');
-
-        cy.matchImageSnapshot();
-
-        cy.findByLabelText('close').click();
-        cy.contains('Leave').click();
-      });
-
-      it('validates that vCenter URL field is required', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
-
-        cy.get(`input[data-testid="URL_value"`).clear();
-
-        clickOutideTheField();
-
-        cy.contains(labelRequired).should('be.visible');
-
-        cy.matchImageSnapshot();
-
-        cy.findByLabelText('close').click();
-        cy.contains('Leave').click();
-      });
-
-      it('validates that vCenter username is required in Creation Mode', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
-
-        cy.get(`input[data-testid="Username_value"`).clear();
-
-        clickOutideTheField();
-
-        cy.contains(labelRequired).should('be.visible');
-
-        cy.matchImageSnapshot();
-
-        cy.findByLabelText('close').click();
-      });
-
-      it('validates that vCenter username is required Edition Mode', () => {
-        cy.waitForRequest('@getConnectors');
-
-        cy.contains('VMWare1').click();
-
-        cy.get(`input[data-testid="Username_value"`).clear();
-
-        clickOutideTheField();
-
-        cy.contains(labelRequired).should('be.visible');
-
-        cy.matchImageSnapshot();
-
-        cy.findByLabelText('close').click();
-        cy.findByLabelText('Leave').click();
-      });
-
-      it('validates that vCenter password field is required in Creation Mode', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
-
-        cy.get(`input[data-testid="Password_value"`).clear();
-
-        clickOutideTheField();
-
-        cy.contains(labelRequired).should('be.visible');
-
-        cy.matchImageSnapshot();
-
-        cy.findByLabelText('close').click();
-      });
-
-      it('validates that vCenter password field is disabled and masked in Edition Mode', () => {
-        cy.waitForRequest('@getConnectors');
-
-        cy.contains('VMWare1').click();
-
-        cy.get(`input[data-testid="Password_value"`).should('be.disabled');
-
-        cy.get(`input[data-testid="Password_value"`).should(
-          'have.value',
-          maskedPassword
+        await waitFor(() =>
+          expect(getParameterInputs('vCenter name')).toHaveLength(2)
         );
 
-        clickOutideTheField();
+        const [first, second] = getParameterInputs('vCenter name');
 
-        cy.contains(labelRequired).should('not.exist');
+        await userEvent.clear(first);
+        await userEvent.type(first, 'vcenter1');
 
-        cy.matchImageSnapshot();
+        await userEvent.clear(second);
+        await userEvent.type(second, 'vcenter1');
 
-        cy.findByLabelText('close').click();
+        await clickOutideTheField();
+
+        expect(
+          (await screen.findAllByText(labelVcenterNameMustBeUnique))[0]
+        ).toBeVisible();
+
+        // What the snapshot showed: both names are flagged.
+        await expectErrorOn(first, labelVcenterNameMustBeUnique);
+        await expectErrorOn(second, labelVcenterNameMustBeUnique);
+
+        await closeModal();
+        await userEvent.click(await screen.findByText('Leave'));
       });
 
-      it('validates that port field is required', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
+      it('validates that vCenter URL field is required', async () => {
+        await openCreationModal();
 
-        cy.get('input[name="port"]').clear().blur();
+        await screen.findAllByTestId('parameterGroup');
+        const [url] = getParameterInputs('URL');
 
-        cy.contains(labelInvalidPortNumber).should('be.visible');
+        await userEvent.clear(url);
 
-        cy.matchImageSnapshot();
+        await clickOutideTheField();
 
-        cy.findByLabelText('close').click();
-        cy.findByLabelText('Leave').click();
+        expect(await screen.findByText(labelRequired)).toBeVisible();
+        await expectErrorOn(url, labelRequired);
+
+        await closeModal();
+        await userEvent.click(await screen.findByText('Leave'));
       });
 
-      it('validates that name length must be between 3 and 50 characters', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
+      it('validates that vCenter username is required in Creation Mode', async () => {
+        await openCreationModal();
 
-        cy.findAllByTestId(labelName).eq(1).clear().type('ab');
+        await screen.findAllByTestId('parameterGroup');
+        const [username] = getParameterInputs('Username');
 
-        clickOutideTheField();
+        await userEvent.clear(username);
 
-        cy.contains(labelNameMustBeAtLeast).should('be.visible');
+        await clickOutideTheField();
 
-        cy.matchImageSnapshot();
+        expect(await screen.findByText(labelRequired)).toBeVisible();
+        await expectErrorOn(username, labelRequired);
 
-        cy.findByLabelText('close').click();
-        cy.findByLabelText('Leave').click();
+        await closeModal();
       });
 
-      it('validates that the description field is not required', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
+      it('validates that vCenter username is required Edition Mode', async () => {
+        await openEditionModal();
 
-        cy.findByLabelText(labelDescription).clear();
+        await waitFor(() =>
+          expect(getParameterInputs('Username')[0]).toHaveValue('user1')
+        );
+        const [username] = getParameterInputs('Username');
 
-        clickOutideTheField();
+        await userEvent.clear(username);
 
-        cy.contains(labelRequired).should('not.exist');
+        await clickOutideTheField();
 
-        cy.findByLabelText('close').click();
+        expect(await screen.findByText(labelRequired)).toBeVisible();
+        // What the snapshot showed: only the cleared username is flagged.
+        await expectErrorOn(username, labelRequired);
+        expect(screen.getAllByText(labelRequired)).toHaveLength(1);
+
+        await closeModal();
+        await userEvent.click(await screen.findByLabelText('Leave'));
       });
 
-      it('validates that the port should be a valid integer', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
+      it('validates that vCenter password field is required in Creation Mode', async () => {
+        await openCreationModal();
 
-        cy.get('input[name="port"]').clear().type('0.1');
+        await screen.findAllByTestId('parameterGroup');
+        const [password] = getParameterInputs('Password');
 
-        clickOutideTheField();
+        await userEvent.clear(password);
 
-        cy.contains(labelInvalidPortNumber).should('be.visible');
+        await clickOutideTheField();
 
-        cy.matchImageSnapshot();
+        expect(await screen.findByText(labelRequired)).toBeVisible();
+        await expectErrorOn(password, labelRequired);
 
-        cy.findByLabelText('close').click();
-        cy.findByLabelText('Leave').click();
+        await closeModal();
       });
 
-      it('validates that the port should be between 0 and 65535', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
+      it('validates that vCenter password field is disabled and masked in Edition Mode', async () => {
+        await openEditionModal();
 
-        cy.get('input[name="port"]').clear().type('70000');
-
-        clickOutideTheField();
-
-        cy.contains(labelInvalidPortNumber).should('be.visible');
-
-        cy.matchImageSnapshot();
-
-        cy.findByLabelText('close').click();
-        cy.findByLabelText('Leave').click();
-      });
-
-      it('validates that vcenter url must be a valid URL or an IP address', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
-
-        ['abc', '170.600.12', 'http://exa_mple.com'].forEach((url, index) => {
-          cy.get('input[data-testid="URL_value"').clear().type(url);
-
-          clickOutideTheField();
-
-          cy.contains(labelMustBeAvalidURL).should('be.visible');
-
-          cy.matchImageSnapshot(`invalide_url_${index}`);
-        });
-
-        ['192.110.0.1/sdk', '170.12.12.1', 'http://example.com'].forEach(
-          (url, index) => {
-            cy.get('input[data-testid="URL_value"').clear().type(url);
-
-            clickOutideTheField();
-
-            cy.contains(labelMustBeAvalidURL).should('not.exist');
-
-            cy.matchImageSnapshot(`valide_url_${index}`);
-          }
+        await waitFor(() =>
+          expect(getParameterInputs('Password')[0]).toBeDisabled()
         );
 
-        cy.findByLabelText('close').click();
-        cy.contains('Leave').click();
+        await waitFor(() =>
+          expect(getParameterInputs('Password')[0]).toHaveValue(maskedPassword)
+        );
+
+        await clickOutideTheField();
+
+        // Something the same validation shows: a name too short, so the
+        // check below runs once the form has validated.
+        const nameInput = await getNameInput();
+
+        await userEvent.clear(nameInput);
+        await userEvent.type(nameInput, 'ab');
+        await clickOutideTheField();
+        expect(await screen.findByText(labelNameMustBeAtLeast)).toBeVisible();
+
+        expect(screen.queryByText(labelRequired)).not.toBeInTheDocument();
+
+        await closeModal();
+      });
+
+      it('validates that port field is required', async () => {
+        await openCreationModal();
+
+        await screen.findAllByTestId('parameterGroup');
+
+        await userEvent.clear(getPortInput());
+        getPortInput().blur();
+
+        expect(await screen.findByText(labelInvalidPortNumber)).toBeVisible();
+        await expectErrorOn(getPortInput(), labelInvalidPortNumber);
+        // What the snapshot showed: the cleared port falls back to 0.
+        expect(getPortInput()).toHaveValue(0);
+
+        await closeModal();
+        await userEvent.click(await screen.findByLabelText('Leave'));
+      });
+
+      it('validates that name length must be between 3 and 50 characters', async () => {
+        await openCreationModal();
+
+        const nameInput = await getNameInput();
+
+        await userEvent.clear(nameInput);
+        await userEvent.type(nameInput, 'ab');
+
+        await clickOutideTheField();
+
+        expect(await screen.findByText(labelNameMustBeAtLeast)).toBeVisible();
+        await expectErrorOn(nameInput, labelNameMustBeAtLeast);
+
+        await closeModal();
+        await userEvent.click(await screen.findByLabelText('Leave'));
+      });
+
+      it('validates that the description field is not required', async () => {
+        await openCreationModal();
+
+        await userEvent.clear(await screen.findByLabelText(labelDescription));
+
+        await clickOutideTheField();
+
+        // Something the same validation shows: a name too short, so the
+        // check below runs once the form has validated.
+        await userEvent.type(await getNameInput(), 'ab');
+        await clickOutideTheField();
+        expect(await screen.findByText(labelNameMustBeAtLeast)).toBeVisible();
+
+        expect(screen.queryByText(labelRequired)).not.toBeInTheDocument();
+
+        await closeModal();
+      });
+
+      it('validates that the port should be a valid integer', async () => {
+        await openCreationModal();
+
+        await screen.findAllByTestId('parameterGroup');
+
+        // Cleared, the field shows the fallback 0; typed after it, '0.1'
+        // would be clamped to the minimum port. Replacing the content, as a
+        // user selecting it does, leaves a decimal number.
+        await userEvent.tripleClick(getPortInput());
+        await userEvent.keyboard('0.1');
+        expect(Number.isInteger(Number(getPortInput().value))).toBe(false);
+
+        await clickOutideTheField();
+
+        expect(await screen.findByText(labelInvalidPortNumber)).toBeVisible();
+        await expectErrorOn(getPortInput(), labelInvalidPortNumber);
+
+        await closeModal();
+        await userEvent.click(await screen.findByLabelText('Leave'));
+      });
+
+      it('validates that the port should be between 0 and 65535', async () => {
+        await openCreationModal();
+
+        await screen.findAllByTestId('parameterGroup');
+
+        await userEvent.clear(getPortInput());
+        await userEvent.type(getPortInput(), '70000');
+
+        await clickOutideTheField();
+
+        expect(await screen.findByText(labelInvalidPortNumber)).toBeVisible();
+        await expectErrorOn(getPortInput(), labelInvalidPortNumber);
+
+        await closeModal();
+        await userEvent.click(await screen.findByLabelText('Leave'));
+      });
+
+      it('validates that vcenter url must be a valid URL or an IP address', async () => {
+        await openCreationModal();
+
+        await screen.findAllByTestId('parameterGroup');
+        const [url] = getParameterInputs('URL');
+
+        for (const invalidUrl of ['abc', '170.600.12', 'http://exa_mple.com']) {
+          await userEvent.clear(url);
+          await userEvent.type(url, invalidUrl);
+
+          await clickOutideTheField();
+
+          expect(await screen.findByText(labelMustBeAvalidURL)).toBeVisible();
+          await expectErrorOn(url, labelMustBeAvalidURL);
+        }
+
+        for (const validUrl of [
+          '192.110.0.1/sdk',
+          '170.12.12.1',
+          'http://example.com'
+        ]) {
+          await userEvent.clear(url);
+          // The emptied field is flagged as required: the next check waits
+          // for the validation of the pasted value, a single change, to
+          // replace that error.
+          await expectErrorOn(url, labelRequired);
+
+          url.focus();
+          await userEvent.paste(validUrl);
+
+          await clickOutideTheField();
+
+          await waitFor(() =>
+            expect(screen.queryByText(labelRequired)).not.toBeInTheDocument()
+          );
+          expect(
+            screen.queryByText(labelMustBeAvalidURL)
+          ).not.toBeInTheDocument();
+          expect(url).toHaveAttribute('aria-invalid', 'false');
+        }
+
+        await closeModal();
+        await userEvent.click(await screen.findByText('Leave'));
       });
     });
 
     describe('API requests', () => {
-      it('sends a Post request when the Modal is in "Creation Mode" and the Create Button is clicked', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.get(`[data-testid="add-resource"]`).click();
+      it('sends a Post request when the Modal is in "Creation Mode" and the Create Button is clicked', async () => {
+        await openCreationModal();
 
-        cy.findByText(labelAddAnAdditionalConfiguration).should('be.visible');
+        expect(
+          await screen.findByText(labelAddAnAdditionalConfiguration)
+        ).toBeVisible();
 
-        cy.get(`button[data-testid="submit"`)
-          .should('have.text', labelSave)
-          .should('be.disabled');
+        expect(getSubmitButton()).toHaveTextContent(
+          new RegExp(`^${labelSave}$`)
+        );
+        expect(getSubmitButton()).toBeDisabled();
 
-        cy.findAllByTestId(labelName).eq(1).type('New name');
+        await fillMandatoryFields();
 
-        cy.findByTestId(labelSelectPollers).click();
+        await waitFor(() => expect(getSubmitButton()).toBeEnabled());
+        await userEvent.click(getSubmitButton());
 
-        cy.contains('poller1').click();
+        expect(
+          await screen.findByText(labelAdditionalConnectorCreated)
+        ).toBeInTheDocument();
 
-        cy.findByTestId(labelSelectPollers).click();
+        const { request } = await waitForRequest('@createConnector');
 
-        cy.get(`input[data-testid="URL_value"`)
-          .clear()
-          .type('http://10.10.10.10/sdk');
-
-        cy.get(`input[data-testid="Username_value"`).type('username');
-        cy.get(`input[data-testid="Password_value"`).type('password');
-
-        cy.get(`button[data-testid="submit"`).click();
-
-        cy.contains(labelAdditionalConnectorCreated);
-
-        cy.waitForRequest('@createConnector').then(({ request }) => {
-          expect(request.body).to.deep.equals({
-            description: null,
-            name: 'New name',
-            parameters: {
-              port: 5700,
-              vcenters: [
-                {
-                  id: null,
-                  name: 'my_vcenter',
-                  password: 'password',
-                  url: 'http://10.10.10.10/sdk',
-                  username: 'username'
-                }
-              ]
-            },
-            pollers: [1],
-            type: 'vmware_v6'
-          });
+        expect(request.body).toEqual({
+          description: null,
+          name: 'New name',
+          parameters: {
+            port: 5700,
+            vcenters: [
+              {
+                id: null,
+                name: 'my_vcenter',
+                password: 'password',
+                url: 'http://10.10.10.10/sdk',
+                username: 'username'
+              }
+            ]
+          },
+          pollers: [1],
+          type: 'vmware_v6'
         });
 
-        cy.matchImageSnapshot();
+        // What the snapshot showed: the modal is closed.
+        await waitFor(() =>
+          expect(
+            screen.queryByText(labelAddAnAdditionalConfiguration)
+          ).not.toBeInTheDocument()
+        );
       });
-      it('sends an Update request when the Modal is in "Edition Mode" and the Update Button is clicked.', () => {
-        cy.waitForRequest('@getConnectors');
+      it('sends an Update request when the Modal is in "Edition Mode" and the Update Button is clicked.', async () => {
+        await openEditionModal();
 
-        cy.contains('VMWare1').click();
+        expect(
+          await screen.findByText(labelModifyConnectorConfiguration)
+        ).toBeVisible();
 
-        cy.findByText(labelModifyConnectorConfiguration).should('be.visible');
+        const nameInput = await getNameInput();
 
-        cy.findAllByTestId(labelName).eq(1).clear().type('Updated name');
-        cy.get('input[name=port]').clear().type('100');
+        await waitFor(() => expect(nameInput).toHaveValue('VMWare1'));
+        await userEvent.clear(nameInput);
+        await userEvent.type(nameInput, 'Updated name');
+        await userEvent.clear(getPortInput());
+        await userEvent.type(getPortInput(), '100');
 
-        cy.get(`input[data-testid="Password_value"`)
-          .eq(0)
-          .should('be.disabled');
-        cy.findAllByTestId('EditIcon').eq(0).click();
-        cy.get(`input[data-testid="Password_value"`).eq(0).type('new password');
-        cy.findByTestId('CheckIcon').click();
-        cy.findByTestId('RestartAltIcon').should('be.visible');
+        expect(getParameterInputs('Password')[0]).toBeDisabled();
+        await userEvent.click(screen.getAllByTestId('EditIcon')[0]);
+        await userEvent.type(getParameterInputs('Password')[0], 'new password');
+        await userEvent.click(screen.getByTestId('CheckIcon'));
+        expect(await screen.findByTestId('RestartAltIcon')).toBeVisible();
 
-        cy.get(`button[data-testid="submit"`).click();
+        await userEvent.click(getSubmitButton());
 
-        cy.waitForRequest('@updateConnector').then(({ request }) => {
-          expect(request.body).to.deep.equals({
-            description: 'Description for VMWare1',
-            name: 'Updated name',
-            parameters: {
-              port: 1000,
-              vcenters: [
-                {
-                  id: 1,
-                  name: 'vCenter1',
-                  password: 'new password',
-                  url: 'https://vcenter1.example.com/sdk',
-                  username: 'user1'
-                },
-                {
-                  id: 2,
-                  name: 'vCenter2',
-                  password: null,
-                  url: '192.0.0.1',
-                  username: 'user2'
-                }
-              ]
-            },
-            pollers: [101, 102],
-            type: 'vmware_v6'
-          });
+        const { request } = await waitForRequest('@updateConnector');
+
+        expect(request.body).toEqual({
+          description: 'Description for VMWare1',
+          name: 'Updated name',
+          parameters: {
+            // The Cypress spec expected 1000 here, an artefact of how its
+            // typing met the 0 the cleared field shows; typing 100 sends 100.
+            port: 100,
+            vcenters: [
+              {
+                id: 1,
+                name: 'vCenter1',
+                password: 'new password',
+                url: 'https://vcenter1.example.com/sdk',
+                username: 'user1'
+              },
+              {
+                id: 2,
+                name: 'vCenter2',
+                password: null,
+                url: '192.0.0.1',
+                username: 'user2'
+              }
+            ]
+          },
+          pollers: [101, 102],
+          type: 'vmware_v6'
         });
 
-        cy.contains(labelAdditionalConnectorUpdated);
+        expect(
+          await screen.findByText(labelAdditionalConnectorUpdated)
+        ).toBeInTheDocument();
 
-        cy.matchImageSnapshot();
+        // What the snapshot showed: the modal is closed.
+        await waitFor(() =>
+          expect(
+            screen.queryByText(labelModifyConnectorConfiguration)
+          ).not.toBeInTheDocument()
+        );
       });
     });
 
     describe('Ask Before quit popup', () => {
-      it('displays a modal when the form is updated with errors and the cancel button is clicked', () => {
-        cy.waitForRequest('@getConnectors');
+      it('displays a modal when the form is updated with errors and the cancel button is clicked', async () => {
+        await openEditionModal();
 
-        cy.contains('VMWare1').click();
+        await waitFor(() =>
+          expect(getParameterInputs('vCenter name')[0]).toHaveValue('vCenter1')
+        );
 
-        cy.findAllByTestId('vCenter name_value').eq(1).clear();
-        cy.findAllByTestId('vCenter name_value').eq(1).blur();
-        cy.contains(labelCancel).click();
+        // The text field and its input share the test id: the input.
+        const vCenterName = (
+          await screen.findAllByTestId('vCenter name_value')
+        )[1];
 
-        cy.contains('Do you want to leave this page?').should('be.visible');
+        await userEvent.clear(vCenterName);
+        vCenterName.blur();
+        await userEvent.click(screen.getByText(labelCancel));
 
-        cy.makeSnapshot();
+        expect(
+          await screen.findByText('Do you want to leave this page?')
+        ).toBeVisible();
 
-        cy.findByLabelText('Leave').click();
+        // What the snapshot showed: the dialog explains the changes are
+        // lost, and offers to stay or to leave.
+        expect(
+          screen.getByText(
+            'Your changes will not be saved if you leave this page.'
+          )
+        ).toBeVisible();
+        expect(screen.getByLabelText('Stay')).toBeVisible();
+        expect(screen.getByLabelText('Leave')).toBeVisible();
+
+        await userEvent.click(screen.getByLabelText('Leave'));
       });
 
-      it('displays a modal when the form is updated and the cancel button is clicked', () => {
-        cy.waitForRequest('@getConnectors');
-        cy.contains('VMWare1').click();
+      it('displays a modal when the form is updated and the cancel button is clicked', async () => {
+        await openEditionModal();
 
-        cy.findAllByTestId(labelName).eq(1).type('New name');
-        cy.contains(labelCancel).click({ force: true });
+        const nameInput = await getNameInput();
 
-        cy.contains('Do you want to save the changes?').should('be.visible');
+        await waitFor(() => expect(nameInput).toHaveValue('VMWare1'));
+        await userEvent.type(nameInput, 'New name');
+        await userEvent.click(screen.getByText(labelCancel));
 
-        cy.makeSnapshot();
+        expect(
+          await screen.findByText('Do you want to save the changes?')
+        ).toBeVisible();
 
-        cy.findByLabelText('Discard').click();
+        // What the snapshot showed: the dialog offers to discard or to save.
+        expect(
+          screen.getByText(
+            'If you click on Discard, your changes will not be saved.'
+          )
+        ).toBeVisible();
+        expect(screen.getByLabelText('Discard')).toBeVisible();
+
+        await userEvent.click(screen.getByLabelText('Discard'));
       });
     });
   });
