@@ -42,7 +42,6 @@ use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Container;
@@ -54,7 +53,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceCategoryC
 /**
  * Provider logic with an in-memory repository. The HTTP wiring is covered by ListServiceCategoriesChoicesProviderTest.
  */
-#[Group('wip')]
 final class ListServiceCategoriesChoicesProviderLogicTest extends TestCase
 {
     private const VIEWER_ID = 7;

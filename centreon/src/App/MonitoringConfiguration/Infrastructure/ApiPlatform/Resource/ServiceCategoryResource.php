@@ -60,7 +60,9 @@ use Symfony\Component\Validator\Constraints as Assert;
             output: ServiceCategoryChoicesOutput::class,
             provider: ListServiceCategoriesChoicesProvider::class,
         ),
-        // temporary, to make itemUriTemplate work; it also gives the created category its item IRI
+        // Placeholder item operation: it gives the selector items and the category created by the POST
+        // above their IRI (@id and Location). Replace it with a real Get when one exists, never just
+        // remove it.
         new NotExposed(uriTemplate: '/configuration/service_categories/{id}'),
     ],
 )]

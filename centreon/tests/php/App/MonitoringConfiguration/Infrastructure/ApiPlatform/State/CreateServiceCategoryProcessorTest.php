@@ -28,12 +28,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateServiceCategoryProcessorTest extends ApiTestCase
 {
-    #[Group('wip')]
     public function testCreateServiceCategory(): void
     {
         /** @var ServiceCategoryRepository $repository */
@@ -79,7 +77,6 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
      * The legacy prefix aliases the same operation; the item IRI it exposes is still the canonical one, since
      * the item route only exists under the bare /api prefix.
      */
-    #[Group('wip')]
     public function testCreateServiceCategoryOnTheLegacyPrefixExposesTheNewIri(): void
     {
         $this->login();

@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceSeverity;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\GrantsServiceTopologyRole;
 use Tests\App\Shared\ApiTestCase;
@@ -35,7 +34,6 @@ use Tests\App\Shared\ApiTestCase;
  * ACL tiers by DbalResourceAccessRepositoryTest; the gate, the OpenAPI absence and the routing are pinned by
  * ServiceFormSelectorsWiringTest.
  */
-#[Group('wip')]
 final class ListServiceSeveritiesChoicesProviderTest extends ApiTestCase
 {
     use GrantsServiceTopologyRole;
