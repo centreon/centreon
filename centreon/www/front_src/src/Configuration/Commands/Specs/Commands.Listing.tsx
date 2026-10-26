@@ -1,3 +1,7 @@
+import { waitForRequest } from '@test-setup/api';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import { labelName, labelType } from '../translatedLabels';
 import initialize from './initialize';
 
@@ -6,57 +10,86 @@ const columnToSort = [
   { id: 'type', label: labelType }
 ];
 
+// The listing is displayed: the page has applied the first answer.
+const initializeAndWaitForListing = async (): Promise<void> => {
+  initialize();
+
+  await waitForRequest('@getCommands');
+
+  await screen.findByText('check_host_alive');
+};
+
+const getSortLabel = (label: string): HTMLElement =>
+  screen.getByLabelText(`Column ${label}`);
+
 export default (): void => {
   describe('Listing', () => {
-    beforeEach(initialize);
-    it('displays the first page of the Commands listing', () => {
-      cy.waitForRequest('@getCommands');
+    it('displays the first page of the Commands listing', async () => {
+      await initializeAndWaitForListing();
 
-      cy.contains('check_host_alive');
+      expect(await screen.findByText('check_host_alive')).toBeVisible();
 
-      cy.matchImageSnapshot();
+      // From the snapshot: the first ten of the eleven commands, in the
+      // order of the answer, sorted by name.
+      const rows = screen.getAllByRole('row').slice(1);
+
+      expect(rows).toHaveLength(10);
+      expect(rows[0]).toHaveTextContent('check_host_alive');
+      expect(rows[9]).toHaveTextContent('check_hpjd');
+      expect(screen.getByText('1-10 of 11')).toBeVisible();
+      expect(getSortLabel(labelName)).toHaveClass('Mui-active');
+      expect(getSortLabel(labelType)).not.toHaveClass('Mui-active');
     });
-    it('sends a listing request with the selected limit when the corresponding button is clicked', () => {
-      cy.waitForRequest('@getCommands');
+    it('sends a listing request with the selected limit when the corresponding button is clicked', async () => {
+      await initializeAndWaitForListing();
 
-      cy.contains('check_host_alive');
+      await userEvent.click(
+        document.querySelector('#Rows\\ per\\ page') as HTMLElement
+      );
+      await userEvent.click(
+        (await screen.findAllByRole('option')).find(
+          (option) => option.textContent === '20'
+        ) as HTMLElement
+      );
 
-      cy.get('#Rows\\ per\\ page').click();
-      cy.contains(/^20$/).click();
+      expect(await screen.findByText('check_host_alive')).toBeVisible();
 
-      cy.contains('check_host_alive');
+      const { request } = await waitForRequest('@getCommands');
 
-      cy.waitForRequest('@getCommands').then(({ request }) => {
-        expect(request.url.href).include('itemsPerPage=20');
-      });
+      expect(request.url.href).toContain('itemsPerPage=20');
     });
 
-    it('sends a listing request with the selected page when the corresponding button is clicked', () => {
-      cy.waitForRequest('@getCommands');
-      cy.contains('check_host_alive');
+    it('sends a listing request with the selected page when the corresponding button is clicked', async () => {
+      await initializeAndWaitForListing();
 
-      cy.findByLabelText('Next page').click();
+      await userEvent.click(screen.getByLabelText('Next page'));
 
-      cy.waitForRequest('@getCommands').then(({ request }) => {
-        expect(JSON.parse(request.url.searchParams.get('page'))).to.equal(2);
-      });
+      const { request } = await waitForRequest('@getCommands');
+
+      expect(JSON.parse(request.url.searchParams.get('page') ?? '')).toBe(2);
     });
-    it('executes a listing request with sort parameter when a sortable column is clicked`', () => {
-      columnToSort.forEach(({ label, id }) => {
-        cy.waitForRequest('@getCommands');
+    it('executes a listing request with sort parameter when a sortable column is clicked`', async () => {
+      await initializeAndWaitForListing();
 
-        cy.contains('check_host_alive');
+      for (const { label, id } of columnToSort) {
+        await userEvent.click(getSortLabel(label));
 
-        cy.findByLabelText(`Column ${label}`).click();
+        const { request } = await waitForRequest('@getCommands');
 
-        cy.waitForRequest('@getCommands').then(({ request }) => {
-          expect(request.url.href).include(`sort[${id}]=desc`);
-        });
+        expect(request.url.href).toContain(`sort[${id}]=desc`);
 
-        cy.matchImageSnapshot(
-          `column sorting --  executes a listing request when the ${label} column is clicked`
+        // From the snapshots: the clicked column is the sorted one, and in
+        // descending order.
+        await waitFor(() =>
+          expect(
+            getSortLabel(label).querySelector(
+              '.MuiTableSortLabel-iconDirectionDesc'
+            )
+          ).not.toBeNull()
         );
-      });
+        expect(getSortLabel(label)).toHaveClass('Mui-active');
+        expect(await screen.findByText('check_host_alive')).toBeVisible();
+      }
     });
   });
 };
