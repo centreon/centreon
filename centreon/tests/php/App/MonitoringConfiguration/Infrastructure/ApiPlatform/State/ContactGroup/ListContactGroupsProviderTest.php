@@ -144,8 +144,8 @@ final class ListContactGroupsProviderTest extends ApiTestCase
     public function testItScopesRowsForANonAdminWithPermission(): void
     {
         // The security-critical wire: a non-admin *with* the read permission must be ACL-scoped by
-        // the provider (withViewerId). A regression dropping that scoping would leak every group.
-        $username = "viewer_{$this->tag}";
+        // the provider (ContactGroupCriteria::forActor()). A regression dropping that scoping would leak every group.
+        $username = "actor_{$this->tag}";
         $contactId = $this->createNonAdminContact($username);
         $aclGroupId = $this->grantContactGroupReadTopologyRole($contactId);
 
