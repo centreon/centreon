@@ -129,44 +129,24 @@ msgid "7 days"
 msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-msgid ""
-"<b><i>Help :</i></b> Select hosts and hostgroups that can be seen by "
-"associated users. You also have the possibility to exclude host(s) from "
-"selected hostgroup(s)."
-msgstr ""
-"<b><i>Hilfe:</i></b> Wählen Sie Hosts und Hostgruppen, die von verknüpften "
-"Benutzern gesehen werden können. Es besteht ebenfalls die Möglichkeit, "
-"einzelne Hosts aus einer bzw. mehreren Hostgruppe(n) auszuschließen."
+msgid "<b><i>Help :</i></b> Select hosts and hostgroups that can be seen by associated users. You also have the possibility to exclude host(s) from selected hostgroup(s)."
+msgstr "<b><i>Hilfe:</i></b> Wählen Sie Hosts und Hostgruppen, die von verknüpften Benutzern gesehen werden können. Es besteht ebenfalls die Möglichkeit, einzelne Hosts aus einer bzw. mehreren Hostgruppe(n) auszuschließen."
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-msgid ""
-"<b><i>Help :</i></b> Select image folders that can be seen by associated "
-"users."
+msgid "<b><i>Help :</i></b> Select image folders that can be seen by associated users."
 msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-msgid ""
-"<b><i>Help :</i></b> Select meta services that can be seen by associated "
-"users."
-msgstr ""
-"<b><i>Hilfe:</i></b> Wählen Sie Meta-Services, die von verknüpften Benutzern "
-"gesehen werden können."
+msgid "<b><i>Help :</i></b> Select meta services that can be seen by associated users."
+msgstr "<b><i>Hilfe:</i></b> Wählen Sie Meta-Services, die von verknüpften Benutzern gesehen werden können."
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-msgid ""
-"<b><i>Help :</i></b> Select services that can be seen by associated users."
-msgstr ""
-"<b><i>Hilfe:</i></b> Wählen Sie Services, die von verknüpften Benutzern "
-"gesehen werden können."
+msgid "<b><i>Help :</i></b> Select services that can be seen by associated users."
+msgstr "<b><i>Hilfe:</i></b> Wählen Sie Services, die von verknüpften Benutzern gesehen werden können."
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-msgid ""
-"<b><i>Help :</i></b> Select the filter(s) you want to apply to the resource "
-"definition for a more restrictive view."
-msgstr ""
-"<b><i>Hilfe:</i></b> Wählen Sie einen bzw. mehrere Filter, der/die auf die "
-"Ressourcendefinition angewendet werden soll(en), um die Ansicht "
-"einzuschränken."
+msgid "<b><i>Help :</i></b> Select the filter(s) you want to apply to the resource definition for a more restrictive view."
+msgstr "<b><i>Hilfe:</i></b> Wählen Sie einen bzw. mehrere Filter, der/die auf die Ressourcendefinition angewendet werden soll(en), um die Ansicht einzuschränken."
 
 #: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
 msgid "<br><b>Centreon : </b>A reload signal has been sent to "
@@ -181,17 +161,12 @@ msgid "<br><b>Centreon : </b>All configuration will be send to "
 msgstr "<br><b>Centreon: </b> Alle Konfigurationsdateien werden gesendet an "
 
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
-msgid ""
-"<br><i><b><font color=\"#B22222\">Notes </font>:</b></i><br>- Do not mix "
-"metrics of different sources.<br>- Only aggregation functions work in VDEF "
-"rpn expressions."
+msgid "<br><i><b><font color=\"#B22222\">Notes </font>:</b></i><br>- Do not mix metrics of different sources.<br>- Only aggregation functions work in VDEF rpn expressions."
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step4.php
 msgid "<p>Currently upgrading... please do not interrupt this process.</p>"
-msgstr ""
-"<p>Upgrade wird durchgeführt... bitte unterbrechen Sie diesen Prozess nicht."
-"</p>"
+msgstr "<p>Upgrade wird durchgeführt... bitte unterbrechen Sie diesen Prozess nicht.</p>"
 
 #: centreon/www/install/front_translate.php
 msgid "@$!%*?&"
@@ -204,9 +179,7 @@ msgstr "Ein '%s': '%s'@'%s' wurde bereits gespeichert"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
-msgid ""
-"A host or host template can have several templates. See help for more "
-"details."
+msgid "A host or host template can have several templates. See help for more details."
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -216,13 +189,11 @@ msgstr "Ein Makro hat ein falsches Format."
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
 msgid "A platform using the name : '%s' or address : '%s' already exists"
-msgstr ""
-"Eine Plattform mit dem Namen: '%s' oder der Adresse: '%s' existiert bereits"
+msgstr "Eine Plattform mit dem Namen: '%s' oder der Adresse: '%s' existiert bereits"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid ""
-"A poller/agent configuration is already associated with poller ID(s) '%s'"
+msgid "A poller/agent configuration is already associated with poller ID(s) '%s'"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -284,19 +255,15 @@ msgstr "API-Optionen"
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 msgid "API calling the Central returned a Client exception"
-msgstr ""
-"Der API-Aufruf zum zentralen Server hat eine Client-Ausnahme zurückgegeben"
+msgstr "Der API-Aufruf zum zentralen Server hat eine Client-Ausnahme zurückgegeben"
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 msgid "API calling the Central returned a Redirection exception"
-msgstr ""
-"Der API-Aufruf zum zentralen Server hat eine Umleitungs-Ausnahme "
-"zurückgegeben"
+msgstr "Der API-Aufruf zum zentralen Server hat eine Umleitungs-Ausnahme zurückgegeben"
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
 msgid "API calling the Central returned a Server exception"
-msgstr ""
-"Der API-Aufruf zum zentralen Server hat eine Server-Ausnahme zurückgegeben"
+msgstr "Der API-Aufruf zum zentralen Server hat eine Server-Ausnahme zurückgegeben"
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Aborted."
@@ -898,12 +865,8 @@ msgid "Add host group"
 msgstr ""
 
 #: centreon/www/install/steps/process/installConfigurationDb.php
-msgid ""
-"Add innodb_file_per_table=1 in my.cnf file under the [mysqld] section and "
-"restart MySQL Server."
-msgstr ""
-"Fügen Sie die Zeile innodb_file_per_table=1 in der my.cnf im Abschnitt "
-"[mysqld] ein und starten Sie den MySQL-Server neu."
+msgid "Add innodb_file_per_table=1 in my.cnf file under the [mysqld] section and restart MySQL Server."
+msgstr "Fügen Sie die Zeile innodb_file_per_table=1 in der my.cnf im Abschnitt [mysqld] ein und starten Sie den MySQL-Server neu."
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -1360,13 +1323,8 @@ msgid "All services on this host are working fine."
 msgstr ""
 
 #: centreon/www/include/options/session/connected_user.php
-msgid ""
-"All this contact sessions will be closed. Are you sure you want to request a "
-"synchronization at the next login of this Contact ?"
-msgstr ""
-"Alle Sessions dieses Kontakts werden geschlossen. Sind Sie sich sicher, dass "
-"Sie eine Synchronisation bei der nächsten Anmeldung des Kontakts anfordern "
-"möchten?"
+msgid "All this contact sessions will be closed. Are you sure you want to request a synchronization at the next login of this Contact ?"
+msgstr "Alle Sessions dieses Kontakts werden geschlossen. Sind Sie sich sicher, dass Sie eine Synchronisation bei der nächsten Anmeldung des Kontakts anfordern möchten?"
 
 #: centreon/www/include/Administration/parameters/gorgone/gorgone.php
 #: centreon/www/include/Administration/parameters/remote/formRemote.php
@@ -1374,9 +1332,7 @@ msgid "Allow self signed certificate"
 msgstr "Selbstsigniertes Zertifikat erlauben"
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Allows you to add free text to your dashboards (section titles, information, "
-"etc.)."
+msgid "Allows you to add free text to your dashboards (section titles, information, etc.)."
 msgstr ""
 
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
@@ -1385,11 +1341,8 @@ msgid "Already exists"
 msgstr "Existiert bereits"
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
-msgid ""
-"Already requested, please wait the CRON execution or for the user to login"
-msgstr ""
-"Bereits angefordert, bitte warten Sie auf die CRON-Ausführung oder bis sich "
-"der Benutzer anmeldet"
+msgid "Already requested, please wait the CRON execution or for the user to login"
+msgstr "Bereits angefordert, bitte warten Sie auf die CRON-Ausführung oder bis sich der Benutzer anmeldet"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -1404,15 +1357,11 @@ msgstr "Alternative LDAP-Domain"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 #, php-format
-msgid ""
-"An additional configuration of type '%s' is already associated with poller "
-"ID(s) '%s'"
+msgid "An additional configuration of type '%s' is already associated with poller ID(s) '%s'"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"An agent is a piece of software you install on the host you want to monitor, "
-"that executes the checks."
+msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
 msgstr ""
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/SSOAuthenticationException.php
@@ -1460,9 +1409,7 @@ msgstr "Fehler beim Aktivieren der zentralen Menüs"
 
 #: centreon/www/class/centreonCustomView.class.php
 msgid "An error occurred while retrieving groups linked to ViewId on database"
-msgstr ""
-"Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Gruppen auf der "
-"Datenbank ist ein Fehler aufgetreten"
+msgstr "Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Gruppen auf der Datenbank ist ein Fehler aufgetreten"
 
 #: centreon/src/Core/Notification/Application/UseCase/FindNotifications/FindNotifications.php
 msgid "An error occurred while retrieving the notifications listing"
@@ -1470,9 +1417,7 @@ msgstr ""
 
 #: centreon/www/class/centreonCustomView.class.php
 msgid "An error occurred while retrieving users linked to ViewId on database"
-msgstr ""
-"Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Benutzern auf "
-"der Datenbank ist ein Fehler aufgetreten"
+msgstr "Beim Ermitteln von mit der Ansichts-ID (ViewId) verknüpften Benutzern auf der Datenbank ist ein Fehler aufgetreten"
 
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
 msgid "An error occurred while searching any remote children"
@@ -1528,9 +1473,7 @@ msgid "Archives"
 msgstr "Archive"
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Are you sure you want to change the size of the envelope? The new envelope "
-"size will be applied immediately."
+msgid "Are you sure you want to change the size of the envelope? The new envelope size will be applied immediately."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/listServiceByHost.php
@@ -1588,20 +1531,13 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid ""
-"At least one illegal character in '%s' was found in platform's name: '%s'"
-msgstr ""
-"Mindestens ein nicht zulässiges Zeichen aus '%s' wurde im Plattformnamen "
-"gefunden: '%s'"
+msgid "At least one illegal character in '%s' was found in platform's name: '%s'"
+msgstr "Mindestens ein nicht zulässiges Zeichen aus '%s' wurde im Plattformnamen gefunden: '%s'"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid ""
-"At least one non RFC compliant character was found in platform's hostname: "
-"'%s'"
-msgstr ""
-"Mindestens ein Zeichen, dass nicht der RFC entspricht, wurde im "
-"Plattformhostnamen gefunden: '%s'"
+msgid "At least one non RFC compliant character was found in platform's hostname: '%s'"
+msgstr "Mindestens ein Zeichen, dass nicht der RFC entspricht, wurde im Plattformhostnamen gefunden: '%s'"
 
 #: centreon/www/install/front_translate.php
 msgid "At least one of the two following fields must be filled"
@@ -1779,9 +1715,7 @@ msgid "Auto-discovery, BAM, MBI reporting and support."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Auto: Default value defined for the corresponding curve template (Monitoring "
-"> Performances > Curves)."
+msgid "Auto: Default value defined for the corresponding curve template (Monitoring > Performances > Curves)."
 msgstr ""
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
@@ -1907,9 +1841,7 @@ msgstr "Ungültige Host-ID"
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #, php-format
 msgid "Bad ldap filter: missing %s pattern. Check user or group filter"
-msgstr ""
-"Ungültiger LDAP-Filter: Fehlendes %s Muster. Überprüfen Sie den Benutzer- "
-"oder Gruppenfilter"
+msgstr "Ungültiger LDAP-Filter: Fehlendes %s Muster. Überprüfen Sie den Benutzer- oder Gruppenfilter"
 
 #: centreon/www/include/options/media/images/syncDir.php
 msgid "Bad picture alias detected :"
@@ -2062,9 +1994,7 @@ msgid "Broker module information"
 msgstr "Brokermodulinformationen"
 
 #: centreon/www/class/centreonBroker.class.php
-msgid ""
-"Broker reload command does not match the expected format. Please check the "
-"monitoring server configuration."
+msgid "Broker reload command does not match the expected format. Please check the monitoring server configuration."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -2116,13 +2046,8 @@ msgid "Business view"
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step4.php
-msgid ""
-"But do not edit the SQL files unless you know what you are doing.Refresh "
-"this page when the problem is fixed."
-msgstr ""
-"Die SQL-Dateien sollten Sie jedoch nur bearbeiten, wenn Sie sich im Klaren "
-"darüber sind, was Sie anpassen. Aktualisieren Sie die Seite wenn das Problem "
-"behoben wurde."
+msgid "But do not edit the SQL files unless you know what you are doing.Refresh this page when the problem is fixed."
+msgstr "Die SQL-Dateien sollten Sie jedoch nur bearbeiten, wenn Sie sich im Klaren darüber sind, was Sie anpassen. Aktualisieren Sie die Seite wenn das Problem behoben wurde."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Button 1"
@@ -2177,17 +2102,11 @@ msgid "By agent"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"By default, the data of Business Views is aggregated monthly over the past "
-"12 months (if available)."
+msgid "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"By executing this script, your platform will be in a locked mode and you "
-"will not be able to do <strong>anything</strong> during the migration "
-"process (example: deploying your configuration, updating administration "
-"parameters, etc...)."
+msgid "By executing this script, your platform will be in a locked mode and you will not be able to do <strong>anything</strong> during the migration process (example: deploying your configuration, updating administration parameters, etc...)."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -2276,8 +2195,7 @@ msgid "Can't execute binary"
 msgstr "Ausführdatei kann nicht ausgeführt werden"
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/SSOAuthenticationException.php
-msgid ""
-"Can't resolve username from login claim using configured regular expression"
+msgid "Can't resolve username from login claim using configured regular expression"
 msgstr "Der Benutzername kann nicht aufgelöst werden"
 
 #: centreon/www/include/Administration/parameters/debug/form.php
@@ -2333,21 +2251,17 @@ msgstr "Die Statistikdatei konnte nicht geöffnet werden"
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
 msgid "Cannot register the '%s' platform : '%s'@'%s' behind a '%s' platform"
-msgstr ""
-"Die '%s' Plattform: '%s'@'%s' kann nicht hinter einer '%s' Plattform "
-"registriert werden"
+msgstr "Die '%s' Plattform: '%s'@'%s' kann nicht hinter einer '%s' Plattform registriert werden"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformPending.php
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
 msgid "Cannot set parent id to a central server"
-msgstr ""
-"Für einen zentralen Server kann keine übergeordnete ID angegeben werden"
+msgstr "Für einen zentralen Server kann keine übergeordnete ID angegeben werden"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformPending.php
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
 msgid "Cannot use parent address on a Central server type"
-msgstr ""
-"Für einen zentralen Server kann keine übergeordnete Adresse angegeben werden"
+msgstr "Für einen zentralen Server kann keine übergeordnete Adresse angegeben werden"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
@@ -2369,16 +2283,11 @@ msgstr "Zentraler Server"
 
 #: centreon/src/Centreon/Domain/Repository/CfgCentreonBrokerRepository.php
 msgid "Central broker config id not found"
-msgstr ""
-"Die ID der Konfiguration des zentralen Brokers konnte nicht gefunden werden"
+msgstr "Die ID der Konfiguration des zentralen Brokers konnte nicht gefunden werden"
 
 #: centreon/src/Centreon/Domain/PlatformInformation/Exception/PlatformInformationException.php
-msgid ""
-"Central platform's API data is not consistent. Please check the 'Remote "
-"Access' form."
-msgstr ""
-"Die API-Daten der zentralen Plattform sind nicht konsistent. Bitte "
-"überprüfen Sie das 'Fernzugriff'-Formular."
+msgid "Central platform's API data is not consistent. Please check the 'Remote Access' form."
+msgstr "Die API-Daten der zentralen Plattform sind nicht konsistent. Bitte überprüfen Sie das 'Fernzugriff'-Formular."
 
 #: centreon/www/include/Administration/parameters/remote/formRemote.php
 msgid "Central's API URI"
@@ -2390,38 +2299,23 @@ msgstr "API-Anmeldeinformationen des zentralen Servers"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid ""
-"Central's credentials are missing on: '%s'@'%s'. Please check the Remote "
-"Access form"
-msgstr ""
-"Auf '%s'@'%s' fehlen die Anmeldeinformationen des zentralen Servers. Bitte "
-"überprüfen Sie das 'Fernzugriff'-Formular"
+msgid "Central's credentials are missing on: '%s'@'%s'. Please check the Remote Access form"
+msgstr "Auf '%s'@'%s' fehlen die Anmeldeinformationen des zentralen Servers. Bitte überprüfen Sie das 'Fernzugriff'-Formular"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid ""
-"Central's path is missing on: '%s'@'%s'. Please check the Remote Access form"
-msgstr ""
-"Auf '%s'@'%s' fehlt der Pfad des zentralen Servers. Bitte überprüfen Sie das "
-"'Fernzugriff'-Formular"
+msgid "Central's path is missing on: '%s'@'%s'. Please check the Remote Access form"
+msgstr "Auf '%s'@'%s' fehlt der Pfad des zentralen Servers. Bitte überprüfen Sie das 'Fernzugriff'-Formular"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid ""
-"Central's protocol port is missing on: '%s'@'%s'. Please check the Remote "
-"Access form"
-msgstr ""
-"Auf '%s'@'%s' fehlt der Protokollport des zentralen Servers. Bitte "
-"überprüfen Sie das 'Fernzugriff'-Formular"
+msgid "Central's protocol port is missing on: '%s'@'%s'. Please check the Remote Access form"
+msgstr "Auf '%s'@'%s' fehlt der Protokollport des zentralen Servers. Bitte überprüfen Sie das 'Fernzugriff'-Formular"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid ""
-"Central's protocol scheme is missing on: '%s'@'%s'. Please check the Remote "
-"Access form"
-msgstr ""
-"Auf '%s'@'%s' fehlt das Protokollschema des zentralen Servers. Bitte "
-"überprüfen Sie das 'Fernzugriff'-Formular"
+msgid "Central's protocol scheme is missing on: '%s'@'%s'. Please check the Remote Access form"
+msgstr "Auf '%s'@'%s' fehlt das Protokollschema des zentralen Servers. Bitte überprüfen Sie das 'Fernzugriff'-Formular"
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
 msgid "Central's response => Code : "
@@ -2469,19 +2363,13 @@ msgstr "Centreon Broker neu Laden Befehl"
 #, php-format
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could not\n"
-"                                             be created for monitoring "
-"engine '%s'. Please check its path or create it"
+"                                             be created for monitoring engine '%s'. Please check its path or create it"
 msgstr ""
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 #, php-format
-msgid ""
-"Centreon Broker's configuration directory '%s' does not exist and could not "
-"be created for monitoring engine '%s'. Please check it's path or create it"
-msgstr ""
-"Das Konfigurationsverzeichnis '%s' des Centreon Brokers existiert nicht und "
-"konnte für die Monitoring Engine '%s' nicht erstellt werden. Bitte "
-"überprüfen Sie den Pfad oder erstellen Sie das Verzeichnis"
+msgid "Centreon Broker's configuration directory '%s' does not exist and could not be created for monitoring engine '%s'. Please check it's path or create it"
+msgstr "Das Konfigurationsverzeichnis '%s' des Centreon Brokers existiert nicht und konnte für die Monitoring Engine '%s' nicht erstellt werden. Bitte überprüfen Sie den Pfad oder erstellen Sie das Verzeichnis"
 
 #: centreon/www/install/front_translate.php
 msgid "Centreon Central address, as seen by this poller"
@@ -2620,14 +2508,11 @@ msgid "Changes to the envelope size will be applied immediately"
 msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
-msgid ""
-"Changing the type of an existing poller/agent configuration is not allowed"
+msgid "Changing the type of an existing poller/agent configuration is not allowed"
 msgstr ""
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
-msgid ""
-"Changing type of an existing additional connector configuration is not "
-"allowed"
+msgid "Changing type of an existing additional connector configuration is not allowed"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -2790,15 +2675,11 @@ msgstr "Wählen Sie einen Servertyp"
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 msgid "Choose a service if you want a specific curve for it."
-msgstr ""
-"Wählen Sie einen Service aus, wenn Sie eine spezifische Kurve für diesen "
-"möchten."
+msgstr "Wählen Sie einen Service aus, wenn Sie eine spezifische Kurve für diesen möchten."
 
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Choose a service if you want a specific virtual metric for it."
-msgstr ""
-"Wählen Sie einen Service aus, wenn Sie eine spezifische virtuelle Metrik für "
-"diesen möchten."
+msgstr "Wählen Sie einen Service aus, wenn Sie eine spezifische virtuelle Metrik für diesen möchten."
 
 #: centreon/www/install/front_translate.php
 msgid "Choose a value between 1 and 10"
@@ -2877,9 +2758,7 @@ msgid "Click here for details"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Click to generate the command. Once it's ready, copy it and run it in your "
-"environment."
+msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -3011,10 +2890,7 @@ msgid "Commands"
 msgstr "Befehle"
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Commands are used by the monitoring engine to run plugins to perform "
-"actions. While most commands come ready-to-use via Monitoring Connectors, "
-"you can also create custom commands for specific needs."
+msgid "Commands are used by the monitoring engine to run plugins to perform actions. While most commands come ready-to-use via Monitoring Connectors, you can also create custom commands for specific needs."
 msgstr ""
 
 #: centreon/www/class/centreonGraphPoller.class.php
@@ -3365,12 +3241,8 @@ msgstr "Benutzerpasswort bestätigen"
 
 #: centreon/www/install/step_upgrade/step5.php
 #, php-format
-msgid ""
-"Congratulations, you have successfully upgraded to Centreon version <b>%s</"
-"b>."
-msgstr ""
-"Herzlichen Glückwunsch! Das Update auf Centreon-Version <b>%s</b> wurde "
-"erfoglreich durchgeführt."
+msgid "Congratulations, you have successfully upgraded to Centreon version <b>%s</b>."
+msgstr "Herzlichen Glückwunsch! Das Update auf Centreon-Version <b>%s</b> wurde erfoglreich durchgeführt."
 
 #: centreon/www/install/front_translate.php
 msgid "Connect"
@@ -3503,13 +3375,8 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
-msgid ""
-"Contactgroups exists. If you try to use a LDAP contactgroup, please verified "
-"if a Centreon contactgroup has the same name."
-msgstr ""
-"Kontaktgruppe existiert bereits. Wenn Sie versuchen eine LDAP-Kontaktgruppe "
-"zu verwenden, stellen Sie bitte sicher, dass nicht bereits eine Centreon "
-"Kontaktgruppe mit dem gleichen Namen existiert."
+msgid "Contactgroups exists. If you try to use a LDAP contactgroup, please verified if a Centreon contactgroup has the same name."
+msgstr "Kontaktgruppe existiert bereits. Wenn Sie versuchen eine LDAP-Kontaktgruppe zu verwenden, stellen Sie bitte sicher, dass nicht bereits eine Centreon Kontaktgruppe mit dem gleichen Namen existiert."
 
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
@@ -3605,8 +3472,7 @@ msgstr ""
 
 #: centreon/www/api/class/centreon_proxy.class.php
 msgid "Could not establish connection to Centreon IMP servers ("
-msgstr ""
-"Es konnte keine Verbindung zu den Centreon IMP Servern hergestellt werden ("
+msgstr "Es konnte keine Verbindung zu den Centreon IMP Servern hergestellt werden ("
 
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
 #, php-format
@@ -3624,40 +3490,26 @@ msgstr ""
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
 #: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
 msgid "Could not write into centcore.cmd. Please check file permissions."
-msgstr ""
-"Es konnte nicht in die Datei centcore.cmd geschrieben werden. Bitte "
-"überprüfen Sie die Dateiberechtigungen."
+msgstr "Es konnte nicht in die Datei centcore.cmd geschrieben werden. Bitte überprüfen Sie die Dateiberechtigungen."
 
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
 #, php-format
 msgid ""
 "Could not write to Centreon Broker's configuration file '%s' for monitoring\n"
-"                                             engine '%s'. Please add writing "
-"permissions for the webserver's user"
-msgstr ""
-"In die Centreon Broker Konfigurationsdatei '%s' konnte für die Monitoring "
-"Engine '%s' nicht geschrieben werden. Bitte fügen Sie Schreibberechtigungen "
-"für den Benutzer des Webservers hinzu"
+"                                             engine '%s'. Please add writing permissions for the webserver's user"
+msgstr "In die Centreon Broker Konfigurationsdatei '%s' konnte für die Monitoring Engine '%s' nicht geschrieben werden. Bitte fügen Sie Schreibberechtigungen für den Benutzer des Webservers hinzu"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 #, php-format
-msgid ""
-"Could not write to Centreon Broker's configuration file '%s' for monitoring "
-"engine '%s'. Please add writing permissions for the webserver's user"
-msgstr ""
-"In die Konfigurationsdatei '%s' des Centreon Brokers für die Monitoring "
-"Engine '%s' konnte nicht geschrieben werden. Bitte fügen Sie Schreibrechte "
-"für den Benutzer des Webservers hinzu"
+msgid "Could not write to Centreon Broker's configuration file '%s' for monitoring engine '%s'. Please add writing permissions for the webserver's user"
+msgstr "In die Konfigurationsdatei '%s' des Centreon Brokers für die Monitoring Engine '%s' konnte nicht geschrieben werden. Bitte fügen Sie Schreibrechte für den Benutzer des Webservers hinzu"
 
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
 #, php-format
 msgid ""
 "Could not write to file '%s' for monitoring engine '%s'. Please add writing\n"
 "                                     permissions for the webserver's user"
-msgstr ""
-"In die Datei '%s' konnte für die Monitoring Engine '%s' nicht geschrieben "
-"werden. Bitte fügen Sie Schreibberechtigungen für den Benutzer des "
-"Webservers hinzu"
+msgstr "In die Datei '%s' konnte für die Monitoring Engine '%s' nicht geschrieben werden. Bitte fügen Sie Schreibberechtigungen für den Benutzer des Webservers hinzu"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Countdown"
@@ -3877,12 +3729,8 @@ msgid "Current status of the services being monitored"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
-msgid ""
-"Currently installing database and generating cache... please do not "
-"interrupt this process."
-msgstr ""
-"Derzeit werden die Datenbank installiert und der Cache erzeugt... bitte "
-"unterbrechen Sie diesen Prozess nicht."
+msgid "Currently installing database and generating cache... please do not interrupt this process."
+msgstr "Derzeit werden die Datenbank installiert und der Cache erzeugt... bitte unterbrechen Sie diesen Prozess nicht."
 
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/smarty_translate.php
@@ -4062,15 +3910,11 @@ msgid "Data is aggregated daily for graphs presenting hosts."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Data is aggregated monthly over the last 12 months for graphs presenting "
-"host categories."
+msgid "Data is aggregated monthly over the last 12 months for graphs presenting host categories."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Data is aggregated monthly over the last 12 months for graphs presenting "
-"host groups."
+msgid "Data is aggregated monthly over the last 12 months for graphs presenting host groups."
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -4436,20 +4280,12 @@ msgstr "Gelöscht"
 
 #: centreon/www/include/home/customViews/index.php
 #: centreon/www/install/smarty_translate.php
-msgid ""
-"Deleting this view might impact other users. Are you sure you want to do it?"
-msgstr ""
-"Wenn Sie diese Ansicht löschen, könnte das Auswirkungen auf andere Nutzer "
-"haben. Sind Sie sich sicher, dass Sie diese Ansicht löschen wollen?"
+msgid "Deleting this view might impact other users. Are you sure you want to do it?"
+msgstr "Wenn Sie diese Ansicht löschen, könnte das Auswirkungen auf andere Nutzer haben. Sind Sie sich sicher, dass Sie diese Ansicht löschen wollen?"
 
 #: centreon/www/include/home/customViews/index.php
-msgid ""
-"Deleting this widget might impact users with whom you are sharing this view. "
-"Are you sure you want to do it?"
-msgstr ""
-"Wenn Sie dieses Widget löschen, könnte das Auswirkungen auf andere Nutzer "
-"haben, mit denen diese Ansicht geteilt wird. Sind Sie sich sicher, dass Sie "
-"diese Ansicht löschen wollen?"
+msgid "Deleting this widget might impact users with whom you are sharing this view. Are you sure you want to do it?"
+msgstr "Wenn Sie dieses Widget löschen, könnte das Auswirkungen auf andere Nutzer haben, mit denen diese Ansicht geteilt wird. Sind Sie sich sicher, dass Sie diese Ansicht löschen wollen?"
 
 #: centreon/www/install/menu_translation.php
 msgid "Dependencies"
@@ -4964,21 +4800,15 @@ msgid "Display with this view"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays a detailed view of the current status for selected resources as a "
-"chart."
+msgid "Displays a detailed view of the current status for selected resources as a chart."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays a list of storage with saturation foreseen, current usage, days "
-"until saturation, and evolution of usage since the past day."
+msgid "Displays a list of storage with saturation foreseen, current usage, days until saturation, and evolution of usage since the past day."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays a status overview for selected resources, grouped by hosts or by "
-"services."
+msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -4986,8 +4816,7 @@ msgid "Displays a web page"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays availability and alerts of a Business Activity for a given period."
+msgid "Displays availability and alerts of a Business Activity for a given period."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -4999,9 +4828,7 @@ msgid "Displays data on resource status and events, centralized in a table."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays graphically a business activity hierarchy of KPIs and lets you "
-"navigate through it."
+msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -5009,26 +4836,19 @@ msgid "Displays metrics for a given time period."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays the availability history of hosts, host categories or hostgroups."
+msgid "Displays the availability history of hosts, host categories or hostgroups."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays the distribution of current statuses on a Business Activity, as a "
-"chronological timeline for a given time period."
+msgid "Displays the distribution of current statuses on a Business Activity, as a chronological timeline for a given time period."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays the distribution of current statuses on selected groups of "
-"resources, as a table."
+msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays the future evolution of a metric as a trend curve, based on its "
-"recent average data."
+msgid "Displays the future evolution of a metric as a trend curve, based on its recent average data."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -5040,8 +4860,7 @@ msgid "Displays the top or bottom x hosts, for a selected metric."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays the value of a single metric as a text, a gauge or a bar chart."
+msgid "Displays the value of a single metric as a text, a gauge or a bar chart."
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -5061,8 +4880,7 @@ msgstr "SSL-Zertifikatsvalidierung nicht überprüfen"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Do not use configured proxy to connect to this server"
-msgstr ""
-"Konfigurierte Proxy für die Verbindung mit diesem Server nicht benutzen"
+msgstr "Konfigurierte Proxy für die Verbindung mit diesem Server nicht benutzen"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Do not use proxy defined in global configuration"
@@ -5073,12 +4891,8 @@ msgid "Do you confirm the cancellation ?"
 msgstr "Bestätigen Sie den Abbruch?"
 
 #: centreon/www/include/Administration/performance/viewMetrics.php
-msgid ""
-"Do you confirm the change of the RRD data source type ? If yes, you must "
-"rebuild the RRD Database"
-msgstr ""
-"Bestätigen Sie die Änderung des RRD-Datenquellentyps? Falls ja, muss die RRD-"
-"Datenbank neu aufgebaut werden"
+msgid "Do you confirm the change of the RRD data source type ? If yes, you must rebuild the RRD Database"
+msgstr "Bestätigen Sie die Änderung des RRD-Datenquellentyps? Falls ja, muss die RRD-Datenbank neu aufgebaut werden"
 
 #: centreon/www/include/Administration/parameters/ldap/list.php
 #: centreon/www/include/Administration/parameters/ldap/listFunction.php
@@ -5928,9 +5742,7 @@ msgid "Engine configuration"
 msgstr "Enginekonfiguration"
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
-msgid ""
-"Engine restart command does not match the expected format. Please check the "
-"monitoring server configuration."
+msgid "Engine restart command does not match the expected format. Please check the monitoring server configuration."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5970,16 +5782,13 @@ msgid "Error during creation of the CentCore command file (%s)"
 msgstr "Fehler bei der Erstellung der CentCore Befehlsdatei (%s)"
 
 #: centreon/www/include/configuration/configObject/host/DB-Func.php
-msgid ""
-"Error during update. See logs for more detail or contact your administrator."
+msgid "Error during update. See logs for more detail or contact your administrator."
 msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 msgid "Error from Central's register API"
-msgstr ""
-"Von der API des zentralen Servers zur Registrierung neuer Server wurde ein "
-"Fehler zurückgegeben"
+msgstr "Von der API des zentralen Servers zur Registrierung neuer Server wurde ein Fehler zurückgegeben"
 
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
 msgid "Error in getting stats filename"
@@ -6458,8 +6267,7 @@ msgstr "Fehler bei der Verknüpfung des Templates %s mit dem Host (id: %d)"
 #: centreon/src/Centreon/Infrastructure/HostConfiguration/Repository/HostConfigurationRepositoryRDB.php
 #, php-format
 msgid "Error while linking template (id: %d) to host (id: %d)"
-msgstr ""
-"Fehler bei der Verknüpfung des Templates (id: %d) mit dem Host (id: %d)"
+msgstr "Fehler bei der Verknüpfung des Templates (id: %d) mit dem Host (id: %d)"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while listing notification resources"
@@ -6558,8 +6366,7 @@ msgid "Error while retrieving an additional configuration"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
-msgid ""
-"Error while retrieving contact groups allowed to receive a dashboard share"
+msgid "Error while retrieving contact groups allowed to receive a dashboard share"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -6792,8 +6599,7 @@ msgid "Error while searching service categories in real time context"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
-msgid ""
-"Error while trying to update a widget which belongs to another dashboard"
+msgid "Error while trying to update a widget which belongs to another dashboard"
 msgstr ""
 
 #: centreon/src/Core/Platform/Application/Repository/UpdateLockerException.php
@@ -7058,9 +6864,7 @@ msgstr "Ausführungstyp"
 
 #: centreon/src/Centreon/Infrastructure/MonitoringServer/Repository/Exception/MonitoringServerConfigurationRepositoryException.php
 msgid "Execution was too long and reached timeout"
-msgstr ""
-"Die Ausführung hat zu viel Zeit in Anspruch genommen und ist in einen "
-"Timeout gelaufen"
+msgstr "Die Ausführung hat zu viel Zeit in Anspruch genommen und ist in einen Timeout gelaufen"
 
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Existing directory"
@@ -7146,9 +6950,7 @@ msgid "Export processing in progress"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Export processing might take some time. The real time data displayed at the "
-"output may have changed since the start of processing."
+msgid "Export processing might take some time. The real time data displayed at the output may have changed since the start of processing."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -7160,9 +6962,7 @@ msgid "Export to png"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Export will be processed but will not include all rows. You can still filter "
-"your resources to reduce the number of rows."
+msgid "Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -7336,9 +7136,7 @@ msgstr ""
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 #, php-format
 msgid "Failed to get the auth token from Central : '%s''"
-msgstr ""
-"Fehler bei der Ermittlung des Authentifizierungstokens vom zentralen Server: "
-"'%s\""
+msgstr "Fehler bei der Ermittlung des Authentifizierungstokens vom zentralen Server: '%s\""
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to save OpenID Connect configuration"
@@ -7611,20 +7409,14 @@ msgstr ""
 
 #: centreon/www/install/step_upgrade/step3.php
 msgid "For further details on changes, please find the complete changelog on "
-msgstr ""
-"Für weitere Informationen hinsichtlich Änderungen in dieser Version, schauen "
-"Sie im Änderungsprotokoll nach "
+msgstr "Für weitere Informationen hinsichtlich Änderungen in dieser Version, schauen Sie im Änderungsprotokoll nach "
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"For security reasons, the token can only be displayed once. Remember to "
-"store it well."
+msgid "For security reasons, the token can only be displayed once. Remember to store it well."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"For some connectors, you must define on the poller the credentials required "
-"to access the monitored hosts. You can do it easily from here."
+msgid "For some connectors, you must define on the poller the credentials required to access the monitored hosts. You can do it easily from here."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/engine/form.php
@@ -7651,8 +7443,7 @@ msgid "Forced check command sent !"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Forced check command sent ! Please refresh the listing to update the data."
+msgid "Forced check command sent ! Please refresh the listing to update the data."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -7687,9 +7478,7 @@ msgid "Free text search behavior"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Free text search behavior can be configured in the Administration > "
-"Parameters > Centreon UI page."
+msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -8677,9 +8466,7 @@ msgid "Host template #%d not found"
 msgstr ""
 
 #: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
-msgid ""
-"Host template required in service group association is not linked to service "
-"template"
+msgid "Host template required in service group association is not linked to service template"
 msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
@@ -8920,8 +8707,7 @@ msgstr "Stunden"
 
 #: centreon/www/include/configuration/configObject/timeperiod/renderTimeperiod.php
 msgid "Hover on timeline to see more information"
-msgstr ""
-"Fahren Sie mit der Maus über die Timeline um weitere Informationen anzuzeigen"
+msgstr "Fahren Sie mit der Maus über die Timeline um weitere Informationen anzuzeigen"
 
 #: centreon/www/install/front_translate.php
 msgid "Human readable"
@@ -8974,9 +8760,7 @@ msgid "Identity provider"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"If checked, a notification is sent to the contacts linked to the object to "
-"warn that the incident on the resource has been acknowledged"
+msgid "If checked, a notification is sent to the contacts linked to the object to warn that the incident on the resource has been acknowledged"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
@@ -8992,31 +8776,19 @@ msgid "If no match, submit default status"
 msgstr "Wenn kein Treffer gefunden wird, Standardstatus einreichen"
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"If the agent is not allowed to connect to the poller for security reasons "
-"(e.g. when the poller is in a DMZ), you can use a poller-initiated "
-"connection."
+msgid "If the agent is not allowed to connect to the poller for security reasons (e.g. when the poller is in a DMZ), you can use a poller-initiated connection."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
-msgid ""
-"If the contact is connected, all his instances will be closed. Are you sure "
-"you want to request a data synchronization at the next login of this "
-"Contact ?"
-msgstr ""
-"Wenn der Kontakt verbunden ist, werden alle seine Verbindungsinstanzen "
-"geschlossen. Sind Sie sich sicher, dass Sie beim nächsten Login des Kontakts "
-"eine Datensynchronisation anfordern möchten?"
+msgid "If the contact is connected, all his instances will be closed. Are you sure you want to request a data synchronization at the next login of this Contact ?"
+msgstr "Wenn der Kontakt verbunden ist, werden alle seine Verbindungsinstanzen geschlossen. Sind Sie sich sicher, dass Sie beim nächsten Login des Kontakts eine Datensynchronisation anfordern möchten?"
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"If ticket management is enabled, only the “by service” view is available."
+msgid "If ticket management is enabled, only the “by service” view is available."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"If we consider the following example in the JSON received from the "
-"authorization endpoint, a relation is defined between the value"
+msgid "If we consider the following example in the JSON received from the authorization endpoint, a relation is defined between the value"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -9028,8 +8800,7 @@ msgid "If you leave the edition mode, your changes will not be saved."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"If you leave without saving your dashboard, changes will be permanently lost."
+msgid "If you leave without saving your dashboard, changes will be permanently lost."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -9037,16 +8808,11 @@ msgid "If you leave {{dashboardName}}, your changes will not be saved."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"If you want to display the graph with host categories and hosts, you must "
-"select only one hostgroup."
+msgid "If you want to display the graph with host categories and hosts, you must select only one hostgroup."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"If your command uses shell functions (pipes, redirects, wildcards, etc.), "
-"check this box. Note that commands requiring the shell slow down the "
-"monitoring server."
+msgid "If your command uses shell functions (pipes, redirects, wildcards, etc.), check this box. Note that commands requiring the shell slow down the monitoring server."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/knowledgeBase/formKnowledgeBase.php
@@ -9134,9 +8900,7 @@ msgstr "Benutzer manuell importieren"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "Impossible to change server due to parentship with other hosts"
-msgstr ""
-"Aufgrund einer Relation mit übergeordneten Hosts ist ein Serverwechsel nicht "
-"möglich"
+msgstr "Aufgrund einer Relation mit übergeordneten Hosts ist ein Serverwechsel nicht möglich"
 
 #: centreon/src/Core/Contact/Application/Exception/ContactGroupException.php
 msgid "Impossible to get contact groups from data storage"
@@ -9147,9 +8911,7 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 msgid "Impossible to validate, one or more field is incorrect"
-msgstr ""
-"Die Validierung konnte nicht durchgeführt werden. Ein oder mehrere Felder "
-"sind fehlerhaft"
+msgstr "Die Validierung konnte nicht durchgeführt werden. Ein oder mehrere Felder sind fehlerhaft"
 
 #: centreon/www/install/smarty_translate.php
 msgid "In Downtime"
@@ -9400,9 +9162,7 @@ msgstr ""
 
 #: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/options/media/images/formImg.php
-msgid ""
-"Invalid directory name. Only alphanumeric characters, hyphens and "
-"underscores are allowed."
+msgid "Invalid directory name. Only alphanumeric characters, hyphens and underscores are allowed."
 msgstr ""
 
 #: centreon/src/Core/Domain/Configuration/Notification/Exception/NotificationException.php
@@ -9525,22 +9285,15 @@ msgid "Issuer (Entity ID) URL"
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step1.php
-msgid ""
-"It is strongly recommended to make a backup of your databases before going "
-"any further."
-msgstr ""
-"Es wird dringend empfohlen, eine Sicherung der Datenbank zu erstellen, bevor "
-"der Prozess fortgesetzt wird."
+msgid "It is strongly recommended to make a backup of your databases before going any further."
+msgstr "Es wird dringend empfohlen, eine Sicherung der Datenbank zu erstellen, bevor der Prozess fortgesetzt wird."
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"It will be permanently deleted and users will no longer have this permission."
+msgid "It will be permanently deleted and users will no longer have this permission."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"It's possible to specify the criteria you precisely want to search, by using "
-"the following syntax:"
+msgid "It's possible to specify the criteria you precisely want to search, by using the following syntax:"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -9938,8 +9691,7 @@ msgstr "Latenz"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Latency detected, check configuration for better optimization"
-msgstr ""
-"Latenz erkannt, überprüfen Sie die Konfiguration für bessere Optimierung"
+msgstr "Latenz erkannt, überprüfen Sie die Konfiguration für bessere Optimierung"
 
 #: centreon/www/include/home/customViews/index.php
 msgid "Layout"
@@ -9969,9 +9721,7 @@ msgid "Legend Name"
 msgstr "Legendenname"
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
-msgid ""
-"Legend is disabled for the default template because it cannot be displayed "
-"in the graph. Metric name will be displayed by default."
+msgid "Legend is disabled for the default template because it cannot be displayed in the graph. Metric name will be displayed by default."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -10514,8 +10264,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid "Manually request to synchronize this contact with his LDAP"
-msgstr ""
-"Manuelle Anforderung zur Synchronisierung dieses Kontakts mit seinem LDAP"
+msgstr "Manuelle Anforderung zur Synchronisierung dieses Kontakts mit seinem LDAP"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/menu_translation.php
@@ -10523,15 +10272,11 @@ msgid "Manufacturer"
 msgstr "Hersteller"
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Many thanks to all developers & contributors. <contributors>See the full "
-"list on GitHub ↗</contributors>"
+msgid "Many thanks to all developers & contributors. <contributors>See the full list on GitHub ↗</contributors>"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Many thanks to everyone who responsibly disclosed and helped fix security "
-"issues. <policy>Report a vulnerability ↗</policy>"
+msgid "Many thanks to everyone who responsibly disclosed and helped fix security issues. <policy>Report a vulnerability ↗</policy>"
 msgstr ""
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
@@ -10604,8 +10349,7 @@ msgstr "Maximale Zeit, in der die initialen Hostüberprüfungen verteilt werden"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Maximum Service Check Spread"
-msgstr ""
-"Maximale Zeit, in der die initialen Serviceüberprüfungen verteilt werden"
+msgstr "Maximale Zeit, in der die initialen Serviceüberprüfungen verteilt werden"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Maximum files size (in bytes)"
@@ -10904,9 +10648,7 @@ msgstr "Fehlender erforderlicher Parameter: '%s'"
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 #, php-format
 msgid "Missing mandatory parent address, to link the platform : '%s'@'%s'"
-msgstr ""
-"Fehlende erforderliche übergeordnete Adresse, um die Plattform zu verbinden: "
-"'%s'@'%s'"
+msgstr "Fehlende erforderliche übergeordnete Adresse, um die Plattform zu verbinden: '%s'@'%s'"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 #, php-format
@@ -11408,9 +11150,7 @@ msgid "More filters"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"More than 1,000 resources match your search. Click to compute the exact "
-"count."
+msgid "More than 1,000 resources match your search. Click to compute the exact count."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -11707,9 +11447,7 @@ msgstr ""
 
 #: centreon/src/CentreonRemote/Application/Webservice/CentreonConfigurationRemote.php
 msgid "No Central in topology,please edit it from Configuration > Pollers menu"
-msgstr ""
-"Kein zentraler Server in der Topologie vorhanden, bitte passen Sie die "
-"Einstellungen unter Konfiguration > Poller an"
+msgstr "Kein zentraler Server in der Topologie vorhanden, bitte passen Sie die Einstellungen unter Konfiguration > Poller an"
 
 #: centreon/www/include/monitoring/comments/listComment.php
 msgid "No Comment for services."
@@ -11861,28 +11599,19 @@ msgstr "Kein Zeitraum ausgewählt"
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
 msgid "No top level platform found to link the child platforms"
-msgstr ""
-"Es wurde keine Top-Level-Plattform gefunden, mit der die untergeordneten "
-"Plattformen verbunden werden können"
+msgstr "Es wurde keine Top-Level-Plattform gefunden, mit der die untergeordneten Plattformen verbunden werden können"
 
 #: centreon/src/Core/Security/Vault/Application/Exceptions/VaultException.php
 msgid "No vault configured"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
-msgid ""
-"No view available. To create a new view, please click \"Add view\" button."
-msgstr ""
-"Keine Ansicht verfügbar. Um eine neue Ansicht hinzuzufügen, klick Sie auf "
-"den \"Ansicht hinzufügen\" Button."
+msgid "No view available. To create a new view, please click \"Add view\" button."
+msgstr "Keine Ansicht verfügbar. Um eine neue Ansicht hinzuzufügen, klick Sie auf den \"Ansicht hinzufügen\" Button."
 
 #: centreon/www/include/home/customViews/views.php
-msgid ""
-"No widget configured in this view. Please add a new widget with the \"Add "
-"widget\" button."
-msgstr ""
-"In dieser Ansicht wurden keine Widgets konfiguriert. Bitte fügen Sie über "
-"den \"Widget hinzufügen\" Button ein neues Widget hinzu."
+msgid "No widget configured in this view. Please add a new widget with the \"Add widget\" button."
+msgstr "In dieser Ansicht wurden keine Widgets konfiguriert. Bitte fügen Sie über den \"Widget hinzufügen\" Button ein neues Widget hinzu."
 
 #: centreon/www/install/front_translate.php
 msgid "No widget found"
@@ -12358,15 +12087,11 @@ msgid "One of the elements provided is not a ResourceGroup type"
 msgstr "Eines der bereitgestellten Elemente ist kein Ressourcengruppen Typ"
 
 #: centreon/www/include/configuration/configObject/service/DB-Func.php
-msgid ""
-"One or more of the selected services cannot be moved: a service with the "
-"same description already exists on the target host group(s)."
+msgid "One or more of the selected services cannot be moved: a service with the same description already exists on the target host group(s)."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/DB-Func.php
-msgid ""
-"One or more of the selected services cannot be moved: a service with the "
-"same description already exists on the target host(s)."
+msgid "One or more of the selected services cannot be moved: a service with the same description already exists on the target host(s)."
 msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
@@ -12386,14 +12111,8 @@ msgid "Only passive checks are enabled"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/listServers.php
-msgid ""
-"Only services, servicegroups, hosts and hostgroups are taken in account in "
-"order to calculate this status. If you modify a template, it won't tell you "
-"the configuration had changed."
-msgstr ""
-"Nur Services, Servicegruppen, Hosts und Hostgruppen werden berücksichtigt, "
-"um diesen Status zu ermitteln. Wenn ein Template bearbeitet wird, wird Ihnen "
-"nicht mitgeteilt, dass sich die Konfiguration geändert hat."
+msgid "Only services, servicegroups, hosts and hostgroups are taken in account in order to calculate this status. If you modify a template, it won't tell you the configuration had changed."
+msgstr "Nur Services, Servicegruppen, Hosts und Hostgruppen werden berücksichtigt, um diesen Status zu ermitteln. Wenn ein Template bearbeitet wird, wird Ihnen nicht mitgeteilt, dass sich die Konfiguration geändert hat."
 
 #: centreon/www/install/front_translate.php
 msgid "Oops"
@@ -12412,9 +12131,7 @@ msgid "Open"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Open and scalable IT monitoring platform for full visibility on your hybrid "
-"infrastructure"
+msgid "Open and scalable IT monitoring platform for full visibility on your hybrid infrastructure"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -12940,12 +12657,8 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid ""
-"Platform : '%s'@'%s' mandatory data are missing. Please check the Remote "
-"Access form"
-msgstr ""
-"Plattform: '%s'@'%s' erforderliche Daten fehlen. Bitte überprüfen Sie das "
-"'Fernzugriff'-Formular"
+msgid "Platform : '%s'@'%s' mandatory data are missing. Please check the Remote Access form"
+msgstr "Plattform: '%s'@'%s' erforderliche Daten fehlen. Bitte überprüfen Sie das 'Fernzugriff'-Formular"
 
 #: centreon/www/install/menu_translation.php
 msgid "Platform Status"
@@ -12961,12 +12674,8 @@ msgstr "Plattform konnte nicht gefunden werden"
 
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
-msgid ""
-"Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in "
-"\"%s\" for more details"
-msgstr ""
-"Bitte überprüfen Sie für weitere Details \"prod.upgrade.log\" und "
-"\"prod.web.log\", die sich unter \"%s\" befinden"
+msgid "Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in \"%s\" for more details"
+msgstr "Bitte überprüfen Sie für weitere Details \"prod.upgrade.log\" und \"prod.web.log\", die sich unter \"%s\" befinden"
 
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #, php-format
@@ -13020,9 +12729,7 @@ msgid "Please install PHP version %s instead of %s."
 msgstr "Bitte installieren sie PHP Version %s anstatt %s."
 
 #: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Please note that domains outside your organization must be authorized in "
-"your Apache configuration."
+msgid "Please note that domains outside your organization must be authorized in your Apache configuration."
 msgstr ""
 
 #: centreon/www/widgets/graph-monitoring/index.php
@@ -13044,8 +12751,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact/displayNotification.php
 #: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
 msgid "Please select a user in order to view his notifications"
-msgstr ""
-"Bitte wählen Sie einen Benutzer, um dessen Benachrichtigungen einzusehen"
+msgstr "Bitte wählen Sie einen Benutzer, um dessen Benachrichtigungen einzusehen"
 
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 #: centreon/www/include/configuration/configObject/connector/listConnector.php
@@ -13082,9 +12788,7 @@ msgstr "Bitte wählen Sie ein oder mehrere Elemente aus"
 
 #: centreon/www/install/step_upgrade/step4.php
 msgid "Please upgrade to an intermediate release (ie. 2.8.x) first."
-msgstr ""
-"Bitte führen Sie zuerst ein Upgrade auf eine Zwischenversion (z.B. 2.8.x) "
-"durch."
+msgstr "Bitte führen Sie zuerst ein Upgrade auf eine Zwischenversion (z.B. 2.8.x) durch."
 
 #: centreon/src/EventSubscriber/UpdateEventSubscriber.php
 msgid "Please use Web UI to install Centreon."
@@ -13152,8 +12856,7 @@ msgstr "Pollerfilter"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid ""
-"Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
+msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -13167,8 +12870,7 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/Repository/CfgCentreonBrokerRepository.php
 msgid "Poller broker config id not found"
-msgstr ""
-"Die ID der Konfiguration des Poller Brokers konnte nicht gefunden werden"
+msgstr "Die ID der Konfiguration des Poller Brokers konnte nicht gefunden werden"
 
 #: centreon/www/install/front_translate.php
 msgid "Poller configuration"
@@ -13772,8 +13474,7 @@ msgid "Rename"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Reordering cancelled, row {{position}} returned to its original position"
+msgid "Reordering cancelled, row {{position}} returned to its original position"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -13833,8 +13534,7 @@ msgstr ""
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 msgid "Request to the Central's API failed"
-msgstr ""
-"Bei der Anfrage an die API des zentralen Servers ist ein Fehler aufgetreten"
+msgstr "Bei der Anfrage an die API des zentralen Servers ist ein Fehler aufgetreten"
 
 #: centreon/src/Core/Application/Configuration/User/UseCase/PatchUser/PatchUser.php
 msgid "Requested theme not found"
@@ -14313,8 +14013,7 @@ msgid "Run monitoring engine debug (-v)"
 msgstr "Monitoring-Engine Debugging ausführen (-v)"
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Run the following command on each host you want to monitor with the agent."
+msgid "Run the following command on each host you want to monitor with the agent."
 msgstr ""
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
@@ -14395,9 +14094,7 @@ msgstr "SSL"
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
 msgid "Same address and parent_address for platform : '%s'@'%s'"
-msgstr ""
-"Die Adresse (address) und übergeordnete Adresse (parent_address) sind "
-"identisch für die Plattform: '%s'@'%s'"
+msgstr "Die Adresse (address) und übergeordnete Adresse (parent_address) sind identisch für die Plattform: '%s'@'%s'"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Satellite configuration"
@@ -14523,8 +14220,7 @@ msgstr "Sofortige Überprüfung für alle Services diesen Hosts ansetzen"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 msgid "Schedule an immediate check of all services on this host (forced)"
-msgstr ""
-"Sofortige Überprüfung für alle Services diesen Hosts ansetzen (erzwungen)"
+msgstr "Sofortige Überprüfung für alle Services diesen Hosts ansetzen (erzwungen)"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Schedule downtime for a host"
@@ -15509,8 +15205,7 @@ msgid "Services informations"
 msgstr "Serviceinformationen"
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Services will not be affected because you don't have sufficient permission"
+msgid "Services will not be affected because you don't have sufficient permission"
 msgstr ""
 
 #: centreon/www/api/class/centreon_keepalive.class.php
@@ -15828,9 +15523,7 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Some database poller updates are not active; check your configuration"
-msgstr ""
-"Einige Datenbankpollerupdates sind nicht aktiv; überprüfen Sie die "
-"Konfiguration"
+msgstr "Einige Datenbankpollerupdates sind nicht aktiv; überprüfen Sie die Konfiguration"
 
 #: centreon/www/install/front_translate.php
 msgid "Some examples:"
@@ -16588,8 +16281,7 @@ msgstr ""
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
 #, php-format
 msgid "The address '%s' of '%s' is not valid or not resolvable"
-msgstr ""
-"Die Adresse '%s' von '%s' ist ungültig bzw. kann nicht aufgelöst werden"
+msgstr "Die Adresse '%s' von '%s' ist ungültig bzw. kann nicht aufgelöst werden"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "The address is already registered"
@@ -16612,12 +16304,8 @@ msgid "The check command cannot be null if the service template is null"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
-msgid ""
-"The chosen contact(s) will be disconnected. Do you confirm the LDAP "
-"synchronization request ?"
-msgstr ""
-"Die Verbindung des/der ausgewählten Kontakts/Kontakte wird beendet. "
-"Bestätigen Sie die LDAP-Synchronisierungsanfrage?"
+msgid "The chosen contact(s) will be disconnected. Do you confirm the LDAP synchronization request ?"
+msgstr "Die Verbindung des/der ausgewählten Kontakts/Kontakte wird beendet. Bestätigen Sie die LDAP-Synchronisierungsanfrage?"
 
 #: centreon/src/Centreon/Domain/Entity/EntityCreator.php
 #, php-format
@@ -16633,9 +16321,7 @@ msgid "The command is being generated…"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"The command is only valid for hosts with an agent-initiated connection to "
-"this poller."
+msgid "The command is only valid for hosts with an agent-initiated connection to this poller."
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
@@ -16695,11 +16381,8 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/Service/JsonValidator/Validator.php
 #, php-format
-msgid ""
-"The definition model \"%s\" to validate the JSON does not exist or is empty"
-msgstr ""
-"Das Definitionsmodell \"%s\" zur Validierung des JSON existiert nicht oder "
-"ist leer"
+msgid "The definition model \"%s\" to validate the JSON does not exist or is empty"
+msgstr "Das Definitionsmodell \"%s\" zur Validierung des JSON existiert nicht oder ist leer"
 
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
 #, php-format
@@ -16751,22 +16434,16 @@ msgid "The following macros are not valid: %s"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"The following script will migrate all your credentials from Centreon, Auto-"
-"discovery and the database."
+msgid "The following script will migrate all your credentials from Centreon, Auto-discovery and the database."
 msgstr ""
 
 #: centreon/www/include/common/common-Func.php
 #: centreon/www/lib/HTML/QuickForm/HTML_QuickFormCustom.php
-msgid ""
-"The form has not been submitted since 15 minutes. Please retry to resubmit"
-msgstr ""
-"Das Formular wurde seit 15 Minuten nicht abgespeichert. Bitte versuchen Sie "
-"das Speichern erneut"
+msgid "The form has not been submitted since 15 minutes. Please retry to resubmit"
+msgstr "Das Formular wurde seit 15 Minuten nicht abgespeichert. Bitte versuchen Sie das Speichern erneut"
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"The form will be cleared and all data will be lost. Do you want to proceed?"
+msgid "The form will be cleared and all data will be lost. Do you want to proceed?"
 msgstr ""
 
 #: centreon/src/Core/HostGroup/Application/Exceptions/HostGroupException.php
@@ -16797,10 +16474,7 @@ msgstr ""
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 #, php-format
-msgid ""
-"The license does not allow the host templates with ID(s) '%s': they come "
-"from or inherit from licensed Monitoring Connectors, and the license is "
-"invalid or its host limit is reached"
+msgid "The license does not allow the host templates with ID(s) '%s': they come from or inherit from licensed Monitoring Connectors, and the license is invalid or its host limit is reached"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -16808,9 +16482,7 @@ msgid "The message field should not be empty!"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"The migration process can take several minutes depending on your "
-"configuration."
+msgid "The migration process can take several minutes depending on your configuration."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -16890,17 +16562,11 @@ msgstr "Der Parameter %s ist nicht zulässig"
 
 #: centreon/www/include/Administration/parameters/DB-Func.php
 msgid "The password cannot be crypted. Please re-submit the form"
-msgstr ""
-"Das Passwort konnte nicht verschlüsselt werden. Bitte speichern Sie das "
-"Formular erneut"
+msgstr "Das Passwort konnte nicht verschlüsselt werden. Bitte speichern Sie das Formular erneut"
 
 #: centreon/www/include/Administration/parameters/remote/formRemote.php
-msgid ""
-"The password cannot be decrypted. Please re-enter the account password and "
-"submit the form"
-msgstr ""
-"Das Passwort kann nicht entschlüsselt werden. Bitte geben Sie das "
-"Benutzerkontopasswort erneut ein und speichern Sie das Formular erneut ab"
+msgid "The password cannot be decrypted. Please re-enter the account password and submit the form"
+msgstr "Das Passwort kann nicht entschlüsselt werden. Bitte geben Sie das Benutzerkontopasswort erneut ein und speichern Sie das Formular erneut ab"
 
 #: centreon/src/Centreon/Infrastructure/Event/FileLoader.php
 msgid "The path does not exist"
@@ -16913,8 +16579,7 @@ msgstr ""
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
 msgid "The platform '%s'@'%s' cannot be found on the Central"
-msgstr ""
-"Die Plattform '%s'@'%s' kann nicht auf dem zentralen Server gefunden werden"
+msgstr "Die Plattform '%s'@'%s' kann nicht auf dem zentralen Server gefunden werden"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformPending.php
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
@@ -16924,23 +16589,18 @@ msgstr "Der Plattformtyp von '%s'@'%s' ist nicht konsistent"
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
 #, php-format
-msgid ""
-"The platform: '%s'@'%s' cannot be added to the Central linked to this Remote"
-msgstr ""
-"Die Plattform: '%s'@'%s' kann nicht zu dem zentralen Server, der mit diesem "
-"Remote-Server verbunden ist, hinzugefügt werden"
+msgid "The platform: '%s'@'%s' cannot be added to the Central linked to this Remote"
+msgstr "Die Plattform: '%s'@'%s' kann nicht zu dem zentralen Server, der mit diesem Remote-Server verbunden ist, hinzugefügt werden"
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
 #, php-format
 msgid "The platform: '%s'@'%s' cannot be delete from the Central"
-msgstr ""
-"Die Plattform: '%s'@'%s' kann nicht vom zentralen Server gelöscht werden"
+msgstr "Die Plattform: '%s'@'%s' kann nicht vom zentralen Server gelöscht werden"
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
 #, php-format
 msgid "The platform: '%s'@'%s' cannot be found on the Central"
-msgstr ""
-"Die Plattform: '%s'@'%s' kann nicht auf dem zentralen Server gefunden werden"
+msgstr "Die Plattform: '%s'@'%s' kann nicht auf dem zentralen Server gefunden werden"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
@@ -16949,12 +16609,8 @@ msgstr "Die Plattform: '%s'@'%s' ist nicht als 'remote' deklariert"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid ""
-"The platform: '%s'@'%s' is not linked to a Central. Please use the wizard "
-"first"
-msgstr ""
-"Die Plattform: '%s'@'%s' is nicht mit dem zentralen Server verbunden. Bitte "
-"verwenden Sie zuerst den Einrichtungsassistent"
+msgid "The platform: '%s'@'%s' is not linked to a Central. Please use the wizard first"
+msgstr "Die Plattform: '%s'@'%s' is nicht mit dem zentralen Server verbunden. Bitte verwenden Sie zuerst den Einrichtungsassistent"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
@@ -16968,9 +16624,7 @@ msgstr "Der Port muss zwischen 0 und 65535 (inklusive) liegen"
 
 #: centreon/src/Centreon/Infrastructure/RequestParameters/SqlRequestParametersTranslator.php
 msgid "The property name of the normalizer cannot be empty."
-msgstr ""
-"Der Eigenschaftsname des Normalisierungsprogramms (normalizer) darf nicht "
-"leer sein."
+msgstr "Der Eigenschaftsname des Normalisierungsprogramms (normalizer) darf nicht leer sein."
 
 #: centreon/src/Centreon/Domain/Entity/EntityCreator.php
 #, php-format
@@ -16983,21 +16637,15 @@ msgid "The public method %s::%s was not found"
 msgstr "Die öffentliche Methode %s::%s wurde nicht gefunden"
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
-msgid ""
-"The related host no longer exists in Centreon configuration. Please reload "
-"the configuration."
-msgstr ""
-"Der Host, zu dem eine Beziehung besteht, existiert nicht mehr in der "
-"Centreon Konfiguration. Bitte Laden Sie die Konfiguration neu."
+msgid "The related host no longer exists in Centreon configuration. Please reload the configuration."
+msgstr "Der Host, zu dem eine Beziehung besteht, existiert nicht mehr in der Centreon Konfiguration. Bitte Laden Sie die Konfiguration neu."
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/SSOAuthenticationException.php
 msgid "The request for roles mapping on custom endpoint has failed"
 msgstr ""
 
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Exception/ConfigurationException.php
-msgid ""
-"The requested_authn_context_comparison value is missing but is required when "
-"requested_authn_context is set to true"
+msgid "The requested_authn_context_comparison value is missing but is required when requested_authn_context is set to true"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -17021,9 +16669,7 @@ msgid "The script path is invalid"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/DB-Func.php
-msgid ""
-"The selected inherited service template does not contain any check command. "
-"You must select one here."
+msgid "The selected inherited service template does not contain any check command. You must select one here."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -17036,18 +16682,12 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/timeperiod/formTimeperiod.php
 msgid "The selected template has the same time period as a template"
-msgstr ""
-"Das ausgewählte Template umfasst den gleichen Zeitraum wie ein anderes "
-"Template"
+msgstr "Das ausgewählte Template umfasst den gleichen Zeitraum wie ein anderes Template"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
-msgid ""
-"The server type '%s' : '%s'@'%s' does not match the one configured in "
-"Centreon or is disabled"
-msgstr ""
-"Der Servertyp '%s': '%s'@'%s' entspricht nicht dem in Centreon "
-"konfigurierten oder ist deaktiviert"
+msgid "The server type '%s' : '%s'@'%s' does not match the one configured in Centreon or is disabled"
+msgstr "Der Servertyp '%s': '%s'@'%s' entspricht nicht dem in Centreon konfigurierten oder ist deaktiviert"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 #, php-format
@@ -17084,8 +16724,7 @@ msgid "The thumbnail provided for dashboard [%d] was not found"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"The ticket with ID #{{id}} will be closed for the selected ticket provider."
+msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -17153,9 +16792,7 @@ msgid "The {{name}} additional configuration will be permanently deleted."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"The {{name}} dashboard is part of one or several playlists. It will be "
-"permanently deleted from any playlists it belongs to."
+msgid "The {{name}} dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -17169,17 +16806,14 @@ msgstr ""
 #: centreon/src/Centreon/Infrastructure/Serializer/Exception/SerializerException.php
 #, php-format
 msgid "There are not enough arguments to build the object %s"
-msgstr ""
-"Es sind nicht genügend Argumente verfügbar, um das Objekt %s zu erstellen"
+msgstr "Es sind nicht genügend Argumente verfügbar, um das Objekt %s zu erstellen"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "These time periods are defined in MBI'S ETL options."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"They will be permanently deleted and users will no longer have these "
-"permissions."
+msgid "They will be permanently deleted and users will no longer have these permissions."
 msgstr ""
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
@@ -17238,18 +16872,12 @@ msgid "This contact is not available"
 msgstr "Dieser Kontakt ist nicht verfügbar"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
-msgid ""
-"This description is in conflict with another one that is already defined in "
-"the selected relation(s)"
-msgstr ""
-"Diese Beschreibung steht mit einer anderen im Konflikt, die bereits in der/"
-"den ausgewählte(n) Beziehung(en) definiert ist/sind"
+msgid "This description is in conflict with another one that is already defined in the selected relation(s)"
+msgstr "Diese Beschreibung steht mit einer anderen im Konflikt, die bereits in der/den ausgewählte(n) Beziehung(en) definiert ist/sind"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "This directive can be used multiple times, see nagios documentation."
-msgstr ""
-"Diese Einstellung kann mehrfach verwendet werden, überprüfen Sie die Nagios-"
-"Dokumentation."
+msgstr "Diese Einstellung kann mehrfach verwendet werden, überprüfen Sie die Nagios-Dokumentation."
 
 #: centreon/www/include/monitoring/status/Services/xml/serviceXML.php
 msgid "This host is never checked"
@@ -17264,20 +16892,12 @@ msgid "This host is only checked in passive mode"
 msgstr "Dieser Host wird nur im passiven Modus überprüft"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
-msgid ""
-"This host no longer exists in Centreon configuration. Please reload the "
-"configuration."
-msgstr ""
-"Dieser Host existiert nicht mehr in der Centreon Konfiguration. Bitte Laden "
-"Sie die Konfiguration neu."
+msgid "This host no longer exists in Centreon configuration. Please reload the configuration."
+msgstr "Dieser Host existiert nicht mehr in der Centreon Konfiguration. Bitte Laden Sie die Konfiguration neu."
 
 #: centreon/www/install/smarty_translate.php
-msgid ""
-"This installer will help you setup your database and your monitoring "
-"configuration."
-msgstr ""
-"Dieser Installationsassistent unterstützt Sie dabei die Datenbank sowie die "
-"Überwachungskonfiguration einzurichten."
+msgid "This installer will help you setup your database and your monitoring configuration."
+msgstr "Dieser Installationsassistent unterstützt Sie dabei die Datenbank sowie die Überwachungskonfiguration einzurichten."
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
@@ -17297,9 +16917,7 @@ msgid "This is the description of the text widget"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"This is the most common case: the agent initiates the connection to the "
-"poller."
+msgid "This is the most common case: the agent initiates the connection to the poller."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -17321,8 +16939,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "This option must be disable in order to avoid latency problem."
-msgstr ""
-"Diese Option muss zwecks Vermeidung von Latenzproblemen deaktiviert sein."
+msgstr "Diese Option muss zwecks Vermeidung von Latenzproblemen deaktiviert sein."
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "This option must be enabled for Centreon Dashboard module."
@@ -17342,15 +16959,11 @@ msgid "This resource is flapping"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"This search bar will search matching occurences you type, contained in: host "
-"name or alias or address or service description"
+msgid "This search bar will search matching occurences you type, contained in: host name or alias or address or service description"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"This section allows you to give authorizations in order to link an imported "
-"user to an access group."
+msgid "This section allows you to give authorizations in order to link an imported user to an access group."
 msgstr ""
 
 #: centreon/src/CentreonRemote/Application/Webservice/CentreonConfigurationRemote.php
@@ -17416,14 +17029,11 @@ msgid "Thresholds"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Thresholds are automatically hidden when you select several metrics with "
-"different units."
+msgid "Thresholds are automatically hidden when you select several metrics with different units."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Thumbnails show a snapshot of your data, taken when the dashboard is saved"
+msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/backup/formBackup.php
@@ -17586,21 +17196,15 @@ msgstr "Bis"
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid "To manually request a LDAP synchronization of a contact"
-msgstr ""
-"Um manuell eine LDAP-Synchronisierung beim nächsten Login durchzuführen"
+msgstr "Um manuell eine LDAP-Synchronisierung beim nächsten Login durchzuführen"
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"To pick up a row, press space or enter. Use the arrow keys to move it, then "
-"press space or enter to drop it, or escape to cancel."
+msgid "To pick up a row, press space or enter. Use the arrow keys to move it, then press space or enter to drop it, or escape to cancel."
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
-msgid ""
-"To use additional Remote Servers a Master Remote Server must be selected."
-msgstr ""
-"Um weitere Remote-Server zu verwenden, muss ein Master Remote-Server "
-"ausgewählt werden."
+msgid "To use additional Remote Servers a Master Remote Server must be selected."
+msgstr "Um weitere Remote-Server zu verwenden, muss ein Master Remote-Server ausgewählt werden."
 
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 #: centreon/www/install/front_translate.php
@@ -17843,12 +17447,8 @@ msgid "Unable to copy the link"
 msgstr ""
 
 #: centreon/src/Centreon/Infrastructure/PlatformInformation/Repository/Model/PlatformInformationFactoryRDB.php
-msgid ""
-"Unable to decipher central's credentials. Please check the credentials in "
-"the 'Remote Access' form"
-msgstr ""
-"Die Anmeldeinformationen des zentralen Servers konnten nicht entschlüsselt "
-"werden. Bitte überprüfen Sie die Zugangsdaten in dem 'Fernzugriff'-Formular"
+msgid "Unable to decipher central's credentials. Please check the credentials in the 'Remote Access' form"
+msgstr "Die Anmeldeinformationen des zentralen Servers konnten nicht entschlüsselt werden. Bitte überprüfen Sie die Zugangsdaten in dem 'Fernzugriff'-Formular"
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 msgid "Unable to decode Central's API response"
@@ -17880,15 +17480,12 @@ msgstr "Der Verschlüsselungsschlüssel konnte nicht gefunden werden."
 #: centreon/src/Core/Application/RealTime/UseCase/FindService/FindService.php
 #, php-format
 msgid "Unable to hide passwords in command (Reason: %s)"
-msgstr ""
-"Die Passwörter im Befehl konnten nicht entfernt werden (Begründung: %s)"
+msgstr "Die Passwörter im Befehl konnten nicht entfernt werden (Begründung: %s)"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
 msgid "Unable to link a 'remote': '%s'@'%s' to another remote platform"
-msgstr ""
-"Eine 'remote'-Plattform: '%s'@'%s' kann nicht mit einer anderen 'remote'-"
-"Plattform verbunden werden"
+msgstr "Eine 'remote'-Plattform: '%s'@'%s' kann nicht mit einer anderen 'remote'-Plattform verbunden werden"
 
 #: centreon/www/include/configuration/configGenerate/xml/generateFiles.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
@@ -18000,8 +17597,7 @@ msgstr ""
 #: centreon/src/Centreon/Domain/Monitoring/MetaService/Exception/MetaServiceMetricException.php
 #, php-format
 msgid "Unkown meta metrics selection mode provided for %d"
-msgstr ""
-"Es wurde ein unbekannter Auswahlmodus für die Meta-Metriken für %d angegeben"
+msgstr "Es wurde ein unbekannter Auswahlmodus für die Meta-Metriken für %d angegeben"
 
 #: centreon/www/include/Administration/performance/viewData.php
 #: centreon/www/include/Administration/performance/viewMetrics.php
@@ -18272,24 +17868,17 @@ msgid "Users"
 msgstr "Benutzer"
 
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
-msgid ""
-"Using a Template Model allows you to have multi-level Template connections"
-msgstr ""
-"Die Verwendung eines Templatemodells erlaubt Templateverbindungen über "
-"mehrere Stufen"
+msgid "Using a Template Model allows you to have multi-level Template connections"
+msgstr "Die Verwendung eines Templatemodells erlaubt Templateverbindungen über mehrere Stufen"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 msgid "Using a Template allows you to have multi-level Template connection"
-msgstr ""
-"Die Verwendung eines Templates erlaubt Templateverbindungen über mehrere "
-"Stufen"
+msgstr "Die Verwendung eines Templates erlaubt Templateverbindungen über mehrere Stufen"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Using a Template exempts you to fill required fields"
-msgstr ""
-"Die Verwendung eines Templates konsolidiert das Ausfüllen von erforderlichen "
-"Feldern"
+msgstr "Die Verwendung eines Templates konsolidiert das Ausfüllen von erforderlichen Feldern"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "V1 (legacy, with epoch timestamps)"
@@ -18785,29 +18374,17 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #, php-format
-msgid ""
-"Warning, maximum size exceeded for input '%s' (max: %d), it will be "
-"truncated upon saving"
-msgstr ""
-"Warnung, maximale Größe hat die Eingabe überschritten '%s' (max: %d), wird "
-"beim speichern gekürzt"
+msgid "Warning, maximum size exceeded for input '%s' (max: %d), it will be truncated upon saving"
+msgstr "Warnung, maximale Größe hat die Eingabe überschritten '%s' (max: %d), wird beim speichern gekürzt"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
-msgid ""
-"Warning, unconventional use of interval check. You should prefer to use an "
-"interval lower than 24h, if needed, pair this configuration with the use of "
-"timeperiods"
-msgstr ""
-"Warnung: Unkonventielle Verwendung einer Intervallüberprüfung. Das Intervall "
-"sollte kleiner als 24 Stunden sein. Falls nötig, kann diese Konfiguration "
-"mit Zeiträumen kombiniert werden"
+msgid "Warning, unconventional use of interval check. You should prefer to use an interval lower than 24h, if needed, pair this configuration with the use of timeperiods"
+msgstr "Warnung: Unkonventielle Verwendung einer Intervallüberprüfung. Das Intervall sollte kleiner als 24 Stunden sein. Falls nötig, kann diese Konfiguration mit Zeiträumen kombiniert werden"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Warning: this value can be dangerous, use -1 if you have any doubt."
-msgstr ""
-"Warnung: Dieser Wert kann gefährlich sein, verwenden Sie -1 wenn Sie sich "
-"nicht sicher sind."
+msgstr "Warnung: Dieser Wert kann gefährlich sein, verwenden Sie -1 wenn Sie sich nicht sicher sind."
 
 #: centreon/www/install/front_translate.php
 msgid "Weak"
@@ -19019,38 +18596,23 @@ msgid "Yesterday"
 msgstr "Gestern"
 
 #: centreon/www/include/configuration/configServers/listServers.php
-msgid ""
-"You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE."
-"\\nDo you confirm the deletion ?"
-msgstr ""
-"Sie sind im Begriff einen oder mehrere Poller zu löschen.\\nDiese Aktion ist "
-"UNUMKEHRBAR.\\nBestätigen Sie die Löschung?"
+msgid "You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE.\\nDo you confirm the deletion ?"
+msgstr "Sie sind im Begriff einen oder mehrere Poller zu löschen.\\nDiese Aktion ist UNUMKEHRBAR.\\nBestätigen Sie die Löschung?"
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"You are about to delete the <strong>{{tokenName}}</strong> token. This "
-"action cannot be undone. Do you want to delete this token anyway ? You must "
-"export the configuration for the change to be taken into account."
+msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"You are about to disable the <strong>{{tokenName}}</strong> token. If you "
-"disable it, all requests made with this token will be rejected. Do you want "
-"to disable it ? You must export the configuration for the change to be taken "
-"into account."
+msgid "You are about to disable the <strong>{{tokenName}}</strong> token. If you disable it, all requests made with this token will be rejected. Do you want to disable it ? You must export the configuration for the change to be taken into account."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"You are about to enable the <strong>{{tokenName}}</strong> token. You must "
-"export the configuration for the change to be taken into account."
+msgid "You are about to enable the <strong>{{tokenName}}</strong> token. You must export the configuration for the change to be taken into account."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"You are about to export the status of the resources you have filtered. You "
-"can export up to 10,000 rows."
+msgid "You are about to export the status of the resources you have filtered. You can export up to 10,000 rows."
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step1.php
@@ -19062,24 +18624,15 @@ msgid "You are disconnected"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"You are going to delete <strong>{{name}}</strong> from the user list. This "
-"user will no longer access the dashboard."
+msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"You are going to delete the <strong>{{ agent }}</strong> agent "
-"configuration. All parameters for this agent configuration will be deleted. "
-"This action cannot be undone."
+msgid "You are going to delete the <strong>{{ agent }}</strong> agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"You are going to delete the configuration for the <strong>{{ poller }}</"
-"strong> poller from the <strong>{{ agent }}</strong> agent configuration. "
-"All configuration parameters for this poller will be deleted. This action "
-"cannot be undone."
+msgid "You are going to delete the configuration for the <strong>{{ poller }}</strong> poller from the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone."
 msgstr ""
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
@@ -19180,15 +18733,13 @@ msgstr "Sie sind nicht dazu berechtigt, auf diesen Meta-Service zuzugreifen"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "You are not allowed to access this monitoring instance"
-msgstr ""
-"Sie sind nicht dazu berechtigt, auf diese Monitoring-Instanz zuzugreifen"
+msgstr "Sie sind nicht dazu berechtigt, auf diese Monitoring-Instanz zuzugreifen"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configResources/formResources.php
 msgid "You are not allowed to access this object configuration"
-msgstr ""
-"Sie sind nicht dazu berechtigt, auf diese Objektkonfiguration zuzugreifen"
+msgstr "Sie sind nicht dazu berechtigt, auf diese Objektkonfiguration zuzugreifen"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "You are not allowed to access this service"
@@ -19435,10 +18986,7 @@ msgid "You can choose only one resource for each resource type."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"You can create two types of tokens: API tokens to manipulate Centreon "
-"objects via the API, or CMA tokens to allow the CMA monitoring agent to "
-"authenticate to the corresponding poller."
+msgid "You can create two types of tokens: API tokens to manipulate Centreon objects via the API, or CMA tokens to allow the CMA monitoring agent to authenticate to the corresponding poller."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -19446,17 +18994,11 @@ msgid "You can use regular expression syntax to retrieve more relevant results"
 msgstr ""
 
 #: centreon/www/class/centreonContact.class.php
-msgid ""
-"You can't change your password because the delay before changing password is "
-"not over."
-msgstr ""
-"Sie können Ihr Passwort nicht ändern, da der Zeitraum zwischen "
-"Passwortänderungen noch nicht abgelaufen ist."
+msgid "You can't change your password because the delay before changing password is not over."
+msgstr "Sie können Ihr Passwort nicht ändern, da der Zeitraum zwischen Passwortänderungen noch nicht abgelaufen ist."
 
 #: centreon/www/install/smarty_translate.php
-msgid ""
-"You can't edit this downtime because you don't have access to all of its "
-"resources"
+msgid "You can't edit this downtime because you don't have access to all of its resources"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -19504,30 +19046,20 @@ msgid "You have selected No TLS for the encryption level."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"You have selected No TLS for the encryption level. This parameter is meant "
-"for test purposes only and is not allowed in production. The agent "
-"monitoring will stop after 1 hour."
+msgid "You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "You have to keep at least one contact to access to Centreon"
-msgstr ""
-"Sie müssen mindestens einen Kontakt erhalten, der Zugriff auf Centreon hat"
+msgstr "Sie müssen mindestens einen Kontakt erhalten, der Zugriff auf Centreon hat"
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"You have too many metrics, please filter more resources to optimize platform "
-"performance."
+msgid "You have too many metrics, please filter more resources to optimize platform performance."
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step4.php
-msgid ""
-"You may refer to the line in the specified file in order to correct the "
-"issue."
-msgstr ""
-"Bitte überprüfen Sie die Zeile in der angegebenen Datei um das Problem zu "
-"beheben."
+msgid "You may refer to the line in the specified file in order to correct the issue."
+msgstr "Bitte überprüfen Sie die Zeile in der angegebenen Datei um das Problem zu beheben."
 
 #: centreon/src/Centreon/Application/Controller/MonitoringResourceController.php
 msgid "You must add at least one provider"
@@ -19573,12 +19105,8 @@ msgid "You're not authorized to access poller data"
 msgstr "Sie haben keine Berechtigungen für den Zugriff auf Pollerdaten"
 
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
-msgid ""
-"Your Central is linked to another remote(s), conversion in Remote isn't "
-"allowed"
-msgstr ""
-"Der zentrale Server ist mit (einer) anderen Remote-Plattforme(n) verbunden, "
-"eine Umwandlung in Remote ist nicht zulässig"
+msgid "Your Central is linked to another remote(s), conversion in Remote isn't allowed"
+msgstr "Der zentrale Server ist mit (einer) anderen Remote-Plattforme(n) verbunden, eine Umwandlung in Remote ist nicht zulässig"
 
 #: centreon/www/install/step_upgrade/step3.php
 msgid "Your Centreon Platform is about to be upgraded from version "
@@ -19596,9 +19124,7 @@ msgstr "Ihre IP-Adresse steht nicht auf der Whitelist"
 #: centreon/www/include/Administration/myAccount/DB-Func.php
 #: centreon/www/include/configuration/configObject/contact/DB-Func.php
 msgid "Your autologin key must be different than your current password"
-msgstr ""
-"Ihr Autologin-Schlüssel muss sich von Ihrem derzeitigen Passwort "
-"unterscheiden"
+msgstr "Ihr Autologin-Schlüssel muss sich von Ihrem derzeitigen Passwort unterscheiden"
 
 #: centreon/www/install/front_translate.php
 msgid "Your changes will not be saved if you leave classic mode."
@@ -19643,9 +19169,7 @@ msgid "Your form has unsaved changes"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"Your form has unsaved changes. Do you want to quit the form without saving "
-"the changes?"
+msgid "Your form has unsaved changes. Do you want to quit the form without saving the changes?"
 msgstr ""
 
 #: centreon/www/include/Administration/myAccount/DB-Func.php
@@ -19657,12 +19181,8 @@ msgid "Your password doesn't match the security policy"
 msgstr "Ihr Passwort entspricht nicht den Sicherheitsvorgaben"
 
 #: centreon/www/class/centreonContact.class.php
-msgid ""
-"Your password has already been used. Please choose a different password from "
-"the previous three."
-msgstr ""
-"Ihr Passwort wurde bereits genutzt. Bitte wählen Sie ein anderes Passwort "
-"als die letzten drei."
+msgid "Your password has already been used. Please choose a different password from the previous three."
+msgstr "Ihr Passwort wurde bereits genutzt. Bitte wählen Sie ein anderes Passwort als die letzten drei."
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Your password has expired. Please change it."
@@ -19758,26 +19278,17 @@ msgstr "[%s] Als Wert \"%d\" wurde maximal %d erwartet"
 
 #: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
 #, php-format
-msgid ""
-"[%s] The value \"%s\" is too long, it should have no more than %d "
-"characters, but has %d characters"
-msgstr ""
-"[%s] Der Wert \"%s\" ist zu lang. Er sollte maximal %d Zeichen haben, hat "
-"jedoch %d Zeichen"
+msgid "[%s] The value \"%s\" is too long, it should have no more than %d characters, but has %d characters"
+msgstr "[%s] Der Wert \"%s\" ist zu lang. Er sollte maximal %d Zeichen haben, hat jedoch %d Zeichen"
 
 #: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
 #, php-format
-msgid ""
-"[%s] The value \"%s\" is too short, it should have at least %d characters, "
-"but only has %d characters"
-msgstr ""
-"[%s] Der Wert \"%s\" ist zu kurz. Er sollte minimal %d Zeichen haben, hat "
-"jedoch nur %d Zeichen"
+msgid "[%s] The value \"%s\" is too short, it should have at least %d characters, but only has %d characters"
+msgstr "[%s] Der Wert \"%s\" ist zu kurz. Er sollte minimal %d Zeichen haben, hat jedoch nur %d Zeichen"
 
 #: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
 #, php-format
-msgid ""
-"[%s] The value \"%s\" was expected to be a valid URL, IP address or domain"
+msgid "[%s] The value \"%s\" was expected to be a valid URL, IP address or domain"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
@@ -19838,9 +19349,7 @@ msgstr "[%s]: Anbieter- und Aktualisierungs-Token sind abgelaufen"
 #: centreon/src/Core/Security/Authentication/Domain/Exception/SSOAuthenticationException.php
 #, php-format
 msgid "[%s]: Login claim [%s] not found from external provider user"
-msgstr ""
-"[%s]: Login Versuch [%s] konnte von dem externen Anbieter nicht gefunden "
-"werden"
+msgstr "[%s]: Login Versuch [%s] konnte von dem externen Anbieter nicht gefunden werden"
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/SSOAuthenticationException.php
 #, php-format
@@ -19851,12 +19360,8 @@ msgstr "[%s]: Keine Autorisierungscode-Rückgabe durch externen Anbieter"
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/monitoring/status/Services/service.php
-msgid ""
-"[Page deprecated] This page will be removed in the next major version. "
-"Please use the new page: "
-msgstr ""
-"[Seite veraltet] Diese Seite wird in der nächsten Hauptversion entfernt "
-"werden. Bitte nutzen Sie die neue Seite: "
+msgid "[Page deprecated] This page will be removed in the next major version. Please use the new page: "
+msgstr "[Seite veraltet] Diese Seite wird in der nächsten Hauptversion entfernt werden. Bitte nutzen Sie die neue Seite: "
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "_Module_ is not a legal expression"
@@ -20044,18 +19549,14 @@ msgstr "Stunden"
 #: centreon/www/include/Administration/parameters/gorgone/gorgone.php
 #: centreon/www/include/Administration/parameters/knowledgeBase/formKnowledgeBase.php
 msgid "impossible to validate, one or more field is incorrect"
-msgstr ""
-"Die Validierung konnte nicht durchgeführt werden. Ein oder mehrere Felder "
-"sind fehlerhaft"
+msgstr "Die Validierung konnte nicht durchgeführt werden. Ein oder mehrere Felder sind fehlerhaft"
 
 #: centreon/www/install/front_translate.php
 msgid "is defined by default. You can define another one."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"is the selected metric by default. Refine filters to select another specific "
-"resource."
+msgid "is the selected metric by default. Refine filters to select another specific resource."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -20235,21 +19736,13 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformInformation/UseCase/V20/UpdatePartiallyPlatformInformation.php
 #, php-format
-msgid ""
-"the address %s is already used has proxy address and can't be provided as "
-"Central Server Address"
-msgstr ""
-"Die Adresse %s ist bereits als Proxy-Adresse eingetragen und kann nicht als "
-"Adresse des zentralen Servers verwendet werden"
+msgid "the address %s is already used has proxy address and can't be provided as Central Server Address"
+msgstr "Die Adresse %s ist bereits als Proxy-Adresse eingetragen und kann nicht als Adresse des zentralen Servers verwendet werden"
 
 #: centreon/src/Centreon/Domain/PlatformInformation/UseCase/V20/UpdatePartiallyPlatformInformation.php
 #, php-format
-msgid ""
-"the address %s is already used in the topology and can't be provided as "
-"Central Server Address"
-msgstr ""
-"Die Adresse %s ist bereits in Nutzung in der Topologie und kann nicht als "
-"Adresse des zentralen Servers verwendet werden"
+msgid "the address %s is already used in the topology and can't be provided as Central Server Address"
+msgstr "Die Adresse %s ist bereits in Nutzung in der Topologie und kann nicht als Adresse des zentralen Servers verwendet werden"
 
 #: centreon/www/install/front_translate.php
 msgid "then copy the script to each host you want to monitor."
@@ -20342,24 +19835,12 @@ msgid "3d Coords"
 msgstr "3d Koordinaten"
 
 #: unknown
-msgid ""
-"<br><i><b><font color=\"#B22222\">Notes </font>:</b></"
-"i><br>&nbsp;&nbsp;&nbsp;- Do not mix metrics of different sources."
-"<br>&nbsp;&nbsp;&nbsp;- Only aggregation functions work in VDEF rpn "
-"expressions."
-msgstr ""
-"<br><i><b><font color=\"#B22222\">Notizen </font>:</b></"
-"i><br>&nbsp;&nbsp;&nbsp;- Vermischen Sie keine Metriken aus verschiedenen "
-"Quellen.<br>&nbsp;&nbsp;&nbsp;- In VDEF RPN Ausdrücken funktionieren "
-"ausschließlich Aggregationsfunktionen."
+msgid "<br><i><b><font color=\"#B22222\">Notes </font>:</b></i><br>&nbsp;&nbsp;&nbsp;- Do not mix metrics of different sources.<br>&nbsp;&nbsp;&nbsp;- Only aggregation functions work in VDEF rpn expressions."
+msgstr "<br><i><b><font color=\"#B22222\">Notizen </font>:</b></i><br>&nbsp;&nbsp;&nbsp;- Vermischen Sie keine Metriken aus verschiedenen Quellen.<br>&nbsp;&nbsp;&nbsp;- In VDEF RPN Ausdrücken funktionieren ausschließlich Aggregationsfunktionen."
 
 #: unknown
-msgid ""
-"A host can have multiple templates, their orders have a significant "
-"importance"
-msgstr ""
-"Ein Host kann mehrere Templates verwenden, die Reihenfolge der Templates "
-"ist wichtig"
+msgid "A host can have multiple templates, their orders have a significant importance"
+msgstr "Ein Host kann mehrere Templates verwenden, die Reihenfolge der Templates ist wichtig"
 
 #: unknown
 msgid "Active Color"
@@ -20919,12 +20400,8 @@ msgid "Append"
 msgstr "Anhängen"
 
 #: unknown
-msgid ""
-"Are you sure you want to change this parameter? Please read the help "
-"before."
-msgstr ""
-"Sind Sie sich sicher, dass Sie diesen Parameter ändern möchten? Bitte "
-"lesen Sie vorher die Hilfe dazu."
+msgid "Are you sure you want to change this parameter? Please read the help before."
+msgstr "Sind Sie sich sicher, dass Sie diesen Parameter ändern möchten? Bitte lesen Sie vorher die Hilfe dazu."
 
 #: unknown
 msgid "Argument Descriptions"
@@ -20989,14 +20466,9 @@ msgstr "Centcore-Eigenschaften"
 #, php-format
 #: unknown
 msgid ""
-"Centreon Broker's configuration directory '%s' does not exist and could "
-"not\n"
-"                                             be created for monitoring "
-"engine '%s'. Please check it's path or create it"
-msgstr ""
-"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' "
-"existiert nicht und konnte nicht erstellt werden. Bitte überprüfen Sie "
-"den Pfad oder erstellen Sie diesen"
+"Centreon Broker's configuration directory '%s' does not exist and could not\n"
+"                                             be created for monitoring engine '%s'. Please check it's path or create it"
+msgstr "Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' existiert nicht und konnte nicht erstellt werden. Bitte überprüfen Sie den Pfad oder erstellen Sie diesen"
 
 #: unknown
 msgid "Centreon Map"
@@ -21044,9 +20516,7 @@ msgstr "Befehlstyp"
 
 #: unknown
 msgid "Commands definitions can contain Macros but they have to be valid."
-msgstr ""
-"Befehlsdefinitionen können Makros enthalten, diese müssen jedoch gültig "
-"sein."
+msgstr "Befehlsdefinitionen können Makros enthalten, diese müssen jedoch gültig sein."
 
 #: unknown
 msgid "Compulsory Command Line"
@@ -21069,10 +20539,7 @@ msgstr "Mitwirkende"
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check it's path or create it"
-msgstr ""
-"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' konnte "
-"nicht gefunden werden. Bitte überprüfen Sie den Pfad oder erstellen Sie "
-"diesen"
+msgstr "Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' konnte nicht gefunden werden. Bitte überprüfen Sie den Pfad oder erstellen Sie diesen"
 
 #: unknown
 msgid "Daemon core dumps"
@@ -21181,9 +20648,7 @@ msgstr "Shell aktivieren"
 
 #: unknown
 msgid "Enable the one-click export button for poller configuration [BETA]"
-msgstr ""
-"Aktiviere den \"ein-Klick\" Exportknopf für die Poller Konfiguration "
-"[BETA]"
+msgstr "Aktiviere den \"ein-Klick\" Exportknopf für die Poller Konfiguration [BETA]"
 
 #: unknown
 msgid "End Session Endpoint"
@@ -21219,11 +20684,8 @@ msgid "Geolocation"
 msgstr "Geolocation"
 
 #: unknown
-msgid ""
-"Group hosts into categories to organize and filter your configuration."
-msgstr ""
-"Gruppieren Sie Hosts in Kategorien, um Ihre Konfiguration zu organisieren "
-"und zu filtern."
+msgid "Group hosts into categories to organize and filter your configuration."
+msgstr "Gruppieren Sie Hosts in Kategorien, um Ihre Konfiguration zu organisieren und zu filtern."
 
 #: unknown
 msgid "H:i:s"
@@ -21458,12 +20920,8 @@ msgid "Optimized (beta)"
 msgstr "Verbessert (Beta)"
 
 #: unknown
-msgid ""
-"Optimized mode is not possible, BBDOv3 and unified SQL output must be "
-"configured"
-msgstr ""
-"Verbesserter Modus ist nicht möglich, BBDOv3 und einheitliche SQL "
-"Ausgaben müssen konfiguriert sein"
+msgid "Optimized mode is not possible, BBDOv3 and unified SQL output must be configured"
+msgstr "Verbesserter Modus ist nicht möglich, BBDOv3 und einheitliche SQL Ausgaben müssen konfiguriert sein"
 
 #: unknown
 msgid "Overview"
@@ -21682,9 +21140,7 @@ msgid "Sorry, your command line does not contain any $ARGn$ macro."
 msgstr "Ihre Befehlszeile enthält kein $ARGn$ Makro."
 
 #: unknown
-msgid ""
-"Sorry, your command line does not contain any $_SERVICE$ macro or $_HOST$ "
-"macro."
+msgid "Sorry, your command line does not contain any $_SERVICE$ macro or $_HOST$ macro."
 msgstr "Ihre Befehlszeile enthält kein $_SERVICE$- oder $_HOST$-Makro."
 
 #: unknown
@@ -21737,8 +21193,7 @@ msgstr "Unix-Socket"
 
 #: unknown
 msgid "Use Basic Auth for Token Endpoint Authentication"
-msgstr ""
-"Basic-Authentifizierung für Token-Endpunkt Authentifizierung verwenden"
+msgstr "Basic-Authentifizierung für Token-Endpunkt Authentifizierung verwenden"
 
 #: unknown
 msgid "Use large installation tweaks"
@@ -21829,38 +21284,20 @@ msgid "Y/m/d (H:i:s)"
 msgstr "Y/m/d (h:min:s)"
 
 #: unknown
-msgid ""
-"You are about to delete <strong>{{ count }} host categories.</strong> "
-"This action cannot be undone. Do you want to delete them?"
-msgstr ""
-"Sie sind dabei, <strong>{{ count }} Hostkategorien</strong> zu löschen. "
-"Diese Aktion kann nicht rückgängig gemacht werden. Möchten Sie sie "
-"löschen?"
+msgid "You are about to delete <strong>{{ count }} host categories.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Sie sind dabei, <strong>{{ count }} Hostkategorien</strong> zu löschen. Diese Aktion kann nicht rückgängig gemacht werden. Möchten Sie sie löschen?"
 
 #: unknown
-msgid ""
-"You are about to delete the <strong>{{ name }}</strong> host category. "
-"This action cannot be undone. Do you want to delete it?"
-msgstr ""
-"Sie sind dabei, die Hostkategorie <strong>{{ name }}</strong> zu löschen. "
-"Diese Aktion kann nicht rückgängig gemacht werden. Möchten Sie sie "
-"löschen?"
+msgid "You are about to delete the <strong>{{ name }}</strong> host category. This action cannot be undone. Do you want to delete it?"
+msgstr "Sie sind dabei, die Hostkategorie <strong>{{ name }}</strong> zu löschen. Diese Aktion kann nicht rückgängig gemacht werden. Möchten Sie sie löschen?"
 
 #: unknown
-msgid ""
-"You are about to duplicate <strong>{{ count }} host categories.</strong> "
-"Do you want to duplicate them?"
-msgstr ""
-"Sie sind dabei, <strong>{{ count }} Hostkategorien</strong> zu "
-"duplizieren. Möchten Sie sie duplizieren?"
+msgid "You are about to duplicate <strong>{{ count }} host categories.</strong> Do you want to duplicate them?"
+msgstr "Sie sind dabei, <strong>{{ count }} Hostkategorien</strong> zu duplizieren. Möchten Sie sie duplizieren?"
 
 #: unknown
-msgid ""
-"You are about to duplicate the <strong>{{ name }}</strong> host category. "
-"Do you want to duplicate it?"
-msgstr ""
-"Sie sind dabei, die Hostkategorie <strong>{{ name }}</strong> zu "
-"duplizieren. Möchten Sie sie duplizieren?"
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
+msgstr "Sie sind dabei, die Hostkategorie <strong>{{ name }}</strong> zu duplizieren. Möchten Sie sie duplizieren?"
 
 #: unknown
 msgid "You are not allowed to access this host group"
@@ -21871,24 +21308,16 @@ msgid "You can see the full list by visiting the Centreon's Github"
 msgstr "Die vollständige Liste kann auf Centreon's Github eingesehen werden"
 
 #: unknown
-msgid ""
-"You can't edit this hostgroup because you don't have access to all its "
-"resources"
-msgstr ""
-"Sie können diese Hostgruppe nicht bearbeiten, da Sie nicht auf alle derer "
-"Ressourcen Zugriff haben"
+msgid "You can't edit this hostgroup because you don't have access to all its resources"
+msgstr "Sie können diese Hostgruppe nicht bearbeiten, da Sie nicht auf alle derer Ressourcen Zugriff haben"
 
 #: unknown
 msgid "You must at least add one resource provider"
-msgstr ""
-"Sie müssen mindestens eine Ressourcenanbieter (resource provider) "
-"hinzufügen"
+msgstr "Sie müssen mindestens eine Ressourcenanbieter (resource provider) hinzufügen"
 
 #: unknown
 msgid "You must set a poller for generate configuration."
-msgstr ""
-"Sie müssen einen Poller festlegen, damit die Konfiguration erstellt "
-"werden kann."
+msgstr "Sie müssen einen Poller festlegen, damit die Konfiguration erstellt werden kann."
 
 #: unknown
 msgid "ZMQ"
@@ -21897,16 +21326,12 @@ msgstr "ZMQ"
 #, php-format
 #: unknown
 msgid "[%s] Error when calculating string length of \"%s\" in %s"
-msgstr ""
-"[%s] Fehler bei der Kalkulation der Zeichenkettenlänge von \"%s\" in %s"
+msgstr "[%s] Fehler bei der Kalkulation der Zeichenkettenlänge von \"%s\" in %s"
 
 #, php-format
 #: unknown
-msgid ""
-"[%s] The value \"%s\" was expected to be a valid ip address or domain name"
-msgstr ""
-"[%s] Als Wert \"%s\" wurde eine gültige IP-Adresse oder Domain-Name "
-"erwartet"
+msgid "[%s] The value \"%s\" was expected to be a valid ip address or domain name"
+msgstr "[%s] Als Wert \"%s\" wurde eine gültige IP-Adresse oder Domain-Name erwartet"
 
 #: unknown
 msgid "default"
