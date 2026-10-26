@@ -12,6 +12,8 @@ import {
 import type { Column, ColumnType, ListingModel } from '@centreon/ui';
 import { getData, useRequest } from '@centreon/ui';
 
+import axios from 'axios';
+
 import { map, pipe, prop, sum } from 'ramda';
 import { ReactElement, useEffect, useState } from 'react';
 
@@ -52,9 +54,15 @@ const DetailsTable = <TDetails extends { id: number }>({
   useEffect(() => {
     sendRequest({
       endpoint
-    }).then((retrievedDetails) => {
-      setDetails(retrievedDetails.result);
-    });
+    })
+      .then((retrievedDetails) => {
+        setDetails(retrievedDetails.result);
+      })
+      .catch((error) => {
+        if (!axios.isCancel(error)) {
+          setDetails(null);
+        }
+      });
   }, []);
 
   const loading = details === undefined;
