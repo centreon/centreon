@@ -152,7 +152,7 @@ const Page = <TFilters,>({
           <PageHeader.Main>
             <PageHeader.Title
               description={labels.description}
-              descriptionPosition="inline"
+              descriptionPosition={labels.description ? 'inline' : 'below'}
               title={labels.title}
             />
           </PageHeader.Main>

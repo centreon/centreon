@@ -18,7 +18,7 @@ const PageHeaderTitle = ({
   description,
   descriptionPosition = 'below'
 }: PageHeaderTitleProps): ReactElement => {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
 
   const isInline = descriptionPosition === 'inline';
 
@@ -34,12 +34,19 @@ const PageHeaderTitle = ({
     </TextOverflowTooltip>
   );
 
-  const titleElement = (
+  // Inline, the title owns its typography: the `pageHeaderTitle` rules that
+  // style the `h1` of the stacked layout only apply to that layout.
+  const titleElement = isInline ? (
     <MuiTypography
       aria-label="page header title"
-      className={cx(isInline && 'shrink-0')}
-      variant="h1"
+      className="m-0 shrink-0 font-bold leading-none"
+      component="h1"
+      variant="h5"
     >
+      {title}
+    </MuiTypography>
+  ) : (
+    <MuiTypography aria-label="page header title" variant="h1">
       {title}
     </MuiTypography>
   );
@@ -50,26 +57,20 @@ const PageHeaderTitle = ({
 
   if (isInline) {
     return (
-      <div className={cx(classes.pageHeaderTitle, 'min-w-0')}>
-        {/* The row sits one level below, out of the rules that
-        `pageHeaderTitle` applies to its direct children. */}
-        <div className="min-w-0">
-          <div className="flex min-w-0 items-baseline gap-4">
-            {titleElement}
-            {description && (
-              <>
-                <span
-                  aria-hidden
-                  className="shrink-0 text-2xl font-light leading-none text-header-page-description"
-                >
-                  |
-                </span>
-                <div className="min-w-0">{descriptionElement}</div>
-              </>
-            )}
-            {actionsElement}
-          </div>
-        </div>
+      <div className="flex min-w-0 items-baseline gap-4 self-start">
+        {titleElement}
+        {description && (
+          <>
+            <span
+              aria-hidden
+              className="shrink-0 text-2xl font-light leading-none text-header-page-description"
+            >
+              |
+            </span>
+            <div className="min-w-0">{descriptionElement}</div>
+          </>
+        )}
+        {actionsElement}
       </div>
     );
   }
