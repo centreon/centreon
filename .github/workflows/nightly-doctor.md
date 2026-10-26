@@ -32,6 +32,11 @@ on:
         description: "Branch of that run (develop or dev-*)"
         required: true
         type: string
+      force:
+        description: "Analyze even if this failure was analyzed in the last 7 days"
+        required: false
+        default: false
+        type: boolean
 
 # develop nightlies are scheduled, dev-* ones are dispatched with a "<workflow> nightly <branch>" run name.
 if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'failure' && (github.event.workflow_run.event == 'schedule' || (github.event.workflow_run.event == 'workflow_dispatch' && startsWith(github.event.workflow_run.display_title, format('{0} nightly ', github.event.workflow_run.name))))) }}
@@ -205,6 +210,118 @@ safe-outputs:
             printf '%s\n\n## Links\n\n- Fixes: [%s](%s/browse/%s)\n' "$body" "$key" "$JIRA_BASE_URL" "$key" > pr-body.md
             gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" -X PATCH -F body=@pr-body.md > /dev/null
             echo "### Jira ticket [$key]($JIRA_BASE_URL/browse/$key) created for $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+
+# Deterministic triage before the agent: known infrastructure failures and failures already
+# analyzed in the last 7 days (cache entry per failure signature) do not reach the agent.
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    outputs:
+      analyze: ${{ steps.decide.outputs.analyze }}
+    steps:
+      - name: Classify the failed jobs
+        id: classify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id || github.event.workflow_run.id }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, re, subprocess
+
+          repo, run_id = os.environ["GITHUB_REPOSITORY"], os.environ["RUN_ID"]
+          INFRA = [re.compile(p, re.I) for p in (
+              r"lost communication with the server",
+              r"runner has received a shutdown signal",
+              r"Error response from daemon:.*(\b5\d\d\b|Service Unavailable|timeout|TLS handshake)",
+              r"toomanyrequests",
+              r"i/o timeout|connection reset by peer|ECONNRESET|ETIMEDOUT|EAI_AGAIN|Temporary failure in name resolution",
+              r"ERR_PNPM_\w*(FETCH|TIMEOUT|UNVERIFIABLE)|npm registry signature could not be verified",
+              r"\b50[234]\b.*(Bad Gateway|Service Unavailable|Gateway Time-?out)",
+              r"(packages\.centreon\.com|pulp)\S*.*\b50[234]\b",
+          )]
+          CYPRESS_DOWNLOAD = re.compile(r"cypress (install|binary)|Installing Cypress|download\.cypress\.io", re.I)
+          TIMEOUT = re.compile(r"Timeout of \d+ms hit", re.I)
+          STAMP = re.compile(r"^\d{4}-\d\d-\d\dT[\d:.]+Z ?")
+          ANSI = re.compile(r"\x1b\[[0-9;]*m")
+          DISTRO = re.compile(r"\b(alma|el|rhel|ubuntu|debian)\d+\b|\b(rpm|deb)-\w+|bookworm|trixie|bullseye|jammy|noble|(mysql|mariadb)[:-][\w.]+", re.I)
+
+          def gh(*args):
+              return subprocess.run(["gh", *args], capture_output=True, text=True).stdout
+
+          def norm_job(name):
+              name = re.sub(r"\(.*?\)", "", name.split(" / ")[0])
+              name = re.sub(r"\b\d+(\.\d+)*\b", "*", DISTRO.sub("*", name))
+              return re.sub(r"\s+", " ", name).strip().lower()
+
+          def norm_err(line):
+              line = re.sub(r"[0-9a-f]{12,}", "X", DISTRO.sub("*", line))
+              line = re.sub(r"dev-\d\d\.\d\d\.x|release-\d\d\.\d\d-next|hotfix-\d\d\.\d\d-next|develop", "BRANCH", line)
+              return re.sub(r"\d+", "N", line).strip()[:200]
+
+          run = json.loads(gh("api", f"repos/{repo}/actions/runs/{run_id}") or "{}")
+          jobs = [json.loads(l) for l in gh("api", "--paginate", f"repos/{repo}/actions/runs/{run_id}/jobs?per_page=100&filter=latest",
+                                             "--jq", '.jobs[] | select(.conclusion == "failure") | [.id, .name] | @json').splitlines()]
+          items, infra = set(), []
+          for job_id, name in jobs[:10]:
+              log = gh("api", "--allow-escape-sequences", f"repos/{repo}/actions/jobs/{job_id}/logs")
+              lines = [STAMP.sub("", ANSI.sub("", l)) for l in log.splitlines()]
+              idx = next((i for i, l in enumerate(lines) if l.startswith("##[error]")), None)
+              error = lines[idx] if idx is not None else "no ##[error] line"
+              context = "\n".join(lines[max(0, (idx or 0) - 20):(idx or 0) + 1])
+              is_infra = any(p.search(context) for p in INFRA) or bool(TIMEOUT.search(error) and CYPRESS_DOWNLOAD.search(context))
+              infra.append(is_infra)
+              items.add(f"{run.get('path', '?')}|{norm_job(name)}|{norm_err(error)}")
+              print(f"{'infra' if is_infra else 'other'}: {name} :: {error[:160]}")
+
+          signature = hashlib.sha256("\n".join(sorted(items)).encode()).hexdigest()[:16]
+          all_infra = bool(infra) and all(infra)
+          print(f"jobs={len(jobs)} all_infra={all_infra} signature={signature}")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"all_infra={str(all_infra).lower()}\nsignature={signature}\n")
+          PY
+
+      - name: Look up a previous analysis of this failure
+        id: seen
+        if: steps.classify.outputs.all_infra != 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .nightly-doctor-signature
+          key: nightly-doctor-${{ steps.classify.outputs.signature }}
+          lookup-only: true
+
+      - name: Decide whether the agent runs
+        id: decide
+        env:
+          ALL_INFRA: ${{ steps.classify.outputs.all_infra }}
+          SEEN: ${{ steps.seen.outputs.cache-hit }}
+          FORCE: ${{ inputs.force }}
+          SIGNATURE: ${{ steps.classify.outputs.signature }}
+        run: |
+          if [ "$FORCE" = "true" ]; then
+            analyze=true reason="forced replay of failure $SIGNATURE"
+          elif [ "$ALL_INFRA" = "true" ]; then
+            analyze=false reason="every failed job matches a known infrastructure signature"
+          elif [ "$SEEN" = "true" ]; then
+            analyze=false reason="failure $SIGNATURE was already analyzed in the last 7 days"
+          else
+            analyze=true reason="new failure $SIGNATURE"
+          fi
+          echo "analyze=$analyze" >> "$GITHUB_OUTPUT"
+          echo "### Nightly doctor triage: $reason (agent runs: $analyze)" >> "$GITHUB_STEP_SUMMARY"
+          echo "$SIGNATURE" > .nightly-doctor-signature
+
+      - name: Record this failure as analyzed
+        if: steps.decide.outputs.analyze == 'true' && steps.seen.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .nightly-doctor-signature
+          key: nightly-doctor-${{ steps.classify.outputs.signature }}
+
+  agent:
+    needs: [triage]
+    if: needs.triage.outputs.analyze == 'true'
 
 # One slot per investigated run: failures of several branches must not cancel each other.
 concurrency:
