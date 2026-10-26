@@ -31,10 +31,11 @@ import useInheritedMacros from './useInheritedMacros';
 
 const maxVisibleRows = 10;
 
-// Legacy's colours for inherited macros, the same in both of its themes.
+// Legacy's colours for inherited macros, the same in both of its themes. Used
+// as a border colour, so the row's bar and the legend's swatch share them.
 const parentClassName: Record<MacroParent, string> = {
-  command: 'bg-[#b6fca7] dark:bg-[#b6fca7]/30',
-  template: 'bg-[#ffcb6b] dark:bg-[#ffcb6b]/30'
+  command: 'border-[#b6fca7]',
+  template: 'border-[#ffcb6b]'
 };
 
 const legend: Array<{ label: string; parent: MacroParent }> = [
@@ -124,7 +125,7 @@ const Macros = ({
           >
             <span
               aria-hidden
-              className={`inline-block size-3 rounded-sm ${parentClassName[parent]}`}
+              className={`inline-block size-3 rounded-sm border-6 ${parentClassName[parent]}`}
             />
             {t(legendLabel)}
           </Typography>
@@ -157,10 +158,10 @@ const Macros = ({
           createValue={createMacroRow}
           draggable={!disabled}
           getRowClassName={({ value: macro }) =>
-            `rounded p-1 ${
+            `border-l-4 py-1 pr-1 pl-2 ${
               macro.parent && isUnchangedInherited(macro)
                 ? parentClassName[macro.parent]
-                : ''
+                : 'border-transparent'
             }`
           }
           label={label}
