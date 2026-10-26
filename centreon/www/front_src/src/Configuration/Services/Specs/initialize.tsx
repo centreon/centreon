@@ -1,5 +1,6 @@
 import { SnackbarProvider } from '@centreon/ui';
 import {
+  configurationLimitPerPageAtom,
   intervalLengthAtom,
   type UserPermissions,
   userPermissionsAtom
@@ -32,12 +33,14 @@ interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
   intervalLength?: number;
+  limitPerPage?: number;
 }
 
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
-  intervalLength = 60
+  intervalLength = 60,
+  limitPerPage
 }: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -51,6 +54,11 @@ const initialize = ({
     configuration_service_write: hasWriteAccess
   } as UserPermissions);
   store.set(intervalLengthAtom, intervalLength);
+  // Unset, the listing keeps the default used before the platform parameters
+  // are loaded.
+  if (limitPerPage) {
+    store.set(configurationLimitPerPageAtom, limitPerPage);
+  }
 
   interceptAPIRequest({
     alias: 'getAllServices',

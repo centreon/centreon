@@ -5,6 +5,7 @@ import { getData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
+  configurationLimitPerPageAtom,
   downtimeAtom,
   intervalLengthAtom,
   isAdditiveInheritanceEnabledAtom,
@@ -100,6 +101,9 @@ const useApp = (): UseAppState => {
     isAdditiveInheritanceEnabledAtom
   );
   const setIntervalLength = useSetAtom(intervalLengthAtom);
+  const setConfigurationLimitPerPage = useSetAtom(
+    configurationLimitPerPageAtom
+  );
 
   const { getNavigation } = useNavigation();
 
@@ -161,6 +165,12 @@ const useApp = (): UseAppState => {
           retrievedParameters.is_additive_inheritance_enabled
         );
         setIntervalLength(retrievedParameters.monitoring_interval_length);
+        // Older platforms do not expose it: keep the default.
+        if (retrievedParameters.configuration_default_limit_per_page) {
+          setConfigurationLimitPerPage(
+            retrievedParameters.configuration_default_limit_per_page
+          );
+        }
       })
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {
