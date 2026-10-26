@@ -35,12 +35,12 @@ const SegmentedButtons = ({
         <FormLabel>{t(label)}</FormLabel>
         <ButtonGroup
           aria-label={t(label)}
-          // As wide as its column, up to what three labels need.
-          className="max-w-[412px]"
+          // Equal segments, each as wide as the longest label (103px at least,
+          // the design's size), whatever the width of the column.
+          className="inline-grid max-w-full auto-cols-[minmax(103px,1fr)] grid-flow-col self-start"
           color="primary"
           data-testid={dataTestId}
           disabled={disabled}
-          fullWidth
           size="small"
         >
           {segmentedButtons?.options.map(
@@ -50,7 +50,7 @@ const SegmentedButtons = ({
               return (
                 <Button
                   aria-pressed={isSelected}
-                  className="h-7 px-3 py-0 font-medium text-sm leading-[21px] normal-case"
+                  className="h-7 whitespace-nowrap px-3 py-0 font-medium text-sm leading-[21px] normal-case"
                   data-testid={`${dataTestId}-${optionValue}`}
                   key={optionValue}
                   onClick={select(optionValue)}

@@ -27,38 +27,44 @@ const ValueDisplay = (): JSX.Element => {
 };
 
 interface InitializeProps {
+  columnWidth?: number;
   disabled?: boolean;
   enabled?: string;
+  segmentedOptions?: Array<{ label: string; value: string }>;
 }
 
 const initialize = ({
   enabled = 'use_default',
-  disabled = false
+  disabled = false,
+  columnWidth = 800,
+  segmentedOptions = options
 }: InitializeProps = {}): void => {
   render(
-    <Form
-      initialValues={{ enabled }}
-      inputs={[
-        {
-          dataTestId: 'enabled',
-          fieldName: 'enabled',
-          getDisabled: () => disabled,
-          group: '',
-          label: 'Notification Enabled',
-          segmentedButtons: { options },
-          type: InputType.SegmentedButtons
-        },
-        {
-          custom: { Component: ValueDisplay },
-          fieldName: 'value',
-          group: '',
-          label: 'value',
-          type: InputType.Custom
-        }
-      ]}
-      submit={rs.fn()}
-      validationSchema={object()}
-    />
+    <div style={{ width: columnWidth }}>
+      <Form
+        initialValues={{ enabled }}
+        inputs={[
+          {
+            dataTestId: 'enabled',
+            fieldName: 'enabled',
+            getDisabled: () => disabled,
+            group: '',
+            label: 'Notification Enabled',
+            segmentedButtons: { options: segmentedOptions },
+            type: InputType.SegmentedButtons
+          },
+          {
+            custom: { Component: ValueDisplay },
+            fieldName: 'value',
+            group: '',
+            label: 'value',
+            type: InputType.Custom
+          }
+        ]}
+        submit={rs.fn()}
+        validationSchema={object()}
+      />
+    </div>
   );
 };
 
@@ -102,6 +108,48 @@ describe('Segmented buttons', () => {
     initialize({ enabled: 'false' });
 
     expect(await button('No')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('sizes to its labels, not to its column', async () => {
+    initialize({ columnWidth: 800 });
+
+    const group = await screen.findByTestId('enabled');
+    const widths = (
+      await Promise.all(['Yes', 'No', 'Default'].map(button))
+    ).map((element) => element.getBoundingClientRect().width);
+
+    // Three equal segments of the design's 103px, left aligned in the column
+    // (a pixel apart at most: the group overlaps the borders of its buttons).
+    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+    expect(widths[0]).toBeGreaterThanOrEqual(103);
+    expect(group.getBoundingClientRect().width).toBeLessThan(400);
+    expect(group.getBoundingClientRect().left).toBe(
+      (await screen.findByText('Notification Enabled')).getBoundingClientRect()
+        .left
+    );
+  });
+
+  it('widens every segment to the longest label, without wrapping', async () => {
+    const longLabel = 'Inherit from the host template';
+
+    initialize({
+      segmentedOptions: [
+        { label: 'Yes', value: 'true' },
+        { label: 'No', value: 'false' },
+        { label: longLabel, value: 'use_default' }
+      ]
+    });
+
+    const yes = await button('Yes');
+    const long = await button(longLabel);
+
+    expect(
+      Math.abs(
+        yes.getBoundingClientRect().width - long.getBoundingClientRect().width
+      )
+    ).toBeLessThanOrEqual(1);
+    expect(long.scrollWidth).toBeLessThanOrEqual(long.clientWidth);
+    expect(long.getBoundingClientRect().height).toBe(28);
   });
 
   it('does not change when disabled', async () => {
