@@ -1,23 +1,43 @@
+import { waitForRequest } from '@test-setup/api';
+import { screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import { labelAlias, labelName } from '../translatedLabels';
 import initialize from './initialize';
 
 export default () => {
   describe('Filters: ', () => {
-    it('displays and interacts with filters', () => {
-      initialize({});
+    it('displays and interacts with filters', async () => {
+      initialize();
 
-      cy.waitForRequest('@getAllHostGroups');
+      await waitForRequest('@getAllHostGroups');
 
-      cy.get('[data-testid="search-bar"]').should('be.visible');
+      expect((await screen.findAllByTestId('search-bar'))[0]).toBeVisible();
 
-      cy.get(`[data-testid="Filters"]`).click();
+      await userEvent.click(screen.getByTestId('Filters'));
 
-      cy.get('[data-testid="advanced-filters"]').should('be.visible');
+      const advancedFilters = await screen.findByTestId('advanced-filters');
 
-      cy.contains(labelName).should('be.visible');
-      cy.contains(labelAlias).should('be.visible');
+      expect(advancedFilters).toBeVisible();
 
-      cy.makeSnapshot();
+      expect(within(advancedFilters).getAllByText(labelName)[0]).toBeVisible();
+      expect(within(advancedFilters).getAllByText(labelAlias)[0]).toBeVisible();
+
+      // What the screenshot showed: the status filter, unchecked, and the
+      // clear and search actions.
+      expect(within(advancedFilters).getByText('Status')).toBeVisible();
+      expect(
+        within(advancedFilters).getByRole('checkbox', { name: 'Enabled' })
+      ).not.toBeChecked();
+      expect(
+        within(advancedFilters).getByRole('checkbox', { name: 'Disabled' })
+      ).not.toBeChecked();
+      expect(
+        within(advancedFilters).getByRole('button', { name: 'Clear' })
+      ).toBeVisible();
+      expect(
+        within(advancedFilters).getByRole('button', { name: 'Search' })
+      ).toBeVisible();
     });
   });
 };

@@ -6,10 +6,74 @@ import {
   labelGroupMembers,
   labelResourceAccessRule
 } from '../translatedLabels';
-import centreonWallpaper from './assets/centreon-wallpaper.jpg';
-import cypressLogo from './assets/cypress-logo.jpg';
 
-export const getListingResponse = (resourceType) => ({
+// One-pixel images: what the tests read is the icon's name, not its picture.
+const cypressLogo =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAFUlEQVR42mNg6O4mDY1qGNUwfDUAAED3FhAEZJ4nAAAAAElFTkSuQmCC';
+const centreonWallpaper =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
+interface Icon {
+  id: number;
+  name: string;
+  url: string;
+}
+
+interface ListingRow {
+  alias: string;
+  disabled_hosts_count: number;
+  enabled_hosts_count: number;
+  icon: Icon | null;
+  id: number;
+  is_activated: boolean;
+  name: string;
+}
+
+interface ListingResponse<T> {
+  meta: {
+    limit: number;
+    page: number;
+    search?: object;
+    sort_by?: object;
+    total: number;
+  };
+  result: Array<T>;
+}
+
+interface NamedEntity {
+  id: number;
+  name: string;
+}
+
+interface DetailsResponse {
+  alias: string;
+  comment: string;
+  geo_coords: string;
+  hosts: Array<NamedEntity>;
+  icon: Icon;
+  id: number;
+  is_activated: boolean;
+  name: string;
+  resource_access_rules?: Array<NamedEntity>;
+}
+
+interface Payload {
+  alias: string;
+  comment: string;
+  geo_coords: string;
+  hosts: Array<number>;
+  icon_id: number;
+  name: string;
+  resource_access_rules?: Array<number>;
+}
+
+interface PlatformProps {
+  isCloudPlatform?: boolean;
+}
+
+export const getListingResponse = (
+  resourceType: string
+): ListingResponse<ListingRow> => ({
   meta: {
     limit: 10,
     page: 1,
@@ -34,7 +98,7 @@ export const getListingResponse = (resourceType) => ({
   }))
 });
 
-export const hostsListEmptyResponse = {
+export const hostsListEmptyResponse: ListingResponse<ListingRow> = {
   meta: {
     limit: 10,
     page: 1,
@@ -43,7 +107,9 @@ export const hostsListEmptyResponse = {
   result: []
 };
 
-export const getDetailsResponse = ({ isCloudPlatform = false }) => ({
+export const getDetailsResponse = ({
+  isCloudPlatform = false
+}: PlatformProps): DetailsResponse => ({
   alias: 'host group 1 alias',
   hosts: [
     { id: 1, name: 'host 1' },
@@ -70,7 +136,9 @@ export const getDetailsResponse = ({ isCloudPlatform = false }) => ({
   is_activated: true
 });
 
-export const getPayload = ({ isCloudPlatform = false }) => ({
+export const getPayload = ({
+  isCloudPlatform = false
+}: PlatformProps): Payload => ({
   alias: 'host group 1 alias',
   hosts: [1, 2, 3],
   name: 'host group 1 name',
@@ -80,7 +148,9 @@ export const getPayload = ({ isCloudPlatform = false }) => ({
   icon_id: 1
 });
 
-export const getGroups = ({ isCloudPlatform = false }) => [
+export const getGroups = ({
+  isCloudPlatform = false
+}: PlatformProps): Array<{ name: string }> => [
   {
     name: labelGeneralInformation
   },
@@ -97,26 +167,27 @@ export const getGroups = ({ isCloudPlatform = false }) => [
   { name: labelAdditionalInformation }
 ];
 
-export const listImagesResponse = {
-  meta: {
-    limit: 10,
-    page: 1,
-    search: {},
-    sort_by: {},
-    total: 1
-  },
-  result: [
-    {
-      directory: 'ppm',
-      id: 1,
-      name: 'cypress_logo',
-      url: cypressLogo
+export const listImagesResponse: ListingResponse<Icon & { directory: string }> =
+  {
+    meta: {
+      limit: 10,
+      page: 1,
+      search: {},
+      sort_by: {},
+      total: 1
     },
-    {
-      directory: 'ppm',
-      id: 2,
-      name: 'centreon_wallpaper',
-      url: centreonWallpaper
-    }
-  ]
-};
+    result: [
+      {
+        directory: 'ppm',
+        id: 1,
+        name: 'cypress_logo',
+        url: cypressLogo
+      },
+      {
+        directory: 'ppm',
+        id: 2,
+        name: 'centreon_wallpaper',
+        url: centreonWallpaper
+      }
+    ]
+  };

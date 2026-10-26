@@ -1,3 +1,6 @@
+import { waitForRequest } from '@test-setup/api';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { equals } from 'ramda';
 
 import {
@@ -15,29 +18,73 @@ import { getGroups, getPayload } from './utils';
 
 const platforms = ['OnPrem', 'Cloud'];
 
+// `@centreon/ui` text fields put the test id on the wrapper and the input.
+const getInput = async (testId: string): Promise<HTMLElement> =>
+  (await screen.findAllByTestId(testId))[1];
+
+const getSuffixedInput = (label: string): HTMLElement => {
+  const input = document.querySelector<HTMLElement>(
+    `[data-testid-suffix="test-${label}"] input`
+  );
+
+  if (!input) {
+    throw new Error(`No input suffixed "test-${label}"`);
+  }
+
+  return input;
+};
+
+const getSubmit = (): HTMLElement => {
+  const submit = document.querySelector<HTMLElement>(
+    'button[data-testid="submit"]'
+  );
+
+  if (!submit) {
+    throw new Error('No submit button');
+  }
+
+  return submit;
+};
+
+const selectOption = async (name: string | RegExp): Promise<void> => {
+  await userEvent.click(await screen.findByRole('option', { name }));
+};
+
 export default () => {
   describe('Modal', () => {
     platforms.forEach((platform) => {
       const isCloudPlatform = equals(platform, 'Cloud');
 
-      it('displays the modal in view mode when the user does not have write access', () => {
+      it('displays the modal in view mode when the user does not have write access', async () => {
         initialize({ hasWriteAccess: false, isCloudPlatform });
 
-        cy.waitForRequest('@getAllHostGroups');
+        await waitForRequest('@getAllHostGroups');
 
-        cy.contains('host group 1').click();
+        await userEvent.click(await screen.findByText('host group 1'));
 
-        cy.waitForRequest('@getHostGroupDetails');
+        await waitForRequest('@getHostGroupDetails');
 
-        cy.contains('View a host group').should('be.visible');
+        expect(await screen.findByText('View a host group')).toBeVisible();
 
-        cy.findAllByTestId(labelComments).eq(1).scrollIntoView();
+        // What the screenshot showed: every field filled in from the API and
+        // read-only, the access rules on a cloud platform only.
+        const comments = await getInput(labelComments);
 
-        cy.makeSnapshot(
-          `${platform} - displays the modal in view mode when the user does not have write access`
+        await waitFor(() =>
+          expect(comments).toHaveValue(getPayload({}).comment)
         );
+        expect(comments).toBeDisabled();
+        expect(await getInput(labelName)).toHaveValue(getPayload({}).name);
+        expect(await getInput(labelName)).toBeDisabled();
+        expect(await getInput(labelGeographicCoordinates)).toBeDisabled();
+        expect(screen.getByText('host 3')).toBeVisible();
+        if (isCloudPlatform) {
+          expect(screen.getByText('rule 2')).toBeVisible();
+        } else {
+          expect(screen.queryByText('rule 2')).not.toBeInTheDocument();
+        }
 
-        cy.findByLabelText('close').click();
+        await userEvent.click(screen.getByLabelText('close'));
       });
     });
 
@@ -45,229 +92,309 @@ export default () => {
       describe(platform, () => {
         const isCloudPlatform = equals(platform, 'Cloud');
 
-        beforeEach(() => initialize({ isCloudPlatform }));
+        beforeEach(() => {
+          initialize({ isCloudPlatform });
+        });
 
-        it('shows form fields organized into groups, with each field initialized with default values', () => {
-          cy.waitForRequest('@getAllHostGroups');
+        it('shows form fields organized into groups, with each field initialized with default values', async () => {
+          await waitForRequest('@getAllHostGroups');
 
-          cy.get(`[data-testid="add-resource"]`).click();
+          await userEvent.click(await screen.findByTestId('add-resource'));
 
-          getGroups({ isCloudPlatform }).forEach(({ name }) => {
-            cy.contains(name);
-          });
+          expect(await screen.findByText('Add a host group')).toBeVisible();
 
-          cy.findAllByTestId(labelName).eq(1).should('have.value', '');
-          cy.findAllByTestId(labelAlias).eq(1).should('have.value', '');
-          cy.findByTestId(labelSelectHosts).should('have.value', '');
+          const modal = await screen.findByTestId('Modal');
+
+          for (const { name } of getGroups({ isCloudPlatform })) {
+            expect(within(modal).getAllByText(name)[0]).toBeVisible();
+          }
+
+          expect(await getInput(labelName)).toHaveValue('');
+          expect(await getInput(labelAlias)).toHaveValue('');
+          expect(screen.getByTestId(labelSelectHosts)).toHaveValue('');
 
           if (isCloudPlatform) {
-            cy.findByTestId(labelApplyResourceAccessRule).should(
-              'have.value',
-              ''
-            );
+            expect(
+              screen.getByTestId(labelApplyResourceAccessRule)
+            ).toHaveValue('');
           } else {
-            cy.findByTestId(labelApplyResourceAccessRule).should('not.exist');
+            expect(
+              screen.queryByTestId(labelApplyResourceAccessRule)
+            ).not.toBeInTheDocument();
           }
 
-          cy.findAllByTestId(labelGeographicCoordinates)
-            .eq(1)
-            .should('have.value', '');
-          cy.findAllByTestId(labelComments).eq(1).should('have.value', '');
+          expect(await getInput(labelGeographicCoordinates)).toHaveValue('');
+          expect(await getInput(labelComments)).toHaveValue('');
 
-          cy.makeSnapshot(
-            `${platform}: shows form fields organized into groups, with each field initialized with default values`
-          );
-
-          cy.findByLabelText('close').click();
-        });
-
-        it('shows form fields organized into groups, with each field initialized with the value received from the API', () => {
-          cy.waitForRequest('@getAllHostGroups');
-
-          cy.contains('host group 1').click();
-
-          cy.waitForRequest('@getHostGroupDetails');
-
-          getGroups({ isCloudPlatform }).forEach(({ name }) => {
-            cy.contains(name);
-          });
-
-          cy.findAllByTestId(labelName)
-            .eq(1)
-            .should('have.value', getPayload({}).name);
-          cy.findAllByTestId(labelAlias)
-            .eq(1)
-            .should('have.value', getPayload({}).alias);
-
-          cy.findByText('host 1').should('be.visible');
-          cy.findByText('host 2').should('be.visible');
-          cy.findByText('host 3').should('be.visible');
-
+          // What the screenshot showed: the groups as tabs on a cloud
+          // platform only, and the fields editable.
           if (isCloudPlatform) {
-            cy.findByTestId(labelApplyResourceAccessRule).should('be.visible');
-
-            cy.findByText('rule 1').should('be.visible');
-            cy.findByText('rule 2').should('be.visible');
+            expect(
+              screen.getByTestId('tab-General information')
+            ).toBeInTheDocument();
           } else {
-            cy.findByTestId(labelApplyResourceAccessRule).should('not.exist');
+            expect(
+              screen.queryByTestId('tab-General information')
+            ).not.toBeInTheDocument();
           }
+          expect(await getInput(labelName)).toBeEnabled();
+          expect(getSubmit()).toBeDisabled();
 
-          cy.findAllByTestId(labelGeographicCoordinates)
-            .eq(1)
-            .should('have.value', getPayload({}).geo_coords);
-          cy.findAllByTestId(labelComments)
-            .eq(1)
-            .should('have.value', getPayload({}).comment);
-
-          cy.makeSnapshot(
-            `${platform}: shows form fields organized into groups, with each field initialized with the value received from the API`
-          );
-
-          cy.findByLabelText('close').click();
+          await userEvent.click(screen.getByLabelText('close'));
         });
 
-        it('sends a POST request when the Create Button is clicked', () => {
-          cy.waitForRequest('@getAllHostGroups');
+        it('shows form fields organized into groups, with each field initialized with the value received from the API', async () => {
+          await waitForRequest('@getAllHostGroups');
 
-          cy.get(`[data-testid="add-resource"]`).click();
-          cy.get(`[data-testid-suffix="test-${labelName}"]`)
-            .clear()
-            .type(getPayload({}).name);
-          cy.get(`[data-testid-suffix="test-${labelAlias}"]`)
-            .clear()
-            .type(getPayload({}).alias);
-          cy.findAllByTestId(labelComments)
-            .eq(1)
-            .clear()
-            .type(getPayload({ isCloudPlatform }).comment);
-          cy.findAllByTestId(labelGeographicCoordinates)
-            .eq(1)
-            .clear()
-            .type(getPayload({ isCloudPlatform }).geo_coords);
+          await userEvent.click(await screen.findByText('host group 1'));
 
-          cy.findByTestId(labelSelectHosts).click();
+          await waitForRequest('@getHostGroupDetails');
 
-          cy.waitForRequest('@getHosts');
-          cy.contains('host 1').click();
-          cy.contains('host 2').click();
-          cy.contains('host 3').click();
+          expect(await screen.findByText('Modify a host group')).toBeVisible();
 
-          cy.findByTestId('Modal-header').click();
+          const modal = await screen.findByTestId('Modal');
+
+          for (const { name } of getGroups({ isCloudPlatform })) {
+            expect(within(modal).getAllByText(name)[0]).toBeVisible();
+          }
+
+          const nameInput = await getInput(labelName);
+
+          await waitFor(() =>
+            expect(nameInput).toHaveValue(getPayload({}).name)
+          );
+          expect(await getInput(labelAlias)).toHaveValue(getPayload({}).alias);
+
+          expect(await screen.findByText('host 1')).toBeVisible();
+          expect(screen.getByText('host 2')).toBeVisible();
+          expect(screen.getByText('host 3')).toBeVisible();
 
           if (isCloudPlatform) {
-            cy.findByTestId(labelApplyResourceAccessRule).click();
+            expect(
+              screen.getByTestId(labelApplyResourceAccessRule)
+            ).toBeVisible();
 
-            cy.waitForRequest('@getAccessRules');
-
-            cy.contains('rule 1').click();
-            cy.contains('rule 2').click();
-
-            cy.findByTestId('Modal-header').click();
+            expect(screen.getByText('rule 1')).toBeVisible();
+            expect(screen.getByText('rule 2')).toBeVisible();
+          } else {
+            expect(
+              screen.queryByTestId(labelApplyResourceAccessRule)
+            ).not.toBeInTheDocument();
           }
 
-          cy.findByTestId(labelIcon).click();
-          cy.waitForRequest('@getImagesList');
-          cy.contains('cypress_logo').click();
+          expect(await getInput(labelGeographicCoordinates)).toHaveValue(
+            getPayload({}).geo_coords
+          );
+          expect(await getInput(labelComments)).toHaveValue(
+            getPayload({}).comment
+          );
 
-          cy.get(`button[data-testid="submit"`).click();
+          // What the screenshot showed: the icon selected, with its preview,
+          // and the fields editable.
+          expect(screen.getByTestId(labelIcon)).toHaveValue('cypress_logo');
+          expect(
+            within(modal).getByRole('img', { name: 'cypress_logo' })
+          ).toBeInTheDocument();
+          expect(nameInput).toBeEnabled();
 
-          cy.waitForRequest('@createHostGroup').then(({ request }) => {
-            expect(request.body).to.deep.equals(
-              getPayload({ isCloudPlatform })
+          await userEvent.click(screen.getByLabelText('close'));
+        });
+
+        it('sends a POST request when the Create Button is clicked', async () => {
+          await waitForRequest('@getAllHostGroups');
+
+          await userEvent.click(await screen.findByTestId('add-resource'));
+          await screen.findByText('Add a host group');
+
+          const nameInput = getSuffixedInput(labelName);
+
+          await userEvent.clear(nameInput);
+          await userEvent.type(nameInput, getPayload({}).name);
+
+          const aliasInput = getSuffixedInput(labelAlias);
+
+          await userEvent.clear(aliasInput);
+          await userEvent.type(aliasInput, getPayload({}).alias);
+
+          const comments = await getInput(labelComments);
+
+          await userEvent.clear(comments);
+          await userEvent.type(
+            comments,
+            getPayload({ isCloudPlatform }).comment
+          );
+
+          const coordinates = await getInput(labelGeographicCoordinates);
+
+          await userEvent.clear(coordinates);
+          await userEvent.type(
+            coordinates,
+            getPayload({ isCloudPlatform }).geo_coords
+          );
+
+          await userEvent.click(screen.getByTestId(labelSelectHosts));
+
+          await waitForRequest('@getHosts');
+          await selectOption('host 1');
+          await selectOption('host 2');
+          await selectOption('host 3');
+
+          await userEvent.click(screen.getByTestId('Modal-header'));
+
+          if (isCloudPlatform) {
+            await userEvent.click(
+              screen.getByTestId(labelApplyResourceAccessRule)
             );
-          });
 
-          cy.makeSnapshot(
-            `${platform}: sends a POST request when the Create Button is clicked`
+            await waitForRequest('@getAccessRules');
+
+            await selectOption('rule 1');
+            await selectOption('rule 2');
+
+            await userEvent.click(screen.getByTestId('Modal-header'));
+          }
+
+          await userEvent.click(screen.getByTestId(labelIcon));
+          await waitForRequest('@getImagesList');
+          // The option's name also holds its thumbnail's.
+          await selectOption(/^cypress_logo/);
+
+          await waitFor(() => expect(getSubmit()).toBeEnabled());
+          await userEvent.click(getSubmit());
+
+          const { request } = await waitForRequest('@createHostGroup');
+
+          expect(request.body).toEqual(getPayload({ isCloudPlatform }));
+
+          // What the screenshot showed: the modal closed and the success
+          // message.
+          expect(await screen.findByText('Host group created')).toBeVisible();
+          await waitFor(() =>
+            expect(screen.queryByTestId('Modal')).not.toBeInTheDocument()
           );
         });
 
-        it('sends an UPDATE request when the Update Button is clicked', () => {
-          cy.waitForRequest('@getAllHostGroups');
+        it('sends an UPDATE request when the Update Button is clicked', async () => {
+          await waitForRequest('@getAllHostGroups');
 
-          cy.contains('host group 1').click();
+          await userEvent.click(await screen.findByText('host group 1'));
 
-          cy.waitForRequest('@getHostGroupDetails');
+          await waitForRequest('@getHostGroupDetails');
 
-          cy.get(`[data-testid-suffix="test-${labelName}"]`)
-            .clear()
-            .type('Updated name');
+          const nameInput = await getInput(labelName);
 
-          cy.get(`button[data-testid="submit"`).click();
+          await waitFor(() =>
+            expect(nameInput).toHaveValue(getPayload({}).name)
+          );
 
-          cy.waitForRequest('@updateHostGroup').then(({ request }) => {
-            expect(request.body).to.deep.equals({
-              ...getPayload({ isCloudPlatform }),
-              name: 'Updated name'
-            });
+          await userEvent.clear(getSuffixedInput(labelName));
+          await userEvent.type(getSuffixedInput(labelName), 'Updated name');
+
+          await waitFor(() => expect(getSubmit()).toBeEnabled());
+          await userEvent.click(getSubmit());
+
+          const { request } = await waitForRequest('@updateHostGroup');
+
+          expect(request.body).toEqual({
+            ...getPayload({ isCloudPlatform }),
+            name: 'Updated name'
           });
 
-          cy.contains('Host group updated');
+          expect(await screen.findByText('Host group updated')).toBeVisible();
 
-          cy.makeSnapshot(
-            `${platform}: sends an UPDATE request when the Update Button is clicked`
+          // What the screenshot showed: the modal closed.
+          await waitFor(() =>
+            expect(screen.queryByTestId('Modal')).not.toBeInTheDocument()
           );
         });
       });
     });
 
-    it('validate geographic coordianates', () => {
-      initialize({});
+    it('validate geographic coordianates', async () => {
+      initialize();
 
-      cy.waitForRequest('@getAllHostGroups');
+      await waitForRequest('@getAllHostGroups');
 
-      cy.get(`[data-testid="add-resource"]`).click();
+      await userEvent.click(await screen.findByTestId('add-resource'));
 
-      cy.findAllByTestId(labelName).eq(1).clear().type('name');
-      cy.findAllByTestId(labelGeographicCoordinates).eq(1).clear().type('123');
-      cy.findByTestId('Modal-header').click();
+      const nameInput = await getInput(labelName);
 
-      cy.contains(labelInvalidCoordinateFormat);
-      cy.get(`button[data-testid="submit"`).should('be.disabled');
+      await userEvent.clear(nameInput);
+      await userEvent.type(nameInput, 'name');
 
-      cy.makeSnapshot('validate geographic coordianates with wrong value');
+      const coordinates = await getInput(labelGeographicCoordinates);
 
-      cy.findAllByTestId(labelGeographicCoordinates)
-        .eq(1)
-        .clear()
-        .type('-40.12,22.44');
+      await userEvent.clear(coordinates);
+      await userEvent.type(coordinates, '123');
+      await userEvent.click(screen.getByTestId('Modal-header'));
 
-      cy.findByText(labelInvalidCoordinateFormat).should('not.exist');
-      cy.get(`button[data-testid="submit"`).should('not.be.disabled');
+      expect(
+        await screen.findByText(labelInvalidCoordinateFormat)
+      ).toBeVisible();
+      expect(getSubmit()).toBeDisabled();
 
-      cy.makeSnapshot('validate geographic coordianates with correct value');
+      // What the first screenshot showed: the error flags the coordinates
+      // field.
+      expect(coordinates).toHaveAttribute('aria-invalid', 'true');
+      expect(nameInput).toHaveAttribute('aria-invalid', 'false');
 
-      cy.findByLabelText('close').click();
-      cy.findByLabelText('Discard').click();
+      await userEvent.clear(coordinates);
+      await userEvent.type(coordinates, '-40.12,22.44');
+
+      await waitFor(() => expect(getSubmit()).toBeEnabled());
+      expect(
+        screen.queryByText(labelInvalidCoordinateFormat)
+      ).not.toBeInTheDocument();
+
+      // What the second screenshot showed: the field no longer in error.
+      expect(coordinates).toHaveAttribute('aria-invalid', 'false');
+
+      await userEvent.click(screen.getByLabelText('close'));
+      await userEvent.click(await screen.findByLabelText('Discard'));
+
+      await waitFor(() =>
+        expect(screen.queryByTestId('Modal')).not.toBeInTheDocument()
+      );
     });
 
-    it('disables the save button when the platform is cloud and Resource Access Rules field is empty', () => {
+    it('disables the save button when the platform is cloud and Resource Access Rules field is empty', async () => {
       initialize({ hasWriteAccess: true, isCloudPlatform: true });
 
-      cy.waitForRequest('@getAllHostGroups');
+      await waitForRequest('@getAllHostGroups');
 
-      cy.get(`[data-testid="add-resource"]`).click();
+      await userEvent.click(await screen.findByTestId('add-resource'));
 
-      const nameInput = cy.findAllByTestId(labelName).eq(1).clear();
+      const nameInput = await getInput(labelName);
 
-      cy.findByTestId('tab-General information').click();
+      await userEvent.clear(nameInput);
 
-      nameInput.type('name');
+      await userEvent.click(screen.getByTestId('tab-General information'));
 
-      cy.get(`button[data-testid="submit"`).should('be.disabled');
+      await userEvent.type(nameInput, 'name');
 
-      cy.findByTestId(labelApplyResourceAccessRule).click();
+      await waitFor(() => expect(nameInput).toHaveValue('name'));
+      expect(getSubmit()).toBeDisabled();
 
-      cy.waitForRequest('@getAccessRules');
+      await userEvent.click(screen.getByTestId(labelApplyResourceAccessRule));
 
-      cy.contains('rule 1').click();
+      await waitForRequest('@getAccessRules');
 
-      cy.get(`button[data-testid="submit"`).should('not.be.disabled');
+      await selectOption('rule 1');
 
-      cy.makeSnapshot();
+      await waitFor(() => expect(getSubmit()).toBeEnabled());
 
-      cy.findByLabelText('close').click();
-      cy.findByLabelText('Discard').click();
+      // What the screenshot showed: the rule selected in the list.
+      expect(screen.getByRole('option', { name: 'rule 1' })).toHaveAttribute(
+        'aria-selected',
+        'true'
+      );
+
+      await userEvent.click(screen.getByLabelText('close'));
+      await userEvent.click(await screen.findByLabelText('Discard'));
+
+      await waitFor(() =>
+        expect(screen.queryByTestId('Modal')).not.toBeInTheDocument()
+      );
     });
   });
 };
