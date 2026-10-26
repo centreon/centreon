@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -48,7 +48,7 @@ final class AccessibleHostGroupsValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly HostGroupRepository $hostGroupRepository,
-        private readonly ResourceAccessRepository $resourceAccessRepository,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -74,16 +74,10 @@ final class AccessibleHostGroupsValidator extends ConstraintValidator
             HostGroupId::class,
         );
 
-        $foundIds = array_keys($this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray());
-        $missingIds = array_diff($requestedIds, $foundIds);
-
-        if (! $credentialUser->credential->hasUnrestrictedResourceAccess()) {
-            $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($credentialUser->credential->userId);
-            if ($accessibleIds instanceof Collection) {
-                $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
-                $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
-            }
-        }
+        $missingIds = $this->accessScopes->hostGroups($credentialUser->credential->actingUser())->missing(
+            $hostGroupIds,
+            array_keys($this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray()),
+        );
 
         if ($missingIds !== []) {
             $this->context->buildViolation($constraint->message)->addViolation();

@@ -53,7 +53,6 @@ use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\EventBus;
@@ -93,7 +92,7 @@ final readonly class PatchHostCommandHandler
     public function __invoke(PatchHostCommand $command): Host
     {
         $host = $this->getHost($command);
-        // The references come before the name: a restricted viewer must not be able to tell a duplicate
+        // The references come before the name: a restricted actor must not be able to tell a duplicate
         // name from a resource they cannot access.
         $this->assertReferencesExist($command);
         $withRelations = $this->relations->applyTo($host, $command);
@@ -111,7 +110,7 @@ final readonly class PatchHostCommandHandler
         $updatedHost = $this->moveSecretsToTheVault($host, $updatedHost, $command, macrosChanged: $macros !== null);
 
         try {
-            $this->saveAndNotify($host, $updatedHost, $command->updatedBy, secretRewritten: $this->providesASecret($command));
+            $this->saveAndNotify($host, $updatedHost, $command->actor->userId->value, secretRewritten: $this->providesASecret($command));
         } catch (\Throwable $exception) {
             if ($this->touchesTheVault($host, $updatedHost, $command)) {
                 $this->logger->warning(
@@ -124,7 +123,7 @@ final readonly class PatchHostCommandHandler
         }
 
         if ($command->deployServicesFromTemplates && count($updatedHost->templateIds) > 0) {
-            $this->eventBus->fire(new HostServicesDeploymentRequested($updatedHost->id(), new UserId($command->updatedBy)));
+            $this->eventBus->fire(new HostServicesDeploymentRequested($updatedHost->id(), $command->actor->userId));
         }
 
         return $updatedHost;
@@ -132,9 +131,9 @@ final readonly class PatchHostCommandHandler
 
     private function getHost(PatchHostCommand $command): Host
     {
-        // Viewer-scoped: findOne returns null for a host outside the viewer's ACL scope, the same as
-        // a nonexistent one, so a restricted viewer can never tell them apart.
-        $host = $this->repository->findOne($command->id, $command->viewerId);
+        // Actor-scoped: findOne returns null for a host outside the actor's ACL scope, the same as
+        // a nonexistent one, so a restricted actor can never tell them apart.
+        $host = $this->repository->findOne($command->id, $command->actor);
         if (! $host instanceof Host) {
             throw new HostNotFoundException([$command->id->value], 'id');
         }
@@ -149,11 +148,11 @@ final readonly class PatchHostCommandHandler
     private function assertReferencesExist(PatchHostCommand $command): void
     {
         if ($command->pollerId instanceof PollerId) {
-            $this->references->assertPollerAccessible($command->pollerId, $command->viewerId);
+            $this->references->assertPollerAccessible($command->pollerId, $command->actor);
         }
 
         if ($command->severityId instanceof HostSeverityId) {
-            $this->references->assertSeverityAccessible($command->severityId, $command->viewerId);
+            $this->references->assertSeverityAccessible($command->severityId, $command->actor);
         }
 
         if ($command->timezoneId instanceof TimezoneId) {
