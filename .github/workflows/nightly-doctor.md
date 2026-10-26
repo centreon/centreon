@@ -231,16 +231,21 @@ jobs:
           import hashlib, json, os, re, subprocess
 
           repo, run_id = os.environ["GITHUB_REPOSITORY"], os.environ["RUN_ID"]
+          # External failures, infrastructure whatever the job.
           INFRA = [re.compile(p, re.I) for p in (
               r"lost communication with the server",
               r"runner has received a shutdown signal",
               r"Error response from daemon:.*(\b5\d\d\b|Service Unavailable|timeout|TLS handshake)",
               r"toomanyrequests",
-              r"i/o timeout|connection reset by peer|ECONNRESET|ETIMEDOUT|EAI_AGAIN|Temporary failure in name resolution",
               r"ERR_PNPM_\w*(FETCH|TIMEOUT|UNVERIFIABLE)|npm registry signature could not be verified",
-              r"\b50[234]\b.*(Bad Gateway|Service Unavailable|Gateway Time-?out)",
-              r"(packages\.centreon\.com|pulp)\S*.*\b50[234]\b",
           )]
+          # Infrastructure outside test jobs only: in e2e/API tests they usually mean the centreon-web
+          # container we built crashed or stopped answering.
+          NETWORK = re.compile(r"i/o timeout|connection reset by peer|ECONNRESET|ETIMEDOUT|EAI_AGAIN|Temporary failure in name resolution"
+                               r"|\b50[234]\b.*(Bad Gateway|Service Unavailable|Gateway Time-?out)", re.I)
+          TEST_JOB = re.compile(r"^(e2e|api|bruno|cypress|robot|.*-test\b)", re.I)
+          # Delivery failures (Pulp included) are always investigated.
+          DELIVERY_JOB = re.compile(r"deliver|pulp", re.I)
           CYPRESS_DOWNLOAD = re.compile(r"cypress (install|binary)|Installing Cypress|download\.cypress\.io", re.I)
           TIMEOUT = re.compile(r"Timeout of \d+ms hit", re.I)
           STAMP = re.compile(r"^\d{4}-\d\d-\d\dT[\d:.]+Z ?")
@@ -285,7 +290,10 @@ jobs:
               idx = next((i for i, l in enumerate(lines) if l.startswith("##[error]")), None)
               error = lines[idx] if idx is not None else "no ##[error] line"
               context = "\n".join(lines[max(0, (idx or 0) - 20):(idx or 0) + 1])
-              is_infra = any(p.search(context) for p in INFRA) or bool(TIMEOUT.search(error) and CYPRESS_DOWNLOAD.search(context))
+              is_infra = not DELIVERY_JOB.search(name) and (
+                  any(p.search(context) for p in INFRA)
+                  or bool(NETWORK.search(context) and not TEST_JOB.search(name))
+                  or bool(TIMEOUT.search(error) and CYPRESS_DOWNLOAD.search(context)))
               infra.append(is_infra)
               items.add(f"{run.get('path', '?')}|{norm_job(name)}|{norm_err(error)}")
               # Printed "##[error]" lines would become annotations of this job.
