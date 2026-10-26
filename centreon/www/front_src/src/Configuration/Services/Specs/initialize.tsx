@@ -26,7 +26,7 @@ import {
   servicesListEndpoint,
   serviceTemplatesEndpoint
 } from '../api/endpoints';
-import { serviceFormCommandsEndpoint } from '../Form/sections/dataProcessing';
+import { getServiceTemplateMacrosEndpoint } from '../Form/ServiceMacros';
 // MON-213087: Extended Info section (F41-F50).
 import {
   serviceFormGraphTemplatesEndpoint,
@@ -44,18 +44,20 @@ import {
   serviceFormServiceGroupsEndpoint,
   serviceFormTrapsEndpoint
 } from '../Form/sections/relations';
+import { serviceFormCommandsEndpoint } from '../Form/sections/serviceConfiguration';
 import {
   emptyListingResponse,
+  getCommandsResponse,
   getContactGroupsResponse,
   getContactsResponse,
   getGraphTemplatesResponse,
   getListingResponse,
   getServiceCategoriesResponse,
-  getServiceCommandsResponse,
   getServiceGroupsResponse,
   getServiceMediasResponse,
   getServiceResponse,
   getServiceSeveritiesResponse,
+  getServiceTemplateMacrosResponses,
   getServiceTemplatesResponse,
   getTimePeriodsResponse,
   getTrapsResponse
@@ -176,15 +178,6 @@ const initialize = ({
     response: getTrapsResponse()
   });
 
-  // Data Processing (MON-213085): the event handler selector, and the writes
-  // the form sends.
-  interceptAPIRequest({
-    alias: 'getServiceCommands',
-    method: Method.GET,
-    path: `**${serviceFormCommandsEndpoint}?**`,
-    response: getServiceCommandsResponse()
-  });
-
   // MON-213087: Extended Info section (F41-F50). Its four selectors, and the
   // create and update writes its specs read the payload of.
   [
@@ -218,6 +211,25 @@ const initialize = ({
   });
 
   // The writes every section's form sends: one create, one update per service.
+  // MON-213083: check command, arguments and macros (F04–F06).
+  interceptAPIRequest({
+    alias: 'getFormCommands',
+    method: Method.GET,
+    path: `**${serviceFormCommandsEndpoint}?**`,
+    response: getCommandsResponse()
+  });
+
+  Object.entries(getServiceTemplateMacrosResponses()).forEach(
+    ([id, response]) => {
+      interceptAPIRequest({
+        alias: `getTemplateMacros${id}`,
+        method: Method.GET,
+        path: `**${getServiceTemplateMacrosEndpoint({ id: Number(id) })}`,
+        response
+      });
+    }
+  );
+
   interceptAPIRequest({
     alias: 'createService',
     method: Method.POST,

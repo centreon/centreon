@@ -25,11 +25,13 @@ const pick = async (testId: string, option: string): Promise<void> => {
   await waitFor(() => expect(field).toHaveValue(option));
 };
 
-// A service is created with a name and a host or not at all, and on a cloud
-// platform with a template too, so a section's create test fills them before
-// it saves. Called once the add form is open.
+// A service is created with a name, a host, and a check command or a template
+// that brings one (on a cloud platform the template is required), so a
+// section's create test fills them before it saves. A template covers both
+// rules; a test of the check command passes `withTemplate: false`. Called once
+// the add form is open.
 export const fillRequiredServiceFields = async ({
-  withTemplate = false
+  withTemplate = true
 }: {
   withTemplate?: boolean;
 } = {}): Promise<void> => {

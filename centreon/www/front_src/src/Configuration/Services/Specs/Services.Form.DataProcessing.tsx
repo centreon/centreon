@@ -184,9 +184,8 @@ export default () => {
       );
 
       await userEvent.click(screen.getByTestId('service-form-event-handler'));
-      const { request: commandsRequest } = await waitForRequest(
-        '@getServiceCommands'
-      );
+      const { request: commandsRequest } =
+        await waitForRequest('@getFormCommands');
 
       expect(commandsRequest.url.pathname).toContain(
         '/api/configuration/services/commands'
