@@ -49,13 +49,53 @@ OCF_RESKEY_node_list_default=""
 : ${OCF_FUNCTIONS_DIR=${OCF_ROOT}/lib/heartbeat}
 . ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
 . ${OCF_FUNCTIONS_DIR}/mariadb-centreon-common.sh
+
+#######################################################################
+# Detect MariaDB vs MySQL
+_is_mariadb=0
+_DB_NAME="MySQL"
+if command -v mariadbd &>/dev/null; then
+    _is_mariadb=1
+    _DB_NAME="MariaDB"
+fi
+
+# SQL command and field name compatibility
+if [ "$_is_mariadb" -eq 1 ] ; then
+    _SQL_SHOW_REPLICA_STATUS="SHOW SLAVE STATUS"
+    _SQL_START_REPLICA="START SLAVE"
+    _SQL_STOP_REPLICA="STOP SLAVE"
+    _SQL_STOP_REPLICA_IO="STOP SLAVE IO_THREAD"
+    _SQL_RESET_REPLICA_ALL="RESET SLAVE /*!50516 ALL */"
+    _SQL_FIELD_HOST="Master_Host"
+    _SQL_FIELD_USER="Master_User"
+    _SQL_FIELD_PORT="Master_Port"
+    _SQL_FIELD_LOG_FILE="Master_Log_File"
+    _SQL_FIELD_USING_GTID="Using_Gtid"
+    _SQL_FIELD_SQL_RUNNING="Slave_SQL_Running"
+    _SQL_FIELD_IO_RUNNING="Slave_IO_Running"
+    _SQL_FIELD_SECS_BEHIND="Seconds_Behind_Master"
+else
+    _SQL_SHOW_REPLICA_STATUS="SHOW REPLICA STATUS"
+    _SQL_START_REPLICA="START REPLICA"
+    _SQL_STOP_REPLICA="STOP REPLICA"
+    _SQL_STOP_REPLICA_IO="STOP REPLICA IO_THREAD"
+    _SQL_RESET_REPLICA_ALL="RESET REPLICA ALL"
+    _SQL_FIELD_HOST="Source_Host"
+    _SQL_FIELD_USER="Source_User"
+    _SQL_FIELD_PORT="Source_Port"
+    _SQL_FIELD_LOG_FILE="Source_Log_File"
+    _SQL_FIELD_USING_GTID="Auto_Position"
+    _SQL_FIELD_SQL_RUNNING="Replica_SQL_Running"
+    _SQL_FIELD_IO_RUNNING="Replica_IO_Running"
+    _SQL_FIELD_SECS_BEHIND="Seconds_Behind_Source"
+fi
 #######################################################################
 
 usage() {
   cat <<UEND
 usage: $0 (start|stop|validate-all|meta-data|monitor|promote|demote|notify)
 
-$0 manages a MariaDB Database as an HA resource.
+$0 manages a MariaDB/MySQL Database as an HA resource.
 
 The 'start' operation starts the database.
 The 'stop' operation stops the database.
@@ -76,14 +116,14 @@ meta_data() {
 <version>1.0</version>
 
 <longdesc lang="en">
-Resource script for MariaDB.
+Resource script for MariaDB/MySQL.
 
 Manages a complete master/slave replication setup with GTID, for simpler
 uses look at the mysql resource agent which supports older replication
 forms which mysql and mariadb have in common.
 
 The resource must be setup to use notifications. Set 'notify=true' in the metadata
-attributes when defining a MariaDB master/slave instance.
+attributes when defining a MariaDB/MySQL master/slave instance.
 
 The default behavior is to use uname -n values in the change master to command.
 Other IPs can be specified manually by adding a node attribute
@@ -91,22 +131,22 @@ Other IPs can be specified manually by adding a node attribute
 For example, if the mariadb primitive you are using is p_mariadb, the
 attribute to set will be p_mariadb_mysql_master_IP.
 </longdesc>
-<shortdesc lang="en">Manages a MariaDB master/slave instance</shortdesc>
+<shortdesc lang="en">Manages a MariaDB/MySQL master/slave instance</shortdesc>
 <parameters>
 
 <parameter name="binary" unique="0" required="0">
 <longdesc lang="en">
-Location of the MariaDB server binary
+Location of the MariaDB/MySQL server binary
 </longdesc>
-<shortdesc lang="en">MariaDB server binary</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL server binary</shortdesc>
 <content type="string" default="${OCF_RESKEY_binary_default}" />
 </parameter>
 
 <parameter name="client_binary" unique="0" required="0">
 <longdesc lang="en">
-Location of the MariaDB client binary
+Location of the MariaDB/MySQL client binary
 </longdesc>
-<shortdesc lang="en">MariaDB client binary</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL client binary</shortdesc>
 <content type="string" default="${OCF_RESKEY_client_binary_default}" />
 </parameter>
 
@@ -114,7 +154,7 @@ Location of the MariaDB client binary
 <longdesc lang="en">
 Configuration file
 </longdesc>
-<shortdesc lang="en">MariaDB config</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL config</shortdesc>
 <content type="string" default="${OCF_RESKEY_config_default}" />
 </parameter>
 
@@ -122,23 +162,23 @@ Configuration file
 <longdesc lang="en">
 Directory containing databases
 </longdesc>
-<shortdesc lang="en">MariaDB datadir</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL datadir</shortdesc>
 <content type="string" default="${OCF_RESKEY_datadir_default}" />
 </parameter>
 
 <parameter name="user" unique="0" required="0">
 <longdesc lang="en">
-User running MariaDB daemon
+User running MariaDB/MySQL daemon
 </longdesc>
-<shortdesc lang="en">MariaDB user</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL user</shortdesc>
 <content type="string" default="${OCF_RESKEY_user_default}" />
 </parameter>
 
 <parameter name="group" unique="0" required="0">
 <longdesc lang="en">
-Group running MariaDB daemon (for logfile and directory permissions)
+Group running MariaDB/MySQL daemon (for logfile and directory permissions)
 </longdesc>
-<shortdesc lang="en">MariaDB group</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL group</shortdesc>
 <content type="string" default="${OCF_RESKEY_group_default}"/>
 </parameter>
 
@@ -146,7 +186,7 @@ Group running MariaDB daemon (for logfile and directory permissions)
 <longdesc lang="en">
 The logfile to be used for mysqld.
 </longdesc>
-<shortdesc lang="en">MariaDB log file</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL log file</shortdesc>
 <content type="string" default="${OCF_RESKEY_log_default}"/>
 </parameter>
 
@@ -164,7 +204,7 @@ This is required for the master selection to function.
 <longdesc lang="en">
 The pidfile to be used for mysqld.
 </longdesc>
-<shortdesc lang="en">MariaDB pid file</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL pid file</shortdesc>
 <content type="string" default="${OCF_RESKEY_pid_default}"/>
 </parameter>
 
@@ -172,7 +212,7 @@ The pidfile to be used for mysqld.
 <longdesc lang="en">
 The socket to be used for mysqld.
 </longdesc>
-<shortdesc lang="en">MariaDB socket</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL socket</shortdesc>
 <content type="string" default="${OCF_RESKEY_socket_default}"/>
 </parameter>
 
@@ -180,29 +220,29 @@ The socket to be used for mysqld.
 <longdesc lang="en">
 Table to be tested in monitor statement (in database.table notation)
 </longdesc>
-<shortdesc lang="en">MariaDB test table</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL test table</shortdesc>
 <content type="string" default="${OCF_RESKEY_test_table_default}" />
 </parameter>
 
 <parameter name="test_user" unique="0" required="0">
 <longdesc lang="en">
-MariaDB test user, must have select privilege on test_table
+MariaDB/MySQL test user, must have select privilege on test_table
 </longdesc>
-<shortdesc lang="en">MariaDB test user</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL test user</shortdesc>
 <content type="string" default="${OCF_RESKEY_test_user_default}" />
 </parameter>
 
 <parameter name="test_passwd" unique="0" required="0">
 <longdesc lang="en">
-MariaDB test user password
+MariaDB/MySQL test user password
 </longdesc>
-<shortdesc lang="en">MariaDB test user password</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL test user password</shortdesc>
 <content type="string" default="${OCF_RESKEY_test_passwd_default}" />
 </parameter>
 
 <parameter name="enable_creation" unique="0" required="0">
 <longdesc lang="en">
-If the MariaDB database does not exist, it will be created
+If the MariaDB/MySQL database does not exist, it will be created
 </longdesc>
 <shortdesc lang="en">Create the database if it does not exist</shortdesc>
 <content type="boolean" default="${OCF_RESKEY_enable_creation_default}"/>
@@ -219,31 +259,31 @@ Additional parameters which are passed to the mysqld on startup.
 
 <parameter name="replication_user" unique="0" required="0">
 <longdesc lang="en">
-MariaDB replication user. This user is used for starting and stopping
-MariaDB replication, for setting and resetting the master host, and for
+MariaDB/MySQL replication user. This user is used for starting and stopping
+MariaDB/MySQL replication, for setting and resetting the master host, and for
 setting and unsetting read-only mode. Because of that, this user must
 have SUPER, REPLICATION SLAVE, REPLICATION CLIENT, PROCESS and RELOAD
 privileges on all nodes within the cluster. Mandatory if you define a
 master-slave resource.
 </longdesc>
-<shortdesc lang="en">MariaDB replication user</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL replication user</shortdesc>
 <content type="string" default="${OCF_RESKEY_replication_user_default}" />
 </parameter>
 
 <parameter name="replication_passwd" unique="0" required="0">
 <longdesc lang="en">
-MariaDB replication password. Used for replication client and slave.
+MariaDB/MySQL replication password. Used for replication client and slave.
 Mandatory if you define a master-slave resource.
 </longdesc>
-<shortdesc lang="en">MariaDB replication user password</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL replication user password</shortdesc>
 <content type="string" default="${OCF_RESKEY_replication_passwd_default}" />
 </parameter>
 
 <parameter name="replication_port" unique="0" required="0">
 <longdesc lang="en">
-The port on which the Master MariaDB instance is listening.
+The port on which the Master MariaDB/MySQL instance is listening.
 </longdesc>
-<shortdesc lang="en">MariaDB replication port</shortdesc>
+<shortdesc lang="en">MariaDB/MySQL replication port</shortdesc>
 <content type="string" default="${OCF_RESKEY_replication_port_default}" />
 </parameter>
 
@@ -282,8 +322,18 @@ greater_than_equal_long()
 
 greater_than_gtid()
 {
-    local gtid1_transaction_id=$(echo $1 | cut -d - -f 3)
-    local gtid2_transaction_id=$(echo $2 | cut -d - -f 3)
+    local gtid1_transaction_id
+    local gtid2_transaction_id
+
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        # MariaDB GTID format: domain-server-sequence
+        gtid1_transaction_id=$(echo $1 | cut -d - -f 3)
+        gtid2_transaction_id=$(echo $2 | cut -d - -f 3)
+    else
+        # MySQL GTID format: uuid:1-N (extract N, the last transaction number)
+        gtid1_transaction_id=$(echo $1 | grep -oE '[0-9]+$')
+        gtid2_transaction_id=$(echo $2 | grep -oE '[0-9]+$')
+    fi
 
     greater_than_equal_long $gtid1_transaction_id $gtid2_transaction_id
     return $?
@@ -292,13 +342,24 @@ greater_than_gtid()
 set_gtid() {
     # Sets the GTID in CIB using attrd_updater for this node.
 
-    local gtid=$($MYSQL $MYSQL_OPTIONS_REPL \
+    local gtid
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        gtid=$($MYSQL $MYSQL_OPTIONS_REPL \
                         -s -N -e "show global variables like 'gtid_current_pos'" | cut -f 2)
+    else
+        gtid=$($MYSQL $MYSQL_OPTIONS_REPL \
+                        -s -N -e "SELECT @@gtid_executed")
+    fi
 
-    # Ensure that we got somethine like a valid GTID
-    if ! echo $gtid | grep -q '-'; then
-        ocf_exit_reason "Unable to read GTID from MariaDB"
-        ocf_log err "Unable to read GTID from MariaDB"
+    # Ensure that we got something like a valid GTID
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        _gtid_valid=$(echo $gtid | grep -cE '[0-9]+-[0-9]+-[0-9]+')
+    else
+        _gtid_valid=$(echo $gtid | grep -cE '[0-9a-fA-F-]+:[0-9]+')
+    fi
+    if [ "$_gtid_valid" -eq 0 ]; then
+        ocf_exit_reason "Unable to read GTID from $_DB_NAME"
+        ocf_log err "Unable to read GTID from $_DB_NAME"
         return $OCF_ERR_GENERIC
     fi
 
@@ -499,22 +560,22 @@ get_slave_info() {
         local tmpfile=$(mktemp ${HA_RSCTMP}/check_slave.${OCF_RESOURCE_INSTANCE}.XXXXXX)
 
         $MYSQL $MYSQL_OPTIONS_REPL \
-        -e 'SHOW SLAVE STATUS\G' > $tmpfile
+        -e "$_SQL_SHOW_REPLICA_STATUS\G" > $tmpfile
 
         if [ -s $tmpfile ]; then
-            master_host=$(parse_slave_info Master_Host $tmpfile)
-            master_user=$(parse_slave_info Master_User $tmpfile)
-            master_port=$(parse_slave_info Master_Port $tmpfile)
-            master_using_gtid=$(parse_slave_info Using_Gtid $tmpfile)
-            master_log_file=$(parse_slave_info Master_Log_File $tmpfile)
-            slave_sql=$(parse_slave_info Slave_SQL_Running $tmpfile)
-            slave_io=$(parse_slave_info Slave_IO_Running $tmpfile)
+            master_host=$(parse_slave_info $_SQL_FIELD_HOST $tmpfile)
+            master_user=$(parse_slave_info $_SQL_FIELD_USER $tmpfile)
+            master_port=$(parse_slave_info $_SQL_FIELD_PORT $tmpfile)
+            master_using_gtid=$(parse_slave_info $_SQL_FIELD_USING_GTID $tmpfile)
+            master_log_file=$(parse_slave_info $_SQL_FIELD_LOG_FILE $tmpfile)
+            slave_sql=$(parse_slave_info $_SQL_FIELD_SQL_RUNNING $tmpfile)
+            slave_io=$(parse_slave_info $_SQL_FIELD_IO_RUNNING $tmpfile)
             last_errno=$(parse_slave_info Last_Errno $tmpfile)
             last_error=$(parse_slave_info Last_Error $tmpfile)
-            secs_behind=$(parse_slave_info Seconds_Behind_Master $tmpfile)
+            secs_behind=$(parse_slave_info $_SQL_FIELD_SECS_BEHIND $tmpfile)
             last_io_errno=$(parse_slave_info Last_IO_Errno $tmpfile)
             last_io_error=$(parse_slave_info Last_IO_Error $tmpfile)
-            ocf_log debug "MariaDB instance running as a replication slave"
+            ocf_log debug "$_DB_NAME instance running as a replication slave"
             rm "$tmpfile"
         else
             # Instance produced an empty "SHOW SLAVE STATUS" output --
@@ -538,27 +599,27 @@ check_slave() {
 
         # Check normal errors
         if [ $last_errno -ne 0 ]; then
-            ocf_exit_reason "MariaDB slave replication has failed ($last_errno): $last_error"
+            ocf_exit_reason "$_DB_NAME slave replication has failed ($last_errno): $last_error"
 
             exit $OCF_ERR_GENERIC
         fi
 
         # Check IO Errors, ignore 2003 which indicates a connection failure to the master
         if [ $last_io_errno -ne 0 ] && [ $last_io_errno -ne 2003 ]; then
-            ocf_exit_reason "MariaDB slave io has failed ($last_io_errno): $last_io_error"
+            ocf_exit_reason "$_DB_NAME slave io has failed ($last_io_errno): $last_io_error"
 
             exit $OCF_ERR_GENERIC
         fi
 
         if [ $last_io_errno -eq 2003 ]; then
-            ocf_log warn "MariaDB master not reachable from slave"
+            ocf_log warn "$_DB_NAME master not reachable from slave"
         fi
         
         if [ "$slave_io" != 'Yes' ]; then
             # Not necessarily a bad thing. The master may have
             # temporarily shut down, and the slave may just be
             # reconnecting. A warning can't hurt, though.
-            ocf_log warn "MariaDB Slave IO threads currently not running."
+            ocf_log warn "$_DB_NAME Slave IO threads currently not running."
 
             # Sanity check, are we at least on the right master
             new_master=$($CRM_ATTR_REPL_INFO --query  -q)
@@ -576,20 +637,20 @@ check_slave() {
             # We don't have a replication SQL thread running. Not a
             # good thing. Try to recoved by restarting the SQL thread
             # and remove reader vip.  Prevent MariaDB restart.
-            ocf_exit_reason "MariaDB Slave SQL threads currently not running."
+            ocf_exit_reason "$_DB_NAME Slave SQL threads currently not running."
 
             # Remove reader vip
             set_reader_attr 0
 
-            # try to restart slave
+            # try to restart replica
             ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
-                -e "START SLAVE"
+                -e "$_SQL_START_REPLICA"
 
             # Return success to prevent a restart
             exit $OCF_SUCCESS
         fi
 
-        ocf_log debug "MariaDB instance running as a replication slave"
+        ocf_log debug "$_DB_NAME instance running as a replication slave"
     else
         # Instance produced an empty "SHOW SLAVE STATUS" output --
         # instance is not a slave
@@ -607,14 +668,23 @@ set_master() {
     # name of the new master host. The master must either be unchanged
     # from the laste master the slave replicated from, or freshly
     # reset with RESET MASTER.
-    ocf_log info "Changing MariaDB configuration to replicate from $new_master."
+    ocf_log info "Changing $_DB_NAME configuration to replicate from $new_master."
 
-    ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
-        -e "CHANGE MASTER TO MASTER_HOST='$new_master', \
-        MASTER_PORT=$OCF_RESKEY_replication_port, \
-        MASTER_USER='$OCF_RESKEY_replication_user', \
-        MASTER_PASSWORD='$OCF_RESKEY_replication_passwd', \
-        MASTER_USE_GTID=current_pos";
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
+            -e "CHANGE MASTER TO MASTER_HOST='$new_master', \
+            MASTER_PORT=$OCF_RESKEY_replication_port, \
+            MASTER_USER='$OCF_RESKEY_replication_user', \
+            MASTER_PASSWORD='$OCF_RESKEY_replication_passwd', \
+            MASTER_USE_GTID=current_pos";
+    else
+        ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
+            -e "CHANGE REPLICATION SOURCE TO SOURCE_HOST='$new_master', \
+            SOURCE_PORT=$OCF_RESKEY_replication_port, \
+            SOURCE_USER='$OCF_RESKEY_replication_user', \
+            SOURCE_PASSWORD='$OCF_RESKEY_replication_passwd', \
+            SOURCE_AUTO_POSITION=1";
+    fi
 }
 
 unset_master(){
@@ -633,9 +703,9 @@ unset_master(){
     # Stop the slave I/O thread and wait for relay log
     # processing to complete
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
-        -e "STOP SLAVE IO_THREAD"
+        -e "$_SQL_STOP_REPLICA_IO"
     if [ $? -gt 0 ]; then
-        ocf_exit_reason "Error stopping slave IO thread"
+        ocf_exit_reason "Error stopping replica IO thread"
         exit $OCF_ERR_GENERIC
     fi
 
@@ -644,30 +714,30 @@ unset_master(){
         $MYSQL $MYSQL_OPTIONS_REPL \
             -e 'SHOW PROCESSLIST\G' > $tmpfile
         if grep -i 'Has read all relay log' $tmpfile >/dev/null; then
-            ocf_log info "MariaDB slave has finished processing relay log"
+            ocf_log info "$_DB_NAME slave has finished processing relay log"
             break
         fi
         if ! grep -q 'system user' $tmpfile; then
             ocf_log info "Slave not runnig - not waiting to finish"
             break
         fi
-        ocf_log info "Waiting for MariaDB slave to finish processing relay log"
+        ocf_log info "Waiting for $_DB_NAME slave to finish processing relay log"
         sleep 1
     done
     rm -f $tmpfile
 
-    # Now, stop all slave activity and unset the master host
+    # Now, stop all replica activity and unset the master host
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
-        -e "STOP SLAVE"
+        -e "$_SQL_STOP_REPLICA"
     if [ $? -gt 0 ]; then
-        ocf_exit_reason "Error stopping rest slave threads"
+        ocf_exit_reason "Error stopping rest replica threads"
         exit $OCF_ERR_GENERIC
     fi
 
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
-        -e "RESET SLAVE /*!50516 ALL */;"
+        -e "$_SQL_RESET_REPLICA_ALL;"
     if [ $? -gt 0 ]; then
-        ocf_exit_reason "Failed to reset slave"
+        ocf_exit_reason "Failed to reset replica"
         exit $OCF_ERR_GENERIC
     fi
 }
@@ -675,7 +745,7 @@ unset_master(){
 # Start replication as slave
 start_slave() {
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
-        -e "START SLAVE"
+        -e "$_SQL_START_REPLICA"
 }
 
 # Set the attribute controlling the readers VIP
@@ -769,10 +839,10 @@ mysql_monitor() {
     fi
     
     if ! get_read_only; then
-        ocf_log debug "MariaDB monitor succeeded (master)";
+        ocf_log debug "$_DB_NAME monitor succeeded (master)";
         return $OCF_RUNNING_MASTER
     else
-        ocf_log debug "MariaDB monitor succeeded";
+        ocf_log debug "$_DB_NAME monitor succeeded";
         return $OCF_SUCCESS
     fi
 }
@@ -790,7 +860,7 @@ mysql_start() {
 
     mysql_common_status info
     if [ $? = $OCF_SUCCESS ]; then
-        ocf_log info "MariaDB already running"
+        ocf_log info "$_DB_NAME already running"
         return $OCF_SUCCESS
     fi
 
@@ -803,14 +873,26 @@ mysql_start() {
     fi
 
     # Enable semi-sync
-    ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
-            -e "SET GLOBAL rpl_semi_sync_slave_enabled='OFF', \
-                           rpl_semi_sync_master_enabled='ON', \
-                           rpl_semi_sync_master_wait_no_slave='OFF', \
-                           rpl_semi_sync_master_wait_point='AFTER_SYNC', \
-                           gtid_strict_mode='ON', \
-                           sync_binlog=1, \
-                           sync_master_info=1;"
+    # Note: the MySQL branch uses variable names introduced in MySQL 8.0.26
+    # (rpl_semi_sync_source_*, sync_source_info). MySQL < 8.0.26 is not supported.
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
+                -e "SET GLOBAL rpl_semi_sync_slave_enabled='OFF', \
+                               rpl_semi_sync_master_enabled='ON', \
+                               rpl_semi_sync_master_wait_no_slave='OFF', \
+                               rpl_semi_sync_master_wait_point='AFTER_SYNC', \
+                               gtid_strict_mode='ON', \
+                               sync_binlog=1, \
+                               sync_master_info=1;"
+    else
+        ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
+                -e "SET GLOBAL rpl_semi_sync_replica_enabled='OFF', \
+                               rpl_semi_sync_source_enabled='ON', \
+                               rpl_semi_sync_source_wait_no_replica='OFF', \
+                               rpl_semi_sync_source_wait_point='AFTER_SYNC', \
+                               sync_binlog=1, \
+                               sync_source_info=1;"
+    fi
     rc=$?
     if [ $rc -ne 0 ]; then
         ocf_exit_reason "Failed to enable semi-sync and set variables";
@@ -836,7 +918,7 @@ mysql_start() {
             return $OCF_ERR_GENERIC
         fi
     else
-        ocf_log info "No MariaDB master present - clearing replication state, setting gtid in attrd, waiting for first master"
+        ocf_log info "No $_DB_NAME master present - clearing replication state, setting gtid in attrd, waiting for first master"
         unset_master
         set_waiting_for_first_master
     fi
@@ -853,7 +935,7 @@ mysql_start() {
         return $rc
     fi
 
-    ocf_log info "MariaDB started"
+    ocf_log info "$_DB_NAME started"
     return $OCF_SUCCESS
 }
 
@@ -874,12 +956,17 @@ mysql_promote() {
         return $OCF_NOT_RUNNING
     fi
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
-        -e "STOP SLAVE"
+        -e "$_SQL_STOP_REPLICA"
 
     set_read_only off || return $OCF_ERR_GENERIC
     # Force the master to wait for timeout period on slave disconnect
-    ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
-            -e "SET GLOBAL rpl_semi_sync_master_wait_no_slave='ON';"
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
+                -e "SET GLOBAL rpl_semi_sync_master_wait_no_slave='ON';"
+    else
+        ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
+                -e "SET GLOBAL rpl_semi_sync_source_wait_no_replica='ON';"
+    fi
     
     # Set Master Info in CIB, cluster level attribute
     master_info="$(get_local_ip)"
@@ -900,8 +987,13 @@ mysql_demote() {
     fi
 
     # Return to default no wait setting.
-    ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
-            -e "SET GLOBAL rpl_semi_sync_master_wait_no_slave='OFF';"
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
+                -e "SET GLOBAL rpl_semi_sync_master_wait_no_slave='OFF';"
+    else
+        ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
+                -e "SET GLOBAL rpl_semi_sync_source_wait_no_replica='OFF';"
+    fi
 
     # Return master preference to default, so the cluster manager gets
     # a chance to select a new master
