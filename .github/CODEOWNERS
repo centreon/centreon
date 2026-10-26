@@ -34,6 +34,7 @@ tsconfig.json                           @centreon/owners-react
 *.ts                                    @centreon/owners-react
 *.tsx                                   @centreon/owners-react
 *.jsx                                   @centreon/owners-react
+/.claude/                               @centreon/owners-react
 
 *.pm                                    @centreon/owners-perl
 *.pl                                    @centreon/owners-perl
