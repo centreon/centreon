@@ -21,32 +21,23 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
-
-use App\Security\Domain\Aggregate\UserId;
+namespace App\Security\Domain\Aggregate;
 
 /**
- * ACL scoping shared by the listing criteria that restrict results to what a
- * given viewer is allowed to see (Host, HostCategory, HostGroup, HostTemplate,
- * Poller).
+ * The user performing an action, as other bounded contexts need it to scope by ACL: who they are,
+ * and whether they escape resource scoping. A snapshot of the {@see Credential} it is built from,
+ * without its roles and permissions.
  */
-trait ViewerScopedCriteriaTrait
+final readonly class ActingUser
 {
-    private ?UserId $viewerId = null;
-
-    /**
-     * @param UserId|null $viewerId the user to scope results for, or null when no ACL restriction applies (e.g. an admin)
-     */
-    public function withViewerId(?UserId $viewerId): self
-    {
-        $new = clone $this;
-        $new->viewerId = $viewerId;
-
-        return $new;
+    public function __construct(
+        public UserId $userId,
+        private bool $unrestrictedResourceAccess,
+    ) {
     }
 
-    public function getViewerId(): ?UserId
+    public function hasUnrestrictedResourceAccess(): bool
     {
-        return $this->viewerId;
+        return $this->unrestrictedResourceAccess;
     }
 }

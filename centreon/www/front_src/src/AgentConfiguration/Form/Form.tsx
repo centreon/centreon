@@ -8,7 +8,6 @@ import { Schema } from 'yup';
 import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
 import { AgentConfigurationForm as AgentConfigurationFormModel } from '../models';
 import Buttons from './Buttons';
-import { useFormStyles } from './Modal.styles';
 import { connectionModes, useInputs } from './useInputs';
 import { useValidationSchema } from './useValidationSchema';
 
@@ -32,8 +31,6 @@ const AgentConfigurationForm = ({
   initialValues,
   isLoading
 }: Props): ReactElement => {
-  const { classes } = useFormStyles();
-
   const { groups, inputs } = useInputs();
 
   const validationSchema = useValidationSchema();
@@ -47,7 +44,7 @@ const AgentConfigurationForm = ({
       Buttons={Buttons}
       enableReinitialize
       groups={groups}
-      groupsClassName={classes.groups}
+      groupsClassName="flex-row-reverse justify-between px-2.5"
       initialValues={values}
       inputs={inputs}
       isCollapsible
