@@ -34,8 +34,8 @@ final class TrapChoicesOutput
         public string $name,
 
         /**
-         * A plain array, not an object (decisions C12, A3): JSON-LD would add its own id and type keys to a
-         * nested object, while the wire shape must be exactly {id, name}.
+         * A plain array, not an object: JSON-LD would add its own id and type keys to a nested object, while
+         * the wire shape must be exactly {id, name}.
          *
          * @var array{id: int, name: string}
          */

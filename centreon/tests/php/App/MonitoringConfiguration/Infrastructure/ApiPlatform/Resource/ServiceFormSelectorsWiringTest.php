@@ -48,7 +48,7 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     /**
      * reused: an existing provider wired to a new route, listed end to end here, so only reused entries carry
      * item_iri and keys; a new selector's listing is pinned by its own List<X>ChoicesProviderTest.
-     * on_premise_only: not routed on cloud (decision C15).
+     * on_premise_only: not routed on cloud, whose service form has no such field.
      */
     private const SELECTORS = [
         'commands' => [
@@ -261,8 +261,9 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     }
 
     /**
-     * Decision C15: the cloud service form has no contact, contact group, trap nor graph template field. The
-     * route condition is evaluated before the firewall, so the route answers 404 to any caller on cloud.
+     * The cloud service form has no contact, contact group, trap nor graph template field, so these selectors
+     * are on-premise only. The route condition is evaluated before the firewall, so the route answers 404 to
+     * any caller on cloud.
      */
     #[DataProvider('provideOnPremiseOnlySelectorsAndCallers')]
     public function testOnPremiseOnlySelectorsDoNotExistOnCloud(string $selector, bool $authenticated, int $onPremiseStatus): void
@@ -285,8 +286,8 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     }
 
     /**
-     * Decision C15: only contacts, contact groups, traps and graph templates are on-premise only. The cloud
-     * service form still needs the other selectors (time periods for the check period), so they stay routed.
+     * Only contacts, contact groups, traps and graph templates are on-premise only. The cloud service form
+     * still needs the other selectors (time periods for the check period), so they stay routed on cloud.
      */
     #[DataProvider('provideSelectorsRoutedOnCloud')]
     public function testOtherSelectorsStayRoutedOnCloud(string $selector): void

@@ -75,7 +75,7 @@ final class ListGraphTemplatesChoicesProviderTest extends ApiTestCase
     }
 
     /**
-     * S-4 / C14, pinned once for all the selectors: 30 items per page by default, no maximum page size,
+     * Pinned once for all the service form selectors: 30 items per page by default, no maximum page size,
      * and a hydra view when the result spans several pages.
      */
     public function testItServesThirtyItemsByDefaultAndAcceptsALargePageSize(): void

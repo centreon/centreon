@@ -54,8 +54,8 @@ final class ListTrapsChoicesProviderTest extends ApiTestCase
     }
 
     /**
-     * A service read-write user needs no trap role of its own. The vendor is a plain nested array
-     * (decisions C12, A3): exactly {id, name}, no JSON-LD id or type key of its own.
+     * A service read-write user needs no trap role of its own. The vendor is a plain nested array: exactly
+     * {id, name}, with no JSON-LD id or type key of its own.
      */
     public function testItListsForAServiceReadWriteUser(): void
     {
