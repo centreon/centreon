@@ -420,6 +420,36 @@ class CentreonACL
     }
 
     /**
+     * Runtime ids of the pollers the user can see, matching instances.instance_id
+     *
+     * Contains the Snowflake uid of each poller, plus its configuration id for legacy
+     * pollers still reporting it as instance_id.
+     *
+     * @return int[]
+     */
+    public function getPollerRuntimeIds(): array
+    {
+        if ($this->pollers === []) {
+            return [];
+        }
+
+        $pollerIds = array_map('intval', array_keys($this->pollers));
+        $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query(
+            'SELECT id, uid FROM nagios_server WHERE id IN (' . implode(',', $pollerIds) . ')'
+        );
+        $runtimeIds = [];
+        while ($row = $DBRESULT->fetchRow()) {
+            $runtimeIds[] = (int) $row['id'];
+            if ($row['uid'] !== null) {
+                $runtimeIds[] = (int) $row['uid'];
+            }
+        }
+        $DBRESULT->closeCursor();
+
+        return $runtimeIds;
+    }
+
+    /**
      * Service groups Getter
      *
      * @return array

@@ -391,13 +391,7 @@ class QueryGenerator
             logs.type,
             logs.instance_name
             FROM logs ' . $this->generateInnerJoinQuery()
-            . (
-                ! $this->is_admin
-                ? ' INNER JOIN centreon_acl acl ON (logs.host_id = acl.host_id AND (acl.service_id IS NULL OR '
-                . ' acl.service_id = logs.service_id)) '
-                . ' WHERE acl.group_id IN (' . $this->access->getAccessGroupsString() . ') AND '
-                : 'WHERE '
-            )
+            . $this->generateAclQuery()
             . " logs.ctime > '{$this->start}' AND logs.ctime <= '{$this->end}' {$whereOutput} {$msg_req}";
 
         // Add Host
@@ -500,6 +494,39 @@ class QueryGenerator
         $this->queryValues['limit'] = [\PDO::PARAM_INT => $this->limit];
 
         return ' LIMIT :offset, :limit';
+    }
+
+    /**
+     * Generates ACL statement, ending with an open WHERE clause
+     * @return string
+     */
+    private function generateAclQuery(): string
+    {
+        if ($this->is_admin) {
+            return 'WHERE ';
+        }
+
+        if ($this->engine == 'true') {
+            // Engine logs are not linked to any host, filter them on the pollers allowed by the ACL instead
+            $aclPollerIds = $this->access->getPollerRuntimeIds();
+            if ($aclPollerIds === []) {
+                return ' WHERE 0 = 1 AND ';
+            }
+
+            $placeholders = [];
+            foreach ($aclPollerIds as $index => $pollerId) {
+                $key = ':aclPollerId' . $index;
+                $this->queryValues[$key] = [\PDO::PARAM_INT => $pollerId];
+                $placeholders[] = $key;
+            }
+
+            return ' INNER JOIN instances acl_i ON acl_i.name = logs.instance_name'
+                . ' AND acl_i.instance_id IN (' . implode(',', $placeholders) . ') WHERE ';
+        }
+
+        return ' INNER JOIN centreon_acl acl ON (logs.host_id = acl.host_id AND (acl.service_id IS NULL OR '
+            . ' acl.service_id = logs.service_id)) '
+            . ' WHERE acl.group_id IN (' . $this->access->getAccessGroupsString() . ') AND ';
     }
 
     /**
