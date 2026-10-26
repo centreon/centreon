@@ -31,11 +31,16 @@ import useInheritedMacros from './useInheritedMacros';
 
 const maxVisibleRows = 10;
 
-// Legacy's colours for inherited macros, the same in both of its themes. Used
-// as a border colour, so the row's bar and the legend's swatch share them.
-const parentClassName: Record<MacroParent, string> = {
-  command: 'border-[#b6fca7]',
-  template: 'border-[#ffcb6b]'
+// The inherited rows get a 4px bar on their left, as in the design; the legend
+// swatches share its colours. Written out in full so Tailwind finds them.
+const barClassName: Record<MacroParent, string> = {
+  command: 'before:bg-success-light',
+  template: 'before:bg-warning-light'
+};
+
+const swatchClassName: Record<MacroParent, string> = {
+  command: 'bg-success-light',
+  template: 'bg-warning-light'
 };
 
 const legend: Array<{ label: string; parent: MacroParent }> = [
@@ -125,7 +130,7 @@ const Macros = ({
           >
             <span
               aria-hidden
-              className={`inline-block size-3 rounded-sm border-6 ${parentClassName[parent]}`}
+              className={`inline-block size-3 rounded-xs ${swatchClassName[parent]}`}
             />
             {t(legendLabel)}
           </Typography>
@@ -158,10 +163,10 @@ const Macros = ({
           createValue={createMacroRow}
           draggable={!disabled}
           getRowClassName={({ value: macro }) =>
-            `border-l-4 py-1 pr-1 pl-2 ${
+            `relative py-1 pr-1 pl-3 ${
               macro.parent && isUnchangedInherited(macro)
-                ? parentClassName[macro.parent]
-                : 'border-transparent'
+                ? `before:absolute before:top-1/2 before:left-0 before:h-9 before:w-1 before:-translate-y-1/2 before:rounded-xs before:content-[''] ${barClassName[macro.parent]}`
+                : ''
             }`
           }
           label={label}

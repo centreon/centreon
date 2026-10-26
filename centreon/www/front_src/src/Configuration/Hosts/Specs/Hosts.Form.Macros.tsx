@@ -37,14 +37,11 @@ const findMacroInput = async (
 const findMacroRow = async (index: number): Promise<HTMLElement> =>
   (await findMacroInput(index, 'name')).closest('li') as HTMLElement;
 
-const expectRowBorder = async (
-  index: number,
-  borderColor: string
-): Promise<void> => {
+const expectRowBar = async (index: number, barColor: string): Promise<void> => {
   await waitFor(async () =>
-    expect(getComputedStyle(await findMacroRow(index)).borderLeftColor).toBe(
-      borderColor
-    )
+    expect(
+      getComputedStyle(await findMacroRow(index), '::before').backgroundColor
+    ).toBe(barColor)
   );
 };
 
@@ -233,16 +230,24 @@ export default () => {
     commandInheritance.scrollIntoView();
     await waitFor(() => expect(commandInheritance).toBeVisible());
 
-    await expectRowBorder(0, 'rgba(0, 0, 0, 0)');
-    await expectRowBorder(2, 'rgb(255, 203, 107)');
-    await expectRowBorder(3, 'rgb(182, 252, 167)');
+    await expectRowBar(0, 'rgba(0, 0, 0, 0)');
+    await expectRowBar(2, 'rgb(252, 196, 129)');
+    await expectRowBar(3, 'rgb(159, 199, 78)');
+
+    // The design's bar: 4px wide, 36px high, 2px radius.
+    const bar = getComputedStyle(await findMacroRow(2), '::before');
+    expect([bar.width, bar.height, bar.borderTopLeftRadius]).toStrictEqual([
+      '4px',
+      '36px',
+      '2px'
+    ]);
 
     // Overridden: the host's own from now on.
     await replaceValue(await findMacroInput(2, 'value'), 'debian');
-    await expectRowBorder(2, 'rgba(0, 0, 0, 0)');
+    await expectRowBar(2, 'rgba(0, 0, 0, 0)');
     // Back to the inherited value: inherited again.
     await replaceValue(await findMacroInput(2, 'value'), 'linux');
-    await expectRowBorder(2, 'rgb(255, 203, 107)');
+    await expectRowBar(2, 'rgb(252, 196, 129)');
   });
 
   it('overrides an inherited macro and replaces a stored password', async () => {
@@ -377,8 +382,8 @@ export default () => {
   });
 
   describe('inherited from the templates picked', () => {
-    const templateBorder = 'rgb(255, 203, 107)';
-    const commandBorder = 'rgb(182, 252, 167)';
+    const templateBar = 'rgb(252, 196, 129)';
+    const commandBar = 'rgb(159, 199, 78)';
 
     const openCreation = openCreationForm;
 
@@ -415,10 +420,10 @@ export default () => {
 
       await expectMacroValue(0, 'name', 'OS');
       await expectMacroValue(0, 'value', 'linux');
-      await expectRowBorder(0, templateBorder);
+      await expectRowBar(0, templateBar);
       await expectMacroValue(1, 'name', 'TIMEOUT');
       await expectMacroValue(2, 'name', 'WARNING');
-      await expectRowBorder(2, commandBorder);
+      await expectRowBar(2, commandBar);
 
       await addTemplate(1, 'generic-passive-host');
       await waitForRequest('@getTemplateMacros6');
@@ -428,7 +433,7 @@ export default () => {
       await expectMacroValue(1, 'name', 'TIMEOUT');
       await expectMacroValue(2, 'name', 'WARNING');
       await expectMacroValue(2, 'value', '80');
-      await expectRowBorder(2, templateBorder);
+      await expectRowBar(2, templateBar);
 
       await deleteFirstTemplate();
 
@@ -476,7 +481,7 @@ export default () => {
       await waitForRequest('@getTemplateMacros5');
 
       await replaceValue(await findMacroInput(1, 'value'), '20');
-      await expectRowBorder(1, 'rgba(0, 0, 0, 0)');
+      await expectRowBar(1, 'rgba(0, 0, 0, 0)');
 
       await save();
 
@@ -542,7 +547,7 @@ export default () => {
       await expectMacroValue(2, 'name', 'OS');
       await expectMacroValue(2, 'value', 'linux');
       await expectMacroValue(3, 'name', 'WARNING');
-      await expectRowBorder(2, templateBorder);
+      await expectRowBar(2, templateBar);
       expect(
         screen.queryByText('Host template not found')
       ).not.toBeInTheDocument();
