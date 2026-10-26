@@ -22,7 +22,7 @@ claude -p "$PROMPT" \
     '
 claude_status="${PIPESTATUS[0]}"
 
-result_text=$(jq -R -r 'try (fromjson) catch empty | select(.type == "result") | .result // empty' claude-debug-analysis.jsonl 2>/dev/null | tail -n 1)
+result_text=$(jq -c 'select(.type == "result")' claude-debug-analysis.jsonl 2>/dev/null | tail -n 1 | jq -r '.result // empty')
 if [ -n "$result_text" ]; then
   mkdir -p debug-analysis
   printf '%s\n' "$result_text" > debug-analysis/summary.md
