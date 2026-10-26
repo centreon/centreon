@@ -37,7 +37,6 @@ use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalResourceAccessRepositoryTest extends KernelTestCase
@@ -465,7 +464,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($serviceGroupScope->allowsNothing());
     }
 
-    #[Group('wip')]
     public function testUserWithNoAclGroupSeesNoServiceCategory(): void
     {
         $userId = new UserId($this->createContact('user-no-acl-sc'));
@@ -476,7 +474,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($serviceCategoryScope->allowsNothing());
     }
 
-    #[Group('wip')]
     public function testUserWithAclResourceHavingNoServiceCategoryRestrictionIsUnrestricted(): void
     {
         $contactId = $this->createContact('user-unrestricted-sc');
@@ -485,7 +482,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($this->repository->findServiceCategoryAccessScope(new UserId($contactId))->isUnrestricted());
     }
 
-    #[Group('wip')]
     public function testUserRestrictedToServiceCategoriesGetsOnlyCategoryIds(): void
     {
         $categoryA = $this->insertServiceCategory();
@@ -508,7 +504,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertEqualsCanonicalizing([$categoryA, $categoryB], $serviceCategoryScope->allowedIdValues());
     }
 
-    #[Group('wip')]
     public function testUserGrantedOnlyServiceSeveritiesIsRestrictedToNoServiceCategory(): void
     {
         $contactId = $this->createContact('user-severity-only-sc');
@@ -523,7 +518,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($serviceCategoryScope->allowsNothing());
     }
 
-    #[Group('wip')]
     public function testAnInactiveAclResourceGrantsNoServiceCategory(): void
     {
         $contactId = $this->createContact('user-inactive-resource-sc');
@@ -539,7 +533,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($serviceCategoryScope->allowsNothing());
     }
 
-    #[Group('wip')]
     public function testAnotherUsersGrantsGiveNoServiceCategoryToTheAskingUser(): void
     {
         $grantedId = $this->insertServiceCategory();
@@ -554,7 +547,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([$grantedId], $serviceCategoryScope->allowedIdValues(), "Another user's relations must not apply.");
     }
 
-    #[Group('wip')]
     public function testAnotherUsersRestrictionDoesNotRestrictTheAskingUserToServiceCategories(): void
     {
         $contactId = $this->createContact('user-unrestricted-sc');
@@ -568,7 +560,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
-    #[Group('wip')]
     public function testUserWithOneRestrictedAndOneUnrelatedResourceStaysRestrictedToServiceCategories(): void
     {
         $grantedId = $this->insertServiceCategory();
@@ -584,7 +575,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([$grantedId], $serviceCategoryScope->allowedIdValues());
     }
 
-    #[Group('wip')]
     public function testAnInactiveResourceAddsNoServiceCategoryToAnActiveOnesGrants(): void
     {
         $grantedId = $this->insertServiceCategory();
@@ -602,7 +592,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([$grantedId], $serviceCategoryScope->allowedIdValues(), "An inactive resource's relations grant nothing.");
     }
 
-    #[Group('wip')]
     public function testAnInactiveResourceDoesNotRestrictToServiceCategories(): void
     {
         $contactId = $this->createContact('user-inactive-relation-sc');
@@ -619,7 +608,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
-    #[Group('wip')]
     public function testUserWithNoAclGroupSeesNoServiceSeverity(): void
     {
         $userId = new UserId($this->createContact('user-no-acl-sv'));
@@ -630,7 +618,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($serviceSeverityScope->allowsNothing());
     }
 
-    #[Group('wip')]
     public function testUserWithAclResourceHavingNoServiceSeverityRestrictionIsUnrestricted(): void
     {
         $contactId = $this->createContact('user-unrestricted-sv');
@@ -639,7 +626,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($this->repository->findServiceSeverityAccessScope(new UserId($contactId))->isUnrestricted());
     }
 
-    #[Group('wip')]
     public function testUserRestrictedToServiceSeveritiesGetsOnlySeverityIds(): void
     {
         $severityA = $this->insertServiceCategory(level: 1);
@@ -662,7 +648,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertEqualsCanonicalizing([$severityA, $severityB], $serviceSeverityScope->allowedIdValues());
     }
 
-    #[Group('wip')]
     public function testUserGrantedOnlyServiceCategoriesSeesNoServiceSeverity(): void
     {
         $contactId = $this->createContact('user-category-only-sv');
@@ -677,7 +662,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($serviceSeverityScope->allowsNothing());
     }
 
-    #[Group('wip')]
     public function testAnInactiveAclResourceGrantsNoServiceSeverity(): void
     {
         $contactId = $this->createContact('user-inactive-resource-sv');
@@ -693,7 +677,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($serviceSeverityScope->allowsNothing());
     }
 
-    #[Group('wip')]
     public function testAnotherUsersGrantsGiveNoServiceSeverityToTheAskingUser(): void
     {
         $grantedId = $this->insertServiceCategory(level: 1);
@@ -708,7 +691,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([$grantedId], $serviceSeverityScope->allowedIdValues(), "Another user's relations must not apply.");
     }
 
-    #[Group('wip')]
     public function testAnotherUsersRestrictionDoesNotRestrictTheAskingUserToServiceSeverities(): void
     {
         $contactId = $this->createContact('user-unrestricted-sv');
@@ -722,7 +704,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
-    #[Group('wip')]
     public function testUserWithOneRestrictedAndOneUnrelatedResourceStaysRestrictedToServiceSeverities(): void
     {
         $grantedId = $this->insertServiceCategory(level: 1);
@@ -738,7 +719,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([$grantedId], $serviceSeverityScope->allowedIdValues());
     }
 
-    #[Group('wip')]
     public function testAnInactiveResourceAddsNoServiceSeverityToAnActiveOnesGrants(): void
     {
         $grantedId = $this->insertServiceCategory(level: 1);
@@ -756,7 +736,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([$grantedId], $serviceSeverityScope->allowedIdValues(), "An inactive resource's relations grant nothing.");
     }
 
-    #[Group('wip')]
     public function testAnInactiveResourceDoesNotRestrictToServiceSeverities(): void
     {
         $contactId = $this->createContact('user-inactive-relation-sv');
