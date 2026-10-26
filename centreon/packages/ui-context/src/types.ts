@@ -89,6 +89,7 @@ export interface FeatureFlags {
   notification?: boolean;
   vault?: boolean;
   mapVisxViewer?: boolean;
+  servicesConfiguration?: boolean;
 }
 
 export interface PlatformFeatures {

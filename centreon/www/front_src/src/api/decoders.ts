@@ -118,12 +118,14 @@ export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
     adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
     mapVisxViewer: JsonDecoder.optional(JsonDecoder.boolean),
     notification: JsonDecoder.optional(JsonDecoder.boolean),
+    servicesConfiguration: JsonDecoder.optional(JsonDecoder.boolean),
     vault: JsonDecoder.optional(JsonDecoder.boolean)
   },
   'Feature flags',
   {
     adExclusionPeriods: 'ad_exclusion_periods',
-    mapVisxViewer: 'map_visx_viewer'
+    mapVisxViewer: 'map_visx_viewer',
+    servicesConfiguration: 'services_configuration'
   }
 );
 

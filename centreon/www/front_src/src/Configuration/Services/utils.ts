@@ -1,5 +1,6 @@
 import { centreonBaseURL } from '@centreon/ui';
 
+import routeMap from '../../reactRoutes/routeMap';
 import type { Filters } from './models';
 
 export const defaultSelectedColumnIds = [
@@ -26,9 +27,20 @@ export const columnsAtomKey = 'columns_services';
 // The legacy listing sorts on the host first, then on the service.
 export const defaultSortField = 'host.name';
 
-// Both forms are still legacy pages.
+// The query parameter that opens the listing on one host's services: it
+// replaces the filters with a host name filter, then leaves the URL.
+export const hostNameSearchParameter = 'host';
+
+export const getServicesOfHostPath = (hostName: string): string =>
+  `${routeMap.services}?${hostNameSearchParameter}=${encodeURIComponent(hostName)}`;
+
+// TODO: the React Hosts page has no route yet, so the host form is still the
+// legacy one. Once `routeMap.hosts` exists, the switch is this one line:
+// `${routeMap.hosts}?mode=edit&id=${encodeURIComponent(id)}`.
 export const getHostConfigurationUrl = (id: number): string =>
   `${centreonBaseURL}/main.php?p=60101&o=c&host_id=${encodeURIComponent(id)}`;
+
+// Still a legacy form.
 
 export const getServiceTemplateConfigurationUrl = (id: number): string =>
   `${centreonBaseURL}/main.php?p=60206&o=c&service_id=${encodeURIComponent(id)}`;

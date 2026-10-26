@@ -59,6 +59,41 @@ export default () => {
       );
     });
 
+    it('links the services icon to the services page filtered on that host when the services_configuration feature flag is on', async () => {
+      const { pathname } = window.location;
+
+      await initializeListing({ isServicesConfigurationEnabled: true });
+
+      const open = rs.spyOn(window, 'open').mockImplementation(() => null);
+
+      await userEvent.click(screen.getByTestId('go-to-services_0'));
+
+      await waitFor(() =>
+        expect(window.location.pathname).toBe('/configuration/services')
+      );
+      expect(window.location.search).toBe('?host=host%200');
+      expect(open).not.toHaveBeenCalled();
+
+      // The next tests start from the page they were on.
+      window.history.pushState({}, '', pathname);
+    });
+
+    it('keeps the legacy services listing when the menu ACL does not grant the services page', async () => {
+      await initializeListing({
+        isServicesConfigurationEnabled: true,
+        isServicesPageAllowed: false
+      });
+
+      const open = rs.spyOn(window, 'open').mockImplementation(() => null);
+
+      await userEvent.click(screen.getByTestId('go-to-services_0'));
+
+      expect(open).toHaveBeenCalledWith(
+        '/main.php?p=60201&search=host%200',
+        '_self'
+      );
+    });
+
     it('deletes a host through the confirmation modal', async () => {
       await initializeListing();
 

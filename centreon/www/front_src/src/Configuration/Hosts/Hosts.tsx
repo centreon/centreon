@@ -42,13 +42,13 @@ import {
   labelHostsDescription,
   labelWelcomeToHosts
 } from './translatedLabels';
+import useGoToServices from './useGoToServices';
 import useHosts from './useHosts';
 import {
   columnsAtomKey,
   defaultSelectedColumnIds,
   filtersAtomKey,
-  filtersInitialValues,
-  getHostServicesUrl
+  filtersInitialValues
 } from './utils';
 
 const Hosts = () => {
@@ -120,6 +120,7 @@ const Hosts = () => {
     [isCloudPlatform, defaultPoller]
   );
   const { deployServices } = useDeployServices();
+  const goToServices = useGoToServices();
 
   const actions: Actions = useMemo(
     () => ({
@@ -158,15 +159,13 @@ const Hosts = () => {
           dataTestId: ({ id }) => `go-to-services_${id}`,
           Icon: ServiceIcon,
           label: labelGoToServices,
-          onClick: ({ name }) => {
-            window.open(getHostServicesUrl(name as string), '_self');
-          }
+          onClick: ({ name }) => goToServices(name as string)
         }
       ],
       rowActionsWithoutWriteAccess: true,
       viewDetails: true
     }),
-    [canEdit, deployServices, setFormState]
+    [canEdit, deployServices, goToServices, setFormState]
   );
 
   return (

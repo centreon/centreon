@@ -65,6 +65,40 @@ export default () => {
       });
     });
 
+    it('opens on the services of the host named in the URL, then leaves the URL', async () => {
+      localStorage.setItem(
+        'filters_services',
+        JSON.stringify({
+          disabled: false,
+          enabled: false,
+          'host.name': '',
+          include_disabled_hosts: false,
+          name: 'cpu',
+          template_id: null
+        })
+      );
+
+      initialize({ searchParams: '?host=host%20A' });
+
+      // The first request already carries it: no listing of the stored
+      // filters flashes by.
+      const { request } = await waitForRequest('@getAllServices');
+
+      expect(request.url.searchParams.get('host.name[lk]')).toBe('host A');
+      // The link replaces the stored filters.
+      expect(request.url.searchParams.get('name[lk]')).toBeNull();
+
+      await waitFor(() =>
+        expect(new URLSearchParams(window.location.search).has('host')).toBe(
+          false
+        )
+      );
+
+      const panel = await openAdvancedFilters();
+
+      expect(within(panel).getByLabelText(labelHostName)).toHaveValue('host A');
+    });
+
     it('searches on the service name and the host name separately', async () => {
       const panel = await initializeWithAdvancedFilters();
 
