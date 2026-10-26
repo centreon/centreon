@@ -29,8 +29,9 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceSeverityCriter
 interface ServiceSeverityRepository
 {
     /**
-     * Service severities, disabled ones included, ordered by id. When the criteria carry a viewer,
-     * only the service severities that viewer can access are listed.
+     * Service severities (service categories carrying a level; levelless categories excluded),
+     * disabled ones included, ordered by id. When the criteria carry a viewer, only the service
+     * severities that viewer can access are listed.
      *
      * @return \IteratorAggregate<int, ServiceSeverity>&\Countable
      */
