@@ -25,10 +25,8 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityName;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-#[Group('wip')]
 final class ServiceSeverityNameTest extends TestCase
 {
     // Literal bounds: the maximum must equal the size of the `service_categories.sc_name` column.

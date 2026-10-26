@@ -25,10 +25,8 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-#[Group('wip')]
 final class ServiceCategoryNameTest extends TestCase
 {
     // Literal bounds: the maximum must equal the size of the `service_categories.sc_name` column.
