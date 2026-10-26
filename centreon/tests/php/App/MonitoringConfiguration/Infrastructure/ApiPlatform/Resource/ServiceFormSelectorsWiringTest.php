@@ -213,8 +213,9 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     }
 
     /**
-     * Accepted defect (decision C3): API Platform rejects "page < 1" before the provider runs, with an
-     * exception the local exception_to_status does not map. A global fix must update this test on purpose.
+     * Known defect, kept on purpose: API Platform rejects "page < 1" before the provider runs, with an
+     * exception the local exception_to_status does not map, so it ends as HTTP 500. A global fix must update
+     * this test on purpose.
      */
     public function testAPageBelowOneIsAnUnhandledServerError(): void
     {
@@ -229,8 +230,8 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     }
 
     /**
-     * Decision C15: the cloud service form has no contact nor contact group field. The route condition is
-     * evaluated before the firewall, so the route answers 404 to any caller on cloud.
+     * The cloud service form has no contact nor contact group field, so these selectors are on-premise only.
+     * The route condition is evaluated before the firewall, so the route answers 404 to any caller on cloud.
      */
     #[DataProvider('provideOnPremiseOnlySelectorsAndCallers')]
     public function testOnPremiseOnlySelectorsDoNotExistOnCloud(string $selector, bool $authenticated, int $onPremiseStatus): void
@@ -253,8 +254,8 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     }
 
     /**
-     * Decision C15: only contacts and contact groups are on-premise only. The cloud service form still
-     * needs the other selectors (time periods for the check period), so they stay routed on cloud.
+     * Only contacts and contact groups are on-premise only. The cloud service form still needs the other
+     * selectors (time periods for the check period), so they stay routed on cloud.
      */
     #[DataProvider('provideSelectorsRoutedOnCloud')]
     public function testOtherSelectorsStayRoutedOnCloud(string $selector): void
