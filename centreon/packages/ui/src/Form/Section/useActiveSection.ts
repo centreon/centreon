@@ -23,7 +23,12 @@ const getScrollParent = (element: HTMLElement | null): HTMLElement | null => {
   let parent = element?.parentElement ?? null;
 
   while (parent && parent !== document.body) {
-    if (/(auto|scroll)/.test(getComputedStyle(parent).overflowY)) {
+    // An ancestor that can scroll but has nothing to scroll (no height of its
+    // own) is not the one the user moves: keep looking further up.
+    if (
+      /(auto|scroll)/.test(getComputedStyle(parent).overflowY) &&
+      parent.scrollHeight > parent.clientHeight
+    ) {
       return parent;
     }
     parent = parent.parentElement;
