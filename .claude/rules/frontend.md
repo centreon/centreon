@@ -32,16 +32,17 @@ frontend file.
 
 Run from `centreon/` (pnpm workspace root; CI uses pnpm 10 and Node 24):
 
-| Command                          | Does                                         |
-| -------------------------------- | -------------------------------------------- |
-| `pnpm build` / `pnpm build:dev`  | rspack production / development build        |
-| `pnpm centreon:watch`            | rspack dev server                            |
-| `pnpm lint` / `pnpm lint:fix`    | Biome on `www/front_src`                     |
-| `pnpm type-check`                | `tsc` on app and browser tests (runs in CI)  |
-| `pnpm test`                      | Jest                                         |
-| `pnpm rstest:run <path>`         | rstest browser tests (`-t '<name>'` for one) |
-| `pnpm rstest:ui <path>`          | the same in a visible browser, to debug      |
-| `pnpm cypress:run --spec <path>` | legacy Cypress component tests               |
+| Command                                         | Does                                                                                                        |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `pnpm build` / `pnpm build:dev`                 | rspack production / development build                                                                       |
+| `pnpm centreon:watch`                           | rspack dev server                                                                                           |
+| `pnpm lint` / `pnpm lint:fix`                   | Biome on `www/front_src`                                                                                    |
+| `pnpm type-check`                               | `tsc` on app and browser tests (runs in CI)                                                                 |
+| `pnpm test`                                     | Jest                                                                                                        |
+| `pnpm rstest:run <path>`                        | rstest browser tests (`-t '<name>'` for one)                                                                |
+| `pnpm rstest:ui <path>`                         | the same in a visible browser, to debug                                                                     |
+| `pnpm cypress:run --spec <path>`                | legacy Cypress component tests                                                                              |
+| `pnpm cypress:run:updateSnapshot --spec <path>` | update one legacy spec's snapshots, after reviewing its diff (`packages/ui`: `cypress:run:updateSnapshots`) |
 
 First rstest run: `pnpm rstest:install` (Playwright Chromium).
 
