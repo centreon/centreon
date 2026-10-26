@@ -32,7 +32,7 @@ const SegmentedButtons = ({
   return useMemoComponent({
     Component: (
       <FormGroup>
-        <FormLabel>{t(label)}</FormLabel>
+        <FormLabel className="font-bold">{t(label)}</FormLabel>
         {/* In a column narrower than the segments, the group scrolls inside it
             rather than overflowing into what is next to it. */}
         <div className="max-w-full self-start overflow-x-auto">

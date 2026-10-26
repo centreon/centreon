@@ -79,7 +79,11 @@ describe('Segmented buttons', () => {
   it('displays every option and marks the current one', async () => {
     initialize();
 
-    expect(await screen.findByText('Notification Enabled')).toBeVisible();
+    const label = await screen.findByText('Notification Enabled');
+
+    expect(label).toBeVisible();
+    // Bold, as the design shows the label above the buttons.
+    expect(getComputedStyle(label).fontWeight).toBe('700');
     expect(await button('Yes')).toHaveAttribute('aria-pressed', 'false');
     expect(await button('No')).toHaveAttribute('aria-pressed', 'false');
     expect(await button('Default')).toHaveAttribute('aria-pressed', 'true');
