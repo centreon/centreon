@@ -132,9 +132,22 @@ describe('Form section navigation', () => {
           getScrollArea().getBoundingClientRect().top
       ).toBeLessThan(100);
     });
+
+    // Reaching the section is not the end of the smooth scroll: keep observing
+    // until the scroll position stops moving.
+    let previousScrollTop = -1;
+    await waitFor(() => {
+      const { scrollTop } = getScrollArea();
+      const hasStopped = scrollTop === previousScrollTop;
+      previousScrollTop = scrollTop;
+
+      expect(hasStopped).toBe(true);
+    });
     observer.disconnect();
 
-    expect(getSelectedTabs()).toStrictEqual(['Delta']);
+    await waitFor(() => {
+      expect(getSelectedTabs()).toStrictEqual(['Delta']);
+    });
     expect([...selectedWhileScrolling]).toStrictEqual(['Delta']);
   });
 

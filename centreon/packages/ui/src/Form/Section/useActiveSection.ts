@@ -115,6 +115,7 @@ export const useActiveSection = ({
     undefined
   );
   const stopWaitingRef = useRef<(() => void) | undefined>(undefined);
+  const refreshActiveSectionRef = useRef<(() => void) | undefined>(undefined);
 
   const sectionNamesKey = sectionNames.join('\n');
 
@@ -124,6 +125,13 @@ export const useActiveSection = ({
     clearTimeout(fallbackTimeoutRef.current);
     isScrollingToSection.current = false;
   }, []);
+
+  // The scroll events fired while waiting are ignored, and none fires when the
+  // clicked section is already in place: the position is read again once done.
+  const endScrollWait = useCallback((): void => {
+    stopWaitingForScrollEnd();
+    refreshActiveSectionRef.current?.();
+  }, [stopWaitingForScrollEnd]);
 
   const goToSection = useCallback(
     (sectionName: string): void => {
@@ -135,19 +143,17 @@ export const useActiveSection = ({
       isScrollingToSection.current = true;
 
       const target = scrollTargetRef.current;
-      target?.addEventListener('scrollend', stopWaitingForScrollEnd, {
-        once: true
-      });
+      target?.addEventListener('scrollend', endScrollWait, { once: true });
       stopWaitingRef.current = () =>
-        target?.removeEventListener('scrollend', stopWaitingForScrollEnd);
+        target?.removeEventListener('scrollend', endScrollWait);
       fallbackTimeoutRef.current = setTimeout(
-        stopWaitingForScrollEnd,
+        endScrollWait,
         scrollEndFallbackDelay
       );
 
       navigateToSection({ container: containerRef.current, sectionName });
     },
-    [containerRef, stopWaitingForScrollEnd]
+    [containerRef, endScrollWait, stopWaitingForScrollEnd]
   );
 
   useEffect(() => {
@@ -163,11 +169,7 @@ export const useActiveSection = ({
 
     let animationFrame = 0;
 
-    const update = (): void => {
-      if (isScrollingToSection.current) {
-        return;
-      }
-
+    const refresh = (): void => {
       setActiveSection(
         computeActiveSection({
           container,
@@ -177,16 +179,27 @@ export const useActiveSection = ({
       );
     };
 
+    const update = (): void => {
+      if (isScrollingToSection.current) {
+        return;
+      }
+
+      refresh();
+    };
+
     const onScroll = (): void => {
       cancelAnimationFrame(animationFrame);
       animationFrame = requestAnimationFrame(update);
     };
 
+    refreshActiveSectionRef.current = refresh;
     scrollTarget.addEventListener('scroll', onScroll, { passive: true });
+    update();
 
     return () => {
       scrollTarget.removeEventListener('scroll', onScroll);
       cancelAnimationFrame(animationFrame);
+      refreshActiveSectionRef.current = undefined;
       stopWaitingForScrollEnd();
     };
   }, [containerRef, isEnabled, sectionNamesKey, stopWaitingForScrollEnd]);
