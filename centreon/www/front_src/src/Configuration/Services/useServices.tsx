@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { type APIType, FieldType, type FilterConfiguration } from '../models';
 import {
   getDuplicateServiceEndpoint,
+  getServiceDecoder,
   getServiceEndpoint,
   getServiceTemplatesEndpoint,
   namedEntitiesListDecoder,
@@ -13,6 +14,8 @@ import {
   servicesListDecoder,
   servicesListEndpoint
 } from './api';
+import { getAdapter } from './Form';
+import type { PlatformContext } from './Form/sections';
 import {
   labelHostName,
   labelIncludeDisabledHosts,
@@ -26,30 +29,47 @@ interface UseServicesState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
-const api: APIType = {
+// The form routes are placeholders until the backend exposes them: the read
+// and the full update on the service, the create on the collection.
+const getApi = (context: PlatformContext): APIType => ({
   activationField: 'activated',
+  adapter: getAdapter(context),
   apiFormat: 'JSON-LD',
   baseEndpoint: servicesBaseEndpoint,
-  decoders: { getAll: servicesListDecoder },
+  decoders: { getAll: servicesListDecoder, getOne: getServiceDecoder(context) },
   // Every write names one service, so a selection becomes one request per row.
   endpoints: {
+    create: servicesListEndpoint,
     deleteOne: getServiceEndpoint,
     disable: getServiceEndpoint,
     duplicate: getDuplicateServiceEndpoint,
     enable: getServiceEndpoint,
-    getAll: servicesListEndpoint
+    getAll: servicesListEndpoint,
+    getOne: getServiceEndpoint,
+    update: getServiceEndpoint
   },
   // The duplicate route takes no body, so there is no copy count to ask for.
   isSingleDuplicate: true,
   methods: {
     disable: Method.PATCH,
-    enable: Method.PATCH
+    enable: Method.PATCH,
+    // The form sends every field, so it replaces the service rather than
+    // patching it; enable and disable stay partial updates.
+    update: Method.PUT
   },
   writeBaseEndpoint: servicesBaseEndpoint
-};
+});
 
-const useServices = (): UseServicesState => {
+const useServices = ({
+  isAdditiveInheritanceEnabled,
+  isCloudPlatform
+}: PlatformContext): UseServicesState => {
   const { t } = useTranslation();
+
+  const api = useMemo(
+    () => getApi({ isAdditiveInheritanceEnabled, isCloudPlatform }),
+    [isAdditiveInheritanceEnabled, isCloudPlatform]
+  );
 
   const filtersConfiguration: Array<FilterConfiguration> = useMemo(
     () => [

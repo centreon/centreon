@@ -62,3 +62,12 @@ export const getServiceTemplatesResponse = () => ({
   ],
   totalItems: 2
 });
+
+// The detail endpoint is a placeholder until the backend exposes it; every
+// section adds the fields it reads back.
+export const getServiceResponse = (id: number) => ({
+  '@context': '/centreon/api/contexts/Service',
+  '@id': `/centreon/api/configuration/services/${id}`,
+  '@type': 'Service',
+  id
+});

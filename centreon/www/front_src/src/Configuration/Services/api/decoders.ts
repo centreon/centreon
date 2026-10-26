@@ -1,7 +1,13 @@
 import { buildListingDecoder } from '@centreon/ui';
 
+import { mergeAll } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
+import {
+  getAvailableSections,
+  type PlatformContext,
+  type ServiceDetail
+} from '../Form/sections';
 import type {
   Icon,
   NamedEntity,
@@ -67,3 +73,19 @@ export const namedEntitiesListDecoder = buildListingDecoder({
   entityDecoderName: 'Entity',
   listingDecoderName: 'Entity List'
 });
+
+// What the form opens on: each available section decodes its own fields, so a
+// section left out on this platform is not expected in the response.
+export const getServiceDecoder = (context: PlatformContext) => {
+  const availableSections = getAvailableSections(context).map(
+    ({ section }) => section
+  );
+
+  return JsonDecoder.object<ServiceDetail>(
+    mergeAll(
+      availableSections.map((section) => section.detailDecoders)
+    ) as JsonDecoder.DecoderObject<ServiceDetail>,
+    'Service',
+    mergeAll(availableSections.map((section) => section.detailKeyMap ?? {}))
+  );
+};
