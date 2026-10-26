@@ -1,5 +1,6 @@
 import Form from './Services.Form';
 import FormDataProcessing from './Services.Form.DataProcessing';
+import ExtendedInfo from './Services.Form.ExtendedInfo';
 import Notifications from './Services.Form.Notifications';
 import FormRelations from './Services.Form.Relations';
 import FormServiceConfiguration from './Services.Form.ServiceConfiguration';
@@ -22,4 +23,5 @@ describe('Services configuration: ', () => {
     FormServiceConfiguration();
   });
   describe('Form, Notifications section: ', Notifications);
+  describe('Form, Extended Info: ', ExtendedInfo);
 });
