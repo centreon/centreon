@@ -55,7 +55,8 @@ engine:
   id: copilot
   # Must be in the workflow's live Copilot catalog and have no cache-write pricing
   # (prompt_cache_breakpoint is rejected by the Copilot API).
-  model: copilot/claude-opus-5-5
+  model: copilot/gpt-5.3-codex
+  fallback-models: [copilot/gpt-4.1]
 
 tools:
   github:
