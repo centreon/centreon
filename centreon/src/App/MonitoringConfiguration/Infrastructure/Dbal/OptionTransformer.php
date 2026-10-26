@@ -23,23 +23,23 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadata;
-use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadataName;
-use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadataValue;
+use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
+use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
+use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @phpstan-import-type RowTypeAlias from DbalPlatformMetadataRepository
+ * @phpstan-import-type RowTypeAlias from DbalOptionRepository
  *
- * @implements TransformerInterface<RowTypeAlias, PlatformMetadata>
+ * @implements TransformerInterface<RowTypeAlias, Option>
  */
-final readonly class DbalPlatformMetadataTransformer implements TransformerInterface
+final readonly class OptionTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): PlatformMetadata
+    public function transform(mixed $from): Option
     {
-        return new PlatformMetadata(
-            name: new PlatformMetadataName($from['option_name']),
-            value: new PlatformMetadataValue($from['option_value']),
+        return new Option(
+            name: new OptionName($from['option_name']),
+            value: new OptionValue($from['option_value']),
         );
     }
 }

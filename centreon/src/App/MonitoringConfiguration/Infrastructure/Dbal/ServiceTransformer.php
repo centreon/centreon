@@ -37,7 +37,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<RowTypeAlias, Service>
  */
-final readonly class DbalServiceTransformer implements TransformerInterface
+final readonly class ServiceTransformer implements TransformerInterface
 {
     public function transform(mixed $from): Service
     {

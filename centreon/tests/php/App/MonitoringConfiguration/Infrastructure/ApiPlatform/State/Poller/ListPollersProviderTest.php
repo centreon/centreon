@@ -279,7 +279,7 @@ final class ListPollersProviderTest extends ApiTestCase
 
     /**
      * Grants the "Configuration > Pollers > Pollers" (read-only) topology access, the legacy menu
-     * role bridged to PollerPermissionEnum::CanRead via DbalCredentialTransformer::LEGACY_PERMISSION_MAP
+     * role bridged to PollerPermissionEnum::CanRead via CredentialTransformer::LEGACY_PERMISSION_MAP
      * (topology_page 60901, parented by 609 "Pollers" and 6 "Configuration" — see topology fixtures
      * in www/install/insertTopology.sql).
      */

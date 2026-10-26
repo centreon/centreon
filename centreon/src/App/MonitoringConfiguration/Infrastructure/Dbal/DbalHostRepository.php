@@ -113,7 +113,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   macros: list<array{id: int|string, name: string, value: string, is_password: string|int|null}>,
  * }
  *
- * @phpstan-import-type NotificationColumnsTypeAlias from DbalNotificationsTransformer
+ * @phpstan-import-type NotificationColumnsTypeAlias from NotificationsTransformer
  */
 final readonly class DbalHostRepository extends DbalRepository implements HostRepository
 {
@@ -169,9 +169,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
-        #[Autowire(service: DbalHostTransformer::class)]
+        #[Autowire(service: HostTransformer::class)]
         private TransformerInterface $transformer,
-        #[Autowire(service: DbalNotificationsTransformer::class)]
+        #[Autowire(service: NotificationsTransformer::class)]
         private TransformerInterface $notificationsTransformer,
         private ResourceAccessRepository $resourceAccessRepository,
     ) {
@@ -329,7 +329,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public function findMacros(HostId $id): Collection
     {
         return new Collection(
-            array_map(DbalHostTransformer::createMacro(...), $this->findMacroRows($id->value)),
+            array_map(HostTransformer::createMacro(...), $this->findMacroRows($id->value)),
             HostMacro::class,
         );
     }

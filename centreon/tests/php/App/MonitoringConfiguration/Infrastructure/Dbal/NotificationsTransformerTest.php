@@ -24,11 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\NotificationsTransformer;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-final class DbalNotificationsTransformerTest extends TestCase
+final class NotificationsTransformerTest extends TestCase
 {
     /**
      * @param list<NotificationOptionEnum> $expected
@@ -36,7 +36,7 @@ final class DbalNotificationsTransformerTest extends TestCase
     #[DataProvider('columns')]
     public function testOptionsFromColumn(?string $column, array $expected): void
     {
-        self::assertSame($expected, DbalNotificationsTransformer::optionsFromColumn($column));
+        self::assertSame($expected, NotificationsTransformer::optionsFromColumn($column));
     }
 
     /**

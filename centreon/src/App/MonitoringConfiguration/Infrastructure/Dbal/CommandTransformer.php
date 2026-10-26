@@ -36,7 +36,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<RowTypeAlias,Command>
  */
-final readonly class DbalCommandTransformer implements TransformerInterface
+final readonly class CommandTransformer implements TransformerInterface
 {
     /**
      * @param RowTypeAlias $from
