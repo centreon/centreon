@@ -37,6 +37,7 @@ if [[ -z "$TARGET_RANK" ]]; then
   TARGET_RANK=${#FAMILY_REPOSITORIES[@]}
   FAMILY_REPOSITORIES+=("$BASE_PATH")
 fi
+MAX_PARALLEL_FETCHES=8
 
 # print a published repository file (empty output = 404, i.e. not published).
 # Fails closed (non-zero) on anything but a clean 404.
@@ -55,26 +56,63 @@ fetch_published_file() {
   esac
 }
 
+# print the load_published_packages lines of one suite
+load_suite_packages() {
+  local rank=$1 repository=$2 suite=$3 root=$4 release arches a packages
+  release=$(fetch_published_file "$PULP_CONTENT_URL/$root/dists/$suite/Release") || return 1
+  # no Release yet (fresh suite) -> nothing published
+  [[ -z "$release" ]] && return 0
+  # "Architecture: all" packages are listed in every binary-<arch>/Packages
+  # index the suite advertises; there is no binary-all index (404, skipped)
+  arches=$(awk -F': ' '/^Architectures:/ {print $2}' <<< "$release")
+  for a in $arches; do
+    packages=$(fetch_published_file "$PULP_CONTENT_URL/$root/dists/$suite/main/binary-$a/Packages") || return 1
+    [[ -z "$packages" ]] && continue
+    awk -v r="$rank" -v repo="$repository" -v s="$suite" '
+      BEGIN { RS = ""; FS = "\n" }
+      {
+        n = v = ar = h = f = ""
+        for (i = 1; i <= NF; i++) {
+          if ($i ~ /^Package: /) n = substr($i, 10)
+          else if ($i ~ /^Version: /) v = substr($i, 10)
+          else if ($i ~ /^Architecture: /) ar = substr($i, 15)
+          else if ($i ~ /^SHA256: /) h = substr($i, 9)
+          else if ($i ~ /^Filename: /) f = substr($i, 11)
+        }
+        if (n != "") print r, repo, s, n, v, ar, h, f
+      }
+    ' <<< "$packages"
+  done
+}
+
 # print one "rank repository suite package version architecture sha256 filename"
 # line per package the family's repositories publish (rank = position in the
 # front cascade). The publication lays every suite out in one flat pool
 # (pool/main/<prefix>/<name>/<file>), so every suite publishing a package
 # version shares one pool path: pulp keeps a single build per (package,
 # version, arch) per repository, and the legacy front serves the first
-# repository's file to the whole family.
+# repository's file to the whole family. Suites load in parallel; any failed
+# one fails the whole load.
 load_published_packages() {
-  local rank repository domain listing listed suites suite root release arches a packages
+  local rank repository domain listing listed suites suite root out_dir count=0 i
+  out_dir=$(mktemp -d)
   for rank in "${!FAMILY_REPOSITORIES[@]}"; do
     repository=${FAMILY_REPOSITORIES[$rank]}
     domain=$PULP_DOMAIN
     [[ "$rank" -eq 0 ]] && domain=$PULP_STABLE_DOMAIN
     # the dists listing is only served on the domain path, not through the legacy front
-    listing=$(fetch_published_file "$PULP_CONTENT_URL/$domain/$repository/dists/") || return 1
+    if ! listing=$(fetch_published_file "$PULP_CONTENT_URL/$domain/$repository/dists/"); then
+      wait || true
+      rm -rf "$out_dir"
+      return 1
+    fi
     listed=$(grep -oE 'href="(\./)?[^"/?]+/"' <<< "$listing" | sed -E 's|href="(\./)?([^"/?]+)/"|\2|' | grep -vx '\.\.' || true)
     # a listing without any link isn't the expected directory index: guarding
     # the target suite only would let a shared-pool collision through
     if [[ -n "$listing" ]] && ! grep -q 'href="' <<< "$listing"; then
       echo "::error::Cannot parse the suites from $domain/$repository/dists/; refusing to deliver." >&2
+      wait || true
+      rm -rf "$out_dir"
       return 1
     fi
     suites=$listed
@@ -82,32 +120,29 @@ load_published_packages() {
     for suite in $suites; do
       root=$domain/$repository
       [[ "$rank" -eq 0 && "$suite" == "$STABLE_SUITE" ]] && root=$STABLE_ROOT
-      release=$(fetch_published_file "$PULP_CONTENT_URL/$root/dists/$suite/Release") || return 1
-      # no Release yet (fresh suite) -> nothing published
-      [[ -z "$release" ]] && continue
-      # "Architecture: all" packages are listed in every binary-<arch>/Packages
-      # index the suite advertises; there is no binary-all index (404, skipped)
-      arches=$(awk -F': ' '/^Architectures:/ {print $2}' <<< "$release")
-      for a in $arches; do
-        packages=$(fetch_published_file "$PULP_CONTENT_URL/$root/dists/$suite/main/binary-$a/Packages") || return 1
-        [[ -z "$packages" ]] && continue
-        awk -v r="$rank" -v repo="$repository" -v s="$suite" '
-          BEGIN { RS = ""; FS = "\n" }
-          {
-            n = v = ar = h = f = ""
-            for (i = 1; i <= NF; i++) {
-              if ($i ~ /^Package: /) n = substr($i, 10)
-              else if ($i ~ /^Version: /) v = substr($i, 10)
-              else if ($i ~ /^Architecture: /) ar = substr($i, 15)
-              else if ($i ~ /^SHA256: /) h = substr($i, 9)
-              else if ($i ~ /^Filename: /) f = substr($i, 11)
-            }
-            if (n != "") print r, repo, s, n, v, ar, h, f
-          }
-        ' <<< "$packages"
+      # one background job per suite; only a completed one leaves its marker
+      (
+        refresh_pulp_token
+        load_suite_packages "$rank" "$repository" "$suite" "$root" > "$out_dir/$count.entries" &&
+          : > "$out_dir/$count.done"
+      ) &
+      count=$((count + 1))
+      while (($(jobs -rp | wc -l) >= MAX_PARALLEL_FETCHES)); do
+        wait -n || true
       done
     done
   done
+  wait || true
+  for ((i = 0; i < count; i++)); do
+    if [[ ! -e "$out_dir/$i.done" ]]; then
+      rm -rf "$out_dir"
+      return 1
+    fi
+  done
+  for ((i = 0; i < count; i++)); do
+    cat "$out_dir/$i.entries"
+  done
+  rm -rf "$out_dir"
 }
 
 # print a digest of what a deb installs, blind to what a rebuild of unchanged
