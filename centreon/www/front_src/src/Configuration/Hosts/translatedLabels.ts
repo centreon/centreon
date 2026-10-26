@@ -4,17 +4,19 @@ export const labelHostsDescription =
 export const labelName = 'Name';
 export const labelAlias = 'Alias';
 export const labelIpAddress = 'IP Address / DNS';
+// The form's field, as the design names it; the listing keeps `labelIpAddress`.
+export const labelAddress = 'Address';
 export const labelMonitoringServer = 'Monitoring server';
 export const labelTemplates = 'Templates';
 export const labelHostGroup = 'Host group';
 export const labelHostTemplate = 'Host template';
 export const labelStatus = 'Status';
-// The plural the catalogue carries; `Host groups` is translated in two locales.
-export const labelHostGroups = 'Hostgroups';
-export const labelHostCategories = 'Host Categories';
-export const labelParentHosts = 'Parent Hosts';
-export const labelChildHosts = 'Child Hosts';
-export const labelResolve = 'Resolve';
+// The form's fields, as the design names them.
+export const labelHostGroups = 'Host groups';
+export const labelHostCategories = 'Host categories';
+export const labelParentHosts = 'Parent hosts';
+export const labelChildHosts = 'Child hosts';
+export const labelResolve = 'FQDN resolve';
 export const labelHostNotFound = 'Host not found';
 
 export const labelGoToServices = 'Display all Services for this host';
@@ -25,13 +27,31 @@ export const labelServiceDeploymentFailed = 'Service deployment failed.';
 export const labelWelcomeToHosts = 'Welcome to the Hosts interface!';
 export const labelCreateHost = 'Create a host';
 
-// The sections of the US, spelled as the catalogue already spells them: the
-// legacy host form names its tabs this way, so all six locales have them.
-export const labelHostConfiguration = 'Host Configuration';
-export const labelNotification = 'Notification';
+// The sections of the form, as the design names them.
+export const labelGeneralInformation = 'General Information';
+export const labelHostMonitoringProperties = 'Host Monitoring Properties';
 export const labelRelations = 'Relations';
+export const labelMonitoringEngineSchedulingOptions =
+  'Monitoring Engine / Scheduling Options';
+export const labelNotifications = 'Notifications';
+export const labelAdvanced = 'Advanced';
+
+// Titled blocks within them, as the design names them.
+export const labelHostBasicInformation = 'Host basic information';
+export const labelHostCheckOptions = 'Host check options';
+export const labelArguments = 'Arguments';
+// The design capitalises the title, not the field (`labelHostGroups`).
+export const labelHostGroupsTitle = 'Host Groups';
+export const labelParentChildRelations = 'Parent-child relations';
+export const labelHostDetails = 'Host details';
+export const labelSchedulingOptions = 'Scheduling options';
+export const labelContactsToNotify = 'Contacts to notify';
+export const labelNotifyOn = 'Notify on';
+export const labelAutoRemediation = 'Auto-remediation';
+export const labelCommand = 'Command';
+export const labelFreshnessCheck = 'Freshness check';
 export const labelDataProcessing = 'Data Processing';
-export const labelHostExtendedInfos = 'Host Extended Infos';
+export const labelFlapDetection = 'Flap detection';
 
 // Form validation
 export const labelRequired = 'Required';
@@ -52,19 +72,21 @@ export const labelMustBeIntegerOfAtLeastOne =
 export const labelSnmpCommunity = 'SNMP Community';
 export const labelSnmpVersion = 'Version';
 export const labelTimezone = 'Timezone';
-export const labelCheckCommand = 'Check Command';
-export const labelCheckPeriod = 'Check Period';
-export const labelMaxCheckAttempts = 'Max Check Attempts';
-export const labelNormalCheckInterval = 'Normal Check Interval';
-export const labelRetryCheckInterval = 'Retry Check Interval';
-export const labelActiveChecksEnabled = 'Active Checks Enabled';
-export const labelPassiveChecksEnabled = 'Passive Checks Enabled';
-// Templates, spelled as the legacy host form and the shared list spell them.
+// The form's fields from here on are spelled as the design spells them.
+export const labelCheckCommand = 'Check command';
+export const labelCheckPeriod = 'Check time period';
+export const labelMaxCheckAttempts = 'Max check attempts';
+export const labelNormalCheckInterval = 'Check interval';
+export const labelRetryCheckInterval = 'Retry interval';
+export const labelActiveChecksEnabled = 'Enable active checks';
+export const labelPassiveChecksEnabled = 'Enable passive checks';
+// Templates. The listing filter keeps `labelHostTemplate`.
+export const labelSelectATemplate = 'Select a template';
 export const labelAddNewEntry = 'Add new entry';
 export const labelEditTemplate = 'Modify';
 export const labelCreateServicesLinkedToTemplates =
-  'Create Services linked to the Template too';
-// Custom macros, spelled as the legacy host form spells them.
+  'Automatically create services from templates';
+// Custom macros.
 export const labelCustomMacros = 'Custom macros';
 export const labelValue = 'Value';
 export const labelPassword = 'Password';
@@ -74,40 +96,40 @@ export const labelAlreadyExists = 'Already exists';
 export const labelTemplateInheritance = 'Template inheritance';
 export const labelCommandInheritance = 'Command inheritance';
 
-// Yes / No / Default fields
+// Yes / No / third state fields: the design words the third state per field.
 export const labelYes = 'Yes';
 export const labelNo = 'No';
 export const labelDefault = 'Default';
+export const labelInherit = 'Inherit';
+export const labelInheritFromTemplate = 'Inherit from template';
 
-// Notification, spelled as the legacy host form spells it
-export const labelNotificationEnabled = 'Notification Enabled';
-export const labelContactAdditiveInheritance = 'Contact additive inheritance';
+// Notification
+export const labelNotificationEnabled = 'Notification Enable';
+export const labelContactAdditiveInheritance = 'Add to inherited contacts';
 export const labelContactGroupAdditiveInheritance =
-  'Contact group additive inheritance';
-export const labelLinkedContacts = 'Linked Contacts';
-export const labelLinkedContactGroups = 'Linked Contact Groups';
-export const labelNotificationInterval = 'Notification Interval';
-export const labelNotificationPeriod = 'Notification Period';
-export const labelNotificationOptions = 'Notification Options';
+  'Add to inherited contact groups';
+export const labelLinkedContacts = 'Linked contacts';
+export const labelLinkedContactGroups = 'Linked contact groups';
+export const labelNotificationInterval = 'Notify again every';
+export const labelNotificationPeriod = 'Notify during';
 export const labelFirstNotificationDelay = 'First notification delay';
 export const labelRecoveryNotificationDelay = 'Recovery notification delay';
 export const labelDown = 'Down';
 export const labelUnreachable = 'Unreachable';
 export const labelRecovery = 'Recovery';
 export const labelFlapping = 'Flapping';
-export const labelDowntimeScheduled = 'Downtime Scheduled';
+export const labelDowntimeScheduled = 'Scheduled downtime';
 export const labelNone = 'None';
 
-export const labelFreshnessControlOptions = 'Freshness Control options';
-export const labelCheckFreshness = 'Check Freshness';
-export const labelFreshnessThreshold = 'Freshness Threshold';
-export const labelAcknowledgementTimeout = 'Acknowledgement timeout';
-export const labelFlappingOptions = 'Flapping options';
-export const labelFlapDetectionEnabled = 'Flap Detection Enabled';
-export const labelLowFlapThreshold = 'Low Flap Threshold';
-export const labelHighFlapThreshold = 'High Flap Threshold';
+// Under the `Freshness check` title, the design says only `Enable`.
+export const labelEnableFreshnessCheck = 'Enable';
+export const labelFreshnessThreshold = 'Freshness threshold';
+export const labelAcknowledgementTimeout = 'Acknowledgement';
+export const labelFlapDetectionEnabled = 'Flap Detection Enable';
+export const labelLowFlapThreshold = 'Low threshold';
+export const labelHighFlapThreshold = 'High threshold';
 export const labelEventHandler = 'Event Handler';
-export const labelEventHandlerEnabled = 'Event Handler Enabled';
+export const labelEventHandlerEnabled = 'Event Handler Enable';
 // Legacy's label for the arguments of the check command and the event handler.
 export const labelArgs = 'Args';
 export const labelSeconds = 'seconds';

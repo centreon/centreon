@@ -1,4 +1,8 @@
-import { InputType, type SelectEntry } from '@centreon/ui';
+import {
+  type InputPropsWithoutGroup,
+  InputType,
+  type SelectEntry
+} from '@centreon/ui';
 
 import type { TFunction } from 'i18next';
 import { JsonDecoder } from 'ts.data.json';
@@ -14,16 +18,18 @@ import { namedEntityDecoder } from '../../api/namedEntityDecoders';
 import type { NamedEntity } from '../../models';
 import {
   labelActiveChecksEnabled,
+  labelAddress,
   labelAlias,
   labelAlreadyExists,
   labelArgs,
+  labelArguments,
   labelCheckCommand,
   labelCheckPeriod,
   labelCreateServicesLinkedToTemplates,
   labelCustomMacros,
-  labelHostConfiguration,
+  labelHostBasicInformation,
+  labelHostCheckOptions,
   labelInvalidAddress,
-  labelIpAddress,
   labelMaxCheckAttempts,
   labelMonitoringServer,
   labelMustBeAtMostCharacters,
@@ -44,6 +50,7 @@ import {
   labelValue
 } from '../../translatedLabels';
 import { argumentsToText, textToArguments } from '../commandArguments';
+import { getBlock, twoColumns } from '../grid';
 import Macros from '../Macros';
 import {
   hostMacroDecoder,
@@ -291,7 +298,7 @@ const getSchedulingTriStateInput = ({
   dataTestId: `host-form-scheduling-options-${fieldName}`,
   fieldName: `schedulingOptions.${fieldName}`,
   label,
-  segmentedButtons: { options: triStateOptions },
+  segmentedButtons: { options: triStateOptions.inherit },
   type: InputType.SegmentedButtons
 });
 
@@ -431,258 +438,192 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       type: InputType.SingleConnectedAutocomplete
     };
 
-    return [
+    const snmpCommunity = {
+      dataTestId: 'host-form-snmp-community',
+      fieldName: 'snmpCommunity',
+      label: t(labelSnmpCommunity),
+      type: InputType.Password
+    };
+
+    const snmpVersion: InputPropsWithoutGroup = {
+      autocomplete: {
+        options: [
+          { id: noSnmpVersionId, name: t(labelNone) },
+          ...snmpVersionOptions
+        ]
+      },
+      change: ({ setFieldValue, value }) =>
+        setFieldValue(
+          'snmpVersion',
+          (value as SelectEntry | null)?.id === noSnmpVersionId ? null : value
+        ),
+      dataTestId: 'host-form-snmp-version',
+      fieldName: 'snmpVersion',
+      label: t(labelSnmpVersion),
+      type: InputType.SingleAutocomplete
+    };
+
+    return {
       // One row at every panel width, as designed: the fields share it equally
       // and the resolve button keeps its own width.
       // Name, alias and address belong to one host: legacy mass change has
       // none.
-      ...(isMassChange
-        ? []
-        : [
-            {
-              fieldName: 'basic-information',
-              grid: {
-                // The resolve route does not exist on cloud.
-                className: isCloudPlatform
-                  ? 'grid-cols-4'
-                  : 'grid-cols-[repeat(4,minmax(0,1fr))_auto]',
-                columns: [
-                  {
-                    dataTestId: 'host-form-name',
-                    fieldName: 'name',
-                    label: t(labelName),
-                    required: true,
-                    type: InputType.Text
-                  },
-                  {
-                    dataTestId: 'host-form-alias',
-                    fieldName: 'alias',
-                    label: t(labelAlias),
-                    type: InputType.Text
-                  },
-                  poller,
-                  {
-                    dataTestId: 'host-form-address',
-                    fieldName: 'address',
-                    label: t(labelIpAddress),
-                    required: true,
-                    type: InputType.Text
-                  },
-                  ...(isCloudPlatform
-                    ? []
-                    : [
-                        {
-                          custom: { Component: ResolveAddress },
-                          dataTestId: 'host-form-address-resolve',
-                          fieldName: 'address-resolve',
-                          label: t(labelResolve),
-                          type: InputType.Custom
-                        }
-                      ])
-                ]
-              },
-              label: 'host-form-basic-information',
-              type: InputType.Grid
-            }
-          ]),
-      {
-        fieldName: 'monitoring-layout',
-        grid: {
-          className: 'grid-cols-1 gap-x-8 @[1100px]:grid-cols-2',
+      ...(!isMassChange && {
+        basicInformation: getBlock({
+          // The resolve route does not exist on cloud.
+          className: isCloudPlatform
+            ? 'grid-cols-4'
+            : 'grid-cols-[repeat(4,minmax(0,1fr))_auto]',
           columns: [
             {
-              fieldName: 'host-details',
-              grid: {
-                className: isMassChange
-                  ? 'grid-cols-1 @[600px]:grid-cols-2'
-                  : 'grid-cols-1 @[600px]:grid-cols-3',
-                columns: [
-                  {
-                    dataTestId: 'host-form-snmp-community',
-                    fieldName: 'snmpCommunity',
-                    label: t(labelSnmpCommunity),
-                    type: InputType.Password
-                  },
-                  {
-                    autocomplete: {
-                      options: [
-                        { id: noSnmpVersionId, name: t(labelNone) },
-                        ...snmpVersionOptions
-                      ]
-                    },
-                    change: ({ setFieldValue, value }) =>
-                      setFieldValue(
-                        'snmpVersion',
-                        (value as SelectEntry | null)?.id === noSnmpVersionId
-                          ? null
-                          : value
-                      ),
-                    dataTestId: 'host-form-snmp-version',
-                    fieldName: 'snmpVersion',
-                    label: t(labelSnmpVersion),
-                    type: InputType.SingleAutocomplete
-                  },
-                  {
-                    connectedAutocomplete: buildSelector({
-                      endpoint: timezonesEndpoint,
-                      getOptionLabel: (option) => (option as SelectEntry)?.name,
-                      queryKey: 'host-form-timezone'
-                    }),
-                    dataTestId: 'host-form-timezone',
-                    fieldName: 'timezone',
-                    label: t(labelTimezone),
-                    type: InputType.SingleConnectedAutocomplete
-                  },
-                  // After the SNMP community: a password manager types into
-                  // the field before it, and would open this selector.
-                  ...(isMassChange ? [poller] : [])
-                ]
-              },
-              label: 'host-form-host-details',
-              type: InputType.Grid
-            },
-            {
-              fieldName: 'scheduling-options',
-              grid: {
-                className: 'grid-cols-1 @[600px]:grid-cols-2',
-                columns: isCloudPlatform
-                  ? [checkPeriod, ...checkNumbers]
-                  : [
-                      {
-                        fieldName: 'scheduling-check-numbers',
-                        grid: {
-                          className: 'grid-cols-1',
-                          columns: [checkPeriod, ...checkNumbers]
-                        },
-                        label: 'host-form-scheduling-check-numbers',
-                        type: InputType.Grid
-                      },
-                      {
-                        fieldName: 'scheduling-checks-enabled',
-                        grid: {
-                          className: 'grid-cols-1',
-                          columns: [
-                            getSchedulingTriStateInput({
-                              fieldName: 'activeCheckEnabled',
-                              label: t(labelActiveChecksEnabled)
-                            }),
-                            getSchedulingTriStateInput({
-                              fieldName: 'passiveCheckEnabled',
-                              label: t(labelPassiveChecksEnabled)
-                            })
-                          ]
-                        },
-                        label: 'host-form-scheduling-checks-enabled',
-                        type: InputType.Grid
-                      }
-                    ]
-              },
-              label: 'host-form-scheduling-options',
-              type: InputType.Grid
-            }
-          ]
-        },
-        label: 'host-form-monitoring-layout',
-        type: InputType.Grid
-      },
-      // The check options and templates sit below the SNMP community, not above
-      // as in the Figma: password managers pair the community with the text
-      // field before it and would type into them.
-      {
-        fieldName: 'check-options',
-        grid: {
-          className: 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2',
-          columns: [
-            {
-              connectedAutocomplete: buildSelector({
-                customQueryParameters: [
-                  { name: 'type[]', value: 'Check' },
-                  { name: 'is_activated', value: true }
-                ],
-                endpoint: hostFormCommandsEndpoint,
-                getOptionLabel: (option) => (option as SelectEntry)?.name,
-                queryKey: 'host-form-check-command'
-              }),
-              dataTestId: 'host-form-check-options-command',
-              fieldName: 'checkOptions.command',
-              label: t(labelCheckCommand),
-              type: InputType.SingleConnectedAutocomplete
-            },
-            {
-              dataTestId: 'host-form-check-options-args',
-              fieldName: 'checkOptions.args',
-              // Arguments without a command are refused.
-              getDisabled: (values) => !values.checkOptions?.command,
-              label: t(labelArgs),
-              text: { placeholder: '!arg1!arg2' },
+              dataTestId: 'host-form-name',
+              fieldName: 'name',
+              label: t(labelName),
+              required: true,
               type: InputType.Text
-            }
-          ]
-        },
-        label: 'host-form-check-options',
-        type: InputType.Grid
-      },
-      // Templates beside the host's own macros.
-      {
-        fieldName: 'templates-layout',
-        grid: {
-          className: isMassChange
-            ? 'grid-cols-1'
-            : 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2',
-          columns: [
-            {
-              fieldName: 'templates-block',
-              grid: {
-                className: 'grid-cols-1',
-                columns: [
-                  withUpdateMode({
-                    field: 'templates',
-                    input: {
-                      custom: { Component: Templates },
-                      dataTestId: 'host-form-templates',
-                      fieldName: 'templates',
-                      label: t(labelTemplates),
-                      type: InputType.Custom
-                    },
-                    isMassChange,
-                    t
-                  }),
-                  // Cloud always creates them.
-                  ...(isCloudPlatform
-                    ? []
-                    : [
-                        {
-                          dataTestId:
-                            'host-form-create-services-linked-to-templates',
-                          fieldName: 'createServicesLinkedToTemplates',
-                          label: t(labelCreateServicesLinkedToTemplates),
-                          type: InputType.Switch
-                        }
-                      ])
-                ]
-              },
-              label: 'host-form-templates-block',
-              type: InputType.Grid
             },
-            // Not in a mass change yet: an upsert matches macros by id only,
-            // so a name a host already owns would fail on that host.
-            ...(isMassChange
+            {
+              dataTestId: 'host-form-alias',
+              fieldName: 'alias',
+              label: t(labelAlias),
+              type: InputType.Text
+            },
+            poller,
+            {
+              dataTestId: 'host-form-address',
+              fieldName: 'address',
+              label: t(labelAddress),
+              required: true,
+              type: InputType.Text
+            },
+            ...(isCloudPlatform
               ? []
               : [
                   {
-                    custom: { Component: Macros },
-                    dataTestId: 'host-form-check-options-macros',
-                    fieldName: 'checkOptions.macros',
-                    label: t(labelCustomMacros),
+                    custom: { Component: ResolveAddress },
+                    dataTestId: 'host-form-address-resolve',
+                    fieldName: 'address-resolve',
+                    label: t(labelResolve),
                     type: InputType.Custom
                   }
                 ])
-          ]
-        },
-        label: 'host-form-templates-layout',
-        type: InputType.Grid
+          ],
+          name: 'basic-information',
+          title: t(labelHostBasicInformation)
+        })
+      }),
+      checkCommand: getBlock({
+        className: twoColumns,
+        columns: [
+          {
+            additionalLabel: t(labelHostCheckOptions),
+            connectedAutocomplete: buildSelector({
+              customQueryParameters: [
+                { name: 'type[]', value: 'Check' },
+                { name: 'is_activated', value: true }
+              ],
+              endpoint: hostFormCommandsEndpoint,
+              getOptionLabel: (option) => (option as SelectEntry)?.name,
+              queryKey: 'host-form-check-command'
+            }),
+            dataTestId: 'host-form-check-options-command',
+            fieldName: 'checkOptions.command',
+            label: t(labelCheckCommand),
+            type: InputType.SingleConnectedAutocomplete
+          },
+          {
+            additionalLabel: t(labelArguments),
+            dataTestId: 'host-form-check-options-args',
+            fieldName: 'checkOptions.args',
+            // Arguments without a command are refused.
+            getDisabled: (values) => !values.checkOptions?.command,
+            label: t(labelArgs),
+            text: { placeholder: '!arg1!arg2' },
+            type: InputType.Text
+          }
+        ],
+        name: 'check-options'
+      }),
+      // Not in a mass change yet: an upsert matches macros by id only, so a
+      // name a host already owns would fail on that host.
+      ...(!isMassChange && {
+        macros: {
+          custom: { Component: Macros },
+          dataTestId: 'host-form-check-options-macros',
+          fieldName: 'checkOptions.macros',
+          label: t(labelCustomMacros),
+          type: InputType.Custom
+        }
+      }),
+      // The selector the basic information holds for a single host.
+      ...(isMassChange && { massChangePoller: poller }),
+      ...(!isCloudPlatform && {
+        schedulingChecks: getBlock({
+          columns: [
+            getSchedulingTriStateInput({
+              fieldName: 'activeCheckEnabled',
+              label: t(labelActiveChecksEnabled)
+            }),
+            getSchedulingTriStateInput({
+              fieldName: 'passiveCheckEnabled',
+              label: t(labelPassiveChecksEnabled)
+            })
+          ],
+          name: 'scheduling-checks-enabled'
+        })
+      }),
+      schedulingNumbers: getBlock({
+        columns: [checkPeriod, ...checkNumbers],
+        name: 'scheduling-check-numbers'
+      }),
+      // Not in the design: placed right after the check command on request.
+      // Password managers take the text field before a password for its user
+      // name, here the check command arguments.
+      snmp: getBlock({
+        className: twoColumns,
+        columns: [snmpCommunity, snmpVersion],
+        name: 'snmp'
+      }),
+      templates: getBlock({
+        columns: [
+          withUpdateMode({
+            field: 'templates',
+            input: {
+              custom: { Component: Templates },
+              dataTestId: 'host-form-templates',
+              fieldName: 'templates',
+              label: t(labelTemplates),
+              type: InputType.Custom
+            },
+            isMassChange,
+            t
+          }),
+          // Cloud always creates them.
+          ...(isCloudPlatform
+            ? []
+            : [
+                {
+                  dataTestId: 'host-form-create-services-linked-to-templates',
+                  fieldName: 'createServicesLinkedToTemplates',
+                  label: t(labelCreateServicesLinkedToTemplates),
+                  type: InputType.Switch
+                }
+              ])
+        ],
+        name: 'templates-block'
+      }),
+      timezone: {
+        connectedAutocomplete: buildSelector({
+          endpoint: timezonesEndpoint,
+          getOptionLabel: (option) => (option as SelectEntry)?.name,
+          queryKey: 'host-form-timezone'
+        }),
+        dataTestId: 'host-form-timezone',
+        fieldName: 'timezone',
+        label: t(labelTimezone),
+        type: InputType.SingleConnectedAutocomplete
       }
-    ];
+    };
   },
   getSchema: ({ isMassChange, t }) => ({
     ...(isMassChange
@@ -700,8 +641,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     }),
     snmpCommunity: string().max(snmpCommunityMaxLength)
   }),
-  label: labelHostConfiguration,
-
   toPayload: (values, { isCloudPlatform }) => {
     const {
       name,

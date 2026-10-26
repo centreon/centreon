@@ -16,12 +16,11 @@ import {
   labelHostGroups,
   labelParentAndChildHost,
   labelParentHosts,
-  labelRelations,
   labelRequired
 } from '../../translatedLabels';
 import { buildSelector, toIds } from '../selector';
-import { type UpdateModeField, withUpdateMode } from '../updateMode';
-import type { FormSection, SectionContext } from './models';
+import { withUpdateMode } from '../updateMode';
+import type { Blocks, FormSection, SectionContext } from './models';
 
 interface RelationsDetail {
   categories: Array<NamedEntity>;
@@ -29,6 +28,9 @@ interface RelationsDetail {
   groups: Array<NamedEntity>;
   parentHosts: Array<NamedEntity>;
 }
+
+// Each one an update mode field and a block of its own.
+type RelationField = keyof RelationsDetail;
 
 const getRelationInputs = ({
   t,
@@ -113,16 +115,22 @@ export const relations: FormSection<RelationsDetail> = {
     childHosts: 'child_hosts',
     parentHosts: 'parent_hosts'
   },
-  // Each list carries its update mode in a mass change, as in legacy.
+  // Each list carries its update mode in a mass change, as in legacy. Every
+  // field is a block of its own: the layout splits them over two columns.
   getInputs: (context) =>
-    getRelationInputs(context).map((input) =>
-      withUpdateMode({
-        field: input.fieldName as UpdateModeField,
-        input,
-        isMassChange: context.isMassChange,
-        t: context.t
-      })
-    ),
+    getRelationInputs(context).reduce<Blocks>((blocks, input) => {
+      const field = input.fieldName as RelationField;
+
+      return {
+        ...blocks,
+        [field]: withUpdateMode({
+          field,
+          input,
+          isMassChange: context.isMassChange,
+          t: context.t
+        })
+      };
+    }, {}),
   getSchema: ({ t, isCloudPlatform, isMassChange }) => ({
     // A host must belong to a group on cloud and need not anywhere else:
     // `CreateHostInput` counts them only under `WhenPlatform(forCloud: true)`.
@@ -142,7 +150,6 @@ export const relations: FormSection<RelationsDetail> = {
         )
     )
   }),
-  label: labelRelations,
   toPayload: (values) => {
     const { groups, categories, parentHosts, childHosts } = values as {
       categories: Array<{ id: number }> | null;
