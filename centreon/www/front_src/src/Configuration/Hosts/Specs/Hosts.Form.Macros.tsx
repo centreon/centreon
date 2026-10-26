@@ -34,14 +34,14 @@ const findMacroInput = async (
   return queryMacroInput(index, key) as HTMLInputElement;
 };
 
-const findMacroRow = async (index: number): Promise<HTMLElement> =>
-  (await findMacroInput(index, 'name')).closest('li') as HTMLElement;
+const findMacroBar = (index: number): Promise<HTMLElement> =>
+  screen.findByTestId(`${macrosTestId}-${index}-inherited-bar`);
 
 const expectRowBar = async (index: number, barColor: string): Promise<void> => {
   await waitFor(async () =>
-    expect(
-      getComputedStyle(await findMacroRow(index), '::before').backgroundColor
-    ).toBe(barColor)
+    expect(getComputedStyle(await findMacroBar(index)).backgroundColor).toBe(
+      barColor
+    )
   );
 };
 
@@ -235,7 +235,7 @@ export default () => {
     await expectRowBar(3, 'rgb(159, 199, 78)');
 
     // The design's bar: 4px wide, 36px high, 2px radius.
-    const bar = getComputedStyle(await findMacroRow(2), '::before');
+    const bar = getComputedStyle(await findMacroBar(2));
     expect([bar.width, bar.height, bar.borderTopLeftRadius]).toStrictEqual([
       '4px',
       '36px',

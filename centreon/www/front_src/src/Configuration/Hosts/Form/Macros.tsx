@@ -20,6 +20,10 @@ import {
   labelTemplateInheritance,
   labelValue
 } from '../translatedLabels';
+import InheritanceRow, {
+  InheritanceSwatch,
+  type InheritanceTone
+} from './InheritanceRow';
 import {
   createMacroRow,
   isUnchangedInherited,
@@ -31,16 +35,10 @@ import useInheritedMacros from './useInheritedMacros';
 
 const maxVisibleRows = 10;
 
-// The inherited rows get a 4px bar on their left, as in the design; the legend
-// swatches share its colours. Written out in full so Tailwind finds them.
-const barClassName: Record<MacroParent, string> = {
-  command: 'before:bg-success-light',
-  template: 'before:bg-warning-light'
-};
-
-const swatchClassName: Record<MacroParent, string> = {
-  command: 'bg-success-light',
-  template: 'bg-warning-light'
+// What each parent of an inherited macro stands for in the legend and the bars.
+const parentTone: Record<MacroParent, InheritanceTone> = {
+  command: 'success',
+  template: 'warning'
 };
 
 const legend: Array<{ label: string; parent: MacroParent }> = [
@@ -97,24 +95,33 @@ const Macros = ({
     });
 
     return (
-      <div className="grid grid-cols-2 gap-2">
-        <TextField {...getFieldProps('name')} label={t(labelName)} required />
-        <StoredSecretField
-          {...getFieldProps('value')}
-          // Keeps the browser from filling a saved login in.
-          autoComplete={macro.isPassword ? 'new-password' : 'off'}
-          isErased={macro.isErased}
-          isStored={macro.hasStoredPassword}
-          label={t(labelValue)}
-          onErase={(): void =>
-            setValue({ ...macro, isErased: true, value: '' })
-          }
-          onRevert={(): void =>
-            setValue({ ...macro, isErased: false, value: '' })
-          }
-          type={macro.isPassword ? 'password' : 'text'}
-        />
-      </div>
+      <InheritanceRow
+        barTestId={`${dataTestId}-${index}-inherited-bar`}
+        tone={
+          macro.parent && isUnchangedInherited(macro)
+            ? parentTone[macro.parent]
+            : undefined
+        }
+      >
+        <div className="grid grid-cols-2 gap-2">
+          <TextField {...getFieldProps('name')} label={t(labelName)} required />
+          <StoredSecretField
+            {...getFieldProps('value')}
+            // Keeps the browser from filling a saved login in.
+            autoComplete={macro.isPassword ? 'new-password' : 'off'}
+            isErased={macro.isErased}
+            isStored={macro.hasStoredPassword}
+            label={t(labelValue)}
+            onErase={(): void =>
+              setValue({ ...macro, isErased: true, value: '' })
+            }
+            onRevert={(): void =>
+              setValue({ ...macro, isErased: false, value: '' })
+            }
+            type={macro.isPassword ? 'password' : 'text'}
+          />
+        </div>
+      </InheritanceRow>
     );
   };
 
@@ -128,10 +135,7 @@ const Macros = ({
             key={parent}
             variant="body2"
           >
-            <span
-              aria-hidden
-              className={`inline-block size-3 rounded-xs ${swatchClassName[parent]}`}
-            />
+            <InheritanceSwatch tone={parentTone[parent]} />
             {t(legendLabel)}
           </Typography>
         ))}
@@ -162,13 +166,6 @@ const Macros = ({
           addLabel={t(labelAddNewEntry)}
           createValue={createMacroRow}
           draggable={!disabled}
-          getRowClassName={({ value: macro }) =>
-            `relative py-1 pr-1 pl-3 ${
-              macro.parent && isUnchangedInherited(macro)
-                ? `before:absolute before:top-1/2 before:left-0 before:h-9 before:w-1 before:-translate-y-1/2 before:rounded-xs before:content-[''] ${barClassName[macro.parent]}`
-                : ''
-            }`
-          }
           label={label}
           maxVisibleRows={maxVisibleRows}
           onChange={(nextMacros): void => {
