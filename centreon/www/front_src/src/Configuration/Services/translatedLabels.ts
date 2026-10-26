@@ -67,3 +67,7 @@ export const labelDowntimeScheduled = 'Downtime Scheduled';
 export const labelNone = 'None';
 export const labelMustBePositiveIntegerOrZero =
   'Must be a positive integer or 0';
+// MON-213084: Relations section. The legacy service form's msgids, so every
+// locale already has them.
+export const labelServiceGroups = 'Service groups';
+export const labelServiceTraps = 'Service Trap Relation';
