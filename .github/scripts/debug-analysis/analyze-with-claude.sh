@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 
 PROMPT="$1"
 
 claude -p "$PROMPT" \
-  --tools "Read,Grep,Glob,Write" \
-  --permission-mode bypassPermissions \
+  --tools "Read,Grep,Glob" \
   --max-budget-usd 3 \
   --verbose \
   --output-format stream-json \
@@ -21,3 +20,12 @@ claude -p "$PROMPT" \
         elif .type == "result" then "STEP: === finished (" + (.subtype // "?") + ") ==="
         else empty end
     '
+claude_status="${PIPESTATUS[0]}"
+
+result_text=$(jq -R -r 'try (fromjson) catch empty | select(.type == "result") | .result // empty' claude-debug-analysis.jsonl 2>/dev/null | tail -n 1)
+if [ -n "$result_text" ]; then
+  mkdir -p debug-analysis
+  printf '%s\n' "$result_text" > debug-analysis/summary.md
+fi
+
+exit "$claude_status"

@@ -17,7 +17,7 @@ on:
         type: string
     secrets:
       claude_code_oauth_token:
-        description: "Resolved by the caller from secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] — this workflow has no access to the full secret store to do that lookup itself."
+        description: "Resolved by the caller from secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', <sanitized triggering_actor>)] — this workflow has no access to the full secret store to do that lookup itself."
         required: false
 
 jobs:
@@ -68,10 +68,14 @@ jobs:
             os=$(echo "$combo" | jq -r '.operating_system')
             db_id=$(echo "$combo" | jq -r '.db_id')
             leg="${NAME}-${os}-${db_id}"
-            gh run download "${{ github.run_id }}" --repo "${{ github.repository }}" \
-              -n "${leg}-test-reports" -D "debug-analysis/test-reports/${os}-${db_id}" || true
-            gh run download "${{ github.run_id }}" --repo "${{ github.repository }}" \
-              -n "${leg}-test-results" -D "debug-analysis/test-results/${os}-${db_id}" || true
+            if ! gh run download "${{ github.run_id }}" --repo "${{ github.repository }}" \
+                 -n "${leg}-test-reports" -D "debug-analysis/test-reports/${os}-${db_id}"; then
+              echo "::warning::Could not download ${leg}-test-reports — ${os}-${db_id} won't be included in the analysis."
+            fi
+            if ! gh run download "${{ github.run_id }}" --repo "${{ github.repository }}" \
+                 -n "${leg}-test-results" -D "debug-analysis/test-results/${os}-${db_id}"; then
+              echo "::warning::Could not download ${leg}-test-results — screenshots/videos for ${os}-${db_id} won't be available to Claude."
+            fi
           done
 
       - name: Merge mochawesome reports and check whether anything actually failed
@@ -82,10 +86,12 @@ jobs:
           report_files=(debug-analysis/test-reports/**/*-report.json)
           if [ ${#report_files[@]} -eq 0 ]; then
             echo "No mochawesome report files were found (test-reports artifacts may be missing for every combo)."
+            echo "reports_found=false" >> "$GITHUB_OUTPUT"
             failures=0
           else
-            npx --yes mochawesome-merge "debug-analysis/test-reports/**/*-report.json" > debug-analysis/mochawesome.json
+            npx --yes mochawesome-merge@5.1.1 "debug-analysis/test-reports/**/*-report.json" > debug-analysis/mochawesome.json
             failures=$(jq '.stats.failures // 0' debug-analysis/mochawesome.json)
+            echo "reports_found=true" >> "$GITHUB_OUTPUT"
           fi
           echo "This run has $failures failing scenario(s) across all os/database combos."
           echo "has_failures=$( [ "$failures" -gt 0 ] && echo true || echo false )" >> "$GITHUB_OUTPUT"
@@ -96,8 +102,13 @@ jobs:
           {
             echo "## 🐛 Debug analysis — run attempt ${{ github.run_attempt }}"
             echo ""
-            echo "No failing scenario was found in the Cypress reports, so no AI analysis was run."
-            echo "The job failure likely comes from a different step (artifact upload, Xray import, etc.)."
+            if [ "${{ steps.failure-check.outputs.reports_found }}" == "true" ]; then
+              echo "No failing scenario was found in the Cypress reports, so no AI analysis was run."
+              echo "The job failure likely comes from a different step (artifact upload, Xray import, etc.)."
+            else
+              echo "No mochawesome report could be downloaded for any os/database combo, so no AI analysis was run."
+              echo "Check the warnings on the download step above and the e2e-test job's own artifacts."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Get PR diff
@@ -129,14 +140,13 @@ jobs:
             pre-existing / environment-related and unrelated to the diff (explain why — e.g. a \
             timing-sensitive wait, a known-flaky selector pattern, an infra timeout)? If the same \
             scenario fails on more than one combo, say so instead of repeating the analysis. \
-            Write your conclusion as markdown to the file debug-analysis/summary.md (create it), \
-            one heading per failing scenario, each with exactly these three parts in this order: \
-            a '**Verdict:**' line stating caused by this PR's diff or flaky/pre-existing, an \
-            'Explanation' section with your reasoning (cite the specific line(s)/change or the \
-            flaky pattern), and a 'Proposed fix' section with a concrete, actionable suggestion \
-            (e.g. the exact line to revert or change, or how to stabilize a flaky step). Do not \
-            edit any other repository file, do not open a PR or post a comment anywhere — \
-            debug-analysis/summary.md is the only output. Stop once you have written it."
+            Answer directly with your conclusion as markdown (this is your final response text, \
+            you have no tool available to write files or run commands), one heading per failing \
+            scenario, each with exactly these three parts in this order: a '**Verdict:**' line \
+            stating caused by this PR's diff or flaky/pre-existing, an 'Explanation' section with \
+            your reasoning (cite the specific line(s)/change or the flaky pattern), and a \
+            'Proposed fix' section with a concrete, actionable suggestion (e.g. the exact line to \
+            revert or change, or how to stabilize a flaky step)."
 
       - name: Write debug analysis summary
         if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' && !cancelled() }}

@@ -9,7 +9,7 @@ on:
         type: string
     secrets:
       claude_code_oauth_token:
-        description: "Resolved by the caller from secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] — this workflow has no access to the full secret store to do that lookup itself."
+        description: "Resolved by the caller from secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', <sanitized triggering_actor>)] — this workflow has no access to the full secret store to do that lookup itself."
         required: false
 
 jobs:
@@ -61,12 +61,7 @@ jobs:
         id: failure-check
         if: ${{ steps.token-check.outputs.ready == 'true' }}
         run: |
-          failures=0
-          for merged in debug-analysis/bruno-reports/*-merged.json; do
-            [ -e "$merged" ] || continue
-            count=$(jq '[.[].results[]? | select(.status != "pass" or ([.assertionResults[]?, .testResults[]?, .preRequestTestResults[]?, .postResponseTestResults[]?] | map(select(.status == "fail")) | length > 0))] | length' "$merged")
-            failures=$((failures + count))
-          done
+          failures=$(node .github/scripts/bruno-test-api/bruno-count-failures.js debug-analysis/bruno-reports)
           echo "This run has $failures failing Bruno request(s) across all collections."
           echo "has_failures=$( [ "$failures" -gt 0 ] && echo true || echo false )" >> "$GITHUB_OUTPUT"
 
@@ -107,15 +102,13 @@ jobs:
             PR's diff (cite the specific line(s)/change), or does it look flaky / pre-existing / \
             environment-related and unrelated to the diff (explain why — e.g. a timing/ordering \
             issue between requests, test data left over from another collection, an infra \
-            timeout)? Write your conclusion as markdown to the file debug-analysis/summary.md \
-            (create it), one heading per failing request, each with exactly these three parts in \
-            this order: a '**Verdict:**' line stating caused by this PR's diff or \
-            flaky/pre-existing, an 'Explanation' section with your reasoning (cite the specific \
-            line(s)/change or the flaky pattern), and a 'Proposed fix' section with a concrete, \
-            actionable suggestion (e.g. the exact line to revert or change, or how to stabilize a \
-            flaky request). Do not edit any other repository file, do not open a PR or post a \
-            comment anywhere — debug-analysis/summary.md is the only output. Stop once you have \
-            written it."
+            timeout)? Answer directly with your conclusion as markdown (this is your final \
+            response text, you have no tool available to write files or run commands), one \
+            heading per failing request, each with exactly these three parts in this order: a \
+            '**Verdict:**' line stating caused by this PR's diff or flaky/pre-existing, an \
+            'Explanation' section with your reasoning (cite the specific line(s)/change or the \
+            flaky pattern), and a 'Proposed fix' section with a concrete, actionable suggestion \
+            (e.g. the exact line to revert or change, or how to stabilize a flaky request)."
 
       - name: Write debug analysis summary
         if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' && !cancelled() }}

@@ -2,6 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { failingChecks, requestFailed } from "./bruno-result-helpers.js";
 
 // ------------------------
 // Input
@@ -36,19 +37,6 @@ if (!fs.existsSync(mergedFile)) {
 }
 
 const report = JSON.parse(fs.readFileSync(mergedFile, "utf-8"));
-
-function failingChecks(requestResult) {
-  return [
-    ...(requestResult.assertionResults || []),
-    ...(requestResult.testResults || []),
-    ...(requestResult.preRequestTestResults || []),
-    ...(requestResult.postResponseTestResults || []),
-  ].filter((check) => check.status === "fail");
-}
-
-function requestFailed(requestResult, failedChecks) {
-  return requestResult.status !== "pass" || failedChecks.length > 0;
-}
 
 function escapeHtml(value) {
   return String(value)
