@@ -69,5 +69,58 @@ export const getServiceResponse = (id: number) => ({
   '@context': '/centreon/api/contexts/Service',
   '@id': `/centreon/api/configuration/services/${id}`,
   '@type': 'Service',
-  id
+  id,
+  ...getServiceConfigurationResponse(id)
 });
+
+// MON-213082: Service Configuration, name, host, template and scheduling.
+// Service 0 sets every field; the others leave the optional ones out, as the
+// API does for unset fields.
+const serviceNames = ['cpu', 'memory', 'disk'];
+
+export const getServiceConfigurationResponse = (id: number) => ({
+  activated: id !== 1,
+  host: { id: 10, name: 'host A' },
+  name: serviceNames[id] ?? `service ${id}`,
+  ...(id === 0 && {
+    scheduling_options: {
+      active_check_enabled: 'false',
+      check_period: { id: 21, name: 'workhours' },
+      is_volatile: 'true',
+      max_check_attempts: 3,
+      normal_check_interval: 5,
+      passive_check_enabled: 'use_default',
+      retry_check_interval: null
+    },
+    template: { id: 30, name: 'generic-active-service' }
+  })
+});
+
+const getSelectorResponse = (
+  path: string,
+  member: Array<{ id: number; name: string }>
+) => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': `/centreon/api/configuration/services/${path}`,
+  '@type': 'Collection',
+  member,
+  totalItems: member.length
+});
+
+export const getServiceFormHostsResponse = () =>
+  getSelectorResponse('hosts', [
+    { id: 10, name: 'host A' },
+    { id: 11, name: 'host B' }
+  ]);
+
+export const getServiceFormServiceTemplatesResponse = () =>
+  getSelectorResponse('service_templates', [
+    { id: 30, name: 'generic-active-service' },
+    { id: 31, name: 'generic-passive-service' }
+  ]);
+
+export const getServiceFormTimePeriodsResponse = () =>
+  getSelectorResponse('timeperiods', [
+    { id: 20, name: '24x7' },
+    { id: 21, name: 'workhours' }
+  ]);

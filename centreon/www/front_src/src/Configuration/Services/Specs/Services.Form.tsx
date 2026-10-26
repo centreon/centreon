@@ -98,8 +98,8 @@ export default () => {
     expect(request.url.pathname).toContain('/api/configuration/services/0');
 
     expect(await screen.findByTestId(panelDataTestIds.content)).toBeVisible();
-    // No section decodes the name yet, so the header falls back to the mode.
-    await expectHeader('Modify a service');
+    // Named by the detail response, there being no row to take it from.
+    await expectHeader('cpu');
     await waitFor(() => expect(getSaveButton()).toBeInTheDocument());
   });
 
