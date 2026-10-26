@@ -184,9 +184,10 @@ adopt_published_build() {
        '$1 == 0 && $3 == s && $4 == n && $5 == v && $6 == a { found = 1 } END { exit found ? 0 : 1 }' "$PUBLISHED_PACKAGES"; then
     return 0
   fi
+  # the build the front serves first; nothing to do when it is the local one
   entry=$(awk -v t="$BASE_PATH" -v s="$SUITE" -v n="$name" -v v="$version" -v a="$arch" -v h="$sha256" '
-    !($2 == t && $3 == s) && $4 == n && $5 == v && $6 == a && $7 != h && (best == "" || $1 < best_rank) { best_rank = $1; best = $0 }
-    END { if (best != "") print best }
+    !($2 == t && $3 == s) && $4 == n && $5 == v && $6 == a && (best == "" || $1 < best_rank) { best_rank = $1; best = $0; best_sha256 = $7 }
+    END { if (best != "" && best_sha256 != h) print best }
   ' "$PUBLISHED_PACKAGES")
   [[ -z "$entry" ]] && return 0
   read -r rank repository suite _ _ _ published_sha256 filename <<< "$entry"
