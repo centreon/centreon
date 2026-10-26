@@ -16,6 +16,7 @@ import {
 } from '../translatedLabels';
 import {
   getBlock,
+  schedulingColumns,
   stackedColumns,
   threeColumnsFromWide,
   twoColumnsFromNarrow,
@@ -108,7 +109,7 @@ export const layout: Array<LayoutSection> = [
             title: labelHostDetails
           },
           {
-            className: twoColumnsFromWide,
+            className: schedulingColumns,
             columns: ['schedulingNumbers', 'schedulingChecks'],
             name: 'scheduling-options',
             title: labelSchedulingOptions

@@ -406,6 +406,33 @@ export default () => {
       }
     });
 
+    it('never cuts the Yes / No / Inherit buttons of the scheduling options', async () => {
+      const cut: Array<string> = [];
+
+      for (const width of [narrow, 900, 1100, 1250, wide]) {
+        const { unmount } = initializeFormLayout({ width });
+
+        await waitForForm();
+
+        for (const testId of [
+          'host-form-scheduling-options-activeCheckEnabled',
+          'host-form-scheduling-options-passiveCheckEnabled'
+        ]) {
+          const wrapper = screen.getByTestId(testId)
+            .parentElement as HTMLElement;
+
+          // Scrolled means cut: the three buttons (104px each at least) fit.
+          if (wrapper.scrollWidth > wrapper.clientWidth) {
+            cut.push(`${testId} at ${width}px`);
+          }
+        }
+
+        unmount();
+      }
+
+      expect(cut).toEqual([]);
+    });
+
     it('lays the sections out in columns in the widest panel', async () => {
       initializeFormLayout({ width: wide });
 
