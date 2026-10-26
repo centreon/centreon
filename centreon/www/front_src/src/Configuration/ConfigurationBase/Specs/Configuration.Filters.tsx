@@ -1,6 +1,8 @@
-import { filter, propEq } from 'ramda';
+import { waitForRequest } from '@test-setup/api';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-import { ResourceType } from '../../models';
+import type { ResourceType } from '../../models';
 import { defaultFiltersPanelWidth } from '../Filters/Filters.styles';
 import {
   labelAlias,
@@ -10,7 +12,7 @@ import {
   labelName,
   labelSearch
 } from '../translatedLabels';
-import initialize from './initialize';
+import initialize, { toResource } from './initialize';
 import {
   filtersConfiguration,
   filtersConfigurationWithSingleConnectedAutocomplete,
@@ -20,211 +22,248 @@ import {
 
 const initializeWithSingleConnectedAutocomplete = (
   resourceType: ResourceType
-): void =>
+): ReturnType<typeof initialize> =>
   initialize({
     filters: filtersConfigurationWithSingleConnectedAutocomplete,
     initialValues: filtersInitialValuesWithSingleConnectedAutocomplete,
     resourceType
   });
 
-const openAdvancedFilters = (): void => {
-  cy.get(`[data-testid="${labelFilters}"]`).click();
-  cy.get('[data-testid="advanced-filters"]').should('be.visible');
+const initializeListing = async (
+  props: Parameters<typeof initialize>[0]
+): Promise<ReturnType<typeof initialize>> => {
+  const rendered = initialize(props);
+
+  await waitForRequest('@getAll');
+  await screen.findByText(`${toResource(props?.resourceType ?? '')} 0`);
+
+  return rendered;
 };
 
-const selectHostTemplate = (name: string): void => {
-  cy.findByTestId(labelHostTemplate).click();
-  cy.waitForRequest('@getHostTemplates');
-  cy.contains(name).click();
+const openAdvancedFilters = async (): Promise<HTMLElement> => {
+  await userEvent.click(screen.getByTestId(labelFilters));
+
+  const advancedFilters = await screen.findByTestId('advanced-filters');
+
+  expect(advancedFilters).toBeVisible();
+
+  return advancedFilters;
 };
+
+// `@centreon/ui` text fields put the test id on the wrapper and the input.
+const getTextFilter = (label: string): HTMLElement =>
+  within(screen.getByTestId('advanced-filters')).getAllByTestId(label)[1];
+
+const getHostTemplateInput = (): HTMLElement =>
+  screen.getByTestId(labelHostTemplate);
+
+const selectHostTemplate = async (name: string): Promise<void> => {
+  await userEvent.click(getHostTemplateInput());
+  await waitForRequest('@getHostTemplates');
+  await userEvent.click(await screen.findByText(name));
+};
+
+// The count of applied filters on the advanced filters icon. MUI keeps the
+// badge in the page when the count is 0, hidden by a class.
+const getFiltersBadge = (): HTMLElement =>
+  screen
+    .getByTestId(labelFilters)
+    .closest('.MuiBadge-root')
+    ?.querySelector('.MuiBadge-badge') as HTMLElement;
+
+const expectFiltersBadge = (count: number): void => {
+  expect(getFiltersBadge()).toHaveTextContent(new RegExp(`^${count}$`));
+  expect(getFiltersBadge()).not.toHaveClass('MuiBadge-invisible');
+};
+
+const expectNoFiltersBadge = (): void => {
+  expect(getFiltersBadge()).toHaveClass('MuiBadge-invisible');
+};
+
+const getSearchParameter = (url: URL): unknown =>
+  JSON.parse(url.searchParams.get('search') ?? 'null');
 
 export default (resourceType: ResourceType) => {
   describe('Filters', () => {
-    it('sends a listing request with the name filter when the search bar is manually updated, debounced by 500ms', () => {
-      initialize({ resourceType });
+    it('sends a listing request with the name filter when the search bar is manually updated, debounced by 500ms', async () => {
+      await initializeListing({ resourceType });
 
-      cy.waitForRequest('@getAll');
+      const searchBar = screen.getAllByPlaceholderText(labelSearch)[0];
 
-      cy.findAllByPlaceholderText(labelSearch)
-        .clear()
-        .type(`${resourceType} 1`);
+      await userEvent.clear(searchBar);
+      await userEvent.type(searchBar, `${resourceType} 1`);
 
-      cy.wait(500);
+      // Debounced: the request is sent once typing stopped.
+      const { request } = await waitForRequest('@getAll');
 
-      cy.waitForRequest('@getAll').then(({ request }) => {
-        expect(
-          JSON.parse(request.url.searchParams.get('search'))
-        ).to.deep.equal({
-          $and: [{ $or: [{ name: { $rg: `${resourceType} 1` } }] }]
-        });
+      expect(getSearchParameter(request.url)).toEqual({
+        $and: [{ $or: [{ name: { $rg: `${resourceType} 1` } }] }]
       });
 
-      cy.makeSnapshot(
-        `${resourceType}: sends a listing request with name filter when the search bar is filled and enter key is triggered`
-      );
+      // What the screenshot showed: the typed name counts as one filter.
+      await waitFor(() => expectFiltersBadge(1));
+      expect(searchBar).toHaveValue(`${resourceType} 1`);
     });
 
-    it('sends a listing request when fields are filled and the search button is clicked', () => {
-      initialize({ resourceType });
+    it('sends a listing request when fields are filled and the search button is clicked', async () => {
+      await initializeListing({ resourceType });
 
-      cy.waitForRequest('@getAll');
+      await openAdvancedFilters();
 
-      cy.get(`[data-testid="${labelFilters}"]`).click();
-      cy.get('[data-testid="advanced-filters"]').should('be.visible');
+      await userEvent.clear(getTextFilter(labelName));
+      await userEvent.type(getTextFilter(labelName), `${resourceType} 1`);
+      await userEvent.clear(getTextFilter(labelAlias));
+      await userEvent.type(
+        getTextFilter(labelAlias),
+        `${resourceType} alias 1`
+      );
 
-      cy.get(`[data-testid="${labelName}"]`)
-        .eq(1)
-        .clear()
-        .type(`${resourceType} 1`);
-      cy.get(`[data-testid="${labelAlias}"]`)
-        .eq(1)
-        .clear()
-        .type(`${resourceType} alias 1`);
+      await userEvent.click(screen.getByTestId(labelDisabled));
 
-      cy.findByTestId(labelDisabled).click();
+      await userEvent.click(screen.getByTestId(labelSearch));
 
-      cy.findByTestId(labelSearch).click();
+      const { request } = await waitForRequest('@getAll');
 
-      cy.waitForRequest('@getAll').then(({ request }) => {
-        expect(
-          JSON.parse(request.url.searchParams.get('search'))
-        ).to.deep.equal({
-          $and: [
-            { $or: [{ is_activated: { $eq: false } }] },
-            { $or: [{ name: { $rg: `${resourceType} 1` } }] },
-            { $or: [{ alias: { $rg: `${resourceType} alias 1` } }] }
-          ]
-        });
+      expect(getSearchParameter(request.url)).toEqual({
+        $and: [
+          { $or: [{ is_activated: { $eq: false } }] },
+          { $or: [{ name: { $rg: `${resourceType} 1` } }] },
+          { $or: [{ alias: { $rg: `${resourceType} alias 1` } }] }
+        ]
       });
 
-      cy.makeSnapshot(
-        `${resourceType}: sends a listing request when fields are filled and the search button is clicked`
+      // What the screenshot showed: three filters applied, the name mirrored
+      // in the search bar, and something to clear.
+      await waitFor(() => expectFiltersBadge(3));
+      expect(screen.getAllByPlaceholderText(labelSearch)[0]).toHaveValue(
+        `${resourceType} 1`
       );
+      expect(screen.getByTestId(labelClear)).toBeEnabled();
     });
 
-    it('clears all applied filters and sends a listing request with empty search parameters when the clear button is clicked', () => {
-      initialize({ resourceType });
+    it('clears all applied filters and sends a listing request with empty search parameters when the clear button is clicked', async () => {
+      await initializeListing({ resourceType });
 
-      cy.waitForRequest('@getAll');
+      await openAdvancedFilters();
 
-      cy.get(`[data-testid="${labelFilters}"]`).click();
-      cy.get('[data-testid="advanced-filters"]').should('be.visible');
+      await userEvent.clear(getTextFilter(labelName));
+      await userEvent.type(getTextFilter(labelName), `${resourceType} 1`);
 
-      cy.get(`[data-testid="${labelName}"]`)
-        .eq(1)
-        .clear()
-        .type(`${resourceType} 1`);
-
-      cy.get(`[data-testid="${labelAlias}"]`)
-        .eq(1)
-        .clear()
-        .type(`${resourceType} alias 1`);
-
-      cy.findByTestId(labelDisabled).click();
-
-      cy.findByTestId(labelClear).click();
-
-      cy.waitForRequest('@getAll').then(({ request }) => {
-        expect(
-          JSON.parse(request.url.searchParams.get('search'))
-        ).to.deep.equal({ $and: [] });
-      });
-
-      cy.makeSnapshot(
-        `${resourceType}: clears all applied filters and sends a listing request with empty search parameters when the clear button is clicked`
+      await userEvent.clear(getTextFilter(labelAlias));
+      await userEvent.type(
+        getTextFilter(labelAlias),
+        `${resourceType} alias 1`
       );
+
+      await userEvent.click(screen.getByTestId(labelDisabled));
+
+      await userEvent.click(screen.getByTestId(labelClear));
+
+      const { request } = await waitForRequest('@getAll');
+
+      expect(getSearchParameter(request.url)).toEqual({ $and: [] });
+
+      // What the screenshot showed: every field emptied, nothing left to
+      // clear.
+      await waitFor(() => expect(getTextFilter(labelName)).toHaveValue(''));
+      expect(getTextFilter(labelAlias)).toHaveValue('');
+      expect(
+        within(screen.getByTestId('advanced-filters')).getByLabelText(
+          labelDisabled
+        )
+      ).not.toBeChecked();
+      expect(screen.getAllByPlaceholderText(labelSearch)[0]).toHaveValue('');
+      expect(screen.getByTestId(labelClear)).toBeDisabled();
+      expectNoFiltersBadge();
     });
 
     describe('Single connected autocomplete', () => {
-      beforeEach(() => {
-        cy.clearLocalStorage();
-      });
+      // Storage is cleared before and after each test by the test setup, as
+      // the Cypress spec did here with `cy.clearLocalStorage()`.
 
-      afterEach(() => {
-        cy.clearLocalStorage();
-      });
-
-      it('sends a listing request matching the selected id when a value is selected in the single connected autocomplete filter', () => {
+      it('sends a listing request matching the selected id when a value is selected in the single connected autocomplete filter', async () => {
         initializeWithSingleConnectedAutocomplete(resourceType);
 
-        cy.waitForRequest('@getAll');
+        await waitForRequest('@getAll');
 
-        openAdvancedFilters();
+        await openAdvancedFilters();
 
-        selectHostTemplate('host template 1');
+        await selectHostTemplate('host template 1');
 
-        cy.findByTestId(labelSearch).click();
+        await userEvent.click(screen.getByTestId(labelSearch));
 
-        cy.waitForRequest('@getAll').then(({ request }) => {
-          expect(
-            JSON.parse(request.url.searchParams.get('search'))
-          ).to.deep.equal({
-            $and: [{ $or: [{ 'host_template.id': { $eq: 1 } }] }]
-          });
+        const { request } = await waitForRequest('@getAll');
+
+        expect(getSearchParameter(request.url)).toEqual({
+          $and: [{ $or: [{ 'host_template.id': { $eq: 1 } }] }]
         });
 
-        cy.makeSnapshot(
-          `${resourceType}: sends a listing request matching the selected id when a value is selected in the single connected autocomplete filter`
-        );
+        // What the screenshot showed: the template counts as one filter.
+        await waitFor(() => expectFiltersBadge(1));
+        expect(getHostTemplateInput()).toHaveValue('host template 1');
+        expect(screen.getByTestId(labelClear)).toBeEnabled();
       });
 
-      it('removes the filter from the search parameters when the selected value is cleared', () => {
+      it('removes the filter from the search parameters when the selected value is cleared', async () => {
         initializeWithSingleConnectedAutocomplete(resourceType);
 
-        cy.waitForRequest('@getAll');
+        await waitForRequest('@getAll');
 
-        openAdvancedFilters();
+        await openAdvancedFilters();
 
-        selectHostTemplate('host template 1');
+        await selectHostTemplate('host template 1');
 
-        cy.findByTestId(labelHostTemplate)
+        const clearButton = getHostTemplateInput()
           .closest('.MuiAutocomplete-root')
-          .find('button[title="Clear"]')
-          .click({ force: true });
+          ?.querySelector('button[title="Clear"]') as HTMLElement;
 
-        cy.findByTestId(labelHostTemplate).should('have.value', '');
+        // Shown on hover only: Cypress clicked it with `force`.
+        await userEvent.click(clearButton, { pointerEventsCheck: 0 });
 
-        cy.findByTestId(labelSearch).click();
+        await waitFor(() => expect(getHostTemplateInput()).toHaveValue(''));
 
-        cy.waitForRequest('@getAll').then(({ request }) => {
-          expect(
-            JSON.parse(request.url.searchParams.get('search'))
-          ).to.deep.equal({ $and: [] });
-        });
+        await userEvent.click(screen.getByTestId(labelSearch));
 
-        cy.makeSnapshot(
-          `${resourceType}: removes the filter from the search parameters when the selected value is cleared`
+        const { request } = await waitForRequest('@getAll');
+
+        expect(getSearchParameter(request.url)).toEqual({ $and: [] });
+
+        // What the screenshot showed: no filter left, nothing to clear.
+        await waitFor(() =>
+          expect(screen.getByTestId(labelClear)).toBeDisabled()
         );
+        expectNoFiltersBadge();
       });
 
-      it('keeps the selected value when the listing is mounted again', () => {
+      it('keeps the selected value when the listing is mounted again', async () => {
+        const { unmount } =
+          initializeWithSingleConnectedAutocomplete(resourceType);
+
+        await waitForRequest('@getAll');
+
+        await openAdvancedFilters();
+
+        await selectHostTemplate('host template 1');
+
+        await waitFor(() =>
+          expect(getHostTemplateInput()).toHaveValue('host template 1')
+        );
+
+        // `cy.mount` replaced the page it mounted before.
+        unmount();
+
         initializeWithSingleConnectedAutocomplete(resourceType);
 
-        cy.waitForRequest('@getAll');
+        await waitForRequest('@getAll');
 
-        openAdvancedFilters();
+        await openAdvancedFilters();
 
-        selectHostTemplate('host template 1');
-
-        cy.findByTestId(labelHostTemplate).should(
-          'have.value',
-          'host template 1'
+        await waitFor(() =>
+          expect(getHostTemplateInput()).toHaveValue('host template 1')
         );
 
-        initializeWithSingleConnectedAutocomplete(resourceType);
-
-        cy.waitForRequest('@getAll');
-
-        openAdvancedFilters();
-
-        cy.findByTestId(labelHostTemplate).should(
-          'have.value',
-          'host template 1'
-        );
-
-        cy.makeSnapshot(
-          `${resourceType}: keeps the selected value when the listing is mounted again`
-        );
+        // What the screenshot showed: the kept template counts as a filter.
+        expectFiltersBadge(1);
       });
     });
 
@@ -232,53 +271,45 @@ export default (resourceType: ResourceType) => {
       const spacingUnit = 8;
       const customWidth = 60;
 
-      it('renders the advanced filters panel with the default width when no width is declared', () => {
-        initialize({ resourceType });
+      it('renders the advanced filters panel with the default width when no width is declared', async () => {
+        await initializeListing({ resourceType });
 
-        cy.waitForRequest('@getAll');
+        const advancedFilters = await openAdvancedFilters();
 
-        openAdvancedFilters();
-
-        cy.get('[data-testid="advanced-filters"]').should(
-          'have.css',
-          'width',
+        expect(getComputedStyle(advancedFilters).width).toBe(
           `${defaultFiltersPanelWidth * spacingUnit}px`
         );
       });
 
-      it('renders the advanced filters panel with the declared width when a width is declared', () => {
-        initialize({ filtersPanelWidth: customWidth, resourceType });
+      it('renders the advanced filters panel with the declared width when a width is declared', async () => {
+        await initializeListing({
+          filtersPanelWidth: customWidth,
+          resourceType
+        });
 
-        cy.waitForRequest('@getAll');
+        const advancedFilters = await openAdvancedFilters();
 
-        openAdvancedFilters();
-
-        cy.get('[data-testid="advanced-filters"]').should(
-          'have.css',
-          'width',
+        expect(getComputedStyle(advancedFilters).width).toBe(
           `${customWidth * spacingUnit}px`
         );
       });
     });
 
-    it('hides the advanced filters icon when only the name field is filterable', () => {
-      const onlyNameFilter = filter(
-        propEq('name', 'fieldName'),
-        filtersConfiguration
+    it('hides the advanced filters icon when only the name field is filterable', async () => {
+      const onlyNameFilter = filtersConfiguration.filter(
+        ({ fieldName }) => fieldName === 'name'
       );
 
-      initialize({
+      await initializeListing({
         filters: onlyNameFilter,
         resourceType
       });
 
-      cy.waitForRequest('@getAll');
+      // Checked once the listing is shown, so not before the page settled.
+      expect(screen.queryByTestId(labelFilters)).not.toBeInTheDocument();
 
-      cy.get(`[data-testid="${labelFilters}"]`).should('not.exist');
-
-      cy.makeSnapshot(
-        `${resourceType}: hides the advanced filters icon when only the name field is filterable'`
-      );
+      // What the screenshot showed: the search bar itself stays.
+      expect(screen.getAllByTestId('search-bar')[0]).toBeVisible();
     });
   });
 };

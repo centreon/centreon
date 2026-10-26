@@ -1,9 +1,22 @@
+import { capitalize } from '@mui/material';
+
+import { waitForRequest } from '@test-setup/api';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import { getDefaultPanelWidth, maxPanelWidth } from '../Panel';
 import { panelDataTestIds } from '../Panel/dataTestIds';
-import { labelClose, labelDelete, labelMoreActions } from '../translatedLabels';
+import {
+  labelClose,
+  labelDelete,
+  labelMoreActions,
+  labelResourceDisabled
+} from '../translatedLabels';
 import initialize, {
+  getDetailsResponse,
   mockActionsRequests,
-  mockModalRequests
+  mockModalRequests,
+  toResource
 } from './initialize';
 import { groups, inputs } from './utils';
 
@@ -12,160 +25,215 @@ interface Options {
   hasSnapshots: boolean;
 }
 
-export default (resourceType, { hasSnapshots }: Options): void => {
-  const resourceName = `${resourceType.replace(' ', '_')} 1`;
+const getByTestIdInDocument = (dataTestId: string): HTMLElement | null =>
+  document.querySelector(`[data-testid="${dataTestId}"]`);
+
+const getPanelButton = (dataTestId: string): HTMLElement =>
+  document.querySelector(`button[data-testid="${dataTestId}"]`) as HTMLElement;
+
+const getEnableToggle = (): HTMLInputElement =>
+  document.querySelector(
+    `[data-testid="${panelDataTestIds.enable}"] input`
+  ) as HTMLInputElement;
+
+const findPanelContent = (): Promise<HTMLElement> =>
+  screen.findByTestId(panelDataTestIds.content);
+
+const findPanelHeader = (): Promise<HTMLElement> =>
+  screen.findByTestId(panelDataTestIds.header);
+
+// The surface itself, the paper around the content: a scrollbar narrows the
+// content inside it.
+const findPanelSurface = async (): Promise<HTMLElement> =>
+  (await findPanelContent()).parentElement?.closest(
+    '.MuiPaper-root'
+  ) as HTMLElement;
+
+// `@centreon/ui` text fields put the test id on the wrapper and the input.
+const getField = (label: string): HTMLElement =>
+  screen.getAllByTestId(label)[1];
+
+const fillEveryField = async (): Promise<void> => {
+  for (const { label } of inputs) {
+    await userEvent.clear(getField(label));
+    await userEvent.type(getField(label), `${label} abc`);
+  }
+};
+
+const openForCreation = async (): Promise<void> => {
+  await userEvent.click(screen.getByTestId('add-resource'));
+};
+
+export default (resourceType: string, { hasSnapshots }: Options): void => {
+  const resource = toResource(resourceType);
+  const resourceName = `${resource} 1`;
 
   describe('Panel', () => {
-    const mount = (options = {}): void =>
+    const mount = (options: Parameters<typeof initialize>[0] = {}): void => {
       initialize({ formVariant: 'panel', resourceType, ...options });
+    };
 
-    const openForEdition = (): void => {
-      cy.waitForRequest('@getAll');
+    const waitForListing = async (): Promise<void> => {
+      await waitForRequest('@getAll');
+      await screen.findByText(`${resource} 0`);
+    };
 
-      cy.contains(resourceName).click();
+    const openForEdition = async (): Promise<void> => {
+      await waitForListing();
 
-      cy.waitForRequest('@getDetails');
+      await userEvent.click(screen.getByText(resourceName));
+
+      await waitForRequest('@getDetails');
+
+      // The details applied: the form holds the loaded name.
+      await waitFor(() => expect(getField('Name')).toHaveValue(resourceName));
     };
 
     beforeEach(() => {
-      const resource = resourceType.replace(' ', '_');
-
       mockModalRequests(resource);
       mockActionsRequests(resource);
     });
 
-    const panelSurface = () =>
-      cy
-        .get(`[data-testid="${panelDataTestIds.content}"]`)
-        .parents('.MuiPaper-root')
-        .first();
-
     describe('Creation mode', () => {
-      it("opens the panel in creation mode when the 'Add' button was clicked", () => {
+      it("opens the panel in creation mode when the 'Add' button was clicked", async () => {
         mount();
 
-        cy.waitForRequest('@getAll');
+        await waitForListing();
 
-        cy.get('[data-testid="add-resource"]').click();
+        await openForCreation();
 
-        cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
-          'have.text',
-          `Add a ${resourceType}`
+        expect(await findPanelHeader()).toHaveTextContent(
+          new RegExp(`^Add a ${resourceType}$`)
         );
 
-        cy.get(`button[data-testid="${panelDataTestIds.save}"]`)
-          .should('be.visible')
-          .should('be.disabled');
+        const save = getPanelButton(panelDataTestIds.save);
 
-        // The actions are in the header, so the form keeps none.
-        cy.get('button[data-testid="submit"]').should('not.exist');
-        cy.get('button[data-testid="cancel"]').should('not.exist');
+        expect(save).toBeVisible();
+        expect(save).toBeDisabled();
+
+        // The actions are in the header, so the form keeps none. Checked once
+        // the panel shows.
+        expect(
+          document.querySelector('button[data-testid="submit"]')
+        ).not.toBeInTheDocument();
+        expect(
+          document.querySelector('button[data-testid="cancel"]')
+        ).not.toBeInTheDocument();
 
         if (hasSnapshots) {
-          cy.makeSnapshot(`${resourceType}: opens the panel in creation mode`);
+          // What the screenshot showed: the empty form, its groups in order.
+          inputs.forEach(({ label }) => {
+            expect(getField(label)).toHaveValue('');
+          });
+
+          const [firstGroup, secondGroup] = groups.map(({ name }) =>
+            screen.getByText(name)
+          );
+
+          expect(firstGroup.getBoundingClientRect().top).toBeLessThan(
+            secondGroup.getBoundingClientRect().top
+          );
         }
       });
 
-      it('offers no resource action while creating', () => {
+      it('offers no resource action while creating', async () => {
         mount();
 
-        cy.waitForRequest('@getAll');
+        await waitForListing();
 
-        cy.get('[data-testid="add-resource"]').click();
+        await openForCreation();
+
+        // Checked once the panel shows its header actions.
+        expect(
+          await screen.findByTestId(panelDataTestIds.save)
+        ).toBeInTheDocument();
 
         // Nothing to reset, enable, duplicate or delete before it exists.
-        cy.get(`[data-testid="${panelDataTestIds.reset}"]`).should('not.exist');
-        cy.get(`[data-testid="${panelDataTestIds.enable}"]`).should(
-          'not.exist'
-        );
-        cy.get(`[data-testid="${panelDataTestIds.duplicate}"]`).should(
-          'not.exist'
-        );
-        cy.get(`[data-testid="${panelDataTestIds.delete}"]`).should(
-          'not.exist'
-        );
+        expect(
+          getByTestIdInDocument(panelDataTestIds.reset)
+        ).not.toBeInTheDocument();
+        expect(
+          getByTestIdInDocument(panelDataTestIds.enable)
+        ).not.toBeInTheDocument();
+        expect(
+          getByTestIdInDocument(panelDataTestIds.duplicate)
+        ).not.toBeInTheDocument();
+        expect(
+          getByTestIdInDocument(panelDataTestIds.delete)
+        ).not.toBeInTheDocument();
       });
 
-      it('runs from the top of the page to its bottom', () => {
+      it('runs from the top of the page to its bottom', async () => {
         mount();
 
-        cy.waitForRequest('@getAll');
+        await waitForListing();
 
-        cy.get('[data-testid="add-resource"]').click();
+        await openForCreation();
 
-        cy.get('#page').then(([page]) => {
-          const pageRect = page.getBoundingClientRect();
+        const page = document.querySelector('#page') as HTMLElement;
+        const pageRect = page.getBoundingClientRect();
 
-          // The rectangles below match the viewport too, so assert the
-          // mechanism: a panel hanging off the wrong ancestor passes them.
-          expect(getComputedStyle(page).position).to.equal('relative');
+        // The rectangles below match the viewport too, so assert the
+        // mechanism: a panel hanging off the wrong ancestor passes them.
+        expect(getComputedStyle(page).position).toBe('relative');
 
-          panelSurface().should(([panel]) => {
-            const panelRect = panel.getBoundingClientRect();
+        const panel = await findPanelSurface();
 
-            expect(panelRect.top).to.equal(pageRect.top);
-            expect(panelRect.bottom).to.equal(pageRect.bottom);
-            expect(panelRect.right).to.equal(pageRect.right);
-          });
+        await waitFor(() => {
+          const panelRect = panel.getBoundingClientRect();
+
+          expect(panelRect.top).toBe(pageRect.top);
+          expect(panelRect.bottom).toBe(pageRect.bottom);
+          expect(panelRect.right).toBe(pageRect.right);
         });
       });
 
-      it('opens over the listing, leaving it at its width', () => {
+      it('opens over the listing, leaving it at its width', async () => {
         mount();
 
-        cy.waitForRequest('@getAll');
+        await waitForListing();
 
-        cy.get('.MuiTable-root').then(([listing]) => {
-          const widthBeforeOpening = listing.getBoundingClientRect().width;
+        const listing = document.querySelector('.MuiTable-root') as HTMLElement;
+        const widthBeforeOpening = listing.getBoundingClientRect().width;
 
-          cy.get('[data-testid="add-resource"]').click();
+        await openForCreation();
 
-          cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
-            'be.visible'
-          );
+        expect(await findPanelContent()).toBeVisible();
 
-          cy.get('.MuiTable-root').should(([listingWithPanelOpen]) => {
-            expect(listingWithPanelOpen.getBoundingClientRect().width).to.equal(
-              widthBeforeOpening
-            );
-          });
-        });
+        await waitFor(() =>
+          expect(
+            (
+              document.querySelector('.MuiTable-root') as HTMLElement
+            ).getBoundingClientRect().width
+          ).toBe(widthBeforeOpening)
+        );
       });
 
-      it('keeps the panel and its actions inside a page too narrow for it', () => {
-        cy.viewport(700, 590);
+      it('keeps the panel and its actions inside a page too narrow for it', async () => {
+        // Cypress shrank the viewport to 700x590; here the page is given that
+        // size, so its right edge stands for the viewport's.
+        mount({ screenSize: { height: 590, width: 700 } });
 
-        mount();
+        await waitForListing();
 
-        cy.waitForRequest('@getAll');
+        await openForCreation();
 
-        cy.get('[data-testid="add-resource"]').click();
+        const pageRight = (
+          document.querySelector('#page') as HTMLElement
+        ).getBoundingClientRect().right;
 
-        // Visibility alone would pass on a panel overflowing to the right:
-        // Cypress does not consider where in the viewport an element sits.
-        cy.window().then((window) => {
-          cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
-            ([panel]) => {
-              expect(panel.getBoundingClientRect().right).to.be.at.most(
-                window.innerWidth
-              );
-            }
+        const panel = await findPanelContent();
+
+        await waitFor(() => {
+          expect(panel.getBoundingClientRect().right).toBeLessThanOrEqual(
+            pageRight
           );
-
-          cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
-            ([save]) => {
-              expect(save.getBoundingClientRect().right).to.be.at.most(
-                window.innerWidth
-              );
-            }
-          );
+          expect(
+            getPanelButton(panelDataTestIds.save).getBoundingClientRect().right
+          ).toBeLessThanOrEqual(pageRight);
 
           // Narrower than asked: the clamp fired, rather than 720 fitting.
-          cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
-            ([panel]) => {
-              expect(panel.getBoundingClientRect().width).to.be.lessThan(720);
-            }
-          );
+          expect(panel.getBoundingClientRect().width).toBeLessThan(720);
         });
       });
 
@@ -176,361 +244,389 @@ export default (resourceType, { hasSnapshots }: Options): void => {
         { expected: 900, viewport: 1440 },
         { expected: 720, viewport: 1280 }
       ].forEach(({ viewport, expected }) => {
-        it(`opens at ${expected}px on a ${viewport}px screen`, () => {
-          cy.viewport(viewport, 900);
+        it(`opens at ${expected}px on a ${viewport}px screen`, async () => {
+          mount({ screenSize: { height: 900, width: viewport } });
 
-          mount();
+          await waitForListing();
 
-          cy.waitForRequest('@getAll');
+          await openForCreation();
 
-          cy.get('[data-testid="add-resource"]').click();
+          const panel = await findPanelSurface();
 
-          // The surface itself: a scrollbar narrows the content inside it.
-          panelSurface().should(([panel]) => {
-            expect(panel.getBoundingClientRect().width).to.equal(expected);
-            expect(expected).to.equal(getDefaultPanelWidth(viewport));
+          await waitFor(() => {
+            expect(panel.getBoundingClientRect().width).toBe(expected);
+            expect(expected).toBe(getDefaultPanelWidth(viewport));
           });
         });
       });
 
-      it('reopens at the width it was last dragged to', () => {
-        cy.viewport(1920, 900);
+      it('reopens at the width it was last dragged to', async () => {
+        mount({ panelWidth: 1000, screenSize: { height: 900, width: 1920 } });
 
-        mount({ panelWidth: 1000 });
+        await waitForListing();
 
-        cy.waitForRequest('@getAll');
-
-        cy.get('[data-testid="add-resource"]').click();
+        await openForCreation();
 
         // Not the 1400 this screen opens at when nothing was ever dragged.
-        panelSurface().should(([panel]) => {
-          expect(panel.getBoundingClientRect().width).to.equal(1000);
-        });
+        const panel = await findPanelSurface();
 
-        cy.findByLabelText(labelClose).click();
+        await waitFor(() =>
+          expect(panel.getBoundingClientRect().width).toBe(1000)
+        );
 
-        cy.get('[data-testid="add-resource"]').click();
+        await userEvent.click(screen.getByLabelText(labelClose));
 
-        panelSurface().should(([panel]) => {
-          expect(panel.getBoundingClientRect().width).to.equal(1000);
-        });
+        await waitFor(() =>
+          expect(
+            screen.queryByTestId(panelDataTestIds.content)
+          ).not.toBeInTheDocument()
+        );
+
+        await openForCreation();
+
+        const reopenedPanel = await findPanelSurface();
+
+        await waitFor(() =>
+          expect(reopenedPanel.getBoundingClientRect().width).toBe(1000)
+        );
       });
 
-      it('opens no wider than the design allows, whatever the module asks for', () => {
-        cy.viewport(1920, 900);
-
-        mount({ formPanelWidth: 2000 });
-
-        cy.waitForRequest('@getAll');
-
-        cy.get('[data-testid="add-resource"]').click();
-
-        panelSurface().should(([panel]) => {
-          expect(panel.getBoundingClientRect().width).to.equal(maxPanelWidth);
+      it('opens no wider than the design allows, whatever the module asks for', async () => {
+        mount({
+          formPanelWidth: 2000,
+          screenSize: { height: 900, width: 1920 }
         });
+
+        await waitForListing();
+
+        await openForCreation();
+
+        const panel = await findPanelSurface();
+
+        await waitFor(() =>
+          expect(panel.getBoundingClientRect().width).toBe(maxPanelWidth)
+        );
       });
 
-      it('shows form fields organized into groups, with each field initialized with default values', () => {
+      it('shows form fields organized into groups, with each field initialized with default values', async () => {
         mount();
 
-        cy.waitForRequest('@getAll');
+        await waitForListing();
 
-        cy.get('[data-testid="add-resource"]').click();
+        await openForCreation();
+
+        await findPanelContent();
 
         groups.forEach(({ name }) => {
-          cy.contains(name);
+          expect(screen.getByText(name)).toBeVisible();
         });
 
         inputs.forEach(({ label }) => {
-          cy.findAllByTestId(label)
-            .eq(1)
-            .should('be.visible')
-            .should('have.value', '');
+          expect(getField(label)).toBeVisible();
+          expect(getField(label)).toHaveValue('');
         });
       });
 
-      it('sends a POST request when the save action is clicked', () => {
+      it('sends a POST request when the save action is clicked', async () => {
         mount();
 
-        cy.waitForRequest('@getAll');
+        await waitForListing();
 
-        cy.get('[data-testid="add-resource"]').click();
+        await openForCreation();
 
-        inputs.forEach(({ label }) => {
-          cy.findAllByTestId(label).eq(1).clear().type(`${label} abc`);
-        });
+        await findPanelContent();
 
-        cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+        await fillEveryField();
 
-        cy.waitForRequest('@create').then(({ request }) => {
-          expect(request.body).to.deep.equals({
-            alias: 'Alias abc',
-            coordinates: 'Coordinates abc',
-            name: 'Name abc'
-          });
+        await userEvent.click(getPanelButton(panelDataTestIds.save));
+
+        const { request } = await waitForRequest('@create');
+
+        expect(request.body).toEqual({
+          alias: 'Alias abc',
+          coordinates: 'Coordinates abc',
+          name: 'Name abc'
         });
       });
     });
 
     describe('Edition mode', () => {
-      it('opens the panel in edition mode when a listing row was clicked', () => {
+      it('opens the panel in edition mode when a listing row was clicked', async () => {
         mount();
 
-        openForEdition();
+        await openForEdition();
 
-        cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
-          'have.text',
-          resourceName
+        expect(await findPanelHeader()).toHaveTextContent(
+          new RegExp(`^${resourceName}$`)
         );
 
-        cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
-          'be.disabled'
-        );
-        cy.get(`button[data-testid="${panelDataTestIds.duplicate}"]`).should(
-          'be.visible'
-        );
-        cy.get(`button[data-testid="${panelDataTestIds.delete}"]`).should(
-          'be.visible'
-        );
+        expect(getPanelButton(panelDataTestIds.save)).toBeDisabled();
+        expect(getPanelButton(panelDataTestIds.duplicate)).toBeVisible();
+        expect(getPanelButton(panelDataTestIds.delete)).toBeVisible();
 
         if (hasSnapshots) {
-          cy.makeSnapshot(`${resourceType}: opens the panel in edition mode`);
+          // What the screenshot showed: the resource enabled, nothing to
+          // reset yet, the loaded values in the form.
+          expect(getEnableToggle()).toBeChecked();
+          expect(getPanelButton(panelDataTestIds.reset)).toBeDisabled();
+
+          const response = getDetailsResponse(resource);
+
+          inputs.forEach(({ fieldName, label }) => {
+            expect(getField(label)).toHaveValue(response[fieldName]);
+          });
         }
       });
 
-      it('shows form fields organized into groups, with each field initialized with the value received from the API', () => {
+      it('shows form fields organized into groups, with each field initialized with the value received from the API', async () => {
         mount();
 
-        cy.waitForRequest('@getAll');
+        await waitForListing();
 
-        cy.contains(resourceName).click();
+        await userEvent.click(screen.getByText(resourceName));
 
-        cy.waitForRequest('@getDetails').then(({ request, response }) => {
-          // A module declaring no `baseEndpoint` must still read the default
-          // one. Only Hosts overrides it, and nothing else may follow it there.
-          expect(request.url.pathname).to.contain('/api/latest/configuration/');
+        const { request } = await waitForRequest('@getDetails');
 
+        // A module declaring no `baseEndpoint` must still read the default
+        // one. Only Hosts overrides it, and nothing else may follow it there.
+        expect(request.url.pathname).toContain('/api/latest/configuration/');
+
+        const response = getDetailsResponse(resource);
+
+        // The form renders again once the details are applied.
+        await waitFor(() => {
           groups.forEach(({ name }) => {
-            cy.contains(name);
+            expect(screen.getByText(name)).toBeVisible();
           });
 
           inputs.forEach(({ fieldName, label }) => {
-            cy.findAllByTestId(label)
-              .eq(1)
-              .should('have.value', response.body[fieldName]);
+            expect(getField(label)).toHaveValue(response[fieldName]);
           });
         });
       });
 
-      it('sends an UPDATE request when the save action is clicked', () => {
+      it('sends an UPDATE request when the save action is clicked', async () => {
         mount();
 
-        openForEdition();
+        await openForEdition();
 
-        inputs.forEach(({ label }) => {
-          cy.findAllByTestId(label).eq(1).clear().type(`${label} abc`);
-        });
+        await fillEveryField();
 
-        cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+        await userEvent.click(getPanelButton(panelDataTestIds.save));
 
-        cy.waitForRequest('@update').then(({ request }) => {
-          expect(request.body).to.deep.equals({
-            alias: 'Alias abc',
-            coordinates: 'Coordinates abc',
-            name: 'Name abc'
-          });
+        const { request } = await waitForRequest('@update');
+
+        expect(request.body).toEqual({
+          alias: 'Alias abc',
+          coordinates: 'Coordinates abc',
+          name: 'Name abc'
         });
       });
 
-      it('restores the loaded values when the reset action is clicked', () => {
+      it('restores the loaded values when the reset action is clicked', async () => {
         mount();
 
-        openForEdition();
+        await openForEdition();
 
-        cy.get(`button[data-testid="${panelDataTestIds.reset}"]`).should(
-          'be.disabled'
+        expect(getPanelButton(panelDataTestIds.reset)).toBeDisabled();
+
+        await userEvent.clear(getField('Name'));
+        await userEvent.type(getField('Name'), 'edited');
+
+        await waitFor(() =>
+          expect(getPanelButton(panelDataTestIds.reset)).toBeEnabled()
         );
+        expect(getPanelButton(panelDataTestIds.save)).toBeEnabled();
 
-        cy.findAllByTestId('Name').eq(1).clear().type('edited');
-
-        cy.get(`button[data-testid="${panelDataTestIds.reset}"]`).should(
-          'be.enabled'
-        );
-        cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
-          'be.enabled'
-        );
-
-        cy.get(`button[data-testid="${panelDataTestIds.reset}"]`).click();
+        await userEvent.click(getPanelButton(panelDataTestIds.reset));
 
         // Discarding edits is confirmed, as deleting and closing are.
-        cy.findByTestId('confirm').click();
+        await userEvent.click(await screen.findByTestId('confirm'));
 
-        cy.findAllByTestId('Name').eq(1).should('have.value', resourceName);
-        cy.get(`button[data-testid="${panelDataTestIds.reset}"]`).should(
-          'be.disabled'
+        await waitFor(() => expect(getField('Name')).toHaveValue(resourceName));
+        await waitFor(() =>
+          expect(getPanelButton(panelDataTestIds.reset)).toBeDisabled()
         );
-        cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
-          'be.disabled'
-        );
+        expect(getPanelButton(panelDataTestIds.save)).toBeDisabled();
       });
 
-      it('disables the open resource from the panel header', () => {
+      it('disables the open resource from the panel header', async () => {
         mount();
 
-        openForEdition();
+        await openForEdition();
 
-        cy.get(`[data-testid="${panelDataTestIds.enable}"] input`)
-          .should('be.checked')
-          .click();
+        expect(getEnableToggle()).toBeChecked();
 
-        cy.waitForRequest('@disable').then(({ request }) => {
-          expect(request.body).to.deep.equals({ ids: [1] });
-        });
+        await userEvent.click(getEnableToggle());
 
-        cy.get(`[data-testid="${panelDataTestIds.enable}"] input`).should(
-          'not.be.checked'
-        );
+        const { request } = await waitForRequest('@disable');
+
+        expect(request.body).toEqual({ ids: [1] });
+
+        // The toggle flips on click: checked once the answer is applied, which
+        // the success message shows, so a toggle put back would fail it.
+        expect(
+          await screen.findByText(
+            labelResourceDisabled(capitalize(resourceType))
+          )
+        ).toBeVisible();
+        expect(getEnableToggle()).not.toBeChecked();
       });
 
-      it('puts the toggle back when the request is refused', () => {
-        mockActionsRequests(resourceType.replace(' ', '_'), true);
+      it('puts the toggle back when the request is refused', async () => {
+        // Registered last, so it answers instead of the one of `beforeEach`.
+        mockActionsRequests(resource, true);
 
         mount();
 
-        openForEdition();
+        await openForEdition();
 
-        cy.get(`[data-testid="${panelDataTestIds.enable}"] input`)
-          .should('be.checked')
-          .click();
+        expect(getEnableToggle()).toBeChecked();
 
-        cy.waitForRequest('@disable');
+        await userEvent.click(getEnableToggle());
 
-        cy.get(`[data-testid="${panelDataTestIds.enable}"] input`).should(
-          'be.checked'
-        );
+        // Flipped at once, while the request is pending: so the check below
+        // cannot pass on the state from before the click.
+        await waitFor(() => expect(getEnableToggle()).not.toBeChecked());
+
+        await waitForRequest('@disable');
+
+        await waitFor(() => expect(getEnableToggle()).toBeChecked());
       });
 
-      it('follows the listing when another row is clicked', () => {
+      it('follows the listing when another row is clicked', async () => {
         mount();
 
-        openForEdition();
+        await openForEdition();
 
-        cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
-          'have.text',
-          resourceName
+        expect(await findPanelHeader()).toHaveTextContent(
+          new RegExp(`^${resourceName}$`)
         );
 
         // No detail response for this one: the panel has only the row to go on.
-        const otherResource = `${resourceType.replace(' ', '_')} 3`;
+        const otherResource = `${resource} 3`;
 
-        cy.contains(otherResource).click();
+        await userEvent.click(screen.getByText(otherResource));
 
-        cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
-          'have.text',
-          otherResource
+        await waitFor(() =>
+          expect(screen.getByTestId(panelDataTestIds.header)).toHaveTextContent(
+            new RegExp(`^${otherResource}$`)
+          )
         );
       });
 
-      it('asks before another row takes the panel away from unsaved edits', () => {
+      it('asks before another row takes the panel away from unsaved edits', async () => {
         mount();
 
-        openForEdition();
+        await openForEdition();
 
-        cy.findAllByTestId('Name').eq(1).clear().type('edited');
+        await userEvent.clear(getField('Name'));
+        await userEvent.type(getField('Name'), 'edited');
 
-        cy.contains(`${resourceType.replace(' ', '_')} 3`).click();
+        await userEvent.click(screen.getByText(`${resource} 3`));
 
-        cy.get('[role="dialog"]').should('be.visible');
+        expect(await screen.findByRole('dialog')).toBeVisible();
 
-        cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
-          'have.text',
-          resourceName
+        expect(screen.getByTestId(panelDataTestIds.header)).toHaveTextContent(
+          new RegExp(`^${resourceName}$`)
         );
       });
 
-      it('closes the panel and clears the URL when the open resource is deleted', () => {
+      it('closes the panel and clears the URL when the open resource is deleted', async () => {
         mount();
 
-        openForEdition();
+        await openForEdition();
 
-        cy.location('search').should('contain', 'id=1');
+        expect(window.location.search).toContain('id=1');
 
-        cy.get(`button[data-testid="${panelDataTestIds.delete}"]`).click();
+        await userEvent.click(getPanelButton(panelDataTestIds.delete));
 
         // Scoped: the listing row behind it carries the same text.
-        cy.get('[role="dialog"]').contains(resourceName).should('be.visible');
+        expect(
+          await within(await screen.findByRole('dialog')).findByText(
+            resourceName
+          )
+        ).toBeVisible();
 
-        cy.findByTestId('confirm').click();
+        await userEvent.click(screen.getByTestId('confirm'));
 
-        cy.waitForRequest('@deleteOne');
+        await waitForRequest('@deleteOne');
 
-        cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
-          'not.exist'
+        await waitFor(() =>
+          expect(
+            screen.queryByTestId(panelDataTestIds.content)
+          ).not.toBeInTheDocument()
         );
 
-        cy.location('search').should('eq', '');
+        await waitFor(() => expect(window.location.search).toBe(''));
       });
 
-      it('stays open when a delete does not name the resource it holds', () => {
+      it('stays open when a delete does not name the resource it holds', async () => {
         mount();
 
-        openForEdition();
+        await openForEdition();
 
         // Rows are labelled by id; only activated ones are selectable.
-        cy.findByLabelText('Select row 3').click();
-        cy.findByLabelText('Select row 5').click();
+        await userEvent.click(screen.getByLabelText('Select row 3'));
+        await userEvent.click(screen.getByLabelText('Select row 5'));
 
-        cy.findAllByTestId(labelMoreActions).eq(0).click();
-        cy.findAllByTestId(labelDelete).eq(0).click();
-        cy.findByTestId('confirm').click();
+        await userEvent.click(screen.getAllByTestId(labelMoreActions)[0]);
 
-        cy.waitForRequest('@delete');
+        const menu = (await screen.findAllByRole('menu')).at(-1) as HTMLElement;
 
-        cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
-          'be.visible'
+        await userEvent.click(within(menu).getByText(labelDelete));
+        await userEvent.click(await screen.findByTestId('confirm'));
+
+        await waitForRequest('@delete');
+
+        // Checked once the delete has been applied: the confirmation closed.
+        await waitFor(() =>
+          expect(screen.queryByTestId('confirm')).not.toBeInTheDocument()
         );
-        cy.location('search').should('contain', 'id=1');
+
+        expect(screen.getByTestId(panelDataTestIds.content)).toBeVisible();
+        expect(window.location.search).toContain('id=1');
       });
 
-      it('closes the panel when the close button is clicked', () => {
+      it('closes the panel when the close button is clicked', async () => {
         mount();
 
-        openForEdition();
+        await openForEdition();
 
-        cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
-          'be.visible'
-        );
+        expect(await findPanelContent()).toBeVisible();
 
-        cy.findByLabelText(labelClose).click();
+        await userEvent.click(screen.getByLabelText(labelClose));
 
-        cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
-          'not.exist'
+        await waitFor(() =>
+          expect(
+            screen.queryByTestId(panelDataTestIds.content)
+          ).not.toBeInTheDocument()
         );
       });
     });
 
     describe('Deep linking', () => {
-      it('opens the panel in creation mode from the URL', () => {
+      it('opens the panel in creation mode from the URL', async () => {
         mount({ searchParams: '?mode=add' });
 
-        cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
-          'have.text',
-          `Add a ${resourceType}`
+        expect(await findPanelHeader()).toHaveTextContent(
+          new RegExp(`^Add a ${resourceType}$`)
         );
       });
 
-      it('opens the panel on the resource named by the URL', () => {
+      it('opens the panel on the resource named by the URL', async () => {
         mount({ searchParams: '?mode=edit&id=1' });
 
-        cy.waitForRequest('@getDetails');
+        await waitForRequest('@getDetails');
 
-        cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
-          'have.text',
-          resourceName
+        await waitFor(() =>
+          expect(screen.getByTestId(panelDataTestIds.header)).toHaveTextContent(
+            new RegExp(`^${resourceName}$`)
+          )
         );
       });
 
-      it('ignores the URL when the module offers neither edition nor details', () => {
+      it('ignores the URL when the module offers neither edition nor details', async () => {
         mount({
           actions: {
             delete: () => true,
@@ -543,17 +639,17 @@ export default (resourceType, { hasSnapshots }: Options): void => {
           searchParams: '?mode=edit&id=1'
         });
 
-        cy.waitForRequest('@getAll');
+        await waitForRequest('@getAll');
 
         // The URL is ignored, not the page.
-        cy.contains(resourceName).should('be.visible');
+        expect(await screen.findByText(resourceName)).toBeVisible();
 
-        cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
-          'not.exist'
-        );
+        expect(
+          screen.queryByTestId(panelDataTestIds.content)
+        ).not.toBeInTheDocument();
       });
 
-      it('opens a read-only panel for a module offering details without edition', () => {
+      it('opens a read-only panel for a module offering details without edition', async () => {
         mount({
           actions: {
             delete: () => false,
@@ -565,10 +661,15 @@ export default (resourceType, { hasSnapshots }: Options): void => {
           searchParams: '?mode=edit&id=1'
         });
 
-        cy.waitForRequest('@getDetails');
+        await waitForRequest('@getDetails');
 
-        cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
-          'be.visible'
+        expect(await findPanelContent()).toBeVisible();
+
+        // Checked once the loaded resource heads the panel.
+        await waitFor(() =>
+          expect(screen.getByTestId(panelDataTestIds.header)).toHaveTextContent(
+            new RegExp(`^${resourceName}$`)
+          )
         );
 
         [
@@ -578,7 +679,7 @@ export default (resourceType, { hasSnapshots }: Options): void => {
           panelDataTestIds.delete,
           panelDataTestIds.enable
         ].forEach((dataTestId) => {
-          cy.get(`[data-testid="${dataTestId}"]`).should('not.exist');
+          expect(getByTestIdInDocument(dataTestId)).not.toBeInTheDocument();
         });
       });
     });
