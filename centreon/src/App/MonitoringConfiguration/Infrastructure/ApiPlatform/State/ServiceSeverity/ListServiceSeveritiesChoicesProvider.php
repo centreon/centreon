@@ -67,7 +67,7 @@ final readonly class ListServiceSeveritiesChoicesProvider implements ProviderInt
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $criteria = new ServiceSeverityCriteria();
+        $criteria = ServiceSeverityCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -81,11 +81,6 @@ final readonly class ListServiceSeveritiesChoicesProvider implements ProviderInt
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-
-        // Super admins and cloud admins see every service severity; anyone else only what its ACL grants.
-        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
 
         $serviceSeverities = $this->repository->findAll($criteria);
         $resources = [];

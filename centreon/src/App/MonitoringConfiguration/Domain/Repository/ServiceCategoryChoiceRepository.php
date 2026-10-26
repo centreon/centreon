@@ -29,10 +29,10 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryChoice
 interface ServiceCategoryChoiceRepository
 {
     /**
-     * Service categories (severities excluded), disabled ones included, ordered by id. When the
-     * criteria carry a viewer, only the service categories that viewer can access are listed.
+     * Service categories (severities excluded), disabled ones included, ordered by id. Only the
+     * service categories the criteria's access scope allows are listed.
      *
      * @return \IteratorAggregate<int, ServiceCategoryChoice>&\Countable
      */
-    public function findAll(?ServiceCategoryChoiceCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(ServiceCategoryChoiceCriteria $criteria): \IteratorAggregate&\Countable;
 }

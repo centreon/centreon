@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryChoice
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategory\ServiceCategoryChoicesOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceCategory\ListServiceCategoriesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceCategory\ServiceCategoryChoicesTransformer;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
@@ -120,35 +121,31 @@ final class ListServiceCategoriesChoicesProviderLogicTest extends TestCase
     }
 
     /**
-     * Super admins and cloud admins escape ACL scoping: no viewer is put in the criteria, so the
-     * repository never loads an access list. The criteria carry only the default pagination.
+     * Every user is scoped to their acting user, admins included: the provider never decides who escapes
+     * ACL scoping. The acting user carries the user's id and whether it escapes scoping, which only the
+     * access scope resolver acts on.
      */
-    #[DataProvider('provideUnrestrictedRoles')]
-    public function testAnUnrestrictedUserIsNotScoped(string $role): void
+    #[DataProvider('provideUsers')]
+    public function testItScopesEveryUserToTheirActingUser(?string $role, bool $unrestricted): void
     {
         $this->provide([], $role);
 
-        self::assertEquals((new ServiceCategoryChoiceCriteria())->withPagination(1, 30), $this->repository->receivedCriteria);
+        self::assertEquals(
+            ServiceCategoryChoiceCriteria::forActor(new ActingUser(new UserId(self::VIEWER_ID), $unrestricted))->withPagination(1, 30),
+            $this->repository->receivedCriteria,
+        );
     }
 
     /**
-     * @return iterable<string, array{string}>
+     * @return iterable<string, array{string|null, bool}>
      */
-    public static function provideUnrestrictedRoles(): iterable
+    public static function provideUsers(): iterable
     {
-        yield 'super admin' => ['ROLE_SUPER_ADMIN'];
+        yield 'restricted user' => [null, false];
 
-        yield 'cloud admin' => ['ROLE_CLOUD_ADMIN'];
-    }
+        yield 'super admin' => ['ROLE_SUPER_ADMIN', true];
 
-    public function testARestrictedUserIsScopedToItself(): void
-    {
-        $this->provide([]);
-
-        self::assertEquals(
-            (new ServiceCategoryChoiceCriteria())->withPagination(1, 30)->withViewerId(new UserId(self::VIEWER_ID)),
-            $this->repository->receivedCriteria,
-        );
+        yield 'cloud admin' => ['ROLE_CLOUD_ADMIN', true];
     }
 
     /**

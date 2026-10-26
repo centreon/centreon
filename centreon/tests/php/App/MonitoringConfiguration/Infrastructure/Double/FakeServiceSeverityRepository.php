@@ -41,7 +41,7 @@ final class FakeServiceSeverityRepository implements ServiceSeverityRepository
         $this->result = new Collection([], ServiceSeverity::class);
     }
 
-    public function findAll(?ServiceSeverityCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(ServiceSeverityCriteria $criteria): \IteratorAggregate&\Countable
     {
         $this->receivedCriteria = $criteria;
 

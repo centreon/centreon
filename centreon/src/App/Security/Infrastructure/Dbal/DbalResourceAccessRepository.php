@@ -416,27 +416,27 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         ));
     }
 
-    public function findAccessibleServiceCategoryIds(UserId $userId): ?Collection
+    public function findServiceCategoryAccessScope(UserId $userId): AccessScope
     {
-        $ids = $this->findAccessibleServiceCategoryIdValues($userId, withLevel: false);
+        $ids = $this->findGrantedServiceCategoryIdValues($userId, withLevel: false);
 
         return $ids === null
-            ? null
-            : new Collection(
-                array_map(static fn (int $id): ServiceCategoryId => new ServiceCategoryId($id), $ids),
+            ? AccessScope::unrestricted(ServiceCategoryId::class)
+            : AccessScope::restrictedTo(
                 ServiceCategoryId::class,
+                array_map(static fn (int $id): ServiceCategoryId => new ServiceCategoryId($id), $ids),
             );
     }
 
-    public function findAccessibleServiceSeverityIds(UserId $userId): ?Collection
+    public function findServiceSeverityAccessScope(UserId $userId): AccessScope
     {
-        $ids = $this->findAccessibleServiceCategoryIdValues($userId, withLevel: true);
+        $ids = $this->findGrantedServiceCategoryIdValues($userId, withLevel: true);
 
         return $ids === null
-            ? null
-            : new Collection(
-                array_map(static fn (int $id): ServiceSeverityId => new ServiceSeverityId($id), $ids),
+            ? AccessScope::unrestricted(ServiceSeverityId::class)
+            : AccessScope::restrictedTo(
                 ServiceSeverityId::class,
+                array_map(static fn (int $id): ServiceSeverityId => new ServiceSeverityId($id), $ids),
             );
     }
 
@@ -660,7 +660,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      * three tiers, built on the user's active ACL resources only, like the host categories:
      *  - no accessible ACL resource → restricted to nothing (fails closed): an empty list
      *  - accessible resources, none carrying a service-category relation of any level → no
-     *    restriction: null
+     *    restriction: null (an unrestricted scope)
      *  - otherwise → the granted rows of the requested kind only (levelless categories, or severities);
      *    a user granted only the other kind gets an empty list
      *
@@ -668,7 +668,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      *
      * @return list<int>|null
      */
-    private function findAccessibleServiceCategoryIdValues(UserId $userId, bool $withLevel): ?array
+    private function findGrantedServiceCategoryIdValues(UserId $userId, bool $withLevel): ?array
     {
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
         $parameters = ['contactId' => $userId->value];

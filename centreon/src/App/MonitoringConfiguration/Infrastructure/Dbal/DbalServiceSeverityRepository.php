@@ -27,8 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceSeverityCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceSeverityRepository;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -60,12 +59,18 @@ final readonly class DbalServiceSeverityRepository extends DbalRepository implem
         #[Autowire(service: ServiceSeverityTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
-    public function findAll(?ServiceSeverityCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(ServiceSeverityCriteria $criteria): \IteratorAggregate&\Countable
     {
+        // Nothing granted gives an empty result that keeps the paginator envelope.
+        $scope = $criteria->accessScope($this->accessScopes->serviceSeverities(...), ServiceSeverityId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, ServiceSeverity::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select('sc.sc_id', 'sc.sc_name')
             ->from(self::TABLE_NAME, 'sc')
@@ -78,32 +83,18 @@ final readonly class DbalServiceSeverityRepository extends DbalRepository implem
             ->andWhere("sc.sc_name IS NOT NULL AND sc.sc_name != ''")
             ->orderBy('sc.sc_id'); // the selector order, also required for deterministic pagination
 
-        if (($name = $criteria?->getName()) !== null) {
+        if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('sc.sc_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        // ACL data-scoping: a restricted viewer only sees the service severities its active ACL resources
-        // grant. A null accessible set means no service severity restriction applies to that viewer.
-        if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
-            $accessibleSeverityIds = $this->resourceAccessRepository->findAccessibleServiceSeverityIds($viewerId);
-            if ($accessibleSeverityIds instanceof Collection) {
-                $accessibleIds = array_map(
-                    static fn (ServiceSeverityId $id): int => $id->value,
-                    $accessibleSeverityIds->toArray(),
-                );
-                if ($accessibleIds === []) {
-                    // Nothing accessible: match nothing, but keep the normal (paginator) shape.
-                    $qb->andWhere('1 = 0');
-                } else {
-                    $qb->andWhere($qb->expr()->in(
-                        'sc.sc_id',
-                        $qb->createNamedParameter($accessibleIds, ArrayParameterType::INTEGER)
-                    ));
-                }
-            }
+        if (! $scope->isUnrestricted()) {
+            $qb->andWhere($qb->expr()->in(
+                'sc.sc_id',
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
+            ));
         }
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();

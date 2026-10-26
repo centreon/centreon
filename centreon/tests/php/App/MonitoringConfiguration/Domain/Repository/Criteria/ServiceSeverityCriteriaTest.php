@@ -23,10 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Repository\Criteria;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceSeverityCriteria;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Aggregate\ActingUser;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 #[Group('wip')]
 final class ServiceSeverityCriteriaTest extends TestCase
@@ -38,27 +41,55 @@ final class ServiceSeverityCriteriaTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        (new ServiceSeverityCriteria())->withName('');
+        ServiceSeverityCriteria::unscoped()->withName('');
     }
 
     public function testWithNameAcceptsTheLiteralZero(): void
     {
         // stringNotEmpty(), not notEmpty(): notEmpty() relies on empty(), which treats "0" as empty.
-        self::assertSame('0', (new ServiceSeverityCriteria())->withName('0')->getName());
+        self::assertSame('0', ServiceSeverityCriteria::unscoped()->withName('0')->getName());
     }
 
-    public function testWithersReturnACopy(): void
+    public function testWithNameReturnsACopyKeepingTheActor(): void
     {
-        $criteria = new ServiceSeverityCriteria();
+        $criteria = ServiceSeverityCriteria::forActor(TestActingUsers::restricted(7));
 
         $withName = $criteria->withName('Critical');
-        $withViewer = $criteria->withViewerId(new UserId(7));
 
         self::assertNotSame($criteria, $withName);
-        self::assertNotSame($criteria, $withViewer);
         self::assertNull($criteria->getName());
-        self::assertNull($criteria->getViewerId());
         self::assertSame('Critical', $withName->getName());
-        self::assertSame(7, $withViewer->getViewerId()?->value);
+        self::assertSame([7], $withName->accessScope($this->scopeOf(...), ServiceSeverityId::class)->allowedIdValues());
+    }
+
+    public function testForActorScopesToWhatTheActorMayAccess(): void
+    {
+        $scope = ServiceSeverityCriteria::forActor(TestActingUsers::restricted(7))->accessScope($this->scopeOf(...), ServiceSeverityId::class);
+
+        self::assertSame([7], $scope->allowedIdValues());
+    }
+
+    public function testAnUnscopedCriteriaIsUnrestricted(): void
+    {
+        $scope = ServiceSeverityCriteria::unscoped()->accessScope(
+            static fn (ActingUser $actor): never => self::fail('An unscoped criteria must not resolve any scope.'),
+            ServiceSeverityId::class,
+        );
+
+        self::assertTrue($scope->isUnrestricted());
+    }
+
+    public function testACriteriaCannotBeBuiltWithoutChoosingItsScope(): void
+    {
+        // Fail closed by construction: only forActor() and unscoped() build a criteria.
+        self::assertTrue((new \ReflectionMethod(ServiceSeverityCriteria::class, '__construct'))->isPrivate());
+    }
+
+    /**
+     * @return AccessScope<ServiceSeverityId>
+     */
+    private function scopeOf(ActingUser $actor): AccessScope
+    {
+        return AccessScope::restrictedTo(ServiceSeverityId::class, [new ServiceSeverityId($actor->userId->value)]);
     }
 }

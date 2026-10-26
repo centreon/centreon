@@ -27,8 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory
 use App\MonitoringConfiguration\Domain\Model\ServiceCategoryChoice;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryChoiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryChoiceRepository;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -60,12 +59,18 @@ final readonly class DbalServiceCategoryChoiceRepository extends DbalRepository 
         #[Autowire(service: ServiceCategoryChoiceTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
-    public function findAll(?ServiceCategoryChoiceCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(ServiceCategoryChoiceCriteria $criteria): \IteratorAggregate&\Countable
     {
+        // Nothing granted gives an empty result that keeps the paginator envelope.
+        $scope = $criteria->accessScope($this->accessScopes->serviceCategories(...), ServiceCategoryId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, ServiceCategoryChoice::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select('sc.sc_id', 'sc.sc_name')
             ->from(self::TABLE_NAME, 'sc')
@@ -78,32 +83,18 @@ final readonly class DbalServiceCategoryChoiceRepository extends DbalRepository 
             ->andWhere("sc.sc_name IS NOT NULL AND sc.sc_name != ''")
             ->orderBy('sc.sc_id'); // the selector order, also required for deterministic pagination
 
-        if (($name = $criteria?->getName()) !== null) {
+        if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('sc.sc_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        // ACL data-scoping: a restricted viewer only sees the service categories its active ACL resources
-        // grant. A null accessible set means no service category restriction applies to that viewer.
-        if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
-            $accessibleCategoryIds = $this->resourceAccessRepository->findAccessibleServiceCategoryIds($viewerId);
-            if ($accessibleCategoryIds instanceof Collection) {
-                $accessibleIds = array_map(
-                    static fn (ServiceCategoryId $id): int => $id->value,
-                    $accessibleCategoryIds->toArray(),
-                );
-                if ($accessibleIds === []) {
-                    // Nothing accessible: match nothing, but keep the normal (paginator) shape.
-                    $qb->andWhere('1 = 0');
-                } else {
-                    $qb->andWhere($qb->expr()->in(
-                        'sc.sc_id',
-                        $qb->createNamedParameter($accessibleIds, ArrayParameterType::INTEGER)
-                    ));
-                }
-            }
+        if (! $scope->isUnrestricted()) {
+            $qb->andWhere($qb->expr()->in(
+                'sc.sc_id',
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
+            ));
         }
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();

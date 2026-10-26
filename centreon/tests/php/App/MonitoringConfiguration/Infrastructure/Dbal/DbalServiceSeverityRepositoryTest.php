@@ -28,14 +28,15 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceSeverityCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalServiceSeverityRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\ServiceSeverityTransformer;
-use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 #[Group('wip')]
 final class DbalServiceSeverityRepositoryTest extends KernelTestCase
@@ -54,12 +55,12 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
-        // the ACL tiers are pinned by DbalResourceAccessRepositoryTest: a fake supplies the accessible set here
+        // the ACL tiers are pinned by DbalResourceAccessRepositoryTest: a fake supplies the access scope here
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
         $this->repository = new DbalServiceSeverityRepository(
             $this->connection,
             new ServiceSeverityTransformer(),
-            $this->resourceAccessRepository,
+            new AccessScopeResolver($this->resourceAccessRepository),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded service category
@@ -72,7 +73,7 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
         // a service category without a level is a regular category, offered by its own selector
         $this->insertCategory("category-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new ServiceSeverityCriteria())->withName($this->tag)));
+        $names = $this->names($this->repository->findAll(ServiceSeverityCriteria::unscoped()->withName($this->tag)));
 
         self::assertSame(["severity-{$this->tag}"], $names);
     }
@@ -82,7 +83,7 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
         $this->insertSeverity("enabled-{$this->tag}");
         $this->insertSeverity("disabled-{$this->tag}", activate: '0');
 
-        $names = $this->names($this->repository->findAll((new ServiceSeverityCriteria())->withName($this->tag)));
+        $names = $this->names($this->repository->findAll(ServiceSeverityCriteria::unscoped()->withName($this->tag)));
 
         self::assertSame(["enabled-{$this->tag}", "disabled-{$this->tag}"], $names);
     }
@@ -96,7 +97,7 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
         $blankNameId = $this->insertSeverity('   ');
 
         // no name filter: a LIKE filter would exclude NULL names by itself and hide a missing guard
-        $ids = $this->ids($this->repository->findAll());
+        $ids = $this->ids($this->repository->findAll(ServiceSeverityCriteria::unscoped()));
 
         self::assertContains($validId, $ids);
         self::assertNotContains($nullNameId, $ids, 'A row with a NULL name is skipped.');
@@ -110,7 +111,7 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
         $this->insertSeverity("b-{$this->tag}");
         $this->insertSeverity("a-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new ServiceSeverityCriteria())->withName($this->tag)));
+        $names = $this->names($this->repository->findAll(ServiceSeverityCriteria::unscoped()->withName($this->tag)));
 
         self::assertSame(["b-{$this->tag}", "a-{$this->tag}"], $names);
     }
@@ -120,7 +121,7 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
         $this->insertSeverity("prefix-match-{$this->tag}-suffix");
         $this->insertSeverity("other-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new ServiceSeverityCriteria())->withName("match-{$this->tag}")));
+        $names = $this->names($this->repository->findAll(ServiceSeverityCriteria::unscoped()->withName("match-{$this->tag}")));
 
         self::assertSame(["prefix-match-{$this->tag}-suffix"], $names);
     }
@@ -133,7 +134,7 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
 
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot)
         $result = $this->repository->findAll(
-            (new ServiceSeverityCriteria())->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            ServiceSeverityCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -141,42 +142,42 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
         self::assertSame(["pg-{$this->tag}-B"], $this->names($result));
     }
 
-    public function testANullAccessibleSetIsNotScoped(): void
+    public function testAnUnrestrictedScopeIsNotScoped(): void
     {
         $this->insertSeverity("a-{$this->tag}");
         $this->insertSeverity("b-{$this->tag}");
-        $this->resourceAccessRepository->accessibleServiceSeverityIds = null;
+        $this->resourceAccessRepository->serviceSeverityScope = AccessScope::unrestricted(ServiceSeverityId::class);
 
         $names = $this->names($this->repository->findAll(
-            (new ServiceSeverityCriteria())->withName($this->tag)->withViewerId(new UserId(42))
+            ServiceSeverityCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)
         ));
 
         self::assertSame(["a-{$this->tag}", "b-{$this->tag}"], $names);
     }
 
-    public function testItRestrictsToTheAccessibleIds(): void
+    public function testItRestrictsToTheAllowedIds(): void
     {
         $this->insertSeverity("other-{$this->tag}");
         $grantedId = $this->insertSeverity("granted-{$this->tag}");
-        $this->resourceAccessRepository->accessibleServiceSeverityIds = new Collection(
-            [new ServiceSeverityId($grantedId)],
+        $this->resourceAccessRepository->serviceSeverityScope = AccessScope::restrictedTo(
             ServiceSeverityId::class,
+            [new ServiceSeverityId($grantedId)],
         );
 
         $names = $this->names($this->repository->findAll(
-            (new ServiceSeverityCriteria())->withName($this->tag)->withViewerId(new UserId(42))
+            ServiceSeverityCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)
         ));
 
         self::assertSame(["granted-{$this->tag}"], $names);
     }
 
-    public function testAnEmptyAccessibleSetMatchesNothingButKeepsTheEnvelope(): void
+    public function testAScopeAllowingNothingReturnsAnEmptyEnvelope(): void
     {
         $this->insertSeverity("item-{$this->tag}");
-        $this->resourceAccessRepository->accessibleServiceSeverityIds = new Collection([], ServiceSeverityId::class);
+        $this->resourceAccessRepository->serviceSeverityScope = AccessScope::restrictedTo(ServiceSeverityId::class, []);
 
         $result = $this->repository->findAll(
-            (new ServiceSeverityCriteria())->withName($this->tag)->withViewerId(new UserId(42))->withPagination(1, 10)
+            ServiceSeverityCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)->withPagination(1, 10)
         );
 
         self::assertInstanceOf(Paginator::class, $result);

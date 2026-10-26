@@ -30,7 +30,7 @@ use Webmozart\Assert\Assert;
 final class ServiceSeverityCriteria implements PaginableCriteria
 {
     use PaginableCriteriaTrait;
-    use ViewerScopedCriteriaTrait;
+    use ActorScopedCriteriaTrait;
 
     private ?string $name = null;
 

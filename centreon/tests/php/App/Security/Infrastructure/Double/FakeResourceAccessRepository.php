@@ -56,11 +56,11 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var AccessScope<ServiceGroupId> */
     public AccessScope $serviceGroupScope;
 
-    /** @var ?Collection<ServiceCategoryId> null means unrestricted, matching the real contract */
-    public ?Collection $accessibleServiceCategoryIds = null;
+    /** @var AccessScope<ServiceCategoryId> */
+    public AccessScope $serviceCategoryScope;
 
-    /** @var ?Collection<ServiceSeverityId> null means unrestricted, matching the real contract */
-    public ?Collection $accessibleServiceSeverityIds = null;
+    /** @var AccessScope<ServiceSeverityId> */
+    public AccessScope $serviceSeverityScope;
 
     /** @var AccessScope<MediaDirectoryId> */
     public AccessScope $imageFolderScope;
@@ -98,6 +98,8 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         $this->pollerScope = AccessScope::unrestricted(PollerId::class);
         $this->hostGroupScope = AccessScope::unrestricted(HostGroupId::class);
         $this->serviceGroupScope = AccessScope::unrestricted(ServiceGroupId::class);
+        $this->serviceCategoryScope = AccessScope::unrestricted(ServiceCategoryId::class);
+        $this->serviceSeverityScope = AccessScope::unrestricted(ServiceSeverityId::class);
         $this->imageFolderScope = AccessScope::unrestricted(MediaDirectoryId::class);
         $this->hostCategoryScope = AccessScope::unrestricted(HostCategoryId::class);
         $this->hostSeverityScope = AccessScope::unrestricted(HostSeverityId::class);
@@ -151,18 +153,18 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         return $this->serviceGroupScope;
     }
 
-    public function findAccessibleServiceCategoryIds(UserId $userId): ?Collection
+    public function findServiceCategoryAccessScope(UserId $userId): AccessScope
     {
-        ++$this->accessListLoads;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
 
-        return $this->accessibleServiceCategoryIds;
+        return $this->serviceCategoryScope;
     }
 
-    public function findAccessibleServiceSeverityIds(UserId $userId): ?Collection
+    public function findServiceSeverityAccessScope(UserId $userId): AccessScope
     {
-        ++$this->accessListLoads;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
 
-        return $this->accessibleServiceSeverityIds;
+        return $this->serviceSeverityScope;
     }
 
     public function findContactAccessScope(UserId $userId): AccessScope

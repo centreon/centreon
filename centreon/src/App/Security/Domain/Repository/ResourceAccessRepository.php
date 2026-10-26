@@ -148,36 +148,28 @@ interface ResourceAccessRepository
     public function findContactAccessScope(UserId $userId): AccessScope;
 
     /**
-     * Returns the levelless service categories the user is restricted to, granted by the user's
-     * active ACL resources (disabled categories included).
+     * Levelless service categories granted by the user's active ACL resources (disabled categories
+     * included):
+     *  - no accessible ACL resource → restricted to nothing
+     *  - accessible resources, none carrying a service-category relation of any level → unrestricted
+     *  - otherwise → restricted to the granted levelless categories (none when only severities are
+     *    granted)
      *
-     * Three states, like {@see self::findAccessibleHostCategoryIds()}:
-     *  - null                   → no restriction applies: the user has accessible ACL resources,
-     *                             but none carries a service-category relation of any level; the
-     *                             user sees every category
-     *  - an empty Collection    → the user is restricted but is granted no category (no accessible
-     *                             ACL resource, or only severities granted): sees nothing
-     *  - a non-empty Collection → the user is restricted to exactly these categories
-     *
-     * @return Collection<ServiceCategoryId>|null
+     * @return AccessScope<ServiceCategoryId>
      */
-    public function findAccessibleServiceCategoryIds(UserId $userId): ?Collection;
+    public function findServiceCategoryAccessScope(UserId $userId): AccessScope;
 
     /**
-     * Returns the service severities (service categories carrying a level) the user is restricted to,
-     * granted by the user's active ACL resources (disabled severities included).
+     * Service severities (service categories carrying a level) granted by the user's active ACL
+     * resources (disabled severities included):
+     *  - no accessible ACL resource → restricted to nothing
+     *  - accessible resources, none carrying a service-category relation of any level → unrestricted
+     *  - otherwise → restricted to the granted severities (none when only levelless categories are
+     *    granted)
      *
-     * Three states, like {@see self::findAccessibleHostSeverityIds()}:
-     *  - null                   → no restriction applies: the user has accessible ACL resources,
-     *                             but none carries a service-category relation of any level; the
-     *                             user sees every severity
-     *  - an empty Collection    → the user is restricted but is granted no severity (no accessible
-     *                             ACL resource, or only levelless categories granted): sees nothing
-     *  - a non-empty Collection → the user is restricted to exactly these severities
-     *
-     * @return Collection<ServiceSeverityId>|null
+     * @return AccessScope<ServiceSeverityId>
      */
-    public function findAccessibleServiceSeverityIds(UserId $userId): ?Collection;
+    public function findServiceSeverityAccessScope(UserId $userId): AccessScope;
 
     /**
      * Same Access-Group-membership model as {@see self::findContactAccessScope()}, plus the contact

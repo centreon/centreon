@@ -30,10 +30,10 @@ interface ServiceSeverityRepository
 {
     /**
      * Service severities (service categories carrying a level; levelless categories excluded),
-     * disabled ones included, ordered by id. When the criteria carry a viewer, only the service
-     * severities that viewer can access are listed.
+     * disabled ones included, ordered by id. Only the service severities the criteria's access scope
+     * allows are listed.
      *
      * @return \IteratorAggregate<int, ServiceSeverity>&\Countable
      */
-    public function findAll(?ServiceSeverityCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(ServiceSeverityCriteria $criteria): \IteratorAggregate&\Countable;
 }

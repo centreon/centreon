@@ -30,8 +30,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
@@ -472,19 +470,19 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     {
         $userId = new UserId($this->createContact('user-no-acl-sc'));
 
-        $accessibleCategoryIds = $this->repository->findAccessibleServiceCategoryIds($userId);
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope($userId);
 
-        self::assertNotNull($accessibleCategoryIds, 'No accessible ACL resource is a restriction, not "see all".');
-        self::assertCount(0, $accessibleCategoryIds);
+        self::assertFalse($serviceCategoryScope->isUnrestricted(), 'No accessible ACL resource is a restriction, not "see all".');
+        self::assertTrue($serviceCategoryScope->allowsNothing());
     }
 
     #[Group('wip')]
-    public function testUserWithAclResourceHavingNoServiceCategoryRestrictionReturnsNull(): void
+    public function testUserWithAclResourceHavingNoServiceCategoryRestrictionIsUnrestricted(): void
     {
         $contactId = $this->createContact('user-unrestricted-sc');
         $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
 
-        self::assertNull($this->repository->findAccessibleServiceCategoryIds(new UserId($contactId)));
+        self::assertTrue($this->repository->findServiceCategoryAccessScope(new UserId($contactId))->isUnrestricted());
     }
 
     #[Group('wip')]
@@ -504,10 +502,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // the relation column is nullable: such a row grants nothing and must not become an invalid id
         $this->connection->insert('acl_resources_sc_relations', ['acl_res_id' => $aclResId, 'sc_id' => null]);
 
-        $accessibleCategoryIds = $this->repository->findAccessibleServiceCategoryIds(new UserId($contactId));
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleCategoryIds);
-        self::assertEqualsCanonicalizing([$categoryA, $categoryB], $this->serviceCategoryIdValues($accessibleCategoryIds));
+        self::assertFalse($serviceCategoryScope->isUnrestricted());
+        self::assertEqualsCanonicalizing([$categoryA, $categoryB], $serviceCategoryScope->allowedIdValues());
     }
 
     #[Group('wip')]
@@ -519,10 +517,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             restrictToServiceCategoryIds: [$this->insertServiceCategory(level: 1)],
         );
 
-        $accessibleCategoryIds = $this->repository->findAccessibleServiceCategoryIds(new UserId($contactId));
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleCategoryIds, 'A severity-only grant is a restriction, not "see all".');
-        self::assertCount(0, $accessibleCategoryIds);
+        self::assertFalse($serviceCategoryScope->isUnrestricted(), 'A severity-only grant is a restriction, not "see all".');
+        self::assertTrue($serviceCategoryScope->allowsNothing());
     }
 
     #[Group('wip')]
@@ -535,10 +533,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             active: false,
         );
 
-        $accessibleCategoryIds = $this->repository->findAccessibleServiceCategoryIds(new UserId($contactId));
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleCategoryIds, 'An inactive resource is not an accessible one: nothing is granted.');
-        self::assertCount(0, $accessibleCategoryIds);
+        self::assertFalse($serviceCategoryScope->isUnrestricted(), 'An inactive resource is not an accessible one: nothing is granted.');
+        self::assertTrue($serviceCategoryScope->allowsNothing());
     }
 
     #[Group('wip')]
@@ -550,10 +548,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $otherContactId = $this->createContact('user-other-sc');
         $this->linkContactToAclResourceForServiceCategories($otherContactId, restrictToServiceCategoryIds: [$this->insertServiceCategory()]);
 
-        $accessibleCategoryIds = $this->repository->findAccessibleServiceCategoryIds(new UserId($contactId));
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleCategoryIds);
-        self::assertSame([$grantedId], $this->serviceCategoryIdValues($accessibleCategoryIds), "Another user's relations must not apply.");
+        self::assertFalse($serviceCategoryScope->isUnrestricted());
+        self::assertSame([$grantedId], $serviceCategoryScope->allowedIdValues(), "Another user's relations must not apply.");
     }
 
     #[Group('wip')]
@@ -564,8 +562,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $otherContactId = $this->createContact('user-other-sc');
         $this->linkContactToAclResourceForServiceCategories($otherContactId, restrictToServiceCategoryIds: [$this->insertServiceCategory()]);
 
-        self::assertNull(
-            $this->repository->findAccessibleServiceCategoryIds(new UserId($contactId)),
+        self::assertTrue(
+            $this->repository->findServiceCategoryAccessScope(new UserId($contactId))->isUnrestricted(),
             "Another user's category relations must not put the asking user under a restriction.",
         );
     }
@@ -580,10 +578,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // a second active resource without any relation must not lift the restriction set by the first
         $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
 
-        $accessibleIds = $this->repository->findAccessibleServiceCategoryIds(new UserId($contactId));
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleIds, 'One resource carrying a relation keeps the user restricted.');
-        self::assertSame([$grantedId], $this->serviceCategoryIdValues($accessibleIds));
+        self::assertFalse($serviceCategoryScope->isUnrestricted(), 'One resource carrying a relation keeps the user restricted.');
+        self::assertSame([$grantedId], $serviceCategoryScope->allowedIdValues());
     }
 
     #[Group('wip')]
@@ -598,10 +596,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             active: false,
         );
 
-        $accessibleIds = $this->repository->findAccessibleServiceCategoryIds(new UserId($contactId));
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleIds);
-        self::assertSame([$grantedId], $this->serviceCategoryIdValues($accessibleIds), "An inactive resource's relations grant nothing.");
+        self::assertFalse($serviceCategoryScope->isUnrestricted());
+        self::assertSame([$grantedId], $serviceCategoryScope->allowedIdValues(), "An inactive resource's relations grant nothing.");
     }
 
     #[Group('wip')]
@@ -615,8 +613,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             active: false,
         );
 
-        self::assertNull(
-            $this->repository->findAccessibleServiceCategoryIds(new UserId($contactId)),
+        self::assertTrue(
+            $this->repository->findServiceCategoryAccessScope(new UserId($contactId))->isUnrestricted(),
             "Only active resources count: an inactive resource's relations put the user under no restriction.",
         );
     }
@@ -626,19 +624,19 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     {
         $userId = new UserId($this->createContact('user-no-acl-sv'));
 
-        $accessibleSeverityIds = $this->repository->findAccessibleServiceSeverityIds($userId);
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope($userId);
 
-        self::assertNotNull($accessibleSeverityIds, 'No accessible ACL resource is a restriction, not "see all".');
-        self::assertCount(0, $accessibleSeverityIds);
+        self::assertFalse($serviceSeverityScope->isUnrestricted(), 'No accessible ACL resource is a restriction, not "see all".');
+        self::assertTrue($serviceSeverityScope->allowsNothing());
     }
 
     #[Group('wip')]
-    public function testUserWithAclResourceHavingNoServiceSeverityRestrictionReturnsNull(): void
+    public function testUserWithAclResourceHavingNoServiceSeverityRestrictionIsUnrestricted(): void
     {
         $contactId = $this->createContact('user-unrestricted-sv');
         $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
 
-        self::assertNull($this->repository->findAccessibleServiceSeverityIds(new UserId($contactId)));
+        self::assertTrue($this->repository->findServiceSeverityAccessScope(new UserId($contactId))->isUnrestricted());
     }
 
     #[Group('wip')]
@@ -658,10 +656,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // the relation column is nullable: such a row grants nothing and must not become an invalid id
         $this->connection->insert('acl_resources_sc_relations', ['acl_res_id' => $aclResId, 'sc_id' => null]);
 
-        $accessibleSeverityIds = $this->repository->findAccessibleServiceSeverityIds(new UserId($contactId));
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleSeverityIds);
-        self::assertEqualsCanonicalizing([$severityA, $severityB], $this->serviceSeverityIdValues($accessibleSeverityIds));
+        self::assertFalse($serviceSeverityScope->isUnrestricted());
+        self::assertEqualsCanonicalizing([$severityA, $severityB], $serviceSeverityScope->allowedIdValues());
     }
 
     #[Group('wip')]
@@ -673,10 +671,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             restrictToServiceCategoryIds: [$this->insertServiceCategory()],
         );
 
-        $accessibleSeverityIds = $this->repository->findAccessibleServiceSeverityIds(new UserId($contactId));
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleSeverityIds, 'A category-only grant is a restriction, not "see all".');
-        self::assertCount(0, $accessibleSeverityIds);
+        self::assertFalse($serviceSeverityScope->isUnrestricted(), 'A category-only grant is a restriction, not "see all".');
+        self::assertTrue($serviceSeverityScope->allowsNothing());
     }
 
     #[Group('wip')]
@@ -689,10 +687,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             active: false,
         );
 
-        $accessibleSeverityIds = $this->repository->findAccessibleServiceSeverityIds(new UserId($contactId));
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleSeverityIds, 'An inactive resource is not an accessible one: nothing is granted.');
-        self::assertCount(0, $accessibleSeverityIds);
+        self::assertFalse($serviceSeverityScope->isUnrestricted(), 'An inactive resource is not an accessible one: nothing is granted.');
+        self::assertTrue($serviceSeverityScope->allowsNothing());
     }
 
     #[Group('wip')]
@@ -704,10 +702,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $otherContactId = $this->createContact('user-other-sv');
         $this->linkContactToAclResourceForServiceCategories($otherContactId, restrictToServiceCategoryIds: [$this->insertServiceCategory(level: 1)]);
 
-        $accessibleSeverityIds = $this->repository->findAccessibleServiceSeverityIds(new UserId($contactId));
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleSeverityIds);
-        self::assertSame([$grantedId], $this->serviceSeverityIdValues($accessibleSeverityIds), "Another user's relations must not apply.");
+        self::assertFalse($serviceSeverityScope->isUnrestricted());
+        self::assertSame([$grantedId], $serviceSeverityScope->allowedIdValues(), "Another user's relations must not apply.");
     }
 
     #[Group('wip')]
@@ -718,8 +716,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $otherContactId = $this->createContact('user-other-sv');
         $this->linkContactToAclResourceForServiceCategories($otherContactId, restrictToServiceCategoryIds: [$this->insertServiceCategory(level: 1)]);
 
-        self::assertNull(
-            $this->repository->findAccessibleServiceSeverityIds(new UserId($contactId)),
+        self::assertTrue(
+            $this->repository->findServiceSeverityAccessScope(new UserId($contactId))->isUnrestricted(),
             "Another user's category relations must not put the asking user under a restriction.",
         );
     }
@@ -734,10 +732,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // a second active resource without any relation must not lift the restriction set by the first
         $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
 
-        $accessibleIds = $this->repository->findAccessibleServiceSeverityIds(new UserId($contactId));
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleIds, 'One resource carrying a relation keeps the user restricted.');
-        self::assertSame([$grantedId], $this->serviceSeverityIdValues($accessibleIds));
+        self::assertFalse($serviceSeverityScope->isUnrestricted(), 'One resource carrying a relation keeps the user restricted.');
+        self::assertSame([$grantedId], $serviceSeverityScope->allowedIdValues());
     }
 
     #[Group('wip')]
@@ -752,10 +750,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             active: false,
         );
 
-        $accessibleIds = $this->repository->findAccessibleServiceSeverityIds(new UserId($contactId));
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleIds);
-        self::assertSame([$grantedId], $this->serviceSeverityIdValues($accessibleIds), "An inactive resource's relations grant nothing.");
+        self::assertFalse($serviceSeverityScope->isUnrestricted());
+        self::assertSame([$grantedId], $serviceSeverityScope->allowedIdValues(), "An inactive resource's relations grant nothing.");
     }
 
     #[Group('wip')]
@@ -769,8 +767,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             active: false,
         );
 
-        self::assertNull(
-            $this->repository->findAccessibleServiceSeverityIds(new UserId($contactId)),
+        self::assertTrue(
+            $this->repository->findServiceSeverityAccessScope(new UserId($contactId))->isUnrestricted(),
             "Only active resources count: an inactive resource's relations put the user under no restriction.",
         );
     }
@@ -1407,26 +1405,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         }
 
         return $aclResId;
-    }
-
-    /**
-     * @param Collection<ServiceCategoryId> $ids
-     *
-     * @return list<int>
-     */
-    private function serviceCategoryIdValues(Collection $ids): array
-    {
-        return array_values(array_map(static fn (ServiceCategoryId $id): int => $id->value, $ids->toArray()));
-    }
-
-    /**
-     * @param Collection<ServiceSeverityId> $ids
-     *
-     * @return list<int>
-     */
-    private function serviceSeverityIdValues(Collection $ids): array
-    {
-        return array_values(array_map(static fn (ServiceSeverityId $id): int => $id->value, $ids->toArray()));
     }
 
     /**

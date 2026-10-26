@@ -41,7 +41,7 @@ final class FakeServiceCategoryChoiceRepository implements ServiceCategoryChoice
         $this->result = new Collection([], ServiceCategoryChoice::class);
     }
 
-    public function findAll(?ServiceCategoryChoiceCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(ServiceCategoryChoiceCriteria $criteria): \IteratorAggregate&\Countable
     {
         $this->receivedCriteria = $criteria;
 
