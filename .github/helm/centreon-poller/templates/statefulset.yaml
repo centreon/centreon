@@ -351,7 +351,6 @@ spec:
         - name: apt-proxy
           secret:
             secretName: {{ $fullname }}-proxy
-            # Read by `sudo apt-get` only (root).
             defaultMode: 0400
             items:
               - { key: 99centreon-poller-proxy, path: 99centreon-poller-proxy }
