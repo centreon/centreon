@@ -6,31 +6,30 @@ import { equals } from 'ramda';
 import { useEffect, useRef } from 'react';
 
 import {
-  getHostTemplateMacrosEndpoint,
-  hostsBaseEndpoint
-} from '../api/endpoints';
-import type { NamedEntity } from '../models';
-import {
   type MacroRow,
   mergeInheritedMacros,
   resolveInheritedMacros,
   templateMacrosDecoder
 } from './macroRows';
-import type { TemplateRow } from './Templates';
+import type { InheritedMacrosConfig } from './models';
 
-const getTemplateIds = (values: FormikValues): Array<number> =>
-  ((getIn(values, 'templates') ?? []) as Array<TemplateRow>)
-    .filter((template): template is NamedEntity => !!template)
-    .map(({ id }) => id);
-
-const getCommandId = (values: FormikValues): number | null =>
-  getIn(values, 'checkOptions.command')?.id ?? null;
-
-// Keeps the inherited rows in line with the templates and the check command
-// picked in the form, on creation as on edition. Until the templates and the
-// command change, the host's own detail says what it inherits; after, each
+// Keeps the inherited rows in line with the templates and the command picked
+// in the form, on creation as on edition. Until the templates and the command
+// change, the resource's own detail says what it inherits; after, each
 // template's macros are fetched.
-const useInheritedMacros = (fieldName: string): void => {
+const useInheritedMacros = ({
+  config: {
+    baseEndpoint,
+    getCommandId,
+    getTemplateIds,
+    getTemplateMacrosEndpoint,
+    queryKey
+  },
+  fieldName
+}: {
+  config: InheritedMacrosConfig;
+  fieldName: string;
+}): void => {
   const { showErrorMessage } = useSnackbar();
   const { initialValues, setFieldValue, values } =
     useFormikContext<FormikValues>();
@@ -45,9 +44,9 @@ const useInheritedMacros = (fieldName: string): void => {
     queries: (isAsLoaded ? [] : templateIds).map((id) => ({
       queryFn: async ({ signal }): Promise<Array<MacroRow>> => {
         const response = await customFetch<Array<MacroRow>>({
-          baseEndpoint: hostsBaseEndpoint,
+          baseEndpoint,
           decoder: templateMacrosDecoder,
-          endpoint: getHostTemplateMacrosEndpoint({ id }),
+          endpoint: getTemplateMacrosEndpoint({ id }),
           signal
         });
 
@@ -64,7 +63,7 @@ const useInheritedMacros = (fieldName: string): void => {
 
         throw new Error((response as ResponseError).message);
       },
-      queryKey: ['host-form-template-macros', id],
+      queryKey: [queryKey, id],
       retry: false
     }))
   });
@@ -80,7 +79,7 @@ const useInheritedMacros = (fieldName: string): void => {
     : isFetched
       ? resolveInheritedMacros({
           hasCheckCommand,
-          hostCommandMacros: equals(
+          ownCommandMacros: equals(
             getCommandId(values),
             getCommandId(initialValues)
           )

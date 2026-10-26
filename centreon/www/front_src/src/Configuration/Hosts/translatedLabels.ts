@@ -66,13 +66,8 @@ export const labelCreateServicesLinkedToTemplates =
   'Create Services linked to the Template too';
 // Custom macros, spelled as the legacy host form spells them.
 export const labelCustomMacros = 'Custom macros';
-export const labelValue = 'Value';
-export const labelPassword = 'Password';
 export const labelClear = 'Clear';
-export const labelRevertToPreviousPassword = 'Revert to previous password';
 export const labelAlreadyExists = 'Already exists';
-export const labelTemplateInheritance = 'Template inheritance';
-export const labelCommandInheritance = 'Command inheritance';
 
 // Yes / No / Default fields
 export const labelYes = 'Yes';
