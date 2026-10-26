@@ -248,10 +248,21 @@ jobs:
           DISTRO = re.compile(r"\b(alma|el|rhel|ubuntu|debian)\d+\b|\b(rpm|deb)-\w+|bookworm|trixie|bullseye|jammy|noble|(mysql|mariadb)[:-][\w.]+", re.I)
 
           def gh(*args):
-              return subprocess.run(["gh", *args], capture_output=True, text=True).stdout
+              for _ in range(3):
+                  res = subprocess.run(["gh", *args], capture_output=True, text=True)
+                  if res.returncode == 0:
+                      return res.stdout
+              return ""
+
+          def json_lines(text):
+              for line in text.splitlines():
+                  try:
+                      yield json.loads(line)
+                  except ValueError:
+                      continue
 
           def norm_job(name):
-              name = re.sub(r"\(.*?\)", "", name.split(" / ")[0])
+              name = re.sub(r"\(.*?\)", "", name)
               name = re.sub(r"\b\d+(\.\d+)*\b", "*", DISTRO.sub("*", name))
               return re.sub(r"\s+", " ", name).strip().lower()
 
@@ -261,11 +272,15 @@ jobs:
               return re.sub(r"\d+", "N", line).strip()[:200]
 
           run = json.loads(gh("api", f"repos/{repo}/actions/runs/{run_id}") or "{}")
-          jobs = [json.loads(l) for l in gh("api", "--paginate", f"repos/{repo}/actions/runs/{run_id}/jobs?per_page=100&filter=latest",
-                                             "--jq", '.jobs[] | select(.conclusion == "failure") | [.id, .name] | @json').splitlines()]
+          jobs = list(json_lines(gh("api", "--paginate", f"repos/{repo}/actions/runs/{run_id}/jobs?per_page=100&filter=latest",
+                                    "--jq", '.jobs[] | select(.conclusion == "failure") | [.id, .name] | @json')))
           items, infra = set(), []
           for job_id, name in jobs[:10]:
               log = gh("api", "--allow-escape-sequences", f"repos/{repo}/actions/jobs/{job_id}/logs")
+              if not log:
+                  items.add(f"unreadable log {run_id} {job_id}")
+                  infra.append(False)
+                  continue
               lines = [STAMP.sub("", ANSI.sub("", l)) for l in log.splitlines()]
               idx = next((i for i, l in enumerate(lines) if l.startswith("##[error]")), None)
               error = lines[idx] if idx is not None else "no ##[error] line"
@@ -275,7 +290,8 @@ jobs:
               items.add(f"{run.get('path', '?')}|{norm_job(name)}|{norm_err(error)}")
               print(f"{'infra' if is_infra else 'other'}: {name} :: {error[:160]}")
 
-          signature = hashlib.sha256("\n".join(sorted(items)).encode()).hexdigest()[:16]
+          # No failed job read (re-run, API error): a run-specific signature never matches a previous analysis.
+          signature = hashlib.sha256("\n".join(sorted(items) or [f"run {run_id}"]).encode()).hexdigest()[:16]
           all_infra = bool(infra) and all(infra)
           print(f"jobs={len(jobs)} all_infra={all_infra} signature={signature}")
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
