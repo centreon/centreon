@@ -66,14 +66,19 @@ jobs:
                   return "in progress", "", 0
               if not agent or agent["conclusion"] == "skipped":
                   log = gh("api", "--allow-escape-sequences", f"repos/{repo}/actions/jobs/{triage['id']}/logs") if triage else ""
-                  reason = next((l.split("triage decision: ", 1)[1] for l in log.splitlines() if "triage decision: " in l), "agent skipped")
-                  return "skipped", reason, 0
+                  # The log also echoes the script line itself: keep the last, rendered occurrence.
+                  decisions = [l.split("triage decision: ", 1)[1] for l in log.splitlines()
+                               if "triage decision: " in l and "$reason" not in l]
+                  return "skipped", decisions[-1] if decisions else "agent skipped", 0
+
+              def artifact_json(tmp, name, file):
+                  gh("run", "download", str(doctor["id"]), "--repo", repo, "-n", name, "-D", f"{tmp}/{name}")
+                  path = pathlib.Path(tmp, name, file)
+                  return json.loads(path.read_text()) if path.exists() else {}
+
               with tempfile.TemporaryDirectory() as tmp:
-                  gh("run", "download", str(doctor["id"]), "--repo", repo, "-n", "agent", "-n", "usage", "-D", tmp)
-                  items = json.loads((pathlib.Path(tmp) / "agent_output.json").read_text() or "{}").get("items", []) \
-                      if (pathlib.Path(tmp) / "agent_output.json").exists() else []
-                  usage = pathlib.Path(tmp) / "agent_usage.json"
-                  aic = json.loads(usage.read_text()).get("ai_credits", 0) if usage.exists() else 0
+                  items = artifact_json(tmp, "agent", "agent_output.json").get("items", [])
+                  aic = artifact_json(tmp, "usage", "agent_usage.json").get("ai_credits", 0)
               results = []
               for item in items:
                   kind = item.get("type")
