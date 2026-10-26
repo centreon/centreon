@@ -118,10 +118,10 @@ describe('Segmented buttons', () => {
       await Promise.all(['Yes', 'No', 'Default'].map(button))
     ).map((element) => element.getBoundingClientRect().width);
 
-    // Three equal segments of the design's 103px, left aligned in the column
+    // Three equal segments of at least 104px (26 spacing units), left aligned in the column
     // (a pixel apart at most: the group overlaps the borders of its buttons).
     expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
-    expect(widths[0]).toBeGreaterThanOrEqual(103);
+    expect(widths[0]).toBeGreaterThanOrEqual(104);
     expect(group.getBoundingClientRect().width).toBeLessThan(400);
     expect(group.getBoundingClientRect().left).toBe(
       (await screen.findByText('Notification Enabled')).getBoundingClientRect()

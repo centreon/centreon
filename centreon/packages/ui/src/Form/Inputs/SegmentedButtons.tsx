@@ -38,9 +38,9 @@ const SegmentedButtons = ({
         <div className="max-w-full self-start overflow-x-auto">
           <ButtonGroup
             aria-label={t(label)}
-            // Equal segments, each as wide as the longest label (103px at least,
-            // the design's size), whatever the width of the column.
-            className="inline-grid auto-cols-[minmax(103px,1fr)] grid-flow-col"
+            // Equal segments, each as wide as the longest label (26 spacing
+            // units, 104px, at least), whatever the width of the column.
+            className="inline-grid auto-cols-[minmax(calc(var(--spacing)*26),1fr)] grid-flow-col"
             color="primary"
             data-testid={dataTestId}
             disabled={disabled}
