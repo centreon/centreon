@@ -26,6 +26,7 @@ import {
   servicesListEndpoint,
   serviceTemplatesEndpoint
 } from '../api/endpoints';
+import { serviceFormCommandsEndpoint } from '../Form/sections/dataProcessing';
 import {
   serviceFormContactGroupsEndpoint,
   serviceFormContactsEndpoint,
@@ -41,6 +42,7 @@ import {
   getContactGroupsResponse,
   getContactsResponse,
   getListingResponse,
+  getServiceCommandsResponse,
   getServiceGroupsResponse,
   getServiceResponse,
   getServiceTemplatesResponse,
@@ -163,6 +165,15 @@ const initialize = ({
     response: getTrapsResponse()
   });
 
+  // Data Processing (MON-213085): the event handler selector, and the writes
+  // the form sends.
+  interceptAPIRequest({
+    alias: 'getServiceCommands',
+    method: Method.GET,
+    path: `**${serviceFormCommandsEndpoint}?**`,
+    response: getServiceCommandsResponse()
+  });
+  // The writes every section's form sends: one create, one update per service.
   interceptAPIRequest({
     alias: 'createService',
     method: Method.POST,
@@ -170,11 +181,13 @@ const initialize = ({
     response: {}
   });
 
-  interceptAPIRequest({
-    alias: 'updateService0',
-    method: Method.PUT,
-    path: `**${getServiceEndpoint({ id: 0 })}`,
-    response: {}
+  [0, 1, 2].forEach((id) => {
+    interceptAPIRequest({
+      alias: `updateService${id}`,
+      method: Method.PUT,
+      path: `**${getServiceEndpoint({ id })}`,
+      response: {}
+    });
   });
 
   // A client of its own, so no cache leaks from one test to the next.

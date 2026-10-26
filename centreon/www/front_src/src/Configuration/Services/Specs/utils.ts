@@ -75,7 +75,57 @@ export const getServiceResponse = (id: number) => ({
   ...(id === 0 && { notifications: getServiceNotificationsResponse() }),
   // MON-213084: Relations section.
   service_groups: [{ id: 1, name: 'Web services' }],
-  traps: [{ id: 21, name: 'linkDown', vendor: 'Generic' }]
+  traps: [{ id: 21, name: 'linkDown', vendor: 'Generic' }],
+  // MON-213085: Data Processing section.
+  ...getDataProcessingResponse(id)
+});
+
+// Data Processing (MON-213085): service 0 sets every field, service 2 is read
+// on a cloud platform, where only four fields exist; service 1 sets none.
+const getDataProcessingResponse = (id: number) => {
+  if (id === 0) {
+    return {
+      data_processing: {
+        acknowledgment_timeout: 15,
+        check_freshness: 'true',
+        event_handler: { id: 7, name: 'restart-httpd' },
+        event_handler_args: ['80', 'graceful'],
+        event_handler_enabled: 'false',
+        flap_detection_enabled: 'true',
+        freshness_threshold: 120,
+        high_flap_threshold: 50,
+        low_flap_threshold: null,
+        obsess_over_service: 'false',
+        retain_non_status_information: 'use_default',
+        retain_status_information: 'true',
+        stalking_options: ['w', 'c']
+      }
+    };
+  }
+
+  if (id === 2) {
+    return {
+      data_processing: {
+        check_freshness: 'false',
+        event_handler: null,
+        event_handler_enabled: 'true',
+        freshness_threshold: 60
+      }
+    };
+  }
+
+  return {};
+};
+
+export const getServiceCommandsResponse = () => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': '/centreon/api/configuration/services/commands',
+  '@type': 'Collection',
+  member: [
+    { id: 7, name: 'restart-httpd' },
+    { id: 8, name: 'notify-by-email' }
+  ],
+  totalItems: 2
 });
 
 // MON-213084: Relations section selectors.
@@ -107,7 +157,9 @@ export const getServiceConfigurationResponse = (id: number) => ({
       retry_check_interval: null
     },
     template: { id: 30, name: 'generic-active-service' }
-  })
+  }),
+  // A cloud service always has a template: service 2 is opened on cloud.
+  ...(id === 2 && { template: { id: 31, name: 'generic-passive-service' } })
 });
 
 const getSelectorResponse = (

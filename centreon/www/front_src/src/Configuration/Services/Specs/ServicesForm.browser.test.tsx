@@ -1,4 +1,5 @@
 import Form from './Services.Form';
+import FormDataProcessing from './Services.Form.DataProcessing';
 import Notifications from './Services.Form.Notifications';
 import FormRelations from './Services.Form.Relations';
 import FormServiceConfiguration from './Services.Form.ServiceConfiguration';
@@ -14,6 +15,7 @@ describe('Services configuration: ', () => {
     Form();
     // MON-213084
     FormRelations();
+    FormDataProcessing();
   });
 
   describe('Form, Service Configuration: ', () => {
