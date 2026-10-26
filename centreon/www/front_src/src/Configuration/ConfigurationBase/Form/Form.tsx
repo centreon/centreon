@@ -14,7 +14,6 @@ import { formActionsAtom, isFormDirtyAtom } from '../atoms';
 import { CloseModalConfirmation } from '../Dialogs';
 import type { FormMode } from '../models';
 import { labelCancel, labelSave } from '../translatedLabels';
-import { useFormStyles } from './Form.styles';
 
 export type ResourceFormProps = {
   id?: number;
@@ -123,8 +122,6 @@ const ResourceForm = ({
   hasWriteAccess,
   areActionsInHeader = false
 }: ResourceFormProps): JSX.Element => {
-  const { classes } = useFormStyles();
-
   const getButtons = (): typeof Box => {
     if (!hasWriteAccess) {
       return Box;
@@ -142,7 +139,11 @@ const ResourceForm = ({
       areGroupsOpen
       Buttons={getButtons()}
       groups={groups}
-      groupsClassName={areActionsInHeader ? undefined : classes.groups}
+      groupsClassName={
+        areActionsInHeader
+          ? undefined
+          : 'flex-row-reverse justify-between px-2.5'
+      }
       initialValues={initialValues}
       inputs={inputs}
       isCollapsible
