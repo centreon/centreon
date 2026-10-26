@@ -6,6 +6,7 @@ import {
   acknowledgementAtom,
   aclAtom,
   downtimeAtom,
+  intervalLengthAtom,
   isAdditiveInheritanceEnabledAtom,
   isResourceStatusFullSearchEnabledAtom,
   platformNameAtom,
@@ -98,6 +99,7 @@ const useApp = (): UseAppState => {
   const setIsAdditiveInheritanceEnabled = useSetAtom(
     isAdditiveInheritanceEnabledAtom
   );
+  const setIntervalLength = useSetAtom(intervalLengthAtom);
 
   const { getNavigation } = useNavigation();
 
@@ -158,6 +160,7 @@ const useApp = (): UseAppState => {
         setIsAdditiveInheritanceEnabled(
           retrievedParameters.is_additive_inheritance_enabled
         );
+        setIntervalLength(retrievedParameters.monitoring_interval_length);
       })
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {

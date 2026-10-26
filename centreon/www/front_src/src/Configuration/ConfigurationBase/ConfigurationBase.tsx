@@ -6,6 +6,7 @@ import { JSX, useEffect, useMemo } from 'react';
 
 import { ConfigurationBase } from '../models';
 import { configurationAtom } from './atoms';
+import { sortFieldAtom } from './Listing/atoms';
 import Page from './Page';
 
 const Base = <TFilters,>({
@@ -26,11 +27,19 @@ const Base = <TFilters,>({
   navbar,
   filtersPanelWidth,
   formVariant,
-  formPanelWidth
+  formPanelWidth,
+  defaultSortField
 }: ConfigurationBase<TFilters>): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
+  const setSortField = useSetAtom(sortFieldAtom);
+
+  useEffect(() => {
+    if (defaultSortField) {
+      setSortField(defaultSortField);
+    }
+  }, [defaultSortField]);
 
   useEffect(() => {
     setConfiguration({
