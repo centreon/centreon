@@ -609,7 +609,20 @@ if ($engine == 'true' && ! empty($openid)) {
     }
 }
 
-if (! $is_admin) {
+if (! $is_admin && $engine == 'true') {
+    // Engine logs are not linked to any host, filter them on the pollers allowed by the ACL instead
+    $aclPollerIds = $access->getPollerRuntimeIds();
+    if ($aclPollerIds === []) {
+        $whereClauses[] = '0 = 1';
+    } else {
+        [$bindValues, $bindQuery] = createMultipleBindQuery($aclPollerIds, ':aclPollerIds_', PDO::PARAM_INT);
+        $joinClauses[] = "
+        INNER JOIN instances acl_i ON acl_i.name = logs.instance_name
+        AND acl_i.instance_id IN ({$bindQuery})
+        ";
+        $queryValues = array_merge($queryValues, $bindValues);
+    }
+} elseif (! $is_admin) {
     $joinClauses[] = '
         INNER JOIN centreon_acl acl ON (
             logs.host_id = acl.host_id
