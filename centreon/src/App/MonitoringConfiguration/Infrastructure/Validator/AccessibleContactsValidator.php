@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -34,7 +34,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Rejects contacts the viewer cannot reach as if they did not exist, so a restricted user cannot
+ * Rejects contacts the actor cannot reach as if they did not exist, so a restricted user cannot
  * tell an inaccessible contact apart from a missing one — and cannot link a contact absent from
  * the very selector the UI offers them (ListNotificationContactsProvider scopes it identically).
  *
@@ -47,7 +47,7 @@ final class AccessibleContactsValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly NotificationContactRepository $contactRepository,
-        private readonly ResourceAccessRepository $resourceAccessRepository,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -73,16 +73,10 @@ final class AccessibleContactsValidator extends ConstraintValidator
             NotificationContactId::class,
         );
 
-        $foundIds = array_keys($this->contactRepository->findNamesByIds($contactIds)->toArray());
-        $missingIds = array_diff($requestedIds, $foundIds);
-
-        if (! $credentialUser->credential->hasUnrestrictedResourceAccess()) {
-            $accessibleIds = array_map(
-                static fn (NotificationContactId $id): int => $id->value,
-                $this->resourceAccessRepository->findAccessibleContactIds($credentialUser->credential->userId)->toArray(),
-            );
-            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIds)));
-        }
+        $missingIds = $this->accessScopes->contacts($credentialUser->credential->actingUser())->missing(
+            $contactIds,
+            array_keys($this->contactRepository->findNamesByIds($contactIds)->toArray()),
+        );
 
         if ($missingIds !== []) {
             $this->context->buildViolation($constraint->message)->addViolation();

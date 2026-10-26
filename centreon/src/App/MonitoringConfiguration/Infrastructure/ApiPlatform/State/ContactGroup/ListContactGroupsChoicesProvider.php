@@ -67,7 +67,7 @@ final readonly class ListContactGroupsChoicesProvider implements ProviderInterfa
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $criteria = new ContactGroupCriteria();
+        $criteria = ContactGroupCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -88,10 +88,6 @@ final readonly class ListContactGroupsChoicesProvider implements ProviderInterfa
         // LDAP-only group is refused on save: the host-scoped selector excludes them outright
         // rather than surfacing an option the save would reject.
         $criteria = $criteria->withExcludeLdap(true);
-
-        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
 
         $contactGroups = $this->repository->findAll($criteria);
         $resources = [];
