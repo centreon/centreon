@@ -56,7 +56,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataPro
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\PatchHostCheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\PatchHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\PatchHostNotificationsInput;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
 use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
@@ -76,14 +76,13 @@ final readonly class PatchHostCommandFactory
 
     public function create(
         HostId $id,
-        int $updatedBy,
-        ?UserId $viewerId,
+        ActingUser $actor,
         PatchHostInput $input,
         RequestPayload $payload,
     ): PatchHostCommand {
         return new PatchHostCommand(
             id: $id,
-            updatedBy: $updatedBy,
+            actor: $actor,
             activated: $this->provided($payload, 'activated', fn (): bool => $this->required($input->activated)),
             name: $this->provided($payload, 'name', fn (): HostName => new HostName($this->required($input->name))),
             address: $this->provided($payload, 'address', fn (): HostAddress => new HostAddress($this->required($input->address))),
@@ -130,7 +129,6 @@ final readonly class PatchHostCommandFactory
                 : new NoValue(),
             macros: $this->macroChanges($payload->section('check_options'), $input->checkOptions),
             deployServicesFromTemplates: $input->createServicesLinkedToTemplates ?? false,
-            viewerId: $viewerId,
         );
     }
 

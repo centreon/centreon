@@ -28,8 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\NotificationContactCriteria;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -61,7 +60,7 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         #[Autowire(service: NotificationContactTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -90,17 +89,11 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         return new Collection($names, NotificationContactName::class);
     }
 
-    public function findAll(?NotificationContactCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(NotificationContactCriteria $criteria): \IteratorAggregate&\Countable
     {
-        $accessibleContactIds = null;
-        if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
-            $accessibleContactIds = array_map(
-                static fn (NotificationContactId $id): int => $id->value,
-                $this->resourceAccessRepository->findAccessibleContactIds($viewerId)->toArray(),
-            );
-            if ($accessibleContactIds === []) {
-                return $this->emptyResult($criteria);
-            }
+        $scope = $criteria->accessScope($this->accessScopes->contacts(...), NotificationContactId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, NotificationContact::class);
         }
 
         $qb = $this->connection->createQueryBuilder();
@@ -114,18 +107,16 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
             ->orderBy('c.contact_name') // alphabetical order for a name-based selector
             ->addOrderBy('c.contact_id'); // deterministic pagination if two contacts share a name
 
-        if ($accessibleContactIds !== null) {
+        if (! $scope->isUnrestricted()) {
             $qb->andWhere($qb->expr()->in(
                 'c.contact_id',
-                $qb->createNamedParameter($accessibleContactIds, ArrayParameterType::INTEGER)
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
             ));
         }
 
-        if ($criteria instanceof NotificationContactCriteria) {
-            $this->filterByCriteria($qb, $criteria);
-        }
+        $this->filterByCriteria($qb, $criteria);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -145,27 +136,6 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         return new InMemoryPaginator(
             items: $this->createNotificationContacts($rows),
             totalItems: $count,
-            currentPage: $pagination->page,
-            itemsPerPage: $pagination->itemsPerPage,
-        );
-    }
-
-    /**
-     * A restricted viewer with no accessible contact short-circuits before any query runs. When
-     * pagination was requested, the response must still carry the pagination envelope (page, page
-     * size, totalItems: 0) instead of degrading to a bare array — the client can't otherwise tell
-     * "zero matches" from "pagination metadata omitted".
-     */
-    private function emptyResult(?NotificationContactCriteria $criteria): \IteratorAggregate&\Countable
-    {
-        $pagination = $criteria?->getPagination();
-        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
-            return new Collection([], NotificationContact::class);
-        }
-
-        return new InMemoryPaginator(
-            items: new Collection([], NotificationContact::class),
-            totalItems: 0,
             currentPage: $pagination->page,
             itemsPerPage: $pagination->itemsPerPage,
         );

@@ -93,9 +93,7 @@ const Templates = ({
 
   return (
     <div className="flex flex-col gap-2" data-testid={dataTestId}>
-      <Typography className="font-bold" variant="body1">
-        {label}
-      </Typography>
+      <Typography className="text-base font-bold">{label}</Typography>
       {/* The shared list has no read-only mode: a disabled fieldset turns off
           its add, delete and drag buttons natively. */}
       <fieldset className="m-0 min-w-0 border-0 p-0" disabled={disabled}>
