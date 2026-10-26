@@ -375,7 +375,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         ));
     }
 
-    public function findAccessibleServiceGroupIds(UserId $userId): ?Collection
+    public function findServiceGroupAccessScope(UserId $userId): AccessScope
     {
         // Built on the active ACL resources only (acl_res_activate = '1'): an inactive resource grants
         // neither its "all service groups" flag nor its relations. Disabled service groups stay
@@ -393,7 +393,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->setMaxResults(1);
 
         if ($this->connection->fetchOne($allServiceGroupsQb->getSQL(), ['contactId' => $userId->value]) !== false) {
-            return null;
+            return AccessScope::unrestricted(ServiceGroupId::class);
         }
 
         // No flag anywhere: the union of service-group relations across every accessible resource,
@@ -408,10 +408,10 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<array{sg_id: int|numeric-string}> $rows */
         $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
 
-        return new Collection(
+        return AccessScope::restrictedTo(ServiceGroupId::class, new Collection(
             array_map(static fn (array $row): ServiceGroupId => new ServiceGroupId((int) $row['sg_id']), $rows),
             ServiceGroupId::class,
-        );
+        ));
     }
 
     public function findImageFolderAccessScope(UserId $userId): AccessScope

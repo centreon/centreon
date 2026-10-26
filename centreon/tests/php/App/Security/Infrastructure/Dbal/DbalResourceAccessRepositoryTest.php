@@ -30,7 +30,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
@@ -387,10 +386,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     {
         $userId = new UserId($this->createContact('user-no-acl'));
 
-        $accessibleServiceGroupIds = $this->repository->findAccessibleServiceGroupIds($userId);
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope($userId);
 
-        self::assertNotNull($accessibleServiceGroupIds, 'No accessible ACL resource is a restriction, not "see all".');
-        self::assertCount(0, $accessibleServiceGroupIds);
+        self::assertFalse($serviceGroupScope->isUnrestricted(), 'No accessible ACL resource is a restriction, not "see all".');
+        self::assertTrue($serviceGroupScope->allowsNothing());
     }
 
     public function testUserWithAclResourceFlaggedAllServiceGroupsHasAccessToAllServiceGroups(): void
@@ -400,7 +399,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [$this->insertServiceGroup()], allServiceGroups: false);
         $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [], allServiceGroups: true);
 
-        self::assertNull($this->repository->findAccessibleServiceGroupIds(new UserId($contactId)));
+        self::assertTrue($this->repository->findServiceGroupAccessScope(new UserId($contactId))->isUnrestricted());
     }
 
     public function testUserWithAclResourceRestrictedToAServiceGroupSeesOnlyIt(): void
@@ -412,10 +411,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // the relation column is nullable: such a row grants nothing and must not become an invalid id
         $this->connection->insert('acl_resources_sg_relations', ['acl_res_id' => $aclResId, 'sg_id' => null]);
 
-        $accessibleServiceGroupIds = $this->repository->findAccessibleServiceGroupIds(new UserId($contactId));
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleServiceGroupIds);
-        self::assertSame([$grantedId], $this->serviceGroupIdValues($accessibleServiceGroupIds));
+        self::assertFalse($serviceGroupScope->isUnrestricted());
+        self::assertSame([$grantedId], $serviceGroupScope->allowedIdValues());
     }
 
     public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoServiceGroups(): void
@@ -425,10 +424,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $contactId = $this->createContact('user-empty-resource');
         $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [], allServiceGroups: false);
 
-        $accessibleServiceGroupIds = $this->repository->findAccessibleServiceGroupIds(new UserId($contactId));
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleServiceGroupIds, 'A resource without relation nor flag is a restriction, not "see all".');
-        self::assertCount(0, $accessibleServiceGroupIds);
+        self::assertFalse($serviceGroupScope->isUnrestricted(), 'A resource without relation nor flag is a restriction, not "see all".');
+        self::assertTrue($serviceGroupScope->allowsNothing());
     }
 
     public function testAnotherUsersGrantsGiveNoServiceGroupToTheAskingUser(): void
@@ -442,10 +441,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $this->linkContactToAclResourceForServiceGroups($otherContactId, restrictToServiceGroupIds: [], allServiceGroups: true);
         $this->linkContactToAclResourceForServiceGroups($otherContactId, restrictToServiceGroupIds: [$otherUsersGroupId], allServiceGroups: false);
 
-        $accessibleServiceGroupIds = $this->repository->findAccessibleServiceGroupIds(new UserId($contactId));
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleServiceGroupIds, "Another user's \"all service groups\" flag must not apply.");
-        self::assertSame([$grantedId], $this->serviceGroupIdValues($accessibleServiceGroupIds), "Another user's relations must not apply.");
+        self::assertFalse($serviceGroupScope->isUnrestricted(), "Another user's \"all service groups\" flag must not apply.");
+        self::assertSame([$grantedId], $serviceGroupScope->allowedIdValues(), "Another user's relations must not apply.");
     }
 
     public function testAnInactiveAclResourceGrantsNoServiceGroup(): void
@@ -459,10 +458,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             active: false,
         );
 
-        $accessibleServiceGroupIds = $this->repository->findAccessibleServiceGroupIds(new UserId($contactId));
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
 
-        self::assertNotNull($accessibleServiceGroupIds, 'An inactive resource must not grant "all service groups".');
-        self::assertCount(0, $accessibleServiceGroupIds);
+        self::assertFalse($serviceGroupScope->isUnrestricted(), 'An inactive resource must not grant "all service groups".');
+        self::assertTrue($serviceGroupScope->allowsNothing());
     }
 
     public function testUserWithNoAclGroupHasAccessToNoImageFolders(): void
@@ -1055,16 +1054,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
                 'dir_id' => $imageFolderId,
             ]);
         }
-    }
-
-    /**
-     * @param Collection<ServiceGroupId> $ids
-     *
-     * @return list<int>
-     */
-    private function serviceGroupIdValues(Collection $ids): array
-    {
-        return array_values(array_map(static fn (ServiceGroupId $id): int => $id->value, $ids->toArray()));
     }
 
     private function insertServiceGroup(): int

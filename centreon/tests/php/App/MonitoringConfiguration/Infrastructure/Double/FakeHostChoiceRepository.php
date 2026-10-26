@@ -41,7 +41,7 @@ final class FakeHostChoiceRepository implements HostChoiceRepository
         $this->result = new Collection([], HostChoice::class);
     }
 
-    public function findAll(?HostChoiceCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostChoiceCriteria $criteria): \IteratorAggregate&\Countable
     {
         $this->receivedCriteria = $criteria;
 

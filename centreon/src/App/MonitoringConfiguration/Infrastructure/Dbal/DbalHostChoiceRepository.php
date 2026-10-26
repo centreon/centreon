@@ -27,8 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Model\HostChoice;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostChoiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostChoiceRepository;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -60,12 +59,19 @@ final readonly class DbalHostChoiceRepository extends DbalRepository implements 
         #[Autowire(service: HostChoiceTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
-    public function findAll(?HostChoiceCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostChoiceCriteria $criteria): \IteratorAggregate&\Countable
     {
+        // The acting user's scope: unrestricted for a user escaping ACL scoping, otherwise what their
+        // ACL grants. Nothing granted gives an empty result that keeps the paginator envelope.
+        $scope = $criteria->accessScope($this->accessScopes->hosts(...), HostId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, HostChoice::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select('h.host_id', 'h.host_name')
             ->from(self::TABLE_NAME, 'h')
@@ -77,29 +83,18 @@ final readonly class DbalHostChoiceRepository extends DbalRepository implements 
             ->andWhere("h.host_name IS NOT NULL AND h.host_name != ''")
             ->orderBy('h.host_id'); // the selector order, also required for deterministic pagination
 
-        if (($name = $criteria?->getName()) !== null) {
+        if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('h.host_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        // ACL data-scoping: a restricted viewer only sees the hosts its real-time ACL grants. An
-        // unrestricted user passes no viewer, since the accessible host list is never "unrestricted".
-        if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
-            $accessibleIds = array_map(
-                static fn (HostId $id): int => $id->value,
-                $this->resourceAccessRepository->findAccessibleHostIds($viewerId)->toArray(),
-            );
-            if ($accessibleIds === []) {
-                // No accessible host: match nothing, but keep the normal (paginator) shape.
-                $qb->andWhere('1 = 0');
-            } else {
-                $qb->andWhere($qb->expr()->in(
-                    'h.host_id',
-                    $qb->createNamedParameter($accessibleIds, ArrayParameterType::INTEGER)
-                ));
-            }
+        if (! $scope->isUnrestricted()) {
+            $qb->andWhere($qb->expr()->in(
+                'h.host_id',
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
+            ));
         }
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();

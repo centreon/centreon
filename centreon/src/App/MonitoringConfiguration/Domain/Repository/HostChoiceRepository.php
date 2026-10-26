@@ -29,10 +29,10 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\HostChoiceCriteria;
 interface HostChoiceRepository
 {
     /**
-     * Hosts only (never host templates), with or without a poller, ordered by id. When the criteria
-     * carry a viewer, only the hosts that viewer can access are listed.
+     * Hosts only (never host templates), with or without a poller, ordered by id. Only the hosts the
+     * criteria's access scope allows are listed.
      *
      * @return \IteratorAggregate<int, HostChoice>&\Countable
      */
-    public function findAll(?HostChoiceCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(HostChoiceCriteria $criteria): \IteratorAggregate&\Countable;
 }

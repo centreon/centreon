@@ -23,9 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Repository\Criteria;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostChoiceCriteria;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Aggregate\ActingUser;
 use PHPUnit\Framework\TestCase;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class HostChoiceCriteriaTest extends TestCase
 {
@@ -36,27 +39,55 @@ final class HostChoiceCriteriaTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        (new HostChoiceCriteria())->withName('');
+        HostChoiceCriteria::unscoped()->withName('');
     }
 
     public function testWithNameAcceptsTheLiteralZero(): void
     {
         // stringNotEmpty(), not notEmpty(): notEmpty() relies on empty(), which treats "0" as empty.
-        self::assertSame('0', (new HostChoiceCriteria())->withName('0')->getName());
+        self::assertSame('0', HostChoiceCriteria::unscoped()->withName('0')->getName());
     }
 
-    public function testWithersReturnACopy(): void
+    public function testWithNameReturnsACopyKeepingTheActor(): void
     {
-        $criteria = new HostChoiceCriteria();
+        $criteria = HostChoiceCriteria::forActor(TestActingUsers::restricted(7));
 
         $withName = $criteria->withName('Central-Server');
-        $withViewer = $criteria->withViewerId(new UserId(7));
 
         self::assertNotSame($criteria, $withName);
-        self::assertNotSame($criteria, $withViewer);
         self::assertNull($criteria->getName());
-        self::assertNull($criteria->getViewerId());
         self::assertSame('Central-Server', $withName->getName());
-        self::assertSame(7, $withViewer->getViewerId()?->value);
+        self::assertSame([7], $withName->accessScope($this->scopeOf(...), HostId::class)->allowedIdValues());
+    }
+
+    public function testForActorScopesToWhatTheActorMayAccess(): void
+    {
+        $scope = HostChoiceCriteria::forActor(TestActingUsers::restricted(7))->accessScope($this->scopeOf(...), HostId::class);
+
+        self::assertSame([7], $scope->allowedIdValues());
+    }
+
+    public function testAnUnscopedCriteriaIsUnrestricted(): void
+    {
+        $scope = HostChoiceCriteria::unscoped()->accessScope(
+            static fn (ActingUser $actor): never => self::fail('An unscoped criteria must not resolve any scope.'),
+            HostId::class,
+        );
+
+        self::assertTrue($scope->isUnrestricted());
+    }
+
+    public function testACriteriaCannotBeBuiltWithoutChoosingItsScope(): void
+    {
+        // Fail closed by construction: only forActor() and unscoped() build a criteria.
+        self::assertTrue((new \ReflectionMethod(HostChoiceCriteria::class, '__construct'))->isPrivate());
+    }
+
+    /**
+     * @return AccessScope<HostId>
+     */
+    private function scopeOf(ActingUser $actor): AccessScope
+    {
+        return AccessScope::restrictedTo(HostId::class, [new HostId($actor->userId->value)]);
     }
 }

@@ -27,8 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceGroupCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -60,12 +59,19 @@ final readonly class DbalServiceGroupRepository extends DbalRepository implement
         #[Autowire(service: ServiceGroupTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
-    public function findAll(?ServiceGroupCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(ServiceGroupCriteria $criteria): \IteratorAggregate&\Countable
     {
+        // The acting user's scope: unrestricted for a user escaping ACL scoping, otherwise what their
+        // ACL grants. Nothing granted gives an empty result that keeps the paginator envelope.
+        $scope = $criteria->accessScope($this->accessScopes->serviceGroups(...), ServiceGroupId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, ServiceGroup::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select('sg.sg_id', 'sg.sg_name')
             ->from(self::TABLE_NAME, 'sg')
@@ -76,32 +82,18 @@ final readonly class DbalServiceGroupRepository extends DbalRepository implement
             ->where("sg.sg_name IS NOT NULL AND sg.sg_name != ''")
             ->orderBy('sg.sg_id'); // the selector order, also required for deterministic pagination
 
-        if (($name = $criteria?->getName()) !== null) {
+        if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('sg.sg_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        // ACL data-scoping: a restricted viewer only sees the service groups its active ACL resources
-        // grant. A null accessible set means one of them grants every service group.
-        if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
-            $accessibleServiceGroupIds = $this->resourceAccessRepository->findAccessibleServiceGroupIds($viewerId);
-            if ($accessibleServiceGroupIds instanceof Collection) {
-                $accessibleIds = array_map(
-                    static fn (ServiceGroupId $id): int => $id->value,
-                    $accessibleServiceGroupIds->toArray(),
-                );
-                if ($accessibleIds === []) {
-                    // No accessible service group: match nothing, but keep the normal (paginator) shape.
-                    $qb->andWhere('1 = 0');
-                } else {
-                    $qb->andWhere($qb->expr()->in(
-                        'sg.sg_id',
-                        $qb->createNamedParameter($accessibleIds, ArrayParameterType::INTEGER)
-                    ));
-                }
-            }
+        if (! $scope->isUnrestricted()) {
+            $qb->andWhere($qb->expr()->in(
+                'sg.sg_id',
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
+            ));
         }
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();

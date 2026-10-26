@@ -28,13 +28,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceGroupCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalServiceGroupRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\ServiceGroupTransformer;
-use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class DbalServiceGroupRepositoryTest extends KernelTestCase
 {
@@ -52,12 +53,12 @@ final class DbalServiceGroupRepositoryTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
-        // the ACL tiers are pinned by DbalResourceAccessRepositoryTest: a fake supplies the accessible set here
+        // the ACL tiers are pinned by DbalResourceAccessRepositoryTest: a fake supplies the access scope here
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
         $this->repository = new DbalServiceGroupRepository(
             $this->connection,
             new ServiceGroupTransformer(),
-            $this->resourceAccessRepository,
+            new AccessScopeResolver($this->resourceAccessRepository),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded service group
@@ -69,7 +70,7 @@ final class DbalServiceGroupRepositoryTest extends KernelTestCase
         $this->insertServiceGroup("enabled-{$this->tag}");
         $this->insertServiceGroup("disabled-{$this->tag}", activate: '0');
 
-        $names = $this->names($this->repository->findAll((new ServiceGroupCriteria())->withName($this->tag)));
+        $names = $this->names($this->repository->findAll(ServiceGroupCriteria::unscoped()->withName($this->tag)));
 
         self::assertSame(["enabled-{$this->tag}", "disabled-{$this->tag}"], $names);
     }
@@ -83,7 +84,7 @@ final class DbalServiceGroupRepositoryTest extends KernelTestCase
         $blankNameId = $this->insertServiceGroup('   ');
 
         // no name filter: a LIKE filter would exclude NULL names by itself and hide a missing guard
-        $ids = $this->ids($this->repository->findAll());
+        $ids = $this->ids($this->repository->findAll(ServiceGroupCriteria::unscoped()));
 
         self::assertContains($validId, $ids);
         self::assertNotContains($nullNameId, $ids, 'A service group with a NULL name is skipped.');
@@ -97,7 +98,7 @@ final class DbalServiceGroupRepositoryTest extends KernelTestCase
         $this->insertServiceGroup("b-{$this->tag}");
         $this->insertServiceGroup("a-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new ServiceGroupCriteria())->withName($this->tag)));
+        $names = $this->names($this->repository->findAll(ServiceGroupCriteria::unscoped()->withName($this->tag)));
 
         self::assertSame(["b-{$this->tag}", "a-{$this->tag}"], $names);
     }
@@ -107,7 +108,7 @@ final class DbalServiceGroupRepositoryTest extends KernelTestCase
         $this->insertServiceGroup("prefix-match-{$this->tag}-suffix");
         $this->insertServiceGroup("other-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new ServiceGroupCriteria())->withName("match-{$this->tag}")));
+        $names = $this->names($this->repository->findAll(ServiceGroupCriteria::unscoped()->withName("match-{$this->tag}")));
 
         self::assertSame(["prefix-match-{$this->tag}-suffix"], $names);
     }
@@ -120,7 +121,7 @@ final class DbalServiceGroupRepositoryTest extends KernelTestCase
 
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot)
         $result = $this->repository->findAll(
-            (new ServiceGroupCriteria())->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            ServiceGroupCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -128,42 +129,42 @@ final class DbalServiceGroupRepositoryTest extends KernelTestCase
         self::assertSame(["pg-{$this->tag}-B"], $this->names($result));
     }
 
-    public function testANullAccessibleSetIsNotScoped(): void
+    public function testAnUnrestrictedScopeIsNotScoped(): void
     {
         $this->insertServiceGroup("a-{$this->tag}");
         $this->insertServiceGroup("b-{$this->tag}");
-        $this->resourceAccessRepository->accessibleServiceGroupIds = null;
+        $this->resourceAccessRepository->serviceGroupScope = AccessScope::unrestricted(ServiceGroupId::class);
 
         $names = $this->names($this->repository->findAll(
-            (new ServiceGroupCriteria())->withName($this->tag)->withViewerId(new UserId(42))
+            ServiceGroupCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)
         ));
 
         self::assertSame(["a-{$this->tag}", "b-{$this->tag}"], $names);
     }
 
-    public function testItRestrictsToTheAccessibleIds(): void
+    public function testItRestrictsToTheAllowedIds(): void
     {
         $this->insertServiceGroup("other-{$this->tag}");
         $grantedId = $this->insertServiceGroup("granted-{$this->tag}");
-        $this->resourceAccessRepository->accessibleServiceGroupIds = new Collection(
-            [new ServiceGroupId($grantedId)],
+        $this->resourceAccessRepository->serviceGroupScope = AccessScope::restrictedTo(
             ServiceGroupId::class,
+            [new ServiceGroupId($grantedId)],
         );
 
         $names = $this->names($this->repository->findAll(
-            (new ServiceGroupCriteria())->withName($this->tag)->withViewerId(new UserId(42))
+            ServiceGroupCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)
         ));
 
         self::assertSame(["granted-{$this->tag}"], $names);
     }
 
-    public function testAnEmptyAccessibleSetMatchesNothingButKeepsTheEnvelope(): void
+    public function testAScopeAllowingNothingReturnsAnEmptyEnvelope(): void
     {
         $this->insertServiceGroup("sg-{$this->tag}");
-        $this->resourceAccessRepository->accessibleServiceGroupIds = new Collection([], ServiceGroupId::class);
+        $this->resourceAccessRepository->serviceGroupScope = AccessScope::restrictedTo(ServiceGroupId::class, []);
 
         $result = $this->repository->findAll(
-            (new ServiceGroupCriteria())->withName($this->tag)->withViewerId(new UserId(42))->withPagination(1, 10)
+            ServiceGroupCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)->withPagination(1, 10)
         );
 
         self::assertInstanceOf(Paginator::class, $result);

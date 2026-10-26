@@ -41,7 +41,7 @@ final class FakeServiceGroupRepository implements ServiceGroupRepository
         $this->result = new Collection([], ServiceGroup::class);
     }
 
-    public function findAll(?ServiceGroupCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(ServiceGroupCriteria $criteria): \IteratorAggregate&\Countable
     {
         $this->receivedCriteria = $criteria;
 

@@ -67,7 +67,7 @@ final readonly class ListHostsChoicesProvider implements ProviderInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $criteria = new HostChoiceCriteria();
+        $criteria = HostChoiceCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -81,11 +81,6 @@ final readonly class ListHostsChoicesProvider implements ProviderInterface
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-
-        // Super admins and cloud admins see every host; anyone else only what its ACL grants.
-        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
 
         $hosts = $this->repository->findAll($criteria);
         $resources = [];

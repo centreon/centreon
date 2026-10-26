@@ -28,13 +28,14 @@ use App\MonitoringConfiguration\Domain\Model\HostChoice;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostChoiceCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostChoiceRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostChoiceTransformer;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class DbalHostChoiceRepositoryTest extends KernelTestCase
 {
@@ -52,12 +53,12 @@ final class DbalHostChoiceRepositoryTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
-        // the ACL tiers are pinned by DbalResourceAccessRepositoryTest: a fake supplies the accessible set here
+        // the ACL tiers are pinned by DbalResourceAccessRepositoryTest: a fake supplies the access scope here
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
         $this->repository = new DbalHostChoiceRepository(
             $this->connection,
             new HostChoiceTransformer(),
-            $this->resourceAccessRepository,
+            new AccessScopeResolver($this->resourceAccessRepository),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded host
@@ -70,7 +71,7 @@ final class DbalHostChoiceRepositoryTest extends KernelTestCase
         $this->insertHost("tpl-{$this->tag}", register: '0');
         $this->insertHost("meta-{$this->tag}", register: '2');
 
-        $names = $this->names($this->repository->findAll((new HostChoiceCriteria())->withName($this->tag)));
+        $names = $this->names($this->repository->findAll(HostChoiceCriteria::unscoped()->withName($this->tag)));
 
         self::assertSame(["host-{$this->tag}"], $names, 'Only real hosts (register 1) are listed.');
     }
@@ -82,7 +83,7 @@ final class DbalHostChoiceRepositoryTest extends KernelTestCase
         $this->insertHost("without-poller-{$this->tag}");
         $this->insertHost("disabled-{$this->tag}", activate: '0');
 
-        $names = $this->names($this->repository->findAll((new HostChoiceCriteria())->withName($this->tag)));
+        $names = $this->names($this->repository->findAll(HostChoiceCriteria::unscoped()->withName($this->tag)));
 
         self::assertSame(
             ["with-poller-{$this->tag}", "without-poller-{$this->tag}", "disabled-{$this->tag}"],
@@ -98,7 +99,7 @@ final class DbalHostChoiceRepositoryTest extends KernelTestCase
         $rawName = " my host {$this->tag} ";
         $this->insertHost($rawName);
 
-        $names = $this->names($this->repository->findAll((new HostChoiceCriteria())->withName($this->tag)));
+        $names = $this->names($this->repository->findAll(HostChoiceCriteria::unscoped()->withName($this->tag)));
 
         self::assertSame([$rawName], $names);
     }
@@ -112,7 +113,7 @@ final class DbalHostChoiceRepositoryTest extends KernelTestCase
         $blankNameId = $this->insertHost('   ');
 
         // no name filter: a LIKE filter would exclude NULL names by itself and hide a missing guard
-        $ids = $this->ids($this->repository->findAll());
+        $ids = $this->ids($this->repository->findAll(HostChoiceCriteria::unscoped()));
 
         self::assertContains($validId, $ids);
         self::assertNotContains($nullNameId, $ids, 'A host with a NULL name is skipped.');
@@ -126,7 +127,7 @@ final class DbalHostChoiceRepositoryTest extends KernelTestCase
         $this->insertHost("b-{$this->tag}");
         $this->insertHost("a-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new HostChoiceCriteria())->withName($this->tag)));
+        $names = $this->names($this->repository->findAll(HostChoiceCriteria::unscoped()->withName($this->tag)));
 
         self::assertSame(["b-{$this->tag}", "a-{$this->tag}"], $names);
     }
@@ -136,7 +137,7 @@ final class DbalHostChoiceRepositoryTest extends KernelTestCase
         $this->insertHost("prefix-match-{$this->tag}-suffix");
         $this->insertHost("other-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new HostChoiceCriteria())->withName("match-{$this->tag}")));
+        $names = $this->names($this->repository->findAll(HostChoiceCriteria::unscoped()->withName("match-{$this->tag}")));
 
         self::assertSame(["prefix-match-{$this->tag}-suffix"], $names);
     }
@@ -149,7 +150,7 @@ final class DbalHostChoiceRepositoryTest extends KernelTestCase
 
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot)
         $result = $this->repository->findAll(
-            (new HostChoiceCriteria())->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            HostChoiceCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -157,39 +158,41 @@ final class DbalHostChoiceRepositoryTest extends KernelTestCase
         self::assertSame(["pg-{$this->tag}-B"], $this->names($result));
     }
 
-    public function testWithoutAViewerItIsNotScoped(): void
+    public function testAnUnrestrictedScopeIsNotScoped(): void
     {
-        // Hosts have no "unrestricted" ACL answer (findAccessibleHostIds never returns null): an
-        // unrestricted user is expressed by a criteria without viewer, which must ignore the ACL.
+        // The host lookup never answers "unrestricted": only an actor escaping ACL scoping gets an
+        // unrestricted scope, whatever the real-time ACL grants.
         $grantedId = $this->insertHost("granted-{$this->tag}");
         $this->insertHost("other-{$this->tag}");
         $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId($grantedId)], HostId::class);
 
-        $names = $this->names($this->repository->findAll((new HostChoiceCriteria())->withName($this->tag)));
+        $names = $this->names($this->repository->findAll(
+            HostChoiceCriteria::forActor(TestActingUsers::unrestricted(42))->withName($this->tag)
+        ));
 
         self::assertSame(["granted-{$this->tag}", "other-{$this->tag}"], $names);
     }
 
-    public function testItRestrictsToTheAccessibleIds(): void
+    public function testItRestrictsToTheAllowedIds(): void
     {
         $this->insertHost("other-{$this->tag}");
         $grantedId = $this->insertHost("granted-{$this->tag}");
         $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId($grantedId)], HostId::class);
 
         $names = $this->names($this->repository->findAll(
-            (new HostChoiceCriteria())->withName($this->tag)->withViewerId(new UserId(42))
+            HostChoiceCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)
         ));
 
         self::assertSame(["granted-{$this->tag}"], $names);
     }
 
-    public function testAnEmptyAccessibleSetMatchesNothingButKeepsTheEnvelope(): void
+    public function testAScopeAllowingNothingReturnsAnEmptyEnvelope(): void
     {
         $this->insertHost("host-{$this->tag}");
         $this->resourceAccessRepository->accessibleHostIds = new Collection([], HostId::class);
 
         $result = $this->repository->findAll(
-            (new HostChoiceCriteria())->withName($this->tag)->withViewerId(new UserId(42))->withPagination(1, 10)
+            HostChoiceCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)->withPagination(1, 10)
         );
 
         self::assertInstanceOf(Paginator::class, $result);

@@ -29,10 +29,10 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceGroupCriteria;
 interface ServiceGroupRepository
 {
     /**
-     * Service groups, disabled ones included, ordered by id. When the criteria carry a viewer, only
-     * the service groups that viewer can access are listed.
+     * Service groups, disabled ones included, ordered by id. Only the service groups
+     * the criteria's access scope allows are listed.
      *
      * @return \IteratorAggregate<int, ServiceGroup>&\Countable
      */
-    public function findAll(?ServiceGroupCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(ServiceGroupCriteria $criteria): \IteratorAggregate&\Countable;
 }

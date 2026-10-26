@@ -124,13 +124,12 @@ interface ResourceAccessRepository
     public function findHostGroupAccessScope(UserId $userId): AccessScope;
 
     /**
-     * Service groups granted by the user's active ACL resources (disabled service groups included).
+     * Service groups granted by the user's active ACL resources (disabled service groups included):
+     * unrestricted when one of them grants all service groups.
      *
-     * @return Collection<ServiceGroupId>|null null means no restriction applies (an accessible ACL
-     *                                         resource grants all service groups); an empty
-     *                                         Collection means the user can access none
+     * @return AccessScope<ServiceGroupId>
      */
-    public function findAccessibleServiceGroupIds(UserId $userId): ?Collection;
+    public function findServiceGroupAccessScope(UserId $userId): AccessScope;
 
     /**
      * @return AccessScope<MediaDirectoryId>
