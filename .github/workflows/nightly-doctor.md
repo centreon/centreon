@@ -288,7 +288,9 @@ jobs:
               is_infra = any(p.search(context) for p in INFRA) or bool(TIMEOUT.search(error) and CYPRESS_DOWNLOAD.search(context))
               infra.append(is_infra)
               items.add(f"{run.get('path', '?')}|{norm_job(name)}|{norm_err(error)}")
-              print(f"{'infra' if is_infra else 'other'}: {name} :: {error[:160]}")
+              # Printed "##[error]" lines would become annotations of this job.
+              shown = error.removeprefix("##[error]").replace("##[", "#[").replace("::", ": :")
+              print(f"{'infra' if is_infra else 'other'}: {name} :: {shown[:160]}")
 
           # No failed job read (re-run, API error): a run-specific signature never matches a previous analysis.
           signature = hashlib.sha256("\n".join(sorted(items) or [f"run {run_id}"]).encode()).hexdigest()[:16]
