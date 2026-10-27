@@ -21,7 +21,7 @@ import {
   labelHostBasicInformation,
   labelHostCheckOptions,
   labelHostDetails,
-  labelHostGroupsTitle,
+  labelHostGroups,
   labelHostMonitoringProperties,
   labelMonitoringEngineSchedulingOptions,
   labelNo,
@@ -109,7 +109,7 @@ const titles: Record<string, Array<string>> = {
     labelTemplates,
     labelCustomMacros
   ],
-  [labelRelations]: [labelHostGroupsTitle, labelParentChildRelations],
+  [labelRelations]: [labelHostGroups, labelParentChildRelations],
   [labelMonitoringEngineSchedulingOptions]: [
     labelHostDetails,
     labelSchedulingOptions

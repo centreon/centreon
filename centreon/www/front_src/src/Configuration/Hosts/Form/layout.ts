@@ -6,7 +6,7 @@ import {
   labelAdvanced,
   labelGeneralInformation,
   labelHostDetails,
-  labelHostGroupsTitle,
+  labelHostGroups,
   labelHostMonitoringProperties,
   labelMonitoringEngineSchedulingOptions,
   labelNotifications,
@@ -85,7 +85,7 @@ export const layout: Array<LayoutSection> = [
         name: 'relations-layout',
         // Over both columns: the host categories stay level with the host
         // groups, as designed.
-        title: labelHostGroupsTitle
+        title: labelHostGroups
       }
     ]
   },

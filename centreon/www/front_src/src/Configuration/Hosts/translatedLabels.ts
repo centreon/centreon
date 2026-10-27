@@ -28,7 +28,7 @@ export const labelWelcomeToHosts = 'Welcome to the Hosts interface!';
 export const labelCreateHost = 'Create a host';
 
 // The sections of the form, as the design names them.
-export const labelGeneralInformation = 'General Information';
+export const labelGeneralInformation = 'General information';
 export const labelHostMonitoringProperties = 'Host monitoring properties';
 export const labelRelations = 'Relations';
 export const labelMonitoringEngineSchedulingOptions =
@@ -41,7 +41,6 @@ export const labelHostBasicInformation = 'Host basic information';
 export const labelHostCheckOptions = 'Host check options';
 export const labelArguments = 'Arguments';
 // The design capitalises the title, not the field (`labelHostGroups`).
-export const labelHostGroupsTitle = 'Host Groups';
 export const labelParentChildRelations = 'Parent-child relations';
 export const labelHostDetails = 'Host details';
 export const labelSchedulingOptions = 'Scheduling options';
