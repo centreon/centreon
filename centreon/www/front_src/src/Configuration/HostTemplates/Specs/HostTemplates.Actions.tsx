@@ -2,6 +2,7 @@ import { waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
   labelDelete,
   labelDisable,
@@ -9,6 +10,7 @@ import {
   labelDuplications,
   labelEnable,
   labelEnableDisable,
+  labelMassChange,
   labelMoreActions
 } from '../../ConfigurationBase/translatedLabels';
 import initialize from './initialize';
@@ -89,6 +91,7 @@ export default () => {
 
       expect(within(menu).getByText(labelDelete)).toBeVisible();
       expect(within(menu).getByText(labelDuplicate)).toBeVisible();
+      expect(within(menu).getByText(labelMassChange)).toBeVisible();
       expect(within(menu).queryByText(labelEnable)).not.toBeInTheDocument();
       expect(within(menu).queryByText(labelDisable)).not.toBeInTheDocument();
     });
@@ -101,12 +104,14 @@ export default () => {
 
       await userEvent.click(screen.getByLabelText('Select all'));
 
+      const menu = await openMoreActions();
+
+      await userEvent.click(within(menu).getByText(labelMassChange));
+
       // Templates 5 and 6, without the locked 8.
-      await waitFor(() =>
-        expect(screen.getByLabelText('Select row 6')).toBeChecked()
-      );
-      expect(screen.getByLabelText('Select row 5')).toBeChecked();
-      expect(screen.getByLabelText('Select row 8')).not.toBeChecked();
+      expect(
+        await screen.findByTestId(panelDataTestIds.header)
+      ).toHaveTextContent(`${labelMassChange} (2)`);
     });
 
     it('offers no write action without the host template write access', async () => {

@@ -1,16 +1,22 @@
+import { EditNoteOutlined as MassChangeIcon } from '@mui/icons-material';
+
 import {
   isAdditiveInheritanceEnabledAtom,
   platformFeaturesAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
+import { formStateAtom } from '../ConfigurationBase/atoms';
+import { labelMassChange } from '../ConfigurationBase/translatedLabels';
 import {
   getDefaultValues,
+  getMassChangeAdapter,
+  getMassChangeDefaultValues,
   useFormInputs,
   useValidationSchema
 } from '../Hosts/Form';
@@ -61,6 +67,43 @@ const HostTemplates = () => {
     isCloudPlatform,
     isTemplate: true
   });
+  const { groups: massChangeGroups, inputs: massChangeInputs } = useFormInputs({
+    canEdit,
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    isMassChange: true,
+    isTemplate: true
+  });
+  const { validationSchema: massChangeValidationSchema } = useValidationSchema({
+    isCloudPlatform,
+    isMassChange: true,
+    isTemplate: true
+  });
+  // No confirmation warning: replacing a template's parents deletes no
+  // service, unlike replacing a host's templates.
+  const massChange = useMemo(() => {
+    const context = {
+      isAdditiveInheritanceEnabled,
+      isCloudPlatform,
+      isMassChange: true,
+      isTemplate: true
+    };
+
+    return {
+      adapter: getMassChangeAdapter(context),
+      defaultValues: getMassChangeDefaultValues(context),
+      groups: massChangeGroups,
+      inputs: massChangeInputs,
+      validationSchema: massChangeValidationSchema
+    };
+  }, [
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    massChangeGroups,
+    massChangeInputs,
+    massChangeValidationSchema
+  ]);
+  const setFormState = useSetAtom(formStateAtom);
 
   const { api, filtersConfiguration } = useHostTemplates({
     isAdditiveInheritanceEnabled,
@@ -78,10 +121,28 @@ const HostTemplates = () => {
       edit: canEdit,
       isRowDisabled: isLocked,
       massive: canEdit && { delete: true, duplicate: true },
+      massiveActions: [
+        {
+          dataTestId: 'mass-change',
+          Icon: MassChangeIcon,
+          label: labelMassChange,
+          onClick: (rows) =>
+            setFormState({
+              id: null,
+              isOpen: true,
+              mode: 'massChange',
+              resource: null,
+              selection: rows.map(({ id, name }) => ({
+                id: id as number,
+                name: name as string
+              }))
+            })
+        }
+      ],
       // A locked template opens read-only, whoever opens it.
       viewDetails: true
     }),
-    [canEdit]
+    [canEdit, setFormState]
   );
 
   return (
@@ -95,7 +156,7 @@ const HostTemplates = () => {
       filtersAtomKey={filtersAtomKey}
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
-      form={{ defaultValues, groups, inputs, validationSchema }}
+      form={{ defaultValues, groups, inputs, massChange, validationSchema }}
       formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{

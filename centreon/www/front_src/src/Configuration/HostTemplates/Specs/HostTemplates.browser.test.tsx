@@ -1,6 +1,7 @@
 import Actions from './HostTemplates.Actions';
 import Form from './HostTemplates.Form';
 import Listing from './HostTemplates.Listing';
+import MassChange from './HostTemplates.MassChange';
 
 describe('Host templates configuration: ', () => {
   beforeEach(() => {
@@ -10,4 +11,5 @@ describe('Host templates configuration: ', () => {
   Listing();
   Actions();
   Form();
+  MassChange();
 });
