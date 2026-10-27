@@ -16,7 +16,7 @@ Make commands, queries and events carry **only values that serialize and deseria
 ## Consequences
 
 - Moving a message to an asynchronous transport needs no code change in the message or its handler.
-- Handlers always work on current data, not on a snapshot taken when the message was dispatched.
+- Handlers work on current data for whatever they load from an ID. The other values in the message are a snapshot taken when it was dispatched.
 - A handler may need an extra repository call to load what the caller already had in memory.
 - The terms are defined in [ADR-0014](0014-define-messaging-and-hexagonal-building-blocks.md).
 
