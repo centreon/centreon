@@ -27,11 +27,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
-#[Group('wip')]
 final class ServiceCategoryCriteriaTest extends TestCase
 {
     // Pagination immutability is already covered generically by PaginableCriteriaTest, since
