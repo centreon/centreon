@@ -224,9 +224,11 @@ fixWebLogPermissions() {
     return 0
   fi
   if [ ! -e "$WEB_LOG_FILE" ]; then
-    if [ -d "/var/log/centreon" ]; then
-      install -o "$WEB_USER" -g "$WEB_USER" -m 0664 /dev/null "$WEB_LOG_FILE"
+    # Normally created by the package (same attributes as in centreon-poller).
+    if [ ! -d "/var/log/centreon" ]; then
+      install -d -o centreon -g centreon -m 0774 /var/log/centreon
     fi
+    install -o "$WEB_USER" -g "$WEB_USER" -m 0664 /dev/null "$WEB_LOG_FILE"
   elif [ -f "$WEB_LOG_FILE" ]; then
     chgrp "$WEB_USER" "$WEB_LOG_FILE"
     chmod 0664 "$WEB_LOG_FILE"

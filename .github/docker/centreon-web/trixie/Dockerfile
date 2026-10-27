@@ -40,8 +40,8 @@ fi
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/${PHP_VERSION}/mods-available/timezone.ini
 phpenmod -v ${PHP_VERSION} timezone
 
-touch /var/log/centreon/prod.web.log
-chown www-data:www-data /var/log/centreon/prod.web.log
+# The centreon-web postinstall creates it 0664; only cover packages that predate it.
+[ -e /var/log/centreon/prod.web.log ] || install -o www-data -g www-data -m 0664 /dev/null /var/log/centreon/prod.web.log
 
 # Tune php-fpm for CI: ondemand mode to avoid spawning idle workers at startup
 sed -i 's/^pm = .*/pm = ondemand/' /etc/php/${PHP_VERSION}/fpm/pool.d/*.conf
