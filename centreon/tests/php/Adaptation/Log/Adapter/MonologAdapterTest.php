@@ -105,6 +105,8 @@ final class MonologAdapterTest extends TestCase
         self::assertInstanceOf(StreamHandler::class, $handler);
         $file = (string) $handler->getUrl();
 
+        // Same umask as the web server: without an explicit permission the file would be 0644.
+        $previousUmask = umask(0022);
         try {
             $adapter->info('group-writable log file');
             $handler->close();
@@ -112,6 +114,7 @@ final class MonologAdapterTest extends TestCase
 
             self::assertSame(0664, fileperms($file) & 0777);
         } finally {
+            umask($previousUmask);
             @unlink($file);
         }
     }
