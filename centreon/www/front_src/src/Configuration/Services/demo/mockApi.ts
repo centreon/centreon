@@ -205,7 +205,9 @@ extraServices.forEach(([name, hostId, templateId, activated], index) => {
   const id = nextServiceId;
 
   nextServiceId += 1;
+  // Service 1 carries every key the detail decoders require.
   store.set(id, {
+    ...(getServiceResponse(1) as Detail),
     activated,
     host: lookUp('hosts', hostId),
     id,
