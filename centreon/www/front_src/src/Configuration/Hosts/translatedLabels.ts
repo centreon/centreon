@@ -16,7 +16,7 @@ export const labelHostGroups = 'Host groups';
 export const labelHostCategories = 'Host categories';
 export const labelParentHosts = 'Parent hosts';
 export const labelChildHosts = 'Child hosts';
-export const labelResolve = 'FQDN resolve';
+export const labelResolve = 'Resolve FQDN';
 export const labelHostNotFound = 'Host not found';
 
 export const labelGoToServices = 'Display all Services for this host';
@@ -29,10 +29,10 @@ export const labelCreateHost = 'Create a host';
 
 // The sections of the form, as the design names them.
 export const labelGeneralInformation = 'General Information';
-export const labelHostMonitoringProperties = 'Host Monitoring Properties';
+export const labelHostMonitoringProperties = 'Host monitoring properties';
 export const labelRelations = 'Relations';
 export const labelMonitoringEngineSchedulingOptions =
-  'Monitoring Engine / Scheduling Options';
+  'Monitoring engine / Scheduling options';
 export const labelNotifications = 'Notifications';
 export const labelAdvanced = 'Advanced';
 
@@ -102,7 +102,7 @@ export const labelNo = 'No';
 export const labelDefault = 'Default';
 
 // Notification
-export const labelNotificationEnabled = 'Notification Enable';
+export const labelNotificationEnabled = 'Enable notifications';
 export const labelContactAdditiveInheritance = 'Add to inherited contacts';
 export const labelContactGroupAdditiveInheritance =
   'Add to inherited contact groups';
@@ -123,11 +123,11 @@ export const labelNone = 'None';
 export const labelEnableFreshnessCheck = 'Enable';
 export const labelFreshnessThreshold = 'Freshness threshold';
 export const labelAcknowledgementTimeout = 'Acknowledgement';
-export const labelFlapDetectionEnabled = 'Flap Detection Enable';
+export const labelFlapDetectionEnabled = 'Enable flap detection';
 export const labelLowFlapThreshold = 'Low threshold';
 export const labelHighFlapThreshold = 'High threshold';
 export const labelEventHandler = 'Event Handler';
-export const labelEventHandlerEnabled = 'Event Handler Enable';
+export const labelEventHandlerEnabled = 'Enable event handler';
 // Legacy's label for the arguments of the check command and the event handler.
 export const labelArgs = 'Args';
 export const labelSeconds = 'seconds';

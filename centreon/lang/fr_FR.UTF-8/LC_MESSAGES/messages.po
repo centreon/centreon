@@ -1180,9 +1180,21 @@ msgstr "Avancé : gorgone - le collecteur se connecte au central"
 msgid "Editions & Cloud licenses"
 msgstr "Licences Edition et Cloud"
 
+#: centreon/www/install/front_translate.php
+msgid "Enable event handler"
+msgstr "Activer le gestionnaire d'évènements"
+
+#: centreon/www/install/front_translate.php
+msgid "Enable notifications"
+msgstr "Activer les notifications"
+
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Get more from Centreon"
 msgstr "Profiter davantage de Centreon"
+
+#: centreon/www/install/front_translate.php
+msgid "Host monitoring properties"
+msgstr "Propriétés de supervision de l'hôte"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Join The Watch"
@@ -1199,6 +1211,10 @@ msgstr "Un grand merci à tous les développeurs et contributeurs. <contributors
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Many thanks to everyone who responsibly disclosed and helped fix security issues. <policy>Report a vulnerability ↗</policy>"
 msgstr "Un grand merci à toutes les personnes ayant signalé de manière responsable des failles de sécurité et aidé à les corriger. <policy>Signaler une vulnérabilité ↗</policy>"
+
+#: centreon/www/install/front_translate.php
+msgid "Monitoring engine / Scheduling options"
+msgstr "Moteur de supervision / Options d'ordonnancement"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Open and scalable IT monitoring platform for full visibility on your hybrid infrastructure"
@@ -1220,6 +1236,10 @@ msgstr "Projet et contributeurs"
 #: centreon/www/install/front_translate.php
 msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
 msgstr "Remplacer les modèles supprimera tous les services créés par les modèles précédents pour chaque hôte sélectionné."
+
+#: centreon/www/install/front_translate.php
+msgid "Resolve FQDN"
+msgstr "Résoudre le FQDN"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Security"
@@ -1953,7 +1973,7 @@ msgstr "Fenêtre de ré-ordonnancement automatique"
 
 #: centreon/www/install/front_translate.php
 msgid "Auto-remediation"
-msgstr "Remédiation automatique"
+msgstr "Auto-remédiation"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
@@ -7184,10 +7204,6 @@ msgstr "Évènement"
 msgid "Event Handler"
 msgstr "Gestionnaire d'évènements"
 
-#: centreon/www/install/front_translate.php
-msgid "Event Handler Enable"
-msgstr "Activer le gestionnaire d'évènements"
-
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -7514,10 +7530,6 @@ msgid "FQDN / Address"
 msgstr "FQDN / Adresse"
 
 #: centreon/www/install/front_translate.php
-msgid "FQDN resolve"
-msgstr "Résoudre le FQDN"
-
-#: centreon/www/install/front_translate.php
 msgid "Failed to copy breadcrumb"
 msgstr "Échec de la copie du fil d'Ariane"
 
@@ -7826,10 +7838,6 @@ msgstr "Fixe"
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Flap Detection"
 msgstr "Détection de bagotage des statuts"
-
-#: centreon/www/install/front_translate.php
-msgid "Flap Detection Enable"
-msgstr "Activer la détection de bagotage"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -8682,10 +8690,6 @@ msgstr "Informations sur l'hôte"
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Host Inter-Check Delay Method"
 msgstr "Méthode du délai inter-contrôles des hôtes"
-
-#: centreon/www/install/front_translate.php
-msgid "Host Monitoring Properties"
-msgstr "Propriétés de supervision de l'hôte"
 
 #: centreon/www/include/monitoring/acknowlegement/hostAcknowledge.php
 #: centreon/www/include/monitoring/acknowlegement/serviceAcknowledge.php
@@ -11543,10 +11547,6 @@ msgstr "Supervision"
 msgid "Monitoring Engine"
 msgstr "Moteur de supervision"
 
-#: centreon/www/install/front_translate.php
-msgid "Monitoring Engine / Scheduling Options"
-msgstr "Moteur de supervision / Options d'ordonnancement"
-
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Monitoring Engine Binary"
 msgstr "Binaire du moteur de supervision"
@@ -12318,10 +12318,6 @@ msgstr "Notification"
 #, php-format
 msgid "Notification #%d should have at least one user"
 msgstr "La notification #%d doit avoir au moins un utilisateur"
-
-#: centreon/www/install/front_translate.php
-msgid "Notification Enable"
-msgstr "Activer les notifications"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php

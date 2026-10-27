@@ -5329,6 +5329,26 @@ msgid "Drag to reorder"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Enable event handler"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Enable flap detection"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Enable notifications"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Host monitoring properties"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Monitoring engine / Scheduling options"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Picked up row {{position}}"
 msgstr ""
 
@@ -5338,6 +5358,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Resolve FQDN"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -6943,10 +6967,6 @@ msgstr "Event"
 msgid "Event Handler"
 msgstr "Event Handler"
 
-#: centreon/www/install/front_translate.php
-msgid "Event Handler Enable"
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -7269,10 +7289,6 @@ msgid "FQDN / Address"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "FQDN resolve"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
 msgid "Failed to copy breadcrumb"
 msgstr ""
 
@@ -7580,10 +7596,6 @@ msgstr "Fixiert"
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Flap Detection"
 msgstr "Flackererkennung"
-
-#: centreon/www/install/front_translate.php
-msgid "Flap Detection Enable"
-msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -8428,10 +8440,6 @@ msgstr "Host Informationen"
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Host Inter-Check Delay Method"
 msgstr "Host Inter-Überprüfungsverzögerungsmethode"
-
-#: centreon/www/install/front_translate.php
-msgid "Host Monitoring Properties"
-msgstr ""
 
 #: centreon/www/include/monitoring/acknowlegement/hostAcknowledge.php
 #: centreon/www/include/monitoring/acknowlegement/serviceAcknowledge.php
@@ -11255,10 +11263,6 @@ msgstr "Monitoring"
 msgid "Monitoring Engine"
 msgstr "Monitoring Engine"
 
-#: centreon/www/install/front_translate.php
-msgid "Monitoring Engine / Scheduling Options"
-msgstr ""
-
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Monitoring Engine Binary"
 msgstr "Monitoring Engine Ausführdatei"
@@ -12019,10 +12023,6 @@ msgstr "Benachrichtigung"
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 #, php-format
 msgid "Notification #%d should have at least one user"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Notification Enable"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
