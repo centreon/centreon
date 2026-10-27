@@ -35,7 +35,7 @@ final class ListHostCategoriesProviderTest extends ApiTestCase
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_CATEGORIES_R
     // (Configuration > Hosts > Categories), bridged to HostCategoryPermissionEnum::CanRead
-    // via DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // via CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const HOST_CATEGORY_READ_TOPOLOGY_PAGES = [6, 601, 60104];
 
     private Connection $connection;

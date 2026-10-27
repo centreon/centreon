@@ -28,8 +28,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -61,7 +61,7 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
         #[Autowire(service: HostCategoryTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -92,8 +92,16 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
         return new Collection($names, HostCategoryName::class);
     }
 
-    public function findAll(?HostCategoryCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostCategoryCriteria $criteria): \IteratorAggregate&\Countable
     {
+        // An empty scope means the actor is restricted on host categories yet granted
+        // none (e.g. their ACL points only at severities): they see nothing. Mirrors legacy, where
+        // hasRestrictedAccessToHostCategories is true but findAllByAccessGroupIds returns no row.
+        $scope = $criteria->accessScope($this->accessScopes->hostCategories(...), HostCategoryId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, HostCategory::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select('hc.hc_id', 'hc.hc_name')
             ->from(self::TABLE_NAME, 'hc')
@@ -102,11 +110,9 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
             ->where('hc.level IS NULL')
             ->orderBy('hc.hc_id'); // required for deterministic pagination
 
-        if ($criteria instanceof HostCategoryCriteria) {
-            $this->filterByCriteria($qb, $criteria);
-        }
+        $this->filterByCriteria($qb, $criteria, $scope);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -131,47 +137,32 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
         );
     }
 
-    private function filterByCriteria(QueryBuilder $qb, HostCategoryCriteria $criteria): void
+    /**
+     * @param AccessScope<HostCategoryId> $scope
+     */
+    private function filterByCriteria(QueryBuilder $qb, HostCategoryCriteria $criteria, AccessScope $scope): void
     {
         if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('hc.hc_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        $this->filterByViewer($qb, $criteria);
+        $this->filterByAccessScope($qb, $scope);
     }
 
-    private function filterByViewer(QueryBuilder $qb, HostCategoryCriteria $criteria): void
+    /**
+     * @param AccessScope<HostCategoryId> $scope
+     */
+    private function filterByAccessScope(QueryBuilder $qb, AccessScope $scope): void
     {
-        $viewerId = $criteria->getViewerId();
-        if (! $viewerId instanceof UserId) {
+        if ($scope->isUnrestricted()) {
             return;
         }
 
-        $accessibleHostCategories = $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId);
-        // null means no host-category restriction applies — the viewer sees every category.
-        if (! $accessibleHostCategories instanceof Collection) {
-            return;
-        }
-
-        $accessibleHostCategoryIds = array_map(
-            static fn (HostCategoryId $hostCategoryId): int => $hostCategoryId->value,
-            $accessibleHostCategories->toArray()
-        );
-
-        // A non-null but empty set means the viewer is restricted on host categories yet granted
-        // none (e.g. their ACL points only at severities): they see nothing. Mirrors legacy, where
-        // hasRestrictedAccessToHostCategories is true but findAllByAccessGroupIds returns no row.
-        if ($accessibleHostCategoryIds === []) {
-            $qb->andWhere('1 = 0');
-
-            return;
-        }
-
-        // Restrict to categories the viewer can access. findAccessibleHostCategoryIds already scopes
+        // Restrict to categories the actor can access. findHostCategoryAccessScope already scopes
         // the set to levelless categories, so it never carries a severity id.
         $qb->andWhere(
             'hc.hc_id IN (' . $qb->createNamedParameter(
-                $accessibleHostCategoryIds,
+                $scope->allowedIdValues(),
                 ArrayParameterType::INTEGER
             ) . ')'
         );
