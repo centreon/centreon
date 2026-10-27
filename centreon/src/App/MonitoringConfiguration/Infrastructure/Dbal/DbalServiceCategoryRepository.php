@@ -28,8 +28,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
+use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
+use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
+use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -38,6 +44,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class DbalServiceCategoryRepository extends DbalRepository implements ServiceCategoryRepository
 {
+    use DbalCriteriaApplierTrait;
     private const TABLE_NAME = 'service_categories';
 
     /**
@@ -48,6 +55,7 @@ final readonly class DbalServiceCategoryRepository extends DbalRepository implem
         private Connection $connection,
         #[Autowire(service: ServiceCategoryTransformer::class)]
         private TransformerInterface $transformer,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -97,11 +105,73 @@ final readonly class DbalServiceCategoryRepository extends DbalRepository implem
         return $this->transformer->transform($row);
     }
 
-    /**
-     * @throws \LogicException
-     */
     public function findAll(ServiceCategoryCriteria $criteria): \IteratorAggregate&\Countable
     {
-        throw new \LogicException('Not implemented yet');
+        // Nothing granted gives an empty result that keeps the paginator envelope.
+        $scope = $criteria->accessScope($this->accessScopes->serviceCategories(...), ServiceCategoryId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, ServiceCategory::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('sc.sc_id', 'sc.sc_name', 'sc.sc_description', 'sc.sc_activate')
+            ->from(self::TABLE_NAME, 'sc')
+            // A service category carrying a level is a service severity, offered by its own selector.
+            ->where('sc.level IS NULL')
+            // sc_name is nullable while the name value object requires a non-empty value: excluding
+            // such rows keeps one malformed row from failing the whole listing. Disabled rows are
+            // listed.
+            ->andWhere("sc.sc_name IS NOT NULL AND sc.sc_name != ''")
+            ->orderBy('sc.sc_id'); // the selector order, also required for deterministic pagination
+
+        if (($name = $criteria->getName()) !== null) {
+            $qb->andWhere($qb->expr()->like('sc.sc_name', $qb->createNamedParameter('%' . $name . '%')));
+        }
+
+        if (! $scope->isUnrestricted()) {
+            $qb->andWhere($qb->expr()->in(
+                'sc.sc_id',
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
+            ));
+        }
+
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof Pagination) {
+            /** @var array<RowTypeAlias> $rows */
+            $rows = $qb->executeQuery()->fetchAllAssociative();
+
+            return $this->createServiceCategories($rows);
+        }
+
+        $this->applyPagination($qb, $pagination);
+
+        // total across all pages: countMatching clones $qb and strips its sort/pagination
+        $count = $this->countMatching($qb, 'COUNT(sc.sc_id)');
+
+        /** @var array<RowTypeAlias> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return new InMemoryPaginator(
+            items: $this->createServiceCategories($rows),
+            totalItems: $count,
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
+        );
+    }
+
+    /**
+     * @param array<RowTypeAlias> $rows
+     *
+     * @return Collection<ServiceCategory>
+     */
+    private function createServiceCategories(array $rows): Collection
+    {
+        return new Collection(
+            array_map(
+                fn (array $row): ServiceCategory => $this->transformer->transform($row),
+                $rows
+            ),
+            ServiceCategory::class
+        );
     }
 }
