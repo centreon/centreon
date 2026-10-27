@@ -420,10 +420,14 @@ class CentreonACL
     }
 
     /**
-     * Runtime ids of the pollers the user can see, matching instances.instance_id
+     * Runtime ids of the pollers the user can see, to match against instances.instance_id
      *
-     * Contains the Snowflake uid of each poller, plus its configuration id for legacy
-     * pollers still reporting it as instance_id.
+     * Returns the Snowflake uid (nagios_server.uid) of each poller when set, and always its
+     * configuration id (nagios_server.id): legacy pollers unaware of the uid still report the id
+     * as instance_id, so both are kept for mixed-version platforms.
+     *
+     * Poller ACLs are only loaded for non-admin users: always returns [] for admins, so callers
+     * must check admin status first.
      *
      * @return int[]
      */
