@@ -2,6 +2,7 @@
 // TODO: re-enable type-check after fixing this file
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
+import { useQueryClient } from '@tanstack/react-query';
 import type { FormikHelpers } from 'formik';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +25,7 @@ const formatVaultConfiguration = (
 export const useUpdateVaultConfiguration = () => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
+  const queryClient = useQueryClient();
 
   const setCanMigrate = useSetAtom(canMigrateAtom);
 
@@ -50,6 +52,8 @@ export const useUpdateVaultConfiguration = () => {
       });
       setCanMigrate(true);
       showSuccessMessage(t(labelVaultConfigurationUpdate));
+      // The form then starts again from the configuration as stored.
+      queryClient.invalidateQueries({ queryKey: ['vault-configuration'] });
     }
   });
 
