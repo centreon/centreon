@@ -1250,6 +1250,36 @@ jobs:
       jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
+  resolve-bruno-debug-analysis-actor:
+    needs: [bruno-api-test]
+    if: |
+      !cancelled() &&
+      needs.bruno-api-test.result == 'failure'
+    runs-on: ubuntu-24.04
+    outputs:
+      secret_actor: ${{ steps.sanitize.outputs.secret_actor }}
+    steps:
+      - name: Sanitize triggering actor login for secret name lookup
+        id: sanitize
+        env:
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: echo "secret_actor=${TRIGGERING_ACTOR//-/_}" >> "$GITHUB_OUTPUT"
+
+  bruno-api-test-debug-analysis:
+    needs: [resolve-bruno-debug-analysis-actor, bruno-api-test]
+    if: |
+      !cancelled() &&
+      needs.bruno-api-test.result == 'failure'
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    uses: ./.github/workflows/bruno-api-debug-analysis.yml
+    with:
+      triggering_actor: ${{ github.triggering_actor }}
+    secrets:
+      claude_code_oauth_token: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', needs.resolve-bruno-debug-analysis-actor.outputs.secret_actor)] }}
+
   e2e-test:
     needs:
       [
@@ -1304,6 +1334,38 @@ jobs:
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
       github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  resolve-e2e-debug-analysis-actor:
+    needs: [e2e-test]
+    if: |
+      !cancelled() &&
+      needs.e2e-test.result == 'failure'
+    runs-on: ubuntu-24.04
+    outputs:
+      secret_actor: ${{ steps.sanitize.outputs.secret_actor }}
+    steps:
+      - name: Sanitize triggering actor login for secret name lookup
+        id: sanitize
+        env:
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: echo "secret_actor=${TRIGGERING_ACTOR//-/_}" >> "$GITHUB_OUTPUT"
+
+  e2e-test-debug-analysis:
+    needs: [get-environment, resolve-e2e-debug-analysis-actor, e2e-test]
+    if: |
+      !cancelled() &&
+      needs.e2e-test.result == 'failure'
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    uses: ./.github/workflows/cypress-e2e-debug-analysis.yml
+    with:
+      name: e2e
+      os_and_database_matrix: ${{ needs.get-environment.outputs.os_and_database_matrix }}
+      triggering_actor: ${{ github.triggering_actor }}
+    secrets:
+      claude_code_oauth_token: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', needs.resolve-e2e-debug-analysis-actor.outputs.secret_actor)] }}
 
   # performances-test:
   #   runs-on: ubuntu-24.04
