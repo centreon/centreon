@@ -39,7 +39,7 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 | ADR | Decision | Status |
 |---|---|---|
 | [0007](0007-serve-new-endpoints-under-api-only.md) | Run legacy and new endpoints side by side, and serve new endpoints under `/api` only | Accepted |
-| [0008](0008-one-resource-per-path.md) | Use one API Platform resource per path, and add Input or Output DTOs only when they differ | Accepted |
+| [0008](0008-one-resource-per-path.md) | Keep one API Platform resource as far as possible, and add Input or Output DTOs when formats differ | Accepted |
 | [0011](0011-keep-selector-endpoints-out-of-api-doc.md) | Keep selector endpoints out of the published API documentation | Accepted |
 
 ### Messaging
@@ -53,5 +53,5 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 
 | ADR | Decision | Status |
 |---|---|---|
-| [0010](0010-parameterize-repository-queries.md) | Build repository SQL with bound `QueryParameters`, never string concatenation | Accepted |
+| [0010](0010-parameterize-repository-queries.md) | Build repository SQL with the `QueryBuilder` and bound parameters, never string concatenation | Accepted |
 | [0015](0015-scope-resource-access-with-acting-user-and-access-scope.md) | Scope resource access with an acting user and an access scope | Accepted |
