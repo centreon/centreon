@@ -1927,7 +1927,9 @@ function display_services_recap() {
 		"httpd|${HTTP_SERVICE_UNIT:-httpd}|central"
 		"php-fpm|${PHP_SERVICE_UNIT:-php-fpm}|central"
 		"centengine|centengine|central poller"
-		"gorgone|gorgoned|central poller"
+		# enable_new_services only enables gorgoned on pollers (its package is relied upon to
+		# start it): report it there without failing the run.
+		"gorgone|gorgoned|central poller|central"
 		"cbd|cbd|central"
 		"centreontrapd|centreontrapd|central poller"
 		"snmptrapd|snmptrapd|central poller"
