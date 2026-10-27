@@ -33,13 +33,11 @@ use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
-#[Group('wip')]
 final class DbalServiceCategoryRepositoryTest extends KernelTestCase
 {
     private Connection $connection;
