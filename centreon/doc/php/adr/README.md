@@ -2,7 +2,7 @@
 
 Decisions taken by the PHP team on the backend architecture. Each record states the context, the decision, its consequences and the facts that would reopen it. The terms they use are defined in the [glossary](../glossary.md).
 
-To propose a decision, copy [`template.md`](template.md) to the next free number and open a pull request. Never reuse a number, and supersede a record with a new one rather than rewriting it.
+To propose a decision, copy [`template.md`](template.md) to the next free number and open a pull request. Supersede a record with a new one rather than rewriting it.
 
 ## By topic
 
@@ -46,16 +46,12 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 
 | ADR | Decision | Status |
 |---|---|---|
-| [0015](0015-messages-carry-serializable-values-only.md) | Make commands, queries and events carry serializable values only | Accepted |
-| [0016](0016-one-aggregate-per-command.md) | Change one aggregate per command, and let other aggregates react through events | Accepted |
+| [0013](0013-messages-carry-serializable-values-only.md) | Make commands, queries and events carry serializable values only | Accepted |
+| [0014](0014-one-aggregate-per-command.md) | Change one aggregate per command, and let other aggregates react through events | Accepted |
 
 ### Security
 
 | ADR | Decision | Status |
 |---|---|---|
 | [0010](0010-parameterize-repository-queries.md) | Build repository SQL with bound `QueryParameters`, never string concatenation | Accepted |
-| [0017](0017-scope-resource-access-with-acting-user-and-access-scope.md) | Scope resource access with an acting user and an access scope | Accepted |
-
-## Retired numbers
-
-- **0013** and **0014** were drafted as vocabulary records. Their definitions moved to the [glossary](../glossary.md) before they were merged.
+| [0015](0015-scope-resource-access-with-acting-user-and-access-scope.md) | Scope resource access with an acting user and an access scope | Accepted |
