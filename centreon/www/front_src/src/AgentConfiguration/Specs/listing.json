@@ -1,9 +1,13 @@
 {
+  "meta": {
+    "limit": 10,
+    "page": 1,
+    "total": 20
+  },
   "result": [
     {
       "id": 0,
       "name": "AC 0",
-      "type": "telegraf",
       "pollers": [
         {
           "id": 1,
@@ -13,53 +17,53 @@
           "id": 2,
           "name": "poller 2"
         }
-      ]
+      ],
+      "type": "telegraf"
     },
     {
       "id": 1,
       "name": "AC 1",
-      "type": "telegraf",
-      "pollers": []
+      "pollers": [],
+      "type": "telegraf"
     },
     {
       "id": 2,
-      "name": "AC 2",
-      "type": "centreon-agent",
       "is_agent_initiated": true,
+      "name": "AC 2",
       "pollers": [
         {
           "id": 1,
-          "name": "Central",
-          "is_central": true
+          "is_central": true,
+          "name": "Central"
         },
         {
           "id": 2,
           "name": "poller 2"
         }
-      ]
+      ],
+      "type": "centreon-agent"
     },
     {
       "id": 3,
-      "name": "AC 3",
-      "type": "centreon-agent",
       "is_agent_initiated": false,
+      "name": "AC 3",
       "pollers": [
         {
           "id": 1,
-          "name": "poller 1",
-          "is_central": true
+          "is_central": true,
+          "name": "poller 1"
         },
         {
           "id": 2,
-          "name": "poller 2",
-          "is_central": true
+          "is_central": true,
+          "name": "poller 2"
         }
-      ]
+      ],
+      "type": "centreon-agent"
     },
     {
       "id": 4,
       "name": "AC 4",
-      "type": "telegraf",
       "pollers": [
         {
           "id": 1,
@@ -69,12 +73,12 @@
           "id": 2,
           "name": "poller 2"
         }
-      ]
+      ],
+      "type": "telegraf"
     },
     {
       "id": 5,
       "name": "AC 5",
-      "type": "telegraf",
       "pollers": [
         {
           "id": 1,
@@ -84,12 +88,12 @@
           "id": 2,
           "name": "poller 2"
         }
-      ]
+      ],
+      "type": "telegraf"
     },
     {
       "id": 6,
       "name": "AC 6",
-      "type": "telegraf",
       "pollers": [
         {
           "id": 1,
@@ -99,12 +103,12 @@
           "id": 2,
           "name": "poller 2"
         }
-      ]
+      ],
+      "type": "telegraf"
     },
     {
       "id": 7,
       "name": "AC 7",
-      "type": "telegraf",
       "pollers": [
         {
           "id": 1,
@@ -114,12 +118,12 @@
           "id": 2,
           "name": "poller 2"
         }
-      ]
+      ],
+      "type": "telegraf"
     },
     {
       "id": 8,
       "name": "AC 8",
-      "type": "telegraf",
       "pollers": [
         {
           "id": 1,
@@ -129,12 +133,12 @@
           "id": 2,
           "name": "poller 2"
         }
-      ]
+      ],
+      "type": "telegraf"
     },
     {
       "id": 9,
       "name": "AC 9",
-      "type": "telegraf",
       "pollers": [
         {
           "id": 1,
@@ -144,12 +148,8 @@
           "id": 2,
           "name": "poller 2"
         }
-      ]
+      ],
+      "type": "telegraf"
     }
-  ],
-  "meta": {
-    "total": 20,
-    "limit": 10,
-    "page": 1
-  }
+  ]
 }
