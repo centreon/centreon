@@ -73,6 +73,9 @@ const Listing = <TFilters,>({
           : columns
       }
       currentPage={(page || 1) - 1}
+      // Greying a row disables its checkbox only: this is what keeps select
+      // all and a click beside the checkbox from selecting it.
+      disableRowCheckCondition={(row) => !!actions?.isRowDisabled?.(row)}
       disableRowCondition={disableRowCondition}
       limit={limit}
       loading={isLoading}

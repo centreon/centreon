@@ -14,6 +14,7 @@ export type NamedEntity = {
 
 export enum ResourceType {
   Host = 'host',
+  HostTemplate = 'host template',
   Service = 'service',
   HostGroup = 'host group',
   ServiceGroup = 'service group',
@@ -83,6 +84,9 @@ export interface Actions {
   // Keep the per-row cells on screen without write access and let each decide
   // what it shows. Modules gating on write access alone leave this off.
   rowActionsWithoutWriteAccess?: boolean;
+  // A row no massive action may select, shown greyed out, besides the
+  // deactivated ones of a module that enables and disables.
+  isRowDisabled?: (row: ResourceRow) => boolean;
 }
 
 export interface ConfigurationBase<TFilters> {
@@ -179,6 +183,11 @@ export interface FilterConfiguration {
   // The autocomplete reads `{ result, meta }`; a Hydra selector needs a decoder
   // built with `apiFormat: 'JSON-LD'` to get there.
   decoder?: JsonDecoder.Decoder<unknown>;
+  // A checkbox whose query is not `<fieldName>=true` once checked, such as one
+  // that narrows the listing while unchecked. JSON-LD listings only.
+  getQueryParameters?: (
+    value: unknown
+  ) => Array<{ name: string; value: string | boolean }>;
 }
 
 export interface Configuration {

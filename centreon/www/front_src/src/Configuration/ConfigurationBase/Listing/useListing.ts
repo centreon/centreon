@@ -108,8 +108,9 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     });
   };
 
-  const disableRowCondition = ({ isActivated }): boolean =>
-    actions?.enableDisable && !isActivated;
+  const disableRowCondition = (row): boolean =>
+    (actions?.enableDisable && !row.isActivated) ||
+    !!actions?.isRowDisabled?.(row);
 
   return {
     changePage,
