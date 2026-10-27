@@ -19,6 +19,8 @@ const Template = ({ row }: ComponentColumnProps): JSX.Element | null => {
       // Pendo keys off this, so it must not follow the labels.
       data-testid={`service-template-link_${template.id}`}
       href={getServiceTemplateConfigurationUrl(template.id)}
+      // Only the link navigates: the rest of the cell opens the service.
+      onClick={(event): void => event.stopPropagation()}
       underline="hover"
       variant="body2"
     >
