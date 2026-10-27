@@ -4,7 +4,7 @@ description: >-
   Centreon remote poller on Kubernetes (gorgone + centengine/cbmod), attached
   to a central running anywhere. One release per poller.
 type: application
-version: 26.0.0
+version: 26.1.0
 # Local installs only: the CI sets it from .version.
 appVersion: "26.10"
 kubeVersion: ">=1.29.0-0"
