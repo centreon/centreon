@@ -610,16 +610,20 @@ if ($engine == 'true' && ! empty($openid)) {
 }
 
 if (! $is_admin && $engine == 'true') {
-    // Engine logs are not linked to any host, filter them on the pollers allowed by the ACL instead
+    // Engine messages have no host_id, so the host-based centreon_acl join would hide them: keep engine
+    // messages only, whatever the requested filters, and restrict them to the pollers allowed by the ACL
+    // (see CentreonACL::getPollerRuntimeIds())
+    $whereClauses[] = 'logs.msg_type IN (4, 5)';
     $aclPollerIds = $access->getPollerRuntimeIds();
     if ($aclPollerIds === []) {
         $whereClauses[] = '0 = 1';
     } else {
         [$bindValues, $bindQuery] = createMultipleBindQuery($aclPollerIds, ':aclPollerIds_', PDO::PARAM_INT);
-        $joinClauses[] = "
-        INNER JOIN instances acl_i ON acl_i.name = logs.instance_name
-        AND acl_i.instance_id IN ({$bindQuery})
-        ";
+        $whereClauses[] = "EXISTS (
+            SELECT 1 FROM instances acl_i
+            WHERE acl_i.name = logs.instance_name
+            AND acl_i.instance_id IN ({$bindQuery})
+        )";
         $queryValues = array_merge($queryValues, $bindValues);
     }
 } elseif (! $is_admin) {

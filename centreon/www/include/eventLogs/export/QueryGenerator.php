@@ -497,7 +497,11 @@ class QueryGenerator
     }
 
     /**
-     * Generates ACL statement, ending with an open WHERE clause
+     * Generates the ACL join and the start of the WHERE clause for non-admin users
+     *
+     * The returned string always ends with "WHERE " or "AND ", so the caller must append a condition.
+     * In engine mode, also registers the :aclPollerIdN bind values.
+     *
      * @return string
      */
     private function generateAclQuery(): string
@@ -507,7 +511,9 @@ class QueryGenerator
         }
 
         if ($this->engine == 'true') {
-            // Engine logs are not linked to any host, filter them on the pollers allowed by the ACL instead
+            // Engine messages have no host_id, so the host-based centreon_acl join would hide them: keep engine
+            // messages only, whatever the requested filters, and restrict them to the pollers allowed by the ACL
+            // (see CentreonACL::getPollerRuntimeIds())
             $aclPollerIds = $this->access->getPollerRuntimeIds();
             if ($aclPollerIds === []) {
                 return ' WHERE 0 = 1 AND ';
@@ -520,8 +526,9 @@ class QueryGenerator
                 $placeholders[] = $key;
             }
 
-            return ' INNER JOIN instances acl_i ON acl_i.name = logs.instance_name'
-                . ' AND acl_i.instance_id IN (' . implode(',', $placeholders) . ') WHERE ';
+            return " WHERE logs.msg_type IN ('4','5')"
+                . ' AND EXISTS (SELECT 1 FROM instances acl_i WHERE acl_i.name = logs.instance_name'
+                . ' AND acl_i.instance_id IN (' . implode(',', $placeholders) . ')) AND ';
         }
 
         return ' INNER JOIN centreon_acl acl ON (logs.host_id = acl.host_id AND (acl.service_id IS NULL OR '
