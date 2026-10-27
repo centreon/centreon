@@ -42,6 +42,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResour
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
@@ -343,7 +344,7 @@ final class GetHostProviderTest extends ApiTestCase
     }
 
     /**
-     * As the legacy host form, a restricted viewer only sees the parent/child hosts, notification
+     * As the legacy host form, a restricted actor only sees the parent/child hosts, notification
      * contacts and contact groups within their ACL scope; the out-of-scope ones are left out rather
      * than surfaced (no existence leak).
      */
@@ -374,8 +375,8 @@ final class GetHostProviderTest extends ApiTestCase
         }
 
         $username = bin2hex(random_bytes(8));
-        $viewerId = $this->createNonAdminContact($username);
-        $aclGroupId = $this->grantHostReadTopologyRole($viewerId);
+        $actorId = $this->createNonAdminContact($username);
+        $aclGroupId = $this->grantHostReadTopologyRole($actorId);
         foreach ([$hostId, $visibleParentId, $visibleChildId] as $accessibleHostId) {
             $this->linkHostToAcl($accessibleHostId, $aclGroupId);
         }
@@ -535,7 +536,7 @@ final class GetHostProviderTest extends ApiTestCase
             $mediaRepository,
             $mediaUrlGenerator,
             $timePeriodRepository,
-            $resourceAccessRepository,
+            new AccessScopeResolver($resourceAccessRepository),
             $macroTransformer,
             $inheritedHostMacrosResolver,
             $isCloudPlatform,
@@ -710,7 +711,7 @@ final class GetHostProviderTest extends ApiTestCase
 
     /**
      * Grants the "Configuration > Hosts > Hosts" read-only topology access, the legacy menu role
-     * bridged to HostPermissionEnum::CanRead via DbalCredentialTransformer::LEGACY_PERMISSION_MAP
+     * bridged to HostPermissionEnum::CanRead via CredentialTransformer::LEGACY_PERMISSION_MAP
      * (topology_page 60101; access_right = 2 is read-only).
      *
      * @return int the Access Group id, reusable to scope centreon_acl rows

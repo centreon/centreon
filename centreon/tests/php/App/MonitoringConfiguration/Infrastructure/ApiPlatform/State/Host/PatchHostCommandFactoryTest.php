@@ -36,13 +36,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostExtendedInformationsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostSchedulingOptionsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\HostMacroInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostCheckOptionsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostNotificationsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostExtendedInformationsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostSchedulingOptionsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\PatchHostCheckOptionsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\PatchHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\PatchHostNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostCommandFactory;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -51,6 +51,7 @@ use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class PatchHostCommandFactoryTest extends TestCase
 {
@@ -334,8 +335,7 @@ final class PatchHostCommandFactoryTest extends TestCase
     {
         return new PatchHostCommandFactory(new HostMacroTransformer())->create(
             id: new HostId(1),
-            updatedBy: 7,
-            viewerId: null,
+            actor: TestActingUsers::restricted(7),
             input: $input,
             payload: RequestPayload::fromRequest(Request::create('/', Request::METHOD_PATCH, content: $json, server: ['CONTENT_TYPE' => 'application/json'])),
         );

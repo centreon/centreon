@@ -82,7 +82,7 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
         return new Collection($iconIds, MediaId::class);
     }
 
-    public function findAll(?HostTemplateCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostTemplateCriteria $criteria): \IteratorAggregate&\Countable
     {
         return new Collection(array_values($this->hostTemplates), HostTemplate::class);
     }

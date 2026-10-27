@@ -70,7 +70,7 @@ A message signalling that something happened, **named in the past tense** (`Host
 
 The channel that routes a message to its handlers and hosts generic behaviour through middleware (transaction, logging). **One bus per message type**: command, query, event. The bus configuration enforces the handler count and chooses the transport, synchronous or asynchronous. A second handler on a command or a query is a configuration error, not a design option.
 
-What a message may carry is set by [ADR-0015](adr/0015-messages-carry-serializable-values-only.md), and how many aggregates a command may change by [ADR-0016](adr/0016-one-aggregate-per-command.md).
+What a message may carry is set by [ADR-0013](adr/0013-messages-carry-serializable-values-only.md), and how many aggregates a command may change by [ADR-0014](adr/0014-one-aggregate-per-command.md).
 
 ---
 

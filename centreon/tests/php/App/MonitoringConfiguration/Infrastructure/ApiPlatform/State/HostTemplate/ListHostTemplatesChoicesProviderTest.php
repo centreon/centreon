@@ -36,7 +36,7 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_HOSTS_R[W]
     // (Configuration > Hosts > Hosts), bridged to HostPermissionEnum via
-    // DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const HOST_TOPOLOGY_PAGES = [6, 601, 60101];
 
     // CentreonACL access rights, see Centreon\Domain\Repository\TopologyRepository
@@ -148,7 +148,7 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
 
     /**
      * Legacy's host-form "extend template" select (CentreonHost::getList()) is not host-category
-     * severity-scoped, unlike the generic /configuration/host_templates endpoint: a viewer
+     * severity-scoped, unlike the generic /configuration/host_templates endpoint: an actor
      * restricted to some severities must still see every template.
      */
     public function testItIgnoresHostCategoryAclRestrictionsForARestrictedUser(): void

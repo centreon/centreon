@@ -53,7 +53,7 @@ final readonly class DbalAgentConfigurationRepository extends DbalRepository imp
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
-        #[Autowire(service: DbalAgentConfigurationTransformer::class)]
+        #[Autowire(service: AgentConfigurationTransformer::class)]
         private TransformerInterface $agentConfigurationTransformer,
     ) {
     }

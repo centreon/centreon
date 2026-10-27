@@ -27,8 +27,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostRes
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\CredentialRepository;
+use App\Security\Infrastructure\Dbal\CredentialTransformer;
 use App\Security\Infrastructure\Dbal\DbalCredentialRepository;
-use App\Security\Infrastructure\Dbal\DbalCredentialTransformer;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
@@ -719,7 +719,7 @@ final class ListHostsProviderTest extends ApiTestCase
     /**
      * Grants the "Configuration > Hosts > Hosts" (read-only) topology access, the legacy menu
      * role bridged to HostPermissionEnum::CanRead via
-     * DbalCredentialTransformer::LEGACY_PERMISSION_MAP (topology_page 60101, parented by 601 "Hosts"
+     * CredentialTransformer::LEGACY_PERMISSION_MAP (topology_page 60101, parented by 601 "Hosts"
      * and 6 "Configuration" — see topology fixtures in www/install/insertTopology.sql).
      *
      * @return int the Access Group id the contact was granted, reusable to scope centreon_acl rows
@@ -811,7 +811,7 @@ final class ListHostsProviderTest extends ApiTestCase
         /** @var Connection $connection */
         $connection = $container->get('doctrine.dbal.default_connection');
         /** @var TransformerInterface<RowTypeAlias, Credential> $transformer */
-        $transformer = $container->get(DbalCredentialTransformer::class);
+        $transformer = $container->get(CredentialTransformer::class);
         /** @var AccessGroupRepository $accessGroupRepository */
         $accessGroupRepository = $container->get(AccessGroupRepository::class);
 
