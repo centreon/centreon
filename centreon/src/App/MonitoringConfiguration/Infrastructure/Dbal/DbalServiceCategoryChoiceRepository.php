@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Model\ServiceCategoryChoice;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryChoiceCriteria;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryChoiceRepository;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
@@ -63,7 +63,7 @@ final readonly class DbalServiceCategoryChoiceRepository extends DbalRepository 
     ) {
     }
 
-    public function findAll(ServiceCategoryChoiceCriteria $criteria): \IteratorAggregate&\Countable
+    public function findAll(ServiceCategoryCriteria $criteria): \IteratorAggregate&\Countable
     {
         // Nothing granted gives an empty result that keeps the paginator envelope.
         $scope = $criteria->accessScope($this->accessScopes->serviceCategories(...), ServiceCategoryId::class);

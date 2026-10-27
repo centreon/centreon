@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -94,5 +95,13 @@ final readonly class DbalServiceCategoryRepository extends DbalRepository implem
         }
 
         return $this->transformer->transform($row);
+    }
+
+    /**
+     * @throws \LogicException
+     */
+    public function findAll(ServiceCategoryCriteria $criteria): \IteratorAggregate&\Countable
+    {
+        throw new \LogicException('Not implemented yet');
     }
 }

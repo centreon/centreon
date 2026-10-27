@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Model\ServiceCategoryChoice;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryChoiceCriteria;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 
 interface ServiceCategoryChoiceRepository
 {
@@ -34,5 +34,5 @@ interface ServiceCategoryChoiceRepository
      *
      * @return \IteratorAggregate<int, ServiceCategoryChoice>&\Countable
      */
-    public function findAll(ServiceCategoryChoiceCriteria $criteria): \IteratorAggregate&\Countable;
+    public function findAll(ServiceCategoryCriteria $criteria): \IteratorAggregate&\Countable;
 }

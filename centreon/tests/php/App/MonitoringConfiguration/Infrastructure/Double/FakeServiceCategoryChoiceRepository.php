@@ -24,14 +24,14 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Model\ServiceCategoryChoice;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryChoiceCriteria;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryChoiceRepository;
 use App\Shared\Domain\Collection;
 
 final class FakeServiceCategoryChoiceRepository implements ServiceCategoryChoiceRepository
 {
     /** the criteria received by the last findAll() call */
-    public ?ServiceCategoryChoiceCriteria $receivedCriteria = null;
+    public ?ServiceCategoryCriteria $receivedCriteria = null;
 
     /** @var \IteratorAggregate<int, ServiceCategoryChoice>&\Countable */
     public \IteratorAggregate&\Countable $result;
@@ -41,7 +41,7 @@ final class FakeServiceCategoryChoiceRepository implements ServiceCategoryChoice
         $this->result = new Collection([], ServiceCategoryChoice::class);
     }
 
-    public function findAll(ServiceCategoryChoiceCriteria $criteria): \IteratorAggregate&\Countable
+    public function findAll(ServiceCategoryCriteria $criteria): \IteratorAggregate&\Countable
     {
         $this->receivedCriteria = $criteria;
 

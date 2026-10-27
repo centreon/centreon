@@ -27,7 +27,7 @@ use App\Shared\Domain\Repository\PaginableCriteria;
 use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 use Webmozart\Assert\Assert;
 
-final class ServiceCategoryChoiceCriteria implements PaginableCriteria
+final class ServiceCategoryCriteria implements PaginableCriteria
 {
     use PaginableCriteriaTrait;
     use ActorScopedCriteriaTrait;

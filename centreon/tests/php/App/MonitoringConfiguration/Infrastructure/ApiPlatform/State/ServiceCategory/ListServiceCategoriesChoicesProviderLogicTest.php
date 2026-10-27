@@ -29,7 +29,7 @@ use ApiPlatform\State\Pagination\TraversablePaginator;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Domain\Model\ServiceCategoryChoice;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryChoiceCriteria;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategory\ServiceCategoryChoicesOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceCategory\ListServiceCategoriesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceCategory\ServiceCategoryChoicesTransformer;
@@ -129,7 +129,7 @@ final class ListServiceCategoriesChoicesProviderLogicTest extends TestCase
         $this->provide([], $role);
 
         self::assertEquals(
-            ServiceCategoryChoiceCriteria::forActor(new ActingUser(new UserId(self::VIEWER_ID), $unrestricted))->withPagination(1, 30),
+            ServiceCategoryCriteria::forActor(new ActingUser(new UserId(self::VIEWER_ID), $unrestricted))->withPagination(1, 30),
             $this->repository->receivedCriteria,
         );
     }

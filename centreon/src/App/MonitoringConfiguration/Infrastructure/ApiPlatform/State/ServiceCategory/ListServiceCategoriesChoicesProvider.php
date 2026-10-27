@@ -28,7 +28,7 @@ use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Model\ServiceCategoryChoice;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryChoiceCriteria;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryChoiceRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategory\ServiceCategoryChoicesOutput;
 use App\Security\Infrastructure\Security\CredentialUser;
@@ -67,7 +67,7 @@ final readonly class ListServiceCategoriesChoicesProvider implements ProviderInt
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $criteria = ServiceCategoryChoiceCriteria::forActor($credentialUser->credential->actingUser());
+        $criteria = ServiceCategoryCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {

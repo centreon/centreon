@@ -24,33 +24,35 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Repository\Criteria;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryChoiceCriteria;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
-final class ServiceCategoryChoiceCriteriaTest extends TestCase
+#[Group('wip')]
+final class ServiceCategoryCriteriaTest extends TestCase
 {
     // Pagination immutability is already covered generically by PaginableCriteriaTest, since
-    // ServiceCategoryChoiceCriteria only wires in PaginableCriteriaTrait without overriding its behavior.
+    // ServiceCategoryCriteria only wires in PaginableCriteriaTrait without overriding its behavior.
 
     public function testWithNameRejectsAnEmptyName(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        ServiceCategoryChoiceCriteria::unscoped()->withName('');
+        ServiceCategoryCriteria::unscoped()->withName('');
     }
 
     public function testWithNameAcceptsTheLiteralZero(): void
     {
         // stringNotEmpty(), not notEmpty(): notEmpty() relies on empty(), which treats "0" as empty.
-        self::assertSame('0', ServiceCategoryChoiceCriteria::unscoped()->withName('0')->getName());
+        self::assertSame('0', ServiceCategoryCriteria::unscoped()->withName('0')->getName());
     }
 
     public function testWithNameReturnsACopyKeepingTheActor(): void
     {
-        $criteria = ServiceCategoryChoiceCriteria::forActor(TestActingUsers::restricted(7));
+        $criteria = ServiceCategoryCriteria::forActor(TestActingUsers::restricted(7));
 
         $withName = $criteria->withName('Critical');
 
@@ -62,14 +64,14 @@ final class ServiceCategoryChoiceCriteriaTest extends TestCase
 
     public function testForActorScopesToWhatTheActorMayAccess(): void
     {
-        $scope = ServiceCategoryChoiceCriteria::forActor(TestActingUsers::restricted(7))->accessScope($this->scopeOf(...), ServiceCategoryId::class);
+        $scope = ServiceCategoryCriteria::forActor(TestActingUsers::restricted(7))->accessScope($this->scopeOf(...), ServiceCategoryId::class);
 
         self::assertSame([7], $scope->allowedIdValues());
     }
 
     public function testAnUnscopedCriteriaIsUnrestricted(): void
     {
-        $scope = ServiceCategoryChoiceCriteria::unscoped()->accessScope(
+        $scope = ServiceCategoryCriteria::unscoped()->accessScope(
             static fn (ActingUser $actor): never => self::fail('An unscoped criteria must not resolve any scope.'),
             ServiceCategoryId::class,
         );
@@ -80,7 +82,7 @@ final class ServiceCategoryChoiceCriteriaTest extends TestCase
     public function testACriteriaCannotBeBuiltWithoutChoosingItsScope(): void
     {
         // Fail closed by construction: only forActor() and unscoped() build a criteria.
-        self::assertTrue((new \ReflectionMethod(ServiceCategoryChoiceCriteria::class, '__construct'))->isPrivate());
+        self::assertTrue((new \ReflectionMethod(ServiceCategoryCriteria::class, '__construct'))->isPrivate());
     }
 
     /**
