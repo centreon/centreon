@@ -443,7 +443,9 @@ lookup_prcs() {
 # exist in pulp yet: a fresh upload carries exactly one suite association
 # afterwards, identifying the release component unambiguously. For a reused
 # representative (identical bytes delivered before), capture its pre-upload
-# associations to diff against later.
+# associations to diff against later. Content is unique on (relative_path,
+# sha256): the same bytes under another pool path (an adopted build) are a
+# distinct unit, so every lookup filters on both.
 declare -A LEGACY_FOR_ARCH=()
 declare -A LEGACY_FRESH=()
 declare -A LEGACY_BEFORE=()
@@ -456,7 +458,7 @@ for i in "${!DELIVER_FILES[@]}"; do
   fi
   refresh_pulp_token
   sha=$(sha256sum "$FILE" | cut -d' ' -f1)
-  existing=$(lookup_deb_content "packages" "--data-urlencode sha256=$sha")
+  existing=$(lookup_deb_content "packages" "--data-urlencode sha256=$sha --data-urlencode relative_path=$POOL_PATH/$FILE")
   if [[ -z "$existing" ]]; then
     LEGACY_FOR_ARCH[$arch]="$FILE"
     LEGACY_FRESH[$arch]=1
@@ -520,7 +522,7 @@ for i in "${!LEGACY_FILES[@]}"; do
   FILE=${LEGACY_FILES[$i]}
   arch=${LEGACY_ARCHS[$i]}
   sha=$(sha256sum "$FILE" | cut -d' ' -f1)
-  href=$(lookup_deb_content "packages" "--data-urlencode sha256=$sha")
+  href=$(lookup_deb_content "packages" "--data-urlencode sha256=$sha --data-urlencode relative_path=$POOL_PATH/$FILE")
   if [[ -z "$href" ]]; then
     echo "::error::Cannot find the legacy-delivered package $FILE (sha256 $sha)"
     exit 1
@@ -586,7 +588,7 @@ for i in "${!ORPHAN_FILES[@]}"; do
   refresh_pulp_token
   (
     resolve_task_content "$(cat "$UPLOAD_DIR/$i.task")" "packages" \
-      "--data-urlencode sha256=${ORPHAN_SHA256S[$i]}" > "$UPLOAD_DIR/$i.content"
+      "--data-urlencode sha256=${ORPHAN_SHA256S[$i]} --data-urlencode relative_path=$POOL_PATH/${ORPHAN_FILES[$i]}" > "$UPLOAD_DIR/$i.content"
   ) &
   while (($(jobs -rp | wc -l) >= MAX_PARALLEL_UPLOADS)); do
     wait -n || true
