@@ -6,7 +6,8 @@ import { array } from 'yup';
 import {
   hostFormHostCategoriesEndpoint,
   hostFormHostGroupsEndpoint,
-  hostFormHostsEndpoint
+  hostFormHostsEndpoint,
+  hostTemplateFormServiceTemplatesEndpoint
 } from '../../api/endpoints';
 import { namedEntityDecoder } from '../../api/namedEntityDecoders';
 import type { NamedEntity } from '../../models';
@@ -14,6 +15,7 @@ import {
   labelChildHosts,
   labelHostCategories,
   labelHostGroups,
+  labelLinkedServiceTemplates,
   labelParentAndChildHost,
   labelParentHosts,
   labelRelations,
@@ -28,7 +30,36 @@ interface RelationsDetail {
   childHosts: Array<NamedEntity>;
   groups: Array<NamedEntity>;
   parentHosts: Array<NamedEntity>;
+  serviceTemplates: Array<NamedEntity>;
 }
+
+const getCategoriesInput = ({ t }: Pick<SectionContext, 't'>) => ({
+  connectedAutocomplete: buildSelector({
+    chipColor: 'primary',
+    endpoint: hostFormHostCategoriesEndpoint,
+    queryKey: 'host-form-categories'
+  }),
+  dataTestId: 'host-form-categories',
+  fieldName: 'categories',
+  label: t(labelHostCategories),
+  type: InputType.MultiConnectedAutocomplete
+});
+
+// In legacy's order: what the template deploys, then its categories.
+const getTemplateRelationInputs = ({ t }: SectionContext) => [
+  {
+    connectedAutocomplete: buildSelector({
+      chipColor: 'primary',
+      endpoint: hostTemplateFormServiceTemplatesEndpoint,
+      queryKey: 'host-template-form-service-templates'
+    }),
+    dataTestId: 'host-form-service-templates',
+    fieldName: 'serviceTemplates',
+    label: t(labelLinkedServiceTemplates),
+    type: InputType.MultiConnectedAutocomplete
+  },
+  getCategoriesInput({ t })
+];
 
 const getRelationInputs = ({
   t,
@@ -49,17 +80,7 @@ const getRelationInputs = ({
     label: t(labelHostGroups),
     type: InputType.MultiConnectedAutocomplete
   },
-  {
-    connectedAutocomplete: buildSelector({
-      chipColor: 'primary',
-      endpoint: hostFormHostCategoriesEndpoint,
-      queryKey: 'host-form-categories'
-    }),
-    dataTestId: 'host-form-categories',
-    fieldName: 'categories',
-    label: t(labelHostCategories),
-    type: InputType.MultiConnectedAutocomplete
-  },
+  getCategoriesInput({ t }),
   {
     connectedAutocomplete: buildSelector({
       chipColor: 'primary',
@@ -84,12 +105,37 @@ const getRelationInputs = ({
   }
 ];
 
+const getHostRelationsSchema = ({
+  t,
+  isCloudPlatform,
+  isMassChange
+}: Pick<SectionContext, 'isCloudPlatform' | 'isMassChange' | 't'>) => ({
+  // A host must belong to a group on cloud and need not anywhere else:
+  // `CreateHostInput` counts them only under `WhenPlatform(forCloud: true)`.
+  groups:
+    isCloudPlatform && !isMassChange
+      ? array().min(1, t(labelRequired))
+      : array().notRequired(),
+  // As the legacy form, a host cannot be both parent and child.
+  parentHosts: array().test(
+    'is-not-also-a-child',
+    t(labelParentAndChildHost),
+    (parents, { parent: values }) =>
+      !(parents ?? []).some(({ id }) =>
+        (values.childHosts ?? []).some(
+          (child: { id: number }) => child.id === id
+        )
+      )
+  )
+});
+
 export const relations: FormSection<RelationsDetail> = {
   defaultValues: {
     categories: [],
     childHosts: [],
     groups: [],
-    parentHosts: []
+    parentHosts: [],
+    serviceTemplates: []
   },
   detailDecoders: {
     categories: JsonDecoder.array(
@@ -107,15 +153,23 @@ export const relations: FormSection<RelationsDetail> = {
     parentHosts: JsonDecoder.array(
       JsonDecoder.object(namedEntityDecoder, 'Parent host'),
       'Parent hosts'
+    ),
+    serviceTemplates: JsonDecoder.array(
+      JsonDecoder.object(namedEntityDecoder, 'Service template'),
+      'Service templates'
     )
   },
   detailKeyMap: {
     childHosts: 'child_hosts',
-    parentHosts: 'parent_hosts'
+    parentHosts: 'parent_hosts',
+    serviceTemplates: 'service_templates'
   },
   // Each list carries its update mode in a mass change, as in legacy.
   getInputs: (context) =>
-    getRelationInputs(context).map((input) =>
+    (context.isTemplate
+      ? getTemplateRelationInputs(context)
+      : getRelationInputs(context)
+    ).map((input) =>
       withUpdateMode({
         field: input.fieldName as UpdateModeField,
         input,
@@ -123,33 +177,30 @@ export const relations: FormSection<RelationsDetail> = {
         t: context.t
       })
     ),
-  getSchema: ({ t, isCloudPlatform, isMassChange }) => ({
-    // A host must belong to a group on cloud and need not anywhere else:
-    // `CreateHostInput` counts them only under `WhenPlatform(forCloud: true)`.
-    groups:
-      isCloudPlatform && !isMassChange
-        ? array().min(1, t(labelRequired))
-        : array().notRequired(),
-    // As the legacy form, a host cannot be both parent and child.
-    parentHosts: array().test(
-      'is-not-also-a-child',
-      t(labelParentAndChildHost),
-      (parents, { parent: values }) =>
-        !(parents ?? []).some(({ id }) =>
-          (values.childHosts ?? []).some(
-            (child: { id: number }) => child.id === id
-          )
-        )
-    )
-  }),
+  // A template has no group nor parent and child hosts to check.
+  getSchema: ({ t, isCloudPlatform, isMassChange, isTemplate }) =>
+    isTemplate
+      ? {}
+      : getHostRelationsSchema({ isCloudPlatform, isMassChange, t }),
+  hostOnlyFields: ['childHosts', 'groups', 'parentHosts'],
   label: labelRelations,
-  toPayload: (values) => {
-    const { groups, categories, parentHosts, childHosts } = values as {
-      categories: Array<{ id: number }> | null;
-      childHosts: Array<{ id: number }> | null;
-      groups: Array<{ id: number }> | null;
-      parentHosts: Array<{ id: number }> | null;
-    };
+  templateOnlyFields: ['serviceTemplates'],
+  toPayload: (values, { isTemplate }) => {
+    const { groups, categories, parentHosts, childHosts, serviceTemplates } =
+      values as {
+        categories: Array<{ id: number }> | null;
+        childHosts: Array<{ id: number }> | null;
+        groups: Array<{ id: number }> | null;
+        parentHosts: Array<{ id: number }> | null;
+        serviceTemplates?: Array<{ id: number }> | null;
+      };
+
+    if (isTemplate) {
+      return {
+        category_ids: toIds(categories),
+        service_template_ids: toIds(serviceTemplates)
+      };
+    }
 
     return {
       category_ids: toIds(categories),

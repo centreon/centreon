@@ -1,3 +1,5 @@
+import { omit } from 'ramda';
+
 import { dataProcessing } from './dataProcessing';
 import { extendedInfos } from './extendedInfos';
 import { hostConfiguration } from './hostConfiguration';
@@ -24,6 +26,35 @@ export const getAvailableSections = (
   sections
     .map((section, index) => ({ order: index + 1, section }))
     .filter(({ section }) => section.isAvailable?.(context) ?? true);
+
+// One section's fields for a host, or for a host template: those of the other
+// kind left out.
+const withoutOtherKindFields = (
+  section: (typeof sections)[number],
+  { isTemplate }: PlatformContext,
+  fields: Record<string, unknown>
+) =>
+  omit(
+    ((isTemplate ? section.hostOnlyFields : section.templateOnlyFields) ??
+      []) as Array<string>,
+    fields
+  );
+
+// What one section decodes from the detail of a host, or of a host template.
+export const getSectionDetailDecoders = (
+  section: (typeof sections)[number],
+  context: PlatformContext
+) =>
+  withoutOtherKindFields(
+    section,
+    context,
+    section.detailDecoders as Record<string, unknown>
+  );
+
+export const getSectionDefaultValues = (
+  section: (typeof sections)[number],
+  context: PlatformContext
+) => withoutOtherKindFields(section, context, section.defaultValues);
 
 type UnionToIntersection<Union> = (
   Union extends unknown

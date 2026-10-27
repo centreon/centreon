@@ -1,8 +1,14 @@
 import { mergeAll } from 'ramda';
 
-import { getAvailableSections, type PlatformContext } from './sections';
+import {
+  getAvailableSections,
+  getSectionDefaultValues,
+  type PlatformContext
+} from './sections';
 
 export const getDefaultValues = (context: PlatformContext) =>
   mergeAll(
-    getAvailableSections(context).map(({ section }) => section.defaultValues)
+    getAvailableSections(context).map(({ section }) =>
+      getSectionDefaultValues(section, context)
+    )
   );

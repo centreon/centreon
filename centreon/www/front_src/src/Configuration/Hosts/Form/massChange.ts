@@ -6,9 +6,9 @@ import { labelTemplateReplacementDeletesServices } from '../translatedLabels';
 import { getDefaultValues } from './defaultValues';
 import { getAvailableSections, type PlatformContext } from './sections';
 import {
+  getUpdateModeFields,
   type UpdateMode,
-  type UpdateModeField,
-  updateModeFields
+  type UpdateModeField
 } from './updateMode';
 
 // Tri-states start unselected: a mass change imposes nothing it was not told
@@ -40,10 +40,11 @@ export const getMassChangeDefaultValues = (context: PlatformContext) => {
         contactGroupAdditiveInheritance: null
       })
     }),
-    createServicesLinkedToTemplates: false,
+    // A template creates no service.
+    ...(!context.isTemplate && { createServicesLinkedToTemplates: false }),
     massChangeModes: map(
       (): UpdateMode => 'incremental',
-      updateModeFields
+      getUpdateModeFields(context)
     ) as Record<UpdateModeField, UpdateMode>
   };
 };
@@ -103,7 +104,7 @@ export const getMassChangeAdapter = (context: PlatformContext) => {
     const payload = toPayload(fields);
 
     return (
-      Object.entries(updateModeFields) as Array<
+      Object.entries(getUpdateModeFields(context)) as Array<
         [UpdateModeField, ReadonlyArray<ReadonlyArray<string>>]
       >
     ).reduce(

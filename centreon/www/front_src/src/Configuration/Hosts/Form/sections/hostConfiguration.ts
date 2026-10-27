@@ -2,7 +2,7 @@ import { InputType, type SelectEntry } from '@centreon/ui';
 
 import type { TFunction } from 'i18next';
 import { JsonDecoder } from 'ts.data.json';
-import { array, number, object, string } from 'yup';
+import { array, number, type ObjectShape, object, string } from 'yup';
 
 import {
   hostFormCommandsEndpoint,
@@ -123,6 +123,9 @@ interface HostConfigurationDetail {
   alias: string;
   checkOptions: CheckOptionsValues;
   createServicesLinkedToTemplates: boolean;
+  // A template a monitoring connector owns: read-only, the server refuses
+  // to update or delete it.
+  isLocked: boolean;
   name: string;
   poller: NamedEntity;
   schedulingOptions: SchedulingOptionsValues;
@@ -295,6 +298,38 @@ const getSchedulingTriStateInput = ({
   type: InputType.SegmentedButtons
 });
 
+// Both fields are trimmed the way the server normalises them, so blanks
+// report as missing instead of passing to a 422.
+const getNameSchema = ({
+  isTemplate,
+  t
+}: {
+  isTemplate?: boolean;
+  t: TFunction;
+}) => {
+  const name = string()
+    .trim()
+    .max(nameMaxLength)
+    .matches(forbiddenNameCharacters, t(labelNameContainsForbiddenCharacters))
+    .required(t(labelRequired));
+
+  // The prefix is reserved for the hosts modules create.
+  return isTemplate
+    ? name
+    : name.test(
+        'is-not-a-module',
+        t(labelNameMustNotStartWithModule),
+        (value) => !moduleNamePrefix.test(value ?? '')
+      );
+};
+
+// A template is told apart by its alias in the template lists, so legacy
+// requires it.
+const getTemplateOwnSchema = (t: TFunction) => ({
+  alias: string().trim().max(aliasMaxLength).required(t(labelRequired)),
+  name: getNameSchema({ isTemplate: true, t })
+});
+
 // The rules on one host's own fields, and the required poller. A mass change
 // shows none of the former and leaves the poller optional.
 const getHostOwnSchema = (t: TFunction) => ({
@@ -309,18 +344,7 @@ const getHostOwnSchema = (t: TFunction) => ({
     })
     .required(t(labelRequired)),
   alias: string().trim().max(aliasMaxLength),
-  // Both fields are trimmed the way the server normalises them, so blanks
-  // report as missing instead of passing to a 422.
-  name: string()
-    .trim()
-    .max(nameMaxLength)
-    .matches(forbiddenNameCharacters, t(labelNameContainsForbiddenCharacters))
-    .test(
-      'is-not-a-module',
-      t(labelNameMustNotStartWithModule),
-      (value) => !moduleNamePrefix.test(value ?? '')
-    )
-    .required(t(labelRequired)),
+  name: getNameSchema({ t }),
   poller: object({
     id: number().required(t(labelRequired)),
     name: string()
@@ -328,6 +352,42 @@ const getHostOwnSchema = (t: TFunction) => ({
     .nullable()
     .required(t(labelRequired))
 });
+
+const getOwnSchema = ({
+  isMassChange,
+  isTemplate,
+  t
+}: {
+  isMassChange?: boolean;
+  isTemplate?: boolean;
+  t: TFunction;
+}): ObjectShape => {
+  if (isTemplate) {
+    return isMassChange ? {} : getTemplateOwnSchema(t);
+  }
+
+  return isMassChange
+    ? { poller: object({ id: number(), name: string() }).nullable() }
+    : getHostOwnSchema(t);
+};
+
+// One row at every panel width: a host has name, alias, poller, address and,
+// on-prem, the resolve button; a template its name and alias.
+const getBasicInformationClassName = ({
+  isCloudPlatform,
+  isTemplate
+}: {
+  isCloudPlatform: boolean;
+  isTemplate?: boolean;
+}): string => {
+  if (isTemplate) {
+    return 'grid-cols-2';
+  }
+
+  return isCloudPlatform
+    ? 'grid-cols-4'
+    : 'grid-cols-[repeat(4,minmax(0,1fr))_auto]';
+};
 
 export const hostConfiguration: FormSection<HostConfigurationDetail> = {
   defaultValues: {
@@ -354,6 +414,9 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     // Never read back. Off, as legacy opens an existing host: saving it does
     // not create its templates' services again unless asked to.
     createServicesLinkedToTemplates: JsonDecoder.constant(false),
+    isLocked: JsonDecoder.optional(JsonDecoder.boolean).map(
+      (value) => value ?? false
+    ),
     name: JsonDecoder.string,
     poller: JsonDecoder.object(namedEntityDecoder, 'Poller'),
     schedulingOptions: JsonDecoder.optional(
@@ -384,11 +447,12 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
   detailKeyMap: {
     checkOptions: 'check_options',
     createServicesLinkedToTemplates: 'create_services_linked_to_templates',
+    isLocked: 'is_locked',
     schedulingOptions: 'scheduling_options',
     snmpCommunity: 'snmp_community',
     snmpVersion: 'snmp_version'
   },
-  getInputs: ({ isCloudPlatform, isMassChange, t }) => {
+  getInputs: ({ isCloudPlatform, isMassChange, isTemplate, t }) => {
     const checkPeriod = {
       connectedAutocomplete: buildSelector({
         endpoint: hostFormTimePeriodsEndpoint,
@@ -443,9 +507,10 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
               fieldName: 'basic-information',
               grid: {
                 // The resolve route does not exist on cloud.
-                className: isCloudPlatform
-                  ? 'grid-cols-4'
-                  : 'grid-cols-[repeat(4,minmax(0,1fr))_auto]',
+                className: getBasicInformationClassName({
+                  isCloudPlatform,
+                  isTemplate
+                }),
                 columns: [
                   {
                     dataTestId: 'host-form-name',
@@ -458,17 +523,23 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
                     dataTestId: 'host-form-alias',
                     fieldName: 'alias',
                     label: t(labelAlias),
+                    required: isTemplate,
                     type: InputType.Text
                   },
-                  poller,
-                  {
-                    dataTestId: 'host-form-address',
-                    fieldName: 'address',
-                    label: t(labelIpAddress),
-                    required: true,
-                    type: InputType.Text
-                  },
-                  ...(isCloudPlatform
+                  // A template runs nowhere and has no address to reach.
+                  ...(isTemplate ? [] : [poller]),
+                  ...(isTemplate
+                    ? []
+                    : [
+                        {
+                          dataTestId: 'host-form-address',
+                          fieldName: 'address',
+                          label: t(labelIpAddress),
+                          required: true,
+                          type: InputType.Text
+                        }
+                      ]),
+                  ...(isCloudPlatform || isTemplate
                     ? []
                     : [
                         {
@@ -493,9 +564,10 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
             {
               fieldName: 'host-details',
               grid: {
-                className: isMassChange
-                  ? 'grid-cols-1 @[600px]:grid-cols-2'
-                  : 'grid-cols-1 @[600px]:grid-cols-3',
+                className:
+                  isMassChange && !isTemplate
+                    ? 'grid-cols-1 @[600px]:grid-cols-2'
+                    : 'grid-cols-1 @[600px]:grid-cols-3',
                 columns: [
                   {
                     dataTestId: 'host-form-snmp-community',
@@ -535,7 +607,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
                   },
                   // After the SNMP community: a password manager types into
                   // the field before it, and would open this selector.
-                  ...(isMassChange ? [poller] : [])
+                  ...(isMassChange && !isTemplate ? [poller] : [])
                 ]
               },
               label: 'host-form-host-details',
@@ -647,8 +719,9 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
                     isMassChange,
                     t
                   }),
-                  // Cloud always creates them.
-                  ...(isCloudPlatform
+                  // Cloud always creates them, and a template creates no
+                  // service itself.
+                  ...(isCloudPlatform || isTemplate
                     ? []
                     : [
                         {
@@ -684,12 +757,8 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       }
     ];
   },
-  getSchema: ({ isMassChange, t }) => ({
-    ...(isMassChange
-      ? {
-          poller: object({ id: number(), name: string() }).nullable()
-        }
-      : getHostOwnSchema(t)),
+  getSchema: ({ isMassChange, isTemplate, t }) => ({
+    ...getOwnSchema({ isMassChange, isTemplate, t }),
     checkOptions: object({ macros: getMacrosSchema(t) }),
     schedulingOptions: object({
       maxCheckAttempts: getAtLeastOneSchema(t(labelMustBeIntegerOfAtLeastOne)),
@@ -700,9 +769,11 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     }),
     snmpCommunity: string().max(snmpCommunityMaxLength)
   }),
+  hostOnlyFields: ['address', 'createServicesLinkedToTemplates', 'poller'],
   label: labelHostConfiguration,
+  templateOnlyFields: ['isLocked'],
 
-  toPayload: (values, { isCloudPlatform }) => {
+  toPayload: (values, { isCloudPlatform, isTemplate }) => {
     const {
       name,
       alias,
@@ -733,7 +804,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       // Trimmed as the schema validates them: yup casts before checking the
       // length, so an untrimmed value passes `max` here and fails it server
       // side.
-      address: address?.trim(),
+      ...(!isTemplate && { address: address?.trim() }),
       // The API has no empty alias: none is null.
       alias: alias?.trim() || null,
       check_options: {
@@ -747,11 +818,12 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
           .map(toMacroPayload)
       },
       // Refused on cloud, which always creates them.
-      ...(!isCloudPlatform && {
-        create_services_linked_to_templates: createServicesLinkedToTemplates
-      }),
+      ...(!isCloudPlatform &&
+        !isTemplate && {
+          create_services_linked_to_templates: createServicesLinkedToTemplates
+        }),
       name: name?.trim(),
-      poller_id: poller?.id,
+      ...(!isTemplate && { poller_id: poller?.id }),
       scheduling_options: {
         check_timeperiod_id: schedulingOptions.checkPeriod?.id ?? null,
         max_check_attempts: toApiNumber(schedulingOptions.maxCheckAttempts),

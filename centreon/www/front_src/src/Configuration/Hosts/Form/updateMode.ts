@@ -24,10 +24,37 @@ export const updateModeFields = {
   groups: [['host_group_ids']],
   notificationOptions: [['notifications', 'options']],
   parentHosts: [['parent_host_ids']],
+  serviceTemplates: [['service_template_ids']],
   templates: [['template_ids']]
 } as const;
 
 export type UpdateModeField = keyof typeof updateModeFields;
+
+// The lists of one kind of resource only, as legacy offers their modes.
+const hostOnlyUpdateModeFields: Array<UpdateModeField> = [
+  'childHosts',
+  'groups',
+  'parentHosts'
+];
+const templateOnlyUpdateModeFields: Array<UpdateModeField> = [
+  'serviceTemplates'
+];
+
+export const getUpdateModeFields = ({
+  isTemplate
+}: {
+  isTemplate?: boolean;
+}): Partial<typeof updateModeFields> => {
+  const excluded = isTemplate
+    ? hostOnlyUpdateModeFields
+    : templateOnlyUpdateModeFields;
+
+  return Object.fromEntries(
+    Object.entries(updateModeFields).filter(
+      ([field]) => !excluded.includes(field as UpdateModeField)
+    )
+  );
+};
 
 const updateModeOptions = [
   { label: labelIncremental, value: 'incremental' },

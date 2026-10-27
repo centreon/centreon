@@ -5,6 +5,7 @@ import { JsonDecoder } from 'ts.data.json';
 
 import {
   getAvailableSections,
+  getSectionDetailDecoders,
   type HostDetail,
   type PlatformContext
 } from '../Form/sections';
@@ -13,6 +14,8 @@ import { iconDecoder, namedEntityDecoder } from './namedEntityDecoders';
 
 // The detail endpoint answers with objects where the create takes ids, so the
 // poller arrives named and the autocomplete can render it without a lookup.
+// A host template's detail is read by the same sections, without the fields
+// only a host has.
 export const getHostDecoder = (context: PlatformContext) => {
   const availableSections = getAvailableSections(context).map(
     ({ section }) => section
@@ -20,9 +23,11 @@ export const getHostDecoder = (context: PlatformContext) => {
 
   return JsonDecoder.object<HostDetail>(
     mergeAll(
-      availableSections.map((section) => section.detailDecoders)
+      availableSections.map((section) =>
+        getSectionDetailDecoders(section, context)
+      )
     ) as JsonDecoder.DecoderObject<HostDetail>,
-    'Host',
+    context.isTemplate ? 'Host template' : 'Host',
     mergeAll(availableSections.map((section) => section.detailKeyMap ?? {}))
   );
 };

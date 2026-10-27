@@ -177,7 +177,7 @@ export const extendedInfos: FormSection<ExtendedInfosDetail> = {
     ).map((value) => value ?? null)
   },
   detailKeyMap: { extendedInfos: 'extended_informations' },
-  getInputs: ({ isCloudPlatform, t }) => {
+  getInputs: ({ isCloudPlatform, isTemplate, t }) => {
     const icon: InputPropsWithoutGroup = {
       fieldName: 'extended-infos-icon',
       grid: {
@@ -233,10 +233,15 @@ export const extendedInfos: FormSection<ExtendedInfosDetail> = {
             getTextInput({ fieldName: 'note', label: t(labelNote) }),
             getTextInput({ fieldName: 'actionUrl', label: t(labelActionUrl) }),
             getTextInput({ fieldName: 'noteUrl', label: t(labelNoteUrl) }),
-            getTextInput({
-              fieldName: 'geoCoordinates',
-              label: t(labelGeographicCoordinates)
-            }),
+            // Where the host stands: a template stands nowhere.
+            ...(isTemplate
+              ? []
+              : [
+                  getTextInput({
+                    fieldName: 'geoCoordinates',
+                    label: t(labelGeographicCoordinates)
+                  })
+                ]),
             icon,
             ...(isCloudPlatform
               ? []
@@ -283,7 +288,7 @@ export const extendedInfos: FormSection<ExtendedInfosDetail> = {
     })
   }),
   label: labelHostExtendedInfos,
-  toPayload: (values, { isCloudPlatform }) => {
+  toPayload: (values, { isCloudPlatform, isTemplate }) => {
     const { extendedInfos: infos = defaultExtendedInfos, severity } =
       values as {
         extendedInfos?: ExtendedInfosValues;
@@ -293,7 +298,9 @@ export const extendedInfos: FormSection<ExtendedInfosDetail> = {
     return {
       extended_informations: {
         action_url: toApiText(infos.actionUrl),
-        geo_coordinates: toApiText(infos.geoCoordinates),
+        ...(!isTemplate && {
+          geo_coordinates: toApiText(infos.geoCoordinates)
+        }),
         icon_id: infos.icon?.id ?? null,
         note: toApiText(infos.note),
         note_url: toApiText(infos.noteUrl),
