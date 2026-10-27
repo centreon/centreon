@@ -19,6 +19,8 @@ const Host = ({
       // Pendo keys off this, so it must not follow the labels.
       data-testid={`service-host-link_${row.id}`}
       href={getHostConfigurationUrl(host.id)}
+      // Only the link navigates: the rest of the cell opens the service.
+      onClick={(event): void => event.stopPropagation()}
       underline="hover"
     >
       <ResourceName
