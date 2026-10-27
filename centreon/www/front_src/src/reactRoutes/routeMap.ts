@@ -12,6 +12,7 @@ const routeMap = {
   dashboards: '/home/dashboards/library',
   extensionsManagerPage: '/administration/extensions/manager',
   hostGroups: '/configuration/hosts/groups',
+  hostTemplates: '/configuration/hosts/templates',
   install: '/install/install.php',
   login: '/login',
   logout: '/logout',
