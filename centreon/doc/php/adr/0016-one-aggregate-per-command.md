@@ -5,7 +5,7 @@
 
 ## Context
 
-An aggregate is one transactional, consistent unit ([ADR-0013](0013-adopt-the-team-building-block-vocabulary.md)), and a command runs in one transaction ([ADR-0014](0014-define-messaging-and-hexagonal-building-blocks.md)). The question is whether a command may change several aggregates.
+An aggregate is one transactional, consistent unit ([glossary](../glossary.md#aggregate)), and a command runs in one transaction ([glossary](../glossary.md#command)). The question is whether a command may change several aggregates.
 
 Three cases were raised against a strict rule:
 
