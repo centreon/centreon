@@ -14,6 +14,8 @@ export const labelHostGroups = 'Hostgroups';
 export const labelHostCategories = 'Host Categories';
 export const labelParentHosts = 'Parent Hosts';
 export const labelChildHosts = 'Child Hosts';
+// A host template's relations, spelled as the legacy template form spells it.
+export const labelLinkedServiceTemplates = 'Linked Service Templates';
 export const labelResolve = 'Resolve';
 export const labelHostNotFound = 'Host not found';
 

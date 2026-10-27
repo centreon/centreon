@@ -31,6 +31,10 @@ export const hostFormHostSeveritiesEndpoint =
 export const hostFormMediasEndpoint = '/configuration/hosts/medias';
 export const hostFormHostTemplatesEndpoint =
   '/configuration/hosts/host_templates';
+// The service templates a host template deploys, granted by host template
+// write access: no host-scoped selector offers them.
+export const hostTemplateFormServiceTemplatesEndpoint =
+  '/configuration/host_templates/service_templates';
 
 // One template's macros, its own and those it inherits.
 export const getHostTemplateMacrosEndpoint = ({ id }: { id: number }): string =>

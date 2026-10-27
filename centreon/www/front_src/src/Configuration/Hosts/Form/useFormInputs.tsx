@@ -15,13 +15,15 @@ interface Props {
   isAdditiveInheritanceEnabled: boolean;
   isCloudPlatform: boolean;
   isMassChange?: boolean;
+  isTemplate?: boolean;
 }
 
 const useFormInputs = ({
   canEdit,
   isAdditiveInheritanceEnabled,
   isCloudPlatform,
-  isMassChange = false
+  isMassChange = false,
+  isTemplate = false
 }: Props): FormInputsState => {
   const { t } = useTranslation();
 
@@ -29,6 +31,7 @@ const useFormInputs = ({
     isAdditiveInheritanceEnabled,
     isCloudPlatform,
     isMassChange,
+    isTemplate,
     t
   };
   const availableSections = getAvailableSections(context);

@@ -10,14 +10,16 @@ interface UseValidationSchemaState {
 
 const useValidationSchema = ({
   isCloudPlatform,
-  isMassChange = false
+  isMassChange = false,
+  isTemplate = false
 }: {
   isCloudPlatform: boolean;
   isMassChange?: boolean;
+  isTemplate?: boolean;
 }): UseValidationSchemaState => {
   const { t } = useTranslation();
 
-  const context = { isCloudPlatform, isMassChange, t };
+  const context = { isCloudPlatform, isMassChange, isTemplate, t };
 
   const validationSchema = object(
     mergeAll(

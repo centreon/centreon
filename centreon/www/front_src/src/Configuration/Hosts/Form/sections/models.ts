@@ -9,6 +9,9 @@ export interface PlatformContext {
   isCloudPlatform: boolean;
   // The form edits a selection: no per-host field, nothing required.
   isMassChange?: boolean;
+  // The form edits a host template: no address, poller or host relations,
+  // the template's own fields instead.
+  isTemplate?: boolean;
 }
 
 export interface SectionContext extends PlatformContext {
@@ -23,6 +26,10 @@ export interface FormSection<TDetail extends object = Record<never, never>> {
   defaultValues: FormValues;
   detailDecoders: JsonDecoder.DecoderObject<TDetail>;
   detailKeyMap?: JsonDecoder.DecoderObjectKeyMap<TDetail>;
+  // The detail fields one kind of resource has and the other does not, left
+  // out of the decoder of the other one.
+  hostOnlyFields?: ReadonlyArray<keyof TDetail>;
+  templateOnlyFields?: ReadonlyArray<keyof TDetail>;
   getInputs: (context: SectionContext) => Array<InputPropsWithoutGroup>;
   getSchema: (context: SectionContext) => ObjectShape;
   // When false the section has no group, inputs, rules, defaults, payload or
