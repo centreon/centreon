@@ -28,6 +28,8 @@ import type { BlockId, Blocks } from './sections';
 // may depend on how many of the columns the platform keeps.
 interface LayoutGrid {
   className: string | ((count: number) => string);
+  // A dashed line between its columns, as in the design.
+  columnSeparator?: boolean;
   columns: Array<LayoutNode>;
   name: string;
   title?: string;
@@ -52,6 +54,7 @@ export const layout: Array<LayoutSection> = [
       'snmp',
       {
         className: twoColumnsFromWide,
+        columnSeparator: true,
         columns: ['templates', 'macros'],
         name: 'templates-layout'
       }
@@ -62,6 +65,7 @@ export const layout: Array<LayoutSection> = [
     nodes: [
       {
         className: twoColumnsFromNarrow,
+        columnSeparator: true,
         columns: [
           {
             className: stackedColumns,
@@ -94,6 +98,7 @@ export const layout: Array<LayoutSection> = [
     nodes: [
       {
         className: twoColumnsFromNarrow,
+        columnSeparator: true,
         columns: [
           {
             className: twoColumnsFromWide,
@@ -110,6 +115,7 @@ export const layout: Array<LayoutSection> = [
           },
           {
             className: schedulingColumns,
+            columnSeparator: true,
             columns: ['schedulingNumbers', 'schedulingChecks'],
             name: 'scheduling-options',
             title: labelSchedulingOptions
@@ -124,6 +130,7 @@ export const layout: Array<LayoutSection> = [
     nodes: [
       {
         className: twoColumnsFromWide,
+        columnSeparator: true,
         columns: [
           'notificationRecipients',
           {
@@ -142,6 +149,7 @@ export const layout: Array<LayoutSection> = [
       {
         className: (count) =>
           count === 3 ? threeColumnsFromWide : twoColumnsFromWide,
+        columnSeparator: true,
         columns: [
           'eventHandler',
           {
@@ -199,6 +207,7 @@ const placeNode = ({
   return getBlock({
     // A column left alone takes the whole width.
     className: columns.length === 1 ? stackedColumns : className,
+    columnSeparator: node.columnSeparator,
     columns,
     name: node.name,
     title: node.title && t(node.title)
