@@ -22,8 +22,6 @@ Organise `Infrastructure/` **by technology first** (`Dbal/`, `ApiPlatform/`), **
 
 ## Consequences
 
-- Around 11 existing Transformers must be renamed. The renames are done incrementally in a dedicated refactor, never as drive-by changes in a feature change, so that backports stay clean.
-- Older code and documents that say `DbalXxxTransformer` refer to the old naming.
 - The rule is not enforced by tooling yet. A search for `class Dbal\w*Transformer` under `Dbal/` catches a violation.
 
 ## When to Amend

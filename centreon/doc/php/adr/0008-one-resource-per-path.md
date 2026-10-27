@@ -1,4 +1,4 @@
-# ADR-0008: Use one API Platform resource per path, and add Input or Output DTOs only when they differ
+# ADR-0008: Keep one API Platform resource as far as possible, and add Input or Output DTOs when formats differ
 
 - **Status:** Accepted
 - **Date:** 2026-05-28
@@ -9,12 +9,13 @@ Endpoints on the same resource often take different input formats per verb, and 
 
 ## Decision
 
-Keep **one resource per path** by default. For REST consistency, every verb on that path returns the **same output**: the resource itself. When the **URL differs**, extract a **dedicated resource** for that endpoint. Create an **Input or Output DTO only when needed**, when its format really differs from the reference resource. Otherwise, use the resource itself as input and output.
+Keep **one resource** for a business object **as far as possible**. Shape the resource so it covers **the majority of the input and output cases**, and use it directly as input and output for them. When an operation's **input or output differs**, give that operation an **Input or Output DTO** on the same resource. **Avoid creating another resource** for it, even when its URL differs.
 
 ## Consequences
 
 - Fewer classes: no DTO for an endpoint whose payload already matches the resource.
-- Clients get one consistent representation per path.
+- Most operations share one representation, and each DTO marks an exception.
+- Another resource is a design choice to justify, not the default answer to a different URL or format.
 - A DTO signals a real format difference, which makes it worth reviewing.
 
 ## When to Amend

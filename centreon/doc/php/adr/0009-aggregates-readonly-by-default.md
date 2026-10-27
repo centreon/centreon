@@ -9,7 +9,7 @@ Some aggregates already have `readonly` properties because they have no setters.
 
 ## Decision
 
-Declare aggregate properties **`readonly`** by default, except the `AggregateRootId`. When an **edit use case** needs to change a property, remove `readonly` from that property and add a **business method** that performs the change, such as `rename()` or `disable()`. **Never add a generic setter.**
+Declare aggregate properties **`readonly`** by default, except the `AggregateRootId`, which is `null` until the aggregate is persisted. The ID is **assigned once** and never reassigned: the business-method rule below does not apply to it. When an **edit use case** needs to change a property, remove `readonly` from that property and add a **business method** that performs the change, such as `rename()` or `disable()`. **Never add a generic setter.**
 
 ## Consequences
 
