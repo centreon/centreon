@@ -46,8 +46,6 @@ const useColumns = (): Props => {
   const columns: Array<Column> = [
     {
       Component: Host,
-      // The link navigates; the cell must not also open the service.
-      clickable: true,
       disablePadding: false,
       id: 'host',
       label: t(labelHost),
@@ -77,7 +75,6 @@ const useColumns = (): Props => {
     },
     {
       Component: Template,
-      clickable: true,
       disablePadding: false,
       id: 'template',
       label: t(labelTemplate),
