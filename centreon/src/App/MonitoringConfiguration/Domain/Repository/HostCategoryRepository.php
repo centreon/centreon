@@ -34,7 +34,7 @@ interface HostCategoryRepository
     /**
      * @return \IteratorAggregate<int, HostCategory>&\Countable
      */
-    public function findAll(?HostCategoryCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(HostCategoryCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
      * Never returns a severity, though both share the `hostcategories` table.

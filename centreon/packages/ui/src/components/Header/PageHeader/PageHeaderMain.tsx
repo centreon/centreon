@@ -7,9 +7,11 @@ type PageHeaderMainProps = {
 };
 
 const PageHeaderMain = ({ children }: PageHeaderMainProps): ReactElement => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
-  return <div className={classes.pageHeaderMain}>{children}</div>;
+  return (
+    <div className={cx(classes.pageHeaderMain, 'min-w-0')}>{children}</div>
+  );
 };
 
 export { PageHeaderMain };

@@ -28,13 +28,12 @@ use PHPUnit\Framework\TestCase;
 
 final class MediaCriteriaTest extends TestCase
 {
-    // Pagination immutability is already covered generically by PaginableCriteriaTest, and
-    // viewer-scoping immutability has no dedicated test anywhere ViewerScopedCriteriaTrait is used
-    // since MediaCriteria only wires both traits in without overriding their behavior.
+    // Pagination and actor-scoping immutability are covered by PaginableCriteriaTest and
+    // ContactGroupCriteriaTest, since this criteria only wires both traits in without overriding them.
 
     public function testWithNameReturnsANewInstanceAndLeavesTheOriginalUnchanged(): void
     {
-        $criteria = new MediaCriteria();
+        $criteria = MediaCriteria::unscoped();
 
         $withName = $criteria->withName('foo');
 
@@ -47,7 +46,7 @@ final class MediaCriteriaTest extends TestCase
     {
         // stringNotEmpty(), not notEmpty(): notEmpty() relies on PHP's empty(), which wrongly
         // treats "0" as empty. A media legitimately named "0" must not be rejected.
-        $criteria = (new MediaCriteria())->withName('0');
+        $criteria = MediaCriteria::unscoped()->withName('0');
 
         self::assertSame('0', $criteria->getName());
     }
@@ -56,6 +55,6 @@ final class MediaCriteriaTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        (new MediaCriteria())->withName('');
+        MediaCriteria::unscoped()->withName('');
     }
 }

@@ -20,7 +20,7 @@ else
   dnf install -y /tmp/packages-centreon/centreon-*.rpm
 fi
 
-cat <<EOT >> /usr/share/centreon/container.d/81-oss.sh
+cat <<'EOT' >> /usr/share/centreon/container.d/81-oss.sh
 #!/bin/sh
 for MODULE in "centreon-dsm" "centreon-awie" "centreon-open-tickets"; do
   su apache -s /bin/bash -c "/tmp/install-centreon-module.php -b /usr/share/centreon/bootstrap.php -m \$MODULE"

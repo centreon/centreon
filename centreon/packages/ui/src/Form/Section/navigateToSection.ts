@@ -1,9 +1,27 @@
-export const useNavigateToSection = () => {
-  return (sectionName: string) => {
-    const section = document.querySelector(
-      `[data-section-group-form-id="${sectionName}"]`
-    );
+export const sectionAnchorAttribute = 'data-section-group-form-id';
 
-    section?.scrollIntoView({ behavior: 'smooth' });
-  };
+export const getSectionAnchors = (container: HTMLElement): Array<HTMLElement> =>
+  Array.from(
+    container.querySelectorAll<HTMLElement>(`[${sectionAnchorAttribute}]`)
+  );
+
+interface NavigateToSectionProps {
+  container: HTMLElement | null;
+  sectionName: string;
+}
+
+// The lookup stays inside the form: two forms can share a group name.
+export const navigateToSection = ({
+  container,
+  sectionName
+}: NavigateToSectionProps): void => {
+  if (!container) {
+    return;
+  }
+
+  const section = getSectionAnchors(container).find(
+    (anchor) => anchor.getAttribute(sectionAnchorAttribute) === sectionName
+  );
+
+  section?.scrollIntoView({ behavior: 'smooth' });
 };

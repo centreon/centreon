@@ -96,6 +96,7 @@ export interface ConfigurationBase<TFilters> {
   actions?: Actions;
   labels: {
     title: string;
+    description?: string;
     welcomePage: {
       title: string;
       description?: string;

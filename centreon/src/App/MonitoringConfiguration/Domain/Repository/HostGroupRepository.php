@@ -44,5 +44,5 @@ interface HostGroupRepository
     /**
      * @return \IteratorAggregate<int, HostGroup>&\Countable
      */
-    public function findAll(?HostGroupCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(HostGroupCriteria $criteria): \IteratorAggregate&\Countable;
 }

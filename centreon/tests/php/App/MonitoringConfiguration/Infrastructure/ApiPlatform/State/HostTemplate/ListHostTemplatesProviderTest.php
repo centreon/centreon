@@ -35,7 +35,7 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_TEMPLATES_R
     // (Configuration > Hosts > Templates), bridged to HostTemplatePermissionEnum::CanRead
-    // via DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // via CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const HOST_TEMPLATE_READ_TOPOLOGY_PAGES = [6, 601, 60103];
 
     private Connection $connection;
@@ -125,8 +125,8 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
 
     public function testItRestrictsListingToAccessibleSeveritiesForARestrictedUser(): void
     {
-        // legacy scopes restricted viewers by host *severities* (categories with a level), not by
-        // regular host categories, even when the regular category is in the viewer's ACL.
+        // legacy scopes restricted actors by host *severities* (categories with a level), not by
+        // regular host categories, even when the regular category is in the actor's ACL.
         $severityId = $this->insertHostCategory("sev-{$this->tag}", level: 1);
         $regularId = $this->insertHostCategory("reg-{$this->tag}");
 

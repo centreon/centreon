@@ -189,10 +189,10 @@ else
     STABLE_REPOSITORY_NAME="${DEB_PREFIX}${DEB_INFIX}stable"
     STABLE_BASE_PATH="$STABLE_REPOSITORY_NAME"
     STABLE_SUITE="$DISTRIB-$VERSION-stable"
-    # 24.x clients use dedicated legacy stable repositories with plain-codename
+    # 24.10 clients use dedicated legacy stable repositories with plain-codename
     # suites (apt|ubuntu-standard-<major>-stable, apt-<major>-business-stable):
     # the promote mirrors its package associations into them
-    if [[ -z "$DEB_INFIX" && ( "$VERSION" == "24.04" || "$VERSION" == "24.10" ) ]]; then
+    if [[ -z "$DEB_INFIX" && "$VERSION" == "24.10" ]]; then
       if [[ "$REPO_BASE" == "standard" ]]; then
         STABLE_LEGACY_REPOSITORY_NAME="${DEB_PREFIX}standard-$VERSION-stable"
         STABLE_LEGACY_SUITE="$DISTRIB"

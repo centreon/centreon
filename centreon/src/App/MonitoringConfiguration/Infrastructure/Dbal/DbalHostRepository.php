@@ -34,8 +34,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -113,7 +113,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   macros: list<array{id: int|string, name: string, value: string, is_password: string|int|null}>,
  * }
  *
- * @phpstan-import-type NotificationColumnsTypeAlias from DbalNotificationsTransformer
+ * @phpstan-import-type NotificationColumnsTypeAlias from NotificationsTransformer
  */
 final readonly class DbalHostRepository extends DbalRepository implements HostRepository
 {
@@ -169,11 +169,11 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
-        #[Autowire(service: DbalHostTransformer::class)]
+        #[Autowire(service: HostTransformer::class)]
         private TransformerInterface $transformer,
-        #[Autowire(service: DbalNotificationsTransformer::class)]
+        #[Autowire(service: NotificationsTransformer::class)]
         private TransformerInterface $notificationsTransformer,
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -232,13 +232,10 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         }
     }
 
-    public function findOne(HostId $id, ?UserId $viewerId = null): ?Host
+    public function findOne(HostId $id, ActingUser $actor): ?Host
     {
-        if (
-            $viewerId instanceof UserId
-            && ! in_array($id->value, $this->findAccessibleHostIdValues($viewerId, [$id->value]), true)
-        ) {
-            // Exists but outside the viewer's ACL scope, or does not exist at all — both read as
+        if (! $this->accessScopes->hosts($actor, new Collection([$id], HostId::class))->allows($id)) {
+            // Exists but outside the actor's ACL scope, or does not exist at all — both read as
             // "not found" to the caller, so as not to leak existence (see HostRepository::findOne()).
             return null;
         }
@@ -329,7 +326,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public function findMacros(HostId $id): Collection
     {
         return new Collection(
-            array_map(DbalHostTransformer::createMacro(...), $this->findMacroRows($id->value)),
+            array_map(HostTransformer::createMacro(...), $this->findMacroRows($id->value)),
             HostMacro::class,
         );
     }
@@ -447,14 +444,11 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         return (bool) $qb->executeQuery()->fetchOne();
     }
 
-    public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostCriteria $criteria): \IteratorAggregate&\Countable
     {
-        $accessibleHostIds = null;
-        if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
-            $accessibleHostIds = $this->findAccessibleHostIdValues($viewerId);
-            if ($accessibleHostIds === []) {
-                return new Collection([], Host::class);
-            }
+        $scope = $criteria->accessScope($this->accessScopes->hosts(...), HostId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, Host::class);
         }
 
         $qb = $this->connection->createQueryBuilder();
@@ -467,21 +461,19 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->andWhere("h.host_register = '1'")
             ->groupBy('h.host_id', 'nsr.nagios_server_id', 'ehi.ehi_icon_image');
 
-        if ($accessibleHostIds !== null) {
+        if (! $scope->isUnrestricted()) {
             $qb->andWhere($qb->expr()->in(
                 'h.host_id',
-                $qb->createNamedParameter($accessibleHostIds, ArrayParameterType::INTEGER)
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
             ));
         }
 
-        if ($criteria instanceof HostCriteria) {
-            $this->filterByHostCriteria($qb, $criteria);
-            $this->applySort($qb, 'h', $criteria);
-        }
+        $this->filterByHostCriteria($qb, $criteria);
+        $this->applySort($qb, 'h', $criteria);
         // last sort key: alias and address are not unique, and pagination must stay deterministic
         $qb->addOrderBy('h.host_id');
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -529,12 +521,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         ];
     }
 
-    public function findNamesByIds(Collection $ids, ?UserId $viewerId = null): Collection
+    public function findNamesByIds(Collection $ids): Collection
     {
         $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
-        if ($viewerId instanceof UserId) {
-            $idValues = array_values(array_intersect($idValues, $this->findAccessibleHostIdValues($viewerId, array_values($idValues))));
-        }
 
         if ($idValues === []) {
             return new Collection([], HostName::class);
@@ -933,23 +922,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->andWhere("host_register = '1'")
             ->executeQuery()
             ->fetchOne() !== false;
-    }
-
-    /**
-     * @param ?list<int> $among when given, only these hosts are looked up, instead of every host the user can see
-     *
-     * @return list<int>
-     */
-    private function findAccessibleHostIdValues(UserId $userId, ?array $among = null): array
-    {
-        $amongIds = $among === null
-            ? null
-            : new Collection(array_map(static fn (int $id): HostId => new HostId($id), $among), HostId::class);
-
-        return array_values(array_map(
-            static fn (HostId $id): int => $id->value,
-            iterator_to_array($this->resourceAccessRepository->findAccessibleHostIds($userId, $amongIds)),
-        ));
     }
 
     /**

@@ -88,7 +88,8 @@ use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
@@ -111,6 +112,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRep
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
@@ -160,7 +162,10 @@ final class PatchHostCommandHandlerTest extends TestCase
         $this->timezoneRepository = new FakeTimezoneRepository();
         $this->timePeriodRepository = new FakeTimePeriodRepository();
         $this->mediaRepository = new FakeMediaRepository();
-        $this->resourceAccessRepository = new FakeResourceAccessRepository();
+        $this->resourceAccessRepository = $this->repository->resourceAccess;
+        // A restricted actor sees the host under test, as they must to edit it.
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(self::HOST_ID)], HostId::class);
+
         $this->vault = new FakeVault();
         $this->eventBus = new EventBusSpy();
         $this->handler = new PatchHostCommandHandler(
@@ -173,7 +178,7 @@ final class PatchHostCommandHandlerTest extends TestCase
                 $this->timePeriodRepository,
                 $this->mediaRepository,
                 $this->commandRepository,
-                $this->resourceAccessRepository,
+                new AccessScopeResolver($this->resourceAccessRepository),
             ),
             new HostRelationsUpdater(
                 new FakeHostGroupRepository(),
@@ -182,7 +187,7 @@ final class PatchHostCommandHandlerTest extends TestCase
                 $this->repository,
                 new FakeNotificationContactRepository(),
                 new FakeContactGroupRepository(),
-                $this->resourceAccessRepository,
+                new AccessScopeResolver($this->resourceAccessRepository),
                 new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
                     new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
                     $this->hostTemplateRepository,
@@ -210,7 +215,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             activated: true,
         ));
 
@@ -232,7 +237,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             activated: false,
         ));
 
@@ -248,7 +253,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             activated: true,
             name: new HostName('server-01'),
         ));
@@ -264,31 +269,44 @@ final class PatchHostCommandHandlerTest extends TestCase
         $this->expectException(HostNotFoundException::class);
 
         try {
-            ($this->handler)(new PatchHostCommand(id: new HostId(404), updatedBy: 1, activated: true));
+            ($this->handler)(new PatchHostCommand(id: new HostId(404), actor: TestActingUsers::unrestricted(1), activated: true));
         } finally {
             self::assertSame([], $this->repository->activationUpdates);
             self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostEnabled::class));
         }
     }
 
-    public function testItHidesAHostOutsideTheViewerAclScope(): void
+    public function testItHidesAHostOutsideTheActorAclScope(): void
     {
         $this->seedHost(activated: true);
-        $this->repository->accessibleHostIds = [];
+        $this->repository->resourceAccess->accessibleHostIds = new Collection([], HostId::class);
 
         $this->expectException(HostNotFoundException::class);
 
         try {
             ($this->handler)(new PatchHostCommand(
                 id: new HostId(self::HOST_ID),
-                updatedBy: 1,
+                actor: TestActingUsers::restricted(42),
                 activated: false,
-                viewerId: new UserId(42),
             ));
         } finally {
             self::assertSame([], $this->repository->activationUpdates);
             self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostDisabled::class));
         }
+    }
+
+    public function testAnUnrestrictedActorIsNotScopedByAcl(): void
+    {
+        $this->seedHost(activated: true);
+        $this->repository->resourceAccess->accessibleHostIds = new Collection([], HostId::class);
+
+        ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            actor: TestActingUsers::unrestricted(1),
+            activated: false,
+        ));
+
+        self::assertSame([['id' => self::HOST_ID, 'activated' => false]], $this->repository->activationUpdates);
     }
 
     public function testItUpdatesOnlyTheProvidedFields(): void
@@ -297,7 +315,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             alias: new HostAlias('front'),
         ));
 
@@ -315,7 +333,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             alias: null,
         ));
 
@@ -329,7 +347,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             activated: true,
             alias: new HostAlias('front'),
         ));
@@ -350,7 +368,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         try {
             ($this->handler)(new PatchHostCommand(
                 id: new HostId(self::HOST_ID),
-                updatedBy: 1,
+                actor: TestActingUsers::unrestricted(1),
                 name: new HostName('server-02'),
             ));
         } finally {
@@ -365,7 +383,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             name: new HostName('server-01'),
             alias: new HostAlias('front'),
         ));
@@ -379,7 +397,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             name: new HostName('SERVER-01'),
         ));
 
@@ -396,7 +414,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             name: new HostName('SERVER-02'),
         ));
     }
@@ -412,7 +430,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             pollerId: new PollerId(2),
             timezoneId: new TimezoneId(12),
             severityId: new HostSeverityId(4),
@@ -452,50 +470,48 @@ final class PatchHostCommandHandlerTest extends TestCase
     {
         $id = new HostId(self::HOST_ID);
 
-        yield 'poller' => [new PatchHostCommand($id, 1, pollerId: new PollerId(99)), PollerNotFoundException::class];
+        yield 'poller' => [new PatchHostCommand($id, TestActingUsers::unrestricted(), pollerId: new PollerId(99)), PollerNotFoundException::class];
 
-        yield 'severity' => [new PatchHostCommand($id, 1, severityId: new HostSeverityId(99)), HostSeverityNotFoundException::class];
+        yield 'severity' => [new PatchHostCommand($id, TestActingUsers::unrestricted(), severityId: new HostSeverityId(99)), HostSeverityNotFoundException::class];
 
-        yield 'timezone' => [new PatchHostCommand($id, 1, timezoneId: new TimezoneId(99)), TimezoneNotFoundException::class];
+        yield 'timezone' => [new PatchHostCommand($id, TestActingUsers::unrestricted(), timezoneId: new TimezoneId(99)), TimezoneNotFoundException::class];
 
-        yield 'icon' => [new PatchHostCommand($id, 1, extendedInformations: new ExtendedInformationsChanges(iconId: new MediaId(99))), MediaNotFoundException::class];
+        yield 'icon' => [new PatchHostCommand($id, TestActingUsers::unrestricted(), extendedInformations: new ExtendedInformationsChanges(iconId: new MediaId(99))), MediaNotFoundException::class];
 
-        yield 'check time period' => [new PatchHostCommand($id, 1, schedulingOptions: new SchedulingOptionsChanges(checkTimeperiodId: new TimePeriodId(99))), TimePeriodNotFoundException::class];
+        yield 'check time period' => [new PatchHostCommand($id, TestActingUsers::unrestricted(), schedulingOptions: new SchedulingOptionsChanges(checkTimeperiodId: new TimePeriodId(99))), TimePeriodNotFoundException::class];
 
-        yield 'notification time period' => [new PatchHostCommand($id, 1, notifications: new NotificationsChanges(periodId: new TimePeriodId(99))), TimePeriodNotFoundException::class];
+        yield 'notification time period' => [new PatchHostCommand($id, TestActingUsers::unrestricted(), notifications: new NotificationsChanges(periodId: new TimePeriodId(99))), TimePeriodNotFoundException::class];
 
-        yield 'event handler command' => [new PatchHostCommand($id, 1, dataProcessing: new DataProcessingChanges(eventHandlerCommandId: new CommandId(99))), CommandNotFoundException::class];
+        yield 'event handler command' => [new PatchHostCommand($id, TestActingUsers::unrestricted(), dataProcessing: new DataProcessingChanges(eventHandlerCommandId: new CommandId(99))), CommandNotFoundException::class];
     }
 
-    public function testAPollerOutsideTheViewerScopeIsReportedAsNotFound(): void
+    public function testAPollerOutsideTheActorScopeIsReportedAsNotFound(): void
     {
         $this->seedHost(activated: true);
         $this->pollerRepository->seed(2);
-        $this->resourceAccessRepository->unrestrictedPollerAccess = false;
+        $this->resourceAccessRepository->pollerScope = AccessScope::restrictedTo(PollerId::class, []);
 
         $this->expectException(PollerNotFoundException::class);
 
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::restricted(7),
             pollerId: new PollerId(2),
-            viewerId: new UserId(7),
         ));
     }
 
-    public function testASeverityOutsideTheViewerScopeIsReportedAsNotFound(): void
+    public function testASeverityOutsideTheActorScopeIsReportedAsNotFound(): void
     {
         $this->seedHost(activated: true);
         $this->hostSeverityRepository->hostSeverities[4] = new HostSeverityName('Critical');
-        $this->resourceAccessRepository->accessibleHostSeverityIds = new Collection([new HostSeverityId(5)], HostSeverityId::class);
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(5)]);
 
         $this->expectException(HostSeverityNotFoundException::class);
 
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::restricted(7),
             severityId: new HostSeverityId(4),
-            viewerId: new UserId(7),
         ));
     }
 
@@ -508,7 +524,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             name: new HostName('server-02'),
             pollerId: new PollerId(99),
         ));
@@ -521,7 +537,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             pollerId: new PollerId(2),
         ));
 
@@ -536,7 +552,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             alias: new HostAlias('front'),
         ));
 
@@ -551,7 +567,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             dataProcessing: new DataProcessingChanges(
                 checkFreshness: TriStateEnum::False,
                 freshnessThreshold: 30,
@@ -570,7 +586,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             checkOptions: new CheckOptionsChanges(checkCommandId: new CommandId(9)),
         ));
 
@@ -585,13 +601,13 @@ final class PatchHostCommandHandlerTest extends TestCase
         $this->seedHost(activated: true);
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             checkOptions: new CheckOptionsChanges(checkCommandId: new CommandId(9)),
         ));
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             checkOptions: new CheckOptionsChanges(args: ['-w', '80']),
         ));
 
@@ -608,7 +624,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         try {
             ($this->handler)(new PatchHostCommand(
                 id: new HostId(self::HOST_ID),
-                updatedBy: 1,
+                actor: TestActingUsers::unrestricted(1),
                 checkOptions: new CheckOptionsChanges(args: ['-w', '80']),
             ));
         } finally {
@@ -622,13 +638,13 @@ final class PatchHostCommandHandlerTest extends TestCase
         $this->seedHost(activated: true);
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             checkOptions: new CheckOptionsChanges(checkCommandId: new CommandId(9), args: ['-w', '80']),
         ));
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             checkOptions: new CheckOptionsChanges(checkCommandId: null),
         ));
 
@@ -643,7 +659,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             notifications: new NotificationsChanges(
                 enabled: TriStateEnum::True,
                 contactAdditiveInheritance: true,
@@ -663,7 +679,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             notifications: new NotificationsChanges(contactAdditiveInheritance: true),
         ));
 
@@ -676,7 +692,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             snmpCommunity: 'new-secret',
         ));
 
@@ -698,7 +714,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             snmpCommunity: 'new-secret',
         ));
 
@@ -713,7 +729,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             snmpCommunity: 'public',
         ));
 
@@ -727,7 +743,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             alias: new HostAlias('front'),
             snmpCommunity: 'secret::vault::monitoring/hosts/other::_HOSTSNMPCOMMUNITY',
         ));
@@ -742,7 +758,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             snmpCommunity: null,
         ));
 
@@ -761,7 +777,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             snmpCommunity: null,
         ));
 
@@ -777,7 +793,7 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: 1,
+            actor: TestActingUsers::unrestricted(1),
             snmpCommunity: null,
         ));
 
@@ -793,7 +809,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         try {
             ($this->handler)(new PatchHostCommand(
                 id: new HostId(self::HOST_ID),
-                updatedBy: 1,
+                actor: TestActingUsers::unrestricted(1),
                 name: new HostName('server-02'),
                 snmpCommunity: 'new-secret',
             ));
@@ -812,7 +828,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         try {
             ($this->handler)(new PatchHostCommand(
                 id: new HostId(self::HOST_ID),
-                updatedBy: 1,
+                actor: TestActingUsers::unrestricted(1),
                 alias: new HostAlias('front'),
                 snmpCommunity: 'new-secret',
             ));
@@ -838,18 +854,18 @@ final class PatchHostCommandHandlerTest extends TestCase
      */
     public static function textChanges(): iterable
     {
-        $alias = static fn (?HostAlias $value): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, alias: $value);
+        $alias = static fn (?HostAlias $value): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), alias: $value);
 
         yield 'alias replaced' => ['alias', $alias, new HostAlias('new alias'), 'new alias'];
 
         yield 'alias cleared' => ['alias', $alias, null, null];
 
         $texts = [
-            'noteUrl' => ['https://new.example/n', static fn (?string $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, extendedInformations: new ExtendedInformationsChanges(noteUrl: $sent))],
-            'note' => ['new note', static fn (?string $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, extendedInformations: new ExtendedInformationsChanges(note: $sent))],
-            'actionUrl' => ['https://new.example/a', static fn (?string $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, extendedInformations: new ExtendedInformationsChanges(actionUrl: $sent))],
-            'altIcon' => ['new alt', static fn (?string $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, extendedInformations: new ExtendedInformationsChanges(altIcon: $sent))],
-            'comment' => ['new comment', static fn (?string $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, extendedInformations: new ExtendedInformationsChanges(comment: $sent))],
+            'noteUrl' => ['https://new.example/n', static fn (?string $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), extendedInformations: new ExtendedInformationsChanges(noteUrl: $sent))],
+            'note' => ['new note', static fn (?string $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), extendedInformations: new ExtendedInformationsChanges(note: $sent))],
+            'actionUrl' => ['https://new.example/a', static fn (?string $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), extendedInformations: new ExtendedInformationsChanges(actionUrl: $sent))],
+            'altIcon' => ['new alt', static fn (?string $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), extendedInformations: new ExtendedInformationsChanges(altIcon: $sent))],
+            'comment' => ['new comment', static fn (?string $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), extendedInformations: new ExtendedInformationsChanges(comment: $sent))],
         ];
         foreach ($texts as $field => [$value, $command]) {
             yield $field . ' replaced' => ['extendedInformations.' . $field, $command, $value, $value];
@@ -874,21 +890,21 @@ final class PatchHostCommandHandlerTest extends TestCase
     public static function numberAndReferenceChanges(): iterable
     {
         $rows = [
-            'timezone' => ['timezoneId', static fn (?TimezoneId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, timezoneId: $sent), new TimezoneId(13), 13],
-            'severity' => ['severityId', static fn (?HostSeverityId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, severityId: $sent), new HostSeverityId(5), 5],
-            'icon' => ['extendedInformations.iconId', static fn (?MediaId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, extendedInformations: new ExtendedInformationsChanges(iconId: $sent)), new MediaId(18), 18],
-            'check time period' => ['schedulingOptions.checkTimeperiodId', static fn (?TimePeriodId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, schedulingOptions: new SchedulingOptionsChanges(checkTimeperiodId: $sent)), new TimePeriodId(2), 2],
-            'max check attempts' => ['schedulingOptions.maxCheckAttempts', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, schedulingOptions: new SchedulingOptionsChanges(maxCheckAttempts: $sent)), 7, 7],
-            'normal check interval' => ['schedulingOptions.normalCheckInterval', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, schedulingOptions: new SchedulingOptionsChanges(normalCheckInterval: $sent)), 9, 9],
-            'retry check interval' => ['schedulingOptions.retryCheckInterval', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, schedulingOptions: new SchedulingOptionsChanges(retryCheckInterval: $sent)), 2, 2],
-            'acknowledgment timeout' => ['dataProcessing.acknowledgmentTimeout', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, dataProcessing: new DataProcessingChanges(acknowledgmentTimeout: $sent)), 45, 45],
-            'freshness threshold' => ['dataProcessing.freshnessThreshold', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, dataProcessing: new DataProcessingChanges(freshnessThreshold: $sent)), 120, 120],
-            'low flap threshold' => ['dataProcessing.lowFlapThreshold', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, dataProcessing: new DataProcessingChanges(lowFlapThreshold: $sent)), 20, 20],
-            'high flap threshold' => ['dataProcessing.highFlapThreshold', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, dataProcessing: new DataProcessingChanges(highFlapThreshold: $sent)), 80, 80],
-            'notification interval' => ['notifications.interval', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, notifications: new NotificationsChanges(interval: $sent)), 20, 20],
-            'notification time period' => ['notifications.periodId', static fn (?TimePeriodId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, notifications: new NotificationsChanges(periodId: $sent)), new TimePeriodId(2), 2],
-            'first notification delay' => ['notifications.firstDelay', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, notifications: new NotificationsChanges(firstDelay: $sent)), 4, 4],
-            'recovery notification delay' => ['notifications.recoveryDelay', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, notifications: new NotificationsChanges(recoveryDelay: $sent)), 5, 5],
+            'timezone' => ['timezoneId', static fn (?TimezoneId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), timezoneId: $sent), new TimezoneId(13), 13],
+            'severity' => ['severityId', static fn (?HostSeverityId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), severityId: $sent), new HostSeverityId(5), 5],
+            'icon' => ['extendedInformations.iconId', static fn (?MediaId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), extendedInformations: new ExtendedInformationsChanges(iconId: $sent)), new MediaId(18), 18],
+            'check time period' => ['schedulingOptions.checkTimeperiodId', static fn (?TimePeriodId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), schedulingOptions: new SchedulingOptionsChanges(checkTimeperiodId: $sent)), new TimePeriodId(2), 2],
+            'max check attempts' => ['schedulingOptions.maxCheckAttempts', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), schedulingOptions: new SchedulingOptionsChanges(maxCheckAttempts: $sent)), 7, 7],
+            'normal check interval' => ['schedulingOptions.normalCheckInterval', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), schedulingOptions: new SchedulingOptionsChanges(normalCheckInterval: $sent)), 9, 9],
+            'retry check interval' => ['schedulingOptions.retryCheckInterval', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), schedulingOptions: new SchedulingOptionsChanges(retryCheckInterval: $sent)), 2, 2],
+            'acknowledgment timeout' => ['dataProcessing.acknowledgmentTimeout', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), dataProcessing: new DataProcessingChanges(acknowledgmentTimeout: $sent)), 45, 45],
+            'freshness threshold' => ['dataProcessing.freshnessThreshold', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), dataProcessing: new DataProcessingChanges(freshnessThreshold: $sent)), 120, 120],
+            'low flap threshold' => ['dataProcessing.lowFlapThreshold', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), dataProcessing: new DataProcessingChanges(lowFlapThreshold: $sent)), 20, 20],
+            'high flap threshold' => ['dataProcessing.highFlapThreshold', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), dataProcessing: new DataProcessingChanges(highFlapThreshold: $sent)), 80, 80],
+            'notification interval' => ['notifications.interval', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), notifications: new NotificationsChanges(interval: $sent)), 20, 20],
+            'notification time period' => ['notifications.periodId', static fn (?TimePeriodId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), notifications: new NotificationsChanges(periodId: $sent)), new TimePeriodId(2), 2],
+            'first notification delay' => ['notifications.firstDelay', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), notifications: new NotificationsChanges(firstDelay: $sent)), 4, 4],
+            'recovery notification delay' => ['notifications.recoveryDelay', static fn (?int $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), notifications: new NotificationsChanges(recoveryDelay: $sent)), 5, 5],
         ];
         foreach ($rows as $label => [$path, $command, $sent, $expected]) {
             yield $label . ' replaced' => [$path, $command, $sent, $expected];
@@ -896,7 +912,7 @@ final class PatchHostCommandHandlerTest extends TestCase
             yield $label . ' cleared' => [$path, $command, null, null];
         }
 
-        $eventCommand = static fn (?CommandId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, dataProcessing: new DataProcessingChanges(eventHandlerCommandId: $sent));
+        $eventCommand = static fn (?CommandId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), dataProcessing: new DataProcessingChanges(eventHandlerCommandId: $sent));
 
         yield 'event handler command replaced' => ['dataProcessing.eventHandlerCommandId', $eventCommand, new CommandId(23), 23];
 
@@ -904,7 +920,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         yield 'event handler command cleared' => ['dataProcessing.eventHandlerCommandId', $eventCommand, null, null];
 
         // Removing the check command removes what only makes sense with it: its arguments.
-        $checkCommand = static fn (?CommandId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, checkOptions: new CheckOptionsChanges(checkCommandId: $sent));
+        $checkCommand = static fn (?CommandId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), checkOptions: new CheckOptionsChanges(checkCommandId: $sent));
 
         yield 'check command replaced' => ['checkOptions.checkCommandId', $checkCommand, new CommandId(21), 21];
 
@@ -926,12 +942,12 @@ final class PatchHostCommandHandlerTest extends TestCase
     public static function triStateChanges(): iterable
     {
         $fields = [
-            'check freshness' => ['dataProcessing.checkFreshness', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, dataProcessing: new DataProcessingChanges(checkFreshness: $sent))],
-            'flap detection' => ['dataProcessing.flapDetectionEnabled', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, dataProcessing: new DataProcessingChanges(flapDetectionEnabled: $sent))],
-            'event handler' => ['dataProcessing.eventHandlerEnabled', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, dataProcessing: new DataProcessingChanges(eventHandlerEnabled: $sent))],
-            'active checks' => ['schedulingOptions.activeCheckEnabled', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, schedulingOptions: new SchedulingOptionsChanges(activeCheckEnabled: $sent))],
-            'passive checks' => ['schedulingOptions.passiveCheckEnabled', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, schedulingOptions: new SchedulingOptionsChanges(passiveCheckEnabled: $sent))],
-            'notifications' => ['notifications.enabled', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, notifications: new NotificationsChanges(enabled: $sent))],
+            'check freshness' => ['dataProcessing.checkFreshness', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), dataProcessing: new DataProcessingChanges(checkFreshness: $sent))],
+            'flap detection' => ['dataProcessing.flapDetectionEnabled', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), dataProcessing: new DataProcessingChanges(flapDetectionEnabled: $sent))],
+            'event handler' => ['dataProcessing.eventHandlerEnabled', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), dataProcessing: new DataProcessingChanges(eventHandlerEnabled: $sent))],
+            'active checks' => ['schedulingOptions.activeCheckEnabled', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), schedulingOptions: new SchedulingOptionsChanges(activeCheckEnabled: $sent))],
+            'passive checks' => ['schedulingOptions.passiveCheckEnabled', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), schedulingOptions: new SchedulingOptionsChanges(passiveCheckEnabled: $sent))],
+            'notifications' => ['notifications.enabled', static fn (TriStateEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), notifications: new NotificationsChanges(enabled: $sent))],
         ];
         foreach ($fields as $label => [$path, $command]) {
             // The host starts with every one of them on, so "on" is the unchanged case.
@@ -955,16 +971,16 @@ final class PatchHostCommandHandlerTest extends TestCase
      */
     public static function booleanChanges(): iterable
     {
-        yield 'activated' => ['activated', static fn (bool $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, activated: $sent)];
+        yield 'activated' => ['activated', static fn (bool $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), activated: $sent)];
 
-        yield 'contact additive inheritance' => ['notifications.contactAdditiveInheritance', static fn (bool $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, notifications: new NotificationsChanges(contactAdditiveInheritance: $sent))];
+        yield 'contact additive inheritance' => ['notifications.contactAdditiveInheritance', static fn (bool $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), notifications: new NotificationsChanges(contactAdditiveInheritance: $sent))];
 
-        yield 'contact group additive inheritance' => ['notifications.contactGroupAdditiveInheritance', static fn (bool $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, notifications: new NotificationsChanges(contactGroupAdditiveInheritance: $sent))];
+        yield 'contact group additive inheritance' => ['notifications.contactGroupAdditiveInheritance', static fn (bool $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), notifications: new NotificationsChanges(contactGroupAdditiveInheritance: $sent))];
     }
 
     public function testAnSnmpVersionIsReplacedOrCleared(): void
     {
-        $command = static fn (?SnmpVersionEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, snmpVersion: $sent);
+        $command = static fn (?SnmpVersionEnum $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), snmpVersion: $sent);
 
         $this->assertOnlyChanges(['snmpVersion'], $command(SnmpVersionEnum::Three), 'snmpVersion', '3');
         $this->setUp();
@@ -986,13 +1002,13 @@ final class PatchHostCommandHandlerTest extends TestCase
      */
     public static function listOfValuesChanges(): iterable
     {
-        $checkArguments = static fn (array $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, checkOptions: new CheckOptionsChanges(args: array_values(array_filter($sent, is_string(...)))));
+        $checkArguments = static fn (array $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), checkOptions: new CheckOptionsChanges(args: array_values(array_filter($sent, is_string(...)))));
 
         yield 'check arguments replaced' => ['checkOptions.args', $checkArguments, ['x', 'y']];
 
         yield 'check arguments emptied' => ['checkOptions.args', $checkArguments, []];
 
-        $eventArguments = static fn (array $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, dataProcessing: new DataProcessingChanges(eventHandlerArgs: array_values(array_filter($sent, is_string(...)))));
+        $eventArguments = static fn (array $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), dataProcessing: new DataProcessingChanges(eventHandlerArgs: array_values(array_filter($sent, is_string(...)))));
 
         yield 'event handler arguments replaced' => ['dataProcessing.eventHandlerArgs', $eventArguments, ['a']];
 
@@ -1013,11 +1029,11 @@ final class PatchHostCommandHandlerTest extends TestCase
      */
     public static function requiredFieldChanges(): iterable
     {
-        yield 'name' => ['name', static fn (HostName $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, name: $sent), new HostName('renamed'), 'renamed'];
+        yield 'name' => ['name', static fn (HostName $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), name: $sent), new HostName('renamed'), 'renamed'];
 
-        yield 'address' => ['address', static fn (HostAddress $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, address: $sent), new HostAddress('10.9.9.9'), '10.9.9.9'];
+        yield 'address' => ['address', static fn (HostAddress $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), address: $sent), new HostAddress('10.9.9.9'), '10.9.9.9'];
 
-        yield 'poller' => ['pollerId', static fn (PollerId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), updatedBy: 1, pollerId: $sent), new PollerId(2), 2];
+        yield 'poller' => ['pollerId', static fn (PollerId $sent): PatchHostCommand => new PatchHostCommand(id: new HostId(self::HOST_ID), actor: TestActingUsers::unrestricted(1), pollerId: $sent), new PollerId(2), 2];
     }
 
     /**

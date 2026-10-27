@@ -22,10 +22,5 @@ export const useFormInputStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     height: '100%',
     padding: theme.spacing(2)
-  },
-  titleGroup: {
-    color: theme.palette.primary.main,
-    fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.fontWeightMedium
   }
 }));
