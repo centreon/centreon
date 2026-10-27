@@ -48,7 +48,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.Telegraf }
     };
 
-    // A Telegraf configuration with a .crt public certificate is accepted
     await expect(
       schema.validate(validData, {
         context: { connectionMode: { id: 'secure' } }
@@ -68,7 +67,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.Telegraf }
     };
 
-    // A .cert public certificate is accepted
     await expect(
       schema.validate(validData, {
         context: { connectionMode: { id: 'secure' } }
@@ -88,7 +86,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.Telegraf }
     };
 
-    // A .key private key is accepted
     await expect(
       schema.validate(validData, {
         context: { connectionMode: { id: 'secure' } }
@@ -108,7 +105,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.Telegraf }
     };
 
-    // A .txt public certificate is rejected with an invalid extension error
     await expect(
       schema.validate(invalidData, {
         abortEarly: false,
@@ -130,7 +126,6 @@ describe('useValidationSchema', () => {
       }
     };
 
-    // A certificate path starting with ./ is rejected as a relative path
     await expect(
       schema.validate(invalidData, {
         abortEarly: false,
@@ -155,7 +150,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.Telegraf }
     };
 
-    // Port 443 is within the 1-65535 range and is accepted
     await expect(
       schema.validate(validData, {
         context: { connectionMode: { id: 'secure' } }
@@ -174,7 +168,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.Telegraf }
     };
 
-    // Port 0 is below the lower bound and is rejected
     await expect(
       schema.validate(invalidData, {
         abortEarly: false,
@@ -203,7 +196,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.CMA }
     };
 
-    // An agent-initiated CMA with a port and a token is accepted
     await expect(
       schema.validate(validData, {
         context: {
@@ -243,7 +235,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.CMA }
     };
 
-    // A poller-initiated CMA with one host and its token is accepted
     await expect(
       schema.validate(validData, {
         context: {
@@ -270,7 +261,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.CMA }
     };
 
-    // A CMA with neither agent- nor poller-initiated connection is rejected
     await expect(
       schema.validate(invalidData, {
         abortEarly: false,
@@ -295,7 +285,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.Telegraf }
     };
 
-    // An empty name is rejected as required
     await expect(
       schema.validate(invalidData, {
         abortEarly: false,
@@ -317,7 +306,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.Telegraf }
     };
 
-    // An empty poller list is rejected as required
     await expect(
       schema.validate(invalidData, {
         abortEarly: false,
@@ -355,7 +343,6 @@ describe('useValidationSchema', () => {
       type: { id: AgentType.CMA }
     };
 
-    // A poller-initiated CMA host with an IPv4 address is accepted
     await expect(
       schema.validate(validData, {
         context: {

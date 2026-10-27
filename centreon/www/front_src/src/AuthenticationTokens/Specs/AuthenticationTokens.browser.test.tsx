@@ -3,6 +3,7 @@ import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { getTokenEndpoint } from '../api/endpoints';
 import { Column } from '../Listing/Columns/models';
 import {
   labelAdd,
@@ -310,6 +311,9 @@ describe('Authentication tokens', () => {
 
     const { request } = await waitForRequest('@enableDisableToken');
 
+    expect(request.url.pathname).toMatch(
+      new RegExp(`${getTokenEndpoint({ tokenName: 'd-token', userId: 23 })}$`)
+    );
     expect(request.body).toEqual({
       is_revoked: true
     });
@@ -339,6 +343,9 @@ describe('Authentication tokens', () => {
 
     const { request } = await waitForRequest('@enableDisableToken');
 
+    expect(request.url.pathname).toMatch(
+      new RegExp(`${getTokenEndpoint({ tokenName: 'e-token', userId: 23 })}$`)
+    );
     expect(request.body).toEqual({
       is_revoked: false
     });
@@ -393,7 +400,14 @@ describe('Authentication tokens', () => {
 
     await userEvent.click(getSubmitButton());
 
-    await waitForRequest('@addToken');
+    const { request } = await waitForRequest('@addToken');
+
+    expect(request.body).toEqual({
+      expiration_date: null,
+      name: 'token 1',
+      type: 'api',
+      user_id: 1
+    });
 
     await expectGeneratedToken(dialog);
     expect(screen.getByTestId(labelUser)).toBeDisabled();
@@ -432,7 +446,14 @@ describe('Authentication tokens', () => {
 
     await userEvent.click(getSubmitButton());
 
-    await waitForRequest('@addToken');
+    const { request } = await waitForRequest('@addToken');
+
+    // Not an API token: it belongs to the current user, who has no ID here.
+    expect(request.body).toEqual({
+      expiration_date: null,
+      name: 'token 1',
+      type: 'cma'
+    });
 
     await expectGeneratedToken(dialog);
 
@@ -468,7 +489,14 @@ describe('Authentication tokens', () => {
 
     await userEvent.click(getSubmitButton());
 
-    await waitForRequest('@addToken');
+    const { request } = await waitForRequest('@addToken');
+
+    // Not an API token: it belongs to the current user, who has no ID here.
+    expect(request.body).toEqual({
+      expiration_date: null,
+      name: 'token 1',
+      type: 'poller'
+    });
 
     await expectGeneratedToken(dialog);
 

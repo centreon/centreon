@@ -232,9 +232,11 @@ describe('Vault configuration', () => {
 
     await waitFor(() => expect(getSaveButton()).toBeEnabled());
 
-    // The stored configuration, once saved.
+    // The stored configuration, once saved. It comes late, to leave time to
+    // check the form while it is loaded again.
     interceptAPIRequest({
       alias: 'getVaultConfiguration',
+      delay: 300,
       method: Method.GET,
       path: `./api/latest${vaultConfigurationEndpoint}`,
       response: {
@@ -259,6 +261,15 @@ describe('Vault configuration', () => {
     expect(
       await screen.findByText(labelVaultConfigurationUpdate)
     ).toBeVisible();
+
+    // While the configuration is loaded again, the form keeps what was typed
+    // until the new configuration arrives. Checked twice, as a reset would
+    // come after a render.
+    expect(screen.getByLabelText(labelVaultAddress)).toHaveValue('example.com');
+    expect(screen.getByLabelText(labelRoleID)).toHaveValue('role');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(screen.getByLabelText(labelVaultAddress)).toHaveValue('example.com');
+    expect(screen.getByLabelText(labelRoleID)).toHaveValue('role');
 
     // The configuration is loaded again, and the form starts from it: the
     // saved values, without the role and secret IDs.

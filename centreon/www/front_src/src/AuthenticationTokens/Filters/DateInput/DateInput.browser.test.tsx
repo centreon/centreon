@@ -111,6 +111,8 @@ describe('DateInput Component', () => {
     ).toBeVisible();
     expect(screen.getByText('Until')).toBeVisible();
     expect(getInput()).toBeVisible();
+    // The fixed clock's date (10:00 UTC), in the user's time zone.
+    await waitFor(() => expect(getInput()).toHaveValue('21/08/2025 12:00'));
   });
 
   it('should render with provided initial date', async () => {
@@ -217,8 +219,9 @@ describe('DateInput Component', () => {
 
     expect(screen.getByTestId('current-date')).toHaveTextContent('No date set');
 
-    // The input still shows a date: the current one.
+    // The input still shows a date: the current one, in the user's time zone.
     expect(await screen.findByTestId('calendarInput')).toBeVisible();
+    await waitFor(() => expect(getInput()).toHaveValue('21/08/2025 12:00'));
   });
 
   it('should handle dayjs validation correctly', async () => {

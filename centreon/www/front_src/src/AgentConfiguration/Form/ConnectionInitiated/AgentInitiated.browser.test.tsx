@@ -406,6 +406,9 @@ describe('AgentInitiated', () => {
 
     expect(screen.getByTestId('tag-option-chip-2')).toHaveTextContent('token2');
     expect(screen.getByTestId('tag-option-chip-3')).toHaveTextContent('token3');
+    await waitFor(() =>
+      expect(screen.queryByTestId('tag-option-chip-1')).not.toBeInTheDocument()
+    );
 
     await userEvent.click(screen.getAllByTestId('CancelIcon')[0]);
 

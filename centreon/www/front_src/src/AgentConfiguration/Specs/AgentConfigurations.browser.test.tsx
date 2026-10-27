@@ -259,8 +259,8 @@ describe('Agent configurations', () => {
     await userEvent.clear(searchBar);
     await userEvent.type(searchBar, 'My agent');
 
-    // The search is debounced: a slow typing can send part of the text
-    // first, so this waits for a request carrying all of it.
+    // Every keystroke refetches the listing (the filters are in its query
+    // key), so this waits for a request carrying the whole text.
     await waitForListingSearch(
       { $and: [{ $or: [{ name: { $rg: 'My agent' } }] }] },
       { since }
@@ -287,22 +287,33 @@ describe('Agent configurations', () => {
     await userEvent.clear(nameFilter);
     await userEvent.type(nameFilter, 'My agent');
 
+    const expectedSearch = {
+      $and: [
+        { $or: [{ name: { $rg: 'My agent' } }] },
+        { $or: [{ type: { $in: ['telegraf'] } }] },
+        {
+          $or: [{ 'poller.id': { $in: [6] } }]
+        }
+      ]
+    };
+
+    // Typing refetches the listing on its own: wait until it has settled on
+    // the whole filter before counting the calls, so the request matched
+    // below can only come from the Search button.
+    await waitForListingSearch(expectedSearch, { since: 0 });
+
     const callsBeforeSearch = getListingCallCount();
 
     await userEvent.click(screen.getByRole('button', { name: labelSearch }));
 
-    await waitForListingSearch(
-      {
-        $and: [
-          { $or: [{ name: { $rg: 'My agent' } }] },
-          { $or: [{ type: { $in: ['telegraf'] } }] },
-          {
-            $or: [{ 'poller.id': { $in: [6] } }]
-          }
-        ]
-      },
-      { since: callsBeforeSearch }
-    );
+    await waitFor(() => {
+      const calls = getRequestCalls('@getAgentConfigurations');
+
+      expect(calls.length).toBeGreaterThan(callsBeforeSearch);
+      expect(
+        JSON.parse(calls.at(-1)?.request.url.searchParams.get('search') ?? '')
+      ).toEqual(expectedSearch);
+    });
 
     // Three filters differ from their default value.
     expect(screen.getByText('3')).toBeVisible();
@@ -326,6 +337,9 @@ describe('Agent configurations', () => {
     expect(
       within(await screen.findByTestId('FilterContainer')).getByText('poller6')
     ).toBeVisible();
+    expect(screen.getByTestId('tag-option-chip-6')).toHaveClass(
+      'MuiChip-colorPrimary'
+    );
 
     await userEvent.click(await screen.findByTestId('CancelIcon'));
 
@@ -1118,7 +1132,9 @@ describe('Agent configurations modal', () => {
     expect(screen.queryByLabelText(labelCaCertificate)).not.toBeInTheDocument();
 
     expect(screen.getByText(labelConfigurationServer)).toBeVisible();
-    expect(screen.getByRole('button', { name: labelSave })).toBeEnabled();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: labelSave })).toBeEnabled()
+    );
 
     await userEvent.click(screen.getByRole('button', { name: labelSave }));
 
@@ -1174,7 +1190,7 @@ describe('Agent configurations modal', () => {
 
     // No certificate is asked for the monitored host either.
     expect(screen.queryAllByLabelText(labelCaCertificate)).toHaveLength(0);
-    expect(screen.getByTestId('submit')).toBeEnabled();
+    await waitFor(() => expect(screen.getByTestId('submit')).toBeEnabled());
 
     await userEvent.click(screen.getByTestId('submit'));
 
