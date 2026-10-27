@@ -296,6 +296,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
@@ -343,6 +344,7 @@ jobs:
     runs-on: centreon-ubuntu-26.04-small
 
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
@@ -380,6 +382,7 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
@@ -412,6 +415,7 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     runs-on: centreon-ubuntu-26.04-small
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
