@@ -16,7 +16,7 @@ info:
   license:
     name: 'Apache 2.0'
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: '25.10'
+  version: cloud
 externalDocs:
   description: 'You can contact us on our community platform The Watch'
   url: 'https://thewatch.centreon.com/'
@@ -4210,6 +4210,32 @@ paths:
           style: form
           explode: true
         -
+          name: sort
+          in: query
+          description: 'Sort by one or several fields, in order of precedence (e.g. `sort[name]=asc`). Asc on `is_activated` lists the deactivated commands first.'
+          required: false
+          deprecated: false
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              type:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              is_activated:
+                type: string
+                enum:
+                  - asc
+                  - desc
+          style: deepObject
+          explode: true
+        -
           name: page
           in: query
           description: 'The collection page number'
@@ -5469,6 +5495,37 @@ paths:
           schema:
             type: boolean
           style: form
+          explode: true
+        -
+          name: sort
+          in: query
+          description: 'Sort by one or several fields, in order of precedence (e.g. `sort[name]=asc`). Asc on `activated` lists the deactivated hosts first.'
+          required: false
+          deprecated: false
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              alias:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              address:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              activated:
+                type: string
+                enum:
+                  - asc
+                  - desc
+          style: deepObject
           explode: true
         -
           name: page

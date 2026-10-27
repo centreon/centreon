@@ -15,6 +15,20 @@ on:
         description: Branch or tag on which the doc files are fetched
         required: true
         default: ""
+      set_as_default:
+        type: choice
+        description: Also publish to the unversioned root path (on-prem only). auto = only if the doc is the highest major on the s3
+        required: false
+        default: "false"
+        options:
+          - "false"
+          - "true"
+          - auto
+      dry_run:
+        type: boolean
+        description: Print what would be copied, write nothing and skip the CloudFront invalidation
+        required: false
+        default: false
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -70,5 +84,7 @@ jobs:
           doc_version: ${{ needs.build-openapi-documentation.outputs.doc_version }}
           module_name: ${{ inputs.module_name }}
           openapi_file_reference: ${{ inputs.openapi_file_reference }}
+          set_as_default: ${{ inputs.set_as_default }}
+          dry_run: ${{ inputs.dry_run }}
           cloudfront_role_doc_production: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}

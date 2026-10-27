@@ -1,5 +1,6 @@
-import { Method, TestQueryProvider } from '@centreon/ui';
+import { Method } from '@centreon/ui';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { replace } from 'ramda';
 
 import {
@@ -73,6 +74,12 @@ const getRetrievedEntities = (label: string): object => ({
 const retrievedAccessGroups = getRetrievedEntities('Access Group');
 const retrievedContactGroup = getRetrievedEntities('Contact Group');
 
+// A fresh client per mount: the shared one from `TestQueryProvider` outlives
+// the tests, so the previous test's unmount cancels the `[saml]` query that the
+// next test has just started.
+const createQueryClient = (): QueryClient =>
+  new QueryClient({ defaultOptions: { queries: { gcTime: 0, retry: false } } });
+
 const initializeAndMountSAMLConfigurationForm = (): void => {
   cy.interceptAPIRequest({
     alias: 'getSAMLConfiguration',
@@ -101,9 +108,9 @@ const initializeAndMountSAMLConfigurationForm = (): void => {
 
   cy.mount({
     Component: (
-      <TestQueryProvider>
+      <QueryClientProvider client={createQueryClient()}>
         <SAMLConfigurationForm />
-      </TestQueryProvider>
+      </QueryClientProvider>
     )
   });
 };

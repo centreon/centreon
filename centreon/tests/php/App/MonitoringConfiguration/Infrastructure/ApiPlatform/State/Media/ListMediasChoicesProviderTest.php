@@ -34,7 +34,7 @@ final class ListMediasChoicesProviderTest extends ApiTestCase
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_HOSTS_R[W]
     // (Configuration > Hosts > Hosts), bridged to HostPermissionEnum via
-    // DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const HOST_TOPOLOGY_PAGES = [6, 601, 60101];
 
     // CentreonACL access rights, see Centreon\Domain\Repository\TopologyRepository
@@ -112,7 +112,7 @@ final class ListMediasChoicesProviderTest extends ApiTestCase
 
     /**
      * Legacy's icon picker on the host form (return_image_list(1)) ignores the image-folder ACL:
-     * unlike the generic /configuration/medias endpoint, a viewer restricted to one folder must
+     * unlike the generic /configuration/medias endpoint, an actor restricted to one folder must
      * still see every media through this host-scoped selector.
      */
     public function testItIgnoresImageFolderAclRestrictionsForARestrictedUser(): void

@@ -151,6 +151,32 @@ helm upgrade poller-1 . -n pollers --reset-then-reuse-values `
 
 Enabling it does not change the volume list.
 
+## Proxy
+
+Behind an outbound proxy, set `proxy.http` (and `proxy.https` if it
+differs):
+
+```yaml
+proxy:
+  http: http://proxy.example.com:3128
+  noProxy: .cluster.local,10.0.0.0/8
+```
+
+- gorgone, centengine and the VMware connector get `http_proxy`,
+  `https_proxy` and `no_proxy` (both cases). `localhost`, `127.0.0.1`,
+  `centengine` and `centreon-vmware` are always in `no_proxy`: gorgone
+  reaches its engine in the pod. Add the central or any direct destination
+  to `noProxy` if the proxy must not see it.
+- Plugin installs run `sudo apt-get`, which drops these variables: the
+  proxy is also written to `/etc/apt/apt.conf.d/99centreon-poller-proxy`.
+- Both come from the Secret `<release>-proxy`, so credentials in the URLs
+  (`http://user:password@proxy.example.com:3128`) stay out of the pod spec.
+  The pod restarts when the proxy values change.
+
+For anything else to mount (corporate CA, apt config…), use `extraVolumes`
+with `gorgone.extraVolumeMounts`, `engine.extraVolumeMounts` or
+`vmware.extraVolumeMounts`.
+
 ## Central-side prerequisites
 
 - pullwss goes through the central's web server / ingress at
@@ -178,6 +204,8 @@ Enabling it does not change the volume list.
 | `vmware.enabled` / `vmware.image` | `false` / — | Image required, built with the licensed SDK, see VMware connector |
 | `networkPolicy.enabled` / `otelFrom` / `trapsFrom` | `true` / anywhere / anywhere | Ingress limited to 4317/tcp and 162/udp, see Security |
 | `networkPolicy.extraIngress` | `[]` | Extra ingress rules, added as is (not limited to 4317/162) |
+| `proxy.http` / `https` / `noProxy` | — / `http` / — | Outbound proxy, see Proxy |
+| `extraVolumes` + `<container>.extraVolumeMounts` | `[]` | Extra pod volumes, mounted in `gorgone`, `engine`, `vmware` |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
 
 ## Persistence
@@ -265,6 +293,21 @@ as is, so a rule without `ports` (e.g. `[{}]`) allows every port. Egress is not 
 With k3s (kube-router), a source pod selected by `podSelector` is only
 allowed a moment after it starts: its very first connection may be refused
 (retry). Sources given as `ipBlock` are not affected.
+
+## Chart versions
+
+`version` follows SemVer, its major being the year of the Centreon major
+(`26.x.y` for 26.10): minor for new optional features, patch for fixes.
+Breaking changes only come with a new major. The CI sets `appVersion` from
+the branch `.version`.
+
+| Published as | Where | Default images |
+|---|---|---|
+| `<version>` | ghcr.io (`oci://ghcr.io/centreon/charts/centreon-poller`) | ghcr.io, tag `appVersion` |
+| `<version>-rc.<n>` | Harbor | Harbor release/hotfix candidates |
+| `<version>-<branch>.<n>` | Harbor | Harbor development images |
+
+Pre-release charts need a pull secret for Harbor (`imagePullSecrets`).
 
 ## Known limitations
 

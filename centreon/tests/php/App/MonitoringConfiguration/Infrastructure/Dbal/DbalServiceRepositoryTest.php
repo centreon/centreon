@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalServiceRepository;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalServiceTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\ServiceTransformer;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -44,7 +44,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
-        $this->repository = new DbalServiceRepository($this->connection, new DbalServiceTransformer());
+        $this->repository = new DbalServiceRepository($this->connection, new ServiceTransformer());
     }
 
     public function testFindExclusivelyLinkedToHostIdReturnsAnEmptyCollectionWhenTheHostHasNoService(): void

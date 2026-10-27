@@ -3571,6 +3571,10 @@ msgid "Configure service"
 msgstr "Configura Serviço"
 
 #: centreon/www/install/front_translate.php
+msgid "Configure the hosts monitored by your platform."
+msgstr "Configure os hosts monitorizados pela sua plataforma."
+
+#: centreon/www/install/front_translate.php
 msgid "Confirm"
 msgstr ""
 
@@ -16949,6 +16953,15 @@ msgstr "O host do serviço (id: %d) não esta definido"
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 #, php-format
 msgid "The host severity icon with id '%d' does not exist"
+msgstr ""
+
+#: centreon/src/Core/Host/Application/Exception/HostException.php
+#: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
+#, php-format
+msgid ""
+"The license does not allow the host templates with ID(s) '%s': they come "
+"from or inherit from licensed Monitoring Connectors, and the license is "
+"invalid or its host limit is reached"
 msgstr ""
 
 #: centreon/www/install/front_translate.php

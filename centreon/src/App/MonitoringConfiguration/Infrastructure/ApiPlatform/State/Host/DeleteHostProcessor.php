@@ -53,8 +53,7 @@ final readonly class DeleteHostProcessor implements ProcessorInterface
 
         $this->commandBus->execute(new DeleteHostCommand(
             id: new HostId($uriVariables['id']),
-            deletedBy: $credentialUser->credential->userId->value,
-            viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
+            actor: $credentialUser->credential->actingUser(),
         ));
     }
 }

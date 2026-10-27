@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\ApiTestCase;
 
 final class PatchHostProcessorTest extends ApiTestCase
@@ -215,7 +216,7 @@ final class PatchHostProcessorTest extends ApiTestCase
         self::assertSame('0', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$pollerId]));
     }
 
-    public function testItLetsARestrictedViewerDisableAHostInItsScope(): void
+    public function testItLetsARestrictedActorDisableAHostInItsScope(): void
     {
         $username = bin2hex(random_bytes(8));
         $contactId = $this->createNonAdminContact($username);
@@ -224,7 +225,7 @@ final class PatchHostProcessorTest extends ApiTestCase
 
         $pollerId = $this->insertPoller('Central');
         $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
-        // findOne scopes on centreon_acl: make the host visible to the viewer's access group.
+        // findOne scopes on centreon_acl: make the host visible to the actor's access group.
         $this->linkHostToAcl($hostId, $aclGroupId);
 
         $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['activated' => false]]);
@@ -235,7 +236,7 @@ final class PatchHostProcessorTest extends ApiTestCase
         self::assertEquals($contactId, $this->latestActor($hostId));
     }
 
-    public function testItHidesAHostOutsideTheRestrictedViewerScope(): void
+    public function testItHidesAHostOutsideTheRestrictedActorScope(): void
     {
         $username = bin2hex(random_bytes(8));
         $contactId = $this->createNonAdminContact($username);
@@ -244,7 +245,7 @@ final class PatchHostProcessorTest extends ApiTestCase
 
         $pollerId = $this->insertPoller('Central');
         $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
-        // Deliberately NOT linked to the viewer's access group in centreon_acl.
+        // Deliberately NOT linked to the actor's access group in centreon_acl.
 
         $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['activated' => false]]);
 
@@ -507,7 +508,7 @@ final class PatchHostProcessorTest extends ApiTestCase
         self::assertSame(1, (int) $changedFlag);
     }
 
-    public function testARestrictedViewerCanUpdateAHostInItsScopeAndItsAccessGroupIsFlagged(): void
+    public function testARestrictedActorCanUpdateAHostInItsScopeAndItsAccessGroupIsFlagged(): void
     {
         $username = bin2hex(random_bytes(8));
         $contactId = $this->createNonAdminContact($username);
@@ -952,7 +953,7 @@ final class PatchHostProcessorTest extends ApiTestCase
             self::assertResponseStatusCodeSame(204, sprintf('request %d: %s', $position + 1, json_encode($body)));
             /** @var HostRepository $repository */
             $repository = self::getContainer()->get(HostRepository::class);
-            $host = $repository->findOne(new HostId($hostId));
+            $host = $repository->findOne(new HostId($hostId), TestActingUsers::unrestricted());
             self::assertInstanceOf(Host::class, $host);
             self::assertSame($expected, $read($host), sprintf('what the host holds after request %d', $position + 1));
         }

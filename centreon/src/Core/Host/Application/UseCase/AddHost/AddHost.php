@@ -162,6 +162,7 @@ final class AddHost
             $presenter->presentResponse(
                 match ($ex->getCode()) {
                     HostException::CODE_CONFLICT => new ConflictResponse($ex),
+                    HostException::CODE_INVALID_ARGUMENT => new InvalidArgumentResponse($ex),
                     default => new ErrorResponse($ex),
                 }
             );
@@ -194,6 +195,7 @@ final class AddHost
         $this->validation->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
         $this->validation->assertIsValidCommand($request->eventHandlerCommandId, null, 'eventHandlerCommandId');
         $this->validation->assertIsValidIcon($request->iconId);
+        $this->validation->assertAreLicensedTemplates(array_unique($request->templates));
 
         if ($request->checkCommandId !== null) {
             $command = $this->readCommandRepository->findById($request->checkCommandId);
