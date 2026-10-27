@@ -13,7 +13,7 @@ Changing an inner entity directly bypasses the rules that keep the whole aggrega
 
 Let code outside an aggregate **read** its inner entities and value objects, but make **every change go through a business method of the aggregate root**, such as `changeWheels()` or `withdraw()`, never through the inner entity or a generic setter. Inside that method, the root **replaces a value object** with a new instance, because value objects are immutable, or **calls the inner entity's own business method** to mutate it.
 
-Make every root method leave the **whole aggregate consistent**: before and after each call, the aggregate satisfies all its invariants. Give each aggregate **exactly one aggregate root**. Put business logic that combines the aggregate's own data, such as formatting two of its values together, in a **method of the aggregate**, not in a separate formatter service.
+Make every root method leave the **whole aggregate consistent**: before and after each call, the aggregate satisfies all its invariants. Give each aggregate **exactly one aggregate root**. Put business logic that combines the aggregate's own data, such as formatting two of its values together, in a **method of the aggregate root**, not in a separate formatter service.
 
 ## Consequences
 
