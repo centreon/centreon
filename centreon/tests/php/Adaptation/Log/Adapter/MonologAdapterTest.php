@@ -126,7 +126,9 @@ final class MonologAdapterTest extends TestCase
     public static function provideAuditChannels(): iterable
     {
         yield 'authentication' => [LogChannelEnum::AUTHENTICATION];
+
         yield 'password' => [LogChannelEnum::PASSWORD];
+
         yield 'token' => [LogChannelEnum::TOKEN];
     }
 
