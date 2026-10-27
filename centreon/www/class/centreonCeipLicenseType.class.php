@@ -43,6 +43,9 @@ final class CentreonCeipLicenseType
     ];
     private const MSP_EDITION_LABEL = 'MSP Edition';
 
+    /** CIM editions sold for Centreon Cloud only, not recognized on on-premise platforms. */
+    private const CLOUD_ONLY_EDITIONS = ['PRO'];
+
     /** CIM editions that do not include the BAM, MAP and MBI modules. */
     private const EDITIONS_WITHOUT_MODULES = ['IT-100', 'IT', 'PRO'];
 
@@ -60,28 +63,44 @@ final class CentreonCeipLicenseType
      * An edition that does not include the BAM, MAP and MBI modules is also reported as CUSTOM
      * as soon as one of these module licenses is present, whether it declares an edition or not.
      * The CRM asset ID (licensing.asset_id) is returned for MSP platforms only, to bill them.
+     * A license with an invalid start or end date is skipped, so that it does not discard the others.
+     * A Cloud-only edition (PRO) declared on an on-premise platform is handled as an unknown edition.
      *
      * @param array<string, array<array-key, mixed>> $licenses valid licenses indexed by module, in lookup order
+     * @param bool $isCloudPlatform whether the platform is a Centreon Cloud one
      *
-     * @throws Exception when a license start or end date is invalid
-     *
-     * @return array{licenseType: string, withFingerprint: bool, assetId: string|null, unknownEdition: string|null}
+     * @return array{
+     *     licenseType: string,
+     *     withFingerprint: bool,
+     *     assetId: string|null,
+     *     unknownEditions: list<string>,
+     *     licensesWithInvalidDate: list<string>
+     * }
      */
-    public static function resolve(array $licenses): array
+    public static function resolve(array $licenses, bool $isCloudPlatform): array
     {
+        $editionLabels = $isCloudPlatform
+            ? self::EDITION_LABELS
+            : array_diff_key(self::EDITION_LABELS, array_flip(self::CLOUD_ONLY_EDITIONS));
         $licenseType = 'Open Source';
         $withFingerprint = false;
         $editions = [];
         $assetId = null;
         $hasModuleLicense = false;
+        $licensesWithInvalidDate = [];
 
         foreach ($licenses as $module => $license) {
+            $durationInDays = self::durationInDays($license);
+            if ($durationInDays === null) {
+                $licensesWithInvalidDate[] = $module;
+
+                continue;
+            }
             $edition = self::readString($license, 'edition');
             if ($edition !== null) {
                 $editions[strtoupper($edition)] = $edition;
             }
             $assetId ??= self::readString($license, 'asset_id');
-            $durationInDays = self::durationInDays($license);
             $isLongUnlimitedLicense = (int) $license['licensing']['hosts'] === -1 && $durationInDays > 90;
 
             if ($module === 'epp') {
@@ -99,13 +118,14 @@ final class CentreonCeipLicenseType
             }
         }
 
-        $unknownEdition = null;
+        // Unknown editions are reported even when combined with others, which already makes the platform CUSTOM
+        $unknownEditions = array_values(array_diff_key($editions, $editionLabels));
         if ($editions !== []) {
             $editionKey = count($editions) === 1 ? array_key_first($editions) : 'CUSTOM';
-            if (! isset(self::EDITION_LABELS[$editionKey])) {
-                $unknownEdition = $editions[$editionKey];
-                $editionKey = 'CUSTOM';
-            } elseif ($hasModuleLicense && in_array($editionKey, self::EDITIONS_WITHOUT_MODULES, true)) {
+            if (
+                ! isset($editionLabels[$editionKey])
+                || ($hasModuleLicense && in_array($editionKey, self::EDITIONS_WITHOUT_MODULES, true))
+            ) {
                 $editionKey = 'CUSTOM';
             }
             $licenseType = self::EDITION_LABELS[$editionKey];
@@ -116,7 +136,8 @@ final class CentreonCeipLicenseType
             'licenseType' => $licenseType,
             'withFingerprint' => $withFingerprint,
             'assetId' => $licenseType === self::MSP_EDITION_LABEL ? $assetId : null,
-            'unknownEdition' => $unknownEdition,
+            'unknownEditions' => $unknownEditions,
+            'licensesWithInvalidDate' => $licensesWithInvalidDate,
         ];
     }
 
@@ -138,12 +159,15 @@ final class CentreonCeipLicenseType
     /**
      * @param array<array-key, mixed> $license
      *
-     * @throws Exception
+     * @return int|null null when the start or end date is invalid
      */
-    private static function durationInDays(array $license): int
+    private static function durationInDays(array $license): ?int
     {
-        $start = self::parseDate((string) $license['licensing']['start']);
-        $end = self::parseDate((string) $license['licensing']['end']);
+        $start = self::parseDate((string) ($license['licensing']['start'] ?? ''));
+        $end = self::parseDate((string) ($license['licensing']['end'] ?? ''));
+        if ($start === null || $end === null) {
+            return null;
+        }
 
         return (int) ($end->diff($start)->days ?? 0);
     }
@@ -151,10 +175,8 @@ final class CentreonCeipLicenseType
     /**
      * Parse a 'Y-m-d' date, rejecting invalid calendar dates (createFromFormat rolls
      * '2025-02-30' over to March and only warns, so a false check alone is not enough).
-     *
-     * @throws Exception when the date is not a valid 'Y-m-d' date
      */
-    private static function parseDate(string $date): DateTime
+    private static function parseDate(string $date): ?DateTime
     {
         $parsed = DateTime::createFromFormat('Y-m-d', $date);
         $errors = DateTime::getLastErrors();
@@ -162,7 +184,7 @@ final class CentreonCeipLicenseType
             $parsed === false
             || ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
         ) {
-            throw new Exception('Invalid date format');
+            return null;
         }
 
         return $parsed;

@@ -360,18 +360,21 @@ class CentreonCeip extends CentreonWebService
             }
 
             if ($validLicenses !== []) {
-                $licenseType = CentreonCeipLicenseType::resolve($validLicenses);
+                $licenseType = CentreonCeipLicenseType::resolve($validLicenses, isCloudPlatform());
                 $productLicense = $licenseType['licenseType'];
                 $assetId = $licenseType['assetId'];
                 if ($licenseType['withFingerprint']) {
                     $fingerprint = $fingerprintService->calculateFingerprint();
                 }
-                if (isset($licenseType['unknownEdition'])) {
-                    PlatformLogger::create(LogChannelEnum::WEB)->warning(
-                        sprintf(
-                            "CEIP: unrecognized license edition '%s' reported as Custom Edition",
-                            $licenseType['unknownEdition']
-                        )
+                $logger = PlatformLogger::create(LogChannelEnum::WEB);
+                foreach ($licenseType['unknownEditions'] as $unknownEdition) {
+                    $logger->warning(
+                        sprintf("CEIP: unrecognized license edition '%s' reported as Custom Edition", $unknownEdition)
+                    );
+                }
+                foreach ($licenseType['licensesWithInvalidDate'] as $module) {
+                    $logger->warning(
+                        sprintf("CEIP: '%s' license ignored for the license type because of an invalid date", $module)
                     );
                 }
             }

@@ -21,16 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\www\api\class;
+namespace Tests\www\class;
 
 use CentreonCeipLicenseType;
-use Exception;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/../../../../../www/class/centreonCeipLicenseType.class.php';
+require_once __DIR__ . '/../../../../www/class/centreonCeipLicenseType.class.php';
 
-final class CentreonCeipTest extends TestCase
+final class CentreonCeipLicenseTypeTest extends TestCase
 {
     /**
      * @param array<string, array<string, mixed>> $licenses
@@ -46,9 +45,10 @@ final class CentreonCeipTest extends TestCase
                 'licenseType' => $expectedLicenseType,
                 'withFingerprint' => $expectedFingerprint,
                 'assetId' => null,
-                'unknownEdition' => null,
+                'unknownEditions' => [],
+                'licensesWithInvalidDate' => [],
             ],
-            CentreonCeipLicenseType::resolve($licenses),
+            CentreonCeipLicenseType::resolve($licenses, false),
         );
     }
 
@@ -95,6 +95,7 @@ final class CentreonCeipTest extends TestCase
     #[DataProvider('declaredEditionProvider')]
     public function testResolveUsesTheDeclaredEditionAsLicenseType(
         string $edition,
+        bool $isCloudPlatform,
         string $expectedLicenseType,
         bool $expectedFingerprint,
     ): void {
@@ -103,32 +104,35 @@ final class CentreonCeipTest extends TestCase
                 'licenseType' => $expectedLicenseType,
                 'withFingerprint' => $expectedFingerprint,
                 'assetId' => null,
-                'unknownEdition' => null,
+                'unknownEditions' => [],
+                'licensesWithInvalidDate' => [],
             ],
-            CentreonCeipLicenseType::resolve(['epp' => self::license(['edition' => $edition])]),
+            CentreonCeipLicenseType::resolve(['epp' => self::license(['edition' => $edition])], $isCloudPlatform),
         );
     }
 
     /**
-     * @return iterable<string, array{string, string, bool}>
+     * @return iterable<string, array{string, bool, string, bool}>
      */
     public static function declaredEditionProvider(): iterable
     {
-        yield 'IT-100' => ['IT-100', 'IT-100 Edition', false];
+        yield 'IT-100' => ['IT-100', false, 'IT-100 Edition', false];
 
-        yield 'IT' => ['IT', 'IT Edition', false];
+        yield 'IT' => ['IT', false, 'IT Edition', false];
 
-        yield 'BE' => ['BE', 'Business Edition', true];
+        yield 'BE' => ['BE', false, 'Business Edition', true];
 
-        yield 'MSP' => ['MSP', 'MSP Edition', true];
+        yield 'MSP' => ['MSP', false, 'MSP Edition', true];
 
-        yield 'PRO' => ['PRO', 'PRO Edition', false];
+        yield 'PRO on Cloud' => ['PRO', true, 'PRO Edition', false];
 
-        yield 'CUSTOM' => ['CUSTOM', 'Custom Edition', true];
+        yield 'CUSTOM' => ['CUSTOM', false, 'Custom Edition', true];
 
-        yield 'lowercase' => ['be', 'Business Edition', true];
+        yield 'lowercase' => ['be', false, 'Business Edition', true];
 
-        yield 'mixed case with spaces' => ['  Msp ', 'MSP Edition', true];
+        yield 'mixed case with spaces' => ['  Msp ', false, 'MSP Edition', true];
+
+        yield 'IT on Cloud' => ['IT', true, 'IT Edition', false];
     }
 
     /**
@@ -140,7 +144,7 @@ final class CentreonCeipTest extends TestCase
         string $expectedLicenseType,
         bool $expectedFingerprint,
     ): void {
-        $result = CentreonCeipLicenseType::resolve($licenses);
+        $result = CentreonCeipLicenseType::resolve($licenses, false);
 
         self::assertSame($expectedLicenseType, $result['licenseType']);
         self::assertSame($expectedFingerprint, $result['withFingerprint']);
@@ -173,7 +177,7 @@ final class CentreonCeipTest extends TestCase
         string $expectedLicenseType,
         bool $expectedFingerprint,
     ): void {
-        $result = CentreonCeipLicenseType::resolve($licenses);
+        $result = CentreonCeipLicenseType::resolve($licenses, false);
 
         self::assertSame($expectedLicenseType, $result['licenseType']);
         self::assertSame($expectedFingerprint, $result['withFingerprint']);
@@ -249,36 +253,50 @@ final class CentreonCeipTest extends TestCase
 
     /**
      * @param array<string, array<string, mixed>> $licenses
+     * @param list<string> $expectedUnknownEditions
      */
     #[DataProvider('nonStandardEditionProvider')]
     public function testResolveReportsAnyNonStandardEditionAsCustomAndKeepsItsRawValue(
         array $licenses,
-        string $expectedUnknownEdition,
+        array $expectedUnknownEditions,
     ): void {
         self::assertSame(
             [
                 'licenseType' => 'Custom Edition',
                 'withFingerprint' => true,
                 'assetId' => null,
-                'unknownEdition' => $expectedUnknownEdition,
+                'unknownEditions' => $expectedUnknownEditions,
+                'licensesWithInvalidDate' => [],
             ],
-            CentreonCeipLicenseType::resolve($licenses),
+            CentreonCeipLicenseType::resolve($licenses, false),
         );
     }
 
     /**
-     * @return iterable<string, array{array<string, array<string, mixed>>, string}>
+     * @return iterable<string, array{array<string, array<string, mixed>>, list<string>}>
      */
     public static function nonStandardEditionProvider(): iterable
     {
-        yield 'unknown value' => [['epp' => self::license(['edition' => 'ENTERPRISE'])], 'ENTERPRISE'];
+        yield 'unknown value' => [['epp' => self::license(['edition' => 'ENTERPRISE'])], ['ENTERPRISE']];
 
-        yield 'IT100 without hyphen' => [['epp' => self::license(['type' => 'IT100', 'edition' => 'IT100'])], 'IT100'];
+        yield 'IT100 without hyphen' => [['epp' => self::license(['type' => 'IT100', 'edition' => 'IT100'])], ['IT100']];
 
         yield 'unknown value on an EPP computed as MSP' => [
             ['epp' => self::license([...self::unlimitedLicensing(), 'edition' => 'foo'])],
-            'foo',
+            ['foo'],
         ];
+
+        yield 'unknown value combined with a known one' => [
+            ['epp' => self::license(['edition' => 'ENTERPRISE']), 'bam' => self::license(['edition' => 'BE'])],
+            ['ENTERPRISE'],
+        ];
+
+        yield 'several unknown values' => [
+            ['epp' => self::license(['edition' => 'foo']), 'bam' => self::license(['edition' => 'bar'])],
+            ['foo', 'bar'],
+        ];
+
+        yield 'Cloud-only PRO on an on-premise platform' => [['epp' => self::license(['edition' => 'Pro'])], ['Pro']];
     }
 
     public function testResolveDoesNotFlagAnUnknownEditionWhenKnownEditionsCombineIntoCustom(): void
@@ -286,10 +304,10 @@ final class CentreonCeipTest extends TestCase
         $result = CentreonCeipLicenseType::resolve([
             'epp' => self::license(['edition' => 'MSP']),
             'bam' => self::license(['edition' => 'BE']),
-        ]);
+        ], false);
 
         self::assertSame('Custom Edition', $result['licenseType']);
-        self::assertNull($result['unknownEdition']);
+        self::assertSame([], $result['unknownEditions']);
     }
 
     /**
@@ -298,7 +316,7 @@ final class CentreonCeipTest extends TestCase
     #[DataProvider('assetIdProvider')]
     public function testResolveReturnsTheAssetIdOfMspPlatformsOnly(array $licenses, ?string $expectedAssetId): void
     {
-        self::assertSame($expectedAssetId, CentreonCeipLicenseType::resolve($licenses)['assetId']);
+        self::assertSame($expectedAssetId, CentreonCeipLicenseType::resolve($licenses, false)['assetId']);
     }
 
     /**
@@ -340,9 +358,10 @@ final class CentreonCeipTest extends TestCase
                 'licenseType' => 'IT Edition',
                 'withFingerprint' => false,
                 'assetId' => null,
-                'unknownEdition' => null,
+                'unknownEditions' => [],
+                'licensesWithInvalidDate' => [],
             ],
-            CentreonCeipLicenseType::resolve(['epp' => self::license(['edition' => $edition])]),
+            CentreonCeipLicenseType::resolve(['epp' => self::license(['edition' => $edition])], false),
         );
     }
 
@@ -364,12 +383,18 @@ final class CentreonCeipTest extends TestCase
      * @param array<string, mixed> $licensing
      */
     #[DataProvider('invalidDateProvider')]
-    public function testResolveThrowsOnAnInvalidLicenseDate(array $licensing): void
+    public function testResolveSkipsALicenseWithAnInvalidDate(array $licensing): void
     {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Invalid date format');
-
-        CentreonCeipLicenseType::resolve(['epp' => self::license($licensing)]);
+        self::assertSame(
+            [
+                'licenseType' => 'Open Source',
+                'withFingerprint' => false,
+                'assetId' => null,
+                'unknownEditions' => [],
+                'licensesWithInvalidDate' => ['epp'],
+            ],
+            CentreonCeipLicenseType::resolve(['epp' => self::license([...$licensing, 'edition' => 'BE'])], false),
+        );
     }
 
     /**
@@ -384,6 +409,56 @@ final class CentreonCeipTest extends TestCase
         yield 'invalid calendar end' => [['end' => '2025-02-30']];
 
         yield 'invalid calendar start' => [['start' => '2025-02-30']];
+
+        yield 'missing end' => [['end' => null]];
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $licenses
+     * @param list<string> $expectedLicensesWithInvalidDate
+     */
+    #[DataProvider('otherLicenseWithInvalidDateProvider')]
+    public function testResolveKeepsTheOtherLicensesWhenOneHasAnInvalidDate(
+        array $licenses,
+        string $expectedLicenseType,
+        bool $expectedFingerprint,
+        array $expectedLicensesWithInvalidDate,
+    ): void {
+        $result = CentreonCeipLicenseType::resolve($licenses, false);
+
+        self::assertSame($expectedLicenseType, $result['licenseType']);
+        self::assertSame($expectedFingerprint, $result['withFingerprint']);
+        self::assertSame($expectedLicensesWithInvalidDate, $result['licensesWithInvalidDate']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, array<string, mixed>>, string, bool, list<string>}>
+     */
+    public static function otherLicenseWithInvalidDateProvider(): iterable
+    {
+        yield 'valid EPP and BAM with an invalid date' => [
+            ['epp' => self::license(), 'bam' => self::license(['end' => '2025-02-30'])],
+            'IT Edition',
+            false,
+            ['bam'],
+        ];
+
+        yield 'IT EPP and CUSTOM BAM with an invalid date' => [
+            [
+                'epp' => self::license(['edition' => 'IT']),
+                'bam' => self::license(['edition' => 'CUSTOM', 'start' => 'not-a-date']),
+            ],
+            'IT Edition',
+            false,
+            ['bam'],
+        ];
+
+        yield 'EPP with an invalid date and valid MAP' => [
+            ['epp' => self::license(['end' => 'not-a-date']), 'map' => self::license()],
+            'Business Edition',
+            true,
+            ['epp'],
+        ];
     }
 
     /**
