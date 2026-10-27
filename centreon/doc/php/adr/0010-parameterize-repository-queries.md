@@ -1,4 +1,4 @@
-# ADR-0010: Build repository SQL with bound `QueryParameters`, never string concatenation
+# ADR-0010: Build repository SQL with the `QueryBuilder` and bound parameters, never string concatenation
 
 - **Status:** Accepted
 - **Date:** 2026-06-17
@@ -9,7 +9,7 @@ A [review comment on PR 8803](https://github.com/centreon/centreon/pull/8803/cha
 
 ## Decision
 
-Pass every user-provided value in a repository query as a **bound parameter**, through `ConnectionInterface` with **`QueryParameters`**, for example `QueryParameters::create([QueryParameter::string(...)])`. **Never** concatenate or interpolate request data into SQL, including `LIKE` patterns and dynamic filters.
+Build repository queries with the **`QueryBuilder`** rather than raw SQL strings. Pass every value as a **bound query parameter**: `setParameter()` or `createNamedParameter()` on the `QueryBuilder`, or `QueryParameters` where a query goes through `ConnectionInterface`. **Never** concatenate or interpolate request data into SQL, including `LIKE` patterns and dynamic filters.
 
 ## Consequences
 
