@@ -1,5 +1,6 @@
 import { waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import {
   labelHost,
@@ -48,6 +49,19 @@ export default () => {
       expect(screen.getByTestId('service-host-link_0')).toHaveAttribute(
         'href',
         '/main.php?p=60101&o=c&host_id=10'
+      );
+    });
+
+    it('opens the service when its host cell is clicked outside the link', async () => {
+      await initializeListing();
+
+      const cell = screen.getByTestId('service-host-link_0')
+        .parentElement as HTMLElement;
+
+      await userEvent.click(cell, { skipHover: true });
+
+      await waitFor(() =>
+        expect(window.location.search).toBe('?id=0&mode=edit')
       );
     });
 
