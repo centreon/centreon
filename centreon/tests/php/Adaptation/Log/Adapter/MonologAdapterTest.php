@@ -32,6 +32,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use Monolog\Processor\WebProcessor;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class MonologAdapterTest extends TestCase
@@ -117,5 +118,30 @@ final class MonologAdapterTest extends TestCase
             umask($previousUmask);
             @unlink($file);
         }
+    }
+
+    /**
+     * @return iterable<string, array{LogChannelEnum}>
+     */
+    public static function provideAuditChannels(): iterable
+    {
+        yield 'authentication' => [LogChannelEnum::AUTHENTICATION];
+        yield 'password' => [LogChannelEnum::PASSWORD];
+        yield 'token' => [LogChannelEnum::TOKEN];
+    }
+
+    #[DataProvider('provideAuditChannels')]
+    public function testAuditLogFilesAreNotMadeGroupWritable(LogChannelEnum $channel): void
+    {
+        // No explicit permission: the file keeps the umask mode and Monolog does
+        // not chmod an existing file when opening it.
+        $adapter = MonologAdapter::create($channel);
+
+        $logger = (new \ReflectionProperty($adapter, 'logger'))->getValue($adapter);
+        self::assertInstanceOf(Logger::class, $logger);
+        $handler = $logger->getHandlers()[0];
+        self::assertInstanceOf(StreamHandler::class, $handler);
+
+        self::assertNull((new \ReflectionProperty($handler, 'filePermission'))->getValue($handler));
     }
 }
