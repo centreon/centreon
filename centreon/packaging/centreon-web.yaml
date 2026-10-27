@@ -374,7 +374,7 @@ contents:
 
 
   # Also owned by centreon-poller (same attributes), which centreon-web does not
-  # require: the postinstall creates prod.web.log in it on a fresh install.
+  # require: centreon-web writes its own logs there.
   - dst: "/var/log/centreon"
     type: dir
     file_info:
