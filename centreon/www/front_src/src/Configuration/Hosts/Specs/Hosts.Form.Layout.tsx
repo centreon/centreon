@@ -23,8 +23,6 @@ import {
   labelHostDetails,
   labelHostGroupsTitle,
   labelHostMonitoringProperties,
-  labelInherit,
-  labelInheritFromTemplate,
   labelMonitoringEngineSchedulingOptions,
   labelNo,
   labelNotificationEnabled,
@@ -165,17 +163,17 @@ const triStates: Array<{ label: string; testId: string; third: string }> = [
   {
     label: labelActiveChecksEnabled,
     testId: 'host-form-scheduling-options-activeCheckEnabled',
-    third: labelInherit
+    third: labelDefault
   },
   {
     label: labelPassiveChecksEnabled,
     testId: 'host-form-scheduling-options-passiveCheckEnabled',
-    third: labelInherit
+    third: labelDefault
   },
   {
     label: labelNotificationEnabled,
     testId: 'host-form-notifications-enabled',
-    third: labelInheritFromTemplate
+    third: labelDefault
   },
   {
     label: labelEventHandlerEnabled,
@@ -190,7 +188,7 @@ const triStates: Array<{ label: string; testId: string; third: string }> = [
   {
     label: labelFlapDetectionEnabled,
     testId: 'host-form-data-processing-flapDetectionEnabled',
-    third: labelInheritFromTemplate
+    third: labelDefault
   }
 ];
 

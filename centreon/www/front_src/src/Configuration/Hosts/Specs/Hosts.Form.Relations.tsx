@@ -11,13 +11,13 @@ import userEvent from '@testing-library/user-event';
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
   labelChildHosts,
+  labelDefault,
   labelDown,
   labelDowntimeScheduled,
   labelFlapping,
   labelHostCategories,
   labelHostGroups,
   labelHostNotFound,
-  labelInheritFromTemplate,
   labelLinkedContactGroups,
   labelLinkedContacts,
   labelNo,
@@ -632,7 +632,7 @@ export default () => {
       expect(
         within(screen.getByTestId('host-form-notifications-enabled')).getByRole(
           'button',
-          { name: labelInheritFromTemplate }
+          { name: labelDefault }
         )
       ).toHaveAttribute('aria-pressed', 'true')
     );
@@ -691,11 +691,9 @@ export default () => {
       'host-form-notifications-enabled'
     );
 
-    // The inherited state is preselected, and is not No.
+    // Default is preselected, and is not No.
     expect(
-      within(notificationsEnabled).getByRole('button', {
-        name: labelInheritFromTemplate
-      })
+      within(notificationsEnabled).getByRole('button', { name: labelDefault })
     ).toHaveAttribute('aria-pressed', 'true');
     await userEvent.click(
       within(notificationsEnabled).getByRole('button', { name: labelYes })

@@ -100,8 +100,6 @@ export const labelCommandInheritance = 'Command inheritance';
 export const labelYes = 'Yes';
 export const labelNo = 'No';
 export const labelDefault = 'Default';
-export const labelInherit = 'Inherit';
-export const labelInheritFromTemplate = 'Inherit from template';
 
 // Notification
 export const labelNotificationEnabled = 'Notification Enable';

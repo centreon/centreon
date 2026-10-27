@@ -145,17 +145,15 @@ const getNumberInput = ({
 
 const getTriStateInput = ({
   fieldName,
-  label,
-  options
+  label
 }: {
   fieldName: keyof DataProcessingValues;
   label: string;
-  options: (typeof triStateOptions)[keyof typeof triStateOptions];
 }) => ({
   dataTestId: `host-form-data-processing-${fieldName}`,
   fieldName: `dataProcessing.${fieldName}`,
   label,
-  segmentedButtons: { options },
+  segmentedButtons: { options: triStateOptions },
   type: InputType.SegmentedButtons
 });
 
@@ -172,8 +170,7 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
       columns: [
         getTriStateInput({
           fieldName: 'eventHandlerEnabled',
-          label: t(labelEventHandlerEnabled),
-          options: triStateOptions.default
+          label: t(labelEventHandlerEnabled)
         }),
         {
           additionalLabel: t(labelCommand),
@@ -210,8 +207,7 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
       columns: [
         getTriStateInput({
           fieldName: 'checkFreshness',
-          label: t(labelEnableFreshnessCheck),
-          options: triStateOptions.default
+          label: t(labelEnableFreshnessCheck)
         }),
         // 0 leaves the threshold to the engine.
         getNumberInput({
@@ -229,8 +225,7 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
       columns: [
         getTriStateInput({
           fieldName: 'flapDetectionEnabled',
-          label: t(labelFlapDetectionEnabled),
-          options: triStateOptions.inheritFromTemplate
+          label: t(labelFlapDetectionEnabled)
         }),
         getNumberInput({
           fieldName: 'lowFlapThreshold',

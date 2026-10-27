@@ -193,7 +193,7 @@ export const notification: FormSection<NotificationDetail> = {
       dataTestId: 'host-form-notifications-enabled',
       fieldName: 'notifications.enabled',
       label: t(labelNotificationEnabled),
-      segmentedButtons: { options: triStateOptions.inheritFromTemplate },
+      segmentedButtons: { options: triStateOptions },
       type: InputType.SegmentedButtons
     };
 

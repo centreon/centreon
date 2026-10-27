@@ -298,7 +298,7 @@ const getSchedulingTriStateInput = ({
   dataTestId: `host-form-scheduling-options-${fieldName}`,
   fieldName: `schedulingOptions.${fieldName}`,
   label,
-  segmentedButtons: { options: triStateOptions.inherit },
+  segmentedButtons: { options: triStateOptions },
   type: InputType.SegmentedButtons
 });
 

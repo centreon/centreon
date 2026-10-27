@@ -9277,14 +9277,6 @@ msgstr "Informationelle Nachrichten"
 msgid "Informations"
 msgstr "Informationen"
 
-#: centreon/www/install/front_translate.php
-msgid "Inherit"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Inherit from template"
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Inherit only contacts/contacts group from host"
 msgstr "Nur Kontakte/Kontakgruppen vom Host vererben"

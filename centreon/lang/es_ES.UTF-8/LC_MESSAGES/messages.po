@@ -10612,14 +10612,6 @@ msgstr "Eventos informativos"
 msgid "Informations"
 msgstr "información"
 
-#: centreon/www/install/front_translate.php
-msgid "Inherit"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Inherit from template"
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Inherit only contacts/contacts group from host"
 msgstr "Heredar solo contactos / grupos de contactos de la definición de host"

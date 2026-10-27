@@ -9553,14 +9553,6 @@ msgstr "Événements de type information"
 msgid "Informations"
 msgstr "Informations"
 
-#: centreon/www/install/front_translate.php
-msgid "Inherit"
-msgstr "Hériter"
-
-#: centreon/www/install/front_translate.php
-msgid "Inherit from template"
-msgstr "Hériter du modèle"
-
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Inherit only contacts/contacts group from host"
 msgstr ""
