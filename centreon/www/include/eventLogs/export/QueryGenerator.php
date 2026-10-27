@@ -513,8 +513,10 @@ class QueryGenerator
         if ($this->engine == 'true') {
             // Engine messages have no host_id, so the host-based centreon_acl join would hide them: keep engine
             // messages only, whatever the requested filters, and restrict them to the pollers allowed by the ACL
-            // (see CentreonACL::getPollerRuntimeIds())
-            $aclPollerIds = $this->access->getPollerRuntimeIds();
+            // (see CentreonACL::getPollerRuntimeIds()). Users without access to the System Logs page get nothing.
+            $aclPollerIds = $this->access->page('20302') === CentreonACL::ACL_ACCESS_NONE
+                ? []
+                : $this->access->getPollerRuntimeIds();
             if ($aclPollerIds === []) {
                 return ' WHERE 0 = 1 AND ';
             }
