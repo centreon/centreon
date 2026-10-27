@@ -1278,6 +1278,7 @@ jobs:
       needs.changes.outputs.trigger_delivery == 'true' &&
       github.event.pull_request.head.repo.fork != true
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: deliver ${{ matrix.distrib }}
@@ -1323,6 +1324,7 @@ jobs:
       needs.changes.outputs.trigger_delivery == 'true' &&
       github.event.pull_request.head.repo.fork != true
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: deliver ${{ matrix.distrib }} (pulp)
@@ -1359,6 +1361,7 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: promote ${{ matrix.distrib }}
@@ -1390,6 +1393,7 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     runs-on: centreon-ubuntu-26.04-small
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: promote ${{ matrix.distrib }} (pulp)
@@ -1425,7 +1429,7 @@ jobs:
 
   clear-branch-cache:
     runs-on: ubuntu-24.04
-    needs: [get-environment, deliver]
+    needs: [get-environment, deliver, deliver-pulp]
     env:
       GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
     if: |
