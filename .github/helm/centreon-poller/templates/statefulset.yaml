@@ -24,9 +24,15 @@ spec:
     metadata:
       labels:
         {{- include "centreon-poller.selectorLabels" . | nindent 8 }}
-      {{- with .Values.podAnnotations }}
+      {{- if or .Values.podAnnotations .Values.proxy.http }}
       annotations:
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.proxy.http }}
+        # The proxy env vars come from a Secret: roll the pod when it changes.
+        checksum/proxy: {{ include (print $.Template.BasePath "/secret-proxy.yaml") . | sha256sum }}
+        {{- end }}
       {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}
@@ -177,6 +183,9 @@ spec:
             - { name: GORGONE_LOG_LEVEL, value: {{ .Values.gorgone.logLevel | quote }} }
             - { name: DEBUG, value: {{ .Values.debug | quote }} }
             - { name: TZ, value: {{ .Values.poller.timezone | quote }} }
+            {{- with include "centreon-poller.proxyEnv" . }}
+            {{- . | nindent 12 }}
+            {{- end }}
             {{- with .Values.gorgone.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -190,6 +199,12 @@ spec:
             - { name: gorgone-data, mountPath: /var/lib/centreon-gorgone }
             {{- if .Values.traps.enabled }}
             - { name: traps-config, mountPath: /etc/snmp/centreon_traps }
+            {{- end }}
+            {{- with include "centreon-poller.proxyMount" . }}
+            {{- . | nindent 12 }}
+            {{- end }}
+            {{- with .Values.gorgone.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- with .Values.gorgone.resources }}
           resources:
@@ -206,6 +221,9 @@ spec:
             - { name: DEBUG, value: {{ ternary "1" "0" .Values.debug | quote }} }
             {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" .Values.secrets.keys.appSecret) | nindent 12 }}
             {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "SALT" "key" .Values.secrets.keys.salt) | nindent 12 }}
+            {{- with include "centreon-poller.proxyEnv" . }}
+            {{- . | nindent 12 }}
+            {{- end }}
             {{- with .Values.engine.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -233,6 +251,12 @@ spec:
             - { name: cma-pki, mountPath: /etc/pki/centreon-engine }
             {{- if $otelTlsSecret }}
             - { name: otel-tls, mountPath: {{ .Values.engine.otel.tls.mountPath }}, readOnly: true }
+            {{- end }}
+            {{- with include "centreon-poller.proxyMount" . }}
+            {{- . | nindent 12 }}
+            {{- end }}
+            {{- with .Values.engine.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- with .Values.engine.resources }}
           resources:
@@ -286,10 +310,19 @@ spec:
             - { name: DEBUG, value: {{ .Values.debug | quote }} }
             {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" .Values.secrets.keys.appSecret) | nindent 12 }}
             {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "SALT" "key" .Values.secrets.keys.salt) | nindent 12 }}
+            {{- with include "centreon-poller.proxyEnv" . }}
+            {{- . | nindent 12 }}
+            {{- end }}
           ports:
             - { name: vmware, containerPort: 5700 }
           volumeMounts:
             - { name: etc, mountPath: /etc/centreon }
+            {{- with include "centreon-poller.proxyMount" . }}
+            {{- . | nindent 12 }}
+            {{- end }}
+            {{- with .Values.vmware.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- with .Values.vmware.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -313,6 +346,17 @@ spec:
         - name: otel-tls
           emptyDir:
             medium: Memory
+        {{- end }}
+        {{- if .Values.proxy.http }}
+        - name: apt-proxy
+          secret:
+            secretName: {{ $fullname }}-proxy
+            defaultMode: 0400
+            items:
+              - { key: 99centreon-poller-proxy, path: 99centreon-poller-proxy }
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
   volumeClaimTemplates:
     {{- $claims := dict "engine" .Values.persistence.engine "broker" .Values.persistence.broker "etc" .Values.persistence.etc "logs" .Values.persistence.logs "cma-pki" .Values.persistence.cmaPki "engine-home" .Values.persistence.engineHome "gorgone-data" .Values.persistence.gorgoneData }}
