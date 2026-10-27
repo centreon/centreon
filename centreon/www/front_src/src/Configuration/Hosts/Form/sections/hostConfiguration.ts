@@ -514,6 +514,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       }),
       checkCommand: getBlock({
         className: twoColumns,
+        columnSeparator: true,
         columns: [
           {
             additionalLabel: t(labelHostCheckOptions),

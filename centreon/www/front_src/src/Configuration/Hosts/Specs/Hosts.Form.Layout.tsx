@@ -221,6 +221,20 @@ const expectTriState = ({
   ).toEqual([labelYes, labelNo, third]);
 };
 
+// The lines drawn between columns: those painted where they are drawn, not
+// clipped away with the first column's.
+const countSeparators = (): number =>
+  Array.from(
+    document.querySelectorAll<HTMLElement>('[data-column-separator]')
+  ).filter((item) => {
+    // Only what is on screen can be asked what is painted there.
+    item.scrollIntoView({ block: 'center' });
+
+    const { left, top } = item.getBoundingClientRect();
+
+    return document.elementFromPoint(left - 15.5, top + 10) === item;
+  }).length;
+
 const getTabs = (): Array<string | null> =>
   screen.getAllByRole('tab').map((tab) => tab.textContent);
 
@@ -420,6 +434,37 @@ export default () => {
       expect(
         screen.getByRole('combobox', { name: labelCommand })
       ).toBeVisible();
+    });
+
+    it('draws the dashed separators of the design between the columns only', async () => {
+      const counts: Record<string, number> = {};
+
+      for (const [name, props] of [
+        ['wide', { width: wide }],
+        ['wide cloud', { isCloudPlatform: true, width: wide }],
+        ['narrow', { width: narrow }]
+      ] as const) {
+        const { unmount } = initializeFormLayout(props);
+
+        await waitForForm();
+
+        counts[name] = countSeparators();
+
+        unmount();
+      }
+
+      // Check command | arguments, templates | macros, the two columns of the
+      // relations, host details | scheduling options and its numbers |
+      // buttons, recipients | notify on, the delays (a segment for each of
+      // their two rows), and the three columns of the advanced section (two
+      // lines).
+      expect(counts.wide).toBe(10);
+      // No notifications, no active / passive checks beside the numbers, two
+      // columns in the advanced section.
+      expect(counts['wide cloud']).toBe(5);
+      // What still sits side by side: check command | arguments, the
+      // relations, host details | scheduling options and the delays.
+      expect(counts.narrow).toBe(5);
     });
 
     it('never cuts the Yes / No / Inherit buttons of the scheduling options', async () => {
