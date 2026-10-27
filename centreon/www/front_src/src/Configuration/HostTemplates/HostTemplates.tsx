@@ -78,7 +78,7 @@ const HostTemplates = () => {
       edit: canEdit,
       isRowDisabled: isLocked,
       massive: canEdit && { delete: true, duplicate: true },
-      // Without write access the form opens read-only.
+      // A locked template opens read-only, whoever opens it.
       viewDetails: true
     }),
     [canEdit]

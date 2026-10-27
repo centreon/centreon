@@ -57,8 +57,9 @@ const useFormInputs = ({
   ): Input => ({
     ...input,
     // Kept alongside the input's own rule, such as a field that waits for
-    // another one.
-    getDisabled: (values) => !canEdit || !!input.getDisabled?.(values),
+    // another one. A locked template is read-only whoever opens it.
+    getDisabled: (values) =>
+      !canEdit || !!values?.isLocked || !!input.getDisabled?.(values),
     ...(input.grid && {
       grid: {
         ...input.grid,
