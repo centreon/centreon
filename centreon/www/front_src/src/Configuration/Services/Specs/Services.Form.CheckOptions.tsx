@@ -257,6 +257,26 @@ export default () => {
     expect(getSaveButton()).toBeDisabled();
   });
 
+  it('marks an inherited macro with a bar until it is edited', async () => {
+    await openService0();
+
+    const expectRowBar = (index: number, barColor: string): Promise<void> =>
+      waitFor(async () =>
+        expect(
+          getComputedStyle(
+            await screen.findByTestId(`${macrosTestId}-${index}-inherited-bar`)
+          ).backgroundColor
+        ).toBe(barColor)
+      );
+
+    expect(await findMacroInput(2, 'name')).toHaveValue('TIMEOUT');
+    await expectRowBar(0, 'rgba(0, 0, 0, 0)');
+    await expectRowBar(2, 'rgb(252, 196, 129)');
+
+    await replaceValue(await findMacroInput(2, 'value'), '20');
+    await expectRowBar(2, 'rgba(0, 0, 0, 0)');
+  });
+
   it('updates a service, keeping its stored password and leaving its inherited macros out', async () => {
     await openService0();
 
