@@ -212,9 +212,14 @@ archiveLegacyPhpFpmLog() {
 }
 
 fixWebLogPermissions() {
-  # prod.web.log is shared by the web server and console commands run by its
-  # group members (e.g. centreon-broker). Create it group-writable at install
-  # time, and give existing files (any owner, umask 0644) the web server group.
+  # prod.web.log must be group-writable: console commands run by the web server
+  # group (e.g. centreon-broker) append to it. The application creates its log
+  # files that way itself, so other log files need nothing here. prod.web.log
+  # is the exception, because it is also PHP-FPM's error_log and PHP-FPM
+  # creates it 0644 whatever the settings: create it first.
+  # Fixing an existing file is only needed for existing configurations, where
+  # older versions created it 0644. Remove that part once upgrades from those
+  # versions are no longer supported.
   WEB_LOG_FILE="/var/log/centreon/prod.web.log"
   WEB_USER="www-data"
   if [ "$1" = "rpm" ]; then
@@ -224,9 +229,11 @@ fixWebLogPermissions() {
     return 0
   fi
   if [ ! -e "$WEB_LOG_FILE" ]; then
-    if [ -d "/var/log/centreon" ]; then
-      install -o "$WEB_USER" -g "$WEB_USER" -m 0664 /dev/null "$WEB_LOG_FILE"
+    # Normally created by the package (same attributes as in centreon-poller).
+    if [ ! -d "/var/log/centreon" ]; then
+      install -d -o centreon -g centreon -m 0774 /var/log/centreon
     fi
+    install -o "$WEB_USER" -g "$WEB_USER" -m 0664 /dev/null "$WEB_LOG_FILE"
   elif [ -f "$WEB_LOG_FILE" ]; then
     chgrp "$WEB_USER" "$WEB_LOG_FILE"
     chmod 0664 "$WEB_LOG_FILE"

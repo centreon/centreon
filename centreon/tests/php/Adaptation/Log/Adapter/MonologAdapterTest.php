@@ -91,4 +91,31 @@ final class MonologAdapterTest extends TestCase
         self::assertContains(UidProcessor::class, $order);
         self::assertSame(SanitizingProcessor::class, $order[array_key_last($order)]);
     }
+
+    public function testLogFileIsCreatedGroupWritable(): void
+    {
+        // Console commands run by members of the web server group (e.g.
+        // centreon-broker) append to the same files, so the mode must not
+        // depend on the umask of the first writer.
+        $adapter = MonologAdapter::create(new ModuleLogChannel('monolog-adapter-test-' . bin2hex(random_bytes(4))));
+
+        $logger = (new \ReflectionProperty($adapter, 'logger'))->getValue($adapter);
+        self::assertInstanceOf(Logger::class, $logger);
+        $handler = $logger->getHandlers()[0];
+        self::assertInstanceOf(StreamHandler::class, $handler);
+        $file = (string) $handler->getUrl();
+
+        // Same umask as the web server: without an explicit permission the file would be 0644.
+        $previousUmask = umask(0022);
+        try {
+            $adapter->info('group-writable log file');
+            $handler->close();
+            clearstatcache(true, $file);
+
+            self::assertSame(0664, fileperms($file) & 0777);
+        } finally {
+            umask($previousUmask);
+            @unlink($file);
+        }
+    }
 }

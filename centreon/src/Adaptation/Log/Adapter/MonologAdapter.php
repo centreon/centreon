@@ -141,7 +141,10 @@ final class MonologAdapter implements LoggerInterface
         try {
             $handler = new StreamHandler(
                 $this->getLogFileFromChannel($this->channel),
-                LogLevel::INFO
+                LogLevel::INFO,
+                // Group-writable: console commands run by members of the web server
+                // group (e.g. centreon-broker) append to the same files.
+                filePermission: 0664,
             );
 
             $handler->setFormatter(new LineFormatter(null, Logger::DATE_FORMAT));
