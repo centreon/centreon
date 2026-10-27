@@ -25,7 +25,8 @@ import {
   labelLowFlapThreshold,
   labelMustBeIntegerOfAtLeastOne,
   labelMustBePositiveIntegerOrZero,
-  labelSeconds
+  labelSeconds,
+  labelTimesSixtySeconds
 } from '../../translatedLabels';
 import { argumentsToText, textToArguments } from '../commandArguments';
 import { getBlock } from '../grid';
@@ -173,7 +174,7 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
           label: t(labelEventHandlerEnabled)
         }),
         {
-          additionalLabel: t(labelCommand),
+          additionalLabel: t(labelEventHandler),
           connectedAutocomplete: buildSelector({
             // Legacy offers every active command, whatever its type.
             customQueryParameters: [{ name: 'is_activated', value: true }],
@@ -183,7 +184,7 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
           }),
           dataTestId: 'host-form-data-processing-eventHandler',
           fieldName: 'dataProcessing.eventHandler',
-          label: t(labelEventHandler),
+          label: t(labelCommand),
           type: InputType.SingleConnectedAutocomplete
         },
         ...(isCloudPlatform
@@ -253,7 +254,8 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
             getNumberInput({
               fieldName: 'acknowledgmentTimeout',
               label: t(labelAcknowledgementTimeout),
-              min: 1
+              min: 1,
+              unit: t(labelTimesSixtySeconds)
             })
           ],
           name: 'data-processing-acknowledgment-timeout',

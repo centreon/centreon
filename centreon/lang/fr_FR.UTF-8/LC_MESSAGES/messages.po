@@ -69,6 +69,10 @@ msgstr "'%s' doit contenir au moins un élément"
 msgid "'%s' service name already exists for host ID %d"
 msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
 
+#: centreon/www/install/front_translate.php
+msgid "* 60 seconds"
+msgstr "* 60 secondes"
+
 #: centreon/www/include/monitoring/external_cmd/popup/massive_downtime.php
 msgid "*The timezone used is configured on your user settings"
 msgstr ""
@@ -837,6 +841,10 @@ msgstr "Comparer les licences Edition"
 msgid "Contribute on GitHub"
 msgstr "Contribution sur GitHub"
 
+#: centreon/www/install/front_translate.php
+msgid "Data processing"
+msgstr "Traitement des données"
+
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Documentation & guides"
 msgstr "Documentation et guides"
@@ -1188,6 +1196,10 @@ msgstr "Activer le gestionnaire d'évènements"
 msgid "Enable notifications"
 msgstr "Activer les notifications"
 
+#: centreon/www/install/front_translate.php
+msgid "Event handler"
+msgstr "Gestionnaire d'évènements"
+
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Get more from Centreon"
 msgstr "Profiter davantage de Centreon"
@@ -1240,6 +1252,10 @@ msgstr "Remplacer les modèles supprimera tous les services créés par les mod�
 #: centreon/www/install/front_translate.php
 msgid "Resolve FQDN"
 msgstr "Résoudre le FQDN"
+
+#: centreon/www/install/front_translate.php
+msgid "SNMP community"
+msgstr "Communauté SNMP"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Security"

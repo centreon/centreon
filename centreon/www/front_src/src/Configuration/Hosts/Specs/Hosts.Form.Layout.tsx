@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 
 import {
+  labelAcknowledgementTimeout,
   labelActiveChecksEnabled,
   labelAdvanced,
   labelArguments,
@@ -13,6 +14,7 @@ import {
   labelDefault,
   labelDown,
   labelEnableFreshnessCheck,
+  labelEventHandler,
   labelEventHandlerEnabled,
   labelFlapDetection,
   labelFlapDetectionEnabled,
@@ -34,6 +36,7 @@ import {
   labelSchedulingOptions,
   labelSnmpVersion,
   labelTemplates,
+  labelTimesSixtySeconds,
   labelYes
 } from '../translatedLabels';
 import { initializeFormLayout } from './initialize';
@@ -121,7 +124,7 @@ const titles: Record<string, Array<string>> = {
   ],
   [labelAdvanced]: [
     labelAutoRemediation,
-    labelCommand,
+    labelEventHandler,
     labelArguments,
     labelFreshnessCheck,
     labelDataProcessing,
@@ -303,7 +306,7 @@ export default () => {
       // or comment there.
       expect(getSectionTitles(labelAdvanced)).toEqual([
         labelAutoRemediation,
-        labelCommand,
+        labelEventHandler,
         labelFreshnessCheck
       ]);
     });
@@ -402,6 +405,21 @@ export default () => {
 
         unmount();
       }
+    });
+
+    it('words the acknowledgement timeout with its unit, and the event handler command as designed', async () => {
+      initializeFormLayout({ width: wide });
+
+      await waitForForm();
+
+      expect(
+        screen.getByRole('spinbutton', { name: labelAcknowledgementTimeout })
+      ).toBeVisible();
+      expect(screen.getByText(labelTimesSixtySeconds)).toBeVisible();
+      // The title says which handler, the field asks for its command.
+      expect(
+        screen.getByRole('combobox', { name: labelCommand })
+      ).toBeVisible();
     });
 
     it('never cuts the Yes / No / Inherit buttons of the scheduling options', async () => {

@@ -49,7 +49,7 @@ export const labelNotifyOn = 'Notify on';
 export const labelAutoRemediation = 'Auto-remediation';
 export const labelCommand = 'Command';
 export const labelFreshnessCheck = 'Freshness check';
-export const labelDataProcessing = 'Data Processing';
+export const labelDataProcessing = 'Data processing';
 export const labelFlapDetection = 'Flap detection';
 
 // Form validation
@@ -68,7 +68,7 @@ export const labelMustBePositiveIntegerOrZero =
 export const labelMustBeIntegerOfAtLeastOne =
   'An integer with a minimum value of 1 is required';
 
-export const labelSnmpCommunity = 'SNMP Community';
+export const labelSnmpCommunity = 'SNMP community';
 export const labelSnmpVersion = 'Version';
 export const labelTimezone = 'Timezone';
 // The form's fields from here on are spelled as the design spells them.
@@ -121,15 +121,17 @@ export const labelNone = 'None';
 // Under the `Freshness check` title, the design says only `Enable`.
 export const labelEnableFreshnessCheck = 'Enable';
 export const labelFreshnessThreshold = 'Freshness threshold';
-export const labelAcknowledgementTimeout = 'Acknowledgement';
+export const labelAcknowledgementTimeout = 'Acknowledgement timeout';
 export const labelFlapDetectionEnabled = 'Enable flap detection';
 export const labelLowFlapThreshold = 'Low threshold';
 export const labelHighFlapThreshold = 'High threshold';
-export const labelEventHandler = 'Event Handler';
+export const labelEventHandler = 'Event handler';
 export const labelEventHandlerEnabled = 'Enable event handler';
 // Legacy's label for the arguments of the check command and the event handler.
 export const labelArgs = 'Args';
 export const labelSeconds = 'seconds';
+// The unit of the delays the engine counts in intervals of one minute.
+export const labelTimesSixtySeconds = '* 60 seconds';
 
 // Host Extended Infos
 export const labelNote = 'Note';

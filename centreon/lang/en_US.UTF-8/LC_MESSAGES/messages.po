@@ -65,6 +65,10 @@ msgstr "'%s' must contain at least one element"
 msgid "'%s' service name already exists for host ID %d"
 msgstr "'%s' service name already exists for host ID %d"
 
+#: centreon/www/install/front_translate.php
+msgid "* 60 seconds"
+msgstr "* 60 seconds"
+
 #: centreon/www/include/monitoring/external_cmd/popup/massive_downtime.php
 msgid "*The timezone used is configured on your user settings"
 msgstr "*The timezone used is configured on your user settings"
@@ -4093,6 +4097,10 @@ msgstr ""
 "Data is aggregated monthly over the last 12 months for graphs presenting "
 "host groups."
 
+#: centreon/www/install/front_translate.php
+msgid "Data processing"
+msgstr "Data processing"
+
 #: centreon/www/install/smarty_translate.php
 msgid "Data size"
 msgstr "Data size"
@@ -5388,6 +5396,10 @@ msgid "Enable notifications"
 msgstr "Enable notifications"
 
 #: centreon/www/install/front_translate.php
+msgid "Event handler"
+msgstr "Event handler"
+
+#: centreon/www/install/front_translate.php
 msgid "Host monitoring properties"
 msgstr "Host monitoring properties"
 
@@ -5418,6 +5430,10 @@ msgstr "Row {{position}} dropped at position {{newPosition}}"
 #: centreon/www/install/front_translate.php
 msgid "Row {{position}} moved to position {{newPosition}}"
 msgstr "Row {{position}} moved to position {{newPosition}}"
+
+#: centreon/www/install/front_translate.php
+msgid "SNMP community"
+msgstr "SNMP community"
 
 #: centreon/www/install/front_translate.php
 msgid "To pick up a row, press space or enter. Use the arrow keys to move it, then press space or enter to drop it, or escape to cancel."
