@@ -1,5 +1,3 @@
-import LockIcon from '@mui/icons-material/Lock';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { Typography } from '@mui/material';
 
 import { type InputPropsWithoutGroup, TextField } from '@centreon/ui';
@@ -31,6 +29,7 @@ import {
   type MacroRow
 } from './macroRows';
 import type { InheritedMacrosConfig } from './models';
+import { PasswordIcon, PasswordOffIcon } from './PasswordIcons';
 import StoredSecretField from './StoredSecretField';
 import useInheritedMacros from './useInheritedMacros';
 
@@ -148,16 +147,12 @@ const Macros = ({
         ))}
       </div>
       {/* The shared list has no read-only mode: a disabled fieldset turns off
-          its add, delete and drag buttons natively. */}
+          its add and delete buttons natively. */}
       <fieldset className="m-0 min-w-0 border-0 p-0" disabled={disabled}>
         <SortableEntriesList<MacroRow>
           actions={({ index, value: macro }) => [
             {
-              icon: macro.isPassword ? (
-                <LockIcon color="primary" />
-              ) : (
-                <LockOpenIcon />
-              ),
+              icon: macro.isPassword ? <PasswordIcon /> : <PasswordOffIcon />,
               id: `${dataTestId}-password`,
               // As legacy: a stored password stays one.
               isDisabled: macro.hasStoredPassword,
@@ -172,7 +167,8 @@ const Macros = ({
           ]}
           addLabel={t(labelAddNewEntry)}
           createValue={createMacroRow}
-          draggable={!disabled}
+          // Macros have no order.
+          draggable={false}
           label={label}
           maxVisibleRows={maxVisibleRows}
           onChange={(nextMacros): void => {
