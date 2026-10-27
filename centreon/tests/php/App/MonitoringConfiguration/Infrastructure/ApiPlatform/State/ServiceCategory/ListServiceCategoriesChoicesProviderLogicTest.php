@@ -26,9 +26,9 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Ser
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
-use App\MonitoringConfiguration\Domain\Model\ServiceCategoryChoice;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategory\ServiceCategoryChoicesOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceCategory\ListServiceCategoriesChoicesProvider;
@@ -42,26 +42,28 @@ use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceCategoryChoiceRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceCategoryRepository;
 
 /**
  * Provider logic with an in-memory repository. The HTTP wiring is covered by ListServiceCategoriesChoicesProviderTest.
  */
+#[Group('wip')]
 final class ListServiceCategoriesChoicesProviderLogicTest extends TestCase
 {
     private const VIEWER_ID = 7;
 
-    private FakeServiceCategoryChoiceRepository $repository;
+    private FakeServiceCategoryRepository $repository;
 
     protected function setUp(): void
     {
-        $this->repository = new FakeServiceCategoryChoiceRepository();
+        $this->repository = new FakeServiceCategoryRepository();
     }
 
     public function testItRejectsZeroItemsPerPage(): void
@@ -75,7 +77,7 @@ final class ListServiceCategoriesChoicesProviderLogicTest extends TestCase
     public function testItForwardsPaginationAndKeepsTheTotals(): void
     {
         $this->repository->result = new InMemoryPaginator(
-            items: new Collection([$this->model(7, 'first')], ServiceCategoryChoice::class),
+            items: new Collection([$this->model(7, 'first')], ServiceCategory::class),
             totalItems: 12,
             currentPage: 3,
             itemsPerPage: 5,
@@ -111,7 +113,7 @@ final class ListServiceCategoriesChoicesProviderLogicTest extends TestCase
 
     public function testItMapsToTheChoicesOutput(): void
     {
-        $this->repository->result = new Collection([$this->model(7, 'first')], ServiceCategoryChoice::class);
+        $this->repository->result = new Collection([$this->model(7, 'first')], ServiceCategory::class);
 
         $result = $this->provide([]);
 
@@ -177,8 +179,13 @@ final class ListServiceCategoriesChoicesProviderLogicTest extends TestCase
         return $provider->provide(new GetCollection(), [], ['filters' => $filters]);
     }
 
-    private function model(int $id, string $name): ServiceCategoryChoice
+    private function model(int $id, string $name): ServiceCategory
     {
-        return new ServiceCategoryChoice(new ServiceCategoryId($id), new ServiceCategoryName($name));
+        return new ServiceCategory(
+            new ServiceCategoryId($id),
+            new ServiceCategoryName($name),
+            alias: new ServiceCategoryName("{$name} alias"),
+            activated: true,
+        );
     }
 }

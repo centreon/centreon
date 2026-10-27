@@ -27,9 +27,9 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
-use App\MonitoringConfiguration\Domain\Model\ServiceCategoryChoice;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
-use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryChoiceRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategory\ServiceCategoryChoicesOutput;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Repository\Paginator;
@@ -48,12 +48,12 @@ final readonly class ListServiceCategoriesChoicesProvider implements ProviderInt
     use FilterAwareProviderTrait;
 
     /**
-     * @param TransformerInterface<ServiceCategoryChoice, ServiceCategoryChoicesOutput> $transformer
+     * @param TransformerInterface<ServiceCategory, ServiceCategoryChoicesOutput> $transformer
      */
     public function __construct(
         #[Autowire(service: ServiceCategoryChoicesTransformer::class)]
         private TransformerInterface $transformer,
-        private ServiceCategoryChoiceRepository $repository,
+        private ServiceCategoryRepository $repository,
         private Pagination $pagination,
         private Security $security,
     ) {

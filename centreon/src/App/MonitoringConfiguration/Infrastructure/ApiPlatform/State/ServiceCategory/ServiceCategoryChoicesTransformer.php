@@ -23,19 +23,19 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceCategory;
 
-use App\MonitoringConfiguration\Domain\Model\ServiceCategoryChoice;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategory\ServiceCategoryChoicesOutput;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @implements TransformerInterface<ServiceCategoryChoice, ServiceCategoryChoicesOutput>
+ * @implements TransformerInterface<ServiceCategory, ServiceCategoryChoicesOutput>
  */
 final readonly class ServiceCategoryChoicesTransformer implements TransformerInterface
 {
     public function transform(mixed $from): ServiceCategoryChoicesOutput
     {
         return new ServiceCategoryChoicesOutput(
-            id: $from->id->value,
+            id: $from->id()->value,
             name: $from->name->value,
         );
     }

@@ -30,7 +30,7 @@ use Tests\App\Shared\ApiTestCase;
 
 /**
  * Full-HTTP wiring of /configuration/services/service_categories. The provider rules are pinned by
- * ListServiceCategoriesChoicesProviderLogicTest, the SQL by DbalServiceCategoryChoiceRepositoryTest and the
+ * ListServiceCategoriesChoicesProviderLogicTest, the SQL by DbalServiceCategoryRepositoryTest and the
  * ACL tiers by DbalResourceAccessRepositoryTest; the gate, the OpenAPI absence and the routing are pinned by
  * ServiceFormSelectorsWiringTest.
  */
