@@ -36,8 +36,17 @@ fi
 
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php.d/20-timezone.ini
 
-# The centreon-web postinstall creates it 0664; only cover packages that predate it.
-[ -e /var/log/centreon/prod.web.log ] || install -o apache -g apache -m 0664 /dev/null /var/log/centreon/prod.web.log
+if [[ "$STABILITY" == "stable" ]]; then
+  # Released packages may predate the postinstall that creates it 0664.
+  [ -e /var/log/centreon/prod.web.log ] || install -o apache -g apache -m 0664 /dev/null /var/log/centreon/prod.web.log
+else
+  # Packages from this build: the centreon-web postinstall must have created it.
+  find /var/log/centreon/prod.web.log -perm 0664 -user apache -group apache | grep -q . || {
+    echo "prod.web.log was not created 0664 apache:apache by the centreon-web postinstall" >&2
+    ls -l /var/log/centreon >&2
+    exit 1
+  }
+fi
 
 # Tune php-fpm for CI: ondemand mode to avoid spawning idle workers at startup
 sed -i 's/^pm = .*/pm = ondemand/' /etc/php-fpm.d/*.conf
