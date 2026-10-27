@@ -1,5 +1,9 @@
 import { createRoot } from 'react-dom/client';
 
+// DEMO ONLY, never merged: mocks the Services API the backend does not serve
+// yet. Loaded before the app so its first requests are already answered.
+import './Configuration/Services/demo/mockApi';
+
 import Provider from './Main/Provider';
 import './app.css';
 
