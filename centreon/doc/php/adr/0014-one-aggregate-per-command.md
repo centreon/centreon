@@ -1,4 +1,4 @@
-# ADR-0016: Change one aggregate per command, and let other aggregates react through events
+# ADR-0014: Change one aggregate per command, and let other aggregates react through events
 
 - **Status:** Accepted
 - **Date:** 2026-10-21

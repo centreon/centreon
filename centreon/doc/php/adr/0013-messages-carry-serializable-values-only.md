@@ -1,4 +1,4 @@
-# ADR-0015: Make commands, queries and events carry serializable values only
+# ADR-0013: Make commands, queries and events carry serializable values only
 
 - **Status:** Accepted
 - **Date:** 2026-10-21
