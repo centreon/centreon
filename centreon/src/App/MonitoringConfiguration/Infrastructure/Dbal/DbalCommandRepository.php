@@ -72,7 +72,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
-        #[Autowire(service: DbalCommandTransformer::class)]
+        #[Autowire(service: CommandTransformer::class)]
         private TransformerInterface $transformer,
 
         private DbalConnectorRepository $connectorRepository,

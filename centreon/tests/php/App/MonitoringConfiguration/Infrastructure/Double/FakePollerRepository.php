@@ -108,14 +108,14 @@ final class FakePollerRepository implements PollerRepository
     }
 
     /**
-     * Note: viewer-based ACL scoping is not modeled here (it has no equivalent data in this fake) —
+     * Note: actor-based ACL scoping is not modeled here (it has no equivalent data in this fake) —
      * it is exercised by DbalPollerRepositoryTest against real ACL tables instead.
      */
-    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(PollerCriteria $criteria): \IteratorAggregate&\Countable
     {
         $pollers = array_values($this->pollers);
 
-        if ($criteria instanceof PollerCriteria && $criteria->getName() !== null) {
+        if ($criteria->getName() !== null) {
             $needle = mb_strtolower($criteria->getName());
             $pollers = array_values(array_filter(
                 $pollers,
@@ -123,11 +123,11 @@ final class FakePollerRepository implements PollerRepository
             ));
         }
 
-        if ($criteria instanceof PollerCriteria && $criteria->excludeUnknownCentral()) {
+        if ($criteria->excludeUnknownCentral()) {
             $pollers = array_values(array_filter($pollers, static fn (Poller $poller): bool => ! $poller->isCentral));
         }
 
-        $pagination = $criteria instanceof PollerCriteria ? $criteria->getPagination() : null;
+        $pagination = $criteria->getPagination();
         if ($pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             $pollers = array_slice($pollers, $pagination->getOffset(), $pagination->itemsPerPage);
         }

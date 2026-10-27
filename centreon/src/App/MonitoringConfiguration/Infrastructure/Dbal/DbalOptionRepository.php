@@ -49,7 +49,7 @@ final readonly class DbalOptionRepository extends DbalRepository implements Opti
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
-        #[Autowire(service: DbalOptionTransformer::class)]
+        #[Autowire(service: OptionTransformer::class)]
         private TransformerInterface $transformer,
     ) {
     }
