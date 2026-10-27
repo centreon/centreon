@@ -172,9 +172,11 @@ deb_fingerprint() {
 # served file. A build differing in content needs a version bump: testing
 # refuses it where the other build would mask it or be evicted by it; unstable,
 # whose unversioned packages are rebuilt on every push, delivers it with a warning.
+# Testing never adopts from a lower stability: its own build is served first,
+# and promote would ship the lower pipeline's build to stable.
 adopt_published_build() {
-  local file=$1 name version arch sha256 entry rank repository suite published_sha256 filename domain tmp_file
-  local local_fingerprint published_fingerprint reason
+  local file=$1 name version arch sha256 max_rank entry rank repository suite published_sha256 filename domain tmp_file
+  local local_fingerprint published_fingerprint reason lower_suite
   name=$(dpkg-deb -f "$file" Package)
   version=$(dpkg-deb -f "$file" Version)
   arch=$(dpkg-deb -f "$file" Architecture)
@@ -184,13 +186,24 @@ adopt_published_build() {
        '$1 == 0 && $3 == s && $4 == n && $5 == v && $6 == a { found = 1 } END { exit found ? 0 : 1 }' "$PUBLISHED_PACKAGES"; then
     return 0
   fi
-  # the build the front serves first; nothing to do when it is the local one
-  entry=$(awk -v t="$BASE_PATH" -v s="$SUITE" -v n="$name" -v v="$version" -v a="$arch" -v h="$sha256" '
-    !($2 == t && $3 == s) && $4 == n && $5 == v && $6 == a && (best == "" || $1 < best_rank) { best_rank = $1; best = $0; best_sha256 = $7 }
-    END { if (best != "" && best_sha256 != h) print best }
+  max_rank=$TARGET_RANK
+  [[ "${STABILITY:-}" == "unstable" ]] && max_rank=${#FAMILY_REPOSITORIES[@]}
+  # the build the front serves first among the eligible ranks
+  entry=$(awk -v t="$BASE_PATH" -v s="$SUITE" -v n="$name" -v v="$version" -v a="$arch" -v m="$max_rank" '
+    !($2 == t && $3 == s) && $1 <= m && $4 == n && $5 == v && $6 == a && (best == "" || $1 < best_rank) { best_rank = $1; best = $0 }
+    END { if (best != "") print best }
   ' "$PUBLISHED_PACKAGES")
-  [[ -z "$entry" ]] && return 0
+  if [[ -z "$entry" ]]; then
+    lower_suite=$(awk -v n="$name" -v v="$version" -v a="$arch" -v h="$sha256" -v m="$max_rank" \
+      '$1 > m && $4 == n && $5 == v && $6 == a && $7 != h { print $3; exit }' "$PUBLISHED_PACKAGES")
+    if [[ -n "$lower_suite" ]]; then
+      echo "::notice::$name $version ($arch) is also published in $lower_suite with another build: delivering the local build, which the legacy front serves for $lower_suite too until its next delivery."
+    fi
+    return 0
+  fi
   read -r rank repository suite _ _ _ published_sha256 filename <<< "$entry"
+  # nothing to do when the build served first is the local one
+  [[ "$published_sha256" == "$sha256" ]] && return 0
   domain=$PULP_DOMAIN
   [[ "$rank" -eq 0 ]] && domain=$PULP_STABLE_DOMAIN
 
