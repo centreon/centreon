@@ -574,7 +574,9 @@ jobs:
       get-environment,
       deliver
     ]
+    # Disabled unless the NIGHTLY_JIRA_TICKETS_ENABLED organization variable is set to 'true'
     if: |
+      vars.NIGHTLY_JIRA_TICKETS_ENABLED == 'true' &&
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
       startsWith(github.ref_name, 'dev') &&
