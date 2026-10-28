@@ -21,7 +21,6 @@ import {
   labelAddress,
   labelAlias,
   labelAlreadyExists,
-  labelArgs,
   labelArguments,
   labelCheckCommand,
   labelCheckPeriod,
@@ -531,12 +530,11 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
             type: InputType.SingleConnectedAutocomplete
           },
           {
-            additionalLabel: t(labelArguments),
             dataTestId: 'host-form-check-options-args',
             fieldName: 'checkOptions.args',
             // Arguments without a command are refused.
             getDisabled: (values) => !values.checkOptions?.command,
-            label: t(labelArgs),
+            label: t(labelArguments),
             text: { placeholder: '!arg1!arg2' },
             type: InputType.Text
           }

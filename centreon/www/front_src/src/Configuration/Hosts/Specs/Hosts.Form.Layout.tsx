@@ -109,7 +109,6 @@ const titles: Record<string, Array<string>> = {
   [labelGeneralInformation]: [labelHostBasicInformation],
   [labelHostMonitoringProperties]: [
     labelHostCheckOptions,
-    labelArguments,
     labelSnmpCommunity,
     labelTemplates,
     labelCustomMacros
@@ -374,6 +373,10 @@ export default () => {
         'host-form-check-options-args'
       );
       expectBelow('host-form-snmp-community', getSnmpVersion());
+      // The arguments carry no title: their word is the label of the field.
+      expect(
+        screen.getByRole('textbox', { name: labelArguments })
+      ).toBeVisible();
       expectBeside('host-form-check-options-args', getSnmpVersion());
       expectBelow('host-form-check-options-args', 'host-form-templates');
       expectBelow(getSnmpVersion(), 'host-form-check-options-macros');
