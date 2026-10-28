@@ -1334,6 +1334,8 @@ jobs:
       !cancelled() &&
       needs.bruno-api-test.result == 'failure'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       secret_actor: ${{ steps.sanitize.outputs.secret_actor }}
     steps:
@@ -1424,6 +1426,8 @@ jobs:
       !cancelled() &&
       needs.e2e-test.result == 'failure'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       secret_actor: ${{ steps.sanitize.outputs.secret_actor }}
     steps:
