@@ -5,7 +5,7 @@ import { JsonDecoder } from 'ts.data.json';
 import { array, number, object, string } from 'yup';
 
 import {
-  commandsEndpoint,
+  hostFormCommandsEndpoint,
   hostFormPollersEndpoint,
   hostFormTimePeriodsEndpoint,
   timezonesEndpoint
@@ -552,7 +552,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
                   { name: 'type[]', value: 'Check' },
                   { name: 'is_activated', value: true }
                 ],
-                endpoint: commandsEndpoint,
+                endpoint: hostFormCommandsEndpoint,
                 getOptionLabel: (option) => (option as SelectEntry)?.name,
                 queryKey: 'host-form-check-command'
               }),
