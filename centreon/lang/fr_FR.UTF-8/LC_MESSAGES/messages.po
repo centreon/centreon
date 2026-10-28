@@ -25347,6 +25347,10 @@ msgid "An error occurred during session logout"
 msgstr "Une erreur est survenue lors de la déconnexion de la session"
 
 #: centreon/www/install/front_translate.php
+msgid "Arguments must not contain #BR#, #T# or #R#"
+msgstr "Les arguments ne doivent pas contenir #BR#, #T# ou #R#"
+
+#: centreon/www/install/front_translate.php
 msgid "Arguments need an event handler"
 msgstr "Les arguments nécessitent un gestionnaire d'évènements"
 
