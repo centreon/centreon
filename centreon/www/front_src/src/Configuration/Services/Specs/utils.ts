@@ -79,7 +79,73 @@ export const getServiceResponse = (id: number) => ({
   // MON-213085: Data Processing section.
   ...getDataProcessingResponse(id),
   // MON-213087: Extended Info section.
-  ...getExtendedInfoResponse(id)
+  ...getExtendedInfoResponse(id),
+  // MON-213083: check command, arguments and macros.
+  ...getServiceCheckOptionsResponse(id)
+});
+
+// MON-213083: check command, arguments and macros (F04–F06).
+
+const toCollection = (member: Array<object>) => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': '/centreon/api/configuration',
+  '@type': 'Collection',
+  member,
+  totalItems: member.length
+});
+
+export const getCommandsResponse = () =>
+  toCollection([
+    // MON-213085's event handler, from the same selector.
+    { id: 7, name: 'restart-httpd' },
+    { id: 8, name: 'check-centreon-ping' },
+    { id: 9, name: 'check-centreon-cpu' },
+    // Placeholder key: the selector's shape is not settled.
+    {
+      id: 10,
+      is_centreon_monitoring_agent: true,
+      name: 'cma-linux-cpu'
+    }
+  ]);
+
+// Service 0 has its own command, arguments and macros: its own, a stored
+// password (no value sent back) and one inherited from its template. The
+// others have none: the key is left out.
+export const getServiceCheckOptionsResponse = (id: number) =>
+  id === 0
+    ? {
+        check_options: {
+          args: ['80', '90'],
+          command: { id: 9, name: 'check-centreon-cpu' },
+          macros: [
+            { id: 1, is_password: false, name: 'WARNING', value: '80' },
+            { id: 2, is_password: true, name: 'API_TOKEN' },
+            {
+              id: 11,
+              is_password: false,
+              name: 'TIMEOUT',
+              parent: 'template',
+              value: '10'
+            }
+          ]
+        }
+      }
+    : // A service with no template still needs a command to be saved.
+      id === 1
+      ? { check_options: { command: { id: 8, name: 'check-centreon-ping' } } }
+      : {};
+
+// One service template's macros, its own then those it inherits, for when the
+// template field (F03) can pick one.
+export const getServiceTemplateMacrosResponses = (): Record<
+  number,
+  object
+> => ({
+  30: {
+    id: 30,
+    macros: [{ id: 31, is_password: false, name: 'TIMEOUT', value: '10' }],
+    name: 'generic-active-service'
+  }
 });
 
 // MON-213087: Extended Info section (F41-F50). Service 0 has every field the
@@ -137,25 +203,7 @@ const getDataProcessingResponse = (id: number) => {
   return {};
 };
 
-export const getServiceCommandsResponse = () => ({
-  '@context': '/centreon/api/contexts/Collection',
-  '@id': '/centreon/api/configuration/services/commands',
-  '@type': 'Collection',
-  member: [
-    { id: 7, name: 'restart-httpd' },
-    { id: 8, name: 'notify-by-email' }
-  ],
-  totalItems: 2
-});
-
-// MON-213084: Relations section selectors.
-const toCollection = (member: Array<object>) => ({
-  '@context': '/centreon/api/contexts/Collection',
-  '@id': '/centreon/api/configuration',
-  '@type': 'Collection',
-  member,
-  totalItems: member.length
-});
+// MON-213084: Relations section selectors use `toCollection` above.
 
 // MON-213082: Service Configuration, name, host, template and scheduling.
 // Service 0 sets every field; the others leave the optional ones out, as the

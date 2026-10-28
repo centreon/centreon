@@ -121,3 +121,12 @@ export const labelServiceInvalidGeographicCoordinates =
   'geo coords are not valid';
 export const labelServiceMustBeAtMostCharacters =
   '{{label}} can be at most {{max}} characters';
+// MON-213083: check command, arguments and macros (F04–F06). The first four
+// are legacy msgids, already translated.
+export const labelCheckCommand = 'Check Command';
+export const labelCustomMacros = 'Custom macros';
+export const labelFillAllArgumentsOrNone =
+  'You must either fill all the arguments or leave them all empty';
+// Wording to confirm with UX: no legacy string says it.
+export const labelArgumentsForbiddenTokens =
+  'Arguments must not contain #BR#, #T# or #R#';

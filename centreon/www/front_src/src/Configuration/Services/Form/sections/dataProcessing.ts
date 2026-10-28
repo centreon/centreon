@@ -45,6 +45,7 @@ import {
   labelYes
 } from '../../translatedLabels';
 import type { FormSection, FormValues } from './models';
+import { serviceFormCommandsEndpoint } from './serviceConfiguration';
 
 // Copied from `Hosts/Form/triState.ts`, `commandArguments.ts` and
 // `selector.ts` rather than imported, as the skeleton copied the section
@@ -89,7 +90,9 @@ const forbiddenArgumentTokens = ['#BR#', '#T#', '#R#'];
 // Placeholder until the backend exposes it: modeled on
 // `/configuration/hosts/commands`. No type filter, the event handler may be
 // any command.
-export const serviceFormCommandsEndpoint = '/configuration/services/commands';
+// The commands selector, shared with the check command (MON-213083); the
+// event handler takes any type.
+export { serviceFormCommandsEndpoint };
 
 const namedEntitiesListDecoder = buildListingDecoder({
   apiFormat: 'JSON-LD',

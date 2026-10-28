@@ -289,7 +289,7 @@ export default () => {
 
     await openCreationForm();
     // On a cloud platform a template is required too.
-    await fillRequiredServiceFields({ withTemplate: true });
+    await fillRequiredServiceFields();
 
     await userEvent.type(await getInput('service-form-note'), 'CPU load');
 
