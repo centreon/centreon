@@ -34,6 +34,8 @@ final class DbalOptionRepositoryTest extends KernelTestCase
 {
     private OptionRepository $repository;
 
+    private Connection $connection;
+
     protected function setUp(): void
     {
         /** @var OptionRepository $repository */
@@ -42,6 +44,7 @@ final class DbalOptionRepositoryTest extends KernelTestCase
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->connection = $connection;
         $connection->executeStatement(
             "UPDATE `options` SET `value` = '/usr/lib64/nagios/plugins/' WHERE `key` = 'nagios_path_plugins'"
         );
@@ -58,5 +61,30 @@ final class DbalOptionRepositoryTest extends KernelTestCase
     {
         $this->expectException(OptionDoesNotExistException::class);
         $this->repository->getByName(new OptionName('foo'));
+    }
+
+    public function testFindValueByNameReturnsTheStoredValue(): void
+    {
+        $this->insertOption('find_value_by_name_test', ' 050 ');
+
+        self::assertSame(' 050 ', $this->repository->findValueByName(new OptionName('find_value_by_name_test')));
+    }
+
+    public function testFindValueByNameReturnsNullForAMissingOption(): void
+    {
+        self::assertNull($this->repository->findValueByName(new OptionName('find_value_by_name_missing')));
+    }
+
+    public function testFindValueByNameReturnsNullForANullValue(): void
+    {
+        $this->insertOption('find_value_by_name_null', null);
+
+        self::assertNull($this->repository->findValueByName(new OptionName('find_value_by_name_null')));
+    }
+
+    private function insertOption(string $key, ?string $value): void
+    {
+        // `key` is a reserved word: the identifiers must be quoted, which Connection::insert() does not do.
+        $this->connection->executeStatement('INSERT INTO options (`key`, `value`) VALUES (:key, :value)', ['key' => $key, 'value' => $value]);
     }
 }

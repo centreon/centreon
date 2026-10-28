@@ -70,4 +70,18 @@ final readonly class DbalOptionRepository extends DbalRepository implements Opti
 
         return $this->transformer->transform($row);
     }
+
+    public function findValueByName(OptionName $name): ?string
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('`value`')
+            ->from(self::TABLE_NAME)
+            ->where('`key` = :name')
+            ->setParameter('name', $name->value)
+            ->setMaxResults(1);
+        /** @var string|null|false $value */
+        $value = $qb->executeQuery()->fetchOne();
+
+        return $value === false ? null : $value;
+    }
 }

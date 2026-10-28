@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -80,6 +81,9 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var Collection<HostId> always restricted, as hosts follow the real-time ACL cache */
     public Collection $accessibleHostIds;
 
+    /** @var Collection<AccessGroupId> the actor's active Access Groups, which scope services */
+    public Collection $activeAccessGroupIds;
+
     /** @var list<array{resource: AggregateRoot<AggregateRootId>&AclScopedInterface, accessGroupIds: list<int>}> */
     public array $grantedAccess = [];
 
@@ -106,6 +110,7 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         $this->accessibleContactIds = new Collection([], NotificationContactId::class);
         $this->accessibleContactGroupIds = new Collection([], ContactGroupId::class);
         $this->accessibleHostIds = new Collection([], HostId::class);
+        $this->activeAccessGroupIds = new Collection([], AccessGroupId::class);
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool
@@ -195,6 +200,13 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
             $this->accessibleHostIds->toArray(),
             static fn (HostId $id): bool => in_array($id->value, $amongIds, true),
         ));
+    }
+
+    public function findServiceAccessGroupScope(UserId $userId): AccessScope
+    {
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return AccessScope::restrictedTo(AccessGroupId::class, $this->activeAccessGroupIds);
     }
 
     public function findImageFolderAccessScope(UserId $userId): AccessScope
