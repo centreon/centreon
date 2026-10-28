@@ -100,6 +100,6 @@ export const labelTemplateInheritance = 'Template inheritance';
 export const labelCommandInheritance = 'Command inheritance';
 export const labelRequired = 'Required';
 export const labelAlreadyExists = 'Already exists';
-export const labelReservedMacroName = 'This name is reserved';
+export const labelReservedMacroName = 'You cannot override reserved macros';
 export const labelMustBeAtMostCharacters =
   '{{label}} can be at most {{max}} characters';
