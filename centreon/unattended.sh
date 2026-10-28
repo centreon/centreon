@@ -48,6 +48,7 @@ default_ip=$(hostname -I | awk '{print $1}') || true
 
 passwords_file=/etc/centreon/generated.tobesecured         #File where the generated passwords will be temporaly saved
 tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as the /etc/centreon does not exist yet
+failed_services=()                                         #Filled by display_services_recap, fails the run when not empty
 
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
 version=${ENV_CENTREON_VERSION:-"25.10"}        #Default version to be installed
@@ -1418,12 +1419,18 @@ function enable_new_services() {
 			systemctl enable "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon || log "WARN" "Some services could not be enabled (see recap below)"
 			systemctl restart "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd || log "WARN" "Some services could not be restarted (see recap below)"
 			systemctl start centreontrapd || log "WARN" "centreontrapd could not be started (see recap below)"
+			# centreon-engine-daemon's %post restarts centengine mid-transaction, before
+			# centreon-broker-core has laid down /usr/share/centreon/lib/centreon-broker, so on
+			# EL the engine is left failed. Restart it now that every package is installed.
+			systemctl restart cbd centengine || log "WARN" "cbd/centengine could not be restarted (see recap below)"
 			;;
 
 		poller)
 			log "DEBUG" "On poller..."
 			systemctl enable centreon centengine centreontrapd snmpd snmptrapd gorgoned || log "WARN" "Some services could not be enabled"
 			systemctl start centreontrapd snmptrapd || log "WARN" "Some services could not be started"
+			# Same mid-transaction restart issue as on central (see above).
+			systemctl restart centengine || log "WARN" "centengine could not be restarted (see recap below)"
 			;;
 		esac
 	else
@@ -1891,11 +1898,12 @@ function test_password_policy() {
 # Print a final platform healthcheck just before the credentials are displayed.
 # Topology-aware (only the services relevant to the installed role are checked) and
 # rendered in the same banner style as the run summary, recorded in the log file and
-# mirrored to the console. Purely informational: it tolerates inactive units (guarded
-# systemctl calls) so it never aborts the script.
+# mirrored to the console. It tolerates inactive units (guarded systemctl calls) so it
+# never aborts the script itself; inactive ones are collected in failed_services and the
+# script exits non-zero after the credentials are displayed.
 #
 function display_services_recap() {
-	local entry name unit topos active enabled state db_unit
+	local entry name unit topos required_topos active enabled state db_unit
 
 	if [ "${has_systemd:-0}" -ne 1 ]; then
 		log "WARN" "Systemd is not available: cannot report platform healthcheck"
@@ -1919,24 +1927,30 @@ function display_services_recap() {
 		"httpd|${HTTP_SERVICE_UNIT:-httpd}|central"
 		"php-fpm|${PHP_SERVICE_UNIT:-php-fpm}|central"
 		"centengine|centengine|central poller"
-		"gorgone|gorgoned|central poller"
+		# enable_new_services only enables gorgoned on pollers (its package is relied upon to
+		# start it): report it there without failing the run.
+		"gorgone|gorgoned|central poller|central"
 		"cbd|cbd|central"
 		"centreontrapd|centreontrapd|central poller"
 		"snmptrapd|snmptrapd|central poller"
-		"snmpd|snmpd|central poller"
+		"snmpd|snmpd|central poller|central"
 	)
 
 	local -a results=()
 	for entry in "${recap_services[@]}"; do
-		IFS='|' read -r name unit topos <<<"$entry"
+		IFS='|' read -r name unit topos required_topos <<<"$entry"
+		required_topos=${required_topos:-$topos}
 		# Skip services that do not apply to the installed topology.
 		[[ " $topos " == *" $topology "* ]] || continue
 		active=$(systemctl is-active "$unit" 2>/dev/null || true)
 		enabled=$(systemctl is-enabled "$unit" 2>/dev/null || true)
 		if [ "$active" == "active" ]; then
 			state="[OK]    "
-		else
+		elif [[ " $required_topos " == *" $topology "* ]]; then
 			state="[FAILED]"
+			failed_services+=("$name")
+		else
+			state="[INFO]  "
 		fi
 		results+=("$(printf '  %s %-14s (%-13s) active=%-10s enabled=%s' \
 			"$state" "$name" "$unit" "${active:-unknown}" "${enabled:-unknown}")")
@@ -2219,6 +2233,16 @@ if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ] && [ "$operation" 
 fi
 if [ -e $tmp_passwords_file ] && [ "$operation" = "update" ]; then
 	rm -f $tmp_passwords_file
+fi
+
+# A service left down must fail the run (non-zero exit) so CI and callers notice it;
+# this is checked only now so the credentials above are still shown.
+if [ ${#failed_services[@]} -gt 0 ]; then
+	log "ERROR" "Some services are not running: ${failed_services[*]}"
+	if [ -n "${LOG_FILE:-}" ]; then
+		echo "unattended.sh FAILED: services not running: ${failed_services[*]} - see ${LOG_FILE}" >&3
+	fi
+	exit 2
 fi
 
 # Final notice on the console (the rest of the run is in the log file).
