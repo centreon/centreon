@@ -102,3 +102,22 @@ export const labelEventHandlerArgumentsNeedAnEventHandler =
   'Arguments need an event handler';
 export const labelForbiddenEventHandlerArguments =
   'The following arguments are not valid: {{arguments}}';
+// MON-213087: Extended Info section (F41-F50). Prefixed with `Service` so
+// they cannot clash with the constants other sections append. The legacy
+// form carries every field name, and the Hosts form the validation messages.
+export const labelServiceGraphTemplate = 'Graph Template';
+export const labelServiceCategories = 'Service Categories';
+export const labelServiceSeverity = 'Service severity';
+// Wording to confirm: a severity option, as the legacy select shows it.
+export const labelServiceSeverityWithLevel = '{{name}} ({{level}})';
+export const labelServiceNote = 'Note';
+export const labelServiceNoteUrl = 'Note URL';
+export const labelServiceActionUrl = 'Action URL';
+export const labelServiceIcon = 'Icon';
+export const labelServiceAltIcon = 'Alt icon';
+export const labelServiceGeographicCoordinates = 'Geographic coordinates';
+export const labelServiceComments = 'Comments';
+export const labelServiceInvalidGeographicCoordinates =
+  'geo coords are not valid';
+export const labelServiceMustBeAtMostCharacters =
+  '{{label}} can be at most {{max}} characters';

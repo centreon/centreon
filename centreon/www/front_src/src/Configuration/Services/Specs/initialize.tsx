@@ -27,6 +27,13 @@ import {
   serviceTemplatesEndpoint
 } from '../api/endpoints';
 import { serviceFormCommandsEndpoint } from '../Form/sections/dataProcessing';
+// MON-213087: Extended Info section (F41-F50).
+import {
+  serviceFormGraphTemplatesEndpoint,
+  serviceFormMediasEndpoint,
+  serviceFormServiceCategoriesEndpoint,
+  serviceFormServiceSeveritiesEndpoint
+} from '../Form/sections/extendedInfo';
 import {
   serviceFormContactGroupsEndpoint,
   serviceFormContactsEndpoint,
@@ -41,10 +48,14 @@ import {
   emptyListingResponse,
   getContactGroupsResponse,
   getContactsResponse,
+  getGraphTemplatesResponse,
   getListingResponse,
+  getServiceCategoriesResponse,
   getServiceCommandsResponse,
   getServiceGroupsResponse,
+  getServiceMediasResponse,
   getServiceResponse,
+  getServiceSeveritiesResponse,
   getServiceTemplatesResponse,
   getTimePeriodsResponse,
   getTrapsResponse
@@ -173,6 +184,39 @@ const initialize = ({
     path: `**${serviceFormCommandsEndpoint}?**`,
     response: getServiceCommandsResponse()
   });
+
+  // MON-213087: Extended Info section (F41-F50). Its four selectors, and the
+  // create and update writes its specs read the payload of.
+  [
+    {
+      alias: 'getFormGraphTemplates',
+      path: serviceFormGraphTemplatesEndpoint,
+      response: getGraphTemplatesResponse()
+    },
+    {
+      alias: 'getFormServiceCategories',
+      path: serviceFormServiceCategoriesEndpoint,
+      response: getServiceCategoriesResponse()
+    },
+    {
+      alias: 'getFormServiceSeverities',
+      path: serviceFormServiceSeveritiesEndpoint,
+      response: getServiceSeveritiesResponse()
+    },
+    {
+      alias: 'getFormMedias',
+      path: serviceFormMediasEndpoint,
+      response: getServiceMediasResponse()
+    }
+  ].forEach(({ alias, path, response }) => {
+    interceptAPIRequest({
+      alias,
+      method: Method.GET,
+      path: `**${path}?**`,
+      response
+    });
+  });
+
   // The writes every section's form sends: one create, one update per service.
   interceptAPIRequest({
     alias: 'createService',

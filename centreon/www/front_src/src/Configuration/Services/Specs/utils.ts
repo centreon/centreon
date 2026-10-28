@@ -77,8 +77,28 @@ export const getServiceResponse = (id: number) => ({
   service_groups: [{ id: 1, name: 'Web services' }],
   traps: [{ id: 21, name: 'linkDown', vendor: 'Generic' }],
   // MON-213085: Data Processing section.
-  ...getDataProcessingResponse(id)
+  ...getDataProcessingResponse(id),
+  // MON-213087: Extended Info section.
+  ...getExtendedInfoResponse(id)
 });
+
+// MON-213087: Extended Info section (F41-F50). Service 0 has every field the
+// section reads back but the note URL and alt icon; the others have none.
+export const getExtendedInfoResponse = (id: number) =>
+  id === 0
+    ? {
+        categories: [{ id: 3, name: 'Web' }],
+        extended_informations: {
+          action_url: 'https://example.com/actions/cpu',
+          comment: 'Checked by the web team',
+          geo_coordinates: '48.8566,2.3522',
+          icon: { id: 12, name: 'cpu.png', url: iconUrl },
+          note: 'CPU load'
+        },
+        graph_template: { id: 7, name: 'CPU' },
+        severity: { id: 1, level: 2, name: 'Major' }
+      }
+    : {};
 
 // Data Processing (MON-213085): service 0 sets every field, service 2 is read
 // on a cloud platform, where only four fields exist; service 1 sets none.
@@ -164,7 +184,7 @@ export const getServiceConfigurationResponse = (id: number) => ({
 
 const getSelectorResponse = (
   path: string,
-  member: Array<{ id: number; name: string }>
+  member: Array<Record<string, unknown>>
 ) => ({
   '@context': '/centreon/api/contexts/Collection',
   '@id': `/centreon/api/configuration/services/${path}`,
@@ -246,4 +266,28 @@ export const getTrapsResponse = () =>
   toCollection([
     { id: 21, name: 'linkDown', vendor: 'Generic' },
     { id: 22, name: 'linkUp', vendor: 'Generic' }
+  ]);
+
+export const getGraphTemplatesResponse = () =>
+  getSelectorResponse('graph_templates', [
+    { id: 7, name: 'CPU' },
+    { id: 8, name: 'Memory' }
+  ]);
+
+export const getServiceCategoriesResponse = () =>
+  getSelectorResponse('service_categories', [
+    { id: 3, name: 'Web' },
+    { id: 4, name: 'Database' }
+  ]);
+
+export const getServiceSeveritiesResponse = () =>
+  getSelectorResponse('service_severities', [
+    { id: 1, level: 2, name: 'Major' },
+    { id: 2, level: 1, name: 'Critical' }
+  ]);
+
+export const getServiceMediasResponse = () =>
+  getSelectorResponse('medias', [
+    { id: 12, name: 'cpu.png', url: iconUrl },
+    { id: 13, name: 'disk.png', url: iconUrl }
   ]);
