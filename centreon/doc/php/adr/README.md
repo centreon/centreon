@@ -42,6 +42,7 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 | [0007](0007-serve-new-endpoints-under-api-only.md) | Run legacy and new endpoints side by side, and serve new endpoints under `/api` only | Accepted |
 | [0008](0008-one-resource-per-path.md) | Keep one API Platform resource as far as possible, and add Input or Output DTOs when formats differ | Accepted |
 | [0011](0011-keep-selector-endpoints-out-of-api-doc.md) | Keep selector endpoints out of the published API documentation | Accepted |
+| [0018](0018-compartmentalize-apiplatform-per-aggregate-keep-other-layers-flat.md) | Compartmentalize the ApiPlatform layer per aggregate, and keep the other layers flat | Proposed |
 
 ### Messaging
 
@@ -49,6 +50,7 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 |---|---|---|
 | [0013](0013-messages-carry-serializable-values-only.md) | Make commands, queries and events carry serializable values only | Accepted |
 | [0014](0014-one-aggregate-per-command.md) | Change one aggregate per command, and let other aggregates react through events | Accepted |
+| [0019](0019-let-the-command-bus-own-the-transaction.md) | Let the command bus own the transaction, and keep handlers free of transaction management | Proposed |
 
 ### Security
 
@@ -56,3 +58,9 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 |---|---|---|
 | [0010](0010-parameterize-repository-queries.md) | Build repository SQL with the `QueryBuilder` and bound parameters, never string concatenation | Accepted |
 | [0015](0015-scope-resource-access-with-acting-user-and-access-scope.md) | Scope resource access with an acting user and an access scope | Accepted |
+
+### Testing
+
+| ADR | Decision | Status |
+|---|---|---|
+| [0017](0017-write-new-tests-with-phpunit-and-unit-test-the-domain.md) | Write new tests with PHPUnit, and unit-test the Domain | Proposed |
