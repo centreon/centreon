@@ -39,7 +39,7 @@ SNAPSHOT_MOUNT_PATH="/mnt/"
 USER="mysql"
 USER_SUDO="sudo -u $USER"
 MYSQLBINARY="mariadbd"
-MYSQLADMIN="mysqladmin"
+MYSQLADMIN="mariadb-admin"
 MYSQL_START="systemctl start mariadb"
 SUDO_MYSQL_START_SLAVE="sudo"
 SSH_PORT="22"
@@ -229,9 +229,9 @@ fi
 ############# END SANITY CHECK
 #############
 
-gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
+gtid_current_pos=$(mariadb -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
 if ! echo "$gtid_current_pos" | grep -qE '[0-9]+-[0-9]+-[0-9]+' ; then
-    mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF;'
+    mariadb -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF;'
     echo "ERROR: cannot get gtid current pos"
     exit 1
 fi
@@ -270,7 +270,7 @@ fi
 echo "Start $MYSQLBINARY: ($MYSQL_START)"
 $MYSQL_START &
 i=0
-until mysqlshow -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
+until mariadb-show -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
     if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
         echo ""
         echo "ERROR: Can't start MySQL server" >&2
@@ -287,7 +287,7 @@ echo "OK"
 ###
 
 echo "Remove read_only on master"
-mysql -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=off"
+mariadb -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=off"
 
 ###
 # Mount snapshot
@@ -344,7 +344,7 @@ lvremove -f /dev/$vg_name/dbbackupdatadir
 echo "Start MySQL Slave"
 $USER_SUDO ssh -p $SSH_PORT $slave_hostname -- "$SUDO_MYSQL_START_SLAVE $MYSQL_START &"
 i=0
-until mysqlshow -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
+until mariadb-show -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
         if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
                 echo ""
                 echo "ERROR: Can't start MySQL server" >&2
@@ -360,7 +360,7 @@ echo "OK"
 # Demarrer la replication
 ###
 echo "Start Replication"
-mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" << EOF
+mariadb -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" << EOF
 RESET MASTER;
 STOP SLAVE;
 RESET SLAVE;
