@@ -1,11 +1,17 @@
 name: "Clean up NPM versions"
-description: "Cleans up NPM pre-release versions for a package"
+description: "Removes dist-tags and deprecates prerelease versions of deleted branches"
 
 inputs:
   npm_token:
-    description: The NPM token to use for publication
+    description: Granular NPM token with write access to the cleaned packages
     required: true
+  github_token:
+    description: Token used to list the repository branches
+    default: ${{ github.token }}
+  dry_run:
+    description: List what would be cleaned without modifying the registry
+    default: "false"
 
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'index.js'

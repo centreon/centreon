@@ -2,6 +2,11 @@ name: clean-npm-tags
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: List what would be cleaned without modifying the registry
+        type: boolean
+        default: true
   schedule:
     - cron: "0 6 * * 1-5"
 
@@ -12,6 +17,8 @@ jobs:
   clean-npm-tags:
     needs: [dependency-scan]
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -37,3 +44,5 @@ jobs:
       - uses: ./.github/actions/clean-up-npm-tags
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
+          # inputs.dry_run is null on scheduled runs
+          dry_run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
