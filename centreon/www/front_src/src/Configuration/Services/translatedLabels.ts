@@ -26,3 +26,20 @@ export const labelNotifications = 'Notifications';
 export const labelRelations = 'Relations';
 export const labelDataProcessing = 'Data Processing';
 export const labelServiceExtendedInfo = 'Service Extended Info';
+
+// MON-213082: Service Configuration, name, host, template and scheduling.
+// Spelled as the legacy service form and the Hosts form spell them.
+export const labelCheckPeriod = 'Check Period';
+export const labelMaxCheckAttempts = 'Max Check Attempts';
+export const labelNormalCheckInterval = 'Normal Check Interval';
+export const labelRetryCheckInterval = 'Retry Check Interval';
+export const labelActiveChecksEnabled = 'Active Checks Enabled';
+export const labelPassiveChecksEnabled = 'Passive Checks Enabled';
+export const labelIsVolatile = 'Is Volatile';
+export const labelRequired = 'Required';
+// What the legacy forms raise when a name fails the character check.
+export const labelNameContainsForbiddenCharacters = 'Unauthorized value';
+export const labelMustBeIntegerOfAtLeastOne =
+  'An integer with a minimum value of 1 is required';
+export const labelMustBeAtMostCharacters =
+  '{{label}} can be at most {{max}} characters';
