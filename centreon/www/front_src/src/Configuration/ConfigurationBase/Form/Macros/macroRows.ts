@@ -35,7 +35,7 @@ export const createMacroRow = (): MacroRow => ({
 // As the server stores the name: trimmed, upper-cased.
 export const toMacroName = (name: string): string => name.trim().toUpperCase();
 
-// The name as the server stores it, `$_HOSTPORT$` for `port` on a host.
+// The name as the server stores it, `$_<RESOURCETYPE>PORT$` for `port`.
 export const toStoredMacroName = ({
   name,
   prefix
