@@ -188,6 +188,7 @@ jobs:
         with:
           name: jmeter-results
           path: centreon/tests/performance/jmeterFolder/jmeter_results
+          retention-days: 7
 
       - name: Upload JMeter HTML Reports
         if: success()
@@ -195,6 +196,7 @@ jobs:
         with:
           name: jmeter-html-reports
           path: centreon/tests/performance/jmeterFolder/jmeter_html_report
+          retention-days: 7
 
       - name: Display HTML Report in GitHub Summary
         if: success()

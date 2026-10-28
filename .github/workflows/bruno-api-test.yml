@@ -309,6 +309,7 @@ jobs:
             ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*.html
             ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/${{ env.FEATURE }}-merged.json
             ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*-junit.xml
+          retention-days: 7
 
       - name: Generate GitHub Summary
         if: always()
