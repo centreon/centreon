@@ -95,7 +95,7 @@ describe('layout', () => {
 
     expect(
       monitoringProperties.inputs.map(({ fieldName }) => fieldName)
-    ).toEqual(['check-options', 'snmp', 'templates-layout']);
+    ).toEqual(['check-snmp-layout', 'templates-layout']);
   });
 
   it('pairs the notification delays row by row', () => {
