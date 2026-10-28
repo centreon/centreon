@@ -1,6 +1,11 @@
 import { Typography } from '@mui/material';
 
-import { type InputPropsWithoutGroup, TextField } from '@centreon/ui';
+import {
+  type InputPropsWithoutGroup,
+  PasswordIcon,
+  PasswordOffIcon,
+  TextField
+} from '@centreon/ui';
 import {
   type RenderRowParams,
   SortableEntriesList
@@ -29,7 +34,6 @@ import {
   type MacroRow
 } from './macroRows';
 import type { InheritedMacrosConfig } from './models';
-import { PasswordIcon, PasswordOffIcon } from './PasswordIcons';
 import StoredSecretField from './StoredSecretField';
 import useInheritedMacros from './useInheritedMacros';
 
