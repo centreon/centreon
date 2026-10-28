@@ -70,7 +70,9 @@ export const getServiceResponse = (id: number) => ({
   '@id': `/centreon/api/configuration/services/${id}`,
   '@type': 'Service',
   id,
-  ...getServiceConfigurationResponse(id)
+  ...getServiceConfigurationResponse(id),
+  // MON-213086: service 0 carries notification settings, service 1 none.
+  ...(id === 0 && { notifications: getServiceNotificationsResponse() })
 });
 
 // MON-213082: Service Configuration, name, host, template and scheduling.
@@ -124,3 +126,49 @@ export const getServiceFormTimePeriodsResponse = () =>
     { id: 20, name: '24x7' },
     { id: 21, name: 'workhours' }
   ]);
+
+// MON-213086: Notifications section.
+export const getContactsResponse = () =>
+  getSelectorResponse('contacts', [
+    { id: 1, name: 'admin' },
+    { id: 2, name: 'guest' }
+  ]);
+
+export const getContactGroupsResponse = () =>
+  getSelectorResponse('contact_groups', [
+    { id: 3, name: 'Supervisors' },
+    { id: 4, name: 'Guests' }
+  ]);
+
+export const getTimePeriodsResponse = () =>
+  getSelectorResponse('timeperiods', [
+    { id: 1, name: '24x7' },
+    { id: 2, name: 'workhours' }
+  ]);
+
+// `recovery_delay` left out, as the API leaves unset values out.
+export const getServiceNotificationsResponse = () => ({
+  contact_additive_inheritance: true,
+  contact_group_additive_inheritance: false,
+  contact_groups: [{ id: 3, name: 'Supervisors' }],
+  contacts: [{ id: 1, name: 'admin' }],
+  enabled: 'false',
+  first_delay: 1,
+  interval: 3,
+  options: ['warning', 'critical', 'recovery'],
+  timeperiod: { id: 1, name: '24x7' },
+  use_only_contacts_from_host: false
+});
+
+// What a form that never touched the section sends.
+export const untouchedNotificationsPayload = {
+  contact_groups: [],
+  contacts: [],
+  enabled: 'use_default',
+  first_delay: null,
+  interval: null,
+  options: [],
+  recovery_delay: null,
+  timeperiod_id: null,
+  use_only_contacts_from_host: false
+};

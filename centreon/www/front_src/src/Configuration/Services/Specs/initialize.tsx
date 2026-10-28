@@ -2,6 +2,7 @@ import { SnackbarProvider } from '@centreon/ui';
 import {
   configurationLimitPerPageAtom,
   intervalLengthAtom,
+  isAdditiveInheritanceEnabledAtom,
   type PlatformFeatures,
   platformFeaturesAtom,
   type UserPermissions,
@@ -26,10 +27,18 @@ import {
   serviceTemplatesEndpoint
 } from '../api/endpoints';
 import {
+  serviceFormContactGroupsEndpoint,
+  serviceFormContactsEndpoint,
+  serviceFormTimePeriodsEndpoint
+} from '../Form/sections/notifications';
+import {
   emptyListingResponse,
+  getContactGroupsResponse,
+  getContactsResponse,
   getListingResponse,
   getServiceResponse,
-  getServiceTemplatesResponse
+  getServiceTemplatesResponse,
+  getTimePeriodsResponse
 } from './utils';
 
 interface Props {
@@ -37,6 +46,8 @@ interface Props {
   hasWriteAccess?: boolean;
   intervalLength?: number;
   limitPerPage?: number;
+  // The platform's vertical inheritance mode (MON-213086).
+  isAdditiveInheritanceEnabled?: boolean;
   isCloudPlatform?: boolean;
   // Opens the page on a deep link, such as `?mode=edit&id=0`.
   searchParams?: string;
@@ -47,6 +58,7 @@ const initialize = ({
   hasWriteAccess = true,
   intervalLength = 60,
   limitPerPage,
+  isAdditiveInheritanceEnabled = false,
   isCloudPlatform = false,
   searchParams = ''
 }: Props = {}): RenderResult => {
@@ -75,6 +87,7 @@ const initialize = ({
     store.set(configurationLimitPerPageAtom, limitPerPage);
   }
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
+  store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
 
   interceptAPIRequest({
     alias: 'getAllServices',
@@ -148,3 +161,45 @@ const initialize = ({
 };
 
 export default initialize;
+
+// MON-213086: Notifications section. The selectors it opens and the writes it
+// checks; called after `initialize`, so these handlers answer first.
+export const interceptNotificationsRequests = (): void => {
+  interceptAPIRequest({
+    alias: 'getFormContacts',
+    method: Method.GET,
+    path: `**${serviceFormContactsEndpoint}?**`,
+    response: getContactsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormContactGroups',
+    method: Method.GET,
+    path: `**${serviceFormContactGroupsEndpoint}?**`,
+    response: getContactGroupsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormTimePeriods',
+    method: Method.GET,
+    path: `**${serviceFormTimePeriodsEndpoint}?**`,
+    response: getTimePeriodsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'createService',
+    method: Method.POST,
+    path: `**${servicesListEndpoint}`,
+    response: { id: 3 }
+  });
+
+  // Service 0 carries notification settings, service 1 none.
+  [0, 1].forEach((id) => {
+    interceptRequest(
+      Method.PUT,
+      `**${getServiceEndpoint({ id })}`,
+      () => HttpResponse.json({}),
+      `updateService${id}`
+    );
+  });
+};

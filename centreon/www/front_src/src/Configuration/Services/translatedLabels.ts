@@ -43,3 +43,27 @@ export const labelMustBeIntegerOfAtLeastOne =
   'An integer with a minimum value of 1 is required';
 export const labelMustBeAtMostCharacters =
   '{{label}} can be at most {{max}} characters';
+// MON-213086: Notifications section (F15–F25). Spelled as the Hosts form
+// spells them, or as the legacy service form does, so the locales carry them.
+export const labelNotificationEnabled = 'Notification Enabled';
+export const labelInheritContactsFromHost =
+  'Inherit only contacts/contacts group from host';
+export const labelContactAdditiveInheritance = 'Contact additive inheritance';
+export const labelContactGroupAdditiveInheritance =
+  'Contact group additive inheritance';
+export const labelLinkedContacts = 'Linked Contacts';
+export const labelLinkedContactGroups = 'Linked Contact Groups';
+export const labelNotificationInterval = 'Notification Interval';
+export const labelNotificationPeriod = 'Notification Period';
+export const labelNotificationOptions = 'Notification Options';
+export const labelFirstNotificationDelay = 'First notification delay';
+export const labelRecoveryNotificationDelay = 'Recovery notification delay';
+export const labelWarning = 'Warning';
+export const labelUnknown = 'Unknown';
+export const labelCritical = 'Critical';
+export const labelRecovery = 'Recovery';
+export const labelFlapping = 'Flapping';
+export const labelDowntimeScheduled = 'Downtime Scheduled';
+export const labelNone = 'None';
+export const labelMustBePositiveIntegerOrZero =
+  'Must be a positive integer or 0';
