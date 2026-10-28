@@ -11,7 +11,7 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 | ADR | Decision | Status |
 |---|---|---|
 | [0001](0001-validate-in-input-and-handler.md) | Validate write requests in both input and handler | Accepted |
-| [0020](0020-enforce-invariants-with-webmozart-assert.md) | Enforce invariants with `webmozart/assert`, not hand-rolled assertions and custom exceptions | Proposed |
+| [0020](0020-enforce-invariants-with-webmozart-assert.md) | Enforce invariants with `webmozart/assert`, not hand-rolled assertions and custom exceptions | Accepted |
 
 ### Domain model
 
@@ -34,7 +34,7 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 |---|---|---|
 | [0005](0005-isolate-legacy-in-infrastructure-legacy.md) | Isolate legacy code used from `src/App` in `Infrastructure/Legacy` adapters | Accepted |
 | [0006](0006-expose-symfony-services-to-legacy-via-service-locator.md) | Give legacy code access to Symfony services through a dedicated service locator | Accepted |
-| [0016](0016-access-logging-and-database-through-adaptation-layer.md) | Access logging and the database from new legacy code only through the `Adaptation` layer | Proposed |
+| [0016](0016-access-logging-and-database-through-adaptation-layer.md) | Access logging and the database from new legacy code only through the `Adaptation` layer | Accepted |
 
 ### API
 
@@ -43,7 +43,7 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 | [0007](0007-serve-new-endpoints-under-api-only.md) | Run legacy and new endpoints side by side, and serve new endpoints under `/api` only | Accepted |
 | [0008](0008-one-resource-per-path.md) | Keep one API Platform resource as far as possible, and add Input or Output DTOs when formats differ | Accepted |
 | [0011](0011-keep-selector-endpoints-out-of-api-doc.md) | Keep selector endpoints out of the published API documentation | Accepted |
-| [0018](0018-compartmentalize-apiplatform-per-aggregate-keep-other-layers-flat.md) | Compartmentalize the ApiPlatform layer per aggregate, and keep the other layers flat | Proposed |
+| [0018](0018-compartmentalize-apiplatform-per-aggregate-keep-other-layers-flat.md) | Compartmentalize the ApiPlatform layer per aggregate, and keep the other layers flat | Accepted |
 
 ### Messaging
 
@@ -51,7 +51,7 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 |---|---|---|
 | [0013](0013-messages-carry-serializable-values-only.md) | Make commands, queries and events carry serializable values only | Accepted |
 | [0014](0014-one-aggregate-per-command.md) | Change one aggregate per command, and let other aggregates react through events | Accepted |
-| [0019](0019-let-the-command-bus-own-the-transaction.md) | Let the command bus own the transaction, and keep handlers free of transaction management | Proposed |
+| [0019](0019-let-the-command-bus-own-the-transaction.md) | Let the command bus own the transaction, and keep handlers free of transaction management | Accepted |
 
 ### Security
 
@@ -64,4 +64,4 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 
 | ADR | Decision | Status |
 |---|---|---|
-| [0017](0017-write-new-tests-with-phpunit-and-unit-test-the-domain.md) | Write new tests with PHPUnit, and unit-test the Domain | Proposed |
+| [0017](0017-write-new-tests-with-phpunit-and-unit-test-the-domain.md) | Write new tests with PHPUnit, and unit-test the Domain | Accepted |

@@ -1,6 +1,6 @@
 # ADR-0019: Let the command bus own the transaction, and keep handlers free of transaction management
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-28
 
 ## Context

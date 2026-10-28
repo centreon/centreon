@@ -1,6 +1,6 @@
 # ADR-0020: Enforce invariants with `webmozart/assert`, not hand-rolled assertions and custom exceptions
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-28
 
 ## Context

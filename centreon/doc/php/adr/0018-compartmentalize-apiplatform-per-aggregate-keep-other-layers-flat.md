@@ -1,6 +1,6 @@
 # ADR-0018: Compartmentalize the ApiPlatform layer per aggregate, and keep the other layers flat
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-28
 
 ## Context

@@ -1,6 +1,6 @@
 # ADR-0016: Access logging and the database from new legacy code only through the `Adaptation` layer
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-28
 
 ## Context

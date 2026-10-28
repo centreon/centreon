@@ -1,6 +1,6 @@
 # ADR-0017: Write new tests with PHPUnit, and unit-test the Domain
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-28
 
 ## Context
