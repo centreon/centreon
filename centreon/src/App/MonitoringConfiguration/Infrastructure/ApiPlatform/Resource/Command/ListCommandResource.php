@@ -28,8 +28,20 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCommandsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCommandsProvider;
 
+#[GetCollection(
+    shortName: 'Command',
+    uriTemplate: '/configuration/hosts/commands',
+    openapi: false,
+    security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+    securityMessage: 'You are not allowed to access commands',
+    itemUriTemplate: '/configuration/commands/{id}',
+    output: CommandChoicesOutput::class,
+    provider: ListCommandsChoicesProvider::class,
+)]
 #[GetCollection(
     shortName: 'Command',
     uriTemplate: '/configuration/commands',
@@ -80,6 +92,23 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
                 description: 'Filter commands by whether they are from a monitoring connector',
                 required: false,
                 schema: ['type' => 'boolean'],
+            ),
+            new Model\Parameter(
+                name: 'sort',
+                in: 'query',
+                description: 'Sort by one or several fields, in order of precedence (e.g. `sort[name]=asc`). '
+                    . 'Asc on `is_activated` lists the deactivated commands first.',
+                required: false,
+                style: 'deepObject',
+                explode: true,
+                schema: [
+                    'type' => 'object',
+                    'properties' => [
+                        'name' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                        'type' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                        'is_activated' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                    ],
+                ],
             ),
         ],
     ),

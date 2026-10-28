@@ -27,6 +27,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
+use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
@@ -52,6 +53,7 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
         private TransformerInterface $transformer,
         private HostTemplateRepository $repository,
         private Pagination $pagination,
+        private UnlicensedHostTemplates $unlicensedHostTemplates,
     ) {
     }
 
@@ -60,11 +62,11 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
-        // No viewer scoping: the legacy host form's "extend template" select (CentreonHost::getList())
+        // No actor scoping: the legacy host form's "extend template" select (CentreonHost::getList())
         // is not host-category severity-scoped, unlike the generic /configuration/host_templates
-        // endpoint. Locked (paid plugin-pack) templates are excluded instead, matching
-        // CentreonHost::getLimitedList().
-        $criteria = new HostTemplateCriteria();
+        // endpoint. Once the license host limit is reached, the templates coming from Monitoring
+        // Connectors are excluded instead, matching CentreonHost::getLimitedList().
+        $criteria = HostTemplateCriteria::unscoped();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -78,7 +80,7 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-        $criteria = $criteria->withExcludeLocked(true);
+        $criteria = $criteria->withExcludedIds($this->unlicensedHostTemplates->findIds());
 
         $hostTemplates = $this->repository->findAll($criteria);
         $resources = [];

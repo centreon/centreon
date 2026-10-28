@@ -36,20 +36,27 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceBuilder;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateHostProcessorTest extends ApiTestCase
 {
+    use InsertsMonitoringConnectorTemplates;
     private const BASE_ENDPOINT = '/api/configuration/hosts';
 
     private Connection $connection;
@@ -67,6 +74,12 @@ final class CreateHostProcessorTest extends ApiTestCase
         /** @var Connection $realTimeConnection */
         $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
         $this->realTimeConnection = $realTimeConnection;
+    }
+
+    protected function tearDown(): void
+    {
+        $this->dropMonitoringConnectorTables($this->connection);
+        parent::tearDown();
     }
 
     public function testItRequiresAuthentication(): void
@@ -406,9 +419,9 @@ final class CreateHostProcessorTest extends ApiTestCase
     }
 
     /**
-     * Every field is null here, and the serializer omits null properties rather than emitting
-     * them (same convention as the top-level `icon`/`alias`) — so `extended_informations` itself
-     * stays present, but comes back with none of its own sub-keys.
+     * Every field is null here, so `extended_informations` is a nullable sub-object left null (same
+     * convention as `severity`/`timezone`) — it is omitted from the body entirely rather than
+     * emitted as an all-null object, which the serializer would collapse to an invalid `[]`.
      */
     public function testItCreatesAHostWithoutExtendedInformations(): void
     {
@@ -424,7 +437,7 @@ final class CreateHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(201);
-        self::assertSame([], $response->toArray()['extended_informations']);
+        self::assertArrayNotHasKey('extended_informations', $response->toArray());
     }
 
     public function testItRejectsAMalformedGeoCoordinatesInExtendedInformations(): void
@@ -1161,8 +1174,9 @@ final class CreateHostProcessorTest extends ApiTestCase
 
         $payload = $response->toArray();
         // Write-only: legacy never returns it either, and with a vault configured the stored value
-        // would be a `secret::` reference.
+        // would be a `secret::` reference. Only whether one is set is exposed.
         self::assertArrayNotHasKey('snmp_community', $payload);
+        self::assertTrue($payload['is_snmp_community_defined']);
 
         /** @var int $hostId */
         $hostId = $payload['id'];
@@ -1441,6 +1455,16 @@ final class CreateHostProcessorTest extends ApiTestCase
         $this->assertReferenceIsRejected('template_ids', [999999]);
     }
 
+    public function testItRejectsATemplateTheLicenseNoLongerAllows(): void
+    {
+        $templateId = $this->insertHostTemplate($this->uniqueName('connector'));
+        $this->insertMonitoringConnectorTemplates($this->connection, $templateId);
+
+        $this->assertReferenceIsRejected('template_ids', [$templateId]);
+        // One line per violation, each prefixed with its field.
+        self::assertJsonContains(['message' => "[template_ids] The license host limit is reached: host templates coming from Monitoring Connectors cannot be used.\n"]);
+    }
+
     public function testItRejectsAnUnknownParentHost(): void
     {
         $this->assertReferenceIsRejected('parent_host_ids', [999999]);
@@ -1716,7 +1740,7 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'poller_id' => $pollerId,
                 'check_options' => [
                     'macros' => [
-                        ['name' => 'community', 'value' => 'public', 'is_password' => false, 'description' => 'SNMP'],
+                        ['name' => 'community', 'value' => 'public', 'is_password' => false],
                         ['name' => 'token', 'value' => 's3cr3t', 'is_password' => true],
                     ],
                 ],
@@ -1728,7 +1752,7 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertJsonContains([
             'check_options' => [
                 'macros' => [
-                    ['name' => 'COMMUNITY', 'value' => 'public', 'is_password' => false, 'description' => 'SNMP'],
+                    ['name' => 'COMMUNITY', 'value' => 'public', 'is_password' => false],
                     ['name' => 'TOKEN', 'is_password' => true],
                 ],
             ],
@@ -1738,16 +1762,239 @@ final class CreateHostProcessorTest extends ApiTestCase
         /** @var array{id: int, check_options: array{macros: list<array<string, mixed>>}} $payload */
         $payload = $response->toArray();
         self::assertArrayNotHasKey('value', $payload['check_options']['macros'][1]);
+        // The description is no longer part of the macro wire object.
+        self::assertArrayNotHasKey('description', $payload['check_options']['macros'][0]);
+        // A direct macro has no parent: the null is dropped from the payload.
+        self::assertArrayNotHasKey('parent', $payload['check_options']['macros'][0]);
 
         $hostId = $payload['id'];
         /** @var list<array{host_macro_name: string, is_password: ?string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT host_macro_name, is_password FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            'SELECT host_macro_name, is_password FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
             [$hostId],
         );
         self::assertSame('$_HOSTCOMMUNITY$', $rows[0]['host_macro_name']);
         self::assertSame('$_HOSTTOKEN$', $rows[1]['host_macro_name']);
         self::assertSame(1, (int) $rows[1]['is_password']);
+    }
+
+    public function testItReturnsTheMacroIdsAndTheInheritedMacros(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTFROMTEMPLATE$',
+            'host_macro_value' => 'tpl-value',
+            'host_host_id' => $templateId,
+        ]);
+        $templateMacroId = (int) $this->connection->lastInsertId();
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFROMCOMMAND$');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.35',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'macros' => [['name' => 'own', 'value' => 'kept', 'is_password' => false]],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        // skip_null_values drops `parent` from a direct macro, hence the optional key.
+        /** @var array{id: int, check_options: array{macros: list<array{id: ?int, name: string, value?: string, parent?: string}>}} $payload */
+        $payload = $response->toArray();
+        $macros = $payload['check_options']['macros'];
+
+        /** @var int|string $ownId */
+        $ownId = $this->connection->fetchOne(
+            'SELECT host_macro_id FROM on_demand_macro_host WHERE host_host_id = ?',
+            [$payload['id']],
+        );
+        $ownId = (int) $ownId;
+        self::assertSame(['OWN', 'FROMTEMPLATE', 'FROMCOMMAND'], array_column($macros, 'name'));
+        // The direct macro carries the id it was stored under.
+        self::assertSame(['id' => $ownId, 'parent' => null], ['id' => $macros[0]['id'], 'parent' => $macros[0]['parent'] ?? null]);
+        self::assertSame(['id' => $templateMacroId, 'parent' => 'template'], ['id' => $macros[1]['id'], 'parent' => $macros[1]['parent'] ?? null]);
+        self::assertSame('tpl-value', $macros[1]['value'] ?? null);
+        self::assertSame('command', $macros[2]['parent'] ?? null);
+    }
+
+    public function testItOverridesAnInheritedMacroReferredToByIdOnCreate(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTFROMTEMPLATE$',
+            'host_macro_value' => 'tpl-value',
+            'host_host_id' => $templateId,
+        ]);
+        $templateMacroId = (int) $this->connection->lastInsertId();
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFROMCOMMAND$');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.36',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'macros' => [
+                        ['id' => $templateMacroId, 'parent' => 'template', 'name' => 'fromtemplate', 'value' => 'overridden', 'is_password' => false],
+                        ['id' => null, 'parent' => 'command', 'name' => 'fromcommand', 'value' => 'set', 'is_password' => false],
+                    ],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{id: int, check_options: array{macros: list<array{name: string, value?: string, parent?: string}>}} $payload */
+        $payload = $response->toArray();
+
+        /** @var list<array{host_macro_name: string, host_macro_value: string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_macro_name, host_macro_value FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
+            [$payload['id']],
+        );
+        self::assertSame(
+            [['host_macro_name' => '$_HOSTFROMTEMPLATE$', 'host_macro_value' => 'overridden'], ['host_macro_name' => '$_HOSTFROMCOMMAND$', 'host_macro_value' => 'set']],
+            $rows,
+        );
+        // Both are now direct overrides: nothing is reported as inherited any more.
+        self::assertSame(
+            [null, null],
+            array_map(static fn (array $macro): ?string => $macro['parent'] ?? null, $payload['check_options']['macros']),
+        );
+    }
+
+    public function testItNeverReturnsTheValueOfAnInheritedPassword(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTTPLPWD$',
+            'host_macro_value' => 'tpl-secret',
+            'is_password' => 1,
+            'host_host_id' => $templateId,
+        ]);
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.37',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{check_options: array{macros: list<array<string, mixed>>}} $payload */
+        $payload = $response->toArray();
+        $macro = $payload['check_options']['macros'][0];
+        self::assertSame(['TPLPWD', true, 'template'], [$macro['name'], $macro['is_password'], $macro['parent']]);
+        self::assertArrayNotHasKey('value', $macro);
+    }
+
+    public function testItRejectsAnUnknownInheritedMacroId(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.38',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => ['macros' => [
+                    ['id' => 123456, 'parent' => 'template', 'name' => 'unknown', 'value' => 'x', 'is_password' => false],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[check_options] One or more macros do not exist on this host.\n",
+        ]);
+    }
+
+    public function testItRejectsKeepingTheValueOfAnInheritedMacroThatIsNotAPassword(): void
+    {
+        // A null value keeps the stored value, which only a password has a use for: the template's
+        // plain macro is echoed back, so the client must send its value.
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTPLAIN$',
+            'host_macro_value' => 'tpl-value',
+            'host_host_id' => $templateId,
+        ]);
+        $templateMacroId = (int) $this->connection->lastInsertId();
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.40',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => ['macros' => [
+                    ['id' => $templateMacroId, 'parent' => 'template', 'name' => 'renamed', 'value' => null, 'is_password' => true],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[check_options] A value is required: these macros are not stored as passwords, so their value cannot be kept.\n",
+        ]);
+    }
+
+    public function testItAcceptsACommandMacroSentWithAStaleId(): void
+    {
+        // Command macros are resolved by name: their on_demand_macro_command ids are rewritten on
+        // every command save, so a stale one is never an error.
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFROMCOMMAND$');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.39',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'macros' => [['id' => 999999, 'parent' => 'command', 'name' => 'fromcommand', 'value' => 'set', 'is_password' => false]],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{id: int} $payload */
+        $payload = $response->toArray();
+        self::assertSame(
+            'set',
+            $this->connection->fetchOne(
+                "SELECT host_macro_value FROM on_demand_macro_host WHERE host_host_id = ? AND host_macro_name = '\$_HOSTFROMCOMMAND\$'",
+                [$payload['id']],
+            ),
+        );
     }
 
     public function testItStripsAMacroInheritedFromTheCheckCommand(): void
@@ -1774,10 +2021,105 @@ final class CreateHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(201);
-        /** @var array{check_options: array{macros: list<array{name: string}>}} $payload */
+        /** @var array{check_options: array{macros: list<array{name: string, parent?: string}>}} $payload */
         $payload = $response->toArray();
-        $names = array_map(static fn (array $macro): string => $macro['name'], $payload['check_options']['macros']);
-        self::assertSame(['OWN'], $names);
+        // FOO is not stored on the host: it is still returned, as inherited from the command.
+        self::assertSame(
+            [['name' => 'OWN', 'parent' => null], ['name' => 'FOO', 'parent' => 'command']],
+            array_map(static fn (array $macro): array => ['name' => $macro['name'], 'parent' => $macro['parent'] ?? null], $payload['check_options']['macros']),
+        );
+    }
+
+    public function testItRejectsANewMacroWithoutValue(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.32',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'token', 'value' => null, 'is_password' => true]]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItDoesNotStoreASubmittedMacroDescription(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // The description is a dropped macro property: not part of the macro object, it is not read.
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.41',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [
+                    ['name' => 'own', 'value' => 'kept', 'is_password' => false, 'description' => 'dropped'],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{id: int} $payload */
+        $payload = $response->toArray();
+        self::assertNull(
+            $this->connection->fetchOne('SELECT description FROM on_demand_macro_host WHERE host_host_id = ?', [$payload['id']]),
+        );
+    }
+
+    public function testItRejectsAVaultReferenceAsAMacroValue(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // No password value is ever echoed back, so a client has no legitimate reference to send;
+        // accepting one would copy another resource's secret under this host's vault entry.
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [[
+                    'name' => 'pwd',
+                    'value' => 'secret::hashicorp_vault::monitoring/hosts/other-uuid::_HOSTPWD',
+                    'is_password' => true,
+                ]]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[check_options.macros[0].value] A macro value cannot be a vault reference.\n",
+        ]);
+    }
+
+    public function testItRejectsAMacroReferringToAMacroTheHostDoesNotOwn(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // A host being created owns no macro yet: any direct id is unknown.
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.33',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['id' => 123456, 'name' => 'token', 'value' => 'x', 'is_password' => false]]],
+            ],
+        ]);
+
+        // Raised by the handler, reported against the field the macros were submitted in.
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[check_options] One or more macros do not exist on this host.\n",
+        ]);
     }
 
     public function testItRejectsAReservedMacroName(): void
@@ -2595,26 +2937,33 @@ final class CreateHostProcessorTest extends ApiTestCase
         /** @var TimezoneRepository $timezoneRepository */
         $timezoneRepository = $container->get(TimezoneRepository::class);
 
+        /** @var ResourceAccessRepository $resourceAccessRepository */
+        $resourceAccessRepository = $container->get(ResourceAccessRepository::class);
+        $macroTransformer = new HostMacroTransformer();
+
+        $resourceBuilder = new HostResourceBuilder(
+            $transformer,
+            $notificationsTransformer,
+            $hostRepository,
+            $pollerRepository,
+            $hostGroupRepository,
+            $commandRepository,
+            $hostTemplateRepository,
+            $hostCategoryRepository,
+            $hostSeverityRepository,
+            $timezoneRepository,
+            $mediaRepository,
+            $mediaUrlGenerator,
+            $timePeriodRepository,
+            new AccessScopeResolver($resourceAccessRepository),
+            $macroTransformer,
+            new InheritedHostMacrosResolver($hostTemplateRepository, $commandRepository),
+            $isCloudPlatform,
+        );
+
         $container->set(
             CreateHostProcessor::class,
-            new CreateHostProcessor(
-                $commandBus,
-                $transformer,
-                $security,
-                $pollerRepository,
-                $hostGroupRepository,
-                $commandRepository,
-                $hostTemplateRepository,
-                $hostCategoryRepository,
-                $hostSeverityRepository,
-                $timezoneRepository,
-                $hostRepository,
-                $mediaRepository,
-                $notificationsTransformer,
-                $mediaUrlGenerator,
-                $timePeriodRepository,
-                $isCloudPlatform,
-            ),
+            new CreateHostProcessor($commandBus, $security, $hostRepository, $macroTransformer, $resourceBuilder, $isCloudPlatform),
         );
     }
 
@@ -2688,7 +3037,7 @@ final class CreateHostProcessorTest extends ApiTestCase
     /**
      * Grants the "Configuration > Hosts > Hosts" read-write topology access — the legacy menu
      * role bridged to HostPermissionEnum::CanReadAndWrite via
-     * DbalCredentialTransformer::LEGACY_PERMISSION_MAP (topology_page 60101). access_right = 1
+     * CredentialTransformer::LEGACY_PERMISSION_MAP (topology_page 60101). access_right = 1
      * is read-write (2 would be read-only), see DbalCredentialRepository::MENU_ACCESS_READ_WRITE.
      */
     private function grantHostReadAndWriteTopologyRole(int $contactId): int

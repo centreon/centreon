@@ -240,6 +240,7 @@ function validPeriods()
             <td class="FormRowValue">
                 <table>
                     {if isset($period_err) }<tr><td colspan="2" style="color: red;">{$period_err}</td></tr>{/if}
+                    {if isset($form.timezone_warning) }<tr><td colspan="2"><span style="color:#ff9a13">{$form.timezone_warning.label}</span></td></tr>{/if}
                     <tr>
                         {if !isset($form.msgacl) }
                         <td class="FormRowValue">

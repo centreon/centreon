@@ -26,7 +26,6 @@ import {
   toPairs
 } from 'ramda';
 import { Fragment, useMemo } from 'react';
-import { makeStyles } from 'tss-react/mui';
 
 import { GroupDirection } from '..';
 import CollapsibleGroup from '../CollapsibleGroup';
@@ -104,42 +103,6 @@ export const getInput = cond<
   [T, always(TextInput)]
 ]);
 
-interface StylesProps {
-  groupDirection?: GroupDirection;
-}
-
-const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
-  additionalLabel: {
-    marginBottom: theme.spacing(0.5)
-  },
-  buttons: {
-    columnGap: theme.spacing(2),
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-end'
-  },
-  divider: {
-    margin: equals(groupDirection, GroupDirection.Horizontal)
-      ? theme.spacing(0, 2)
-      : theme.spacing(2, 0)
-  },
-  groups: {
-    display: 'flex',
-    flexDirection: equals(groupDirection, GroupDirection.Horizontal)
-      ? 'row'
-      : 'column'
-  },
-  inputs: {
-    display: 'flex',
-    flexDirection: 'column',
-    margin: theme.spacing(2, 0),
-    rowGap: theme.spacing(2)
-  },
-  inputWrapper: {
-    width: '100%'
-  }
-}));
-
 interface Props {
   areGroupsOpen?: boolean;
   groupDirection?: GroupDirection;
@@ -161,7 +124,7 @@ const Inputs = ({
   areGroupsOpen,
   inputsClassName
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles({ groupDirection });
+  const isHorizontal = equals(groupDirection, GroupDirection.Horizontal);
   const formikContext = useFormikContext<FormikValues>();
 
   const groupsName = pluck('name', groups);
@@ -217,7 +180,7 @@ const Inputs = ({
   ) as Array<[string | null, Array<InputProps>]>;
 
   return (
-    <div className={classes.groups}>
+    <div className={`flex ${isHorizontal ? 'flex-row' : 'flex-col'}`}>
       {normalizedInputsByGroup.map(([groupName, groupedInputs], index) => {
         const hasGroupTitle = not(isNil(groupName));
 
@@ -238,7 +201,9 @@ const Inputs = ({
                 hasGroupTitle={hasGroupTitle}
                 isCollapsible={isCollapsible}
               >
-                <div className={cx(classes.inputs, inputsClassName)}>
+                <div
+                  className={`flex flex-col my-4 gap-y-4 ${inputsClassName || ''}`}
+                >
                   {groupedInputs.map((inputProps) => {
                     const key =
                       isNotNil(inputProps.label) || isNotEmpty(inputProps.label)
@@ -257,14 +222,11 @@ const Inputs = ({
                     const Input = getInput(inputProps.type);
 
                     return (
-                      <div className={classes.inputWrapper} key={key as string}>
+                      <div className="w-full" key={key as string}>
                         {inputProps.additionalLabel && (
                           <Typography
-                            className={cx(
-                              classes.additionalLabel,
-                              inputProps?.additionalLabelClassName
-                            )}
-                            variant="body1"
+                            className={`mb-1 text-base font-bold text-text-primary ${inputProps?.additionalLabelClassName || ''}`}
+                            variant="h6"
                           >
                             {inputProps.additionalLabel}
                           </Typography>
@@ -282,13 +244,9 @@ const Inputs = ({
               hasGroupTitle &&
               not(equals(lastGroup, groupName as string)) && (
                 <Divider
-                  className={classes.divider}
+                  className={isHorizontal ? 'my-0 mx-4' : 'my-4 mx-0'}
                   flexItem
-                  orientation={
-                    equals(groupDirection, GroupDirection.Horizontal)
-                      ? 'vertical'
-                      : 'horizontal'
-                  }
+                  orientation={isHorizontal ? 'vertical' : 'horizontal'}
                 />
               )}
           </Fragment>

@@ -57,7 +57,7 @@ final readonly class HostActivityLogFactory implements ActivityLogFactoryInterfa
         );
 
         $details = match ($action) {
-            ActionEnum::Add, ActionEnum::Update => $this->details($aggregate),
+            ActionEnum::Add, ActionEnum::Update, ActionEnum::MassChange => $this->details($aggregate),
             ActionEnum::Delete, ActionEnum::Enable, ActionEnum::Disable => [],
         };
 
@@ -183,7 +183,7 @@ final readonly class HostActivityLogFactory implements ActivityLogFactoryInterfa
      *
      * The two format mappings are spelled out here rather than reused from the write side
      * (Shared\Infrastructure\Dbal\TriStateColumnTrait for the tri-state,
-     * MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer for the options):
+     * MonitoringConfiguration\Infrastructure\Dbal\NotificationsTransformer for the options):
      * this factory lives in Domain and cannot depend on Infrastructure code. Any change to a storage format has to be made in both places — the same constraint
      * `host_activate` above is already under.
      *

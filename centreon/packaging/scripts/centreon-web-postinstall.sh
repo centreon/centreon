@@ -142,7 +142,7 @@ manageApacheAndPhpFpm() {
     systemctl restart httpd || :
   else
     update-alternatives --set php /usr/bin/php@PHP_MIN_VERSION@ > /dev/null 2>&1 || :
-    a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
+    a2enmod headers proxy proxy_fcgi proxy_wstunnel setenvif rewrite alias > /dev/null 2>&1 || :
     a2enconf php@PHP_MIN_VERSION@-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
@@ -211,6 +211,35 @@ archiveLegacyPhpFpmLog() {
   fi
 }
 
+fixWebLogPermissions() {
+  # prod.web.log must be group-writable: console commands run by the web server
+  # group (e.g. centreon-broker) append to it. The application creates its log
+  # files that way itself, so other log files need nothing here. prod.web.log
+  # is the exception, because it is also PHP-FPM's error_log and PHP-FPM
+  # creates it 0644 whatever the settings: create it first.
+  # Fixing an existing file is only needed for existing configurations, where
+  # older versions created it 0644. Remove that part once upgrades from those
+  # versions are no longer supported.
+  WEB_LOG_FILE="/var/log/centreon/prod.web.log"
+  WEB_USER="www-data"
+  if [ "$1" = "rpm" ]; then
+    WEB_USER="apache"
+  fi
+  if [ -L "$WEB_LOG_FILE" ]; then
+    return 0
+  fi
+  if [ ! -e "$WEB_LOG_FILE" ]; then
+    # Normally created by the package (same attributes as in centreon-poller).
+    if [ ! -d "/var/log/centreon" ]; then
+      install -d -o centreon -g centreon -m 0774 /var/log/centreon
+    fi
+    install -o "$WEB_USER" -g "$WEB_USER" -m 0664 /dev/null "$WEB_LOG_FILE"
+  elif [ -f "$WEB_LOG_FILE" ]; then
+    chgrp "$WEB_USER" "$WEB_LOG_FILE"
+    chmod 0664 "$WEB_LOG_FILE"
+  fi
+}
+
 package_type="rpm"
 if  [ "$1" = "configure" ]; then
   package_type="deb"
@@ -235,6 +264,7 @@ case "$action" in
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
     fixCentreonCronPermissions $package_type
+    fixWebLogPermissions $package_type
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
@@ -247,6 +277,7 @@ case "$action" in
     rebuildSymfonyCache $package_type
     fixCentreonCronPermissions $package_type
     archiveLegacyPhpFpmLog $package_type
+    fixWebLogPermissions $package_type
     ;;
   *)
     # $1 == version being installed

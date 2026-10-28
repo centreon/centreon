@@ -24,12 +24,14 @@ declare(strict_types=1);
 namespace Tests\App\Security\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
@@ -39,80 +41,131 @@ use App\Shared\Domain\Collection;
 
 final class FakeResourceAccessRepository implements ResourceAccessRepository
 {
-    public bool $unrestrictedPollerAccess = true;
+    /** @var AccessScope<PollerId> */
+    public AccessScope $pollerScope;
 
-    /** @var ?Collection<HostGroupId> null means unrestricted, matching the real contract */
-    public ?Collection $accessibleHostGroupIds = null;
+    /** @var array<string, int> how many times each `find*AccessScope()` lookup ran */
+    public array $lookups = [];
 
-    /** @var ?Collection<MediaDirectoryId> null means unrestricted, matching the real contract */
-    public ?Collection $accessibleImageFolderIds = null;
+    /** @var AccessScope<HostGroupId> */
+    public AccessScope $hostGroupScope;
 
-    /** @var ?Collection<HostCategoryId> null means unrestricted, matching the real contract */
-    public ?Collection $accessibleHostCategoryIds = null;
+    /** @var AccessScope<MediaDirectoryId> */
+    public AccessScope $imageFolderScope;
 
-    /** @var ?Collection<HostSeverityId> null means unrestricted, matching the real contract */
-    public ?Collection $accessibleHostSeverityIds = null;
+    /** @var AccessScope<HostCategoryId> */
+    public AccessScope $hostCategoryScope;
 
-    /** @var Collection<NotificationContactId> unlike the nullable ones, contacts have no "unrestricted" case */
+    /** @var AccessScope<HostSeverityId> */
+    public AccessScope $hostSeverityScope;
+
+    /** @var Collection<NotificationContactId> always restricted, as contacts carry no "all contacts" ACL flag */
     public Collection $accessibleContactIds;
 
-    /** @var Collection<ContactGroupId> unlike the nullable ones, contact groups have no "unrestricted" case */
+    /** @var Collection<ContactGroupId> always restricted, as contact groups carry no "all contact groups" ACL flag */
     public Collection $accessibleContactGroupIds;
+
+    /** @var Collection<HostId> always restricted, as hosts follow the real-time ACL cache */
+    public Collection $accessibleHostIds;
 
     /** @var list<array{resource: AggregateRoot<AggregateRootId>&AclScopedInterface, accessGroupIds: list<int>}> */
     public array $grantedAccess = [];
 
     public bool $allResourcesFlaggedAsChanged = false;
 
+    /** @var list<array{sourceHostId: int, newHostId: int}> */
+    public array $duplicatedHostAccess = [];
+
+    /** @var list<array{sourceHostId: int, newHostId: int}> */
+    public array $duplicatedHostServiceAccess = [];
+
+    public bool $duplicateHostAccessThrows = false;
+
     public function __construct()
     {
+        $this->pollerScope = AccessScope::unrestricted(PollerId::class);
+        $this->hostGroupScope = AccessScope::unrestricted(HostGroupId::class);
+        $this->imageFolderScope = AccessScope::unrestricted(MediaDirectoryId::class);
+        $this->hostCategoryScope = AccessScope::unrestricted(HostCategoryId::class);
+        $this->hostSeverityScope = AccessScope::unrestricted(HostSeverityId::class);
         $this->accessibleContactIds = new Collection([], NotificationContactId::class);
         $this->accessibleContactGroupIds = new Collection([], ContactGroupId::class);
+        $this->accessibleHostIds = new Collection([], HostId::class);
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool
     {
-        return $this->unrestrictedPollerAccess;
+        return $this->pollerScope->isUnrestricted();
     }
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool
     {
-        return $this->unrestrictedPollerAccess;
+        return $this->pollerScope->allows($pollerId);
     }
 
-    public function findAccessibleHostSeverityIds(UserId $userId): ?Collection
+    public function findHostSeverityAccessScope(UserId $userId): AccessScope
     {
-        return $this->accessibleHostSeverityIds;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return $this->hostSeverityScope;
     }
 
-    public function findAccessibleHostCategoryIds(UserId $userId): ?Collection
+    public function findHostCategoryAccessScope(UserId $userId): AccessScope
     {
-        return $this->accessibleHostCategoryIds;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return $this->hostCategoryScope;
     }
 
-    public function findAccessiblePollerIds(UserId $userId): ?Collection
+    public function findPollerAccessScope(UserId $userId): AccessScope
     {
-        return null;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return $this->pollerScope;
     }
 
-    public function findAccessibleHostGroupIds(UserId $userId): ?Collection
+    public function findHostGroupAccessScope(UserId $userId): AccessScope
     {
-        return $this->accessibleHostGroupIds;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return $this->hostGroupScope;
     }
 
-    public function findAccessibleContactIds(UserId $userId): Collection
+    public function findContactAccessScope(UserId $userId): AccessScope
     {
-        return $this->accessibleContactIds;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return AccessScope::restrictedTo(NotificationContactId::class, $this->accessibleContactIds);
     }
 
-    public function findAccessibleContactGroupIds(UserId $userId): Collection
+    public function findContactGroupAccessScope(UserId $userId): AccessScope
     {
-        return $this->accessibleContactGroupIds;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return AccessScope::restrictedTo(ContactGroupId::class, $this->accessibleContactGroupIds);
     }
 
-    public function findAccessibleImageFolderIds(UserId $userId): ?Collection
+    public function findHostAccessScope(UserId $userId, ?Collection $among = null): AccessScope
     {
-        return $this->accessibleImageFolderIds;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        if (! $among instanceof Collection) {
+            return AccessScope::restrictedTo(HostId::class, $this->accessibleHostIds);
+        }
+
+        $amongIds = array_map(static fn (HostId $id): int => $id->value, $among->toArray());
+
+        return AccessScope::partiallyRestrictedTo(HostId::class, array_filter(
+            $this->accessibleHostIds->toArray(),
+            static fn (HostId $id): bool => in_array($id->value, $amongIds, true),
+        ));
+    }
+
+    public function findImageFolderAccessScope(UserId $userId): AccessScope
+    {
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return $this->imageFolderScope;
     }
 
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void
@@ -126,5 +179,25 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     public function flagAllResourcesAsChanged(): void
     {
         $this->allResourcesFlaggedAsChanged = true;
+    }
+
+    public function duplicateHostAccess(HostId $sourceHostId, HostId $newHostId): void
+    {
+        if ($this->duplicateHostAccessThrows) {
+            throw new \RuntimeException('duplicateHostAccess failed');
+        }
+
+        $this->duplicatedHostAccess[] = [
+            'sourceHostId' => $sourceHostId->value,
+            'newHostId' => $newHostId->value,
+        ];
+    }
+
+    public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
+    {
+        $this->duplicatedHostServiceAccess[] = [
+            'sourceHostId' => $sourceHostId->value,
+            'newHostId' => $newHostId->value,
+        ];
     }
 }

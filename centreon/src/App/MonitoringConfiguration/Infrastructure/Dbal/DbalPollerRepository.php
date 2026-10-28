@@ -37,11 +37,13 @@ use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -122,6 +124,7 @@ use Webmozart\Assert\Assert;
  */
 final readonly class DbalPollerRepository extends DbalRepository implements PollerRepository
 {
+    use DbalCriteriaApplierTrait;
     public const TABLE_NAME = 'nagios_server';
     public const GLOBAL_MACRO_JOIN_TABLE_NAME = 'cfg_resource_instance_relations';
 
@@ -136,13 +139,13 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         #[Autowire(service: 'doctrine.dbal.realtime_connection')]
         private Connection $realTimeConnection,
 
-        #[Autowire(service: DbalPollerTransformer::class)]
+        #[Autowire(service: PollerTransformer::class)]
         private TransformerInterface $pollerTransformer,
 
-        #[Autowire(service: DbalGlobalMacroTransformer::class)]
+        #[Autowire(service: GlobalMacroTransformer::class)]
         private TransformerInterface $globalMacroTransformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
 
         private bool $withCmaCertificates = false,
     ) {
@@ -362,8 +365,13 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return new Collection($names, PollerName::class);
     }
 
-    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(PollerCriteria $criteria): \IteratorAggregate&\Countable
     {
+        $scope = $criteria->accessScope($this->accessScopes->pollers(...), PollerId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, Poller::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
             // a correlated subquery, not a JOIN: platform_topology.server_id carries no UNIQUE
@@ -372,11 +380,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             ->from(self::TABLE_NAME, 'p')
             ->orderBy('p.id'); // required for deterministic pagination
 
-        if ($criteria instanceof PollerCriteria) {
-            $this->filterByPollerCriteria($qb, $criteria);
-        }
+        $this->filterByPollerCriteria($qb, $criteria, $scope);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -438,11 +444,16 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             throw new \LogicException(sprintf('No poller mapping for aggregate %s.', $resource::class));
         }
 
+        $this->flagIdAsChanged($resource->pollerId);
+    }
+
+    public function flagIdAsChanged(PollerId $pollerId): void
+    {
         $qb = $this->connection->createQueryBuilder();
         $qb->update(self::TABLE_NAME)
             ->set('updated', $qb->createNamedParameter('1'))
             ->where('id = :poller_id')
-            ->setParameter('poller_id', $resource->pollerId->value)
+            ->setParameter('poller_id', $pollerId->value)
             ->executeStatement();
     }
 
@@ -453,7 +464,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             realTimeConnection: $this->realTimeConnection,
             pollerTransformer: $this->pollerTransformer,
             globalMacroTransformer: $this->globalMacroTransformer,
-            resourceAccessRepository: $this->resourceAccessRepository,
+            accessScopes: $this->accessScopes,
             withCmaCertificates: true,
         );
     }
@@ -493,7 +504,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         ];
     }
 
-    private function filterByPollerCriteria(QueryBuilder $qb, PollerCriteria $criteria): void
+    /**
+     * @param AccessScope<PollerId> $scope
+     */
+    private function filterByPollerCriteria(QueryBuilder $qb, PollerCriteria $criteria, AccessScope $scope): void
     {
         if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('p.name', $qb->createNamedParameter('%' . $name . '%')));
@@ -514,19 +528,11 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             ));
         }
 
-        if (($viewerId = $criteria->getViewerId()) instanceof \App\Security\Domain\Aggregate\UserId) {
-            $accessiblePollerIds = $this->resourceAccessRepository->findAccessiblePollerIds($viewerId);
-            if ($accessiblePollerIds instanceof Collection) {
-                $ids = [];
-                foreach ($accessiblePollerIds as $pollerId) {
-                    $ids[] = $pollerId->value;
-                }
-
-                $qb->andWhere($qb->expr()->in(
-                    'p.id',
-                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
-                ));
-            }
+        if (! $scope->isUnrestricted()) {
+            $qb->andWhere($qb->expr()->in(
+                'p.id',
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
+            ));
         }
     }
 

@@ -55,6 +55,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class DbalPollerRepositoryTest extends KernelTestCase
@@ -170,7 +171,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->insertPoller(2, 'Poller-A');
         $this->insertPoller(3, 'Poller-B');
 
-        $pollers = $this->repository->findAll();
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped());
 
         self::assertCount(3, $pollers);
     }
@@ -180,7 +181,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->insertPoller(2, 'Poller-A');
         $this->insertPoller(3, 'Poller-B');
 
-        $pollers = $this->repository->findAll((new PollerCriteria())->withName('Poller-'));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withName('Poller-'));
 
         self::assertCount(2, $pollers);
         self::assertEqualsCanonicalizing(
@@ -194,7 +195,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->insertPoller(2, 'Poller-A');
         $this->insertPoller(3, 'Poller-B');
 
-        $pollers = $this->repository->findAll((new PollerCriteria())->withPagination(1, 2));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withPagination(1, 2));
 
         self::assertInstanceOf(Paginator::class, $pollers);
         self::assertCount(2, $pollers);
@@ -205,7 +206,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
     {
         $this->insertPoller(2, 'Poller-A', isCentral: false);
 
-        $pollers = $this->repository->findAll((new PollerCriteria())->withExcludeUnknownCentral(true));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withExcludeUnknownCentral(true));
 
         self::assertCount(1, $pollers);
         self::assertSame('Poller-A', iterator_to_array($pollers)[0]->name->value);
@@ -221,7 +222,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
             'server_id' => 2,
         ]);
 
-        $pollers = $this->repository->findAll((new PollerCriteria())->withExcludeUnknownCentral(true));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withExcludeUnknownCentral(true));
 
         self::assertCount(2, $pollers);
     }
@@ -235,7 +236,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->connection->insert('platform_topology', ['address' => '10.0.0.2', 'name' => 'Poller-A', 'type' => 'poller', 'server_id' => 2, 'pending' => '0']);
         $this->connection->insert('platform_topology', ['address' => '10.0.0.2', 'name' => 'Poller-A-dup', 'type' => 'poller', 'server_id' => 2, 'pending' => '0']);
 
-        $pollers = $this->repository->findAll((new PollerCriteria())->withPagination(1, 10));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withPagination(1, 10));
 
         self::assertInstanceOf(Paginator::class, $pollers);
         self::assertCount(3, $pollers); // setUp()'s Central + Poller-A + Poller-B, each counted once
@@ -250,7 +251,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->connection->insert('remote_servers', ['ip' => '127.0.0.1', 'version' => '24.10', 'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'), 'server_id' => 2]);
         $this->connection->insert('remote_servers', ['ip' => '127.0.0.1', 'version' => '24.10', 'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'), 'server_id' => 2]);
 
-        $pollers = $this->repository->findAll((new PollerCriteria())->withExcludeUnknownCentral(true)->withPagination(1, 10));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withExcludeUnknownCentral(true)->withPagination(1, 10));
 
         self::assertInstanceOf(Paginator::class, $pollers);
         self::assertCount(2, $pollers); // Central (kept: its address matches a remote server) + Poller-A
@@ -277,16 +278,38 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         self::assertCount(0, $names);
     }
 
-    public function testFindAllRestrictsToAccessiblePollersForARestrictedViewer(): void
+    public function testFindAllRestrictsToAccessiblePollersForARestrictedActor(): void
     {
         $this->insertPoller(2, 'Poller-A');
         $this->insertPoller(3, 'Poller-B');
-        $viewerId = new UserId($this->createRestrictedContact(accessiblePollerIds: [2]));
+        $actorId = new UserId($this->createRestrictedContact(accessiblePollerIds: [2]));
 
-        $pollers = $this->repository->findAll((new PollerCriteria())->withViewerId($viewerId));
+        $pollers = $this->repository->findAll(PollerCriteria::forActor(TestActingUsers::restricted($actorId->value)));
 
         self::assertCount(1, $pollers);
         self::assertSame('Poller-A', iterator_to_array($pollers)[0]->name->value);
+        self::assertContains('Poller-B', array_map(static fn (Poller $poller): string => $poller->name->value, iterator_to_array($this->repository->findAll(PollerCriteria::forActor(TestActingUsers::unrestricted($actorId->value))))), 'An unrestricted actor is not scoped by ACL.');
+    }
+
+    public function testFindAllReturnsAnEmptyPaginatorForARestrictedActorGrantedNoPoller(): void
+    {
+        $this->insertPoller(2, 'Poller-A');
+
+        // A resource without any poller relation grants every poller; one whose only relation has no
+        // poller (a NULL left behind) grants none: the actor is restricted to no poller.
+        $actorId = $this->createRestrictedContact(accessiblePollerIds: []);
+        $this->connection->insert('acl_resources_poller_relations', [
+            'acl_res_id' => $this->connection->fetchOne("SELECT acl_res_id FROM acl_resources WHERE acl_res_name = 'restricted-resource'"),
+            'poller_id' => null,
+        ]);
+        $criteria = PollerCriteria::forActor(TestActingUsers::restricted($actorId));
+
+        self::assertCount(0, $this->repository->findAll($criteria));
+
+        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        self::assertInstanceOf(Paginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
+        self::assertSame(0, $paginated->getTotalItems());
+        self::assertCount(0, $paginated);
     }
 
     public function testFlagAsChangedSetsTheUpdatedColumn(): void
@@ -294,6 +317,15 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
 
         $this->repository->flagAsChanged($this->buildHost(pollerId: 1));
+
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
+    }
+
+    public function testFlagIdAsChangedRaisesTheUpdatedFlagOfThatPoller(): void
+    {
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
+
+        $this->repository->flagIdAsChanged(new PollerId(1));
 
         self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
     }
@@ -336,12 +368,12 @@ final class DbalPollerRepositoryTest extends KernelTestCase
     private function createRestrictedContact(array $accessiblePollerIds): int
     {
         $this->connection->insert('contact', [
-            'contact_name' => 'restricted-viewer',
-            'contact_alias' => 'restricted-viewer',
+            'contact_name' => 'restricted-actor',
+            'contact_alias' => 'restricted-actor',
             'contact_admin' => '0',
             'contact_register' => '1',
             'contact_activate' => '1',
-            'contact_email' => 'restricted-viewer@email.com',
+            'contact_email' => 'restricted-actor@email.com',
         ]);
         $contactId = (int) $this->connection->lastInsertId();
 

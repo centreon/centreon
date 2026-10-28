@@ -669,6 +669,7 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
@@ -720,6 +721,7 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
@@ -762,7 +764,7 @@ jobs:
     permissions:
       contents: read
       actions: write
-    needs: [get-environment, deliver]
+    needs: [get-environment, deliver, deliver-pulp]
     env:
       GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
     if: |
@@ -798,7 +800,9 @@ jobs:
       get-environment,
       deliver
     ]
+    # Disabled unless the NIGHTLY_JIRA_TICKETS_ENABLED organization variable is set to 'true'
     if: |
+      vars.NIGHTLY_JIRA_TICKETS_ENABLED == 'true' &&
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
       startsWith(github.ref_name, 'dev') &&
@@ -830,6 +834,7 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     runs-on: centreon-ubuntu-26.04-small
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
@@ -858,6 +863,7 @@ jobs:
           pulp_url: ${{ vars.PULP_API_URL }}
           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   promote-pulp:
     needs: [get-environment, deliver-pulp]
@@ -870,6 +876,7 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     runs-on: centreon-ubuntu-26.04-small
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 

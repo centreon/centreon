@@ -61,7 +61,7 @@ interface PollerRepository
     /**
      * @return \IteratorAggregate<int, Poller>&\Countable
      */
-    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(PollerCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
      * @throws PollerNotFoundException
@@ -77,6 +77,11 @@ interface PollerRepository
      * @param AggregateRoot<AggregateRootId>&PollerScopedInterface $resource
      */
     public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void;
+
+    /**
+     * Same flag, for a poller that is no longer the one a resource references (a host moved away).
+     */
+    public function flagIdAsChanged(PollerId $pollerId): void;
 
     public function withCmaCertificates(): self;
 }

@@ -373,6 +373,15 @@ contents:
       group: "centreon-broker"
 
 
+  # Also owned by centreon-poller (same attributes), which centreon-web does not
+  # require: centreon-web writes its own logs there.
+  - dst: "/var/log/centreon"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0774
+
   - dst: "/var/lib/centreon/vault"
     type: dir
     file_info:
@@ -489,6 +498,7 @@ overrides:
       - rsync
       - brotli
       - lua-curl >= 0.3.13-20
+      - logrotate
     provides:
       - centreon-backup
       - centreon-clapi
@@ -534,8 +544,6 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
-    recommends:
-      - logrotate
 
   deb:
     depends:
@@ -554,6 +562,7 @@ overrides:
       - rsync
       - brotli
       - lua-curl (>= 0.3.13-20)
+      - logrotate
     provides:
       - centreon-web-apache
       - centreon-web-common
@@ -605,8 +614,6 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
-    recommends:
-      - logrotate
 
 rpm:
   summary: Centreon WebUI

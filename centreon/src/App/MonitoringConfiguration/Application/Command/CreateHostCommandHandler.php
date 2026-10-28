@@ -23,19 +23,19 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
@@ -47,7 +47,6 @@ use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
-use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -56,19 +55,16 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\InheritedHostMacroRepository;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\HostMacroInheritanceResolver;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
-use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
-use App\Shared\Domain\Vault\VaultCredentials;
-use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 
 #[AsCommandHandler]
@@ -77,8 +73,6 @@ final readonly class CreateHostCommandHandler
     /** Must match legacy: both address the same vault entries. */
     public const HOST_VAULT_PATH = 'monitoring/hosts';
     public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
-    private const INHERITANCE_MODE_OPTION = 'inheritance_mode';
-    private const ADDITIVE_INHERITANCE_MODE = 1;
 
     public function __construct(
         private HostRepository $repository,
@@ -89,19 +83,20 @@ final readonly class CreateHostCommandHandler
         private HostSeverityRepository $hostSeverityRepository,
         private TimezoneRepository $timezoneRepository,
         private CommandRepository $commandRepository,
-        private InheritedHostMacroRepository $inheritedHostMacroRepository,
-        private HostMacroInheritanceResolver $hostMacroInheritanceResolver,
-        private OptionRepository $optionRepository,
-        private ResourceAccessRepository $resourceAccessRepository,
+        private InheritedHostMacrosResolver $inheritedHostMacrosResolver,
+        private HostMacroChangesResolver $hostMacroChangesResolver,
+        private HostMacroSecretsSynchronizer $hostMacroSecretsSynchronizer,
+        private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
+        private AccessScopeResolver $accessScopes,
         private VaultInterface $vault,
-        private VaultCredentialWriter $vaultCredentialWriter,
         private EventBus $eventBus,
+        private HostTemplateLicenseGuard $templateLicenseGuard,
     ) {
     }
 
     public function __invoke(CreateHostCommand $command): Host
     {
-        // References are authorized before the name is looked up: otherwise a restricted viewer
+        // References are authorized before the name is looked up: otherwise a restricted actor
         // could tell a duplicate name (409) apart from an inaccessible poller/host-group (404)
         // for a request they aren't even authorized to make, and enumerate host/template names
         // that way.
@@ -109,27 +104,26 @@ final readonly class CreateHostCommandHandler
         // Throws PollerNotFoundException if it doesn't exist at all.
         $this->pollerRepository->get($command->pollerId);
 
-        // A restricted (non-admin) viewer referencing a poller outside their own ACL scope gets
+        // A restricted (non-admin) actor referencing a poller outside their own ACL scope gets
         // the same not-found error as a truly nonexistent poller — legacy does not distinguish
         // "doesn't exist" from "exists but you can't see it", to avoid leaking existence.
-        if (
-            $command->viewerId instanceof UserId
-            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $command->viewerId)
-        ) {
+        if (! $this->accessScopes->pollers($command->actor)->allows($command->pollerId)) {
             throw new PollerNotFoundException(['id' => $command->pollerId->value]);
         }
 
-        $this->assertHostGroupsExist($command->hostGroupIds, $command->viewerId);
+        $this->assertHostGroupsExist($command->hostGroupIds, $command->actor);
 
         $this->assertTemplatesExist($command->templateIds);
 
-        $this->assertCategoriesExist($command->categoryIds, $command->viewerId);
+        $this->templateLicenseGuard->assertLicensed($command->templateIds);
 
-        $this->assertSeverityExists($command->severityId, $command->viewerId);
+        $this->assertCategoriesExist($command->categoryIds, $command->actor);
+
+        $this->assertSeverityExists($command->severityId, $command->actor);
 
         $this->assertTimezoneExists($command->timezoneId);
 
-        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds);
+        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $command->actor);
 
         $this->assertRelationsAreNotCircular($command->parentHostIds, $command->childHostIds);
 
@@ -137,13 +131,21 @@ final readonly class CreateHostCommandHandler
         // above: existence and the "must be a check command" rule are validated at the API boundary
         // (CheckCommandTypeValidator, →422), but this getById() stays as the last word so a command
         // deleted between validation and execution surfaces as a 404 rather than a broken write.
-        if ($command->checkOptions->checkCommandId instanceof CommandId) {
-            $this->commandRepository->getById($command->checkOptions->checkCommandId);
+        if ($command->checkCommandId instanceof CommandId) {
+            $this->commandRepository->getById($command->checkCommandId);
         }
 
         if ($this->repository->isNameUsedByHostOrTemplate($command->name)) {
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
         }
+
+        // Every validation runs before the first vault write, so a rejected request never leaves an
+        // orphan secret behind. Inherited macros are resolved from the requested templates and the
+        // check command together, so a submitted macro that merely duplicates an inherited one is
+        // dropped.
+        $checkOptions = new CheckOptions($command->checkCommandId, $command->checkCommandArgs);
+        $inherited = $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkCommandId);
+        $macros = $this->hostMacroChangesResolver->resolve(array_values($command->macroChanges->toArray()), [], $inherited);
 
         // Vault the SNMP community first so its entry's UUID can be reused for the password macros:
         // legacy keeps all of a host's secrets (SNMP community + password macros) under a single vault
@@ -152,9 +154,11 @@ final readonly class CreateHostCommandHandler
         $snmpCommunity = $this->vaultOrPlaintext($command->snmpCommunity);
         $vaultUuid = $snmpCommunity instanceof SnmpCommunity ? $this->extractVaultUuid($snmpCommunity->value) : null;
 
-        // Resolve inherited macros from the requested templates and the check command together, so a
-        // submitted macro that merely duplicates an inherited one is dropped (keepOverridesOnly).
-        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds, $vaultUuid);
+        // Moves any password macro's plaintext into the vault, leaving a `secret::` reference in its
+        // place. A host being created owns no macro yet, so there is nothing previous to purge.
+        $checkOptions = $checkOptions->with(
+            macros: $this->hostMacroSecretsSynchronizer->synchronize($macros, [], $vaultUuid),
+        );
 
         $host = new Host(
             id: null,
@@ -176,154 +180,36 @@ final readonly class CreateHostCommandHandler
             extendedInformations: $command->extendedInformations,
             schedulingOptions: $command->schedulingOptions,
             checkOptions: $checkOptions,
-            notifications: $this->applyInheritanceMode($command->notifications),
+            notifications: $this->additiveInheritanceModeApplier->apply($command->notifications),
         );
 
         $this->repository->add($host);
 
-        $this->eventBus->fire(new HostCreated($host, $command->creatorId));
+        $this->eventBus->fire(new HostCreated($host, $command->actor->userId->value));
 
         if ($command->deployServicesFromTemplates && count($command->templateIds) > 0) {
-
-            $this->eventBus->fire(new HostServicesDeploymentRequested(
-                $host->id(),
-
-                new UserId($command->creatorId),
-            ));
-
+            $this->eventBus->fire(new HostServicesDeploymentRequested($host->id(), $command->actor->userId));
         }
 
         return $host;
     }
 
     /**
-     * Drops macros the host merely inherits (from its templates or its check command) and moves any
-     * password macro's plaintext into the vault, leaving a `secret::` reference in its place, before
-     * the host is persisted.
-     *
-     * @param Collection<HostTemplateId> $templateIds
-     * @param ?string $vaultUuid the vault entry minted for the SNMP community, so the password macros
-     *                           join the same entry (null when there is none, or the vault is off)
-     */
-    private function prepareCheckOptions(CheckOptions $checkOptions, Collection $templateIds, ?string $vaultUuid): CheckOptions
-    {
-        $inherited = $this->inheritedHostMacroRepository->findInheritedMacros(
-            $templateIds,
-            $checkOptions->checkCommandId,
-        )->toArray();
-        $macros = $this->hostMacroInheritanceResolver->keepOverridesOnly($checkOptions->macros, $inherited);
-        $macros = $this->vaultizePasswordMacros($macros, $vaultUuid);
-
-        return new CheckOptions($checkOptions->checkCommandId, $checkOptions->args, $macros);
-    }
-
-    /**
-     * @param list<HostMacro> $macros
-     * @param ?string $vaultUuid the SNMP community's vault entry to reuse, or null to mint a fresh one
-     *
-     * @return list<HostMacro>
-     */
-    private function vaultizePasswordMacros(array $macros, ?string $vaultUuid): array
-    {
-        // Nothing to vault: leave the vault untouched (not even a feature-flag probe) when no macro
-        // needs a secret, so a host without password macros never reaches the vault at all.
-        $hasPasswordMacro = array_any($macros, static fn (HostMacro $macro): bool => $macro->isPassword);
-        if (! $hasPasswordMacro) {
-            return $macros;
-        }
-
-        if (! $this->vault->isEnabled()) {
-            return $macros;
-        }
-
-        $credentials = VaultCredentials::fromArray([]);
-        foreach ($macros as $macro) {
-            if ($macro->isPassword) {
-                // Vault key convention matches legacy: `_HOST<NAME>`, without the `$...$` wrapper.
-                $credentials = $credentials->with('_HOST' . $macro->name->value, $macro->value);
-            }
-        }
-
-        // Reuse the SNMP community's entry (or mint one when $vaultUuid is null) so every host secret
-        // shares a single UUID, as legacy does.
-        $vaultedValues = $this->vaultCredentialWriter->write(VaultPathEnum::MonitoringHosts, $credentials, $vaultUuid);
-
-        return array_map(
-            static function (HostMacro $macro) use ($vaultedValues): HostMacro {
-                $key = '_HOST' . $macro->name->value;
-                if ($macro->isPassword && isset($vaultedValues[$key])) {
-                    return new HostMacro($macro->name, $vaultedValues[$key], true, $macro->description);
-                }
-
-                return $macro;
-            },
-            $macros,
-        );
-    }
-
-    /**
-     * The additive-inheritance flags only mean something when the platform's `inheritance_mode`
-     * option enables them; otherwise legacy silently drops whatever the client asked for
-     * (`NewHostFactory::create()`), and a fresh install ships that option disabled.
-     */
-    private function applyInheritanceMode(?Notifications $notifications): ?Notifications
-    {
-        if (! $notifications instanceof Notifications) {
-            return null;
-        }
-
-        if (! $notifications->contactAdditiveInheritance && ! $notifications->contactGroupAdditiveInheritance) {
-            return $notifications;
-        }
-
-        if ($this->isAdditiveInheritanceEnabled()) {
-            return $notifications;
-        }
-
-        return $notifications->withoutAdditiveInheritance();
-    }
-
-    /**
-     * `inheritance_mode` is a platform-wide setting of Administration > Parameters; only the
-     * value `1` turns additive inheritance on, and a fresh install ships `3`. A missing row reads
-     * as disabled, mirroring legacy's own fallback when OptionService returns nothing.
-     */
-    private function isAdditiveInheritanceEnabled(): bool
-    {
-        try {
-            $option = $this->optionRepository->getByName(new OptionName(self::INHERITANCE_MODE_OPTION));
-        } catch (OptionDoesNotExistException) {
-            return false;
-        }
-
-        // Cast rather than compared as a string: the column is a varchar and legacy reads it
-        // with (int) too (AddHost::createHost()), so a stored '01' must not flip the answer.
-        return (int) $option->value->value === self::ADDITIVE_INHERITANCE_MODE;
-    }
-
-    /**
      * @param Collection<HostGroupId> $hostGroupIds
      */
-    private function assertHostGroupsExist(Collection $hostGroupIds, ?UserId $viewerId): void
+    private function assertHostGroupsExist(Collection $hostGroupIds, ActingUser $actor): void
     {
         if (count($hostGroupIds) === 0) {
             return;
         }
 
-        $foundIds = array_keys($this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray());
-        $requestedIds = array_map(static fn (HostGroupId $id): int => $id->value, $hostGroupIds->toArray());
-        $missingIds = array_diff($requestedIds, $foundIds);
-
-        if ($viewerId instanceof UserId) {
-            $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId);
-            if ($accessibleIds instanceof Collection) {
-                $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
-                $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
-            }
-        }
+        $missingIds = $this->accessScopes->hostGroups($actor)->missing(
+            $hostGroupIds,
+            array_keys($this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray()),
+        );
 
         if ($missingIds !== []) {
-            throw new HostGroupNotFoundException(['host_group_ids' => array_values($missingIds)]);
+            throw new HostGroupNotFoundException(['host_group_ids' => $missingIds]);
         }
     }
 
@@ -366,43 +252,17 @@ final readonly class CreateHostCommandHandler
     }
 
     /**
-     * Unknown and inaccessible ids are not told apart, so a restricted viewer cannot probe for
-     * resources they cannot see.
-     *
-     * @template T of \App\Shared\Domain\Aggregate\AggregateRootId
-     *
-     * @param Collection<T> $requested
-     * @param callable(Collection<T>): list<int> $resolve
-     * @param Collection<T>|null $accessible
-     *
-     * @return list<int>
-     */
-    private function missingIds(Collection $requested, callable $resolve, ?Collection $accessible = null): array
-    {
-        if (count($requested) === 0) {
-            return [];
-        }
-
-        $requestedIds = array_map(static fn (object $id): int => $id->value, $requested->toArray());
-        $missingIds = array_diff($requestedIds, $resolve($requested));
-
-        if ($accessible instanceof Collection) {
-            $accessibleIds = array_map(static fn (object $id): int => $id->value, $accessible->toArray());
-            $missingIds = array_merge($missingIds, array_diff($requestedIds, $accessibleIds));
-        }
-
-        return array_values(array_unique($missingIds));
-    }
-
-    /**
      * @param Collection<HostCategoryId> $categoryIds
      */
-    private function assertCategoriesExist(Collection $categoryIds, ?UserId $viewerId): void
+    private function assertCategoriesExist(Collection $categoryIds, ActingUser $actor): void
     {
-        $missingIds = $this->missingIds(
+        if (count($categoryIds) === 0) {
+            return;
+        }
+
+        $missingIds = $this->accessScopes->hostCategories($actor)->missing(
             $categoryIds,
-            fn (Collection $ids): array => array_keys($this->hostCategoryRepository->findNamesByIds($ids)->toArray()),
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
+            array_keys($this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray()),
         );
 
         if ($missingIds !== []) {
@@ -410,18 +270,15 @@ final readonly class CreateHostCommandHandler
         }
     }
 
-    private function assertSeverityExists(?HostSeverityId $severityId, ?UserId $viewerId): void
+    private function assertSeverityExists(?HostSeverityId $severityId, ActingUser $actor): void
     {
         if (! $severityId instanceof HostSeverityId) {
             return;
         }
 
-        $missingIds = $this->missingIds(
-            new Collection([$severityId], HostSeverityId::class),
-            fn (Collection $ids): array => $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName
-                ? [$severityId->value]
-                : [],
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId) : null,
+        $missingIds = $this->accessScopes->hostSeverities($actor)->missing(
+            [$severityId],
+            $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName ? [$severityId->value] : [],
         );
 
         if ($missingIds !== []) {
@@ -443,10 +300,14 @@ final readonly class CreateHostCommandHandler
      */
     private function assertTemplatesExist(Collection $templateIds): void
     {
-        $missingIds = $this->missingIds(
-            $templateIds,
-            fn (Collection $ids): array => array_keys($this->hostTemplateRepository->findNamesByIds($ids)->toArray()),
-        );
+        if (count($templateIds) === 0) {
+            return;
+        }
+
+        $missingIds = array_values(array_unique(array_diff(
+            array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray()),
+            array_keys($this->hostTemplateRepository->findNamesByIds($templateIds)->toArray()),
+        )));
 
         if ($missingIds !== []) {
             throw new HostTemplateNotFoundException($missingIds);
@@ -454,27 +315,38 @@ final readonly class CreateHostCommandHandler
     }
 
     /**
-     * Not ACL-scoped: the legacy API never exposed these two fields, and its form writes back
-     * whatever is posted (DB-Func.php's updateHostHostParent()), so there is nothing stricter to
-     * be ISO with. Host templates resolve to nothing here, so one cannot be smuggled in.
+     * ACL-scoped: a restricted actor may only link the hosts within their scope, as the legacy
+     * form only offers those (CentreonHost::getObjectForSelect2()). Unknown and inaccessible ids
+     * are not told apart, so a restricted actor cannot probe for hosts they cannot see. Host
+     * templates resolve to nothing here, so one cannot be smuggled in.
      *
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
      */
-    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds): void
+    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ActingUser $actor): void
     {
-        $this->assertHostsExist($parentHostIds, 'parentHostIds');
-        $this->assertHostsExist($childHostIds, 'childHostIds');
+        $hostScope = $this->accessScopes->hosts(
+            $actor,
+            new Collection([...$parentHostIds->toArray(), ...$childHostIds->toArray()], HostId::class),
+        );
+
+        $this->assertHostsExist($parentHostIds, 'parentHostIds', $hostScope);
+        $this->assertHostsExist($childHostIds, 'childHostIds', $hostScope);
     }
 
     /**
      * @param Collection<HostId> $hostIds
+     * @param AccessScope<HostId> $hostScope
      */
-    private function assertHostsExist(Collection $hostIds, string $criterion): void
+    private function assertHostsExist(Collection $hostIds, string $criterion, AccessScope $hostScope): void
     {
-        $missingIds = $this->missingIds(
+        if (count($hostIds) === 0) {
+            return;
+        }
+
+        $missingIds = $hostScope->missing(
             $hostIds,
-            fn (Collection $ids): array => array_keys($this->repository->findNamesByIds($ids)->toArray()),
+            array_keys($this->repository->findNamesByIds($hostIds)->toArray()),
         );
 
         if ($missingIds !== []) {

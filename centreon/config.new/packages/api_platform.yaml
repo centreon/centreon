@@ -1,6 +1,6 @@
 api_platform:
     title: Centreon
-    version: 26.11.0
+    version: 26.12.0
     show_webby: false
 
     name_converter: 'serializer.name_converter.camel_case_to_snake_case'
@@ -8,10 +8,13 @@ api_platform:
     exception_to_status:
         ApiPlatform\Validator\Exception\ValidationException: 422 # Input validation errors are unprocessable entities, not bad requests
         App\Shared\Domain\Exception\AggregateAlreadyExistsException: 409
+        App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongException: 422 # a generated name too long is a validation failure, not a name-already-taken conflict
         App\Shared\Domain\Exception\AggregateNotFoundException: 404
+        App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException: 403 # duplicating a host the license no longer allows; before AggregateConflictException, as the first match wins. A payload's template_ids stays a 422, see InvalidReferenceExceptionListener
         App\Shared\Domain\Exception\AggregateConflictException: 409 # unless the failed criteria name an input field, see InvalidReferenceExceptionListener
         App\Shared\Domain\Exception\EngineSecretsUnavailableException: 503
-        App\MonitoringConfiguration\Domain\Exception\VaultPurgeFailedException: 502 # the deletion is committed, only the vault (an upstream dependency) failed
+        App\MonitoringConfiguration\Domain\Exception\VaultPurgeFailedException: 502 # the change is committed, only the vault (an upstream dependency) failed
+        App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException: 502 # nothing was saved, the vault (an upstream dependency) failed first
         App\Security\Domain\Exception\CredentialDisabledException: 401
 
     defaults:

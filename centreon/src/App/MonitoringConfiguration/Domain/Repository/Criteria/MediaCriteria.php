@@ -30,7 +30,7 @@ use Webmozart\Assert\Assert;
 final class MediaCriteria implements PaginableCriteria
 {
     use PaginableCriteriaTrait;
-    use ViewerScopedCriteriaTrait;
+    use ActorScopedCriteriaTrait;
 
     private ?string $name = null;
 

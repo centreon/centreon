@@ -1,0 +1,919 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Application\Command;
+
+use App\MonitoringConfiguration\Application\Command\ListChange;
+use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
+use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
+use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
+use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
+use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
+use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
+use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
+use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
+use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
+use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
+use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
+use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
+use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
+use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
+use App\MonitoringConfiguration\Domain\Exception\ContactGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ExclusiveNotificationOptionException;
+use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Service\AccessScopeResolver;
+use App\Shared\Application\Vault\VaultCredentialWriter;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\Collection;
+use App\Shared\Domain\NoValue;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeContactGroupRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostCategoryRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
+use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
+use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeVault;
+use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
+
+final class PatchHostCommandHandlerRelationsTest extends TestCase
+{
+    private const HOST_ID = 5;
+    private const ACTOR_ID = 7;
+
+    private FakeHostRepository $repository;
+
+    private FakeHostGroupRepository $hostGroupRepository;
+
+    private FakeHostTemplateRepository $hostTemplateRepository;
+
+    private FakeHostCategoryRepository $hostCategoryRepository;
+
+    private FakeNotificationContactRepository $contactRepository;
+
+    private FakeServiceRepository $serviceRepository;
+
+    private FakeContactGroupRepository $contactGroupRepository;
+
+    private FakeResourceAccessRepository $resourceAccessRepository;
+
+    private EventBusSpy $eventBus;
+
+    private PatchHostCommandHandler $handler;
+
+    protected function setUp(): void
+    {
+        $this->repository = new FakeHostRepository();
+        $this->hostGroupRepository = new FakeHostGroupRepository();
+        $this->hostTemplateRepository = new FakeHostTemplateRepository();
+        $this->hostCategoryRepository = new FakeHostCategoryRepository();
+        $this->contactRepository = new FakeNotificationContactRepository();
+        $this->serviceRepository = new FakeServiceRepository();
+        $this->contactGroupRepository = new FakeContactGroupRepository();
+        $this->resourceAccessRepository = $this->repository->resourceAccess;
+        // A restricted actor sees the host under test, as they must to edit it.
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(self::HOST_ID)], HostId::class);
+
+        $this->eventBus = new EventBusSpy();
+        $vault = new FakeVault();
+        $commandRepository = new FakeCommandRepository();
+        $logger = new LoggerSpy();
+
+        $this->handler = new PatchHostCommandHandler(
+            $this->repository,
+            $commandRepository,
+            new HostReferencesChecker(
+                new FakePollerRepository(),
+                new FakeHostSeverityRepository(),
+                new FakeTimezoneRepository(),
+                new FakeTimePeriodRepository(),
+                new FakeMediaRepository(),
+                $commandRepository,
+                new AccessScopeResolver($this->resourceAccessRepository),
+            ),
+            new HostRelationsUpdater(
+                $this->hostGroupRepository,
+                $this->hostTemplateRepository,
+                $this->hostCategoryRepository,
+                $this->repository,
+                $this->contactRepository,
+                $this->contactGroupRepository,
+                new AccessScopeResolver($this->resourceAccessRepository),
+                new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
+                    new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
+                    $this->hostTemplateRepository,
+                )),
+            ),
+            new HostTemplateServicesCleaner($this->hostTemplateRepository, $this->serviceRepository, $this->eventBus),
+            new HostMacrosUpdater(
+                new InheritedHostMacrosResolver($this->hostTemplateRepository, $commandRepository),
+                new HostMacroChangesResolver(),
+                new FakeStandardMacroRepository(),
+                $vault,
+            ),
+            new HostMacroSecretsSynchronizer($vault, new VaultCredentialWriter($vault)),
+            $vault,
+            new VaultCredentialWriter($vault),
+            new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
+            $this->eventBus,
+            $logger,
+        );
+
+        foreach ([1, 2, 3] as $id) {
+            $this->hostGroupRepository->hostGroups[$id] = new HostGroup(new HostGroupId($id), new HostGroupName('group-' . $id));
+            $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('template-' . $id), new Collection([], HostMacro::class));
+            $this->hostCategoryRepository->hostCategories[$id] = new HostCategory(new HostCategoryId($id), new HostCategoryName('category-' . $id));
+            $this->contactRepository->names[$id] = new NotificationContactName('contact-' . $id);
+            $this->contactGroupRepository->names[$id] = new ContactGroupName('contact-group-' . $id);
+        }
+    }
+
+    public function testItReplacesTheHostGroups(): void
+    {
+        $this->seedHost(hostGroupIds: [1]);
+
+        $result = ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(2), new HostGroupId(3)])));
+
+        self::assertSame([2, 3], $this->ids($result->hostGroupIds));
+        self::assertCount(1, $this->repository->relationsReplacedHosts);
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostMassChanged::class, 1));
+    }
+
+    public function testItAddsAndRemovesHostGroupsWithoutTouchingTheOthers(): void
+    {
+        $this->seedHost(hostGroupIds: [1, 2]);
+
+        $added = ($this->handler)($this->command(hostGroupIds: ListChange::add([new HostGroupId(3)])));
+        $removed = ($this->handler)($this->command(hostGroupIds: ListChange::remove([new HostGroupId(1)])));
+
+        self::assertSame([1, 2, 3], $this->ids($added->hostGroupIds));
+        self::assertSame([2, 3], $this->ids($removed->hostGroupIds));
+    }
+
+    public function testClearingTheHostGroupsIsAChange(): void
+    {
+        $this->seedHost(hostGroupIds: [1]);
+
+        $result = ($this->handler)($this->command(hostGroupIds: ListChange::replace([])));
+
+        self::assertSame([], $this->ids($result->hostGroupIds));
+    }
+
+    public function testAnUnchangedListWritesNothing(): void
+    {
+        $this->seedHost(hostGroupIds: [1, 2]);
+
+        ($this->handler)($this->command(hostGroupIds: ListChange::add([new HostGroupId(2)])));
+
+        self::assertSame([], $this->repository->updatedHosts);
+        self::assertSame([], $this->repository->relationsReplacedHosts);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostMassChanged::class));
+    }
+
+    public function testAChangeOfAnotherFieldDoesNotRewriteTheRelations(): void
+    {
+        $this->seedHost(hostGroupIds: [1]);
+
+        ($this->handler)($this->command(alias: new HostAlias('front')));
+
+        self::assertCount(1, $this->repository->updatedHosts);
+        self::assertSame([], $this->repository->relationsReplacedHosts);
+    }
+
+    public function testAReplacementKeepsTheHostGroupsTheActorCannotSee(): void
+    {
+        $this->seedHost(hostGroupIds: [1, 2]);
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(2), new HostGroupId(3)]);
+
+        $result = ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
+
+        self::assertSame([3, 1], $this->ids($result->hostGroupIds));
+    }
+
+    public function testARemovalLeavesTheHostGroupsTheActorCannotSee(): void
+    {
+        $this->seedHost(hostGroupIds: [1, 2]);
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(2)]);
+
+        $result = ($this->handler)($this->command(hostGroupIds: ListChange::remove([new HostGroupId(1), new HostGroupId(2)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
+
+        self::assertSame([1], $this->ids($result->hostGroupIds));
+    }
+
+    public function testAHostGroupTheActorCannotSeeCannotBeAdded(): void
+    {
+        $this->seedHost();
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(2)]);
+
+        $this->expectException(HostGroupNotFoundException::class);
+
+        ($this->handler)($this->command(hostGroupIds: ListChange::add([new HostGroupId(1)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
+    }
+
+    public function testAnUnknownHostGroupIsRejected(): void
+    {
+        $this->seedHost();
+
+        $this->expectException(HostGroupNotFoundException::class);
+
+        ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(99)])));
+    }
+
+    public function testTemplatesAreAddedAfterTheExistingOnes(): void
+    {
+        $this->seedHost(templateIds: [2]);
+
+        $result = ($this->handler)($this->command(templateIds: ListChange::add([new HostTemplateId(1)])));
+
+        self::assertSame([2, 1], $this->ids($result->templateIds));
+    }
+
+    public function testAnUnknownTemplateIsRejected(): void
+    {
+        $this->seedHost();
+
+        $this->expectException(HostTemplateNotFoundException::class);
+
+        ($this->handler)($this->command(templateIds: ListChange::add([new HostTemplateId(99)])));
+    }
+
+    public function testARestrictedRequesterLoadsNoAccessListWhenNoRelationChanges(): void
+    {
+        $this->seedHost();
+
+        ($this->handler)($this->command(actor: TestActingUsers::restricted(self::ACTOR_ID)));
+
+        // Only the host itself is looked up: no relation changes, so no relation scope is loaded.
+        self::assertSame(['findHostAccessScope' => 1], $this->resourceAccessRepository->lookups);
+    }
+
+    public function testAnAccessListIsLoadedOnceForTheRelationThatChanges(): void
+    {
+        $this->seedHost();
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(2), new HostGroupId(3)]);
+
+        ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
+
+        self::assertSame(['findHostAccessScope' => 1, 'findHostGroupAccessScope' => 1], $this->resourceAccessRepository->lookups);
+    }
+
+    public function testCategoriesAreReplacedAndAnInaccessibleOneIsRejected(): void
+    {
+        $this->seedHost(categoryIds: [1]);
+
+        $result = ($this->handler)($this->command(categoryIds: ListChange::replace([new HostCategoryId(2)])));
+        self::assertSame([2], $this->ids($result->categoryIds));
+
+        $this->resourceAccessRepository->hostCategoryScope = AccessScope::restrictedTo(HostCategoryId::class, [new HostCategoryId(3)]);
+        $this->expectException(HostCategoryNotFoundException::class);
+
+        ($this->handler)($this->command(categoryIds: ListChange::add([new HostCategoryId(1)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
+    }
+
+    public function testParentsAndChildrenAreChanged(): void
+    {
+        $this->seedHost();
+        $this->seedOtherHost(6);
+        $this->seedOtherHost(7);
+
+        $result = ($this->handler)($this->command(
+            parentHostIds: ListChange::replace([new HostId(6)]),
+            childHostIds: ListChange::add([new HostId(7)]),
+        ));
+
+        self::assertSame([6], $this->ids($result->parentHostIds));
+        self::assertSame([7], $this->ids($result->childHostIds));
+    }
+
+    public function testAHostTheActorCannotSeeCannotBeLinked(): void
+    {
+        $this->seedHost();
+        $this->seedOtherHost(6);
+        $this->repository->resourceAccess->accessibleHostIds = new Collection([new HostId(self::HOST_ID)], HostId::class);
+
+        $this->expectException(HostNotFoundException::class);
+
+        ($this->handler)($this->command(parentHostIds: ListChange::add([new HostId(6)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
+    }
+
+    public function testAReplacementKeepsTheLinksToHostsTheActorCannotSee(): void
+    {
+        $this->seedHost(parentIds: [6], childIds: [8]);
+        $this->seedOtherHost(6);
+        $this->seedOtherHost(7);
+        $this->seedOtherHost(8);
+        $this->repository->resourceAccess->accessibleHostIds = new Collection([new HostId(self::HOST_ID), new HostId(7)], HostId::class);
+
+        $result = ($this->handler)($this->command(
+            parentHostIds: ListChange::replace([new HostId(7)]),
+            childHostIds: ListChange::remove([new HostId(8)]),
+            actor: TestActingUsers::restricted(self::ACTOR_ID),
+        ));
+
+        self::assertSame([7, 6], $this->ids($result->parentHostIds));
+        self::assertSame([8], $this->ids($result->childHostIds));
+    }
+
+    public function testAnUnknownParentIsRejected(): void
+    {
+        $this->seedHost();
+
+        $this->expectException(HostNotFoundException::class);
+
+        ($this->handler)($this->command(parentHostIds: ListChange::add([new HostId(99)])));
+    }
+
+    public function testAnUnrestrictedReplacementDropsAParentThatIsNotAHost(): void
+    {
+        // 99 is not a host (a host template, say): an unrestricted actor sees it, and so replaces it.
+        $this->seedHost(parentIds: [99]);
+        $this->seedOtherHost(6);
+
+        $result = ($this->handler)($this->command(parentHostIds: ListChange::replace([new HostId(6)])));
+
+        self::assertSame([6], $this->ids($result->parentHostIds));
+    }
+
+    public function testARestrictedReplacementKeepsAParentThatIsNotAHost(): void
+    {
+        // 99 is not a host the restricted actor can reach, so it is out of their sight and left in place.
+        $this->seedHost(parentIds: [99]);
+        $this->seedOtherHost(6);
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(self::HOST_ID), new HostId(6)], HostId::class);
+
+        $result = ($this->handler)($this->command(
+            parentHostIds: ListChange::replace([new HostId(6)]),
+            actor: TestActingUsers::restricted(self::ACTOR_ID),
+        ));
+
+        self::assertSame([6, 99], $this->ids($result->parentHostIds));
+    }
+
+    public function testAHostCannotBeItsOwnParent(): void
+    {
+        $this->seedHost();
+
+        $this->expectException(CircularHostRelationException::class);
+
+        ($this->handler)($this->command(parentHostIds: ListChange::add([new HostId(self::HOST_ID)])));
+    }
+
+    public function testAHostCannotBeBothAParentAndAChild(): void
+    {
+        $this->seedHost();
+        $this->seedOtherHost(6);
+
+        $this->expectException(CircularHostRelationException::class);
+
+        ($this->handler)($this->command(
+            parentHostIds: ListChange::add([new HostId(6)]),
+            childHostIds: ListChange::add([new HostId(6)]),
+        ));
+    }
+
+    public function testALoopThroughTheRestOfTheGraphIsRejected(): void
+    {
+        $this->seedHost();
+        $this->seedOtherHost(6);
+        $this->seedOtherHost(7, parentIds: [6]);
+
+        // 7 is a child of 6: making 7 a child of this host while 6 is its parent closes a loop.
+        $this->expectException(CircularHostRelationException::class);
+
+        ($this->handler)($this->command(
+            parentHostIds: ListChange::add([new HostId(7)]),
+            childHostIds: ListChange::add([new HostId(6)]),
+        ));
+    }
+
+    public function testTheContactsAndTheContactGroupsAreChangedIndependently(): void
+    {
+        $this->seedHost(contactIds: [1], contactGroupIds: [1]);
+
+        $result = ($this->handler)($this->command(
+            contactIds: ListChange::add([new NotificationContactId(2)]),
+            contactGroupIds: ListChange::replace([new ContactGroupId(3)]),
+        ));
+
+        self::assertSame([1, 2], $this->contactIdsOf($result));
+        self::assertSame([3], $this->contactGroupIdsOf($result));
+        self::assertCount(1, $this->repository->relationsReplacedHosts);
+    }
+
+    public function testAReplacementKeepsTheContactsTheActorCannotSee(): void
+    {
+        $this->seedHost(contactIds: [1, 2]);
+        $this->resourceAccessRepository->accessibleContactIds = new Collection([new NotificationContactId(2), new NotificationContactId(3)], NotificationContactId::class);
+
+        $result = ($this->handler)($this->command(contactIds: ListChange::replace([new NotificationContactId(3)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
+
+        self::assertSame([3, 1], $this->contactIdsOf($result));
+    }
+
+    public function testAnUnknownContactAndAnUnknownContactGroupAreRejected(): void
+    {
+        $this->seedHost();
+
+        try {
+            ($this->handler)($this->command(contactIds: ListChange::add([new NotificationContactId(99)])));
+            self::fail('The contact should have been rejected.');
+        } catch (NotificationContactNotFoundException) {
+        }
+
+        $this->expectException(ContactGroupNotFoundException::class);
+
+        ($this->handler)($this->command(contactGroupIds: ListChange::add([new ContactGroupId(99)])));
+    }
+
+    /**
+     * @param list<int> $seed what the host links to before
+     * @param list<int> $given what the update gives
+     * @param list<int> $expected what the host links to after
+     */
+    #[DataProvider('listChanges')]
+    public function testEveryListIsReplacedAddedToRemovedFromAndCleared(string $list, string $mode, array $seed, array $given, array $expected, bool $changes): void
+    {
+        $descriptors = $this->listDescriptors();
+        $descriptor = $descriptors[$list];
+        foreach ([1, 2, 3] as $hostId) {
+            $this->seedOtherHost($hostId);
+        }
+        $this->seedHost(...[$descriptor['seed'] => $seed]);
+        $untouchedBefore = [];
+        $host = $this->repository->hosts[self::HOST_ID];
+        foreach ($descriptors as $name => $other) {
+            $untouchedBefore[$name] = $other['read']($host);
+        }
+
+        $ids = array_map(static fn (int $id): object => new ($descriptor['id'])($id), $given);
+        $change = match ($mode) {
+            'replace' => ListChange::replace($ids),
+            'add' => ListChange::add($ids),
+            'remove' => ListChange::remove($ids),
+            default => throw new \InvalidArgumentException('Unknown mode ' . $mode),
+        };
+
+        /** @var PatchHostCommand $command */
+        $command = (new \ReflectionClass(PatchHostCommand::class))->newInstanceArgs(['id' => new HostId(self::HOST_ID), 'actor' => TestActingUsers::unrestricted(), $descriptor['command'] => $change]);
+        $result = ($this->handler)($command);
+
+        self::assertSame($expected, $descriptor['read']($result), $list);
+        foreach ($descriptors as $name => $other) {
+            if ($name !== $list) {
+                self::assertSame($untouchedBefore[$name], $other['read']($result), $name . ' is left alone');
+            }
+        }
+        self::assertCount($changes ? 1 : 0, $this->repository->relationsReplacedHosts, 'the relations are rewritten only when they change');
+        self::assertSame($changes, $this->eventBus->getDispatchedEvents(HostMassChanged::class) !== [], 'the change is notified only when there is one');
+    }
+
+    /**
+     * @return iterable<string, array{string, string, list<int>, list<int>, list<int>, bool}>
+     */
+    public static function listChanges(): iterable
+    {
+        foreach (['host groups', 'templates', 'categories', 'parents', 'children', 'contacts', 'contact groups'] as $list) {
+            yield $list . ': replaced' => [$list, 'replace', [1, 2], [3], [3], true];
+
+            yield $list . ': replaced by the same' => [$list, 'replace', [1, 2], [1, 2], [1, 2], false];
+
+            yield $list . ': cleared' => [$list, 'replace', [1, 2], [], [], true];
+
+            yield $list . ': added to' => [$list, 'add', [1, 2], [3], [1, 2, 3], true];
+
+            yield $list . ': added what is there' => [$list, 'add', [1, 2], [2], [1, 2], false];
+
+            yield $list . ': removed from' => [$list, 'remove', [1, 2], [1], [2], true];
+
+            yield $list . ': removed what is not there' => [$list, 'remove', [1, 2], [3], [1, 2], false];
+        }
+
+        // The templates are in the order of their precedence: the order is part of the list.
+        yield 'templates: reordered' => ['templates', 'replace', [1, 2], [2, 1], [2, 1], true];
+    }
+
+    /**
+     * @param list<NotificationOptionEnum> $seed
+     * @param list<NotificationOptionEnum> $given
+     * @param list<NotificationOptionEnum> $expected
+     */
+    #[DataProvider('optionChanges')]
+    public function testTheNotificationOptionsAreReplacedAddedToRemovedFromAndCleared(string $mode, array $seed, array $given, array $expected): void
+    {
+        $this->seedHost(options: $seed);
+        $change = match ($mode) {
+            'replace' => ListChange::replace($given),
+            'add' => ListChange::add($given),
+            'remove' => ListChange::remove($given),
+            default => throw new \InvalidArgumentException('Unknown mode ' . $mode),
+        };
+
+        $result = ($this->handler)($this->command(notifications: new NotificationsChanges(options: $change)));
+
+        self::assertSame($expected, $this->optionsOf($result));
+    }
+
+    /**
+     * @return iterable<string, array{string, list<NotificationOptionEnum>, list<NotificationOptionEnum>, list<NotificationOptionEnum>}>
+     */
+    public static function optionChanges(): iterable
+    {
+        $down = NotificationOptionEnum::Down;
+        $recovery = NotificationOptionEnum::Recovery;
+        $flapping = NotificationOptionEnum::Flapping;
+
+        yield 'replaced' => ['replace', [$down, $recovery], [NotificationOptionEnum::Unreachable], [NotificationOptionEnum::Unreachable]];
+
+        yield 'cleared' => ['replace', [$down, $recovery], [], []];
+
+        yield 'replaced by none' => ['replace', [$down, $recovery], [NotificationOptionEnum::None], [NotificationOptionEnum::None]];
+
+        yield 'added to' => ['add', [$down, $recovery], [$flapping], [$down, $recovery, $flapping]];
+
+        yield 'added what is there' => ['add', [$down, $recovery], [$down], [$down, $recovery]];
+
+        yield 'removed from' => ['remove', [$down, $recovery], [$down], [$recovery]];
+
+        yield 'removed all' => ['remove', [$down, $recovery], [$down, $recovery], []];
+
+        yield 'removed what is not there' => ['remove', [$down], [$flapping], [$down]];
+    }
+
+    public function testNoneCannotJoinTheOptionsTheHostAlreadyHas(): void
+    {
+        $this->seedHost(options: [NotificationOptionEnum::Down]);
+        /** @var ListChange<NotificationOptionEnum> $add */
+        $add = ListChange::add([NotificationOptionEnum::None]);
+
+        $this->expectException(ExclusiveNotificationOptionException::class);
+
+        ($this->handler)($this->command(notifications: new NotificationsChanges(options: $add)));
+    }
+
+    public function testNotificationOptionsAreAddedToAndRemovedFromTheCurrentOnes(): void
+    {
+        $this->seedHost(options: [NotificationOptionEnum::Down]);
+        /** @var ListChange<NotificationOptionEnum> $add */
+        $add = ListChange::add([NotificationOptionEnum::Flapping]);
+        /** @var ListChange<NotificationOptionEnum> $remove */
+        $remove = ListChange::remove([NotificationOptionEnum::Down]);
+
+        $added = ($this->handler)($this->command(notifications: new NotificationsChanges(options: $add)));
+        $removed = ($this->handler)($this->command(notifications: new NotificationsChanges(options: $remove)));
+
+        self::assertSame([NotificationOptionEnum::Down, NotificationOptionEnum::Flapping], $this->optionsOf($added));
+        self::assertSame([NotificationOptionEnum::Flapping], $this->optionsOf($removed));
+    }
+
+    public function testRemovingATemplateDeletesTheServicesOnlyItProvides(): void
+    {
+        $this->seedHost(templateIds: [1, 2]);
+        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [20]];
+        $fromFirst = $this->seedService('ping', serviceTemplateId: 10);
+        $fromSecond = $this->seedService('disk', serviceTemplateId: 20);
+
+        ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
+
+        self::assertArrayNotHasKey($fromFirst->id()->value, $this->serviceRepository->services);
+        self::assertArrayHasKey($fromSecond->id()->value, $this->serviceRepository->services);
+        self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceDeleted::class, 1));
+        self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceVaultPurgeRequested::class, 1));
+    }
+
+    public function testAServiceAKeptTemplateAlsoProvidesIsKept(): void
+    {
+        $this->seedHost(templateIds: [1, 2]);
+        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [10]];
+        $service = $this->seedService('ping', serviceTemplateId: 10);
+
+        ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
+
+        self::assertArrayHasKey($service->id()->value, $this->serviceRepository->services);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(ServiceDeleted::class));
+    }
+
+    public function testReplacingTheTemplatesCleansTheServicesOfTheOnesLeft(): void
+    {
+        $this->seedHost(templateIds: [1]);
+        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [20]];
+        $service = $this->seedService('ping', serviceTemplateId: 10);
+
+        ($this->handler)($this->command(templateIds: ListChange::replace([new HostTemplateId(2)])));
+
+        self::assertArrayNotHasKey($service->id()->value, $this->serviceRepository->services);
+    }
+
+    public function testAddingATemplateDeletesNothing(): void
+    {
+        $this->seedHost(templateIds: [1]);
+        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [20]];
+        $service = $this->seedService('ping', serviceTemplateId: 10);
+
+        ($this->handler)($this->command(templateIds: ListChange::add([new HostTemplateId(2)])));
+
+        self::assertArrayHasKey($service->id()->value, $this->serviceRepository->services);
+    }
+
+    public function testTheServicesOfTheTemplatesCanBeCreatedOnceTheUpdateIsCommitted(): void
+    {
+        $this->seedHost(templateIds: [1]);
+
+        ($this->handler)($this->command(alias: new HostAlias('front'), deployServicesFromTemplates: true));
+
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class, 1));
+    }
+
+    public function testNothingIsDeployedUnlessAskedOrWithoutTemplates(): void
+    {
+        $this->seedHost(templateIds: [1]);
+        ($this->handler)($this->command(alias: new HostAlias('front')));
+
+        $this->seedHost();
+        ($this->handler)($this->command(alias: new HostAlias('back'), deployServicesFromTemplates: true));
+
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
+    public function testItKeepsTemplatesTheLicenseNoLongerAllows(): void
+    {
+        $this->seedHost(templateIds: [1, 2]);
+        $this->hostTemplateRepository->monitoringConnectorTemplateIds = [1, 2];
+
+        $replaced = ($this->handler)($this->command(templateIds: ListChange::replace([new HostTemplateId(2), new HostTemplateId(1)])));
+        self::assertSame([2, 1], $this->ids($replaced->templateIds));
+
+        $removed = ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
+        self::assertSame([2], $this->ids($removed->templateIds));
+    }
+
+    /**
+     * @return iterable<string, array{ListChange<HostTemplateId>}>
+     */
+    public static function unlicensedTemplateAdditions(): iterable
+    {
+        yield 'replace' => [ListChange::replace([new HostTemplateId(1), new HostTemplateId(3)])];
+
+        yield 'add' => [ListChange::add([new HostTemplateId(3)])];
+    }
+
+    /**
+     * @param ListChange<HostTemplateId> $change
+     */
+    #[DataProvider('unlicensedTemplateAdditions')]
+    public function testItRejectsAddingATemplateTheLicenseNoLongerAllows(ListChange $change): void
+    {
+        $this->seedHost(templateIds: [1]);
+        $this->hostTemplateRepository->monitoringConnectorTemplateIds = [1, 3];
+
+        try {
+            ($this->handler)($this->command(templateIds: $change));
+            self::fail('A template the license no longer allows must not be added.');
+        } catch (UnlicensedHostTemplatesException $exception) {
+            self::assertSame(['templateIds' => [3]], $exception->criteria);
+        }
+
+        self::assertSame([], $this->repository->relationsReplacedHosts);
+    }
+
+    /**
+     * What each list of the host holds, and how to put it in the command and in the seeded host.
+     *
+     * @return array<string, array{seed: string, command: string, id: class-string, read: \Closure(Host): list<int>}>
+     */
+    private function listDescriptors(): array
+    {
+        return [
+            'host groups' => ['seed' => 'hostGroupIds', 'command' => 'hostGroupIds', 'id' => HostGroupId::class, 'read' => fn (Host $host): array => $this->ids($host->hostGroupIds)],
+            'templates' => ['seed' => 'templateIds', 'command' => 'templateIds', 'id' => HostTemplateId::class, 'read' => fn (Host $host): array => $this->ids($host->templateIds)],
+            'categories' => ['seed' => 'categoryIds', 'command' => 'categoryIds', 'id' => HostCategoryId::class, 'read' => fn (Host $host): array => $this->ids($host->categoryIds)],
+            'parents' => ['seed' => 'parentIds', 'command' => 'parentHostIds', 'id' => HostId::class, 'read' => fn (Host $host): array => $this->ids($host->parentHostIds)],
+            'children' => ['seed' => 'childIds', 'command' => 'childHostIds', 'id' => HostId::class, 'read' => fn (Host $host): array => $this->ids($host->childHostIds)],
+            'contacts' => ['seed' => 'contactIds', 'command' => 'contactIds', 'id' => NotificationContactId::class, 'read' => fn (Host $host): array => $this->contactIdsOf($host)],
+            'contact groups' => ['seed' => 'contactGroupIds', 'command' => 'contactGroupIds', 'id' => ContactGroupId::class, 'read' => function (Host $host): array {
+                \assert($host->notifications instanceof Notifications);
+
+                return $this->ids($host->notifications->contactGroupIds);
+            }],
+        ];
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     *
+     * @return list<int>
+     */
+    private function ids(Collection $ids): array
+    {
+        return array_values(array_map(static fn (AggregateRootId $id): int => $id->value, $ids->toArray()));
+    }
+
+    /**
+     * @param NoValue|ListChange<HostGroupId> $hostGroupIds
+     * @param NoValue|ListChange<HostTemplateId> $templateIds
+     * @param NoValue|ListChange<HostCategoryId> $categoryIds
+     * @param NoValue|ListChange<HostId> $parentHostIds
+     * @param NoValue|ListChange<HostId> $childHostIds
+     * @param NoValue|ListChange<NotificationContactId> $contactIds
+     * @param NoValue|ListChange<ContactGroupId> $contactGroupIds
+     */
+    private function command(
+        NoValue|ListChange $hostGroupIds = new NoValue(),
+        NoValue|ListChange $templateIds = new NoValue(),
+        NoValue|ListChange $categoryIds = new NoValue(),
+        NoValue|ListChange $parentHostIds = new NoValue(),
+        NoValue|ListChange $childHostIds = new NoValue(),
+        NoValue|ListChange $contactIds = new NoValue(),
+        NoValue|ListChange $contactGroupIds = new NoValue(),
+        NoValue|NotificationsChanges $notifications = new NoValue(),
+        NoValue|HostAlias $alias = new NoValue(),
+        bool $deployServicesFromTemplates = false,
+        ActingUser $actor = new ActingUser(new UserId(1), unrestrictedResourceAccess: true),
+    ): PatchHostCommand {
+        return new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            actor: $actor,
+            alias: $alias,
+            notifications: $notifications,
+            templateIds: $templateIds,
+            hostGroupIds: $hostGroupIds,
+            categoryIds: $categoryIds,
+            parentHostIds: $parentHostIds,
+            childHostIds: $childHostIds,
+            contactIds: $contactIds,
+            contactGroupIds: $contactGroupIds,
+            deployServicesFromTemplates: $deployServicesFromTemplates,
+        );
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function contactIdsOf(Host $host): array
+    {
+        \assert($host->notifications instanceof Notifications);
+
+        return $this->ids($host->notifications->contactIds);
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function contactGroupIdsOf(Host $host): array
+    {
+        \assert($host->notifications instanceof Notifications);
+
+        return $this->ids($host->notifications->contactGroupIds);
+    }
+
+    /**
+     * @return list<NotificationOptionEnum>
+     */
+    private function optionsOf(Host $host): array
+    {
+        \assert($host->notifications instanceof Notifications);
+
+        return $host->notifications->options;
+    }
+
+    /**
+     * @param list<int> $hostGroupIds
+     * @param list<int> $templateIds
+     * @param list<int> $categoryIds
+     * @param list<int> $contactIds
+     * @param list<int> $contactGroupIds
+     * @param list<NotificationOptionEnum> $options
+     * @param list<int> $parentIds
+     * @param list<int> $childIds
+     */
+    private function seedHost(
+        array $hostGroupIds = [],
+        array $templateIds = [],
+        array $categoryIds = [],
+        array $contactIds = [],
+        array $contactGroupIds = [],
+        array $options = [],
+        array $parentIds = [],
+        array $childIds = [],
+    ): Host {
+        return $this->repository->seed(new Host(
+            id: null,
+            name: new HostName('server-01'),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection(array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $templateIds), HostTemplateId::class),
+            hostGroupIds: new Collection(array_map(static fn (int $id): HostGroupId => new HostGroupId($id), $hostGroupIds), HostGroupId::class),
+            categoryIds: new Collection(array_map(static fn (int $id): HostCategoryId => new HostCategoryId($id), $categoryIds), HostCategoryId::class),
+            parentHostIds: new Collection(array_map(static fn (int $id): HostId => new HostId($id), $parentIds), HostId::class),
+            childHostIds: new Collection(array_map(static fn (int $id): HostId => new HostId($id), $childIds), HostId::class),
+            notifications: new Notifications(
+                enabled: TriStateEnum::UseDefault,
+                contactIds: new Collection(array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), $contactIds), NotificationContactId::class),
+                contactGroupIds: new Collection(array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), $contactGroupIds), ContactGroupId::class),
+                options: $options,
+            ),
+        ), self::HOST_ID);
+    }
+
+    private function seedService(string $name, int $serviceTemplateId): Service
+    {
+        $service = new Service(null, new ServiceName($name), new HostId(self::HOST_ID));
+        $this->serviceRepository->add($service);
+        $this->serviceRepository->serviceTemplateIdOf[$service->id()->value] = $serviceTemplateId;
+
+        return $service;
+    }
+
+    /**
+     * @param list<int> $parentIds
+     */
+    private function seedOtherHost(int $id, array $parentIds = []): void
+    {
+        $this->repository->seed(new Host(
+            id: null,
+            name: new HostName('server-' . $id),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            parentHostIds: new Collection(array_map(static fn (int $parentId): HostId => new HostId($parentId), $parentIds), HostId::class),
+        ), $id);
+    }
+}

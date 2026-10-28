@@ -176,6 +176,107 @@ final class NotificationsTest extends TestCase
         $this->createNotifications(interval: $interval, firstDelay: $firstDelay, recoveryDelay: $recoveryDelay);
     }
 
+    public function testDefaultIsUseDefaultWithNothingElse(): void
+    {
+        $notifications = Notifications::default();
+
+        self::assertSame(TriStateEnum::UseDefault, $notifications->enabled);
+        self::assertSame([], $notifications->options);
+        self::assertCount(0, $notifications->contactIds);
+        self::assertNull($notifications->interval);
+    }
+
+    public function testWithKeepsEveryValueWhenNothingIsProvided(): void
+    {
+        $original = new Notifications(
+            TriStateEnum::True,
+            new Collection([new NotificationContactId(3)], NotificationContactId::class),
+            new Collection([new ContactGroupId(4)], ContactGroupId::class),
+            [NotificationOptionEnum::Down],
+            30,
+            new TimePeriodId(2),
+            10,
+            20,
+            true,
+            false,
+        );
+
+        self::assertTrue($original->equals($original->with()));
+    }
+
+    public function testWithReplacesOnlyTheProvidedValuesAndKeepsTheContacts(): void
+    {
+        $original = new Notifications(
+            TriStateEnum::True,
+            new Collection([new NotificationContactId(3)], NotificationContactId::class),
+            new Collection([], ContactGroupId::class),
+            [NotificationOptionEnum::Down],
+            30,
+        );
+
+        $changed = $original->with(options: [NotificationOptionEnum::Recovery, NotificationOptionEnum::Down], interval: null, contactAdditiveInheritance: true);
+
+        self::assertSame([NotificationOptionEnum::Down, NotificationOptionEnum::Recovery], $changed->options);
+        self::assertNull($changed->interval);
+        self::assertTrue($changed->contactAdditiveInheritance);
+        self::assertSame(TriStateEnum::True, $changed->enabled);
+        self::assertCount(1, $changed->contactIds);
+    }
+
+    public function testWithReplacesTheContactsAndTheContactGroupsAndKeepsTheRest(): void
+    {
+        $original = new Notifications(
+            TriStateEnum::True,
+            new Collection([new NotificationContactId(3)], NotificationContactId::class),
+            new Collection([new ContactGroupId(4)], ContactGroupId::class),
+            [NotificationOptionEnum::Down],
+            30,
+        );
+
+        $changed = $original->with(
+            contactIds: new Collection([new NotificationContactId(7), new NotificationContactId(7)], NotificationContactId::class),
+            contactGroupIds: new Collection([], ContactGroupId::class),
+        );
+
+        self::assertSame([7], array_map(static fn (NotificationContactId $id): int => $id->value, $changed->contactIds->toArray()));
+        self::assertCount(0, $changed->contactGroupIds);
+        self::assertSame([NotificationOptionEnum::Down], $changed->options);
+        self::assertSame(30, $changed->interval);
+    }
+
+    public function testWithStillEnforcesTheInvariants(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        Notifications::default()->with(options: [NotificationOptionEnum::None, NotificationOptionEnum::Down]);
+    }
+
+    public function testEqualsComparesTheContactsByValue(): void
+    {
+        $notifications = new Notifications(TriStateEnum::True, new Collection([new NotificationContactId(3)], NotificationContactId::class), new Collection([], ContactGroupId::class));
+        $same = new Notifications(TriStateEnum::True, new Collection([new NotificationContactId(3)], NotificationContactId::class), new Collection([], ContactGroupId::class));
+        $other = new Notifications(TriStateEnum::True, new Collection([new NotificationContactId(4)], NotificationContactId::class), new Collection([], ContactGroupId::class));
+
+        self::assertTrue($notifications->equals($same));
+        self::assertFalse($notifications->equals($other));
+    }
+
+    public function testEqualsIgnoresTheOrderOfContactsAndContactGroups(): void
+    {
+        $notifications = new Notifications(
+            TriStateEnum::True,
+            new Collection([new NotificationContactId(3), new NotificationContactId(1)], NotificationContactId::class),
+            new Collection([new ContactGroupId(8), new ContactGroupId(2)], ContactGroupId::class),
+        );
+        $reordered = new Notifications(
+            TriStateEnum::True,
+            new Collection([new NotificationContactId(1), new NotificationContactId(3)], NotificationContactId::class),
+            new Collection([new ContactGroupId(2), new ContactGroupId(8)], ContactGroupId::class),
+        );
+
+        self::assertTrue($notifications->equals($reordered));
+    }
+
     /**
      * @param list<NotificationOptionEnum> $options
      */

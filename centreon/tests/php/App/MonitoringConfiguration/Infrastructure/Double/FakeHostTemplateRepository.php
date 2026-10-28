@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
@@ -35,8 +36,17 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var array<int, HostTemplate> */
     public array $hostTemplates = [];
 
+    /** @var array<int, list<int>> the service templates a template provides, its ancestors' included, indexed by template id */
+    public array $serviceTemplateIdsByTemplate = [];
+
     /** @var array<int, MediaId> inherited icon ids indexed by host id */
     public array $inheritedIconIds = [];
+
+    /** @var list<int> the template ids of the last findInheritanceLine() call, in order */
+    public array $receivedLineTemplateIds = [];
+
+    /** @var list<int> the templates of the paid Monitoring Connectors, the excluded connector slugs being ignored */
+    public array $monitoringConnectorTemplateIds = [];
 
     public function findNamesByIds(Collection $ids): Collection
     {
@@ -48,6 +58,16 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
         }
 
         return new Collection($names, HostTemplateName::class);
+    }
+
+    public function findServiceTemplateIds(Collection $templateIds): array
+    {
+        $serviceTemplateIds = [];
+        foreach ($templateIds as $id) {
+            array_push($serviceTemplateIds, ...($this->serviceTemplateIdsByTemplate[$id->value] ?? []));
+        }
+
+        return array_values(array_unique($serviceTemplateIds));
     }
 
     public function findInheritedIconIds(Collection $hostIds): Collection
@@ -62,8 +82,34 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
         return new Collection($iconIds, MediaId::class);
     }
 
-    public function findAll(?HostTemplateCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostTemplateCriteria $criteria): \IteratorAggregate&\Countable
     {
         return new Collection(array_values($this->hostTemplates), HostTemplate::class);
+    }
+
+    /**
+     * Returns the known templates among the requested ones, in order: the fake has no relations, so
+     * a test describing a multi-level line passes the whole line as direct templates.
+     */
+    public function findInheritanceLine(Collection $directTemplateIds): Collection
+    {
+        $this->receivedLineTemplateIds = [];
+        $line = [];
+        foreach ($directTemplateIds as $id) {
+            $this->receivedLineTemplateIds[] = $id->value;
+            if (isset($this->hostTemplates[$id->value])) {
+                $line[] = $this->hostTemplates[$id->value];
+            }
+        }
+
+        return new Collection($line, HostTemplate::class);
+    }
+
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection
+    {
+        return new Collection(
+            array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $this->monitoringConnectorTemplateIds),
+            HostTemplateId::class,
+        );
     }
 }

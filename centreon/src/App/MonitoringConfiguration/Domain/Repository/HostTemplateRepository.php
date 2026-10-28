@@ -36,7 +36,7 @@ interface HostTemplateRepository
     /**
      * @return \IteratorAggregate<int, HostTemplate>&\Countable
      */
-    public function findAll(?HostTemplateCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(HostTemplateCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
      * Every requested id's name, for bulk display purposes (e.g. a sibling aggregate that only
@@ -59,4 +59,39 @@ interface HostTemplateRepository
      * @return Collection<MediaId> indexed by host id
      */
     public function findInheritedIconIds(Collection $hostIds): Collection;
+
+    /**
+     * The full multi-level inheritance line of the given direct templates, with what a host inherits
+     * from each (its own macros, its check command, the check commands of its linked service
+     * templates): each direct template (in the given order) followed by its own ancestors,
+     * depth-first by relation `order`, nearest to the host first, each template appearing once (its
+     * nearest position). Only active templates are kept, at every level, like legacy
+     * getTemplateChain(); an id that is not an active host template is skipped.
+     *
+     * @param Collection<HostTemplateId> $directTemplateIds the host's (or template's) direct templates, in order
+     *
+     * @return Collection<HostTemplate>
+     */
+    public function findInheritanceLine(Collection $directTemplateIds): Collection;
+
+    /**
+     * The service templates the given host templates provide: the ones linked to the templates
+     * themselves, and to their ancestors (the whole inheritance chain, active or not).
+     *
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @return list<int> service template ids
+     */
+    public function findServiceTemplateIds(Collection $templateIds): array;
+
+    /**
+     * The host templates of the Monitoring Connectors, and every template inheriting from them.
+     * Empty when the plugin pack manager module, which provides the Monitoring Connectors, is not
+     * installed.
+     *
+     * @param list<string> $excludedConnectorSlugs the Monitoring Connectors whose templates are left out
+     *
+     * @return Collection<HostTemplateId>
+     */
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection;
 }

@@ -24,10 +24,18 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
@@ -43,6 +51,9 @@ final class FakePollerRepository implements PollerRepository
 
     /** @var list<AggregateRoot<AggregateRootId>&PollerScopedInterface> */
     public array $flaggedResources = [];
+
+    /** @var list<int> */
+    public array $flaggedPollerIds = [];
 
     public function add(Poller $poller): void
     {
@@ -97,14 +108,14 @@ final class FakePollerRepository implements PollerRepository
     }
 
     /**
-     * Note: viewer-based ACL scoping is not modeled here (it has no equivalent data in this fake) —
+     * Note: actor-based ACL scoping is not modeled here (it has no equivalent data in this fake) —
      * it is exercised by DbalPollerRepositoryTest against real ACL tables instead.
      */
-    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(PollerCriteria $criteria): \IteratorAggregate&\Countable
     {
         $pollers = array_values($this->pollers);
 
-        if ($criteria instanceof PollerCriteria && $criteria->getName() !== null) {
+        if ($criteria->getName() !== null) {
             $needle = mb_strtolower($criteria->getName());
             $pollers = array_values(array_filter(
                 $pollers,
@@ -112,11 +123,11 @@ final class FakePollerRepository implements PollerRepository
             ));
         }
 
-        if ($criteria instanceof PollerCriteria && $criteria->excludeUnknownCentral()) {
+        if ($criteria->excludeUnknownCentral()) {
             $pollers = array_values(array_filter($pollers, static fn (Poller $poller): bool => ! $poller->isCentral));
         }
 
-        $pagination = $criteria instanceof PollerCriteria ? $criteria->getPagination() : null;
+        $pagination = $criteria->getPagination();
         if ($pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             $pollers = array_slice($pollers, $pagination->getOffset(), $pagination->itemsPerPage);
         }
@@ -132,6 +143,41 @@ final class FakePollerRepository implements PollerRepository
     public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
     {
         $this->flaggedResources[] = $resource;
+    }
+
+    public function flagIdAsChanged(PollerId $pollerId): void
+    {
+        $this->flaggedPollerIds[] = $pollerId->value;
+    }
+
+    /**
+     * A poller that exists under the given id, whatever its other properties.
+     */
+    public function seed(int $id): Poller
+    {
+        $poller = new Poller(
+            id: null,
+            name: new PollerName('Poller ' . $id),
+            address: new PollerAddress('127.0.0.1'),
+            isCentral: false,
+            isDefault: false,
+            isActivated: true,
+            pollerType: PollerTypeEnum::VM,
+            uid: new PollerUid(123456789012345),
+            globalMacros: new Collection([], GlobalMacro::class),
+            gorgoneConfiguration: new GorgoneConfiguration(),
+            engineInformation: new EngineInformation(),
+            brokerInformation: new BrokerInformation(),
+            connectorConfiguration: new ConnectorConfiguration(),
+            trapConfiguration: new TrapConfiguration(),
+            pollerCommands: new Collection([], PollerCommand::class),
+        );
+
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setValue($poller, new PollerId($id));
+        $this->pollers[$id] = $poller;
+
+        return $poller;
     }
 
     public function withCmaCertificates(): self

@@ -25,9 +25,10 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
 
 interface HostRepository
@@ -40,13 +41,19 @@ interface HostRepository
      * `Host::$checkOptions` docblock): a listing never needs the full object, this is the one read
      * path that does (a future single-host consumer, e.g. an update handler, plugs straight into it).
      *
-     * @param ?UserId $viewerId null means the caller is unrestricted (admin); a non-null value
-     *                          scopes the lookup to what that user can access via ACL — a host
-     *                          that exists but is outside the viewer's scope returns null, the
-     *                          same as a host that does not exist at all, so as not to leak
-     *                          existence (mirrors `CreateHostCommandHandler`'s poller/host-group checks)
+     * Scoped to what the actor can access via ACL: a host that exists but is outside their scope
+     * returns null, the same as a host that does not exist at all, so as not to leak existence.
      */
-    public function findOne(HostId $id, ?UserId $viewerId = null): ?Host;
+    public function findOne(HostId $id, ActingUser $actor): ?Host;
+
+    /**
+     * The host's own (direct) macros as stored, with their ids, in storage order — the narrow read
+     * for a caller that only needs the ids assigned on insertion, without hydrating the whole host.
+     * Not ACL-scoped: the caller has already resolved the host.
+     *
+     * @return Collection<HostMacro>
+     */
+    public function findMacros(HostId $id): Collection;
 
     /**
      * Also removes the dependencies left without a parent or child host by this deletion.
@@ -61,22 +68,61 @@ interface HostRepository
     public function updateActivationStatus(HostId $id, bool $activated): void;
 
     /**
+     * Writes the host's own columns (including its activation flag and its notification columns), its
+     * extended information, its poller and its severity; the relations (templates, groups, categories, parents,
+     * children, contacts) and the macros are not written here. Every field is written, so the host must
+     * come from {@see findOne()} and be modified through its `with()` methods: a host read by
+     * `findAll()` is only partially loaded and would reset what it does not carry. A silent no-op on an
+     * unknown id or a host template.
+     */
+    public function update(Host $host): void;
+
+    /**
+     * Full replace of a host's relations (host groups, categories and severity, templates, parents and
+     * children, contacts and contact groups), complementing {@see update()}: every relation table is
+     * cleared and written again from $host. The macros are not touched. A silent no-op on an unknown id
+     * or a host template.
+     */
+    public function replaceRelations(Host $host): void;
+
+    /**
+     * Full replace of a host's relations and macros (PUT semantics), complementing {@see update()},
+     * which writes its own fields and its poller. Every relation table (host groups,
+     * categories/severity, templates, parents/children, contacts/contact groups) is cleared and
+     * re-inserted from $host. Macros are written in place instead: a macro the host already stores
+     * keeps its id and is updated, any other is inserted as a new macro of the host, and a stored
+     * macro no longer listed is deleted. A silent no-op on an unknown id or a host template.
+     */
+    public function replaceRelationsAndMacros(Host $host): void;
+
+    /**
+     * Writes the host's direct macros in place, leaving everything else as it is: a macro the host
+     * already stores keeps its id and is updated, any other is inserted as a new macro of the host,
+     * and a stored macro no longer listed is deleted. A silent no-op on an unknown id or a host
+     * template.
+     */
+    public function replaceMacros(Host $host): void;
+
+    /**
      * Looked up across hosts AND host templates (both share the same `host` table and the
      * same name uniqueness constraint in legacy) — never scope this to real hosts only.
      *
      * A plain existence check, not `findOneByName(): ?Host`: a matching row can be a host
      * template, which has no poller relation and therefore cannot be hydrated into a valid
      * `Host` (poller is a required, non-nullable field on the aggregate).
+     *
+     * @param ?HostId $excludingHostId leaves a host out of the lookup, so that a host can be renamed to a
+     *                                 name that only differs from its own by its case
      */
-    public function isNameUsedByHostOrTemplate(HostName $name): bool;
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool;
 
     /**
      * @return \IteratorAggregate<int, Host>&\Countable
      */
-    public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(HostCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
-     * Never returns a host template, though both share the `host` table.
+     * Never returns a host template, though both share the `host` table. Not scoped by ACL.
      *
      * @param Collection<HostId> $ids
      *
@@ -88,8 +134,17 @@ interface HostRepository
      * Includes $ids themselves, minus any that is not a host.
      *
      * @param Collection<HostId> $ids
+     * @param ?HostId $excludingHostId on an update, the edited host's own parent and child edges are about
+     *                                 to be replaced, so they must not contribute phantom ancestors to the
+     *                                 circular-inheritance check: pass its id to drop every
+     *                                 `host_hostparent_relation` row touching it from the traversal
      *
      * @return Collection<HostId>
      */
-    public function findAncestorIds(Collection $ids): Collection;
+    public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection;
+
+    /**
+     * Every host of the platform, enabled or not, host templates left out. Not ACL-scoped.
+     */
+    public function countAll(): int;
 }

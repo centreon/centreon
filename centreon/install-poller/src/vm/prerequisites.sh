@@ -36,11 +36,6 @@ function _vmDetectDistribution() {
   local distrib="${ID}${VERSION_ID}"
 
   case "${distrib}" in
-    "debian12"*)
-      _PKG_COMMAND="apt"
-      consoleInfo "Distribution: Debian 12 (Bookworm): OK"
-      logInfo "Distribution: debian12, package manager: apt"
-      ;;
     "debian13"*)
       _PKG_COMMAND="apt"
       consoleInfo "Distribution: Debian 13 (Trixie): OK"
@@ -84,7 +79,7 @@ function _vmDetectDistribution() {
       ;;
     *)
       consoleError "Unsupported distribution: ${PRETTY_NAME:-${distrib}}."
-      consoleError "Supported: Debian 12, Debian 13, AlmaLinux 9/10, Oracle Linux 9/10, RHEL 9/10."
+      consoleError "Supported: Debian 13, AlmaLinux 9/10, Oracle Linux 9/10, RHEL 9/10."
       logError "Unsupported distribution: ${distrib}"
       exit 1
       ;;
@@ -118,9 +113,9 @@ function _vmCheckRam() {
   ram_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
   local ram_mb=$(( ram_kb / 1024 ))
   if [ "${ram_mb}" -lt 1536 ]; then
-    consoleError "Insufficient RAM: ${ram_mb} MB. Minimum required: 1536 MB."
-    logError "Insufficient RAM: ${ram_mb} MB."
-    exit 1
+    consoleWarn "Insufficient RAM: ${ram_mb} MB. Minimum recommended: 1536 MB. Continuing."
+    logWarn "Insufficient RAM: ${ram_mb} MB."
+    return 0
   fi
   consoleInfo "RAM: ${ram_mb} MB: OK"
   logInfo "RAM check: ${ram_mb} MB OK"

@@ -27,12 +27,15 @@ use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\VaultPurgeFailedException;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\AsEventHandler;
+use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
+use Psr\Log\LoggerInterface;
 
 /**
- * Delivered after the commit: a failure cannot roll the deletion back, it is reported to the caller
- * instead of being swallowed, since the vault entry is left behind.
+ * Delivered after the commit: a failure cannot roll the write back. For a deleted host it is
+ * reported to the caller instead of being swallowed, since the vault entry is left behind; for an
+ * secrets merely left by a save ($bestEffort), it is only logged.
  */
 #[AsEventHandler]
 final readonly class PurgeHostVaultEventHandler
@@ -40,6 +43,7 @@ final readonly class PurgeHostVaultEventHandler
     public function __construct(
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -51,8 +55,27 @@ final readonly class PurgeHostVaultEventHandler
                 return;
             }
 
-            $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringHosts, $uuid);
+            if ($event->keys === []) {
+                $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringHosts, $uuid);
+
+                return;
+            }
+
+            $credentials = VaultCredentials::empty();
+            foreach ($event->keys as $key) {
+                $credentials = $credentials->clear($key);
+            }
+            $this->vaultCredentialWriter->persist(VaultPathEnum::MonitoringHosts, $credentials, $uuid);
         } catch (\Throwable $exception) {
+            if ($event->bestEffort) {
+                $this->logger->warning('The vault secrets a host no longer uses could not be purged.', [
+                    'host_id' => $event->host->id()->value,
+                    'exception' => $exception,
+                ]);
+
+                return;
+            }
+
             throw VaultPurgeFailedException::forHost($event->host->id(), $exception);
         }
     }

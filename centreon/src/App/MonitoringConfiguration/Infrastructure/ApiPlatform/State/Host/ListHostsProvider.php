@@ -49,6 +49,7 @@ use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
+use App\Shared\Infrastructure\ApiPlatform\State\SortAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -61,6 +62,7 @@ use Webmozart\Assert\Assert;
 final readonly class ListHostsProvider implements ProviderInterface
 {
     use FilterAwareProviderTrait;
+    use SortAwareProviderTrait;
 
     /**
      * @param TransformerInterface<Host, HostCollectionOutput> $transformer
@@ -86,7 +88,7 @@ final readonly class ListHostsProvider implements ProviderInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $criteria = new HostCriteria();
+        $criteria = HostCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -114,9 +116,7 @@ final readonly class ListHostsProvider implements ProviderInterface
             $criteria = $criteria->withActivated($activated);
         }
 
-        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
+        $criteria = $this->handleSort($filters, $criteria);
 
         $hosts = $this->repository->findAll($criteria);
         $hostList = array_values(iterator_to_array($hosts));
