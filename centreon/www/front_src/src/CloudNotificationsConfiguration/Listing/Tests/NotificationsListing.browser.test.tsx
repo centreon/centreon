@@ -704,8 +704,17 @@ describe('Listing row actions: Duplicate button', () => {
     await userEvent.type(getNameField(), 'notification1');
     await waitFor(() => expect(screen.getByTestId('Confirm')).toBeDisabled());
 
+    // From a valid name, so that emptying it is what disables Confirm.
+    await userEvent.clear(getNameField());
+    await userEvent.type(getNameField(), 'New name');
+    await waitFor(() => expect(screen.getByTestId('Confirm')).toBeEnabled());
+
     await userEvent.clear(getNameField());
     await waitFor(() => expect(screen.getByTestId('Confirm')).toBeDisabled());
+    // An empty name is back to the initial value, which alone disables
+    // Confirm: the required message shows the rule applies.
+    await userEvent.tab();
+    expect(await screen.findByText(labelRequired)).toBeVisible();
 
     await discardDuplication();
   });

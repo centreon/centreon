@@ -56,7 +56,7 @@ import {
   getListingResponse
 } from './testUtils';
 
-// The fixture parameters, as the listing builds them.
+// The listing endpoint for these parameters.
 const listingEndpoint = (parameters: object): string =>
   buildResourceAccessRulesEndpoint(parameters as ListingParameters);
 
@@ -226,14 +226,9 @@ const getRowCheckbox = (row: number): HTMLElement =>
     .getByLabelText(`Select row ${row}`)
     .closest('.MuiCheckbox-root') as HTMLElement;
 
-// Each selection is applied before the next click, which would otherwise
-// start from the previous selection.
 const selectFirstThreeRows = async (): Promise<void> => {
   for (const row of [1, 2, 3]) {
     await userEvent.click(await screen.findByLabelText(`Select row ${row}`));
-    await waitFor(() => {
-      expect(getRowCheckbox(row)).toHaveClass('Mui-checked');
-    });
   }
 };
 

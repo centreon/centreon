@@ -96,6 +96,7 @@ describe('Filter', () => {
 
     const { request } = await waitForRequest('@requestWithSearchQuery');
 
+    // The mock answers only the expected search, so a wrong one times out.
     expect(request.url.searchParams.get('search')).toBe(
       JSON.stringify(expectedSearchParameter)
     );

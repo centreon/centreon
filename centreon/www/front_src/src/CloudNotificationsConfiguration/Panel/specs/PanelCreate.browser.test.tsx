@@ -331,7 +331,7 @@ describe('Create Panel', () => {
     });
     expect(screen.getByText(labelContacts)).toBeVisible();
     expect(getChips('Search contacts')).toEqual([]);
-    // Title, bold: the first line and the macros.
+    // The title and the macros are in bold.
     expect(
       Array.from(emailBody.querySelectorAll('strong')).map(
         (strong) => strong.textContent

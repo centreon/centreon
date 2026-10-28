@@ -4,7 +4,6 @@ import {
   platformVersionsAtom
 } from '@centreon/ui-context';
 
-import { rs } from '@rstest/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { interceptAPIRequest, Method, waitForRequest } from '@test-setup/api';
 import { render } from '@test-setup/render';
@@ -55,14 +54,12 @@ import {
   findBusinessViewsEndpoint,
   resourceAccessRuleEndpoint
 } from '../api/endpoints';
-import { query } from '../FormInitialValues/useFormInitialValues';
 import {
   editedRuleFormData,
   editedRuleFormDataiWithAllBusinessViews,
   editedRuleFormDataiWithBusinessViews,
   editedRuleFormDataWithAllContactsAndContactGroups,
   findBusinessViewsResponse,
-  findResourceAccessRuleResponse,
   findResourceAccessRuleResponseDecoded,
   platformVersions
 } from './testUtils';
@@ -80,12 +77,6 @@ const initialize = ({
     resources: {}
   });
 
-  // The listing puts the edited rule in the query cache before the modal
-  // opens: the form reads its initial values from there.
-  rs.spyOn(query, 'useQueryClient').mockReturnValue({
-    getQueryData: () => findResourceAccessRuleResponseDecoded()
-  } as unknown as QueryClient);
-
   const store = createStore();
   store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
   store.set(editedResourceAccessRuleIdAtom, 1);
@@ -97,13 +88,6 @@ const initialize = ({
   if (withBusinessViews) {
     store.set(platformVersionsAtom, platformVersions as PlatformVersions);
   }
-
-  interceptAPIRequest({
-    alias: 'findResourceAccessRuleRequest',
-    method: Method.GET,
-    path: resourceAccessRuleEndpoint({ id: 1 }),
-    response: findResourceAccessRuleResponse()
-  });
 
   interceptAPIRequest({
     alias: 'editResourceAccessRuleRequest',
@@ -119,10 +103,19 @@ const initialize = ({
     response: findBusinessViewsResponse
   });
 
-  // A client of its own, so no cache leaks from one test to the next.
+  // A client of its own, so no cache leaks from one test to the next. The
+  // edited rule has no observer: it must not be garbage collected.
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { gcTime: 0, retry: false } }
+    defaultOptions: {
+      queries: { gcTime: Number.POSITIVE_INFINITY, retry: false }
+    }
   });
+  // The listing puts the edited rule in the query cache, under the key the
+  // form reads its initial values from, before the modal opens.
+  queryClient.setQueryData(
+    ['resource-access-rule', 1],
+    findResourceAccessRuleResponseDecoded()
+  );
 
   render(
     <div style={{ height: '100vh' }}>
@@ -246,10 +239,6 @@ const expectConfirmationDialog = async (): Promise<void> => {
 describe('Edit modal', () => {
   beforeEach(() => {
     expect.hasAssertions();
-  });
-
-  afterEach(() => {
-    rs.restoreAllMocks();
   });
 
   it('displays the edit resource access rule modal and control actions', async () => {
@@ -382,7 +371,17 @@ describe('Edit modal', () => {
 
     await clickSave();
 
-    await waitForRequest('@editResourceAccessRuleRequest');
+    const { request } = await waitForRequest('@editResourceAccessRuleRequest');
+    // Only the first dataset remains: the host group, then the host.
+    expect(
+      (request.body as { dataset_filters: Array<unknown> }).dataset_filters
+    ).toEqual([
+      {
+        dataset_filter: { dataset_filter: null, resources: [14], type: 'host' },
+        resources: [53],
+        type: 'hostgroup'
+      }
+    ]);
 
     await expectSaved();
   });
@@ -407,7 +406,11 @@ describe('Edit modal', () => {
     expect(screen.getByLabelText(labelAddNewDataset)).toBeDisabled();
     await clickSave();
 
-    await waitForRequest('@editResourceAccessRuleRequest');
+    const { request } = await waitForRequest('@editResourceAccessRuleRequest');
+    // A single dataset, of all resources.
+    expect(
+      (request.body as { dataset_filters: Array<unknown> }).dataset_filters
+    ).toEqual([{ dataset_filter: null, resources: [], type: 'all' }]);
 
     await expectSaved();
   });

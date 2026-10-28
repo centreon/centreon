@@ -4,13 +4,9 @@ import {
   platformVersionsAtom
 } from '@centreon/ui-context';
 
+import { page } from '@rstest/browser';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
-  getRequestCalls,
-  interceptAPIRequest,
-  Method,
-  waitForRequest
-} from '@test-setup/api';
+import { interceptAPIRequest, Method, waitForRequest } from '@test-setup/api';
 import { render } from '@test-setup/render';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -192,13 +188,23 @@ const getChips = (testId: string): Array<string | null> =>
     ).querySelectorAll('.MuiChip-label')
   ).map((chip) => chip.textContent);
 
-// The clear button of an autocomplete only shows on hover: like a user, the
-// pointer goes over the field first.
+// The clear button of an autocomplete only shows on hover. A real pointer goes
+// over the field (`userEvent.hover` never puts it in the CSS `:hover` state),
+// then clicks the button, which it can only do once the button shows.
 const clearField = async (index: number): Promise<void> => {
-  const clear = screen.getAllByLabelText('Clear')[index];
+  const clear = page.getByLabel('Clear', { exact: true }).nth(index);
 
-  await userEvent.hover(clear.closest('.MuiAutocomplete-root') as HTMLElement);
-  await userEvent.click(clear);
+  try {
+    await page
+      .locator('.MuiAutocomplete-root')
+      .filter({ has: page.getByLabel('Clear', { exact: true }) })
+      .nth(index)
+      .hover();
+    await clear.click();
+  } finally {
+    // The pointer stays put between steps and tests: leave the field.
+    await page.locator('body').hover({ position: { x: 0, y: 0 } });
+  }
 };
 
 const getActivateSwitch = (): HTMLElement =>
@@ -704,11 +710,9 @@ describe('Edit Panel: Delete button', () => {
     await userEvent.click(screen.getByTestId(labelDeleteNotification));
     await userEvent.click(await screen.findByLabelText(labelDelete));
 
-    await waitForRequest('@deleteNotificationtRequest');
-    // The panel deleted the notification it had loaded.
-    expect(getRequestCalls('@getNotificationRequest').length).toBeGreaterThan(
-      0
-    );
+    const { request } = await waitForRequest('@deleteNotificationtRequest');
+    // The loaded notification (id 1) is the one deleted.
+    expect(request.url.pathname).toMatch(/\/1$/);
 
     expect(
       await screen.findByText(labelNotificationSuccessfullyDeleted)
@@ -801,10 +805,21 @@ describe('Edit Panel: Duplicate button', () => {
       expect(screen.getByTestId('Confirm')).toBeDisabled();
     });
 
+    // From a valid name, so that emptying it is what disables Confirm.
+    await userEvent.clear(name);
+    await userEvent.type(name, 'New name');
+    await waitFor(() => {
+      expect(screen.getByTestId('Confirm')).toBeEnabled();
+    });
+
     await userEvent.clear(name);
     await waitFor(() => {
       expect(screen.getByTestId('Confirm')).toBeDisabled();
     });
+    // An empty name is back to the initial value, which alone disables
+    // Confirm: the required message shows the rule applies.
+    await clickOutside();
+    expect(await screen.findByText(labelRequired)).toBeVisible();
 
     await userEvent.click(screen.getByText(labelDiscard));
   });
