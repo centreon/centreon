@@ -21667,6 +21667,14 @@ msgid "Arguments need an event handler"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Auto-remediation"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Check command / Template / Custom macros"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Configure the services monitored on your hosts"
 msgstr ""
 
@@ -21676,6 +21684,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Include disabled hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Monitoring engine / Scheduling options"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
