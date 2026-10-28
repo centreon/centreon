@@ -373,6 +373,15 @@ contents:
       group: "centreon-broker"
 
 
+  # Also owned by centreon-poller (same attributes), which centreon-web does not
+  # require: centreon-web writes its own logs there.
+  - dst: "/var/log/centreon"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0774
+
   - dst: "/var/lib/centreon/vault"
     type: dir
     file_info:
