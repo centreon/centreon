@@ -25443,6 +25443,10 @@ msgstr "Services au statut \"En attente\""
 msgid "Prerequisite: configure the central to accept pullwss connections"
 msgstr "Prérequis : configurer le central pour accepter les connexions pullwss"
 
+#: centreon/www/install/front_translate.php
+msgid "Removal"
+msgstr "Suppression"
+
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Service ID"
 msgstr "ID du service"
@@ -25450,6 +25454,10 @@ msgstr "ID du service"
 #: centreon/www/install/front_translate.php
 msgid "The following arguments are not valid: {{arguments}}"
 msgstr "Les arguments suivants ne sont pas valides : {{arguments}}"
+
+#: centreon/www/install/front_translate.php
+msgid "The lists set to Replacement will overwrite those of every selected service, and empty them when left blank."
+msgstr "Les listes en mode Remplacement écraseront celles de chaque service sélectionné, et les videront si elles sont laissées vides."
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "This SNMP trap no longer exists."

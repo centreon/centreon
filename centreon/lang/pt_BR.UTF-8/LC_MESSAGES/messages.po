@@ -24135,7 +24135,15 @@ msgid "Must be an integer between 0 and 100"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Removal"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "The following arguments are not valid: {{arguments}}"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "The lists set to Replacement will overwrite those of every selected service, and empty them when left blank."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php

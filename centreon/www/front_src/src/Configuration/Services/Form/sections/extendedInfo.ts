@@ -36,6 +36,7 @@ import {
   labelServiceSeverity,
   labelServiceSeverityWithLevel
 } from '../../translatedLabels';
+import { withUpdateMode } from '../updateMode';
 import type { FormSection, SectionContext } from './models';
 
 // Placeholders, on the model of the `/configuration/hosts/*` selectors: the
@@ -273,7 +274,7 @@ export const extendedInfo: FormSection<ExtendedInfoDetail> = {
     extendedInfos: 'extended_informations',
     graphTemplate: 'graph_template'
   },
-  getInputs: ({ isCloudPlatform, t }) => {
+  getInputs: ({ isCloudPlatform, isMassChange, t }) => {
     const categories: InputPropsWithoutGroup = {
       connectedAutocomplete: buildSelector({
         chipColor: 'primary',
@@ -334,7 +335,12 @@ export const extendedInfo: FormSection<ExtendedInfoDetail> = {
         label: 'service-form-extended-info-details',
         type: InputType.Grid
       },
-      categories,
+      withUpdateMode({
+        field: 'categories',
+        input: categories,
+        isMassChange,
+        t
+      }),
       ...(isCloudPlatform
         ? []
         : [getTextInput({ fieldName: 'comment', multilineRows: 3, t })])

@@ -53,6 +53,9 @@ const getApi = (context: PlatformContext): APIType => ({
   methods: {
     disable: Method.PATCH,
     enable: Method.PATCH,
+    // A mass change sends only what the user changed, so it patches each
+    // service rather than replacing it.
+    massUpdate: Method.PATCH,
     // The form sends every field, so it replaces the service rather than
     // patching it; enable and disable stay partial updates.
     update: Method.PUT

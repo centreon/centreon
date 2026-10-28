@@ -1,14 +1,18 @@
+import { EditNoteOutlined as MassChangeIcon } from '@mui/icons-material';
+
 import {
   isAdditiveInheritanceEnabledAtom,
   platformFeaturesAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
+import { formStateAtom } from '../ConfigurationBase/atoms';
+import { labelMassChange } from '../ConfigurationBase/translatedLabels';
 import { type Actions, ResourceType } from '../models';
 import {
   filtersAtom,
@@ -16,7 +20,14 @@ import {
   selectedColumnIdsAtom
 } from './atoms';
 import useColumns from './Columns/useColumns';
-import { getDefaultValues, useFormInputs, useValidationSchema } from './Form';
+import {
+  getDefaultValues,
+  getMassChangeAdapter,
+  getMassChangeDefaultValues,
+  getMassChangeWarning,
+  useFormInputs,
+  useValidationSchema
+} from './Form';
 import type { Filters } from './models';
 import {
   labelCreateService,
@@ -64,6 +75,43 @@ const Services = () => {
     () => getDefaultValues({ isAdditiveInheritanceEnabled, isCloudPlatform }),
     [isAdditiveInheritanceEnabled, isCloudPlatform]
   );
+  // The same sections, without what names one service, nothing required, and
+  // an update mode on every list (MON-213088).
+  const { groups: massChangeGroups, inputs: massChangeInputs } = useFormInputs({
+    canEdit,
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    isMassChange: true
+  });
+  const { validationSchema: massChangeValidationSchema } = useValidationSchema({
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    isMassChange: true
+  });
+  const massChange = useMemo(() => {
+    const context = {
+      isAdditiveInheritanceEnabled,
+      isCloudPlatform,
+      isMassChange: true
+    };
+
+    return {
+      adapter: getMassChangeAdapter(context),
+      defaultValues: getMassChangeDefaultValues(context),
+      getConfirmationWarning: getMassChangeWarning(t),
+      groups: massChangeGroups,
+      inputs: massChangeInputs,
+      validationSchema: massChangeValidationSchema
+    };
+  }, [
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    massChangeGroups,
+    massChangeInputs,
+    massChangeValidationSchema,
+    t
+  ]);
+  const setFormState = useSetAtom(formStateAtom);
   useHostNameFilterFromUrl();
 
   const actions: Actions = useMemo(
@@ -73,12 +121,30 @@ const Services = () => {
       edit: canEdit,
       enableDisable: () => canEdit,
       massive: canEdit,
+      massiveActions: [
+        {
+          dataTestId: 'mass-change',
+          Icon: MassChangeIcon,
+          label: labelMassChange,
+          onClick: (rows) =>
+            setFormState({
+              id: null,
+              isOpen: true,
+              mode: 'massChange',
+              resource: null,
+              selection: rows.map(({ id, name }) => ({
+                id: id as number,
+                name: name as string
+              }))
+            })
+        }
+      ],
       // Keeps the status toggle on screen, disabled, for a read-only user.
       rowActionsWithoutWriteAccess: true,
       // A read-only user still opens a service, on a frozen form.
       viewDetails: true
     }),
-    [canEdit]
+    [canEdit, setFormState]
   );
 
   return (
@@ -96,7 +162,7 @@ const Services = () => {
       // The default width fits neither five filters nor the names the
       // autocomplete holds.
       filtersPanelWidth={60}
-      form={{ defaultValues, groups, inputs, validationSchema }}
+      form={{ defaultValues, groups, inputs, massChange, validationSchema }}
       formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{

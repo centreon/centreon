@@ -73,7 +73,15 @@ interface Props {
   isCloudPlatform?: boolean;
   // Opens the page on a deep link, such as `?mode=edit&id=0`.
   searchParams?: string;
+  // MON-213088: the services whose partial update is refused.
+  patchFails?: Array<number>;
 }
+
+export const patchRefusedMessage = 'The service cannot be updated';
+
+// MON-213088: every service a partial update reached, in order, refused ones
+// included, so a mass change spec can tell exactly which were written to.
+export const patchedServiceIds: Array<number> = [];
 
 const initialize = ({
   isEmpty = false,
@@ -82,7 +90,8 @@ const initialize = ({
   limitPerPage,
   isAdditiveInheritanceEnabled = false,
   isCloudPlatform = false,
-  searchParams = ''
+  searchParams = '',
+  patchFails = []
 }: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -135,12 +144,24 @@ const initialize = ({
     });
   });
 
-  // Enable and disable are a partial update of the service, one request each.
+  // Enable, disable and mass change are a partial update of the service, one
+  // request each.
+  patchedServiceIds.length = 0;
+
   [0, 1, 2].forEach((id) => {
+    const fails = patchFails.includes(id);
+
     interceptRequest(
       Method.PATCH,
       `**${getServiceEndpoint({ id })}`,
-      () => HttpResponse.json({}),
+      () => {
+        patchedServiceIds.push(id);
+
+        return HttpResponse.json(
+          fails ? { code: 422, message: patchRefusedMessage } : {},
+          { status: fails ? 422 : 200 }
+        );
+      },
       `patchService${id}`
     );
   });
