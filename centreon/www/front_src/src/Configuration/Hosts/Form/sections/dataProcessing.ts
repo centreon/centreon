@@ -154,7 +154,7 @@ const getTriStateInput = ({
   dataTestId: `host-form-data-processing-${fieldName}`,
   fieldName: `dataProcessing.${fieldName}`,
   label,
-  segmentedButtons: { options: triStateOptions },
+  segmentedButtons: { hideLabel: true, options: triStateOptions },
   type: InputType.SegmentedButtons
 });
 

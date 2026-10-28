@@ -161,35 +161,47 @@ const getSectionTitles = (section: string): Array<string | null> => {
     .map((title) => title.textContent);
 };
 
-// The yes / no / third state fields: their label and the design's word for the
-// third state, which differs from field to field.
-const triStates: Array<{ label: string; testId: string; third: string }> = [
+// The yes / no / third state fields: their label, whether it is displayed (only
+// the active and passive checks show it) and the design's word for the third
+// state, which differs from field to field.
+const triStates: Array<{
+  isLabelShown: boolean;
+  label: string;
+  testId: string;
+  third: string;
+}> = [
   {
+    isLabelShown: true,
     label: labelActiveChecksEnabled,
     testId: 'host-form-scheduling-options-activeCheckEnabled',
     third: labelDefault
   },
   {
+    isLabelShown: true,
     label: labelPassiveChecksEnabled,
     testId: 'host-form-scheduling-options-passiveCheckEnabled',
     third: labelDefault
   },
   {
+    isLabelShown: false,
     label: labelNotificationEnabled,
     testId: 'host-form-notifications-enabled',
     third: labelDefault
   },
   {
+    isLabelShown: false,
     label: labelEventHandlerEnabled,
     testId: 'host-form-data-processing-eventHandlerEnabled',
     third: labelDefault
   },
   {
+    isLabelShown: false,
     label: labelEnableFreshnessCheck,
     testId: 'host-form-data-processing-checkFreshness',
     third: labelDefault
   },
   {
+    isLabelShown: false,
     label: labelFlapDetectionEnabled,
     testId: 'host-form-data-processing-flapDetectionEnabled',
     third: labelDefault
@@ -202,8 +214,10 @@ const cloudTriStates = [
   'host-form-data-processing-checkFreshness'
 ];
 
-// The label shown above the buttons, the group's name, and its three options.
+// The label shown above the buttons when there is one, the group's name, and
+// its three options.
 const expectTriState = ({
+  isLabelShown,
   label,
   testId,
   third
@@ -212,9 +226,13 @@ const expectTriState = ({
 
   expect(group).toHaveAccessibleName(label);
   // The group sits in a scrolling wrapper, a sibling of the label.
-  expect(group.parentElement?.previousElementSibling).toHaveTextContent(
-    new RegExp(`^${label}$`)
-  );
+  const labelElement = group.parentElement?.previousElementSibling;
+
+  if (isLabelShown) {
+    expect(labelElement).toHaveTextContent(new RegExp(`^${label}$`));
+  } else {
+    expect(labelElement).toBeNull();
+  }
   expect(
     within(group)
       .getAllByRole('button')
