@@ -25347,6 +25347,10 @@ msgid "An error occurred during session logout"
 msgstr "Une erreur est survenue lors de la déconnexion de la session"
 
 #: centreon/www/install/front_translate.php
+msgid "Arguments need an event handler"
+msgstr "Les arguments nécessitent un gestionnaire d'évènements"
+
+#: centreon/www/install/front_translate.php
 msgid "Computing exact count…"
 msgstr "Calcul du nombre exact…"
 
@@ -25402,6 +25406,10 @@ msgstr ""
 "Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour "
 "calculer le nombre exact."
 
+#: centreon/www/install/front_translate.php
+msgid "Must be an integer between 0 and 100"
+msgstr "Doit être un entier compris entre 0 et 100"
+
 #: centreon/www/include/configuration/configObject/service/DB-Func.php
 msgid ""
 "One or more of the selected services cannot be moved: a service with the "
@@ -25434,6 +25442,10 @@ msgstr "Prérequis : configurer le central pour accepter les connexions pullwss"
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Service ID"
 msgstr "ID du service"
+
+#: centreon/www/install/front_translate.php
+msgid "The following arguments are not valid: {{arguments}}"
+msgstr "Les arguments suivants ne sont pas valides : {{arguments}}"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "This SNMP trap no longer exists."

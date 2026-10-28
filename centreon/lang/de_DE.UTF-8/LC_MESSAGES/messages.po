@@ -21659,6 +21659,10 @@ msgstr ""
 # msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Arguments need an event handler"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Configure the services monitored on your hosts"
 msgstr ""
 
@@ -21668,6 +21672,14 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Include disabled hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Must be an integer between 0 and 100"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "The following arguments are not valid: {{arguments}}"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php

@@ -71,3 +71,34 @@ export const labelMustBePositiveIntegerOrZero =
 // locale already has them.
 export const labelServiceGroups = 'Service groups';
 export const labelServiceTraps = 'Service Trap Relation';
+// Data Processing (MON-213085), spelled as the legacy service form spells it.
+export const labelYes = 'Yes';
+export const labelNo = 'No';
+export const labelDefault = 'Default';
+export const labelObsessOverService = 'Obsess Over Service';
+export const labelAcknowledgementTimeout = 'Acknowledgement timeout';
+export const labelFreshnessControlOptions = 'Freshness Control options';
+export const labelCheckFreshness = 'Check Freshness';
+export const labelFreshnessThreshold = 'Freshness Threshold';
+export const labelSeconds = 'seconds';
+export const labelFlappingOptions = 'Flapping options';
+export const labelFlapDetectionEnabled = 'Flap Detection Enabled';
+export const labelLowFlapThreshold = 'Low Flap Threshold';
+export const labelHighFlapThreshold = 'High Flap Threshold';
+export const labelHistoryOptions = 'History Options';
+export const labelRetainStatusInformation = 'Retain Status Information';
+export const labelRetainNonStatusInformation = 'Retain Non Status Information';
+export const labelStalkingOptions = 'Stalking Options';
+export const labelOk = 'Ok';
+export const labelEventHandler = 'Event Handler';
+export const labelEventHandlerEnabled = 'Event Handler Enabled';
+// Legacy's label for the arguments of the check command and the event handler.
+export const labelArgs = 'Args';
+// The catalogue already carries these two, from the Hosts form.
+// New strings, wording to confirm with UX.
+export const labelMustBeIntegerBetweenZeroAndOneHundred =
+  'Must be an integer between 0 and 100';
+export const labelEventHandlerArgumentsNeedAnEventHandler =
+  'Arguments need an event handler';
+export const labelForbiddenEventHandlerArguments =
+  'The following arguments are not valid: {{arguments}}';
