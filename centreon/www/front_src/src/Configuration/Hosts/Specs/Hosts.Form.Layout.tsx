@@ -34,6 +34,7 @@ import {
   labelPassiveChecksEnabled,
   labelRelations,
   labelSchedulingOptions,
+  labelSnmpCommunity,
   labelSnmpVersion,
   labelTemplates,
   labelTimesSixtySeconds,
@@ -108,7 +109,7 @@ const titles: Record<string, Array<string>> = {
   [labelGeneralInformation]: [labelHostBasicInformation],
   [labelHostMonitoringProperties]: [
     labelHostCheckOptions,
-    labelArguments,
+    labelSnmpCommunity,
     labelTemplates,
     labelCustomMacros
   ],
@@ -220,6 +221,20 @@ const expectTriState = ({
       .map((button) => button.textContent)
   ).toEqual([labelYes, labelNo, third]);
 };
+
+// The lines drawn between columns: those painted where they are drawn, not
+// clipped away with the first column's.
+const countSeparators = (): number =>
+  Array.from(
+    document.querySelectorAll<HTMLElement>('[data-column-separator]')
+  ).filter((line) => {
+    // Only what is on screen can be asked what is painted there.
+    line.scrollIntoView({ block: 'center' });
+
+    const { left, top } = line.getBoundingClientRect();
+
+    return document.elementFromPoint(left + 0.5, top + 10) === line;
+  }).length;
 
 const getTabs = (): Array<string | null> =>
   screen.getAllByRole('tab').map((tab) => tab.textContent);
@@ -338,7 +353,7 @@ export default () => {
         });
     });
 
-    it('shows the SNMP fields right after the check command and its arguments, before the templates', async () => {
+    it('shows the SNMP block beside the check command and its arguments, before the templates', async () => {
       initializeFormLayout({ width: wide });
 
       await waitForForm();
@@ -347,14 +362,32 @@ export default () => {
         'host-form-snmp-community',
         labelHostMonitoringProperties
       );
-      expectBeside('host-form-snmp-community', getSnmpVersion());
-      expectBelow(
+      // The check command and its arguments on the left, the SNMP community
+      // and its version on the right.
+      expectBeside(
         'host-form-check-options-command',
         'host-form-snmp-community'
       );
-      expectBelow('host-form-check-options-args', getSnmpVersion());
-      expectBelow('host-form-snmp-community', 'host-form-templates');
+      expectBelow(
+        'host-form-check-options-command',
+        'host-form-check-options-args'
+      );
+      expectBelow('host-form-snmp-community', getSnmpVersion());
+      // The arguments carry no title: their word is the label of the field.
+      expect(
+        screen.getByRole('textbox', { name: labelArguments })
+      ).toBeVisible();
+      expectBeside('host-form-check-options-args', getSnmpVersion());
+      expectBelow('host-form-check-options-args', 'host-form-templates');
       expectBelow(getSnmpVersion(), 'host-form-check-options-macros');
+      // Twice the usual space (16px) above the templates.
+      expect(
+        getRect('host-form-templates').top -
+          Math.max(
+            getRect('host-form-check-options-args').bottom,
+            getSnmpVersion().getBoundingClientRect().bottom
+          )
+      ).toBeGreaterThanOrEqual(32);
     });
 
     it('shows the host severity among the relations, below the host categories', async () => {
@@ -422,6 +455,37 @@ export default () => {
       ).toBeVisible();
     });
 
+    it('draws the dashed separators of the design between the columns only', async () => {
+      const counts: Record<string, number> = {};
+
+      for (const [name, props] of [
+        ['wide', { width: wide }],
+        ['wide cloud', { isCloudPlatform: true, width: wide }],
+        ['narrow', { width: narrow }]
+      ] as const) {
+        const { unmount } = initializeFormLayout(props);
+
+        await waitForForm();
+
+        counts[name] = countSeparators();
+
+        unmount();
+      }
+
+      // Check command | arguments, templates | macros, the two columns of the
+      // relations, host details | scheduling options and its numbers |
+      // buttons, recipients | notify on, the delays (a segment for each of
+      // their two rows), and the three columns of the advanced section (two
+      // lines).
+      expect(counts.wide).toBe(10);
+      // No notifications, no active / passive checks beside the numbers, two
+      // columns in the advanced section.
+      expect(counts['wide cloud']).toBe(5);
+      // What still sits side by side: check command | arguments, the
+      // relations, host details | scheduling options and the delays.
+      expect(counts.narrow).toBe(5);
+    });
+
     it('never cuts the Yes / No / Inherit buttons of the scheduling options', async () => {
       const cut: Array<string> = [];
 
@@ -454,9 +518,14 @@ export default () => {
 
       await waitForForm();
 
-      expectBeside(
+      // The check command over its arguments, beside the SNMP community.
+      expectBelow(
         'host-form-check-options-command',
         'host-form-check-options-args'
+      );
+      expectBeside(
+        'host-form-check-options-command',
+        'host-form-snmp-community'
       );
       expectBeside('host-form-templates', 'host-form-check-options-macros');
 
@@ -512,10 +581,15 @@ export default () => {
 
       await waitForForm();
 
-      // Still beside each other, as designed.
-      expectBeside(
+      // Still two columns: the check command over its arguments, beside the
+      // SNMP community.
+      expectBelow(
         'host-form-check-options-command',
         'host-form-check-options-args'
+      );
+      expectBeside(
+        'host-form-check-options-command',
+        'host-form-snmp-community'
       );
       expectBelow('host-form-templates', 'host-form-check-options-macros');
 

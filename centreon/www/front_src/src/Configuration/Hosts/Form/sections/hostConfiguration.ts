@@ -21,7 +21,6 @@ import {
   labelAddress,
   labelAlias,
   labelAlreadyExists,
-  labelArgs,
   labelArguments,
   labelCheckCommand,
   labelCheckPeriod,
@@ -50,7 +49,7 @@ import {
   labelValue
 } from '../../translatedLabels';
 import { argumentsToText, textToArguments } from '../commandArguments';
-import { getBlock, twoColumns } from '../grid';
+import { getBlock } from '../grid';
 import Macros from '../Macros';
 import {
   hostMacroDecoder,
@@ -513,7 +512,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         })
       }),
       checkCommand: getBlock({
-        className: twoColumns,
         columns: [
           {
             additionalLabel: t(labelHostCheckOptions),
@@ -532,12 +530,11 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
             type: InputType.SingleConnectedAutocomplete
           },
           {
-            additionalLabel: t(labelArguments),
             dataTestId: 'host-form-check-options-args',
             fieldName: 'checkOptions.args',
             // Arguments without a command are refused.
             getDisabled: (values) => !values.checkOptions?.command,
-            label: t(labelArgs),
+            label: t(labelArguments),
             text: { placeholder: '!arg1!arg2' },
             type: InputType.Text
           }
@@ -576,13 +573,13 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         columns: [checkPeriod, ...checkNumbers],
         name: 'scheduling-check-numbers'
       }),
-      // Not in the design: placed right after the check command on request.
-      // Password managers take the text field before a password for its user
-      // name, here the check command arguments.
+      // Not in the design: placed beside the check command on request. Password
+      // managers take the text field before a password for its user name, here
+      // the check command arguments.
       snmp: getBlock({
-        className: twoColumns,
         columns: [snmpCommunity, snmpVersion],
-        name: 'snmp'
+        name: 'snmp',
+        title: t(labelSnmpCommunity)
       }),
       templates: getBlock({
         columns: [

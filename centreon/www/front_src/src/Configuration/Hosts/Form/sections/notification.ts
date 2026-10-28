@@ -280,6 +280,7 @@ export const notification: FormSection<NotificationDetail> = {
     // Row by row: interval beside the first delay, period beside recovery.
     const delays = getBlock({
       className: twoColumns,
+      columnSeparator: true,
       columns: [
         getNumberInput({
           fieldName: 'interval',
