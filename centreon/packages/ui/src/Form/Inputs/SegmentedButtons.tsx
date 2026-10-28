@@ -32,15 +32,13 @@ const SegmentedButtons = ({
   return useMemoComponent({
     Component: (
       <FormGroup>
-        <FormLabel>{t(label)}</FormLabel>
-        {/* In a column narrower than the segments, the group scrolls inside it
-            rather than overflowing into what is next to it. */}
+        <FormLabel className="font-bold">{t(label)}</FormLabel>
+        {/* In a column narrower than the three minimum widths, the group scrolls
+            inside it rather than overflowing into what is next to it. */}
         <div className="max-w-full self-start overflow-x-auto">
           <ButtonGroup
             aria-label={t(label)}
-            // Equal segments, each as wide as the longest label (26 spacing
-            // units, 104px, at least), whatever the width of the column.
-            className="inline-grid auto-cols-[minmax(calc(var(--spacing)*26),1fr)] grid-flow-col"
+            className="max-w-full"
             color="primary"
             data-testid={dataTestId}
             disabled={disabled}
@@ -50,16 +48,21 @@ const SegmentedButtons = ({
               ({ label: optionLabel, value: optionValue }) => {
                 const isSelected = equals(value, optionValue);
 
+                // As in the design: every segment is 26 spacing units (104px)
+                // wide at least, and grows with its own label. A label wider
+                // than the room left is cut with an ellipsis, its full text
+                // in the tooltip.
                 return (
                   <Button
                     aria-pressed={isSelected}
-                    className="h-7 whitespace-nowrap px-3 py-0 font-medium text-sm leading-[21px] normal-case"
+                    className="h-7 min-w-26 px-3 py-0 font-medium text-sm leading-[21px] normal-case"
                     data-testid={`${dataTestId}-${optionValue}`}
                     key={optionValue}
                     onClick={select(optionValue)}
+                    title={t(optionLabel)}
                     variant={isSelected ? 'contained' : 'outlined'}
                   >
-                    {t(optionLabel)}
+                    <span className="min-w-0 truncate">{t(optionLabel)}</span>
                   </Button>
                 );
               }

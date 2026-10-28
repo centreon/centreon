@@ -1,8 +1,4 @@
-import {
-  type InputPropsWithoutGroup,
-  InputType,
-  type SelectEntry
-} from '@centreon/ui';
+import { InputType, type SelectEntry } from '@centreon/ui';
 
 import { createElement } from 'react';
 import { JsonDecoder } from 'ts.data.json';
@@ -14,21 +10,26 @@ import type { NamedEntity } from '../../models';
 import {
   labelAcknowledgementTimeout,
   labelArgs,
-  labelCheckFreshness,
+  labelArguments,
+  labelAutoRemediation,
+  labelCommand,
   labelDataProcessing,
+  labelEnableFreshnessCheck,
   labelEventHandler,
   labelEventHandlerEnabled,
+  labelFlapDetection,
   labelFlapDetectionEnabled,
-  labelFlappingOptions,
-  labelFreshnessControlOptions,
+  labelFreshnessCheck,
   labelFreshnessThreshold,
   labelHighFlapThreshold,
   labelLowFlapThreshold,
   labelMustBeIntegerOfAtLeastOne,
   labelMustBePositiveIntegerOrZero,
-  labelSeconds
+  labelSeconds,
+  labelTimesSixtySeconds
 } from '../../translatedLabels';
 import { argumentsToText, textToArguments } from '../commandArguments';
+import { getBlock } from '../grid';
 import { buildSelector } from '../selector';
 import {
   defaultTriState,
@@ -157,22 +158,6 @@ const getTriStateInput = ({
   type: InputType.SegmentedButtons
 });
 
-const getBlock = ({
-  name,
-  title,
-  columns
-}: {
-  columns: Array<InputPropsWithoutGroup>;
-  name: string;
-  title: string;
-}): InputPropsWithoutGroup => ({
-  additionalLabel: title,
-  fieldName: `data-processing-${name}`,
-  grid: { className: 'grid-cols-1', columns },
-  label: `host-form-data-processing-${name}`,
-  type: InputType.Grid
-});
-
 export const dataProcessing: FormSection<DataProcessingDetail> = {
   defaultValues: { dataProcessing: defaultDataProcessing },
   detailDecoders: {
@@ -189,6 +174,7 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
           label: t(labelEventHandlerEnabled)
         }),
         {
+          additionalLabel: t(labelEventHandler),
           connectedAutocomplete: buildSelector({
             // Legacy offers every active command, whatever its type.
             customQueryParameters: [{ name: 'is_activated', value: true }],
@@ -198,13 +184,14 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
           }),
           dataTestId: 'host-form-data-processing-eventHandler',
           fieldName: 'dataProcessing.eventHandler',
-          label: t(labelEventHandler),
+          label: t(labelCommand),
           type: InputType.SingleConnectedAutocomplete
         },
         ...(isCloudPlatform
           ? []
           : [
               {
+                additionalLabel: t(labelArguments),
                 dataTestId: 'host-form-data-processing-eventHandlerArgs',
                 fieldName: 'dataProcessing.eventHandlerArgs',
                 label: t(labelArgs),
@@ -213,15 +200,15 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
               }
             ])
       ],
-      name: 'event-handler',
-      title: t(labelEventHandler)
+      name: 'data-processing-event-handler',
+      title: t(labelAutoRemediation)
     });
 
     const freshness = getBlock({
       columns: [
         getTriStateInput({
           fieldName: 'checkFreshness',
-          label: t(labelCheckFreshness)
+          label: t(labelEnableFreshnessCheck)
         }),
         // 0 leaves the threshold to the engine.
         getNumberInput({
@@ -229,19 +216,10 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
           label: t(labelFreshnessThreshold),
           min: 0,
           unit: t(labelSeconds)
-        }),
-        ...(isCloudPlatform
-          ? []
-          : [
-              getNumberInput({
-                fieldName: 'acknowledgmentTimeout',
-                label: t(labelAcknowledgementTimeout),
-                min: 1
-              })
-            ])
+        })
       ],
-      name: 'freshness',
-      title: t(labelFreshnessControlOptions)
+      name: 'data-processing-freshness',
+      title: t(labelFreshnessCheck)
     });
 
     const flapping = getBlock({
@@ -263,25 +241,29 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
           unit: '%'
         })
       ],
-      name: 'flapping',
-      title: t(labelFlappingOptions)
+      name: 'data-processing-flapping',
+      title: t(labelFlapDetection)
     });
 
-    return [
-      {
-        fieldName: 'data-processing-layout',
-        grid: {
-          className: isCloudPlatform
-            ? 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2'
-            : 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2 @[1100px]:grid-cols-3',
-          columns: isCloudPlatform
-            ? [eventHandler, freshness]
-            : [eventHandler, freshness, flapping]
-        },
-        label: 'host-form-data-processing-layout',
-        type: InputType.Grid
-      }
-    ];
+    return {
+      eventHandler,
+      freshness,
+      ...(!isCloudPlatform && {
+        acknowledgmentTimeout: getBlock({
+          columns: [
+            getNumberInput({
+              fieldName: 'acknowledgmentTimeout',
+              label: t(labelAcknowledgementTimeout),
+              min: 1,
+              unit: t(labelTimesSixtySeconds)
+            })
+          ],
+          name: 'data-processing-acknowledgment-timeout',
+          title: t(labelDataProcessing)
+        }),
+        flapping
+      })
+    };
   },
   getSchema: ({ t }) => ({
     dataProcessing: object({
@@ -304,7 +286,6 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
       })
     })
   }),
-  label: labelDataProcessing,
   toPayload: (values, { isCloudPlatform }) => {
     const dataProcessingValues = (values.dataProcessing ??
       defaultDataProcessing) as DataProcessingValues;
