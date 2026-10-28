@@ -413,7 +413,11 @@ signatures:
   previous nightly of the same branch with no related change in between (flaky).
 
 For infrastructure or flaky failures, do not change any code: finish with a
-no-op that summarizes the classification and the log evidence.
+no-op that summarizes the classification and the log evidence. Exception: when
+an intermittent failure has an identifiable defect in the repository (an
+unhandled promise rejection, a race in the application or test code, a missing
+wait on a request), treat it as a code or test failure and fix it if your
+confidence is high.
 
 ### 3. Determine the cause of real failures
 
@@ -476,7 +480,11 @@ To open a pull request:
    `git show origin/<branch>:<path>`.
 3. Create the fix branch from the target (`git checkout -b <name>
 origin/<target>`) and make the smallest change that fixes the root cause. Do
-   not refactor, reformat or touch unrelated files.
+   not refactor, reformat or touch unrelated files. Follow the linter rules of
+   the files you change (import grouping and order, formatting): for front-end
+   files Biome rejects extra blank lines between imports. If the project linter
+   is available in the workspace (for example `centreon/node_modules/.bin/biome`),
+   run it on the changed files and fix what it reports.
 4. Commit with a conventional commit message such as
    `fix(ci): run clear-branch-cache after deliver-pulp`.
 5. Open the pull request with `base` set to the target branch, titled
