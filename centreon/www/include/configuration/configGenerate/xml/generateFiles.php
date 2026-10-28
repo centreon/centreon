@@ -42,6 +42,13 @@ global $pearDB;
 
 $pearDB = $dependencyInjector['configuration_db'];
 
+if (! defined('STATUS_OK')) {
+    define('STATUS_OK', 0);
+}
+if (! defined('STATUS_NOK')) {
+    define('STATUS_NOK', 1);
+}
+
 $xml = new CentreonXML();
 $okMsg = "<b><font color='green'>OK</font></b>";
 $nokMsg = "<b><font color='red'>NOK</font></b>";
@@ -103,7 +110,7 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
 if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
     $xml->startElement('response');
     $xml->writeElement('status', $nokMsg);
-    $xml->writeElement('statuscode', 1);
+    $xml->writeElement('statuscode', STATUS_NOK);
     $xml->writeElement('error', 'You are not allowed to generate configuration');
     $xml->endElement();
 
