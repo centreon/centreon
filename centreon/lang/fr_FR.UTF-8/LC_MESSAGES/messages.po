@@ -25350,6 +25350,10 @@ msgstr "Une erreur est survenue lors de la déconnexion de la session"
 msgid "Computing exact count…"
 msgstr "Calcul du nombre exact…"
 
+#: centreon/www/install/front_translate.php
+msgid "Configure the services monitored on your hosts"
+msgstr "Configurez les services supervisés sur vos hôtes"
+
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 msgid "Could not copy VMWare configuration file"
 msgstr "Impossible de copier le fichier de configuration VMWare"
@@ -25357,6 +25361,10 @@ msgstr "Impossible de copier le fichier de configuration VMWare"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Could not load the SNMP trap. Please try again."
 msgstr "Impossible de charger le trap SNMP. Veuillez réessayer."
+
+#: centreon/www/install/front_translate.php
+msgid "Create a service"
+msgstr "Créer un service"
 
 #: centreon/www/install/front_translate.php
 msgid "Current status of the hosts being monitored"
@@ -25381,6 +25389,10 @@ msgstr "Échec de la fermeture du ticket"
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Host ID"
 msgstr "ID de l'hôte"
+
+#: centreon/www/install/front_translate.php
+msgid "Include disabled hosts"
+msgstr "Inclure les hôtes désactivés"
 
 #: centreon/www/install/front_translate.php
 msgid ""
@@ -25427,6 +25439,10 @@ msgstr "ID du service"
 msgid "This SNMP trap no longer exists."
 msgstr "Ce trap SNMP n'existe plus."
 
+#: centreon/www/install/front_translate.php
+msgid "This name is reserved"
+msgstr "Ce nom est réservé"
+
 #: centreon/src/Core/Security/Vault/Application/Exceptions/VaultException.php
 msgid "Unable to revert passwords"
 msgstr "Impossible de restaurer les mots de passe"
@@ -25436,5 +25452,17 @@ msgid "Vault is not available"
 msgstr "Le coffre-fort n'est pas disponible"
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the Services interface!"
+msgstr "Bienvenue dans l'interface des services !"
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} min"
+msgstr "{{count}} min"
+
+#: centreon/www/install/front_translate.php
 msgid "{{count}} resources"
 msgstr "{{count}} ressources"
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} sec"
+msgstr "{{count}} s"
