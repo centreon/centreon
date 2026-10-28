@@ -13,6 +13,7 @@ import type { NamedEntity } from '../../models';
 import {
   labelContactAdditiveInheritance,
   labelContactGroupAdditiveInheritance,
+  labelContactsToNotify,
   labelDown,
   labelDowntimeScheduled,
   labelFirstNotificationDelay,
@@ -22,16 +23,17 @@ import {
   labelMustBePositiveIntegerOrZero,
   labelNo,
   labelNone,
-  labelNotification,
   labelNotificationEnabled,
   labelNotificationInterval,
-  labelNotificationOptions,
   labelNotificationPeriod,
+  labelNotifications,
+  labelNotifyOn,
   labelRecovery,
   labelRecoveryNotificationDelay,
   labelUnreachable,
   labelYes
 } from '../../translatedLabels';
+import { getBlock, twoColumns } from '../grid';
 import { buildSelector, toIds } from '../selector';
 import {
   defaultTriState,
@@ -187,6 +189,7 @@ export const notification: FormSection<NotificationDetail> = {
   },
   getInputs: ({ t, isAdditiveInheritanceEnabled, isMassChange }) => {
     const enabled = {
+      additionalLabel: t(labelNotifications),
       dataTestId: 'host-form-notifications-enabled',
       fieldName: 'notifications.enabled',
       label: t(labelNotificationEnabled),
@@ -248,7 +251,7 @@ export const notification: FormSection<NotificationDetail> = {
 
     const options = {
       // The group renders no label of its own.
-      additionalLabel: t(labelNotificationOptions),
+      additionalLabel: t(labelNotifyOn),
       dataTestId: 'host-form-notifications-options',
       exclusiveCheckboxGroup: {
         direction: 'horizontal' as const,
@@ -275,86 +278,60 @@ export const notification: FormSection<NotificationDetail> = {
     };
 
     // Row by row: interval beside the first delay, period beside recovery.
-    const delays = {
-      fieldName: 'notifications-delays',
-      grid: {
-        className: 'grid-cols-2',
-        columns: [
-          getNumberInput({
-            fieldName: 'interval',
-            label: t(labelNotificationInterval)
-          }),
-          getNumberInput({
-            fieldName: 'firstDelay',
-            label: t(labelFirstNotificationDelay)
-          }),
-          period,
-          getNumberInput({
-            fieldName: 'recoveryDelay',
-            label: t(labelRecoveryNotificationDelay)
-          })
-        ]
-      },
-      label: 'host-form-notifications-delays',
-      type: InputType.Grid
-    };
+    const delays = getBlock({
+      className: twoColumns,
+      columns: [
+        getNumberInput({
+          fieldName: 'interval',
+          label: t(labelNotificationInterval)
+        }),
+        getNumberInput({
+          fieldName: 'firstDelay',
+          label: t(labelFirstNotificationDelay)
+        }),
+        period,
+        getNumberInput({
+          fieldName: 'recoveryDelay',
+          label: t(labelRecoveryNotificationDelay)
+        })
+      ],
+      name: 'notifications-delays'
+    });
 
-    // One column in a narrow panel, two once the panel leaves room for both.
-    return [
-      {
-        fieldName: 'notifications-layout',
-        grid: {
-          className: 'grid-cols-1 gap-x-8 @[1100px]:grid-cols-2',
-          columns: [
-            {
-              fieldName: 'notifications-recipients',
-              grid: {
-                className: 'grid-cols-1',
-                columns: [
-                  enabled,
-                  withAdditiveToggle(contacts, {
-                    dataTestId:
-                      'host-form-notifications-contact-additive-inheritance',
-                    fieldName: 'notifications.contactAdditiveInheritance',
-                    label: t(labelContactAdditiveInheritance)
-                  }),
-                  withAdditiveToggle(contactGroups, {
-                    dataTestId:
-                      'host-form-notifications-contact-group-additive-inheritance',
-                    fieldName: 'notifications.contactGroupAdditiveInheritance',
-                    label: t(labelContactGroupAdditiveInheritance)
-                  }),
-                  // One choice for contacts and contact groups, as legacy's
-                  // `mc_mod_hcg`.
-                  ...(isMassChange ? [getUpdateModeInput('contacts', t)] : [])
-                ]
-              },
-              label: 'host-form-notifications-recipients',
-              type: InputType.Grid
-            },
-            {
-              fieldName: 'notifications-when',
-              grid: {
-                className: 'grid-cols-1',
-                columns: [
-                  withUpdateMode({
-                    field: 'notificationOptions',
-                    input: options,
-                    isMassChange,
-                    t
-                  }),
-                  delays
-                ]
-              },
-              label: 'host-form-notifications-when',
-              type: InputType.Grid
-            }
-          ]
-        },
-        label: 'host-form-notifications-layout',
-        type: InputType.Grid
-      }
-    ];
+    return {
+      notificationDelays: delays,
+      notificationRecipients: getBlock({
+        columns: [
+          enabled,
+          {
+            // Over the whole row, its additive toggle included.
+            ...withAdditiveToggle(contacts, {
+              dataTestId:
+                'host-form-notifications-contact-additive-inheritance',
+              fieldName: 'notifications.contactAdditiveInheritance',
+              label: t(labelContactAdditiveInheritance)
+            }),
+            additionalLabel: t(labelContactsToNotify)
+          },
+          withAdditiveToggle(contactGroups, {
+            dataTestId:
+              'host-form-notifications-contact-group-additive-inheritance',
+            fieldName: 'notifications.contactGroupAdditiveInheritance',
+            label: t(labelContactGroupAdditiveInheritance)
+          }),
+          // One choice for contacts and contact groups, as legacy's
+          // `mc_mod_hcg`.
+          ...(isMassChange ? [getUpdateModeInput('contacts', t)] : [])
+        ],
+        name: 'notifications-recipients'
+      }),
+      notifyOn: withUpdateMode({
+        field: 'notificationOptions',
+        input: options,
+        isMassChange,
+        t
+      })
+    };
   },
   getSchema: ({ t }) => ({
     notifications: object({
@@ -365,7 +342,6 @@ export const notification: FormSection<NotificationDetail> = {
   }),
   // Notifications are an onPrem concern; the US has no such tab on cloud.
   isAvailable: ({ isCloudPlatform }) => !isCloudPlatform,
-  label: labelNotification,
   toPayload: (values, { isAdditiveInheritanceEnabled }) => {
     const notifications = (values.notifications ??
       defaultNotifications) as NotificationsValues;
