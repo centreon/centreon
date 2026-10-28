@@ -591,6 +591,7 @@ $selectClause .= implode(', ', $selectFields);
 $fromClause = 'FROM logs';
 
 $joinClauses = [];
+$selectedInstanceCondition = '';
 if ($engine == 'true' && ! empty($openid)) {
     $pollerIds = array_filter(explode(',', $openid), 'is_numeric');
     if ($pollerIds !== []) {
@@ -600,6 +601,8 @@ if ($engine == 'true' && ! empty($openid)) {
         AND i.instance_id IN ({$bindQuery})
         ";
         $queryValues = array_merge($queryValues, $bindValues);
+        // Instance names are not unique: the ACL check must target the instance row selected here
+        $selectedInstanceCondition = 'AND acl_i.instance_id = i.instance_id';
     }
     if ($str_unitH != '') {
         $str_unitH = "(logs.host_id IN ({$str_unitH}) AND (logs.service_id IS NULL OR logs.service_id = 0))";
@@ -625,6 +628,7 @@ if (! $is_admin && $engine == 'true') {
             SELECT 1 FROM instances acl_i
             WHERE acl_i.name = logs.instance_name
             AND acl_i.instance_id IN ({$bindQuery})
+            {$selectedInstanceCondition}
         )";
         $queryValues = array_merge($queryValues, $bindValues);
     }
