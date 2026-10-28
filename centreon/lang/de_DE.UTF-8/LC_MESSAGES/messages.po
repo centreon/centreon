@@ -417,6 +417,7 @@ msgstr "Inkenntnisnahme für diesen Service wurde bereits zurückgezogen"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Acknowledgement timeout"
 msgstr "Inkenntnisnahmentimeout"
 
@@ -450,6 +451,7 @@ msgstr "Aktionsname"
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
+#: centreon/www/install/front_translate.php
 msgid "Action URL"
 msgstr "Aktions-URL"
 
@@ -520,6 +522,7 @@ msgstr "Aktive Überprüfungen"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Active Checks Enabled"
 msgstr "Aktive Überprüfungen aktiviert"
 
@@ -887,6 +890,7 @@ msgstr ""
 msgid "Add new dataset"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Add new entry"
 msgstr "Neuen Eintrag hinzufügen"
@@ -1337,6 +1341,7 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+#: centreon/www/install/front_translate.php
 msgid "Already exists"
 msgstr "Existiert bereits"
 
@@ -1348,6 +1353,7 @@ msgstr "Bereits angefordert, bitte warten Sie auf die CRON-Ausführung oder bis 
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Alt icon"
 msgstr "Alternativer Text"
 
@@ -1432,6 +1438,7 @@ msgid "An error occurred while updating the platform topology"
 msgstr "Fehler beim Aktualisieren der Plattformtopologie"
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
+#: centreon/www/install/front_translate.php
 msgid "An integer with a minimum value of 1 is required"
 msgstr "Ein Integer mit einem minimalen Wert von 1 ist erforderlich"
 
@@ -1493,6 +1500,7 @@ msgstr "Flächenfarbe"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Args"
 msgstr "Argumente"
 
@@ -2553,6 +2561,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Check Command"
 msgstr "Überprüfungsbefehl"
 
@@ -2568,6 +2577,7 @@ msgstr "Überprüfungsdauer"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Check Freshness"
 msgstr "Überprüfungsaktualität"
 
@@ -2580,6 +2590,7 @@ msgstr "Überprüfungsoptionen"
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Check Period"
 msgstr "Überprüfungszeitraum"
 
@@ -2657,6 +2668,7 @@ msgid "Checks for this service"
 msgstr "Überprüfungen für diesen Service"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/install/front_translate.php
 msgid "Child Hosts"
 msgstr "Untergeordnete Hosts"
 
@@ -2714,6 +2726,7 @@ msgstr "Wählen Sie die Quelle für den Graph"
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/service_dependency/formServiceDependency.php
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
+#: centreon/www/install/front_translate.php
 msgid "Circular Definition"
 msgstr "Zirkeldefinition"
 
@@ -2867,6 +2880,7 @@ msgstr "Befehlsdatei"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Command inheritance"
 msgstr "Befehlsvererbung"
 
@@ -3316,6 +3330,7 @@ msgstr "Kontaktname"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Contact additive inheritance"
 msgstr "Additive Kontaktvererbung"
 
@@ -3334,6 +3349,7 @@ msgstr "Kontaktgruppe"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Contact group additive inheritance"
 msgstr "Additive Kontaktgruppenvererbung"
 
@@ -3520,6 +3536,7 @@ msgid "Create"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/install/front_translate.php
 msgid "Create Services linked to the Template too"
 msgstr "Mit diesem Template verknüpfte Services ebenfalls erstellen"
 
@@ -3766,6 +3783,7 @@ msgstr "Benutzerdefinierter Modus"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Custom macros"
 msgstr "Benutzerdefinierte Makros"
 
@@ -3878,6 +3896,7 @@ msgstr "Datenanzahl"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Data Processing"
 msgstr "Datenverarbeitung"
@@ -5087,6 +5106,7 @@ msgstr "Ausfallszeitkonfiguration"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Downtime Scheduled"
 msgstr "Ausfallszeit angesetzt"
 
@@ -6726,6 +6746,7 @@ msgstr "Event"
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
+#: centreon/www/install/front_translate.php
 msgid "Event Handler"
 msgstr "Event Handler"
 
@@ -6733,6 +6754,7 @@ msgstr "Event Handler"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Event Handler Enabled"
 msgstr "Event Handler aktiviert"
 
@@ -7328,6 +7350,7 @@ msgstr "Vorname"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "First notification delay"
 msgstr "Verzögerung für die erste Benachrichtigung"
 
@@ -7363,6 +7386,7 @@ msgstr "Flackererkennung"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Flap Detection Enabled"
 msgstr "Flackern-Erkennung aktiviert"
 
@@ -7390,6 +7414,7 @@ msgstr "Flackern-Optionen"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Flapping options"
 msgstr "Flackern-Optionen"
 
@@ -7489,6 +7514,7 @@ msgstr "Aktualität"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Freshness Control options"
 msgstr "Aktualitätsüberprüfungsoptionen"
 
@@ -7496,6 +7522,7 @@ msgstr "Aktualitätsüberprüfungsoptionen"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Freshness Threshold"
 msgstr "Aktualitätsgrenzwert"
 
@@ -7697,6 +7724,7 @@ msgstr "Geo-Koordinaten"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
+#: centreon/www/install/front_translate.php
 msgid "Geographic coordinates"
 msgstr ""
 
@@ -7994,6 +8022,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "High Flap Threshold"
 msgstr "Oberer Grenzwert für das Flackern"
 
@@ -8087,6 +8116,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/install/dashboard_widgets.php
+#: centreon/www/install/front_translate.php
 msgid "Host Categories"
 msgstr "Hostkategorien"
 
@@ -8135,6 +8165,7 @@ msgstr "Hostbefehle"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Host Configuration"
 msgstr "Hostkonfiguration"
 
@@ -8145,6 +8176,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Host Extended Infos"
 msgstr "Erweiterte Hostinformationen"
 
@@ -8409,6 +8441,7 @@ msgstr ""
 #: centreon/src/Centreon/Domain/Check/CheckService.php
 #: centreon/src/Centreon/Domain/Downtime/DowntimeService.php
 #: centreon/www/api/class/centreon_monitoring_externalcmd.class.php
+#: centreon/www/install/front_translate.php
 msgid "Host not found"
 msgstr "Host konnte nicht gefunden werden"
 
@@ -8550,6 +8583,7 @@ msgid "Hostgroup inheritance to services"
 msgstr "Hostgruppenvererbung an Services"
 
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
+#: centreon/www/install/front_translate.php
 msgid "Hostgroups"
 msgstr "Hostgruppen"
 
@@ -9806,6 +9840,7 @@ msgstr "Verknüpfte Zugriffskontrolllistengruppen (ACL Gruppen)"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
+#: centreon/www/install/front_translate.php
 msgid "Linked Contact Groups"
 msgstr "Verknüpfte Kontaktgruppen"
 
@@ -9814,6 +9849,7 @@ msgstr "Verknüpfte Kontaktgruppen"
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
+#: centreon/www/install/front_translate.php
 msgid "Linked Contacts"
 msgstr "Verknüpfte Kontakte"
 
@@ -10092,6 +10128,7 @@ msgstr "Lotus Domino:"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Low Flap Threshold"
 msgstr "Unterer Grenzwert für das Flackern"
 
@@ -10310,6 +10347,7 @@ msgstr "Max"
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Max Check Attempts"
 msgstr "Maximale Überprüfungsversuche"
 
@@ -10737,6 +10775,7 @@ msgstr "Modifikationstyp"
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
+#: centreon/www/install/front_translate.php
 msgid "Modify"
 msgstr "Bearbeiten"
 
@@ -11200,6 +11239,7 @@ msgid "Must be a number between 1 and 65335 included."
 msgstr "Muss eine Zahl zwischen 1 und 65335 inklusive sein."
 
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
+#: centreon/www/install/front_translate.php
 msgid "Must be a positive integer or 0"
 msgstr ""
 
@@ -11643,6 +11683,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "None"
 msgstr "Keine"
@@ -11652,6 +11693,7 @@ msgstr "Keine"
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Normal Check Interval"
 msgstr "Normaler Überprüfungsintervall"
 
@@ -11664,6 +11706,7 @@ msgstr "Normaler Überprüfungsintervall"
 msgid "Not Acknowledged"
 msgstr "Nicht zur Kenntnis genommen"
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Not a valid IP address"
 msgstr "Ungültige IP-Adresse"
@@ -11690,6 +11733,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Note"
 msgstr ""
 
@@ -11697,6 +11741,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Note URL"
 msgstr ""
 
@@ -11739,6 +11784,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Notification Enabled"
 msgstr "Benachrichtigungen aktiviert"
 
@@ -11760,6 +11806,7 @@ msgstr "Benachrichtigungsinformationen"
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Notification Interval"
 msgstr "Benachrichtigungsintervall"
 
@@ -11773,6 +11820,7 @@ msgstr "Benachrichtigungsoption"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Notification Options"
 msgstr "Benachrichtigungsoptionen"
 
@@ -11781,6 +11829,7 @@ msgstr "Benachrichtigungsoptionen"
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Notification Period"
 msgstr "Benachrichtigungszeitraum"
 
@@ -12366,6 +12415,7 @@ msgid "Parent"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/install/front_translate.php
 msgid "Parent Hosts"
 msgstr "Übergeordnete Hosts"
 
@@ -12435,6 +12485,7 @@ msgstr "Passive Überprüfungen"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Passive Checks Enabled"
 msgstr "Passive Überprüfungen aktiviert"
 
@@ -13301,6 +13352,7 @@ msgstr "Neuaufbau Überprüfungsintervall in Sekunden"
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Recovery"
 msgstr "Wieder verfügbar"
 
@@ -13312,6 +13364,7 @@ msgstr "Erholungsschritt"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Recovery notification delay"
 msgstr "Verzögerung für die wieder verfügbar Benachrichtigung"
 
@@ -13388,6 +13441,7 @@ msgstr "Beziehung"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Relations"
 msgstr "Beziehungen"
@@ -13708,6 +13762,7 @@ msgid "Reset your password"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/install/front_translate.php
 msgid "Resolve"
 msgstr "Auflösen"
 
@@ -13891,6 +13946,7 @@ msgstr "Wiederholen"
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Retry Check Interval"
 msgstr "Überprüfungsintervall für wiederholte Überprüfungen"
 
@@ -14049,6 +14105,7 @@ msgstr "SCP (secure copy) Export aktiviert"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "SNMP Community"
 msgstr "SNMP-Community"
 
@@ -16193,6 +16250,7 @@ msgstr "Templatename"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Template inheritance"
 msgstr "Templatevererbung"
 
@@ -17514,6 +17572,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/service_dependency/formServiceDependency.php
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
+#: centreon/www/install/front_translate.php
 msgid "Unauthorized value"
 msgstr "Unautorisierter Wert"
 
@@ -17999,6 +18058,7 @@ msgstr "Verifizierungsüberprüfung (erzwungen)"
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configServers/listServers.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Version"
 msgstr "Version"
@@ -19364,6 +19424,7 @@ msgid "[Page deprecated] This page will be removed in the next major version. Pl
 msgstr "[Seite veraltet] Diese Seite wird in der nächsten Hauptversion entfernt werden. Bitte nutzen Sie die neue Seite: "
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/install/front_translate.php
 msgid "_Module_ is not a legal expression"
 msgstr "_Module_ ist kein gültiger Ausdruck"
 
@@ -19500,6 +19561,7 @@ msgstr "Fehler"
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
+#: centreon/www/install/front_translate.php
 msgid "geo coords are not valid"
 msgstr "Geo-Koordinaten sind ungültig"
 
