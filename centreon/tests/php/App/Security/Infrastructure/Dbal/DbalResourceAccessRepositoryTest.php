@@ -1098,6 +1098,20 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testTheServiceScopeIsRestrictedToTheUsersActiveAccessGroups(): void
+    {
+        // Which groups are active, directly or through a contact group, is pinned by DbalAccessGroupRepositoryTest:
+        // this only proves the scope is built from them.
+        $actorId = $this->createContact('actor-services-' . uniqid());
+        $groupId = $this->createAccessGroupForContact($actorId);
+        $this->createAccessGroupForContact($this->createContact('other-services-' . uniqid()));
+
+        $scope = $this->repository->findServiceAccessGroupScope(new UserId($actorId));
+
+        self::assertFalse($scope->isUnrestricted());
+        self::assertSame([$groupId], $scope->allowedIdValues());
+    }
+
     /**
      * @param list<int|string> $params
      */
