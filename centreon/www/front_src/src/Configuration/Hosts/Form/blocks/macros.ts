@@ -1,30 +1,21 @@
 import { InputType } from '@centreon/ui';
 
-import type { TFunction } from 'i18next';
 import { JsonDecoder } from 'ts.data.json';
-import { array, object, string } from 'yup';
+import { object } from 'yup';
 
-import type { FieldBlock, ResourceOptions } from '../../../ResourceForm/models';
 import {
-  labelAlreadyExists,
-  labelCustomMacros,
-  labelMustBeAtMostCharacters,
-  labelName,
-  labelRequired,
-  labelValue
-} from '../../translatedLabels';
-import Macros from '../Macros';
-import {
-  hostMacroDecoder,
-  isUnchangedInherited,
+  getMacrosSchema,
   type MacroRow,
-  toMacroName
-} from '../macroRows';
+  macroDecoder,
+  toMacrosPayload
+} from '../../../ConfigurationBase/Form/Macros';
+import type { FieldBlock, ResourceOptions } from '../../../ResourceForm/models';
+import { labelCustomMacros } from '../../translatedLabels';
+import HostMacros from '../HostMacros';
 
-// `HostMacroInput`: the name once wrapped in `$_HOST…$` fits 255 characters,
-// the value 4096 characters.
-const macroNameMaxLength = 248;
-const macroValueMaxLength = 4096;
+// `HostMacroInput`: the name once wrapped in `$_HOST…$` fits 255 characters.
+// Reserved names are left to the server.
+const macroPrefix = '$_HOST';
 
 // Within the API's `check_options`, which the check command fills too.
 interface MacrosDetail {
@@ -32,66 +23,6 @@ interface MacrosDetail {
 }
 
 const defaultMacros = { macros: [] };
-
-// A changed inherited macro goes back with its id and parent, so the server
-// turns it into the host's own.
-const toMacroPayload = ({
-  hasStoredPassword,
-  id,
-  isErased,
-  isPassword,
-  name,
-  parent,
-  value
-}: MacroRow) => ({
-  id,
-  is_password: isPassword,
-  name: toMacroName(name),
-  parent,
-  // Null keeps a stored password; once cleared, what is typed replaces it,
-  // empty included.
-  value: hasStoredPassword && !isErased ? null : value
-});
-
-const getMacrosSchema = (t: TFunction) =>
-  array()
-    .of(
-      object({
-        name: string()
-          .trim()
-          .max(
-            macroNameMaxLength,
-            t(labelMustBeAtMostCharacters, {
-              label: t(labelName),
-              max: macroNameMaxLength
-            })
-          )
-          .required(t(labelRequired)),
-        value: string().max(
-          macroValueMaxLength,
-          t(labelMustBeAtMostCharacters, {
-            label: t(labelValue),
-            max: macroValueMaxLength
-          })
-        )
-      })
-    )
-    // The server silently keeps the first of two macros of the same name.
-    // Reserved names are left to it.
-    .test('unique-names', function checkUniqueNames(macros) {
-      const names = (macros ?? []).map(({ name }) => toMacroName(name ?? ''));
-      const duplicateIndex = names.findIndex(
-        (name, index) => name !== '' && names.indexOf(name) !== index
-      );
-
-      return (
-        duplicateIndex === -1 ||
-        this.createError({
-          message: t(labelAlreadyExists),
-          path: `${this.path}[${duplicateIndex}].name`
-        })
-      );
-    });
 
 // The host's custom macros, its own and those it inherits.
 export const macros = ({
@@ -106,7 +37,7 @@ export const macros = ({
         JsonDecoder.object(
           {
             macros: JsonDecoder.optional(
-              JsonDecoder.array(hostMacroDecoder, 'Macros')
+              JsonDecoder.array(macroDecoder, 'Macros')
             ).map((value) => value ?? [])
           },
           'Check options'
@@ -122,7 +53,7 @@ export const macros = ({
       ? {}
       : {
           macros: {
-            custom: { Component: Macros },
+            custom: { Component: HostMacros },
             dataTestId: `${idPrefix}-check-options-macros`,
             fieldName: 'checkOptions.macros',
             label: t(labelCustomMacros),
@@ -130,21 +61,15 @@ export const macros = ({
           }
         },
   getSchema: ({ t }) => ({
-    checkOptions: object({ macros: getMacrosSchema(t) })
+    checkOptions: object({
+      macros: getMacrosSchema({ prefix: macroPrefix, t })
+    })
   }),
   toPayload: (values) => {
     const { checkOptions = defaultMacros } = values as {
       checkOptions?: { macros?: Array<MacroRow> };
     };
 
-    return {
-      check_options: {
-        // Unchanged inherited macros stay inherited. Not sent, they cannot go
-        // stale once the templates or the command change.
-        macros: (checkOptions.macros ?? [])
-          .filter((macro) => !isUnchangedInherited(macro))
-          .map(toMacroPayload)
-      }
-    };
+    return { check_options: { macros: toMacrosPayload(checkOptions.macros) } };
   }
 });

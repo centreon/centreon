@@ -1,5 +1,3 @@
-import LockIcon from '@mui/icons-material/Lock';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { Typography } from '@mui/material';
 
 import { type InputPropsWithoutGroup, TextField } from '@centreon/ui';
@@ -19,7 +17,7 @@ import {
   labelPassword,
   labelTemplateInheritance,
   labelValue
-} from '../translatedLabels';
+} from '../../translatedLabels';
 import InheritanceRow, {
   InheritanceSwatch,
   type InheritanceTone
@@ -30,8 +28,14 @@ import {
   type MacroParent,
   type MacroRow
 } from './macroRows';
+import type { InheritedMacrosConfig } from './models';
+import { PasswordIcon, PasswordOffIcon } from './PasswordIcons';
 import StoredSecretField from './StoredSecretField';
 import useInheritedMacros from './useInheritedMacros';
+
+export type MacrosProps = InputPropsWithoutGroup & {
+  inheritance: InheritedMacrosConfig;
+};
 
 const maxVisibleRows = 10;
 
@@ -46,13 +50,15 @@ const legend: Array<{ label: string; parent: MacroParent }> = [
   { label: labelCommandInheritance, parent: 'command' }
 ];
 
-// The host's macros, `$_HOST<NAME>$`, in order: its own, then the inherited ones.
+// A resource's custom macros, `$_HOST<NAME>$` on a host, in order: its own,
+// then the inherited ones. The rows' test ids derive from `dataTestId`.
 const Macros = ({
   dataTestId,
   fieldName,
   getDisabled,
+  inheritance,
   label
-}: InputPropsWithoutGroup): ReactElement => {
+}: MacrosProps): ReactElement => {
   const { t } = useTranslation();
   const {
     errors,
@@ -63,7 +69,7 @@ const Macros = ({
     values
   } = useFormikContext<FormikValues>();
 
-  useInheritedMacros(fieldName);
+  useInheritedMacros({ config: inheritance, fieldName });
 
   const macros = (getIn(values, fieldName) ?? []) as Array<MacroRow>;
   const disabled = !!getDisabled?.(values);
@@ -141,16 +147,12 @@ const Macros = ({
         ))}
       </div>
       {/* The shared list has no read-only mode: a disabled fieldset turns off
-          its add, delete and drag buttons natively. */}
+          its add and delete buttons natively. */}
       <fieldset className="m-0 min-w-0 border-0 p-0" disabled={disabled}>
         <SortableEntriesList<MacroRow>
           actions={({ index, value: macro }) => [
             {
-              icon: macro.isPassword ? (
-                <LockIcon color="primary" />
-              ) : (
-                <LockOpenIcon />
-              ),
+              icon: macro.isPassword ? <PasswordIcon /> : <PasswordOffIcon />,
               id: `${dataTestId}-password`,
               // As legacy: a stored password stays one.
               isDisabled: macro.hasStoredPassword,
@@ -165,7 +167,8 @@ const Macros = ({
           ]}
           addLabel={t(labelAddNewEntry)}
           createValue={createMacroRow}
-          draggable={!disabled}
+          // Macros have no order.
+          draggable={false}
           label={label}
           maxVisibleRows={maxVisibleRows}
           onChange={(nextMacros): void => {

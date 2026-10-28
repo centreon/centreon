@@ -61,13 +61,8 @@ export const labelCreateServicesLinkedToTemplates =
   'Automatically create services from templates';
 // Custom macros.
 export const labelCustomMacros = 'Custom macros';
-export const labelValue = 'Value';
-export const labelPassword = 'Password';
 export const labelClear = 'Clear';
-export const labelRevertToPreviousPassword = 'Revert to previous password';
 export const labelAlreadyExists = 'Already exists';
-export const labelTemplateInheritance = 'Template inheritance';
-export const labelCommandInheritance = 'Command inheritance';
 
 // What a host notifies on.
 export const labelDown = 'Down';
