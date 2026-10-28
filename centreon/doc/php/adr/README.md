@@ -33,6 +33,7 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 |---|---|---|
 | [0005](0005-isolate-legacy-in-infrastructure-legacy.md) | Isolate legacy code used from `src/App` in `Infrastructure/Legacy` adapters | Accepted |
 | [0006](0006-expose-symfony-services-to-legacy-via-service-locator.md) | Give legacy code access to Symfony services through a dedicated service locator | Accepted |
+| [0016](0016-access-logging-and-database-through-adaptation-layer.md) | Access logging and the database from new legacy code only through the `Adaptation` layer | Proposed |
 
 ### API
 
