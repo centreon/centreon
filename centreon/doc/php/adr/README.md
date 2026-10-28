@@ -11,6 +11,7 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 | ADR | Decision | Status |
 |---|---|---|
 | [0001](0001-validate-in-input-and-handler.md) | Validate write requests in both input and handler | Accepted |
+| [0020](0020-enforce-invariants-with-webmozart-assert.md) | Enforce invariants with `webmozart/assert`, not hand-rolled assertions and custom exceptions | Proposed |
 
 ### Domain model
 
