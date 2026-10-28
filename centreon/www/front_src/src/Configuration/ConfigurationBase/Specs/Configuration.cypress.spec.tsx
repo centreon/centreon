@@ -1,8 +1,11 @@
+import { equals } from 'ramda';
+
 import { ResourceType } from '../../models';
 import Actions from './Configuration.Actions';
 import Filters from './Configuration.Filters';
 import Layout from './Configuration.Layout';
 import Modal from './Configuration.Modal';
+import Panel from './Configuration.Panel';
 import StaticColumns from './Configuration.StaticColumns';
 
 const testCases = [
@@ -16,6 +19,9 @@ testCases.forEach(({ resourceType }) => {
     Filters(resourceType);
     Actions(resourceType);
     Modal(resourceType);
+    Panel(resourceType, {
+      hasSnapshots: equals(resourceType, ResourceType.Host)
+    });
     StaticColumns();
   });
 });

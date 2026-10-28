@@ -78,3 +78,7 @@ export const labelSingleDuplicateResourcesConfirmation = (type: string) =>
 
 // Form
 export const labelSave = 'Save';
+
+export const labelClose = 'Close';
+export const labelReset = 'Reset';
+export const labelDoYouWantToResetTheForm = 'Do you want to reset the form?';

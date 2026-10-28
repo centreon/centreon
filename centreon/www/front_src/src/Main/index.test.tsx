@@ -4,6 +4,7 @@ import {
   screen,
   waitFor
 } from '@centreon/ui/test/testRenderer';
+import { isAdditiveInheritanceEnabledAtom } from '@centreon/ui-context';
 
 import axios from 'axios';
 
@@ -22,7 +23,7 @@ import { retrievedFederatedModule } from '../federatedModules/mocks';
 import { labelConnect } from '../Login/translatedLabels';
 import { retrievedNavigation } from '../Navigation/mocks';
 import { navigationEndpoint } from '../Navigation/useNavigation';
-import Provider from './Provider';
+import Provider, { store } from './Provider';
 import {
   retrievedActionsAcl,
   retrievedLoginConfiguration,
@@ -99,6 +100,30 @@ const mockDefaultGetRequests = (): void => {
     .mockResolvedValueOnce({
       data: null
     });
+};
+
+// Answered by URL rather than in call order, so a request added or moved in
+// the start-up sequence cannot hand one endpoint another one's response.
+const mockGetRequestsByUrl = (parameters: object): void => {
+  const responses: Array<[string, unknown]> = [
+    [
+      platformInstallationStatusEndpoint,
+      { has_upgrade_available: false, is_installed: true }
+    ],
+    [userEndpoint, retrievedUser],
+    ['platform/features', { feature_flags: {}, is_cloud_platform: false }],
+    ['platform/versions', retrievedWeb],
+    ['allTranslations', retrievedTranslations],
+    [navigationEndpoint, retrievedNavigation],
+    [parametersEndpoint, parameters],
+    [aclEndpoint, retrievedActionsAcl]
+  ];
+
+  mockedAxios.get.mockImplementation((url: string) =>
+    Promise.resolve({
+      data: responses.find(([endpoint]) => url.includes(endpoint))?.[1] ?? null
+    })
+  );
 };
 
 const mockRedirectFromLoginPageGetRequests = (): void => {
@@ -235,6 +260,9 @@ describe('Main', () => {
   beforeEach(() => {
     mockedAxios.get.mockReset();
     window.history.pushState({}, '', '/');
+    // Provider.tsx's jotai store is a module-level singleton shared across
+    // every render() in this file, so state set by one test leaks into the next.
+    store.set(isAdditiveInheritanceEnabledAtom, false);
   });
 
   // biome-ignore lint/suspicious/noFocusedTests: To migrate to Cypress
@@ -411,6 +439,19 @@ describe('Main', () => {
       internalTranslationEndpoint,
       cancelTokenRequestParam
     );
+  });
+
+  it('turns additive inheritance on when the platform parameters say so', async () => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      is_additive_inheritance_enabled: true
+    });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(isAdditiveInheritanceEnabledAtom)).toBe(true);
+    });
   });
 
   it('redirects the user to his default page when the current location is the login page and the user is connected', async () => {
