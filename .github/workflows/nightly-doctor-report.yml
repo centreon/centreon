@@ -1,0 +1,125 @@
+name: nightly-doctor-report
+
+on:
+  schedule:
+    - cron: "0 9 * * 1-5"
+  # TEMPORARY: registers the workflow so it can be dispatched before merge.
+  pull_request:
+    paths:
+      - ".github/workflows/nightly-doctor-report.yml"
+  workflow_dispatch:
+    inputs:
+      since_hours:
+        description: "Report on the failed nightlies of the last N hours"
+        required: false
+        default: "24"
+        type: string
+
+permissions: {}
+
+jobs:
+  report:
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      pull-requests: read
+    steps:
+      - name: Build the nightly doctor report
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SINCE_HOURS: ${{ inputs.since_hours || '24' }}
+        run: |
+          python3 - <<'PY'
+          import datetime, json, os, pathlib, re, subprocess, tempfile
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          since = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=int(os.environ["SINCE_HOURS"]))
+          created = f">={since:%Y-%m-%dT%H:%M:%SZ}"
+          # Keep in sync with on.workflow_run.workflows of nightly-doctor.md.
+          WORKFLOWS = ["web", "open-tickets", "docker-web-dependencies", "nightly-cod-platform-deploy", "nightly-cod-platform-destroy"]
+
+          def gh(*args):
+              res = subprocess.run(["gh", *args], capture_output=True, text=True)
+              return res.stdout if res.returncode == 0 else ""
+
+          def runs(workflow_file, extra=""):
+              out = gh("api", "--paginate", f"repos/{repo}/actions/workflows/{workflow_file}/runs?per_page=100&created={created}{extra}",
+                       "--jq", ".workflow_runs[] | @json")
+              return [json.loads(l) for l in out.splitlines() if l.strip()]
+
+          nightlies = []
+          for wf in WORKFLOWS:
+              for run in runs(f"{wf}.yml", "&status=failure"):
+                  if run["event"] == "schedule" or run["display_title"].startswith(f"{wf} nightly "):
+                      nightlies.append((wf, run))
+
+          doctors = {}
+          for run in runs("nightly-doctor.lock.yml"):
+              match = re.fullmatch(r"nightly doctor (\d+)", run["display_title"])
+              if match:
+                  doctors.setdefault(match.group(1), run)
+
+          def outcome(doctor):
+              jobs = {j["name"]: j for j in json.loads(gh("api", f"repos/{repo}/actions/runs/{doctor['id']}/jobs") or '{"jobs": []}')["jobs"]}
+              triage, agent = jobs.get("triage"), jobs.get("agent")
+              if doctor["status"] != "completed":
+                  return "in progress", "", 0
+              if not agent or agent["conclusion"] == "skipped":
+                  log = gh("api", "--allow-escape-sequences", f"repos/{repo}/actions/jobs/{triage['id']}/logs") if triage else ""
+                  # The log also echoes the script line itself: keep the last, rendered occurrence.
+                  decisions = [l.split("triage decision: ", 1)[1] for l in log.splitlines()
+                               if "triage decision: " in l and "$reason" not in l]
+                  return "skipped", decisions[-1] if decisions else "agent skipped", 0
+
+              def artifact_json(tmp, name, file):
+                  gh("run", "download", str(doctor["id"]), "--repo", repo, "-n", name, "-D", f"{tmp}/{name}")
+                  path = pathlib.Path(tmp, name, file)
+                  return json.loads(path.read_text()) if path.exists() else {}
+
+              with tempfile.TemporaryDirectory() as tmp:
+                  items = artifact_json(tmp, "agent", "agent_output.json").get("items", [])
+                  aic = artifact_json(tmp, "usage", "agent_usage.json").get("ai_credits", 0)
+              results = []
+              for item in items:
+                  kind = item.get("type")
+                  if kind == "create_pull_request":
+                      results.append(f"PR: {item.get('title', '')}")
+                  elif kind == "add_comment":
+                      results.append(f"commented #{item.get('item_number', '?')}")
+                  elif kind in ("noop", "report_incomplete"):
+                      text = item.get("message") or item.get("details") or ""
+                      results.append(f"{kind}: {' '.join(text.split())[:140]}")
+              return f"analyzed ({agent['conclusion']})", "; ".join(results) or "no output", aic
+
+          rows, total_aic, counts = [], 0, {}
+          for wf, run in sorted(nightlies, key=lambda x: x[1]["created_at"]):
+              doctor = doctors.get(str(run["id"]))
+              if doctor:
+                  decision, detail, aic = outcome(doctor)
+                  link = f"[run]({doctor['html_url']})"
+              else:
+                  decision, detail, aic, link = "not analyzed", "no nightly doctor run found", 0, ""
+              total_aic += aic
+              counts[decision.split(" (")[0]] = counts.get(decision.split(" (")[0], 0) + 1
+              detail = detail.replace("|", "\\|")
+              rows.append(f"| {run['created_at'][:16].replace('T', ' ')} | `{wf}` | `{run['head_branch']}` | [nightly]({run['html_url']}) | {decision} {link} | {detail} | {aic:.0f} |")
+
+          prs = gh("api", f"search/issues?q=repo:{repo}+is:pr+is:open+in:title+%22%5Bnightly+fix%5D%22&per_page=50",
+                   "--jq", '.items[] | "- [#\\(.number)](\\(.html_url)) \\(.title)"')
+
+          summary = [
+              f"## Nightly doctor report — last {os.environ['SINCE_HOURS']} h",
+              "",
+              f"{len(nightlies)} failed nightlies: " + (", ".join(f"{n} {k}" for k, n in sorted(counts.items())) or "none")
+              + f". AI credits spent by the agent: {total_aic:.0f} (~{total_aic / 100:.2f} USD).",
+              "",
+          ]
+          if rows:
+              summary += ["| Started (UTC) | Workflow | Branch | Nightly | Doctor | Result | AI credits |",
+                          "|---|---|---|---|---|---|---|", *rows, ""]
+          summary += ["### Open `[nightly fix]` pull requests", "", prs.strip() or "None.", ""]
+          text = "\n".join(summary)
+          print(text)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(text + "\n")
+          PY
