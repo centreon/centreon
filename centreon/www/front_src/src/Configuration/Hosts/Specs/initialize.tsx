@@ -17,6 +17,8 @@ import { HttpResponse } from 'msw';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
+import navigationAtom from '../../../Navigation/navigationAtoms';
+import routeMap from '../../../reactRoutes/routeMap';
 import Hosts from '..';
 import {
   getDeployServicesEndpoint,
@@ -74,6 +76,9 @@ interface Props {
   resolveDelay?: number;
   // The hosts whose partial update is refused.
   patchFails?: Array<number>;
+  isServicesConfigurationEnabled?: boolean;
+  // Whether the menu ACL grants the React Services page.
+  isServicesPageAllowed?: boolean;
 }
 
 // What the selector answers a user it does not grant.
@@ -100,7 +105,9 @@ const initialize = ({
   hasDefaultPoller = true,
   pollersDelay,
   resolveDelay,
-  patchFails = []
+  patchFails = [],
+  isServicesConfigurationEnabled = false,
+  isServicesPageAllowed = true
 }: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -117,7 +124,23 @@ const initialize = ({
     configuration_host_write: hasWriteAccess
   } as UserPermissions);
 
-  store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
+  store.set(platformFeaturesAtom, {
+    featureFlags: { servicesConfiguration: isServicesConfigurationEnabled },
+    isCloudPlatform
+  } as PlatformFeatures);
+  store.set(navigationAtom, {
+    result: isServicesPageAllowed
+      ? [
+          {
+            is_react: true,
+            label: 'Services',
+            page: '60299',
+            url: routeMap.services
+          }
+        ]
+      : [],
+    status: true
+  });
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
 
   interceptAPIRequest({

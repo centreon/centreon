@@ -24,6 +24,7 @@ import {
   labelServicesDescription,
   labelWelcomeToServices
 } from './translatedLabels';
+import useHostNameFilterFromUrl from './useHostNameFilterFromUrl';
 import useServices from './useServices';
 import {
   columnsAtomKey,
@@ -63,6 +64,7 @@ const Services = () => {
     () => getDefaultValues({ isAdditiveInheritanceEnabled, isCloudPlatform }),
     [isAdditiveInheritanceEnabled, isCloudPlatform]
   );
+  useHostNameFilterFromUrl();
 
   const actions: Actions = useMemo(
     () => ({
