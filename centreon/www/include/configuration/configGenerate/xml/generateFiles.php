@@ -194,11 +194,21 @@ try {
     $cgObj = new CentreonContactgroup($pearDB);
     $cgObj->syncWithLdapConfigGen();
 
+    // Restrict generation to the pollers in the user's resource ACL (admins get them all)
+    $allowedPollers = $centreon->user->access->getPollerAclConf([
+        'fields' => ['id'],
+        'keys' => ['id'],
+        'conditions' => ['ns_activate' => '1'],
+    ]);
+
     // Generate configuration
     if ($pollers == '0') {
         $config_generate->configPollers($username);
     } else {
         foreach ($pollers as $poller) {
+            if (! isset($allowedPollers[$poller])) {
+                continue;
+            }
             $config_generate->reset();
             $config_generate->configPollerFromId($poller, $username);
         }
