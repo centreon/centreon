@@ -30,6 +30,13 @@ tests {
     expect(Number.isInteger(intervalLength)).to.equal(true);
   });
 
+  test("Configuration limit per page is exposed as a positive integer.", function () {
+    const limitPerPage = res.getBody().configuration_default_limit_per_page;
+    expect(limitPerPage).to.be.a("number");
+    expect(Number.isInteger(limitPerPage)).to.equal(true);
+    expect(limitPerPage).to.be.above(0);
+  });
+
   test("Statistics refresh interval is exposed as an integer.", function () {
     const refreshInterval = res.getBody().statistics_default_refresh_interval;
     expect(refreshInterval).to.be.a("number");

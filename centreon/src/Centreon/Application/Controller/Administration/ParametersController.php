@@ -51,6 +51,8 @@ class ParametersController extends AbstractController
     private const ADDITIVE_INHERITANCE_MODE = 1;
     private const INTERVAL_LENGTH = 'interval_length';
     private const DEFAULT_INTERVAL_LENGTH = 60;
+    private const CONFIGURATION_LIMIT_PER_PAGE = 'maxViewConfiguration';
+    private const DEFAULT_CONFIGURATION_LIMIT_PER_PAGE = 30;
 
     /**
      * Needed to make response "more readable"
@@ -69,6 +71,7 @@ class ParametersController extends AbstractController
         self::RESOURCE_STATUS_SEARCH_MODE => 'is_resource_status_full_search_enabled',
         self::INHERITANCE_MODE => 'is_additive_inheritance_enabled',
         self::INTERVAL_LENGTH => 'monitoring_interval_length',
+        self::CONFIGURATION_LIMIT_PER_PAGE => 'configuration_default_limit_per_page',
     ];
 
     public function __construct(
@@ -99,6 +102,7 @@ class ParametersController extends AbstractController
         $isResourceStatusFullSearchEnabled = true;
         $isAdditiveInheritanceEnabled = false;
         $intervalLength = self::DEFAULT_INTERVAL_LENGTH;
+        $configurationLimitPerPage = self::DEFAULT_CONFIGURATION_LIMIT_PER_PAGE;
 
         $options = $this->optionService->findSelectedOptions([
             self::DEFAULT_REFRESH_INTERVAL,
@@ -115,6 +119,7 @@ class ParametersController extends AbstractController
             self::RESOURCE_STATUS_SEARCH_MODE,
             self::INHERITANCE_MODE,
             self::INTERVAL_LENGTH,
+            self::CONFIGURATION_LIMIT_PER_PAGE,
         ]);
 
         foreach ($options as $option) {
@@ -165,6 +170,13 @@ class ParametersController extends AbstractController
                         ? $storedIntervalLength
                         : self::DEFAULT_INTERVAL_LENGTH;
                     break;
+                case self::CONFIGURATION_LIMIT_PER_PAGE:
+                    // Same fallback as the legacy pages when the stored value is not a positive number
+                    $storedLimitPerPage = (int) $option->getValue();
+                    $configurationLimitPerPage = $storedLimitPerPage > 0
+                        ? $storedLimitPerPage
+                        : self::DEFAULT_CONFIGURATION_LIMIT_PER_PAGE;
+                    break;
                 default:
                     break;
             }
@@ -190,6 +202,7 @@ class ParametersController extends AbstractController
         $parameters[self::KEY_NAME_CONCORDANCE[self::RESOURCE_STATUS_SEARCH_MODE]] = $isResourceStatusFullSearchEnabled;
         $parameters[self::KEY_NAME_CONCORDANCE[self::INHERITANCE_MODE]] = $isAdditiveInheritanceEnabled;
         $parameters[self::KEY_NAME_CONCORDANCE[self::INTERVAL_LENGTH]] = $intervalLength;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::CONFIGURATION_LIMIT_PER_PAGE]] = $configurationLimitPerPage;
 
         return $this->view($parameters);
     }

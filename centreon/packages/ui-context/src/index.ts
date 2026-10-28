@@ -4,6 +4,7 @@ export { additionalResourcesAtom } from './additionalResources';
 export { browserLocaleAtom } from './browserLocaleAtom';
 export { default as cloudServicesAtom } from './cloudServicesAtom';
 export { defaultAcl } from './defaults';
+export { configurationLimitPerPageAtom } from './configurationLimitPerPageAtom';
 export { default as downtimeAtom } from './downtimeAtom';
 export {
   federatedModulesAtom,
