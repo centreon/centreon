@@ -7,7 +7,7 @@
 
 [ADR-0005](0005-isolate-legacy-in-infrastructure-legacy.md) and [ADR-0006](0006-expose-symfony-services-to-legacy-via-service-locator.md) draw the boundary between `src/App` and legacy: `src/App` reaching into legacy, and legacy reaching back for Symfony services. Neither says how new legacy code itself — everything outside `src/App` (`src/Core`, `www/`, `src/Centreon*`, modules) — should log or reach the database.
 
-The legacy codebase offers several entry points for both, most of them predating the `Adaptation` layer. Logging can go through `CentreonLog`, `error_log()` or the `src/Core` `LoggerTrait`; the database can be reached through `CentreonDB`, `DatabaseConnection` or a repository extending `AbstractRepositoryRDB`. `CentreonLog` is deprecated and already reroutes through `Adaptation\Log\Logger` (see [logging.md](../logging.md)), and both `CentreonDB` and `DatabaseConnection` extend `\PDO`, so reaching for them invites the raw `prepare()`/`bindValue()`/`fetch*()` idiom that the `ConnectionInterface` was built to replace.
+The legacy codebase offers several entry points for both, most of them predating the `Adaptation` layer. Logging can go through `CentreonLog`, `error_log()` or the DDD `LoggerTrait` (`Centreon\Domain\Log\LoggerTrait`); the database can be reached through `CentreonDB`, `DatabaseConnection` or a repository extending `AbstractRepositoryRDB`. `CentreonLog` is deprecated and already reroutes through `Adaptation\Log\Logger` (see [logging.md](../logging.md)), and both `CentreonDB` and `DatabaseConnection` extend `\PDO`, so reaching for them invites the raw `prepare()`/`bindValue()`/`fetch*()` idiom that the `ConnectionInterface` was built to replace.
 
 Without a rule, new code keeps reaching for whichever entry point is nearest, and the modern bridge that already exists goes unused. The convention below is already applied in review; this ADR records it.
 
@@ -15,7 +15,7 @@ Without a rule, new code keeps reaching for whichever entry point is nearest, an
 
 For any **new** class, method or function outside `src/App`:
 
-- **Logging:** log through `Adaptation\Log\Logger` only (`Logger::create(LogChannelEnum::…)->…`), or one of its semantic siblings (`LoggerAuthentication`, `LoggerPassword`, `LoggerToken`, `LoggerUpgrade`). Never `CentreonLog`, never `error_log()`, never the `src/Core` `LoggerTrait`.
+- **Logging:** log through `Adaptation\Log\Logger` only (`Logger::create(LogChannelEnum::…)->…`), or one of its semantic siblings (`LoggerAuthentication`, `LoggerPassword`, `LoggerToken`, `LoggerUpgrade`). Never `CentreonLog`, never `error_log()`, never the DDD `LoggerTrait` (`Centreon\Domain\Log\LoggerTrait`), which is the injected logger of the modern `src/Core` / `src/App` stack.
 - **Database:** reach the database only through `Adaptation\Database\Connection\ConnectionInterface` (the `DbalConnectionAdapter`), passing values as `QueryParameters`. Never `CentreonDB`, never `DatabaseConnection`, and therefore none of the `\PDO` statement methods either.
 - **Repositories:** a new legacy repository must extend `Core\Common\Infrastructure\Repository\DatabaseRepository`, which injects `ConnectionInterface`, never the legacy `AbstractRepositoryRDB`.
 
