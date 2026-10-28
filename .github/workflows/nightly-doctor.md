@@ -44,13 +44,11 @@ run-name: "nightly doctor ${{ github.event.workflow_run.id || inputs.run_id || g
 # develop nightlies are scheduled, dev-* ones are dispatched with a "<workflow> nightly <branch>" run name.
 if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'failure' && (github.event.workflow_run.event == 'schedule' || (github.event.workflow_run.event == 'workflow_dispatch' && startsWith(github.event.workflow_run.display_title, format('{0} nightly ', github.event.workflow_run.name))))) }}
 
-# copilot-requests: inference billed to the organization Copilot plan, no PAT needed.
 permissions:
   actions: read
   contents: read
   issues: read
   pull-requests: read
-  copilot-requests: write
 
 # Work on the tip of the failing branch so the fix applies cleanly.
 checkout:
@@ -58,19 +56,18 @@ checkout:
   # origin/<base> is needed to build the pull request patch.
   fetch: ["develop", "dev-*"]
 
-# Explicit model: "auto" resolves to an unpriced utility model under org billing (github/gh-aw#63117).
+# Claude Code with the organization ANTHROPIC_API_KEY secret.
 engine:
-  id: copilot
-  # Must be in the workflow's live Copilot catalog and have no cache-write pricing
-  # (prompt_cache_breakpoint is rejected by the Copilot API).
-  model: copilot/gpt-5.3-codex
-  fallback-models: [copilot/gpt-4.1]
+  id: claude
+  model: claude-opus-5-5
 
 tools:
   github:
     toolsets: [repos, issues, pull_requests, actions]
 
 safe-outputs:
+  # TEMPORARY: preview only while comparing models.
+  staged: true
   # No gh-aw failure or no-op issues: the run summary is enough.
   report-failure-as-issue: false
   noop:
