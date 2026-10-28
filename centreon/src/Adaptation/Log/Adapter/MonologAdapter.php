@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Adaptation\Log\Adapter;
 
 use Adaptation\Log\Channel\LogChannelInterface;
+use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Exception\LoggerException;
 use Adaptation\Log\Logger;
 use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
@@ -141,7 +142,8 @@ final class MonologAdapter implements LoggerInterface
         try {
             $handler = new StreamHandler(
                 $this->getLogFileFromChannel($this->channel),
-                LogLevel::INFO
+                LogLevel::INFO,
+                filePermission: $this->getFilePermissionFromChannel($this->channel),
             );
 
             $handler->setFormatter(new LineFormatter(null, Logger::DATE_FORMAT));
@@ -163,6 +165,19 @@ final class MonologAdapter implements LoggerInterface
         $this->logger->pushProcessor(new ExceptionFormatterProcessor());
         $this->logger->pushProcessor(new WebProcessor());
         $this->logger->pushProcessor(self::$uidProcessor ??= new UidProcessor());
+    }
+
+    /**
+     * Group-writable: console commands run by members of the web server group
+     * (e.g. centreon-broker) append to the same files. Audit logs are only
+     * written by the web server, so they keep the mode given by the umask.
+     */
+    private function getFilePermissionFromChannel(LogChannelInterface $channel): ?int
+    {
+        return match ($channel) {
+            LogChannelEnum::AUTHENTICATION, LogChannelEnum::PASSWORD, LogChannelEnum::TOKEN => null,
+            default => 0664,
+        };
     }
 
     private function getLogFileFromChannel(LogChannelInterface $channel): string
