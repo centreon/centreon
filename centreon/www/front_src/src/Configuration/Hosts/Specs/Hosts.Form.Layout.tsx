@@ -227,13 +227,13 @@ const expectTriState = ({
 const countSeparators = (): number =>
   Array.from(
     document.querySelectorAll<HTMLElement>('[data-column-separator]')
-  ).filter((item) => {
+  ).filter((line) => {
     // Only what is on screen can be asked what is painted there.
-    item.scrollIntoView({ block: 'center' });
+    line.scrollIntoView({ block: 'center' });
 
-    const { left, top } = item.getBoundingClientRect();
+    const { left, top } = line.getBoundingClientRect();
 
-    return document.elementFromPoint(left - 15.5, top + 10) === item;
+    return document.elementFromPoint(left + 0.5, top + 10) === line;
   }).length;
 
 const getTabs = (): Array<string | null> =>

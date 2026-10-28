@@ -21,8 +21,16 @@ const columnSeparatorGridStyle = {
   overflowX: 'clip'
 } as CSSProperties;
 
-const columnSeparatorClassName =
-  "relative flex-1 before:absolute before:inset-y-0 before:left-[calc(var(--form-grid-column-gap)/-2)] before:border-l before:border-dashed before:border-divider before:content-['']";
+// The dashed line of an item: half a gap to its left, over the height of its
+// content.
+const ColumnSeparator = (): JSX.Element => (
+  <span
+    aria-hidden
+    className="absolute inset-y-0 border-l border-dashed border-divider"
+    data-column-separator
+    style={{ left: 'calc(var(--form-grid-column-gap) / -2)' }}
+  />
+);
 
 const Grid = ({
   grid,
@@ -88,7 +96,8 @@ const Grid = ({
             sx={{ width: '100%' }}
           >
             {title}
-            <div className={columnSeparatorClassName} data-column-separator>
+            <div className="relative flex-1">
+              <ColumnSeparator />
               <Input {...field} />
             </div>
           </Box>

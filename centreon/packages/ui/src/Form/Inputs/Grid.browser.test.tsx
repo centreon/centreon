@@ -6,9 +6,6 @@ import { object } from 'yup';
 import { Form } from '../Form';
 import { type InputProps, InputType } from './models';
 
-// The line sits half a gap (32px) left of an item.
-const halfGap = 16;
-
 const getField = (
   name: string,
   extra: Partial<InputProps> = {}
@@ -57,16 +54,17 @@ const initialize = ({
   );
 };
 
-const getItems = (): Array<HTMLElement> =>
+// The lines the grid draws, one for each of its items.
+const getLines = (): Array<HTMLElement> =>
   Array.from(document.querySelectorAll('[data-column-separator]'));
 
-// A line is seen when what is painted at its place is the item that draws it:
-// outside the grid, where it is clipped, there is something else.
+// A line is seen when what is painted at its place is the line itself: outside
+// the grid, where it is clipped, there is something else.
 const getVisibleLines = (): Array<boolean> =>
-  getItems().map((item) => {
-    const { left, top } = item.getBoundingClientRect();
+  getLines().map((line) => {
+    const { left, top } = line.getBoundingClientRect();
 
-    return document.elementFromPoint(left - halfGap + 0.5, top + 10) === item;
+    return document.elementFromPoint(left + 0.5, top + 10) === line;
   });
 
 const threeFields = ['one', 'two', 'three'].map((name) => getField(name));
@@ -102,7 +100,7 @@ describe('Grid column separator', () => {
 
     expect(getVisibleLines()).toEqual([false, true]);
 
-    const line = getComputedStyle(getItems()[1], '::before');
+    const line = getComputedStyle(getLines()[1]);
 
     expect(line.borderLeftStyle).toBe('dashed');
     expect(line.borderLeftWidth).toBe('1px');
@@ -160,7 +158,7 @@ describe('Grid column separator', () => {
 
     await screen.findByLabelText('short');
 
-    const [short, tall] = getItems().map(
+    const [short, tall] = getLines().map(
       (item) => item.getBoundingClientRect().height
     );
 
@@ -182,7 +180,7 @@ describe('Grid column separator', () => {
 
     await screen.findByLabelText('one');
 
-    expect(getItems()).toHaveLength(2);
+    expect(getLines()).toHaveLength(2);
     expect(getVisibleLines()).toEqual([false, true]);
   });
 });
