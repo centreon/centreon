@@ -175,6 +175,8 @@ export interface InputProps {
   };
   required?: boolean;
   segmentedButtons?: {
+    // Leaves the label out of the display; it stays the group's accessible name.
+    hideLabel?: boolean;
     options: Array<{
       label: string;
       value: string;
