@@ -282,6 +282,9 @@ $tpl->display('formGenerateFiles.ihtml');
                 }
                 updateProgress();
                 nextStep();
+            },
+            error: function (jqXHR) {
+                displayDenied(jqXHR, 'generate', 'You are not allowed to generate configuration');
             }
         });
     }
@@ -337,6 +340,9 @@ $tpl->display('formGenerateFiles.ihtml');
                 }
                 updateProgress();
                 nextStep();
+            },
+            error: function (jqXHR) {
+                displayDenied(jqXHR, 'restart', 'You are not allowed to restart the monitoring engine');
             }
         });
     }
@@ -527,6 +533,18 @@ $tpl->display('formGenerateFiles.ihtml');
                 $('#debug_' + pollerId).show();
             }
         }
+    }
+
+    function displayDenied(jqXHR, action, defaultMessage) {
+        if (jqXHR.responseXML) {
+            var data = $(jqXHR.responseXML);
+            displayStatusMessage(data);
+            displayDetails(data);
+            displayPhpErrorMsg(action, data);
+        } else {
+            $('#consoleContent').append(defaultMessage + "<br/>");
+        }
+        abortProgress();
     }
 
     function abortProgress() {
