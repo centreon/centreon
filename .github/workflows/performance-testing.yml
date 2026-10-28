@@ -188,7 +188,7 @@ jobs:
         with:
           name: jmeter-results
           path: centreon/tests/performance/jmeterFolder/jmeter_results
-          retention-days: 7
+          retention-days: 3
 
       - name: Upload JMeter HTML Reports
         if: success()
