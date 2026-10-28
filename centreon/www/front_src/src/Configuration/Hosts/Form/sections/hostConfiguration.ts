@@ -2,8 +2,14 @@ import { InputType, type SelectEntry } from '@centreon/ui';
 
 import type { TFunction } from 'i18next';
 import { JsonDecoder } from 'ts.data.json';
-import { array, number, object, string } from 'yup';
+import { number, object, string } from 'yup';
 
+import {
+  getMacrosSchema,
+  type MacroRow,
+  macroDecoder,
+  toMacrosPayload
+} from '../../../ConfigurationBase/Form/Macros';
 import {
   hostFormCommandsEndpoint,
   hostFormPollersEndpoint,
@@ -15,7 +21,6 @@ import type { NamedEntity } from '../../models';
 import {
   labelActiveChecksEnabled,
   labelAlias,
-  labelAlreadyExists,
   labelArgs,
   labelCheckCommand,
   labelCheckPeriod,
@@ -26,7 +31,6 @@ import {
   labelIpAddress,
   labelMaxCheckAttempts,
   labelMonitoringServer,
-  labelMustBeAtMostCharacters,
   labelMustBeIntegerOfAtLeastOne,
   labelName,
   labelNameContainsForbiddenCharacters,
@@ -40,17 +44,10 @@ import {
   labelSnmpCommunity,
   labelSnmpVersion,
   labelTemplates,
-  labelTimezone,
-  labelValue
+  labelTimezone
 } from '../../translatedLabels';
 import { argumentsToText, textToArguments } from '../commandArguments';
-import Macros from '../Macros';
-import {
-  hostMacroDecoder,
-  isUnchangedInherited,
-  type MacroRow,
-  toMacroName
-} from '../macroRows';
+import HostMacros from '../HostMacros';
 import ResolveAddress from '../ResolveAddress';
 import { buildSelector, toIds } from '../selector';
 import Templates, { type TemplateRow } from '../Templates';
@@ -69,10 +66,9 @@ const nameMaxLength = 200;
 const aliasMaxLength = 200;
 const addressMaxLength = 255;
 const snmpCommunityMaxLength = 255;
-// `HostMacroInput`: the name once wrapped in `$_HOST…$` fits 255 characters,
-// the value 4096 characters.
-const macroNameMaxLength = 248;
-const macroValueMaxLength = 4096;
+// `HostMacroInput`: the name once wrapped in `$_HOST…$` fits 255 characters.
+// Reserved names are left to the server.
+const macroPrefix = '$_HOST';
 // The set `CreateHostInput` forbids, character for character. A backslash is
 // not among them, so the form must not refuse `C:\temp` either.
 const forbiddenNameCharacters = /^[^~!$%^&*"|'<>?,()=]*$/;
@@ -147,26 +143,6 @@ const defaultCheckOptions: CheckOptionsValues = {
   macros: []
 };
 
-// A changed inherited macro goes back with its id and parent, so the server
-// turns it into the host's own.
-const toMacroPayload = ({
-  hasStoredPassword,
-  id,
-  isErased,
-  isPassword,
-  name,
-  parent,
-  value
-}: MacroRow) => ({
-  id,
-  is_password: isPassword,
-  name: toMacroName(name),
-  parent,
-  // Null keeps a stored password; once cleared, what is typed replaces it,
-  // empty included.
-  value: hasStoredPassword && !isErased ? null : value
-});
-
 const optionalNumberDecoder = JsonDecoder.optional(
   JsonDecoder.nullable(JsonDecoder.number)
 ).map((value): OptionalNumber => value ?? '');
@@ -209,9 +185,9 @@ const checkOptionsDecoder = JsonDecoder.object<CheckOptionsValues>(
         JsonDecoder.object(namedEntityDecoder, 'Check command')
       )
     ).map((value) => value ?? null),
-    macros: JsonDecoder.optional(
-      JsonDecoder.array(hostMacroDecoder, 'Macros')
-    ).map((value) => value ?? [])
+    macros: JsonDecoder.optional(JsonDecoder.array(macroDecoder, 'Macros')).map(
+      (value) => value ?? []
+    )
   },
   'Check options'
 );
@@ -226,46 +202,6 @@ const getAtLeastOneSchema = (message: string) =>
     .typeError(message)
     .integer(message)
     .min(1, message);
-
-const getMacrosSchema = (t: TFunction) =>
-  array()
-    .of(
-      object({
-        name: string()
-          .trim()
-          .max(
-            macroNameMaxLength,
-            t(labelMustBeAtMostCharacters, {
-              label: t(labelName),
-              max: macroNameMaxLength
-            })
-          )
-          .required(t(labelRequired)),
-        value: string().max(
-          macroValueMaxLength,
-          t(labelMustBeAtMostCharacters, {
-            label: t(labelValue),
-            max: macroValueMaxLength
-          })
-        )
-      })
-    )
-    // The server silently keeps the first of two macros of the same name.
-    // Reserved names are left to it.
-    .test('unique-names', function checkUniqueNames(macros) {
-      const names = (macros ?? []).map(({ name }) => toMacroName(name ?? ''));
-      const duplicateIndex = names.findIndex(
-        (name, index) => name !== '' && names.indexOf(name) !== index
-      );
-
-      return (
-        duplicateIndex === -1 ||
-        this.createError({
-          message: t(labelAlreadyExists),
-          path: `${this.path}[${duplicateIndex}].name`
-        })
-      );
-    });
 
 const getSchedulingNumberInput = ({
   fieldName,
@@ -670,7 +606,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
               ? []
               : [
                   {
-                    custom: { Component: Macros },
+                    custom: { Component: HostMacros },
                     dataTestId: 'host-form-check-options-macros',
                     fieldName: 'checkOptions.macros',
                     label: t(labelCustomMacros),
@@ -690,7 +626,9 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
           poller: object({ id: number(), name: string() }).nullable()
         }
       : getHostOwnSchema(t)),
-    checkOptions: object({ macros: getMacrosSchema(t) }),
+    checkOptions: object({
+      macros: getMacrosSchema({ prefix: macroPrefix, t })
+    }),
     schedulingOptions: object({
       maxCheckAttempts: getAtLeastOneSchema(t(labelMustBeIntegerOfAtLeastOne)),
       normalCheckInterval: getAtLeastOneSchema(
@@ -740,11 +678,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         // Left over from a command since removed, they would be refused.
         args: checkOptions.command ? textToArguments(checkOptions.args) : [],
         command_id: checkOptions.command?.id ?? null,
-        // Unchanged inherited macros stay inherited. Not sent, they cannot go
-        // stale once the templates or the command change.
-        macros: (checkOptions.macros ?? [])
-          .filter((macro) => !isUnchangedInherited(macro))
-          .map(toMacroPayload)
+        macros: toMacrosPayload(checkOptions.macros)
       },
       // Refused on cloud, which always creates them.
       ...(!isCloudPlatform && {

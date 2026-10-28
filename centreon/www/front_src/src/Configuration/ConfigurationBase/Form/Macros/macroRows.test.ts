@@ -60,17 +60,17 @@ describe('resolveInheritedMacros', () => {
     ).toEqual([fromTemplate(52, 'WARNING', '80')]);
   });
 
-  it('keeps the command macros the host was loaded with, below any template', () => {
+  it('keeps the command macros the resource was loaded with, below any template', () => {
     expect(
       resolveInheritedMacros({
         hasCheckCommand: true,
-        hostCommandMacros: [fromCommand(4, 'WARNING'), fromCommand(5, 'OS')],
+        ownCommandMacros: [fromCommand(4, 'WARNING'), fromCommand(5, 'OS')],
         templatesMacros: [[fromTemplate(21, 'OS'), fromCommand(41, 'CRITICAL')]]
       })
     ).toEqual([fromTemplate(21, 'OS'), fromCommand(4, 'WARNING')]);
   });
 
-  it("leaves the templates' command macros out once the host has its own command", () => {
+  it("leaves the templates' command macros out once the resource has its own command", () => {
     expect(
       resolveInheritedMacros({
         hasCheckCommand: true,
@@ -96,7 +96,7 @@ describe('mergeInheritedMacros', () => {
     ).toEqual([own('PORT'), fromTemplate(31, 'TIMEOUT')]);
   });
 
-  it('keeps a changed row, as the host own once its source is gone', () => {
+  it("keeps a changed row, as the resource's own once its source is gone", () => {
     const overridden = { ...fromTemplate(21, 'OS', 'linux'), value: 'debian' };
 
     expect(mergeInheritedMacros([overridden], [])).toEqual([
