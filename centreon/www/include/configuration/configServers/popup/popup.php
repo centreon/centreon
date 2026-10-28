@@ -60,6 +60,12 @@ $isAdmin = (bool) $centreon->user->admin;
 
 if ($isAdmin === false) {
     $acl = new CentreonACL($userId, $isAdmin);
+    // The popup is only reachable from Configuration > Pollers > Pollers.
+    if ($acl->page(60901) === 0) {
+        echo 'You are not allowed to reach this page';
+
+        exit();
+    }
     $aclPollers = $acl->getPollers();
     if (! array_key_exists($pollerId, $aclPollers)) {
         echo 'No access rights to this Poller';
