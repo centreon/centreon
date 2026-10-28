@@ -1,6 +1,6 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import { labelDefault, labelNo, labelYes } from '../translatedLabels';
+import { labelDefault, labelNo, labelYes } from './translatedLabels';
 
 // The three states as the API spells them. Default is a value of its own: it
 // leaves the directive to the template chain, and is never No.
@@ -23,3 +23,8 @@ export const triStateDecoder = JsonDecoder.oneOf<TriState>(
   triStates.map((value) => JsonDecoder.isExactly(value)),
   'TriState'
 );
+
+// The detail endpoints leave unset values out rather than sending null.
+export const optionalTriStateDecoder = JsonDecoder.optional(
+  JsonDecoder.nullable(triStateDecoder)
+).map((value) => value ?? defaultTriState);

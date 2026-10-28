@@ -20,17 +20,19 @@ export const schedulingColumns =
 export const getBlock = ({
   className = stackedColumns,
   columns,
+  idPrefix,
   name,
   title
 }: {
   className?: string;
   columns: Array<InputPropsWithoutGroup>;
+  idPrefix: string;
   name: string;
   title?: string;
 }): InputPropsWithoutGroup => ({
   ...(title && { additionalLabel: title }),
   fieldName: name,
   grid: { className, columns },
-  label: `host-form-${name}`,
+  label: `${idPrefix}-${name}`,
   type: InputType.Grid
 });
