@@ -31,14 +31,21 @@ import {
   serviceFormContactsEndpoint,
   serviceFormTimePeriodsEndpoint
 } from '../Form/sections/notifications';
+// MON-213084: Relations section selectors.
+import {
+  serviceFormServiceGroupsEndpoint,
+  serviceFormTrapsEndpoint
+} from '../Form/sections/relations';
 import {
   emptyListingResponse,
   getContactGroupsResponse,
   getContactsResponse,
   getListingResponse,
+  getServiceGroupsResponse,
   getServiceResponse,
   getServiceTemplatesResponse,
-  getTimePeriodsResponse
+  getTimePeriodsResponse,
+  getTrapsResponse
 } from './utils';
 
 interface Props {
@@ -137,6 +144,36 @@ const initialize = ({
     alias: 'duplicateService0',
     method: Method.POST,
     path: `**${getDuplicateServiceEndpoint({ id: 0 })}`,
+    response: {}
+  });
+
+  // MON-213084: Relations section selectors, and the create and update the
+  // form sends.
+  interceptAPIRequest({
+    alias: 'getFormServiceGroups',
+    method: Method.GET,
+    path: `**${serviceFormServiceGroupsEndpoint}?**`,
+    response: getServiceGroupsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormTraps',
+    method: Method.GET,
+    path: `**${serviceFormTrapsEndpoint}?**`,
+    response: getTrapsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'createService',
+    method: Method.POST,
+    path: `**${servicesListEndpoint}`,
+    response: {}
+  });
+
+  interceptAPIRequest({
+    alias: 'updateService0',
+    method: Method.PUT,
+    path: `**${getServiceEndpoint({ id: 0 })}`,
     response: {}
   });
 

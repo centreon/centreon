@@ -1,5 +1,6 @@
 import Form from './Services.Form';
 import Notifications from './Services.Form.Notifications';
+import FormRelations from './Services.Form.Relations';
 import FormServiceConfiguration from './Services.Form.ServiceConfiguration';
 
 // Apart from the listing specs so the two run in parallel. Each section adds
@@ -11,6 +12,8 @@ describe('Services configuration: ', () => {
 
   describe('Form: ', () => {
     Form();
+    // MON-213084
+    FormRelations();
   });
 
   describe('Form, Service Configuration: ', () => {

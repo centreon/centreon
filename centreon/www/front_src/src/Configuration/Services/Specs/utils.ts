@@ -72,7 +72,19 @@ export const getServiceResponse = (id: number) => ({
   id,
   ...getServiceConfigurationResponse(id),
   // MON-213086: service 0 carries notification settings, service 1 none.
-  ...(id === 0 && { notifications: getServiceNotificationsResponse() })
+  ...(id === 0 && { notifications: getServiceNotificationsResponse() }),
+  // MON-213084: Relations section.
+  service_groups: [{ id: 1, name: 'Web services' }],
+  traps: [{ id: 21, name: 'linkDown', vendor: 'Generic' }]
+});
+
+// MON-213084: Relations section selectors.
+const toCollection = (member: Array<object>) => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': '/centreon/api/configuration',
+  '@type': 'Collection',
+  member,
+  totalItems: member.length
 });
 
 // MON-213082: Service Configuration, name, host, template and scheduling.
@@ -172,3 +184,14 @@ export const untouchedNotificationsPayload = {
   timeperiod_id: null,
   use_only_contacts_from_host: false
 };
+export const getServiceGroupsResponse = () =>
+  toCollection([
+    { id: 1, name: 'Web services' },
+    { id: 2, name: 'Database services' }
+  ]);
+
+export const getTrapsResponse = () =>
+  toCollection([
+    { id: 21, name: 'linkDown', vendor: 'Generic' },
+    { id: 22, name: 'linkUp', vendor: 'Generic' }
+  ]);
