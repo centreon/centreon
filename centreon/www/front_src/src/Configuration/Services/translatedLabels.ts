@@ -18,3 +18,11 @@ export const labelDurationInSeconds = '{{count}} sec';
 
 export const labelWelcomeToServices = 'Welcome to the Services interface!';
 export const labelCreateService = 'Create a service';
+
+// Form sections, in the order of the legacy tabs. The legacy service form
+// already carries these strings, so every locale has them.
+export const labelServiceConfiguration = 'Service Configuration';
+export const labelNotifications = 'Notifications';
+export const labelRelations = 'Relations';
+export const labelDataProcessing = 'Data Processing';
+export const labelServiceExtendedInfo = 'Service Extended Info';

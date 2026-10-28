@@ -2,6 +2,8 @@ import { SnackbarProvider } from '@centreon/ui';
 import {
   configurationLimitPerPageAtom,
   intervalLengthAtom,
+  type PlatformFeatures,
+  platformFeaturesAtom,
   type UserPermissions,
   userPermissionsAtom
 } from '@centreon/ui-context';
@@ -26,6 +28,7 @@ import {
 import {
   emptyListingResponse,
   getListingResponse,
+  getServiceResponse,
   getServiceTemplatesResponse
 } from './utils';
 
@@ -34,18 +37,30 @@ interface Props {
   hasWriteAccess?: boolean;
   intervalLength?: number;
   limitPerPage?: number;
+  isCloudPlatform?: boolean;
+  // Opens the page on a deep link, such as `?mode=edit&id=0`.
+  searchParams?: string;
 }
 
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
   intervalLength = 60,
-  limitPerPage
+  limitPerPage,
+  isCloudPlatform = false,
+  searchParams = ''
 }: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
   });
+
+  // The form is URL-driven, and the page is not reloaded between tests.
+  window.history.pushState(
+    {},
+    '',
+    `${window.location.pathname}${searchParams}`
+  );
 
   const store = createStore();
 
@@ -59,6 +74,7 @@ const initialize = ({
   if (limitPerPage) {
     store.set(configurationLimitPerPageAtom, limitPerPage);
   }
+  store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
 
   interceptAPIRequest({
     alias: 'getAllServices',
@@ -72,6 +88,16 @@ const initialize = ({
     method: Method.GET,
     path: `**${serviceTemplatesEndpoint}?**`,
     response: getServiceTemplatesResponse()
+  });
+
+  // Any row opens the form, so each one has a detail response of its own.
+  [0, 1, 2].forEach((id) => {
+    interceptAPIRequest({
+      alias: `getService${id}`,
+      method: Method.GET,
+      path: `**${getServiceEndpoint({ id })}`,
+      response: getServiceResponse(id)
+    });
   });
 
   // Enable and disable are a partial update of the service, one request each.
