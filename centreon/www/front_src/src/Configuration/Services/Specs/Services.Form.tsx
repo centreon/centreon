@@ -4,11 +4,12 @@ import userEvent from '@testing-library/user-event';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
-  labelDataProcessing,
-  labelNotifications,
-  labelRelations,
-  labelServiceConfiguration,
-  labelServiceExtendedInfo
+  labelAdvanced,
+  labelCheckCommandTemplateCustomMacros,
+  labelGeneralInformation,
+  labelMonitoringEngineSchedulingOptions,
+  labelNotification,
+  labelRelations
 } from '../translatedLabels';
 import initialize from './initialize';
 
@@ -103,33 +104,35 @@ export default () => {
     await waitFor(() => expect(getSaveButton()).toBeInTheDocument());
   });
 
-  it('lists the five sections of the legacy form in its order', async () => {
+  it('lists the six sections of the mockup in its order', async () => {
     await initializeListing();
 
     await openCreationForm();
 
     await waitFor(async () =>
       expect(await getSectionTabs()).toEqual([
-        labelServiceConfiguration,
-        labelNotifications,
+        labelGeneralInformation,
+        labelCheckCommandTemplateCustomMacros,
         labelRelations,
-        labelDataProcessing,
-        labelServiceExtendedInfo
+        labelMonitoringEngineSchedulingOptions,
+        labelNotification,
+        labelAdvanced
       ])
     );
   });
 
-  it('drops the Notifications section on a cloud platform', async () => {
+  it('drops the Notification section on a cloud platform', async () => {
     await initializeListing({ isCloudPlatform: true });
 
     await openCreationForm();
 
     await waitFor(async () =>
       expect(await getSectionTabs()).toEqual([
-        labelServiceConfiguration,
+        labelGeneralInformation,
+        labelCheckCommandTemplateCustomMacros,
         labelRelations,
-        labelDataProcessing,
-        labelServiceExtendedInfo
+        labelMonitoringEngineSchedulingOptions,
+        labelAdvanced
       ])
     );
   });

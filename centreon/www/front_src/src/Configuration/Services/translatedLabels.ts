@@ -19,13 +19,25 @@ export const labelDurationInSeconds = '{{count}} sec';
 export const labelWelcomeToServices = 'Welcome to the Services interface!';
 export const labelCreateService = 'Create a service';
 
-// Form sections, in the order of the legacy tabs. The legacy service form
-// already carries these strings, so every locale has them.
-export const labelServiceConfiguration = 'Service Configuration';
-export const labelNotifications = 'Notifications';
+// MON-213119: form sections and their blocks, in the order of the Figma panel
+// (node 84:8442). Existing catalogue msgids, so every locale has them...
+export const labelGeneralInformation = 'General information';
+export const labelServiceBasicInformation = 'Service Basic Information';
 export const labelRelations = 'Relations';
+export const labelMonitoringEngine = 'Monitoring engine';
+export const labelSchedulingOptions = 'Scheduling options';
+export const labelNotification = 'Notification';
+export const labelAdvanced = 'Advanced';
 export const labelDataProcessing = 'Data Processing';
-export const labelServiceExtendedInfo = 'Service Extended Info';
+// ...but these, new: the wording follows Figma, to translate.
+export const labelCheckCommandTemplateCustomMacros =
+  'Check command / Template / Custom macros';
+export const labelMonitoringEngineSchedulingOptions =
+  'Monitoring engine / Scheduling options';
+export const labelAutoRemediation = 'Auto-remediation';
+// The Advanced block of the fields the Figma panel does not show (F28,
+// F35–F37), until PM/UX decide. A catalogue msgid.
+export const labelMiscellaneous = 'Miscellaneous';
 
 // MON-213082: Service Configuration, name, host, template and scheduling.
 // Spelled as the legacy service form and the Hosts form spell them.
@@ -85,7 +97,6 @@ export const labelFlappingOptions = 'Flapping options';
 export const labelFlapDetectionEnabled = 'Flap Detection Enabled';
 export const labelLowFlapThreshold = 'Low Flap Threshold';
 export const labelHighFlapThreshold = 'High Flap Threshold';
-export const labelHistoryOptions = 'History Options';
 export const labelRetainStatusInformation = 'Retain Status Information';
 export const labelRetainNonStatusInformation = 'Retain Non Status Information';
 export const labelStalkingOptions = 'Stalking Options';

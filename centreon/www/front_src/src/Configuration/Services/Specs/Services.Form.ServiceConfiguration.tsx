@@ -6,11 +6,9 @@ import userEvent from '@testing-library/user-event';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import { getServiceEndpoint, servicesListEndpoint } from '../api/endpoints';
-import {
-  serviceFormHostsEndpoint,
-  serviceFormServiceTemplatesEndpoint,
-  serviceFormTimePeriodsEndpoint
-} from '../Form/sections/serviceConfiguration';
+import { serviceFormServiceTemplatesEndpoint } from '../Form/sections/checkOptions';
+import { serviceFormHostsEndpoint } from '../Form/sections/generalInformation';
+import { serviceFormTimePeriodsEndpoint } from '../Form/sections/monitoringEngine';
 import {
   labelMustBeIntegerOfAtLeastOne,
   labelNameContainsForbiddenCharacters,

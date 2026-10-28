@@ -1,4 +1,4 @@
-import { dataProcessing } from './dataProcessing';
+import { advanced as dataProcessing } from './advanced';
 
 const values = {
   dataProcessing: {

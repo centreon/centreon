@@ -1,18 +1,21 @@
-import { dataProcessing } from './dataProcessing';
-import { extendedInfo } from './extendedInfo';
+import { advanced } from './advanced';
+import { checkOptions } from './checkOptions';
+import { generalInformation } from './generalInformation';
 import type { FormSection, PlatformContext } from './models';
+import { monitoringEngine } from './monitoringEngine';
 import { notifications } from './notifications';
 import { relations } from './relations';
-import { serviceConfiguration } from './serviceConfiguration';
 
-// The five tabs of the legacy form, in its order. They also drive the pinned
-// navigation, which the shared form renders on its own from four groups up.
+// The six sections of the Figma panel (MON-213119), in its order. They also
+// drive the pinned navigation, which the shared form renders on its own from
+// four groups up.
 export const sections = [
-  serviceConfiguration,
-  notifications,
+  generalInformation,
+  checkOptions,
   relations,
-  dataProcessing,
-  extendedInfo
+  monitoringEngine,
+  notifications,
+  advanced
 ] as const;
 
 // Numbered before the platform filters them, so a section's group keeps its

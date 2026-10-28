@@ -11,12 +11,9 @@ import {
 
 import { getChangedFields } from '../../ConfigurationBase/Form';
 import { labelReplacementOverwritesLists } from '../translatedLabels';
+import { getSectionsPayload } from './adapter';
 import { getDefaultValues } from './defaultValues';
-import {
-  type FormValues,
-  getAvailableSections,
-  type PlatformContext
-} from './sections';
+import type { FormValues, PlatformContext } from './sections';
 import {
   type UpdateMode,
   type UpdateModeField,
@@ -135,13 +132,7 @@ const getProbe = (empty: unknown): unknown =>
  * mode — `x_to_add` adds, `x` replaces, `x_to_remove` removes.
  */
 export const getMassChangeAdapter = (context: PlatformContext) => {
-  const toPayload = (values: FormValues) =>
-    Object.assign(
-      {},
-      ...getAvailableSections(context).map(({ section }) =>
-        section.toPayload(values, context)
-      )
-    ) as Record<string, unknown>;
+  const toPayload = (values: FormValues) => getSectionsPayload(values, context);
 
   const clearableFields = getClearableFields(context);
 
