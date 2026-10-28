@@ -196,7 +196,7 @@ jobs:
         with:
           name: jmeter-html-reports
           path: centreon/tests/performance/jmeterFolder/jmeter_html_report
-          retention-days: 7
+          retention-days: 3
 
       - name: Display HTML Report in GitHub Summary
         if: success()
