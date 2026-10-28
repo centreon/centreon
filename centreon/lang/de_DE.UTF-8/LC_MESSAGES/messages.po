@@ -21658,6 +21658,30 @@ msgstr ""
 # msgid "Centreon Central address, as seen by this poller"
 # msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Arguments need an event handler"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Configure the services monitored on your hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Create a service"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Include disabled hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Must be an integer between 0 and 100"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "The following arguments are not valid: {{arguments}}"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
 msgid "This contact group is not available"
 msgstr "Diese Kontaktgruppe ist nicht verfügbar"
@@ -21665,3 +21689,19 @@ msgstr "Diese Kontaktgruppe ist nicht verfügbar"
 #: centreon/www/include/configuration/configObject/contact/displayNotification.php
 msgid "This contact is not available"
 msgstr "Dieser Kontakt ist nicht verfügbar"
+
+#: centreon/www/install/front_translate.php
+msgid "This name is reserved"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the Services interface!"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} min"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} sec"
+msgstr ""

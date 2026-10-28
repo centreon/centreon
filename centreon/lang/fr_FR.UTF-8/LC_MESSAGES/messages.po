@@ -25347,8 +25347,16 @@ msgid "An error occurred during session logout"
 msgstr "Une erreur est survenue lors de la déconnexion de la session"
 
 #: centreon/www/install/front_translate.php
+msgid "Arguments need an event handler"
+msgstr "Les arguments nécessitent un gestionnaire d'évènements"
+
+#: centreon/www/install/front_translate.php
 msgid "Computing exact count…"
 msgstr "Calcul du nombre exact…"
+
+#: centreon/www/install/front_translate.php
+msgid "Configure the services monitored on your hosts"
+msgstr "Configurez les services supervisés sur vos hôtes"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 msgid "Could not copy VMWare configuration file"
@@ -25357,6 +25365,10 @@ msgstr "Impossible de copier le fichier de configuration VMWare"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Could not load the SNMP trap. Please try again."
 msgstr "Impossible de charger le trap SNMP. Veuillez réessayer."
+
+#: centreon/www/install/front_translate.php
+msgid "Create a service"
+msgstr "Créer un service"
 
 #: centreon/www/install/front_translate.php
 msgid "Current status of the hosts being monitored"
@@ -25383,12 +25395,20 @@ msgid "Host ID"
 msgstr "ID de l'hôte"
 
 #: centreon/www/install/front_translate.php
+msgid "Include disabled hosts"
+msgstr "Inclure les hôtes désactivés"
+
+#: centreon/www/install/front_translate.php
 msgid ""
 "More than 1,000 resources match your search. Click to compute the exact "
 "count."
 msgstr ""
 "Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour "
 "calculer le nombre exact."
+
+#: centreon/www/install/front_translate.php
+msgid "Must be an integer between 0 and 100"
+msgstr "Doit être un entier compris entre 0 et 100"
 
 #: centreon/www/include/configuration/configObject/service/DB-Func.php
 msgid ""
@@ -25423,9 +25443,17 @@ msgstr "Prérequis : configurer le central pour accepter les connexions pullwss"
 msgid "Service ID"
 msgstr "ID du service"
 
+#: centreon/www/install/front_translate.php
+msgid "The following arguments are not valid: {{arguments}}"
+msgstr "Les arguments suivants ne sont pas valides : {{arguments}}"
+
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "This SNMP trap no longer exists."
 msgstr "Ce trap SNMP n'existe plus."
+
+#: centreon/www/install/front_translate.php
+msgid "This name is reserved"
+msgstr "Ce nom est réservé"
 
 #: centreon/src/Core/Security/Vault/Application/Exceptions/VaultException.php
 msgid "Unable to revert passwords"
@@ -25436,5 +25464,17 @@ msgid "Vault is not available"
 msgstr "Le coffre-fort n'est pas disponible"
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the Services interface!"
+msgstr "Bienvenue dans l'interface des services !"
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} min"
+msgstr "{{count}} min"
+
+#: centreon/www/install/front_translate.php
 msgid "{{count}} resources"
 msgstr "{{count}} ressources"
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} sec"
+msgstr "{{count}} s"
