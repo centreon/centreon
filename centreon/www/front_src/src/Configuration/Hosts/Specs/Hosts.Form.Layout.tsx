@@ -34,6 +34,7 @@ import {
   labelPassiveChecksEnabled,
   labelRelations,
   labelSchedulingOptions,
+  labelSnmpCommunity,
   labelSnmpVersion,
   labelTemplates,
   labelTimesSixtySeconds,
@@ -109,6 +110,7 @@ const titles: Record<string, Array<string>> = {
   [labelHostMonitoringProperties]: [
     labelHostCheckOptions,
     labelArguments,
+    labelSnmpCommunity,
     labelTemplates,
     labelCustomMacros
   ],
@@ -352,7 +354,7 @@ export default () => {
         });
     });
 
-    it('shows the SNMP fields right after the check command and its arguments, before the templates', async () => {
+    it('shows the SNMP block beside the check command and its arguments, before the templates', async () => {
       initializeFormLayout({ width: wide });
 
       await waitForForm();
@@ -361,14 +363,28 @@ export default () => {
         'host-form-snmp-community',
         labelHostMonitoringProperties
       );
-      expectBeside('host-form-snmp-community', getSnmpVersion());
-      expectBelow(
+      // The check command and its arguments on the left, the SNMP community
+      // and its version on the right.
+      expectBeside(
         'host-form-check-options-command',
         'host-form-snmp-community'
       );
-      expectBelow('host-form-check-options-args', getSnmpVersion());
-      expectBelow('host-form-snmp-community', 'host-form-templates');
+      expectBelow(
+        'host-form-check-options-command',
+        'host-form-check-options-args'
+      );
+      expectBelow('host-form-snmp-community', getSnmpVersion());
+      expectBeside('host-form-check-options-args', getSnmpVersion());
+      expectBelow('host-form-check-options-args', 'host-form-templates');
       expectBelow(getSnmpVersion(), 'host-form-check-options-macros');
+      // Twice the usual space (16px) above the templates.
+      expect(
+        getRect('host-form-templates').top -
+          Math.max(
+            getRect('host-form-check-options-args').bottom,
+            getSnmpVersion().getBoundingClientRect().bottom
+          )
+      ).toBeGreaterThanOrEqual(32);
     });
 
     it('shows the host severity among the relations, below the host categories', async () => {
@@ -499,9 +515,14 @@ export default () => {
 
       await waitForForm();
 
-      expectBeside(
+      // The check command over its arguments, beside the SNMP community.
+      expectBelow(
         'host-form-check-options-command',
         'host-form-check-options-args'
+      );
+      expectBeside(
+        'host-form-check-options-command',
+        'host-form-snmp-community'
       );
       expectBeside('host-form-templates', 'host-form-check-options-macros');
 
@@ -557,10 +578,15 @@ export default () => {
 
       await waitForForm();
 
-      // Still beside each other, as designed.
-      expectBeside(
+      // Still two columns: the check command over its arguments, beside the
+      // SNMP community.
+      expectBelow(
         'host-form-check-options-command',
         'host-form-check-options-args'
+      );
+      expectBeside(
+        'host-form-check-options-command',
+        'host-form-snmp-community'
       );
       expectBelow('host-form-templates', 'host-form-check-options-macros');
 

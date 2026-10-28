@@ -19,6 +19,7 @@ import {
   schedulingColumns,
   stackedColumns,
   threeColumnsFromWide,
+  twoColumns,
   twoColumnsFromNarrow,
   twoColumnsFromWide
 } from './grid';
@@ -50,8 +51,14 @@ export const layout: Array<LayoutSection> = [
   {
     label: labelHostMonitoringProperties,
     nodes: [
-      'checkCommand',
-      'snmp',
+      {
+        // The check command and its arguments on the left, the SNMP community
+        // and its version on the right, with room above the templates.
+        className: `${twoColumns} pb-4`,
+        columnSeparator: true,
+        columns: ['checkCommand', 'snmp'],
+        name: 'check-snmp-layout'
+      },
       {
         className: twoColumnsFromWide,
         columnSeparator: true,
