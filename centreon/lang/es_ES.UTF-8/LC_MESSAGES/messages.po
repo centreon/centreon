@@ -66,6 +66,10 @@ msgstr ""
 msgid "'%s' service name already exists for host ID %d"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "* 60 seconds"
+msgstr ""
+
 #: centreon/www/include/monitoring/external_cmd/popup/massive_downtime.php
 msgid "*The timezone used is configured on your user settings"
 msgstr ""
@@ -950,6 +954,14 @@ msgid "Add to favorites"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Add to inherited contact groups"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Add to inherited contacts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Add vCenter/ESX"
 msgstr ""
 
@@ -1772,6 +1784,10 @@ msgstr "Reordenación automática"
 msgid "Auto-Rescheduling Window"
 msgstr "Ventana de reprogramación automática"
 
+#: centreon/www/install/front_translate.php
+msgid "Auto-remediation"
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
 "Auto: Default value defined for the corresponding curve template (Monitoring "
@@ -1786,6 +1802,10 @@ msgstr "Llave de autoconexión"
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Automatic State Retention Update Interval"
 msgstr "Intervalo de actualización para retención de estado"
+
+#: centreon/www/install/front_translate.php
+msgid "Automatically create services from templates"
+msgstr ""
 
 #: centreon/www/install/smarty_translate.php
 msgid "Autorized contacts"
@@ -2709,6 +2729,10 @@ msgstr ""
 msgid "Check information"
 msgstr "Información de control"
 
+#: centreon/www/install/front_translate.php
+msgid "Check interval"
+msgstr ""
+
 #: centreon/www/include/monitoring/submitPassivResults/hostPassiveCheck.php
 #: centreon/www/include/monitoring/submitPassivResults/servicePassiveCheck.php
 msgid "Check output"
@@ -2739,6 +2763,10 @@ msgstr ""
 msgid "Check this resource only within configured check period"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Check time period"
+msgstr ""
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Checks"
 msgstr "controles"
@@ -2754,6 +2782,10 @@ msgstr "Controles por este servicio."
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "Child Hosts"
 msgstr "Anfitriones de niños"
+
+#: centreon/www/install/front_translate.php
+msgid "Child hosts"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Choose a duration between 1 hour and 1 week"
@@ -3594,6 +3626,10 @@ msgid "Configure service"
 msgstr "Configurar el servicio"
 
 #: centreon/www/install/front_translate.php
+msgid "Configure the hosts monitored by your platform."
+msgstr "Configure los hosts supervisados por su plataforma."
+
+#: centreon/www/install/front_translate.php
 msgid "Confirm"
 msgstr ""
 
@@ -3783,6 +3819,10 @@ msgstr "Contactos notificados para este host"
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Contacts notified for this service"
 msgstr "Contactos notificados para este servicio."
+
+#: centreon/www/install/front_translate.php
+msgid "Contacts to notify"
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid "Contacts with the 'Reach Centreon Front-end' option enabled"
@@ -4284,6 +4324,10 @@ msgid ""
 "Data is aggregated monthly over the last 12 months for graphs presenting "
 "host groups."
 msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Data processing"
+msgstr "Tratamiento de datos"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Data size"
@@ -5549,6 +5593,26 @@ msgid "Drag to reorder"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Enable event handler"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Enable notifications"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Event handler"
+msgstr "Gerente de eventos"
+
+#: centreon/www/install/front_translate.php
+msgid "Host monitoring properties"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Monitoring engine / Scheduling options"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Picked up row {{position}}"
 msgstr ""
 
@@ -5561,12 +5625,20 @@ msgid "Replacing the templates will delete all the services created by the previ
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Resolve FQDN"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Row {{position}} dropped at position {{newPosition}}"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Row {{position}} moved to position {{newPosition}}"
 msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "SNMP community"
+msgstr "Comunidad SNMP"
 
 #: centreon/www/install/front_translate.php
 msgid "To pick up a row, press space or enter. Use the arrow keys to move it, then press space or enter to drop it, or escape to cancel."
@@ -5882,6 +5954,10 @@ msgstr "Habilitar la gestión de compensación de tiempo"
 msgid "Enable Web SSO authentication"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Enable active checks"
+msgstr ""
+
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 msgid "Enable all service checks on this host"
 msgstr "Habilitar todo el control de servicio en este host"
@@ -5921,6 +5997,10 @@ msgstr ""
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Enable negotiation"
 msgstr "Habilitar negociación de protocolo"
+
+#: centreon/www/install/front_translate.php
+msgid "Enable passive checks"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Enable requested authentication context"
@@ -8763,6 +8843,10 @@ msgstr "Detección de estatutos en bagotage."
 msgid "Flap Detection Option"
 msgstr "Detección de estatutos en bagotage."
 
+#: centreon/www/install/front_translate.php
+msgid "Flap detection"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -9020,6 +9104,14 @@ msgstr "Opciones de control para la frescura del resultado."
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Freshness Threshold"
 msgstr "Umbral de frescura del resultado."
+
+#: centreon/www/install/front_translate.php
+msgid "Freshness check"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Freshness threshold"
+msgstr ""
 
 #: centreon/www/include/Administration/parameters/backup/formBackup.php
 #: centreon/www/include/configuration/configObject/timeperiod/formTimeperiod.php
@@ -9515,6 +9607,10 @@ msgstr "Alto umbral para detectar bagotage de estado de invitado"
 msgid "High Service Flap Threshold"
 msgstr "Alto umbral de detección de estados de servicio del folleto."
 
+#: centreon/www/install/front_translate.php
+msgid "High threshold"
+msgstr ""
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Highly detailed information"
 msgstr "Informacion muy detallada"
@@ -9778,6 +9874,10 @@ msgid "Host basic information"
 msgstr "Información básica sobre el host."
 
 #: centreon/www/install/front_translate.php
+msgid "Host categories"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Host category"
 msgstr "Categoría de anfitriones"
 
@@ -9806,6 +9906,10 @@ msgstr "Comandos y atajos"
 #: centreon/www/install/smarty_translate.php
 msgid "Host dependency"
 msgstr "Dependencia del anfitrión"
+
+#: centreon/www/install/front_translate.php
+msgid "Host details"
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/displayNotification.php
 #: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
@@ -11385,6 +11489,14 @@ msgstr "Plantillas de servicio relacionadas"
 msgid "Linked Templates"
 msgstr "Modelos vinculados"
 
+#: centreon/www/install/front_translate.php
+msgid "Linked contact groups"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Linked contacts"
+msgstr ""
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Linked poller"
 msgstr "Coleccionista vinculado"
@@ -11769,6 +11881,10 @@ msgstr "Umbral bajo para detectar bagotage de estados de invitados"
 msgid "Low Service Flap Threshold"
 msgstr "Umbral bajo para la detección del bagotage estado del servicio."
 
+#: centreon/www/install/front_translate.php
+msgid "Low threshold"
+msgstr ""
+
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 msgid "Lower Limit"
 msgstr "Límite inferior"
@@ -11974,6 +12090,10 @@ msgstr "Máximo"
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Max Check Attempts"
 msgstr "Número de controles antes de la validación de estado"
+
+#: centreon/www/install/front_translate.php
+msgid "Max check attempts"
+msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Max file size in bytes"
@@ -13545,6 +13665,18 @@ msgstr "notificado"
 msgid "Notify"
 msgstr "notificar"
 
+#: centreon/www/install/front_translate.php
+msgid "Notify again every"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Notify during"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Notify on"
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "Number"
 msgstr ""
@@ -14045,6 +14177,10 @@ msgid "Parent alias"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Parent hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Parent name"
 msgstr ""
 
@@ -14055,6 +14191,10 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
 msgid "Parent relationship"
 msgstr "Relación"
+
+#: centreon/www/install/front_translate.php
+msgid "Parent-child relations"
+msgstr ""
 
 #: centreon/www/include/Administration/parameters/backup/formBackup.php
 msgid "Partial backup"

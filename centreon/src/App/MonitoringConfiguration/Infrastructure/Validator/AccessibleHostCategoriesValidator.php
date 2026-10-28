@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -34,7 +34,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Rejects categories the viewer cannot reach as if they did not exist, so a restricted user cannot tell
+ * Rejects categories the actor cannot reach as if they did not exist, so a restricted user cannot tell
  * an inaccessible category apart from a missing one.
  *
  * Always declared after Assert\All([Type, Positive]) inside an Assert\Sequentially on the property
@@ -46,7 +46,7 @@ final class AccessibleHostCategoriesValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly HostCategoryRepository $hostCategoryRepository,
-        private readonly ResourceAccessRepository $resourceAccessRepository,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -72,15 +72,10 @@ final class AccessibleHostCategoriesValidator extends ConstraintValidator
             HostCategoryId::class,
         );
 
-        $missingIds = array_diff($requestedIds, array_keys($this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray()));
-
-        if (! $credentialUser->credential->hasUnrestrictedResourceAccess()) {
-            $accessibleIds = $this->resourceAccessRepository->findAccessibleHostCategoryIds($credentialUser->credential->userId);
-            if ($accessibleIds instanceof Collection) {
-                $accessibleIdValues = array_map(static fn (HostCategoryId $id): int => $id->value, $accessibleIds->toArray());
-                $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
-            }
-        }
+        $missingIds = $this->accessScopes->hostCategories($credentialUser->credential->actingUser())->missing(
+            $categoryIds,
+            array_keys($this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray()),
+        );
 
         if ($missingIds !== []) {
             $this->context->buildViolation($constraint->message)->addViolation();

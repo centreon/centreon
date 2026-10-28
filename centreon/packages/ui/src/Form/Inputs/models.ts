@@ -146,6 +146,10 @@ export interface InputProps {
   grid?: {
     alignItems?: string;
     className?: string;
+    // A dashed vertical line in the gap between two columns, never left of
+    // the first one, whatever the number of columns the layout shows. To set
+    // on the grids that place groups of fields side by side.
+    columnSeparator?: boolean;
     columns: Array<Omit<InputProps, 'group'>>;
     gridTemplateColumns?: string;
   };
@@ -171,6 +175,8 @@ export interface InputProps {
   };
   required?: boolean;
   segmentedButtons?: {
+    // Leaves the label out of the display; it stays the group's accessible name.
+    hideLabel?: boolean;
     options: Array<{
       label: string;
       value: string;

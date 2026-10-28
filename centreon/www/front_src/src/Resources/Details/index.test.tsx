@@ -669,6 +669,13 @@ describe(Details, () => {
 
       await userEvent.click(getByText(period) as HTMLElement);
 
+      // The click has no effect while `waitFor` polls right away: the test
+      // after the first one never saw its period change. Leave the event loop
+      // a moment before waiting for the request.
+      await new Promise((resolve) => {
+        setTimeout(resolve, 300);
+      });
+
       await waitFor(() => {
         expect(getFetchedUrls()).toContain(
           `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startIsoString}&end=${currentDateIsoString}`

@@ -24,7 +24,7 @@ import type { NamedEntity } from '../models';
 import {
   labelAddNewEntry,
   labelEditTemplate,
-  labelHostTemplate
+  labelSelectATemplate
 } from '../translatedLabels';
 import { getHostTemplateConfigurationUrl } from '../utils';
 
@@ -81,7 +81,7 @@ const Templates = ({
           pickedElsewhere.includes(option.id as number)
         }
         isOptionEqualToValue={isSameTemplate}
-        label={t(labelHostTemplate)}
+        label={t(labelSelectATemplate)}
         onChange={(_event, template): void =>
           setValue((template as TemplateRow) ?? null)
         }

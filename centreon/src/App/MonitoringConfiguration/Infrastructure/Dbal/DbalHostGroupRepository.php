@@ -28,9 +28,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -48,6 +49,7 @@ use Webmozart\Assert\Assert;
  */
 final readonly class DbalHostGroupRepository extends DbalRepository implements HostGroupRepository
 {
+    use DbalCriteriaApplierTrait;
     public const TABLE_NAME = 'hostgroup';
 
     /**
@@ -58,7 +60,7 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
         private Connection $connection,
         #[Autowire(service: HostGroupTransformer::class)]
         private TransformerInterface $transformer,
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -85,18 +87,21 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
         return new Collection($names, HostGroupName::class);
     }
 
-    public function findAll(?HostGroupCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostGroupCriteria $criteria): \IteratorAggregate&\Countable
     {
+        $scope = $criteria->accessScope($this->accessScopes->hostGroups(...), HostGroupId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, HostGroup::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'hg')
             ->orderBy('hg.hg_id'); // required for deterministic pagination
 
-        if ($criteria instanceof HostGroupCriteria) {
-            $this->filterByHostGroupCriteria($qb, $criteria);
-        }
+        $this->filterByHostGroupCriteria($qb, $criteria, $scope);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -130,25 +135,20 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
         ];
     }
 
-    private function filterByHostGroupCriteria(QueryBuilder $qb, HostGroupCriteria $criteria): void
+    /**
+     * @param AccessScope<HostGroupId> $scope
+     */
+    private function filterByHostGroupCriteria(QueryBuilder $qb, HostGroupCriteria $criteria, AccessScope $scope): void
     {
         if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('hg.hg_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        if (($viewerId = $criteria->getViewerId()) instanceof UserId) {
-            $accessibleHostGroupIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId);
-            if ($accessibleHostGroupIds instanceof Collection) {
-                $ids = [];
-                foreach ($accessibleHostGroupIds as $hostGroupId) {
-                    $ids[] = $hostGroupId->value;
-                }
-
-                $qb->andWhere($qb->expr()->in(
-                    'hg.hg_id',
-                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
-                ));
-            }
+        if (! $scope->isUnrestricted()) {
+            $qb->andWhere($qb->expr()->in(
+                'hg.hg_id',
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
+            ));
         }
     }
 
