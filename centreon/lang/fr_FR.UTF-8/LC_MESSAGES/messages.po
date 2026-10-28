@@ -25478,3 +25478,7 @@ msgstr "{{count}} ressources"
 #: centreon/www/install/front_translate.php
 msgid "{{count}} sec"
 msgstr "{{count}} s"
+
+#: centreon/www/install/front_translate.php
+msgid "{{name}} ({{level}})"
+msgstr "{{name}} ({{level}})"
