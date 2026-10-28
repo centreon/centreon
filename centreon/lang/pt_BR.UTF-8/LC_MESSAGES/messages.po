@@ -24131,6 +24131,10 @@ msgid "This contact is not available"
 msgstr "Este contato não está disponível"
 
 #: centreon/www/install/front_translate.php
+msgid "This name is reserved"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the Services interface!"
 msgstr ""
 
