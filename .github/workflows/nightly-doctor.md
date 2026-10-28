@@ -59,7 +59,7 @@ checkout:
 # Claude Code with the organization ANTHROPIC_API_KEY secret.
 engine:
   id: claude
-  model: claude-opus-5-5
+  model: claude-sonnet-5-5
 
 tools:
   github:
