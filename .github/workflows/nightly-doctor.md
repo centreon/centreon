@@ -59,15 +59,14 @@ checkout:
 # Claude Code with the organization ANTHROPIC_API_KEY secret.
 engine:
   id: claude
-  model: claude-sonnet-5-5
+  model: claude-opus-5-5
+  fallback-models: [claude-sonnet-5-5]
 
 tools:
   github:
     toolsets: [repos, issues, pull_requests, actions]
 
 safe-outputs:
-  # TEMPORARY: preview only while comparing models.
-  staged: true
   # No gh-aw failure or no-op issues: the run summary is enough.
   report-failure-as-issue: false
   noop:
