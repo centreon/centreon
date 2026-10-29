@@ -171,8 +171,13 @@ class ParametersController extends AbstractController
                         : self::DEFAULT_INTERVAL_LENGTH;
                     break;
                 case self::LIMIT_PER_PAGE:
-                    $storedLimitPerPage = (int) $option->getValue();
-                    $limitPerPage = $storedLimitPerPage > 0
+                    // A cast would read "10abc" as 10: the whole value has to be a positive integer
+                    $storedLimitPerPage = filter_var(
+                        $option->getValue(),
+                        FILTER_VALIDATE_INT,
+                        ['options' => ['min_range' => 1]],
+                    );
+                    $limitPerPage = $storedLimitPerPage !== false
                         ? $storedLimitPerPage
                         : self::DEFAULT_LIMIT_PER_PAGE;
                     break;
