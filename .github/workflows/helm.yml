@@ -34,9 +34,15 @@ env:
 
 jobs:
   dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   get-environment:
+    permissions:
+      contents: read
+      pull-requests: write
     needs: [dependency-scan]
     if: github.event.pull_request.head.repo.fork != true
     uses: ./.github/workflows/get-environment.yml
@@ -45,6 +51,8 @@ jobs:
 
   get-charts:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       charts: ${{ steps.list.outputs.charts }}
     steps:
@@ -65,6 +73,8 @@ jobs:
     needs: [get-charts]
     if: needs.get-charts.outputs.charts != '[]'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:

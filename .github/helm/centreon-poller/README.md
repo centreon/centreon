@@ -106,7 +106,7 @@ Poller-initiated (reverse) connections do not use this identity.
 `--set traps.enabled=true` adds `snmptrapd` (receives traps on 162/udp, spools
 them) and `centreontrapd` (matches them against the definitions delivered by
 the central, submits results to the engine's command FIFO) to the poller pod,
-plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
+plus a `traps-config` directory on `poller-data` (`/etc/snmp/centreon_traps`) and a
 `<release>-snmptrap` Service (LoadBalancer, UDP 162).
 
 - Generate and apply the SNMP traps database for the poller from the central
@@ -122,8 +122,9 @@ plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
   and MetalLB; k3s' built-in ServiceLB (klipper) does not.
 - `snmptrapd` runs as uid 900: the pod gets the
   `net.ipv4.ip_unprivileged_port_start=162` sysctl (allowed by `baseline`).
-- Enabling traps on an installed poller changes the volume list (see
-  Persistence for the upgrade procedure).
+- Enabling traps on a poller installed with chart 26.2.0 or later is a plain
+  upgrade: their definitions are the `traps-config` directory of
+  `poller-data`. Earlier charts: reinstall first (see Persistence).
 
 ## VMware connector
 
@@ -150,6 +151,32 @@ helm upgrade poller-1 . -n pollers --reset-then-reuse-values `
 ```
 
 Enabling it does not change the volume list.
+
+## Proxy
+
+Behind an outbound proxy, set `proxy.http` (and `proxy.https` if it
+differs):
+
+```yaml
+proxy:
+  http: http://proxy.example.com:3128
+  noProxy: .cluster.local,10.0.0.0/8
+```
+
+- gorgone, centengine and the VMware connector get `http_proxy`,
+  `https_proxy` and `no_proxy` (both cases). `localhost`, `127.0.0.1`,
+  `centengine` and `centreon-vmware` are always in `no_proxy`: gorgone
+  reaches its engine in the pod. Add the central or any direct destination
+  to `noProxy` if the proxy must not see it.
+- Plugin installs run `sudo apt-get`, which drops these variables: the
+  proxy is also written to `/etc/apt/apt.conf.d/99centreon-poller-proxy`.
+- Both come from the Secret `<release>-proxy`, so credentials in the URLs
+  (`http://user:password@proxy.example.com:3128`) stay out of the pod spec.
+  The pod restarts when the proxy values change.
+
+For anything else to mount (corporate CA, apt config…), use `extraVolumes`
+with `gorgone.extraVolumeMounts`, `engine.extraVolumeMounts` or
+`vmware.extraVolumeMounts`.
 
 ## Central-side prerequisites
 
@@ -178,29 +205,40 @@ Enabling it does not change the volume list.
 | `vmware.enabled` / `vmware.image` | `false` / — | Image required, built with the licensed SDK, see VMware connector |
 | `networkPolicy.enabled` / `otelFrom` / `trapsFrom` | `true` / anywhere / anywhere | Ingress limited to 4317/tcp and 162/udp, see Security |
 | `networkPolicy.extraIngress` | `[]` | Extra ingress rules, added as is (not limited to 4317/162) |
-| `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
+| `proxy.http` / `https` / `noProxy` | — / `http` / — | Outbound proxy, see Proxy |
+| `extraVolumes` + `<container>.extraVolumeMounts` | `[]` | Extra pod volumes, mounted in `gorgone`, `engine`, `vmware` |
+| `persistence.size` / `spoolSize` / `storageClass` | 1Gi / 10Gi / default | `poller-data` / `poller-spool` sizes. **Immutable after install** (volumeClaimTemplates) |
 
 ## Persistence
 
-| Volume | Path | Why |
-|---|---|---|
-| `engine` | `/etc/centreon-engine` | Delivered engine config |
-| `broker` | `/etc/centreon-broker` | Delivered cbmod config (not seeded) |
-| `etc` | `/etc/centreon` | gorgone config |
-| `logs` | `/var/log/centreon-engine` | Logs, `retention.dat` |
-| `cma-pki` | `/etc/pki/centreon-engine` | Default CMA CA, used without `engine.otel.tls` |
-| `engine-home` | `/var/lib/centreon-engine` | Engine user's home = cbmod's default cache directory (queue saved on clean stop). The command FIFO dir `rw/` is an emptyDir mounted over it |
-| `gorgone-data` | `/var/lib/centreon-gorgone` | gorgone keys and history |
-| `traps-config` | `/etc/snmp/centreon_traps` | Trap definitions (`traps.enabled`), redelivered by the central |
+Two ReadWriteOnce volumes, one directory (subPath) per path. `poller-spool`
+holds what grows, so a full spool never blocks the config or gorgone.
 
-Back up at least `cma-pki` and `gorgone-data` (volume snapshots): losing
-`cma-pki` makes the engine generate a **new** default CMA CA, so every agent
-pinned on the old one (`-Fingerprint` / `ca_certificate`) must be reconfigured
-(not the case with `engine.otel.tls`, whose identity comes from your Secret or
-issuer). Losing `gorgone-data` regenerates the gorgone keys. The delivered
+| Volume | Directory | Path | Why |
+|---|---|---|---|
+| `poller-data` | `engine` | `/etc/centreon-engine` | Delivered engine config |
+| `poller-data` | `broker` | `/etc/centreon-broker` | Delivered cbmod config (not seeded) |
+| `poller-data` | `etc` | `/etc/centreon` | gorgone config |
+| `poller-data` | `pki` | `/etc/pki/centreon-engine` | Default CMA CA, used without `engine.otel.tls` |
+| `poller-data` | `gorgone-data` | `/var/lib/centreon-gorgone` | gorgone keys and history |
+| `poller-data` | `traps-config` | `/etc/snmp/centreon_traps` | Trap definitions (`traps.enabled`) |
+| `poller-spool` | `centlog` | `/var/log/centreon-engine` | Logs, `retention.dat` |
+| `poller-spool` | `cbmod-cache` | `/var/lib/centreon-engine` | Engine user's home = cbmod's default cache directory (queue saved on clean stop, grows while the central is unreachable). The command FIFO dir `rw/` is an emptyDir mounted over it |
+
+The same names as the `centreon-central` chart's pollers.
+
+Back up at least `poller-data` (volume snapshots): losing its `pki` directory
+makes the engine generate a **new** default CMA CA, so every agent pinned on
+the old one (`-Fingerprint` / `ca_certificate`) must be reconfigured (not the
+case with `engine.otel.tls`, whose identity comes from your Secret or issuer).
+Losing `gorgone-data` regenerates the gorgone keys. The delivered
 configuration (`engine`, `broker`) comes back with the next export; the traps
 database (`traps-config`) does not: generate and apply it again for the poller
 (Configuration > SNMP Traps > Generate).
+
+Chart 26.2.0 replaced the former one-volume-per-directory layout (no
+migration): reinstall pollers installed with an earlier chart (uninstall,
+delete their PVCs, install; then export the poller with Restart).
 
 Upgrades: use `--reset-then-reuse-values` rather than `--reuse-values`, which
 ignores new chart defaults (e.g. a new volume size). A change to the volume
@@ -270,8 +308,9 @@ allowed a moment after it starts: its very first connection may be refused
 
 `version` follows SemVer, its major being the year of the Centreon major
 (`26.x.y` for 26.10): minor for new optional features, patch for fixes.
-Breaking changes only come with a new major. The CI sets `appVersion` from
-the branch `.version`.
+Breaking changes only come with a new major, once a stable `<version>` is
+published: pre-releases (`-rc.<n>`, `-<branch>.<n>`) may break. The CI sets
+`appVersion` from the branch `.version`.
 
 | Published as | Where | Default images |
 |---|---|---|
