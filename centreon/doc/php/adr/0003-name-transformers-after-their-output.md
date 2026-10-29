@@ -15,10 +15,10 @@ One alternative was weighed: rename the Dbal Transformers to `XxxHydrator`, behi
 
 Name a Transformer **after the object it outputs**, and **omit the technology prefix** when the class already sits in a technology folder:
 
-- `Infrastructure/Dbal/<Context>/XxxTransformer` produces the domain object `Xxx`.
+- `Infrastructure/Dbal/XxxTransformer` produces the domain object `Xxx`.
 - `Infrastructure/ApiPlatform/State/XxxResourceTransformer` produces the resource `XxxResource`.
 
-Organise `Infrastructure/` **by technology first** (`Dbal/`, `ApiPlatform/`), **then by context**: `src/App/<BC>/Infrastructure/Dbal/<Context>/XxxTransformer.php`.
+Organise `Infrastructure/` **by technology first** (`Dbal/`, `ApiPlatform/`). `Dbal/` stays flat: `src/App/<BC>/Infrastructure/Dbal/XxxTransformer.php`.
 
 ## Consequences
 

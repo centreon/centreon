@@ -11,7 +11,7 @@ One alternative was weighed: allow scalars only in messages. It lost because it 
 
 ## Decision
 
-Make commands, queries and events carry **only values that serialize and deserialize faithfully**: scalars, arrays of them, and value objects, ID value objects included. **Never put an aggregate, an entity or another model instance in a message.** Pass the ID; the handler loads what it needs.
+Make commands, queries and events carry **only values that serialize and deserialize faithfully**: scalars, arrays or collections, and value objects, ID value objects included. **Never put an aggregate or an entity in a message.** Pass the ID; the handler loads what it needs.
 
 ## Consequences
 

@@ -5,7 +5,7 @@
 
 ## Context
 
-Forms need endpoints that list related objects for their dropdowns, such as the time periods selectable in the host creation form. These endpoints exist only for the web UI. Their shape and security rules are still evolving, with a proof of concept under way on MON-208574. Documenting them publicly would commit the team to a contract it may need to change, and would widen the documented attack surface.
+Forms need endpoints that list related objects for their dropdowns, such as the time periods selectable in the host creation form. These endpoints exist only for the web UI. Their shape and security rules are still evolving, with a first version shipped in [PR 11702](https://github.com/centreon/centreon/pull/11702) and [PR 11747](https://github.com/centreon/centreon/pull/11747). Documenting them publicly would commit the team to a contract it may need to change, and would widen the documented attack surface.
 
 A selector endpoint is an endpoint consumed by the frontend to list items for a select input, an autocomplete or a similar picker. It returns only what the picker needs, typically `id` and `name`, supports the picker's criteria (pagination, search by name, exclusion of disabled items), and is not meant for API consumers.
 
