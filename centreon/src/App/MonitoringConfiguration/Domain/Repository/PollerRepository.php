@@ -61,7 +61,7 @@ interface PollerRepository
     /**
      * @return \IteratorAggregate<int, Poller>&\Countable
      */
-    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(PollerCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
      * @throws PollerNotFoundException

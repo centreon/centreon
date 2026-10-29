@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -33,7 +34,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Rejects hosts the viewer cannot see as if they did not exist, like HostRepository::findOne() does, so a
+ * Rejects hosts the actor cannot see as if they did not exist, like HostRepository::findOne() does, so a
  * restricted user cannot tell an inaccessible host apart from a missing one.
  *
  * Always declared after Assert\All([Type, Positive]) inside an Assert\Sequentially on the property
@@ -45,6 +46,7 @@ final class AccessibleHostsValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly HostRepository $hostRepository,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -69,9 +71,11 @@ final class AccessibleHostsValidator extends ConstraintValidator
             array_map(static fn (int $id): HostId => new HostId($id), $requestedIds),
             HostId::class,
         );
-        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId;
-
-        if (array_diff($requestedIds, array_keys($this->hostRepository->findNamesByIds($hostIds, $viewerId)->toArray())) !== []) {
+        $missingIds = $this->accessScopes->hosts($credentialUser->credential->actingUser(), $hostIds)->missing(
+            $hostIds,
+            array_keys($this->hostRepository->findNamesByIds($hostIds)->toArray()),
+        );
+        if ($missingIds !== []) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
     }

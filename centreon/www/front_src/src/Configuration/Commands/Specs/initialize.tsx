@@ -1,5 +1,6 @@
 import { SnackbarProvider } from '@centreon/ui';
 import {
+  defaultLimitPerPageAtom,
   type UserPermissions,
   userPermissionsAtom
 } from '@centreon/ui-context';
@@ -40,6 +41,9 @@ const initialize = (): RenderResult => {
   window.history.pushState({}, '', window.location.pathname);
 
   const store = createStore();
+
+  // The platform default page size, which listings wait for.
+  store.set(defaultLimitPerPageAtom, 10);
 
   // Only what the module reads.
   store.set(userPermissionsAtom, {

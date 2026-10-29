@@ -1,4 +1,5 @@
 import { SnackbarProvider } from '@centreon/ui';
+import { defaultLimitPerPageAtom } from '@centreon/ui-context';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { interceptAPIRequest, Method } from '@test-setup/api';
@@ -70,12 +71,16 @@ const initialize = (): RenderResult => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { gcTime: 0, retry: false } }
   });
+  const store = createStore();
+
+  // The platform default page size, which listings wait for.
+  store.set(defaultLimitPerPageAtom, 10);
 
   return render(
     <Router>
       <SnackbarProvider>
         <QueryClientProvider client={queryClient}>
-          <Provider store={createStore()}>
+          <Provider store={store}>
             <div style={{ height: '100vh' }}>
               <AdditionnalConnectors />
             </div>

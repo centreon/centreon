@@ -70,7 +70,7 @@ final readonly class ListPollersChoicesProvider implements ProviderInterface
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
         $hasUnrestrictedResourceAccess = $credentialUser->credential->hasUnrestrictedResourceAccess();
 
-        $criteria = new PollerCriteria();
+        $criteria = PollerCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -89,9 +89,6 @@ final readonly class ListPollersChoicesProvider implements ProviderInterface
         // the generic /configuration/pollers endpoint, which returns pollers regardless of status.
         $criteria = $criteria->withActiveOnly(true);
         $criteria = $criteria->withExcludeUnknownCentral($this->isCloudPlatform && ! $hasUnrestrictedResourceAccess);
-        $criteria = $hasUnrestrictedResourceAccess
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
 
         $pollers = $this->repository->findAll($criteria);
         $resources = [];

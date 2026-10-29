@@ -46,7 +46,7 @@ final class FakeHostCategoryRepository implements HostCategoryRepository
         return new Collection($names, HostCategoryName::class);
     }
 
-    public function findAll(?HostCategoryCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostCategoryCriteria $criteria): \IteratorAggregate&\Countable
     {
         return new Collection(array_values($this->hostCategories), HostCategory::class);
     }

@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -43,7 +43,7 @@ final class AccessibleContactGroupsValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly ContactGroupRepository $contactGroupRepository,
-        private readonly ResourceAccessRepository $resourceAccessRepository,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -69,16 +69,10 @@ final class AccessibleContactGroupsValidator extends ConstraintValidator
             ContactGroupId::class,
         );
 
-        $foundIds = array_keys($this->contactGroupRepository->findNamesByIds($contactGroupIds)->toArray());
-        $missingIds = array_diff($requestedIds, $foundIds);
-
-        if (! $credentialUser->credential->hasUnrestrictedResourceAccess()) {
-            $accessibleIds = array_map(
-                static fn (ContactGroupId $id): int => $id->value,
-                $this->resourceAccessRepository->findAccessibleContactGroupIds($credentialUser->credential->userId)->toArray(),
-            );
-            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIds)));
-        }
+        $missingIds = $this->accessScopes->contactGroups($credentialUser->credential->actingUser())->missing(
+            $contactGroupIds,
+            array_keys($this->contactGroupRepository->findNamesByIds($contactGroupIds)->toArray()),
+        );
 
         if ($missingIds !== []) {
             $this->context->buildViolation($constraint->message)->addViolation();

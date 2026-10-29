@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
@@ -40,6 +41,7 @@ use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class DbalHostTemplateRepositoryTest extends KernelTestCase
 {
@@ -63,7 +65,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->repository = new DbalHostTemplateRepository(
             $this->connection,
             new HostTemplateTransformer(),
-            new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection)),
+            new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
             new DbalModuleRepository($this->connection),
         );
 
@@ -86,7 +88,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->insertHostTemplate($templateName);
         $this->insertRegularHost($hostName);
 
-        $names = $this->names($this->repository->findAll());
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()));
 
         self::assertContains($templateName, $names);
         self::assertNotContains($hostName, $names, 'A regular host (host_register = 1) must not appear among host templates.');
@@ -100,7 +102,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $excludedId = $this->insertHostTemplate($excludedName);
 
         $names = $this->names($this->repository->findAll(
-            (new HostTemplateCriteria())->withName($this->tag)->withExcludedIds(new Collection([new HostTemplateId($excludedId)], HostTemplateId::class))
+            HostTemplateCriteria::unscoped()->withName($this->tag)->withExcludedIds(new Collection([new HostTemplateId($excludedId)], HostTemplateId::class))
         ));
 
         self::assertContains($keptName, $names);
@@ -113,7 +115,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->insertHostTemplate("other-{$this->tag}");
 
         $names = $this->names($this->repository->findAll(
-            (new HostTemplateCriteria())->withId(new HostTemplateId($wantedId))
+            HostTemplateCriteria::unscoped()->withId(new HostTemplateId($wantedId))
         ));
 
         self::assertSame(["wanted-{$this->tag}"], $names);
@@ -124,7 +126,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->insertHostTemplate("match-{$this->tag}");
         $this->insertHostTemplate("other-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new HostTemplateCriteria())->withName("match-{$this->tag}")));
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()->withName("match-{$this->tag}")));
 
         self::assertSame(["match-{$this->tag}"], $names);
     }
@@ -138,7 +140,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded templates cannot skew the total.
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            (new HostTemplateCriteria())->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            HostTemplateCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -179,10 +181,10 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertCount(0, $names);
     }
 
-    public function testFindAllRestrictsToAccessibleSeveritiesForARestrictedViewer(): void
+    public function testFindAllRestrictsToAccessibleSeveritiesForARestrictedActor(): void
     {
-        // legacy scopes restricted viewers by host *severities* (categories with a level), not by
-        // regular host categories, even when the regular category is in the viewer's ACL.
+        // legacy scopes restricted actors by host *severities* (categories with a level), not by
+        // regular host categories, even when the regular category is in the actor's ACL.
         $severityId = $this->insertHostCategory("sev-{$this->tag}", level: 1);
         $regularId = $this->insertHostCategory("reg-{$this->tag}");
 
@@ -193,17 +195,18 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $uncategorizedName = "acl-none-{$this->tag}";
         $this->insertHostTemplate($uncategorizedName);
 
-        // the viewer's ACL grants BOTH the severity and the regular category
-        $viewerId = new UserId($this->createContactRestrictedToHostCategories([$severityId, $regularId]));
+        // the actor's ACL grants BOTH the severity and the regular category
+        $actorId = new UserId($this->createContactRestrictedToHostCategories([$severityId, $regularId]));
 
-        $names = $this->names($this->repository->findAll((new HostTemplateCriteria())->withViewerId($viewerId)));
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::forActor(TestActingUsers::restricted($actorId->value))));
 
         self::assertContains("acl-severity-{$this->tag}", $names);
         self::assertNotContains("acl-regular-{$this->tag}", $names, 'A template linked only to a regular (levelless) category is excluded even though that category is in the ACL — legacy scopes by severities.');
-        self::assertNotContains($uncategorizedName, $names, 'A template with no category is excluded for a restricted viewer.');
+        self::assertNotContains($uncategorizedName, $names, 'A template with no category is excluded for a restricted actor.');
+        self::assertContains($uncategorizedName, $this->names($this->repository->findAll(HostTemplateCriteria::forActor(TestActingUsers::unrestricted($actorId->value)))), 'An unrestricted actor is not scoped by ACL.');
     }
 
-    public function testFindAllReturnsAllTemplatesForAViewerWithNoCategoryRestriction(): void
+    public function testFindAllReturnsAllTemplatesForAActorWithNoCategoryRestriction(): void
     {
         $severityId = $this->insertHostCategory("sev-{$this->tag}", level: 1);
         $categorizedId = $this->insertHostTemplate("acl-in-{$this->tag}");
@@ -212,19 +215,19 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->insertHostTemplate($uncategorizedName);
 
         // ACL resource without any host-category relation → no restriction → sees everything
-        $viewerId = new UserId($this->createContactRestrictedToHostCategories([]));
+        $actorId = new UserId($this->createContactRestrictedToHostCategories([]));
 
-        $names = $this->names($this->repository->findAll((new HostTemplateCriteria())->withViewerId($viewerId)));
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::forActor(TestActingUsers::restricted($actorId->value))));
 
         self::assertContains("acl-in-{$this->tag}", $names);
         self::assertContains($uncategorizedName, $names);
     }
 
-    public function testFindAllReturnsNothingForAViewerGrantedOnlyRegularCategories(): void
+    public function testFindAllReturnsNothingForAActorGrantedOnlyRegularCategories(): void
     {
-        // A viewer whose ACL restricts to host categories but grants only regular (levelless) ones has
+        // An actor whose ACL restricts to host categories but grants only regular (levelless) ones has
         // an empty accessible-severity set. Legacy fails closed here (the category restriction is in
-        // force yet no severity matches), so the viewer must see no host template — not everything.
+        // force yet no severity matches), so the actor must see no host template — not everything.
         $regularId = $this->insertHostCategory("reg-{$this->tag}");
         $severityId = $this->insertHostCategory("sev-{$this->tag}", level: 1);
 
@@ -232,11 +235,16 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->linkTemplateToCategory($categorized, $severityId);
         $this->insertHostTemplate("acl-none-{$this->tag}");
 
-        $viewerId = new UserId($this->createContactRestrictedToHostCategories([$regularId]));
+        $actorId = new UserId($this->createContactRestrictedToHostCategories([$regularId]));
 
-        $result = $this->repository->findAll((new HostTemplateCriteria())->withViewerId($viewerId));
+        $criteria = HostTemplateCriteria::forActor(TestActingUsers::restricted($actorId->value));
 
-        self::assertSame([], $this->names($result), 'A viewer granted only regular categories sees no host template.');
+        self::assertSame([], $this->names($this->repository->findAll($criteria)), 'An actor granted only regular categories sees no host template.');
+
+        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        self::assertInstanceOf(Paginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
+        self::assertSame(0, $paginated->getTotalItems());
+        self::assertSame([], $this->names($paginated));
     }
 
     public function testFindInheritedIconIdsReturnsTheIconOfADirectTemplate(): void
@@ -790,7 +798,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
      */
     private function createContactRestrictedToHostCategories(array $accessibleHostCategoryIds): int
     {
-        $alias = "viewer-{$this->tag}";
+        $alias = "actor-{$this->tag}";
         $this->connection->insert('contact', [
             'contact_name' => $alias,
             'contact_alias' => $alias,

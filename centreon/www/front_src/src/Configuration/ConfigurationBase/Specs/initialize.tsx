@@ -1,6 +1,7 @@
 import { capitalize } from '@mui/material';
 
 import { SnackbarProvider } from '@centreon/ui';
+import { defaultLimitPerPageAtom } from '@centreon/ui-context';
 
 import { rs } from '@rstest/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -212,6 +213,9 @@ const initialize = ({
   const isWelcomePageDisplayedAtom = atom(false);
 
   const store = createStore();
+
+  // The platform default page size, which listings wait for.
+  store.set(defaultLimitPerPageAtom, 10);
 
   // Seeds the width the user last dragged the panel to; `null` lets the screen
   // decide.

@@ -32,16 +32,17 @@ frontend file.
 
 Run from `centreon/` (pnpm workspace root; CI uses pnpm 10 and Node 24):
 
-| Command                          | Does                                         |
-| -------------------------------- | -------------------------------------------- |
-| `pnpm build` / `pnpm build:dev`  | rspack production / development build        |
-| `pnpm centreon:watch`            | rspack dev server                            |
-| `pnpm lint` / `pnpm lint:fix`    | Biome on `www/front_src`                     |
-| `pnpm type-check`                | `tsc` on app and browser tests (runs in CI)  |
-| `pnpm test`                      | Jest                                         |
-| `pnpm rstest:run <path>`         | rstest browser tests (`-t '<name>'` for one) |
-| `pnpm rstest:ui <path>`          | the same in a visible browser, to debug      |
-| `pnpm cypress:run --spec <path>` | legacy Cypress component tests               |
+| Command                                         | Does                                                                                                        |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `pnpm build` / `pnpm build:dev`                 | rspack production / development build                                                                       |
+| `pnpm centreon:watch`                           | rspack dev server                                                                                           |
+| `pnpm lint` / `pnpm lint:fix`                   | Biome on `www/front_src`                                                                                    |
+| `pnpm type-check`                               | `tsc` on app and browser tests (runs in CI)                                                                 |
+| `pnpm test`                                     | Jest                                                                                                        |
+| `pnpm rstest:run <path>`                        | rstest browser tests (`-t '<name>'` for one)                                                                |
+| `pnpm rstest:ui <path>`                         | the same in a visible browser, to debug                                                                     |
+| `pnpm cypress:run --spec <path>`                | legacy Cypress component tests                                                                              |
+| `pnpm cypress:run:updateSnapshot --spec <path>` | update one legacy spec's snapshots, after reviewing its diff (`packages/ui`: `cypress:run:updateSnapshots`) |
 
 First rstest run: `pnpm rstest:install` (Playwright Chromium).
 
@@ -85,7 +86,9 @@ computed style before falling back.
   as in HostGroups) and `useValidationSchema.ts` (Yup); submit through
   `useMutationQuery`.
 - Labels: English constants in `translatedLabels.ts`; `t()` only ever takes
-  those constants, never a string literal.
+  those constants, never a string literal. Dynamic values use i18next
+  interpolation, never concatenation: `'Exit {{name}}'` with
+  `t(labelExit, { name })`.
 
 ## Tests
 
@@ -116,10 +119,35 @@ Migrating a Cypress spec, or unsure how to translate a command: follow
 `centreon/test-setup/MIGRATING_FROM_CYPRESS.md` (same test names, nothing
 dropped).
 
+## Definition of done
+
+A frontend change is done when the `verify-frontend` skill
+(`.claude/skills/verify-frontend/verify.sh`: Biome, type-check and the related
+tests on the changed files) ends with `RESULT: PASS`, or `RESULT: PARTIAL` with
+every "Not checked" item stated in the summary and the PR.
+
 ## Git and PRs
 
 - Branch `MON-XXXXXX-short-description` (CI requires the Jira key), targeting `develop` unless based on a `dev-XX.XX.x` series; conventional commits (`fix(web): ...`), one Jira key per PR.
 - Enable the gitleaks hooks once with `git config core.hooksPath .githooks`; never bypass them with `--no-verify`.
+
+## Verify, don't assume
+
+For developers and AI agents alike: do not state a fact, or justify a choice,
+that you have not checked in the current session. A lawyer does not cite a law
+they have not read.
+
+- Check before saying: read the file, `git grep`, run the command, read the
+  computed style in the browser. A memory, an earlier read or "it is usually
+  so" is not a check.
+- A "because X" is a claim too. Do not justify a decision (in code, a PR or a
+  review reply) with a cause you did not test. When something behaves
+  unexpectedly, find the cause (computed style for CSS, the actual error for a
+  failing test) before working around it.
+- Re-read the rule that applies, this file included, before acting. If you
+  must deviate from it, say so and why before doing it, not after a review.
+- In a PR or a review, say what ran, what did not, and what could not be seen
+  (a rendered UI, a CI-only job). Mark the rest as unverified.
 
 ## Do not
 

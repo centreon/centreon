@@ -4126,6 +4126,7 @@ paths:
                   is_resource_status_full_search_enabled: { type: boolean, description: 'Whether the Resource Status free text search also covers the information field (full search mode)', example: true }
                   is_additive_inheritance_enabled: { type: boolean, description: 'Whether the contact and contact group additive inheritance is enabled (inheritance mode set to vertical)', example: false }
                   monitoring_interval_length: { type: integer, description: 'Interval length in seconds used by the monitoring engine to compute check intervals', example: 60 }
+                  default_limit_per_page: { type: integer, description: 'Default number of items per page in listings ("Limit per page (default)" platform setting, falls back to 30 when unset or invalid)', example: 30 }
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
