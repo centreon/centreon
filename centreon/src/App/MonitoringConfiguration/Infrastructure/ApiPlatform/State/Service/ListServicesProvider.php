@@ -132,7 +132,7 @@ final readonly class ListServicesProvider implements ProviderInterface
     private function itemsPerPage(Operation $operation, array $context, array $filters): int
     {
         if (! array_key_exists($this->itemsPerPageParameter, $filters)) {
-            return ListingPageSize::fromOptionValue($this->optionRepository->findByName(new OptionName(self::PAGE_SIZE_OPTION)))->value;
+            return ListingPageSize::fromOptionValue($this->optionRepository->findByName(new OptionName(self::PAGE_SIZE_OPTION))?->value->value)->value;
         }
 
         $itemsPerPage = $this->pagination->getLimit($operation, $context);
