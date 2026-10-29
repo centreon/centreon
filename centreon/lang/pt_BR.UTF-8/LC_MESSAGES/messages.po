@@ -24253,7 +24253,3 @@ msgstr "Este grupo de contatos não está disponível"
 #: centreon/www/include/configuration/configObject/contact/displayNotification.php
 msgid "This contact is not available"
 msgstr "Este contato não está disponível"
-
-#: centreon/www/install/front_translate.php
-msgid "This name is reserved"
-msgstr ""
