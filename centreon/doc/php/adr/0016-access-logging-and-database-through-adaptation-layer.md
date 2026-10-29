@@ -25,7 +25,7 @@ Without a rule, code keeps reaching for whichever entry point is nearest, and th
   ```
 
 - **Database — new code outside `src/App`.** For any new class, method or function, reach the database only through `Adaptation\Database\Connection\ConnectionInterface` (the `DbalConnectionAdapter`), passing values as `QueryParameters`. Never `CentreonDB`, never `DatabaseConnection`, and therefore none of the `\PDO` statement methods either.
-- **Repositories — new repository files.** A new legacy repository must extend `Core\Common\Infrastructure\Repository\DatabaseRepository`, which injects `ConnectionInterface`, never the legacy `AbstractRepositoryRDB`. A repository must **not log at all** — not through the `Adaptation` layer either — and must **not swallow a failure**: it wraps the caught infrastructure exception in a `Core\Common\Domain\Exception\RepositoryException`, passing its own business message, the business data as **`context`**, and the caught exception as **`previous`** (the chain preserves the cause). Do not make the caught exception's `getMessage()` the new message; appending it after a colon is tolerated, but the chain already carries it:
+- **Repositories — new repository files.** A new legacy repository must extend `Core\Common\Infrastructure\Repository\DatabaseRepository`, which injects `ConnectionInterface`, never a legacy base (`AbstractRepositoryRDB`, `AbstractRepositoryDRB`). A repository must **not log at all** — not through the `Adaptation` layer either — and must **not swallow a failure**: it wraps the caught infrastructure exception in a `Core\Common\Domain\Exception\RepositoryException`, passing its own business message, the business data as **`context`**, and the caught exception as **`previous`** (the chain preserves the cause). Do not make the caught exception's `getMessage()` the new message; appending it after a colon is tolerated, but the chain already carries it:
 
   ```php
   try {
@@ -49,7 +49,7 @@ Without a rule, code keeps reaching for whichever entry point is nearest, and th
 - A new method added to a pre-existing repository keeps the class's `extends`, since `DatabaseConnection implements ConnectionInterface`: the `ConnectionInterface` methods are already available on the injected connection. Only a new repository **file** must extend `DatabaseRepository`.
 - A repository that neither logs nor catches-and-returns makes failures visible to its caller as a typed `RepositoryException`, so the error surfaces once, at the layer that can decide what to do with it, instead of being hidden behind a logged fallback value.
 - This is the complement to [ADR-0005](0005-isolate-legacy-in-infrastructure-legacy.md) and [ADR-0006](0006-expose-symfony-services-to-legacy-via-service-locator.md): those two govern the `src/App` ↔ legacy boundary, this one governs how legacy code reaches its own logging and database.
-- The rule is enforced in review. The deprecated entry points are not removed, so a search for `CentreonLog`, `error_log()`, `CentreonDB` or `AbstractRepositoryRDB` is only a heuristic: a hit is confirmed by reading the code.
+- The rule is enforced in review. The deprecated entry points are not removed, so a search for `CentreonLog`, `error_log()`, `CentreonDB` or `AbstractRepository{RDB,DRB}` is only a heuristic: a hit is confirmed by reading the code.
 
 ## When to Amend
 
