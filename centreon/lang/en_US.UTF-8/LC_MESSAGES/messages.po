@@ -1384,6 +1384,7 @@ msgid "An error occured while retrieving details of module \"%s\""
 msgstr "An error occured while retrieving details of module \"%s\""
 
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
+#: centreon/www/install/front_translate.php
 msgid "An error occurred"
 msgstr "An error occurred"
 
@@ -5173,10 +5174,6 @@ msgid "Drag to reorder"
 msgstr "Drag to reorder"
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/front_translate.php
-msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
-msgstr "Replacing the templates will delete all the services created by the previous templates on every selected host."
-
 msgid "Drop or"
 msgstr "Drop or"
 
@@ -9027,6 +9024,7 @@ msgstr "Incorrect Resource type: %s"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Incremental"
 msgstr "Incremental"
 
@@ -10346,6 +10344,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/configuration/configObject/service_template_model/listServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Mass Change"
 msgstr "Mass Change"
 
@@ -13553,8 +13552,13 @@ msgstr "Reordering cancelled, row {{position}} returned to its original position
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Replacement"
 msgstr "Replacement"
+
+#: centreon/www/install/front_translate.php
+msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
+msgstr "Replacing the templates will delete all the services created by the previous templates on every selected host."
 
 #: centreon/www/install/menu_translation.php
 msgid "Reporting"
@@ -17780,6 +17784,7 @@ msgstr "Update filter"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Update mode"
 msgstr "Update mode"
 

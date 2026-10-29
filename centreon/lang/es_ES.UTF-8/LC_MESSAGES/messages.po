@@ -1383,6 +1383,7 @@ msgid "An error occured while retrieving details of module \"%s\""
 msgstr ""
 
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
+#: centreon/www/install/front_translate.php
 msgid "An error occurred"
 msgstr ""
 
@@ -5469,10 +5470,6 @@ msgid "Drag to reorder"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/front_translate.php
-msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
-msgstr ""
-
 msgid "Drop or"
 msgstr ""
 
@@ -10412,6 +10409,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Incremental"
 msgstr "incrementales"
 
@@ -11879,6 +11877,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/configuration/configObject/service_template_model/listServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Mass Change"
 msgstr "Cambio masivo"
 
@@ -15090,8 +15089,13 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Replacement"
 msgstr "reemplazo"
+
+#: centreon/www/install/front_translate.php
+msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
+msgstr ""
 
 #: centreon/www/install/menu_translation.php
 msgid "Reporting"
@@ -19391,6 +19395,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Update mode"
 msgstr "Modo de actualización"
 

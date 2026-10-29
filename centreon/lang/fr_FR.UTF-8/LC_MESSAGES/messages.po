@@ -1098,10 +1098,6 @@ msgid "Advanced: gorgone - poller connects to the central"
 msgstr "Avancé : gorgone - le collecteur se connecte au central"
 
 #: centreon/www/install/front_translate.php
-msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
-msgstr "Remplacer les modèles supprimera tous les services créés par les modèles précédents pour chaque hôte sélectionné."
-
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Advanced: reverse Centreon Broker communication flow"
 msgstr "Avancé : inverser le flux de communication du Broker Centreon"
@@ -1390,6 +1386,7 @@ msgid "An error occured while retrieving details of module \"%s\""
 msgstr "Une erreur s'est produite lors de la récupération des informations détaillées du module \"%s\""
 
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
+#: centreon/www/install/front_translate.php
 msgid "An error occurred"
 msgstr "Une erreur est survenue"
 
@@ -9027,6 +9024,7 @@ msgstr "Type de ressource incorrect : %s"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Incremental"
 msgstr "Incrémentale"
 
@@ -10346,6 +10344,7 @@ msgstr "Un grand merci à toutes les personnes ayant signalé de manière respon
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/configuration/configObject/service_template_model/listServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Mass Change"
 msgstr "Changement massif"
 
@@ -13553,8 +13552,13 @@ msgstr "Réorganisation annulée, la ligne {{position}} a retrouvé sa position 
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Replacement"
 msgstr "Remplacement"
+
+#: centreon/www/install/front_translate.php
+msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
+msgstr "Remplacer les modèles supprimera tous les services créés par les modèles précédents pour chaque hôte sélectionné."
 
 #: centreon/www/install/menu_translation.php
 msgid "Reporting"
@@ -17780,6 +17784,7 @@ msgstr "Mettre à jour le filtre"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Update mode"
 msgstr "Mode de mise à jour"
 
