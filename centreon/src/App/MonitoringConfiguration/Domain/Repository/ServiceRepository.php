@@ -80,9 +80,4 @@ interface ServiceRepository
      * their active Access Groups by the real-time ACL cache. Null otherwise.
      */
     public function findOne(ServiceId $id, ActingUser $actor): ?Service;
-
-    /**
-     * The number of distinct real hosts the service is directly linked to, whatever the actor's access.
-     */
-    public function countRealHostLinks(ServiceId $id): int;
 }

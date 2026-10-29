@@ -51,9 +51,6 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var list<int> ids of stored services that {@see findOne()} hides from an actor whose access is restricted */
     public array $outOfRestrictedScopeIds = [];
 
-    /** @var array<int, int> what {@see countRealHostLinks()} returns, indexed by service id; 1 for a stored service otherwise */
-    public array $realHostLinkCounts = [];
-
     public function add(Service $service): void
     {
         do {
@@ -130,10 +127,5 @@ final class FakeServiceRepository implements ServiceRepository
         }
 
         return $service;
-    }
-
-    public function countRealHostLinks(ServiceId $id): int
-    {
-        return $this->realHostLinkCounts[$id->value] ?? (isset($this->services[$id->value]) ? 1 : 0);
     }
 }

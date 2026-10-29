@@ -631,39 +631,6 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         }
     }
 
-    public function testFindOneFindsAServiceLinkedToSeveralHosts(): void
-    {
-        // Found as soon as one of its pairs is listable for the actor: the caller decides what to do with it.
-        $this->givenTheRestrictedActorBelongsTo(11);
-        $firstHostId = $this->insertListedHost('h1');
-        $secondHostId = $this->insertListedHost('h2');
-        $serviceId = $this->insertListedService('shared', $firstHostId);
-        $this->linkServiceToHost($serviceId, $secondHostId);
-        $this->grant(11, $secondHostId, $serviceId);
-
-        self::assertSame($firstHostId, $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted())?->hostId->value);
-        self::assertSame($secondHostId, $this->findOneRestricted($serviceId)?->hostId->value);
-    }
-
-    public function testCountRealHostLinksCountsTheDistinctRealHostsDirectlyLinked(): void
-    {
-        $firstHostId = $this->insertListedHost('h1');
-        $secondHostId = $this->insertListedHost('h2');
-        $hostTemplateId = $this->insertListedHost('host-template', register: '0');
-        $hostGroupId = $this->insertHostGroup();
-        $serviceId = $this->insertListedService('shared', $firstHostId);
-        $this->linkServiceToHost($serviceId, $secondHostId);
-        // Neither a duplicated link row, a host template nor a host group adds a host.
-        $this->linkServiceToHost($serviceId, $firstHostId);
-        $this->linkServiceToHost($serviceId, $hostTemplateId);
-        $this->linkServiceToHostGroup($serviceId, $hostGroupId);
-        $singleHost = $this->insertListedService('single', $firstHostId);
-
-        self::assertSame(2, $this->repository->countRealHostLinks(new ServiceId($serviceId)));
-        self::assertSame(1, $this->repository->countRealHostLinks(new ServiceId($singleHost)));
-        self::assertSame(0, $this->repository->countRealHostLinks(new ServiceId($singleHost + 1000000)));
-    }
-
     public function testFindOneLoadsTheStateOfTheHost(): void
     {
         $pollerId = $this->createPoller('poller-' . $this->token);

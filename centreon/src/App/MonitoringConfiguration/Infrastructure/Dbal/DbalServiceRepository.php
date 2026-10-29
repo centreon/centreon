@@ -214,20 +214,6 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         return $this->transformer->transform([...$row, 'macros' => $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? []]);
     }
 
-    public function countRealHostLinks(ServiceId $id): int
-    {
-        $qb = $this->connection->createQueryBuilder();
-        $qb->select('COUNT(DISTINCT h.host_id)')
-            ->from('host_service_relation', 'hsr')
-            ->innerJoin('hsr', 'host', 'h', "h.host_id = hsr.host_host_id AND h.host_register = '1'")
-            ->where($qb->expr()->eq('hsr.service_service_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)));
-
-        /** @var int|string $count */
-        $count = $qb->executeQuery()->fetchOne();
-
-        return (int) $count;
-    }
-
     public function remove(Service $service): void
     {
         $serviceId = $service->id()->value;
