@@ -39,8 +39,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ListSer
             itemUriTemplate: '/configuration/services/{id}',
             openapi: new Model\Operation(
                 summary: 'List the services',
-                description: 'Services linked to host groups are not listed. When `itemsPerPage` is not sent, the page '
-                    . 'size is the platform setting for configuration listings. The check intervals and the icon are the '
+                description: 'Services linked to host groups are not listed. The check intervals and the icon are the '
                     . 'effective ones, inherited from the service templates when the service has none of its own; '
                     . 'intervals are in engine units.',
                 parameters: [

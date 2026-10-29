@@ -31,18 +31,15 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateName;
-use App\MonitoringConfiguration\Domain\Model\ListingPageSize;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceCollectionOutput;
@@ -66,9 +63,6 @@ final readonly class ListServicesProvider implements ProviderInterface
     use FilterAwareProviderTrait;
     use SortAwareProviderTrait;
 
-    /** The platform setting that sizes the configuration listings, as legacy pages do. */
-    private const PAGE_SIZE_OPTION = 'maxViewConfiguration';
-
     /**
      * @param TransformerInterface<Service, ServiceCollectionOutput> $transformer
      */
@@ -81,12 +75,8 @@ final readonly class ListServicesProvider implements ProviderInterface
         private ServiceTemplateRepository $serviceTemplateRepository,
         private MediaRepository $mediaRepository,
         private MediaUrlGenerator $mediaUrlGenerator,
-        private OptionRepository $optionRepository,
         private Pagination $pagination,
         private Security $security,
-        // The same name Pagination reads the client's page size from.
-        #[Autowire(param: 'api_platform.collection.pagination.items_per_page_parameter_name')]
-        private string $itemsPerPageParameter,
     ) {
     }
 
@@ -103,7 +93,11 @@ final readonly class ListServicesProvider implements ProviderInterface
 
         $criteria = ServiceCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
-            $criteria = $criteria->withPagination($this->pagination->getPage($context), $this->itemsPerPage($operation, $context, $filters));
+            $itemsPerPage = $this->pagination->getLimit($operation, $context);
+            if ($itemsPerPage <= 0) {
+                throw new BadRequestHttpException('itemsPerPage must be a positive integer.');
+            }
+            $criteria = $criteria->withPagination($this->pagination->getPage($context), $itemsPerPage);
         }
         $criteria = $this->filter($criteria, $filters);
 
@@ -120,27 +114,6 @@ final readonly class ListServicesProvider implements ProviderInterface
             $services->getItemsPerPage(),
             $services->getTotalItems(),
         );
-    }
-
-    /**
-     * The client's page size when the request carries one, else the platform setting: the platform's own
-     * default does not apply to this listing.
-     *
-     * @param array<string, mixed> $context
-     * @param array<string, mixed> $filters
-     */
-    private function itemsPerPage(Operation $operation, array $context, array $filters): int
-    {
-        if (! array_key_exists($this->itemsPerPageParameter, $filters)) {
-            return ListingPageSize::fromOptionValue($this->optionRepository->findByName(new OptionName(self::PAGE_SIZE_OPTION))?->value->value)->value;
-        }
-
-        $itemsPerPage = $this->pagination->getLimit($operation, $context);
-        if ($itemsPerPage <= 0) {
-            throw new BadRequestHttpException('itemsPerPage must be a positive integer.');
-        }
-
-        return $itemsPerPage;
     }
 
     /**

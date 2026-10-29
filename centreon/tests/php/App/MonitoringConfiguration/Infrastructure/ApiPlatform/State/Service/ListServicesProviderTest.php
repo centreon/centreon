@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
@@ -217,6 +218,29 @@ final class ListServicesProviderTest extends ApiTestCase
         /** @var list<array{id: int}> $member */
         $member = $response->toArray()['member'];
         self::assertSame([$serviceId], array_column($member, 'id'));
+    }
+
+    #[Group('wip')]
+    public function testThePlatformSettingForConfigurationListingsDoesNotSizeThePage(): void
+    {
+        // Without itemsPerPage the page holds the platform default of 30 items, as for hosts: the front sends the
+        // configuration listing setting itself.
+        $this->connection->executeStatement('DELETE FROM options WHERE `key` = :key', ['key' => 'maxViewConfiguration']);
+        $this->connection->executeStatement('INSERT INTO options (`key`, `value`) VALUES (:key, :value)', ['key' => 'maxViewConfiguration', 'value' => '5']);
+
+        $hostId = $this->insertHost('central');
+        foreach (range(1, 6) as $index) {
+            $this->linkServiceToHost($this->insertService('service-' . $index), $hostId);
+        }
+
+        $this->login();
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['host_name' => ['lk' => $this->tag]]]);
+
+        self::assertResponseIsSuccessful();
+        $body = $response->toArray();
+        self::assertSame(6, $body['totalItems']);
+        Assert::isArray($body['member']);
+        self::assertCount(6, $body['member']);
     }
 
     public function testAMalformedParameterAnswersWithTheErrorBody(): void

@@ -63,13 +63,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceTemplateRepository;
 use Webmozart\Assert\Assert;
 
 /**
- * The provider's own logic, with fakes: how a request becomes a criteria, the default page size, and the values
+ * The provider's own logic, with fakes: how a request becomes a criteria, and the values
  * a listed service shows besides its own (host name and icon, inherited icon and intervals, template name),
  * looked up once per page. The wiring and the wire format are pinned by {@see ListServicesProviderTest}; the SQL
  * by the repositories' integration tests.
@@ -86,8 +85,6 @@ final class ListServicesProviderLogicTest extends TestCase
 
     private FakeMediaRepository $mediaRepository;
 
-    private FakeOptionRepository $optionRepository;
-
     private ListServicesProvider $provider;
 
     protected function setUp(): void
@@ -97,9 +94,8 @@ final class ListServicesProviderLogicTest extends TestCase
         $this->hostTemplateRepository = new FakeHostTemplateRepository();
         $this->serviceTemplateRepository = new FakeServiceTemplateRepository();
         $this->mediaRepository = new FakeMediaRepository();
-        $this->optionRepository = new FakeOptionRepository();
 
-        $this->provider = $this->provider('itemsPerPage');
+        $this->provider = $this->provider();
     }
 
     public function testFiltersAndSortReachTheCriteria(): void
@@ -177,41 +173,6 @@ final class ListServicesProviderLogicTest extends TestCase
         $this->expectExceptionMessage($message);
 
         $this->provide($filters);
-    }
-
-    public function testDefaultPageSizeComesFromTheOptionWhenTheRequestHasNone(): void
-    {
-        // Parsed by ListingPageSize, pinned by its own test: only the wiring is checked here.
-        $this->optionRepository->options['maxViewConfiguration'] = ' 050 ';
-
-        $this->provide([]);
-
-        self::assertSame(50, $this->requestedCriteria()->getPagination()?->itemsPerPage);
-    }
-
-    public function testDefaultPageSizeIsThirtyWithoutTheOption(): void
-    {
-        $this->provide([]);
-
-        self::assertSame(30, $this->requestedCriteria()->getPagination()?->itemsPerPage);
-    }
-
-    public function testAClientPageSizeWinsOverTheSetting(): void
-    {
-        $this->optionRepository->options['maxViewConfiguration'] = '50';
-
-        $this->provide(['itemsPerPage' => '10']);
-
-        self::assertSame(10, $this->requestedCriteria()->getPagination()?->itemsPerPage);
-    }
-
-    public function testThePageSizeParameterIsTheConfiguredOne(): void
-    {
-        $this->optionRepository->options['maxViewConfiguration'] = '50';
-
-        $this->provider('perPage')->provide(new GetCollection(paginationClientItemsPerPage: true), [], ['filters' => ['perPage' => '10']]);
-
-        self::assertSame(10, $this->requestedCriteria()->getPagination()?->itemsPerPage);
     }
 
     public function testThePageComesBackAsAPaginator(): void
@@ -377,7 +338,7 @@ final class ListServicesProviderLogicTest extends TestCase
         self::assertSame([], $this->mediaRepository->receivedIds);
     }
 
-    private function provider(string $itemsPerPageParameter): ListServicesProvider
+    private function provider(): ListServicesProvider
     {
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn(new CredentialUser(new Credential(new CredentialIdentifier('user'), new UserId(7), true)));
@@ -393,10 +354,8 @@ final class ListServicesProviderLogicTest extends TestCase
             $this->serviceTemplateRepository,
             $this->mediaRepository,
             new MediaUrlGenerator('/img/media/', $requestStack),
-            $this->optionRepository,
-            new Pagination(['client_items_per_page' => true, 'items_per_page_parameter_name' => $itemsPerPageParameter]),
+            new Pagination(['client_items_per_page' => true]),
             $security,
-            $itemsPerPageParameter,
         );
     }
 
