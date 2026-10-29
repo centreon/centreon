@@ -14,6 +14,7 @@
     "./node_modules",
     "./cypress",
     "./www/front_src/src/**/*.cypress.spec.tsx",
+    "./www/front_src/src/**/*.browser.test.tsx",
     "./www/front_src/src/**/Specs/**",
     "./www/front_src/src/**/specs/**",
     "./www/front_src/src/**/testsUtils.*"

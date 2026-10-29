@@ -119,6 +119,8 @@ jobs:
         "centreon/www/front_src/**"
         "!centreon/**/cypress/**"
         "!centreon/**/*.cypress.*"
+        "!centreon/**/*.browser.test.*"
+        "!centreon/**/__snapshots__/**"
         "!centreon/**/__mocks__/**"
       backend_test_paths: |
         "centreon/.php-cs-fixer*"
@@ -132,6 +134,12 @@ jobs:
         "centreon/cypress.config.ts"
         "centreon/**/cypress/**"
         "centreon/**/*.cypress.*"
+        "centreon/rstest.config.ts"
+        "centreon/tsconfig.rstest.json"
+        "centreon/test-setup/**"
+        "centreon/public/**"
+        "centreon/**/*.browser.test.*"
+        "centreon/**/__snapshots__/**"
         "centreon/**/__mocks__/**"
       api_test_paths: |
         "centreon/tests/api/**"
@@ -480,6 +488,7 @@ jobs:
       specs_path: www/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      with_rstest: true
 
   backend-unit-test:
     runs-on: ubuntu-24.04
