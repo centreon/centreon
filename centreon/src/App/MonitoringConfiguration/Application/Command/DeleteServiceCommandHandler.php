@@ -1,0 +1,64 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Application\Command;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
+use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
+use App\MonitoringConfiguration\Domain\Exception\ServiceLinkedToSeveralHostsException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
+use App\Shared\Application\Command\AsCommandHandler;
+use App\Shared\Domain\Event\EventBus;
+
+#[AsCommandHandler]
+final readonly class DeleteServiceCommandHandler
+{
+    public function __construct(
+        private ServiceRepository $serviceRepository,
+        private EventBus $eventBus,
+    ) {
+    }
+
+    /**
+     * The service is loaded before anything is written: the deletion event carries it as it was, with the
+     * poller of its host, which can no longer be read once its row is gone.
+     */
+    public function __invoke(DeleteServiceCommand $command): void
+    {
+        $service = $this->serviceRepository->findOne($command->id, $command->actor);
+        if (! $service instanceof Service) {
+            throw new ServiceNotFoundException([$command->id->value], 'id');
+        }
+
+        if ($this->serviceRepository->countRealHostLinks($command->id) > 1) {
+            throw new ServiceLinkedToSeveralHostsException($command->id->value);
+        }
+
+        $this->serviceRepository->remove($service);
+
+        $this->eventBus->fire(new ServiceDeleted($service, $command->actor->userId->value));
+        $this->eventBus->fire(new ServiceVaultPurgeRequested($service));
+    }
+}
