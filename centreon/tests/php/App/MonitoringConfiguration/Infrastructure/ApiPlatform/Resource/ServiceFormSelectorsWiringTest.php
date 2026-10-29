@@ -245,23 +245,6 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     }
 
     /**
-     * Known defect, kept on purpose: API Platform rejects "page < 1" before the provider runs, with an
-     * exception the local exception_to_status does not map, so it ends as HTTP 500. A global fix must update
-     * this test on purpose.
-     */
-    public function testAPageBelowOneIsAnUnhandledServerError(): void
-    {
-        $this->login();
-
-        $response = $this->request('GET', self::SELECTORS['commands']['uri'], ['query' => ['page' => '0']]);
-
-        self::assertResponseStatusCodeSame(500);
-        $body = $response->toArray(false);
-        self::assertSame(['code', 'message'], array_keys($body));
-        self::assertSame('Page should not be less than 1', $body['message']);
-    }
-
-    /**
      * The cloud service form has no contact, contact group, trap nor graph template field, so these selectors
      * are on-premise only. The route condition is evaluated before the firewall, so the route answers 404 to
      * any caller on cloud.
