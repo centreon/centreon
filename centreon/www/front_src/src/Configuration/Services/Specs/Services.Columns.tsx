@@ -109,7 +109,7 @@ export default () => {
     it('links the direct template to its configuration page', async () => {
       await initializeListing();
 
-      const template = screen.getByTestId('service-template-link_30');
+      const template = screen.getByTestId('service-template-link_0');
 
       expect(template).toHaveTextContent(/^generic-active-service$/);
       expect(template).toHaveAttribute(
