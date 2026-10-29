@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Repository\Criteria;
 
-use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceListingCriteria;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
@@ -36,11 +36,11 @@ use Tests\App\Security\Infrastructure\Double\TestActingUsers;
  * Pagination comes from the shared PaginableCriteriaTrait and the sort directions from SortableCriteriaTrait,
  * both already pinned by the other criteria tests: only what this criteria adds is tested here.
  */
-final class ServiceListingCriteriaTest extends TestCase
+final class ServiceCriteriaTest extends TestCase
 {
     public function testNoFilterIsSetByDefault(): void
     {
-        $criteria = ServiceListingCriteria::unscoped();
+        $criteria = ServiceCriteria::unscoped();
 
         self::assertNull($criteria->getHostName());
         self::assertNull($criteria->getName());
@@ -52,7 +52,7 @@ final class ServiceListingCriteriaTest extends TestCase
 
     public function testFiltersAreSetOnACopyAndLeaveTheOriginalUnchanged(): void
     {
-        $criteria = ServiceListingCriteria::unscoped();
+        $criteria = ServiceCriteria::unscoped();
 
         $new = $criteria
             ->withHostName('central')
@@ -77,7 +77,7 @@ final class ServiceListingCriteriaTest extends TestCase
     public function testNameFiltersAcceptAZeroName(): void
     {
         // "0" is a legitimate name: the guard must be stringNotEmpty, not notEmpty (which uses empty()).
-        $criteria = ServiceListingCriteria::unscoped()->withHostName('0')->withName('0');
+        $criteria = ServiceCriteria::unscoped()->withHostName('0')->withName('0');
 
         self::assertSame('0', $criteria->getHostName());
         self::assertSame('0', $criteria->getName());
@@ -87,14 +87,14 @@ final class ServiceListingCriteriaTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        ServiceListingCriteria::unscoped()->withHostName('');
+        ServiceCriteria::unscoped()->withHostName('');
     }
 
     public function testTheNameFilterRejectsAnEmptyValue(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        ServiceListingCriteria::unscoped()->withName('');
+        ServiceCriteria::unscoped()->withName('');
     }
 
     /**
@@ -112,27 +112,27 @@ final class ServiceListingCriteriaTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        ServiceListingCriteria::unscoped()->withTemplateId($templateId);
+        ServiceCriteria::unscoped()->withTemplateId($templateId);
     }
 
     public function testOnlyTheHostNameAndTheServiceNameCanBeSortedOn(): void
     {
         self::assertSame(
             ['host_name' => 'h.host_name', 'name' => 's.service_description'],
-            ServiceListingCriteria::unscoped()->getFieldMapping(),
+            ServiceCriteria::unscoped()->getFieldMapping(),
         );
     }
 
     public function testForActorScopesToWhatTheActorMayAccess(): void
     {
-        $scope = ServiceListingCriteria::forActor(TestActingUsers::restricted(7))->accessScope($this->scopeOf(...), AccessGroupId::class);
+        $scope = ServiceCriteria::forActor(TestActingUsers::restricted(7))->accessScope($this->scopeOf(...), AccessGroupId::class);
 
         self::assertSame([7], $scope->allowedIdValues());
     }
 
     public function testWithersKeepTheActor(): void
     {
-        $criteria = ServiceListingCriteria::forActor(TestActingUsers::restricted(7))
+        $criteria = ServiceCriteria::forActor(TestActingUsers::restricted(7))
             ->withHostName('central')
             ->withName('Ping')
             ->withTemplateId(12)
@@ -145,7 +145,7 @@ final class ServiceListingCriteriaTest extends TestCase
 
     public function testAnUnscopedCriteriaIsUnrestricted(): void
     {
-        $scope = ServiceListingCriteria::unscoped()->accessScope(
+        $scope = ServiceCriteria::unscoped()->accessScope(
             static fn (ActingUser $actor): never => self::fail('An unscoped criteria must not resolve any scope.'),
             AccessGroupId::class,
         );
@@ -156,7 +156,7 @@ final class ServiceListingCriteriaTest extends TestCase
     public function testACriteriaCannotBeBuiltWithoutChoosingItsScope(): void
     {
         // Fail closed by construction: only forActor() and unscoped() build a criteria.
-        self::assertTrue((new \ReflectionMethod(ServiceListingCriteria::class, '__construct'))->isPrivate());
+        self::assertTrue((new \ReflectionMethod(ServiceCriteria::class, '__construct'))->isPrivate());
     }
 
     /**

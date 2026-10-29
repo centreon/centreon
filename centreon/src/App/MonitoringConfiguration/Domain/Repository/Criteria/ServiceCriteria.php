@@ -29,7 +29,7 @@ use App\Shared\Domain\Repository\SortableCriteria;
 use App\Shared\Domain\Repository\SortableCriteriaTrait;
 use Webmozart\Assert\Assert;
 
-final class ServiceListingCriteria implements PaginableCriteria, SortableCriteria
+final class ServiceCriteria implements PaginableCriteria, SortableCriteria
 {
     use PaginableCriteriaTrait;
     use SortableCriteriaTrait;
