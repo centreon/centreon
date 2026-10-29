@@ -32,7 +32,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
-use App\MonitoringConfiguration\Domain\Exception\ServiceLinkedToSeveralHostsException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
@@ -74,30 +73,6 @@ final class DeleteServiceCommandHandlerTest extends TestCase
             self::assertArrayHasKey($service->id()->value, $this->serviceRepository->services);
             self::assertSame([], $this->firedEvents());
         }
-    }
-
-    public function testSeveralHostsConflict(): void
-    {
-        $service = $this->seedService();
-        $this->serviceRepository->realHostLinkCounts[$service->id()->value] = 2;
-
-        try {
-            ($this->handler)(new DeleteServiceCommand($service->id(), TestActingUsers::unrestricted()));
-            self::fail('A service linked to several hosts must not be deleted.');
-        } catch (ServiceLinkedToSeveralHostsException) {
-            self::assertArrayHasKey($service->id()->value, $this->serviceRepository->services);
-            self::assertSame([], $this->firedEvents());
-        }
-    }
-
-    public function testUnknownIdIsNotFoundNotConflict(): void
-    {
-        // Existence and scope are checked first: a service the actor cannot reach is never reported as a conflict.
-        $this->serviceRepository->realHostLinkCounts[999] = 2;
-
-        $this->expectException(ServiceNotFoundException::class);
-
-        ($this->handler)(new DeleteServiceCommand(new ServiceId(999), TestActingUsers::unrestricted()));
     }
 
     public function testFiresEvents(): void

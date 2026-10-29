@@ -26,7 +26,6 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
-use App\MonitoringConfiguration\Domain\Exception\ServiceLinkedToSeveralHostsException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -50,10 +49,6 @@ final readonly class DeleteServiceCommandHandler
         $service = $this->serviceRepository->findOne($command->id, $command->actor);
         if (! $service instanceof Service) {
             throw new ServiceNotFoundException([$command->id->value], 'id');
-        }
-
-        if ($this->serviceRepository->countRealHostLinks($command->id) > 1) {
-            throw new ServiceLinkedToSeveralHostsException($command->id->value);
         }
 
         $this->serviceRepository->remove($service);
