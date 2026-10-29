@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
@@ -220,7 +219,6 @@ final class ListServicesProviderTest extends ApiTestCase
         self::assertSame([$serviceId], array_column($member, 'id'));
     }
 
-    #[Group('wip')]
     public function testThePlatformSettingForConfigurationListingsDoesNotSizeThePage(): void
     {
         // Without itemsPerPage the page holds the platform default of 30 items, as for hosts: the front sends the
