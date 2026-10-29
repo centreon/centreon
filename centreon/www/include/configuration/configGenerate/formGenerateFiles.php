@@ -541,8 +541,10 @@ $tpl->display('formGenerateFiles.ihtml');
             displayStatusMessage(data);
             displayDetails(data);
             displayPhpErrorMsg(action, data);
-        } else {
+        } else if (jqXHR.status === 403) {
             $('#consoleContent').append(defaultMessage + "<br/>");
+        } else {
+            $('#consoleContent').append('Request failed' + "<br/>");
         }
         abortProgress();
     }
