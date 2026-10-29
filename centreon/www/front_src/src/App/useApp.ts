@@ -36,8 +36,8 @@ import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
 
-// The page size listings used before the platform had a default of its own.
-const fallbackLimitPerPage = 10;
+// Same default as the API when the platform setting is missing or invalid.
+const fallbackLimitPerPage = 30;
 
 const getDefaultLimitPerPage = (limit: unknown): number =>
   Number.isInteger(limit) && (limit as number) > 0

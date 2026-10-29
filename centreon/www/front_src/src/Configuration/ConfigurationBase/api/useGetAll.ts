@@ -50,7 +50,7 @@ const useGetAll = ({
         baseEndpoint: endpoint,
         customQueryParameters: getCustomQueryParameters(),
         parameters: {
-          limit: limit || 10,
+          limit: limit || 30,
           page: page || 1,
           search: { conditions: searchConditions },
           sort
