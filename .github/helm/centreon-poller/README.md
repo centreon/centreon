@@ -122,8 +122,9 @@ plus a `traps-config` directory on `poller-data` (`/etc/snmp/centreon_traps`) an
   and MetalLB; k3s' built-in ServiceLB (klipper) does not.
 - `snmptrapd` runs as uid 900: the pod gets the
   `net.ipv4.ip_unprivileged_port_start=162` sysctl (allowed by `baseline`).
-- Enabling traps on an installed poller is a plain upgrade: their
-  definitions are a directory of `poller-data`.
+- Enabling traps on a poller installed with chart 26.2.0 or later is a plain
+  upgrade: their definitions are the `traps-config` directory of
+  `poller-data`. Earlier charts: reinstall first (see Persistence).
 
 ## VMware connector
 
@@ -307,8 +308,9 @@ allowed a moment after it starts: its very first connection may be refused
 
 `version` follows SemVer, its major being the year of the Centreon major
 (`26.x.y` for 26.10): minor for new optional features, patch for fixes.
-Breaking changes only come with a new major. The CI sets `appVersion` from
-the branch `.version`.
+Breaking changes only come with a new major, once a stable `<version>` is
+published: pre-releases (`-rc.<n>`, `-<branch>.<n>`) may break. The CI sets
+`appVersion` from the branch `.version`.
 
 | Published as | Where | Default images |
 |---|---|---|
