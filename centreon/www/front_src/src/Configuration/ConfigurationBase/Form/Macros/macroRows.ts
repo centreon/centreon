@@ -4,18 +4,19 @@ export type MacroParent = 'command' | 'template';
 
 type InheritedMacro = Pick<MacroRow, 'isPassword' | 'name' | 'value'>;
 
+// One custom macro of a resource (a host, a service), its own or inherited.
 export interface MacroRow {
   // A password the server keeps but never sends back: left empty, it is kept.
   hasStoredPassword: boolean;
   // Null for a new macro, and for a command macro the command never recorded.
   id: number | null;
-  // An inherited macro as the host received it, null for the host's own.
+  // An inherited macro as the resource received it, null for its own.
   inherited: InheritedMacro | null;
   // A stored password the user cleared to type a new one.
   isErased: boolean;
   isPassword: boolean;
   name: string;
-  // Where an inherited macro comes from, null for the host's own.
+  // Where an inherited macro comes from, null for the resource's own.
   parent: MacroParent | null;
   value: string;
 }
@@ -34,6 +35,15 @@ export const createMacroRow = (): MacroRow => ({
 // As the server stores the name: trimmed, upper-cased.
 export const toMacroName = (name: string): string => name.trim().toUpperCase();
 
+// The name as the server stores it, `$_<RESOURCETYPE>PORT$` for `port`.
+export const toStoredMacroName = ({
+  name,
+  prefix
+}: {
+  name: string;
+  prefix: string;
+}): string => `${prefix}${toMacroName(name)}$`;
+
 interface MacroDetail {
   id: number | null;
   isPassword: boolean;
@@ -42,8 +52,8 @@ interface MacroDetail {
   value?: string | null;
 }
 
-// `defaultParent` is the origin of a macro sent without one: the host's own on
-// a host, the template's own on a template.
+// `defaultParent` is the origin of a macro sent without one: the resource's
+// own on a host or a service, the template's own on a template.
 const getMacroDecoder = (defaultParent: MacroParent | null) =>
   JsonDecoder.object<MacroDetail>(
     {
@@ -86,21 +96,23 @@ const getMacroDecoder = (defaultParent: MacroParent | null) =>
     };
   });
 
-export const hostMacroDecoder = getMacroDecoder(null);
+// The macros in a resource's detail, `check_options.macros` on a host.
+export const macroDecoder = getMacroDecoder(null);
 
-// `GET /configuration/hosts/host_templates/{id}`: the template's own macros,
-// then those it inherits, which all reach a host as inherited.
+// A template's detail, as `GET /configuration/hosts/host_templates/{id}`: the
+// template's own macros, then those it inherits, which all reach the resource
+// as inherited.
 export const templateMacrosDecoder = JsonDecoder.object(
   {
     macros: JsonDecoder.optional(
       JsonDecoder.array(getMacroDecoder('template'), 'Template macros')
     ).map((value) => value ?? [])
   },
-  'Host template'
+  'Template'
 ).map(({ macros }) => macros);
 
-// Still what the host inherits: once changed, it is the host's own override,
-// as legacy shows it.
+// Still what the resource inherits: once changed, it is the resource's own
+// override, as legacy shows it.
 export const isUnchangedInherited = ({
   inherited,
   isErased,
@@ -114,36 +126,61 @@ export const isUnchangedInherited = ({
   inherited.name === name &&
   inherited.value === value;
 
+// A changed inherited macro goes back with its id and parent, so the server
+// turns it into the resource's own.
+export const toMacroPayload = ({
+  hasStoredPassword,
+  id,
+  isErased,
+  isPassword,
+  name,
+  parent,
+  value
+}: MacroRow) => ({
+  id,
+  is_password: isPassword,
+  name: toMacroName(name),
+  parent,
+  // Null keeps a stored password; once cleared, what is typed replaces it,
+  // empty included.
+  value: hasStoredPassword && !isErased ? null : value
+});
+
+// What is sent: unchanged inherited macros stay inherited. Not sent, they
+// cannot go stale once the templates or the command change.
+export const toMacrosPayload = (macros: Array<MacroRow> = []) =>
+  macros.filter((macro) => !isUnchangedInherited(macro)).map(toMacroPayload);
+
 const isSameSource = (macro: MacroRow, other: MacroRow): boolean =>
   macro.parent === other.parent &&
   macro.id === other.id &&
   macro.inherited?.name === other.inherited?.name;
 
-// What a host inherits from its templates' macros, as `InheritedHostMacros`
-// resolves it: per name, the first template in order wins (each template's
-// macros come nearest first), and command macros only fill names no template
-// defines.
+// What a resource inherits from its templates' macros, as the hosts'
+// `InheritedHostMacros` resolves it: per name, the first template in order
+// wins (each template's macros come nearest first), and command macros only
+// fill names no template defines.
 //
 // Command macros are approximate: the server takes one check command (the
-// host's own, or the first one in the template line) plus its templates'
+// resource's own, or the first one in the template line) plus its templates'
 // service template commands, and a template's macros do not say which command
-// each comes from. With a host check command, the templates' command macros
-// are left out and `hostCommandMacros` (those it was loaded with, while that
+// each comes from. With a command of its own, the templates' command macros
+// are left out and `ownCommandMacros` (those it was loaded with, while that
 // command is unchanged) stand for them; without one, every template's are kept.
 export const resolveInheritedMacros = ({
   hasCheckCommand,
-  hostCommandMacros = [],
+  ownCommandMacros = [],
   templatesMacros
 }: {
   hasCheckCommand: boolean;
-  hostCommandMacros?: Array<MacroRow>;
+  ownCommandMacros?: Array<MacroRow>;
   templatesMacros: Array<Array<MacroRow>>;
 }): Array<MacroRow> => {
   const macros = templatesMacros.flat();
   const candidates = [
     ...macros.filter(({ parent }) => parent === 'template'),
     ...(hasCheckCommand
-      ? hostCommandMacros
+      ? ownCommandMacros
       : macros.filter(({ parent }) => parent === 'command'))
   ];
 
@@ -153,10 +190,10 @@ export const resolveInheritedMacros = ({
   );
 };
 
-// The rows once what the host inherits has changed. Rows stay where they are:
-// an untouched inherited row no longer inherited goes, a changed one becomes
-// the host's own (its source is gone), and newly inherited macros are added at
-// the end unless a row already holds their name.
+// The rows once what the resource inherits has changed. Rows stay where they
+// are: an untouched inherited row no longer inherited goes, a changed one
+// becomes the resource's own (its source is gone), and newly inherited macros
+// are added at the end unless a row already holds their name.
 export const mergeInheritedMacros = (
   macros: Array<MacroRow>,
   inherited: Array<MacroRow>

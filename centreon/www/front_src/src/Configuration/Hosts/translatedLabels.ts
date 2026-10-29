@@ -87,13 +87,8 @@ export const labelCreateServicesLinkedToTemplates =
   'Automatically create services from templates';
 // Custom macros.
 export const labelCustomMacros = 'Custom macros';
-export const labelValue = 'Value';
-export const labelPassword = 'Password';
 export const labelClear = 'Clear';
-export const labelRevertToPreviousPassword = 'Revert to previous password';
 export const labelAlreadyExists = 'Already exists';
-export const labelTemplateInheritance = 'Template inheritance';
-export const labelCommandInheritance = 'Command inheritance';
 
 // Yes / No / third state fields: the design words the third state per field.
 export const labelYes = 'Yes';
