@@ -71,7 +71,7 @@ final readonly class DbalOptionRepository extends DbalRepository implements Opti
         return $this->transformer->transform($row);
     }
 
-    public function findValueByName(OptionName $name): ?string
+    public function findByName(OptionName $name): ?string
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('`value`')

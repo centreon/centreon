@@ -63,23 +63,23 @@ final class DbalOptionRepositoryTest extends KernelTestCase
         $this->repository->getByName(new OptionName('foo'));
     }
 
-    public function testFindValueByNameReturnsTheStoredValue(): void
+    public function testFindByNameReturnsTheStoredValue(): void
     {
-        $this->insertOption('find_value_by_name_test', ' 050 ');
+        $this->insertOption('find_by_name_test', ' 050 ');
 
-        self::assertSame(' 050 ', $this->repository->findValueByName(new OptionName('find_value_by_name_test')));
+        self::assertSame(' 050 ', $this->repository->findByName(new OptionName('find_by_name_test')));
     }
 
-    public function testFindValueByNameReturnsNullForAMissingOption(): void
+    public function testFindByNameReturnsNullForAMissingOption(): void
     {
-        self::assertNull($this->repository->findValueByName(new OptionName('find_value_by_name_missing')));
+        self::assertNull($this->repository->findByName(new OptionName('find_by_name_missing')));
     }
 
-    public function testFindValueByNameReturnsNullForANullValue(): void
+    public function testFindByNameReturnsNullForANullValue(): void
     {
-        $this->insertOption('find_value_by_name_null', null);
+        $this->insertOption('find_by_name_null', null);
 
-        self::assertNull($this->repository->findValueByName(new OptionName('find_value_by_name_null')));
+        self::assertNull($this->repository->findByName(new OptionName('find_by_name_null')));
     }
 
     private function insertOption(string $key, ?string $value): void

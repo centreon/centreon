@@ -24,16 +24,29 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
  * @phpstan-type MacroRowTypeAlias array{name: string, value: string, is_password: string|int, description: string|null}
- * @phpstan-type RowTypeAlias array{service_id: int|string, service_description: string, host_id: int, macros: list<MacroRowTypeAlias>}
+ * @phpstan-type RowTypeAlias array{
+ *   service_id: int|string,
+ *   service_description: string,
+ *   host_id: int|string,
+ *   service_activate: string,
+ *   template_id: int|string|null,
+ *   icon_id: int|string|null,
+ *   normal_check_interval: int|string|null,
+ *   retry_check_interval: int|string|null,
+ *   macros: list<MacroRowTypeAlias>,
+ * }
  *
  * @implements TransformerInterface<RowTypeAlias, Service>
  */
@@ -44,9 +57,24 @@ final readonly class ServiceTransformer implements TransformerInterface
         return new Service(
             id: new ServiceId((int) $from['service_id']),
             name: new ServiceName($from['service_description']),
-            hostId: new HostId($from['host_id']),
+            hostId: new HostId((int) $from['host_id']),
             macros: array_map($this->createMacro(...), $from['macros']),
+            activated: $from['service_activate'] === '1',
+            templateId: $from['template_id'] !== null ? new ServiceTemplateId((int) $from['template_id']) : null,
+            iconId: $from['icon_id'] !== null ? new MediaId((int) $from['icon_id']) : null,
+            checkIntervals: new ServiceCheckIntervals(
+                $this->interval($from['normal_check_interval']),
+                $this->interval($from['retry_check_interval']),
+            ),
         );
+    }
+
+    /**
+     * A stored interval below 1 (0 or negative) counts as unset: the service then inherits it.
+     */
+    private function interval(int|string|null $value): ?int
+    {
+        return $value === null || (int) $value < 1 ? null : (int) $value;
     }
 
     /**

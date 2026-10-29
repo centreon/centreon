@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
@@ -547,6 +548,31 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         }
 
         return new Collection($names, HostName::class);
+    }
+
+    public function findIconIdsByIds(Collection $ids): Collection
+    {
+        $idValues = array_values(array_map(static fn (HostId $id): int => $id->value, $ids->toArray()));
+        if ($idValues === []) {
+            return new Collection([], MediaId::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('ehi.host_host_id', 'ehi.ehi_icon_image')
+            ->from('extended_host_information', 'ehi')
+            ->innerJoin('ehi', self::TABLE_NAME, 'h', "h.host_id = ehi.host_host_id AND h.host_register = '1'")
+            ->where($qb->expr()->in('ehi.host_host_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)))
+            ->andWhere('ehi.ehi_icon_image IS NOT NULL');
+
+        /** @var list<array{host_host_id: int|string, ehi_icon_image: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $iconIds = [];
+        foreach ($rows as $row) {
+            $iconIds[(int) $row['host_host_id']] = new MediaId((int) $row['ehi_icon_image']);
+        }
+
+        return new Collection($iconIds, MediaId::class);
     }
 
     public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection
