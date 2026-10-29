@@ -28,17 +28,25 @@ use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateName;
 use App\MonitoringConfiguration\Domain\Model\ListingPageSize;
-use App\MonitoringConfiguration\Domain\Model\ServiceListing\ServiceListItem;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceListingCriteria;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
+use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
-use App\MonitoringConfiguration\Domain\Repository\ServiceListingRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceCollectionOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
@@ -62,14 +70,17 @@ final readonly class ListServicesProvider implements ProviderInterface
     private const PAGE_SIZE_OPTION = 'maxViewConfiguration';
 
     /**
-     * @param TransformerInterface<ServiceListItemView, ServiceCollectionOutput> $transformer
+     * @param TransformerInterface<Service, ServiceCollectionOutput> $transformer
      */
     public function __construct(
         #[Autowire(service: ServiceCollectionOutputTransformer::class)]
         private TransformerInterface $transformer,
-        private ServiceListingRepository $repository,
+        private ServiceRepository $repository,
+        private HostRepository $hostRepository,
         private HostTemplateRepository $hostTemplateRepository,
+        private ServiceTemplateRepository $serviceTemplateRepository,
         private MediaRepository $mediaRepository,
+        private MediaUrlGenerator $mediaUrlGenerator,
         private OptionRepository $optionRepository,
         private Pagination $pagination,
         private Security $security,
@@ -90,24 +101,24 @@ final readonly class ListServicesProvider implements ProviderInterface
         /** @var array<string, mixed> $filters */
         $filters = $context['filters'] ?? [];
 
-        $criteria = ServiceListingCriteria::forActor($credentialUser->credential->actingUser());
+        $criteria = ServiceCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $criteria = $criteria->withPagination($this->pagination->getPage($context), $this->itemsPerPage($operation, $context, $filters));
         }
         $criteria = $this->filter($criteria, $filters);
 
-        $items = $this->repository->findAll($criteria);
-        $outputs = $this->transformItems(array_values(iterator_to_array($items)));
+        $services = $this->repository->findAll($criteria);
+        $outputs = $this->transformServices(array_values(iterator_to_array($services)));
 
-        if (! $items instanceof Paginator) {
+        if (! $services instanceof Paginator) {
             return $outputs;
         }
 
         return new TraversablePaginator(
             new \ArrayIterator($outputs),
-            $items->getCurrentPage(),
-            $items->getItemsPerPage(),
-            $items->getTotalItems(),
+            $services->getCurrentPage(),
+            $services->getItemsPerPage(),
+            $services->getTotalItems(),
         );
     }
 
@@ -121,7 +132,7 @@ final readonly class ListServicesProvider implements ProviderInterface
     private function itemsPerPage(Operation $operation, array $context, array $filters): int
     {
         if (! array_key_exists($this->itemsPerPageParameter, $filters)) {
-            return ListingPageSize::fromOptionValue($this->optionRepository->findValueByName(new OptionName(self::PAGE_SIZE_OPTION)))->value;
+            return ListingPageSize::fromOptionValue($this->optionRepository->findByName(new OptionName(self::PAGE_SIZE_OPTION)))->value;
         }
 
         $itemsPerPage = $this->pagination->getLimit($operation, $context);
@@ -135,7 +146,7 @@ final readonly class ListServicesProvider implements ProviderInterface
     /**
      * @param array<string, mixed> $filters
      */
-    private function filter(ServiceListingCriteria $criteria, array $filters): ServiceListingCriteria
+    private function filter(ServiceCriteria $criteria, array $filters): ServiceCriteria
     {
         if (($hostName = $this->handleLikeFilter($filters['host_name'] ?? null, 'host_name')) !== null) {
             $criteria = $criteria->withHostName($hostName);
@@ -157,71 +168,120 @@ final readonly class ListServicesProvider implements ProviderInterface
     }
 
     /**
-     * Resolves the icons of the whole page at once: one lookup of the icons the hosts without their own one
-     * inherit from their templates, then one lookup of every media shown, whatever the number of rows.
+     * Sets what a listed service shows besides its own values, looked up once for the whole page whatever the
+     * number of rows, as the host listing does: its host's name and icon (own, else inherited from the host
+     * templates), its icon (own, else inherited from its template chain), each check interval (own, else
+     * inherited), its template's name, and every media shown.
      *
-     * @param list<ServiceListItem> $items
+     * @param list<Service> $services
      *
      * @return list<ServiceCollectionOutput>
      */
-    private function transformItems(array $items): array
+    private function transformServices(array $services): array
     {
-        if ($items === []) {
+        if ($services === []) {
             return [];
         }
 
-        /** @var array<int, HostId> $hostIdsWithoutIcon */
-        $hostIdsWithoutIcon = [];
-        foreach ($items as $item) {
-            if (! $item->hostIconId instanceof MediaId) {
-                $hostIdsWithoutIcon[$item->hostId->value] = $item->hostId;
+        /** @var array<int, HostId> $hostIds */
+        $hostIds = [];
+        /** @var array<int, ServiceId> $serviceIdsWithoutIcon */
+        $serviceIdsWithoutIcon = [];
+        /** @var array<int, ServiceId> $serviceIdsMissingAnInterval */
+        $serviceIdsMissingAnInterval = [];
+        /** @var array<int, ServiceTemplateId> $templateIds */
+        $templateIds = [];
+        foreach ($services as $service) {
+            $hostIds[$service->hostId->value] = $service->hostId;
+            if (! $service->iconId instanceof MediaId) {
+                $serviceIdsWithoutIcon[$service->id()->value] = $service->id();
+            }
+            if ($service->checkIntervals->normal === null || $service->checkIntervals->retry === null) {
+                $serviceIdsMissingAnInterval[$service->id()->value] = $service->id();
+            }
+            if ($service->templateId instanceof ServiceTemplateId) {
+                $templateIds[$service->templateId->value] = $service->templateId;
             }
         }
 
+        $hostIdCollection = new Collection(array_values($hostIds), HostId::class);
+        /** @var array<int, HostName> $hostNames */
+        $hostNames = $this->hostRepository->findNamesByIds($hostIdCollection)->toArray();
+        /** @var array<int, MediaId> $hostIconIds own icons, indexed by host id */
+        $hostIconIds = $this->hostRepository->findIconIdsByIds($hostIdCollection)->toArray();
+        $hostIdsWithoutIcon = array_values(array_diff_key($hostIds, $hostIconIds));
         /** @var array<int, MediaId> $inheritedHostIconIds indexed by host id */
         $inheritedHostIconIds = $hostIdsWithoutIcon === []
             ? []
-            : $this->hostTemplateRepository->findInheritedIconIds(new Collection(array_values($hostIdsWithoutIcon), HostId::class))->toArray();
+            : $this->hostTemplateRepository->findInheritedIconIds(new Collection($hostIdsWithoutIcon, HostId::class))->toArray();
+
+        /** @var array<int, MediaId> $inheritedIconIds indexed by service id */
+        $inheritedIconIds = $serviceIdsWithoutIcon === []
+            ? []
+            : $this->serviceTemplateRepository->findInheritedIconIds(new Collection(array_values($serviceIdsWithoutIcon), ServiceId::class))->toArray();
+        /** @var array<int, ServiceCheckIntervals> $inheritedIntervals indexed by service id */
+        $inheritedIntervals = $serviceIdsMissingAnInterval === []
+            ? []
+            : $this->serviceTemplateRepository->findInheritedCheckIntervals(new Collection(array_values($serviceIdsMissingAnInterval), ServiceId::class))->toArray();
+        /** @var array<int, ServiceTemplateName> $templateNames */
+        $templateNames = $templateIds === []
+            ? []
+            : $this->serviceTemplateRepository->findNamesByIds(new Collection(array_values($templateIds), ServiceTemplateId::class))->toArray();
 
         /** @var array<int, MediaId> $mediaIds */
         $mediaIds = [];
-        foreach ($items as $item) {
-            foreach ([$this->hostIconId($item, $inheritedHostIconIds), $item->iconId] as $mediaId) {
-                if ($mediaId instanceof MediaId) {
-                    $mediaIds[$mediaId->value] = $mediaId;
-                }
+        foreach ([...array_values($hostIconIds), ...array_values($inheritedHostIconIds), ...array_values($inheritedIconIds)] as $mediaId) {
+            $mediaIds[$mediaId->value] = $mediaId;
+        }
+        foreach ($services as $service) {
+            if ($service->iconId instanceof MediaId) {
+                $mediaIds[$service->iconId->value] = $service->iconId;
             }
         }
-
         /** @var array<int, Media> $media indexed by media id */
         $media = $mediaIds === [] ? [] : $this->mediaRepository->findByIds(new Collection(array_values($mediaIds), MediaId::class))->toArray();
 
-        return array_map(
-            fn (ServiceListItem $item): ServiceCollectionOutput => $this->transformer->transform(new ServiceListItemView(
-                $item,
-                $this->media($this->hostIconId($item, $inheritedHostIconIds), $media),
-                $this->media($item->iconId, $media),
-            )),
-            $items,
-        );
-    }
+        $outputs = [];
+        foreach ($services as $service) {
+            $hostId = $service->hostId->value;
+            $output = $this->transformer->transform($service);
 
-    /**
-     * The host's own icon, else the one it inherits from its templates. An own icon that no longer resolves
-     * gives no icon: it does not fall back on the inherited one, as in the host listing.
-     *
-     * @param array<int, MediaId> $inheritedHostIconIds
-     */
-    private function hostIconId(ServiceListItem $item, array $inheritedHostIconIds): ?MediaId
-    {
-        return $item->hostIconId ?? $inheritedHostIconIds[$item->hostId->value] ?? null;
+            $host = ['id' => $hostId, 'name' => $hostNames[$hostId]->value ?? ''];
+            // An own icon that no longer resolves gives no icon: it does not fall back on the inherited one.
+            $hostIcon = $this->icon($hostIconIds[$hostId] ?? $inheritedHostIconIds[$hostId] ?? null, $media);
+            if ($hostIcon !== null) {
+                $host['icon'] = $hostIcon;
+            }
+            $output->host = $host;
+
+            $output->icon = $this->icon($service->iconId ?? $inheritedIconIds[$service->id()->value] ?? null, $media);
+
+            $inherited = $inheritedIntervals[$service->id()->value] ?? null;
+            $output->normalCheckInterval = $service->checkIntervals->normal ?? $inherited?->normal;
+            $output->retryCheckInterval = $service->checkIntervals->retry ?? $inherited?->retry;
+
+            // A template that no longer exists (no foreign key on the reference) shows none, as in the host listing.
+            if ($service->templateId instanceof ServiceTemplateId && isset($templateNames[$service->templateId->value])) {
+                $output->template = ['id' => $service->templateId->value, 'name' => $templateNames[$service->templateId->value]->value];
+            }
+
+            $outputs[] = $output;
+        }
+
+        return $outputs;
     }
 
     /**
      * @param array<int, Media> $media
+     *
+     * @return array{id: int, name: string, url: string}|null
      */
-    private function media(?MediaId $id, array $media): ?Media
+    private function icon(?MediaId $id, array $media): ?array
     {
-        return $id instanceof MediaId ? $media[$id->value] ?? null : null;
+        $icon = $id instanceof MediaId ? $media[$id->value] ?? null : null;
+
+        return $icon instanceof Media
+            ? ['id' => $icon->id()->value, 'name' => $icon->name->value, 'url' => $this->mediaUrlGenerator->generate($icon)]
+            : null;
     }
 }

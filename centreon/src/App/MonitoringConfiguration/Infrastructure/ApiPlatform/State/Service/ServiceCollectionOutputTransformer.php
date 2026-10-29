@@ -23,49 +23,24 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceCollectionOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @implements TransformerInterface<ServiceListItemView, ServiceCollectionOutput>
+ * @implements TransformerInterface<Service, ServiceCollectionOutput>
  */
 final readonly class ServiceCollectionOutputTransformer implements TransformerInterface
 {
-    public function __construct(
-        private MediaUrlGenerator $mediaUrlGenerator,
-    ) {
-    }
-
+    /**
+     * The service's own scalars only: what it shows from its host and its templates is set by the provider.
+     */
     public function transform(mixed $from): ServiceCollectionOutput
     {
-        $item = $from->item;
-
-        $host = ['id' => $item->hostId->value, 'name' => $item->hostName];
-        if ($from->hostIcon instanceof Media) {
-            $host['icon'] = $this->icon($from->hostIcon);
-        }
-
         return new ServiceCollectionOutput(
-            id: $item->serviceId->value,
-            name: $item->name,
-            activated: $item->activated,
-            host: $host,
-            icon: $from->icon instanceof Media ? $this->icon($from->icon) : null,
-            normalCheckInterval: $item->normalCheckInterval,
-            retryCheckInterval: $item->retryCheckInterval,
-            template: $item->templateId !== null && $item->templateName !== null
-                ? ['id' => $item->templateId, 'name' => $item->templateName]
-                : null,
+            id: $from->id()->value,
+            name: $from->name->value,
+            activated: $from->activated,
         );
-    }
-
-    /**
-     * @return array{id: int, name: string, url: string}
-     */
-    private function icon(Media $media): array
-    {
-        return ['id' => $media->id()->value, 'name' => $media->name->value, 'url' => $this->mediaUrlGenerator->generate($media)];
     }
 }

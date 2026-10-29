@@ -100,8 +100,9 @@ final class ListServicesProviderTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         $body = $response->toArray();
         self::assertSame(2, $body['totalItems']);
+        Assert::isArray($body['member']);
         self::assertSame(
-            [
+            $this->sortedKeys([
                 [
                     '@type' => 'Service',
                     '@id' => self::BASE_ENDPOINT . '/' . $bareServiceId,
@@ -130,8 +131,8 @@ final class ListServicesProviderTest extends ApiTestCase
                     'retry_check_interval' => 1,
                     'template' => ['id' => $templateId, 'name' => 'generic-service'],
                 ],
-            ],
-            $body['member'],
+            ]),
+            $this->sortedKeys($body['member']),
             'Exactly these keys, nested objects included, unresolved ones left out.',
         );
     }
@@ -150,8 +151,8 @@ final class ListServicesProviderTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame(
-            [['id' => $serviceId, 'name' => 'ping', 'activated' => true, 'host' => ['id' => $hostId, 'name' => $this->tag . '-central']]],
-            $response->toArray(),
+            $this->sortedKeys([['id' => $serviceId, 'name' => 'ping', 'activated' => true, 'host' => ['id' => $hostId, 'name' => $this->tag . '-central']]]),
+            $this->sortedKeys($response->toArray()),
         );
     }
 
@@ -227,6 +228,23 @@ final class ListServicesProviderTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(400);
         self::assertJsonEquals(['code' => 0, 'message' => 'itemsPerPage must be a positive integer.']);
+    }
+
+    /**
+     * The keys of every object sorted, so that a comparison checks exactly the keys and the values, not the order the
+     * serializer writes them in.
+     *
+     * @param array<mixed> $value
+     *
+     * @return array<mixed>
+     */
+    private function sortedKeys(array $value): array
+    {
+        if (! array_is_list($value)) {
+            ksort($value);
+        }
+
+        return array_map(fn (mixed $item): mixed => is_array($item) ? $this->sortedKeys($item) : $item, $value);
     }
 
     /**

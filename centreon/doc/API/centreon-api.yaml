@@ -6532,8 +6532,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           links: {}
-      summary: 'List the services, one row per host they are directly linked to'
-      description: 'Services linked to host groups are not listed. A service linked to several hosts is listed once per host, with the same id. When `itemsPerPage` is not sent, the page size is the platform setting for configuration listings. The check intervals and the icon are the effective ones, inherited from the service templates when the service has none of its own; intervals are in engine units.'
+      summary: 'List the services'
+      description: 'Services linked to host groups are not listed. When `itemsPerPage` is not sent, the page size is the platform setting for configuration listings. The check intervals and the icon are the effective ones, inherited from the service templates when the service has none of its own; intervals are in engine units.'
       parameters:
         -
           name: 'host_name[lk]'

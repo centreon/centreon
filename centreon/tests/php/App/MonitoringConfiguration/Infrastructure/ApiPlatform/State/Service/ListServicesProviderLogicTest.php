@@ -26,14 +26,24 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Ser
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectory;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
-use App\MonitoringConfiguration\Domain\Model\ServiceListing\ServiceListItem;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceListingCriteria;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceCollectionOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ListServicesProvider;
@@ -42,6 +52,7 @@ use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Security\CredentialUser;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\SortDirectionEnum;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -49,22 +60,29 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceListingRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceTemplateRepository;
 use Webmozart\Assert\Assert;
 
 /**
- * The provider's own logic, with fakes: how a request becomes a criteria, the default page size, and how the
- * host icon and the media are resolved, once per page. The wiring and the wire format are pinned by
- * {@see ListServicesProviderTest}; the SQL by the repository's integration test.
+ * The provider's own logic, with fakes: how a request becomes a criteria, the default page size, and the values
+ * a listed service shows besides its own (host name and icon, inherited icon and intervals, template name),
+ * looked up once per page. The wiring and the wire format are pinned by {@see ListServicesProviderTest}; the SQL
+ * by the repositories' integration tests.
  */
 final class ListServicesProviderLogicTest extends TestCase
 {
-    private FakeServiceListingRepository $repository;
+    private FakeServiceRepository $repository;
+
+    private FakeHostRepository $hostRepository;
 
     private FakeHostTemplateRepository $hostTemplateRepository;
+
+    private FakeServiceTemplateRepository $serviceTemplateRepository;
 
     private FakeMediaRepository $mediaRepository;
 
@@ -74,27 +92,14 @@ final class ListServicesProviderLogicTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = new FakeServiceListingRepository();
+        $this->repository = new FakeServiceRepository();
+        $this->hostRepository = new FakeHostRepository();
         $this->hostTemplateRepository = new FakeHostTemplateRepository();
+        $this->serviceTemplateRepository = new FakeServiceTemplateRepository();
         $this->mediaRepository = new FakeMediaRepository();
         $this->optionRepository = new FakeOptionRepository();
 
-        $security = $this->createStub(Security::class);
-        $security->method('getUser')->willReturn(new CredentialUser(new Credential(new CredentialIdentifier('user'), new UserId(7), true)));
-
-        $requestStack = new RequestStack();
-        $requestStack->push(Request::create('/'));
-
-        $this->provider = new ListServicesProvider(
-            new ServiceCollectionOutputTransformer(new MediaUrlGenerator('/img/media/', $requestStack)),
-            $this->repository,
-            $this->hostTemplateRepository,
-            $this->mediaRepository,
-            $this->optionRepository,
-            new Pagination(['client_items_per_page' => true, 'items_per_page_parameter_name' => 'itemsPerPage']),
-            $security,
-            'itemsPerPage',
-        );
+        $this->provider = $this->provider('itemsPerPage');
     }
 
     public function testFiltersAndSortReachTheCriteria(): void
@@ -202,31 +207,17 @@ final class ListServicesProviderLogicTest extends TestCase
 
     public function testThePageSizeParameterIsTheConfiguredOne(): void
     {
-        $security = $this->createStub(Security::class);
-        $security->method('getUser')->willReturn(new CredentialUser(new Credential(new CredentialIdentifier('user'), new UserId(7), true)));
-        $requestStack = new RequestStack();
-        $requestStack->push(Request::create('/'));
-
-        $provider = new ListServicesProvider(
-            new ServiceCollectionOutputTransformer(new MediaUrlGenerator('/img/media/', $requestStack)),
-            $this->repository,
-            $this->hostTemplateRepository,
-            $this->mediaRepository,
-            $this->optionRepository,
-            new Pagination(['client_items_per_page' => true, 'items_per_page_parameter_name' => 'perPage']),
-            $security,
-            'perPage',
-        );
         $this->optionRepository->options['maxViewConfiguration'] = '50';
 
-        $provider->provide(new GetCollection(paginationClientItemsPerPage: true), [], ['filters' => ['perPage' => '10']]);
+        $this->provider('perPage')->provide(new GetCollection(paginationClientItemsPerPage: true), [], ['filters' => ['perPage' => '10']]);
 
         self::assertSame(10, $this->requestedCriteria()->getPagination()?->itemsPerPage);
     }
 
     public function testThePageComesBackAsAPaginator(): void
     {
-        $this->repository->items = [$this->item(1, hostId: 10), $this->item(2, hostId: 10), $this->item(3, hostId: 10)];
+        $this->givenHost(10);
+        $this->repository->listed = [$this->service(1, hostId: 10), $this->service(2, hostId: 10), $this->service(3, hostId: 10)];
 
         $result = $this->provide(['page' => '2', 'itemsPerPage' => '2']);
 
@@ -236,20 +227,25 @@ final class ListServicesProviderLogicTest extends TestCase
         self::assertSame([3], array_map(static fn (ServiceCollectionOutput $output): int => $output->id, iterator_to_array($result, false)));
     }
 
-    public function testHostIconOwnWins(): void
+    public function testHostNameAndOwnIcon(): void
     {
+        $this->givenHost(10, 'central', iconId: 5);
         $this->mediaRepository->media = [5 => $this->media(5, 'own.png'), 6 => $this->media(6, 'inherited.png')];
         $this->hostTemplateRepository->inheritedIconIds = [10 => new MediaId(6)];
-        $this->repository->items = [$this->item(1, hostId: 10, hostIconId: 5)];
+        $this->repository->listed = [$this->service(1, hostId: 10)];
 
-        self::assertSame(['id' => 5, 'name' => 'own.png', 'url' => '/img/media/dir/own.png'], $this->outputs()[0]->host['icon'] ?? null);
+        self::assertSame(
+            ['id' => 10, 'name' => 'central', 'icon' => ['id' => 5, 'name' => 'own.png', 'url' => '/img/media/dir/own.png']],
+            $this->outputs()[0]->host,
+        );
     }
 
     public function testHostIconInheritedWhenTheHostHasNone(): void
     {
+        $this->givenHost(10, 'central');
         $this->mediaRepository->media = [6 => $this->media(6, 'inherited.png')];
         $this->hostTemplateRepository->inheritedIconIds = [10 => new MediaId(6)];
-        $this->repository->items = [$this->item(1, hostId: 10)];
+        $this->repository->listed = [$this->service(1, hostId: 10)];
 
         self::assertSame(['id' => 6, 'name' => 'inherited.png', 'url' => '/img/media/dir/inherited.png'], $this->outputs()[0]->host['icon'] ?? null);
     }
@@ -257,58 +253,151 @@ final class ListServicesProviderLogicTest extends TestCase
     public function testHostIconNoneWhenItsOwnCannotBeResolved(): void
     {
         // Like the host listing: an own icon that no longer resolves gives no icon, it does not fall back.
+        $this->givenHost(10, 'central', iconId: 5);
         $this->mediaRepository->media = [6 => $this->media(6, 'inherited.png')];
         $this->hostTemplateRepository->inheritedIconIds = [10 => new MediaId(6)];
-        $this->repository->items = [$this->item(1, hostId: 10, hostIconId: 5)];
+        $this->repository->listed = [$this->service(1, hostId: 10)];
 
-        self::assertSame(['id' => 10, 'name' => 'host-10'], $this->outputs()[0]->host);
+        self::assertSame(['id' => 10, 'name' => 'central'], $this->outputs()[0]->host);
     }
 
     public function testHostIconNoneWhenNeitherOwnNorInherited(): void
     {
-        $this->repository->items = [$this->item(1, hostId: 10)];
+        $this->givenHost(10, 'central');
+        $this->repository->listed = [$this->service(1, hostId: 10)];
 
-        self::assertSame(['id' => 10, 'name' => 'host-10'], $this->outputs()[0]->host);
+        self::assertSame(['id' => 10, 'name' => 'central'], $this->outputs()[0]->host);
     }
 
-    public function testServiceIconIsResolvedToItsMedia(): void
+    public function testServiceIconOwnWins(): void
     {
-        $this->mediaRepository->media = [8 => $this->media(8, 'service.png')];
-        $this->repository->items = [$this->item(1, hostId: 10, iconId: 8), $this->item(2, hostId: 10, iconId: 9)];
+        $this->givenHost(10);
+        $this->mediaRepository->media = [8 => $this->media(8, 'own.png'), 9 => $this->media(9, 'inherited.png')];
+        $this->serviceTemplateRepository->inheritedIconIds = [1 => new MediaId(9)];
+        $this->repository->listed = [$this->service(1, hostId: 10, iconId: 8)];
+
+        self::assertSame(['id' => 8, 'name' => 'own.png', 'url' => '/img/media/dir/own.png'], $this->outputs()[0]->icon);
+    }
+
+    public function testServiceIconInheritedWhenTheServiceHasNone(): void
+    {
+        $this->givenHost(10);
+        $this->mediaRepository->media = [9 => $this->media(9, 'inherited.png')];
+        $this->serviceTemplateRepository->inheritedIconIds = [1 => new MediaId(9)];
+        $this->repository->listed = [$this->service(1, hostId: 10), $this->service(2, hostId: 10)];
 
         $outputs = $this->outputs();
 
-        self::assertSame(['id' => 8, 'name' => 'service.png', 'url' => '/img/media/dir/service.png'], $outputs[0]->icon);
-        self::assertNull($outputs[1]->icon, 'A media that no longer exists gives no icon.');
+        self::assertSame(['id' => 9, 'name' => 'inherited.png', 'url' => '/img/media/dir/inherited.png'], $outputs[0]->icon);
+        self::assertNull($outputs[1]->icon, 'Neither its own nor an inherited one.');
+    }
+
+    public function testServiceIconNoneWhenItsMediaCannotBeResolved(): void
+    {
+        $this->givenHost(10);
+        $this->repository->listed = [$this->service(1, hostId: 10, iconId: 8)];
+
+        self::assertNull($this->outputs()[0]->icon);
+    }
+
+    public function testCheckIntervalsOwnElseInheritedPerField(): void
+    {
+        $this->givenHost(10);
+        $this->serviceTemplateRepository->inheritedCheckIntervals = [
+            1 => new ServiceCheckIntervals(normal: 15, retry: 3),
+            2 => new ServiceCheckIntervals(normal: 15, retry: 3),
+        ];
+        $this->repository->listed = [
+            $this->service(1, hostId: 10, intervals: new ServiceCheckIntervals(normal: 5)),
+            $this->service(2, hostId: 10, intervals: new ServiceCheckIntervals(normal: 5, retry: 1)),
+            $this->service(3, hostId: 10),
+        ];
+
+        $outputs = $this->outputs();
+
+        self::assertSame([5, 3], [$outputs[0]->normalCheckInterval, $outputs[0]->retryCheckInterval]);
+        self::assertSame([5, 1], [$outputs[1]->normalCheckInterval, $outputs[1]->retryCheckInterval]);
+        self::assertSame([null, null], [$outputs[2]->normalCheckInterval, $outputs[2]->retryCheckInterval]);
+    }
+
+    public function testTemplateOnlyWhenItsNameIsFound(): void
+    {
+        // A service may point to a template that no longer exists (no foreign key): it then shows none.
+        $this->givenHost(10);
+        $this->serviceTemplateRepository->names = [7 => 'generic-service'];
+        $this->repository->listed = [
+            $this->service(1, hostId: 10, templateId: 7),
+            $this->service(2, hostId: 10, templateId: 8),
+            $this->service(3, hostId: 10),
+        ];
+
+        $outputs = $this->outputs();
+
+        self::assertSame(['id' => 7, 'name' => 'generic-service'], $outputs[0]->template);
+        self::assertNull($outputs[1]->template);
+        self::assertNull($outputs[2]->template);
     }
 
     public function testLookupsAreBatchedPerPage(): void
     {
+        $this->givenHost(10, iconId: 5);
+        $this->givenHost(11);
+        $this->givenHost(12);
         $this->mediaRepository->media = [5 => $this->media(5, 'a.png'), 6 => $this->media(6, 'b.png'), 8 => $this->media(8, 'c.png')];
         $this->hostTemplateRepository->inheritedIconIds = [11 => new MediaId(6), 12 => new MediaId(6)];
-        $this->repository->items = [
-            $this->item(1, hostId: 10, hostIconId: 5, iconId: 8),
-            $this->item(2, hostId: 11, iconId: 8),
-            $this->item(3, hostId: 12),
-            $this->item(4, hostId: 12),
+        $this->repository->listed = [
+            $this->service(1, hostId: 10, templateId: 7, iconId: 8, intervals: new ServiceCheckIntervals(normal: 1, retry: 1)),
+            $this->service(2, hostId: 11, templateId: 7, iconId: 8),
+            $this->service(3, hostId: 12, templateId: 9),
+            // A service listed twice is looked up once.
+            $this->service(3, hostId: 10, templateId: 9),
         ];
 
         $this->outputs();
 
-        $inheritedIconLookups = $this->hostTemplateRepository->receivedInheritedIconHostIds;
-        self::assertCount(1, $inheritedIconLookups, 'One inherited-icon lookup per page.');
-        self::assertEqualsCanonicalizing([11, 12], $inheritedIconLookups[0], 'For the hosts without their own icon, each once.');
-        $mediaLookups = $this->mediaRepository->receivedIds;
-        self::assertCount(1, $mediaLookups, 'One media lookup per page.');
-        self::assertEqualsCanonicalizing([5, 6, 8], $mediaLookups[0], 'For the host and service icons together, each once.');
+        self::assertCount(1, $this->hostRepository->receivedNameHostIds, 'One host name lookup per page.');
+        self::assertEqualsCanonicalizing([10, 11, 12], $this->hostRepository->receivedNameHostIds[0]);
+        self::assertCount(1, $this->hostRepository->receivedIconHostIds, 'One host own-icon lookup per page.');
+        self::assertEqualsCanonicalizing([10, 11, 12], $this->hostRepository->receivedIconHostIds[0]);
+        self::assertSame([[11, 12]], $this->sorted($this->hostTemplateRepository->receivedInheritedIconHostIds), 'For the hosts without their own icon, each once.');
+        self::assertSame([[3]], $this->sorted($this->serviceTemplateRepository->receivedIds['findInheritedIconIds']), 'For the services without their own icon, each once.');
+        self::assertSame([[2, 3]], $this->sorted($this->serviceTemplateRepository->receivedIds['findInheritedCheckIntervals']), 'For the services missing an interval, each once.');
+        self::assertSame([[7, 9]], $this->sorted($this->serviceTemplateRepository->receivedIds['findNamesByIds']), 'For the templates of the page, each once.');
+        self::assertSame([[5, 6, 8]], $this->sorted($this->mediaRepository->receivedIds), 'One media lookup, host and service icons together, each once.');
     }
 
     public function testNoLookupForAnEmptyPage(): void
     {
         $this->outputs();
 
+        self::assertSame([], $this->hostRepository->receivedNameHostIds);
+        self::assertSame([], $this->hostRepository->receivedIconHostIds);
         self::assertSame([], $this->hostTemplateRepository->receivedInheritedIconHostIds);
+        self::assertSame([], $this->serviceTemplateRepository->receivedIds);
         self::assertSame([], $this->mediaRepository->receivedIds);
+    }
+
+    private function provider(string $itemsPerPageParameter): ListServicesProvider
+    {
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn(new CredentialUser(new Credential(new CredentialIdentifier('user'), new UserId(7), true)));
+
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/'));
+
+        return new ListServicesProvider(
+            new ServiceCollectionOutputTransformer(),
+            $this->repository,
+            $this->hostRepository,
+            $this->hostTemplateRepository,
+            $this->serviceTemplateRepository,
+            $this->mediaRepository,
+            new MediaUrlGenerator('/img/media/', $requestStack),
+            $this->optionRepository,
+            new Pagination(['client_items_per_page' => true, 'items_per_page_parameter_name' => $itemsPerPageParameter]),
+            $security,
+            $itemsPerPageParameter,
+        );
     }
 
     /**
@@ -329,24 +418,57 @@ final class ListServicesProviderLogicTest extends TestCase
         return array_values([...$this->provide([])]);
     }
 
-    private function requestedCriteria(): ServiceListingCriteria
+    private function requestedCriteria(): ServiceCriteria
     {
         $criteria = $this->repository->requestedCriteria[0] ?? null;
-        Assert::isInstanceOf($criteria, ServiceListingCriteria::class);
+        Assert::isInstanceOf($criteria, ServiceCriteria::class);
 
         return $criteria;
     }
 
-    private function item(int $serviceId, int $hostId, ?int $hostIconId = null, ?int $iconId = null): ServiceListItem
+    /**
+     * @param list<list<int>> $calls
+     *
+     * @return list<list<int>>
+     */
+    private function sorted(array $calls): array
     {
-        return new ServiceListItem(
-            serviceId: new ServiceId($serviceId),
-            name: 'service-' . $serviceId,
+        return array_map(static function (array $ids): array {
+            sort($ids);
+
+            return $ids;
+        }, $calls);
+    }
+
+    private function givenHost(int $id, ?string $name = null, ?int $iconId = null): void
+    {
+        $this->hostRepository->seed(new Host(
+            id: null,
+            name: new HostName($name ?? 'host-' . $id),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
             activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            extendedInformations: $iconId !== null ? new ExtendedInformations(iconId: new MediaId($iconId)) : null,
+        ), $id);
+    }
+
+    private function service(
+        int $id,
+        int $hostId,
+        ?int $templateId = null,
+        ?int $iconId = null,
+        ServiceCheckIntervals $intervals = new ServiceCheckIntervals(),
+    ): Service {
+        return new Service(
+            id: new ServiceId($id),
+            name: new ServiceName('service-' . $id),
             hostId: new HostId($hostId),
-            hostName: 'host-' . $hostId,
-            hostIconId: $hostIconId !== null ? new MediaId($hostIconId) : null,
+            templateId: $templateId !== null ? new ServiceTemplateId($templateId) : null,
             iconId: $iconId !== null ? new MediaId($iconId) : null,
+            checkIntervals: $intervals,
         );
     }
 

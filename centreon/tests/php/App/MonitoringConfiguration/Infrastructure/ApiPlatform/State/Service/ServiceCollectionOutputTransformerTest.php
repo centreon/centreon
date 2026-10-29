@@ -24,75 +24,46 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
-use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectory;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
-use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
-use App\MonitoringConfiguration\Domain\Model\ServiceListing\ServiceListItem;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceCollectionOutputTransformer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceListItemView;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 final class ServiceCollectionOutputTransformerTest extends TestCase
 {
-    private ServiceCollectionOutputTransformer $transformer;
-
-    protected function setUp(): void
+    public function testTheServicesOwnScalarsAreMapped(): void
     {
-        $requestStack = new RequestStack();
-        $requestStack->push(Request::create('/'));
-
-        $this->transformer = new ServiceCollectionOutputTransformer(new MediaUrlGenerator('/img/media/', $requestStack));
-    }
-
-    public function testEveryFieldIsMapped(): void
-    {
-        $item = new ServiceListItem(
-            serviceId: new ServiceId(1),
-            name: ' Disk#S#root ',
-            activated: false,
+        $service = new Service(
+            id: new ServiceId(1),
+            name: new ServiceName('ping'),
             hostId: new HostId(2),
-            hostName: ' central ',
-            hostIconId: new MediaId(3),
+            activated: false,
+            templateId: new ServiceTemplateId(3),
             iconId: new MediaId(4),
-            normalCheckInterval: 5,
-            retryCheckInterval: 1,
-            templateId: 6,
-            templateName: 'generic-service',
+            checkIntervals: new ServiceCheckIntervals(normal: 5, retry: 1),
         );
 
-        $output = $this->transformer->transform(new ServiceListItemView($item, $this->media(3, 'host.png'), $this->media(4, 'disk.png')));
+        $output = (new ServiceCollectionOutputTransformer())->transform($service);
 
         self::assertSame(1, $output->id);
-        self::assertSame(' Disk#S#root ', $output->name);
+        self::assertSame('ping', $output->name);
         self::assertFalse($output->activated);
-        self::assertSame(['id' => 2, 'name' => ' central ', 'icon' => ['id' => 3, 'name' => 'host.png', 'url' => '/img/media/dir/host.png']], $output->host);
-        self::assertSame(['id' => 4, 'name' => 'disk.png', 'url' => '/img/media/dir/disk.png'], $output->icon);
-        self::assertSame(5, $output->normalCheckInterval);
-        self::assertSame(1, $output->retryCheckInterval);
-        self::assertSame(['id' => 6, 'name' => 'generic-service'], $output->template);
     }
 
-    public function testWhatIsUnresolvedIsLeftOut(): void
+    public function testTheValuesTheProviderResolvesAreLeftUnset(): void
     {
-        $item = new ServiceListItem(new ServiceId(1), 'ping', true, new HostId(2), 'central');
+        // The host, the icon, the intervals and the template are resolved per page by the provider, from lookups.
+        $output = (new ServiceCollectionOutputTransformer())->transform(
+            new Service(new ServiceId(1), new ServiceName('ping'), new HostId(2), checkIntervals: new ServiceCheckIntervals(normal: 5)),
+        );
 
-        $output = $this->transformer->transform(new ServiceListItemView($item, null, null));
-
-        // The nested host carries no icon key at all, and the null properties are skipped when serialized.
-        self::assertSame(['id' => 2, 'name' => 'central'], $output->host);
         self::assertNull($output->icon);
         self::assertNull($output->normalCheckInterval);
         self::assertNull($output->retryCheckInterval);
         self::assertNull($output->template);
-    }
-
-    private function media(int $id, string $name): Media
-    {
-        return new Media(new MediaId($id), new MediaName($name), new MediaDirectory('dir'));
     }
 }

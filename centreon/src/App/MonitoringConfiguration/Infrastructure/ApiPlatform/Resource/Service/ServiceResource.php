@@ -38,12 +38,11 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ListSer
             uriTemplate: '/configuration/services',
             itemUriTemplate: '/configuration/services/{id}',
             openapi: new Model\Operation(
-                summary: 'List the services, one row per host they are directly linked to',
-                description: 'Services linked to host groups are not listed. A service linked to several hosts is listed '
-                    . 'once per host, with the same id. When `itemsPerPage` is not sent, the page size is the platform '
-                    . 'setting for configuration listings. The check intervals and the icon are the effective ones, '
-                    . 'inherited from the service templates when the service has none of its own; intervals are in '
-                    . 'engine units.',
+                summary: 'List the services',
+                description: 'Services linked to host groups are not listed. When `itemsPerPage` is not sent, the page '
+                    . 'size is the platform setting for configuration listings. The check intervals and the icon are the '
+                    . 'effective ones, inherited from the service templates when the service has none of its own; '
+                    . 'intervals are in engine units.',
                 parameters: [
                     new Model\Parameter(
                         name: 'host_name[lk]',

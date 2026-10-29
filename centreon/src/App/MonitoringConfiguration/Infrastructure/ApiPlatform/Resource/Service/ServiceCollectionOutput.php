@@ -26,58 +26,54 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Servic
 use ApiPlatform\Metadata\ApiProperty;
 
 /**
- * One listed (host, service) pair. The nested objects are plain arrays, not objects: JSON-LD would add its own
- * id and type keys to a nested object, while the wire shape must be exactly the keys below. A null property is
- * left out of the response.
+ * One listed service. Its own values come from the constructor; the provider then sets the values it looks up
+ * for the whole page (host, effective icon and intervals, template), as for the host listing.
+ *
+ * The nested objects are plain arrays, not objects: JSON-LD would add its own id and type keys to a nested
+ * object, while the wire shape must be exactly the keys below. A null property is left out of the response.
  */
-final readonly class ServiceCollectionOutput
+final class ServiceCollectionOutput
 {
     private const MEDIA_SCHEMA = [
         'type' => 'object',
         'properties' => ['id' => ['type' => 'integer'], 'name' => ['type' => 'string'], 'url' => ['type' => 'string']],
     ];
 
+    /** @var array{id: int, name: string, icon?: array{id: int, name: string, url: string}} */
+    #[ApiProperty(openapiContext: [
+        'type' => 'object',
+        'properties' => [
+            'id' => ['type' => 'integer'],
+            'name' => ['type' => 'string'],
+            'icon' => self::MEDIA_SCHEMA,
+        ],
+    ])]
+    public array $host;
+
+    /** @var array{id: int, name: string, url: string}|null */
+    #[ApiProperty(openapiContext: self::MEDIA_SCHEMA)]
+    public ?array $icon = null;
+
+    #[ApiProperty(description: 'Effective normal check interval, in engine interval units')]
+    public ?int $normalCheckInterval = null;
+
+    #[ApiProperty(description: 'Effective retry check interval, in engine interval units')]
+    public ?int $retryCheckInterval = null;
+
+    /** @var array{id: int, name: string}|null */
+    #[ApiProperty(openapiContext: [
+        'type' => 'object',
+        'properties' => ['id' => ['type' => 'integer'], 'name' => ['type' => 'string']],
+    ])]
+    public ?array $template = null;
+
     public function __construct(
         #[ApiProperty(identifier: true)]
-        public int $id,
+        public readonly int $id,
 
-        public string $name,
+        public readonly string $name,
 
-        public bool $activated,
-
-        /**
-         * @var array{id: int, name: string, icon?: array{id: int, name: string, url: string}}
-         */
-        #[ApiProperty(openapiContext: [
-            'type' => 'object',
-            'properties' => [
-                'id' => ['type' => 'integer'],
-                'name' => ['type' => 'string'],
-                'icon' => self::MEDIA_SCHEMA,
-            ],
-        ])]
-        public array $host,
-
-        /**
-         * @var array{id: int, name: string, url: string}|null
-         */
-        #[ApiProperty(openapiContext: self::MEDIA_SCHEMA)]
-        public ?array $icon = null,
-
-        #[ApiProperty(description: 'Effective normal check interval, in engine interval units')]
-        public ?int $normalCheckInterval = null,
-
-        #[ApiProperty(description: 'Effective retry check interval, in engine interval units')]
-        public ?int $retryCheckInterval = null,
-
-        /**
-         * @var array{id: int, name: string}|null
-         */
-        #[ApiProperty(openapiContext: [
-            'type' => 'object',
-            'properties' => ['id' => ['type' => 'integer'], 'name' => ['type' => 'string']],
-        ])]
-        public ?array $template = null,
+        public readonly bool $activated,
     ) {
     }
 }
