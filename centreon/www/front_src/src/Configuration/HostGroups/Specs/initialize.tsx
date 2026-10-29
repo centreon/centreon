@@ -1,5 +1,6 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
+  defaultLimitPerPageAtom,
   platformFeaturesAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
@@ -44,6 +45,9 @@ const initialize = ({
   store.set(userPermissionsAtom, {
     configuration_host_group_write: hasWriteAccess
   });
+
+  // The platform default page size, which listings wait for.
+  store.set(defaultLimitPerPageAtom, 10);
 
   cy.interceptAPIRequest({
     alias: 'getAllHostGroups',

@@ -16,6 +16,7 @@ export interface DefaultParameters {
   is_resource_status_full_search_enabled: boolean;
   is_additive_inheritance_enabled: boolean;
   monitoring_interval_length: number;
+  default_limit_per_page: number;
 }
 
 type Translation = KeyValuePair<string, string>;

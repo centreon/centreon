@@ -1,5 +1,6 @@
 import { Form, SnackbarProvider } from '@centreon/ui';
 import {
+  defaultLimitPerPageAtom,
   isAdditiveInheritanceEnabledAtom,
   type PlatformFeatures,
   platformFeaturesAtom,
@@ -19,6 +20,7 @@ import { BrowserRouter as Router } from 'react-router';
 import { object } from 'yup';
 
 import {
+  limitAtom,
   sortFieldAtom,
   sortOrderAtom
 } from '../../ConfigurationBase/Listing/atoms';
@@ -86,6 +88,15 @@ interface Props {
   patchFails?: Array<number>;
   // The sort another listing left in the shared atoms.
   previousSort?: { field: string; order: 'asc' | 'desc' };
+  // The platform's default page size; `null` while the platform parameters
+  // are not known yet.
+  defaultLimitPerPage?: number | null;
+  // A page size the user already picked in a listing this session.
+  userLimit?: number;
+}
+
+interface InitializeResult extends RenderResult {
+  store: ReturnType<typeof createStore>;
 }
 
 // What the selector answers a user it does not grant.
@@ -113,8 +124,10 @@ const initialize = ({
   pollersDelay,
   resolveDelay,
   patchFails = [],
+  defaultLimitPerPage = 10,
+  userLimit,
   previousSort
-}: Props = {}): RenderResult => {
+}: Props = {}): InitializeResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
@@ -132,6 +145,8 @@ const initialize = ({
 
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
+  store.set(defaultLimitPerPageAtom, defaultLimitPerPage);
+  store.set(limitAtom, userLimit);
 
   if (previousSort) {
     store.set(sortFieldAtom, previousSort.field);
@@ -386,7 +401,7 @@ const initialize = ({
     defaultOptions: { queries: { gcTime: 0, retry: false } }
   });
 
-  return render(
+  const renderResult = render(
     <Router>
       <SnackbarProvider>
         <QueryClientProvider client={queryClient}>
@@ -399,6 +414,8 @@ const initialize = ({
       </SnackbarProvider>
     </Router>
   );
+
+  return { ...renderResult, store };
 };
 
 interface FormLayoutProps {
