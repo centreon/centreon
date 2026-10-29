@@ -79,19 +79,6 @@ export default defineConfig({
       module: {
         rules: [{ test: /\.icon\.svg$/, use: ['@svgr/webpack'] }]
       }
-    },
-    swc: {
-      // The app build's React Compiler options (@centreon/js-config), so the
-      // tests run the code users get.
-      jsc: {
-        transform: {
-          reactCompiler: {
-            compilationMode: 'infer',
-            panicThreshold: 'none',
-            target: '19'
-          }
-        }
-      }
     }
   }
 });
