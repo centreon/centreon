@@ -132,12 +132,12 @@ final class FakeServiceRepository implements ServiceRepository
         return $service;
     }
 
+    /**
+     * Only records the write: the stored aggregate is the caller's, which changes it itself, so a caller that
+     * forgets to do so is caught.
+     */
     public function updateActivationStatus(ServiceId $id, bool $activated): void
     {
         $this->activationUpdates[] = ['id' => $id->value, 'activated' => $activated];
-
-        if (isset($this->services[$id->value])) {
-            $activated ? $this->services[$id->value]->enable() : $this->services[$id->value]->disable();
-        }
     }
 }
