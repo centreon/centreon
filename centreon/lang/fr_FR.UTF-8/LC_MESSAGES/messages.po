@@ -1098,6 +1098,10 @@ msgid "Advanced: gorgone - poller connects to the central"
 msgstr "Avancé : gorgone - le collecteur se connecte au central"
 
 #: centreon/www/install/front_translate.php
+msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
+msgstr "Remplacer les modèles supprimera tous les services créés par les modèles précédents pour chaque hôte sélectionné."
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Advanced: reverse Centreon Broker communication flow"
 msgstr "Avancé : inverser le flux de communication du Broker Centreon"
