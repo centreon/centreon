@@ -214,6 +214,19 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         return $this->transformer->transform([...$row, 'macros' => $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? []]);
     }
 
+    public function updateActivationStatus(ServiceId $id, bool $activated): void
+    {
+        // service_register = '1' mirrors findOne so a template is never toggled; contract on the interface.
+        $this->connection->createQueryBuilder()
+            ->update(self::TABLE_NAME)
+            ->set('service_activate', ':activated')
+            ->where('service_id = :id')
+            ->andWhere("service_register = '1'")
+            ->setParameter('activated', $activated ? '1' : '0')
+            ->setParameter('id', $id->value, ParameterType::INTEGER)
+            ->executeStatement();
+    }
+
     public function remove(Service $service): void
     {
         $serviceId = $service->id()->value;
