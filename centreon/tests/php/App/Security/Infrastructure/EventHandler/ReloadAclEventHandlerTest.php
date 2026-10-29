@@ -35,11 +35,15 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Event\HostDeleted;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
+use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
@@ -231,6 +235,46 @@ final class ReloadAclEventHandlerTest extends TestCase
         self::assertSame([], $resourceAccessRepository->grantedAccess);
         self::assertSame([], $accessGroupRepository->flaggedGroupIds);
         self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsOnlyTheDeletersGroupsWhenAServiceIsDeletedByANonAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $handler(new ServiceDeleted($this->createService(), 7));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesWhenAServiceIsDeletedByAnAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $handler(new ServiceDeleted($this->createService(), 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    private function createService(): Service
+    {
+        return new Service(
+            id: new ServiceId(1),
+            name: new ServiceName('ping'),
+            hostId: new HostId(1),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        );
     }
 
     private function createHandler(
