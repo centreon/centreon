@@ -1,5 +1,8 @@
-import { waitForRequest } from '@test-setup/api';
-import { screen, within } from '@testing-library/react';
+import { defaultLimitPerPageAtom } from '@centreon/ui-context';
+
+import { getRequestCalls, waitForRequest } from '@test-setup/api';
+import { act, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import {
   labelCreateHost,
@@ -52,6 +55,68 @@ export default () => {
       expect(await screen.findByText('host 1')).toBeVisible();
       expect(screen.getByText('10.0.0.1')).toBeVisible();
       expect(screen.queryByText('alias for host 1')).not.toBeInTheDocument();
+    });
+
+    it('opens with the platform default page size', async () => {
+      initialize({ defaultLimitPerPage: 30 });
+
+      const { request } = await waitForRequest('@getAllHosts');
+
+      expect(request.url.searchParams.get('itemsPerPage')).toBe('30');
+    });
+
+    it('keeps the page size the user picked over the platform default', async () => {
+      initialize({ defaultLimitPerPage: 30, userLimit: 20 });
+
+      const { request } = await waitForRequest('@getAllHosts');
+
+      expect(request.url.searchParams.get('itemsPerPage')).toBe('20');
+    });
+
+    it('sends the page size the user picks instead of the platform default', async () => {
+      const { store } = initialize({ defaultLimitPerPage: 30 });
+
+      await waitForRequest('@getAllHosts');
+
+      // The page size selector is the page's only combobox, and has no
+      // accessible name: its `aria-labelledby` points to ids that do not exist.
+      const pageSize = await screen.findByRole('combobox');
+
+      expect(pageSize).toHaveTextContent(/^30$/);
+
+      await userEvent.click(pageSize);
+      await userEvent.click(await screen.findByRole('option', { name: '20' }));
+
+      const { request } = await waitForRequest('@getAllHosts');
+
+      expect(request.url.searchParams.get('itemsPerPage')).toBe('20');
+
+      // The user's choice stays when the platform default changes.
+      act(() => {
+        store.set(defaultLimitPerPageAtom, 40);
+      });
+
+      expect(screen.getByRole('combobox')).toHaveTextContent(/^20$/);
+      expect(getRequestCalls('@getAllHosts')).toHaveLength(2);
+    });
+
+    it('sends no listing request until the platform default page size is known', async () => {
+      const { store } = initialize({ defaultLimitPerPage: null });
+
+      expect(await screen.findByText(labelHosts)).toBeVisible();
+      // Waiting is loading, not an empty listing.
+      expect(screen.queryByText(labelWelcomeToHosts)).not.toBeInTheDocument();
+      expect(getRequestCalls('@getAllHosts')).toHaveLength(0);
+
+      act(() => {
+        store.set(defaultLimitPerPageAtom, 30);
+      });
+
+      const { request } = await waitForRequest('@getAllHosts');
+
+      expect(request.url.searchParams.get('itemsPerPage')).toBe('30');
+      expect(getRequestCalls('@getAllHosts')).toHaveLength(1);
+      expect(await screen.findByText('host 0')).toBeVisible();
     });
 
     it('displays the welcome page when no host exists', async () => {

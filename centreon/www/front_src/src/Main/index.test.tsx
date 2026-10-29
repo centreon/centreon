@@ -4,7 +4,10 @@ import {
   screen,
   waitFor
 } from '@centreon/ui/test/testRenderer';
-import { isAdditiveInheritanceEnabledAtom } from '@centreon/ui-context';
+import {
+  defaultLimitPerPageAtom,
+  isAdditiveInheritanceEnabledAtom
+} from '@centreon/ui-context';
 
 import axios from 'axios';
 
@@ -112,7 +115,10 @@ const mockDefaultGetRequests = (): void => {
 
 // Answered by URL rather than in call order, so a request added or moved in
 // the start-up sequence cannot hand one endpoint another one's response.
-const mockGetRequestsByUrl = (parameters: object): void => {
+const mockGetRequestsByUrl = (
+  parameters: object,
+  { parametersFail = false }: { parametersFail?: boolean } = {}
+): void => {
   const responses: Array<[string, unknown]> = [
     [
       platformInstallationStatusEndpoint,
@@ -128,9 +134,12 @@ const mockGetRequestsByUrl = (parameters: object): void => {
   ];
 
   mockedAxios.get.mockImplementation((url: string) =>
-    Promise.resolve({
-      data: responses.find(([endpoint]) => url.includes(endpoint))?.[1] ?? null
-    })
+    parametersFail && url.includes(parametersEndpoint)
+      ? Promise.reject({ response: { status: 500 } })
+      : Promise.resolve({
+          data:
+            responses.find(([endpoint]) => url.includes(endpoint))?.[1] ?? null
+        })
   );
 };
 
@@ -280,6 +289,7 @@ describe('Main', () => {
     store.set(areUserParametersLoadedAtom, null);
     store.set(platformInstallationStatusAtom, null);
     store.set(isAdditiveInheritanceEnabledAtom, false);
+    store.set(defaultLimitPerPageAtom, null);
   });
 
   it('displays the login page when the path is "/login" and the user is not connected', async () => {
@@ -475,6 +485,39 @@ describe('Main', () => {
 
     await waitFor(() => {
       expect(store.get(isAdditiveInheritanceEnabledAtom)).toBe(true);
+    });
+  });
+
+  it('sets the default page size of listings from the platform parameters', async () => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      default_limit_per_page: 30
+    });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+  });
+
+  it('falls back to a default page size of 10 when the platform parameters do not have one', async () => {
+    mockGetRequestsByUrl(retrievedParameters);
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(10);
+    });
+  });
+
+  it('falls back to a default page size of 10 when the platform parameters cannot be retrieved', async () => {
+    mockGetRequestsByUrl(retrievedParameters, { parametersFail: true });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(10);
     });
   });
 

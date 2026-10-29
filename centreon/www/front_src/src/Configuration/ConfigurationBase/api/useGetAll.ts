@@ -12,6 +12,7 @@ import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../atoms';
 
 interface UseGetAllProps {
+  enabled?: boolean;
   sortField: string;
   sortOrder: string;
   page?: number;
@@ -22,6 +23,7 @@ interface UseGetAllProps {
 }
 
 const useGetAll = ({
+  enabled = true,
   sortField,
   sortOrder,
   page,
@@ -64,6 +66,7 @@ const useGetAll = ({
       filtersAtomKey
     ],
     queryOptions: {
+      enabled,
       refetchOnMount: false,
       staleTime: 0,
       suspense: false
