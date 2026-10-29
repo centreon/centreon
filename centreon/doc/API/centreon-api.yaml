@@ -13701,12 +13701,6 @@ components:
     Service.ServiceCollectionOutput:
       type: object
       properties:
-        id:
-          type: integer
-        name:
-          type: string
-        activated:
-          type: boolean
         host:
           type: object
           properties:
@@ -13749,6 +13743,12 @@ components:
               type: integer
             name:
               type: string
+        id:
+          type: integer
+        name:
+          type: string
+        activated:
+          type: boolean
     Service.ServiceCollectionOutput.jsonld:
       allOf:
         -
@@ -13756,12 +13756,6 @@ components:
         -
           type: object
           properties:
-            id:
-              type: integer
-            name:
-              type: string
-            activated:
-              type: boolean
             host:
               type: object
               properties:
@@ -13798,3 +13792,9 @@ components:
                   type: integer
                 name:
                   type: string
+            id:
+              type: integer
+            name:
+              type: string
+            activated:
+              type: boolean
