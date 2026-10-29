@@ -1,5 +1,6 @@
 import { Form, SnackbarProvider } from '@centreon/ui';
 import {
+  defaultLimitPerPageAtom,
   isAdditiveInheritanceEnabledAtom,
   type PlatformFeatures,
   platformFeaturesAtom,
@@ -18,6 +19,7 @@ import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import { object } from 'yup';
 
+import { limitAtom } from '../../ConfigurationBase/Listing/atoms';
 import Hosts from '..';
 import {
   getDeployServicesEndpoint,
@@ -80,6 +82,15 @@ interface Props {
   resolveDelay?: number;
   // The hosts whose partial update is refused.
   patchFails?: Array<number>;
+  // The platform's default page size; `null` while the platform parameters
+  // are not known yet.
+  defaultLimitPerPage?: number | null;
+  // A page size the user already picked in a listing this session.
+  userLimit?: number;
+}
+
+interface InitializeResult extends RenderResult {
+  store: ReturnType<typeof createStore>;
 }
 
 // What the selector answers a user it does not grant.
@@ -106,8 +117,10 @@ const initialize = ({
   hasDefaultPoller = true,
   pollersDelay,
   resolveDelay,
-  patchFails = []
-}: Props = {}): RenderResult => {
+  patchFails = [],
+  defaultLimitPerPage = 10,
+  userLimit
+}: Props = {}): InitializeResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
@@ -125,6 +138,8 @@ const initialize = ({
 
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
+  store.set(defaultLimitPerPageAtom, defaultLimitPerPage);
+  store.set(limitAtom, userLimit);
 
   interceptAPIRequest({
     alias: 'getHost',
@@ -374,7 +389,7 @@ const initialize = ({
     defaultOptions: { queries: { gcTime: 0, retry: false } }
   });
 
-  return render(
+  const renderResult = render(
     <Router>
       <SnackbarProvider>
         <QueryClientProvider client={queryClient}>
@@ -387,6 +402,8 @@ const initialize = ({
       </SnackbarProvider>
     </Router>
   );
+
+  return { ...renderResult, store };
 };
 
 interface FormLayoutProps {

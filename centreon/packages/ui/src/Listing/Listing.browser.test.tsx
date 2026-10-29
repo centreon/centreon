@@ -473,4 +473,100 @@ describe('Listing', () => {
     });
     expect(onRowClick).not.toHaveBeenCalled();
   });
+
+  describe('Rows per page', () => {
+    const defaultOptions = [
+      '10',
+      '20',
+      '30',
+      '40',
+      '50',
+      '60',
+      '70',
+      '80',
+      '90',
+      '100'
+    ];
+
+    const openRowsPerPage = async (limit: number): Promise<HTMLElement> => {
+      render(
+        <Listing
+          columns={defaultColumn}
+          currentPage={0}
+          limit={limit}
+          rows={listingWithSubItems3Rows}
+          totalRows={3}
+        />
+      );
+
+      const rowsPerPage = within(
+        await screen.findByTestId('Listing Pagination')
+      ).getByRole('combobox');
+
+      expect(rowsPerPage).toHaveTextContent(new RegExp(`^${limit}$`));
+
+      await userEvent.click(rowsPerPage);
+
+      return screen.findByRole('listbox');
+    };
+
+    const getOptionLabels = (listbox: HTMLElement): Array<string | null> =>
+      within(listbox)
+        .getAllByRole('option')
+        .map((option) => option.textContent);
+
+    it.each([
+      {
+        limit: 25,
+        options: [
+          '10',
+          '20',
+          '25',
+          '30',
+          '40',
+          '50',
+          '60',
+          '70',
+          '80',
+          '90',
+          '100'
+        ]
+      },
+      {
+        limit: 150,
+        options: [
+          '10',
+          '20',
+          '30',
+          '40',
+          '50',
+          '60',
+          '70',
+          '80',
+          '90',
+          '100',
+          '150'
+        ]
+      }
+    ])(
+      'adds the page size $limit to the options when it is not one of them',
+      async ({ limit, options }) => {
+        const listbox = await openRowsPerPage(limit);
+
+        expect(getOptionLabels(listbox)).toEqual(options);
+        expect(
+          within(listbox).getByRole('option', { name: `${limit}` })
+        ).toHaveAttribute('aria-selected', 'true');
+      }
+    );
+
+    it('keeps the default options when the page size is one of them', async () => {
+      const listbox = await openRowsPerPage(30);
+
+      expect(getOptionLabels(listbox)).toEqual(defaultOptions);
+      expect(
+        within(listbox).getByRole('option', { name: '30' })
+      ).toHaveAttribute('aria-selected', 'true');
+    });
+  });
 });
