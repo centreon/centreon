@@ -15,7 +15,7 @@ Without a rule, code keeps reaching for whichever entry point is nearest, and th
 
 - **Logging — all code outside `src/App`, new and existing.** Log through `Adaptation\Log\Logger` only (`Logger::create(LogChannelEnum::…)->…`), or one of its semantic siblings (`LoggerAuthentication`, `LoggerPassword`, `LoggerToken`, `LoggerUpgrade`). Never `CentreonLog`, never `error_log()`, and never the `Centreon\Domain\Log\*` classes (its `Logger` and its `LoggerTrait`). This is the one rule here not limited to new code: route a log through `Adaptation\Log\Logger` whenever you write or touch one in legacy. Repositories are stricter — see below.
 
-  Carry the business data as the log **context** (the second argument), never by interpolating it into the message, and **never reuse a caught exception's `getMessage()`** — write your own message and let the context carry the detail:
+  Pass the business data as the log **context** (the second argument); including it in the message as well is fine. **Never reuse a caught exception's `getMessage()`** as the message — write your own, and let the context carry the detail:
 
   ```php
   Logger::create(LogChannelEnum::WEB)->error(
