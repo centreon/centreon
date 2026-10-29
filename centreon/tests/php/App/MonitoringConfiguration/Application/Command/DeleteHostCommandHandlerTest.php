@@ -171,6 +171,8 @@ final class DeleteHostCommandHandlerTest extends TestCase
             id: null,
             name: new ServiceName('web-check'),
             hostId: $hostId,
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
             macros: $macros,
         );
     }

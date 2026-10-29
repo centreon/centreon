@@ -25,7 +25,9 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
 
 interface ServiceRepository
@@ -36,8 +38,9 @@ interface ServiceRepository
      * a service also reachable through a hostgroup or another host is left alone, only one that
      * would be orphaned by deleting this host is cascade-deleted with it.
      *
-     * Returns hydrated `Service` aggregates, not just ids: the caller needs the name (activity log)
-     * and macros (vault purge) for each one.
+     * Returns hydrated `Service` aggregates, not just ids: the caller needs the name (activity log),
+     * macros (vault purge) and the host's activation and poller as they are now (poller flag, once the
+     * rows are gone) for each one.
      *
      * @return Collection<Service>
      */
@@ -70,4 +73,16 @@ interface ServiceRepository
      * @return \IteratorAggregate<int, Service>&\Countable
      */
     public function findAll(ServiceCriteria $criteria): \IteratorAggregate&\Countable;
+
+    /**
+     * The service, with its macros, if {@see findAll()} lists it for this actor: a real service directly linked
+     * to a real host, with no host group link, and for an actor whose access is restricted, granted to one of
+     * their active Access Groups by the real-time ACL cache. Null otherwise.
+     */
+    public function findOne(ServiceId $id, ActingUser $actor): ?Service;
+
+    /**
+     * The number of distinct real hosts the service is directly linked to, whatever the actor's access.
+     */
+    public function countRealHostLinks(ServiceId $id): int;
 }

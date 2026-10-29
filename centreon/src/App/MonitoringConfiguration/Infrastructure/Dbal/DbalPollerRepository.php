@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
@@ -438,13 +439,17 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
      */
     public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
     {
-        // Only Host implements PollerScopedInterface today — extend this match when a second
-        // poller-scoped resource type needs the same bookkeeping (see PollerScopedInterface).
-        if (! $resource instanceof Host) {
-            throw new \LogicException(sprintf('No poller mapping for aggregate %s.', $resource::class));
-        }
+        // Extend this match when another poller-scoped resource type needs the same bookkeeping
+        // (see PollerScopedInterface).
+        $pollerId = match (true) {
+            $resource instanceof Host => $resource->pollerId,
+            $resource instanceof Service => $resource->pollerToFlag(),
+            default => throw new \LogicException(sprintf('No poller mapping for aggregate %s.', $resource::class)),
+        };
 
-        $this->flagIdAsChanged($resource->pollerId);
+        if ($pollerId instanceof PollerId) {
+            $this->flagIdAsChanged($pollerId);
+        }
     }
 
     public function flagIdAsChanged(PollerId $pollerId): void

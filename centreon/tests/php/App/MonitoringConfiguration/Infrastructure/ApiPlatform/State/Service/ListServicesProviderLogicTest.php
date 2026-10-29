@@ -425,6 +425,8 @@ final class ListServicesProviderLogicTest extends TestCase
             id: new ServiceId($id),
             name: new ServiceName('service-' . $id),
             hostId: new HostId($hostId),
+            hostActivated: true,
+            hostPollerId: null,
             templateId: $templateId !== null ? new ServiceTemplateId($templateId) : null,
             iconId: $iconId !== null ? new MediaId($iconId) : null,
             checkIntervals: $intervals,
