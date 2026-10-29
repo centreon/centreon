@@ -25,6 +25,15 @@ export default () => {
       expect(await screen.findByText(labelHosts)).toBeVisible();
     });
 
+    it('opens sorted on the name whatever sort another listing left', async () => {
+      initialize({ previousSort: { field: 'host.name', order: 'desc' } });
+
+      const { request } = await waitForRequest('@getAllHosts');
+
+      expect(request.url.searchParams.get('sort[name]')).toBe('asc');
+      expect(request.url.searchParams.get('sort[host.name]')).toBeNull();
+    });
+
     it('displays the subtitle next to the page title', async () => {
       initialize();
 

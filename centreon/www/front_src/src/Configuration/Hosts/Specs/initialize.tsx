@@ -18,6 +18,10 @@ import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import { object } from 'yup';
 
+import {
+  sortFieldAtom,
+  sortOrderAtom
+} from '../../ConfigurationBase/Listing/atoms';
 import Hosts from '..';
 import {
   getDeployServicesEndpoint,
@@ -80,6 +84,8 @@ interface Props {
   resolveDelay?: number;
   // The hosts whose partial update is refused.
   patchFails?: Array<number>;
+  // The sort another listing left in the shared atoms.
+  previousSort?: { field: string; order: 'asc' | 'desc' };
 }
 
 // What the selector answers a user it does not grant.
@@ -106,7 +112,8 @@ const initialize = ({
   hasDefaultPoller = true,
   pollersDelay,
   resolveDelay,
-  patchFails = []
+  patchFails = [],
+  previousSort
 }: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -125,6 +132,11 @@ const initialize = ({
 
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
+
+  if (previousSort) {
+    store.set(sortFieldAtom, previousSort.field);
+    store.set(sortOrderAtom, previousSort.order);
+  }
 
   interceptAPIRequest({
     alias: 'getHost',
