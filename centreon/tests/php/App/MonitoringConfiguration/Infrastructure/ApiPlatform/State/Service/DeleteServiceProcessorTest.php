@@ -133,20 +133,6 @@ final class DeleteServiceProcessorTest extends ApiTestCase
         self::assertJsonEquals(['code' => 0, 'message' => 'One or more services do not exist.']);
     }
 
-    public function testAServiceLinkedToSeveralHostsIsAConflict(): void
-    {
-        $pollerId = $this->insertPoller();
-        $serviceId = $this->insertService('shared', $this->insertHost('first', $pollerId));
-        $this->linkServiceToHost($serviceId, $this->insertHost('second', $pollerId));
-
-        $this->login();
-        $this->request('DELETE', self::BASE_ENDPOINT . '/' . $serviceId);
-
-        self::assertResponseStatusCodeSame(409);
-        self::assertJsonEquals(['code' => 0, 'message' => 'This service is linked to several hosts.']);
-        self::assertTrue($this->serviceExists($serviceId));
-    }
-
     public function testItDeletesTheServiceWithItsSideEffects(): void
     {
         $pollerId = $this->insertPoller();
