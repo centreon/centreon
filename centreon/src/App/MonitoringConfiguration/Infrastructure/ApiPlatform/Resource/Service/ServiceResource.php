@@ -25,10 +25,12 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Servic
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\DeleteServiceProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ListServicesProvider;
 
 #[ApiResource(
@@ -103,11 +105,20 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ListSer
             output: ServiceCollectionOutput::class,
             provider: ListServicesProvider::class,
         ),
-        // Gives the listed services their IRI until a real item operation exists. Positive integers only, so the
+        // Gives the listed services their IRI until a Get item operation exists. Positive integers only, so the
         // other routes under /configuration/services keep matching their own operations.
         new NotExposed(
             uriTemplate: '/configuration/services/{id}',
             requirements: ['id' => '[1-9]\d*'],
+        ),
+        new Delete(
+            uriTemplate: '/configuration/services/{id}',
+            // Positive integers only, as on the item IRI: a non-numeric or zero id is a 404, not a 500.
+            requirements: ['id' => '[1-9]\d*'],
+            processor: DeleteServiceProcessor::class,
+            read: false,
+            security: "is_granted('" . ServicePermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to delete services',
         ),
     ],
 )]

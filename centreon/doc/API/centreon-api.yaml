@@ -6630,6 +6630,53 @@ paths:
             maximum: 30
           style: form
           explode: true
+  '/api/configuration/services/{id}':
+    delete:
+      operationId: api_configurationservices_id_delete
+      tags:
+        - Service
+      responses:
+        '204':
+          description: 'Service resource deleted'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '404':
+          description: 'Not found'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Removes the Service resource.'
+      description: 'Removes the Service resource.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Service identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
 components:
   securitySchemes:
     Token:
@@ -13798,3 +13845,17 @@ components:
               type: string
             activated:
               type: boolean
+    Service:
+      type: object
+      properties:
+        id:
+          type: integer
+    Service.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
