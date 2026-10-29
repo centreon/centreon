@@ -324,6 +324,19 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertSame([[$hostId, $listed]], $this->pairs($this->findAll($this->unrestricted())));
     }
 
+    public function testFindAllSkipsServicesWithoutAName(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $listed = $this->insertListedService('named', $hostId);
+        $this->insertListedService(null, $hostId);
+        $this->insertListedService('', $hostId);
+
+        $page = $this->findAll($this->unrestricted()->withPagination(1, 10));
+
+        self::assertSame([[$hostId, $listed]], $this->pairs($page));
+        self::assertSame(1, $this->totalItems($page));
+    }
+
     public function testFindAllHostGroupLinkedServicesAreHidden(): void
     {
         $hostId = $this->insertListedHost('h1');

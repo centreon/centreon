@@ -79,8 +79,8 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
             // service_register '0' is a template; '1' a service, '2'/'3' meta and BA services.
             // Locked and disabled templates are kept on purpose: the legacy form offers them too.
             ->where("s.service_register = '0'")
-            // service_description is nullable while ServiceTemplateName requires a non-empty value:
-            // excluding such rows keeps one malformed row from failing the whole listing.
+            // A nameless template is not a valid state: this only guards against the nullable schema column,
+            // so one malformed row cannot fail the whole listing.
             ->andWhere("s.service_description IS NOT NULL AND s.service_description != ''")
             ->orderBy('s.service_id'); // the selector order, also required for deterministic pagination
 
@@ -165,6 +165,9 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
         $qb->select('s.service_id', 's.service_description')
             ->from(self::TABLE_NAME, 's')
             ->where("s.service_register = '0'")
+            // A nameless template is not a valid state: this only guards against the nullable schema column,
+            // so one malformed row cannot fail the whole listing.
+            ->andWhere("s.service_description IS NOT NULL AND s.service_description != ''")
             ->andWhere($qb->expr()->in('s.service_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
 
         /** @var list<array{service_id: int|string, service_description: string}> $rows */

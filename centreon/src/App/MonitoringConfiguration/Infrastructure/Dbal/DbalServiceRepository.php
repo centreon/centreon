@@ -206,6 +206,9 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
                     WHERE hsrg.service_service_id = s.service_id AND hsrg.hostgroup_hg_id IS NOT NULL
                 )'
             )
+            // A nameless service is not a valid state: this only guards against the nullable schema column,
+            // so one malformed row cannot fail the whole listing.
+            ->andWhere("s.service_description IS NOT NULL AND s.service_description != ''")
             // A link row may be duplicated: one row per pair.
             ->groupBy('h.host_id', 's.service_id');
 

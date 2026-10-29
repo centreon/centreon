@@ -185,63 +185,6 @@ final class DbalServiceTemplateRepositoryTest extends KernelTestCase
         self::assertSame([], $this->monitoringConnectorTemplateIds([]));
     }
 
-    /**
-     * The plugin pack manager tables belong to its module, absent from the test database: they are
-     * created as temporary tables, which neither commit the test's transaction nor outlive it.
-     *
-     * @return array{int, int, int, int, int} a paid connector's template, a template inheriting from it,
-     *                                        a template inheriting from that child, a free connector's
-     *                                        template, a template of no connector
-     */
-    private function insertMonitoringConnectors(bool $pluginPackManagerInstalled = true): array
-    {
-        // The test database may already list the module: only the requested state is kept.
-        $this->connection->executeStatement("DELETE FROM modules_informations WHERE name = 'centreon-pp-manager'");
-        if ($pluginPackManagerInstalled) {
-            $this->connection->insert('modules_informations', ['name' => 'centreon-pp-manager']);
-        }
-        $this->connection->executeStatement(
-            'CREATE TEMPORARY TABLE mod_ppm_pluginpack (pluginpack_id INT AUTO_INCREMENT PRIMARY KEY, slug VARCHAR(255) NOT NULL)'
-        );
-        $this->connection->executeStatement(
-            'CREATE TEMPORARY TABLE mod_ppm_pluginpack_service (pluginpack_id INT NOT NULL, svc_id INT NOT NULL)'
-        );
-
-        $paidId = $this->insertService("paid-{$this->tag}");
-        $paidChildId = $this->insertService("paid-custom-{$this->tag}", parentId: $paidId);
-        $paidGrandChildId = $this->insertService("paid-custom-custom-{$this->tag}", parentId: $paidChildId);
-        $freeId = $this->insertService("free-{$this->tag}");
-        $standaloneId = $this->insertService("standalone-{$this->tag}");
-        $this->insertMonitoringConnector('cloud-aws-ec2-' . $this->tag, $paidId);
-        $this->insertMonitoringConnector('base-generic', $freeId);
-        // A service using a paid template is not a template: it is never returned.
-        $this->insertService("svc-{$this->tag}", register: '1', parentId: $paidId);
-
-        return [$paidId, $paidChildId, $paidGrandChildId, $freeId, $standaloneId];
-    }
-
-    private function insertMonitoringConnector(string $slug, int $templateId): void
-    {
-        $this->connection->insert('mod_ppm_pluginpack', ['slug' => $slug]);
-        $this->connection->insert('mod_ppm_pluginpack_service', [
-            'pluginpack_id' => (int) $this->connection->lastInsertId(),
-            'svc_id' => $templateId,
-        ]);
-    }
-
-    /**
-     * @param list<string> $excludedConnectorSlugs
-     *
-     * @return list<int>
-     */
-    private function monitoringConnectorTemplateIds(array $excludedConnectorSlugs): array
-    {
-        return array_values(array_map(
-            static fn (ServiceTemplateId $id): int => $id->value,
-            $this->repository->findMonitoringConnectorTemplateIds($excludedConnectorSlugs)->toArray(),
-        ));
-    }
-
     public function testFindNamesByIdsReturnsTemplateNamesIndexedById(): void
     {
         $firstId = $this->insertService("tpl-a-{$this->tag}");
@@ -259,6 +202,20 @@ final class DbalServiceTemplateRepositoryTest extends KernelTestCase
             [$firstId => "tpl-a-{$this->tag}", $secondId => "tpl-b-{$this->tag}"],
             array_map(static fn (ServiceTemplateName $name): string => $name->value, $names->toArray()),
         );
+    }
+
+    public function testFindNamesByIdsSkipsRowsWithoutAName(): void
+    {
+        $validId = $this->insertService("tpl-{$this->tag}");
+        $nullNameId = $this->insertService(null);
+        $emptyNameId = $this->insertService('');
+
+        $names = $this->repository->findNamesByIds(new Collection(
+            [new ServiceTemplateId($validId), new ServiceTemplateId($nullNameId), new ServiceTemplateId($emptyNameId)],
+            ServiceTemplateId::class,
+        ));
+
+        self::assertSame([$validId], array_keys($names->toArray()));
     }
 
     public function testFindNamesByIdsWithoutIdsIsEmpty(): void
@@ -347,6 +304,63 @@ final class DbalServiceTemplateRepositoryTest extends KernelTestCase
             [$firstServiceId => new ServiceCheckIntervals(normal: 1), $secondServiceId => new ServiceCheckIntervals(retry: 2)],
             $this->inheritedCheckIntervals($firstServiceId, $secondServiceId),
         );
+    }
+
+    /**
+     * The plugin pack manager tables belong to its module, absent from the test database: they are
+     * created as temporary tables, which neither commit the test's transaction nor outlive it.
+     *
+     * @return array{int, int, int, int, int} a paid connector's template, a template inheriting from it,
+     *                                        a template inheriting from that child, a free connector's
+     *                                        template, a template of no connector
+     */
+    private function insertMonitoringConnectors(bool $pluginPackManagerInstalled = true): array
+    {
+        // The test database may already list the module: only the requested state is kept.
+        $this->connection->executeStatement("DELETE FROM modules_informations WHERE name = 'centreon-pp-manager'");
+        if ($pluginPackManagerInstalled) {
+            $this->connection->insert('modules_informations', ['name' => 'centreon-pp-manager']);
+        }
+        $this->connection->executeStatement(
+            'CREATE TEMPORARY TABLE mod_ppm_pluginpack (pluginpack_id INT AUTO_INCREMENT PRIMARY KEY, slug VARCHAR(255) NOT NULL)'
+        );
+        $this->connection->executeStatement(
+            'CREATE TEMPORARY TABLE mod_ppm_pluginpack_service (pluginpack_id INT NOT NULL, svc_id INT NOT NULL)'
+        );
+
+        $paidId = $this->insertService("paid-{$this->tag}");
+        $paidChildId = $this->insertService("paid-custom-{$this->tag}", parentId: $paidId);
+        $paidGrandChildId = $this->insertService("paid-custom-custom-{$this->tag}", parentId: $paidChildId);
+        $freeId = $this->insertService("free-{$this->tag}");
+        $standaloneId = $this->insertService("standalone-{$this->tag}");
+        $this->insertMonitoringConnector('cloud-aws-ec2-' . $this->tag, $paidId);
+        $this->insertMonitoringConnector('base-generic', $freeId);
+        // A service using a paid template is not a template: it is never returned.
+        $this->insertService("svc-{$this->tag}", register: '1', parentId: $paidId);
+
+        return [$paidId, $paidChildId, $paidGrandChildId, $freeId, $standaloneId];
+    }
+
+    private function insertMonitoringConnector(string $slug, int $templateId): void
+    {
+        $this->connection->insert('mod_ppm_pluginpack', ['slug' => $slug]);
+        $this->connection->insert('mod_ppm_pluginpack_service', [
+            'pluginpack_id' => (int) $this->connection->lastInsertId(),
+            'svc_id' => $templateId,
+        ]);
+    }
+
+    /**
+     * @param list<string> $excludedConnectorSlugs
+     *
+     * @return list<int>
+     */
+    private function monitoringConnectorTemplateIds(array $excludedConnectorSlugs): array
+    {
+        return array_values(array_map(
+            static fn (ServiceTemplateId $id): int => $id->value,
+            $this->repository->findMonitoringConnectorTemplateIds($excludedConnectorSlugs)->toArray(),
+        ));
     }
 
     /**
