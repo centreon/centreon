@@ -2,7 +2,7 @@
 
 The team mixes vocabularies from DDD, CQRS, hexagonal architecture and MVC, and the same word means different things to different people. This page holds the team's definitions, agreed in dedicated sessions. Use them when designing, naming and reviewing code, and point to them in reviews instead of debating a term again.
 
-A new term, or a change to a definition, goes through a pull request on this page. Decisions that build on these terms live in the [ADRs](adr/README.md).
+A new term, or a change to a definition, goes through a pull request on this page. Decisions that build on these terms live in the [ADRs](adr/index.md).
 
 ## Table of contents
 
