@@ -1,5 +1,6 @@
 import { SnackbarProvider } from '@centreon/ui';
 import {
+  defaultLimitPerPageAtom,
   intervalLengthAtom,
   type UserPermissions,
   userPermissionsAtom
@@ -54,6 +55,7 @@ const initialize = ({
     configuration_service_write: hasWriteAccess
   } as UserPermissions);
   store.set(intervalLengthAtom, intervalLength);
+  store.set(defaultLimitPerPageAtom, 10);
 
   interceptAPIRequest({
     alias: 'getAllServices',
