@@ -158,8 +158,6 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
           : [];
       });
 
-  // A listing may search on more than one text field, the services one on the
-  // host name as well as its own.
   const getTextQueries = () =>
     (configuration?.filtersConfiguration ?? [])
       .filter((filter) => equals(filter.fieldType, FieldType.Text))

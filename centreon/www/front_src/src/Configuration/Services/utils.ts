@@ -23,7 +23,7 @@ export const filtersInitialValues: Filters = {
 export const filtersAtomKey = 'filters_services';
 export const columnsAtomKey = 'columns_services';
 
-// The legacy listing sorts on the host first, then on the service.
+// Sorted on the host, as in the legacy listing.
 export const defaultSortField = 'host.name';
 
 // Both forms are still legacy pages.

@@ -1,5 +1,4 @@
 export const labelServices = 'Services';
-// Wording to confirm with UX, on the model of the Hosts subtitle.
 export const labelServicesDescription =
   'Configure the services monitored on your hosts';
 export const labelHost = 'Host';
@@ -11,8 +10,6 @@ export const labelHostName = 'Host name';
 export const labelStatus = 'Status';
 export const labelIncludeDisabledHosts = 'Include disabled hosts';
 
-// Durations of the Scheduling column: an interval converted to seconds, then
-// to minutes when it falls on a whole minute.
 export const labelDurationInMinutes = '{{count}} min';
 export const labelDurationInSeconds = '{{count}} sec';
 

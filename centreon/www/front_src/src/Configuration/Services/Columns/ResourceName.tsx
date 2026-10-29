@@ -13,7 +13,6 @@ interface Props {
   renderEllipsisTypography?: (props: { formattedString: string }) => ReactNode;
 }
 
-// A name preceded by its icon, or by the default icon of its kind.
 const ResourceName = ({
   DefaultIcon,
   icon,

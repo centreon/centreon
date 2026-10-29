@@ -21,8 +21,6 @@ interface Props {
   columns: Array<Column>;
 }
 
-// `getFormattedString` is mandatory: DataCell falls back to an empty string,
-// not to `row[id]`.
 const useColumns = (): Props => {
   const { t } = useTranslation();
   const intervalLength = useAtomValue(intervalLengthAtom);
@@ -64,6 +62,7 @@ const useColumns = (): Props => {
     },
     {
       disablePadding: false,
+      // Mandatory: DataCell falls back to an empty string, not to `row[id]`.
       getFormattedString: ({
         normalCheckInterval,
         retryCheckInterval

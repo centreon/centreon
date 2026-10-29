@@ -65,6 +65,22 @@ export default () => {
       });
     });
 
+    it('searches the service name from the search bar', async () => {
+      initialize();
+
+      await waitForRequest('@getAllServices');
+
+      await userEvent.type(
+        await screen.findByPlaceholderText(labelSearch),
+        'cpu'
+      );
+
+      const { request } = await waitForRequest('@getAllServices');
+
+      expect(request.url.searchParams.get('name[lk]')).toBe('cpu');
+      expect(request.url.searchParams.get('host.name[lk]')).toBeNull();
+    });
+
     it('searches on the service name and the host name separately', async () => {
       const panel = await initializeWithAdvancedFilters();
 

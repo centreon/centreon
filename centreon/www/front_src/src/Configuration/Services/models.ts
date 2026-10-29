@@ -23,7 +23,6 @@ export interface ServiceListItem extends NamedEntity {
   template?: NamedEntity | null;
 }
 
-// The keys are the query parameters `useLoadData` sends them as.
 export interface Filters {
   name: string;
   'host.name': string;

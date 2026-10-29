@@ -29,8 +29,7 @@ import {
   filtersInitialValues
 } from './utils';
 
-// The form sections land in their own sub-tasks (MON-212682); until then the
-// panel has nothing to show and rows do not open it.
+// The form sections are not built yet: a row opens an empty panel.
 const form: Form = {
   defaultValues: {},
   groups: [],
