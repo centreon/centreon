@@ -43,7 +43,8 @@ src="${web}/www/front_src/src"
 ui="${web}/packages/ui"
 export CALLS="${TMP}/calls"
 mkdir -p "${web}/node_modules/.bin" "${TMP}/bin" "${src}/Hosts/Specs" "${src}/Hosts/Form" \
-  "${src}/Legacy/Listing" "${src}/Legacy/Specs" "${src}/Plain" "${ui}/src/Button"
+  "${src}/Legacy/Listing" "${src}/Legacy/Specs" "${src}/Plain" "${ui}/src/Button" \
+  "${ui}/src/Field"
 
 stub='#!/usr/bin/env bash
 name="$(basename "$0")"
@@ -72,6 +73,8 @@ for f in Hosts/utils.ts Hosts/Form/form.tsx Hosts/Specs/Hosts.browser.test.tsx H
 done
 printf 'export const b = 1;\n' > "${ui}/src/Button/index.ts"
 printf 'export const t = 1;\n' > "${ui}/src/Button/index.test.ts"
+printf 'export const f = 1;\n' > "${ui}/src/Field/index.tsx"
+printf 'export const t = 1;\n' > "${ui}/src/Field/Field.browser.test.tsx"
 printf '{}\n' > "${web}/biome.json"
 snap="${web}/cypress/visual-testing-snapshots/www/front_src/src/Legacy/Listing/Listing.cypress.spec.tsx"
 mkdir -p "${snap}"
@@ -156,6 +159,19 @@ verify "${repo}"
 check yes "$(called "${ui}\|biome check .*Button/index.ts")" 'ui: biome from packages/ui'
 check yes "$(called "${ui}\|pnpm exec jest .*Button/index.test.ts")" 'ui: sibling jest test'
 check 0 "${rc}" 'ui: exit 0'
+reset
+
+# rstest: the app tests from centreon/, the packages/ui ones from packages/ui,
+# whose configuration is the one that includes them.
+printf 'export const y = 2;\n' >> "${src}/Hosts/utils.ts"
+printf 'export const f = 2;\n' >> "${ui}/src/Field/index.tsx"
+verify "${repo}"
+check yes "$(called "${web}\|pnpm rstest:run www/front_src/src/Hosts/Specs/Hosts.browser.test.tsx$")" 'rstest split: app tests from centreon/'
+check yes "$(called "${ui}\|pnpm rstest:run src/Field/Field.browser.test.tsx$")" 'rstest split: ui tests from packages/ui'
+check 0 "${rc}" 'rstest split: exit 0'
+STUB_FAIL='rstest:run src/Field' verify "${repo}"
+check 1 "${rc}" 'rstest split: a failing ui test fails'
+check yes "$(said '^FAIL  rstest \(1 packages/ui file')" 'rstest split: ui failure reported'
 reset
 
 # The closest tests win: a Cypress spec next to the file over rstest above.

@@ -421,13 +421,27 @@ if ((${#jest[@]} > 0)); then
 fi
 
 if ((${#browser[@]} > 0)); then
-  tests=()
-  while IFS= read -r test; do tests+=("${test#"${web}"/}"); done < <(unique "${browser[@]}")
-  if run "${logs}/rstest.log" "${web}" pnpm rstest:run "${tests[@]}"; then
-    report PASS "rstest (${#tests[@]} file(s))"
-  else
-    report FAIL "rstest (${#tests[@]} file(s))" "${logs}/rstest.log"
-    grep -q "Executable doesn't exist" "${logs}/rstest.log" && echo '      hint: run pnpm rstest:install in centreon/ once'
+  # Each from its own package: the rstest configuration of centreon/ does not
+  # include the packages/ui tests.
+  app_browser=() ui_browser=()
+  while IFS= read -r test; do
+    if [[ "${test}" == "${ui}"/* ]]; then ui_browser+=("${test#"${ui}"/}"); else app_browser+=("${test#"${web}"/}"); fi
+  done < <(unique "${browser[@]}")
+  if ((${#app_browser[@]} > 0)); then
+    if run "${logs}/rstest-app.log" "${web}" pnpm rstest:run "${app_browser[@]}"; then
+      report PASS "rstest (${#app_browser[@]} app file(s))"
+    else
+      report FAIL "rstest (${#app_browser[@]} app file(s))" "${logs}/rstest-app.log"
+      grep -q "Executable doesn't exist" "${logs}/rstest-app.log" && echo '      hint: run pnpm rstest:install in centreon/ once'
+    fi
+  fi
+  if ((${#ui_browser[@]} > 0)); then
+    if run "${logs}/rstest-ui.log" "${ui}" pnpm rstest:run "${ui_browser[@]}"; then
+      report PASS "rstest (${#ui_browser[@]} packages/ui file(s))"
+    else
+      report FAIL "rstest (${#ui_browser[@]} packages/ui file(s))" "${logs}/rstest-ui.log"
+      grep -q "Executable doesn't exist" "${logs}/rstest-ui.log" && echo '      hint: run pnpm rstest:install in centreon/packages/ui once'
+    fi
   fi
 fi
 
