@@ -71,17 +71,19 @@ final readonly class DbalOptionRepository extends DbalRepository implements Opti
         return $this->transformer->transform($row);
     }
 
-    public function findByName(OptionName $name): ?string
+    public function findByName(OptionName $name): ?Option
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('`value`')
+        $qb->select('`key` AS option_name', '`value` AS option_value')
             ->from(self::TABLE_NAME)
             ->where('`key` = :name')
+            // A NULL or empty value cannot make an option: such a row reads as a missing one.
+            ->andWhere("`value` IS NOT NULL AND `value` <> ''")
             ->setParameter('name', $name->value)
             ->setMaxResults(1);
-        /** @var string|null|false $value */
-        $value = $qb->executeQuery()->fetchOne();
+        /** @var RowTypeAlias|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
 
-        return $value === false ? null : $value;
+        return $row === false ? null : $this->transformer->transform($row);
     }
 }

@@ -63,11 +63,15 @@ final class DbalOptionRepositoryTest extends KernelTestCase
         $this->repository->getByName(new OptionName('foo'));
     }
 
-    public function testFindByNameReturnsTheStoredValue(): void
+    public function testFindByNameReturnsTheOptionWithItsStoredValue(): void
     {
         $this->insertOption('find_by_name_test', ' 050 ');
 
-        self::assertSame(' 050 ', $this->repository->findByName(new OptionName('find_by_name_test')));
+        $option = $this->repository->findByName(new OptionName('find_by_name_test'));
+
+        self::assertInstanceOf(Option::class, $option);
+        self::assertSame('find_by_name_test', $option->name->value);
+        self::assertSame(' 050 ', $option->value->value, 'Stored as is, not trimmed.');
     }
 
     public function testFindByNameReturnsNullForAMissingOption(): void
@@ -80,6 +84,14 @@ final class DbalOptionRepositoryTest extends KernelTestCase
         $this->insertOption('find_by_name_null', null);
 
         self::assertNull($this->repository->findByName(new OptionName('find_by_name_null')));
+    }
+
+    public function testFindByNameReturnsNullForAnEmptyValue(): void
+    {
+        // An empty value cannot make an option (its value holds 1 to 255 characters): it reads as no option.
+        $this->insertOption('find_by_name_empty', '');
+
+        self::assertNull($this->repository->findByName(new OptionName('find_by_name_empty')));
     }
 
     private function insertOption(string $key, ?string $value): void

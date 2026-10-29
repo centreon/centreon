@@ -35,8 +35,8 @@ interface OptionRepository
     public function getByName(OptionName $name): Option;
 
     /**
-     * The raw stored value, without the bounds of {@see \App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue}:
-     * null when the option is missing or its value is NULL. For a reader that must never fail on a bad option.
+     * Null when the option is missing, or when its stored value cannot make an option (NULL or empty). For a reader
+     * that must never fail on a bad option.
      */
-    public function findByName(OptionName $name): ?string;
+    public function findByName(OptionName $name): ?Option;
 }

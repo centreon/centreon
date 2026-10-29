@@ -43,8 +43,10 @@ final class FakeOptionRepository implements OptionRepository
         return new Option($name, new OptionValue($this->options[$name->value]));
     }
 
-    public function findByName(OptionName $name): ?string
+    public function findByName(OptionName $name): ?Option
     {
-        return $this->options[$name->value] ?? null;
+        $value = $this->options[$name->value] ?? '';
+
+        return $value === '' ? null : new Option($name, new OptionValue($value));
     }
 }
