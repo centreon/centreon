@@ -106,7 +106,7 @@ Poller-initiated (reverse) connections do not use this identity.
 `--set traps.enabled=true` adds `snmptrapd` (receives traps on 162/udp, spools
 them) and `centreontrapd` (matches them against the definitions delivered by
 the central, submits results to the engine's command FIFO) to the poller pod,
-plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
+plus a `traps-config` directory on `poller-data` (`/etc/snmp/centreon_traps`) and a
 `<release>-snmptrap` Service (LoadBalancer, UDP 162).
 
 - Generate and apply the SNMP traps database for the poller from the central
@@ -122,8 +122,8 @@ plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
   and MetalLB; k3s' built-in ServiceLB (klipper) does not.
 - `snmptrapd` runs as uid 900: the pod gets the
   `net.ipv4.ip_unprivileged_port_start=162` sysctl (allowed by `baseline`).
-- Enabling traps on an installed poller changes the volume list (see
-  Persistence for the upgrade procedure).
+- Enabling traps on an installed poller is a plain upgrade: their
+  definitions are a directory of `poller-data`.
 
 ## VMware connector
 
@@ -206,29 +206,38 @@ with `gorgone.extraVolumeMounts`, `engine.extraVolumeMounts` or
 | `networkPolicy.extraIngress` | `[]` | Extra ingress rules, added as is (not limited to 4317/162) |
 | `proxy.http` / `https` / `noProxy` | — / `http` / — | Outbound proxy, see Proxy |
 | `extraVolumes` + `<container>.extraVolumeMounts` | `[]` | Extra pod volumes, mounted in `gorgone`, `engine`, `vmware` |
-| `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
+| `persistence.size` / `spoolSize` / `storageClass` | 1Gi / 10Gi / default | `poller-data` / `poller-spool` sizes. **Immutable after install** (volumeClaimTemplates) |
 
 ## Persistence
 
-| Volume | Path | Why |
-|---|---|---|
-| `engine` | `/etc/centreon-engine` | Delivered engine config |
-| `broker` | `/etc/centreon-broker` | Delivered cbmod config (not seeded) |
-| `etc` | `/etc/centreon` | gorgone config |
-| `logs` | `/var/log/centreon-engine` | Logs, `retention.dat` |
-| `cma-pki` | `/etc/pki/centreon-engine` | Default CMA CA, used without `engine.otel.tls` |
-| `engine-home` | `/var/lib/centreon-engine` | Engine user's home = cbmod's default cache directory (queue saved on clean stop). The command FIFO dir `rw/` is an emptyDir mounted over it |
-| `gorgone-data` | `/var/lib/centreon-gorgone` | gorgone keys and history |
-| `traps-config` | `/etc/snmp/centreon_traps` | Trap definitions (`traps.enabled`), redelivered by the central |
+Two ReadWriteOnce volumes, one directory (subPath) per path. `poller-spool`
+holds what grows, so a full spool never blocks the config or gorgone.
 
-Back up at least `cma-pki` and `gorgone-data` (volume snapshots): losing
-`cma-pki` makes the engine generate a **new** default CMA CA, so every agent
-pinned on the old one (`-Fingerprint` / `ca_certificate`) must be reconfigured
-(not the case with `engine.otel.tls`, whose identity comes from your Secret or
-issuer). Losing `gorgone-data` regenerates the gorgone keys. The delivered
+| Volume | Directory | Path | Why |
+|---|---|---|---|
+| `poller-data` | `engine` | `/etc/centreon-engine` | Delivered engine config |
+| `poller-data` | `broker` | `/etc/centreon-broker` | Delivered cbmod config (not seeded) |
+| `poller-data` | `etc` | `/etc/centreon` | gorgone config |
+| `poller-data` | `pki` | `/etc/pki/centreon-engine` | Default CMA CA, used without `engine.otel.tls` |
+| `poller-data` | `gorgone-data` | `/var/lib/centreon-gorgone` | gorgone keys and history |
+| `poller-data` | `traps-config` | `/etc/snmp/centreon_traps` | Trap definitions (`traps.enabled`) |
+| `poller-spool` | `centlog` | `/var/log/centreon-engine` | Logs, `retention.dat` |
+| `poller-spool` | `cbmod-cache` | `/var/lib/centreon-engine` | Engine user's home = cbmod's default cache directory (queue saved on clean stop, grows while the central is unreachable). The command FIFO dir `rw/` is an emptyDir mounted over it |
+
+The same names as the `centreon-central` chart's pollers.
+
+Back up at least `poller-data` (volume snapshots): losing its `pki` directory
+makes the engine generate a **new** default CMA CA, so every agent pinned on
+the old one (`-Fingerprint` / `ca_certificate`) must be reconfigured (not the
+case with `engine.otel.tls`, whose identity comes from your Secret or issuer).
+Losing `gorgone-data` regenerates the gorgone keys. The delivered
 configuration (`engine`, `broker`) comes back with the next export; the traps
 database (`traps-config`) does not: generate and apply it again for the poller
 (Configuration > SNMP Traps > Generate).
+
+Chart 26.2.0 replaced the former one-volume-per-directory layout (no
+migration): reinstall pollers installed with an earlier chart (uninstall,
+delete their PVCs, install; then export the poller with Restart).
 
 Upgrades: use `--reset-then-reuse-values` rather than `--reuse-values`, which
 ignores new chart defaults (e.g. a new volume size). A change to the volume
