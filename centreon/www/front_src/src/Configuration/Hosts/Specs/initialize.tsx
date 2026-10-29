@@ -1,4 +1,4 @@
-import { SnackbarProvider } from '@centreon/ui';
+import { Form, SnackbarProvider } from '@centreon/ui';
 import {
   isAdditiveInheritanceEnabledAtom,
   type PlatformFeatures,
@@ -16,6 +16,7 @@ import { createStore, Provider } from 'jotai';
 import { HttpResponse } from 'msw';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
+import { object } from 'yup';
 
 import Hosts from '..';
 import {
@@ -40,6 +41,11 @@ import {
   resolveAddressEndpoint,
   timezonesEndpoint
 } from '../api/endpoints';
+import {
+  getDefaultValues,
+  getMassChangeDefaultValues,
+  useFormInputs
+} from '../Form';
 import {
   emptyListingResponse,
   getCommandsResponse,
@@ -380,6 +386,72 @@ const initialize = ({
         </QueryClientProvider>
       </SnackbarProvider>
     </Router>
+  );
+};
+
+interface FormLayoutProps {
+  isCloudPlatform?: boolean;
+  isMassChange?: boolean;
+}
+
+const FormLayout = ({
+  isCloudPlatform = false,
+  isMassChange = false
+}: FormLayoutProps): JSX.Element => {
+  const { groups, inputs } = useFormInputs({
+    canEdit: true,
+    isAdditiveInheritanceEnabled: false,
+    isCloudPlatform,
+    isMassChange
+  });
+  const context = { isCloudPlatform, isMassChange };
+
+  return (
+    <Form
+      areGroupsOpen
+      groups={groups}
+      initialValues={
+        isMassChange
+          ? getMassChangeDefaultValues(context)
+          : getDefaultValues(context)
+      }
+      inputs={inputs}
+      isCollapsible
+      submit={() => undefined}
+      validationSchema={object()}
+    />
+  );
+};
+
+// The form alone, laid out against a panel of `width` pixels: the viewport is
+// fixed at 1280px, so the widest panel overflows it, and the fields follow the
+// panel, as in the page.
+export const initializeFormLayout = ({
+  width,
+  ...props
+}: FormLayoutProps & { width: number }): RenderResult => {
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    resources: {}
+  });
+
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { gcTime: 0, retry: false } }
+  });
+
+  return render(
+    <SnackbarProvider>
+      <QueryClientProvider client={queryClient}>
+        {/* The panel content's own classes (`ConfigurationBase/Panel`). */}
+        <div
+          className="@container px-5"
+          data-testid="host-form-layout-panel"
+          style={{ width }}
+        >
+          <FormLayout {...props} />
+        </div>
+      </QueryClientProvider>
+    </SnackbarProvider>
   );
 };
 

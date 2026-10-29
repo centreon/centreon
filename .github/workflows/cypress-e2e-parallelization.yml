@@ -99,6 +99,8 @@ on:
 jobs:
   cypress-e2e-test-list:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       features: ${{ steps.list-features.outputs.specs }}
       has_features: ${{ steps.list-features.outputs.specs != '' && toJson(fromJson(steps.list-features.outputs.specs)) != '[]' && 'true' || 'false' }}
@@ -107,6 +109,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Get database identifier
         id: get-db-id
@@ -150,6 +154,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Compute image tag
         id: image_tag
@@ -353,6 +359,8 @@ jobs:
   # Import the cucumber results into Xray and link them to the Test Plan. Skipped for
   # callers still on the legacy flow (those that do not pass jira_test_plan_key).
   xray-api-import-results:
+    permissions:
+      contents: read
     needs: [cypress-e2e-test-list, cypress-e2e-test-run]
     if: |
       ! cancelled() &&
@@ -387,9 +395,14 @@ jobs:
       ! contains(needs.*.result, 'cancelled') &&
       needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
@@ -460,6 +473,9 @@ jobs:
       ! contains(needs.*.result, 'cancelled') &&
       needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write  # Required by geekyeggo/delete-artifact to delete merged artifacts
     strategy:
       fail-fast: false
       matrix:
