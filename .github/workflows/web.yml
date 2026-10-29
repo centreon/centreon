@@ -60,6 +60,9 @@ env:
 
 jobs:
   dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   dispatch-to-maintenance-branches:
@@ -68,9 +71,14 @@ jobs:
       github.event_name == 'schedule' &&
       github.ref_name == 'develop'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Select maintenance branch and run nightly workflow on it
         uses: ./.github/actions/dispatch-to-maintenance-branch
@@ -79,6 +87,9 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-environment:
+    permissions:
+      contents: read
+      pull-requests: write
     needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
     with:
@@ -87,6 +98,8 @@ jobs:
       labels: ${{ inputs.labels || '' }}
 
   changes:
+    permissions:
+      contents: read
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
@@ -193,6 +206,8 @@ jobs:
 
   check-version-consistency:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -207,6 +222,8 @@ jobs:
       update_file: centreon/www/install/php/Update-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}.php
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Check ${{ env.version_file }}
         uses: ./.github/actions/check-version-consistency
@@ -297,8 +314,12 @@ jobs:
       )
     # needed to deliver sources
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/frontend-build
         with:
@@ -325,8 +346,12 @@ jobs:
       )
     # needed to deliver sources
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -352,8 +377,6 @@ jobs:
 
   translation-build:
     needs: [get-environment, changes]
-    permissions:
-      contents: read
     if: |
       (
         needs.changes.outputs.trigger_packaging == 'true' &&
@@ -367,6 +390,9 @@ jobs:
       )
     # needed to deliver sources
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
     container:
       image: ghcr.io/centreon/delivery-tooling/translation:${{ needs.get-environment.outputs.major_version }}
 
@@ -410,6 +436,9 @@ jobs:
 
   frontend-web-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -417,6 +446,8 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -428,6 +459,8 @@ jobs:
 
   frontend-type-check:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -435,6 +468,8 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/frontend-type-check
         with:
@@ -443,6 +478,9 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -451,6 +489,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
@@ -486,6 +526,11 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+      actions: write  # Required by regroup-artifacts in called workflow
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -508,6 +553,9 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
@@ -516,6 +564,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -557,6 +607,8 @@ jobs:
 
   backend-integration-test:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment, changes, backend-unit-test]
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
@@ -578,6 +630,8 @@ jobs:
           MYSQL_ROOT_PASSWORD: password
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -641,6 +695,8 @@ jobs:
 
   backend-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
@@ -649,6 +705,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -828,6 +886,8 @@ jobs:
 
   gherkin-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment, changes]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
@@ -835,6 +895,8 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/gherkin-lint
         with:
@@ -842,6 +904,9 @@ jobs:
 
   e2e-lint:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      checks: write
     needs: [get-environment, changes]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
@@ -849,6 +914,8 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -891,12 +958,17 @@ jobs:
 
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
     container:
       image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.operating_system }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Restore translation from cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -1039,6 +1111,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Generate information according to matrix os
         id: matrix_include
@@ -1193,6 +1267,8 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
 
   xray-prepare-test-plan:
+    permissions:
+      contents: read
     name: xray-prepare-test-plan
     needs: [get-environment, changes]
     if: |
@@ -1213,6 +1289,8 @@ jobs:
       XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
 
   bruno-api-test:
+    permissions:
+      contents: read
     needs: [get-environment, changes, xray-prepare-test-plan, dockerize]
     if: |
       needs.changes.outputs.trigger_api_testing == 'true' &&
@@ -1255,6 +1333,8 @@ jobs:
       !cancelled() &&
       needs.bruno-api-test.result == 'failure'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       secret_actor: ${{ steps.sanitize.outputs.secret_actor }}
     steps:
@@ -1280,6 +1360,11 @@ jobs:
       claude_code_oauth_token: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', needs.resolve-bruno-debug-analysis-actor.outputs.secret_actor)] }}
 
   e2e-test:
+    permissions:
+      contents: read
+      packages: read
+      checks: write
+      actions: write  # Required by regroup-artifacts in called workflow
     needs:
       [
         get-environment,
@@ -1340,6 +1425,8 @@ jobs:
       !cancelled() &&
       needs.e2e-test.result == 'failure'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       secret_actor: ${{ steps.sanitize.outputs.secret_actor }}
     steps:
@@ -2027,6 +2114,8 @@ jobs:
 
   deliver-sources:
     runs-on: centreon-ubuntu-26.04-slim
+    permissions:
+      contents: read
     needs: [get-environment, e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -2041,6 +2130,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -2061,6 +2152,8 @@ jobs:
 
   build-openapi-documentation:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment]
     outputs:
       doc_version: ${{ steps.build-openapi-documentation.outputs.doc_version }}
@@ -2072,6 +2165,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/build-openapi-documentation
         id: build-openapi-documentation
@@ -2080,10 +2175,14 @@ jobs:
 
   publish-openapi-documentation:
     runs-on: documentation
+    permissions:
+      contents: read
     needs: [get-environment, build-openapi-documentation]
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/publish-openapi-documentation
         with:
@@ -2121,6 +2220,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Deliver RPM package on Artifactory
         if: matrix.package_extension == 'rpm'
@@ -2171,6 +2272,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Promote ${{ matrix.distrib }} to stable on Artifactory
         uses: ./.github/actions/promote-to-stable
@@ -2186,6 +2289,9 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   set-skip-label:
+    permissions:
+      contents: read
+      pull-requests: write
     needs: [get-environment, deliver, promote]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -2196,6 +2302,9 @@ jobs:
 
   clear-branch-cache:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     needs: [get-environment, deliver, deliver-pulp]
     env:
       GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
@@ -2207,6 +2316,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: List and delete cache
         env:
@@ -2222,6 +2333,9 @@ jobs:
 
   create-jira-nightly-ticket:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
     needs: [
       get-environment,
       deliver
@@ -2236,6 +2350,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Create Jira ticket based on nightly build failure
         uses: ./.github/actions/create-jira-ticket
@@ -2274,6 +2390,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Deliver packages on Pulp
         id: deliver_pulp
@@ -2313,6 +2431,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Promote ${{ matrix.distrib }} to stable on Pulp
         id: promote_pulp
