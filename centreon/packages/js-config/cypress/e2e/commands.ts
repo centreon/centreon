@@ -499,6 +499,16 @@ Cypress.Commands.add(
   }
 );
 
+// The token is set once in the feature's before(), so it is missing when a
+// test is retried: get it again only in that case.
+Cypress.Commands.add('ensureUserTokenApiV1', (): Cypress.Chainable => {
+  if (window.localStorage.getItem('userTokenApiV1')) {
+    return cy.wrap(null);
+  }
+
+  return cy.setUserTokenApiV1();
+});
+
 interface PortBinding {
   destination: number;
   source: number;
@@ -1000,6 +1010,7 @@ declare global {
       ) => Cypress.Chainable;
       copyWebContainerLogs: (props: CopyWebContainerLogsProps) => Cypress.Chainable;
       createDirectory: (directoryPath: string) => Cypress.Chainable;
+      ensureUserTokenApiV1: () => Cypress.Chainable;
       execInContainer: (
         props: ExecInContainerProps,
         options?: ExecInContainerOptions
