@@ -25,6 +25,7 @@ namespace Tests\App\Security\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Security\HostCategoryPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostSeverityPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\Permission;
 use App\Security\Infrastructure\Dbal\CredentialTransformer;
@@ -100,6 +101,40 @@ final class CredentialTransformerTest extends TestCase
             'ROLE_CONFIGURATION_HOSTS_CATEGORIES_RW',
             HostCategoryPermissionEnum::CanReadAndWrite->value,
             HostSeverityPermissionEnum::CanReadAndWrite->value,
+        ];
+    }
+
+    /**
+     * The legacy "Services > Services by host" topology governs the service form, so it maps to the
+     * matching service permission: read-only grants read, read/write grants read/write only.
+     */
+    #[DataProvider('servicesByHostTopologyProvider')]
+    public function testServicesByHostTopologyGrantsServicePermissions(
+        string $topology,
+        ServicePermissionEnum $expectedPermission,
+        ServicePermissionEnum $notExpectedPermission,
+    ): void {
+        $credential = $this->transform(contactAdmin: false, isCloudAdmin: false, topologyPermissions: [$topology]);
+
+        self::assertTrue($credential->isPermissionGranted(new Permission($expectedPermission->value)));
+        self::assertFalse($credential->isPermissionGranted(new Permission($notExpectedPermission->value)));
+    }
+
+    /**
+     * @return iterable<string, array{string, ServicePermissionEnum, ServicePermissionEnum}>
+     */
+    public static function servicesByHostTopologyProvider(): iterable
+    {
+        yield 'read' => [
+            'ROLE_CONFIGURATION_SERVICES_SERVICES_BY_HOST_R',
+            ServicePermissionEnum::CanRead,
+            ServicePermissionEnum::CanReadAndWrite,
+        ];
+
+        yield 'read/write' => [
+            'ROLE_CONFIGURATION_SERVICES_SERVICES_BY_HOST_RW',
+            ServicePermissionEnum::CanReadAndWrite,
+            ServicePermissionEnum::CanRead,
         ];
     }
 
