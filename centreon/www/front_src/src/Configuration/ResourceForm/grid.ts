@@ -19,12 +19,14 @@ export const schedulingColumns =
 // among its siblings: it renders nothing.
 export const getBlock = ({
   className = stackedColumns,
+  columnSeparator,
   columns,
   idPrefix,
   name,
   title
 }: {
   className?: string;
+  columnSeparator?: boolean;
   columns: Array<InputPropsWithoutGroup>;
   idPrefix: string;
   name: string;
@@ -32,7 +34,7 @@ export const getBlock = ({
 }): InputPropsWithoutGroup => ({
   ...(title && { additionalLabel: title }),
   fieldName: name,
-  grid: { className, columns },
+  grid: { className, columnSeparator, columns },
   label: `${idPrefix}-${name}`,
   type: InputType.Grid
 });

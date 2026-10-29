@@ -9,6 +9,8 @@ import type { BlockId, Blocks } from './models';
 // may depend on how many of the columns the platform keeps.
 export interface LayoutGrid {
   className: string | ((count: number) => string);
+  // A dashed line between its columns, as in the design.
+  columnSeparator?: boolean;
   columns: Array<LayoutNode>;
   name: string;
   title?: string;
@@ -62,6 +64,7 @@ const placeNode = ({
   return getBlock({
     // A column left alone takes the whole width.
     className: columns.length === 1 ? stackedColumns : className,
+    columnSeparator: node.columnSeparator,
     columns,
     idPrefix: props.idPrefix,
     name: node.name,

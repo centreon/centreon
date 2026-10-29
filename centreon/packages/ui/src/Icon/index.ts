@@ -7,6 +7,8 @@ export { HostGroupIcon } from './HostGroupIcon';
 export { HostIcon } from './HostIcon';
 export { InstallCommandIcon } from './InstallCommandIcon';
 export { MetaServiceIcon } from './MetaServiceIcon';
+export { PasswordIcon } from './PasswordIcon';
+export { PasswordOffIcon } from './PasswordOffIcon';
 export { RegexIcon } from './RegexIcon';
 export { ServiceGroupIcon } from './ServiceGroupIcon';
 export { ServiceIcon } from './ServiceIcon';

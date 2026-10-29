@@ -1,6 +1,11 @@
 import { Typography } from '@mui/material';
 
-import { type InputPropsWithoutGroup, TextField } from '@centreon/ui';
+import {
+  type InputPropsWithoutGroup,
+  PasswordIcon,
+  PasswordOffIcon,
+  TextField
+} from '@centreon/ui';
 import {
   type RenderRowParams,
   SortableEntriesList
@@ -29,7 +34,6 @@ import {
   type MacroRow
 } from './macroRows';
 import type { InheritedMacrosConfig } from './models';
-import { PasswordIcon, PasswordOffIcon } from './PasswordIcons';
 import StoredSecretField from './StoredSecretField';
 import useInheritedMacros from './useInheritedMacros';
 
@@ -50,7 +54,7 @@ const legend: Array<{ label: string; parent: MacroParent }> = [
   { label: labelCommandInheritance, parent: 'command' }
 ];
 
-// A resource's custom macros, `$_HOST<NAME>$` on a host, in order: its own,
+// A resource's custom macros, `$_<RESOURCETYPE><NAME>$`, in order: its own,
 // then the inherited ones. The rows' test ids derive from `dataTestId`.
 const Macros = ({
   dataTestId,

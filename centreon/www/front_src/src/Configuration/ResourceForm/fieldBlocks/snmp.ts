@@ -7,7 +7,7 @@ import {
 import { JsonDecoder } from 'ts.data.json';
 import { string } from 'yup';
 
-import { getBlock, twoColumns } from '../grid';
+import { getBlock } from '../grid';
 import type { FieldBlock, ResourceOptions } from '../models';
 import {
   labelNone,
@@ -81,10 +81,10 @@ export const snmp = ({
     };
 
     return {
-      // Password managers take the text field before a password for its user
-      // name, here the check command arguments.
+      // Placed beside the check command on request. Password managers take
+      // the text field before a password for its user name, here the check
+      // command arguments.
       snmp: getBlock({
-        className: twoColumns,
         columns: [
           {
             dataTestId: `${idPrefix}-snmp-community`,
@@ -95,7 +95,8 @@ export const snmp = ({
           snmpVersion
         ],
         idPrefix,
-        name: 'snmp'
+        name: 'snmp',
+        title: t(labelSnmpCommunity)
       })
     };
   },

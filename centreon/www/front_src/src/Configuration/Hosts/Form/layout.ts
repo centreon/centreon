@@ -4,6 +4,7 @@ import {
   schedulingColumns,
   stackedColumns,
   threeColumnsFromWide,
+  twoColumns,
   twoColumnsFromNarrow,
   twoColumnsFromWide
 } from '../../ResourceForm/grid';
@@ -35,10 +36,17 @@ export const layout: Array<LayoutSection> = [
   {
     label: labelHostMonitoringProperties,
     nodes: [
-      'checkCommand',
-      'snmp',
+      {
+        // The check command and its arguments on the left, the SNMP community
+        // and its version on the right, with room above the templates.
+        className: `${twoColumns} pb-4`,
+        columnSeparator: true,
+        columns: ['checkCommand', 'snmp'],
+        name: 'check-snmp-layout'
+      },
       {
         className: twoColumnsFromWide,
+        columnSeparator: true,
         columns: ['templates', 'macros'],
         name: 'templates-layout'
       }
@@ -49,6 +57,7 @@ export const layout: Array<LayoutSection> = [
     nodes: [
       {
         className: twoColumnsFromNarrow,
+        columnSeparator: true,
         columns: [
           {
             className: stackedColumns,
@@ -81,6 +90,7 @@ export const layout: Array<LayoutSection> = [
     nodes: [
       {
         className: twoColumnsFromNarrow,
+        columnSeparator: true,
         columns: [
           {
             className: twoColumnsFromWide,
@@ -97,6 +107,7 @@ export const layout: Array<LayoutSection> = [
           },
           {
             className: schedulingColumns,
+            columnSeparator: true,
             columns: ['checkPeriodAndIntervals', 'activeAndPassiveChecks'],
             name: 'scheduling-options',
             title: labelSchedulingOptions
@@ -111,6 +122,7 @@ export const layout: Array<LayoutSection> = [
     nodes: [
       {
         className: twoColumnsFromWide,
+        columnSeparator: true,
         columns: [
           'notificationRecipients',
           {
@@ -129,6 +141,7 @@ export const layout: Array<LayoutSection> = [
       {
         className: (count) =>
           count === 3 ? threeColumnsFromWide : twoColumnsFromWide,
+        columnSeparator: true,
         columns: [
           'eventHandler',
           {

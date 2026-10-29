@@ -207,7 +207,7 @@ export const notificationRecipients = ({
             dataTestId: `${idPrefix}-notifications-enabled`,
             fieldName: 'notifications.enabled',
             label: t(labelNotificationEnabled),
-            segmentedButtons: { options: triStateOptions },
+            segmentedButtons: { hideLabel: true, options: triStateOptions },
             type: InputType.SegmentedButtons
           },
           {
@@ -385,6 +385,7 @@ export const notificationDelays = ({
       // Row by row: interval beside the first delay, period beside recovery.
       notificationDelays: getBlock({
         className: twoColumns,
+        columnSeparator: true,
         columns: [
           getNumberInput('interval', labelNotificationInterval),
           getNumberInput('firstDelay', labelFirstNotificationDelay),

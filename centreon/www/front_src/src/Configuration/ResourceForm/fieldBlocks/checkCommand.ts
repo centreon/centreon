@@ -4,14 +4,10 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { optionalNamedEntityDecoder } from '../api/decoders';
 import { argumentsToText, textToArguments } from '../commandArguments';
-import { getBlock, twoColumns } from '../grid';
+import { getBlock } from '../grid';
 import type { FieldBlock, NamedEntity, ResourceOptions } from '../models';
 import { buildSelector } from '../selector';
-import {
-  labelArgs,
-  labelArguments,
-  labelCheckCommand
-} from '../translatedLabels';
+import { labelArguments, labelCheckCommand } from '../translatedLabels';
 
 interface CheckCommandValues {
   args: string;
@@ -56,7 +52,6 @@ export const checkCommand = ({
   detailKeyMap: { checkOptions: 'check_options' },
   getInputs: ({ t }) => ({
     checkCommand: getBlock({
-      className: twoColumns,
       columns: [
         {
           additionalLabel: t(title),
@@ -76,12 +71,11 @@ export const checkCommand = ({
           type: InputType.SingleConnectedAutocomplete
         },
         {
-          additionalLabel: t(labelArguments),
           dataTestId: `${idPrefix}-check-options-args`,
           fieldName: 'checkOptions.args',
           // Arguments without a command are refused.
           getDisabled: (values) => !values.checkOptions?.command,
-          label: t(labelArgs),
+          label: t(labelArguments),
           text: { placeholder: '!arg1!arg2' },
           type: InputType.Text
         }
