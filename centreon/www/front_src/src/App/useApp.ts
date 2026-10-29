@@ -17,7 +17,7 @@ import {
 } from '@centreon/ui-context';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { equals, not, path, pathEq } from 'ramda';
+import { equals, isNil, not, path, pathEq } from 'ramda';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -160,7 +160,10 @@ const useApp = (): UseAppState => {
         setIsAdditiveInheritanceEnabled(
           retrievedParameters.is_additive_inheritance_enabled
         );
-        setIntervalLength(retrievedParameters.monitoring_interval_length);
+        // Absent, the atom keeps the engine's default.
+        if (!isNil(retrievedParameters.monitoring_interval_length)) {
+          setIntervalLength(retrievedParameters.monitoring_interval_length);
+        }
       })
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {

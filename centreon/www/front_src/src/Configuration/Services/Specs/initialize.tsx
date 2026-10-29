@@ -44,6 +44,9 @@ const initialize = ({
     resources: {}
   });
 
+  // The form is URL-driven, and the page is not reloaded between tests.
+  window.history.pushState({}, '', window.location.pathname);
+
   const store = createStore();
 
   // Only what the module reads.
