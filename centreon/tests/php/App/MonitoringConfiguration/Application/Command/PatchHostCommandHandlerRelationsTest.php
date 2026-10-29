@@ -892,7 +892,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
     private function seedService(string $name, int $serviceTemplateId): Service
     {
-        $service = new Service(null, new ServiceName($name), new HostId(self::HOST_ID));
+        $service = new Service(null, new ServiceName($name), new HostId(self::HOST_ID), hostActivated: true, hostPollerId: new PollerId(1));
         $this->serviceRepository->add($service);
         $this->serviceRepository->serviceTemplateIdOf[$service->id()->value] = $serviceTemplateId;
 

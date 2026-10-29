@@ -72,7 +72,8 @@ interface PollerRepository
      * Raises `nagios_server.updated` on the poller referenced by the given poller-scoped
      * resource, so its configuration is regenerated — anything that changes what a poller
      * monitors (adding a host, for instance) must call this, or the monitoring engine keeps
-     * running on stale configuration.
+     * running on stale configuration. A resource with no poller to flag (a service of a
+     * disabled host) flags nothing.
      *
      * @param AggregateRoot<AggregateRootId>&PollerScopedInterface $resource
      */
