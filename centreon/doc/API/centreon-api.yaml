@@ -83,6 +83,7 @@ tags:
     name: Proxy
   -
     name: Service
+    description: "Resource 'Service' operations."
   -
     name: 'Service group'
   -
@@ -6497,6 +6498,138 @@ paths:
             type: string
           style: simple
           explode: false
+  /api/configuration/services:
+    get:
+      operationId: api_configurationservices_get_collection
+      tags:
+        - Service
+      responses:
+        '200':
+          description: 'Service collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'Service.ServiceCollectionOutput.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Service.ServiceCollectionOutput.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service.ServiceCollectionOutput'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'List the services, one row per host they are directly linked to'
+      description: 'Services linked to host groups are not listed. A service linked to several hosts is listed once per host, with the same id. When `itemsPerPage` is not sent, the page size is the platform setting for configuration listings. The check intervals and the icon are the effective ones, inherited from the service templates when the service has none of its own; intervals are in engine units.'
+      parameters:
+        -
+          name: 'host_name[lk]'
+          in: query
+          description: 'Filter by host name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by service name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: template_id
+          in: query
+          description: 'Filter by direct service template id'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+          style: form
+          explode: true
+        -
+          name: activated
+          in: query
+          description: 'Filter by service activation status'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: host_activated
+          in: query
+          description: 'Filter by host activation status; all hosts when absent'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: sort
+          in: query
+          description: 'Sort by one or several fields, in order of precedence (e.g. `sort[host_name]=asc`). Default: host name, then service name.'
+          required: false
+          deprecated: false
+          schema:
+            type: object
+            properties:
+              host_name:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              name:
+                type: string
+                enum:
+                  - asc
+                  - desc
+          style: deepObject
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
 components:
   securitySchemes:
     Token:
@@ -13565,3 +13698,103 @@ components:
         contact_group_additive_inheritance:
           description: "Ignored unless the platform's inheritance mode enables additive inheritance."
           type: boolean
+    Service.ServiceCollectionOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        activated:
+          type: boolean
+        host:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            icon:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                url:
+                  type: string
+        icon:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            url:
+              type: string
+        normal_check_interval:
+          description: 'Effective normal check interval, in engine interval units'
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          description: 'Effective retry check interval, in engine interval units'
+          type:
+            - integer
+            - 'null'
+        template:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+    Service.ServiceCollectionOutput.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            activated:
+              type: boolean
+            host:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                icon:
+                  type: object
+                  properties: { id: { type: integer }, name: { type: string }, url: { type: string } }
+            icon:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                url:
+                  type: string
+            normal_check_interval:
+              description: 'Effective normal check interval, in engine interval units'
+              type:
+                - integer
+                - 'null'
+            retry_check_interval:
+              description: 'Effective retry check interval, in engine interval units'
+              type:
+                - integer
+                - 'null'
+            template:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string

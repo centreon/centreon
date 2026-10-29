@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
@@ -41,6 +42,9 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     /** @var array<int, MediaId> inherited icon ids indexed by host id */
     public array $inheritedIconIds = [];
+
+    /** @var list<list<int>> the host ids asked to {@see findInheritedIconIds()}, one list per call */
+    public array $receivedInheritedIconHostIds = [];
 
     /** @var list<int> the template ids of the last findInheritanceLine() call, in order */
     public array $receivedLineTemplateIds = [];
@@ -72,6 +76,7 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public function findInheritedIconIds(Collection $hostIds): Collection
     {
+        $this->receivedInheritedIconHostIds[] = array_values(array_map(static fn (HostId $id): int => $id->value, $hostIds->toArray()));
         $iconIds = [];
         foreach ($hostIds as $hostId) {
             if (isset($this->inheritedIconIds[$hostId->value])) {
