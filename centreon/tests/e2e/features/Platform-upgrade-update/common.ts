@@ -66,10 +66,19 @@ const getCentreonStableMinorVersions = (
 
     const versionsRegex = /\d+\.\d+\.(\d+)/g;
 
-    [...output.matchAll(versionsRegex)].forEach((result) => {
-      cy.log(`available version found: ${majorVersion}.${result[1]}`);
-      stableVersions.push(Number(result[1]));
-    });
+    // A removed repository (e.g. an EOL major) makes dnf print its error, whose
+    // mirror IP address would be parsed as a version: no version is available.
+    if (/Failed to download metadata|All mirrors were tried/.test(output)) {
+      cy.task(
+        'logVersion',
+        `No stable version of ${majorVersion} available: its repository cannot be downloaded`
+      );
+    } else {
+      [...output.matchAll(versionsRegex)].forEach((result) => {
+        cy.log(`available version found: ${majorVersion}.${result[1]}`);
+        stableVersions.push(Number(result[1]));
+      });
+    }
 
     if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
       cy.execInContainer({
