@@ -33,10 +33,4 @@ interface OptionRepository
      * @throws OptionDoesNotExistException
      */
     public function getByName(OptionName $name): Option;
-
-    /**
-     * Null when the option is missing, or when its stored value cannot make an option (NULL or empty). For a reader
-     * that must never fail on a bad option.
-     */
-    public function findByName(OptionName $name): ?Option;
 }
