@@ -15,7 +15,8 @@ Make commands, queries and events carry **only values that serialize and deseria
 
 ## Consequences
 
-- Moving a message to an asynchronous transport needs no code change in the message or its handler.
+- Moving a message that complies with this ADR to an asynchronous transport needs no code change in the message or its handler.
+- Existing messages that carry model instances must be migrated before asynchronous routing.
 - Handlers work on current data for whatever they load from an ID. The other values in the message are a snapshot taken when it was dispatched.
 - A handler may need an extra repository call to load what the caller already had in memory.
 - The terms are defined in the [glossary](../glossary.md#2-messaging).

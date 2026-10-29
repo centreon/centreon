@@ -5,7 +5,7 @@
 
 ## Context
 
-An aggregate is one transactional, consistent unit ([glossary](../glossary.md#aggregate)), and a command runs in one transaction ([glossary](../glossary.md#command)). The question is whether a command may change several aggregates.
+An aggregate is one transactional, consistent unit ([glossary](../glossary.md#aggregate)), and a transactional command runs in one transaction ([glossary](../glossary.md#command)). A `NonTransactionalCommand` is the exception: it bypasses `DoctrineTransactionMiddleware`. The question is whether a command may change several aggregates.
 
 Three cases were raised against a strict rule:
 
@@ -25,7 +25,7 @@ This is the **default rule to tend toward, not an absolute ban**: when a case is
 
 - When two objects must always change and roll back together, they likely belong to the same aggregate, and the change goes through its root.
 - A command handler dispatches an event for follow-up work instead of calling other aggregates' repositories.
-- Follow-up work in an event handler may run outside the command's transaction. If the command fails after the event left, other patterns (outbox, saga) are needed. They are not needed yet.
+- Event follow-up work runs in the command's transaction by default. Events whose handlers must run after commit must implement `DeliveredAfterCommitInterface` or use an asynchronous transport. A handler failure can roll back the command. Outbox or saga patterns are needed only when asynchronous follow-up can diverge from the command.
 - Poller creation with its Engine and Broker configurations is a known existing exception, to fix when it moves to `src/App`.
 
 ## When to Amend

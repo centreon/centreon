@@ -9,7 +9,7 @@ Legacy code, outside the Symfony container, needs Symfony services such as the i
 
 ## Decision
 
-Let legacy code **boot the kernel** to reach services. Legacy web code gets the kernel from `Kernel::createForWeb()`, which builds it once per request and reuses it. Collect every service legacy code needs in a **dedicated `ServiceLocator`** (`legacy.service_locator`), a mini-container, and fetch them from it. **Do not make a service `public`** for legacy code's sake.
+Let legacy code **boot the kernel** to reach services. Legacy web code gets the kernel from `Kernel::createForWeb()`, which builds it once per request and reuses it. Collect every service legacy code needs in a **dedicated `ServiceLocator`** (`legacy.service_locator`), a mini-container, and fetch them from it. Keep the services exposed through `legacy.service_locator` private. The locator itself must remain public so legacy code can fetch it.
 
 ## Consequences
 
