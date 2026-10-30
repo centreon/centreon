@@ -266,10 +266,12 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 Given('a remote poller is configured', () => {
+  // Registered before the pollers exist, including the upcoming duplicate
+  registerRunningInstance(remotePollerInstanceId, remotePollerName);
+  registerRunningInstance(duplicatedPollerInstanceId, duplicatedPollerName);
   cy.setUserTokenApiV1().executeCommandsViaClapi(
     'resources/clapi/pollers/poller-1.json'
   );
-  registerRunningInstance(remotePollerInstanceId, remotePollerName);
   cy.visit(PAGES.configuration.pollersLegacy);
   cy.wait('@getNavigationList');
   cy.wait('@getTimeZone');
@@ -286,7 +288,6 @@ When('the user duplicates the configured poller', () => {
     .invoke('attr', 'onclick', "javascript: { setO('m'); submit(); }");
   cy.getIframeBody().find('button[name="duplicate_action"]').click();
   cy.wait('@getTimeZone');
-  registerRunningInstance(duplicatedPollerInstanceId, duplicatedPollerName);
 });
 
 Then('a new disabled poller is created with identical properties', () => {
