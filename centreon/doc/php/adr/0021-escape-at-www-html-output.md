@@ -1,4 +1,4 @@
-# ADR-0021: Escape user-controlled strings in legacy `www/` HTML output through `HtmlSanitizer`
+# ADR-0021: Escape user-controlled strings at the point of `www/` HTML output
 
 - **Status:** Accepted
 - **Date:** 2026-10-30
