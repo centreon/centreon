@@ -15,9 +15,11 @@ The temptation is to re-invent assertions: a bespoke validator with its own meth
 
 Enforce invariants and preconditions in the domain and application with **`Webmozart\Assert\Assert`**. When webmozart is missing a check that is reusable and Centreon-specific, add it to **`App\Shared\Domain\Assert\Assert`**, delegating to `WebmozartAssert` so it throws the same `\InvalidArgumentException`.
 
+This is a **deliberate, team-validated** choice to let the **domain** depend on `webmozart/assert`. The domain layer otherwise stays independent of external libraries, but the team accepted this one as a **sanctioned exception** — value objects, entities and aggregate roots call `Assert::*` directly in their constructors, and `App\Shared\Domain\Assert\Assert` lives in the Domain namespace. A single, uniform assertion vocabulary across the domain and the application was judged preferable to keeping the domain strictly dependency-free.
+
 Do **not** write a parallel assertion helper, and do **not** raise a custom exception, for a check webmozart already provides. Reserve native `\assert()` for type-narrowing in tests — it can be disabled in production, so it is no runtime guard.
 
-This is about input and precondition assertions. A domain exception that expresses a genuine business outcome rather than a malformed value — `AggregateNotFoundException`, `AggregateConflictException`, `AccessDeniedException` in `App\Shared\Domain\Exception` — stays legitimate and is unaffected.
+This is about invariant and precondition assertions. A domain exception that expresses a genuine business outcome rather than a malformed value — `AggregateNotFoundException`, `AggregateConflictException`, `AccessDeniedException` in `App\Shared\Domain\Exception` — stays legitimate and is unaffected.
 
 ## Consequences
 
@@ -25,7 +27,7 @@ This is about input and precondition assertions. A domain exception that express
 - A new reusable, Centreon-specific check extends the shared `Assert` rather than spawning a bespoke validator; a one-off check stays an inline `Assert::*` call.
 - The legacy `Assertion` / `AssertionException` pair is not used by new `src/App` code.
 - `webmozart/assert` in a test, or native `\assert()` in production code, is the inverse mistake (see the assertion convention).
-- Where to validate — input and handler — is governed by [ADR-0001](0001-validate-in-input-and-handler.md); this ADR governs how.
+- This ADR governs _how_ to assert, wherever invariants and preconditions live — value object, entity and aggregate-root constructors as much as inputs and handlers. _Where_ to validate a write request is governed by [ADR-0001](0001-validate-in-input-and-handler.md).
 
 ## When to Amend
 
