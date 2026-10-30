@@ -8,9 +8,14 @@ import {
   checkIfConfigurationIsNotExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
+  duplicatedPollerInstanceId,
+  duplicatedPollerName,
   getPoller,
   insertHost,
   insertPollerConfigUserAcl,
+  registerRunningInstance,
+  remotePollerInstanceId,
+  remotePollerName,
   removeFixtures,
   testHostName,
   waitPollerListToLoad
@@ -20,9 +25,7 @@ let dateBeforeLogin: Date;
 
 beforeEach(() => {
   cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi(
-    'resources/clapi/pollers/poller-1.json'
-  );
+  cy.setUserTokenApiV1();
   cy.addCheckCommand({
     command: 'echo "Post command"',
     enableShell: true,
@@ -263,15 +266,19 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 Given('a remote poller is configured', () => {
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-1.json'
+  );
+  registerRunningInstance(remotePollerInstanceId, remotePollerName);
   cy.visit(PAGES.configuration.pollersLegacy);
   cy.wait('@getNavigationList');
   cy.wait('@getTimeZone');
-  cy.getIframeBody().contains('td', 'Poller-1');
+  cy.getIframeBody().contains('td', remotePollerName);
 });
 
 When('the user duplicates the configured poller', () => {
   cy.getIframeBody()
-    .contains('tr', 'Poller-1')
+    .contains('tr', remotePollerName)
     .find('div.md-checkbox.md-checkbox-inline')
     .click();
   cy.getIframeBody()
@@ -279,13 +286,14 @@ When('the user duplicates the configured poller', () => {
     .invoke('attr', 'onclick', "javascript: { setO('m'); submit(); }");
   cy.getIframeBody().find('button[name="duplicate_action"]').click();
   cy.wait('@getTimeZone');
+  registerRunningInstance(duplicatedPollerInstanceId, duplicatedPollerName);
 });
 
 Then('a new disabled poller is created with identical properties', () => {
   cy.getIframeBody()
     .find('table tbody tr.row_disabled')
     .within(() => {
-      cy.contains('td', 'Poller-1_1').should('exist');
+      cy.contains('td', duplicatedPollerName).should('exist');
       cy.contains('td', '10.30.2.55').should('exist');
     });
 });
