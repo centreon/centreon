@@ -5,7 +5,7 @@
 
 ## Context
 
-Value objects, entities and aggregates enforce their invariants in the constructor, and application code checks preconditions before acting. The project depends on `webmozart/assert`, and `src/App` already uses `Webmozart\Assert\Assert` in ~160 places for exactly this. `Assert::*` throws an `InvalidArgumentException` (a native `\InvalidArgumentException`), which the pipeline recognises as a value-object / domain rejection — `App\Shared\Infrastructure\Messenger\LoggingMiddleware` maps it to a client error (4xx) instead of a logged server error (5xx). The convention is wired end to end.
+Value objects, entities and aggregates enforce their invariants in the constructor, and application code checks preconditions before acting. The project depends on `webmozart/assert`, and `src/App` already uses `Webmozart\Assert\Assert` in ~175 files for exactly this. `Assert::*` throws an `InvalidArgumentException` (a native `\InvalidArgumentException`), which the pipeline recognises as a value-object / domain rejection — `App\Shared\Infrastructure\Messenger\LoggingMiddleware` maps it to a client error (4xx) instead of a logged server error (5xx). The convention is wired end to end.
 
 For a check webmozart lacks, `App\Shared\Domain\Assert\Assert` adds a thin Centreon extension (e.g. `ipOrHostname`) that **delegates to `WebmozartAssert`**, so it throws the same exception and flows through the same mapping.
 
