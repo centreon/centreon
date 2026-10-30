@@ -29,63 +29,95 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Uid\Uuid;
+use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\GrantsServiceTopologyRole;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
 /**
  * Wiring of the service form selectors (/configuration/services/*): the gate, the metadata, the routing
- * and one end-to-end listing per selector. The behavior of each reused provider (filters, sort, scoping)
- * is pinned by its own sibling test under State/ and is not repeated here.
+ * and one end-to-end listing per reused selector. The behavior of each provider (filters, sort, scoping)
+ * is pinned by its own tests under State/ and is not repeated here.
  */
 final class ServiceFormSelectorsWiringTest extends ApiTestCase
 {
+    use GrantsServiceTopologyRole;
+
+    // CentreonACL read-only access right, see Centreon\Domain\Repository\TopologyRepository
+    private const ACL_ACCESS_READ_ONLY = 2;
+
+    /**
+     * reused: an existing provider wired to a new route, listed end to end here, so only reused entries carry
+     * item_iri and keys; a new selector's listing is pinned by its own List<X>ChoicesProviderTest.
+     * on_premise_only: not routed on cloud, whose service form has no such field.
+     */
     private const SELECTORS = [
         'commands' => [
             'uri' => '/api/configuration/services/commands',
             'message' => 'You are not allowed to access commands',
             'item_iri' => '/api/configuration/commands/',
             'keys' => ['id', 'name'],
+            'reused' => true,
+            'on_premise_only' => false,
         ],
         'timeperiods' => [
             'uri' => '/api/configuration/services/timeperiods',
             'message' => 'You are not allowed to access time periods',
             'item_iri' => '/api/configuration/timeperiods/',
             'keys' => ['id', 'name'],
+            'reused' => true,
+            'on_premise_only' => false,
         ],
         'contacts' => [
             'uri' => '/api/configuration/services/contacts',
             'message' => 'You are not allowed to access contacts',
             'item_iri' => '/api/configuration/contacts/',
             'keys' => ['id', 'name'],
+            'reused' => true,
+            'on_premise_only' => true,
         ],
         'contact_groups' => [
             'uri' => '/api/configuration/services/contact_groups',
             'message' => 'You are not allowed to access contact groups',
             'item_iri' => '/api/configuration/contact_groups/',
             'keys' => ['id', 'name'],
+            'reused' => true,
+            'on_premise_only' => true,
         ],
         'host_groups' => [
             'uri' => '/api/configuration/services/host_groups',
             'message' => 'You are not allowed to access host groups',
             'item_iri' => '/api/configuration/host_groups/',
             'keys' => ['id', 'name'],
+            'reused' => true,
+            'on_premise_only' => false,
         ],
         'medias' => [
             'uri' => '/api/configuration/services/medias',
             'message' => 'You are not allowed to access medias',
             'item_iri' => '/api/configuration/medias/',
             'keys' => ['id', 'name', 'url'],
+            'reused' => true,
+            'on_premise_only' => false,
+        ],
+        'service_templates' => [
+            'uri' => '/api/configuration/services/service_templates',
+            'message' => 'You are not allowed to access service templates',
+            'reused' => false,
+            'on_premise_only' => false,
+        ],
+        'traps' => [
+            'uri' => '/api/configuration/services/traps',
+            'message' => 'You are not allowed to access traps',
+            'reused' => false,
+            'on_premise_only' => true,
+        ],
+        'graph_templates' => [
+            'uri' => '/api/configuration/services/graph_templates',
+            'message' => 'You are not allowed to access graph templates',
+            'reused' => false,
+            'on_premise_only' => true,
         ],
     ];
-
-    // topology pages whose hierarchy builds ROLE_CONFIGURATION_SERVICES_SERVICES_BY_HOST_R[W]
-    // (Configuration > Services > Services by host), bridged to ServicePermissionEnum via
-    // CredentialTransformer::LEGACY_PERMISSION_MAP.
-    private const SERVICE_TOPOLOGY_PAGES = [6, 602, 60201];
-
-    // CentreonACL access rights, see Centreon\Domain\Repository\TopologyRepository
-    private const ACL_ACCESS_READ_WRITE = 1;
-    private const ACL_ACCESS_READ_ONLY = 2;
 
     private Connection $connection;
 
@@ -133,7 +165,7 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     public function testEachSelectorIsForbiddenToAReadOnlyUser(string $selector): void
     {
         $username = bin2hex(random_bytes(8));
-        $this->grantServiceTopologyRole($this->createNonAdminContact($username), self::ACL_ACCESS_READ_ONLY);
+        $this->grantServiceTopologyRole($this->connection, $this->createNonAdminContact($this->connection, $username), self::ACL_ACCESS_READ_ONLY, $this->tag);
         $this->login($username);
 
         $response = $this->request('GET', self::SELECTORS[$selector]['uri']);
@@ -213,8 +245,9 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     }
 
     /**
-     * The cloud service form has no contact nor contact group field, so these selectors are on-premise only.
-     * The route condition is evaluated before the firewall, so the route answers 404 to any caller on cloud.
+     * The cloud service form has no contact, contact group, trap nor graph template field, so these selectors
+     * are on-premise only. The route condition is evaluated before the firewall, so the route answers 404 to
+     * any caller on cloud.
      */
     #[DataProvider('provideOnPremiseOnlySelectorsAndCallers')]
     public function testOnPremiseOnlySelectorsDoNotExistOnCloud(string $selector, bool $authenticated, int $onPremiseStatus): void
@@ -237,15 +270,15 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     }
 
     /**
-     * Only contacts and contact groups are on-premise only. The cloud service form still needs the other
-     * selectors (time periods for the check period), so they stay routed on cloud.
+     * Only contacts, contact groups, traps and graph templates are on-premise only. The cloud service form
+     * still needs the other selectors (time periods for the check period), so they stay routed on cloud.
      */
     #[DataProvider('provideSelectorsRoutedOnCloud')]
     public function testOtherSelectorsStayRoutedOnCloud(string $selector): void
     {
         $this->forceCloudPlatform();
         $username = bin2hex(random_bytes(8));
-        $this->grantServiceTopologyRole($this->createNonAdminContact($username), self::ACL_ACCESS_READ_WRITE);
+        $this->grantServiceTopologyRole($this->connection, $this->createNonAdminContact($this->connection, $username), self::ACL_ACCESS_READ_WRITE, $this->tag);
         $this->login($username);
 
         $this->request('GET', self::SELECTORS[$selector]['uri']);
@@ -257,13 +290,13 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
      * A service read-write user needs no role of the listed resource itself. Row-level ACL scoping of
      * contacts, contact groups and host groups still applies, so the fixture is granted to the user.
      */
-    #[DataProvider('provideSelectors')]
+    #[DataProvider('provideReusedSelectors')]
     public function testEachReusedSelectorListsForAServiceReadWriteUser(string $selector): void
     {
         $name = "svc-{$selector}-{$this->tag}";
         $username = bin2hex(random_bytes(8));
-        $contactId = $this->createNonAdminContact($username);
-        $aclGroupId = $this->grantServiceTopologyRole($contactId, self::ACL_ACCESS_READ_WRITE);
+        $contactId = $this->createNonAdminContact($this->connection, $username);
+        $aclGroupId = $this->grantServiceTopologyRole($this->connection, $contactId, self::ACL_ACCESS_READ_WRITE, $this->tag);
         $fixtureId = $this->insertVisibleFixture($selector, $name, $aclGroupId);
         $this->login($username);
 
@@ -273,8 +306,11 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
         /** @var list<array<string, mixed>> $member */
         $member = $response->toArray()['member'];
         self::assertCount(1, $member);
-        self::assertEqualsCanonicalizing(['@id', '@type', ...self::SELECTORS[$selector]['keys']], array_keys($member[0]));
-        self::assertSame(self::SELECTORS[$selector]['item_iri'] . $fixtureId, $member[0]['@id']);
+        $definition = self::SELECTORS[$selector];
+        $expectedKeys = $definition['keys'] ?? throw new \LogicException("{$selector} is not a reused selector");
+        $itemIri = $definition['item_iri']; // every reused entry carries item_iri and keys
+        self::assertEqualsCanonicalizing(['@id', '@type', ...$expectedKeys], array_keys($member[0]));
+        self::assertSame($itemIri . $fixtureId, $member[0]['@id']);
         self::assertSame($fixtureId, $member[0]['id']);
         self::assertSame($name, $member[0]['name']);
     }
@@ -292,10 +328,24 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
     /**
      * @return iterable<string, array{string}>
      */
+    public static function provideReusedSelectors(): iterable
+    {
+        foreach (self::SELECTORS as $selector => $definition) {
+            if ($definition['reused']) {
+                yield $selector => [$selector];
+            }
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
     public static function provideSelectorsRoutedOnCloud(): iterable
     {
-        foreach (['commands', 'timeperiods', 'host_groups', 'medias'] as $selector) {
-            yield $selector => [$selector];
+        foreach (self::SELECTORS as $selector => $definition) {
+            if (! $definition['on_premise_only']) {
+                yield $selector => [$selector];
+            }
         }
     }
 
@@ -304,10 +354,12 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
      */
     public static function provideOnPremiseOnlySelectorsAndCallers(): iterable
     {
-        foreach (['contacts', 'contact_groups'] as $selector) {
-            yield "{$selector}, authenticated" => [$selector, true, 200];
+        foreach (self::SELECTORS as $selector => $definition) {
+            if ($definition['on_premise_only']) {
+                yield "{$selector}, authenticated" => [$selector, true, 200];
 
-            yield "{$selector}, anonymous" => [$selector, false, 401];
+                yield "{$selector}, anonymous" => [$selector, false, 401];
+            }
         }
     }
 
@@ -410,66 +462,6 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
         $this->connection->insert($table, $row);
 
         return (int) $this->connection->lastInsertId();
-    }
-
-    private function createNonAdminContact(string $alias): int
-    {
-        $this->createApiUser($this->connection, $alias, admin: false);
-
-        $contactId = $this->connection->fetchOne(
-            'SELECT contact_id FROM contact WHERE contact_alias = :alias',
-            ['alias' => $alias]
-        );
-        Assert::notFalse($contactId);
-        Assert::scalar($contactId);
-
-        return (int) $contactId;
-    }
-
-    /**
-     * Grants "Configuration > Services > Services by host" through real ACL menu rows and returns the
-     * access group id (reused for row-level scoping).
-     *
-     * @param int $accessRight CentreonACL::ACL_ACCESS_READ_WRITE (1) or ACL_ACCESS_READ_ONLY (2)
-     */
-    private function grantServiceTopologyRole(int $contactId, int $accessRight): int
-    {
-        $aclGroupId = $this->insertRow('acl_groups', [
-            'acl_group_name' => "topology-group-{$this->tag}",
-            'acl_group_alias' => "topology-group-{$this->tag}",
-            'acl_group_activate' => '1',
-        ]);
-        $this->connection->insert('acl_group_contacts_relations', [
-            'acl_group_id' => $aclGroupId,
-            'contact_contact_id' => $contactId,
-        ]);
-
-        $aclTopologyId = $this->insertRow('acl_topology', [
-            'acl_topo_name' => "topology-rule-{$this->tag}",
-            'acl_topo_alias' => "topology-rule-{$this->tag}",
-            'acl_topo_activate' => '1',
-        ]);
-        $this->connection->insert('acl_group_topology_relations', [
-            'acl_group_id' => $aclGroupId,
-            'acl_topology_id' => $aclTopologyId,
-        ]);
-
-        foreach (self::SERVICE_TOPOLOGY_PAGES as $topologyPage) {
-            $topologyId = $this->connection->fetchOne(
-                'SELECT topology_id FROM topology WHERE topology_page = :page',
-                ['page' => $topologyPage]
-            );
-            Assert::notFalse($topologyId, "topology_page {$topologyPage} not found in fixtures");
-            Assert::scalar($topologyId);
-
-            $this->connection->insert('acl_topology_relations', [
-                'topology_topology_id' => (int) $topologyId,
-                'acl_topo_id' => $aclTopologyId,
-                'access_right' => $accessRight,
-            ]);
-        }
-
-        return $aclGroupId;
     }
 
     /**
