@@ -1178,7 +1178,6 @@ describe('Dashboard', () => {
         action: FavoriteAction.add,
         customDetailsPath: 'Dashboards/Dashboard/details.json'
       });
-      cy.makeSnapshot();
     });
 
     it('remove a dashboard from favorites when clicking on the corresponding icon in the details view', () => {
@@ -1187,7 +1186,6 @@ describe('Dashboard', () => {
         action: FavoriteAction.delete,
         customDetailsPath: 'Dashboards/favorites/details.json'
       });
-      cy.makeSnapshot();
     });
 
     it('disable favorite icon button on click', () => {
