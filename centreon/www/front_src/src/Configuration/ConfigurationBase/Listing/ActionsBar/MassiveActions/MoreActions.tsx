@@ -22,6 +22,7 @@ import {
   labelEnable
 } from '../../../translatedLabels';
 import { selectedRowsAtom } from '../../atoms';
+import { listingDataTestIds } from '../../dataTestIds';
 import { useActionsStyles } from '../Actions.styles';
 import useMassiveActions from './useMassiveActions';
 
@@ -45,7 +46,7 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
     ({ Icon, dataTestId, label, onClick }) => [
       ActionsListActionDivider.divider,
       {
-        'data-testid': dataTestId,
+        dataTestId,
         disable: isMutating,
         Icon,
         label: t(label),
@@ -61,12 +62,14 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
 
   const sharedActions = [
     supports('duplicate') && {
+      dataTestId: listingDataTestIds.massive.duplicate,
       disable: isMutating,
       Icon: DuplicateIcon,
       label: t(labelDuplicate),
       onClick: pipe(openDuplicateModal, close)
     },
     supports('enable') && {
+      dataTestId: listingDataTestIds.massive.enable,
       disable: isMutating,
       Icon: EnableIcon,
       label: t(labelEnable),
@@ -74,6 +77,7 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
       variant: 'success'
     },
     supports('disable') && {
+      dataTestId: listingDataTestIds.massive.disable,
       disable: isMutating,
       Icon: DisableIcon,
       label: t(labelDisable),
@@ -81,6 +85,7 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
       variant: 'error'
     },
     supports('delete') && {
+      dataTestId: listingDataTestIds.massive.delete,
       disable: isMutating,
       Icon: DeleteIcon,
       label: t(labelDelete),
