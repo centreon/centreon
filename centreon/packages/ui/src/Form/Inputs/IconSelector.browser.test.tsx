@@ -112,7 +112,7 @@ describe('Icon selector', () => {
   it('lists the images of the endpoint, each with its thumbnail', async () => {
     initialize();
 
-    await userEvent.click(await screen.findByTestId(label));
+    await userEvent.click(await screen.findByRole('combobox', { name: label }));
     await waitForRequest('@getIcons');
 
     const list = await screen.findByRole('listbox');
@@ -131,7 +131,7 @@ describe('Icon selector', () => {
   it('stores the picked image in the field and shows it beside the picker', async () => {
     initialize();
 
-    await userEvent.click(await screen.findByTestId(label));
+    await userEvent.click(await screen.findByRole('combobox', { name: label }));
     await waitForRequest('@getIcons');
     await userEvent.click(await screen.findByText('green'));
 
@@ -141,7 +141,9 @@ describe('Icon selector', () => {
       );
     });
     await waitFor(() => {
-      expect(screen.getByTestId(label)).toHaveValue('green');
+      expect(screen.getByRole('combobox', { name: label })).toHaveValue(
+        'green'
+      );
     });
     await waitFor(() => {
       expect(getPreview('green')).toHaveAttribute('src', icons[1].url);
@@ -151,12 +153,14 @@ describe('Icon selector', () => {
   it('shows the initial image and removes it once the field is cleared', async () => {
     initialize({ initialValues: { icon: icons[0] } });
 
-    expect(await screen.findByTestId(label)).toHaveValue('blue');
+    expect(await screen.findByRole('combobox', { name: label })).toHaveValue(
+      'blue'
+    );
     await waitFor(() => {
       expect(getPreview('blue')).toBeInTheDocument();
     });
 
-    await userEvent.hover(screen.getByTestId(label));
+    await userEvent.hover(screen.getByRole('combobox', { name: label }));
     await userEvent.click(await screen.findByTitle('Clear'));
 
     await waitFor(() => {
@@ -175,10 +179,12 @@ describe('Icon selector', () => {
       })
     });
 
-    expect(await screen.findByTestId(label)).toHaveValue('blue');
+    expect(await screen.findByRole('combobox', { name: label })).toHaveValue(
+      'blue'
+    );
     expect(screen.queryByText(labelRequired)).not.toBeInTheDocument();
 
-    await userEvent.hover(screen.getByTestId(label));
+    await userEvent.hover(screen.getByRole('combobox', { name: label }));
     await userEvent.click(await screen.findByTitle('Clear'));
 
     expect(await screen.findByText(labelRequired)).toBeVisible();
@@ -190,9 +196,11 @@ describe('Icon selector', () => {
       initialValues: { extendedInfos: { icon: icons[0] } }
     });
 
-    expect(await screen.findByTestId(label)).toHaveValue('blue');
+    expect(await screen.findByRole('combobox', { name: label })).toHaveValue(
+      'blue'
+    );
 
-    await userEvent.click(screen.getByTestId(label));
+    await userEvent.click(screen.getByRole('combobox', { name: label }));
     await waitForRequest('@getIcons');
     await userEvent.click(await screen.findByText('green'));
 
@@ -201,6 +209,12 @@ describe('Icon selector', () => {
         JSON.stringify(icons[1])
       );
     });
+  });
+
+  it('uses the label as test id by default', async () => {
+    initialize();
+
+    expect(await screen.findByTestId(label)).toBeVisible();
   });
 
   it('uses the given test id instead of the label', async () => {
@@ -213,6 +227,6 @@ describe('Icon selector', () => {
   it('is disabled when getDisabled says so', async () => {
     initialize({ disabled: true, initialValues: { icon: icons[0] } });
 
-    expect(await screen.findByTestId(label)).toBeDisabled();
+    expect(await screen.findByRole('combobox', { name: label })).toBeDisabled();
   });
 });
