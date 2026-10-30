@@ -74,8 +74,9 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
-        // No actor scoping: like the legacy host template listing, access is gated by the page
-        // permission only (the operation's security), every host template is then listed.
+        // No actor scoping (MON-213189: host templates are never ACL-filtered): like the legacy host
+        // template listing, access is gated by the page permission only (the operation's security),
+        // every host template is then listed.
         $criteria = HostTemplateCriteria::unscoped();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);

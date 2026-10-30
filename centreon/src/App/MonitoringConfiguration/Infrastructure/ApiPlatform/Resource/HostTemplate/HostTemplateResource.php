@@ -70,8 +70,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             provider: ListHostTemplatesProvider::class,
             itemUriTemplate: '/configuration/host_templates/{id}',
             output: HostTemplateCollectionOutput::class,
-            // a missing alias or icon is sent as an explicit null, not dropped from the member
-            normalizationContext: ['skip_null_values' => false],
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
