@@ -89,6 +89,10 @@ export interface Actions {
   rowActionsWithoutWriteAccess?: boolean;
 }
 
+// The advanced filters panel width: theme spacing units, or `full` for the
+// width of the search field it opens from, which it then lines up with.
+export type FiltersPanelWidth = number | 'full';
+
 export interface ConfigurationBase<TFilters> {
   resourceType: ResourceType;
   columns: Array<Column>;
@@ -118,7 +122,7 @@ export interface ConfigurationBase<TFilters> {
     label: string;
     link: string;
   }>;
-  filtersPanelWidth?: number;
+  filtersPanelWidth?: FiltersPanelWidth;
   // Where the create/edit form opens. Modal by default.
   formVariant?: 'modal' | 'panel';
   // Width the panel opens at; the user can resize it from there.
@@ -192,5 +196,5 @@ export interface Configuration {
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
   actions?: Actions;
-  filtersPanelWidth?: number;
+  filtersPanelWidth?: FiltersPanelWidth;
 }

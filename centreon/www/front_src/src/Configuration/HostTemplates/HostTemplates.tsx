@@ -71,6 +71,8 @@ const HostTemplates = (): JSX.Element => {
       filtersAtomKey={filtersAtomKey}
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
+      // As wide as the search field, which the two filters fit.
+      filtersPanelWidth="full"
       form={form}
       formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}

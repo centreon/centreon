@@ -49,6 +49,25 @@ export default () => {
       expect(getLockedElements(panel)).not.toBeChecked();
     });
 
+    // Tolerances: the popper sits on whole pixels, and the toolbar beside the
+    // field may still widen by about a pixel after the first paint, which an
+    // open popper does not follow. The default panel is 336px, the field 480.
+    it('opens the filters panel as wide as the search field, lined up with it', async () => {
+      const panel = await initializeWithAdvancedFilters();
+
+      // The outlined box the user sees, not the bare input inside it.
+      const field = (
+        screen
+          .getByPlaceholderText(labelSearch)
+          .closest('.MuiInputBase-root') as HTMLElement
+      ).getBoundingClientRect();
+      const { left, right, width } = panel.getBoundingClientRect();
+
+      expect(Math.abs(width - field.width)).toBeLessThanOrEqual(1);
+      expect(Math.abs(left - field.left)).toBeLessThanOrEqual(2);
+      expect(Math.abs(right - field.right)).toBeLessThanOrEqual(2);
+    });
+
     it('sends the searched name as `name[lk]`', async () => {
       initialize();
 

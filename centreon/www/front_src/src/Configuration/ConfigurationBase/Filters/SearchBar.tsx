@@ -3,7 +3,7 @@
 import { SearchField } from '@centreon/ui';
 
 import { PrimitiveAtom } from 'jotai';
-import { ReactElement, useMemo } from 'react';
+import { ReactElement, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { labelSearch } from '../translatedLabels';
@@ -22,6 +22,8 @@ const Filters = <TFilters,>({
 }: Props<TFilters>): ReactElement => {
   const { classes } = useFilterStyles({});
   const { t } = useTranslation();
+  // What a full-width filters panel lines up with.
+  const searchFieldRef = useRef<HTMLDivElement>(null);
 
   const { filters, onChange, areAdvancedFiltersVisible } = useSearch<TFilters>({
     filtersAtom
@@ -33,13 +35,14 @@ const Filters = <TFilters,>({
         areAdvancedFiltersVisible={areAdvancedFiltersVisible}
         filtersAtom={filtersAtom}
         filtersAtomKey={filtersAtomKey}
+        searchFieldRef={searchFieldRef}
       />
     ),
     [areAdvancedFiltersVisible, filtersAtom]
   );
 
   return (
-    <div className={classes.filters}>
+    <div className={classes.filters} ref={searchFieldRef}>
       <SearchField
         dataTestId={'search-bar'}
         debounced
