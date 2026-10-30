@@ -5379,11 +5379,47 @@ paths:
         -
           name: 'name[lk]'
           in: query
-          description: 'Filter by host template name using "like" operator'
+          description: 'Filter by host template name or alias using "like" operator'
           required: false
           deprecated: false
           schema:
             type: string
+          style: form
+          explode: true
+        -
+          name: is_locked
+          in: query
+          description: 'Include the locked host templates as well (unlocked ones only when absent or false)'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: 'sort[name]'
+          in: query
+          description: 'Sort by name (default: name ascending)'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          style: form
+          explode: true
+        -
+          name: 'sort[alias]'
+          in: query
+          description: 'Sort by alias'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
           style: form
           explode: true
         -
@@ -11765,10 +11801,29 @@ components:
     HostTemplate.HostTemplateCollectionOutput:
       type: object
       properties:
+        linked_service_templates_count:
+          default: 0
+          type: integer
+        parent_templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateOutput'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput'
+            -
+              type: 'null'
         id:
           type: integer
         name:
           type: string
+        alias:
+          type:
+            - string
+            - 'null'
+        is_locked:
+          type: boolean
     HostTemplate.HostTemplateCollectionOutput.jsonld:
       allOf:
         -
@@ -11776,10 +11831,29 @@ components:
         -
           type: object
           properties:
+            linked_service_templates_count:
+              default: 0
+              type: integer
+            parent_templates:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostTemplateOutput.jsonld'
+            icon:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostIconOutput.jsonld'
+                -
+                  type: 'null'
             id:
               type: integer
             name:
               type: string
+            alias:
+              type:
+                - string
+                - 'null'
+            is_locked:
+              type: boolean
     Host.HostCollectionOutput:
       type: object
       properties:
