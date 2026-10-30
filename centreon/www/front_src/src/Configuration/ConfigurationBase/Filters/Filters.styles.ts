@@ -1,9 +1,11 @@
 import { makeStyles } from 'tss-react/mui';
 
+import type { FiltersPanelWidth } from '../../models';
+
 export const defaultFiltersPanelWidth = 42;
 
 interface FilterStylesParams {
-  filtersPanelWidth?: number;
+  filtersPanelWidth?: FiltersPanelWidth;
 }
 
 export const useFilterStyles = makeStyles<FilterStylesParams>()(
@@ -13,9 +15,15 @@ export const useFilterStyles = makeStyles<FilterStylesParams>()(
       display: 'flex',
       flexDirection: 'column',
       gap: theme.spacing(1.5),
-      marginTop: theme.spacing(1),
+      // An icon-anchored panel clears the field with this margin; a `full`
+      // one already hangs from the field's bottom edge and stays flush to it.
+      marginTop: filtersPanelWidth === 'full' ? 0 : theme.spacing(1),
       padding: theme.spacing(2),
-      width: theme.spacing(filtersPanelWidth ?? defaultFiltersPanelWidth)
+      // `full`: the popper is sized to the search field, the panel fills it.
+      width:
+        filtersPanelWidth === 'full'
+          ? '100%'
+          : theme.spacing(filtersPanelWidth ?? defaultFiltersPanelWidth)
     },
     additionalFiltersButtons: {
       display: 'flex',

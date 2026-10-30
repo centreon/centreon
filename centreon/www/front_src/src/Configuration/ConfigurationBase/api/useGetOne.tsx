@@ -21,7 +21,9 @@ const useGetDetails = ({ id }: { id: number | null }) => {
     getEndpoint: () => endpoint?.({ id: id as number | string }) as string,
     getQueryKey: () => ['getDetails', id, resourceType],
     queryOptions: {
-      enabled: isNotNil(id),
+      // A module may not have a detail endpoint yet: the form then opens on
+      // its default values rather than querying an undefined URL.
+      enabled: isNotNil(id) && isNotNil(endpoint),
       suspense: false
     }
   });
