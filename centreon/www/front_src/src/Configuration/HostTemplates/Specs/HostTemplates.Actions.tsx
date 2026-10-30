@@ -89,8 +89,6 @@ export default () => {
 
       const menu = await openMoreActions();
 
-      // A positive assertion on the whole menu: it fails if an entry goes
-      // missing or one appears.
       expect(
         within(menu)
           .getAllByRole('menuitem')

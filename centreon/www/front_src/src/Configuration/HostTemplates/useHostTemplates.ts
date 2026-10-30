@@ -14,7 +14,7 @@ interface UseHostTemplatesState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
-// Listing only: the write endpoints land with the form and actions sub-tasks.
+// Listing only: no write endpoint is declared yet.
 // No `activationField`: a host template cannot be enabled or disabled.
 const api: APIType = {
   apiFormat: 'JSON-LD',

@@ -23,7 +23,6 @@ interface Props<TFilters> {
   searchFieldRef: RefObject<HTMLDivElement | null>;
 }
 
-// The popper as wide as its reference, re-measured with it on every update.
 const matchReferenceWidth = {
   effect: ({ state }): void => {
     state.elements.popper.style.width = `${state.elements.reference.offsetWidth}px`;

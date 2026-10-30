@@ -107,7 +107,6 @@ export default () => {
         '@getAllHostTemplates'
       );
 
-      // Absent, never `false`.
       expect(unchecked.url.searchParams.has('is_locked')).toBe(false);
     });
 
@@ -127,8 +126,6 @@ export default () => {
       expect(getLockedElements(panel)).not.toBeChecked();
     });
 
-    // The read half of the persistence: what was stored is what the page opens
-    // with, and what its very first request carries.
     it('opens with the filters kept in local storage, and requests with them', async () => {
       window.localStorage.setItem(
         'filters_host_templates',

@@ -22,7 +22,6 @@ const Filters = <TFilters,>({
 }: Props<TFilters>): ReactElement => {
   const { classes } = useFilterStyles({});
   const { t } = useTranslation();
-  // What a full-width filters panel lines up with.
   const searchFieldRef = useRef<HTMLDivElement>(null);
 
   const { filters, onChange, areAdvancedFiltersVisible } = useSearch<TFilters>({

@@ -18,8 +18,7 @@ import { hostTemplateIcon } from './utils';
 const getRow = (name: string): HTMLElement =>
   screen.getByText(name).closest('[role="row"]') as HTMLElement;
 
-// The parent links repeat a template name, so a row is found by a text only
-// its own name cell holds.
+// The parent links repeat template names, so a row is found by its checkbox.
 const getRowOf = (id: number): HTMLElement =>
   screen
     .getByLabelText(`Select row ${id}`)
@@ -63,7 +62,6 @@ export default () => {
       const count = within(getRowOf(3)).getByText(/^12$/);
 
       expect(count).toBeVisible();
-      // Not clickable: no link, no button around the number.
       expect(count.closest('a, button')).toBeNull();
     });
 
@@ -85,7 +83,6 @@ export default () => {
         )
       );
 
-      // Left out of the payload, and explicitly null.
       expect(within(getRowOf(2)).getByTestId('HostIcon')).toBeInTheDocument();
       expect(within(getRowOf(3)).getByTestId('HostIcon')).toBeInTheDocument();
       expect(within(getRowOf(1)).queryByTestId('HostIcon')).toBeNull();
@@ -160,7 +157,6 @@ export default () => {
 
     // No test of an icon that fails to load: `@centreon/ui`'s `Image` shows
     // its fallback only while loading, then a broken image (`useLoadImage`
-    // records a failure as `''`, which it reads as loaded). Shared behavior,
-    // the Hosts listing included; to fix there, not to pin here.
+    // records a failure as `''`, which it reads as loaded).
   });
 };

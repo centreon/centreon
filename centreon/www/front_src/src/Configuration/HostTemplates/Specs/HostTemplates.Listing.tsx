@@ -61,8 +61,6 @@ export default () => {
       expect(screen.getByText('OS-Linux-SNMP-custom')).toBeVisible();
     });
 
-    // The fixture carries the JSON-LD `@id`/`@type` API Platform adds to each
-    // member and nested object: decoding ignores them rather than failing.
     it('decodes the rows, icons and parents despite their JSON-LD keys', async () => {
       await initializeListing();
 
@@ -180,8 +178,6 @@ export default () => {
       expect(create).toBeEnabled();
     });
 
-    // Filters that match nothing are not an empty platform: the listing
-    // stays, with its own empty row, rather than the welcome page.
     it('keeps the listing, empty, when the filters match no host template', async () => {
       window.localStorage.setItem(
         'filters_host_templates',
@@ -214,7 +210,6 @@ export default () => {
       ).not.toBeInTheDocument();
     });
 
-    // A bookmark or a reload: the page opens straight on that template.
     it('opens the panel of the template named in the URL it is opened at', async () => {
       const { queryErrors } = initialize({ search: '?id=2&mode=edit' });
 
@@ -225,8 +220,8 @@ export default () => {
       expect(queryErrors).toEqual([]);
     });
 
-    // No detail endpoint exists until the form sub-task: the row opens an
-    // empty panel, without querying an undefined URL.
+    // No detail endpoint exists yet: the row opens an empty panel, without
+    // querying an undefined URL.
     it('opens the panel of the clicked row without requesting its details', async () => {
       const { queryErrors } = await initializeListing();
 

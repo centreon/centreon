@@ -25,7 +25,6 @@ import { emptyListingResponse, getListingResponse } from './utils';
 interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
-  // The query string the page is opened at, as a bookmark or a reload would.
   search?: string;
 }
 

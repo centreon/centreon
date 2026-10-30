@@ -27,7 +27,8 @@ import {
   filtersInitialValues
 } from './utils';
 
-// TODO MON-213546 form sub-task: the create, edit and details form.
+// TODO: the create, edit and details form ships separately; the panel stays
+// empty until then.
 const form = {
   defaultValues: {},
   groups: [],
