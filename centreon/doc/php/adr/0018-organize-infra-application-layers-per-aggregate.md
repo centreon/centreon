@@ -13,7 +13,7 @@ The `Infrastructure/ApiPlatform/` layer grew the same pressure: `Resource/` and 
 
 Compartmentalize per aggregate in exactly **two** layers:
 
-- the Domain model, under `Domain/Model/<Agg>/`, as set by [ADR-0002](0002-name-domain-folder-model.md);
+- the Domain model, under `Domain/Model/<Agg>/` for aggregate- or read-model-owned classes; shared value objects and enums stay at the `Domain/Model/` root, and contexts not yet migrated keep `Domain/Aggregate/`, as set by [ADR-0002](0002-name-domain-folder-model.md);
 - the ApiPlatform layer: group each aggregate's classes under `Infrastructure/ApiPlatform/Resource/<Agg>/` (the `<Agg>Resource` and the request `*Input` / response `*Output` sub-objects it exposes) and `Infrastructure/ApiPlatform/State/<Agg>/` (its providers, processors and resource transformers).
 
 **Every other layer stays flat.** `Domain/Repository`, `Domain/Security`, `Application/Command`, `Application/Query`, `Infrastructure/Dbal`, `Infrastructure/Security`, … hold their classes directly, with no `<Agg>/` segment. Do not add an aggregate subfolder there, and do not ask for one in review.

@@ -1,4 +1,4 @@
-# ADR-0021: Escape user-controlled strings at the point of `www/` HTML output
+# ADR-0021: Escape user-controlled and database-sourced strings at the point of `www/` HTML output
 
 - **Status:** Accepted
 - **Date:** 2026-10-30
@@ -17,10 +17,12 @@ The rule is for `www/` only. `HtmlSanitizer` is a `www/` class and has no place 
 
 Escape on **output**, never before storage. User-controlled data is written to the database **raw** — do not `HtmlSanitizer`- or `htmlspecialchars`-it before a write — and is escaped only at the point it is rendered. Escaping before storage corrupts the stored value and still cannot know the rendering context.
 
-In `www/` PHP that emits HTML **directly** (echo or string concatenation), pass every user-controlled or database-sourced string through **`HtmlSanitizer`** before it reaches the output:
+In `www/` PHP that emits HTML **text or a quoted attribute** directly (echo or string concatenation), pass every user-controlled or database-sourced string through **`HtmlSanitizer`** before it reaches the output:
 
 - `HtmlSanitizer::createFromString($value)->sanitize()->getString()` to escape.
 - `->removeTags($allowedTags)` where markup must be stripped rather than escaped.
+
+This rule covers the HTML text and quoted-attribute contexts only. URL attributes (`href`, `src`), inline `<script>` or `<style>` content, and other JavaScript or CSS contexts are **out of scope**: `htmlspecialchars()` leaves a `javascript:` URL executable, so those values need URL validation or context-specific encoding that this ADR does not define.
 
 Do **not** hand-roll `htmlspecialchars()` or `htmlentities()` at the call site, and do **not** reach for the deprecated `HtmlAnalyzer`.
 

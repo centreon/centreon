@@ -60,7 +60,7 @@ Decisions taken by the PHP team on the backend architecture, by topic. The terms
 |---|---|---|
 | [0010](0010-parameterize-repository-queries.md) | Build repository SQL with the `QueryBuilder` and bound parameters, never string concatenation | Accepted |
 | [0015](0015-scope-resource-access-with-acting-user-and-access-scope.md) | Scope resource access with an acting user and an access scope | Accepted |
-| [0021](0021-escape-at-www-html-output.md) | Escape user-controlled strings at the point of `www/` HTML output | Accepted |
+| [0021](0021-escape-at-www-html-output.md) | Escape user-controlled and database-sourced strings at the point of `www/` HTML output | Accepted |
 
 ## Testing
 

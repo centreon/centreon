@@ -30,7 +30,7 @@ Without a rule, code keeps reaching for whichever entry point is nearest, and th
   ```php
   try {
       $this->connection->executeStatement(
-          'DELETE FROM `:db`.hostgroup WHERE hg_id = :id',
+          $this->translateDbName('DELETE FROM `:db`.hostgroup WHERE hg_id = :id'),
           QueryParameters::create([QueryParameter::int('id', $hostGroupId)]),
       );
   } catch (ConnectionException $exception) {
@@ -47,7 +47,7 @@ Without a rule, code keeps reaching for whichever entry point is nearest, and th
 - Logging and database access in legacy go through the same `Adaptation` interfaces as the rest of the modern stack, and the `\PDO` surface stays out of new code.
 - The **database** and **repository** rules are strict and blocking on any new class, method or function, but do not force a rewrite of existing code: improve it when reasonable, otherwise leave it, so a small change is not made to drag a whole legacy class onto the new base. The **logging** rule is the exception — it has no new-only limit and applies to existing code too.
 - A new method added to a pre-existing repository keeps the class's `extends`, since `DatabaseConnection implements ConnectionInterface`: the `ConnectionInterface` methods are already available on the injected connection. Only a new repository **file** must extend `DatabaseRepository`.
-- A repository that neither logs nor catches-and-returns makes failures visible to its caller as a typed `RepositoryException`, so the error surfaces once, at the layer that can decide what to do with it, instead of being hidden behind a logged fallback value.
+- A repository must not log or swallow failures: it catches the infrastructure exception and wraps it in a typed `RepositoryException`, so the error surfaces once, at the layer that can decide what to do with it, instead of being hidden behind a logged fallback value.
 - This is the complement to [ADR-0005](0005-isolate-legacy-in-infrastructure-legacy.md) and [ADR-0006](0006-expose-symfony-services-to-legacy-via-service-locator.md): those two govern the `src/App` ↔ legacy boundary, this one governs how legacy code reaches its own logging and database.
 - The rule is enforced in review. The deprecated entry points are not removed, so a search for `CentreonLog`, `error_log()`, `CentreonDB` or `AbstractRepository{RDB,DRB}` is only a heuristic: a hit is confirmed by reading the code.
 

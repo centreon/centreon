@@ -88,7 +88,7 @@ When a port has several adapters, the chosen one is wired explicitly in the Symf
 
 ### Adaptation layer
 
-The `src/Adaptation` namespace, a set of ports and adapters that wrap cross-cutting technical concerns — logging (`Adaptation\Log`) and the database connection (`Adaptation\Database`) — behind clean interfaces. It is the bridge both the modern stack and legacy code share for these concerns. New code outside `src/App` reaches logging and the database only through it, as set by [ADR-0016](adr/0016-access-logging-and-database-through-adaptation-layer.md).
+The `src/Adaptation` namespace, a set of ports and adapters that wrap cross-cutting technical concerns — logging (`Adaptation\Log`) and the database connection (`Adaptation\Database`) — behind clean interfaces. It is the bridge both the modern stack and legacy code share for these concerns. New code outside `src/App` reaches the database through it, and all new or touched logging outside `src/App` goes through it too, as set by [ADR-0016](adr/0016-access-logging-and-database-through-adaptation-layer.md).
 
 ---
 

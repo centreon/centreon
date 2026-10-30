@@ -5,7 +5,7 @@
 
 ## Context
 
-Value objects, entities and aggregates enforce their invariants in the constructor, and application code checks preconditions before acting. The project depends on `webmozart/assert`, and `src/App` already uses `Webmozart\Assert\Assert` in ~175 files for exactly this. `Assert::*` throws an `InvalidArgumentException` (a native `\InvalidArgumentException`), which the pipeline recognises as a value-object / domain rejection — `App\Shared\Infrastructure\Messenger\LoggingMiddleware` maps it to a client error (4xx) instead of a logged server error (5xx). The convention is wired end to end.
+Value objects, entities and aggregates enforce their invariants in the constructor, and application code checks preconditions before acting. The project depends on `webmozart/assert`, and `src/App` already uses `Webmozart\Assert\Assert` in ~175 files for exactly this. `Assert::*` throws an `InvalidArgumentException` (a native `\InvalidArgumentException`), which the pipeline recognises as a value-object / domain rejection: API Platform maps it to a client error (4xx), and `App\Shared\Infrastructure\Messenger\LoggingMiddleware` logs it at `WARNING` rather than as the `CRITICAL` it keeps for an unexpected server error. The convention is wired end to end.
 
 For a check webmozart lacks, `App\Shared\Domain\Assert\Assert` adds a thin Centreon extension (e.g. `ipOrHostname`) that **delegates to `WebmozartAssert`**, so it throws the same exception and flows through the same mapping.
 
@@ -23,7 +23,7 @@ This is about invariant and precondition assertions. A domain exception that exp
 
 ## Consequences
 
-- Invariants read the same everywhere, and a single exception type reaches the boundary, mapped to a client error without polluting the server logs.
+- Invariants read the same everywhere, and a single exception type reaches the boundary, mapped to a client error and logged only as a warning rather than as a server error.
 - A new reusable, Centreon-specific check extends the shared `Assert` rather than spawning a bespoke validator; a one-off check stays an inline `Assert::*` call.
 - The legacy `Assertion` / `AssertionException` pair is not used by new `src/App` code.
 - `webmozart/assert` in a test, or native `\assert()` in production code, is the inverse mistake (see the assertion convention).
