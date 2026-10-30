@@ -18,7 +18,8 @@ export enum ResourceType {
   HostGroup = 'host group',
   ServiceGroup = 'service group',
   AdditionalConfiguration = 'additional configuration',
-  Command = 'command'
+  Command = 'command',
+  HostTemplate = 'host template'
 }
 
 export interface Form {
@@ -77,6 +78,9 @@ export interface Actions {
         disable?: boolean;
       };
   edit?: boolean;
+  // Whether a row may be checked. A refused row stays out of the selection,
+  // select-all included, but keeps its inline actions. Every row by default.
+  selectable?: (row: ResourceRow) => boolean;
   viewDetails?: boolean;
   rowActions?: Array<RowAction>;
   massiveActions?: Array<MassiveAction>;
