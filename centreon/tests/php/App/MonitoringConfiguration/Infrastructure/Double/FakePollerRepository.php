@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
@@ -140,8 +141,16 @@ final class FakePollerRepository implements PollerRepository
         return $this->pollers[$pollerId->value] ?? throw new PollerNotFoundException(['id' => $pollerId->value]);
     }
 
+    /**
+     * Records the resource whose poller is flagged; like the real repository, a service with no poller to flag
+     * flags nothing.
+     */
     public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
     {
+        if ($resource instanceof Service && ! $resource->pollerToFlag() instanceof PollerId) {
+            return;
+        }
+
         $this->flaggedResources[] = $resource;
     }
 
