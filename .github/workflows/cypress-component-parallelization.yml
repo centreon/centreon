@@ -105,12 +105,16 @@ jobs:
 
       - name: Install Cypress binary
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        env:
+          # cypress verify defaults to 30 s, too short on a slow runner.
+          CYPRESS_VERIFY_TIMEOUT: "60000"
         with:
-          timeout_seconds: 120
+          timeout_seconds: 300
           max_attempts: 10
           retry_wait_seconds: 30
-          retry_on: error
-          command: cd "$MODULE_NAME" && pnpm cypress install --force
+          # A download timeout must be retried too, not only an error exit.
+          retry_on: any
+          command: cd "$MODULE_NAME" && pnpm cypress install --force && pnpm cypress verify
 
       - name: Cypress web component testing
         uses: cypress-io/github-action@c495c3ddffba403ba11be95fffb67e25203b3799 # v7.1.10
