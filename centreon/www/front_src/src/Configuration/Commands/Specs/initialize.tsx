@@ -1,9 +1,14 @@
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { SnackbarProvider } from '@centreon/ui';
 import {
   defaultLimitPerPageAtom,
+  type UserPermissions,
   userPermissionsAtom
 } from '@centreon/ui-context';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { interceptAPIRequest, Method } from '@test-setup/api';
+import { render } from '@test-setup/render';
+import type { RenderResult } from '@testing-library/react';
 import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
 import { initReactI18next } from 'react-i18next';
@@ -17,108 +22,111 @@ import {
   pluginsEndpoint,
   standardMacrosEndpoint
 } from '../api/endpoints';
+import {
+  getCommandResponse,
+  getConnectorsResponse,
+  getGlobalMacrosResponse,
+  getInstalledPluginsResponse,
+  getListingResponse,
+  getStandardMacrosResponse
+} from './utils';
 
-const initialize = (): void => {
+const initialize = (): RenderResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
   });
 
+  // The page is not reloaded between tests.
+  window.history.pushState({}, '', window.location.pathname);
+
   const store = createStore();
 
+  // The platform default page size, which listings wait for.
+  store.set(defaultLimitPerPageAtom, 10);
+
+  // Only what the module reads.
   store.set(userPermissionsAtom, {
     manage_check_commands: true,
     manage_discovery_commands: true,
     manage_miscellaneous_commands: true,
     manage_notification_commands: true
+  } as UserPermissions);
+
+  interceptAPIRequest({
+    alias: 'getCommands',
+    method: Method.GET,
+    path: `**${commandsEndpoint}?**`,
+    response: getListingResponse()
   });
 
-  // The platform default page size, which listings wait for.
-  store.set(defaultLimitPerPageAtom, 10);
-
-  cy.fixture('Commands/listCommands.json').then((commands) => {
-    cy.interceptAPIRequest({
-      alias: 'getCommands',
-      method: Method.GET,
-      path: `**${commandsEndpoint}?**`,
-      response: commands
-    });
+  interceptAPIRequest({
+    alias: 'getCommand',
+    method: Method.GET,
+    path: `**${getCommandEndpoint({ id: 1 })}`,
+    response: getCommandResponse()
   });
 
-  cy.fixture('Commands/commandDetails.json').then((command) => {
-    cy.interceptAPIRequest({
-      alias: 'getCommand',
-      method: Method.GET,
-      path: `**${getCommandEndpoint({ id: 1 })}`,
-      response: command
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'createCommand',
-      method: Method.POST,
-      path: `**${commandsEndpoint}**`,
-      response: command
-    });
+  interceptAPIRequest({
+    alias: 'createCommand',
+    method: Method.POST,
+    path: `**${commandsEndpoint}`,
+    response: getCommandResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'updateCommand',
     method: Method.PATCH,
     path: `**${getCommandEndpoint({ id: 1 })}`,
     response: {}
   });
 
-  cy.fixture('Commands/listGlobalMacros.json').then((macro) => {
-    cy.interceptAPIRequest({
-      alias: 'listGlobalMacros',
-      method: Method.GET,
-      path: `**${globalMacrosEndpoint}?**`,
-      response: macro
-    });
+  interceptAPIRequest({
+    alias: 'listGlobalMacros',
+    method: Method.GET,
+    path: `**${globalMacrosEndpoint}?**`,
+    response: getGlobalMacrosResponse()
   });
 
-  cy.fixture('Commands/listStandardMacros.json').then((macro) => {
-    cy.interceptAPIRequest({
-      alias: 'listStandardMacros',
-      method: Method.GET,
-      path: `**${standardMacrosEndpoint}?**`,
-      response: macro
-    });
+  interceptAPIRequest({
+    alias: 'listStandardMacros',
+    method: Method.GET,
+    path: `**${standardMacrosEndpoint}?**`,
+    response: getStandardMacrosResponse()
   });
 
-  cy.fixture('Commands/listInstalledPlugins.json').then((macro) => {
-    cy.interceptAPIRequest({
-      alias: 'listInstalledPlugins',
-      method: Method.GET,
-      path: `**${pluginsEndpoint}?**`,
-      response: macro
-    });
+  interceptAPIRequest({
+    alias: 'listInstalledPlugins',
+    method: Method.GET,
+    path: `**${pluginsEndpoint}?**`,
+    response: getInstalledPluginsResponse()
   });
 
-  cy.fixture('Commands/listConnecters.json').then((connector) => {
-    cy.interceptAPIRequest({
-      alias: 'getCommand',
-      method: Method.GET,
-      path: `**${connectorsEndpoint}?**`,
-      response: connector
-    });
+  interceptAPIRequest({
+    alias: 'getConnectors',
+    method: Method.GET,
+    path: `**${connectorsEndpoint}?**`,
+    response: getConnectorsResponse()
   });
 
-  cy.mount({
-    Component: (
-      <Router>
-        <SnackbarProvider>
-          <TestQueryProvider>
-            <Provider store={store}>
-              <div style={{ height: '100vh' }}>
-                <Commands />
-              </div>
-            </Provider>
-          </TestQueryProvider>
-        </SnackbarProvider>
-      </Router>
-    )
+  // A client of its own, so no cache leaks from one test to the next.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { gcTime: 0, retry: false } }
   });
+
+  return render(
+    <Router>
+      <SnackbarProvider>
+        <QueryClientProvider client={queryClient}>
+          <Provider store={store}>
+            <div style={{ height: '100vh' }}>
+              <Commands />
+            </div>
+          </Provider>
+        </QueryClientProvider>
+      </SnackbarProvider>
+    </Router>
+  );
 };
 
 export default initialize;

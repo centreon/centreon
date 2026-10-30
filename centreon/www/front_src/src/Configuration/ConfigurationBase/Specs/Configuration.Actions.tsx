@@ -1,8 +1,12 @@
 import { capitalize } from '@mui/material';
 
+import { waitForRequest } from '@test-setup/api';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import pluralize from 'pluralize';
 
 import {
+  labelCancel,
   labelDelete,
   labelDeleteResource,
   labelDisable,
@@ -17,333 +21,379 @@ import {
   labelResourceDuplicated,
   labelResourceEnabled
 } from '../translatedLabels';
-import initialize, { mockActionsRequests } from './initialize';
+import initialize, { mockActionsRequests, toResource } from './initialize';
 import {
+  findByWholeText,
   getLabelDeleteMany,
   getLabelDeleteOne,
   getLabelDuplicateMany,
   getLabelDuplicateOne
 } from './utils';
 
-export default (resourceType) => {
+const getRowCheckbox = (id: number): HTMLElement =>
+  screen.getByLabelText(`Select row ${id}`);
+
+// Row 2 is deactivated: its checkbox is disabled, but the cell around it still
+// selects the row. The click lands on the cell, as a user's does.
+const selectRows = async (): Promise<void> => {
+  await userEvent.click(getRowCheckbox(1));
+  await userEvent.click(
+    getRowCheckbox(2).closest('.MuiTableCell-root') as HTMLElement
+  );
+  await userEvent.click(getRowCheckbox(3));
+};
+
+const openMoreActions = async (): Promise<HTMLElement> => {
+  await userEvent.click(screen.getByTestId(labelMoreActions));
+
+  // The last one opened: a closing menu may still be in the page.
+  return (await screen.findAllByRole('menu')).at(-1) as HTMLElement;
+};
+
+// What the confirmation dialog shows besides its title and sentence.
+const expectDialogButtons = async (confirmLabel: string): Promise<void> => {
+  const dialog = await screen.findByRole('dialog');
+
+  expect(within(dialog).getByTestId('confirm')).toHaveTextContent(
+    new RegExp(`^${confirmLabel}$`)
+  );
+  expect(within(dialog).getByText(labelCancel)).toBeVisible();
+};
+
+// Once the success snackbar appeared: the dialog closed.
+const expectDialogClosed = async (): Promise<void> => {
+  await waitFor(() =>
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  );
+};
+
+// Once the success snackbar appeared: the dialog closed, and the selection
+// cleared with it. The selection is read from More actions, which needs one:
+// the last clicked row checkbox can keep showing its previous state until its
+// row renders again, so it proves nothing here.
+const expectDialogClosedAndSelectionCleared = async (): Promise<void> => {
+  await expectDialogClosed();
+  expect(screen.getByTestId(labelMoreActions)).toBeDisabled();
+};
+
+export default (resourceType: string): void => {
+  const resource = toResource(resourceType);
+
   describe('Actions: ', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       initialize({ resourceType });
-      mockActionsRequests(resourceType.replace(' ', '_'));
+      mockActionsRequests(resource);
+
+      await waitForRequest('@getAll');
+      await screen.findByText(`${resource} 0`);
     });
 
-    it('enables the more actions button when selecting resources', () => {
-      cy.waitForRequest('@getAll');
+    it('enables the more actions button when selecting resources', async () => {
+      expect(screen.getAllByTestId(labelMoreActions)[0]).toBeDisabled();
 
-      cy.findAllByTestId(labelMoreActions).eq(0).should('be.disabled');
+      await selectRows();
 
-      cy.findByLabelText('Select row 1').click();
-      cy.findByLabelText('Select row 2').click({ force: true });
-      cy.findByLabelText('Select row 3').click();
-
-      cy.findAllByTestId(labelMoreActions).eq(0).should('not.be.disabled');
+      await waitFor(() =>
+        expect(screen.getAllByTestId(labelMoreActions)[0]).toBeEnabled()
+      );
     });
 
     describe('Delete', () => {
-      it('displays the confirmation dialog when the inline delete button is clicked', () => {
-        cy.waitForRequest('@getAll');
+      it('displays the confirmation dialog when the inline delete button is clicked', async () => {
+        await userEvent.click(screen.getByTestId(`${labelDelete}_1`));
 
-        cy.findByTestId(`${labelDelete}_1`).click();
+        expect(
+          await screen.findByText(labelDeleteResource(resourceType))
+        ).toBeVisible();
+        expect(
+          await findByWholeText(
+            getLabelDeleteOne(resourceType, `${resource} 1`)
+          )
+        ).toBeVisible();
 
-        cy.contains(labelDeleteResource(resourceType));
-        cy.contains(
-          getLabelDeleteOne(resourceType, `${resourceType.replace(' ', '_')} 1`)
-        );
-
-        cy.makeSnapshot(
-          `${resourceType}: displays the confirmation dialog when the inline delete button is clicked`
-        );
+        await expectDialogButtons(labelDelete);
       });
 
-      it('displays the confirmation dialog when the massive delete button is clicked', () => {
-        cy.waitForRequest('@getAll');
+      it('displays the confirmation dialog when the massive delete button is clicked', async () => {
+        await selectRows();
 
-        cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click({ force: true });
-        cy.findByLabelText('Select row 3').click();
+        const menu = await openMoreActions();
 
-        cy.findAllByTestId(labelMoreActions).eq(0).click();
+        await userEvent.click(within(menu).getByText(labelDelete));
 
-        cy.findAllByTestId(labelDelete).eq(0).click();
+        expect(
+          await screen.findByText(labelDeleteResource(pluralize(resourceType)))
+        ).toBeVisible();
 
-        cy.contains(labelDeleteResource(pluralize(resourceType)));
+        expect(
+          await findByWholeText(getLabelDeleteMany(pluralize(resourceType), 3))
+        ).toBeVisible();
 
-        cy.contains(getLabelDeleteMany(pluralize(resourceType), 3));
-
-        cy.makeSnapshot(
-          `${resourceType}: displays the confirmation dialog when the massive delete button is clicked`
-        );
+        await expectDialogButtons(labelDelete);
       });
 
-      it('sends a delete request for a single resource and displays a success message', () => {
-        cy.waitForRequest('@getAll');
+      it('sends a delete request for a single resource and displays a success message', async () => {
+        await userEvent.click(screen.getByTestId(`${labelDelete}_1`));
 
-        cy.findByTestId(`${labelDelete}_1`).click();
+        await userEvent.click(await screen.findByTestId('confirm'));
 
-        cy.findByTestId('confirm').click();
+        await waitForRequest('@deleteOne');
+        await waitForRequest('@getAll');
 
-        cy.waitForRequest('@deleteOne');
-        cy.waitForRequest('@getAll');
+        expect(
+          await screen.findByText(
+            labelResourceDeleted(capitalize(resourceType))
+          )
+        ).toBeVisible();
 
-        cy.contains(labelResourceDeleted(capitalize(resourceType)));
-
-        cy.makeSnapshot(
-          `${resourceType}: sends a delete request for a single resource and displays a success message`
-        );
+        await expectDialogClosed();
       });
 
-      it('sends a delete request for multiple resources and displays a success message', () => {
-        cy.waitForRequest('@getAll');
+      it('sends a delete request for multiple resources and displays a success message', async () => {
+        await selectRows();
 
-        cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click({ force: true });
-        cy.findByLabelText('Select row 3').click();
+        const menu = await openMoreActions();
 
-        cy.findAllByTestId(labelMoreActions).eq(0).click();
-        cy.findAllByTestId(labelDelete).eq(0).click();
+        await userEvent.click(within(menu).getByText(labelDelete));
 
-        cy.findByTestId('confirm').click();
+        await userEvent.click(await screen.findByTestId('confirm'));
 
-        cy.waitForRequest('@delete').then(({ request }) => {
-          expect(request.body).to.deep.equal({
-            ids: [1, 2, 3]
-          });
+        const { request } = await waitForRequest('@delete');
+
+        expect(request.body).toEqual({
+          ids: [1, 2, 3]
         });
 
-        cy.waitForRequest('@getAll');
+        await waitForRequest('@getAll');
 
-        cy.contains(labelResourceDeleted(pluralize(capitalize(resourceType))));
+        expect(
+          await screen.findByText(
+            labelResourceDeleted(pluralize(capitalize(resourceType)))
+          )
+        ).toBeVisible();
 
-        cy.makeSnapshot(
-          `${resourceType}: sends a delete request for multiple resources and displays a success message`
-        );
+        await expectDialogClosedAndSelectionCleared();
       });
     });
 
     describe('duplicate', () => {
-      it('displays the confirmation dialog when the inline duplicate button is clicked', () => {
-        cy.waitForRequest('@getAll');
+      it('displays the confirmation dialog when the inline duplicate button is clicked', async () => {
+        await userEvent.click(screen.getByTestId(`${labelDuplicate}_1`));
 
-        cy.findByTestId(`${labelDuplicate}_1`).click();
+        expect(
+          await screen.findByText(labelDuplicateResource(resourceType))
+        ).toBeVisible();
 
-        cy.contains(labelDuplicateResource(resourceType));
-
-        cy.contains(
-          getLabelDuplicateOne(
-            resourceType,
-            `${resourceType.replace(' ', '_')} 1`
+        expect(
+          await findByWholeText(
+            getLabelDuplicateOne(resourceType, `${resource} 1`)
           )
-        );
+        ).toBeVisible();
 
-        cy.contains(labelDuplications);
+        expect(screen.getByText(labelDuplications)).toBeVisible();
 
-        cy.makeSnapshot(
-          `${resourceType}: displays the confirmation dialog when the inline duplicate button is clicked`
-        );
+        // One duplication by default.
+        expect(screen.getAllByLabelText(labelDuplications)[0]).toHaveValue(1);
+        await expectDialogButtons(labelDuplicate);
       });
 
-      it('displays the confirmation dialog when the massive duplicate button is clicked', () => {
-        cy.waitForRequest('@getAll');
+      it('displays the confirmation dialog when the massive duplicate button is clicked', async () => {
+        await selectRows();
 
-        cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click({ force: true });
-        cy.findByLabelText('Select row 3').click();
+        const menu = await openMoreActions();
 
-        cy.findAllByTestId(labelMoreActions).eq(0).click();
+        await userEvent.click(within(menu).getByText(labelDuplicate));
 
-        cy.findAllByTestId(labelDuplicate).eq(0).click();
+        expect(
+          await screen.findByText(
+            labelDuplicateResource(pluralize(resourceType))
+          )
+        ).toBeVisible();
 
-        cy.contains(labelDuplicateResource(pluralize(resourceType)));
+        expect(
+          await findByWholeText(
+            getLabelDuplicateMany(pluralize(resourceType), 3)
+          )
+        ).toBeVisible();
 
-        cy.contains(getLabelDuplicateMany(pluralize(resourceType), 3));
+        expect(screen.getByText(labelDuplications)).toBeVisible();
 
-        cy.contains(labelDuplications);
-
-        cy.makeSnapshot(
-          `${resourceType}: displays the confirmation dialog when the massive duplicate button is clicked`
-        );
+        expect(screen.getAllByLabelText(labelDuplications)[0]).toHaveValue(1);
+        await expectDialogButtons(labelDuplicate);
       });
 
-      it('sends a duplicate request for a single resource and displays a success message', () => {
-        cy.waitForRequest('@getAll');
+      it('sends a duplicate request for a single resource and displays a success message', async () => {
+        await userEvent.click(screen.getByTestId(`${labelDuplicate}_1`));
 
-        cy.findByTestId(`${labelDuplicate}_1`).click();
+        await userEvent.click(await screen.findByTestId('confirm'));
 
-        cy.findByTestId('confirm').click();
+        const { request } = await waitForRequest('@duplicate');
 
-        cy.waitForRequest('@duplicate').then(({ request }) => {
-          expect(request.body).to.deep.equal({
-            ids: [1],
-            nb_duplicates: 1
-          });
+        expect(request.body).toEqual({
+          ids: [1],
+          nb_duplicates: 1
         });
-        cy.waitForRequest('@getAll');
 
-        cy.contains(labelResourceDuplicated(capitalize(resourceType)));
+        await waitForRequest('@getAll');
 
-        cy.makeSnapshot(
-          `${resourceType}: sends a duplicate request for a single resource and displays a success message`
-        );
+        expect(
+          await screen.findByText(
+            labelResourceDuplicated(capitalize(resourceType))
+          )
+        ).toBeVisible();
+
+        await expectDialogClosed();
       });
 
-      it('sends a duplicate request for multiple resources and displays a success message', () => {
-        cy.waitForRequest('@getAll');
+      it('sends a duplicate request for multiple resources and displays a success message', async () => {
+        await selectRows();
 
-        cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click({ force: true });
-        cy.findByLabelText('Select row 3').click();
+        const menu = await openMoreActions();
 
-        cy.findAllByTestId(labelMoreActions).eq(0).click();
-        cy.findAllByTestId(labelDuplicate).eq(0).click();
+        await userEvent.click(within(menu).getByText(labelDuplicate));
 
-        cy.findByTestId('confirm').click();
+        await userEvent.click(await screen.findByTestId('confirm'));
 
-        cy.waitForRequest('@duplicate').then(({ request }) => {
-          expect(request.body).to.deep.equal({
-            ids: [1, 2, 3],
-            nb_duplicates: 1
-          });
+        const { request } = await waitForRequest('@duplicate');
+
+        expect(request.body).toEqual({
+          ids: [1, 2, 3],
+          nb_duplicates: 1
         });
-        cy.waitForRequest('@getAll');
 
-        cy.contains(
-          labelResourceDuplicated(pluralize(capitalize(resourceType)))
-        );
+        await waitForRequest('@getAll');
 
-        cy.makeSnapshot(
-          `${resourceType}: sends a duplicate request for multiple resources and displays a success message`
-        );
+        expect(
+          await screen.findByText(
+            labelResourceDuplicated(pluralize(capitalize(resourceType)))
+          )
+        ).toBeVisible();
+
+        await expectDialogClosedAndSelectionCleared();
       });
 
-      it('sends a duplicate request for multiple resources with a custom number of duplications and displays a success message', () => {
-        cy.waitForRequest('@getAll');
+      it('sends a duplicate request for multiple resources with a custom number of duplications and displays a success message', async () => {
+        await selectRows();
 
-        cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click({ force: true });
-        cy.findByLabelText('Select row 3').click();
+        const menu = await openMoreActions();
 
-        cy.findAllByTestId(labelMoreActions).eq(0).click();
-        cy.findAllByTestId(labelDuplicate).eq(0).click();
+        await userEvent.click(within(menu).getByText(labelDuplicate));
 
-        cy.findAllByLabelText(labelDuplications)
-          .eq(0)
-          .should('have.value', '1');
-        cy.findAllByLabelText(labelDuplications).eq(0).clear().type('4');
+        const duplications = (
+          await screen.findAllByLabelText(labelDuplications)
+        )[0];
 
-        cy.findByTestId('confirm').click();
+        expect(duplications).toHaveValue(1);
 
-        cy.waitForRequest('@duplicate').then(({ request }) => {
-          expect(request.body).to.deep.equal({
-            ids: [1, 2, 3],
-            nb_duplicates: 4
-          });
+        await userEvent.clear(duplications);
+        await userEvent.type(duplications, '4');
+
+        await userEvent.click(screen.getByTestId('confirm'));
+
+        const { request } = await waitForRequest('@duplicate');
+
+        expect(request.body).toEqual({
+          ids: [1, 2, 3],
+          nb_duplicates: 4
         });
-        cy.waitForRequest('@getAll');
 
-        cy.contains(
-          labelResourceDuplicated(pluralize(capitalize(resourceType)))
-        );
+        await waitForRequest('@getAll');
 
-        cy.makeSnapshot(
-          `${resourceType}: sends a duplicate request for multiple resources with a custom number of duplications and displays a success message`
-        );
+        expect(
+          await screen.findByText(
+            labelResourceDuplicated(pluralize(capitalize(resourceType)))
+          )
+        ).toBeVisible();
+
+        await expectDialogClosedAndSelectionCleared();
       });
     });
 
     describe('Enable', () => {
-      it('sends an Enable request for a single resource and displays a success message', () => {
-        cy.waitForRequest('@getAll');
+      it('sends an Enable request for a single resource and displays a success message', async () => {
+        await userEvent.click(screen.getByTestId(`${labelEnableDisable}_2`));
 
-        cy.findByTestId(`${labelEnableDisable}_2`).click();
+        const { request } = await waitForRequest('@enable');
 
-        cy.waitForRequest('@enable').then(({ request }) => {
-          expect(request.body).to.deep.equal({
-            ids: [2]
-          });
+        expect(request.body).toEqual({
+          ids: [2]
         });
-        cy.waitForRequest('@getAll');
 
-        cy.contains(labelResourceEnabled(capitalize(resourceType)));
+        await waitForRequest('@getAll');
 
-        cy.makeSnapshot(
-          `${resourceType}: sends an Enable request for a single resource and displays a success message`
-        );
+        expect(
+          await screen.findByText(
+            labelResourceEnabled(capitalize(resourceType))
+          )
+        ).toBeVisible();
       });
 
-      it('sends an enable request for multiple resources and displays a success message', () => {
-        cy.waitForRequest('@getAll');
+      it('sends an enable request for multiple resources and displays a success message', async () => {
+        await selectRows();
 
-        cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click({ force: true });
-        cy.findByLabelText('Select row 3').click();
+        const menu = await openMoreActions();
 
-        cy.findAllByTestId(labelMoreActions).eq(0).click();
+        await userEvent.click(within(menu).getByLabelText(labelEnable));
 
-        cy.findByLabelText(labelEnable).eq(0).click();
+        const { request } = await waitForRequest('@enable');
 
-        cy.waitForRequest('@enable').then(({ request }) => {
-          expect(request.body).to.deep.equal({
-            ids: [1, 2, 3]
-          });
+        expect(request.body).toEqual({
+          ids: [1, 2, 3]
         });
-        cy.waitForRequest('@getAll');
 
-        cy.contains(labelResourceEnabled(pluralize(capitalize(resourceType))));
+        await waitForRequest('@getAll');
 
-        cy.makeSnapshot(
-          `${resourceType}: sends an enable request for multiple resources and displays a success message`
-        );
+        expect(
+          await screen.findByText(
+            labelResourceEnabled(pluralize(capitalize(resourceType)))
+          )
+        ).toBeVisible();
+
+        await expectDialogClosedAndSelectionCleared();
       });
     });
 
     describe('Disable', () => {
-      it('sends a disable request for a single resource and displays a success message', () => {
-        cy.waitForRequest('@getAll');
+      it('sends a disable request for a single resource and displays a success message', async () => {
+        await userEvent.click(screen.getByTestId(`${labelEnableDisable}_1`));
 
-        cy.findByTestId(`${labelEnableDisable}_1`).click();
+        const { request } = await waitForRequest('@disable');
 
-        cy.waitForRequest('@disable').then(({ request }) => {
-          expect(request.body).to.deep.equal({
-            ids: [1]
-          });
+        expect(request.body).toEqual({
+          ids: [1]
         });
-        cy.waitForRequest('@getAll');
 
-        cy.contains(labelResourceDisabled(capitalize(resourceType)));
+        await waitForRequest('@getAll');
 
-        cy.makeSnapshot(
-          `${resourceType}: sends a disable request for a single resource and displays a success message`
-        );
+        expect(
+          await screen.findByText(
+            labelResourceDisabled(capitalize(resourceType))
+          )
+        ).toBeVisible();
       });
 
-      it('sends a disbale request for multiple resources and displays a success message', () => {
-        cy.waitForRequest('@getAll');
+      it('sends a disbale request for multiple resources and displays a success message', async () => {
+        await selectRows();
 
-        cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click({ force: true });
-        cy.findByLabelText('Select row 3').click();
+        const menu = await openMoreActions();
 
-        cy.findAllByTestId(labelMoreActions).eq(0).click();
+        await userEvent.click(within(menu).getByLabelText(labelDisable));
 
-        cy.findByLabelText(labelDisable).eq(0).click();
+        const { request } = await waitForRequest('@disable');
 
-        cy.waitForRequest('@disable').then(({ request }) => {
-          expect(request.body).to.deep.equal({
-            ids: [1, 2, 3]
-          });
+        expect(request.body).toEqual({
+          ids: [1, 2, 3]
         });
-        cy.waitForRequest('@getAll');
 
-        cy.contains(labelResourceDisabled(pluralize(capitalize(resourceType))));
+        await waitForRequest('@getAll');
 
-        cy.makeSnapshot(
-          `${resourceType}: sends a disbale request for multiple resources and displays a success message`
-        );
+        expect(
+          await screen.findByText(
+            labelResourceDisabled(pluralize(capitalize(resourceType)))
+          )
+        ).toBeVisible();
+
+        await expectDialogClosedAndSelectionCleared();
       });
     });
   });

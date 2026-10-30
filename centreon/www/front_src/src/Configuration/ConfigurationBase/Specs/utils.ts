@@ -1,10 +1,28 @@
-import { buildListingDecoder, ColumnType, InputType } from '@centreon/ui';
+import {
+  buildListingDecoder,
+  type Column,
+  ColumnType,
+  InputType
+} from '@centreon/ui';
 
+import { screen } from '@testing-library/react';
 import { JsonDecoder } from 'ts.data.json';
 
-import { Endpoints, FieldType } from '../../models';
+import {
+  type Endpoints,
+  FieldType,
+  type FilterConfiguration
+} from '../../models';
+import { labelEnableDisable } from '../translatedLabels';
 
-const resourceDecoder = JsonDecoder.object(
+interface Resource {
+  alias: string | null;
+  id: number;
+  isActivated: boolean;
+  name: string;
+}
+
+const resourceDecoder = JsonDecoder.object<Resource>(
   {
     alias: JsonDecoder.nullable(JsonDecoder.string),
     id: JsonDecoder.number,
@@ -23,7 +41,7 @@ export const resourceDecoderListDecoder = buildListingDecoder({
   listingDecoderName: 'Resource List'
 });
 
-export const getListingResponse = (resourceType) => ({
+export const getListingResponse = (resourceType: string) => ({
   meta: {
     limit: 10,
     page: 1,
@@ -37,7 +55,7 @@ export const getListingResponse = (resourceType) => ({
   }))
 });
 
-export const getEndpoints = (resourceType): Endpoints => ({
+export const getEndpoints = (resourceType: string): Endpoints => ({
   create: `/configuration/${resourceType}`,
   delete: `/configuration/${resourceType}/_delete`,
   deleteOne: ({ id }) => `/configuration/${resourceType}/${id}`,
@@ -49,10 +67,10 @@ export const getEndpoints = (resourceType): Endpoints => ({
   update: ({ id }) => `/configuration/${resourceType}/${id}`
 });
 
-export const columns = [
+export const columns: Array<Column> = [
   {
     disablePadding: false,
-    getFormattedString: ({ name }) => name,
+    getFormattedString: ({ name }): string => name as string,
     id: 'name',
     label: 'Name',
     sortable: true,
@@ -61,7 +79,7 @@ export const columns = [
   },
   {
     disablePadding: false,
-    getFormattedString: ({ alias }) => alias,
+    getFormattedString: ({ alias }): string => alias as string,
     id: 'alias',
     label: 'Alias',
     sortable: true,
@@ -70,7 +88,7 @@ export const columns = [
   }
 ];
 
-export const filtersConfiguration = [
+export const filtersConfiguration: Array<FilterConfiguration> = [
   {
     fieldName: 'name',
     fieldType: FieldType.Text,
@@ -105,15 +123,16 @@ export const getHostTemplatesResponse = () => ({
   ]
 });
 
-export const filtersConfigurationWithSingleConnectedAutocomplete = [
-  ...filtersConfiguration,
-  {
-    fieldName: hostTemplateFieldName,
-    fieldType: FieldType.SingleConnectedAutocomplete,
-    getEndpoint: () => hostTemplatesEndpoint,
-    name: labelHostTemplate
-  }
-];
+export const filtersConfigurationWithSingleConnectedAutocomplete: Array<FilterConfiguration> =
+  [
+    ...filtersConfiguration,
+    {
+      fieldName: hostTemplateFieldName,
+      fieldType: FieldType.SingleConnectedAutocomplete,
+      getEndpoint: () => hostTemplatesEndpoint,
+      name: labelHostTemplate
+    }
+  ];
 
 export const filtersInitialValues = {
   alias: '',
@@ -164,14 +183,29 @@ export const inputs = [
   }
 ];
 
-export const getLabelDeleteOne = (type, name) =>
+export const getLabelDeleteOne = (type: string, name: string): string =>
   `You are about to delete the ${name} ${type}. This action cannot be undone. Do you want to delete it?`;
 
-export const getLabelDeleteMany = (type, count) =>
+export const getLabelDeleteMany = (type: string, count: number): string =>
   `You are about to delete ${count} ${type}. This action cannot be undone. Do you want to delete them?`;
 
-export const getLabelDuplicateOne = (type, name) =>
+export const getLabelDuplicateOne = (type: string, name: string): string =>
   `You are about to duplicate the ${name} ${type}. How many duplications would you like to make?`;
 
-export const getLabelDuplicateMany = (type, count) =>
+export const getLabelDuplicateMany = (type: string, count: number): string =>
   `You are about to duplicate ${count} ${type}. How many duplications would you like to make?`;
+
+// A sentence the page splits across elements (a <strong> around the name or
+// the count), found by its whole text: the innermost element holding it.
+export const findByWholeText = async (text: string): Promise<HTMLElement> =>
+  screen.findByText(
+    (_, element) =>
+      element?.textContent === text &&
+      Array.from(element.children).every((child) => child.textContent !== text)
+  );
+
+// The input of a row's Enable/Disable toggle: the test id is on its wrapper.
+export const getToggle = (id: number): HTMLInputElement =>
+  screen
+    .getByTestId(`${labelEnableDisable}_${id}`)
+    .querySelector('input') as HTMLInputElement;

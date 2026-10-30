@@ -1,3 +1,7 @@
+import { waitForRequest } from '@test-setup/api';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import {
   labelCreationDate,
   labelCreator,
@@ -17,65 +21,105 @@ const columnToSort = [
   { id: 'updated_at', label: labelLastUpdate }
 ];
 
+const getSearchParameter = (url: URL, name: string): unknown =>
+  JSON.parse(url.searchParams.get(name) as string);
+
 export default (): void => {
   describe('Listing', () => {
-    beforeEach(initialize);
-    it('displays the first page of the ACC listing', () => {
-      cy.waitForRequest('@getConnectors');
-
-      cy.contains('VMWare1');
-      cy.contains('Description for VMWare1');
-
-      cy.matchImageSnapshot();
+    beforeEach(() => {
+      initialize();
     });
-    it('sends a listing request with the selected limit when the corresponding button is clicked', () => {
-      cy.waitForRequest('@getConnectors');
 
-      cy.contains('VMWare1');
-      cy.contains('Description for VMWare1');
+    it('displays the first page of the ACC listing', async () => {
+      await waitForRequest('@getConnectors');
 
-      cy.get('#Rows\\ per\\ page').click();
-      cy.get('ul[role="listbox"]').contains(/^20$/).click();
+      expect(await screen.findByText('VMWare1')).toBeVisible();
+      expect(screen.getByText('Description for VMWare1')).toBeVisible();
 
-      cy.waitForRequest('@getConnectors').then(({ request }) => {
-        expect(JSON.parse(request.url.searchParams.get('limit'))).to.equal(20);
+      // The ten connectors of the page in order, with their columns, and the
+      // total.
+      const rows = screen.getAllByRole('row').slice(1);
+
+      expect(rows).toHaveLength(10);
+      rows.forEach((row, index) => {
+        expect(row).toHaveTextContent(`VMWare${index + 1}`);
       });
+      expect(rows[0]).toHaveTextContent(
+        /^VMWare1VMWare 6\/7Description for VMWare1Alice07\/23\/2024Bob07\/23\/2024$/
+      );
+      expect(screen.getByText('1-10 of 44')).toBeVisible();
+      const headerCells = Array.from(
+        screen.getAllByRole('row')[0].children
+      ).slice(0, 8);
+
+      expect(headerCells.map((cell) => cell.textContent)).toEqual([
+        labelName,
+        labelType,
+        'Description',
+        labelCreator,
+        labelCreationDate,
+        labelUpdateBy,
+        labelLastUpdate,
+        'Actions'
+      ]);
+      // Sorted by name, ascending.
+      expect(screen.getByLabelText(`Column ${labelName}`)).toHaveClass(
+        'Mui-active',
+        'MuiTableSortLabel-directionAsc'
+      );
+    });
+    it('sends a listing request with the selected limit when the corresponding button is clicked', async () => {
+      await waitForRequest('@getConnectors');
+
+      expect(await screen.findByText('VMWare1')).toBeVisible();
+      expect(screen.getByText('Description for VMWare1')).toBeVisible();
+
+      await userEvent.click(
+        document.querySelector('#Rows\\ per\\ page') as HTMLElement
+      );
+      await userEvent.click(
+        within(await screen.findByRole('listbox')).getByText(/^20$/)
+      );
+
+      const { request } = await waitForRequest('@getConnectors');
+
+      expect(getSearchParameter(request.url, 'limit')).toBe(20);
     });
 
-    it('sends a listing request with the selected page when the corresponding button is clicked', () => {
-      cy.waitForRequest('@getConnectors');
-      cy.contains('VMWare1');
-      cy.contains('Description for VMWare1');
+    it('sends a listing request with the selected page when the corresponding button is clicked', async () => {
+      await waitForRequest('@getConnectors');
+      expect(await screen.findByText('VMWare1')).toBeVisible();
+      expect(screen.getByText('Description for VMWare1')).toBeVisible();
 
-      cy.findByLabelText('Next page').click();
+      await userEvent.click(screen.getByLabelText('Next page'));
 
-      cy.waitForRequest('@getConnectors').then(({ request }) => {
-        expect(JSON.parse(request.url.searchParams.get('page'))).to.equal(2);
-      });
+      const { request } = await waitForRequest('@getConnectors');
+
+      expect(getSearchParameter(request.url, 'page')).toBe(2);
     });
-    it('executes a listing request with sort parameter when a sortable column is clicked`', () => {
-      columnToSort.forEach(({ label, id }) => {
-        cy.waitForRequest('@getConnectors');
+    it('executes a listing request with sort parameter when a sortable column is clicked`', async () => {
+      await waitForRequest('@getConnectors');
 
-        const sortBy = id;
+      for (const { label, id } of columnToSort) {
+        expect(await screen.findByText('VMWare1')).toBeVisible();
+        expect(screen.getByText('VMWare2')).toBeVisible();
 
-        cy.contains('VMWare1');
-        cy.contains('VMWare2');
+        await userEvent.click(screen.getByLabelText(`Column ${label}`));
 
-        cy.findByLabelText(`Column ${label}`).click();
+        const { request } = await waitForRequest('@getConnectors');
 
-        cy.waitForRequest('@getConnectors').then(({ request }) => {
-          const sortParam = JSON.parse(request.url.searchParams.get('sort_by'));
-
-          expect(sortParam).to.deep.equal({
-            [sortBy]: 'desc'
-          });
+        expect(getSearchParameter(request.url, 'sort_by')).toEqual({
+          [id]: 'desc'
         });
 
-        cy.matchImageSnapshot(
-          `column sorting --  executes a listing request when the ${label} column is clicked`
+        // The clicked column is the sorted one.
+        await waitFor(() =>
+          expect(screen.getByLabelText(`Column ${label}`)).toHaveClass(
+            'Mui-active',
+            'MuiTableSortLabel-directionDesc'
+          )
         );
-      });
+      }
     });
   });
 };
