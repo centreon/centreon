@@ -568,7 +568,10 @@ class QueryGenerator
     }
 
     /**
-     * Poller ids selected in the filter, in engine mode only (non-numeric ids are dropped)
+     * Poller ids selected in the filter, in engine mode only
+     *
+     * Only positive integers are kept: with no poller selected, Request::getOpenid() falls back to '-1',
+     * which must not be turned into an instance filter.
      *
      * @return string[]
      */
@@ -578,7 +581,7 @@ class QueryGenerator
             return [];
         }
 
-        return array_filter(explode(',', $this->openid), 'is_numeric');
+        return array_filter(explode(',', $this->openid), 'ctype_digit');
     }
 
     /**
