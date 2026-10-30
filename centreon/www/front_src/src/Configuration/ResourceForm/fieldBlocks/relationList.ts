@@ -81,20 +81,22 @@ export const relationList = <Id extends BlockId>({
         t: context.t
       })
     }),
+    // The required rule and the resource's own one both apply.
     getSchema: (context) => {
-      if (getSchema) {
-        return { [id]: getSchema(context) };
-      }
+      const rules: Array<AnySchema> = [
+        ...(isRequired
+          ? [
+              isRequiredOn(context)
+                ? array().min(1, context.t(labelRequired))
+                : array().notRequired()
+            ]
+          : []),
+        ...(getSchema ? [getSchema(context)] : [])
+      ];
 
-      if (isRequired) {
-        return {
-          [id]: isRequiredOn(context)
-            ? array().min(1, context.t(labelRequired))
-            : array().notRequired()
-        };
-      }
-
-      return {};
+      return rules.length
+        ? { [id]: rules.reduce((merged, rule) => merged.concat(rule)) }
+        : {};
     },
     massChange: { updateModeFields: { [id]: [[payloadKey]] } },
     toPayload: (values) => ({
