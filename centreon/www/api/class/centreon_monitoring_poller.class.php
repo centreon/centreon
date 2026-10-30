@@ -106,7 +106,9 @@ class CentreonMonitoringPoller extends CentreonConfigurationObjects
 
         $pollerList = [];
         while ($data = $stmt->fetch()) {
-            $pollerList[] = ['id' => $data['instance_id'], 'text' => $data['name']];
+            // instance_id is sent as a string: Snowflake UIDs exceed Number.MAX_SAFE_INTEGER and would be
+            // rounded by JSON.parse, so the selected poller would no longer match any instance
+            $pollerList[] = ['id' => (string) $data['instance_id'], 'text' => $data['name']];
         }
 
         return ['items' => $pollerList, 'total' => (int) $this->pearDBMonitoring->numberRows()];
