@@ -15,7 +15,9 @@ The rule is for `www/` only. `HtmlSanitizer` is a `www/` class and has no place 
 
 ## Decision
 
-In `www/` code that emits HTML, pass every user-controlled or database-sourced string through **`HtmlSanitizer`** before it reaches the output:
+Escape on **output**, never before storage. User-controlled data is written to the database **raw** — do not `HtmlSanitizer`- or `htmlspecialchars`-it before a write — and is escaped only at the point it is rendered. Escaping before storage corrupts the stored value and still cannot know the rendering context.
+
+In `www/` PHP that emits HTML **directly** (echo or string concatenation), pass every user-controlled or database-sourced string through **`HtmlSanitizer`** before it reaches the output:
 
 - `HtmlSanitizer::createFromString($value)->sanitize()->getString()` to escape.
 - `->removeTags($allowedTags)` where markup must be stripped rather than escaped.
@@ -29,6 +31,8 @@ $msg .= _('A reload signal has been sent to ' . htmlspecialchars(string: $host['
 // Write:
 $msg .= _('A reload signal has been sent to ' . HtmlSanitizer::createFromString($host['name'])->sanitize()->getString());
 ```
+
+Output rendered through a **Smarty template** is escaped by Smarty, not on the PHP side: apply the `|escape` (`|escape:'html'`) modifier to the variable in the template, and pass the raw value from PHP. Do **not** pre-escape a Smarty-bound value with `HtmlSanitizer` — that double-escapes. There is no global auto-escape (the `SmartyBC::createSmartyTemplate` factory sets none), so the modifier is applied per variable, at the point of output.
 
 ## Consequences
 
