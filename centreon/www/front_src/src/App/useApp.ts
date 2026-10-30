@@ -7,6 +7,7 @@ import {
   aclAtom,
   defaultLimitPerPageAtom,
   downtimeAtom,
+  intervalLengthAtom,
   isAdditiveInheritanceEnabledAtom,
   isResourceStatusFullSearchEnabledAtom,
   platformNameAtom,
@@ -17,7 +18,7 @@ import {
 } from '@centreon/ui-context';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { equals, not, path, pathEq } from 'ramda';
+import { equals, isNil, not, path, pathEq } from 'ramda';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -107,6 +108,7 @@ const useApp = (): UseAppState => {
   const setIsAdditiveInheritanceEnabled = useSetAtom(
     isAdditiveInheritanceEnabledAtom
   );
+  const setIntervalLength = useSetAtom(intervalLengthAtom);
   const setDefaultLimitPerPage = useSetAtom(defaultLimitPerPageAtom);
 
   const { getNavigation } = useNavigation();
@@ -168,6 +170,10 @@ const useApp = (): UseAppState => {
         setIsAdditiveInheritanceEnabled(
           retrievedParameters.is_additive_inheritance_enabled
         );
+        // Absent, the atom keeps the engine's default.
+        if (!isNil(retrievedParameters.monitoring_interval_length)) {
+          setIntervalLength(retrievedParameters.monitoring_interval_length);
+        }
         setDefaultLimitPerPage(
           getDefaultLimitPerPage(retrievedParameters.default_limit_per_page)
         );

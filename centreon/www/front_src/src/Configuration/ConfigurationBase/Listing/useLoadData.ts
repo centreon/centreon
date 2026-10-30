@@ -163,13 +163,21 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
           : [];
       });
 
+  const getTextQueries = () =>
+    (configuration?.filtersConfiguration ?? [])
+      .filter((filter) => equals(filter.fieldType, FieldType.Text))
+      .map((filter) => ({
+        name: `${filter.fieldName}[lk]`,
+        value: filters?.[filter.fieldName as string]
+      }));
+
   const getCustomQueryParameters = (): Array<QueryParameter> => {
     if (!equals(apiFormat, 'JSON-LD')) {
       return [];
     }
 
     const customQueryParameters = [
-      { name: 'name[lk]', value: filters?.name },
+      ...getTextQueries(),
       ...getStatusQueries(),
       ...getSingleConnectedAutocompleteQueries(),
       ...getCheckboxesQueries(),
