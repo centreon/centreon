@@ -51,6 +51,9 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var list<int> ids of stored services that {@see findOne()} hides from an actor whose access is restricted */
     public array $outOfRestrictedScopeIds = [];
 
+    /** @var list<array{id: int, activated: bool}> */
+    public array $activationUpdates = [];
+
     public function add(Service $service): void
     {
         do {
@@ -127,5 +130,14 @@ final class FakeServiceRepository implements ServiceRepository
         }
 
         return $service;
+    }
+
+    /**
+     * Only records the write: the stored aggregate is the caller's, which changes it itself, so a caller that
+     * forgets to do so is caught.
+     */
+    public function updateActivationStatus(ServiceId $id, bool $activated): void
+    {
+        $this->activationUpdates[] = ['id' => $id->value, 'activated' => $activated];
     }
 }

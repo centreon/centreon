@@ -28,10 +28,12 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\DeleteServiceProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ListServicesProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchServiceProcessor;
 
 #[ApiResource(
     shortName: 'Service',
@@ -119,6 +121,29 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ListSer
             read: false,
             security: "is_granted('" . ServicePermissionEnum::CanReadAndWrite->value . "')",
             securityMessage: 'You are not allowed to delete services',
+        ),
+        new Patch(
+            uriTemplate: '/configuration/services/{id}',
+            // Positive integers only, as on the item IRI: a non-numeric or zero id is a 404, not a 500.
+            requirements: ['id' => '[1-9]\d*'],
+            status: 204,
+            // Write-only action: no item provider, the handler loads the service itself and answers 404
+            // when it is missing or outside the actor's scope.
+            read: false,
+            processor: PatchServiceProcessor::class,
+            input: PatchServiceInput::class,
+            output: false,
+            openapi: new Model\Operation(
+                description: 'Enables or disables a service.',
+                responses: [
+                    204 => new Model\Response('Service updated (or left as it was when nothing changed)'),
+                    403 => new Model\Response('You are not allowed to update services'),
+                    404 => new Model\Response('Service not found'),
+                    422 => new Model\Response('Invalid input'),
+                ],
+            ),
+            security: "is_granted('" . ServicePermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to update services',
         ),
     ],
 )]

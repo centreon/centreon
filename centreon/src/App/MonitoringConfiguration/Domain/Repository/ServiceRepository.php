@@ -80,4 +80,11 @@ interface ServiceRepository
      * their active Access Groups by the real-time ACL cache. Null otherwise.
      */
     public function findOne(ServiceId $id, ActingUser $actor): ?Service;
+
+    /**
+     * Bounded UPDATE of the activation flag; never touches a service template, nor the links of the service.
+     * Precondition: the caller confirmed the service exists (typically {@see findOne()} in the same transaction)
+     * — it does not assert a matched row, so it is a silent no-op on an unknown or template id.
+     */
+    public function updateActivationStatus(ServiceId $id, bool $activated): void;
 }

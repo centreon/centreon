@@ -695,6 +695,56 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         }
     }
 
+    public function testUpdateActivationStatusPersistsTheFlag(): void
+    {
+        $serviceId = $this->insertListedService('ping', $this->insertListedHost('h1'));
+
+        $this->repository->updateActivationStatus(new ServiceId($serviceId), false);
+        self::assertSame('0', $this->serviceActivation($serviceId));
+
+        $this->repository->updateActivationStatus(new ServiceId($serviceId), true);
+        self::assertSame('1', $this->serviceActivation($serviceId));
+    }
+
+    public function testUpdateActivationStatusWritesOnlyTheActivationFlag(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $otherHostId = $this->insertListedHost('h2');
+        $serviceId = $this->insertListedService('ping', $hostId, normal: 5, retry: 1);
+        $this->linkServiceToHost($serviceId, $otherHostId);
+        $columnsBefore = $this->connection->fetchAssociative('SELECT * FROM service WHERE service_id = ?', [$serviceId]);
+        Assert::isArray($columnsBefore);
+
+        $this->repository->updateActivationStatus(new ServiceId($serviceId), false);
+
+        self::assertSame(
+            [...$columnsBefore, 'service_activate' => '0'],
+            $this->connection->fetchAssociative('SELECT * FROM service WHERE service_id = ?', [$serviceId]),
+        );
+        self::assertEquals(
+            [$hostId, $otherHostId],
+            $this->connection->fetchFirstColumn(
+                'SELECT host_host_id FROM host_service_relation WHERE service_service_id = ? ORDER BY host_host_id',
+                [$serviceId],
+            ),
+        );
+    }
+
+    public function testUpdateActivationStatusNeverTogglesAServiceTemplate(): void
+    {
+        // service_register = '0'; the guard makes the UPDATE match no row -> silent no-op by contract.
+        $templateId = $this->insertListedServiceTemplate('ping-template');
+
+        $this->repository->updateActivationStatus(new ServiceId($templateId), false);
+
+        self::assertSame('1', $this->serviceActivation($templateId));
+    }
+
+    private function serviceActivation(int $serviceId): mixed
+    {
+        return $this->connection->fetchOne('SELECT service_activate FROM service WHERE service_id = ?', [$serviceId]);
+    }
+
     private function createDependency(): int
     {
         $this->connection->insert('dependency', ['dep_name' => 'dependency-' . bin2hex(random_bytes(4))]);

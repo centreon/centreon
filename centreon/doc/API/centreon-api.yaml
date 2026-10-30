@@ -6677,6 +6677,64 @@ paths:
             type: string
           style: simple
           explode: false
+    patch:
+      operationId: api_configurationservices_id_patch
+      tags:
+        - Service
+      responses:
+        '204':
+          description: 'Service updated (or left as it was when nothing changed)'
+          links: {}
+        '403':
+          description: 'You are not allowed to update services'
+        '404':
+          description: 'Service not found'
+        '422':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Updates the Service resource.'
+      description: 'Enables or disables a service.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Service identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The updated Service resource'
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/Service.PatchServiceInput.jsonMergePatch'
+        required: true
 components:
   securitySchemes:
     Token:
@@ -13859,3 +13917,11 @@ components:
           properties:
             id:
               type: integer
+    Service.PatchServiceInput.jsonMergePatch:
+      type: object
+      properties:
+        activated:
+          description: 'Whether the service is enabled.'
+          type:
+            - boolean
+            - 'null'
