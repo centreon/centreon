@@ -69,6 +69,12 @@ on:
       php_version:
         description: "PHP version to use (based on phpXX label)"
         value: ${{ jobs.get-environment.outputs.php_version }}
+      testing_tag:
+        description: "testing bundle tag the run is on (testing-<scope>-<type>-YYYYMMNN-XX.YY-N), empty otherwise"
+        value: ${{ jobs.get-environment.outputs.testing_tag }}
+      testing_bundle_path:
+        description: "S3 path of the testing bundle (bundles/<scope>/<XX.YY>/<type>/<YYYYMMNN>/<N>), empty otherwise"
+        value: ${{ jobs.get-environment.outputs.testing_bundle_path }}
 
 jobs:
   get-environment:
@@ -96,6 +102,8 @@ jobs:
       skip_workflow: ${{ steps.skip_workflow.outputs.result }}
       labels: ${{ steps.has_skip_label.outputs.labels }}
       php_version: ${{ steps.get_php_version.outputs.php_version }}
+      testing_tag: ${{ steps.parse_testing_tag.outputs.tag }}
+      testing_bundle_path: ${{ steps.parse_testing_tag.outputs.bundle_path }}
 
     steps:
       - name: Check if PR has skip label
@@ -295,11 +303,32 @@ jobs:
 
             return prPath;
 
+      # Testing bundle tags: scope, type and major come from the tag name.
+      - if: ${{ startsWith(github.ref, 'refs/tags/testing-') }}
+        name: Parse testing tag
+        id: parse_testing_tag
+        run: |
+          # startsWith() ignores case: only an exact testing- prefix is a testing bundle tag
+          [[ "$GITHUB_REF" == refs/tags/testing-* ]] || exit 0
+          if [[ ! "$GITHUB_REF_NAME" =~ ^testing-(cloud|onprem)-(release|hotfix)-([0-9]{8})-([0-9]{2}\.[0-9]{2})-([1-9][0-9]*)$ ]]; then
+            echo "::error::Invalid testing tag $GITHUB_REF_NAME, expected testing-<cloud|onprem>-<release|hotfix>-YYYYMMNN-XX.YY-N"
+            exit 1
+          fi
+          {
+            echo "tag=$GITHUB_REF_NAME"
+            echo "scope=${BASH_REMATCH[1]}"
+            echo "type=${BASH_REMATCH[2]}"
+            echo "major=${BASH_REMATCH[4]}"
+            echo "bundle_path=bundles/${BASH_REMATCH[1]}/${BASH_REMATCH[4]}/${BASH_REMATCH[2]}/${BASH_REMATCH[3]}/${BASH_REMATCH[5]}"
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
+
       - name: Get stability
         id: get_stability
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           PR_PATH: ${{ steps.pr_path.outputs.result || '[]' }}
+          TESTING_TAG: ${{ steps.parse_testing_tag.outputs.tag }}
         with:
           script: |
             const ref = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
@@ -343,7 +372,10 @@ jobs:
             };
 
             let stability;
-            if (eventName === 'push' && refType === 'tag') {
+            if (process.env.TESTING_TAG) {
+              console.log(`Testing bundle tag detected: ${process.env.TESTING_TAG}`);
+              stability = 'testing';
+            } else if (eventName === 'push' && refType === 'tag') {
               console.log(`Push event on a tag detected.`);
               stability = isStableTag(ref) ? 'stable' : getStability(ref);
             } else {
@@ -438,6 +470,8 @@ jobs:
 
       - name: "Get release type: hotfix, release or not defined if not a release"
         id: get_release_type
+        env:
+          TESTING_TAG_TYPE: ${{ steps.parse_testing_tag.outputs.type }}
         run: |
           # Set REF_NAME (branch or tag)
           REF_NAME="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
@@ -446,10 +480,11 @@ jobs:
           REF_TYPE="$GITHUB_REF_TYPE"  # 'branch' or 'tag'
           RELEASE_TYPE=""
 
-          # Get release type based on ref type
-          # if ref_type is a branch => use prefix of branch name
-          # if ref_type is a tag => use comment associated to the tag
-          if [[ "$REF_TYPE" == "branch" ]]; then
+          # Get release type: a testing bundle tag carries it in its name,
+          # a branch in its prefix (release-/hotfix-), any other tag in its message
+          if [[ -n "$TESTING_TAG_TYPE" ]]; then
+            RELEASE_TYPE="$TESTING_TAG_TYPE"
+          elif [[ "$REF_TYPE" == "branch" ]]; then
             BASE=$(echo "$REF_NAME" | cut -d '-' -f 1)
             if [[ "$BASE" == "hotfix" || "$BASE" == "release" ]]; then
               RELEASE_TYPE="$BASE"
@@ -477,11 +512,15 @@ jobs:
         id: get_nightly_status
         env:
           NIGHTLY_MANUAL_TRIGGER: ${{ inputs.nightly_manual_trigger }}
+          TESTING_TAG: ${{ steps.parse_testing_tag.outputs.tag }}
         with:
           script: |
             const getNightlyInput = () => {
               const nightly_manual_trigger = process.env.NIGHTLY_MANUAL_TRIGGER;
               console.log(nightly_manual_trigger);
+              if (process.env.TESTING_TAG) {
+                return 'false';
+              }
               if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '' || process.env.GITHUB_REPOSITORY.match(/^workflow-.*$/)) {
                 return 'false';
               } else if (context.eventName === 'schedule' || context.eventName === 'workflow_dispatch' && nightly_manual_trigger === 'true' ) {
@@ -500,6 +539,8 @@ jobs:
           CURRENT_MAJOR_VERSION: ${{ steps.get_version.outputs.major_version }}
           EVENT_NAME: ${{ github.event_name }}
           PR_PATH: ${{ steps.pr_path.outputs.result || '[]' }}
+          TESTING_TAG_SCOPE: ${{ steps.parse_testing_tag.outputs.scope }}
+          TESTING_TAG_MAJOR: ${{ steps.parse_testing_tag.outputs.major }}
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -515,9 +556,22 @@ jobs:
             const isCloudCandidate =
               !currentMajorVersion.match(/\.10$/);
             let releaseScope = "unknown";
+            const testingTagScope = process.env.TESTING_TAG_SCOPE;
 
+            // testing bundle tag: scope from the tag name, checked against the version file
+            if (testingTagScope) {
+              if (process.env.TESTING_TAG_MAJOR !== currentMajorVersion) {
+                core.setFailed(`❌ Testing tag major ${process.env.TESTING_TAG_MAJOR} does not match version ${currentMajorVersion}`);
+                return;
+              }
+              if ((testingTagScope === "cloud") !== isCloudCandidate) {
+                core.setFailed(`❌ Testing tag scope ${testingTagScope} does not match major ${currentMajorVersion}`);
+                return;
+              }
+              releaseScope = testingTagScope;
+            }
             // in a nightly context, whatever the event_name is, the release context does not matter
-            if ( process.env.IS_NIGHTLY == 'true' || eventName === "workflow_run" ) {
+            else if ( process.env.IS_NIGHTLY == 'true' || eventName === "workflow_run" ) {
               releaseScope = isCloudCandidate ? "cloud" : "onprem";
             } else if (eventName === "pull_request") {
               // handle if triggering event is a pull_request
@@ -851,6 +905,8 @@ jobs:
       - name: Display info in job summary
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
+          TESTING_TAG: ${{ steps.parse_testing_tag.outputs.tag }}
+          TESTING_BUNDLE_PATH: ${{ steps.parse_testing_tag.outputs.bundle_path }}
           LATEST_MAJOR_VERSION: ${{ steps.latest_major_version.outputs.latest_major_version }}
           IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
           PREVIOUS_RELEASE_BUNDLE_TAG: ${{ steps.get_previous_release_bundle_tag.outputs.previous_release_bundle_tag }}
@@ -888,6 +944,8 @@ jobs:
               ['minor_version', process.env.MINOR_VERSION],
               ['release', process.env.RELEASE],
               ['stability', process.env.STABILITY],
+              ['testing_tag', process.env.TESTING_TAG || '<em>not a testing bundle tag</em>'],
+              ['testing_bundle_path', process.env.TESTING_BUNDLE_PATH || '<em>not a testing bundle tag</em>'],
               ['release_type', process.env.RELEASE_TYPE || notRelease],
               ['is_targeting_feature_branch', process.env.IS_TARGETING_FEATURE_BRANCH],
               ['is_nightly', process.env.IS_NIGHTLY],
