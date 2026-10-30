@@ -1,4 +1,4 @@
-import { waitForRequest } from '@test-setup/api';
+import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -98,6 +98,29 @@ export default () => {
 
       expect(request.url.searchParams.has('is_locked')).toBe(false);
       expect(getLockedElements(panel)).not.toBeChecked();
+    });
+
+    // The read half of the persistence: what was stored is what the page opens
+    // with, and what its very first request carries.
+    it('opens with the filters kept in local storage, and requests with them', async () => {
+      window.localStorage.setItem(
+        'filters_host_templates',
+        JSON.stringify({ is_locked: true, name: 'linux' })
+      );
+
+      initialize();
+
+      await waitForRequest('@getAllHostTemplates');
+
+      const [{ request: first }] = getRequestCalls('@getAllHostTemplates');
+
+      expect(first.url.searchParams.get('name[lk]')).toBe('linux');
+      expect(first.url.searchParams.get('is_locked')).toBe('true');
+
+      expect(await screen.findByPlaceholderText(labelSearch)).toHaveValue(
+        'linux'
+      );
+      expect(getLockedElements(await openAdvancedFilters())).toBeChecked();
     });
 
     it('keeps the filters in local storage so they survive navigation', async () => {

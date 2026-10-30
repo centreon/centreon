@@ -138,4 +138,29 @@ export default () => {
       expect(window.location.search).toBe('?id=4&mode=edit');
     });
   });
+
+  describe('Columns, set up per test: ', () => {
+    it('opens with the column selection kept in local storage', async () => {
+      window.localStorage.setItem(
+        'columns_host_templates',
+        JSON.stringify(['name', 'parent_templates', 'actions'])
+      );
+
+      initialize();
+
+      await waitForRequest('@getAllHostTemplates');
+      await screen.findByText('generic-active-host-custom');
+
+      expect(getHeaderLabels()).toEqual([
+        labelName,
+        labelTemplates,
+        labelActions
+      ]);
+    });
+
+    // No test of an icon that fails to load: `@centreon/ui`'s `Image` shows
+    // its fallback only while loading, then a broken image (`useLoadImage`
+    // records a failure as `''`, which it reads as loaded). Shared behavior,
+    // the Hosts listing included; to fix there, not to pin here.
+  });
 };

@@ -3,6 +3,7 @@ import { waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { labelSearch } from '../../ConfigurationBase/translatedLabels';
 import {
   labelAlias,
   labelCreateHostTemplate,
@@ -14,6 +15,9 @@ import {
 } from '../translatedLabels';
 import initialize from './initialize';
 import { hostTemplateIcon } from './utils';
+
+// The listing's own empty row, from `@centreon/ui` (not exported from it).
+const labelNoResultFound = 'No result found';
 
 const initializeListing = async (
   props: Parameters<typeof initialize>[0] = {}
@@ -81,6 +85,22 @@ export default () => {
       const { request } = await waitForRequest('@getAllHostTemplates');
 
       expect(request.url.searchParams.get('sort[name]')).toBe('desc');
+    });
+
+    it('sorts back ascending on a second click of the same column', async () => {
+      await initializeListing();
+
+      await userEvent.click(screen.getByLabelText(`Column ${labelName}`));
+
+      const { request: first } = await waitForRequest('@getAllHostTemplates');
+
+      expect(first.url.searchParams.get('sort[name]')).toBe('desc');
+
+      await userEvent.click(screen.getByLabelText(`Column ${labelName}`));
+
+      const { request: second } = await waitForRequest('@getAllHostTemplates');
+
+      expect(second.url.searchParams.get('sort[name]')).toBe('asc');
     });
 
     it('sorts by alias when the alias column is clicked', async () => {
@@ -160,6 +180,27 @@ export default () => {
       expect(create).toBeEnabled();
     });
 
+    // Filters that match nothing are not an empty platform: the listing
+    // stays, with its own empty row, rather than the welcome page.
+    it('keeps the listing, empty, when the filters match no host template', async () => {
+      window.localStorage.setItem(
+        'filters_host_templates',
+        JSON.stringify({ is_locked: false, name: 'nothing matches' })
+      );
+
+      initialize({ isEmpty: true });
+
+      await waitForRequest('@getAllHostTemplates');
+
+      expect(await screen.findByText(labelNoResultFound)).toBeVisible();
+      expect(
+        screen.queryByText(labelWelcomeToHostTemplates)
+      ).not.toBeInTheDocument();
+      expect(screen.getByPlaceholderText(labelSearch)).toHaveValue(
+        'nothing matches'
+      );
+    });
+
     it('offers no way to create from the welcome page without write access', async () => {
       initialize({ hasWriteAccess: false, isEmpty: true });
 
@@ -171,6 +212,17 @@ export default () => {
       expect(
         screen.queryByText(labelCreateHostTemplate)
       ).not.toBeInTheDocument();
+    });
+
+    // A bookmark or a reload: the page opens straight on that template.
+    it('opens the panel of the template named in the URL it is opened at', async () => {
+      const { queryErrors } = initialize({ search: '?id=2&mode=edit' });
+
+      await waitForRequest('@getAllHostTemplates');
+
+      expect(await screen.findByTestId('form-panel')).toBeVisible();
+      expect(window.location.search).toBe('?id=2&mode=edit');
+      expect(queryErrors).toEqual([]);
     });
 
     // No detail endpoint exists until the form sub-task: the row opens an

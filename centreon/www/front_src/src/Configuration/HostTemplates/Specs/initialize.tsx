@@ -25,6 +25,8 @@ import { emptyListingResponse, getListingResponse } from './utils';
 interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
+  // The query string the page is opened at, as a bookmark or a reload would.
+  search?: string;
 }
 
 interface InitializeResult extends RenderResult {
@@ -42,7 +44,8 @@ export const getHeaderLabels = (): Array<string | null> =>
 
 const initialize = ({
   isEmpty = false,
-  hasWriteAccess = true
+  hasWriteAccess = true,
+  search = ''
 }: Props = {}): InitializeResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -50,7 +53,7 @@ const initialize = ({
   });
 
   // The form is URL-driven, and the page is not reloaded between tests.
-  window.history.pushState({}, '', window.location.pathname);
+  window.history.pushState({}, '', `${window.location.pathname}${search}`);
 
   const store = createStore();
 
