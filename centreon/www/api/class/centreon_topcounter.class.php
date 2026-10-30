@@ -120,7 +120,7 @@ class CentreonTopCounter extends CentreonWebService
      */
     public function putAutoLoginToken(): void
     {
-        $userId = $this->arguments['userId'];
+        $userId = (int) $this->centreon->user->user_id;
         $autoLoginKey = $this->arguments['token'];
 
         $query = 'UPDATE contact SET contact_autologin_key = :autoKey WHERE contact_id = :userId';
