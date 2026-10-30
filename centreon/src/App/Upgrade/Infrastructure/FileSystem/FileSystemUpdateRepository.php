@@ -75,4 +75,9 @@ final readonly class FileSystemUpdateRepository implements UpdateScriptFinder
 
         return $updates;
     }
+
+    public function hasPendingNextUpdate(): bool
+    {
+        return $this->filesystem->exists($this->installDir . '/php/Update-next.php');
+    }
 }

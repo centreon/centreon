@@ -219,6 +219,7 @@ jobs:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-web
       installation_file: centreon/www/install/insertBaseConf.sql
+      migrations_version_file: centreon/config.new/packages/centreon.yaml
       update_file: centreon/www/install/php/Update-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}.php
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -235,6 +236,12 @@ jobs:
         uses: ./.github/actions/check-version-consistency
         with:
           file: ${{ env.installation_file }}
+          version: ${{ env.version }}
+
+      - name: Check ${{ env.migrations_version_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.migrations_version_file }}
           version: ${{ env.version }}
 
       - name: Check ${{ env.update_file }}
