@@ -136,6 +136,10 @@ const pollerName = 'QA-poller';
 const pollerUid = 900000001;
 const legacyPollerName = 'QA-legacy-poller';
 const legacyPollerUid = 900000002;
+const remotePollerName = 'Poller-1';
+const remotePollerInstanceId = 900000003;
+const duplicatedPollerName = 'Poller-1_1';
+const duplicatedPollerInstanceId = 900000004;
 
 const buildInsertPollerQuery = (name: string, uid: number): string =>
   `INSERT INTO nagios_server (name, localhost, ns_activate, ssh_port, uid) VALUES ('${name}', '0', '1', 22, ${uid})`;
@@ -145,6 +149,17 @@ const buildInsertRunningInstanceQuery = (
   name: string
 ): string =>
   `INSERT INTO instances (instance_id, name, running, last_alive, deleted) VALUES (${instanceId}, '${name}', 1, UNIX_TIMESTAMP(), 0)`;
+
+// A poller missing from instances makes the web image restart gorgoned
+const registerRunningInstance = (
+  instanceId: number,
+  name: string
+): Cypress.Chainable => {
+  return cy.requestOnDatabase({
+    database: 'centreon_storage',
+    query: buildInsertRunningInstanceQuery(instanceId, name)
+  });
+};
 
 const buildDeleteInstanceByNameQuery = (name: string): string =>
   `DELETE FROM instances WHERE name = '${name}'`;
@@ -176,6 +191,8 @@ export {
   checkIfConfigurationIsNotExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
+  duplicatedPollerInstanceId,
+  duplicatedPollerName,
   getPoller,
   insertHost,
   insertPollerConfigUserAcl,
@@ -183,6 +200,9 @@ export {
   legacyPollerUid,
   pollerName,
   pollerUid,
+  registerRunningInstance,
+  remotePollerInstanceId,
+  remotePollerName,
   removeFixtures,
   testHostName,
   waitPollerListToLoad
