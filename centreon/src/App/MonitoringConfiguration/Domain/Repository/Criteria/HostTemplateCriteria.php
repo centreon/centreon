@@ -43,8 +43,7 @@ final class HostTemplateCriteria implements PaginableCriteria, SortableCriteria
 
     private ?string $nameOrAlias = null;
 
-    // locked templates are kept unless a caller opts out, so that every existing caller of the
-    // repository keeps seeing them
+    // kept by default: the host form's template choices include the locked templates
     private bool $lockedExcluded = false;
 
     /** @var list<int> */
@@ -98,9 +97,6 @@ final class HostTemplateCriteria implements PaginableCriteria, SortableCriteria
         return $this->nameOrAlias;
     }
 
-    /**
-     * Leaves out the locked templates (host_locked = 1).
-     */
     public function withoutLocked(): self
     {
         $new = clone $this;

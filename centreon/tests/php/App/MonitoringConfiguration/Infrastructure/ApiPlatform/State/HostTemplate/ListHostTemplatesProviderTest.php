@@ -444,8 +444,8 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
     }
 
     /**
-     * Drops the JSON-LD keys API Platform adds to every nested object (a @var and a random blank
-     * node @id, /api/.well-known/genid/...): they are not part of the data contract.
+     * Drops the JSON-LD keys API Platform adds to every nested object (a type and a random blank
+     * node id, /api/.well-known/genid/...): they are not part of the data contract.
      */
     private function withoutJsonLdKeys(mixed $value): mixed
     {

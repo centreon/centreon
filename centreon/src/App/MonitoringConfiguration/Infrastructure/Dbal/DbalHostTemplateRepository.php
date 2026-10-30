@@ -184,10 +184,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             return [];
         }
 
-        // Direct host_service_relation links only, a deliberate delta with legacy: getMyHostServices()
-        // also counted the services linked to the template's host groups (the legacy template form
-        // offers host groups), but MON-213189 removes host groups from templates. No join on
-        // `service`: its foreign key cascades on delete, so no dangling id can inflate the count.
+        // Direct host_service_relation links only: the legacy count also included services attached
+        // through the template's host groups, a relation the template form no longer offers. No join
+        // on `service` is needed: its foreign key cascades on delete, so no dangling id remains.
         $qb = $this->connection->createQueryBuilder();
         $qb->select('hsr.host_host_id', 'COUNT(DISTINCT hsr.service_service_id) AS linked_count')
             ->from('host_service_relation', 'hsr')

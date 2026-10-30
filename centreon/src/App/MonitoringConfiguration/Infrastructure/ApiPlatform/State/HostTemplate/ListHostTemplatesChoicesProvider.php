@@ -64,8 +64,9 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
     {
         // No actor scoping: the legacy host form's "extend template" select (CentreonHost::getList())
         // is not host-category severity-scoped. Locked templates are kept and the order stays the
-        // id order, unlike the /configuration/host_templates listing. Once the license host limit is reached, the templates coming from Monitoring
-        // Connectors are excluded instead, matching CentreonHost::getLimitedList().
+        // id order, unlike the /configuration/host_templates listing. Once the license host limit is
+        // reached, the templates coming from Monitoring Connectors are excluded instead, matching
+        // CentreonHost::getLimitedList().
         $criteria = HostTemplateCriteria::unscoped();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);

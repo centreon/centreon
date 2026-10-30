@@ -74,9 +74,8 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
-        // No actor scoping (MON-213189: host templates are never ACL-filtered): like the legacy host
-        // template listing, access is gated by the page permission only (the operation's security),
-        // every host template is then listed.
+        // No actor scoping: host templates are never ACL-filtered. Like the legacy listing page,
+        // access is the page permission alone.
         $criteria = HostTemplateCriteria::unscoped();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
@@ -93,7 +92,6 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
             $criteria = $criteria->withNameOrAlias($search);
         }
 
-        // unlocked templates only, unless the locked ones are asked for as well
         if ($this->handleBoolFilter($filters['is_locked'] ?? null, 'is_locked') !== true) {
             $criteria = $criteria->withoutLocked();
         }

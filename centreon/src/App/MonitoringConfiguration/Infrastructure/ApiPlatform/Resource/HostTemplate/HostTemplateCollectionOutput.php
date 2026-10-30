@@ -38,7 +38,7 @@ final class HostTemplateCollectionOutput
     /** @var list<HostTemplateOutput> the direct parent templates, in inheritance order */
     public array $parentTemplates = [];
 
-    /** the template's own icon, otherwise the first one inherited, otherwise null (then omitted from the payload, like any null) */
+    /** the template's own icon, otherwise the first one inherited, otherwise null */
     public ?HostIconOutput $icon = null;
 
     public function __construct(

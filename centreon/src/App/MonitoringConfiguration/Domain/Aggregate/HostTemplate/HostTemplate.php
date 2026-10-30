@@ -54,9 +54,6 @@ final class HostTemplate extends AggregateRoot
      *                                                               templates linked to this template,
      *                                                               each followed by those of its own
      *                                                               templates, in priority order
-     * @param ?HostAlias $alias the template's alias, null when none is set
-     * @param bool $isLocked whether the template is locked (host_locked), typically one shipped by a
-     *                       Monitoring Connector
      * @param ?MediaId $iconId the template's own icon, null when none is set (an inherited icon is
      *                         not carried here)
      * @param ?Collection<HostTemplateId> $parentTemplateIds the templates this template directly
