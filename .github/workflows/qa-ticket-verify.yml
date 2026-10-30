@@ -91,7 +91,17 @@ jobs:
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
       - name: Install ffmpeg for Playwright video recording
-        run: npx -y playwright install ffmpeg
+        run: |
+          # `npx playwright install ffmpeg` alone resolves whatever playwright CLI version
+          # npx picks (latest stable) and fetches the matching ffmpeg build directory (e.g.
+          # ffmpeg-1013). But browser_navigate/browser_close run through the playwright-core
+          # pinned by mcp-config.ci.json's @playwright/mcp, which can expect a different,
+          # older build (e.g. ffmpeg-1011) — a mismatch silently skips video recording with
+          # no error, since Playwright just finds the expected directory missing. Resolve the
+          # exact playwright-core version @playwright/mcp actually depends on instead.
+          mcp_spec=$(jq -r '.mcpServers.playwright.args[1]' .claude/skills/qa-ticket-verify/mcp-config.ci.json)
+          pw_version=$(npm view "$mcp_spec" dependencies.playwright-core)
+          npx -y "playwright@$pw_version" install ffmpeg
 
       - name: Find linked PR
         id: find_pr
