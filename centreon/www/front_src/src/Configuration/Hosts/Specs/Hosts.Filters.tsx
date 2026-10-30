@@ -100,6 +100,16 @@ export default () => {
       expect(request.url.searchParams.get('template_id')).toBe('5');
     });
 
+    it('asks the host template filter for the locked templates as well', async () => {
+      await initializeWithAdvancedFilters();
+
+      await userEvent.click(screen.getByTestId(labelHostTemplate));
+
+      const { request } = await waitForRequest('@getHostTemplates');
+
+      expect(request.url.searchParams.get('is_locked')).toBe('true');
+    });
+
     it('sends the monitoring server id as a query parameter', async () => {
       await initializeWithAdvancedFilters();
 
