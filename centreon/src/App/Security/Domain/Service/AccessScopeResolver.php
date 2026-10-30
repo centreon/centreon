@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
@@ -79,6 +80,14 @@ final readonly class AccessScopeResolver
     public function hostGroups(ActingUser $actor): AccessScope
     {
         return $this->resolve($actor, HostGroupId::class, $this->resourceAccessRepository->findHostGroupAccessScope(...));
+    }
+
+    /**
+     * @return AccessScope<ServiceGroupId>
+     */
+    public function serviceGroups(ActingUser $actor): AccessScope
+    {
+        return $this->resolve($actor, ServiceGroupId::class, $this->resourceAccessRepository->findServiceGroupAccessScope(...));
     }
 
     /**
