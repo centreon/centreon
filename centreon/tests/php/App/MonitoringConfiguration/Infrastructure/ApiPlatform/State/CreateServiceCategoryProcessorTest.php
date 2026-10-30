@@ -66,6 +66,37 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         $serviceCategory = $repository->findOneByName(new ServiceCategoryName('NAME'));
 
         self::assertNotNull($serviceCategory);
+
+        // the created category is identified by its canonical item IRI, in the body and in the header
+        $expectedIri = '/api/configuration/service_categories/' . $serviceCategory->id()->value;
+        self::assertSame($expectedIri, $response->toArray()['@id']);
+        self::assertSame($expectedIri, $response->getHeaders()['location'][0] ?? null);
+    }
+
+    /**
+     * The legacy prefix aliases the same operation; the item IRI it exposes is still the canonical one, since
+     * the item route only exists under the bare /api prefix.
+     */
+    public function testCreateServiceCategoryOnTheLegacyPrefixExposesTheNewIri(): void
+    {
+        $this->login();
+
+        $response = $this->request('POST', '/api/latest/configuration/services/categories', [
+            'json' => [
+                'name' => 'NAME',
+                'alias' => 'ALIAS',
+                'is_activated' => false,
+            ],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        /** @var ServiceCategoryRepository $repository */
+        $repository = self::getContainer()->get(ServiceCategoryRepository::class);
+        $serviceCategory = $repository->findOneByName(new ServiceCategoryName('NAME'));
+        self::assertNotNull($serviceCategory);
+        $expectedIri = '/api/configuration/service_categories/' . $serviceCategory->id()->value;
+        self::assertSame($expectedIri, $response->toArray()['@id']);
+        self::assertSame($expectedIri, $response->getHeaders()['location'][0] ?? null);
     }
 
     public function testCannotCreateSameServiceCategory(): void

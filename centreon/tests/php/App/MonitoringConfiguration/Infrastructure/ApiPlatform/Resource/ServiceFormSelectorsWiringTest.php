@@ -129,6 +129,18 @@ final class ServiceFormSelectorsWiringTest extends ApiTestCase
             'reused' => false,
             'on_premise_only' => false,
         ],
+        'service_categories' => [
+            'uri' => '/api/configuration/services/service_categories',
+            'message' => 'You are not allowed to access service categories',
+            'reused' => false,
+            'on_premise_only' => false,
+        ],
+        'service_severities' => [
+            'uri' => '/api/configuration/services/service_severities',
+            'message' => 'You are not allowed to access service severities',
+            'reused' => false,
+            'on_premise_only' => false,
+        ],
     ];
 
     private Connection $connection;

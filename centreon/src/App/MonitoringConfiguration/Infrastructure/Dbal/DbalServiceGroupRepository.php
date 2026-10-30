@@ -65,8 +65,9 @@ final readonly class DbalServiceGroupRepository extends DbalRepository implement
 
     public function findAll(ServiceGroupCriteria $criteria): \IteratorAggregate&\Countable
     {
-        // The acting user's scope: unrestricted for a user escaping ACL scoping, otherwise what their
-        // ACL grants. Nothing granted gives an empty result that keeps the paginator envelope.
+        // The acting user's scope: unrestricted for a user escaping ACL scoping or granted every service
+        // group, otherwise what their ACL grants. Nothing granted gives an empty result that keeps the
+        // paginator envelope.
         $scope = $criteria->accessScope($this->accessScopes->serviceGroups(...), ServiceGroupId::class);
         if ($scope->allowsNothing()) {
             return $this->emptyResult($criteria, ServiceGroup::class);

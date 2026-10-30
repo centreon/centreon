@@ -31,7 +31,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
@@ -144,6 +146,30 @@ interface ResourceAccessRepository
      * @return AccessScope<NotificationContactId>
      */
     public function findContactAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * Levelless service categories granted by the user's active ACL resources (disabled categories
+     * included):
+     *  - no accessible ACL resource → restricted to nothing
+     *  - accessible resources, none carrying a service-category relation of any level → unrestricted
+     *  - otherwise → restricted to the granted levelless categories (none when only severities are
+     *    granted)
+     *
+     * @return AccessScope<ServiceCategoryId>
+     */
+    public function findServiceCategoryAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * Service severities (service categories carrying a level) granted by the user's active ACL
+     * resources (disabled severities included):
+     *  - no accessible ACL resource → restricted to nothing
+     *  - accessible resources, none carrying a service-category relation of any level → unrestricted
+     *  - otherwise → restricted to the granted severities (none when only levelless categories are
+     *    granted)
+     *
+     * @return AccessScope<ServiceSeverityId>
+     */
+    public function findServiceSeverityAccessScope(UserId $userId): AccessScope;
 
     /**
      * Same Access-Group-membership model as {@see self::findContactAccessScope()}, plus the contact
