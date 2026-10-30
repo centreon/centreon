@@ -197,10 +197,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
      */
     public function authorize($action, $user, $isInternal = false)
     {
-        return (bool) (
-            parent::authorize($action, $user, $isInternal)
-            || ($user && $user->is_admin())
-        );
+        return (bool) ($user && $user->admin);
     }
 
     /**
