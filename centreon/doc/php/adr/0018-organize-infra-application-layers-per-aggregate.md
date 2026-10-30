@@ -1,4 +1,4 @@
-# ADR-0018: Compartmentalize the ApiPlatform layer per aggregate, and keep the other layers flat
+# ADR-0018: Compartmentalize the Infrastructure and Application layers per aggregate only where it pays, flat otherwise
 
 - **Status:** Accepted
 - **Date:** 2026-10-28
