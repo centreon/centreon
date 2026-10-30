@@ -4,7 +4,7 @@ import { JsonDecoder } from 'ts.data.json';
 
 import type { Icon, NamedEntity } from '../models';
 
-// Kept apart from `decoders`, which imports the sections: no cycle.
+// The fields of every named entity the resource APIs return.
 export const namedEntityDecoder = {
   id: JsonDecoder.number,
   name: JsonDecoder.string
@@ -33,3 +33,14 @@ export const iconsListDecoder = buildListingDecoder({
   entityDecoderName: 'Icon',
   listingDecoderName: 'Icon List'
 });
+
+// A single selector's value: the detail endpoints leave unset values out
+// rather than sending null.
+export const optionalNamedEntityDecoder = (name: string) =>
+  JsonDecoder.optional(
+    JsonDecoder.nullable(JsonDecoder.object(namedEntityDecoder, name))
+  ).map((value) => value ?? null);
+
+// A multiple selector's value, always sent.
+export const namedEntitiesDecoder = (name: string, listName: string) =>
+  JsonDecoder.array(JsonDecoder.object(namedEntityDecoder, name), listName);

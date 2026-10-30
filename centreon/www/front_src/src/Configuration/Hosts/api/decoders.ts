@@ -1,31 +1,23 @@
 import { buildListingDecoder } from '@centreon/ui';
 
-import { mergeAll } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
 import {
-  getAvailableSections,
+  iconDecoder,
+  namedEntityDecoder
+} from '../../ResourceForm/api/decoders';
+import { getDetailDecoder } from '../../ResourceForm/blocks';
+import {
+  blocks,
   type HostDetail,
   type PlatformContext
 } from '../Form/sections';
 import type { FormPoller, HostListItem } from '../models';
-import { iconDecoder, namedEntityDecoder } from './namedEntityDecoders';
 
 // The detail endpoint answers with objects where the create takes ids, so the
 // poller arrives named and the autocomplete can render it without a lookup.
-export const getHostDecoder = (context: PlatformContext) => {
-  const availableSections = getAvailableSections(context).map(
-    ({ section }) => section
-  );
-
-  return JsonDecoder.object<HostDetail>(
-    mergeAll(
-      availableSections.map((section) => section.detailDecoders)
-    ) as JsonDecoder.DecoderObject<HostDetail>,
-    'Host',
-    mergeAll(availableSections.map((section) => section.detailKeyMap ?? {}))
-  );
-};
+export const getHostDecoder = (context: PlatformContext) =>
+  getDetailDecoder<HostDetail>({ blocks, context, name: 'Host' });
 
 const hostsDecoder = JsonDecoder.object<HostListItem>(
   {
