@@ -382,6 +382,88 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($this->repository->findHostGroupAccessScope($userId)->isUnrestricted());
     }
 
+    public function testUserWithNoAclGroupHasAccessToNoServiceGroups(): void
+    {
+        $userId = new UserId($this->createContact('user-no-acl'));
+
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope($userId);
+
+        self::assertFalse($serviceGroupScope->isUnrestricted(), 'No accessible ACL resource is a restriction, not "see all".');
+        self::assertTrue($serviceGroupScope->allowsNothing());
+    }
+
+    public function testUserWithAclResourceFlaggedAllServiceGroupsHasAccessToAllServiceGroups(): void
+    {
+        $contactId = $this->createContact('user-all-flag');
+        // a restricted resource next to the flagged one: the flag on any accessible resource wins
+        $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [$this->insertServiceGroup()], allServiceGroups: false);
+        $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [], allServiceGroups: true);
+
+        self::assertTrue($this->repository->findServiceGroupAccessScope(new UserId($contactId))->isUnrestricted());
+    }
+
+    public function testUserWithAclResourceRestrictedToAServiceGroupSeesOnlyIt(): void
+    {
+        $grantedId = $this->insertServiceGroup();
+        $this->insertServiceGroup();
+        $contactId = $this->createContact('user-restricted');
+        $aclResId = $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [$grantedId], allServiceGroups: false);
+        // the relation column is nullable: such a row grants nothing and must not become an invalid id
+        $this->connection->insert('acl_resources_sg_relations', ['acl_res_id' => $aclResId, 'sg_id' => null]);
+
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceGroupScope->isUnrestricted());
+        self::assertSame([$grantedId], $serviceGroupScope->allowedIdValues());
+    }
+
+    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoServiceGroups(): void
+    {
+        // A resource that never had its service-group tab configured (no relation rows, flag unset)
+        // grants zero service groups: it must not be mistaken for the "all service groups" flag.
+        $contactId = $this->createContact('user-empty-resource');
+        $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [], allServiceGroups: false);
+
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceGroupScope->isUnrestricted(), 'A resource without relation nor flag is a restriction, not "see all".');
+        self::assertTrue($serviceGroupScope->allowsNothing());
+    }
+
+    public function testAnotherUsersGrantsGiveNoServiceGroupToTheAskingUser(): void
+    {
+        $grantedId = $this->insertServiceGroup();
+        $otherUsersGroupId = $this->insertServiceGroup();
+        $contactId = $this->createContact('user-restricted');
+        $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [$grantedId], allServiceGroups: false);
+        // another user's active resources: one flagged for every service group, one with a relation
+        $otherContactId = $this->createContact('user-other');
+        $this->linkContactToAclResourceForServiceGroups($otherContactId, restrictToServiceGroupIds: [], allServiceGroups: true);
+        $this->linkContactToAclResourceForServiceGroups($otherContactId, restrictToServiceGroupIds: [$otherUsersGroupId], allServiceGroups: false);
+
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceGroupScope->isUnrestricted(), "Another user's \"all service groups\" flag must not apply.");
+        self::assertSame([$grantedId], $serviceGroupScope->allowedIdValues(), "Another user's relations must not apply.");
+    }
+
+    public function testAnInactiveAclResourceGrantsNoServiceGroup(): void
+    {
+        $contactId = $this->createContact('user-inactive-resource');
+        // both the flag and a relation: an inactive ACL resource grants neither
+        $this->linkContactToAclResourceForServiceGroups(
+            $contactId,
+            restrictToServiceGroupIds: [$this->insertServiceGroup()],
+            allServiceGroups: true,
+            active: false,
+        );
+
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceGroupScope->isUnrestricted(), 'An inactive resource must not grant "all service groups".');
+        self::assertTrue($serviceGroupScope->allowsNothing());
+    }
+
     public function testUserWithNoAclGroupHasAccessToNoImageFolders(): void
     {
         // Legacy `if ($accessGroups === []) return new \EmptyIterator()`: a user with no accessible
@@ -972,5 +1054,47 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
                 'dir_id' => $imageFolderId,
             ]);
         }
+    }
+
+    private function insertServiceGroup(): int
+    {
+        $this->connection->insert('servicegroup', ['sg_name' => 'ServiceGroup-' . random_int(1, PHP_INT_MAX)]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @param list<int> $restrictToServiceGroupIds service groups explicitly granted through this
+     *                                             resource's relations; irrelevant once $allServiceGroups is true
+     */
+    private function linkContactToAclResourceForServiceGroups(
+        int $contactId,
+        array $restrictToServiceGroupIds,
+        bool $allServiceGroups,
+        bool $active = true,
+    ): int {
+        $aclGroupId = $this->createAccessGroupForContact($contactId);
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'resource-' . $aclGroupId,
+            'acl_res_alias' => 'resource-' . $aclGroupId,
+            'acl_res_activate' => $active ? '1' : '0',
+            'all_servicegroups' => $allServiceGroups ? '1' : '0',
+        ]);
+        $aclResId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_res_group_relations', [
+            'acl_res_id' => $aclResId,
+            'acl_group_id' => $aclGroupId,
+        ]);
+
+        foreach ($restrictToServiceGroupIds as $serviceGroupId) {
+            $this->connection->insert('acl_resources_sg_relations', [
+                'acl_res_id' => $aclResId,
+                'sg_id' => $serviceGroupId,
+            ]);
+        }
+
+        return $aclResId;
     }
 }

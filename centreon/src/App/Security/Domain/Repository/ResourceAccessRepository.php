@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
@@ -121,6 +122,14 @@ interface ResourceAccessRepository
      * @return AccessScope<HostGroupId>
      */
     public function findHostGroupAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * Service groups granted by the user's active ACL resources (disabled service groups included):
+     * unrestricted when one of them grants all service groups.
+     *
+     * @return AccessScope<ServiceGroupId>
+     */
+    public function findServiceGroupAccessScope(UserId $userId): AccessScope;
 
     /**
      * @return AccessScope<MediaDirectoryId>
