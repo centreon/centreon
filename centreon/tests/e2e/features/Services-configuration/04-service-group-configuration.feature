@@ -7,7 +7,7 @@ Feature: ServiceGroupConfiguration
     Given a user is logged in Centreon
     And a service group is configured
 
-  @MON-151190
+  @MON-213709
   Scenario: Change the properties of a service group
     When the user changes the properties of a service group
     Then the properties of the service group are updated

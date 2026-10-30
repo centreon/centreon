@@ -6,6 +6,7 @@ Feature: Legacy configuration forms still work after the framework removal
   Background:
     Given an admin user is logged in a Centreon server
 
+  @MON-213731
   Scenario: The legacy host add form still renders its select2 fields
     When the user opens the legacy host add form
     Then the host form renders its select2 fields
