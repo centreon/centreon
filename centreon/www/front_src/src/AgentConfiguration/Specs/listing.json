@@ -1,0 +1,155 @@
+{
+  "meta": {
+    "limit": 10,
+    "page": 1,
+    "total": 20
+  },
+  "result": [
+    {
+      "id": 0,
+      "name": "AC 0",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ],
+      "type": "telegraf"
+    },
+    {
+      "id": 1,
+      "name": "AC 1",
+      "pollers": [],
+      "type": "telegraf"
+    },
+    {
+      "id": 2,
+      "is_agent_initiated": true,
+      "name": "AC 2",
+      "pollers": [
+        {
+          "id": 1,
+          "is_central": true,
+          "name": "Central"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ],
+      "type": "centreon-agent"
+    },
+    {
+      "id": 3,
+      "is_agent_initiated": false,
+      "name": "AC 3",
+      "pollers": [
+        {
+          "id": 1,
+          "is_central": true,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "is_central": true,
+          "name": "poller 2"
+        }
+      ],
+      "type": "centreon-agent"
+    },
+    {
+      "id": 4,
+      "name": "AC 4",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ],
+      "type": "telegraf"
+    },
+    {
+      "id": 5,
+      "name": "AC 5",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ],
+      "type": "telegraf"
+    },
+    {
+      "id": 6,
+      "name": "AC 6",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ],
+      "type": "telegraf"
+    },
+    {
+      "id": 7,
+      "name": "AC 7",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ],
+      "type": "telegraf"
+    },
+    {
+      "id": 8,
+      "name": "AC 8",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ],
+      "type": "telegraf"
+    },
+    {
+      "id": 9,
+      "name": "AC 9",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ],
+      "type": "telegraf"
+    }
+  ]
+}
