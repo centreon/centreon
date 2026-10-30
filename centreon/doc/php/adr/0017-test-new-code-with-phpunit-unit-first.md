@@ -1,4 +1,4 @@
-# ADR-0017: Write new tests with PHPUnit, and unit-test the Domain
+# ADR-0017: Test new code with PHPUnit, unit-first by default
 
 - **Status:** Accepted
 - **Date:** 2026-10-28
@@ -10,6 +10,8 @@ The backend test suite runs on **Pest** (`pestphp/pest`, the `composer test` ent
 Beyond the runner, the team never wrote down what must be tested. A few recurring gaps keep surfacing in review: a new value object or aggregate root shipped without a unit test; a `*Criteria` or a `*Transformer` left untested because "the integration test covers it", so the component has no fast, isolated test of its own and relies on the slower suite running to catch a regression; a tautological unit test for a backed enum that has no behaviour; and an endpoint's Cloud and on-premise cases split across two files, so the pair drifts.
 
 ## Decision
+
+One convention governs every new test: write it with PHPUnit, and unit-test each building block by default. The rules below are the facets of that convention.
 
 - **Runner — PHPUnit, not Pest.** Every **new** test is a PHPUnit `TestCase`, including tests for legacy code (outside `src/App`). Do **not** add new Pest files. Existing Pest tests may still be edited in place; they are migrated opportunistically, not in a sweep.
 - **Unit-test every building block, by default.** Value objects, entities, aggregate roots, enums that carry behaviour, `*Criteria`, `*Transformer`, and the ApiPlatform `*Input` / `*Output` DTOs each get their own dedicated unit test. A value object covers the happy path and **every invariant rejecting**; an aggregate root asserts it exposes its identity and members; a criteria or a transformer asserts every case it produces. Being covered by an integration test does **not** excuse skipping the unit test — the two are complementary: the unit test gives fast, isolated feedback that does not depend on the integration suite running, and neither replaces the other.

@@ -63,6 +63,6 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 
 ### Testing
 
-| ADR                                                                   | Decision                                               | Status   |
-| --------------------------------------------------------------------- | ------------------------------------------------------ | -------- |
-| [0017](0017-write-new-tests-with-phpunit-and-unit-test-the-domain.md) | Write new tests with PHPUnit, and unit-test the Domain | Accepted |
+| ADR                                                   | Decision                                          | Status   |
+| ----------------------------------------------------- | ------------------------------------------------- | -------- |
+| [0017](0017-test-new-code-with-phpunit-unit-first.md) | Test new code with PHPUnit, unit-first by default | Accepted |
