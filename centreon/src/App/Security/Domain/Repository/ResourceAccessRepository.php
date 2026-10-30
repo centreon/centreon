@@ -189,4 +189,13 @@ interface ResourceAccessRepository
      * @return AccessScope<HostId>
      */
     public function findHostAccessScope(UserId $userId, ?Collection $among = null): AccessScope;
+
+    /**
+     * Services follow the real-time ACL cache (`centreon_acl`) too, but are far too many to load as a list of
+     * ids: the scope is the user's active Access Groups, for a query to join the cache on. It is always
+     * restricted, and allows nothing for a user belonging to no active group.
+     *
+     * @return AccessScope<AccessGroupId>
+     */
+    public function findServiceAccessGroupScope(UserId $userId): AccessScope;
 }

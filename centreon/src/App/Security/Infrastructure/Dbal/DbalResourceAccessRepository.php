@@ -589,6 +589,11 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         );
     }
 
+    public function findServiceAccessGroupScope(UserId $userId): AccessScope
+    {
+        return AccessScope::restrictedTo(AccessGroupId::class, $this->accessGroupRepository->findActiveGroupIdsForUser($userId));
+    }
+
     /**
      * @param list<HostId> $ids
      * @param ?Collection<HostId> $among
