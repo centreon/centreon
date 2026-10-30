@@ -1,4 +1,4 @@
-# ADR-0017: Scope resource access with an acting user and an access scope
+# ADR-0015: Scope resource access with an acting user and an access scope
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
