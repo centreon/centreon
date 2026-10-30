@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -49,6 +50,9 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     /** @var AccessScope<HostGroupId> */
     public AccessScope $hostGroupScope;
+
+    /** @var AccessScope<ServiceGroupId> */
+    public AccessScope $serviceGroupScope;
 
     /** @var AccessScope<MediaDirectoryId> */
     public AccessScope $imageFolderScope;
@@ -85,6 +89,7 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     {
         $this->pollerScope = AccessScope::unrestricted(PollerId::class);
         $this->hostGroupScope = AccessScope::unrestricted(HostGroupId::class);
+        $this->serviceGroupScope = AccessScope::unrestricted(ServiceGroupId::class);
         $this->imageFolderScope = AccessScope::unrestricted(MediaDirectoryId::class);
         $this->hostCategoryScope = AccessScope::unrestricted(HostCategoryId::class);
         $this->hostSeverityScope = AccessScope::unrestricted(HostSeverityId::class);
@@ -129,6 +134,13 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
 
         return $this->hostGroupScope;
+    }
+
+    public function findServiceGroupAccessScope(UserId $userId): AccessScope
+    {
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return $this->serviceGroupScope;
     }
 
     public function findContactAccessScope(UserId $userId): AccessScope

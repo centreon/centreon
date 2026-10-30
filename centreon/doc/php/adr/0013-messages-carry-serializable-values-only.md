@@ -11,11 +11,12 @@ One alternative was weighed: allow scalars only in messages. It lost because it 
 
 ## Decision
 
-Make commands, queries and events carry **only values that serialize and deserialize faithfully**: scalars, arrays of them, and value objects, ID value objects included. **Never put an aggregate, an entity or another model instance in a message.** Pass the ID; the handler loads what it needs.
+Make commands, queries and events carry **only values that serialize and deserialize faithfully**: scalars, arrays or collections, and value objects, ID value objects included. **Never put an aggregate or an entity in a message.** Pass the ID; the handler loads what it needs.
 
 ## Consequences
 
-- Moving a message to an asynchronous transport needs no code change in the message or its handler.
+- Moving a message that complies with this ADR to an asynchronous transport needs no code change in the message or its handler.
+- Existing messages that carry model instances must be migrated before asynchronous routing.
 - Handlers work on current data for whatever they load from an ID. The other values in the message are a snapshot taken when it was dispatched.
 - A handler may need an extra repository call to load what the caller already had in memory.
 - The terms are defined in the [glossary](../glossary.md#2-messaging).

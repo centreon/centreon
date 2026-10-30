@@ -8,13 +8,18 @@ export type TriState = 'true' | 'false' | 'use_default';
 
 export const defaultTriState: TriState = 'use_default';
 
-export const triStateOptions: Array<{ label: string; value: TriState }> = [
+const triStates: Array<TriState> = ['true', 'false', defaultTriState];
+
+export type TriStateOptions = Array<{ label: string; value: TriState }>;
+
+// Yes / No / Default, for every Yes / No field of the form.
+export const triStateOptions: TriStateOptions = [
   { label: labelYes, value: 'true' },
   { label: labelNo, value: 'false' },
   { label: labelDefault, value: defaultTriState }
 ];
 
 export const triStateDecoder = JsonDecoder.oneOf<TriState>(
-  triStateOptions.map(({ value }) => JsonDecoder.isExactly(value)),
+  triStates.map((value) => JsonDecoder.isExactly(value)),
   'TriState'
 );

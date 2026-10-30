@@ -21,9 +21,8 @@ Implement each Transformer as a **dedicated class**, never as a private reposito
 - A Transformer can depend on other Transformers to build a full object graph.
 - The interface unifies the entry point, and each class can be unit-tested on its own.
 - Transformers stay pure: no I/O, no repository or connection injected.
-- A `reverse()` capability is agreed as useful, but the mechanism is not settled: an abstract base class with a default `reverse()` that throws, or a second interface. It is decided when it is first needed. Until then, no Transformer is required to implement `reverse()`.
+- A `reverse()` capability is agreed as useful. A Transformer that needs it implements a second interface, `ReverserInterface`. Without it, no Transformer is required to implement `reverse()`. Introducing it is tracked in [MON-213356](https://centreon.atlassian.net/browse/MON-213356).
 
 ## When to Amend
 
-- `reverse()` is first needed. This ADR then gets a follow-up for the mechanism.
 - An ORM replaces the hand-written Dbal hydration.
