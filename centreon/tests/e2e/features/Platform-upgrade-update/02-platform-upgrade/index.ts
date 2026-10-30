@@ -5,8 +5,10 @@ import {
   checkPlatformVersion,
   getCentreonPreviousMajorVersion,
   getCentreonStableMinorVersions,
+  getStableRepositoryStatus,
   installCentreon,
-  localPackageDirectory
+  localPackageDirectory,
+  useArchivedRepositories
 } from '../common';
 
 before(() => {
@@ -139,7 +141,25 @@ Given(
             statusCode: 200
           })
           .visit('/waiting-page')
-          .then(() => {
+          .then(() => getStableRepositoryStatus(majorVersionFrom))
+          .then((repositoryStatus) => {
+            if (repositoryStatus === 'unavailable') {
+              cy.task(
+                'logVersion',
+                `No stable repository available for ${majorVersionFrom}, upgrade test skipped.`
+              );
+
+              return cy.stopContainer({ name: 'web' }).wrap('skipped');
+            }
+
+            if (repositoryStatus === 'archived') {
+              cy.task(
+                'logVersion',
+                `${majorVersionFrom} is end-of-life, using archived repositories.`
+              );
+              useArchivedRepositories(majorVersionFrom);
+            }
+
             return getCentreonStableMinorVersions(majorVersionFrom).then(
               (stableMinorVersions) => {
                 let minorVersionIndex = 0;

@@ -115,6 +115,62 @@ const getDatabaseEngine = (): DatabaseEngine => {
 
 const isAlma = (): boolean => Cypress.env('WEB_IMAGE_OS').includes('alma');
 
+const packagesRepositoryUrl = 'https://packages.centreon.com';
+const archivesRepositoryUrl = 'https://archives.centreon.com';
+
+type RepositoryStatus = 'active' | 'archived' | 'unavailable';
+
+const getStableRepositoryIndexPath = (majorVersion: string): string => {
+  if (isAlma()) {
+    const distrib = Cypress.env('WEB_IMAGE_OS') === 'alma9' ? 'el9' : 'el8';
+
+    return `rpm-standard/${majorVersion}/${distrib}/stable/noarch/repodata/repomd.xml`;
+  }
+
+  return `apt-standard-${majorVersion}-stable/dists/${Cypress.env('WEB_IMAGE_OS')}/Release`;
+};
+
+const isRepositoryReachable = (url: string): Cypress.Chainable<boolean> =>
+  cy
+    .request({ failOnStatusCode: false, url })
+    .then(({ status }) => status === 200);
+
+// End-of-life major versions leave packages.centreon.com and only their stable
+// repository is kept on archives.centreon.com (APT only for now).
+const getStableRepositoryStatus = (
+  majorVersion: string
+): Cypress.Chainable<RepositoryStatus> => {
+  const indexPath = getStableRepositoryIndexPath(majorVersion);
+
+  return isRepositoryReachable(`${packagesRepositoryUrl}/${indexPath}`).then(
+    (isActive): Cypress.Chainable<RepositoryStatus> => {
+      if (isActive) {
+        return cy.wrap<RepositoryStatus>('active');
+      }
+
+      if (isAlma()) {
+        return cy.wrap<RepositoryStatus>('unavailable');
+      }
+
+      return isRepositoryReachable(
+        `${archivesRepositoryUrl}/${indexPath}`
+      ).then(
+        (isArchived): RepositoryStatus =>
+          isArchived ? 'archived' : 'unavailable'
+      );
+    }
+  );
+};
+
+const useArchivedRepositories = (majorVersion: string): Cypress.Chainable =>
+  cy.execInContainer({
+    command: [
+      `sed -i -E '/-${majorVersion}-(testing|unstable)/d' /etc/apt/sources.list.d/centreon*.list`,
+      `sed -i 's#${packagesRepositoryUrl}/apt-standard-${majorVersion}-stable/#${archivesRepositoryUrl}/apt-standard-${majorVersion}-stable/#' /etc/apt/sources.list.d/centreon*.list`
+    ],
+    name: 'web'
+  });
+
 const getDatabaseService = (engine: DatabaseEngine): string => {
   if (engine.type === 'mariadb') {
     return 'mariadb';
@@ -733,6 +789,8 @@ export {
   containerPackageDirectory,
   getCentreonPreviousMajorVersion,
   getCentreonStableMinorVersions,
+  getStableRepositoryStatus,
+  useArchivedRepositories,
   installCentreon,
   updatePlatformPackages,
   checkPlatformVersion,
