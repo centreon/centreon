@@ -51,6 +51,10 @@ const getSkeleton = cond<Array<InputType>, JSX.Element>([
   [
     equals(InputType.Custom) as (b: InputType) => boolean,
     always(<LoadingSkeleton height={52} />)
+  ],
+  [
+    equals(InputType.IconSelector) as (b: InputType) => boolean,
+    always(<LoadingSkeleton height={52} />)
   ]
 ]);
 
