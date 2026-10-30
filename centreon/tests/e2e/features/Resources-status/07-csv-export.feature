@@ -10,7 +10,7 @@ Feature: Download Resource Status Data as CSV
     Then a CSV file should be downloaded
     And the CSV file should contain the correct headers and the expected data
 
-  @MON-171355
+  @MON-171356
   Scenario: Export resource status to CSV using only the currently visible columns and pages
     Given an admin user is logged in and redirected to the Resource Status page
     When the admin user unchecks some columns in the table settings
