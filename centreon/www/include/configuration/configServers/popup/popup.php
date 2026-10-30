@@ -60,6 +60,14 @@ $isAdmin = (bool) $centreon->user->admin;
 
 if ($isAdmin === false) {
     $acl = new CentreonACL($userId, $isAdmin);
+    // The popup is only reachable from Configuration > Pollers > Pollers.
+    // Read the topology directly: page() would reset session.update_acl on this
+    // throwaway ACL, leaving the session ACL stale.
+    if ((int) ($acl->topology[60901] ?? CentreonACL::ACL_ACCESS_NONE) === CentreonACL::ACL_ACCESS_NONE) {
+        echo 'You are not allowed to reach this page';
+
+        exit();
+    }
     $aclPollers = $acl->getPollers();
     if (! array_key_exists($pollerId, $aclPollers)) {
         echo 'No access rights to this Poller';
