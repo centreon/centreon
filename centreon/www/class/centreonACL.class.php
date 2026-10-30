@@ -429,11 +429,14 @@ class CentreonACL
      * Poller ACLs are only loaded for non-admin users: always returns [] for admins, so callers
      * must check admin status first.
      *
+     * Also returns [] for a user with no ACL resource: setPollers() then falls back to every
+     * active poller, which only makes sense when the user's resources set no poller restriction.
+     *
      * @return int[]
      */
     public function getPollerRuntimeIds(): array
     {
-        if ($this->pollers === []) {
+        if ($this->pollers === [] || $this->resourceGroups === []) {
             return [];
         }
 
