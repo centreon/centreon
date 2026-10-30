@@ -132,6 +132,28 @@ const checkIfConfigurationIsNotExported = (): void => {
   });
 };
 
+const remotePollerName = 'Poller-1';
+const remotePollerInstanceId = 900000003;
+const duplicatedPollerName = 'Poller-1_1';
+const duplicatedPollerInstanceId = 900000004;
+
+const buildInsertRunningInstanceQuery = (
+  instanceId: number,
+  name: string
+): string =>
+  `INSERT INTO instances (instance_id, name, running, last_alive, deleted) VALUES (${instanceId}, '${name}', 1, UNIX_TIMESTAMP(), 0)`;
+
+// A poller missing from instances makes the web image restart gorgoned
+const registerRunningInstance = (
+  instanceId: number,
+  name: string
+): Cypress.Chainable => {
+  return cy.requestOnDatabase({
+    database: 'centreon_storage',
+    query: buildInsertRunningInstanceQuery(instanceId, name)
+  });
+};
+
 export {
   insertPollerConfigUserAcl,
   getPoller,
@@ -142,5 +164,10 @@ export {
   breakSomePollers,
   waitPollerListToLoad,
   checkIfConfigurationIsNotExported,
-  testHostName
+  testHostName,
+  duplicatedPollerInstanceId,
+  duplicatedPollerName,
+  registerRunningInstance,
+  remotePollerInstanceId,
+  remotePollerName
 };
