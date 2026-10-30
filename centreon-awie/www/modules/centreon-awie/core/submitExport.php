@@ -19,6 +19,51 @@
  *
  */
 
-require_once __DIR__ . '/../../../../config/centreon.config.php';
+require_once __DIR__ . '/../../../../bootstrap.php';
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/class/ZipAndDownload.class.php';
-$oExport = new ZipAndDownload($_POST['pathFile']);
+require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonUser.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
+
+$pearDB = new CentreonDB();
+
+$centreonSession = new CentreonSession();
+$centreonSession->start();
+
+// Exit if no session cookie
+if (! isset($_COOKIE['PHPSESSID']) || empty($_COOKIE['PHPSESSID'])) {
+    echo json_encode(['error' => 'Authentication required']);
+
+    exit;
+}
+
+// Exit if invalid session
+if (! isset($_SESSION['centreon']) || ! isset($_SESSION['centreon']->user)) {
+    echo json_encode(['error' => 'Invalid or expired session']);
+
+    exit;
+}
+
+// Exit if user is not admin
+if ((bool) $_SESSION['centreon']->user->admin !== true) {
+    echo json_encode(['error' => 'Permission denied']);
+
+    exit;
+}
+
+// Exit if user is a service account
+if (isServiceAccount($_SESSION['centreon']->user->user_id)) {
+    echo json_encode(['error' => 'Permission denied for service accounts']);
+
+    exit;
+}
+
+// Only the generated export file can be downloaded
+$fileName = $_POST['pathFile'] ?? null;
+if (! is_string($fileName) || preg_match('/^centreon-clapi-export-\d+$/', $fileName) !== 1) {
+    echo json_encode(['error' => 'Invalid export file']);
+
+    exit;
+}
+$oExport = new ZipAndDownload($fileName);
