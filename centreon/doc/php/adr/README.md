@@ -17,9 +17,15 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 
 | ADR                                                         | Decision                                                                                       | Status   |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------- |
-| [0002](0002-name-domain-folder-model.md)                    | Name the domain folder `Model`, not `Aggregate`                                                | Accepted |
 | [0009](0009-aggregates-readonly-by-default.md)              | Make aggregate properties `readonly` by default, and mutate them only through business methods | Accepted |
 | [0012](0012-change-aggregate-internals-through-the-root.md) | Change an aggregate's inner entities and value objects only through its aggregate root         | Accepted |
+
+### Project structure
+
+| ADR                                                             | Decision                                                                                                    | Status   |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | -------- |
+| [0002](0002-name-domain-folder-model.md)                        | Name the domain folder `Model`, not `Aggregate`                                                             | Accepted |
+| [0018](0018-organize-infra-application-layers-per-aggregate.md) | Compartmentalize the Infrastructure and Application layers per aggregate only where it pays, flat otherwise | Accepted |
 
 ### Transformers
 
@@ -38,12 +44,11 @@ To propose a decision, copy [`template.md`](template.md) to the next free number
 
 ### API
 
-| ADR                                                             | Decision                                                                                                    | Status   |
-| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | -------- |
-| [0007](0007-serve-new-endpoints-under-api-only.md)              | Run legacy and new endpoints side by side, and serve new endpoints under `/api` only                        | Accepted |
-| [0008](0008-one-resource-per-path.md)                           | Keep one API Platform resource as far as possible, and add Input or Output DTOs when formats differ         | Accepted |
-| [0011](0011-keep-selector-endpoints-out-of-api-doc.md)          | Keep selector endpoints out of the published API documentation                                              | Accepted |
-| [0018](0018-organize-infra-application-layers-per-aggregate.md) | Compartmentalize the Infrastructure and Application layers per aggregate only where it pays, flat otherwise | Accepted |
+| ADR                                                    | Decision                                                                                            | Status   |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------- | -------- |
+| [0007](0007-serve-new-endpoints-under-api-only.md)     | Run legacy and new endpoints side by side, and serve new endpoints under `/api` only                | Accepted |
+| [0008](0008-one-resource-per-path.md)                  | Keep one API Platform resource as far as possible, and add Input or Output DTOs when formats differ | Accepted |
+| [0011](0011-keep-selector-endpoints-out-of-api-doc.md) | Keep selector endpoints out of the published API documentation                                      | Accepted |
 
 ### Messaging
 
