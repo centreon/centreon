@@ -13,7 +13,7 @@ Without a rule, code keeps reaching for whichever entry point is nearest, and th
 
 ## Decision
 
-- **Logging — all code outside `src/App`, new and existing.** Log through `Adaptation\Log\Logger` only (`Logger::create(LogChannelEnum::…)->…`), or one of its semantic siblings (`LoggerAuthentication`, `LoggerPassword`, `LoggerToken`, `LoggerUpgrade`). Never `CentreonLog`, never `error_log()`, and never the `Centreon\Domain\Log\*` classes (its `Logger` and its `LoggerTrait`). This is the one rule here not limited to new code: route a log through `Adaptation\Log\Logger` whenever you write or touch one in legacy. Repositories are stricter — see below.
+- **Logging — all code outside `src/App`, new and existing.** Log through `Adaptation\Log\Logger` only (`Logger::create(LogChannelEnum::…)->…`), or one of its semantic siblings (`LoggerAuthentication`, `LoggerPassword`, `LoggerToken`, `LoggerUpgrade`). Never `CentreonLog`, never `error_log()`, and never the `Centreon\Domain\Log\*` classes (its `Logger` and its `LoggerTrait`). This is the one rule here not limited to new code: route a log through `Adaptation\Log\Logger` whenever you write or touch one in legacy. The rule is about legacy **call sites**: the `Adaptation` layer's own internals (which may fall back to `error_log()`) are out of scope, and repositories must not log at all — see below.
 
   Pass the business data as the log **context** (the second argument); including it in the message as well is fine. When you log a caught exception, put it under the context's **`exception`** key — the pipeline's `ExceptionFormatterProcessor` expands it (type, message, trace). Do not make the caught exception's `getMessage()` the whole message; appending it after a colon (`'…: ' . $exception->getMessage()`) is tolerated.
 
@@ -24,7 +24,7 @@ Without a rule, code keeps reaching for whichever entry point is nearest, and th
   );
   ```
 
-- **Database — new code outside `src/App`.** For any new class, method or function, reach the database only through `Adaptation\Database\Connection\ConnectionInterface` (the `DbalConnectionAdapter`), passing values as `QueryParameters`. Never `CentreonDB`, never `DatabaseConnection`, and therefore none of the `\PDO` statement methods either.
+- **Database — new code outside `src/App`.** For any new class, method or function, reach the database only through `Adaptation\Database\Connection\ConnectionInterface` (the `DbalConnectionAdapter`), passing values as the operation's parameter object (`QueryParameters`, or `BatchInsertParameters` for `batchInsert()`). Never `CentreonDB`, never `DatabaseConnection`, and therefore none of the `\PDO` statement methods either.
 - **Repositories — new repository files.** A new legacy repository must extend `Core\Common\Infrastructure\Repository\DatabaseRepository`, which injects `ConnectionInterface`, never a legacy base (`AbstractRepositoryRDB`, `AbstractRepositoryDRB`). A repository must **not log at all** — not through the `Adaptation` layer either — and must **not swallow a failure**: it wraps the caught infrastructure exception in a `Core\Common\Domain\Exception\RepositoryException`, passing its own business message, the business data as **`context`**, and the caught exception as **`previous`** (the chain preserves the cause). Do not make the caught exception's `getMessage()` the new message; appending it after a colon is tolerated, but the chain already carries it:
 
   ```php

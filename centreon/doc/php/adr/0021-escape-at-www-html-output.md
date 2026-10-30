@@ -20,7 +20,7 @@ Escape on **output**, never before storage. User-controlled data is written to t
 In `www/` PHP that emits HTML **text or a quoted attribute** directly (echo or string concatenation), pass every user-controlled or database-sourced string through **`HtmlSanitizer`** before it reaches the output:
 
 - `HtmlSanitizer::createFromString($value)->sanitize()->getString()` to escape.
-- `->removeTags($allowedTags)` where markup must be stripped rather than escaped.
+- `->removeTags($allowedTags)` strips tags but does **not** encode output — apply `->sanitize()` before HTML output, and treat `$allowedTags` as a tag filter, not an XSS-safe allowlist.
 
 This rule covers the HTML text and quoted-attribute contexts only. URL attributes (`href`, `src`), inline `<script>` or `<style>` content, and other JavaScript or CSS contexts are **out of scope**: `htmlspecialchars()` leaves a `javascript:` URL executable, so those values need URL validation or context-specific encoding that this ADR does not define.
 

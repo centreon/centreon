@@ -5,11 +5,11 @@
 
 ## Context
 
-Value objects, entities and aggregates enforce their invariants in the constructor, and application code checks preconditions before acting. The project depends on `webmozart/assert`, and `src/App` already uses `Webmozart\Assert\Assert` in ~175 files for exactly this. `Assert::*` throws an `InvalidArgumentException` (a native `\InvalidArgumentException`), which the pipeline recognises as a value-object / domain rejection: API Platform maps it to a client error (4xx), and `App\Shared\Infrastructure\Messenger\LoggingMiddleware` logs it at `WARNING` rather than as the `CRITICAL` it keeps for an unexpected server error. The convention is wired end to end.
+Value objects, entities and aggregates enforce their invariants in the constructor, and application code checks preconditions before acting. The project depends on `webmozart/assert`, and `src/App` already uses `Webmozart\Assert\Assert` in ~175 files for exactly this. `Assert::*` throws an `InvalidArgumentException` (a native `\InvalidArgumentException`), which the pipeline recognises as a value-object / domain rejection: `App\Shared\Infrastructure\Messenger\LoggingMiddleware` logs it at `WARNING` — expected client input — rather than as the `CRITICAL` it keeps for an unexpected server error. The convention is wired end to end.
 
-For a check webmozart lacks, `App\Shared\Domain\Assert\Assert` adds a thin Centreon extension (e.g. `ipOrHostname`) that **delegates to `WebmozartAssert`**, so it throws the same exception and flows through the same mapping.
+For a check webmozart lacks, `App\Shared\Domain\Assert\Assert` adds a thin Centreon extension (e.g. `ipOrHostname`) that **delegates to `WebmozartAssert`**, so it throws the same exception and is treated the same way.
 
-The temptation is to re-invent assertions: a bespoke validator with its own methods and a custom exception, for checks webmozart already does (`notEmpty`, `length`, `range`, regex, `inArray`, …). The legacy stack did exactly that with `Centreon\Domain\Common\Assertion\Assertion` and its `AssertionException`. Repeating it in `src/App` fragments the convention, and a custom exception that is not an `\InvalidArgumentException` silently breaks the 4xx mapping — the same rejection becomes a logged 500.
+The temptation is to re-invent assertions: a bespoke validator with its own methods and a custom exception, for checks webmozart already does (`notEmpty`, `length`, `range`, regex, `inArray`, …). The legacy stack did exactly that with `Centreon\Domain\Common\Assertion\Assertion` and its `AssertionException`. Repeating it in `src/App` fragments the convention, and a custom exception that is not an `\InvalidArgumentException` is logged as a `CRITICAL` server error instead of a `WARNING`, so the same rejection surfaces like a server-side failure.
 
 ## Decision
 
@@ -23,7 +23,7 @@ This is about invariant and precondition assertions. A domain exception that exp
 
 ## Consequences
 
-- Invariants read the same everywhere, and a single exception type reaches the boundary, mapped to a client error and logged only as a warning rather than as a server error.
+- Invariants read the same everywhere, and a single exception type reaches the boundary, logged only as a `WARNING` rather than as a `CRITICAL` server error.
 - A new reusable, Centreon-specific check extends the shared `Assert` rather than spawning a bespoke validator; a one-off check stays an inline `Assert::*` call.
 - The legacy `Assertion` / `AssertionException` pair is not used by new `src/App` code.
 - `webmozart/assert` in a test, or native `\assert()` in production code, is the inverse mistake (see the assertion convention).
@@ -32,4 +32,4 @@ This is about invariant and precondition assertions. A domain exception that exp
 ## When to Amend
 
 - `webmozart/assert` is dropped or replaced as the assertion library.
-- The pipeline stops mapping `\InvalidArgumentException` to a client error, so the shared exception type no longer matters.
+- The pipeline stops treating `\InvalidArgumentException` as expected client input (logged `WARNING`), so the shared exception type no longer matters.
