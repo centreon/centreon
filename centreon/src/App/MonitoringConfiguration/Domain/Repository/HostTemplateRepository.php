@@ -61,12 +61,37 @@ interface HostTemplateRepository
     public function findInheritedIconIds(Collection $hostIds): Collection;
 
     /**
+     * Every requested host template's icon inherited from its own template chain, resolved like
+     * {@see findInheritedIconIds()}: the template's own icon is ignored. A template with no inherited
+     * icon is absent from the result.
+     *
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @return Collection<MediaId> indexed by host template id
+     */
+    public function findTemplatesInheritedIconIds(Collection $templateIds): Collection;
+
+    /**
+     * How many service templates each requested host template is directly linked to
+     * (host_service_relation), its parents' links left out.
+     *
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @return array<int, int> the count indexed by host template id, every requested id included
+     */
+    public function countLinkedServiceTemplates(Collection $templateIds): array;
+
+    /**
      * The full multi-level inheritance line of the given direct templates, with what a host inherits
      * from each (its own macros, its check command, the check commands of its linked service
      * templates): each direct template (in the given order) followed by its own ancestors,
      * depth-first by relation `order`, nearest to the host first, each template appearing once (its
      * nearest position). Only active templates are kept, at every level, like legacy
      * getTemplateChain(); an id that is not an active host template is skipped.
+     *
+     * The templates are partially hydrated: they carry their identity and what a host inherits
+     * (macros, check commands) only. Their alias, lock state, icon and parent ids are left at their
+     * defaults whatever is stored, so they must not be read from this result.
      *
      * @param Collection<HostTemplateId> $directTemplateIds the host's (or template's) direct templates, in order
      *

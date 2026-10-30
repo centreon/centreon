@@ -38,6 +38,7 @@ use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Domain\Repository\SortDirectionEnum;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
@@ -147,6 +148,230 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertSame(3, $result->getTotalItems());
         // rows are ordered by host_id (insertion order A, B, C), so page 2 is the second row
         self::assertSame(["pg-{$this->tag}-B"], $this->names($result));
+    }
+
+    public function testFindAllMatchesTheSearchedValueInTheNameOrTheAlias(): void
+    {
+        // legacy parity: one search input covers both, e.g. a template named ht3 with the alias ht1
+        // is found by searching either value
+        $this->insertListedTemplate("ht3-{$this->tag}", alias: "ht1-{$this->tag}-alias");
+        $this->insertListedTemplate("ht1-{$this->tag}");
+        $this->insertListedTemplate("other-{$this->tag}", alias: "unrelated-{$this->tag}");
+
+        $byAlias = $this->names($this->repository->findAll(
+            HostTemplateCriteria::unscoped()->withNameOrAlias("ht1-{$this->tag}")->withSort('name', SortDirectionEnum::ASC)
+        ));
+        $byName = $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()->withNameOrAlias("ht3-{$this->tag}")));
+
+        self::assertSame(["ht1-{$this->tag}", "ht3-{$this->tag}"], $byAlias);
+        self::assertSame(["ht3-{$this->tag}"], $byName);
+    }
+
+    public function testWithNameStillMatchesTheNameOnly(): void
+    {
+        // the choices endpoint keeps its name-only search
+        $this->insertListedTemplate("name-{$this->tag}");
+        $this->insertListedTemplate("other-{$this->tag}", alias: "name-{$this->tag}-alias");
+
+        self::assertSame(["name-{$this->tag}"], $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()->withName("name-{$this->tag}"))));
+    }
+
+    public function testFindAllLeavesOutTheLockedTemplatesOnlyOnRequest(): void
+    {
+        $this->insertListedTemplate("lock-{$this->tag}-unlocked", locked: 0);
+        $this->insertListedTemplate("lock-{$this->tag}-locked", locked: 1);
+        // like legacy's "host_locked = 0", a NULL lock state is left out as well
+        $this->insertListedTemplate("lock-{$this->tag}-null", locked: null);
+
+        $criteria = HostTemplateCriteria::unscoped()->withName("lock-{$this->tag}-");
+
+        self::assertSame(["lock-{$this->tag}-unlocked"], $this->names($this->repository->findAll($criteria->withoutLocked())));
+        // by default every template is kept, in id order: the choices endpoint relies on both
+        self::assertSame(
+            ["lock-{$this->tag}-unlocked", "lock-{$this->tag}-locked", "lock-{$this->tag}-null"],
+            $this->names($this->repository->findAll($criteria))
+        );
+    }
+
+    public function testFindAllKeepsTheIdOrderWithoutARequestedSort(): void
+    {
+        $this->insertListedTemplate("order-{$this->tag}-c");
+        $this->insertListedTemplate("order-{$this->tag}-a");
+        $this->insertListedTemplate("order-{$this->tag}-b");
+
+        self::assertSame(
+            ["order-{$this->tag}-c", "order-{$this->tag}-a", "order-{$this->tag}-b"],
+            $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()->withName("order-{$this->tag}-")))
+        );
+    }
+
+    public function testFindAllSortsByName(): void
+    {
+        $this->insertListedTemplate("sort-{$this->tag}-b");
+        $this->insertListedTemplate("sort-{$this->tag}-c");
+        $this->insertListedTemplate("sort-{$this->tag}-a");
+        $criteria = HostTemplateCriteria::unscoped()->withName("sort-{$this->tag}-");
+
+        self::assertSame(
+            ["sort-{$this->tag}-a", "sort-{$this->tag}-b", "sort-{$this->tag}-c"],
+            $this->names($this->repository->findAll($criteria->withSort('name', SortDirectionEnum::ASC)))
+        );
+        self::assertSame(
+            ["sort-{$this->tag}-c", "sort-{$this->tag}-b", "sort-{$this->tag}-a"],
+            $this->names($this->repository->findAll($criteria->withSort('name', 'DESC')))
+        );
+    }
+
+    public function testFindAllSortsByAliasThenById(): void
+    {
+        // the two "a" aliases tie: the id breaks the tie, ascending whatever the direction, so that
+        // pagination stays deterministic
+        $this->insertListedTemplate("alias-{$this->tag}-1", alias: 'b');
+        $this->insertListedTemplate("alias-{$this->tag}-2", alias: 'a');
+        $this->insertListedTemplate("alias-{$this->tag}-3", alias: 'a');
+        $criteria = HostTemplateCriteria::unscoped()->withName("alias-{$this->tag}-");
+
+        self::assertSame(
+            ["alias-{$this->tag}-2", "alias-{$this->tag}-3", "alias-{$this->tag}-1"],
+            $this->names($this->repository->findAll($criteria->withSort('alias', SortDirectionEnum::ASC)))
+        );
+        self::assertSame(
+            ["alias-{$this->tag}-1", "alias-{$this->tag}-2", "alias-{$this->tag}-3"],
+            $this->names($this->repository->findAll($criteria->withSort('alias', SortDirectionEnum::DESC)))
+        );
+    }
+
+    public function testFindAllSortsTheTemplatesWithoutAliasFirstInAscendingOrder(): void
+    {
+        // Current behavior, MySQL's: a NULL sorts before any value, so alias-less templates come
+        // first in ascending order and last in descending order. Legacy never sorted on the alias.
+        $this->insertListedTemplate("nullalias-{$this->tag}-1", alias: 'a');
+        $this->insertListedTemplate("nullalias-{$this->tag}-2");
+        $this->insertListedTemplate("nullalias-{$this->tag}-3", alias: 'b');
+        $criteria = HostTemplateCriteria::unscoped()->withName("nullalias-{$this->tag}-");
+
+        self::assertSame(
+            ["nullalias-{$this->tag}-2", "nullalias-{$this->tag}-1", "nullalias-{$this->tag}-3"],
+            $this->names($this->repository->findAll($criteria->withSort('alias', SortDirectionEnum::ASC)))
+        );
+        self::assertSame(
+            ["nullalias-{$this->tag}-3", "nullalias-{$this->tag}-1", "nullalias-{$this->tag}-2"],
+            $this->names($this->repository->findAll($criteria->withSort('alias', SortDirectionEnum::DESC)))
+        );
+    }
+
+    public function testFindAllPaginatesTheSortedResult(): void
+    {
+        $this->insertListedTemplate("page-{$this->tag}-c");
+        $this->insertListedTemplate("page-{$this->tag}-a");
+        $this->insertListedTemplate("page-{$this->tag}-b");
+
+        $result = $this->repository->findAll(
+            HostTemplateCriteria::unscoped()->withName("page-{$this->tag}-")->withSort('name', SortDirectionEnum::ASC)->withPagination(2, 2)
+        );
+
+        self::assertInstanceOf(Paginator::class, $result);
+        self::assertSame(3, $result->getTotalItems());
+        self::assertSame(["page-{$this->tag}-c"], $this->names($result));
+    }
+
+    public function testFindAllHydratesTheListedFields(): void
+    {
+        $iconId = $this->insertImage();
+        $firstParentId = $this->insertListedTemplate("parent-a-{$this->tag}");
+        $secondParentId = $this->insertListedTemplate("parent-b-{$this->tag}");
+        $templateId = $this->insertListedTemplate("full-{$this->tag}", alias: 'An alias', locked: 1);
+        $this->setIcon($templateId, $iconId);
+        // inserted out of order on purpose: `order`, not insertion, gives the parents' order
+        $this->linkHostToTemplate($templateId, $secondParentId, 1);
+        $this->linkHostToTemplate($templateId, $firstParentId, 2);
+        $bareId = $this->insertListedTemplate("bare-{$this->tag}", alias: '  ');
+
+        $templates = [];
+        foreach ($this->repository->findAll(HostTemplateCriteria::unscoped()->withName($this->tag)) as $template) {
+            $templates[$template->id()->value] = $template;
+        }
+
+        $full = $templates[$templateId];
+        self::assertSame('An alias', $full->alias?->value);
+        self::assertTrue($full->isLocked);
+        self::assertSame($iconId, $full->iconId?->value);
+        self::assertSame([$secondParentId, $firstParentId], $this->idValues($full->parentTemplateIds));
+
+        $bare = $templates[$bareId];
+        self::assertNull($bare->alias, 'A blank alias is read as no alias.');
+        self::assertFalse($bare->isLocked);
+        self::assertNull($bare->iconId);
+        self::assertSame([], $this->idValues($bare->parentTemplateIds));
+    }
+
+    public function testFindTemplatesInheritedIconIdsIgnoresTheTemplateOwnIcon(): void
+    {
+        $ownIconId = $this->insertImage();
+        $parentIconId = $this->insertImage();
+        $parentId = $this->insertListedTemplate("parent-{$this->tag}");
+        $this->setIcon($parentId, $parentIconId);
+        $templateId = $this->insertListedTemplate("tpl-{$this->tag}");
+        $this->setIcon($templateId, $ownIconId);
+        $this->linkHostToTemplate($templateId, $parentId, 1);
+
+        self::assertSame([$templateId => $parentIconId], $this->templatesInheritedIconIds($templateId));
+    }
+
+    public function testFindTemplatesInheritedIconIdsIsDepthFirstByRelationOrder(): void
+    {
+        $deepIconId = $this->insertImage();
+        $secondIconId = $this->insertImage();
+        $deepId = $this->insertListedTemplate("deep-{$this->tag}");
+        $this->setIcon($deepId, $deepIconId);
+        $firstId = $this->insertListedTemplate("first-{$this->tag}");
+        $this->linkHostToTemplate($firstId, $deepId, 1);
+        $secondId = $this->insertListedTemplate("second-{$this->tag}");
+        $this->setIcon($secondId, $secondIconId);
+        $templateId = $this->insertListedTemplate("tpl-{$this->tag}");
+        $this->linkHostToTemplate($templateId, $secondId, 2);
+        $this->linkHostToTemplate($templateId, $firstId, 1);
+
+        self::assertSame([$templateId => $deepIconId], $this->templatesInheritedIconIds($templateId));
+    }
+
+    public function testFindTemplatesInheritedIconIdsSkipsAnIconInNoFolderAndOmitsTemplatesWithoutIcon(): void
+    {
+        $folderlessIconId = $this->insertImage(inFolder: false);
+        $nextIconId = $this->insertImage();
+        $folderlessId = $this->insertListedTemplate("folderless-{$this->tag}");
+        $this->setIcon($folderlessId, $folderlessIconId);
+        $nextId = $this->insertListedTemplate("next-{$this->tag}");
+        $this->setIcon($nextId, $nextIconId);
+        $templateId = $this->insertListedTemplate("tpl-{$this->tag}");
+        $this->linkHostToTemplate($templateId, $folderlessId, 1);
+        $this->linkHostToTemplate($templateId, $nextId, 2);
+        $withoutIconId = $this->insertListedTemplate("without-{$this->tag}");
+        $this->linkHostToTemplate($withoutIconId, $this->insertListedTemplate("iconless-parent-{$this->tag}"), 1);
+
+        self::assertSame([$templateId => $nextIconId], $this->templatesInheritedIconIds($templateId, $withoutIconId));
+        self::assertCount(0, $this->repository->findTemplatesInheritedIconIds(new Collection([], HostTemplateId::class)));
+    }
+
+    public function testCountLinkedServiceTemplatesCountsTheDirectLinksOnly(): void
+    {
+        $parentId = $this->insertListedTemplate("parent-{$this->tag}");
+        $templateId = $this->insertListedTemplate("tpl-{$this->tag}");
+        $this->linkHostToTemplate($templateId, $parentId, 1);
+        $unlinkedId = $this->insertListedTemplate("unlinked-{$this->tag}");
+        $this->linkServiceToHost($this->insertService(null, null), $templateId);
+        $this->linkServiceToHost($this->insertService(null, null), $templateId);
+        // the parent's links are not the template's own
+        $this->linkServiceToHost($this->insertService(null, null), $parentId);
+
+        $counts = $this->repository->countLinkedServiceTemplates(new Collection(
+            [new HostTemplateId($templateId), new HostTemplateId($unlinkedId)],
+            HostTemplateId::class,
+        ));
+        ksort($counts);
+
+        self::assertSame([$templateId => 2, $unlinkedId => 0], $counts);
+        self::assertSame([], $this->repository->countLinkedServiceTemplates(new Collection([], HostTemplateId::class)));
     }
 
     public function testFindNamesByIds(): void
@@ -768,6 +993,42 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         ]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertListedTemplate(string $name, ?string $alias = null, ?int $locked = 0): int
+    {
+        $this->connection->insert('host', [
+            'host_name' => $name,
+            'host_alias' => $alias,
+            'host_locked' => $locked,
+            'host_register' => '0',
+            'host_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @param Collection<HostTemplateId> $ids
+     *
+     * @return list<int>
+     */
+    private function idValues(Collection $ids): array
+    {
+        return array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $ids->toArray()));
+    }
+
+    /**
+     * @return array<int> inherited icon id indexed by host template id
+     */
+    private function templatesInheritedIconIds(int ...$templateIds): array
+    {
+        $result = $this->repository->findTemplatesInheritedIconIds(new Collection(
+            array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $templateIds),
+            HostTemplateId::class,
+        ));
+
+        return array_map(static fn (MediaId $iconId): int => $iconId->value, $result->toArray());
     }
 
     private function insertRegularHost(string $name): int

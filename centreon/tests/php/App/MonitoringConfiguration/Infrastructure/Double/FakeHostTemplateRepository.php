@@ -42,6 +42,12 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var array<int, MediaId> inherited icon ids indexed by host id */
     public array $inheritedIconIds = [];
 
+    /** @var array<int, MediaId> inherited icon ids indexed by host template id */
+    public array $templatesInheritedIconIds = [];
+
+    /** @var array<int, int> linked service template counts indexed by host template id */
+    public array $linkedServiceTemplateCounts = [];
+
     /** @var list<int> the template ids of the last findInheritanceLine() call, in order */
     public array $receivedLineTemplateIds = [];
 
@@ -80,6 +86,28 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
         }
 
         return new Collection($iconIds, MediaId::class);
+    }
+
+    public function findTemplatesInheritedIconIds(Collection $templateIds): Collection
+    {
+        $iconIds = [];
+        foreach ($templateIds as $templateId) {
+            if (isset($this->templatesInheritedIconIds[$templateId->value])) {
+                $iconIds[$templateId->value] = $this->templatesInheritedIconIds[$templateId->value];
+            }
+        }
+
+        return new Collection($iconIds, MediaId::class);
+    }
+
+    public function countLinkedServiceTemplates(Collection $templateIds): array
+    {
+        $counts = [];
+        foreach ($templateIds as $templateId) {
+            $counts[$templateId->value] = $this->linkedServiceTemplateCounts[$templateId->value] ?? 0;
+        }
+
+        return $counts;
     }
 
     public function findAll(HostTemplateCriteria $criteria): \IteratorAggregate&\Countable

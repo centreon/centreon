@@ -50,9 +50,20 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
+ * @phpstan-type DbRowTypeAlias = array{
+ *   host_id: int,
+ *   host_name: string,
+ *   host_alias: ?string,
+ *   host_locked: int|string|null,
+ *   icon_id: int|string|null,
+ * }
  * @phpstan-type RowTypeAlias = array{
  *   host_id: int,
  *   host_name: string,
+ *   host_alias: ?string,
+ *   host_locked: int|string|null,
+ *   icon_id: int|string|null,
+ *   parent_template_ids: list<int>,
  * }
  */
 final readonly class DbalHostTemplateRepository extends DbalRepository implements HostTemplateRepository
@@ -92,17 +103,22 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             return $this->emptyResult($criteria, HostTemplate::class);
         }
 
+        // extended_host_information is unique per host, so the join cannot duplicate a template
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('h.host_id', 'h.host_name')
+        $qb->select('h.host_id', 'h.host_name', 'h.host_alias', 'h.host_locked', 'ehi.ehi_icon_image AS icon_id')
             ->from(self::TABLE_NAME, 'h')
-            ->where('h.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
-            ->orderBy('h.host_id'); // required for deterministic pagination
+            ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
+            ->where('h.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER));
 
         $this->filterByCriteria($qb, $criteria, $scope);
+        // without a requested sort, keep the historical id order (the choices list relies on it)
+        $this->applySort($qb, 'h', $criteria);
+        // last sort key: name and alias are not unique, and pagination must stay deterministic
+        $qb->addOrderBy('h.host_id');
 
         $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
-            /** @var array<RowTypeAlias> $rows */
+            /** @var array<DbRowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
             return $this->createHostTemplates($rows);
@@ -114,7 +130,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         // so the count is unaffected by the pagination applied above.
         $count = $this->countMatching($qb, 'COUNT(DISTINCT h.host_id)');
 
-        /** @var array<RowTypeAlias> $rows */
+        /** @var array<DbRowTypeAlias> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         return new InMemoryPaginator(
@@ -151,66 +167,42 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
     public function findInheritedIconIds(Collection $hostIds): Collection
     {
-        $idValues = array_map(static fn (HostId $id): int => $id->value, $hostIds->toArray());
+        return $this->findInheritedIconIdsOf(array_values(array_map(static fn (HostId $id): int => $id->value, $hostIds->toArray())));
+    }
+
+    public function findTemplatesInheritedIconIds(Collection $templateIds): Collection
+    {
+        return $this->findInheritedIconIdsOf(
+            array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray()))
+        );
+    }
+
+    public function countLinkedServiceTemplates(Collection $templateIds): array
+    {
+        $idValues = array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray()));
         if ($idValues === []) {
-            return new Collection([], MediaId::class);
+            return [];
         }
 
-        // One query fetches every template relation reachable from the requested hosts, in legacy's
-        // `order`; the depth-first walk itself is done in PHP. UNION dedupes reached ids, so a
-        // template loop already in the data cannot make the recursion run forever. Like legacy, an
-        // icon whose image sits in no folder cannot be displayed and is read as no icon (same joins
-        // as DbalMediaRepository::findByIds).
-        $sql = <<<'SQL'
-            WITH RECURSIVE chain (id) AS (
-                SELECT host_host_id
-                FROM host_template_relation
-                WHERE host_host_id IN (:ids)
-                UNION
-                SELECT htr.host_tpl_id
-                FROM host_template_relation htr
-                INNER JOIN chain c ON c.id = htr.host_host_id
-            )
-            SELECT htr.host_host_id, htr.host_tpl_id, ehi.ehi_icon_image AS icon_id
-            FROM host_template_relation htr
-            INNER JOIN chain c ON c.id = htr.host_host_id
-            LEFT JOIN extended_host_information ehi
-                ON ehi.host_host_id = htr.host_tpl_id
-                AND EXISTS (
-                    SELECT 1
-                    FROM view_img_dir_relation vidr
-                    INNER JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id
-                    WHERE vidr.img_img_id = ehi.ehi_icon_image
-                )
-            ORDER BY htr.host_host_id, htr.`order`, htr.host_tpl_id
-            SQL;
+        // Direct host_service_relation links only: the legacy count also included services attached
+        // through the template's host groups, a relation the template form no longer offers. No join
+        // on `service` is needed: its foreign key cascades on delete, so no dangling id remains.
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hsr.host_host_id', 'COUNT(DISTINCT hsr.service_service_id) AS linked_count')
+            ->from('host_service_relation', 'hsr')
+            ->where($qb->expr()->in('hsr.host_host_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)))
+            ->andWhere('hsr.service_service_id IS NOT NULL')
+            ->groupBy('hsr.host_host_id');
 
-        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string, icon_id: int|string|null}> $rows */
-        $rows = $this->connection->executeQuery(
-            $sql,
-            ['ids' => $idValues],
-            ['ids' => ArrayParameterType::INTEGER],
-        )->fetchAllAssociative();
+        /** @var list<array{host_host_id: int|string, linked_count: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
 
-        /** @var array<int, list<array{int, ?int}>> $templatesById ordered [template id, icon id] pairs per host or template */
-        $templatesById = [];
+        $counts = array_fill_keys($idValues, 0);
         foreach ($rows as $row) {
-            $templatesById[(int) $row['host_host_id']][] = [
-                (int) $row['host_tpl_id'],
-                $row['icon_id'] !== null ? (int) $row['icon_id'] : null,
-            ];
+            $counts[(int) $row['host_host_id']] = (int) $row['linked_count'];
         }
 
-        $iconIds = [];
-        foreach ($idValues as $hostId) {
-            $visited = [$hostId => true];
-            $iconId = $this->findFirstIconId($hostId, $templatesById, $visited);
-            if ($iconId !== null) {
-                $iconIds[$hostId] = new MediaId($iconId);
-            }
-        }
-
-        return new Collection($iconIds, MediaId::class);
+        return $counts;
     }
 
     public function findServiceTemplateIds(Collection $templateIds): array
@@ -362,6 +354,74 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             ),
             HostTemplate::class,
         );
+    }
+
+    /**
+     * @param list<int> $idValues host or host template ids
+     *
+     * @return Collection<MediaId> indexed by the requested id
+     */
+    private function findInheritedIconIdsOf(array $idValues): Collection
+    {
+        if ($idValues === []) {
+            return new Collection([], MediaId::class);
+        }
+
+        // One query fetches every template relation reachable from the requested hosts, in legacy's
+        // `order`; the depth-first walk itself is done in PHP. UNION dedupes reached ids, so a
+        // template loop already in the data cannot make the recursion run forever. Like legacy, an
+        // icon whose image sits in no folder cannot be displayed and is read as no icon (same joins
+        // as DbalMediaRepository::findByIds).
+        $sql = <<<'SQL'
+            WITH RECURSIVE chain (id) AS (
+                SELECT host_host_id
+                FROM host_template_relation
+                WHERE host_host_id IN (:ids)
+                UNION
+                SELECT htr.host_tpl_id
+                FROM host_template_relation htr
+                INNER JOIN chain c ON c.id = htr.host_host_id
+            )
+            SELECT htr.host_host_id, htr.host_tpl_id, ehi.ehi_icon_image AS icon_id
+            FROM host_template_relation htr
+            INNER JOIN chain c ON c.id = htr.host_host_id
+            LEFT JOIN extended_host_information ehi
+                ON ehi.host_host_id = htr.host_tpl_id
+                AND EXISTS (
+                    SELECT 1
+                    FROM view_img_dir_relation vidr
+                    INNER JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id
+                    WHERE vidr.img_img_id = ehi.ehi_icon_image
+                )
+            ORDER BY htr.host_host_id, htr.`order`, htr.host_tpl_id
+            SQL;
+
+        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string, icon_id: int|string|null}> $rows */
+        $rows = $this->connection->executeQuery(
+            $sql,
+            ['ids' => $idValues],
+            ['ids' => ArrayParameterType::INTEGER],
+        )->fetchAllAssociative();
+
+        /** @var array<int, list<array{int, ?int}>> $templatesById ordered [template id, icon id] pairs per host or template */
+        $templatesById = [];
+        foreach ($rows as $row) {
+            $templatesById[(int) $row['host_host_id']][] = [
+                (int) $row['host_tpl_id'],
+                $row['icon_id'] !== null ? (int) $row['icon_id'] : null,
+            ];
+        }
+
+        $iconIds = [];
+        foreach ($idValues as $hostId) {
+            $visited = [$hostId => true];
+            $iconId = $this->findFirstIconId($hostId, $templatesById, $visited);
+            if ($iconId !== null) {
+                $iconIds[$hostId] = new MediaId($iconId);
+            }
+        }
+
+        return new Collection($iconIds, MediaId::class);
     }
 
     /**
@@ -573,6 +633,19 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             $qb->andWhere($qb->expr()->like('h.host_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
+        if (($nameOrAlias = $criteria->getNameOrAlias()) !== null) {
+            $pattern = $qb->createNamedParameter('%' . $nameOrAlias . '%');
+            $qb->andWhere($qb->expr()->or(
+                $qb->expr()->like('h.host_name', $pattern),
+                $qb->expr()->like('h.host_alias', $pattern),
+            ));
+        }
+
+        if ($criteria->isLockedExcluded()) {
+            // like legacy's "AND host_locked = 0", which also leaves out a NULL host_locked
+            $qb->andWhere('h.host_locked = 0');
+        }
+
         if (($excludedIds = $criteria->getExcludedIds()) !== []) {
             $qb->andWhere($qb->expr()->notIn('h.host_id', $qb->createNamedParameter($excludedIds, ArrayParameterType::INTEGER)));
         }
@@ -609,19 +682,57 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     }
 
     /**
-     * @param array<RowTypeAlias> $rows
+     * @param array<DbRowTypeAlias> $rows
      *
      * @return Collection<HostTemplate>
      */
     private function createHostTemplates(array $rows): Collection
     {
+        $parentIdsById = $this->findParentTemplateIdValues(
+            array_values(array_map(static fn (array $row): int => $row['host_id'], $rows))
+        );
+
         return new Collection(
             array_map(
-                fn (array $row): HostTemplate => $this->transformer->transform($row),
+                fn (array $row): HostTemplate => $this->transformer->transform(
+                    $row + ['parent_template_ids' => $parentIdsById[$row['host_id']] ?? []]
+                ),
                 $rows
             ),
             HostTemplate::class
         );
+    }
+
+    /**
+     * The direct parent templates of the given templates, in relation `order`, in one query.
+     *
+     * @param list<int> $templateIds
+     *
+     * @return array<int, list<int>> parent template ids indexed by template id
+     */
+    private function findParentTemplateIdValues(array $templateIds): array
+    {
+        if ($templateIds === []) {
+            return [];
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('htr.host_host_id', 'htr.host_tpl_id')
+            ->from('host_template_relation', 'htr')
+            ->where($qb->expr()->in('htr.host_host_id', $qb->createNamedParameter($templateIds, ArrayParameterType::INTEGER)))
+            ->orderBy('htr.host_host_id')
+            ->addOrderBy('htr.`order`')
+            ->addOrderBy('htr.host_tpl_id');
+
+        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $parentIdsById = [];
+        foreach ($rows as $row) {
+            $parentIdsById[(int) $row['host_host_id']][] = (int) $row['host_tpl_id'];
+        }
+
+        return $parentIdsById;
     }
 
     private function paginate(QueryBuilder $qb, HostTemplateCriteria $criteria): void

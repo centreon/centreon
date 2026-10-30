@@ -1,6 +1,7 @@
 import {
   type BuildListingEndpointParameters,
   buildListingEndpoint,
+  type QueryParameter,
   type SearchParameter
 } from '@centreon/ui';
 
@@ -67,7 +68,7 @@ export const getDuplicateHostEndpoint = ({
 
 // Selectors take `name[lk]`, not the `search` payload the autocomplete builds.
 const getSelectorEndpoint =
-  (baseEndpoint: string) =>
+  (baseEndpoint: string, fixedQueryParameters: Array<QueryParameter> = []) =>
   ({ search, page }: { search?: SearchParameter; page?: number }): string => {
     // Once a value is selected the autocomplete prepends a `$ni` condition
     // excluding it, so the typed text is not necessarily the first one.
@@ -75,7 +76,7 @@ const getSelectorEndpoint =
       ?.map((condition) => condition?.values?.$lk)
       .find((value): value is string => typeof value === 'string');
 
-    const customQueryParameters = search
+    const searchQueryParameters: Array<QueryParameter> = search
       ? [
           {
             name: 'name[lk]',
@@ -84,6 +85,10 @@ const getSelectorEndpoint =
           }
         ]
       : [];
+    const customQueryParameters = [
+      ...searchQueryParameters,
+      ...fixedQueryParameters
+    ];
 
     return buildListingEndpoint({
       apiFormat: 'JSON-LD',
@@ -96,8 +101,11 @@ const getSelectorEndpoint =
     });
   };
 
+// The host template listing leaves the locked templates out unless asked, but
+// hosts are commonly based on them (Monitoring Connector templates).
 export const getHostTemplatesEndpoint = getSelectorEndpoint(
-  hostTemplatesEndpoint
+  hostTemplatesEndpoint,
+  [{ name: 'is_locked', value: 'true' }]
 );
 export const getHostGroupsEndpoint = getSelectorEndpoint(hostGroupsEndpoint);
 export const getPollersEndpoint = getSelectorEndpoint(pollersEndpoint);
