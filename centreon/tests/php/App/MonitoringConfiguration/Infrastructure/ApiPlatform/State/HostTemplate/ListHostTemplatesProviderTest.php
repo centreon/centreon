@@ -69,7 +69,7 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
-    public function testItListsHostTemplatesAsAdminWithOnlyIdAndName(): void
+    public function testItListsHostTemplatesAsAdminWithTheListingFields(): void
     {
         $this->insertHostTemplate("tpl-A-{$this->tag}");
 
@@ -86,7 +86,10 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
 
         /** @var list<array<string, mixed>> $member */
         $member = $response->toArray()['member'];
-        self::assertEqualsCanonicalizing(['@id', '@type', 'id', 'name'], array_keys($member[0]));
+        self::assertEqualsCanonicalizing(
+            ['@id', '@type', 'id', 'name', 'alias', 'is_locked', 'linked_service_templates_count', 'parent_templates', 'icon'],
+            array_keys($member[0])
+        );
     }
 
     public function testItFiltersHostTemplatesByNameUsingLikeOperator(): void
@@ -123,10 +126,10 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
         self::assertEquals(3, $response->toArray()['totalItems']);
     }
 
-    public function testItRestrictsListingToAccessibleSeveritiesForARestrictedUser(): void
+    public function testItDoesNotScopeTheListingToTheAccessibleSeveritiesOfARestrictedUser(): void
     {
-        // legacy scopes restricted actors by host *severities* (categories with a level), not by
-        // regular host categories, even when the regular category is in the actor's ACL.
+        // the listing is gated by the page permission only: a user restricted to some host
+        // severities still sees every host template, linked to one of them or not
         $severityId = $this->insertHostCategory("sev-{$this->tag}", level: 1);
         $regularId = $this->insertHostCategory("reg-{$this->tag}");
 
@@ -139,20 +142,16 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
         $username = bin2hex(random_bytes(8));
         $contactId = $this->createNonAdminContact($username);
         $this->grantHostTemplateReadTopologyRole($contactId);
-        $this->restrictContactToHostCategories($contactId, [$severityId, $regularId]);
+        $this->restrictContactToHostCategories($contactId, [$severityId]);
 
         $this->login($username);
 
-        $response = $this->request('GET', self::BASE_ENDPOINT);
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
         self::assertResponseIsSuccessful();
-        // only the severity-linked template is returned; the regular-linked one (though its category
-        // is in the ACL), the uncategorized one, and any pre-seeded templates are excluded.
-        self::assertCount(1, (array) $response->toArray()['member']);
-        self::assertJsonContains([
-            'member' => [
-                ['name' => "acl-severity-{$this->tag}"],
-            ],
-        ]);
+        self::assertEqualsCanonicalizing(
+            ["acl-severity-{$this->tag}", "acl-regular-{$this->tag}", "acl-none-{$this->tag}"],
+            array_column((array) $response->toArray()['member'], 'name')
+        );
     }
 
     public function testItIgnoresAnEmptyNameFilter(): void

@@ -27,16 +27,25 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\PaginableCriteria;
 use App\Shared\Domain\Repository\PaginableCriteriaTrait;
+use App\Shared\Domain\Repository\SortableCriteria;
+use App\Shared\Domain\Repository\SortableCriteriaTrait;
 use Webmozart\Assert\Assert;
 
-final class HostTemplateCriteria implements PaginableCriteria
+final class HostTemplateCriteria implements PaginableCriteria, SortableCriteria
 {
     use PaginableCriteriaTrait;
+    use SortableCriteriaTrait;
     use ActorScopedCriteriaTrait;
 
     private ?HostTemplateId $id = null;
 
     private ?string $name = null;
+
+    private ?string $nameOrAlias = null;
+
+    // locked templates are kept unless a caller opts out, so that every existing caller of the
+    // repository keeps seeing them
+    private bool $lockedExcluded = false;
 
     /** @var list<int> */
     private array $excludedIds = [];
@@ -71,6 +80,41 @@ final class HostTemplateCriteria implements PaginableCriteria
     }
 
     /**
+     * Matches templates whose name or alias contains the given value.
+     */
+    public function withNameOrAlias(string $value): self
+    {
+        // notEmpty() relies on empty(), which would wrongly reject a legitimate value of "0"
+        Assert::stringNotEmpty($value);
+
+        $new = clone $this;
+        $new->nameOrAlias = $value;
+
+        return $new;
+    }
+
+    public function getNameOrAlias(): ?string
+    {
+        return $this->nameOrAlias;
+    }
+
+    /**
+     * Leaves out the locked templates (host_locked = 1).
+     */
+    public function withoutLocked(): self
+    {
+        $new = clone $this;
+        $new->lockedExcluded = true;
+
+        return $new;
+    }
+
+    public function isLockedExcluded(): bool
+    {
+        return $this->lockedExcluded;
+    }
+
+    /**
      * @param Collection<HostTemplateId> $ids
      */
     public function withExcludedIds(Collection $ids): self
@@ -87,5 +131,18 @@ final class HostTemplateCriteria implements PaginableCriteria
     public function getExcludedIds(): array
     {
         return $this->excludedIds;
+    }
+
+    /**
+     * Sortable fields exposed by the API, mapped to their `host` table column.
+     *
+     * @return array<string, string>
+     */
+    public function getFieldMapping(): array
+    {
+        return [
+            'name' => 'host_name',
+            'alias' => 'host_alias',
+        ];
     }
 }

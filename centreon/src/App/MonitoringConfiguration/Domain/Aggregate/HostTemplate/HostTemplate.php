@@ -24,8 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use Webmozart\Assert\Assert;
@@ -41,6 +43,9 @@ final class HostTemplate extends AggregateRoot
     /** @var Collection<CommandId> */
     public readonly Collection $serviceTemplateCheckCommandIds;
 
+    /** @var Collection<HostTemplateId> */
+    public readonly Collection $parentTemplateIds;
+
     /**
      * @param ?Collection<HostMacro> $macros the template's own custom macros, in insertion order;
      *                                       possibly lazy
@@ -49,6 +54,13 @@ final class HostTemplate extends AggregateRoot
      *                                                               templates linked to this template,
      *                                                               each followed by those of its own
      *                                                               templates, in priority order
+     * @param ?HostAlias $alias the template's alias, null when none is set
+     * @param bool $isLocked whether the template is locked (host_locked), typically one shipped by a
+     *                       Monitoring Connector
+     * @param ?MediaId $iconId the template's own icon, null when none is set (an inherited icon is
+     *                         not carried here)
+     * @param ?Collection<HostTemplateId> $parentTemplateIds the templates this template directly
+     *                                                       inherits from, in relation order
      */
     public function __construct(
         ?HostTemplateId $id,
@@ -56,10 +68,15 @@ final class HostTemplate extends AggregateRoot
         ?Collection $macros = null,
         public readonly ?CommandId $checkCommandId = null,
         ?Collection $serviceTemplateCheckCommandIds = null,
+        public readonly ?HostAlias $alias = null,
+        public readonly bool $isLocked = false,
+        public readonly ?MediaId $iconId = null,
+        ?Collection $parentTemplateIds = null,
     ) {
         parent::__construct($id);
         $this->macros = $macros ?? new Collection([], HostMacro::class);
         $this->serviceTemplateCheckCommandIds = $serviceTemplateCheckCommandIds ?? new Collection([], CommandId::class);
+        $this->parentTemplateIds = $parentTemplateIds ?? new Collection([], HostTemplateId::class);
     }
 
     /**

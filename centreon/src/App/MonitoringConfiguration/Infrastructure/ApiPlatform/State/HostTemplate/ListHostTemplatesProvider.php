@@ -28,22 +28,34 @@ use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateCollectionOutput;
-use App\Security\Infrastructure\Security\CredentialUser;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Domain\Repository\SortDirectionEnum;
+use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
+use App\Shared\Infrastructure\ApiPlatform\State\SortAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Webmozart\Assert\Assert;
 
 /**
  * @implements ProviderInterface<HostTemplateCollectionOutput>
  */
 final readonly class ListHostTemplatesProvider implements ProviderInterface
 {
+    use FilterAwareProviderTrait;
+    use SortAwareProviderTrait;
+
     /**
      * @param TransformerInterface<HostTemplate, HostTemplateCollectionOutput> $transformer
      */
@@ -51,8 +63,9 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
         #[Autowire(service: HostTemplateCollectionOutputTransformer::class)]
         private TransformerInterface $transformer,
         private HostTemplateRepository $repository,
+        private MediaRepository $mediaRepository,
+        private MediaUrlGenerator $mediaUrlGenerator,
         private Pagination $pagination,
-        private Security $security,
     ) {
     }
 
@@ -61,12 +74,9 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
-        $credentialUser = $this->security->getUser();
-        Assert::isInstanceOf($credentialUser, CredentialUser::class);
-
-        // Users with unrestricted resource access see every host template; others are scoped to their
-        // accessible host severities.
-        $criteria = HostTemplateCriteria::forActor($credentialUser->credential->actingUser());
+        // No actor scoping: like the legacy host template listing, access is gated by the page
+        // permission only (the operation's security), every host template is then listed.
+        $criteria = HostTemplateCriteria::unscoped();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -75,15 +85,25 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
             $criteria = $criteria->withPagination($this->pagination->getPage($context), $itemsPerPage);
         }
 
-        /** @var array{name?: mixed} $filters */
+        /** @var array<string, mixed> $filters */
         $filters = $context['filters'] ?? [];
-        $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
+        // one search covers both the name and the alias, like the legacy listing
+        if (($search = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
+            $criteria = $criteria->withNameOrAlias($search);
+        }
+
+        // unlocked templates only, unless the locked ones are asked for as well
+        if ($this->handleBoolFilter($filters['is_locked'] ?? null, 'is_locked') !== true) {
+            $criteria = $criteria->withoutLocked();
+        }
+
+        $criteria = $this->handleSort($filters, $criteria);
+        if ($criteria->getSort() === []) {
+            $criteria = $criteria->withSort('name', SortDirectionEnum::ASC);
+        }
 
         $hostTemplates = $this->repository->findAll($criteria);
-        $resources = [];
-        foreach ($hostTemplates as $hostTemplate) {
-            $resources[] = $this->transformer->transform($hostTemplate);
-        }
+        $resources = $this->transformHostTemplates(array_values(iterator_to_array($hostTemplates)));
 
         if (! $hostTemplates instanceof Paginator) {
             return $resources;
@@ -97,26 +117,80 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
         );
     }
 
-    private function handleNameFilter(mixed $nameFilter, HostTemplateCriteria $criteria): HostTemplateCriteria
+    /**
+     * Transforms the page, then assigns what each template references by id, fetched in bulk for
+     * the whole page: its linked service template count, its parents' names and its icon.
+     *
+     * @param list<HostTemplate> $hostTemplates
+     *
+     * @return list<HostTemplateCollectionOutput>
+     */
+    private function transformHostTemplates(array $hostTemplates): array
     {
-        if ($nameFilter === null) {
-            return $criteria;
+        if ($hostTemplates === []) {
+            return [];
         }
 
-        // a client sending "?name=foo" instead of "?name[lk]=foo" lands here as a plain string
-        if (! is_array($nameFilter)) {
-            throw new BadRequestHttpException('The "name" filter must use the "name[lk]=value" format.');
+        /** @var list<HostTemplateId> $ids */
+        $ids = [];
+        /** @var array<int, HostTemplateId> $parentIds */
+        $parentIds = [];
+        /** @var array<int, MediaId> $iconIds */
+        $iconIds = [];
+        /** @var list<HostTemplateId> $idsWithoutIcon */
+        $idsWithoutIcon = [];
+        foreach ($hostTemplates as $hostTemplate) {
+            $ids[] = $hostTemplate->id();
+            foreach ($hostTemplate->parentTemplateIds as $parentId) {
+                $parentIds[$parentId->value] = $parentId;
+            }
+            if ($hostTemplate->iconId instanceof MediaId) {
+                $iconIds[$hostTemplate->iconId->value] = $hostTemplate->iconId;
+            } elseif (count($hostTemplate->parentTemplateIds) > 0) {
+                $idsWithoutIcon[] = $hostTemplate->id();
+            }
         }
 
-        $likeValue = $nameFilter['lk'] ?? null;
-        if (is_array($likeValue)) {
-            $likeValue = reset($likeValue);
+        // like legacy, a template without its own icon falls back to the one inherited from its parents
+        /** @var array<int, MediaId> $inheritedIconIds */
+        $inheritedIconIds = $idsWithoutIcon === []
+            ? []
+            : $this->repository->findTemplatesInheritedIconIds(new Collection($idsWithoutIcon, HostTemplateId::class))->toArray();
+        foreach ($inheritedIconIds as $inheritedIconId) {
+            $iconIds[$inheritedIconId->value] = $inheritedIconId;
         }
 
-        if (! is_string($likeValue) || $likeValue === '') {
-            return $criteria;
+        $linkedCounts = $this->repository->countLinkedServiceTemplates(new Collection($ids, HostTemplateId::class));
+        /** @var array<int, HostTemplateName> $parentNames */
+        $parentNames = $this->repository->findNamesByIds(new Collection(array_values($parentIds), HostTemplateId::class))->toArray();
+        /** @var array<int, Media> $icons */
+        $icons = $iconIds === []
+            ? []
+            : $this->mediaRepository->findByIds(new Collection(array_values($iconIds), MediaId::class))->toArray();
+
+        $resources = [];
+        foreach ($hostTemplates as $hostTemplate) {
+            $id = $hostTemplate->id()->value;
+            $resource = $this->transformer->transform($hostTemplate);
+            $resource->linkedServiceTemplatesCount = $linkedCounts[$id] ?? 0;
+
+            $parents = [];
+            foreach ($hostTemplate->parentTemplateIds as $parentId) {
+                if (isset($parentNames[$parentId->value])) {
+                    $parents[] = new HostTemplateOutput($parentId->value, $parentNames[$parentId->value]->value);
+                }
+            }
+            $resource->parentTemplates = $parents;
+
+            $iconId = $hostTemplate->iconId ?? $inheritedIconIds[$id] ?? null;
+            $icon = $iconId !== null ? $icons[$iconId->value] ?? null : null;
+            $resource->icon = $icon instanceof Media
+                ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
+                : null;
+
+            $resources[] = $resource;
         }
 
-        return $criteria->withName($likeValue);
+        return $resources;
     }
 }

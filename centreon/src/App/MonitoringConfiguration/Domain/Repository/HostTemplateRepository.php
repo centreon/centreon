@@ -61,6 +61,27 @@ interface HostTemplateRepository
     public function findInheritedIconIds(Collection $hostIds): Collection;
 
     /**
+     * Every requested host template's icon inherited from its own template chain, resolved like
+     * {@see findInheritedIconIds()}: the template's own icon is ignored. A template with no inherited
+     * icon is absent from the result.
+     *
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @return Collection<MediaId> indexed by host template id
+     */
+    public function findTemplatesInheritedIconIds(Collection $templateIds): Collection;
+
+    /**
+     * How many service templates each requested host template is directly linked to
+     * (host_service_relation), its parents' links left out.
+     *
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @return array<int, int> the count indexed by host template id, every requested id included
+     */
+    public function countLinkedServiceTemplates(Collection $templateIds): array;
+
+    /**
      * The full multi-level inheritance line of the given direct templates, with what a host inherits
      * from each (its own macros, its check command, the check commands of its linked service
      * templates): each direct template (in the given order) followed by its own ancestors,
