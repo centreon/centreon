@@ -113,6 +113,9 @@ jobs:
 
       - name: Install Cypress binary
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        env:
+          # cypress verify defaults to 30 s, too short on a slow runner.
+          CYPRESS_VERIFY_TIMEOUT: "60000"
         with:
           timeout_seconds: 300
           max_attempts: 10
