@@ -241,6 +241,25 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testFindAllSortsTheTemplatesWithoutAliasFirstInAscendingOrder(): void
+    {
+        // Current behavior, MySQL's: a NULL sorts before any value, so alias-less templates come
+        // first in ascending order and last in descending order. Legacy never sorted on the alias.
+        $this->insertListedTemplate("nullalias-{$this->tag}-1", alias: 'a');
+        $this->insertListedTemplate("nullalias-{$this->tag}-2");
+        $this->insertListedTemplate("nullalias-{$this->tag}-3", alias: 'b');
+        $criteria = HostTemplateCriteria::unscoped()->withName("nullalias-{$this->tag}-");
+
+        self::assertSame(
+            ["nullalias-{$this->tag}-2", "nullalias-{$this->tag}-1", "nullalias-{$this->tag}-3"],
+            $this->names($this->repository->findAll($criteria->withSort('alias', SortDirectionEnum::ASC)))
+        );
+        self::assertSame(
+            ["nullalias-{$this->tag}-3", "nullalias-{$this->tag}-1", "nullalias-{$this->tag}-2"],
+            $this->names($this->repository->findAll($criteria->withSort('alias', SortDirectionEnum::DESC)))
+        );
+    }
+
     public function testFindAllPaginatesTheSortedResult(): void
     {
         $this->insertListedTemplate("page-{$this->tag}-c");

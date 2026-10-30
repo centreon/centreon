@@ -179,6 +179,8 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
     {
         $this->insertHostTemplate("match-{$this->tag}");
         $this->insertHostTemplate("other-{$this->tag}");
+        // unlike the /configuration/host_templates listing, the search does not look at the alias
+        $this->insertHostTemplate("aliased-{$this->tag}", alias: "match-{$this->tag}-alias");
 
         $this->login();
 
@@ -189,9 +191,11 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
 
     public function testItPaginatesHostTemplates(): void
     {
+        // inserted out of name order on purpose: the choices keep the id order, unlike the
+        // /configuration/host_templates listing, sorted by name by default
+        $this->insertHostTemplate("pg-{$this->tag}-C");
         $this->insertHostTemplate("pg-{$this->tag}-A");
         $this->insertHostTemplate("pg-{$this->tag}-B");
-        $this->insertHostTemplate("pg-{$this->tag}-C");
 
         $this->login();
 
@@ -199,7 +203,7 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
             'query' => ['name' => ['lk' => "pg-{$this->tag}-"], 'page' => '1', 'itemsPerPage' => '2'],
         ]);
         self::assertResponseIsSuccessful();
-        self::assertCount(2, (array) $response->toArray()['member']);
+        self::assertSame(["pg-{$this->tag}-C", "pg-{$this->tag}-A"], array_column((array) $response->toArray()['member'], 'name'));
         self::assertEquals(3, $response->toArray()['totalItems']);
     }
 
@@ -219,10 +223,11 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
         self::assertResponseStatusCodeSame(400);
     }
 
-    private function insertHostTemplate(string $name, bool $locked = false): int
+    private function insertHostTemplate(string $name, bool $locked = false, ?string $alias = null): int
     {
         $this->connection->insert('host', [
             'host_name' => $name,
+            'host_alias' => $alias,
             'host_register' => '0',
             'host_activate' => '1',
             'host_locked' => $locked ? '1' : '0',

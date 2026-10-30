@@ -92,6 +92,7 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
             ['@id', '@type', 'id', 'name', 'is_locked', 'linked_service_templates_count', 'parent_templates'],
             array_keys($member[0])
         );
+        self::assertSame([], $member[0]['parent_templates']);
     }
 
     public function testItFiltersHostTemplatesByNameUsingLikeOperator(): void
@@ -208,26 +209,30 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, string>, list<string>}>
+     * @return iterable<string, array{array<string, string>, array<string, bool>}>
      */
     public static function provideLockedFilters(): iterable
     {
-        yield 'absent: unlocked only' => [[], ['unlocked']];
+        yield 'absent: unlocked only' => [[], ['unlocked' => false]];
 
-        yield 'false: unlocked only' => [['is_locked' => 'false'], ['unlocked']];
+        yield 'false: unlocked only' => [['is_locked' => 'false'], ['unlocked' => false]];
 
-        yield 'true: locked ones as well' => [['is_locked' => 'true'], ['locked', 'unlocked']];
+        // a NULL lock state is hidden by default like a locked one (legacy "host_locked = 0"), yet
+        // reported as not locked once shown, like legacy, whose locked set is "host_locked = 1"
+        // (CentreonHost::getLockedHostTemplates())
+        yield 'true: locked ones as well' => [['is_locked' => 'true'], ['locked' => true, 'null' => false, 'unlocked' => false]];
     }
 
     /**
      * @param array<string, string> $lockedFilter
-     * @param list<string> $expectedSuffixes
+     * @param array<string, bool> $expectedLockStates the expected is_locked by name suffix, in name order
      */
     #[DataProvider('provideLockedFilters')]
-    public function testItListsTheLockedTemplatesOnlyWhenAsked(array $lockedFilter, array $expectedSuffixes): void
+    public function testItListsTheLockedTemplatesOnlyWhenAsked(array $lockedFilter, array $expectedLockStates): void
     {
         $this->insertHostTemplate("lock-{$this->tag}-unlocked");
         $this->insertHostTemplate("lock-{$this->tag}-locked", locked: true);
+        $this->insertHostTemplate("lock-{$this->tag}-null", locked: null);
 
         $this->login();
 
@@ -235,10 +240,14 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
             'query' => ['name' => ['lk' => "lock-{$this->tag}-"]] + $lockedFilter,
         ]);
         self::assertResponseIsSuccessful();
-        self::assertSame(
-            array_map(fn (string $suffix): string => "lock-{$this->tag}-{$suffix}", $expectedSuffixes),
-            $this->memberNames($response->toArray())
-        );
+
+        /** @var list<array{name: string, is_locked: bool}> $members */
+        $members = $response->toArray()['member'];
+        $expected = [];
+        foreach ($expectedLockStates as $suffix => $isLocked) {
+            $expected["lock-{$this->tag}-{$suffix}"] = $isLocked;
+        }
+        self::assertSame($expected, array_column($members, 'is_locked', 'name'));
     }
 
     public function testItRejectsALockedFilterThatIsNotABoolean(): void
@@ -329,6 +338,24 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
         self::assertIsArray($body['view']);
         self::assertArrayHasKey('previous', $body['view']);
         self::assertArrayNotHasKey('next', $body['view']);
+    }
+
+    public function testItReturnsAnEmptyPageAfterTheLastOne(): void
+    {
+        $this->insertHostTemplate("past-{$this->tag}-a");
+        $this->insertHostTemplate("past-{$this->tag}-b");
+        $this->insertHostTemplate("past-{$this->tag}-c");
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, [
+            'query' => ['name' => ['lk' => "past-{$this->tag}-"], 'page' => '5', 'itemsPerPage' => '2'],
+        ]);
+        self::assertResponseIsSuccessful();
+
+        $body = $response->toArray();
+        self::assertSame([], $body['member']);
+        self::assertSame(3, $body['totalItems']);
     }
 
     public function testItReturnsAnEmptyCollection(): void
@@ -488,12 +515,15 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
         ]);
     }
 
-    private function insertHostTemplate(string $name, ?string $alias = null, bool $locked = false): int
+    /**
+     * @param ?bool $locked null stores a NULL host_locked
+     */
+    private function insertHostTemplate(string $name, ?string $alias = null, ?bool $locked = false): int
     {
         $this->connection->insert('host', [
             'host_name' => $name,
             'host_alias' => $alias,
-            'host_locked' => $locked ? 1 : 0,
+            'host_locked' => $locked === null ? null : (int) $locked,
             'host_register' => '0',
             'host_activate' => '1',
         ]);
