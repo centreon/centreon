@@ -1,0 +1,35 @@
+# ADR-0020: Enforce invariants with `webmozart/assert`, not hand-rolled assertions and custom exceptions
+
+- **Status:** Accepted
+- **Date:** 2026-10-28
+
+## Context
+
+Value objects, entities and aggregates enforce their invariants in the constructor, and application code checks preconditions before acting. The project depends on `webmozart/assert`, and `src/App` already uses `Webmozart\Assert\Assert` in ~175 files for exactly this. `Assert::*` throws an `InvalidArgumentException` (a native `\InvalidArgumentException`), which the pipeline recognises as a value-object / domain rejection: `App\Shared\Infrastructure\Messenger\LoggingMiddleware` logs it at `WARNING` — expected client input — rather than as the `CRITICAL` it keeps for an unexpected server error. The convention is wired end to end.
+
+For a check webmozart lacks, `App\Shared\Domain\Assert\Assert` adds a thin Centreon extension (e.g. `ipOrHostname`) that **delegates to `WebmozartAssert`**, so it throws the same exception and is treated the same way.
+
+The temptation is to re-invent assertions: a bespoke validator with its own methods and a custom exception, for checks webmozart already does (`notEmpty`, `length`, `range`, regex, `inArray`, …). The legacy stack did exactly that with `Centreon\Domain\Common\Assertion\Assertion` and its `AssertionException`. Repeating it in `src/App` fragments the convention, and a custom exception that is not an `\InvalidArgumentException` is logged as a `CRITICAL` server error instead of a `WARNING`, so the same rejection surfaces like a server-side failure.
+
+## Decision
+
+Enforce invariants and preconditions in the domain and application with **`Webmozart\Assert\Assert`**. When webmozart is missing a check that is reusable and Centreon-specific, add it to **`App\Shared\Domain\Assert\Assert`**, delegating to `WebmozartAssert` so it throws the same `\InvalidArgumentException`.
+
+This is a **deliberate, team-validated** choice to let the **domain** depend on `webmozart/assert`. The domain layer otherwise stays independent of external libraries, but the team accepted this one as a **sanctioned exception** — value objects, entities and aggregate roots call `Assert::*` directly in their constructors, and `App\Shared\Domain\Assert\Assert` lives in the Domain namespace. A single, uniform assertion vocabulary across the domain and the application was judged preferable to keeping the domain strictly dependency-free.
+
+Do **not** write a parallel assertion helper, and do **not** raise a custom exception, for a check webmozart already provides. Reserve native `\assert()` for type-narrowing in tests — it can be disabled in production, so it is no runtime guard.
+
+This is about invariant and precondition assertions. A domain exception that expresses a genuine business outcome rather than a malformed value — `AggregateNotFoundException`, `AggregateConflictException`, `AccessDeniedException` in `App\Shared\Domain\Exception` — stays legitimate and is unaffected.
+
+## Consequences
+
+- Invariants read the same everywhere, and a single exception type reaches the boundary, logged only as a `WARNING` rather than as a `CRITICAL` server error.
+- A new reusable, Centreon-specific check extends the shared `Assert` rather than spawning a bespoke validator; a one-off check stays an inline `Assert::*` call.
+- The legacy `Assertion` / `AssertionException` pair is not used by new `src/App` code.
+- `webmozart/assert` in a test, or native `\assert()` in production code, is the inverse mistake (see the assertion convention).
+- This ADR governs _how_ to assert, wherever invariants and preconditions live — value object, entity and aggregate-root constructors as much as inputs and handlers. _Where_ to validate a write request is governed by [ADR-0001](0001-validate-in-input-and-handler.md).
+
+## When to Amend
+
+- `webmozart/assert` is dropped or replaced as the assertion library.
+- The pipeline stops treating `\InvalidArgumentException` as expected client input (logged `WARNING`), so the shared exception type no longer matters.

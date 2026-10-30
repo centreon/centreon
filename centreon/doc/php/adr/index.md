@@ -7,14 +7,21 @@ Decisions taken by the PHP team on the backend architecture, by topic. The terms
 | ADR | Decision | Status |
 |---|---|---|
 | [0001](0001-validate-in-input-and-handler.md) | Validate write requests in both input and handler | Accepted |
+| [0020](0020-enforce-invariants-with-webmozart-assert.md) | Enforce invariants with `webmozart/assert`, not hand-rolled assertions and custom exceptions | Accepted |
 
 ## Domain model
 
 | ADR | Decision | Status |
 |---|---|---|
-| [0002](0002-name-domain-folder-model.md) | Name the domain folder `Model`, not `Aggregate` | Accepted |
 | [0009](0009-aggregates-readonly-by-default.md) | Make aggregate properties `readonly` by default, and mutate them only through business methods | Accepted |
 | [0012](0012-change-aggregate-internals-through-the-root.md) | Change an aggregate's inner entities and value objects only through its aggregate root | Accepted |
+
+## Project structure
+
+| ADR | Decision | Status |
+|---|---|---|
+| [0002](0002-name-domain-folder-model.md) | Name the domain folder `Model`, not `Aggregate` | Accepted |
+| [0018](0018-organize-infra-application-layers-per-aggregate.md) | Compartmentalize the Infrastructure and Application layers per aggregate only where it pays, flat otherwise | Accepted |
 
 ## Transformers
 
@@ -29,6 +36,7 @@ Decisions taken by the PHP team on the backend architecture, by topic. The terms
 |---|---|---|
 | [0005](0005-isolate-legacy-in-infrastructure-legacy.md) | Isolate legacy code used from `src/App` in `Infrastructure/Legacy` adapters | Accepted |
 | [0006](0006-expose-symfony-services-to-legacy-via-service-locator.md) | Give legacy code access to Symfony services through a dedicated service locator | Accepted |
+| [0016](0016-access-logging-and-database-through-adaptation-layer.md) | Access logging and the database from legacy code only through the `Adaptation` layer | Accepted |
 
 ## API
 
@@ -44,6 +52,7 @@ Decisions taken by the PHP team on the backend architecture, by topic. The terms
 |---|---|---|
 | [0013](0013-messages-carry-serializable-values-only.md) | Make commands, queries and events carry serializable values only | Accepted |
 | [0014](0014-one-aggregate-per-command.md) | Change one aggregate per command, and let other aggregates react through events | Accepted |
+| [0019](0019-let-the-command-bus-own-the-transaction.md) | Let the command bus own the transaction, and keep handlers free of transaction management | Accepted |
 
 ## Security
 
@@ -51,3 +60,10 @@ Decisions taken by the PHP team on the backend architecture, by topic. The terms
 |---|---|---|
 | [0010](0010-parameterize-repository-queries.md) | Build repository SQL with the `QueryBuilder` and bound parameters, never string concatenation | Accepted |
 | [0015](0015-scope-resource-access-with-acting-user-and-access-scope.md) | Scope resource access with an acting user and an access scope | Accepted |
+| [0021](0021-escape-at-www-html-output.md) | Escape user-controlled and database-sourced strings at the point of `www/` HTML output | Accepted |
+
+## Testing
+
+| ADR | Decision | Status |
+|---|---|---|
+| [0017](0017-test-new-code-with-phpunit-unit-first.md) | Test new code with PHPUnit, unit-first by default | Accepted |
