@@ -27,11 +27,17 @@ const IconSelector = ({
 }: InputPropsWithoutGroup): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const { values, setFieldValue } = useFormikContext<FormikValues>();
+  const { errors, setFieldTouched, setFieldValue, touched, values } =
+    useFormikContext<FormikValues>();
 
-  const icon = path(split('.', fieldName), values) as Icon | null | undefined;
+  const fieldPath = split('.', fieldName);
+  const icon = (path(fieldPath, values) as Icon | null | undefined) ?? null;
+  const error = path(fieldPath, touched)
+    ? (path(fieldPath, errors) as string | undefined)
+    : undefined;
 
   const changeIcon = (_: unknown, value: unknown): void => {
+    setFieldTouched(fieldName, true, false);
     setFieldValue(fieldName, value);
   };
 
@@ -46,6 +52,7 @@ const IconSelector = ({
         disableClearable={false}
         disabled={getDisabled?.(values) ?? false}
         displayOptionThumbnail
+        error={error}
         field="name"
         fullWidth
         getEndpoint={iconSelector.getEndpoint}

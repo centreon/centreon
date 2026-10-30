@@ -9,7 +9,7 @@ import { type FormikValues, useFormikContext } from 'formik';
 import i18next from 'i18next';
 import { path } from 'ramda';
 import { initReactI18next } from 'react-i18next';
-import { object } from 'yup';
+import { type AnyObjectSchema, object } from 'yup';
 
 import buildListingEndpoint from '../../api/buildListingEndpoint';
 import TestQueryProvider from '../../api/TestQueryProvider';
@@ -18,6 +18,7 @@ import { Form } from '../Form';
 import { InputType } from './models';
 
 const label = 'Icon';
+const labelRequired = 'Required';
 const iconsEndpoint = '/configuration/icons';
 
 const getIconUrl = (color: string): string =>
@@ -38,6 +39,7 @@ interface InitializeProps {
   disabled?: boolean;
   fieldName?: string;
   initialValues?: FormikValues;
+  validationSchema?: AnyObjectSchema;
 }
 
 const ValueDisplay = ({ fieldName }: { fieldName: string }): JSX.Element => {
@@ -54,7 +56,8 @@ const initialize = ({
   dataTestId,
   disabled = false,
   fieldName = 'icon',
-  initialValues = { icon: null }
+  initialValues = { icon: null },
+  validationSchema = object()
 }: InitializeProps = {}): void => {
   interceptAPIRequest({
     alias: 'getIcons',
@@ -65,7 +68,7 @@ const initialize = ({
 
   render(
     <TestQueryProvider>
-      <div style={{ width: 400 }}>
+      <div className="w-100">
         <Form
           initialValues={initialValues}
           inputs={[
@@ -89,7 +92,7 @@ const initialize = ({
             }
           ]}
           submit={rs.fn()}
-          validationSchema={object()}
+          validationSchema={validationSchema}
         />
       </div>
     </TestQueryProvider>
@@ -137,7 +140,9 @@ describe('Icon selector', () => {
         JSON.stringify(icons[1])
       );
     });
-    expect(screen.getByTestId(label)).toHaveValue('green');
+    await waitFor(() => {
+      expect(screen.getByTestId(label)).toHaveValue('green');
+    });
     await waitFor(() => {
       expect(getPreview('green')).toHaveAttribute('src', icons[1].url);
     });
@@ -157,7 +162,26 @@ describe('Icon selector', () => {
     await waitFor(() => {
       expect(screen.getByTestId('value')).toHaveTextContent('null');
     });
-    expect(getPreview('blue')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(getPreview('blue')).not.toBeInTheDocument();
+    });
+  });
+
+  it('shows the field error once the field is cleared', async () => {
+    initialize({
+      initialValues: { icon: icons[0] },
+      validationSchema: object({
+        icon: object().nullable().required(labelRequired)
+      })
+    });
+
+    expect(await screen.findByTestId(label)).toHaveValue('blue');
+    expect(screen.queryByText(labelRequired)).not.toBeInTheDocument();
+
+    await userEvent.hover(screen.getByTestId(label));
+    await userEvent.click(await screen.findByTitle('Clear'));
+
+    expect(await screen.findByText(labelRequired)).toBeVisible();
   });
 
   it('reads and writes a nested field', async () => {

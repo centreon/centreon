@@ -29,7 +29,7 @@ interface Args {
 }
 
 const IconSelectorForm = ({ disabled, icon }: Args): JSX.Element => (
-  <div style={{ width: 400 }}>
+  <div className="w-100">
     <Form
       initialValues={{ icon }}
       inputs={[
