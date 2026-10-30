@@ -10,7 +10,10 @@ const Title = ({ label }: Props): React.ReactElement => {
   const { t } = useTranslation();
 
   return (
-    <Typography className="mb-[4px] text-primary-main" variant="h6">
+    <Typography
+      className="mb-1 text-base font-bold text-text-primary"
+      variant="h6"
+    >
       {t(label)}
     </Typography>
   );

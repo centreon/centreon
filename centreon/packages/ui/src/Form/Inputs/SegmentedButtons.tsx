@@ -32,36 +32,45 @@ const SegmentedButtons = ({
   return useMemoComponent({
     Component: (
       <FormGroup>
-        <FormLabel>{t(label)}</FormLabel>
-        <ButtonGroup
-          aria-label={t(label)}
-          // As wide as its column, up to what three labels need.
-          className="max-w-[412px]"
-          color="primary"
-          data-testid={dataTestId}
-          disabled={disabled}
-          fullWidth
-          size="small"
-        >
-          {segmentedButtons?.options.map(
-            ({ label: optionLabel, value: optionValue }) => {
-              const isSelected = equals(value, optionValue);
+        {!segmentedButtons?.hideLabel && (
+          <FormLabel className="font-bold">{t(label)}</FormLabel>
+        )}
+        {/* In a column narrower than the three minimum widths, the group scrolls
+            inside it rather than overflowing into what is next to it. */}
+        <div className="max-w-full self-start overflow-x-auto">
+          <ButtonGroup
+            aria-label={t(label)}
+            className="max-w-full"
+            color="primary"
+            data-testid={dataTestId}
+            disabled={disabled}
+            size="small"
+          >
+            {segmentedButtons?.options.map(
+              ({ label: optionLabel, value: optionValue }) => {
+                const isSelected = equals(value, optionValue);
 
-              return (
-                <Button
-                  aria-pressed={isSelected}
-                  className="h-7 px-3 py-0 font-medium text-sm leading-[21px] normal-case"
-                  data-testid={`${dataTestId}-${optionValue}`}
-                  key={optionValue}
-                  onClick={select(optionValue)}
-                  variant={isSelected ? 'contained' : 'outlined'}
-                >
-                  {t(optionLabel)}
-                </Button>
-              );
-            }
-          )}
-        </ButtonGroup>
+                // As in the design: every segment is 26 spacing units (104px)
+                // wide at least, and grows with its own label. A label wider
+                // than the room left is cut with an ellipsis, its full text
+                // in the tooltip.
+                return (
+                  <Button
+                    aria-pressed={isSelected}
+                    className="h-7 min-w-26 px-3 py-0 font-medium text-sm leading-[21px] normal-case"
+                    data-testid={`${dataTestId}-${optionValue}`}
+                    key={optionValue}
+                    onClick={select(optionValue)}
+                    title={t(optionLabel)}
+                    variant={isSelected ? 'contained' : 'outlined'}
+                  >
+                    <span className="min-w-0 truncate">{t(optionLabel)}</span>
+                  </Button>
+                );
+              }
+            )}
+          </ButtonGroup>
+        </div>
       </FormGroup>
     ),
     memoProps: [value, disabled, segmentedButtons, additionalMemoProps]
