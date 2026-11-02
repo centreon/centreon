@@ -47,6 +47,8 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
     private const TARGET_TYPE_VALUE_MAP = [
         TargetTypeEnum::Command->value => 'command',
         TargetTypeEnum::Host->value => 'host',
+        // legacy logs host templates as hosts
+        TargetTypeEnum::HostTemplate->value => 'host',
         TargetTypeEnum::Poller->value => 'poller',
         TargetTypeEnum::Service->value => 'service',
         TargetTypeEnum::ServiceCategory->value => 'servicecategories',
@@ -217,8 +219,9 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
 
         $row = $rows[0];
 
-        $targetType = array_flip(self::TARGET_TYPE_VALUE_MAP)[$row['object_type']] ?? null;
-        if ($targetType === null) {
+        // a stored 'host' row cannot tell a host from a template: the first match, Host, wins
+        $targetType = array_search($row['object_type'], self::TARGET_TYPE_VALUE_MAP, true);
+        if ($targetType === false) {
             throw new \RuntimeException(sprintf('There is no "%s" associated to "%s", try to updated %s::TARGET_TYPE_VALUE_MAP.', TargetTypeEnum::class, $row['object_type'], self::class));
         }
 

@@ -27,8 +27,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 
 final class FakeHostTemplateRepository implements HostTemplateRepository
@@ -53,6 +55,20 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     /** @var list<int> the templates of the paid Monitoring Connectors, the excluded connector slugs being ignored */
     public array $monitoringConnectorTemplateIds = [];
+
+    /** @var list<string> names used by hosts, templates excluded */
+    public array $hostNames = [];
+
+    /** @var array<int, list<int>> poller ids of the hosts inheriting each template, indexed by template id */
+    public array $inheritingHostPollerIds = [];
+
+    /** @var array<int, int> source template id indexed by copy id */
+    public array $copiedFrom = [];
+
+    /** @var list<int> */
+    public array $removedIds = [];
+
+    private int $nextId = 1000;
 
     public function findNamesByIds(Collection $ids): Collection
     {
@@ -139,5 +155,42 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
             array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $this->monitoringConnectorTemplateIds),
             HostTemplateId::class,
         );
+    }
+
+    public function findOne(HostTemplateId $id): ?HostTemplate
+    {
+        return $this->hostTemplates[$id->value] ?? null;
+    }
+
+    public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool
+    {
+        if (in_array($name->value, $this->hostNames, true)) {
+            return true;
+        }
+
+        return array_any($this->hostTemplates, static fn (HostTemplate $template): bool => $template->name->value === $name->value);
+    }
+
+    public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void
+    {
+        $id = $this->nextId++;
+        (new \ReflectionProperty(AggregateRoot::class, 'id'))->setValue($copy, new HostTemplateId($id));
+        $this->hostTemplates[$id] = $copy;
+        $this->copiedFrom[$id] = $sourceId->value;
+    }
+
+    public function findPollerIdsOfInheritingHosts(HostTemplateId $id): Collection
+    {
+        return new Collection(
+            array_map(static fn (int $pollerId): PollerId => new PollerId($pollerId), $this->inheritingHostPollerIds[$id->value] ?? []),
+            PollerId::class,
+        );
+    }
+
+    public function remove(HostTemplate $hostTemplate): void
+    {
+        $id = $hostTemplate->id()->value;
+        unset($this->hostTemplates[$id]);
+        $this->removedIds[] = $id;
     }
 }

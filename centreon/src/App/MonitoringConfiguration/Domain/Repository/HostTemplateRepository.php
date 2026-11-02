@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\Shared\Domain\Collection;
 
@@ -117,4 +118,32 @@ interface HostTemplateRepository
      * @return Collection<HostTemplateId>
      */
     public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection;
+
+    /**
+     * A host template with its name, alias, lock state, own macros, SNMP community and direct parents;
+     * null when the id is unknown or is a host.
+     */
+    public function findOne(HostTemplateId $id): ?HostTemplate;
+
+    public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool;
+
+    /**
+     * Persists $copy and sets its id. The copy takes its name, SNMP community and macros from $copy;
+     * every other `host` column and the relations (parent templates in order, service template links,
+     * extended information, categories, contacts, contact groups, monitoring server) are copied from
+     * $sourceId.
+     */
+    public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void;
+
+    /**
+     * The pollers of every host inheriting the template, directly or through other templates.
+     *
+     * @return Collection<PollerId>
+     */
+    public function findPollerIdsOfInheritingHosts(HostTemplateId $id): Collection;
+
+    /**
+     * Deletes the template; the relations cascade, and a dependency left without any member is removed.
+     */
+    public function remove(HostTemplate $hostTemplate): void;
 }

@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
@@ -274,6 +275,34 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             array_map(static fn (int|string $id): HostTemplateId => new HostTemplateId((int) $id), $ids),
             HostTemplateId::class,
         );
+    }
+
+    public function findOne(HostTemplateId $id): ?HostTemplate
+    {
+        throw new \LogicException('Not implemented yet.');
+    }
+
+    public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool
+    {
+        throw new \LogicException('Not implemented yet.');
+    }
+
+    public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void
+    {
+        throw new \LogicException('Not implemented yet.');
+    }
+
+    /**
+     * @return Collection<PollerId>
+     */
+    public function findPollerIdsOfInheritingHosts(HostTemplateId $id): Collection
+    {
+        throw new \LogicException('Not implemented yet.');
+    }
+
+    public function remove(HostTemplate $hostTemplate): void
+    {
+        throw new \LogicException('Not implemented yet.');
     }
 
     public function findInheritanceLine(Collection $directTemplateIds): Collection
