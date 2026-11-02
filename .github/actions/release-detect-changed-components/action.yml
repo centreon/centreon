@@ -44,3 +44,4 @@ runs:
       with:
         name: component-commit-lists
         path: artifacts
+        retention-days: 1

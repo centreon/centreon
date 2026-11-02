@@ -1,4 +1,4 @@
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -96,7 +96,7 @@ export const Row = <T,>({
         <RowButton
           className="text-error-main"
           data-testid="delete-row"
-          icon={<DeleteIcon />}
+          icon={<DeleteOutlineIcon />}
           label={t(labelDelete)}
           onClick={(): void => onDelete(id)}
         />

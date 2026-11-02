@@ -177,7 +177,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 13
+			count: 14
 			path: tests/php/Core/AgentConfiguration/Application/UseCase/CreateHostForAgentConfiguration/CreateHostForAgentConfigurationTest.php
 
 		-

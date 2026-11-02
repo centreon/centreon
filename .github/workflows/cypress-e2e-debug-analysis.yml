@@ -23,6 +23,10 @@ on:
 jobs:
   analyze:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
     steps:
       - name: Check that debug logging is enabled for this run
         id: debug-check

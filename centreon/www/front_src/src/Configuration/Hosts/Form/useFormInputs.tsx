@@ -3,7 +3,8 @@ import type { Group, InputProps } from '@centreon/ui';
 import { chain } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { getAvailableSections } from './sections';
+import { placeBlocks } from './layout';
+import { getBlocks } from './sections';
 
 interface FormInputsState {
   inputs: Array<InputProps>;
@@ -31,21 +32,19 @@ const useFormInputs = ({
     isMassChange,
     t
   };
-  const availableSections = getAvailableSections(context);
+  const placedSections = placeBlocks({ blocks: getBlocks(context), t });
 
   // Sections are told apart by their headers, as designed: no divider.
-  const groups: Array<Group> = availableSections.map(({ order, section }) => ({
+  const groups: Array<Group> = placedSections.map(({ label, order }) => ({
     isDividerHidden: true,
-    name: t(section.label),
+    name: t(label),
     order
   }));
 
   const inputs: Array<InputProps> = chain(
-    ({ section }) =>
-      section
-        .getInputs(context)
-        .map((input) => ({ ...input, group: t(section.label) })),
-    availableSections
+    ({ inputs: sectionInputs, label }) =>
+      sectionInputs.map((input) => ({ ...input, group: t(label) })),
+    placedSections
   );
 
   // Once for every input, grid columns included, so none is left editable.

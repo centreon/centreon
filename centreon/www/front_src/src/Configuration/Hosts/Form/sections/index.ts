@@ -1,13 +1,17 @@
 import { dataProcessing } from './dataProcessing';
 import { extendedInfos } from './extendedInfos';
 import { hostConfiguration } from './hostConfiguration';
-import type { FormSection, PlatformContext } from './models';
+import type {
+  Blocks,
+  FormSection,
+  PlatformContext,
+  SectionContext
+} from './models';
 import { notification } from './notification';
 import { relations } from './relations';
 
-// The five sections of the US, in the order the form shows them. They also
-// drive the pinned navigation, which the shared form renders on its own from
-// four groups up.
+// The five slices of the host the form edits. The sections it shows, and their
+// order, are `../layout.ts`'s.
 export const sections = [
   hostConfiguration,
   notification,
@@ -16,14 +20,22 @@ export const sections = [
   extendedInfos
 ] as const;
 
-// Numbered before the platform filters them, so a section's group keeps its
-// place whatever the others do.
 export const getAvailableSections = (
   context: PlatformContext
-): Array<{ order: number; section: (typeof sections)[number] }> =>
+): Array<{ section: (typeof sections)[number] }> =>
   sections
-    .map((section, index) => ({ order: index + 1, section }))
-    .filter(({ section }) => section.isAvailable?.(context) ?? true);
+    .filter((section) => section.isAvailable?.(context) ?? true)
+    .map((section) => ({ section }));
+
+// Every block the available sections hand over. No two sections name the same
+// block (`../layout.test.ts`).
+export const getBlocks = (context: SectionContext): Blocks =>
+  Object.assign(
+    {},
+    ...getAvailableSections(context).map(({ section }) =>
+      section.getInputs(context)
+    )
+  );
 
 type UnionToIntersection<Union> = (
   Union extends unknown
@@ -42,6 +54,8 @@ export type HostDetail = UnionToIntersection<
 >;
 
 export type {
+  BlockId,
+  Blocks,
   FormSection,
   FormValues,
   PlatformContext,

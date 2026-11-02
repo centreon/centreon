@@ -22,7 +22,6 @@ import {
   labelAltIcon,
   labelComments,
   labelGeographicCoordinates,
-  labelHostExtendedInfos,
   labelHostSeverity,
   labelIcon,
   labelInvalidGeographicCoordinates,
@@ -30,6 +29,7 @@ import {
   labelNote,
   labelNoteUrl
 } from '../../translatedLabels';
+import { getBlock } from '../grid';
 import IconPreview, { renderIconOption } from '../IconPreview';
 import { buildSelector } from '../selector';
 import type { FormSection, SectionContext } from './models';
@@ -224,41 +224,42 @@ export const extendedInfos: FormSection<ExtendedInfosDetail> = {
       type: InputType.SingleConnectedAutocomplete
     };
 
-    return [
-      {
-        fieldName: 'extended-infos-details',
-        grid: {
-          className: 'grid-cols-1 gap-x-8 @[600px]:grid-cols-2',
-          columns: [
-            getTextInput({ fieldName: 'note', label: t(labelNote) }),
-            getTextInput({ fieldName: 'actionUrl', label: t(labelActionUrl) }),
-            getTextInput({ fieldName: 'noteUrl', label: t(labelNoteUrl) }),
-            getTextInput({
-              fieldName: 'geoCoordinates',
-              label: t(labelGeographicCoordinates)
-            }),
-            icon,
-            ...(isCloudPlatform
-              ? []
-              : [
-                  getTextInput({ fieldName: 'altIcon', label: t(labelAltIcon) })
-                ]),
-            severity
-          ]
-        },
-        label: 'host-form-extended-infos-details',
-        type: InputType.Grid
-      },
-      ...(isCloudPlatform
-        ? []
-        : [
-            getTextInput({
-              fieldName: 'comment',
-              label: t(labelComments),
-              multilineRows: 3
-            })
-          ])
-    ];
+    // The host details in two stacks, read column by column.
+    return {
+      ...(!isCloudPlatform && {
+        comment: {
+          // Titled as designed, above the field's own label.
+          additionalLabel: t(labelComments),
+          ...getTextInput({
+            fieldName: 'comment',
+            label: t(labelComments),
+            multilineRows: 3
+          })
+        }
+      }),
+      hostDetailsLeft: getBlock({
+        columns: [
+          getTextInput({ fieldName: 'note', label: t(labelNote) }),
+          getTextInput({ fieldName: 'noteUrl', label: t(labelNoteUrl) }),
+          icon,
+          ...(isCloudPlatform
+            ? []
+            : [getTextInput({ fieldName: 'altIcon', label: t(labelAltIcon) })])
+        ],
+        name: 'extended-infos-details-left'
+      }),
+      hostDetailsRight: getBlock({
+        columns: [
+          getTextInput({ fieldName: 'actionUrl', label: t(labelActionUrl) }),
+          getTextInput({
+            fieldName: 'geoCoordinates',
+            label: t(labelGeographicCoordinates)
+          })
+        ],
+        name: 'extended-infos-details-right'
+      }),
+      severity
+    };
   },
   getSchema: ({ t }) => ({
     extendedInfos: object({
@@ -282,7 +283,6 @@ export const extendedInfos: FormSection<ExtendedInfosDetail> = {
       noteUrl: getMaxLengthSchema({ field: 'noteUrl', label: labelNoteUrl, t })
     })
   }),
-  label: labelHostExtendedInfos,
   toPayload: (values, { isCloudPlatform }) => {
     const { extendedInfos: infos = defaultExtendedInfos, severity } =
       values as {

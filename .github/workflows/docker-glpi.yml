@@ -22,9 +22,15 @@ on:
 
 jobs:
   dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   get-environment:
+    permissions:
+      contents: read
+      pull-requests: write
     needs: [dependency-scan]
     if: github.event.pull_request.head.repo.fork != true
     uses: ./.github/workflows/get-environment.yml
@@ -44,6 +50,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Login to registry
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -93,6 +101,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   set-skip-label:
+    permissions:
+      contents: read
+      pull-requests: write
     needs: [get-environment, dockerize]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&

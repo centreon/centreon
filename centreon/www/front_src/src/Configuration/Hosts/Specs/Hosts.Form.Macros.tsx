@@ -3,13 +3,12 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
-import { getHostTemplateMacrosEndpoint } from '../api/endpoints';
 import {
-  labelAddNewEntry,
-  labelAlreadyExists,
   labelCommandInheritance,
   labelTemplateInheritance
-} from '../translatedLabels';
+} from '../../ConfigurationBase/translatedLabels';
+import { getHostTemplateMacrosEndpoint } from '../api/endpoints';
+import { labelAddNewEntry, labelAlreadyExists } from '../translatedLabels';
 import initialize from './initialize';
 import { untouchedCheckOptionsPayload } from './utils';
 
@@ -341,14 +340,30 @@ export default () => {
     await findMacroInput(3, 'name');
 
     await addMacro();
+    expect(
+      within(await getPassword(4)).getByTestId('PasswordOffIcon')
+    ).toBeInTheDocument();
     await userEvent.click(await getPassword(4));
     await waitFor(() =>
       expect(queryMacroInput(4, 'value')).toHaveAttribute('type', 'password')
     );
+    expect(
+      within(await getPassword(4)).getByTestId('PasswordIcon')
+    ).toBeInTheDocument();
     await userEvent.click(await getPassword(4));
     await waitFor(() =>
       expect(queryMacroInput(4, 'value')).toHaveAttribute('type', 'text')
     );
+  });
+
+  it('keeps the macros in a fixed order, with nothing to drag', async () => {
+    await openHost0();
+
+    await findMacroInput(3, 'name');
+
+    expect(
+      within(screen.getByTestId(macrosTestId)).queryByTestId('drag-handle')
+    ).not.toBeInTheDocument();
   });
 
   it('deletes a custom macro by leaving it out', async () => {

@@ -254,12 +254,20 @@ const useLoadResources = (): LoadResources => {
     return listingPromise;
   };
 
+  const loadThenScheduleNextRefresh = (): void => {
+    // useRequest already notifies errors; a cancel only means the hook unmounted.
+    load()
+      .catch(() => undefined)
+      .finally(() => scheduleRef.current());
+  };
+
   const scheduleNextRefresh = (): void => {
     window.clearTimeout(refreshTimeoutRef.current);
     if (!enabledAutorefresh) return;
-    refreshTimeoutRef.current = window.setTimeout(() => {
-      load().finally(() => scheduleRef.current());
-    }, refreshIntervalMs);
+    refreshTimeoutRef.current = window.setTimeout(
+      loadThenScheduleNextRefresh,
+      refreshIntervalMs
+    );
   };
 
   scheduleRef.current = scheduleNextRefresh;
@@ -270,7 +278,7 @@ const useLoadResources = (): LoadResources => {
     }
 
     window.clearTimeout(refreshTimeoutRef.current);
-    load().finally(() => scheduleRef.current());
+    loadThenScheduleNextRefresh();
   };
 
   useEffect(() => {
@@ -280,6 +288,8 @@ const useLoadResources = (): LoadResources => {
   useEffect(() => {
     return (): void => {
       window.clearTimeout(refreshTimeoutRef.current);
+      // A load settling after the unmount must not re-arm the refresh timer.
+      scheduleRef.current = (): void => {};
     };
   }, []);
 

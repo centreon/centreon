@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\NotificationContactPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\TimePeriodPermissionEnum;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
@@ -60,6 +61,8 @@ final readonly class CredentialTransformer implements TransformerInterface
     private const LEGACY_PERMISSION_MAP = [
         'ROLE_CONFIGURATION_SERVICES_CATEGORIES_R' => ServiceCategoryPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_SERVICES_CATEGORIES_RW' => ServiceCategoryPermissionEnum::CanWrite->value,
+        'ROLE_CONFIGURATION_SERVICES_SERVICES_BY_HOST_R' => ServicePermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_SERVICES_SERVICES_BY_HOST_RW' => ServicePermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_POLLERS_GLOBAL_MACROS_RW' => GlobalMacroPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_R' => ConnectorPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_RW' => ConnectorPermissionEnum::CanReadAndWrite->value,

@@ -79,7 +79,11 @@ describe('Segmented buttons', () => {
   it('displays every option and marks the current one', async () => {
     initialize();
 
-    expect(await screen.findByText('Notification Enabled')).toBeVisible();
+    const label = await screen.findByText('Notification Enabled');
+
+    expect(label).toBeVisible();
+    // Bold, as the design shows the label above the buttons.
+    expect(getComputedStyle(label).fontWeight).toBe('700');
     expect(await button('Yes')).toHaveAttribute('aria-pressed', 'false');
     expect(await button('No')).toHaveAttribute('aria-pressed', 'false');
     expect(await button('Default')).toHaveAttribute('aria-pressed', 'true');
@@ -110,23 +114,68 @@ describe('Segmented buttons', () => {
     expect(await button('No')).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('sizes to its labels, not to its column', async () => {
-    initialize({ columnWidth: 800 });
+  it('sizes each segment to its label, at least 104px, whatever the column', async () => {
+    initialize({
+      columnWidth: 800,
+      segmentedOptions: [
+        { label: 'Yes', value: 'true' },
+        { label: 'No', value: 'false' },
+        { label: 'Inherit from template', value: 'use_default' }
+      ]
+    });
 
     const group = await screen.findByTestId('enabled');
-    const widths = (
-      await Promise.all(['Yes', 'No', 'Default'].map(button))
+    const [yes, no, inherit] = (
+      await Promise.all(['Yes', 'No', 'Inherit from template'].map(button))
     ).map((element) => element.getBoundingClientRect().width);
 
-    // Three equal segments of at least 104px (26 spacing units), left aligned in the column
-    // (a pixel apart at most: the group overlaps the borders of its buttons).
-    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
-    expect(Math.min(...widths)).toBeGreaterThanOrEqual(104);
-    expect(group.getBoundingClientRect().width).toBeLessThan(400);
+    // As in the design: Yes and No keep 104px, the longer label grows alone
+    // (the group overlaps the borders of its buttons, a pixel at most).
+    expect(yes).toBeGreaterThanOrEqual(104);
+    expect(Math.abs(yes - no)).toBeLessThanOrEqual(1);
+    expect(yes).toBeLessThan(110);
+    expect(inherit).toBeGreaterThan(yes + 20);
+    expect(group.getBoundingClientRect().width).toBeLessThan(500);
     expect(group.getBoundingClientRect().left).toBe(
       (await screen.findByText('Notification Enabled')).getBoundingClientRect()
         .left
     );
+  });
+
+  it('keeps three segments of 104px when the labels are short', async () => {
+    initialize({ columnWidth: 800 });
+
+    const widths = (
+      await Promise.all(['Yes', 'No', 'Default'].map(button))
+    ).map((element) => element.getBoundingClientRect().width);
+
+    expect(Math.min(...widths)).toBeGreaterThanOrEqual(104);
+    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+  });
+
+  it('cuts a label wider than the room left with an ellipsis', async () => {
+    const longLabel =
+      'Vorlage erben und alle Werte der Vorlage ohne Ausnahme übernehmen';
+
+    initialize({
+      columnWidth: 420,
+      segmentedOptions: [
+        { label: 'Yes', value: 'true' },
+        { label: 'No', value: 'false' },
+        { label: longLabel, value: 'use_default' }
+      ]
+    });
+
+    const long = await button(longLabel);
+    const text = long.firstElementChild as HTMLElement;
+
+    expect(text.scrollWidth).toBeGreaterThan(text.clientWidth);
+    expect(getComputedStyle(text).textOverflow).toBe('ellipsis');
+    expect(long).toHaveAttribute('title', longLabel);
+    expect(long.getBoundingClientRect().height).toBe(28);
+    expect(
+      (await screen.findByTestId('enabled')).getBoundingClientRect().right
+    ).toBeLessThanOrEqual(420 + 1);
   });
 
   it('stays inside a column narrower than its segments', async () => {
@@ -137,32 +186,6 @@ describe('Segmented buttons', () => {
 
     expect(wrapper.getBoundingClientRect().width).toBeLessThanOrEqual(200);
     expect(wrapper.scrollWidth).toBeGreaterThan(wrapper.clientWidth);
-    expect((await button('Default')).scrollWidth).toBeLessThanOrEqual(
-      (await button('Default')).clientWidth
-    );
-  });
-
-  it('widens every segment to the longest label, without wrapping', async () => {
-    const longLabel = 'Inherit from the host template';
-
-    initialize({
-      segmentedOptions: [
-        { label: 'Yes', value: 'true' },
-        { label: 'No', value: 'false' },
-        { label: longLabel, value: 'use_default' }
-      ]
-    });
-
-    const yes = await button('Yes');
-    const long = await button(longLabel);
-
-    expect(
-      Math.abs(
-        yes.getBoundingClientRect().width - long.getBoundingClientRect().width
-      )
-    ).toBeLessThanOrEqual(1);
-    expect(long.scrollWidth).toBeLessThanOrEqual(long.clientWidth);
-    expect(long.getBoundingClientRect().height).toBe(28);
   });
 
   it('does not change when disabled', async () => {

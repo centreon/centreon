@@ -4,7 +4,10 @@ import {
   screen,
   waitFor
 } from '@centreon/ui/test/testRenderer';
-import { isAdditiveInheritanceEnabledAtom } from '@centreon/ui-context';
+import {
+  defaultLimitPerPageAtom,
+  isAdditiveInheritanceEnabledAtom
+} from '@centreon/ui-context';
 
 import axios from 'axios';
 
@@ -14,7 +17,9 @@ import {
   internalTranslationEndpoint,
   parametersEndpoint
 } from '../App/endpoint';
+import { labelYouAreDisconnected } from '../App/translatedLabels';
 import {
+  logoutEndpoint,
   platformInstallationStatusEndpoint,
   userEndpoint
 } from '../api/endpoint';
@@ -112,7 +117,11 @@ const mockDefaultGetRequests = (): void => {
 
 // Answered by URL rather than in call order, so a request added or moved in
 // the start-up sequence cannot hand one endpoint another one's response.
-const mockGetRequestsByUrl = (parameters: object): void => {
+const mockGetRequestsByUrl = (
+  parameters: object,
+  // The status the parameters endpoint fails with, if it fails.
+  { parametersStatus }: { parametersStatus?: number } = {}
+): void => {
   const responses: Array<[string, unknown]> = [
     [
       platformInstallationStatusEndpoint,
@@ -128,9 +137,12 @@ const mockGetRequestsByUrl = (parameters: object): void => {
   ];
 
   mockedAxios.get.mockImplementation((url: string) =>
-    Promise.resolve({
-      data: responses.find(([endpoint]) => url.includes(endpoint))?.[1] ?? null
-    })
+    parametersStatus && url.includes(parametersEndpoint)
+      ? Promise.reject({ response: { status: parametersStatus } })
+      : Promise.resolve({
+          data:
+            responses.find(([endpoint]) => url.includes(endpoint))?.[1] ?? null
+        })
   );
 };
 
@@ -280,6 +292,7 @@ describe('Main', () => {
     store.set(areUserParametersLoadedAtom, null);
     store.set(platformInstallationStatusAtom, null);
     store.set(isAdditiveInheritanceEnabledAtom, false);
+    store.set(defaultLimitPerPageAtom, null);
   });
 
   it('displays the login page when the path is "/login" and the user is not connected', async () => {
@@ -476,6 +489,77 @@ describe('Main', () => {
     await waitFor(() => {
       expect(store.get(isAdditiveInheritanceEnabledAtom)).toBe(true);
     });
+  });
+
+  // 50, not 30: 30 is also the fallback, which would pass this test without
+  // the platform value.
+  it('sets the default page size of listings from the platform parameters', async () => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      default_limit_per_page: 50
+    });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(50);
+    });
+  });
+
+  it('falls back to a default page size of 30 when the platform parameters do not have one', async () => {
+    mockGetRequestsByUrl(retrievedParameters);
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+  });
+
+  it.each([0, -5, '30', 12.5, null])(
+    'falls back to a default page size of 30 when the platform parameters have %p',
+    async (defaultLimitPerPage) => {
+      mockGetRequestsByUrl({
+        ...retrievedParameters,
+        default_limit_per_page: defaultLimitPerPage
+      });
+
+      renderMain();
+
+      await waitFor(() => {
+        expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+      });
+    }
+  );
+
+  it('falls back to a default page size of 30 when the platform parameters cannot be retrieved', async () => {
+    mockGetRequestsByUrl(retrievedParameters, { parametersStatus: 500 });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+  });
+
+  it('logs the user out and falls back to a default page size of 30 when the platform parameters answer 401', async () => {
+    mockGetRequestsByUrl(retrievedParameters, { parametersStatus: 401 });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        logoutEndpoint,
+        cancelTokenRequestParam
+      );
+    });
+    expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+
+    await waitFor(() => {
+      expect(screen.getByText(labelYouAreDisconnected)).toBeInTheDocument();
+    });
+    expect(window.location.pathname).toBe('/login');
+    expect(store.get(areUserParametersLoadedAtom)).toBe(false);
   });
 
   it('redirects the user to his default page when the current location is the login page and the user is connected', async () => {

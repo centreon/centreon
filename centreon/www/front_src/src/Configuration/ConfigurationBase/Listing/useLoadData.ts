@@ -3,13 +3,18 @@
 import { QueryParameter } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
-import { equals, isNotEmpty, isNotNil, pluck } from 'ramda';
+import { equals, isNil, isNotEmpty, isNotNil, pluck } from 'ramda';
 import { useMemo } from 'react';
 
 import { FieldType } from '../../models';
 import { useGetAll } from '../api';
 import { configurationAtom } from '../atoms';
-import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
+import {
+  listingLimitAtom,
+  pageAtom,
+  sortFieldAtom,
+  sortOrderAtom
+} from './atoms';
 
 interface LoadDataState {
   data?;
@@ -20,7 +25,7 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
   const page = useAtomValue(pageAtom);
-  const limit = useAtomValue(limitAtom);
+  const limit = useAtomValue(listingLimitAtom);
   const filters = useAtomValue(filtersAtom);
   const configuration = useAtomValue(configurationAtom);
 
@@ -174,7 +179,12 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
     return customQueryParameters;
   };
 
+  // No request until the page size is known, so the listing is not first
+  // loaded with a page size it is about to replace.
+  const isLimitPending = isNil(limit);
+
   const { data, isLoading } = useGetAll({
+    enabled: !isLimitPending,
     filtersAtomKey,
     getCustomQueryParameters,
     limit,
@@ -184,7 +194,7 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
     sortOrder
   });
 
-  return { data, isLoading };
+  return { data, isLoading: isLoading || isLimitPending };
 };
 
 export default useLoadData;
