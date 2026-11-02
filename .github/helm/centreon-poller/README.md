@@ -127,6 +127,11 @@ container `args` (`snmptrapd` / `centreontrapd`).
 - Enabling traps on a poller installed with chart 26.2.0 or later is a plain
   upgrade: their definitions are the `traps-config` directory of
   `poller-data`. Earlier charts: reinstall first (see Persistence).
+- Chart 26.3.0 and later require the `centreon-trapd` image for both trap
+  containers (role passed as `args`). If `traps.images.*.repository` was
+  overridden to the former `centreon-snmptrapd` / `centreon-centreontrapd`
+  images, drop or update that override when upgrading: those images do not
+  understand the role keyword and their containers exit.
 
 ## VMware connector
 
