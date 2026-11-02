@@ -119,6 +119,8 @@ export interface ConfigurationBase<TFilters> {
   formVariant?: 'modal' | 'panel';
   // Width the panel opens at; the user can resize it from there.
   formPanelWidth?: number;
+  // The column the listing opens sorted on, when it is not `name`.
+  defaultSortField?: string;
 }
 
 export enum FieldType {

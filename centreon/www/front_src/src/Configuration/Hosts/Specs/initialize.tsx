@@ -19,7 +19,13 @@ import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import { object } from 'yup';
 
-import { limitAtom } from '../../ConfigurationBase/Listing/atoms';
+import {
+  limitAtom,
+  sortFieldAtom,
+  sortOrderAtom,
+  sortsByListingAtom
+} from '../../ConfigurationBase/Listing/atoms';
+import { ResourceType } from '../../models';
 import Hosts from '..';
 import {
   getDeployServicesEndpoint,
@@ -82,6 +88,10 @@ interface Props {
   resolveDelay?: number;
   // The hosts whose partial update is refused.
   patchFails?: Array<number>;
+  // The sort another listing left in the shared atoms.
+  previousSort?: { field: string; order: 'asc' | 'desc' };
+  // The sort the hosts listing was left on earlier in the session.
+  savedSort?: { field: string; order: 'asc' | 'desc' };
   // The platform's default page size; `null` while the platform parameters
   // are not known yet.
   defaultLimitPerPage?: number | null;
@@ -119,7 +129,9 @@ const initialize = ({
   resolveDelay,
   patchFails = [],
   defaultLimitPerPage = 10,
-  userLimit
+  userLimit,
+  previousSort,
+  savedSort
 }: Props = {}): InitializeResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -140,6 +152,15 @@ const initialize = ({
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
   store.set(defaultLimitPerPageAtom, defaultLimitPerPage);
   store.set(limitAtom, userLimit);
+
+  if (previousSort) {
+    store.set(sortFieldAtom, previousSort.field);
+    store.set(sortOrderAtom, previousSort.order);
+  }
+
+  if (savedSort) {
+    store.set(sortsByListingAtom, { [ResourceType.Host]: savedSort });
+  }
 
   interceptAPIRequest({
     alias: 'getHost',
