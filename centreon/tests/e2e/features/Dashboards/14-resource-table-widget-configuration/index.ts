@@ -184,7 +184,7 @@ beforeEach(() => {
   }).as('resourceRequest');
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.monitor_resources}/hosts?page=1&limit=10&sort_by=**`
+    url: `${INTERCEPTORS.api.monitor_resources}/hosts?page=1&limit=30&sort_by=**`
   }).as('resourceRequestByHost');
   cy.intercept({
     method: 'POST',
@@ -347,12 +347,37 @@ When(
 Then(
   'all the resources having the status selected are displayed in the resource table Widget',
   () => {
-    cy.getCellContent(1, 2).then((myTableContent) => {
-      expect(myTableContent[1]).to.include('Critical');
-      expect(myTableContent[2]).to.include('Warning');
-      expect(myTableContent[3]).to.match(/Pending|Unknown/);
-      expect(myTableContent[6]).to.match(/Pending|Unknown/);
-    });
+    // Centreon-Server is in Linux-Servers too and its real checks can be in any
+    // status: check the resources created by the test, not the row order.
+    cy.get('[role="table"]')
+      .eq(1)
+      .find('[role="row"]')
+      .should((rows) => {
+        const statusOf = (resource: string, parent = ''): string => {
+          const cells = rows
+            .toArray()
+            .map((row) =>
+              // MUI sets no role on the cells: a row's children are its cells
+              Array.from(row.children, (cell) => cell.textContent ?? '')
+            )
+            .find(
+              ([, , resourceCell = '', parentCell = '']) =>
+                resourceCell.includes(resource) && parentCell.includes(parent)
+            );
+
+          return cells?.[1] ?? '';
+        };
+
+        expect(
+          statusOf(services.serviceCritical.name, services.serviceWarning.host)
+        ).to.include('Critical');
+        expect(
+          statusOf(services.serviceWarning.name, services.serviceWarning.host)
+        ).to.include('Warning');
+        expect(statusOf(services.serviceCritical.host)).to.match(
+          /Pending|Unknown/
+        );
+      });
   }
 );
 
