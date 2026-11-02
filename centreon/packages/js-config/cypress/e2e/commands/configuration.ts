@@ -22,15 +22,17 @@ Cypress.Commands.add(
     bodyContent,
     method = 'POST'
   }: ExecuteActionViaClapiProps): Cypress.Chainable => {
-    return cy.request({
-      body: bodyContent,
-      headers: {
-        'Content-Type': 'application/json',
-        'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
-      },
-      method,
-      url: `${apiActionV1}?action=action&object=centreon_clapi`
-    });
+    return cy.ensureUserTokenApiV1().then(() =>
+      cy.request({
+        body: bodyContent,
+        headers: {
+          'Content-Type': 'application/json',
+          'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
+        },
+        method,
+        url: `${apiActionV1}?action=action&object=centreon_clapi`
+      })
+    );
   }
 );
 
