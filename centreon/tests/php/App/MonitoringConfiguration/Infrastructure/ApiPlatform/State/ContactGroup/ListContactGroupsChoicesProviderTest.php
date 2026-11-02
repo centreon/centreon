@@ -109,12 +109,7 @@ final class ListContactGroupsChoicesProviderTest extends ApiTestCase
         self::assertSame([], array_diff(array_keys($member[0]), ['@id', '@type', 'id', 'name']));
     }
 
-    /**
-     * Legacy's host-form contact-group select appends LDAP-only groups unfiltered, but a
-     * LDAP-only group is refused on save: the host-scoped selector excludes them outright
-     * instead of surfacing an option the save would reject.
-     */
-    public function testItExcludesLdapContactGroups(): void
+    public function testItListsImportedLdapContactGroups(): void
     {
         $localName = "local-{$this->tag}";
         $this->insertContactGroup($localName, type: 'local');
@@ -125,7 +120,10 @@ final class ListContactGroupsChoicesProviderTest extends ApiTestCase
 
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
         self::assertResponseIsSuccessful();
-        self::assertSame([$localName], array_column((array) $response->toArray()['member'], 'name'));
+        self::assertEqualsCanonicalizing(
+            [$localName, $ldapName],
+            array_column((array) $response->toArray()['member'], 'name')
+        );
     }
 
     /**
