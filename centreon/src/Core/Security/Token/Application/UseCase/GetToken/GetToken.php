@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Application\UseCase\GetToken;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -52,6 +53,10 @@ final class GetToken
                 $userId ?? $this->user->getId()
             );
 
+            if ($token === null && $userId === null && $this->canDisplayAllTokens()) {
+                $token = $this->readTokenRepository->findByNames([$tokenName])[$tokenName] ?? null;
+            }
+
             if (
                 $token === null
                 || ! in_array($token->getType(), [TokenTypeEnum::CMA, TokenTypeEnum::POLLER], true)
@@ -74,5 +79,10 @@ final class GetToken
 
             return new ErrorResponse(TokenException::errorWhileRetrievingObject()->getMessage());
         }
+    }
+
+    private function canDisplayAllTokens(): bool
+    {
+        return $this->user->isAdmin() || $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS);
     }
 }
