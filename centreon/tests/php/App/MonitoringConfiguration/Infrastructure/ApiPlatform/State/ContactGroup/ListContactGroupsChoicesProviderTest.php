@@ -31,6 +31,7 @@ use Webmozart\Assert\Assert;
 final class ListContactGroupsChoicesProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/hosts/contact_groups';
+    private const SERVICE_ENDPOINT = '/api/configuration/services/contact_groups';
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_HOSTS_R[W]
     // (Configuration > Hosts > Hosts), bridged to HostPermissionEnum via
@@ -109,12 +110,7 @@ final class ListContactGroupsChoicesProviderTest extends ApiTestCase
         self::assertSame([], array_diff(array_keys($member[0]), ['@id', '@type', 'id', 'name']));
     }
 
-    /**
-     * Legacy's host-form contact-group select appends LDAP-only groups unfiltered, but a
-     * LDAP-only group is refused on save: the host-scoped selector excludes them outright
-     * instead of surfacing an option the save would reject.
-     */
-    public function testItExcludesLdapContactGroups(): void
+    public function testItListsImportedLdapContactGroups(): void
     {
         $localName = "local-{$this->tag}";
         $this->insertContactGroup($localName, type: 'local');
@@ -124,6 +120,22 @@ final class ListContactGroupsChoicesProviderTest extends ApiTestCase
         $this->login();
 
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
+        self::assertResponseIsSuccessful();
+        self::assertEqualsCanonicalizing(
+            [$localName, $ldapName],
+            array_column((array) $response->toArray()['member'], 'name')
+        );
+    }
+
+    public function testTheServiceSelectorExcludesLdapContactGroups(): void
+    {
+        $localName = "local-{$this->tag}";
+        $this->insertContactGroup($localName, type: 'local');
+        $this->insertContactGroup("ldap-{$this->tag}", type: 'ldap');
+
+        $this->login();
+
+        $response = $this->request('GET', self::SERVICE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
         self::assertResponseIsSuccessful();
         self::assertSame([$localName], array_column((array) $response->toArray()['member'], 'name'));
     }

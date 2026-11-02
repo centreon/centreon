@@ -84,10 +84,11 @@ final readonly class ListContactGroupsChoicesProvider implements ProviderInterfa
             }
         }
 
-        // Legacy's host and service form contact-group selects append LDAP-only groups unfiltered,
-        // but both forms only accept Centreon groups on save: the selector excludes LDAP-only groups
-        // outright rather than surfacing an option the save would reject.
-        $criteria = $criteria->withExcludeLdap(true);
+        // Imported LDAP groups have an id and are accepted on save, so they are listed unless the
+        // operation opts out (the service selector still does, see MON-213798).
+        if (($operation->getExtraProperties()['exclude_ldap'] ?? false) === true) {
+            $criteria = $criteria->withExcludeLdap(true);
+        }
 
         $contactGroups = $this->repository->findAll($criteria);
         $resources = [];
