@@ -50,8 +50,9 @@ export const getFieldsWrittenTwice = (
 
 /**
  * The fields two available blocks write in the defaults, in the payload of
- * `detail` read back, or in that detail decoded: each must be empty, since
- * the blocks' results are merged deeply.
+ * `detail` read back, or in that detail decoded, and the update modes two
+ * blocks declare: each must be empty, since the blocks' results are merged
+ * and the last one would win.
  */
 export const getFieldsOwnedTwice = ({
   blocks,
@@ -65,6 +66,7 @@ export const getFieldsOwnedTwice = ({
   defaultValues: Array<string>;
   detail: Array<string>;
   payload: Array<string>;
+  updateModeFields: Array<string>;
 } => {
   const available = getAvailableBlocks(blocks, context);
 
@@ -94,6 +96,10 @@ export const getFieldsOwnedTwice = ({
     detail: getFieldsWrittenTwice(decoded),
     payload: getFieldsWrittenTwice(
       available.map((block) => block.toPayload(values, context))
+    ),
+    // Read from every block, available or not, as the mass change does.
+    updateModeFields: getFieldsWrittenTwice(
+      blocks.map((block) => block.massChange?.updateModeFields ?? {})
     )
   };
 };

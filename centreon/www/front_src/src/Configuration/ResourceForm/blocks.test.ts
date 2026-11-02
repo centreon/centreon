@@ -115,9 +115,21 @@ describe('Field blocks', () => {
         { scheduling: null }
       ])
     ).toEqual(['scheduling.period', 'scheduling.attempts']);
+    // An update mode two blocks declare, whatever their payload paths.
+    expect(
+      getFieldsWrittenTwice([
+        { contacts: [['contacts']] },
+        { contacts: [['contact_groups']] }
+      ])
+    ).toEqual(['contacts']);
     expect(
       getFieldsOwnedTwice({ blocks, context: onPremise, detail: values })
-    ).toEqual({ defaultValues: [], detail: [], payload: [] });
+    ).toEqual({
+      defaultValues: [],
+      detail: [],
+      payload: [],
+      updateModeFields: []
+    });
   });
 
   it('leaves an unavailable block out of everything', () => {

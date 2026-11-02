@@ -18,6 +18,11 @@ describe('Host field blocks', () => {
   it.each(contexts)('never write one field twice (%s)', (_name, context) => {
     expect(
       getFieldsOwnedTwice({ blocks, context, detail: getHostResponse() })
-    ).toEqual({ defaultValues: [], detail: [], payload: [] });
+    ).toEqual({
+      defaultValues: [],
+      detail: [],
+      payload: [],
+      updateModeFields: []
+    });
   });
 });
