@@ -314,12 +314,26 @@ jobs:
             echo "::error::Invalid testing tag $GITHUB_REF_NAME, expected testing-<cloud|onprem>-<release|hotfix>-YYYYMMNN-XX.YY-N"
             exit 1
           fi
+          SCOPE="${BASH_REMATCH[1]}" TYPE="${BASH_REMATCH[2]}" NUMBER="${BASH_REMATCH[3]}" MAJOR="${BASH_REMATCH[4]}" ITERATION="${BASH_REMATCH[5]}"
+
+          # only the latest testing tag of the line builds (no stale redelivery), and only until its release is cut
+          LATEST=$(git ls-remote --tags --refs origin "refs/tags/testing-$SCOPE-$TYPE-*-$MAJOR-*" \
+            | sed 's|.*refs/tags/||' | grep -E "^testing-$SCOPE-$TYPE-[0-9]{8}-${MAJOR/./\\.}-[1-9][0-9]*\$" \
+            | sort -t- -k4,4n -k6,6n | tail -n 1 || true)
+          if [[ "$LATEST" != "$GITHUB_REF_NAME" ]]; then
+            echo "::error::$GITHUB_REF_NAME is not the latest testing tag of its line (latest: ${LATEST:-none found}), refusing to build"
+            exit 1
+          fi
+          if [[ -n "$(git ls-remote --tags --refs origin "refs/tags/release-$SCOPE-$NUMBER-$MAJOR")" ]]; then
+            echo "::error::release-$SCOPE-$NUMBER-$MAJOR exists: the train of $GITHUB_REF_NAME is over, refusing to build"
+            exit 1
+          fi
           {
             echo "tag=$GITHUB_REF_NAME"
-            echo "scope=${BASH_REMATCH[1]}"
-            echo "type=${BASH_REMATCH[2]}"
-            echo "major=${BASH_REMATCH[4]}"
-            echo "bundle_path=bundles/${BASH_REMATCH[1]}/${BASH_REMATCH[4]}/${BASH_REMATCH[2]}/${BASH_REMATCH[3]}/${BASH_REMATCH[5]}"
+            echo "scope=$SCOPE"
+            echo "type=$TYPE"
+            echo "major=$MAJOR"
+            echo "bundle_path=bundles/$SCOPE/$MAJOR/$TYPE/$NUMBER/$ITERATION"
           } >> "$GITHUB_OUTPUT"
         shell: bash
 
