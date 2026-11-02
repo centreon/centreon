@@ -191,8 +191,7 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
 
     public function testItPaginatesHostTemplates(): void
     {
-        // inserted out of name order on purpose: the choices keep the id order, unlike the
-        // /configuration/host_templates listing, sorted by name by default
+        // inserted out of name order on purpose: the choices keep the id order
         $this->insertHostTemplate("pg-{$this->tag}-C");
         $this->insertHostTemplate("pg-{$this->tag}-A");
         $this->insertHostTemplate("pg-{$this->tag}-B");

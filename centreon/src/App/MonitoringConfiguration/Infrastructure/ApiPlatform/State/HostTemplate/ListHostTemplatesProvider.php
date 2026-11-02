@@ -74,8 +74,7 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
-        // No actor scoping: host templates are never ACL-filtered. Like the legacy listing page,
-        // access is the page permission alone.
+        // Not ACL-scoped: like legacy, the page permission alone gates access.
         $criteria = HostTemplateCriteria::unscoped();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
@@ -117,8 +116,7 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
     }
 
     /**
-     * Transforms the page, then assigns what each template references by id, fetched in bulk for
-     * the whole page: its linked service template count, its parents' names and its icon.
+     * Adds the bulk-fetched linked count, parent names and icon to each output.
      *
      * @param list<HostTemplate> $hostTemplates
      *

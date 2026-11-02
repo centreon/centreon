@@ -152,8 +152,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
 
     public function testFindAllMatchesTheSearchedValueInTheNameOrTheAlias(): void
     {
-        // legacy parity: one search input covers both, e.g. a template named ht3 with the alias ht1
-        // is found by searching either value
+        // one search matches the name or the alias (legacy parity)
         $this->insertListedTemplate("ht3-{$this->tag}", alias: "ht1-{$this->tag}-alias");
         $this->insertListedTemplate("ht1-{$this->tag}");
         $this->insertListedTemplate("other-{$this->tag}", alias: "unrelated-{$this->tag}");
@@ -224,8 +223,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
 
     public function testFindAllSortsByAliasThenById(): void
     {
-        // the two "a" aliases tie: the id breaks the tie, ascending whatever the direction, so that
-        // pagination stays deterministic
+        // tied aliases: id ascending breaks the tie in both directions
         $this->insertListedTemplate("alias-{$this->tag}-1", alias: 'b');
         $this->insertListedTemplate("alias-{$this->tag}-2", alias: 'a');
         $this->insertListedTemplate("alias-{$this->tag}-3", alias: 'a');
@@ -243,8 +241,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
 
     public function testFindAllSortsTheTemplatesWithoutAliasFirstInAscendingOrder(): void
     {
-        // Current behavior, MySQL's: a NULL sorts before any value, so alias-less templates come
-        // first in ascending order and last in descending order. Legacy never sorted on the alias.
+        // MySQL sorts NULL first: alias-less templates lead ascending, trail descending
         $this->insertListedTemplate("nullalias-{$this->tag}-1", alias: 'a');
         $this->insertListedTemplate("nullalias-{$this->tag}-2");
         $this->insertListedTemplate("nullalias-{$this->tag}-3", alias: 'b');

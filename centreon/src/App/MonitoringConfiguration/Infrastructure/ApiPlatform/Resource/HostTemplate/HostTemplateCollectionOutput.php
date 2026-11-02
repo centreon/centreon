@@ -27,10 +27,6 @@ use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
 
-/**
- * A host template as listed. The fields below the constructor come from sibling data bulk-fetched
- * for the whole page by the provider, then assigned onto the transformed output.
- */
 final class HostTemplateCollectionOutput
 {
     public int $linkedServiceTemplatesCount = 0;

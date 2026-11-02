@@ -111,9 +111,8 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             ->where('h.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER));
 
         $this->filterByCriteria($qb, $criteria, $scope);
-        // without a requested sort, keep the historical id order (the choices list relies on it)
         $this->applySort($qb, 'h', $criteria);
-        // last sort key: name and alias are not unique, and pagination must stay deterministic
+        // id order when unsorted (choices list), else tie-breaker for deterministic pagination
         $qb->addOrderBy('h.host_id');
 
         $pagination = $criteria->getPagination();
@@ -184,9 +183,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             return [];
         }
 
-        // Direct host_service_relation links only: the legacy count also included services attached
-        // through the template's host groups, a relation the template form no longer offers. No join
-        // on `service` is needed: its foreign key cascades on delete, so no dangling id remains.
+        // Direct links only (no host-group links); the service FK cascades, so no join on service.
         $qb = $this->connection->createQueryBuilder();
         $qb->select('hsr.host_host_id', 'COUNT(DISTINCT hsr.service_service_id) AS linked_count')
             ->from('host_service_relation', 'hsr')
@@ -367,11 +364,8 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             return new Collection([], MediaId::class);
         }
 
-        // One query fetches every template relation reachable from the requested hosts, in legacy's
-        // `order`; the depth-first walk itself is done in PHP. UNION dedupes reached ids, so a
-        // template loop already in the data cannot make the recursion run forever. Like legacy, an
-        // icon whose image sits in no folder cannot be displayed and is read as no icon (same joins
-        // as DbalMediaRepository::findByIds).
+        // Relations reachable from the requested ids, walked depth-first in PHP; UNION stops loops.
+        // An icon whose image sits in no folder is read as no icon, like legacy.
         $sql = <<<'SQL'
             WITH RECURSIVE chain (id) AS (
                 SELECT host_host_id

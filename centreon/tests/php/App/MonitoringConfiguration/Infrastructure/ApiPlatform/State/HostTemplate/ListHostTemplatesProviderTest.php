@@ -217,9 +217,7 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
 
         yield 'false: unlocked only' => [['is_locked' => 'false'], ['unlocked' => false]];
 
-        // a NULL lock state is hidden by default like a locked one (legacy "host_locked = 0"), yet
-        // reported as not locked once shown, like legacy, whose locked set is "host_locked = 1"
-        // (CentreonHost::getLockedHostTemplates())
+        // NULL lock: hidden by default, shown as not locked (legacy parity)
         yield 'true: locked ones as well' => [['is_locked' => 'true'], ['locked' => true, 'null' => false, 'unlocked' => false]];
     }
 
