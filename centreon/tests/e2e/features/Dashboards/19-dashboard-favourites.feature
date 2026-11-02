@@ -10,7 +10,7 @@ Feature: Managing favorites using the web page widget
     When the dashboard administrator clicks on the favourite icon
     Then the dashboard is added to the favourites list
 
-  @MON-156343
+  @MON-156344
   Scenario: Removing dashbaord from favourites
     Given a dashboard having another configured web page widget
     When the dashboard administrator clicks on the favourite icon of the first dashboard in the favourites list
