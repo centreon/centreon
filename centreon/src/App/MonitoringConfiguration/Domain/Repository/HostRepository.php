@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
@@ -46,6 +47,13 @@ interface HostRepository
      * returns null, the same as a host that does not exist at all, so as not to leak existence.
      */
     public function findOne(HostId $id, ActingUser $actor): ?Host;
+
+    /**
+     * The activation and the poller of a real host (never a host template), without loading the rest of it: a
+     * write on a resource of the host needs no more, and the host's other stored data cannot make it fail.
+     * Scoped like {@see findOne()}: null for a host outside the actor's ACL scope, as for one that does not exist.
+     */
+    public function findState(HostId $id, ActingUser $actor): ?HostState;
 
     /**
      * The host's own (direct) macros as stored, with their ids, in storage order — the narrow read

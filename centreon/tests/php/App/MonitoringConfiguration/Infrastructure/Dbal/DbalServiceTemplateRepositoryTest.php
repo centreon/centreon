@@ -187,6 +187,17 @@ final class DbalServiceTemplateRepositoryTest extends KernelTestCase
         self::assertSame([], $this->monitoringConnectorTemplateIds([]));
     }
 
+    /**
+     * A template loop below a connector template ends the walk instead of running forever.
+     */
+    public function testFindMonitoringConnectorTemplateIdsStopsOnATemplateLoop(): void
+    {
+        [$paidId, $childId, $grandChildId] = $this->insertMonitoringConnectors();
+        $this->connection->update('service', ['service_template_model_stm_id' => $grandChildId], ['service_id' => $paidId]);
+
+        self::assertSame([$paidId, $childId, $grandChildId], $this->monitoringConnectorTemplateIds(['base-generic']));
+    }
+
     public function testFindNamesByIdsReturnsTemplateNamesIndexedById(): void
     {
         $firstId = $this->insertService("tpl-a-{$this->tag}");

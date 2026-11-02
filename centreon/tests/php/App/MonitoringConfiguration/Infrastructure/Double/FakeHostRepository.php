@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
@@ -38,6 +39,12 @@ use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 
 final class FakeHostRepository implements HostRepository
 {
+    /**
+     * @var array<int, HostState> states of hosts known by {@see findState()} only, indexed by host id: a host
+     *                            whose whole aggregate could not be loaded
+     */
+    public array $states = [];
+
     /** @var array<int, Host> */
     public array $hosts = [];
 
@@ -133,6 +140,24 @@ final class FakeHostRepository implements HostRepository
         }
 
         return $host;
+    }
+
+    /**
+     * The state of {@see $states} first, then the one of a host of {@see $hosts}; scoped like {@see findOne()}.
+     */
+    public function findState(HostId $id, ActingUser $actor): ?HostState
+    {
+        if (! $this->accessScopes->hosts($actor, new Collection([$id], HostId::class))->allows($id)) {
+            return null;
+        }
+
+        if (isset($this->states[$id->value])) {
+            return $this->states[$id->value];
+        }
+
+        $host = $this->hosts[$id->value] ?? null;
+
+        return $host instanceof Host ? new HostState($host->activated, $host->pollerId) : null;
     }
 
     public function findMacros(HostId $id): Collection

@@ -45,8 +45,8 @@ final readonly class ServiceCheckOptions
 
     /**
      * @param ?CommandId $checkCommandId the service's own check command, null when none is set
-     * @param array<int, string> $args ordered check-command arguments, reindexed to a list; the bang-joined
-     *                                 storage form belongs to the persistence layer
+     * @param array<int, string> $args ordered check-command arguments, reindexed to a list, empty when they are all
+     *                                 empty; the bang-joined storage form belongs to the persistence layer
      * @param array<int, ServiceMacro> $macros the service's own custom macros ($_SERVICE<NAME>$); inherited
      *                                         macros belong to the templates and the command, never to it
      */
@@ -62,7 +62,18 @@ final readonly class ServiceCheckOptions
             'A service only owns its own macros.',
         );
 
-        $this->args = array_values($args);
+        // Only empty arguments is no argument at all, as legacy stores it: written NULL, read back empty.
+        $this->args = array_all($args, static fn (string $arg): bool => $arg === '') ? [] : array_values($args);
         $this->macros = array_values($macros);
+    }
+
+    /**
+     * Whether some arguments are filled and others are empty, which a write refuses: either every argument is
+     * filled or none is. Not an invariant of this object, which also holds the arguments a legacy row stores.
+     */
+    public function hasPartlyFilledArguments(): bool
+    {
+        return array_any($this->args, static fn (string $arg): bool => $arg === '')
+            && array_any($this->args, static fn (string $arg): bool => $arg !== '');
     }
 }

@@ -26,12 +26,27 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
 
 interface ServiceRepository
 {
+    /**
+     * Writes a real service linked directly to its host, with its whole form and its relations, and sets its id.
+     */
+    public function add(Service $service): void;
+
+    /**
+     * Whether a service linked directly to this host already has this name, as legacy compares it: whatever the
+     * actor may see, whether that service is enabled or also linked to a host group, case-insensitive. A service
+     * reaching the host only through one of its host groups is not considered.
+     *
+     * @param ?ServiceId $excludingServiceId leaves a service out of the lookup, so that a service can keep its name
+     */
+    public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool;
+
     /**
      * Services directly attached to this host (`host_service_relation.host_host_id`) that have
      * exactly one relation row in total — mirrors legacy `findServiceIdsExclusivelyLinkedToHostId()`:

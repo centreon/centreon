@@ -23,11 +23,19 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceStalkingOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
+use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
@@ -37,6 +45,7 @@ use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\SortDirectionEnum;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
+use App\Shared\Infrastructure\Dbal\TriStateColumnTrait;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
@@ -49,6 +58,7 @@ use Webmozart\Assert\Assert;
 /**
  * @phpstan-import-type RowTypeAlias from ServiceTransformer
  * @phpstan-import-type MacroRowTypeAlias from ServiceTransformer
+ * @phpstan-import-type ServiceNotificationColumnsTypeAlias from ServiceNotificationColumnsTransformer
  *
  * @phpstan-type OwnRowTypeAlias array{
  *   service_id: int|string,
@@ -123,7 +133,50 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
 {
     use RemovesEmptiedDependenciesTrait;
     use DbalCriteriaApplierTrait;
+    use TriStateColumnTrait;
     private const TABLE_NAME = 'service';
+
+    /**
+     * @var array<string, string> service column => named parameter, every form column of the `service` row
+     */
+    private const SERVICE_COLUMN_PARAMETERS = [
+        'service_description' => ':name',
+        'service_activate' => ':activated',
+        'service_template_model_stm_id' => ':templateId',
+        'command_command_id' => ':checkCommandId',
+        'command_command_id_arg' => ':checkCommandArgs',
+        'timeperiod_tp_id' => ':checkTimeperiodId',
+        'service_max_check_attempts' => ':maxCheckAttempts',
+        'service_normal_check_interval' => ':normalCheckInterval',
+        'service_retry_check_interval' => ':retryCheckInterval',
+        'service_active_checks_enabled' => ':activeCheckEnabled',
+        'service_passive_checks_enabled' => ':passiveCheckEnabled',
+        'service_is_volatile' => ':isVolatile',
+        'service_notifications_enabled' => ':notificationsEnabled',
+        'service_notification_options' => ':notificationOptions',
+        'service_notification_interval' => ':notificationInterval',
+        'timeperiod_tp_id2' => ':notificationPeriodId',
+        'service_first_notification_delay' => ':firstNotificationDelay',
+        'service_recovery_notification_delay' => ':recoveryNotificationDelay',
+        'contact_additive_inheritance' => ':contactAdditiveInheritance',
+        'cg_additive_inheritance' => ':contactGroupAdditiveInheritance',
+        'service_use_only_contacts_from_host' => ':useOnlyContactsFromHost',
+        'service_check_freshness' => ':checkFreshness',
+        'service_freshness_threshold' => ':freshnessThreshold',
+        'service_flap_detection_enabled' => ':flapDetectionEnabled',
+        'service_low_flap_threshold' => ':lowFlapThreshold',
+        'service_high_flap_threshold' => ':highFlapThreshold',
+        'service_event_handler_enabled' => ':eventHandlerEnabled',
+        'command_command_id2' => ':eventHandlerCommandId',
+        'command_command_id_arg2' => ':eventHandlerArgs',
+        'service_obsess_over_service' => ':obsessOverService',
+        'service_retain_status_information' => ':retainStatusInformation',
+        'service_retain_nonstatus_information' => ':retainNonStatusInformation',
+        'service_acknowledgement_timeout' => ':acknowledgementTimeout',
+        'service_stalking_options' => ':stalkingOptions',
+        'service_comment' => ':comment',
+        'geo_coords' => ':geoCoords',
+    ];
 
     /** The service's own values, its own icon (as stored, whatever its folder) included. */
     private const OWN_COLUMNS = [
@@ -147,18 +200,104 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
 
     /**
      * @param TransformerInterface<RowTypeAlias, Service> $transformer
+     * @param TransformerInterface<?ServiceNotifications, ServiceNotificationColumnsTypeAlias> $notificationColumnsTransformer
+     * @param TransformerInterface<list<ServiceStalkingOptionEnum>, ?string> $stalkingOptionsColumnTransformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
         #[Autowire(service: ServiceTransformer::class)]
         private TransformerInterface $transformer,
+        #[Autowire(service: ServiceNotificationColumnsTransformer::class)]
+        private TransformerInterface $notificationColumnsTransformer,
+        #[Autowire(service: ServiceStalkingOptionsColumnTransformer::class)]
+        private TransformerInterface $stalkingOptionsColumnTransformer,
         private AccessScopeResolver $accessScopes,
         // The real-time ACL cache is read across databases, from the configuration connection.
         #[Autowire(env: 'dbcstg')]
         private string $realTimeDatabaseName,
     ) {
         Assert::stringNotEmpty($realTimeDatabaseName);
+    }
+
+    public function add(Service $service): void
+    {
+        // Before any row of the service is written, see lockPoller().
+        if ($service->hostPollerId instanceof PollerId) {
+            $this->lockPoller($service->hostPollerId->value);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->insert(self::TABLE_NAME)
+            ->values([...self::SERVICE_COLUMN_PARAMETERS, 'service_register' => "'1'"]);
+        $this->bindServiceParameters($qb, $service);
+        $qb->executeStatement();
+
+        $serviceId = (int) $this->connection->lastInsertId();
+        if ($serviceId === 0) {
+            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+        }
+
+        $this->setId($service, new ServiceId($serviceId));
+        $hostId = $service->hostId->value;
+
+        $this->connection->createQueryBuilder()
+            ->insert('host_service_relation')
+            ->values(['host_host_id' => ':hostId', 'service_service_id' => ':serviceId'])
+            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+            ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->executeStatement();
+
+        // Every service row has exactly one companion row here, even when its extended information was left
+        // empty: legacy always inserts it, and the readers take the one with the lowest id.
+        $extendedInformations = $service->extendedInformations;
+        $this->connection->createQueryBuilder()
+            ->insert('extended_service_information')
+            ->values([
+                'service_service_id' => ':serviceId',
+                'esi_notes' => ':note',
+                'esi_notes_url' => ':noteUrl',
+                'esi_action_url' => ':actionUrl',
+                'esi_icon_image' => ':iconId',
+                'esi_icon_image_alt' => ':altIcon',
+                'graph_id' => ':graphTemplateId',
+            ])
+            ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->setParameter('note', $extendedInformations?->note)
+            ->setParameter('noteUrl', $extendedInformations?->noteUrl)
+            ->setParameter('actionUrl', $extendedInformations?->actionUrl)
+            ->setParameter('iconId', $extendedInformations?->iconId?->value, ParameterType::INTEGER)
+            ->setParameter('altIcon', $extendedInformations?->altIcon)
+            ->setParameter('graphTemplateId', $service->graphTemplateId?->value, ParameterType::INTEGER)
+            ->executeStatement();
+
+        $this->insertRelations($serviceId, $hostId, $service);
+
+        foreach ($service->checkOptions->macros as $macro) {
+            $this->insertMacro($serviceId, $macro);
+        }
+    }
+
+    /**
+     * No unique index backs `service_description` on a host: legacy has the same gap, this check is the only
+     * safeguard against a duplicate name.
+     */
+    public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('1')
+            ->from(self::TABLE_NAME, 's')
+            ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
+            // Compared under the column collation, as legacy: case-insensitive, trailing spaces ignored.
+            ->andWhere($qb->expr()->eq('s.service_description', $qb->createNamedParameter($name->value)))
+            ->setMaxResults(1);
+
+        if ($excludingServiceId instanceof ServiceId) {
+            $qb->andWhere($qb->expr()->neq('s.service_id', $qb->createNamedParameter($excludingServiceId->value, ParameterType::INTEGER)));
+        }
+
+        return $qb->executeQuery()->fetchOne() !== false;
     }
 
     /**
@@ -295,6 +434,158 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             ->executeStatement();
 
         $this->deleteDependenciesWithoutMember('dependency_serviceParent_relation', $parentDependencyIds);
+    }
+
+    /**
+     * Takes the exclusive lock of the poller row of the service's host, before any row of the service is written.
+     *
+     * Writing a service takes a shared lock on its host row, through the foreign keys of `host_service_relation`
+     * and `servicegroup_relation`. The host's poller is flagged for a configuration reload later in the same
+     * transaction, which needs the poller row exclusively. A concurrent write of that host locks the poller row
+     * first, then the host row ({@see DbalHostRepository}): without this lock, each would hold what the other
+     * waits for, a deadlock. Locking the poller first makes the second write wait for the first instead.
+     */
+    private function lockPoller(int $pollerId): void
+    {
+        $this->connection->executeQuery(
+            'SELECT id FROM nagios_server WHERE id = :poller_id FOR UPDATE',
+            ['poller_id' => $pollerId],
+            ['poller_id' => ParameterType::INTEGER],
+        );
+    }
+
+    /**
+     * The relations of a service, all keyed on its id: its contacts and contact groups, its service groups on its
+     * host, its categories and its severity (one table, told apart by `service_categories.level`), its traps.
+     */
+    private function insertRelations(int $serviceId, int $hostId, Service $service): void
+    {
+        $notifications = $service->notifications;
+        if ($notifications instanceof ServiceNotifications) {
+            foreach ($notifications->contactIds as $contactId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contact_service_relation')
+                    ->values(['contact_id' => ':contactId', 'service_service_id' => ':serviceId'])
+                    ->setParameter('contactId', $contactId->value, ParameterType::INTEGER)
+                    ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+                    ->executeStatement();
+            }
+
+            foreach ($notifications->contactGroupIds as $contactGroupId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contactgroup_service_relation')
+                    ->values(['contactgroup_cg_id' => ':contactGroupId', 'service_service_id' => ':serviceId'])
+                    ->setParameter('contactGroupId', $contactGroupId->value, ParameterType::INTEGER)
+                    ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+                    ->executeStatement();
+            }
+        }
+
+        foreach ($service->serviceGroupIds as $serviceGroupId) {
+            $this->connection->createQueryBuilder()
+                ->insert('servicegroup_relation')
+                ->values(['host_host_id' => ':hostId', 'service_service_id' => ':serviceId', 'servicegroup_sg_id' => ':serviceGroupId'])
+                ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+                ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+                ->setParameter('serviceGroupId', $serviceGroupId->value, ParameterType::INTEGER)
+                ->executeStatement();
+        }
+
+        foreach ($service->categoryIds as $categoryId) {
+            $this->linkToServiceCategory($serviceId, $categoryId->value);
+        }
+
+        if ($service->severityId instanceof ServiceSeverityId) {
+            $this->linkToServiceCategory($serviceId, $service->severityId->value);
+        }
+
+        foreach ($service->trapIds as $trapId) {
+            $this->connection->createQueryBuilder()
+                ->insert('traps_service_relation')
+                ->values(['service_id' => ':serviceId', 'traps_id' => ':trapId'])
+                ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+                ->setParameter('trapId', $trapId->value, ParameterType::INTEGER)
+                ->executeStatement();
+        }
+    }
+
+    private function linkToServiceCategory(int $serviceId, int $categoryId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('service_categories_relation')
+            ->values(['sc_id' => ':categoryId', 'service_service_id' => ':serviceId'])
+            ->setParameter('categoryId', $categoryId, ParameterType::INTEGER)
+            ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->executeStatement();
+    }
+
+    private function insertMacro(int $serviceId, ServiceMacro $macro): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('on_demand_macro_service')
+            ->values([
+                'svc_macro_name' => ':macroName',
+                'svc_macro_value' => ':macroValue',
+                'is_password' => ':isPassword',
+                'svc_svc_id' => ':serviceId',
+            ])
+            ->setParameter('macroName', $macro->name->toStorageName())
+            ->setParameter('macroValue', $macro->value)
+            // Legacy stores 1 for a password macro and NULL otherwise, never 0.
+            ->setParameter('isPassword', $macro->isPassword ? 1 : null, ParameterType::INTEGER)
+            ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->executeStatement();
+    }
+
+    /**
+     * Binds every parameter of {@see self::SERVICE_COLUMN_PARAMETERS} in the legacy storage formats: tri-states
+     * as '0', '1', '2', arguments encoded; the notification settings and the stalking options through their
+     * transformers, which own those formats.
+     */
+    private function bindServiceParameters(QueryBuilder $qb, Service $service): void
+    {
+        $scheduling = $service->schedulingOptions;
+        $dataProcessing = $service->dataProcessing;
+        $extendedInformations = $service->extendedInformations;
+        $notificationColumns = $this->notificationColumnsTransformer->transform($service->notifications);
+
+        $qb
+            ->setParameter('name', $service->name->value)
+            ->setParameter('activated', $service->activated ? '1' : '0')
+            ->setParameter('templateId', $service->templateId?->value, ParameterType::INTEGER)
+            ->setParameter('checkCommandId', $service->checkOptions->checkCommandId?->value, ParameterType::INTEGER)
+            ->setParameter('checkCommandArgs', CommandArgumentsFormatter::format($service->checkOptions->args))
+            ->setParameter('checkTimeperiodId', $scheduling->checkTimeperiodId?->value, ParameterType::INTEGER)
+            ->setParameter('maxCheckAttempts', $scheduling->maxCheckAttempts, ParameterType::INTEGER)
+            ->setParameter('normalCheckInterval', $scheduling->normalCheckInterval, ParameterType::INTEGER)
+            ->setParameter('retryCheckInterval', $scheduling->retryCheckInterval, ParameterType::INTEGER)
+            ->setParameter('activeCheckEnabled', $this->triStateToColumn($scheduling->activeCheckEnabled))
+            ->setParameter('passiveCheckEnabled', $this->triStateToColumn($scheduling->passiveCheckEnabled))
+            ->setParameter('isVolatile', $this->triStateToColumn($scheduling->isVolatile))
+            ->setParameter('notificationsEnabled', $notificationColumns['notificationsEnabled'])
+            ->setParameter('notificationOptions', $notificationColumns['notificationOptions'])
+            ->setParameter('notificationInterval', $notificationColumns['notificationInterval'], ParameterType::INTEGER)
+            ->setParameter('notificationPeriodId', $notificationColumns['notificationPeriodId'], ParameterType::INTEGER)
+            ->setParameter('firstNotificationDelay', $notificationColumns['firstNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('recoveryNotificationDelay', $notificationColumns['recoveryNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('contactAdditiveInheritance', $notificationColumns['contactAdditiveInheritance'], ParameterType::BOOLEAN)
+            ->setParameter('contactGroupAdditiveInheritance', $notificationColumns['contactGroupAdditiveInheritance'], ParameterType::BOOLEAN)
+            ->setParameter('useOnlyContactsFromHost', $notificationColumns['useOnlyContactsFromHost'])
+            ->setParameter('checkFreshness', $this->triStateToColumn($dataProcessing->checkFreshness))
+            ->setParameter('freshnessThreshold', $dataProcessing->freshnessThreshold, ParameterType::INTEGER)
+            ->setParameter('flapDetectionEnabled', $this->triStateToColumn($dataProcessing->flapDetectionEnabled))
+            ->setParameter('lowFlapThreshold', $dataProcessing->lowFlapThreshold, ParameterType::INTEGER)
+            ->setParameter('highFlapThreshold', $dataProcessing->highFlapThreshold, ParameterType::INTEGER)
+            ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
+            ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
+            ->setParameter('eventHandlerArgs', CommandArgumentsFormatter::format($dataProcessing->eventHandlerArgs))
+            ->setParameter('obsessOverService', $this->triStateToColumn($dataProcessing->obsessOverService))
+            ->setParameter('retainStatusInformation', $this->triStateToColumn($dataProcessing->retainStatusInformation))
+            ->setParameter('retainNonStatusInformation', $this->triStateToColumn($dataProcessing->retainNonStatusInformation))
+            ->setParameter('acknowledgementTimeout', $dataProcessing->acknowledgmentTimeout, ParameterType::INTEGER)
+            ->setParameter('stalkingOptions', $this->stalkingOptionsColumnTransformer->transform($dataProcessing->stalkingOptions))
+            ->setParameter('comment', $extendedInformations?->comment)
+            ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null);
     }
 
     /**
