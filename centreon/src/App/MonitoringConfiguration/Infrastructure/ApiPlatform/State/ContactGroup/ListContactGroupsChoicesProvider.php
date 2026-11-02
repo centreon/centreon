@@ -84,9 +84,9 @@ final readonly class ListContactGroupsChoicesProvider implements ProviderInterfa
             }
         }
 
-        // Imported LDAP groups have an id and are accepted on save, so they are listed unless the
-        // operation opts out.
-        if (($operation->getExtraProperties()['exclude_ldap'] ?? false) === true) {
+        // Imported LDAP groups have an id and are accepted on save: an operation lists them by
+        // opting in through its list_ldap extra property.
+        if (($operation->getExtraProperties()['list_ldap'] ?? false) !== true) {
             $criteria = $criteria->withExcludeLdap(true);
         }
 
