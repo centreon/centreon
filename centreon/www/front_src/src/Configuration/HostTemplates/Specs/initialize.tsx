@@ -29,8 +29,7 @@ interface Props {
 }
 
 interface InitializeResult extends RenderResult {
-  // Every query that failed, by key: a query can fail before any request is
-  // sent, which no intercept sees and no snackbar reports.
+  // Failed queries by key, including ones that never sent a request.
   queryErrors: Array<{ error: Error; queryKey: ReadonlyArray<unknown> }>;
   store: ReturnType<typeof createStore>;
 }

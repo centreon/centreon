@@ -1,17 +1,9 @@
-// A 16x16 inline PNG rather than a committed fixture: `useLoadImage` only needs
-// `new Image()` to fire `onload`, which a data URI does.
+// Inline PNG: `useLoadImage` only needs `onload` to fire.
 export const hostTemplateIcon =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAFUlEQVR42mNg6O4mDY1qGNUwfDUAAED3FhAEZJ4nAAAAAElFTkSuQmCC';
 
-// Three rows: two unlocked ones, so a selection has more than one row to take,
-// and a locked one, which no selection may take.
-// - 1 carries every field, its icon included;
-// - 2 has its `alias` and `icon` left out, as `skip_null_values` sends them;
-// - 3 is locked, with an explicit null icon and two parents.
-// `totalItems` exceeds the page, so the listing offers a next page.
-// As API Platform answers, every object carries JSON-LD keys the decoders do
-// not declare: a member its `@id`/`@type`, a nested object (icon, parent) an
-// anonymous `@type` and a generated `@id`. Decoding must ignore them.
+// Rows: 1 full; 2 without alias/icon (`skip_null_values`); 3 locked, null icon, two parents.
+// `totalItems` exceeds the page; undeclared JSON-LD keys (`@id`/`@type`) must be ignored.
 const genid = (id: string): string => `/centreon/api/.well-known/genid/${id}`;
 
 export const getListingResponse = () => ({

@@ -49,10 +49,7 @@ export default () => {
       expect(getLockedElements(panel)).not.toBeChecked();
     });
 
-    // Tolerances: the popper sits on whole pixels, and the toolbar beside the
-    // field may still widen by about a pixel after the first paint, which an
-    // open popper does not follow. The default panel is 336px, the field 480,
-    // and an icon-anchored panel sits 8px lower than this one.
+    // ±1px: popper rounding and a late toolbar resize; icon-anchored sits 8px lower.
     it('opens the filters panel flush under the search field, as wide as it', async () => {
       const panel = await initializeWithAdvancedFilters();
 
@@ -63,8 +60,7 @@ export default () => {
           .closest('.MuiInputBase-root') as HTMLElement
       ).getBoundingClientRect();
       const { left, right, top, width } = panel.getBoundingClientRect();
-      // The paper is the surface drawn: a margin on the panel would collapse
-      // through it and move both down together.
+      // Check the paper too: a panel margin would move both down together.
       const paper = (
         panel.parentElement as HTMLElement
       ).getBoundingClientRect();

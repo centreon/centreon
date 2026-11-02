@@ -75,8 +75,7 @@ const PopoverFilter = <TFilters,>({
           dataTestId={labelFilters}
           icon={<TuneIcon fontSize="small" />}
           popperPlacement={isFullWidth ? 'bottom-start' : 'bottom-end'}
-          // Full width: hung from the search field itself rather than the
-          // icon, so both edges line up with it whatever its width.
+          // Full width: anchored to the search field so both edges line up.
           popperProps={
             isFullWidth
               ? {

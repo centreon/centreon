@@ -116,7 +116,7 @@ export default () => {
     it('offers no sort on the linked service templates and templates columns', async () => {
       await initializeListing();
 
-      // The column labels are there, so their missing sort control is not.
+      // Labels render, so the missing sort buttons are not a render gap.
       expect(screen.getAllByText(labelLinkedServiceTemplates)[0]).toBeVisible();
       expect(screen.getAllByText(labelTemplates)[0]).toBeVisible();
 
@@ -220,8 +220,7 @@ export default () => {
       expect(queryErrors).toEqual([]);
     });
 
-    // No detail endpoint exists yet: the row opens an empty panel, without
-    // querying an undefined URL.
+    // No detail endpoint: the panel opens without a details query.
     it('opens the panel of the clicked row without requesting its details', async () => {
       const { queryErrors } = await initializeListing();
 

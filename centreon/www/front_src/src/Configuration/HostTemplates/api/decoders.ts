@@ -11,7 +11,7 @@ import type { HostTemplateListItem } from '../models';
 const hostTemplateDecoder = JsonDecoder.object<HostTemplateListItem>(
   {
     ...namedEntityDecoder,
-    // Optional too, as on Hosts: a null may be dropped from the payload.
+    // Optional: `skip_null_values` drops a null alias or icon.
     alias: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     icon: JsonDecoder.optional(JsonDecoder.nullable(iconDecoder)),
     isLocked: JsonDecoder.boolean,

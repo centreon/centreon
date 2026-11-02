@@ -16,7 +16,7 @@ export interface HostTemplateListItem extends NamedEntity {
   parentTemplates: Array<NamedEntity>;
 }
 
-// The keys are the query parameters `useLoadData` sends them as.
+// `is_locked` is sent as-is; `name` goes out as `name[lk]`.
 export interface Filters {
   name: string;
   is_locked: boolean;

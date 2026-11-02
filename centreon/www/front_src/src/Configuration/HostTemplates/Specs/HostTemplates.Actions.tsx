@@ -61,8 +61,7 @@ export default () => {
         expect(screen.getByLabelText('Select row 2')).toBeEnabled();
       });
 
-      // Pins `actions.selectable` down to the listing: a disabled checkbox
-      // alone would still let select-all take the row.
+      // A disabled checkbox alone would not keep select-all off the row.
       it('is left out of select-all', async () => {
         const { store } = await initializeListing();
 

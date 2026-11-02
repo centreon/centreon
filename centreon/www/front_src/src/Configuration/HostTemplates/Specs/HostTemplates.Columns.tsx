@@ -106,8 +106,7 @@ export default () => {
         getRowOf(2).querySelector('[data-testid^="host-template-link_"]')
       ).toBeNull();
 
-      // The links exist elsewhere, so the row above is empty for the right
-      // reason rather than because the column is missing.
+      // The column renders, so the empty row above is meaningful.
       expect(
         within(getRowOf(1)).getByTestId('host-template-link_2')
       ).toBeInTheDocument();
@@ -155,8 +154,6 @@ export default () => {
       ]);
     });
 
-    // No test of an icon that fails to load: `@centreon/ui`'s `Image` shows
-    // its fallback only while loading, then a broken image (`useLoadImage`
-    // records a failure as `''`, which it reads as loaded).
+    // Failed icon load untested: `Image` then shows a broken image, not its fallback.
   });
 };

@@ -78,8 +78,7 @@ export interface Actions {
         disable?: boolean;
       };
   edit?: boolean;
-  // Whether a row may be checked. A refused row stays out of the selection,
-  // select-all included, but keeps its inline actions. Every row by default.
+  // Whether a row can be checked, select-all included; every row by default.
   selectable?: (row: ResourceRow) => boolean;
   viewDetails?: boolean;
   rowActions?: Array<RowAction>;
@@ -89,8 +88,7 @@ export interface Actions {
   rowActionsWithoutWriteAccess?: boolean;
 }
 
-// The advanced filters panel width: theme spacing units, or `full` for the
-// width of the search field it opens from, which it then lines up with.
+// Theme spacing units, or `full` to match the search field's width.
 export type FiltersPanelWidth = number | 'full';
 
 export interface ConfigurationBase<TFilters> {

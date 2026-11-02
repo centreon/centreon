@@ -26,10 +26,9 @@ const ParentTemplates = ({ row }: ComponentColumnProps): JSX.Element | null => {
           <span key={id}>
             <Link
               component={RouterLink}
-              // Pendo keys off this, so it must not follow the labels.
+              // Stable Pendo hook: keep it independent of the labels.
               data-testid={`host-template-link_${id}`}
-              // Same page: the search alone opens the parent through the deep
-              // link `ConfigurationBase` already follows.
+              // Search-only link: ConfigurationBase opens the parent from the deep link.
               to={{ search: getHostTemplateSearch(id) }}
               underline="hover"
               variant="body2"

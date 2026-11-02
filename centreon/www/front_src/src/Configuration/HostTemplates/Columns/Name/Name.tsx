@@ -23,8 +23,7 @@ const Name = ({
 
   return (
     <div className="flex items-center gap-1 overflow-hidden">
-      {/* `Image` renders nothing when `imagePath` is nil: it never falls back.
-          The explicit branch is what shows the default icon. */}
+      {/* `Image` renders nothing for a nil path, hence the explicit default icon. */}
       {icon?.url ? (
         <Image
           // `useLoadImage` caches by `alt`, so it must identify the icon, not the row.

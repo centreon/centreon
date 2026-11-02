@@ -27,8 +27,7 @@ import {
   filtersInitialValues
 } from './utils';
 
-// TODO: the create, edit and details form ships separately; the panel stays
-// empty until then.
+// TODO: fill in once the host template form lands.
 const form = {
   defaultValues: {},
   groups: [],
@@ -53,7 +52,6 @@ const HostTemplates = (): JSX.Element => {
       delete: (row) => canEdit && isUnlocked(row),
       duplicate: (row) => canEdit && isUnlocked(row),
       edit: canEdit,
-      // Host templates cannot be enabled or disabled.
       massive: canEdit && { delete: true, duplicate: true },
       selectable: isUnlocked,
       viewDetails: true
@@ -72,7 +70,6 @@ const HostTemplates = (): JSX.Element => {
       filtersAtomKey={filtersAtomKey}
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
-      // As wide as the search field, which the two filters fit.
       filtersPanelWidth="full"
       form={form}
       formVariant="panel"
