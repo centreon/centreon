@@ -347,11 +347,35 @@ When(
 Then(
   'all the resources having the status selected are displayed in the resource table Widget',
   () => {
-    cy.getCellContent(1, 2).then((myTableContent) => {
-      expect(myTableContent[1]).to.include('Critical');
-      expect(myTableContent[2]).to.include('Warning');
-      expect(myTableContent[3]).to.match(/Pending|Unknown/);
-      expect(myTableContent[6]).to.match(/Pending|Unknown/);
+    // Centreon-Server is in Linux-Servers too and its real checks can be in any
+    // status: check the resources created by the test, not the row order.
+    cy.get('.MuiTable-root:eq(1) .MuiTableRow-root').should((rows) => {
+      const statusOf = (resource: string, parent = ''): string => {
+        const cells = rows
+          .toArray()
+          .map((row) =>
+            Array.from(
+              row.querySelectorAll('.MuiTableCell-root'),
+              (cell) => cell.textContent ?? ''
+            )
+          )
+          .find(
+            ([, , resourceCell = '', parentCell = '']) =>
+              resourceCell.includes(resource) && parentCell.includes(parent)
+          );
+
+        return cells?.[1] ?? '';
+      };
+
+      expect(
+        statusOf(services.serviceCritical.name, services.serviceWarning.host)
+      ).to.include('Critical');
+      expect(
+        statusOf(services.serviceWarning.name, services.serviceWarning.host)
+      ).to.include('Warning');
+      expect(statusOf(services.serviceCritical.host)).to.match(
+        /Pending|Unknown/
+      );
     });
   }
 );
