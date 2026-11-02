@@ -19,11 +19,13 @@ Feature: Time period Configuration
     When a user creates a time period with a range of dates to exclude
     Then all properties of my time period are saved with the exclusions
 
+  @MON-162180
   Scenario: Duplicating an existing time period
     Given an existing time period
     When a user duplicates the time period
     Then a new time period is created with identical properties except the name
 
+  @MON-162181
   Scenario: Delete an existing time period
     Given an existing time period
     When a user deletes the time period
