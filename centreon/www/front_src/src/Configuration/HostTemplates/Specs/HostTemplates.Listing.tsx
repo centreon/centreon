@@ -46,7 +46,7 @@ export default () => {
       expect(request.url.searchParams.get('itemsPerPage')).toBe('10');
       expect(request.url.searchParams.get('sort[name]')).toBe('asc');
       // Absent, not `false`: the endpoint then lists unlocked templates only.
-      expect(request.url.searchParams.has('is_locked')).toBe(false);
+      expect(request.url.searchParams.has('include_locked')).toBe(false);
 
       expect(screen.getByLabelText('page header title')).toHaveTextContent(
         labelHostTemplates
@@ -181,7 +181,7 @@ export default () => {
     it('keeps the listing, empty, when the filters match no host template', async () => {
       window.localStorage.setItem(
         'filters_host_templates',
-        JSON.stringify({ is_locked: false, name: 'nothing matches' })
+        JSON.stringify({ include_locked: false, name: 'nothing matches' })
       );
 
       initialize({ isEmpty: true });

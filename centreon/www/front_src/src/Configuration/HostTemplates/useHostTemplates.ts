@@ -37,8 +37,8 @@ const useHostTemplates = (): UseHostTemplatesState => {
         name: t(labelName)
       },
       {
-        // Checked sends `is_locked=true` (locked included); unchecked, unlocked only.
-        fieldName: 'is_locked',
+        // Checked sends `include_locked=true` (locked included); unchecked, unlocked only.
+        fieldName: 'include_locked',
         fieldType: FieldType.Checkbox,
         name: t(labelLockedElements)
       }

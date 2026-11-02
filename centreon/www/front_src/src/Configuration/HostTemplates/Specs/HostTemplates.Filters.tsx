@@ -86,7 +86,7 @@ export default () => {
       expect(request.url.searchParams.get('name[lk]')).toBe('linux');
     });
 
-    it('sends `is_locked=true` only while locked elements is checked', async () => {
+    it('sends `include_locked=true` only while locked elements is checked', async () => {
       const panel = await initializeWithAdvancedFilters();
 
       await userEvent.click(getLockedElements(panel));
@@ -94,7 +94,7 @@ export default () => {
 
       const { request: checked } = await waitForRequest('@getAllHostTemplates');
 
-      expect(checked.url.searchParams.get('is_locked')).toBe('true');
+      expect(checked.url.searchParams.get('include_locked')).toBe('true');
 
       await userEvent.click(getLockedElements(panel));
       await search();
@@ -103,7 +103,7 @@ export default () => {
         '@getAllHostTemplates'
       );
 
-      expect(unchecked.url.searchParams.has('is_locked')).toBe(false);
+      expect(unchecked.url.searchParams.has('include_locked')).toBe(false);
     });
 
     it('drops the locked elements filter with the clear action', async () => {
@@ -118,14 +118,14 @@ export default () => {
 
       const { request } = await waitForRequest('@getAllHostTemplates');
 
-      expect(request.url.searchParams.has('is_locked')).toBe(false);
+      expect(request.url.searchParams.has('include_locked')).toBe(false);
       expect(getLockedElements(panel)).not.toBeChecked();
     });
 
     it('opens with the filters kept in local storage, and requests with them', async () => {
       window.localStorage.setItem(
         'filters_host_templates',
-        JSON.stringify({ is_locked: true, name: 'linux' })
+        JSON.stringify({ include_locked: true, name: 'linux' })
       );
 
       initialize();
@@ -135,12 +135,31 @@ export default () => {
       const [{ request: first }] = getRequestCalls('@getAllHostTemplates');
 
       expect(first.url.searchParams.get('name[lk]')).toBe('linux');
-      expect(first.url.searchParams.get('is_locked')).toBe('true');
+      expect(first.url.searchParams.get('include_locked')).toBe('true');
 
       expect(await screen.findByPlaceholderText(labelSearch)).toHaveValue(
         'linux'
       );
       expect(getLockedElements(await openAdvancedFilters())).toBeChecked();
+    });
+
+    // Filters stored before the parameter was renamed: the request is built
+    // from the configured fields, never from the stored keys.
+    it('sends no locked parameter from filters stored under the former key', async () => {
+      window.localStorage.setItem(
+        'filters_host_templates',
+        JSON.stringify({ is_locked: true, name: '' })
+      );
+
+      initialize();
+
+      await waitForRequest('@getAllHostTemplates');
+
+      const [{ request: first }] = getRequestCalls('@getAllHostTemplates');
+
+      expect(first.url.searchParams.has('is_locked')).toBe(false);
+      expect(first.url.searchParams.has('include_locked')).toBe(false);
+      expect(getLockedElements(await openAdvancedFilters())).not.toBeChecked();
     });
 
     it('keeps the filters in local storage so they survive navigation', async () => {
@@ -156,7 +175,7 @@ export default () => {
           window.localStorage.getItem('filters_host_templates') as string
         );
 
-        expect(stored.is_locked).toBe(true);
+        expect(stored.include_locked).toBe(true);
       });
     });
   });

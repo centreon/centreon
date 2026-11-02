@@ -16,8 +16,8 @@ export interface HostTemplateListItem extends NamedEntity {
   parentTemplates: Array<NamedEntity>;
 }
 
-// `is_locked` is sent as-is; `name` goes out as `name[lk]`.
+// `include_locked` is sent as-is; `name` goes out as `name[lk]`.
 export interface Filters {
   name: string;
-  is_locked: boolean;
+  include_locked: boolean;
 }

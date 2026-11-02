@@ -11,7 +11,7 @@ export const defaultSelectedColumnIds = [
 ];
 
 export const filtersInitialValues: Filters = {
-  is_locked: false,
+  include_locked: false,
   name: ''
 };
 
