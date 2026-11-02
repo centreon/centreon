@@ -357,10 +357,8 @@ Then(
           const cells = rows
             .toArray()
             .map((row) =>
-              Array.from(
-                row.querySelectorAll('[role="cell"]'),
-                (cell) => cell.textContent ?? ''
-              )
+              // MUI sets no role on the cells: a row's children are its cells
+              Array.from(row.children, (cell) => cell.textContent ?? '')
             )
             .find(
               ([, , resourceCell = '', parentCell = '']) =>
