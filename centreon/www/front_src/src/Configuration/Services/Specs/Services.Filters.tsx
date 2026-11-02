@@ -112,6 +112,20 @@ export default () => {
       expect(request.url.searchParams.get('template_id')).toBe('31');
     });
 
+    it('searches the service templates on the text typed in the selector', async () => {
+      await initializeWithAdvancedFilters();
+
+      await userEvent.click(screen.getByTestId(labelServiceTemplate));
+      await waitForRequest('@getServiceTemplates');
+      await userEvent.type(screen.getByTestId(labelServiceTemplate), 'generic');
+
+      await waitFor(async () => {
+        const { request } = await waitForRequest('@getServiceTemplates');
+
+        expect(request.url.searchParams.get('name[lk]')).toBe('generic');
+      });
+    });
+
     it('sends the status as `activated`', async () => {
       const panel = await initializeWithAdvancedFilters();
 
