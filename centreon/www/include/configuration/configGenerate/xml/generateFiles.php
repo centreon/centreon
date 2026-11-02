@@ -42,6 +42,13 @@ global $pearDB;
 
 $pearDB = $dependencyInjector['configuration_db'];
 
+if (! defined('STATUS_OK')) {
+    define('STATUS_OK', 0);
+}
+if (! defined('STATUS_NOK')) {
+    define('STATUS_NOK', 1);
+}
+
 $xml = new CentreonXML();
 $okMsg = "<b><font color='green'>OK</font></b>";
 $nokMsg = "<b><font color='red'>NOK</font></b>";
@@ -97,11 +104,25 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
         exit();
     }
     $centreon = $_SESSION['centreon'];
-    if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
-        echo 'You are not allowed to generate configuration';
+}
 
-        exit();
+if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
+    $xml->startElement('response');
+    $xml->writeElement('status', $nokMsg);
+    $xml->writeElement('statuscode', STATUS_NOK);
+    $xml->writeElement('error', 'You are not allowed to generate configuration');
+    $xml->endElement();
+
+    if (! headers_sent()) {
+        header('HTTP/1.1 403 Forbidden');
+        header('Content-Type: application/xml');
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: 0');
     }
+
+    $xml->output();
+
+    exit();
 }
 
 if (! isset($_POST['poller']) || ! isset($_POST['debug'])) {
@@ -172,11 +193,21 @@ try {
     $cgObj = new CentreonContactgroup($pearDB);
     $cgObj->syncWithLdapConfigGen();
 
+    // Restrict generation to the pollers in the user's resource ACL (admins get them all)
+    $allowedPollers = $centreon->user->access->getPollerAclConf([
+        'fields' => ['id'],
+        'keys' => ['id'],
+        'conditions' => ['ns_activate' => '1'],
+    ]);
+
     // Generate configuration
     if ($pollers == '0') {
         $config_generate->configPollers($username);
     } else {
         foreach ($pollers as $poller) {
+            if (! isset($allowedPollers[$poller])) {
+                continue;
+            }
             $config_generate->reset();
             $config_generate->configPollerFromId($poller, $username);
         }
