@@ -26,7 +26,7 @@ interface TemplatesDetail {
 
 // The host's templates, in the order they are inherited from, and whether
 // saving creates their services.
-export const templates = ({
+export const getTemplatesBlock = ({
   resource: { idPrefix }
 }: {
   resource: ResourceOptions;

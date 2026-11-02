@@ -17,7 +17,7 @@ import { withUpdateMode } from '../updateMode';
 
 // A list of entities the resource is linked to: groups, categories, parents…
 // It is a block of its own, and a list a mass change adds to or replaces.
-export const relationList = <Id extends BlockId>({
+export const getRelationListBlock = <Id extends BlockId>({
   decoderNames,
   detailKey,
   endpoint,

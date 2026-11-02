@@ -119,7 +119,7 @@ const additiveInheritanceOptions = [
 ];
 
 // Whether to notify, and whom.
-export const notificationRecipients = ({
+export const getNotificationRecipientsBlock = ({
   contactGroupsEndpoint,
   contactsEndpoint,
   resource: { baseEndpoint, idPrefix }
@@ -279,7 +279,7 @@ export const notificationRecipients = ({
 export type NotificationOptions = Array<[label: string, apiValue: string]>;
 
 // The events that trigger a notification: the resource's own set.
-export const notifyOn = ({
+export const getNotifyOnBlock = ({
   options,
   resource: { idPrefix }
 }: {
@@ -354,7 +354,7 @@ const defaultDelays: DelaysValues = {
 };
 
 // When to notify: how often, during which period, after which delays.
-export const notificationDelays = ({
+export const getNotificationDelaysBlock = ({
   resource: { baseEndpoint, idPrefix },
   timePeriodsEndpoint
 }: {

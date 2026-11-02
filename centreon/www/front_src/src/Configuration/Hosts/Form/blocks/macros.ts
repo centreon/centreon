@@ -25,7 +25,7 @@ interface MacrosDetail {
 const defaultMacros = { macros: [] };
 
 // The host's custom macros, its own and those it inherits.
-export const macros = ({
+export const getMacrosBlock = ({
   resource: { idPrefix }
 }: {
   resource: ResourceOptions;

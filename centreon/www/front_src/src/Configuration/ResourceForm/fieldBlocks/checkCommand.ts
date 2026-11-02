@@ -32,7 +32,7 @@ const checkCommandDecoder = JsonDecoder.object<CheckCommandValues>(
 );
 
 // The command and its arguments, which wait for it.
-export const checkCommand = ({
+export const getCheckCommandBlock = ({
   endpoint,
   resource: { baseEndpoint, idPrefix },
   title

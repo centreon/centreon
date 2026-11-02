@@ -86,7 +86,7 @@ const getHostOwnSchema = (t: TFunction) => ({
 
 // Name, alias, poller and address: who the host is and where it is checked
 // from. A mass change keeps only the poller, a block of its own.
-export const hostIdentity = ({
+export const getHostIdentityBlock = ({
   pollersEndpoint,
   resource: { baseEndpoint, idPrefix }
 }: {

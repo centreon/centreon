@@ -37,7 +37,7 @@ interface SnmpDetail {
 }
 
 // The SNMP community and version the checks of a host use.
-export const snmp = ({
+export const getSnmpBlock = ({
   resource: { idPrefix }
 }: {
   resource: ResourceOptions;

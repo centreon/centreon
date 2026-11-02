@@ -6,7 +6,7 @@ import { buildSelector } from '../selector';
 import { labelTimezone } from '../translatedLabels';
 
 // The timezone the engine reads the time periods of a host in.
-export const timezone = ({
+export const getTimezoneBlock = ({
   endpoint,
   resource: { baseEndpoint, idPrefix }
 }: {

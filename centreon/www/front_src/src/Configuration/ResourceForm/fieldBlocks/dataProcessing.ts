@@ -131,7 +131,7 @@ const defaultEventHandler: EventHandlerValues = {
 
 // The command the engine runs on a state change. Its arguments are refused on
 // cloud.
-export const eventHandler = ({
+export const getEventHandlerBlock = ({
   commandsEndpoint,
   resource: { baseEndpoint, idPrefix }
 }: {
@@ -221,7 +221,7 @@ const defaultFreshness: FreshnessValues = {
 };
 
 // Whether the engine checks the results are recent enough, and how recent.
-export const freshness = ({
+export const getFreshnessBlock = ({
   resource: { idPrefix }
 }: {
   resource: ResourceOptions;
@@ -290,7 +290,7 @@ const defaultAcknowledgmentTimeout: AcknowledgmentTimeoutValues = {
 };
 
 // How long an acknowledgement lasts. Refused on cloud.
-export const acknowledgmentTimeout = ({
+export const getAcknowledgmentTimeoutBlock = ({
   resource: { idPrefix }
 }: {
   resource: ResourceOptions;
@@ -357,7 +357,7 @@ const defaultFlapping: FlappingValues = {
 
 // Whether the engine detects a flapping state, and between which thresholds.
 // Refused on cloud.
-export const flapping = ({
+export const getFlappingBlock = ({
   resource: { idPrefix }
 }: {
   resource: ResourceOptions;

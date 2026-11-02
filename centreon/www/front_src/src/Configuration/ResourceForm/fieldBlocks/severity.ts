@@ -5,7 +5,7 @@ import type { FieldBlock, NamedEntity, ResourceOptions } from '../models';
 import { buildSelector } from '../selector';
 
 // A field of the resource itself, not of its extended informations.
-export const severity = ({
+export const getSeverityBlock = ({
   endpoint,
   label,
   resource: { baseEndpoint, idPrefix }

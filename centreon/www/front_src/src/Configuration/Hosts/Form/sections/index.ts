@@ -4,32 +4,32 @@ import {
   getAvailableBlocks,
   getInputBlocks
 } from '../../../ResourceForm/blocks';
-import { checkCommand } from '../../../ResourceForm/fieldBlocks/checkCommand';
+import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
 import {
-  acknowledgmentTimeout,
-  eventHandler,
-  flapping,
-  freshness
+  getAcknowledgmentTimeoutBlock,
+  getEventHandlerBlock,
+  getFlappingBlock,
+  getFreshnessBlock
 } from '../../../ResourceForm/fieldBlocks/dataProcessing';
 import {
-  actionUrlAndGeoCoordinates,
-  comment,
-  notesAndIcons
+  getActionUrlAndGeoCoordinatesBlock,
+  getCommentBlock,
+  getNotesAndIconsBlock
 } from '../../../ResourceForm/fieldBlocks/extendedInfos';
 import {
-  type NotificationOptions,
-  notificationDelays,
-  notificationRecipients,
-  notifyOn
+  getNotificationDelaysBlock,
+  getNotificationRecipientsBlock,
+  getNotifyOnBlock,
+  type NotificationOptions
 } from '../../../ResourceForm/fieldBlocks/notifications';
-import { relationList } from '../../../ResourceForm/fieldBlocks/relationList';
+import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
 import {
-  activeAndPassiveChecks,
-  checkPeriodAndIntervals
+  getActiveAndPassiveChecksBlock,
+  getCheckPeriodAndIntervalsBlock
 } from '../../../ResourceForm/fieldBlocks/scheduling';
-import { severity } from '../../../ResourceForm/fieldBlocks/severity';
-import { snmp } from '../../../ResourceForm/fieldBlocks/snmp';
-import { timezone } from '../../../ResourceForm/fieldBlocks/timezone';
+import { getSeverityBlock } from '../../../ResourceForm/fieldBlocks/severity';
+import { getSnmpBlock } from '../../../ResourceForm/fieldBlocks/snmp';
+import { getTimezoneBlock } from '../../../ResourceForm/fieldBlocks/timezone';
 import type {
   Blocks,
   DetailOfBlocks,
@@ -66,9 +66,9 @@ import {
   labelRecovery,
   labelUnreachable
 } from '../../translatedLabels';
-import { hostIdentity } from '../blocks/hostIdentity';
-import { macros } from '../blocks/macros';
-import { templates } from '../blocks/templates';
+import { getHostIdentityBlock } from '../blocks/hostIdentity';
+import { getMacrosBlock } from '../blocks/macros';
+import { getTemplatesBlock } from '../blocks/templates';
 
 export const hostResource: ResourceOptions = {
   baseEndpoint: hostsBaseEndpoint,
@@ -89,32 +89,32 @@ const hostNotificationOptions: NotificationOptions = [
 // The blocks of fields the host form edits. The sections it shows them in,
 // and their order, are `../layout.ts`'s.
 export const blocks = [
-  hostIdentity({ pollersEndpoint: hostFormPollersEndpoint, resource }),
-  checkCommand({
+  getHostIdentityBlock({ pollersEndpoint: hostFormPollersEndpoint, resource }),
+  getCheckCommandBlock({
     endpoint: hostFormCommandsEndpoint,
     resource,
     title: labelHostCheckOptions
   }),
-  macros({ resource }),
-  snmp({ resource }),
-  templates({ resource }),
-  timezone({ endpoint: timezonesEndpoint, resource }),
-  checkPeriodAndIntervals({
+  getMacrosBlock({ resource }),
+  getSnmpBlock({ resource }),
+  getTemplatesBlock({ resource }),
+  getTimezoneBlock({ endpoint: timezonesEndpoint, resource }),
+  getCheckPeriodAndIntervalsBlock({
     resource,
     timePeriodsEndpoint: hostFormTimePeriodsEndpoint
   }),
-  activeAndPassiveChecks({ resource }),
-  notificationRecipients({
+  getActiveAndPassiveChecksBlock({ resource }),
+  getNotificationRecipientsBlock({
     contactGroupsEndpoint: hostFormContactGroupsEndpoint,
     contactsEndpoint: hostFormContactsEndpoint,
     resource
   }),
-  notifyOn({ options: hostNotificationOptions, resource }),
-  notificationDelays({
+  getNotifyOnBlock({ options: hostNotificationOptions, resource }),
+  getNotificationDelaysBlock({
     resource,
     timePeriodsEndpoint: hostFormTimePeriodsEndpoint
   }),
-  relationList({
+  getRelationListBlock({
     decoderNames: ['Group', 'Groups'],
     endpoint: hostFormHostGroupsEndpoint,
     id: 'groups',
@@ -126,7 +126,7 @@ export const blocks = [
     payloadKey: 'host_group_ids',
     resource
   }),
-  relationList({
+  getRelationListBlock({
     decoderNames: ['Category', 'Categories'],
     endpoint: hostFormHostCategoriesEndpoint,
     id: 'categories',
@@ -135,7 +135,7 @@ export const blocks = [
     payloadKey: 'category_ids',
     resource
   }),
-  relationList({
+  getRelationListBlock({
     decoderNames: ['Parent host', 'Parent hosts'],
     detailKey: 'parent_hosts',
     endpoint: hostFormHostsEndpoint,
@@ -157,7 +157,7 @@ export const blocks = [
     payloadKey: 'parent_host_ids',
     resource
   }),
-  relationList({
+  getRelationListBlock({
     decoderNames: ['Child host', 'Child hosts'],
     detailKey: 'child_hosts',
     endpoint: hostFormHostsEndpoint,
@@ -167,18 +167,21 @@ export const blocks = [
     payloadKey: 'child_host_ids',
     resource
   }),
-  severity({
+  getSeverityBlock({
     endpoint: hostFormHostSeveritiesEndpoint,
     label: labelHostSeverity,
     resource
   }),
-  eventHandler({ commandsEndpoint: hostFormCommandsEndpoint, resource }),
-  freshness({ resource }),
-  acknowledgmentTimeout({ resource }),
-  flapping({ resource }),
-  notesAndIcons({ mediasEndpoint: hostFormMediasEndpoint, resource }),
-  actionUrlAndGeoCoordinates({ resource }),
-  comment({ resource })
+  getEventHandlerBlock({
+    commandsEndpoint: hostFormCommandsEndpoint,
+    resource
+  }),
+  getFreshnessBlock({ resource }),
+  getAcknowledgmentTimeoutBlock({ resource }),
+  getFlappingBlock({ resource }),
+  getNotesAndIconsBlock({ mediasEndpoint: hostFormMediasEndpoint, resource }),
+  getActionUrlAndGeoCoordinatesBlock({ resource }),
+  getCommentBlock({ resource })
 ] as const;
 
 // Each available block, as a section of the data.

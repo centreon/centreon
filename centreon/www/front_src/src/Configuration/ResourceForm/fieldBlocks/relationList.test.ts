@@ -2,12 +2,12 @@ import type { TFunction } from 'i18next';
 import { array, object } from 'yup';
 
 import type { SectionContext } from '../models';
-import { relationList } from './relationList';
+import { getRelationListBlock } from './relationList';
 
 const t = ((label: string) => label) as TFunction;
 const context: SectionContext = { isCloudPlatform: true, t };
 
-const groups = relationList({
+const groups = getRelationListBlock({
   decoderNames: ['Group', 'Groups'],
   endpoint: '/groups',
   getSchema: () =>

@@ -61,7 +61,7 @@ const getInputIds = (idPrefix: string, fieldName: string) => ({
 });
 
 // The check period and the counts and intervals the engine schedules with.
-export const checkPeriodAndIntervals = ({
+export const getCheckPeriodAndIntervalsBlock = ({
   resource: { baseEndpoint, idPrefix },
   timePeriodsEndpoint
 }: {
@@ -157,7 +157,7 @@ export const checkPeriodAndIntervals = ({
 
 // Whether the engine runs the checks, and whether it accepts submitted ones.
 // On premise only: cloud refuses both.
-export const activeAndPassiveChecks = ({
+export const getActiveAndPassiveChecksBlock = ({
   resource: { idPrefix }
 }: {
   resource: ResourceOptions;

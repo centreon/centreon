@@ -114,7 +114,7 @@ const defaultNotesAndIcons: NotesAndIconsValues = {
 
 // A note, its link, and the icon the resource is shown with. The alternative
 // text of the icon is refused on cloud.
-export const notesAndIcons = ({
+export const getNotesAndIconsBlock = ({
   mediasEndpoint,
   resource: { baseEndpoint, idPrefix }
 }: {
@@ -259,7 +259,7 @@ const defaultActionUrlAndGeoCoordinates: ActionUrlAndGeoCoordinatesValues = {
 };
 
 // A link to act on the resource, and where it stands on a map.
-export const actionUrlAndGeoCoordinates = ({
+export const getActionUrlAndGeoCoordinatesBlock = ({
   resource: { idPrefix }
 }: {
   resource: ResourceOptions;
@@ -318,7 +318,7 @@ export const actionUrlAndGeoCoordinates = ({
 const defaultComment = { comment: '' };
 
 // A free comment on the resource. Refused on cloud.
-export const comment = ({
+export const getCommentBlock = ({
   resource: { idPrefix }
 }: {
   resource: ResourceOptions;
