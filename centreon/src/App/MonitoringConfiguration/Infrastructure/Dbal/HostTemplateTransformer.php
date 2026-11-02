@@ -23,9 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
@@ -40,9 +43,19 @@ final readonly class HostTemplateTransformer implements TransformerInterface
      */
     public function transform(mixed $from): HostTemplate
     {
+        // legacy stores a missing alias as NULL or as an empty string, both read as no alias
+        $alias = $from['host_alias'] !== null && trim($from['host_alias']) !== '' ? new HostAlias($from['host_alias']) : null;
+
         return new HostTemplate(
             id: new HostTemplateId($from['host_id']),
             name: new HostTemplateName($from['host_name']),
+            alias: $alias,
+            isLocked: (bool) (int) ($from['host_locked'] ?? 0),
+            iconId: $from['icon_id'] !== null ? new MediaId((int) $from['icon_id']) : null,
+            parentTemplateIds: new Collection(
+                array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $from['parent_template_ids']),
+                HostTemplateId::class,
+            ),
         );
     }
 }

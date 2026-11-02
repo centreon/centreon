@@ -24,14 +24,28 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
 
 use ApiPlatform\Metadata\ApiProperty;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
 
 final class HostTemplateCollectionOutput
 {
+    public int $linkedServiceTemplatesCount = 0;
+
+    /** @var list<HostTemplateOutput> the direct parent templates, in inheritance order */
+    public array $parentTemplates = [];
+
+    /** the template's own icon, otherwise the first one inherited, otherwise null */
+    public ?HostIconOutput $icon = null;
+
     public function __construct(
         #[ApiProperty(identifier: true)]
         public int $id,
 
         public string $name,
+
+        public ?string $alias,
+
+        public bool $isLocked,
     ) {
     }
 }

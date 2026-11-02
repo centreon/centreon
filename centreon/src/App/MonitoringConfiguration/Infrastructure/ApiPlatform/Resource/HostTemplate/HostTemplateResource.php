@@ -70,14 +70,36 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             provider: ListHostTemplatesProvider::class,
             itemUriTemplate: '/configuration/host_templates/{id}',
             output: HostTemplateCollectionOutput::class,
+            paginationMaximumItemsPerPage: 100,
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
                         name: 'name[lk]',
                         in: 'query',
-                        description: 'Filter by host template name using "like" operator',
+                        description: 'Filter by host template name or alias using "like" operator',
                         required: false,
                         schema: ['type' => 'string'],
+                    ),
+                    new Model\Parameter(
+                        name: 'include_locked',
+                        in: 'query',
+                        description: 'Include the locked host templates as well (unlocked ones only when absent or false)',
+                        required: false,
+                        schema: ['type' => 'boolean'],
+                    ),
+                    new Model\Parameter(
+                        name: 'sort[name]',
+                        in: 'query',
+                        description: 'Sort by name (default: name ascending)',
+                        required: false,
+                        schema: ['type' => 'string', 'enum' => ['asc', 'desc']],
+                    ),
+                    new Model\Parameter(
+                        name: 'sort[alias]',
+                        in: 'query',
+                        description: 'Sort by alias',
+                        required: false,
+                        schema: ['type' => 'string', 'enum' => ['asc', 'desc']],
                     ),
                 ],
             ),
