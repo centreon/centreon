@@ -35,7 +35,7 @@ const form = {
   validationSchema: object()
 };
 
-// A locked template is read-only: no selection, no duplicate, no delete.
+// A locked template cannot be selected, duplicated or deleted.
 const isUnlocked = (row?: ResourceRow): boolean => !row?.isLocked;
 
 const HostTemplates = (): JSX.Element => {
