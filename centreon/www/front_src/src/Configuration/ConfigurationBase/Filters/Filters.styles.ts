@@ -1,11 +1,9 @@
 import { makeStyles } from 'tss-react/mui';
 
-import type { FiltersPanelWidth } from '../../models';
-
 export const defaultFiltersPanelWidth = 42;
 
 interface FilterStylesParams {
-  filtersPanelWidth?: FiltersPanelWidth;
+  filtersPanelWidth?: number;
 }
 
 export const useFilterStyles = makeStyles<FilterStylesParams>()(
@@ -15,13 +13,9 @@ export const useFilterStyles = makeStyles<FilterStylesParams>()(
       display: 'flex',
       flexDirection: 'column',
       gap: theme.spacing(1.5),
-      // A `full` panel hangs flush from the field: no margin.
-      marginTop: filtersPanelWidth === 'full' ? 0 : theme.spacing(1),
+      marginTop: theme.spacing(1),
       padding: theme.spacing(2),
-      width:
-        filtersPanelWidth === 'full'
-          ? '100%'
-          : theme.spacing(filtersPanelWidth ?? defaultFiltersPanelWidth)
+      width: theme.spacing(filtersPanelWidth ?? defaultFiltersPanelWidth)
     },
     additionalFiltersButtons: {
       display: 'flex',

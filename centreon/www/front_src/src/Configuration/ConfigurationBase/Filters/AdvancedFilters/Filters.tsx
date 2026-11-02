@@ -50,10 +50,18 @@ const Filters = <TFilters,>({
     setFilters
   });
 
-  const { classes } = useFilterStyles({ filtersPanelWidth });
+  const isFullWidth = equals(filtersPanelWidth, 'full');
+
+  const { classes, cx } = useFilterStyles({
+    filtersPanelWidth: isFullWidth ? undefined : filtersPanelWidth
+  });
 
   return (
-    <div className={classes.additionalFilters} data-testid="advanced-filters">
+    <div
+      // A `full` panel hangs flush from the field and fills its popper.
+      className={cx(classes.additionalFilters, isFullWidth && 'mt-0 w-full')}
+      data-testid="advanced-filters"
+    >
       {filtersConfiguration?.map((filter) => {
         if (equals(filter.fieldType, FieldType.Text))
           return (
