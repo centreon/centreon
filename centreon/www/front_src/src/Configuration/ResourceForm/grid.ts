@@ -21,18 +21,20 @@ export const getBlock = ({
   className = stackedColumns,
   columnSeparator,
   columns,
+  idPrefix,
   name,
   title
 }: {
   className?: string;
   columnSeparator?: boolean;
   columns: Array<InputPropsWithoutGroup>;
+  idPrefix: string;
   name: string;
   title?: string;
 }): InputPropsWithoutGroup => ({
   ...(title && { additionalLabel: title }),
   fieldName: name,
   grid: { className, columnSeparator, columns },
-  label: `host-form-${name}`,
+  label: `${idPrefix}-${name}`,
   type: InputType.Grid
 });

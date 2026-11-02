@@ -1,22 +1,22 @@
 import type { InputProps } from '@centreon/ui';
 
-import { hostsBaseEndpoint } from '../api/endpoints';
-import { namedEntitiesListDecoder } from '../api/namedEntityDecoders';
+import { namedEntitiesListDecoder } from './api/decoders';
 
 type ConnectedAutocomplete = NonNullable<InputProps['connectedAutocomplete']>;
 
 // What every selector of the form shares: an endpoint of API Platform that
-// answers in Hydra.
+// answers in Hydra, under the resource's base endpoint.
 export const buildSelector = ({
+  baseEndpoint,
   endpoint,
   queryKey,
   ...rest
 }: Partial<ConnectedAutocomplete> &
   Required<
-    Pick<ConnectedAutocomplete, 'endpoint' | 'queryKey'>
+    Pick<ConnectedAutocomplete, 'baseEndpoint' | 'endpoint' | 'queryKey'>
   >): ConnectedAutocomplete => ({
   additionalConditionParameters: [],
-  baseEndpoint: hostsBaseEndpoint,
+  baseEndpoint,
   customQueryParameters: [],
   decoder: namedEntitiesListDecoder,
   endpoint,

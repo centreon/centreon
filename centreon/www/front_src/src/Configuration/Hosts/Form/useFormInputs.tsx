@@ -1,15 +1,8 @@
-import type { Group, InputProps } from '@centreon/ui';
-
-import { chain } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
+import { type FormInputs, getFormInputs } from '../../ResourceForm/formInputs';
 import { placeBlocks } from './layout';
 import { getBlocks } from './sections';
-
-interface FormInputsState {
-  inputs: Array<InputProps>;
-  groups: Array<Group>;
-}
 
 interface Props {
   canEdit: boolean;
@@ -23,7 +16,7 @@ const useFormInputs = ({
   isAdditiveInheritanceEnabled,
   isCloudPlatform,
   isMassChange = false
-}: Props): FormInputsState => {
+}: Props): FormInputs => {
   const { t } = useTranslation();
 
   const context = {
@@ -32,41 +25,12 @@ const useFormInputs = ({
     isMassChange,
     t
   };
-  const placedSections = placeBlocks({ blocks: getBlocks(context), t });
 
-  // Sections are told apart by their headers, as designed: no divider.
-  const groups: Array<Group> = placedSections.map(({ label, order }) => ({
-    isDividerHidden: true,
-    name: t(label),
-    order
-  }));
-
-  const inputs: Array<InputProps> = chain(
-    ({ inputs: sectionInputs, label }) =>
-      sectionInputs.map((input) => ({ ...input, group: t(label) })),
-    placedSections
-  );
-
-  // Once for every input, grid columns included, so none is left editable.
-  const disableWithoutWriteAccess = <Input extends Omit<InputProps, 'group'>>(
-    input: Input
-  ): Input => ({
-    ...input,
-    // Kept alongside the input's own rule, such as a field that waits for
-    // another one.
-    getDisabled: (values) => !canEdit || !!input.getDisabled?.(values),
-    ...(input.grid && {
-      grid: {
-        ...input.grid,
-        columns: input.grid.columns.map(disableWithoutWriteAccess)
-      }
-    })
+  return getFormInputs({
+    canEdit,
+    placedSections: placeBlocks({ blocks: getBlocks(context), t }),
+    t
   });
-
-  return {
-    groups,
-    inputs: inputs.map(disableWithoutWriteAccess)
-  };
 };
 
 export default useFormInputs;

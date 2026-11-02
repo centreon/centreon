@@ -8,7 +8,7 @@ import {
 import { type FormikValues, useFormikContext } from 'formik';
 import type { ReactElement } from 'react';
 
-import type { Icon } from '../models';
+import type { Icon } from './models';
 
 const previewSize = 25;
 
