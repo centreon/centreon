@@ -22,7 +22,6 @@ const routeMap = {
   resetPassword: '/reset-password',
   resourceAccessManagement: '/administration/resource-access/rules',
   resources: '/monitoring/resources',
-  services: '/configuration/services',
   upgrade: '/install/upgrade.php',
   vaultConfiguration: '/administration/parameters/vault'
 };
