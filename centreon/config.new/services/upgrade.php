@@ -59,7 +59,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             '%env(int:port)%',
         ]);
 
-    // dbcstg in both name slots on purpose: getMysqlDsn() takes dbname from the configuration slot.
+    // dbcstg in both slots: CentreonDB reads the database name from the configuration slot.
     $services->set('upgrade.realtime_connection_config', ConnectionConfig::class)
         ->args([
             '%env(hostCentstorage)%',

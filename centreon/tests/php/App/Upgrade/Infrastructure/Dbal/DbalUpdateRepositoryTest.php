@@ -257,7 +257,10 @@ final class DbalUpdateRepositoryTest extends TestCase
         return new DbalUpdateRepository(
             $this->configConnection,
             $this->realtimeConnection,
-            new LegacyConnectionFactory($this->connectionConfig, $this->connectionConfig),
+            new LegacyConnectionFactory(
+                $this->connectionConfig,
+                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon_storage', 'centreon_storage'),
+            ),
             $this->libDir,
             $this->installDir,
             $filesystem ?? $this->realFilesystem,

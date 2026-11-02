@@ -28,7 +28,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class RealtimeConnectionConfigurationTest extends KernelTestCase
 {
-    private const string STORAGE_HOST = 'storage.example.test';
+    private const string STORAGE_HOST = 'storage.example.invalid';
 
     private mixed $previousHost;
 
