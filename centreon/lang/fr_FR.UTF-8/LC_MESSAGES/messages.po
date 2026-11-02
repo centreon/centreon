@@ -25598,3 +25598,12 @@ msgstr "{{count}} ressources"
 #: centreon/www/install/front_translate.php
 msgid "{{count}} sec"
 msgstr "{{count}} s"
+
+msgid "Host templates"
+msgstr "Modèles d'hôtes"
+
+msgid "Create a host template"
+msgstr "Créer un modèle d'hôte"
+
+msgid "Welcome to the Host templates interface!"
+msgstr "Bienvenue dans l'interface des modèles d'hôtes !"

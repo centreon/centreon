@@ -18,7 +18,8 @@ export enum ResourceType {
   HostGroup = 'host group',
   ServiceGroup = 'service group',
   AdditionalConfiguration = 'additional configuration',
-  Command = 'command'
+  Command = 'command',
+  HostTemplate = 'host template'
 }
 
 export interface Form {
@@ -77,6 +78,8 @@ export interface Actions {
         disable?: boolean;
       };
   edit?: boolean;
+  // Whether a row can be checked, select-all included; every row by default.
+  selectable?: (row: ResourceRow) => boolean;
   viewDetails?: boolean;
   rowActions?: Array<RowAction>;
   massiveActions?: Array<MassiveAction>;
@@ -84,6 +87,9 @@ export interface Actions {
   // what it shows. Modules gating on write access alone leave this off.
   rowActionsWithoutWriteAccess?: boolean;
 }
+
+// Theme spacing units, or `full` to match the search field's width.
+export type FiltersPanelWidth = number | 'full';
 
 export interface ConfigurationBase<TFilters> {
   resourceType: ResourceType;
@@ -114,7 +120,7 @@ export interface ConfigurationBase<TFilters> {
     label: string;
     link: string;
   }>;
-  filtersPanelWidth?: number;
+  filtersPanelWidth?: FiltersPanelWidth;
   // Where the create/edit form opens. Modal by default.
   formVariant?: 'modal' | 'panel';
   // Width the panel opens at; the user can resize it from there.
@@ -190,5 +196,5 @@ export interface Configuration {
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
   actions?: Actions;
-  filtersPanelWidth?: number;
+  filtersPanelWidth?: FiltersPanelWidth;
 }
