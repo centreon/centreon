@@ -25574,3 +25574,12 @@ msgstr "Le coffre-fort n'est pas disponible"
 #: centreon/www/install/front_translate.php
 msgid "{{count}} resources"
 msgstr "{{count}} ressources"
+
+msgid "Host templates"
+msgstr "Modèles d'hôtes"
+
+msgid "Create a host template"
+msgstr "Créer un modèle d'hôte"
+
+msgid "Welcome to the Host templates interface!"
+msgstr "Bienvenue dans l'interface des modèles d'hôtes !"

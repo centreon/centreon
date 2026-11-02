@@ -1,0 +1,23 @@
+export interface NamedEntity {
+  id: number;
+  name: string;
+}
+
+export interface Icon extends NamedEntity {
+  url: string;
+}
+
+export interface HostTemplateListItem extends NamedEntity {
+  alias?: string | null;
+  // The template's own icon, else the first one inherited through its parents.
+  icon?: Icon | null;
+  isLocked: boolean;
+  linkedServiceTemplatesCount: number;
+  parentTemplates: Array<NamedEntity>;
+}
+
+// `include_locked` is sent as-is; `name` goes out as `name[lk]`.
+export interface Filters {
+  name: string;
+  include_locked: boolean;
+}
