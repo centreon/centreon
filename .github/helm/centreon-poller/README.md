@@ -107,7 +107,9 @@ Poller-initiated (reverse) connections do not use this identity.
 them) and `centreontrapd` (matches them against the definitions delivered by
 the central, submits results to the engine's command FIFO) to the poller pod,
 plus a `traps-config` directory on `poller-data` (`/etc/snmp/centreon_traps`) and a
-`<release>-snmptrap` Service (LoadBalancer, UDP 162).
+`<release>-snmptrap` Service (LoadBalancer, UDP 162). Both containers run the
+same `ghcr.io/centreon/centreon-trapd` image; the role comes from the
+container `args` (`snmptrapd` / `centreontrapd`).
 
 - Generate and apply the SNMP traps database for the poller from the central
   (Configuration > SNMP Traps > Generate). `centreontrapd` crash-loops until

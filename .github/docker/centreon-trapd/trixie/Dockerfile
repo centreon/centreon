@@ -141,7 +141,7 @@ LABEL org.opencontainers.image.title="Centreon TRAPD" \
 WORKDIR /etc/centreon
 
 # NOTE: Requires CAP_NET_BIND_SERVICE at runtime for the snmptrapd role to
-# bind UDP/162 (same requirement as today's centreon-snmptrapd image).
+# bind UDP/162 (same requirement as the former centreon-snmptrapd image).
 USER centreon
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
