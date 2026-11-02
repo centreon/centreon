@@ -4,7 +4,7 @@ Feature: Configuring resource table widget
   I need to configure a widget containing a resource table on a dashboard
   To manipulate the properties of the resource table Widget and test the outcome of each manipulation.
 
-  @MON-35094
+  @MON-213713
   Scenario: Editing the display type of resource table widget
     Given a dashboard that includes a configured resource table widget
     When the dashboard administrator user selects view by host as a display type
