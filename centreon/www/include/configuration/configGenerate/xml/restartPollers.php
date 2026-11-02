@@ -105,6 +105,25 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
     $centreon = $_SESSION['centreon'];
 }
 
+if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
+    $xml->startElement('response');
+    $xml->writeElement('status', $nokMsg);
+    $xml->writeElement('statuscode', STATUS_NOK);
+    $xml->writeElement('error', 'You are not allowed to restart the monitoring engine');
+    $xml->endElement();
+
+    if (! headers_sent()) {
+        header('HTTP/1.1 403 Forbidden');
+        header('Content-Type: application/xml');
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: 0');
+    }
+
+    $xml->output();
+
+    exit();
+}
+
 if (! isset($_POST['poller']) || ! isset($_POST['mode'])) {
     exit();
 }
