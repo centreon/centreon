@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 #
 # Single image for both trap daemons: two containers, one image, role picked
-# at runtime from the CMD the caller passes (see container.sh).
+# at runtime from the CMD role keyword the caller passes (see container.sh).
 # container.d/ scripts named *.snmptrapd.sh or *.centreontrapd.sh only run for
 # that role; unsuffixed scripts (00-init.sh) run for both.
 #
@@ -150,11 +150,9 @@ HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
 EXPOSE 162/udp
 
 ENTRYPOINT ["/usr/local/lib/centreon-trapd/container.sh"]
-# No meaningful default: the caller (compose/chart) always picks a role by
-# overriding `command:`. Defaults to the centreontrapd role so an unconfigured
-# `docker run` at least fails loudly instead of silently binding UDP/162.
-CMD ["/usr/bin/perl", "/usr/share/centreon/bin/centreontrapd", \
-     "--logfile=/dev/stdout", \
-     "--severity=error", \
-     "--config=/etc/centreon/conf.pm", \
-     "--config-extra=/etc/centreon/centreontrapd.pm"]
+# Role keyword, expanded to the full daemon command by container.sh:
+#   command: ["snmptrapd"]      -> /usr/sbin/snmptrapd -f -On -Lo -c ...
+#   command: ["centreontrapd"]  -> perl .../centreontrapd --config=... (default)
+# Defaults to centreontrapd so an unconfigured `docker run` never silently
+# binds UDP/162.
+CMD ["centreontrapd"]

@@ -7,10 +7,29 @@ fi
 
 set -e
 
-# Role is picked by the command the caller (compose/chart) passes as CMD, not
-# by a dedicated env var: snmptrapd's CMD contains the literal "snmptrapd"
-# binary name, centreontrapd's never does.
+# Role is picked by the command the caller (compose/chart) passes as CMD:
+#   - "snmptrapd" / "centreontrapd" (role keyword, the normal case): expanded
+#     here to the full daemon command line, so the flags live in the image
+#     only. Any extra args after the keyword are appended.
+#   - a full command line (debug/override): used as-is; the role is then
+#     guessed from it (snmptrapd's contains the literal "snmptrapd" binary
+#     name, centreontrapd's never does).
 case "$1" in
+  snmptrapd)
+    ROLE=snmptrapd
+    shift
+    set -- /usr/sbin/snmptrapd -f -On -Lo -c /etc/snmp/snmptrapd.conf "$@"
+    ;;
+  centreontrapd)
+    ROLE=centreontrapd
+    shift
+    set -- /usr/bin/perl /usr/share/centreon/bin/centreontrapd \
+      --logfile=/dev/stdout \
+      --severity=error \
+      --config=/etc/centreon/conf.pm \
+      --config-extra=/etc/centreon/centreontrapd.pm \
+      "$@"
+    ;;
   *snmptrapd*) ROLE=snmptrapd ;;
   *) ROLE=centreontrapd ;;
 esac
