@@ -29,6 +29,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\JwtToken;
@@ -42,6 +43,7 @@ final class GetToken
     public function __construct(
         private readonly ReadTokenRepositoryInterface $readTokenRepository,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -83,6 +85,6 @@ final class GetToken
 
     private function canDisplayAllTokens(): bool
     {
-        return $this->user->isAdmin() || $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS);
+        return $this->adminResolver->isAdmin($this->user) || $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS);
     }
 }

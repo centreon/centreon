@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\TrimmedString;
+use Core\Contact\Domain\AdminResolver;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\UseCase\GetToken\GetToken;
@@ -39,6 +40,7 @@ beforeEach(function (): void {
     $this->useCase = new GetToken(
         $this->readTokenRepository = $this->createMock(ReadTokenRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->linkedUser = ['id' => 23, 'name' => 'Jane Doe'];
