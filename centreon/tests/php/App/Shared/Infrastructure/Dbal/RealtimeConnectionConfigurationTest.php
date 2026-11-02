@@ -34,6 +34,8 @@ final class RealtimeConnectionConfigurationTest extends KernelTestCase
 
     protected function setUp(): void
     {
+        self::ensureKernelShutdown();
+
         $this->previousHost = $_ENV['hostCentstorage'] ?? null;
         $_ENV['hostCentstorage'] = self::STORAGE_HOST;
     }
@@ -54,6 +56,11 @@ final class RealtimeConnectionConfigurationTest extends KernelTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
 
-        self::assertSame(self::STORAGE_HOST, $connection->getParams()['host'] ?? null);
+        $params = $connection->getParams();
+        $storageDatabase = $_ENV['dbcstg'] ?? null;
+
+        self::assertSame(self::STORAGE_HOST, $params['host'] ?? null);
+        self::assertIsString($storageDatabase);
+        self::assertSame($storageDatabase, $params['dbname'] ?? null);
     }
 }

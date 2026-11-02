@@ -28,6 +28,29 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class LegacyConnectionFactoryTest extends KernelTestCase
 {
+    private const string CONFIGURATION_HOST = 'configuration.example.invalid';
+
+    private mixed $previousConfigurationHost;
+
+    protected function setUp(): void
+    {
+        self::ensureKernelShutdown();
+
+        $this->previousConfigurationHost = $_ENV['hostCentreon'] ?? null;
+        $_ENV['hostCentreon'] = self::CONFIGURATION_HOST;
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        if ($this->previousConfigurationHost === null) {
+            unset($_ENV['hostCentreon']);
+        } else {
+            $_ENV['hostCentreon'] = $this->previousConfigurationHost;
+        }
+    }
+
     public function testTheRealtimeConnectionTargetsTheStorageHost(): void
     {
         /** @var LegacyConnectionFactory $factory */
