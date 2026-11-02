@@ -15,6 +15,13 @@ interface UseDuplicateProps {
     ids: Array<number>;
     nbDuplicates?: number;
   }) => Promise<object | ResponseError>;
+  duplicateWithNameMutation: ({
+    id,
+    name
+  }: {
+    id: number;
+    name: string;
+  }) => Promise<object | ResponseError>;
   isMutating: boolean;
 }
 
@@ -65,8 +72,18 @@ const useDuplicate = (): UseDuplicateProps => {
     }).then(invalidateListing);
   };
 
+  const duplicateWithNameMutation = ({
+    id,
+    name
+  }: {
+    id: number;
+    name: string;
+  }) =>
+    mutateAsync({ _meta: { id }, payload: { name } }).then(invalidateListing);
+
   return {
     duplicateMutation,
+    duplicateWithNameMutation,
     isMutating
   };
 };

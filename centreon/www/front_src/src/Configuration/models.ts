@@ -173,6 +173,8 @@ export interface APIType {
     disable?: Method;
   };
   isSingleDuplicate?: boolean;
+  // The row duplicate asks the copy's name and sends `{ name }`; a selection sends no body.
+  isDuplicateWithName?: boolean;
 }
 
 export interface FilterConfiguration {

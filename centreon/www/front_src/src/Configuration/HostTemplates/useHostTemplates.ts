@@ -27,6 +27,7 @@ const api: APIType = {
     duplicate: getDuplicateHostTemplateEndpoint,
     getAll: hostTemplatesListEndpoint
   },
+  isDuplicateWithName: true,
   // Each call makes one copy: there is no copy count to ask for.
   isSingleDuplicate: true,
   writeBaseEndpoint: hostTemplatesBaseEndpoint
