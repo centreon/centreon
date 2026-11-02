@@ -51,7 +51,7 @@ tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as t
 failed_services=()                                         #Filled by display_services_recap, fails the run when not empty
 
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
-version=${ENV_CENTREON_VERSION:-"25.10"}        #Default version to be installed
+version=${ENV_CENTREON_VERSION:-"26.10"}        #Default version to be installed
 repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to be used
 dbms=${ENV_CENTREON_DBMS:-"MariaDB"}            #Default database system to be used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
@@ -131,6 +131,12 @@ function usage() {
 	echo " $script_short_name install -r unstable,testing == install the central to the $version from the unstable & testing repository"
 	echo
 	echo " $script_short_name install -V vault-example.com;8200;my_storage;my-role-id;my-secret-id == configuring a vault to store your application and database credentials"
+	echo
+	echo "Exit codes:"
+	echo
+	echo " 0 == success, every required service is running"
+	echo " 1 (or the failing command's code) == the run was aborted"
+	echo " 2 == the run completed but some required services are not running (see the platform healthcheck)"
 	exit 1
 }
 #======== end of function usage()
@@ -1418,11 +1424,16 @@ function enable_new_services() {
 			# so the final health recap can report it (see display_services_recap).
 			systemctl enable "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon || log "WARN" "Some services could not be enabled (see recap below)"
 			systemctl restart "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd || log "WARN" "Some services could not be restarted (see recap below)"
-			systemctl start centreontrapd || log "WARN" "centreontrapd could not be started (see recap below)"
+			# gorgoned is started by its package %post; start it explicitly too since the
+			# recap requires it on central (no-op when already running).
+			systemctl start centreontrapd gorgoned || log "WARN" "centreontrapd/gorgoned could not be started (see recap below)"
 			# centreon-engine-daemon's %post restarts centengine mid-transaction, before
 			# centreon-broker-core has laid down /usr/share/centreon/lib/centreon-broker, so on
 			# EL the engine is left failed. Restart it now that every package is installed.
-			systemctl restart cbd centengine || log "WARN" "cbd/centengine could not be restarted (see recap below)"
+			# dpkg unpacks every package before configuring any, so Debian is not affected.
+			if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+				systemctl restart cbd centengine || log "WARN" "cbd/centengine could not be restarted (see recap below)"
+			fi
 			;;
 
 		poller)
@@ -1430,7 +1441,9 @@ function enable_new_services() {
 			systemctl enable centreon centengine centreontrapd snmpd snmptrapd gorgoned || log "WARN" "Some services could not be enabled"
 			systemctl start centreontrapd snmptrapd || log "WARN" "Some services could not be started"
 			# Same mid-transaction restart issue as on central (see above).
-			systemctl restart centengine || log "WARN" "centengine could not be restarted (see recap below)"
+			if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+				systemctl restart centengine || log "WARN" "centengine could not be restarted (see recap below)"
+			fi
 			;;
 		esac
 	else
@@ -1899,8 +1912,8 @@ function test_password_policy() {
 # Topology-aware (only the services relevant to the installed role are checked) and
 # rendered in the same banner style as the run summary, recorded in the log file and
 # mirrored to the console. It tolerates inactive units (guarded systemctl calls) so it
-# never aborts the script itself; inactive ones are collected in failed_services and the
-# script exits non-zero after the credentials are displayed.
+# never aborts the script itself; units still inactive after a short wait are collected in
+# failed_services and the script exits 2 after the credentials are displayed.
 #
 function display_services_recap() {
 	local entry name unit topos required_topos active enabled state db_unit
@@ -1927,14 +1940,20 @@ function display_services_recap() {
 		"httpd|${HTTP_SERVICE_UNIT:-httpd}|central"
 		"php-fpm|${PHP_SERVICE_UNIT:-php-fpm}|central"
 		"centengine|centengine|central poller"
-		# enable_new_services only enables gorgoned on pollers (its package is relied upon to
-		# start it): report it there without failing the run.
+		# On pollers gorgoned is only started by its package %post (enable_new_services
+		# does not start it there): report it without failing the run.
 		"gorgone|gorgoned|central poller|central"
 		"cbd|cbd|central"
 		"centreontrapd|centreontrapd|central poller"
 		"snmptrapd|snmptrapd|central poller"
 		"snmpd|snmpd|central poller|central"
 	)
+
+	# Units restarted just before may still be activating, or start and die a few seconds
+	# later: let them settle, then give the inactive ones until a shared deadline to come
+	# up (bounds the total wait even when several units are down).
+	sleep "$default_timeout_in_sec"
+	local deadline=$((SECONDS + 30))
 
 	local -a results=()
 	for entry in "${recap_services[@]}"; do
@@ -1943,6 +1962,10 @@ function display_services_recap() {
 		# Skip services that do not apply to the installed topology.
 		[[ " $topos " == *" $topology "* ]] || continue
 		active=$(systemctl is-active "$unit" 2>/dev/null || true)
+		while [ "$active" != "active" ] && [ "$SECONDS" -lt "$deadline" ]; do
+			sleep 1
+			active=$(systemctl is-active "$unit" 2>/dev/null || true)
+		done
 		enabled=$(systemctl is-enabled "$unit" 2>/dev/null || true)
 		if [ "$active" == "active" ]; then
 			state="[OK]    "
