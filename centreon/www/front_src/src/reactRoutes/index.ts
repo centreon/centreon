@@ -74,6 +74,10 @@ const reactRoutes = [
   {
     comp: lazy(() => import('../Configuration/Commands')),
     path: routeMap.commands
+  },
+  {
+    comp: lazy(() => import('../AdministrationLogs/Page')),
+    path: routeMap.administrationLogs
   }
 ];
 

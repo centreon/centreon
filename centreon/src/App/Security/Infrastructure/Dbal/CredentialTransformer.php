@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
+use App\ActivityLogging\Domain\Security\ActivityLogPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\AgentConfigurationPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
@@ -91,6 +92,9 @@ final readonly class CredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_USERS_CONTACTS__USERS_RW' => NotificationContactPermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_USERS_TIME_PERIODS_R' => TimePeriodPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_USERS_TIME_PERIODS_RW' => TimePeriodPermissionEnum::CanReadAndWrite->value,
+        // Administration > Logs (page 508) is read-only: both access levels grant reading
+        'ROLE_ADMINISTRATION_LOGS_R' => ActivityLogPermissionEnum::CanRead->value,
+        'ROLE_ADMINISTRATION_LOGS_RW' => ActivityLogPermissionEnum::CanRead->value,
     ];
 
     /**

@@ -1,4 +1,6 @@
 export interface ListingMeta {
+  // Set by the APIs that do not count their items: whether another page follows
+  hasNextPage?: boolean;
   limit: number;
   page: number;
   total: number;

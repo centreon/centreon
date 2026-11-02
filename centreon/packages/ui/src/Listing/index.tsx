@@ -27,6 +27,7 @@ import {
   uniqBy
 } from 'ramda';
 import {
+  Fragment,
   type RefObject,
   useCallback,
   useEffect,
@@ -138,6 +139,15 @@ export interface Props<TRow> {
   widthToMoveTablePagination?: number;
   isActionBarVisible?: boolean;
   labelNoResultFound?: string | JSX.Element;
+  expandableRow?: {
+    isExpanded: (row: TRow) => boolean;
+    render: (row: TRow) => JSX.Element;
+  };
+  bodyFooter?: JSX.Element;
+  groupHeader?: {
+    getKey: (row: TRow) => string;
+    render: (row: TRow) => JSX.Element;
+  };
 }
 
 const defaultColumnConfiguration = {
@@ -197,6 +207,9 @@ const Listing = <
   },
   isActionBarVisible = true,
   labelNoResultFound = defaultLabelNoResultFound,
+  expandableRow,
+  bodyFooter,
+  groupHeader,
   approximateTotalRows = false,
   onApproximateCountClick,
   isApproximateCountLoading = false
@@ -590,9 +603,18 @@ const Listing = <
                   stickyHeader
                   style={{
                     gridTemplateColumns: gridTemplateColumn,
-                    gridTemplateRows: `${dataStyle.header.height}px repeat(${
-                      rowsToDisplay.length || 1
-                    }, ${isResponsive ? 'auto' : `${dataStyle.body.height}px`})`
+                    ...(expandableRow || bodyFooter || groupHeader
+                      ? {
+                          // Expanded rows have their own height, so body rows
+                          // are sized as they come instead of a fixed repeat
+                          gridAutoRows: `minmax(${dataStyle.body.height}px, auto)`,
+                          gridTemplateRows: `${dataStyle.header.height}px`
+                        }
+                      : {
+                          gridTemplateRows: `${dataStyle.header.height}px repeat(${
+                            rowsToDisplay.length || 1
+                          }, ${isResponsive ? 'auto' : `${dataStyle.body.height}px`})`
+                        })
                   }}
                 >
                   <ListingHeader
@@ -618,103 +640,133 @@ const Listing = <
                     component="div"
                     onMouseLeave={clearHoveredRow}
                   >
-                    {rowsToDisplay.map((row) => {
+                    {rowsToDisplay.map((row, index) => {
                       const isRowSelected = isSelected(row);
+                      // A header opens each group of consecutive rows sharing a key
+                      const hasGroupHeader =
+                        !isNil(groupHeader) &&
+                        (equals(index, 0) ||
+                          !equals(
+                            groupHeader.getKey(row),
+                            groupHeader.getKey(rowsToDisplay[index - 1])
+                          ));
                       const isSubItem = allSubItemIds.includes(
                         getSubItemRowId(row)
                       );
                       const isRowHovered = equals(hoveredRowId, getRowId(row));
 
                       return (
-                        <ListingRow
-                          checkable={
-                            checkable &&
-                            (!isSubItem || subItems.canCheckSubItems)
-                          }
-                          columnConfiguration={columnConfiguration}
-                          columnIds={columns.map(prop('id'))}
-                          disableRowCondition={disableRowConditionForCell}
-                          isHovered={isRowHovered}
-                          isSelected={isRowSelected}
-                          isShiftKeyDown={isShiftKeyDown}
-                          key={getRowId(row)}
-                          lastSelectionIndex={lastSelectionIndex}
-                          limit={limit}
-                          listingVariant={listingVariant}
-                          onClick={
-                            isSubItem
-                              ? undefined
-                              : (): void => {
-                                  onRowClick(row);
-                                }
-                          }
-                          onFocus={(): void => hoverRow(row)}
-                          onMouseOver={(): void => hoverRow(row)}
-                          row={row}
-                          rowColorConditions={rowColorConditions}
-                          shiftKeyDownRowPivot={shiftKeyDownRowPivot}
-                          subItemsPivots={subItemsPivots}
-                          tabIndex={-1}
-                          visibleColumns={visibleColumns}
-                        >
-                          {checkable &&
-                            (!isSubItem || subItems.canCheckSubItems ? (
-                              <Cell
-                                align="left"
-                                className="justify-start"
-                                disableRowCondition={disableRowConditionForCell}
-                                isRowHovered={isRowHovered}
-                                onClick={(event): void => selectRow(event, row)}
-                                row={row}
-                                rowColorConditions={rowColorConditions}
-                              >
-                                <Checkbox
-                                  checked={isRowSelected}
-                                  className="pl-1"
-                                  disabled={
-                                    disableRowCheckCondition(row) ||
-                                    disableRowCondition(row)
+                        <Fragment key={getRowId(row)}>
+                          {hasGroupHeader && (
+                            <div className="col-span-full">
+                              {groupHeader.render(row)}
+                            </div>
+                          )}
+                          <ListingRow
+                            checkable={
+                              checkable &&
+                              (!isSubItem || subItems.canCheckSubItems)
+                            }
+                            columnConfiguration={columnConfiguration}
+                            columnIds={columns.map(prop('id'))}
+                            disableRowCondition={disableRowConditionForCell}
+                            isHovered={isRowHovered}
+                            isSelected={isRowSelected}
+                            isShiftKeyDown={isShiftKeyDown}
+                            key={getRowId(row)}
+                            lastSelectionIndex={lastSelectionIndex}
+                            limit={limit}
+                            listingVariant={listingVariant}
+                            onClick={
+                              isSubItem
+                                ? undefined
+                                : (): void => {
+                                    onRowClick(row);
                                   }
-                                  slotProps={{
-                                    input: {
-                                      'aria-label': `Select row ${getId(row)}`
+                            }
+                            onFocus={(): void => hoverRow(row)}
+                            onMouseOver={(): void => hoverRow(row)}
+                            row={row}
+                            rowColorConditions={rowColorConditions}
+                            shiftKeyDownRowPivot={shiftKeyDownRowPivot}
+                            subItemsPivots={subItemsPivots}
+                            tabIndex={-1}
+                            visibleColumns={visibleColumns}
+                          >
+                            {checkable &&
+                              (!isSubItem || subItems.canCheckSubItems ? (
+                                <Cell
+                                  align="left"
+                                  className="justify-start"
+                                  disableRowCondition={
+                                    disableRowConditionForCell
+                                  }
+                                  isRowHovered={isRowHovered}
+                                  onClick={(event): void =>
+                                    selectRow(event, row)
+                                  }
+                                  row={row}
+                                  rowColorConditions={rowColorConditions}
+                                >
+                                  <Checkbox
+                                    checked={isRowSelected}
+                                    className="pl-1"
+                                    disabled={
+                                      disableRowCheckCondition(row) ||
+                                      disableRowCondition(row)
                                     }
-                                  }}
+                                    slotProps={{
+                                      input: {
+                                        'aria-label': `Select row ${getId(row)}`
+                                      }
+                                    }}
+                                  />
+                                </Cell>
+                              ) : (
+                                <Cell
+                                  align="left"
+                                  disableRowCondition={
+                                    disableRowConditionForCell
+                                  }
+                                  isRowHovered={isRowHovered}
+                                  row={row}
+                                  rowColorConditions={rowColorConditions}
                                 />
-                              </Cell>
-                            ) : (
-                              <Cell
-                                align="left"
+                              ))}
+
+                            {visibleColumns.map((column) => (
+                              <DataCell
+                                column={column}
                                 disableRowCondition={disableRowConditionForCell}
+                                getHighlightRowCondition={
+                                  getHighlightRowConditionForCell
+                                }
                                 isRowHovered={isRowHovered}
+                                isRowSelected={isRowSelected}
+                                key={`${getId(row)}-${column.id}`}
+                                labelCollapse={subItems.labelCollapse}
+                                labelExpand={subItems.labelExpand}
+                                listingVariant={listingVariant}
                                 row={row}
                                 rowColorConditions={rowColorConditions}
+                                subItemsRowProperty={subItems?.getRowProperty(
+                                  row
+                                )}
                               />
                             ))}
-
-                          {visibleColumns.map((column) => (
-                            <DataCell
-                              column={column}
-                              disableRowCondition={disableRowConditionForCell}
-                              getHighlightRowCondition={
-                                getHighlightRowConditionForCell
-                              }
-                              isRowHovered={isRowHovered}
-                              isRowSelected={isRowSelected}
-                              key={`${getId(row)}-${column.id}`}
-                              labelCollapse={subItems.labelCollapse}
-                              labelExpand={subItems.labelExpand}
-                              listingVariant={listingVariant}
-                              row={row}
-                              rowColorConditions={rowColorConditions}
-                              subItemsRowProperty={subItems?.getRowProperty(
-                                row
-                              )}
-                            />
-                          ))}
-                        </ListingRow>
+                          </ListingRow>
+                          {expandableRow?.isExpanded(row) && (
+                            <div className="col-span-full">
+                              {expandableRow.render(row)}
+                            </div>
+                          )}
+                        </Fragment>
                       );
                     })}
+
+                    {bodyFooter && rows.length > 0 && (
+                      <div className="col-span-full">{bodyFooter}</div>
+                    )}
 
                     {rows.length < 1 &&
                       (loading ? (

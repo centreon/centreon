@@ -134,6 +134,7 @@ export { default as StatusChip } from './StatusChip';
 export { default as StoryBookThemeProvider } from './StoryBookThemeProvider';
 export { default as ThemeProvider } from './ThemeProvider';
 export { default as TimePeriods } from './TimePeriods';
+export { PickersStartEndDateDirection } from './TimePeriods/CustomTimePeriod/PopoverCustomTimePeriod/models';
 export { default as SimpleCustomTimePeriod } from './TimePeriods/CustomTimePeriod/SimpleCustomTimePeriod';
 export { default as DateTimePickerInput } from './TimePeriods/DateTimePickerInput';
 export * from './TopCounterElements';

@@ -16,11 +16,13 @@ import type { Listing } from '../api/models';
 interface UseInfiniteScrollListing<T> {
   elementRef: (node: Element | null) => void;
   elements: Array<T>;
+  hasNextPage: boolean;
   isLoading: boolean;
   total?: number;
 }
 
 interface UseInfiniteScrollListingProps<T> {
+  apiFormat?: 'Standard' | 'JSON-LD';
   customQueryParameters?: Array<QueryParameter>;
   decoder?: JsonDecoder.Decoder<Listing<T>>;
   enabled?: boolean;
@@ -33,6 +35,7 @@ interface UseInfiniteScrollListingProps<T> {
 }
 
 export const useInfiniteScrollListing = <T>({
+  apiFormat,
   queryKeyName,
   endpoint,
   decoder,
@@ -64,6 +67,7 @@ export const useInfiniteScrollListing = <T>({
     decoder,
     getEndpoint: (params) =>
       buildListingEndpoint({
+        apiFormat,
         baseEndpoint: endpoint,
         customQueryParameters,
         parameters: { limit, page: params?.page || page, ...parameters }
@@ -104,8 +108,10 @@ export const useInfiniteScrollListing = <T>({
       return;
     }
 
-    const total = data.meta.total || 1;
-    const newMaxPage = Math.ceil(total / limit);
+    // Without total count, the API only tells whether another page follows
+    const newMaxPage = isNil(data.meta.hasNextPage)
+      ? Math.ceil((data.meta.total || 1) / limit)
+      : page + (data.meta.hasNextPage ? 1 : 0);
 
     setMaxPage(newMaxPage);
 
@@ -126,7 +132,8 @@ export const useInfiniteScrollListing = <T>({
   return {
     elementRef,
     elements: elements.current || [],
+    hasNextPage: page < maxPage,
     isLoading,
-    total: data?.meta.total
+    total: isNil(data?.meta.hasNextPage) ? data?.meta.total : undefined
   };
 };

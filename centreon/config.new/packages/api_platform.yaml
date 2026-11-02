@@ -32,6 +32,7 @@ api_platform:
         paths:
             - '%kernel.project_dir%/src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/Resource/'
             - '%kernel.project_dir%/src/App/Upgrade/Infrastructure/ApiPlatform/Resource/'
+            - '%kernel.project_dir%/src/App/ActivityLogging/Infrastructure/ApiPlatform/Resource/'
 
     swagger:
          api_keys:

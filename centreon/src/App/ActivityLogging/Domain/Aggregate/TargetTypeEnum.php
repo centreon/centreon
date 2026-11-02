@@ -26,9 +26,32 @@ namespace App\ActivityLogging\Domain\Aggregate;
 enum TargetTypeEnum: string
 {
     case Command = 'Command';
+    case TimePeriod = 'TimePeriod';
+    case Contact = 'Contact';
+    case ContactGroup = 'ContactGroup';
     case Host = 'Host';
     case HostTemplate = 'HostTemplate';
-    case Poller = 'Poller';
+    case HostGroup = 'HostGroup';
     case Service = 'Service';
+    case ServiceGroup = 'ServiceGroup';
+    case Trap = 'Trap';
+    case Escalation = 'Escalation';
+    case HostDependency = 'HostDependency';
+    case HostGroupDependency = 'HostGroupDependency';
+    case ServiceDependency = 'ServiceDependency';
+    case ServiceGroupDependency = 'ServiceGroupDependency';
+    case Poller = 'Poller';
+    case Engine = 'Engine';
+    case Broker = 'Broker';
+    case Resource = 'Resource';
+    case MetaService = 'MetaService';
+    case AccessGroup = 'AccessGroup';
+    case MenuAccess = 'MenuAccess';
+    case ResourceAccess = 'ResourceAccess';
+    case ActionAccess = 'ActionAccess';
+    case Manufacturer = 'Manufacturer';
+    case HostCategory = 'HostCategory';
     case ServiceCategory = 'ServiceCategory';
+    case HostSeverity = 'HostSeverity';
+    case ServiceSeverity = 'ServiceSeverity';
 }

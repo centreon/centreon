@@ -44,23 +44,6 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
 {
     private const TABLE_NAME = 'log_action';
     private const DETAIL_TABLE_NAME = 'log_action_modification';
-    private const TARGET_TYPE_VALUE_MAP = [
-        TargetTypeEnum::Command->value => 'command',
-        TargetTypeEnum::Host->value => 'host',
-        // host templates share the host object type
-        TargetTypeEnum::HostTemplate->value => 'host',
-        TargetTypeEnum::Poller->value => 'poller',
-        TargetTypeEnum::Service->value => 'service',
-        TargetTypeEnum::ServiceCategory->value => 'servicecategories',
-    ];
-    private const ACTION_VALUE_MAP = [
-        ActionEnum::Add->value => 'a',
-        ActionEnum::Update->value => 'c',
-        ActionEnum::Delete->value => 'd',
-        ActionEnum::Enable->value => 'enable',
-        ActionEnum::Disable->value => 'disable',
-        ActionEnum::MassChange->value => 'mc',
-    ];
 
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.realtime_connection')]
@@ -128,8 +111,8 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
                 $activityLog->performedAt->getTimestamp(),
                 $activityLog->target->id->value,
                 $activityLog->target->name->value,
-                self::TARGET_TYPE_VALUE_MAP[$activityLog->target->type->value],
-                self::ACTION_VALUE_MAP[$activityLog->action->value],
+                LogActionTokenMapper::targetTypeToToken($activityLog->target->type),
+                LogActionTokenMapper::actionToToken($activityLog->action),
                 $activityLog->actor->id->value,
             ];
         }
@@ -219,27 +202,26 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
 
         $row = $rows[0];
 
-        // a stored 'host' row cannot tell a host from a template: the first match, Host, wins
-        $targetType = array_search($row['object_type'], self::TARGET_TYPE_VALUE_MAP, true);
-        if ($targetType === false) {
-            throw new \RuntimeException(sprintf('There is no "%s" associated to "%s", try to updated %s::TARGET_TYPE_VALUE_MAP.', TargetTypeEnum::class, $row['object_type'], self::class));
+        $targetType = LogActionTokenMapper::tokenToTargetType($row['object_type']);
+        if ($targetType === null) {
+            throw new \RuntimeException(sprintf('There is no "%s" associated to "%s", try to update %s.', TargetTypeEnum::class, $row['object_type'], LogActionTokenMapper::class));
         }
 
-        $action = array_flip(self::ACTION_VALUE_MAP)[$row['action_type']] ?? null;
+        $action = LogActionTokenMapper::tokenToAction($row['action_type']);
         if ($action === null) {
-            throw new \RuntimeException(sprintf('There is no "%s" associated to "%s", try to updated %s::ACTION_VALUE_MAP.', ActionEnum::class, $row['action_type'], self::class));
+            throw new \RuntimeException(sprintf('There is no "%s" associated to "%s", try to update %s.', ActionEnum::class, $row['action_type'], LogActionTokenMapper::class));
         }
 
         return new ActivityLog(
             id: new ActivityLogId($row['action_log_id']),
-            action: ActionEnum::from($action),
+            action: $action,
             actor: new Actor(
                 id: new ActorId($row['log_contact_id']),
             ),
             target: new Target(
                 id: new TargetId($row['object_id']),
                 name: new TargetName($row['object_name']),
-                type: TargetTypeEnum::from($targetType),
+                type: $targetType,
             ),
             performedAt: (new \DateTimeImmutable('@' . $row['action_log_date']))->setTimezone(new \DateTimeZone(date_default_timezone_get())),
             details: $details,

@@ -2,6 +2,7 @@ const routeMap = {
   about: '/administration/about',
   additionalConnectorConfiguration:
     '/configuration/additional-connector-configurations',
+  administrationLogs: '/administration/logs',
   agentConfigurations: '/configuration/pollers/agent-configurations',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
