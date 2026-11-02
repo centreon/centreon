@@ -10,7 +10,8 @@ export const servicesBaseEndpoint = './api';
 
 export const servicesListEndpoint = '/configuration/services';
 
-export const serviceTemplatesEndpoint = '/configuration/service_templates';
+export const serviceTemplatesEndpoint =
+  '/configuration/services/service_templates';
 
 export const getServiceEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/services/${id}`;

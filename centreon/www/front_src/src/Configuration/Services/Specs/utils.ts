@@ -54,7 +54,7 @@ export const emptyListingResponse = {
 
 export const getServiceTemplatesResponse = () => ({
   '@context': '/centreon/api/contexts/Collection',
-  '@id': '/centreon/api/configuration/service_templates',
+  '@id': '/centreon/api/configuration/services/service_templates',
   '@type': 'Collection',
   member: [
     { id: 30, name: 'generic-active-service' },
