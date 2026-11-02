@@ -14,6 +14,7 @@
    },
    "options":{
       "displayType":"all",
+      "limit":30,
       "statuses":[
 
       ],
