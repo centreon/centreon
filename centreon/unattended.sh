@@ -1942,7 +1942,7 @@ function display_services_recap() {
 		"centengine|centengine|central poller"
 		# On pollers gorgoned is only started by its package %post (enable_new_services
 		# does not start it there): report it without failing the run.
-		"gorgone|gorgoned|central poller|central"
+		"gorgone|gorgoned|central poller"
 		"cbd|cbd|central"
 		"centreontrapd|centreontrapd|central poller"
 		"snmptrapd|snmptrapd|central poller"
