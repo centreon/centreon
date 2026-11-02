@@ -174,6 +174,18 @@ check 1 "${rc}" 'rstest split: a failing ui test fails'
 check yes "$(said '^FAIL  rstest \(1 packages/ui file')" 'rstest split: ui failure reported'
 reset
 
+# A browser test outside the rstest include globs is listed, not dropped.
+mkdir -p "${ui}/test"
+printf 'export const t = 1;\n' > "${ui}/test/Widget.browser.test.tsx"
+printf 'export const f = 2;\n' >> "${ui}/src/Field/index.tsx"
+verify "${repo}"
+check yes "$(called "${ui}\|pnpm rstest:run src/Field/Field.browser.test.tsx$")" 'rstest scope: tests in scope still run'
+check no "$(called 'rstest:run .*Widget')" 'rstest scope: the test outside the globs is not passed'
+check yes "$(said 'rstest test not run \(outside the rstest include globs\): centreon/packages/ui/test/Widget.browser.test.tsx')" 'rstest scope: listed as not checked'
+check 3 "${rc}" 'rstest scope: exit 3'
+rm -rf "${ui}/test"
+reset
+
 # The closest tests win: a Cypress spec next to the file over rstest above.
 printf 'export const y = 2;\n' >> "${src}/Legacy/Listing/listing.tsx"
 verify "${repo}"

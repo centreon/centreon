@@ -422,10 +422,15 @@ fi
 
 if ((${#browser[@]} > 0)); then
   # Each from its own package: the rstest configuration of centreon/ does not
-  # include the packages/ui tests.
+  # include the packages/ui tests. A test outside the include globs of both
+  # configurations would be dropped silently, so it is listed instead.
   app_browser=() ui_browser=()
   while IFS= read -r test; do
-    if [[ "${test}" == "${ui}"/* ]]; then ui_browser+=("${test#"${ui}"/}"); else app_browser+=("${test#"${web}"/}"); fi
+    case "${test}" in
+      "${ui}"/src/*) ui_browser+=("${test#"${ui}"/}") ;;
+      "${web}"/www/front_src/src/* | "${web}"/test-setup/*) app_browser+=("${test#"${web}"/}") ;;
+      *) gaps+=("rstest test not run (outside the rstest include globs): ${test#"${root}"/}") ;;
+    esac
   done < <(unique "${browser[@]}")
   if ((${#app_browser[@]} > 0)); then
     if run "${logs}/rstest-app.log" "${web}" pnpm rstest:run "${app_browser[@]}"; then
