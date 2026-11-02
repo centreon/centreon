@@ -1,29 +1,35 @@
 # syntax=docker/dockerfile:1
 #
-# EXPERIMENTAL — local build/test only (not wired into CI, charts or compose).
-# Merges centreon-snmptrapd and centreon-centreontrapd into a single image:
-# two containers, one image, role picked at runtime from the CMD the caller
-# passes (see container.sh). container.d/ scripts named *.snmptrapd.sh or
-# *.centreontrapd.sh only run for that role (container.sh skips the other
-# role's files outright, never sourcing/forking them); unsuffixed scripts
-# (00-init.sh) run for both. No process-level merge: still two separate
-# daemons, one per container, as today.
+# Single image for both trap daemons: two containers, one image, role picked
+# at runtime from the CMD the caller passes (see container.sh).
+# container.d/ scripts named *.snmptrapd.sh or *.centreontrapd.sh only run for
+# that role; unsuffixed scripts (00-init.sh) run for both.
+#
+# Package-less build: no .deb, no upstream image.
+#   - centreontrapd / centreontrapdforward wrappers come from this repo
+#     (centreon/bin/).
+#   - Their Perl modules (centreon::script, centreon::trapd, centreon::common)
+#     live in centreon-collect (perl-libs/lib/centreon). By default the
+#     "perl-libs" stage below fetches them from GitHub at CENTREON_COLLECT_REF;
+#     override it with a local checkout (CI, local dev) via a named build
+#     context:
+#
+#   docker buildx build \
+#     --build-context perl-libs=../centreon-collect/perl-libs/lib \
+#     -f .github/docker/centreon-trapd/trixie/Dockerfile .
+
+ARG CENTREON_COLLECT_REF=develop
 
 #############################################
-# Stage 1: "Extract" — local-only shortcut. The real .deb-based extractor
-# (see centreon-snmptrapd/centreon-centreontrapd Dockerfiles) is skipped here:
-# this merge is a local build/run validation, not wired into CI yet, and both
-# source images are already published/pulled locally. Reusing their binaries
-# and Perl modules directly is equivalent (same packages, same artifacts) and
-# avoids needing the real .deb files + packages-centreon bind mount just to
-# prove the merge boots. Swap back to the real extractor before this goes
-# anywhere near CI/charts.
+# Centreon Perl modules (centreon-collect perl-libs/lib)
+# Replaced wholesale by --build-context perl-libs=<path>.
 #############################################
-FROM docker.centreon.com/centreon/centreon-snmptrapd-trixie:develop AS snmptrapd-src
-FROM docker.centreon.com/centreon/centreon-centreontrapd-trixie:develop AS centreontrapd-src
+FROM scratch AS perl-libs
+ARG CENTREON_COLLECT_REF
+ADD --link https://github.com/centreon/centreon-collect.git#${CENTREON_COLLECT_REF}:perl-libs/lib /
 
 #############################################
-# Stage 2: Runtime - Debian 13 slim image
+# Runtime - Debian 13 slim image
 #############################################
 FROM debian:13-slim AS trapd
 
@@ -93,11 +99,10 @@ chmod 0775 /var/lib/centreon-engine/rw
 chmod 0755 /var/spool/centreon
 EOF
 
-# Both binaries, same Perl module tree the two source images already ship
-# (both are built from the same centreon-trap*.deb + centreon-perl-libs*.deb).
-COPY --from=snmptrapd-src --link --chmod=755 /usr/share/centreon/bin/centreontrapdforward /usr/share/centreon/bin/centreontrapdforward
-COPY --from=centreontrapd-src --link --chmod=755 /usr/share/centreon/bin/centreontrapd /usr/share/centreon/bin/centreontrapd
-COPY --from=centreontrapd-src --link /usr/share/perl5/centreon/ /usr/share/perl5/centreon/
+# Daemon wrappers (same paths/modes as the centreon-trap package) and the
+# Centreon Perl module tree (same layout as the centreon-perl-libs package).
+COPY --link --chmod=755 centreon/bin/centreontrapd centreon/bin/centreontrapdforward /usr/share/centreon/bin/
+COPY --from=perl-libs --link centreon/ /usr/share/perl5/centreon/
 
 COPY --link --chmod=755 .github/docker/centreon-trapd/trixie/entrypoint /usr/local/lib/centreon-trapd/
 
@@ -124,7 +129,7 @@ ARG BUILD_VERSION=unknown
 ARG PACKAGE_SOURCES=unknown
 ARG GIT_REVISION=unknown
 
-LABEL org.opencontainers.image.title="Centreon TRAPD (merged, experimental)" \
+LABEL org.opencontainers.image.title="Centreon TRAPD" \
       org.opencontainers.image.description="Centreon SNMP trap receiver + trap handler, role picked by the container command" \
       org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.version="${BUILD_VERSION}" \
@@ -134,7 +139,7 @@ LABEL org.opencontainers.image.title="Centreon TRAPD (merged, experimental)" \
       org.opencontainers.image.vendor="Centreon" \
       org.centreon.package-sources="${PACKAGE_SOURCES}" \
       org.centreon.base-image="debian:13-slim" \
-      org.centreon.release-stage="experimental"
+      org.centreon.release-stage="beta"
 
 WORKDIR /etc/centreon
 
