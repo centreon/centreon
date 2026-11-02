@@ -1,12 +1,16 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty, isNil, not } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
 
 import { ConfigurationBase } from '../models';
 import { configurationAtom } from './atoms';
-import { sortFieldAtom, sortOrderAtom } from './Listing/atoms';
+import {
+  sortFieldAtom,
+  sortOrderAtom,
+  sortsByListingAtom
+} from './Listing/atoms';
 import Page from './Page';
 
 const Base = <TFilters,>({
@@ -35,12 +39,16 @@ const Base = <TFilters,>({
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
   const setSortField = useSetAtom(sortFieldAtom);
   const setSortOrder = useSetAtom(sortOrderAtom);
+  const sortsByListing = useAtomValue(sortsByListingAtom);
 
-  // The sort atoms are shared by every listing: each page opens on its own.
+  // The sort atoms are shared by every listing: each page opens on the sort
+  // it was left on, never on another listing's.
   useEffect(() => {
-    setSortField(defaultSortField ?? 'name');
-    setSortOrder('asc');
-  }, [defaultSortField]);
+    const sort = sortsByListing[resourceType];
+
+    setSortField(sort?.field ?? defaultSortField ?? 'name');
+    setSortOrder(sort?.order ?? 'asc');
+  }, [resourceType, defaultSortField]);
 
   useEffect(() => {
     setConfiguration({

@@ -22,8 +22,10 @@ import { object } from 'yup';
 import {
   limitAtom,
   sortFieldAtom,
-  sortOrderAtom
+  sortOrderAtom,
+  sortsByListingAtom
 } from '../../ConfigurationBase/Listing/atoms';
+import { ResourceType } from '../../models';
 import Hosts from '..';
 import {
   getDeployServicesEndpoint,
@@ -88,6 +90,8 @@ interface Props {
   patchFails?: Array<number>;
   // The sort another listing left in the shared atoms.
   previousSort?: { field: string; order: 'asc' | 'desc' };
+  // The sort the hosts listing was left on earlier in the session.
+  savedSort?: { field: string; order: 'asc' | 'desc' };
   // The platform's default page size; `null` while the platform parameters
   // are not known yet.
   defaultLimitPerPage?: number | null;
@@ -126,7 +130,8 @@ const initialize = ({
   patchFails = [],
   defaultLimitPerPage = 10,
   userLimit,
-  previousSort
+  previousSort,
+  savedSort
 }: Props = {}): InitializeResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -151,6 +156,10 @@ const initialize = ({
   if (previousSort) {
     store.set(sortFieldAtom, previousSort.field);
     store.set(sortOrderAtom, previousSort.order);
+  }
+
+  if (savedSort) {
+    store.set(sortsByListingAtom, { [ResourceType.Host]: savedSort });
   }
 
   interceptAPIRequest({

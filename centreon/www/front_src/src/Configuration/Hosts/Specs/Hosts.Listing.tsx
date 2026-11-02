@@ -4,6 +4,8 @@ import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { sortsByListingAtom } from '../../ConfigurationBase/Listing/atoms';
+import { ResourceType } from '../../models';
 import {
   labelCreateHost,
   labelHosts,
@@ -45,6 +47,32 @@ export default () => {
 
       expect(request.url.searchParams.get('sort[name]')).toBe('asc');
       expect(request.url.searchParams.get('sort[host.name]')).toBeNull();
+    });
+
+    it('opens on the sort the hosts listing was left on', async () => {
+      initialize({
+        previousSort: { field: 'host.name', order: 'asc' },
+        savedSort: { field: 'name', order: 'desc' }
+      });
+
+      const { request } = await waitForRequest('@getAllHosts');
+
+      expect(request.url.searchParams.get('sort[name]')).toBe('desc');
+      expect(request.url.searchParams.get('sort[host.name]')).toBeNull();
+    });
+
+    it('keeps the sort picked in the hosts listing for its next visit', async () => {
+      const { store } = initialize();
+
+      await waitForRequest('@getAllHosts');
+      await userEvent.click(await screen.findByLabelText('Column Name'));
+
+      await waitFor(() => {
+        expect(store.get(sortsByListingAtom)[ResourceType.Host]).toEqual({
+          field: 'name',
+          order: 'desc'
+        });
+      });
     });
 
     it('displays the subtitle next to the page title', async () => {
