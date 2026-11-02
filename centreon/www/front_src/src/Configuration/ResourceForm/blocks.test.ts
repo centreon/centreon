@@ -13,6 +13,7 @@ import {
   getSchemaShape
 } from './blocks';
 import type { PlatformContext, SectionContext } from './models';
+import { getFieldsOwnedTwice, getFieldsWrittenTwice } from './testUtils';
 
 const onPremise: PlatformContext = { isCloudPlatform: false };
 const cloud: PlatformContext = { isCloudPlatform: true };
@@ -104,6 +105,19 @@ describe('Field blocks', () => {
     });
 
     expect(error).toContain('attempts');
+  });
+
+  it('finds a field two blocks write', () => {
+    expect(
+      getFieldsWrittenTwice([
+        { scheduling: { period: null } },
+        { scheduling: { attempts: null, period: '24x7' } },
+        { scheduling: null }
+      ])
+    ).toEqual(['scheduling.period', 'scheduling.attempts']);
+    expect(
+      getFieldsOwnedTwice({ blocks, context: onPremise, detail: values })
+    ).toEqual({ defaultValues: [], detail: [], payload: [] });
   });
 
   it('leaves an unavailable block out of everything', () => {
