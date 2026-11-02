@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
@@ -61,6 +62,51 @@ use Webmozart\Assert\Assert;
  *   host_activate: string|null,
  *   host_poller_id: int|string|null,
  * }
+ * @phpstan-type FormRowTypeAlias array{
+ *   check_command_id: int|string|null,
+ *   check_command_args: string|null,
+ *   check_timeperiod_id: int|string|null,
+ *   max_check_attempts: int|string|null,
+ *   active_check_enabled: string|null,
+ *   passive_check_enabled: string|null,
+ *   is_volatile: string|null,
+ *   acknowledgement_timeout: int|string|null,
+ *   check_freshness: string|null,
+ *   freshness_threshold: int|string|null,
+ *   flap_detection_enabled: string|null,
+ *   low_flap_threshold: int|string|null,
+ *   high_flap_threshold: int|string|null,
+ *   event_handler_enabled: string|null,
+ *   event_handler_command_id: int|string|null,
+ *   event_handler_args: string|null,
+ *   obsess_over_service: string|null,
+ *   retain_status_information: string|null,
+ *   retain_non_status_information: string|null,
+ *   stalking_options: string|null,
+ *   notifications_enabled: string|null,
+ *   notification_options: string|null,
+ *   notification_interval: int|string|null,
+ *   notification_period_id: int|string|null,
+ *   first_notification_delay: int|string|null,
+ *   recovery_notification_delay: int|string|null,
+ *   contact_additive_inheritance: int|string|null,
+ *   cg_additive_inheritance: int|string|null,
+ *   use_only_contacts_from_host: string|null,
+ *   comment: string|null,
+ *   geo_coords: string|null,
+ *   note: string|null,
+ *   note_url: string|null,
+ *   action_url: string|null,
+ *   icon_id: int|string|null,
+ *   alt_icon: string|null,
+ *   graph_template_id: int|string|null,
+ *   severity_id: int|string|null,
+ *   notification_contact_ids: string|null,
+ *   notification_contact_group_ids: string|null,
+ *   service_group_ids: string|null,
+ *   category_ids: string|null,
+ *   trap_ids: string|null,
+ * }
  * @phpstan-type ListedRowTypeAlias array{
  *   service_id: int|string,
  *   service_description: string,
@@ -88,7 +134,8 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         's.service_template_model_stm_id AS template_id',
         's.service_normal_check_interval AS normal_check_interval',
         's.service_retry_check_interval AS retry_check_interval',
-        '(SELECT MIN(esi.esi_icon_image) FROM extended_service_information esi WHERE esi.service_service_id = s.service_id) AS icon_id',
+        // The icon of the service's first extended information row, the row a Get reads too.
+        '(SELECT esi.esi_icon_image FROM extended_service_information esi WHERE esi.service_service_id = s.service_id ORDER BY esi.esi_id LIMIT 1) AS icon_id',
     ];
 
     /**
@@ -189,7 +236,8 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     }
 
     /**
-     * Same pairs as {@see findAll()}; the pair with the lowest host id is read.
+     * Same pairs as {@see findAll()}; the pair with the lowest host id is read, then the whole form of the service
+     * on that host, then its macros.
      */
     public function findOne(ServiceId $id, ActingUser $actor): ?Service
     {
@@ -210,7 +258,17 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             return null;
         }
 
-        return $this->transformer->transform([...$row, 'macros' => $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? []]);
+        $formRow = $this->findFormRow($id->value, (int) $row['host_id'], $this->accessScopes->serviceSeverities($actor));
+        if ($formRow === null) {
+            // Deleted between the two reads: not found, like a service that never existed.
+            return null;
+        }
+
+        return $this->transformer->transform([
+            ...$row,
+            ...$formRow,
+            'macros' => $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? [],
+        ]);
     }
 
     public function updateActivationStatus(ServiceId $id, bool $activated): void
@@ -238,6 +296,109 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             ->executeStatement();
 
         $this->deleteDependenciesWithoutMember('dependency_serviceParent_relation', $parentDependencyIds);
+    }
+
+    /**
+     * Every form column of the service and its relations: the extended information of its
+     * `extended_service_information` row with the lowest id, its service groups on this host only (not the rows of
+     * a host group), its levelless categories, and as severity the levelled category with the lowest id the
+     * scope allows.
+     *
+     * @param AccessScope<ServiceSeverityId> $severityScope
+     *
+     * @return ?FormRowTypeAlias null when the service no longer exists
+     */
+    private function findFormRow(int $serviceId, int $hostId, AccessScope $severityScope): ?array
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $severity = 'NULL';
+        if (! $severityScope->allowsNothing()) {
+            $severity = '(SELECT MIN(scr.sc_id)
+                FROM service_categories_relation scr
+                INNER JOIN service_categories sc ON sc.sc_id = scr.sc_id
+                WHERE scr.service_service_id = s.service_id AND sc.level IS NOT NULL';
+            if (! $severityScope->isUnrestricted()) {
+                $severity .= ' AND ' . $qb->expr()->in(
+                    'scr.sc_id',
+                    $qb->createNamedParameter($severityScope->allowedIdValues(), ArrayParameterType::INTEGER),
+                );
+            }
+            $severity .= ')';
+        }
+
+        $qb->select(
+            's.command_command_id AS check_command_id',
+            's.command_command_id_arg AS check_command_args',
+            's.timeperiod_tp_id AS check_timeperiod_id',
+            's.service_max_check_attempts AS max_check_attempts',
+            's.service_active_checks_enabled AS active_check_enabled',
+            's.service_passive_checks_enabled AS passive_check_enabled',
+            's.service_is_volatile AS is_volatile',
+            's.service_acknowledgement_timeout AS acknowledgement_timeout',
+            's.service_check_freshness AS check_freshness',
+            's.service_freshness_threshold AS freshness_threshold',
+            's.service_flap_detection_enabled AS flap_detection_enabled',
+            's.service_low_flap_threshold AS low_flap_threshold',
+            's.service_high_flap_threshold AS high_flap_threshold',
+            's.service_event_handler_enabled AS event_handler_enabled',
+            's.command_command_id2 AS event_handler_command_id',
+            's.command_command_id_arg2 AS event_handler_args',
+            's.service_obsess_over_service AS obsess_over_service',
+            's.service_retain_status_information AS retain_status_information',
+            's.service_retain_nonstatus_information AS retain_non_status_information',
+            's.service_stalking_options AS stalking_options',
+            's.service_notifications_enabled AS notifications_enabled',
+            's.service_notification_options AS notification_options',
+            's.service_notification_interval AS notification_interval',
+            's.timeperiod_tp_id2 AS notification_period_id',
+            's.service_first_notification_delay AS first_notification_delay',
+            's.service_recovery_notification_delay AS recovery_notification_delay',
+            's.contact_additive_inheritance',
+            's.cg_additive_inheritance',
+            's.service_use_only_contacts_from_host AS use_only_contacts_from_host',
+            's.service_comment AS comment',
+            's.geo_coords',
+            'esi.esi_notes AS note',
+            'esi.esi_notes_url AS note_url',
+            'esi.esi_action_url AS action_url',
+            'esi.esi_icon_image AS icon_id',
+            'esi.esi_icon_image_alt AS alt_icon',
+            'esi.graph_id AS graph_template_id',
+            $severity . ' AS severity_id',
+            '(SELECT GROUP_CONCAT(csr.contact_id)
+                FROM contact_service_relation csr
+                WHERE csr.service_service_id = s.service_id) AS notification_contact_ids',
+            '(SELECT GROUP_CONCAT(cgsr.contactgroup_cg_id)
+                FROM contactgroup_service_relation cgsr
+                WHERE cgsr.service_service_id = s.service_id) AS notification_contact_group_ids',
+            '(SELECT GROUP_CONCAT(DISTINCT sgr.servicegroup_sg_id)
+                FROM servicegroup_relation sgr
+                WHERE sgr.service_service_id = s.service_id
+                    AND sgr.host_host_id = ' . $qb->createNamedParameter($hostId, ParameterType::INTEGER) . '
+                    AND sgr.hostgroup_hg_id IS NULL) AS service_group_ids',
+            // The relation tables carry no unique key: a duplicated legacy link is read once.
+            '(SELECT GROUP_CONCAT(DISTINCT scr.sc_id)
+                FROM service_categories_relation scr
+                INNER JOIN service_categories sc ON sc.sc_id = scr.sc_id
+                WHERE scr.service_service_id = s.service_id AND sc.level IS NULL) AS category_ids',
+            '(SELECT GROUP_CONCAT(DISTINCT tsr.traps_id)
+                FROM traps_service_relation tsr
+                WHERE tsr.service_id = s.service_id) AS trap_ids',
+        )
+            ->from(self::TABLE_NAME, 's')
+            ->leftJoin(
+                's',
+                'extended_service_information',
+                'esi',
+                'esi.esi_id = (SELECT MIN(esi_first.esi_id) FROM extended_service_information esi_first WHERE esi_first.service_service_id = s.service_id)',
+            )
+            ->where($qb->expr()->eq('s.service_id', $qb->createNamedParameter($serviceId, ParameterType::INTEGER)));
+
+        /** @var FormRowTypeAlias|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        return $row !== false ? $row : null;
     }
 
     /**
@@ -386,17 +547,24 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     private function findMacroRowsByServiceIds(array $serviceIds): array
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('svc_svc_id', 'svc_macro_name AS name', 'svc_macro_value AS value', 'is_password', 'description')
+        $qb->select('svc_macro_id AS id', 'svc_svc_id', 'svc_macro_name AS name', 'svc_macro_value AS value', 'is_password', 'description')
             ->from('on_demand_macro_service')
             ->where($qb->expr()->in('svc_svc_id', $qb->createNamedParameter($serviceIds, ArrayParameterType::INTEGER)))
-            ->orderBy('macro_order');
+            ->orderBy('macro_order')
+            ->addOrderBy('svc_macro_id');
 
-        /** @var list<array{svc_svc_id: int|string, name: string, value: string, is_password: string|int, description: string|null}> $rows */
+        /** @var list<array{id: int|string, svc_svc_id: int|string, name: string, value: string, is_password: string|int|null, description: string|null}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
         foreach ($rows as $row) {
+            // Stored as the engine form $_SERVICE<NAME>$; a row not in that form is not a service macro, as for
+            // the macros of service templates.
+            if (preg_match('/^\$_SERVICE.+\$$/', $row['name']) !== 1) {
+                continue;
+            }
             $grouped[(int) $row['svc_svc_id']][] = [
+                'id' => $row['id'],
                 'name' => $row['name'],
                 'value' => $row['value'],
                 'is_password' => $row['is_password'],
