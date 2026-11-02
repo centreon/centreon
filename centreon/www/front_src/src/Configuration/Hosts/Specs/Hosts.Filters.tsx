@@ -107,7 +107,7 @@ export default () => {
 
       const { request } = await waitForRequest('@getHostTemplates');
 
-      expect(request.url.searchParams.get('is_locked')).toBe('true');
+      expect(request.url.searchParams.get('include_locked')).toBe('true');
     });
 
     it('sends the monitoring server id as a query parameter', async () => {

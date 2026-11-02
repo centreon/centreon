@@ -101,11 +101,10 @@ const getSelectorEndpoint =
     });
   };
 
-// The host template listing leaves the locked templates out unless asked, but
-// hosts are commonly based on them (Monitoring Connector templates).
+// Include locked templates: hosts commonly use Monitoring Connector ones.
 export const getHostTemplatesEndpoint = getSelectorEndpoint(
   hostTemplatesEndpoint,
-  [{ name: 'is_locked', value: 'true' }]
+  [{ name: 'include_locked', value: 'true' }]
 );
 export const getHostGroupsEndpoint = getSelectorEndpoint(hostGroupsEndpoint);
 export const getPollersEndpoint = getSelectorEndpoint(pollersEndpoint);

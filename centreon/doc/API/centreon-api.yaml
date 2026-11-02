@@ -5387,7 +5387,7 @@ paths:
           style: form
           explode: true
         -
-          name: is_locked
+          name: include_locked
           in: query
           description: 'Include the locked host templates as well (unlocked ones only when absent or false)'
           required: false

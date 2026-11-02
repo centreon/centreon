@@ -215,10 +215,10 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
     {
         yield 'absent: unlocked only' => [[], ['unlocked' => false]];
 
-        yield 'false: unlocked only' => [['is_locked' => 'false'], ['unlocked' => false]];
+        yield 'false: unlocked only' => [['include_locked' => 'false'], ['unlocked' => false]];
 
         // NULL lock: hidden by default, shown as not locked (legacy parity)
-        yield 'true: locked ones as well' => [['is_locked' => 'true'], ['locked' => true, 'null' => false, 'unlocked' => false]];
+        yield 'true: locked ones as well' => [['include_locked' => 'true'], ['locked' => true, 'null' => false, 'unlocked' => false]];
     }
 
     /**
@@ -252,7 +252,7 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['is_locked' => 'maybe']]);
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['include_locked' => 'maybe']]);
         self::assertResponseStatusCodeSame(400);
     }
 

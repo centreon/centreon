@@ -91,7 +91,7 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
             $criteria = $criteria->withNameOrAlias($search);
         }
 
-        if ($this->handleBoolFilter($filters['is_locked'] ?? null, 'is_locked') !== true) {
+        if ($this->handleBoolFilter($filters['include_locked'] ?? null, 'include_locked') !== true) {
             $criteria = $criteria->withoutLocked();
         }
 

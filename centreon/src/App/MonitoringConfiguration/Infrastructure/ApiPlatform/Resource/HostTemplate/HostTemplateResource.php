@@ -80,7 +80,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
                         schema: ['type' => 'string'],
                     ),
                     new Model\Parameter(
-                        name: 'is_locked',
+                        name: 'include_locked',
                         in: 'query',
                         description: 'Include the locked host templates as well (unlocked ones only when absent or false)',
                         required: false,
