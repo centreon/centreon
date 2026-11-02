@@ -174,6 +174,18 @@ check 1 "${rc}" 'rstest split: a failing ui test fails'
 check yes "$(said '^FAIL  rstest \(1 packages/ui file')" 'rstest split: ui failure reported'
 reset
 
+# A .browser.test.ts test runs with rstest, not Jest, and is found as the
+# related test of the file next to it.
+mkdir -p "${src}/Probe"
+printf 'export const t = 1;\n' > "${src}/Probe/probe.browser.test.ts"
+printf 'export const p = 1;\n' > "${src}/Probe/probe.ts"
+verify "${repo}"
+check yes "$(called "${web}\|pnpm rstest:run www/front_src/src/Probe/probe.browser.test.ts$")" 'browser .ts: run with rstest'
+check no "$(called 'jest .*probe')" 'browser .ts: not passed to Jest'
+check 0 "${rc}" 'browser .ts: exit 0'
+rm -rf "${src}/Probe"
+reset
+
 # A browser test outside the rstest include globs is listed, not dropped.
 mkdir -p "${ui}/test"
 printf 'export const t = 1;\n' > "${ui}/test/Widget.browser.test.tsx"

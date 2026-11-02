@@ -139,7 +139,7 @@ unique() {
 # Cypress specs (browser tests first at the same level). The first line is
 # the kind, "browser" or "cypress"; nothing when none is found.
 related_tests() {
-  local dir stop found kind pattern
+  local dir stop found kind names
   dir="$(dirname "$1")"
   case "${dir}" in
     "${ui}"/*) stop="${ui}/src" ;;
@@ -151,8 +151,8 @@ related_tests() {
   while [[ "${dir}" == "${stop}" || "${dir}" == "${stop}"/* ]]; do
     for kind in browser cypress; do
       # Regular files only: snapshot folders are named after their spec.
-      if [[ "${kind}" == 'browser' ]]; then pattern='*.browser.test.tsx'; else pattern='*.cypress.spec.tsx'; fi
-      found="$(find "${dir}" "${dir}/Specs" -maxdepth 1 -type f -name "${pattern}" 2> /dev/null | sort)"
+      if [[ "${kind}" == 'browser' ]]; then names=(-name '*.browser.test.ts' -o -name '*.browser.test.tsx'); else names=(-name '*.cypress.spec.tsx'); fi
+      found="$(find "${dir}" "${dir}/Specs" -maxdepth 1 -type f \( "${names[@]}" \) 2> /dev/null | sort)"
       if [[ -n "${found}" ]]; then
         printf '%s\n%s\n' "${kind}" "${found}"
         return 0
@@ -279,12 +279,12 @@ for file in "${code[@]+"${code[@]}"}" "${deleted[@]+"${deleted[@]}"}"; do
       *.cypress.spec.tsx | */testsUtils.* | *.stories.ts | *.stories.tsx | *.cy.tsx)
         gaps+=("not type-checked (excluded by the repo tsconfig): ${file#"${root}"/}")
         ;;
-      *.browser.test.tsx | "${web}"/www/front_src/*/Specs/* | "${web}"/www/front_src/*/specs/*) app_specs+=("${file}") ;;
+      *.browser.test.ts | *.browser.test.tsx | "${web}"/www/front_src/*/Specs/* | "${web}"/www/front_src/*/specs/*) app_specs+=("${file}") ;;
       "${ui}"/*.ts | "${ui}"/*.tsx) ui_code+=("${file}") ;;
       *.ts | *.tsx) app_code+=("${file}") ;;
     esac
     case "${file}" in
-      *.browser.test.tsx)
+      *.browser.test.ts | *.browser.test.tsx)
         browser+=("${file}")
         continue
         ;;
@@ -374,10 +374,10 @@ else
     spec_tests=()
     for file in "${app_specs[@]}"; do
       case "${file}" in
-        *.browser.test.tsx) spec_tests+=("${file}") ;;
+        *.browser.test.ts | *.browser.test.tsx) spec_tests+=("${file}") ;;
         *)
           found=0
-          for test in "$(dirname "${file}")"/*.browser.test.tsx; do
+          for test in "$(dirname "${file}")"/*.browser.test.ts "$(dirname "${file}")"/*.browser.test.tsx; do
             if [[ -f "${test}" ]]; then
               spec_tests+=("${test}")
               found=1
