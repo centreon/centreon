@@ -127,17 +127,21 @@ final class ListContactGroupsChoicesProviderTest extends ApiTestCase
         );
     }
 
-    public function testTheServiceSelectorExcludesLdapContactGroups(): void
+    public function testTheServiceSelectorListsImportedLdapContactGroups(): void
     {
         $localName = "local-{$this->tag}";
         $this->insertContactGroup($localName, type: 'local');
-        $this->insertContactGroup("ldap-{$this->tag}", type: 'ldap');
+        $ldapName = "ldap-{$this->tag}";
+        $this->insertContactGroup($ldapName, type: 'ldap');
 
         $this->login();
 
         $response = $this->request('GET', self::SERVICE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
         self::assertResponseIsSuccessful();
-        self::assertSame([$localName], array_column((array) $response->toArray()['member'], 'name'));
+        self::assertEqualsCanonicalizing(
+            [$localName, $ldapName],
+            array_column((array) $response->toArray()['member'], 'name')
+        );
     }
 
     /**

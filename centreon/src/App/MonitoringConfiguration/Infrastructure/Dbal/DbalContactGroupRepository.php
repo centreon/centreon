@@ -168,14 +168,6 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
                 $names
             )));
         }
-
-        if ($criteria->excludeLdap()) {
-            // cg_type is nullable in DB; a NULL row is not LDAP, so it must stay included.
-            $qb->andWhere($qb->expr()->or(
-                'cg.cg_type IS NULL',
-                $qb->expr()->neq('cg.cg_type', $qb->createNamedParameter('ldap')),
-            ));
-        }
     }
 
     private function paginate(QueryBuilder $qb, Pagination $pagination): void

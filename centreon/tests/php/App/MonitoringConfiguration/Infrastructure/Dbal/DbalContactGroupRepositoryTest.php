@@ -183,23 +183,9 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         self::assertSame(ContactGroupTypeEnum::Ldap, $typesByName["ldap_{$suffix}"]);
     }
 
-    public function testFindAllExcludesLdapContactGroupsWhenRequested(): void
-    {
-        $suffix = bin2hex(random_bytes(6));
-        $this->insertContactGroup("local_{$suffix}", type: 'local');
-        $this->insertContactGroup("ldap_{$suffix}", type: 'ldap');
-
-        $names = $this->names($this->repository->findAll(
-            ContactGroupCriteria::unscoped()->withName($suffix)->withExcludeLdap(true)
-        ));
-
-        self::assertContains("local_{$suffix}", $names);
-        self::assertNotContains("ldap_{$suffix}", $names);
-    }
-
     /**
-     * cg_type is nullable in DB (no NOT NULL constraint); a NULL row is not LDAP and must stay
-     * included, both in the exclude-LDAP filter and in the domain type mapping.
+     * cg_type is nullable in DB (no NOT NULL constraint); a NULL row is not LDAP and maps to a
+     * local contact group.
      */
     public function testFindAllTreatsANullContactGroupTypeAsLocal(): void
     {
@@ -207,7 +193,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         $this->insertContactGroup("untyped_{$suffix}", type: null);
 
         $contactGroups = iterator_to_array($this->repository->findAll(
-            ContactGroupCriteria::unscoped()->withName($suffix)->withExcludeLdap(true)
+            ContactGroupCriteria::unscoped()->withName($suffix)
         ));
 
         self::assertCount(1, $contactGroups);
