@@ -15,11 +15,11 @@ import { type FormikValues, useFormikContext } from 'formik';
 import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { namedEntitiesListDecoder } from '../../ResourceForm/api/decoders';
 import {
   getFormHostTemplatesEndpoint,
   hostsBaseEndpoint
 } from '../api/endpoints';
-import { namedEntitiesListDecoder } from '../api/namedEntityDecoders';
 import type { NamedEntity } from '../models';
 import {
   labelAddNewEntry,
