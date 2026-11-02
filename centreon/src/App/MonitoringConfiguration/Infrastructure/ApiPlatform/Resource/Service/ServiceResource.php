@@ -26,12 +26,13 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Servic
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\DeleteServiceProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\GetServiceProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ListServicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchServiceProcessor;
 
@@ -107,11 +108,27 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchSe
             output: ServiceCollectionOutput::class,
             provider: ListServicesProvider::class,
         ),
-        // Gives the listed services their IRI until a Get item operation exists. Positive integers only, so the
-        // other routes under /configuration/services keep matching their own operations.
-        new NotExposed(
+        new Get(
             uriTemplate: '/configuration/services/{id}',
+            // Positive integers only, so the selector routes under /configuration/services (hosts, commands, ...)
+            // keep matching their own operations, and `/0` is a 404 too.
             requirements: ['id' => '[1-9]\d*'],
+            provider: GetServiceProvider::class,
+            openapi: new Model\Operation(
+                summary: 'Get a service',
+                description: 'Every field of the service form, as stored on the service itself: nothing inherited '
+                    . 'from its templates is resolved, except the macros, which are the effective ones (its own, '
+                    . 'then those it inherits, each with the id and parent to send back to override it). A password '
+                    . "macro's value is never returned. Services linked to host groups are not found.",
+                responses: [
+                    403 => new Model\Response('You are not allowed to view services'),
+                    404 => new Model\Response('Service not found'),
+                ],
+            ),
+            security: '
+                is_granted("' . ServicePermissionEnum::CanRead->value . '") or
+                is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to view services',
         ),
         new Delete(
             uriTemplate: '/configuration/services/{id}',
@@ -149,9 +166,36 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchSe
 )]
 final class ServiceResource
 {
+    public ServiceHostOutput $host;
+
+    public ?ServiceTemplateOutput $template = null;
+
+    public ServiceCheckOptionsOutput $checkOptions;
+
+    public ServiceMonitoringEngineOutput $monitoringEngine;
+
+    public ?ServiceNotificationsOutput $notifications = null;
+
+    public ServiceAdvancedOutput $advanced;
+
+    /** @var list<ServiceGroupOutput> */
+    public array $serviceGroups = [];
+
+    /** @var list<ServiceCategoryOutput> */
+    public array $categories = [];
+
+    public ?ServiceSeverityOutput $severity = null;
+
+    public ?ServiceGraphTemplateOutput $graphTemplate = null;
+
+    /** @var ?list<ServiceTrapOutput> null, and so left out, on a Cloud platform */
+    public ?array $traps = [];
+
     public function __construct(
-        #[ApiProperty(identifier: true)]
+        #[ApiProperty(identifier: true, writable: false)]
         public int $id,
+        public string $name,
+        public bool $activated,
     ) {
     }
 }
