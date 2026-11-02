@@ -4,7 +4,11 @@ import {
   screen,
   waitFor
 } from '@centreon/ui/test/testRenderer';
-import { isAdditiveInheritanceEnabledAtom } from '@centreon/ui-context';
+import {
+  defaultLimitPerPageAtom,
+  intervalLengthAtom,
+  isAdditiveInheritanceEnabledAtom
+} from '@centreon/ui-context';
 
 import axios from 'axios';
 
@@ -14,7 +18,9 @@ import {
   internalTranslationEndpoint,
   parametersEndpoint
 } from '../App/endpoint';
+import { labelYouAreDisconnected } from '../App/translatedLabels';
 import {
+  logoutEndpoint,
   platformInstallationStatusEndpoint,
   userEndpoint
 } from '../api/endpoint';
@@ -112,7 +118,11 @@ const mockDefaultGetRequests = (): void => {
 
 // Answered by URL rather than in call order, so a request added or moved in
 // the start-up sequence cannot hand one endpoint another one's response.
-const mockGetRequestsByUrl = (parameters: object): void => {
+const mockGetRequestsByUrl = (
+  parameters: object,
+  // The status the parameters endpoint fails with, if it fails.
+  { parametersStatus }: { parametersStatus?: number } = {}
+): void => {
   const responses: Array<[string, unknown]> = [
     [
       platformInstallationStatusEndpoint,
@@ -128,9 +138,12 @@ const mockGetRequestsByUrl = (parameters: object): void => {
   ];
 
   mockedAxios.get.mockImplementation((url: string) =>
-    Promise.resolve({
-      data: responses.find(([endpoint]) => url.includes(endpoint))?.[1] ?? null
-    })
+    parametersStatus && url.includes(parametersEndpoint)
+      ? Promise.reject({ response: { status: parametersStatus } })
+      : Promise.resolve({
+          data:
+            responses.find(([endpoint]) => url.includes(endpoint))?.[1] ?? null
+        })
   );
 };
 
@@ -280,6 +293,8 @@ describe('Main', () => {
     store.set(areUserParametersLoadedAtom, null);
     store.set(platformInstallationStatusAtom, null);
     store.set(isAdditiveInheritanceEnabledAtom, false);
+    store.set(defaultLimitPerPageAtom, null);
+    store.set(intervalLengthAtom, 60);
   });
 
   it('displays the login page when the path is "/login" and the user is not connected', async () => {
@@ -354,11 +369,6 @@ describe('Main', () => {
     });
   });
 
-  // The intermediate userEndpoint check that used to sit here is gone:
-  // useMain.ts skips loadUser() entirely whenever hasUpgradeAvailable is
-  // true (see the skipped "does not redirect...connected" test below), so
-  // that request is never made. The redirect itself is still correct for a
-  // disconnected user, which is what this test actually verifies.
   it('redirects the user to the upgrade page when the retrieved web versions contains an available version and the user is disconnected', async () => {
     window.history.pushState({}, '', '/');
     mockUpgradeAndUserDisconnectedGetRequests();
@@ -384,15 +394,10 @@ describe('Main', () => {
     });
   });
 
-  // Skipped: reveals a real product bug, not stale test drift. useMain.ts's
-  // early-return on `hasUpgradeAvailable` (added in 5460ffbb6e, Aug 2023,
-  // an unrelated "dashboard widgets table" commit) also skips loadUser(),
-  // so the app can no longer tell a connected user from a disconnected one
-  // in this branch. Main/index.tsx's `canUpgrade` check is therefore always
-  // true whenever an upgrade is available, and every user - connected or
-  // not - gets redirected to /install/upgrade.php. Needs a bug ticket
-  // before this test can be revived; link it here once filed.
-  it.skip('does not redirect the user to the upgrade page when the retrieved web versions contains an available version and the user is connected', async () => {
+  // While an upgrade is pending, the database may miss the tables the
+  // platform APIs read (useMain.ts skips loadUser(), versions and features),
+  // so even a connected user must be sent to the upgrade page first.
+  it('redirects the user to the upgrade page without loading the user when the retrieved web versions contains an available version and the user is connected', async () => {
     window.history.pushState({}, '', '/');
     mockUpgradeAndUserConnectedGetRequests();
 
@@ -410,18 +415,16 @@ describe('Main', () => {
     });
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        userEndpoint,
-        cancelTokenRequestParam
+      expect(decodeURI(window.location.href)).toBe(
+        // biome-ignore lint: test purpose
+        'http://localhost/install/upgrade.php'
       );
     });
 
-    await waitFor(() => {
-      expect(decodeURI(window.location.href)).toBe(
-        // biome-ignore lint: test purpose
-        'http://localhost/monitoring/resources'
-      );
-    });
+    expect(mockedAxios.get).not.toHaveBeenCalledWith(
+      userEndpoint,
+      expect.anything()
+    );
   });
 
   it('gets the translations, navigation data and the parameters related to the account when the user is already connected', async () => {
@@ -488,6 +491,106 @@ describe('Main', () => {
     await waitFor(() => {
       expect(store.get(isAdditiveInheritanceEnabledAtom)).toBe(true);
     });
+  });
+
+  it('sets the interval length from the platform parameters', async () => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      monitoring_interval_length: 30
+    });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(intervalLengthAtom)).toBe(30);
+    });
+  });
+
+  it('keeps an interval length of 60 when the platform parameters do not have one', async () => {
+    const { monitoring_interval_length, ...parametersWithoutInterval } = {
+      ...retrievedParameters,
+      monitoring_interval_length: 30
+    };
+    mockGetRequestsByUrl(parametersWithoutInterval);
+
+    renderMain();
+
+    // Set in the same callback, once the parameters are read.
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+    expect(store.get(intervalLengthAtom)).toBe(60);
+  });
+
+  // 50, not 30: 30 is also the fallback, which would pass this test without
+  // the platform value.
+  it('sets the default page size of listings from the platform parameters', async () => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      default_limit_per_page: 50
+    });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(50);
+    });
+  });
+
+  it('falls back to a default page size of 30 when the platform parameters do not have one', async () => {
+    mockGetRequestsByUrl(retrievedParameters);
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+  });
+
+  it.each([0, -5, '30', 12.5, null])(
+    'falls back to a default page size of 30 when the platform parameters have %p',
+    async (defaultLimitPerPage) => {
+      mockGetRequestsByUrl({
+        ...retrievedParameters,
+        default_limit_per_page: defaultLimitPerPage
+      });
+
+      renderMain();
+
+      await waitFor(() => {
+        expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+      });
+    }
+  );
+
+  it('falls back to a default page size of 30 when the platform parameters cannot be retrieved', async () => {
+    mockGetRequestsByUrl(retrievedParameters, { parametersStatus: 500 });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+  });
+
+  it('logs the user out and falls back to a default page size of 30 when the platform parameters answer 401', async () => {
+    mockGetRequestsByUrl(retrievedParameters, { parametersStatus: 401 });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        logoutEndpoint,
+        cancelTokenRequestParam
+      );
+    });
+    expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+
+    await waitFor(() => {
+      expect(screen.getByText(labelYouAreDisconnected)).toBeInTheDocument();
+    });
+    expect(window.location.pathname).toBe('/login');
+    expect(store.get(areUserParametersLoadedAtom)).toBe(false);
   });
 
   it('redirects the user to his default page when the current location is the login page and the user is connected', async () => {

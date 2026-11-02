@@ -27,8 +27,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostRes
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\CredentialRepository;
+use App\Security\Infrastructure\Dbal\CredentialTransformer;
 use App\Security\Infrastructure\Dbal\DbalCredentialRepository;
-use App\Security\Infrastructure\Dbal\DbalCredentialTransformer;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
@@ -430,6 +430,175 @@ final class ListHostsProviderTest extends ApiTestCase
         self::assertResponseStatusCodeSame(400);
     }
 
+    public function testItSortsHostsByNameInBothDirections(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $this->insertHost('sort-b-host', $pollerId);
+        $this->insertHost('sort-a-host', $pollerId);
+        $this->insertHost('sort-c-host', $pollerId);
+
+        $this->login();
+
+        self::assertSame(
+            ['sort-a-host', 'sort-b-host', 'sort-c-host'],
+            $this->listSortedHostNames(['name' => 'asc'])
+        );
+        self::assertSame(
+            ['sort-c-host', 'sort-b-host', 'sort-a-host'],
+            $this->listSortedHostNames(['name' => 'desc'])
+        );
+    }
+
+    public function testItSortsHostsByAlias(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $this->insertHost('sort-host-1', $pollerId, alias: 'zulu');
+        $this->insertHost('sort-host-2', $pollerId, alias: 'alpha');
+
+        $this->login();
+
+        self::assertSame(['sort-host-2', 'sort-host-1'], $this->listSortedHostNames(['alias' => 'asc']));
+        self::assertSame(['sort-host-1', 'sort-host-2'], $this->listSortedHostNames(['alias' => 'desc']));
+    }
+
+    public function testItSortsHostsByAddress(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $this->insertHost('sort-host-1', $pollerId, address: '10.0.0.9');
+        $this->insertHost('sort-host-2', $pollerId, address: '10.0.0.1');
+
+        $this->login();
+
+        self::assertSame(['sort-host-2', 'sort-host-1'], $this->listSortedHostNames(['address' => 'asc']));
+        self::assertSame(['sort-host-1', 'sort-host-2'], $this->listSortedHostNames(['address' => 'desc']));
+    }
+
+    public function testItSortsHostsByActivationStatus(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $this->insertHost('sort-host-1', $pollerId, activated: true);
+        $this->insertHost('sort-host-2', $pollerId, activated: false);
+
+        $this->login();
+
+        self::assertSame(['sort-host-2', 'sort-host-1'], $this->listSortedHostNames(['activated' => 'asc']));
+        self::assertSame(['sort-host-1', 'sort-host-2'], $this->listSortedHostNames(['activated' => 'desc']));
+    }
+
+    public function testItSortsHostsOnSeveralFieldsInTheOrderOfTheRequest(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $this->insertHost('sort-host-b', $pollerId, address: '10.0.0.1');
+        $this->insertHost('sort-host-a', $pollerId, address: '10.0.0.1');
+        $this->insertHost('sort-host-c', $pollerId, address: '10.0.0.2');
+
+        $this->login();
+
+        // the address decides first, the name only breaks the ties
+        self::assertSame(
+            ['sort-host-b', 'sort-host-a', 'sort-host-c'],
+            $this->listSortedHostNames(['address' => 'asc', 'name' => 'desc'])
+        );
+        self::assertSame(
+            ['sort-host-c', 'sort-host-a', 'sort-host-b'],
+            $this->listSortedHostNames(['address' => 'desc', 'name' => 'asc'])
+        );
+    }
+
+    public function testItDoesNotRepeatOrSkipAHostAcrossPagesWhenTheSortedValuesAreEqual(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        foreach (['sort-host-a', 'sort-host-b', 'sort-host-c', 'sort-host-d', 'sort-host-e'] as $name) {
+            $this->insertHost($name, $pollerId, alias: 'same-alias');
+        }
+
+        $this->login();
+
+        $names = [];
+        foreach (['1', '2', '3'] as $page) {
+            $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => [
+                'name' => ['lk' => 'sort-host-'],
+                'sort' => ['alias' => 'asc'],
+                'itemsPerPage' => '2',
+                'page' => $page,
+            ]]);
+            self::assertResponseIsSuccessful();
+
+            /** @var list<array{name: string}> $members */
+            $members = $response->toArray()['member'];
+            array_push($names, ...array_column($members, 'name'));
+        }
+
+        // equal aliases: only the host id tie-breaker keeps the pages consistent with each other
+        self::assertCount(5, $names);
+        self::assertCount(5, array_unique($names));
+    }
+
+    public function testItKeepsTheSortAcrossPages(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $this->insertHost('sort-b-host', $pollerId);
+        $this->insertHost('sort-a-host', $pollerId);
+        $this->insertHost('sort-c-host', $pollerId);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => [
+            'name' => ['lk' => 'sort-'],
+            'sort' => ['name' => 'desc'],
+            'itemsPerPage' => '2',
+            'page' => '2',
+        ]]);
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains(['member' => [['name' => 'sort-a-host']]]);
+        self::assertCount(1, (array) $response->toArray()['member']);
+    }
+
+    public function testItRejectsAnUnknownSortField(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => ['poller' => 'asc']]]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsAnUnknownSortDirection(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => ['name' => 'upward']]]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsAScalarSortParameter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => 'name']]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    /**
+     * Names of the "sort-" prefixed hosts only, so that the hosts pre-seeded by the fixtures do not interfere.
+     *
+     * @param array<string, string> $sort
+     *
+     * @return list<string>
+     */
+    private function listSortedHostNames(array $sort): array
+    {
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => [
+            'name' => ['lk' => 'sort-'],
+            'sort' => $sort,
+        ]]);
+        self::assertResponseIsSuccessful();
+
+        /** @var list<array{name: string}> $members */
+        $members = $response->toArray()['member'];
+
+        return array_column($members, 'name');
+    }
+
     private function insertPoller(string $name): int
     {
         $this->connection->insert('nagios_server', [
@@ -464,11 +633,12 @@ final class ListHostsProviderTest extends ApiTestCase
         ?string $alias = null,
         bool $activated = true,
         ?int $iconId = null,
+        string $address = '127.0.0.1',
     ): int {
         $this->connection->insert('host', [
             'host_name' => $name,
             'host_alias' => $alias,
-            'host_address' => '127.0.0.1',
+            'host_address' => $address,
             'host_activate' => $activated ? '1' : '0',
             'host_register' => '1',
         ]);
@@ -549,7 +719,7 @@ final class ListHostsProviderTest extends ApiTestCase
     /**
      * Grants the "Configuration > Hosts > Hosts" (read-only) topology access, the legacy menu
      * role bridged to HostPermissionEnum::CanRead via
-     * DbalCredentialTransformer::LEGACY_PERMISSION_MAP (topology_page 60101, parented by 601 "Hosts"
+     * CredentialTransformer::LEGACY_PERMISSION_MAP (topology_page 60101, parented by 601 "Hosts"
      * and 6 "Configuration" — see topology fixtures in www/install/insertTopology.sql).
      *
      * @return int the Access Group id the contact was granted, reusable to scope centreon_acl rows
@@ -641,7 +811,7 @@ final class ListHostsProviderTest extends ApiTestCase
         /** @var Connection $connection */
         $connection = $container->get('doctrine.dbal.default_connection');
         /** @var TransformerInterface<RowTypeAlias, Credential> $transformer */
-        $transformer = $container->get(DbalCredentialTransformer::class);
+        $transformer = $container->get(CredentialTransformer::class);
         /** @var AccessGroupRepository $accessGroupRepository */
         $accessGroupRepository = $container->get(AccessGroupRepository::class);
 

@@ -39,6 +39,7 @@ import {
   labelDeployServices,
   labelGoToServices,
   labelHosts,
+  labelHostsDescription,
   labelWelcomeToHosts
 } from './translatedLabels';
 import useHosts from './useHosts';
@@ -186,6 +187,7 @@ const Hosts = () => {
       formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{
+        description: t(labelHostsDescription),
         title: t(labelHosts),
         welcomePage: {
           actions: {

@@ -37,6 +37,7 @@ use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use App\Shared\Infrastructure\Logging\SensitiveKeywordDenylist;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 /**
  * `LoggingMiddleware` logs the command payload on every dispatch, and the plaintext community
@@ -55,7 +56,7 @@ final class CreateHostCommandLoggingTest extends TestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: new PollerId(1),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             snmpCommunity: 'top-secret',
         );
 
@@ -64,6 +65,7 @@ final class CreateHostCommandLoggingTest extends TestCase
 
         self::assertIsArray($sanitised);
         self::assertSame('***', $sanitised['snmp_community']);
+        self::assertSame(['user_id' => '1', 'unrestricted_resource_access' => true], $sanitised['actor'], 'The acting user must stay readable in the logs.');
         // The rest of the payload still goes through, so the masking is targeted.
         self::assertArrayHasKey('name', $sanitised);
     }
@@ -79,7 +81,7 @@ final class CreateHostCommandLoggingTest extends TestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: new PollerId(1),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('token'), 'top-secret', isPassword: true),
             ], HostMacroChange::class),

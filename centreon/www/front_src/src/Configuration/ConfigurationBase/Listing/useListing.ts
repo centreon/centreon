@@ -14,7 +14,14 @@ import {
   isFormDirtyAtom
 } from '../atoms';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
-import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
+import {
+  limitAtom,
+  listingLimitAtom,
+  pageAtom,
+  sortFieldAtom,
+  sortOrderAtom,
+  sortsByListingAtom
+} from './atoms';
 
 interface UseListing {
   changePage: (updatedPage: number) => void;
@@ -60,7 +67,9 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
-  const [limit, setLimit] = useAtom(limitAtom);
+  const limit = useAtomValue(listingLimitAtom);
+  const setLimit = useSetAtom(limitAtom);
+  const setSortsByListing = useSetAtom(sortsByListingAtom);
 
   const resetColumns = (): void => {
     setSelectedColumnIds(defaultSelectedColumnIds);
@@ -69,6 +78,10 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   const changeSort = ({ sortOrder, sortField }): void => {
     setSortf(sortField);
     setSorto(sortOrder);
+    setSortsByListing((sorts) => ({
+      ...sorts,
+      [configuration?.resourceType]: { field: sortField, order: sortOrder }
+    }));
   };
 
   const changePage = (updatedPage): void => {
@@ -115,7 +128,7 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     changePage,
     changeSort,
     disableRowCondition,
-    limit,
+    limit: limit ?? undefined,
     openEditForm,
     page,
     resetColumns,

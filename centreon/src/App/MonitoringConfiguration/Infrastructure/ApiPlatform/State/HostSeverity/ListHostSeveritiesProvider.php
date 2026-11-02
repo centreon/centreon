@@ -66,11 +66,10 @@ final readonly class ListHostSeveritiesProvider implements ProviderInterface
     {
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
-        // Super admins and Cloud tenant admins escape ACL scoping, matching legacy
-        // FindHostSeverities::isUserAdmin (Contact::isAdmin OR customer_admin_acl on Cloud).
-        $hasUnrestrictedResourceAccess = $credentialUser->credential->hasUnrestrictedResourceAccess();
 
-        $criteria = new HostSeverityCriteria();
+        // Unrestricted users (super admins and Cloud tenant admins, matching legacy
+        // FindHostSeverities::isUserAdmin) see every host severity; others are scoped to their accessible severities.
+        $criteria = HostSeverityCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -82,11 +81,6 @@ final readonly class ListHostSeveritiesProvider implements ProviderInterface
         /** @var array{name?: mixed} $filters */
         $filters = $context['filters'] ?? [];
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
-
-        // Unrestricted users see every host severity; others are scoped to their accessible severities.
-        $criteria = $hasUnrestrictedResourceAccess
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
 
         $hostSeverities = $this->repository->findAll($criteria);
         $resources = [];

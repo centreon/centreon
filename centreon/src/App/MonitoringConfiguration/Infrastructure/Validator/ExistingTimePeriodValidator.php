@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
  * Time periods carry no ACL scoping of their own (see DbalTimePeriodRepository), so plain
- * existence is the whole check — unlike contacts, which are also scoped to the viewer.
+ * existence is the whole check — unlike contacts, which are also scoped to the actor.
  *
  * Always declared after Assert\Positive inside an Assert\Sequentially on the property (see
  * CreateHostSchedulingOptionsInput, CreateHostNotificationsInput): TimePeriodId asserts a strictly

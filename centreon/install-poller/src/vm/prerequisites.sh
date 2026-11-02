@@ -36,11 +36,6 @@ function _vmDetectDistribution() {
   local distrib="${ID}${VERSION_ID}"
 
   case "${distrib}" in
-    "debian12"*)
-      _PKG_COMMAND="apt"
-      consoleInfo "Distribution: Debian 12 (Bookworm): OK"
-      logInfo "Distribution: debian12, package manager: apt"
-      ;;
     "debian13"*)
       _PKG_COMMAND="apt"
       consoleInfo "Distribution: Debian 13 (Trixie): OK"
@@ -84,7 +79,7 @@ function _vmDetectDistribution() {
       ;;
     *)
       consoleError "Unsupported distribution: ${PRETTY_NAME:-${distrib}}."
-      consoleError "Supported: Debian 12, Debian 13, AlmaLinux 9/10, Oracle Linux 9/10, RHEL 9/10."
+      consoleError "Supported: Debian 13, AlmaLinux 9/10, Oracle Linux 9/10, RHEL 9/10."
       logError "Unsupported distribution: ${distrib}"
       exit 1
       ;;

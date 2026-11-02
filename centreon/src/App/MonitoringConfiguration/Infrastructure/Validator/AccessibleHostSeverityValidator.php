@@ -26,17 +26,16 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
-use App\Shared\Domain\Collection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Never distinguishes "severity doesn't exist" from "exists but isn't accessible to this viewer", to
- * avoid leaking existence information to a restricted viewer.
+ * Never distinguishes "severity doesn't exist" from "exists but isn't accessible to this actor", to
+ * avoid leaking existence information to a restricted actor.
  *
  * Always declared after Assert\Positive inside an Assert\Sequentially on the property:
  * HostSeverityId asserts a strictly positive int and would throw instead of producing a clean
@@ -47,7 +46,7 @@ final class AccessibleHostSeverityValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly HostSeverityRepository $hostSeverityRepository,
-        private readonly ResourceAccessRepository $resourceAccessRepository,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -74,18 +73,7 @@ final class AccessibleHostSeverityValidator extends ConstraintValidator
             return;
         }
 
-        if ($credentialUser->credential->hasUnrestrictedResourceAccess()) {
-            return;
-        }
-
-        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostSeverityIds($credentialUser->credential->userId);
-        if (
-            $accessibleIds instanceof Collection
-            && ! array_any(
-                $accessibleIds->toArray(),
-                static fn (HostSeverityId $accessibleId): bool => $accessibleId->value === $severityId->value,
-            )
-        ) {
+        if (! $this->accessScopes->hostSeverities($credentialUser->credential->actingUser())->allows($severityId)) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
     }

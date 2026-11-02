@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
 
 interface HostRepository
@@ -41,13 +41,10 @@ interface HostRepository
      * `Host::$checkOptions` docblock): a listing never needs the full object, this is the one read
      * path that does (a future single-host consumer, e.g. an update handler, plugs straight into it).
      *
-     * @param ?UserId $viewerId null means the caller is unrestricted (admin); a non-null value
-     *                          scopes the lookup to what that user can access via ACL — a host
-     *                          that exists but is outside the viewer's scope returns null, the
-     *                          same as a host that does not exist at all, so as not to leak
-     *                          existence (mirrors `CreateHostCommandHandler`'s poller/host-group checks)
+     * Scoped to what the actor can access via ACL: a host that exists but is outside their scope
+     * returns null, the same as a host that does not exist at all, so as not to leak existence.
      */
-    public function findOne(HostId $id, ?UserId $viewerId = null): ?Host;
+    public function findOne(HostId $id, ActingUser $actor): ?Host;
 
     /**
      * The host's own (direct) macros as stored, with their ids, in storage order — the narrow read
@@ -122,20 +119,16 @@ interface HostRepository
     /**
      * @return \IteratorAggregate<int, Host>&\Countable
      */
-    public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(HostCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
-     * Never returns a host template, though both share the `host` table.
-     *
-     * With a viewer, a host outside their ACL scope is left out of the result, like an unknown one,
-     * as {@see findOne()} does.
+     * Never returns a host template, though both share the `host` table. Not scoped by ACL.
      *
      * @param Collection<HostId> $ids
-     * @param ?UserId $viewerId null means the requester is unrestricted
      *
      * @return Collection<HostName> indexed by id
      */
-    public function findNamesByIds(Collection $ids, ?UserId $viewerId = null): Collection;
+    public function findNamesByIds(Collection $ids): Collection;
 
     /**
      * Includes $ids themselves, minus any that is not a host.

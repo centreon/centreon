@@ -3,12 +3,14 @@ export { default as aclAtom } from './aclAtom';
 export { additionalResourcesAtom } from './additionalResources';
 export { browserLocaleAtom } from './browserLocaleAtom';
 export { default as cloudServicesAtom } from './cloudServicesAtom';
+export { defaultLimitPerPageAtom } from './defaultLimitPerPageAtom';
 export { defaultAcl } from './defaults';
 export { default as downtimeAtom } from './downtimeAtom';
 export {
   federatedModulesAtom,
   federatedWidgetsAtom
 } from './federatedModulesAndWidgetsAtoms';
+export { intervalLengthAtom } from './intervalLengthAtom';
 export { isAdditiveInheritanceEnabledAtom } from './isAdditiveInheritanceEnabledAtom';
 export { isOnPublicPageAtom } from './isOnPublicPageAtom';
 export { isResourceStatusFullSearchEnabledAtom } from './isResourceStatusFullSearchEnabledAtom';

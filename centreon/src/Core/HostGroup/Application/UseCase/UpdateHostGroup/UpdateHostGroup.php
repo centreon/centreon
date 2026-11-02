@@ -27,7 +27,6 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Application\Common\UseCase\{
@@ -43,7 +42,6 @@ use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
-use Core\Host\Domain\Model\SmallHost;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\{
     ReadHostGroupRepositoryInterface,
@@ -203,22 +201,27 @@ final class UpdateHostGroup
             $existingHosts = $this->readHostRepository->findByHostGroup($request->id);
             $hostsToRemove = array_map(fn (SimpleEntity $host): int => $host->getId(), $existingHosts);
         } else {
-            $reachableHosts = $this->readHostRepository->findByRequestParametersAndAccessGroups(
-                new RequestParameters(),
+            // Only the members the user can see may be removed, the hidden ones are kept.
+            $reachableHosts = $this->readHostRepository->findByHostGroupAndAccessGroups(
+                $request->id,
                 $this->readAccessGroupRepository->findByContact($this->user)
             );
 
             $hostsToRemove = (new BasicDifference(
-                array_map(fn (SmallHost $host) => $host->getId(), $reachableHosts),
+                array_map(fn (SimpleEntity $host): int => $host->getId(), $reachableHosts),
                 $hosts
             ))->getRemoved();
         }
 
         $linkedBefore = array_map('intval', $this->readHostGroupRepository->findLinkedHosts($request->id));
+        // Hosts still linked after the removal must not be inserted again, it would duplicate the relation.
+        $stillLinked = array_diff($linkedBefore, $hostsToRemove);
+        $hostsToAdd = array_values(array_unique(array_diff($hosts, $stillLinked)));
         $this->writeHostGroupRepository->deleteHostLinks($request->id, $hostsToRemove);
-        $this->writeHostGroupRepository->addHostLinks($request->id, $hosts);
+        $this->writeHostGroupRepository->addHostLinks($request->id, $hostsToAdd);
         $linkedAfter = array_map('intval', $this->readHostGroupRepository->findLinkedHosts($request->id));
-        $this->notifyConfigurationChange($hosts);
+        // The pollers of the removed hosts must also be notified, their configuration changed too.
+        $this->notifyConfigurationChange(array_values(array_unique([...$hosts, ...$hostsToRemove])));
 
         sort($linkedBefore);
         sort($linkedAfter);

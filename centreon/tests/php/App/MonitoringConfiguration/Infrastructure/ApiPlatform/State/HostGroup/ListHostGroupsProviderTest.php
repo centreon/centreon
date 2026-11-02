@@ -205,7 +205,7 @@ final class ListHostGroupsProviderTest extends ApiTestCase
     /**
      * Grants the "Configuration > Hosts > Host Groups" (read-only) topology access, the legacy menu
      * role bridged to HostGroupPermissionEnum::CanRead via
-     * DbalCredentialTransformer::LEGACY_PERMISSION_MAP (topology_page 60102, parented by 601 "Hosts"
+     * CredentialTransformer::LEGACY_PERMISSION_MAP (topology_page 60102, parented by 601 "Hosts"
      * and 6 "Configuration" — see topology fixtures in www/install/insertTopology.sql).
      */
     private function grantHostGroupReadTopologyRole(int $contactId): void

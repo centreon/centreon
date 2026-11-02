@@ -49,11 +49,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CheckOptionsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostNotificationsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CheckOptionsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostNotificationsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
@@ -143,15 +143,12 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         // response omits the key rather than advertising a feature that platform lacks.
         $notifications = $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications);
         $alias = $this->trimmedOrNull($data->alias);
-        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId;
-
         $command = new CreateHostCommand(
             name: new HostName($data->name),
             address: new HostAddress($data->address),
             pollerId: new PollerId($data->pollerId),
             hostGroupIds: $hostGroupIds,
-            creatorId: $credentialUser->credential->userId->value,
-            viewerId: $viewerId,
+            actor: $credentialUser->credential->actingUser(),
             dataProcessing: $dataProcessing,
             alias: $alias !== null ? new HostAlias($alias) : null,
             templateIds: $this->toIdCollection($data->templateIds, HostTemplateId::class),
@@ -180,7 +177,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             $host->with(checkOptions: $host->checkOptions->with(
                 macros: array_values($this->hostRepository->findMacros($host->id())->toArray()),
             )),
-            $viewerId,
+            $command->actor,
         );
     }
 

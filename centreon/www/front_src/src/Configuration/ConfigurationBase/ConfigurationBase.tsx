@@ -1,11 +1,16 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty, isNil, not } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
 
 import { ConfigurationBase } from '../models';
 import { configurationAtom } from './atoms';
+import {
+  sortFieldAtom,
+  sortOrderAtom,
+  sortsByListingAtom
+} from './Listing/atoms';
 import Page from './Page';
 
 const Base = <TFilters,>({
@@ -26,11 +31,24 @@ const Base = <TFilters,>({
   navbar,
   filtersPanelWidth,
   formVariant,
-  formPanelWidth
+  formPanelWidth,
+  defaultSortField
 }: ConfigurationBase<TFilters>): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
+  const setSortField = useSetAtom(sortFieldAtom);
+  const setSortOrder = useSetAtom(sortOrderAtom);
+  const sortsByListing = useAtomValue(sortsByListingAtom);
+
+  // The sort atoms are shared by every listing: each page opens on the sort
+  // it was left on, never on another listing's.
+  useEffect(() => {
+    const sort = sortsByListing[resourceType];
+
+    setSortField(sort?.field ?? defaultSortField ?? 'name');
+    setSortOrder(sort?.order ?? 'asc');
+  }, [resourceType, defaultSortField]);
 
   useEffect(() => {
     setConfiguration({

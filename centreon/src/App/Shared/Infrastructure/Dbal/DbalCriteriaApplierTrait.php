@@ -23,12 +23,15 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Dbal;
 
+use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\PaginableCriteria;
 use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\SearchableCriteria;
 use App\Shared\Domain\Repository\SearchCondition;
 use App\Shared\Domain\Repository\SearchOperatorEnum;
 use App\Shared\Domain\Repository\SortableCriteria;
 use App\Shared\Domain\Repository\SortDirectionEnum;
+use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Webmozart\Assert\Assert;
@@ -141,6 +144,33 @@ trait DbalCriteriaApplierTrait
     {
         $queryBuilder->setFirstResult($pagination->getOffset())
             ->setMaxResults($pagination->itemsPerPage);
+    }
+
+    /**
+     * The result of a listing known to match nothing, e.g. for a restricted actor with an empty
+     * access scope, without running any query. When pagination was requested, it still carries the
+     * pagination envelope (page, page size, totalItems: 0) instead of degrading to a bare array: the
+     * client can't otherwise tell "zero matches" from "pagination metadata omitted".
+     *
+     * @template T of object
+     *
+     * @param class-string<T> $itemClass
+     *
+     * @return Collection<T>|InMemoryPaginator<T>
+     */
+    private function emptyResult(PaginableCriteria $criteria, string $itemClass): Collection|InMemoryPaginator
+    {
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof Pagination) {
+            return new Collection([], $itemClass);
+        }
+
+        return new InMemoryPaginator(
+            items: new Collection([], $itemClass),
+            totalItems: 0,
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
+        );
     }
 
     /**

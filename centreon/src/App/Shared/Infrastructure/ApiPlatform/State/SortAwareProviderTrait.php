@@ -24,13 +24,18 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\ApiPlatform\State;
 
 use App\Shared\Domain\Repository\SortableCriteria;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 trait SortAwareProviderTrait
 {
     /**
+     * Applies the "sort[field]=asc|desc" query parameter. Only the fields the criteria exposes
+     * through getFieldMapping() can be sorted on: anything else is rejected rather than ignored,
+     * so that a typo does not return an unsorted page that looks valid.
+     *
      * @template T of SortableCriteria
      *
-     * @param array{sort?: array<string,string>} $filters
+     * @param array<string, mixed> $filters
      * @param T $criteria
      *
      * @return T
@@ -38,8 +43,22 @@ trait SortAwareProviderTrait
     public function handleSort(array $filters, SortableCriteria $criteria): SortableCriteria
     {
         $sort = $filters['sort'] ?? [];
+        if (! is_array($sort)) {
+            throw new BadRequestHttpException('The "sort" parameter must use the "sort[field]=asc|desc" format.');
+        }
+
+        $allowedFields = array_keys($criteria->getFieldMapping());
         foreach ($sort as $field => $direction) {
-            $criteria = $criteria->withSort($field, mb_strtoupper((string) $direction));
+            if (! in_array($field, $allowedFields, true)) {
+                throw new BadRequestHttpException(
+                    sprintf('Cannot sort on "%s", allowed fields are: %s.', $field, implode(', ', $allowedFields))
+                );
+            }
+            if (! is_string($direction) || ! in_array(mb_strtolower($direction), ['asc', 'desc'], true)) {
+                throw new BadRequestHttpException(sprintf('The sort direction of "%s" must be "asc" or "desc".', $field));
+            }
+
+            $criteria = $criteria->withSort($field, mb_strtoupper($direction));
         }
 
         return $criteria;

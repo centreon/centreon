@@ -11,6 +11,11 @@ module.exports = {
   reporters: ['default', ['jest-junit', { outputName: 'junit.xml' }]],
   roots: ['<rootDir>/src/', '<rootDir>/test/'],
   setupFilesAfterEnv: ['<rootDir>/test/setupTests.js'],
+  testPathIgnorePatterns: [
+    ...baseConfig.testPathIgnorePatterns,
+    // The browser tests run with rstest (rstest.config.ts), not Jest.
+    '\\.browser\\.test\\.[jt]sx?$'
+  ],
   testResultsProcessor: 'jest-junit',
   transform: baseConfig.transform,
   transformIgnorePatterns: [

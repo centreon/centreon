@@ -4,7 +4,7 @@ import {
   type FormikSharedConfig,
   type FormikValues
 } from 'formik';
-import type { ComponentType } from 'react';
+import { type ComponentType, useRef } from 'react';
 import type { Schema } from 'yup';
 
 import { useStyles } from './Form.styles';
@@ -55,6 +55,7 @@ const Form = <T extends object>({
   ...formikSharedConfig
 }: FormProps<T>): JSX.Element => {
   const { cx, classes } = useStyles();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   if (isLoading) {
     return (
@@ -79,8 +80,8 @@ const Form = <T extends object>({
       validationSchema={validationSchema}
       {...formikSharedConfig}
     >
-      <div>
-        <FormSection groups={groups} />
+      <div ref={containerRef}>
+        <FormSection containerRef={containerRef} groups={groups} />
         {children}
         <div className={cx(className, classes.form)}>
           <Inputs

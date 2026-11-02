@@ -4,16 +4,6 @@ const useStyles = makeStyles()((theme) => ({
   form: {
     padding: theme.spacing(0, 4, 2, 2)
   },
-  groups: {
-    '&:hover': {
-      background: theme.palette.background.listingHeader
-    },
-    background: theme.palette.background.listingHeader,
-    color: theme.palette.common.white,
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    paddingInline: theme.spacing(1.25)
-  },
   reducePanel: {
     display: 'flex',
     justifyContent: 'flex-end',

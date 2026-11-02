@@ -36,7 +36,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\NoValue;
 
@@ -56,14 +56,13 @@ final readonly class PatchHostCommand
      * @param NoValue|ListChange<ContactGroupId> $contactGroupIds
      * @param bool $deployServicesFromTemplates whether the services of the templates the host has after the
      *                                          update are created on it, once the update is committed
-     * @param ?UserId $viewerId null means the requester is unrestricted (admin); a non-null value
-     *                          scopes the host lookup to what that user is allowed to see, so a
-     *                          host outside their ACL scope is reported as not found rather than
-     *                          leaking its existence
+     * @param ActingUser $actor the acting user: the action-log actor, whose ACL scope also bounds the
+     *                          host lookup, so a host outside it is reported as not found rather
+     *                          than leaking its existence
      */
     public function __construct(
         public HostId $id,
-        public int $updatedBy,
+        public ActingUser $actor,
         public NoValue|bool $activated = new NoValue(),
         public NoValue|HostName $name = new NoValue(),
         public NoValue|HostAddress $address = new NoValue(),
@@ -89,7 +88,6 @@ final readonly class PatchHostCommand
         public NoValue|ListChange $contactGroupIds = new NoValue(),
         public NoValue|MacroChanges $macros = new NoValue(),
         public bool $deployServicesFromTemplates = false,
-        public ?UserId $viewerId = null,
     ) {
     }
 }

@@ -57,7 +57,7 @@ final readonly class DbalTimePeriodRepository extends DbalRepository implements 
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
-        #[Autowire(service: DbalTimePeriodTransformer::class)]
+        #[Autowire(service: TimePeriodTransformer::class)]
         private TransformerInterface $transformer,
     ) {
     }

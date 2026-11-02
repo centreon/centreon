@@ -36,7 +36,7 @@ final class ListHostSeveritiesProviderTest extends ApiTestCase
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_CATEGORIES_R
     // (Configuration > Hosts > Categories). Host severities share the host-categories legacy role,
     // so it is bridged to HostSeverityPermissionEnum::CanRead too via
-    // DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const HOST_CATEGORY_READ_TOPOLOGY_PAGES = [6, 601, 60104];
 
     private Connection $connection;

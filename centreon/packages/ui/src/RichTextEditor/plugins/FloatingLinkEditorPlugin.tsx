@@ -122,7 +122,9 @@ const FloatingLinkEditor = ({
     const nodeHeight = rangeRect.height;
 
     setTooltipPosition({ x: nodeX, y: nodeY + nodeHeight });
-  }, [rangeRect?.x, rangeRect?.y, rangeRect, nativeSelection]);
+    // The coordinates, not `rangeRect`: it is a new object on every render, so
+    // depending on it re-ran this effect, whose state update re-rendered endlessly.
+  }, [rangeRect?.x, rangeRect?.y, rangeRect?.height, nativeSelection]);
 
   if (isNil(rangeRect)) {
     return null;

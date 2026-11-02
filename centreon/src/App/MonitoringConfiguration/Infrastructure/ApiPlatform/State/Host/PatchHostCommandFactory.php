@@ -49,14 +49,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostExtendedInformationsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostSchedulingOptionsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostCheckOptionsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
-use App\Security\Domain\Aggregate\UserId;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostExtendedInformationsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostSchedulingOptionsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\PatchHostCheckOptionsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\PatchHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\PatchHostNotificationsInput;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
 use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
@@ -76,14 +76,13 @@ final readonly class PatchHostCommandFactory
 
     public function create(
         HostId $id,
-        int $updatedBy,
-        ?UserId $viewerId,
+        ActingUser $actor,
         PatchHostInput $input,
         RequestPayload $payload,
     ): PatchHostCommand {
         return new PatchHostCommand(
             id: $id,
-            updatedBy: $updatedBy,
+            actor: $actor,
             activated: $this->provided($payload, 'activated', fn (): bool => $this->required($input->activated)),
             name: $this->provided($payload, 'name', fn (): HostName => new HostName($this->required($input->name))),
             address: $this->provided($payload, 'address', fn (): HostAddress => new HostAddress($this->required($input->address))),
@@ -130,7 +129,6 @@ final readonly class PatchHostCommandFactory
                 : new NoValue(),
             macros: $this->macroChanges($payload->section('check_options'), $input->checkOptions),
             deployServicesFromTemplates: $input->createServicesLinkedToTemplates ?? false,
-            viewerId: $viewerId,
         );
     }
 

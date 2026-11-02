@@ -53,7 +53,7 @@ final readonly class DbalStandardMacroRepository extends DbalRepository implemen
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
-        #[Autowire(service: DbalStandardMacroTransformer::class)]
+        #[Autowire(service: StandardMacroTransformer::class)]
         private TransformerInterface $transformer,
     ) {
     }

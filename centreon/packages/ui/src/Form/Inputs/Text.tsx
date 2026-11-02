@@ -17,6 +17,17 @@ import { TextField, useMemoComponent } from '../..';
 import { type InputPropsWithoutGroup, InputType } from './models';
 import PasswordEndAdornment from './PasswordEndAdornment';
 
+// Keeps password managers from taking the text field before a password field
+// for a user name and filling it in, and from filling the password itself:
+// `new-password` for the browsers, the opt-out attributes for the extensions
+// (1Password, Bitwarden, LastPass).
+const passwordManagerOptOut = {
+  autoComplete: 'new-password',
+  'data-1p-ignore': true,
+  'data-bwignore': true,
+  'data-lpignore': true
+};
+
 const Text = ({
   dataTestId,
   label,
@@ -140,7 +151,8 @@ const Text = ({
             htmlInput: {
               'aria-label': label,
               'data-testid': dataTestId || label,
-              min: text?.min
+              min: text?.min,
+              ...(equals(type, InputType.Password) && passwordManagerOptOut)
             }
           }
         }}

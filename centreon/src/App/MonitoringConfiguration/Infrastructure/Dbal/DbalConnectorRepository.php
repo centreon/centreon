@@ -58,7 +58,7 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
-        #[Autowire(service: DbalConnectorTransformer::class)]
+        #[Autowire(service: ConnectorTransformer::class)]
         private TransformerInterface $transformer,
     ) {
     }

@@ -40,7 +40,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
@@ -53,9 +53,8 @@ final readonly class CreateHostCommand
      * @param Collection<HostCategoryId> $categoryIds
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
-     * @param ?UserId $viewerId null means the creator is unrestricted (admin); a non-null value
-     *                          scopes the poller/host-group existence checks to what that user
-     *                          can access, mirroring `HostCriteria::withViewerId()` on the read side
+     * @param ActingUser $actor the acting user: the action-log actor, whose ACL scope also bounds the
+     *                          poller, host-group, category, severity and related-host checks
      * @param list<string> $checkCommandArgs ordered check-command arguments; they require a check command
      * @param Collection<HostMacroChange> $macroChanges the submitted macros, in the order to store them;
      *                                                  resolved by the handler against what the host inherits
@@ -65,8 +64,7 @@ final readonly class CreateHostCommand
         public HostAddress $address,
         public PollerId $pollerId,
         public Collection $hostGroupIds,
-        public int $creatorId,
-        public ?UserId $viewerId = null,
+        public ActingUser $actor,
         public DataProcessing $dataProcessing = new DataProcessing(),
         public ?HostAlias $alias = null,
         public Collection $templateIds = new Collection([], HostTemplateId::class),

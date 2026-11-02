@@ -4,17 +4,15 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { labelAddResourceDatasets } from '../../../translatedLabels';
-import { useResourceSelectionStyles } from '../styles/ResourceSelection.styles';
 import DatasetFilters from './DatasetFilters';
 
 const ResourceSelection = (): ReactElement => {
   const { t } = useTranslation();
-  const { classes } = useResourceSelectionStyles();
 
   return (
-    <div className={classes.resourceSelectionContainter}>
+    <div className="flex flex-col gap-2">
       <div>
-        <Typography className={classes.resourceSelectionTitle}>
+        <Typography className="pb-1 text-base font-bold">
           {t(labelAddResourceDatasets)}
         </Typography>
       </div>

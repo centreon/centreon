@@ -4,14 +4,15 @@ import userEvent from '@testing-library/user-event';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
-  labelDataProcessing,
+  labelAdvanced,
   labelDown,
-  labelHostConfiguration,
-  labelHostExtendedInfos,
+  labelGeneralInformation,
+  labelHostMonitoringProperties,
   labelHostNotFound,
   labelInvalidAddress,
+  labelMonitoringEngineSchedulingOptions,
   labelNameMustNotStartWithModule,
-  labelNotification,
+  labelNotifications,
   labelRelations,
   labelRequired,
   labelResolve,
@@ -86,17 +87,18 @@ export default () => {
     await expectHeader('Add a host');
   });
 
-  it('declares the five sections the US defines', async () => {
+  it('declares the six sections the design defines', async () => {
     await initializeListing();
 
     await openCreationForm();
 
     for (const section of [
-      labelHostConfiguration,
-      labelNotification,
+      labelGeneralInformation,
+      labelHostMonitoringProperties,
       labelRelations,
-      labelDataProcessing,
-      labelHostExtendedInfos
+      labelMonitoringEngineSchedulingOptions,
+      labelNotifications,
+      labelAdvanced
     ]) {
       // The title shows more than once: the first, as `cy.contains` took.
       expect((await screen.findAllByText(section))[0]).toBeVisible();
@@ -316,26 +318,29 @@ export default () => {
     expect(getSaveButton()).not.toBeInTheDocument();
   });
 
-  it('drops the Notification section on a cloud platform', async () => {
+  it('drops the Notifications section on a cloud platform', async () => {
     await initializeListing({ isCloudPlatform: true });
 
     await openCreationForm();
 
     for (const section of [
-      labelHostConfiguration,
+      labelGeneralInformation,
+      labelHostMonitoringProperties,
       labelRelations,
-      labelDataProcessing,
-      labelHostExtendedInfos
+      labelMonitoringEngineSchedulingOptions,
+      labelAdvanced
     ]) {
       // The title shows more than once: the first, as `cy.contains` took.
       expect((await screen.findAllByText(section))[0]).toBeVisible();
     }
 
     // Checked once the other sections are rendered, so it cannot pass only
-    // because the form is not there yet. `cy.contains` matched a substring.
-    expect(screen.queryAllByText(new RegExp(labelNotification))).toHaveLength(
-      0
-    );
+    // because the form is not there yet: neither the section, in the form or
+    // its navigation, nor any of its fields.
+    expect(screen.queryAllByText(labelNotifications)).toHaveLength(0);
+    expect(
+      screen.queryByTestId('host-form-notifications-enabled')
+    ).not.toBeInTheDocument();
   });
 
   it('refuses to save until the mandatory fields are filled', async () => {

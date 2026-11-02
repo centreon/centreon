@@ -67,7 +67,7 @@ final readonly class ListContactGroupsChoicesProvider implements ProviderInterfa
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $criteria = new ContactGroupCriteria();
+        $criteria = ContactGroupCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -84,14 +84,11 @@ final readonly class ListContactGroupsChoicesProvider implements ProviderInterfa
             }
         }
 
-        // Legacy's host-form contact-group select appends LDAP-only groups unfiltered but a
-        // LDAP-only group is refused on save: the host-scoped selector excludes them outright
-        // rather than surfacing an option the save would reject.
-        $criteria = $criteria->withExcludeLdap(true);
-
-        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
+        // Imported LDAP groups have an id and are accepted on save: an operation lists them by
+        // opting in through its list_ldap extra property.
+        if (($operation->getExtraProperties()['list_ldap'] ?? false) !== true) {
+            $criteria = $criteria->withExcludeLdap(true);
+        }
 
         $contactGroups = $this->repository->findAll($criteria);
         $resources = [];

@@ -9,6 +9,7 @@ interface Props {
   actionLabel: string;
   description: string;
   href: string;
+  id: string;
   tone?: 'navy' | 'primary';
   title: string;
 }
@@ -19,6 +20,7 @@ const ResourceCard = ({
   description,
   actionLabel,
   href,
+  id,
   tone = 'primary'
 }: Props): ReactElement => {
   const { t } = useTranslation();
@@ -27,6 +29,7 @@ const ResourceCard = ({
     <a
       className="flex items-start gap-2 rounded-lg border border-divider p-4 no-underline transition-[border-color,box-shadow] duration-150 hover:border-text-disabled hover:shadow-md"
       href={href}
+      id={id}
       rel="noreferrer noopener"
       target="_blank"
     >

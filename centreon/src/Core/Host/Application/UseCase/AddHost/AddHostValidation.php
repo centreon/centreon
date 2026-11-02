@@ -35,6 +35,7 @@ use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\HostTemplate\Application\UnlicensedHostTemplatesFinder;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -63,6 +64,7 @@ class AddHostValidation
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user,
+        private readonly UnlicensedHostTemplatesFinder $unlicensedHostTemplatesFinder,
     ) {
     }
 
@@ -283,6 +285,24 @@ class AddHostValidation
 
         if ([] !== ($invalidIds = array_diff($templateIds, $validTemplateIds))) {
             throw HostException::idsDoNotExist('templates', $invalidIds);
+        }
+    }
+
+    /**
+     * Assert the license allows the templates the host is given: once the host limit is reached, the templates
+     * coming from the paid Monitoring Connectors can no longer be added.
+     *
+     * @param int[] $templateIds
+     * @param int[] $currentTemplateIds the templates the host already has
+     *
+     * @throws HostException
+     * @throws \Throwable
+     */
+    public function assertAreLicensedTemplates(array $templateIds, array $currentTemplateIds = []): void
+    {
+        $unlicensedIds = $this->unlicensedHostTemplatesFinder->findAmongAdded($templateIds, $currentTemplateIds);
+        if ($unlicensedIds !== []) {
+            throw HostException::templatesNotLicensed($unlicensedIds);
         }
     }
 }

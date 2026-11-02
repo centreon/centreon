@@ -62,6 +62,7 @@ secrets:
 gorgone:
   logLevel: info
   extraEnv: []
+  extraVolumeMounts: []
   resources: {}
 
 engine:
@@ -73,6 +74,7 @@ engine:
   addNetRaw: false
   # E.g. SMTP_HOST / SMTP_PORT / SMTP_FROM / SMTP_TLS for notifications.
   extraEnv: []
+  extraVolumeMounts: []
   resources: {}
   # OpenTelemetry / Centreon Monitoring Agent (CMA) gRPC server, active once
   # an agent configuration is attached to the poller.
@@ -115,9 +117,7 @@ engine:
       externalTrafficPolicy: ""
       annotations: {}
 
-# SNMP traps: snmptrapd (162/udp) + centreontrapd in the poller pod. Changes
-# the volume list: enabling it on an installed poller needs
-# `kubectl delete sts <release> --cascade=orphan` before the upgrade.
+# SNMP traps: snmptrapd (162/udp) + centreontrapd in the poller pod.
 traps:
   enabled: false
   images:
@@ -153,6 +153,7 @@ vmware:
     repository: ""
     tag: ""
     pullPolicy: IfNotPresent
+  extraVolumeMounts: []
   resources: {}
 
 # Ingress allowed to the poller pod: CMA (4317/tcp) and traps (162/udp, when
@@ -175,14 +176,27 @@ terminationGracePeriodSeconds: 60
 # (StatefulSet restriction).
 persistence:
   storageClass: ""
-  engine: 1Gi           # /etc/centreon-engine
-  broker: 1Gi           # /etc/centreon-broker (delivered config)
-  etc: 1Gi              # /etc/centreon
-  logs: 5Gi             # /var/log/centreon-engine (+ retention.dat)
-  cmaPki: 100Mi         # /etc/pki/centreon-engine (CMA CA)
-  engineHome: 5Gi       # /var/lib/centreon-engine (cbmod's queue/cache)
-  gorgoneData: 1Gi      # /var/lib/centreon-gorgone (keys, history)
-  trapsConfig: 100Mi    # /etc/snmp/centreon_traps (traps.enabled)
+  # poller-data: /etc/centreon-engine, /etc/centreon-broker, /etc/centreon,
+  # /etc/pki/centreon-engine (CMA CA), /var/lib/centreon-gorgone (keys,
+  # history), /etc/snmp/centreon_traps (traps.enabled).
+  size: 1Gi
+  # poller-spool: /var/log/centreon-engine (+ retention.dat) and
+  # /var/lib/centreon-engine (cbmod's queue, grows while the central is
+  # unreachable).
+  spoolSize: 10Gi
+
+# Outbound HTTP(S) proxy (e.g. http://proxy.example.com:3128, credentials
+# allowed): proxy env vars for every container, plus an apt.conf.d file since
+# `sudo apt-get` (plugin installs) drops them, both from the Secret
+# <release>-proxy. localhost and the in-pod names are always in noProxy.
+proxy:
+  http: ""
+  https: ""             # defaults to http
+  noProxy: ""           # comma-separated, added to the defaults
+
+# Pod volumes, mounted with <container>.extraVolumeMounts (gorgone, engine,
+# vmware).
+extraVolumes: []
 
 debug: false
 

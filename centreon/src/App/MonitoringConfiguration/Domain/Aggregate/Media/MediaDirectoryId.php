@@ -23,15 +23,13 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Media;
 
+use App\Shared\Domain\Aggregate\AggregateRootId;
+
 /**
- * Identifies the image folder a media belongs to. Used only to know which media a user is
- * allowed to see; folder management (create/rename/delete) isn't a feature here, so this
- * doesn't need its own identity beyond that.
+ * Identifies the image folder a media belongs to. Used only to know which media a user is allowed to see:
+ * folder management (create/rename/delete) isn't a feature here. It extends AggregateRootId like the other
+ * ids, so that an {@see \App\Security\Domain\Aggregate\AccessScope} can hold the accessible folders.
  */
-final readonly class MediaDirectoryId
+final readonly class MediaDirectoryId extends AggregateRootId
 {
-    public function __construct(
-        public int $value,
-    ) {
-    }
 }

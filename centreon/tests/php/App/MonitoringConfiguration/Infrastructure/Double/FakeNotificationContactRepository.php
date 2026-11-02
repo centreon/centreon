@@ -46,7 +46,7 @@ final class FakeNotificationContactRepository implements NotificationContactRepo
         return new Collection($names, NotificationContactName::class);
     }
 
-    public function findAll(?NotificationContactCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(NotificationContactCriteria $criteria): \IteratorAggregate&\Countable
     {
         return new Collection([], NotificationContact::class);
     }

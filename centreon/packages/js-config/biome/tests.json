@@ -1,0 +1,10 @@
+{
+  "linter": {
+    "rules": {
+      "suspicious": {
+        "noFocusedTests": "error",
+        "noSkippedTests": "error"
+      }
+    }
+  }
+}

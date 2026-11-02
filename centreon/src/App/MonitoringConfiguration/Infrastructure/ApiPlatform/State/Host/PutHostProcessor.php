@@ -49,12 +49,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CheckOptionsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostNotificationsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\UpdateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CheckOptionsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostNotificationsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\UpdateHostInput;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -146,8 +146,6 @@ final readonly class PutHostProcessor implements ProcessorInterface
         // block there, so the host simply carries none.
         $notifications = $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications);
         $alias = $this->trimmedOrNull($data->alias);
-        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId;
-
         $command = new UpdateHostCommand(
             id: $hostId,
             name: new HostName($data->name),
@@ -155,8 +153,7 @@ final readonly class PutHostProcessor implements ProcessorInterface
             pollerId: new PollerId($data->pollerId),
             activated: $data->activated,
             hostGroupIds: $hostGroupIds,
-            updatedBy: $credentialUser->credential->userId->value,
-            viewerId: $viewerId,
+            actor: $credentialUser->credential->actingUser(),
             dataProcessing: $dataProcessing,
             alias: $alias !== null ? new HostAlias($alias) : null,
             templateIds: $this->toIdCollection($data->templateIds, HostTemplateId::class),
@@ -179,14 +176,14 @@ final readonly class PutHostProcessor implements ProcessorInterface
         $host = $this->commandBus->execute($command);
         Assert::isInstanceOf($host, Host::class);
 
-        // A restricted viewer gets back only what they may see: the out-of-scope associations the
+        // A restricted actor gets back only what they may see: the out-of-scope associations the
         // update preserved stay hidden. The own macros are read
         // back as stored, since a macro created by this update only gets its id on insertion.
         return $this->resourceBuilder->build(
             $host->with(checkOptions: $host->checkOptions->with(
                 macros: array_values($this->hostRepository->findMacros($host->id())->toArray()),
             )),
-            $viewerId,
+            $command->actor,
         );
     }
 

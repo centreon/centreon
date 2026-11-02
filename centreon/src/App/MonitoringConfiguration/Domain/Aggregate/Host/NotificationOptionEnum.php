@@ -29,7 +29,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
  * Deliberately not backed: neither the API contract strings nor the engine's single-letter
  * storage format (`d`, `u`, `r`, `f`, `s`, `n`) belong to the domain. Both mappings live in the
  * infrastructure — {@see \App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver}
- * for the wire format, {@see \App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer}
+ * for the wire format, {@see \App\MonitoringConfiguration\Infrastructure\Dbal\NotificationsTransformer}
  * for storage.
  *
  * {@see self::None} is exclusive: it means "notify on nothing" and cannot be combined with any

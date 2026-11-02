@@ -1,5 +1,6 @@
-import { SnackbarProvider } from '@centreon/ui';
+import { Form, SnackbarProvider } from '@centreon/ui';
 import {
+  defaultLimitPerPageAtom,
   isAdditiveInheritanceEnabledAtom,
   type PlatformFeatures,
   platformFeaturesAtom,
@@ -16,7 +17,15 @@ import { createStore, Provider } from 'jotai';
 import { HttpResponse } from 'msw';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
+import { object } from 'yup';
 
+import {
+  limitAtom,
+  sortFieldAtom,
+  sortOrderAtom,
+  sortsByListingAtom
+} from '../../ConfigurationBase/Listing/atoms';
+import { ResourceType } from '../../models';
 import Hosts from '..';
 import {
   getDeployServicesEndpoint,
@@ -40,6 +49,11 @@ import {
   resolveAddressEndpoint,
   timezonesEndpoint
 } from '../api/endpoints';
+import {
+  getDefaultValues,
+  getMassChangeDefaultValues,
+  useFormInputs
+} from '../Form';
 import {
   emptyListingResponse,
   getCommandsResponse,
@@ -74,6 +88,19 @@ interface Props {
   resolveDelay?: number;
   // The hosts whose partial update is refused.
   patchFails?: Array<number>;
+  // The sort another listing left in the shared atoms.
+  previousSort?: { field: string; order: 'asc' | 'desc' };
+  // The sort the hosts listing was left on earlier in the session.
+  savedSort?: { field: string; order: 'asc' | 'desc' };
+  // The platform's default page size; `null` while the platform parameters
+  // are not known yet.
+  defaultLimitPerPage?: number | null;
+  // A page size the user already picked in a listing this session.
+  userLimit?: number;
+}
+
+interface InitializeResult extends RenderResult {
+  store: ReturnType<typeof createStore>;
 }
 
 // What the selector answers a user it does not grant.
@@ -100,8 +127,12 @@ const initialize = ({
   hasDefaultPoller = true,
   pollersDelay,
   resolveDelay,
-  patchFails = []
-}: Props = {}): RenderResult => {
+  patchFails = [],
+  defaultLimitPerPage = 10,
+  userLimit,
+  previousSort,
+  savedSort
+}: Props = {}): InitializeResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
@@ -119,6 +150,17 @@ const initialize = ({
 
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
+  store.set(defaultLimitPerPageAtom, defaultLimitPerPage);
+  store.set(limitAtom, userLimit);
+
+  if (previousSort) {
+    store.set(sortFieldAtom, previousSort.field);
+    store.set(sortOrderAtom, previousSort.order);
+  }
+
+  if (savedSort) {
+    store.set(sortsByListingAtom, { [ResourceType.Host]: savedSort });
+  }
 
   interceptAPIRequest({
     alias: 'getHost',
@@ -368,7 +410,7 @@ const initialize = ({
     defaultOptions: { queries: { gcTime: 0, retry: false } }
   });
 
-  return render(
+  const renderResult = render(
     <Router>
       <SnackbarProvider>
         <QueryClientProvider client={queryClient}>
@@ -380,6 +422,74 @@ const initialize = ({
         </QueryClientProvider>
       </SnackbarProvider>
     </Router>
+  );
+
+  return { ...renderResult, store };
+};
+
+interface FormLayoutProps {
+  isCloudPlatform?: boolean;
+  isMassChange?: boolean;
+}
+
+const FormLayout = ({
+  isCloudPlatform = false,
+  isMassChange = false
+}: FormLayoutProps): JSX.Element => {
+  const { groups, inputs } = useFormInputs({
+    canEdit: true,
+    isAdditiveInheritanceEnabled: false,
+    isCloudPlatform,
+    isMassChange
+  });
+  const context = { isCloudPlatform, isMassChange };
+
+  return (
+    <Form
+      areGroupsOpen
+      groups={groups}
+      initialValues={
+        isMassChange
+          ? getMassChangeDefaultValues(context)
+          : getDefaultValues(context)
+      }
+      inputs={inputs}
+      isCollapsible
+      submit={() => undefined}
+      validationSchema={object()}
+    />
+  );
+};
+
+// The form alone, laid out against a panel of `width` pixels: the viewport is
+// fixed at 1280px, so the widest panel overflows it, and the fields follow the
+// panel, as in the page.
+export const initializeFormLayout = ({
+  width,
+  ...props
+}: FormLayoutProps & { width: number }): RenderResult => {
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    resources: {}
+  });
+
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { gcTime: 0, retry: false } }
+  });
+
+  return render(
+    <SnackbarProvider>
+      <QueryClientProvider client={queryClient}>
+        {/* The panel content's own classes (`ConfigurationBase/Panel`). */}
+        <div
+          className="@container px-5"
+          data-testid="host-form-layout-panel"
+          style={{ width }}
+        >
+          <FormLayout {...props} />
+        </div>
+      </QueryClientProvider>
+    </SnackbarProvider>
   );
 };
 

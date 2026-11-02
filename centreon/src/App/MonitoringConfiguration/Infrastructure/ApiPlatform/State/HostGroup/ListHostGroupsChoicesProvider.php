@@ -67,7 +67,7 @@ final readonly class ListHostGroupsChoicesProvider implements ProviderInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $criteria = new HostGroupCriteria();
+        $criteria = HostGroupCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -81,9 +81,6 @@ final readonly class ListHostGroupsChoicesProvider implements ProviderInterface
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
 
         $hostGroups = $this->repository->findAll($criteria);
         $resources = [];

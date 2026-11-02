@@ -51,6 +51,15 @@ export const WithDescription: Story = {
   render: Default.render
 };
 
+export const WithInlineDescription: Story = {
+  args: {
+    description: 'Configure the hosts monitored by your platform',
+    descriptionPosition: 'inline',
+    title: 'Hosts'
+  },
+  render: Default.render
+};
+
 export const WithMenu: Story = {
   args: {
     ...WithDescription.args,

@@ -13,7 +13,7 @@ Feature: Creating a Notification Rule
     And the database backup options are set
     And the MySQL configuration file path is set
 
-  @MON-147112
+  @MON-147113
   Scenario: Run the full backup
     Given an admin user is logged in
     When the admin user accesses the backup page

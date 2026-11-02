@@ -41,7 +41,7 @@ use Webmozart\Assert\Assert;
  * macros (direct, parent null), then those it inherits from its ancestor templates and check
  * commands that it does not override (parent "template" or "command"), resolved like GetHost.
  *
- * No viewer scoping, like the host template choices list (ListHostTemplatesChoicesProvider). Unlike
+ * No actor scoping, like the host template choices list (ListHostTemplatesChoicesProvider). Unlike
  * that list, the license host limit does not apply: a template the license no longer allows still
  * gives its macros, as a host may already have it. An inactive template is not found.
  *

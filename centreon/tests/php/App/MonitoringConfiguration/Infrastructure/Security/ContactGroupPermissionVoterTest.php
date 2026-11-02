@@ -96,7 +96,7 @@ final class ContactGroupPermissionVoterTest extends TestCase
     private function credentialWithoutPermission(): Credential
     {
         return new Credential(
-            identifier: new CredentialIdentifier('viewer'),
+            identifier: new CredentialIdentifier('actor'),
             userId: new UserId(1),
             active: true,
         );

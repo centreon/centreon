@@ -39,7 +39,7 @@ final class FakeMediaRepository implements MediaRepository
         return in_array($id->value, $this->existingIds, true);
     }
 
-    public function findAll(?MediaCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(MediaCriteria $criteria): \IteratorAggregate&\Countable
     {
         return new Collection([], Media::class);
     }

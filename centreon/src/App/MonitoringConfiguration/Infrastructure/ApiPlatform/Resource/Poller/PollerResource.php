@@ -31,7 +31,6 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ListPollersChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ListPollersProvider;

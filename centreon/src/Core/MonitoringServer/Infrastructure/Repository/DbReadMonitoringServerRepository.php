@@ -82,6 +82,29 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
     /**
      * @inheritDoc
      */
+    public function findIdByInstanceId(int $instanceId): ?int
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                -- Legacy pollers unaware of the Snowflake UID still report nagios_server.id
+                -- as instance_id, so match on either the uid or the config id.
+                SELECT id
+                FROM `:db`.`nagios_server`
+                WHERE uid = :uid OR id = :id
+                LIMIT 1
+                SQL
+        ));
+        $statement->bindValue(':uid', $instanceId, \PDO::PARAM_INT);
+        $statement->bindValue(':id', $instanceId, \PDO::PARAM_INT);
+        $statement->execute();
+        $id = $statement->fetchColumn();
+
+        return $id !== false ? (int) $id : null;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function existsByAccessGroups(int $monitoringServerId, array $accessGroups): bool
     {
         $this->debug(

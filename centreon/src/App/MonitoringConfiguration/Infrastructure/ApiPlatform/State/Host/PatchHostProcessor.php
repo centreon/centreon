@@ -26,7 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\PatchHostInput;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
@@ -59,8 +59,7 @@ final readonly class PatchHostProcessor implements ProcessorInterface
 
         $this->commandBus->execute($this->commandFactory->create(
             id: new HostId($uriVariables['id']),
-            updatedBy: $credentialUser->credential->userId->value,
-            viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
+            actor: $credentialUser->credential->actingUser(),
             input: $data,
             payload: RequestPayload::fromRequest($request),
         ));

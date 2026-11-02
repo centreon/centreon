@@ -21,7 +21,8 @@ const useGetDetails = ({ id }: { id: number | null }) => {
     getEndpoint: () => endpoint?.({ id: id as number | string }) as string,
     getQueryKey: () => ['getDetails', id, resourceType],
     queryOptions: {
-      enabled: isNotNil(id),
+      // No detail query when the module declares no detail endpoint.
+      enabled: isNotNil(id) && isNotNil(endpoint),
       suspense: false
     }
   });

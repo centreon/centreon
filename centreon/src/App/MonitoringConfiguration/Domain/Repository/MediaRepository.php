@@ -35,7 +35,7 @@ interface MediaRepository
     /**
      * @return \IteratorAggregate<int, Media>&\Countable
      */
-    public function findAll(?MediaCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(MediaCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
      * Every requested id's media, for bulk display purposes (e.g. a sibling aggregate that only

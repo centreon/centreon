@@ -33,7 +33,7 @@ interface HostSeverityRepository
     /**
      * @return \IteratorAggregate<int, HostSeverity>&\Countable
      */
-    public function findAll(?HostSeverityCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(HostSeverityCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
      * Never returns a category, though both share the `hostcategories` table.

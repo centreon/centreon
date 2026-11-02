@@ -77,3 +77,41 @@ own() {
   chmod "$2" "$3" || echo "WARN: could not chmod $3"
 }
 {{- end -}}
+
+{{/* Proxy variables, as YAML for the proxy Secret; localhost and the in-pod
+     names never go through it. */}}
+{{- define "centreon-poller.proxyVars" -}}
+{{- with .Values.proxy }}
+{{- $noProxy := list "localhost" "127.0.0.1" "centengine" }}
+{{- if $.Values.vmware.enabled }}
+{{- $noProxy = append $noProxy "centreon-vmware" }}
+{{- end }}
+{{- with .noProxy }}
+{{- $noProxy = append $noProxy . }}
+{{- end }}
+{{- dict "http_proxy" .http "https_proxy" (.https | default .http) "no_proxy" (join "," $noProxy) | toYaml }}
+{{- end }}
+{{- end -}}
+
+{{/* Proxy env vars (both cases), read from the proxy Secret so that
+     credentials in the URLs stay out of the pod spec. */}}
+{{- define "centreon-poller.proxyEnv" -}}
+{{- if .Values.proxy.http }}
+{{- range $name := list "http_proxy" "https_proxy" "no_proxy" }}
+{{- range $var := list $name (upper $name) }}
+- name: {{ $var }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "centreon-poller.fullname" $ }}-proxy
+      key: {{ $var }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{/* apt proxy file: `sudo apt-get` drops the proxy env vars. */}}
+{{- define "centreon-poller.proxyMount" -}}
+{{- if .Values.proxy.http -}}
+- { name: apt-proxy, mountPath: /etc/apt/apt.conf.d/99centreon-poller-proxy, subPath: 99centreon-poller-proxy, readOnly: true }
+{{- end -}}
+{{- end -}}

@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next';
 
 interface Props {
   children: ReactNode;
+  id: string;
   label: string;
   withTopDivider?: boolean;
 }
 
 const Row = ({
+  id,
   label,
   children,
   withTopDivider = true
@@ -19,6 +21,7 @@ const Row = ({
       className={`grid grid-cols-1 items-center gap-x-7 gap-y-1 py-6 md:grid-cols-[188px_1fr] ${
         withTopDivider ? 'border-t border-divider' : ''
       }`}
+      id={id}
     >
       <p className="text-base leading-tight font-medium text-section-title">
         {t(label)}

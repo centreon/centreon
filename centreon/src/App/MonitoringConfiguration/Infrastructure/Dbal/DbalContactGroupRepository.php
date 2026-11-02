@@ -28,8 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -61,7 +60,7 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         private Connection $connection,
         #[Autowire(service: ContactGroupTransformer::class)]
         private TransformerInterface $transformer,
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -91,6 +90,13 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
 
     public function findAll(ContactGroupCriteria $criteria): \IteratorAggregate&\Countable
     {
+        // ACL data-scoping: a non-admin actor only sees the contact groups reachable through
+        // their access groups or their own membership.
+        $scope = $criteria->accessScope($this->accessScopes->contactGroups(...), ContactGroupId::class);
+        if ($scope->allowsNothing()) {
+            return $this->emptyResult($criteria, ContactGroup::class);
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'cg')
@@ -100,22 +106,11 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
             ->andWhere("cg.cg_name IS NOT NULL AND cg.cg_name != ''")
             ->orderBy('cg.cg_id'); // required for deterministic pagination
 
-        // ACL data-scoping: a non-admin viewer only sees the contact groups reachable through
-        // their access groups or their own membership. An admin passes a null viewerId (no scoping).
-        if (($viewerId = $criteria->getViewerId()) instanceof UserId) {
-            $accessibleIds = array_map(
-                static fn (ContactGroupId $id): int => $id->value,
-                $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId)->toArray(),
-            );
-            if ($accessibleIds === []) {
-                // No accessible contact group: match nothing, but keep the normal (paginator) shape.
-                $qb->andWhere('1 = 0');
-            } else {
-                $qb->andWhere($qb->expr()->in(
-                    'cg.cg_id',
-                    $qb->createNamedParameter($accessibleIds, ArrayParameterType::INTEGER)
-                ));
-            }
+        if (! $scope->isUnrestricted()) {
+            $qb->andWhere($qb->expr()->in(
+                'cg.cg_id',
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
+            ));
         }
         $this->filterByCriteria($qb, $criteria);
 

@@ -34,13 +34,12 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\UpdateHostInput;
+use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DeleteHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DuplicateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\GetHostProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
@@ -87,7 +86,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
             requirements: ['id' => '[1-9]\d*'],
             status: 204,
             // Write-only action: no item provider, the handler loads the host itself and answers 404
-            // when it is missing or outside the viewer's scope.
+            // when it is missing or outside the actor's scope.
             read: false,
             processor: PatchHostProcessor::class,
             input: PatchHostInput::class,
@@ -134,7 +133,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
             // Positive integers only, as on GET: a non-numeric or zero id is a 404, not a 500.
             requirements: ['id' => '[1-9]\d*'],
             // Write-only replace: the processor loads the host itself (404 via the handler when it is
-            // missing or out of the viewer's ACL scope), so no item provider is read; it returns the
+            // missing or out of the actor's ACL scope), so no item provider is read; it returns the
             // full updated resource.
             read: false,
             processor: PutHostProcessor::class,
@@ -189,6 +188,24 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
                         required: false,
                         schema: ['type' => 'boolean'],
                     ),
+                    new Model\Parameter(
+                        name: 'sort',
+                        in: 'query',
+                        description: 'Sort by one or several fields, in order of precedence (e.g. `sort[name]=asc`). '
+                            . 'Asc on `activated` lists the deactivated hosts first.',
+                        required: false,
+                        style: 'deepObject',
+                        explode: true,
+                        schema: [
+                            'type' => 'object',
+                            'properties' => [
+                                'name' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                                'alias' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                                'address' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                                'activated' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                            ],
+                        ],
+                    ),
                 ],
             ),
             security: '
@@ -197,6 +214,16 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
             securityMessage: 'You are not allowed to list hosts',
             output: HostCollectionOutput::class,
             provider: ListHostsProvider::class,
+        ),
+        // the service form's host selector: gated on the service right, not on the host one
+        new GetCollection(
+            uriTemplate: '/configuration/services/hosts',
+            openapi: false,
+            security: 'is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access hosts',
+            itemUriTemplate: '/configuration/hosts/{id}',
+            output: HostChoicesOutput::class,
+            provider: ListHostsChoicesProvider::class,
         ),
         new Delete(
             uriTemplate: '/configuration/hosts/{id}',

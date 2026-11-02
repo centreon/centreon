@@ -1,0 +1,19 @@
+{
+  "extends": ["./tsconfig.json", "../js-config/tsconfig/typecheck.json"],
+  "compilerOptions": {
+    "paths": {
+      "@test-setup/*": ["../../test-setup/*"],
+      "msw": ["../../node_modules/msw-v2"],
+      "msw/*": ["../../node_modules/msw-v2/*"]
+    },
+    "lib": ["dom", "dom.iterable", "es2023"],
+    "types": ["react"]
+  },
+  "include": [
+    "../../node_modules/@rstest/core/globals.d.ts",
+    "../../test-setup/jest-dom.d.ts",
+    "./src/@types",
+    "./src/**/*.browser.test.tsx"
+  ],
+  "exclude": ["./node_modules", "./dist", "../../node_modules/.pnpm"]
+}

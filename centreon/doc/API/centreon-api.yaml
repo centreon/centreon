@@ -4126,6 +4126,7 @@ paths:
                   is_resource_status_full_search_enabled: { type: boolean, description: 'Whether the Resource Status free text search also covers the information field (full search mode)', example: true }
                   is_additive_inheritance_enabled: { type: boolean, description: 'Whether the contact and contact group additive inheritance is enabled (inheritance mode set to vertical)', example: false }
                   monitoring_interval_length: { type: integer, description: 'Interval length in seconds used by the monitoring engine to compute check intervals', example: 60 }
+                  default_limit_per_page: { type: integer, description: 'Default number of items per page in listings ("Limit per page (default)" platform setting, falls back to 30 when unset or invalid)', example: 30 }
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -4208,6 +4209,32 @@ paths:
           schema:
             type: boolean
           style: form
+          explode: true
+        -
+          name: sort
+          in: query
+          description: 'Sort by one or several fields, in order of precedence (e.g. `sort[name]=asc`). Asc on `is_activated` lists the deactivated commands first.'
+          required: false
+          deprecated: false
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              type:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              is_activated:
+                type: string
+                enum:
+                  - asc
+                  - desc
+          style: deepObject
           explode: true
         -
           name: page
@@ -5352,11 +5379,47 @@ paths:
         -
           name: 'name[lk]'
           in: query
-          description: 'Filter by host template name using "like" operator'
+          description: 'Filter by host template name or alias using "like" operator'
           required: false
           deprecated: false
           schema:
             type: string
+          style: form
+          explode: true
+        -
+          name: include_locked
+          in: query
+          description: 'Include the locked host templates as well (unlocked ones only when absent or false)'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: 'sort[name]'
+          in: query
+          description: 'Sort by name (default: name ascending)'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          style: form
+          explode: true
+        -
+          name: 'sort[alias]'
+          in: query
+          description: 'Sort by alias'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
           style: form
           explode: true
         -
@@ -5380,7 +5443,7 @@ paths:
             type: integer
             default: 30
             minimum: 0
-            maximum: 30
+            maximum: 100
           style: form
           explode: true
   /api/configuration/hosts:
@@ -5469,6 +5532,37 @@ paths:
           schema:
             type: boolean
           style: form
+          explode: true
+        -
+          name: sort
+          in: query
+          description: 'Sort by one or several fields, in order of precedence (e.g. `sort[name]=asc`). Asc on `activated` lists the deactivated hosts first.'
+          required: false
+          deprecated: false
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              alias:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              address:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              activated:
+                type: string
+                enum:
+                  - asc
+                  - desc
+          style: deepObject
           explode: true
         -
           name: page
@@ -11707,10 +11801,29 @@ components:
     HostTemplate.HostTemplateCollectionOutput:
       type: object
       properties:
+        linked_service_templates_count:
+          default: 0
+          type: integer
+        parent_templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateOutput'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput'
+            -
+              type: 'null'
         id:
           type: integer
         name:
           type: string
+        alias:
+          type:
+            - string
+            - 'null'
+        is_locked:
+          type: boolean
     HostTemplate.HostTemplateCollectionOutput.jsonld:
       allOf:
         -
@@ -11718,10 +11831,29 @@ components:
         -
           type: object
           properties:
+            linked_service_templates_count:
+              default: 0
+              type: integer
+            parent_templates:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostTemplateOutput.jsonld'
+            icon:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostIconOutput.jsonld'
+                -
+                  type: 'null'
             id:
               type: integer
             name:
               type: string
+            alias:
+              type:
+                - string
+                - 'null'
+            is_locked:
+              type: boolean
     Host.HostCollectionOutput:
       type: object
       properties:

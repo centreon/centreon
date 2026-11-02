@@ -60,7 +60,7 @@ final readonly class ListTimePeriodsChoicesProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
-        // No viewer scoping: time periods carry no acl_resources relation, so every user passing
+        // No actor scoping: time periods carry no acl_resources relation, so every user passing
         // the permission gate sees them all, exactly as legacy FindTimePeriods does.
         $criteria = new TimePeriodCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {

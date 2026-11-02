@@ -36,8 +36,8 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * @phpstan-import-type RowTypeAlias from DbalServiceTransformer
- * @phpstan-import-type MacroRowTypeAlias from DbalServiceTransformer
+ * @phpstan-import-type RowTypeAlias from ServiceTransformer
+ * @phpstan-import-type MacroRowTypeAlias from ServiceTransformer
  */
 final readonly class DbalServiceRepository extends DbalRepository implements ServiceRepository
 {
@@ -50,7 +50,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
-        #[Autowire(service: DbalServiceTransformer::class)]
+        #[Autowire(service: ServiceTransformer::class)]
         private TransformerInterface $transformer,
     ) {
     }
