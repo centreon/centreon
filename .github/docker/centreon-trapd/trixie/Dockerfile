@@ -9,24 +9,21 @@
 #   - centreontrapd / centreontrapdforward wrappers come from this repo
 #     (centreon/bin/).
 #   - Their Perl modules (centreon::script, centreon::trapd, centreon::common)
-#     live in centreon-collect (perl-libs/lib/centreon). By default the
-#     "perl-libs" stage below fetches them from GitHub at CENTREON_COLLECT_REF;
-#     override it with a local checkout (CI, local dev) via a named build
-#     context:
+#     live in centreon-collect (perl-libs/lib/centreon) and MUST be provided
+#     through the "perl-libs" named build context, pointing at a centreon-collect
+#     checkout of the same branch (develop, dev-XX.XX.x, ...):
 #
 #   docker buildx build \
 #     --build-context perl-libs=../centreon-collect/perl-libs/lib \
 #     -f .github/docker/centreon-trapd/trixie/Dockerfile .
 
-ARG CENTREON_COLLECT_REF=develop
-
 #############################################
 # Centreon Perl modules (centreon-collect perl-libs/lib)
-# Replaced wholesale by --build-context perl-libs=<path>.
+# Intentionally empty: replaced by --build-context perl-libs=<path>. No remote
+# fallback, so the build fails loudly instead of silently mixing in Perl libs
+# from another centreon-collect branch.
 #############################################
 FROM scratch AS perl-libs
-ARG CENTREON_COLLECT_REF
-ADD --link https://github.com/centreon/centreon-collect.git#${CENTREON_COLLECT_REF}:perl-libs/lib /
 
 #############################################
 # Runtime - Debian 13 slim image
