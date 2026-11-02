@@ -147,6 +147,7 @@ export interface UserPermissions {
   configuration_host_group_write: boolean;
   configuration_host_write: boolean;
   configuration_host_template_write: boolean;
+  configuration_service_write: boolean;
   see_check_commands: boolean;
   manage_check_commands: boolean;
   see_notification_commands: boolean;
