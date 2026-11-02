@@ -56,7 +56,8 @@ final class DbalModuleRepositoryTest extends TestCase
             $this->configConnection,
             $this->modulesDir,
             new LegacyConnectionFactory(
-                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon', 'centreon_storage')
+                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon', 'centreon_storage'),
+                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon_storage', 'centreon_storage'),
             ),
             '/usr/share/centreon/',
             new NullLogger(),
