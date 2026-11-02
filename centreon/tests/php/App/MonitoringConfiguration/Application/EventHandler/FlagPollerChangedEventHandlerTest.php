@@ -58,6 +58,7 @@ use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
+use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceDisabled;
 use App\Shared\Domain\Aggregate\AggregateRoot;
@@ -159,6 +160,31 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
         $handler(new HostDuplicated($host, 1));
 
         self::assertSame([$host], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsThePollerOfTheEnabledHostOfACreatedService(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $service = $this->createService(hostActivated: true);
+        $handler(new ServiceCreated($service, 1));
+
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+    }
+
+    /**
+     * A disabled host is not monitored: creating a service on it leaves its poller alone.
+     */
+    public function testServiceCreatedOnADisabledHost(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $handler(new ServiceCreated($this->createService(hostActivated: false), 1));
+
+        self::assertSame([], $pollerRepository->flaggedResources);
+        self::assertSame([], $pollerRepository->flaggedPollerIds);
     }
 
     public function testItFlagsThePollerOfTheEnabledHostOfADeletedService(): void
