@@ -350,6 +350,33 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertCount(0, $this->repository->findTemplatesInheritedIconIds(new Collection([], HostTemplateId::class)));
     }
 
+    public function testFindTemplatesInheritedIconIdsSurvivesALoopThroughTheRequestedTemplate(): void
+    {
+        $loopIconId = $this->insertImage();
+        // A -> B -> A, B with an icon: A inherits it
+        $withIconId = $this->insertListedTemplate("loop-a-{$this->tag}");
+        $iconParentId = $this->insertListedTemplate("loop-b-{$this->tag}");
+        $this->setIcon($iconParentId, $loopIconId);
+        $this->linkHostToTemplate($withIconId, $iconParentId, 1);
+        $this->linkHostToTemplate($iconParentId, $withIconId, 1);
+        // C -> D -> C, no icon anywhere: C is absent
+        $iconlessId = $this->insertListedTemplate("loop-c-{$this->tag}");
+        $iconlessParentId = $this->insertListedTemplate("loop-d-{$this->tag}");
+        $this->linkHostToTemplate($iconlessId, $iconlessParentId, 1);
+        $this->linkHostToTemplate($iconlessParentId, $iconlessId, 1);
+        // E -> F -> E, only E has an icon: its own icon does not come back through the loop
+        $ownIconOnlyId = $this->insertListedTemplate("loop-e-{$this->tag}");
+        $this->setIcon($ownIconOnlyId, $this->insertImage());
+        $ownIconOnlyParentId = $this->insertListedTemplate("loop-f-{$this->tag}");
+        $this->linkHostToTemplate($ownIconOnlyId, $ownIconOnlyParentId, 1);
+        $this->linkHostToTemplate($ownIconOnlyParentId, $ownIconOnlyId, 1);
+
+        self::assertSame(
+            [$withIconId => $loopIconId],
+            $this->templatesInheritedIconIds($withIconId, $iconlessId, $ownIconOnlyId)
+        );
+    }
+
     public function testCountLinkedServiceTemplatesCountsTheDirectLinksOnly(): void
     {
         $parentId = $this->insertListedTemplate("parent-{$this->tag}");
@@ -693,6 +720,29 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->linkHostToTemplate($templateId, $inactiveId, 1);
 
         self::assertSame([$templateId], array_keys($this->inheritanceLine($templateId)));
+    }
+
+    public function testFindInheritanceLineCarriesTheStoredDirectParentsOfEachTemplate(): void
+    {
+        $grandParentId = $this->insertHostTemplate("grand-parent-{$this->tag}");
+        $firstParentId = $this->insertHostTemplate("first-parent-{$this->tag}");
+        $this->linkHostToTemplate($firstParentId, $grandParentId, 1);
+        $secondParentId = $this->insertHostTemplate("second-parent-{$this->tag}");
+        $inactiveParentId = $this->insertHostTemplate("inactive-parent-{$this->tag}");
+        $this->connection->update('host', ['host_activate' => '0'], ['host_id' => $inactiveParentId]);
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        // inserted out of order on purpose: `order`, not insertion, gives the parents' order
+        $this->linkHostToTemplate($templateId, $inactiveParentId, 3);
+        $this->linkHostToTemplate($templateId, $firstParentId, 2);
+        $this->linkHostToTemplate($templateId, $secondParentId, 1);
+
+        $line = $this->inheritanceLine($templateId);
+
+        // the inactive parent is out of the line, yet still one of the template's stored parents
+        self::assertSame([$templateId, $secondParentId, $firstParentId, $grandParentId], array_keys($line));
+        self::assertSame([$secondParentId, $firstParentId, $inactiveParentId], $this->idValues($line[$templateId]->parentTemplateIds));
+        self::assertSame([$grandParentId], $this->idValues($line[$firstParentId]->parentTemplateIds));
+        self::assertSame([], $this->idValues($line[$grandParentId]->parentTemplateIds));
     }
 
     public function testFindInheritanceLineSkipsAnInactiveDirectTemplate(): void

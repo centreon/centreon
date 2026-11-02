@@ -89,9 +89,7 @@ interface HostTemplateRepository
      * nearest position). Only active templates are kept, at every level, like legacy
      * getTemplateChain(); an id that is not an active host template is skipped.
      *
-     * The templates are partially hydrated: they carry their identity and what a host inherits
-     * (macros, check commands) only. Their alias, lock state, icon and parent ids are left at their
-     * defaults whatever is stored, so they must not be read from this result.
+     * Partially hydrated: alias, lock state and icon are left at their defaults.
      *
      * @param Collection<HostTemplateId> $directTemplateIds the host's (or template's) direct templates, in order
      *

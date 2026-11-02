@@ -334,6 +334,8 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
         $macrosByOwner = $this->findMacrosByOwner($line);
         $serviceTemplateCommandIds = $this->findServiceTemplateCheckCommandIds($line);
+        // every stored direct parent, active or not, as in findAll(): $parentIdsById has active ones only
+        $storedParentIdsById = $this->findParentTemplateIdValues($line);
 
         return new Collection(
             array_map(
@@ -345,6 +347,10 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
                     new Collection(
                         array_map(static fn (int $commandId): CommandId => new CommandId($commandId), $serviceTemplateCommandIds[$id] ?? []),
                         CommandId::class,
+                    ),
+                    parentTemplateIds: new Collection(
+                        array_map(static fn (int $parentId): HostTemplateId => new HostTemplateId($parentId), $storedParentIdsById[$id] ?? []),
+                        HostTemplateId::class,
                     ),
                 ),
                 $line,

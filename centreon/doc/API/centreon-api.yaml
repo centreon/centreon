@@ -5443,7 +5443,7 @@ paths:
             type: integer
             default: 30
             minimum: 0
-            maximum: 30
+            maximum: 100
           style: form
           explode: true
   /api/configuration/hosts:

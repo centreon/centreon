@@ -196,6 +196,24 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
         self::assertResponseStatusCodeSame(400);
     }
 
+    public function testItCapsItemsPerPageAtOneHundred(): void
+    {
+        for ($index = 0; $index < 101; ++$index) {
+            $this->insertHostTemplate("cap-{$this->tag}-{$index}");
+        }
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, [
+            'query' => ['name' => ['lk' => "cap-{$this->tag}-"], 'itemsPerPage' => '500'],
+        ]);
+        self::assertResponseIsSuccessful();
+
+        $body = $response->toArray();
+        self::assertCount(100, (array) $body['member']);
+        self::assertSame(101, $body['totalItems']);
+    }
+
     public function testItMatchesTheAliasAsWellWithTheNameFilter(): void
     {
         $this->insertHostTemplate("ht3-{$this->tag}", alias: "ht1-{$this->tag}-alias");

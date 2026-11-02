@@ -70,6 +70,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             provider: ListHostTemplatesProvider::class,
             itemUriTemplate: '/configuration/host_templates/{id}',
             output: HostTemplateCollectionOutput::class,
+            paginationMaximumItemsPerPage: 100,
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
