@@ -85,7 +85,7 @@ const initialize = ({
       <SnackbarProvider>
         <QueryClientProvider client={queryClient}>
           <Provider store={store}>
-            <div style={{ height: '100vh' }}>
+            <div className="h-screen">
               <HostTemplates />
             </div>
           </Provider>
