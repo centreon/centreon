@@ -46,4 +46,15 @@ final readonly class ServiceSchedulingOptions
         Assert::nullOrGreaterThanEq($normalCheckInterval, 1, 'ServiceSchedulingOptions::normalCheckInterval expected to be >= 1, got %s.');
         Assert::nullOrGreaterThanEq($retryCheckInterval, 1, 'ServiceSchedulingOptions::retryCheckInterval expected to be >= 1, got %s.');
     }
+
+    public function equals(self $other): bool
+    {
+        return $this->checkTimeperiodId?->value === $other->checkTimeperiodId?->value
+            && $this->maxCheckAttempts === $other->maxCheckAttempts
+            && $this->normalCheckInterval === $other->normalCheckInterval
+            && $this->retryCheckInterval === $other->retryCheckInterval
+            && $this->activeCheckEnabled === $other->activeCheckEnabled
+            && $this->passiveCheckEnabled === $other->passiveCheckEnabled
+            && $this->isVolatile === $other->isVolatile;
+    }
 }

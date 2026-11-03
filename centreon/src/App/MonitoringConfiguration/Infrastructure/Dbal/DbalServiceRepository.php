@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceStalkingOptionEnum;
@@ -40,6 +41,7 @@ use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\SortDirectionEnum;
@@ -279,6 +281,104 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         }
     }
 
+    public function update(Service $service): void
+    {
+        $serviceId = $service->id()->value;
+        if (! $this->isRegisteredService($serviceId)) {
+            return;
+        }
+
+        // Before any row of the service is written, see lockPoller().
+        if ($service->hostPollerId instanceof PollerId) {
+            $this->lockPoller($service->hostPollerId->value);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->update(self::TABLE_NAME);
+        foreach (self::SERVICE_COLUMN_PARAMETERS as $column => $parameter) {
+            $qb->set($column, $parameter);
+        }
+        $qb->where('service_id = :id')
+            ->andWhere("service_register = '1'")
+            ->setParameter('id', $serviceId, ParameterType::INTEGER);
+        $this->bindServiceParameters($qb, $service);
+        $qb->executeStatement();
+
+        $this->updateExtendedInformations($service);
+    }
+
+    public function replaceRelationsAndMacros(Service $service): void
+    {
+        $serviceId = $service->id()->value;
+        if (! $this->isRegisteredService($serviceId)) {
+            return;
+        }
+
+        // Before any row of the service is written, see lockPoller().
+        if ($service->hostPollerId instanceof PollerId) {
+            $this->lockPoller($service->hostPollerId->value);
+        }
+
+        $hostId = $service->hostId->value;
+        $hostChanged = $this->replaceHostLink($serviceId, $hostId);
+        $this->replaceServiceGroups($serviceId, $hostId, $service, $hostChanged);
+
+        foreach (['contact_service_relation', 'contactgroup_service_relation'] as $table) {
+            $this->connection->createQueryBuilder()
+                ->delete($table)
+                ->where('service_service_id = :serviceId')
+                ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+                ->executeStatement();
+        }
+        $this->insertContacts($serviceId, $service->notifications);
+
+        // Categories and severities share this table, told apart by `service_categories.level`: each half is
+        // replaced by its own, every levelled row by the one severity.
+        $this->connection->createQueryBuilder()
+            ->delete('service_categories_relation')
+            ->where('service_service_id = :serviceId')
+            ->andWhere('sc_id IN (SELECT sc.sc_id FROM service_categories sc WHERE sc.level IS NULL)')
+            ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->executeStatement();
+        foreach ($service->categoryIds as $categoryId) {
+            $this->linkToServiceCategory($serviceId, $categoryId->value);
+        }
+        $this->connection->createQueryBuilder()
+            ->delete('service_categories_relation')
+            ->where('service_service_id = :serviceId')
+            ->andWhere('sc_id IN (SELECT sc.sc_id FROM service_categories sc WHERE sc.level IS NOT NULL)')
+            ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->executeStatement();
+        if ($service->severityId instanceof ServiceSeverityId) {
+            $this->linkToServiceCategory($serviceId, $service->severityId->value);
+        }
+
+        $this->connection->createQueryBuilder()
+            ->delete('traps_service_relation')
+            ->where('service_id = :serviceId')
+            ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->executeStatement();
+        $this->insertTraps($serviceId, $service);
+
+        $this->saveMacros($serviceId, $service->checkOptions->macros);
+    }
+
+    public function findSeverityIds(ServiceId $id): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT scr.sc_id')
+            ->from('service_categories_relation', 'scr')
+            ->innerJoin('scr', 'service_categories', 'sc', 'sc.sc_id = scr.sc_id')
+            ->where($qb->expr()->eq('scr.service_service_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->andWhere('sc.level IS NOT NULL')
+            ->orderBy('scr.sc_id', 'ASC');
+
+        return new Collection(
+            array_map(static fn (int $value): ServiceSeverityId => new ServiceSeverityId($value), $this->fetchIds($qb)),
+            ServiceSeverityId::class,
+        );
+    }
+
     /**
      * No unique index backs the name on a host, in legacy either: this check is the only guard.
      */
@@ -464,36 +564,8 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
      */
     private function insertRelations(int $serviceId, int $hostId, Service $service): void
     {
-        $notifications = $service->notifications;
-        if ($notifications instanceof ServiceNotifications) {
-            foreach ($notifications->contactIds as $contactId) {
-                $this->connection->createQueryBuilder()
-                    ->insert('contact_service_relation')
-                    ->values(['contact_id' => ':contactId', 'service_service_id' => ':serviceId'])
-                    ->setParameter('contactId', $contactId->value, ParameterType::INTEGER)
-                    ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
-                    ->executeStatement();
-            }
-
-            foreach ($notifications->contactGroupIds as $contactGroupId) {
-                $this->connection->createQueryBuilder()
-                    ->insert('contactgroup_service_relation')
-                    ->values(['contactgroup_cg_id' => ':contactGroupId', 'service_service_id' => ':serviceId'])
-                    ->setParameter('contactGroupId', $contactGroupId->value, ParameterType::INTEGER)
-                    ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
-                    ->executeStatement();
-            }
-        }
-
-        foreach ($service->serviceGroupIds as $serviceGroupId) {
-            $this->connection->createQueryBuilder()
-                ->insert('servicegroup_relation')
-                ->values(['host_host_id' => ':hostId', 'service_service_id' => ':serviceId', 'servicegroup_sg_id' => ':serviceGroupId'])
-                ->setParameter('hostId', $hostId, ParameterType::INTEGER)
-                ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
-                ->setParameter('serviceGroupId', $serviceGroupId->value, ParameterType::INTEGER)
-                ->executeStatement();
-        }
+        $this->insertContacts($serviceId, $service->notifications);
+        $this->insertServiceGroups($serviceId, $hostId, $service);
 
         foreach ($service->categoryIds as $categoryId) {
             $this->linkToServiceCategory($serviceId, $categoryId->value);
@@ -503,6 +575,52 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             $this->linkToServiceCategory($serviceId, $service->severityId->value);
         }
 
+        $this->insertTraps($serviceId, $service);
+    }
+
+    private function insertContacts(int $serviceId, ?ServiceNotifications $notifications): void
+    {
+        if (! $notifications instanceof ServiceNotifications) {
+            return;
+        }
+
+        foreach ($notifications->contactIds as $contactId) {
+            $this->connection->createQueryBuilder()
+                ->insert('contact_service_relation')
+                ->values(['contact_id' => ':contactId', 'service_service_id' => ':serviceId'])
+                ->setParameter('contactId', $contactId->value, ParameterType::INTEGER)
+                ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+                ->executeStatement();
+        }
+
+        foreach ($notifications->contactGroupIds as $contactGroupId) {
+            $this->connection->createQueryBuilder()
+                ->insert('contactgroup_service_relation')
+                ->values(['contactgroup_cg_id' => ':contactGroupId', 'service_service_id' => ':serviceId'])
+                ->setParameter('contactGroupId', $contactGroupId->value, ParameterType::INTEGER)
+                ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+                ->executeStatement();
+        }
+    }
+
+    /**
+     * One row per group, with the service's host and no host group.
+     */
+    private function insertServiceGroups(int $serviceId, int $hostId, Service $service): void
+    {
+        foreach ($this->uniqueIdValues($service->serviceGroupIds) as $serviceGroupId) {
+            $this->connection->createQueryBuilder()
+                ->insert('servicegroup_relation')
+                ->values(['host_host_id' => ':hostId', 'service_service_id' => ':serviceId', 'servicegroup_sg_id' => ':serviceGroupId'])
+                ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+                ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+                ->setParameter('serviceGroupId', $serviceGroupId, ParameterType::INTEGER)
+                ->executeStatement();
+        }
+    }
+
+    private function insertTraps(int $serviceId, Service $service): void
+    {
         foreach ($service->trapIds as $trapId) {
             $this->connection->createQueryBuilder()
                 ->insert('traps_service_relation')
@@ -511,6 +629,221 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
                 ->setParameter('trapId', $trapId->value, ParameterType::INTEGER)
                 ->executeStatement();
         }
+    }
+
+    /**
+     * Moves the service to $hostId when it is linked directly to another host; a link to the same host is left as
+     * it is, row included.
+     *
+     * @return bool whether the host changed
+     */
+    private function replaceHostLink(int $serviceId, int $hostId): bool
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hsr.host_host_id')
+            ->from('host_service_relation', 'hsr')
+            ->where($qb->expr()->eq('hsr.service_service_id', $qb->createNamedParameter($serviceId, ParameterType::INTEGER)))
+            ->andWhere('hsr.host_host_id IS NOT NULL');
+        $storedHostIds = $this->fetchIds($qb);
+
+        if ($storedHostIds === [$hostId]) {
+            return false;
+        }
+
+        $this->connection->createQueryBuilder()
+            ->delete('host_service_relation')
+            ->where('service_service_id = :serviceId')
+            ->andWhere('host_host_id IS NOT NULL')
+            ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->executeStatement();
+        $this->connection->createQueryBuilder()
+            ->insert('host_service_relation')
+            ->values(['host_host_id' => ':hostId', 'service_service_id' => ':serviceId'])
+            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+            ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->executeStatement();
+
+        return true;
+    }
+
+    /**
+     * Written only when the groups differ from the ones a Get reads (the rows of the service on its host, without
+     * host group) or the host changed: every row of the service then goes, as legacy does, those of another host
+     * or of a host group included, and the groups are written again with the current host. Otherwise nothing is
+     * written, and rows a Get does not read are left alone.
+     */
+    private function replaceServiceGroups(int $serviceId, int $hostId, Service $service, bool $hostChanged): void
+    {
+        $groupIds = $this->uniqueIdValues($service->serviceGroupIds);
+        sort($groupIds);
+
+        if (! $hostChanged) {
+            $qb = $this->connection->createQueryBuilder();
+            $qb->select('DISTINCT sgr.servicegroup_sg_id')
+                ->from('servicegroup_relation', 'sgr')
+                ->where($qb->expr()->eq('sgr.service_service_id', $qb->createNamedParameter($serviceId, ParameterType::INTEGER)))
+                ->andWhere($qb->expr()->eq('sgr.host_host_id', $qb->createNamedParameter($hostId, ParameterType::INTEGER)))
+                ->andWhere('sgr.hostgroup_hg_id IS NULL')
+                ->orderBy('sgr.servicegroup_sg_id', 'ASC');
+            if ($this->fetchIds($qb) === $groupIds) {
+                return;
+            }
+        }
+
+        $this->connection->createQueryBuilder()
+            ->delete('servicegroup_relation')
+            ->where('service_service_id = :serviceId')
+            ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->executeStatement();
+        $this->insertServiceGroups($serviceId, $hostId, $service);
+    }
+
+    /**
+     * Every `extended_service_information` row of the service is updated (legacy may store several); one is written
+     * when it has none.
+     */
+    private function updateExtendedInformations(Service $service): void
+    {
+        $serviceId = $service->id()->value;
+        $extendedInformations = $service->extendedInformations;
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('1')
+            ->from('extended_service_information')
+            ->where($qb->expr()->eq('service_service_id', $qb->createNamedParameter($serviceId, ParameterType::INTEGER)))
+            ->setMaxResults(1);
+        $exists = $qb->executeQuery()->fetchOne() !== false;
+
+        $qb = $this->connection->createQueryBuilder();
+        if ($exists) {
+            $qb->update('extended_service_information')
+                ->set('esi_notes', ':note')
+                ->set('esi_notes_url', ':noteUrl')
+                ->set('esi_action_url', ':actionUrl')
+                ->set('esi_icon_image', ':iconId')
+                ->set('esi_icon_image_alt', ':altIcon')
+                ->set('graph_id', ':graphTemplateId')
+                ->where('service_service_id = :serviceId');
+        } else {
+            $qb->insert('extended_service_information')
+                ->values([
+                    'service_service_id' => ':serviceId',
+                    'esi_notes' => ':note',
+                    'esi_notes_url' => ':noteUrl',
+                    'esi_action_url' => ':actionUrl',
+                    'esi_icon_image' => ':iconId',
+                    'esi_icon_image_alt' => ':altIcon',
+                    'graph_id' => ':graphTemplateId',
+                ]);
+        }
+
+        $qb->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->setParameter('note', $extendedInformations?->note)
+            ->setParameter('noteUrl', $extendedInformations?->noteUrl)
+            ->setParameter('actionUrl', $extendedInformations?->actionUrl)
+            ->setParameter('iconId', $extendedInformations?->iconId?->value, ParameterType::INTEGER)
+            ->setParameter('altIcon', $extendedInformations?->altIcon)
+            ->setParameter('graphTemplateId', $service->graphTemplateId?->value, ParameterType::INTEGER)
+            ->executeStatement();
+    }
+
+    /**
+     * Writes the service's own macros in place, so a macro keeps its id (a client addresses it by id on the next
+     * write) and the columns this layer does not handle (description, order) survive: a macro the service already
+     * stores is updated, any other one is inserted, and a stored macro no longer listed is deleted.
+     *
+     * Only the service's own rows are ever updated or deleted: an id is matched against the rows stored for this
+     * service, and every statement is scoped to it. Service templates keep their macros in the same table, so an
+     * id taken from an inherited macro never reaches another row: a macro carrying an id this service does not
+     * store is inserted as a new row of the service instead.
+     *
+     * @param list<ServiceMacro> $macros
+     */
+    private function saveMacros(int $serviceId, array $macros): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('svc_macro_id')
+            ->from('on_demand_macro_service')
+            ->where($qb->expr()->eq('svc_svc_id', $qb->createNamedParameter($serviceId, ParameterType::INTEGER)));
+        $storedIds = $this->fetchIds($qb);
+
+        $keptIds = [];
+        foreach ($macros as $macro) {
+            if ($macro->id instanceof ServiceMacroId && in_array($macro->id->value, $storedIds, true)) {
+                $this->updateMacro($serviceId, $macro->id->value, $macro);
+                $keptIds[] = $macro->id->value;
+
+                continue;
+            }
+
+            $this->insertMacro($serviceId, $macro);
+        }
+
+        $removedIds = array_values(array_diff($storedIds, $keptIds));
+        if ($removedIds === []) {
+            return;
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->delete('on_demand_macro_service')
+            ->where($qb->expr()->eq('svc_svc_id', $qb->createNamedParameter($serviceId, ParameterType::INTEGER)))
+            ->andWhere($qb->expr()->in('svc_macro_id', $qb->createNamedParameter($removedIds, ArrayParameterType::INTEGER)))
+            ->executeStatement();
+    }
+
+    private function updateMacro(int $serviceId, int $macroId, ServiceMacro $macro): void
+    {
+        $this->connection->createQueryBuilder()
+            ->update('on_demand_macro_service')
+            ->set('svc_macro_name', ':macroName')
+            ->set('svc_macro_value', ':macroValue')
+            ->set('is_password', ':isPassword')
+            ->where('svc_macro_id = :macroId')
+            ->andWhere('svc_svc_id = :serviceId')
+            ->setParameter('macroName', $macro->name->toStorageName())
+            ->setParameter('macroValue', $macro->value)
+            // Legacy stores 1 for a password macro and NULL otherwise, never 0.
+            ->setParameter('isPassword', $macro->isPassword ? 1 : null, ParameterType::INTEGER)
+            ->setParameter('macroId', $macroId, ParameterType::INTEGER)
+            ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
+            ->executeStatement();
+    }
+
+    /**
+     * @return list<int> the ids the query selects, in its order
+     */
+    private function fetchIds(QueryBuilder $qb): array
+    {
+        /** @var list<int|string> $values */
+        $values = $qb->executeQuery()->fetchFirstColumn();
+
+        return array_map(intval(...), $values);
+    }
+
+    /**
+     * A real service, never a template, which shares the `service` table.
+     */
+    private function isRegisteredService(int $serviceId): bool
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('1')
+            ->from(self::TABLE_NAME)
+            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId, ParameterType::INTEGER)))
+            ->andWhere("service_register = '1'");
+
+        return $qb->executeQuery()->fetchOne() !== false;
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     *
+     * @return list<int>
+     */
+    private function uniqueIdValues(Collection $ids): array
+    {
+        return array_values(array_unique(array_map(static fn (AggregateRootId $id): int => $id->value, $ids->toArray())));
     }
 
     private function linkToServiceCategory(int $serviceId, int $categoryId): void
