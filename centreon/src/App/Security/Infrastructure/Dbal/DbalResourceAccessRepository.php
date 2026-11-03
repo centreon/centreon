@@ -479,9 +479,11 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<numeric-string> $grantedIds */
         $grantedIds = $this->connection->fetchFirstColumn($qb->getSQL(), ['contactId' => $userId->value]);
 
+        // BINARY: the names must match exactly, whereas the column collation would also accept
+        // "PPM" or "Dashboards".
         /** @var list<numeric-string> $systemIds */
         $systemIds = $this->connection->fetchFirstColumn(
-            'SELECT dir_id FROM view_img_dir WHERE dir_name IN (:systemNames)',
+            'SELECT dir_id FROM view_img_dir WHERE BINARY dir_name IN (:systemNames)',
             ['systemNames' => MediaDirectory::SYSTEM_NAMES],
             ['systemNames' => ArrayParameterType::STRING],
         );

@@ -73,6 +73,8 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             );
 
             // The system folders are readable whatever the access groups, even when there are none.
+            // BINARY: their names must match exactly, as GetMedia checks them, whereas the column
+            // collation would also accept "PPM" or "Dashboards".
             // EXISTS rather than a join: a folder granted by several access groups must not
             // return its media several times.
             $bindValues = [];
@@ -109,7 +111,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
                 INNER JOIN `:db`.`view_img_dir` dir
                     ON dir.dir_id = rel.dir_dir_parent_id
                 WHERE (
-                    dir.dir_name IN ({$systemFolderBindQuery})
+                    BINARY dir.dir_name IN ({$systemFolderBindQuery})
                     {$grantedFolderCondition}
                 )
                 SQL_WRAP;

@@ -37,7 +37,9 @@ final readonly class MediaDirectory
     /**
      * Folders holding the media shipped with Centreon (dashboards, MAP, connectors). A user subject to
      * ACL can always read them, whatever their image folder access, which is why the folder
-     * selectors do not offer them.
+     * selectors do not offer them. Matched exactly (case-sensitive).
+     *
+     * Keep in sync with Core\Media\Domain\Model\ImageFolder\ImageFolder::SYSTEM_FOLDER_NAMES.
      */
     public const SYSTEM_NAMES = ['centreon-map', 'dashboards', 'ppm'];
 
