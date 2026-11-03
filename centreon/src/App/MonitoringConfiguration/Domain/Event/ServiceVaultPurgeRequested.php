@@ -28,15 +28,19 @@ use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
 use App\Shared\Domain\Event\EventInterface;
 
 /**
- * Deferred because a vault purge cannot be rolled back: it must only happen once the deletion is
+ * Deferred because a vault purge cannot be rolled back: it must only happen once the write that makes it safe is
  * committed.
+ *
+ * Fired for a deleted service, and for a service whose save released its vault entry (see
+ * {@see Service::releasesVaultEntryOf()}): $service is then the service as it was before the save, the one still
+ * pointing to the entry.
  */
 final readonly class ServiceVaultPurgeRequested implements DeliveredAfterCommitInterface, EventInterface
 {
     /**
      * @param bool $bestEffort a failed purge is only logged instead of reported to the caller: set it when the
-     *                         service was removed as a side effect of a successful save, an orphan secret being
-     *                         harmless
+     *                         service was removed as a side effect of a successful save, or the purge merely
+     *                         tidies up an entry left by one, an orphan entry being harmless
      */
     public function __construct(
         public Service $service,

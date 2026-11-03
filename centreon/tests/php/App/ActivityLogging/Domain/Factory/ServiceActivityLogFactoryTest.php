@@ -204,7 +204,24 @@ final class ServiceActivityLogFactoryTest extends TestCase
     }
 
     /**
-     * Only a creation logs the form: the other actions keep the name of the service and its host.
+     * The change line of an update carries the same detail as the creation: the whole form and the host.
+     */
+    public function testUpdateDetails(): void
+    {
+        $factory = new ServiceActivityLogFactory();
+        $service = $this->completeService();
+
+        $update = $factory->create(ActionEnum::Update, $service, new Actor(id: new ActorId(1)), new \DateTimeImmutable());
+
+        self::assertSame(
+            $factory->create(ActionEnum::Add, $service, new Actor(id: new ActorId(1)), new \DateTimeImmutable())->details,
+            $update->details,
+        );
+        self::assertCount(45, $update->details);
+    }
+
+    /**
+     * Only a creation or an update logs the form: the other actions keep the name of the service and its host.
      */
     #[DataProvider('otherActionProvider')]
     public function testOtherActionsLogTheNameAndTheHostOnly(ActionEnum $action): void
@@ -224,8 +241,6 @@ final class ServiceActivityLogFactoryTest extends TestCase
         yield 'enable' => [ActionEnum::Enable];
 
         yield 'disable' => [ActionEnum::Disable];
-
-        yield 'update' => [ActionEnum::Update];
 
         yield 'mass change' => [ActionEnum::MassChange];
     }

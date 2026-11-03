@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
@@ -77,6 +78,12 @@ final class FakeServiceRepository implements ServiceRepository
 
     /** Thrown by update(), to stand for a failure after the vault was written. */
     public ?\Throwable $updateThrows = null;
+
+    /**
+     * When set, {@see findOne()} reads the severity as the real repository does: the lowest stored one (see
+     * {@see $storedSeverityIds}) the actor may see, none when they may see none.
+     */
+    public ?AccessScopeResolver $accessScopes = null;
 
     public function add(Service $service): void
     {
@@ -223,7 +230,19 @@ final class FakeServiceRepository implements ServiceRepository
             return null;
         }
 
-        return $service;
+        if (! $this->accessScopes instanceof AccessScopeResolver) {
+            return $service;
+        }
+
+        $scope = $this->accessScopes->serviceSeverities($actor);
+        $visible = array_values(array_filter(
+            $this->findSeverityIds($id)->toArray(),
+            static fn (ServiceSeverityId $severityId): bool => $scope->allows($severityId),
+        ));
+        usort($visible, static fn (ServiceSeverityId $left, ServiceSeverityId $right): int => $left->value <=> $right->value);
+        $severityId = $visible[0] ?? null;
+
+        return $severityId?->value === $service->severityId?->value ? $service : $service->with(severityId: $severityId);
     }
 
     /**

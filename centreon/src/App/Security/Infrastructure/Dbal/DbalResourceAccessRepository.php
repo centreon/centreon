@@ -74,9 +74,11 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             default => throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class)),
         };
 
+        // A pair may already be granted: a service moved back to a host before the cache is recomputed keeps the row
+        // of its first stay there, which the unique key of the table would refuse to insert again.
         foreach ($accessGroupIds as $accessGroupId) {
             $this->realTimeConnection->executeStatement(
-                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)',
+                'INSERT IGNORE INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)',
                 ['groupId' => $accessGroupId->value, 'hostId' => $hostId, 'serviceId' => $serviceId],
             );
         }
