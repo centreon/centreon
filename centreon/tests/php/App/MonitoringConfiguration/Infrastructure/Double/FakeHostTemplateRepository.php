@@ -68,6 +68,8 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var list<int> */
     public array $removedIds = [];
 
+    public ?\Throwable $addCopyThrows = null;
+
     private int $nextId = 1000;
 
     public function findNamesByIds(Collection $ids): Collection
@@ -173,6 +175,10 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void
     {
+        if ($this->addCopyThrows instanceof \Throwable) {
+            throw $this->addCopyThrows;
+        }
+
         $id = $this->nextId++;
         (new \ReflectionProperty(AggregateRoot::class, 'id'))->setValue($copy, new HostTemplateId($id));
         $this->hostTemplates[$id] = $copy;

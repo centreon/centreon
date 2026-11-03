@@ -25,6 +25,10 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\DuplicateHostTemplateCommand;
 use App\MonitoringConfiguration\Application\Command\DuplicateHostTemplateCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
@@ -33,19 +37,29 @@ use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostTemplateNameTooLo
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\Shared\Application\Vault\VaultCredentialReader;
 use App\Shared\Application\Vault\VaultCredentialWriter;
+use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
+use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 
 final class DuplicateHostTemplateCommandHandlerTest extends TestCase
 {
+    private const SOURCE_SNMP = 'secret::vault::monitoring/hosts/source-uuid::_HOSTSNMPCOMMUNITY';
+    private const SOURCE_PASSWORD = 'secret::vault::monitoring/hosts/source-uuid::_HOSTPWD';
+
     private FakeHostTemplateRepository $repository;
 
     private EventBusSpy $eventBus;
+
+    private FakeVault $vault;
+
+    private RecordingLogger $logger;
 
     private DuplicateHostTemplateCommandHandler $handler;
 
@@ -53,15 +67,18 @@ final class DuplicateHostTemplateCommandHandlerTest extends TestCase
     {
         $this->repository = new FakeHostTemplateRepository();
         $this->eventBus = new EventBusSpy();
-        $vault = new FakeVault();
-        $vault->vaultEnabled = false;
+        $this->vault = new FakeVault();
+        $this->vault->vaultEnabled = false;
+
+        $this->logger = new RecordingLogger();
 
         $this->handler = new DuplicateHostTemplateCommandHandler(
             $this->repository,
-            $vault,
-            new VaultCredentialReader($vault),
-            new VaultCredentialWriter($vault),
+            $this->vault,
+            new VaultCredentialReader($this->vault),
+            new VaultCredentialWriter($this->vault),
             $this->eventBus,
+            $this->logger,
         );
     }
 
@@ -122,6 +139,88 @@ final class DuplicateHostTemplateCommandHandlerTest extends TestCase
         $this->expectException(DuplicatedHostTemplateNameTooLongException::class);
 
         ($this->handler)(new DuplicateHostTemplateCommand(new HostTemplateId(7), null, TestActingUsers::unrestricted()));
+    }
+
+    public function testTheCopyGetsItsOwnVaultEntry(): void
+    {
+        $this->seedVaulted();
+
+        ($this->handler)(new DuplicateHostTemplateCommand(new HostTemplateId(7), null, TestActingUsers::unrestricted()));
+
+        self::assertCount(1, $this->vault->writeManyCalls);
+        self::assertNull($this->vault->writeManyCalls[0]['uuid']);
+        self::assertSame(
+            ['_HOSTSNMPCOMMUNITY' => 'community', '_HOSTPWD' => 'secret'],
+            $this->vault->writeManyCalls[0]['secrets'],
+        );
+
+        $copy = $this->onlyCopy();
+        self::assertSame('secret::vault::monitoring/hosts/new-uuid::_HOSTSNMPCOMMUNITY', $copy->snmpCommunity?->value);
+        $macros = $copy->macros->toArray();
+        self::assertSame('secret::vault::monitoring/hosts/new-uuid::_HOSTPWD', $macros[0]->value);
+        self::assertNull($macros[0]->id);
+        self::assertSame('plain', $macros[1]->value);
+    }
+
+    public function testAFailedCopyPurgesTheEntryMintedForIt(): void
+    {
+        $this->seedVaulted();
+        $this->repository->addCopyThrows = new \RuntimeException('insert failed');
+
+        try {
+            ($this->handler)(new DuplicateHostTemplateCommand(new HostTemplateId(7), null, TestActingUsers::unrestricted()));
+            self::fail('The insert failure must be rethrown.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('insert failed', $exception->getMessage());
+        }
+
+        self::assertSame([['customPath' => 'monitoring/hosts', 'uuid' => 'new-uuid']], $this->vault->deleteCalls);
+        self::assertSame([], $this->logger->records());
+    }
+
+    public function testAFailedPurgeIsLoggedAndTheOriginalCauseRethrown(): void
+    {
+        $this->seedVaulted();
+        $this->repository->addCopyThrows = new \RuntimeException('insert failed');
+        $this->vault->deleteThrows = true;
+
+        try {
+            ($this->handler)(new DuplicateHostTemplateCommand(new HostTemplateId(7), null, TestActingUsers::unrestricted()));
+            self::fail('The insert failure must be rethrown.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('insert failed', $exception->getMessage());
+        }
+
+        self::assertCount(1, $this->logger->records());
+        self::assertSame('warning', $this->logger->lastRecord()['level'] ?? null);
+    }
+
+    public function testAVaultWriteFailureCreatesNothing(): void
+    {
+        $this->seedVaulted();
+        $this->vault->writeThrows = true;
+
+        try {
+            ($this->handler)(new DuplicateHostTemplateCommand(new HostTemplateId(7), null, TestActingUsers::unrestricted()));
+            self::fail('The vault failure must be reported.');
+        } catch (VaultWriteFailedException) {
+            self::assertSame([], $this->repository->copiedFrom);
+        }
+    }
+
+    private function seedVaulted(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->vault->resolved = [self::SOURCE_SNMP => 'community', self::SOURCE_PASSWORD => 'secret'];
+        $this->repository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic'),
+            macros: new Collection([
+                new HostMacro(new HostMacroName('PWD'), self::SOURCE_PASSWORD, isPassword: true, id: new HostMacroId(1)),
+                new HostMacro(new HostMacroName('PLAIN'), 'plain', isPassword: false, id: new HostMacroId(2)),
+            ], HostMacro::class),
+            snmpCommunity: new SnmpCommunity(self::SOURCE_SNMP),
+        );
     }
 
     private function seed(int $id, string $name, bool $isLocked = false): void

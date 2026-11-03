@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostTemplateNameTooLo
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialReader;
@@ -42,6 +43,7 @@ use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
+use Psr\Log\LoggerInterface;
 
 #[AsCommandHandler]
 final readonly class DuplicateHostTemplateCommandHandler
@@ -54,6 +56,7 @@ final readonly class DuplicateHostTemplateCommandHandler
         private VaultCredentialReader $vaultReader,
         private VaultCredentialWriter $vaultWriter,
         private EventBus $eventBus,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -117,10 +120,14 @@ final readonly class DuplicateHostTemplateCommandHandler
             }
         }
 
-        $newReferences = $this->vaultWriter->write(
-            VaultPathEnum::MonitoringHosts,
-            $this->vaultReader->resolveAll($credentials),
-        );
+        try {
+            $newReferences = $this->vaultWriter->write(
+                VaultPathEnum::MonitoringHosts,
+                $this->vaultReader->resolveAll($credentials),
+            );
+        } catch (\Throwable $exception) {
+            throw VaultWriteFailedException::forHostTemplateCopy($source->id(), $exception);
+        }
 
         $snmpKey = VaultKeyEnum::HostSnmpCommunity->value;
         $snmpCommunity = isset($newReferences[$snmpKey])
@@ -140,7 +147,7 @@ final readonly class DuplicateHostTemplateCommandHandler
     }
 
     /**
-     * Best effort: the original failure is what the caller must see, an orphan entry is harmless.
+     * Best effort: the purge failure is logged, never thrown over the original cause.
      */
     private function purgeMintedVaultEntry(HostTemplate $source, HostTemplate $copy): void
     {
@@ -149,7 +156,15 @@ final readonly class DuplicateHostTemplateCommandHandler
             if ($copyUuid !== null && $copyUuid !== $source->getVaultUuid($this->vault)) {
                 $this->vaultWriter->delete(VaultPathEnum::MonitoringHosts, $copyUuid);
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $purgeException) {
+            try {
+                $this->logger->warning('The vault entry minted for a failed host template duplication could not be purged.', [
+                    'source_host_template_id' => $source->id()->value,
+                    'copy_vault_uuid' => $copy->getVaultUuid($this->vault),
+                    'exception' => $purgeException,
+                ]);
+            } catch (\Throwable) {
+            }
         }
     }
 

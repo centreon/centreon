@@ -24,9 +24,11 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 
 /**
- * A secret could not be written to the vault before the host was saved: nothing was persisted.
+ * A secret could not be written to the vault before the host or host template was saved: nothing was
+ * persisted.
  */
 final class VaultWriteFailedException extends \RuntimeException
 {
@@ -34,6 +36,14 @@ final class VaultWriteFailedException extends \RuntimeException
     {
         return new self(
             sprintf('Host %d was not updated: its credentials could not be written to the vault.', $hostId->value),
+            previous: $previous,
+        );
+    }
+
+    public static function forHostTemplateCopy(HostTemplateId $sourceId, \Throwable $previous): self
+    {
+        return new self(
+            sprintf('Host template %d was not duplicated: its credentials could not be written to the vault.', $sourceId->value),
             previous: $previous,
         );
     }
