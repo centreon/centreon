@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
@@ -81,19 +82,34 @@ final class HostTemplate extends AggregateRoot
     }
 
     /**
-     * A copy not yet persisted: what is not modelled here is copied from the source by the repository.
+     * @throws HostTemplateLockedException
+     */
+    public function assertUnlocked(): void
+    {
+        if ($this->isLocked) {
+            throw HostTemplateLockedException::forId($this->id());
+        }
+    }
+
+    /**
+     * A copy not yet persisted, always unlocked: what is not modelled here is copied from the source by
+     * the repository.
      *
      * @param Collection<HostMacro> $macros the copy's own macros, without source identity
+     *
+     * @throws HostTemplateLockedException
      */
     public function duplicate(HostTemplateName $newName, ?SnmpCommunity $snmpCommunity, Collection $macros): self
     {
+        $this->assertUnlocked();
+
         return new self(
             id: null,
             name: $newName,
             macros: $macros,
             checkCommandId: $this->checkCommandId,
             alias: $this->alias,
-            isLocked: $this->isLocked,
+            isLocked: false,
             iconId: $this->iconId,
             parentTemplateIds: $this->parentTemplateIds,
             snmpCommunity: $snmpCommunity,

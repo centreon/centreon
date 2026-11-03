@@ -30,7 +30,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateDuplicated;
 use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostTemplateNameTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
-use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
@@ -67,9 +66,8 @@ final readonly class DuplicateHostTemplateCommandHandler
             throw new HostTemplateNotFoundException([$command->id->value], 'id');
         }
 
-        if ($source->isLocked) {
-            throw HostTemplateLockedException::forId($command->id);
-        }
+        // Before the name and the vault: a refused copy must leave nothing behind.
+        $source->assertUnlocked();
 
         // Before the vault write: a refused name must not leave a minted entry behind.
         $newName = $command->name ?? $this->generateAvailableName($source->name);

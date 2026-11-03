@@ -26,7 +26,6 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateDeleted;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateVaultPurgeRequested;
-use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
@@ -50,9 +49,7 @@ final readonly class DeleteHostTemplateCommandHandler
             throw new HostTemplateNotFoundException([$command->id->value], 'id');
         }
 
-        if ($hostTemplate->isLocked) {
-            throw HostTemplateLockedException::forId($command->id);
-        }
+        $hostTemplate->assertUnlocked();
 
         // Read before the deletion: the inheritance relations cascade with it.
         $pollerIds = $this->repository->findPollerIdsOfInheritingHosts($command->id);
