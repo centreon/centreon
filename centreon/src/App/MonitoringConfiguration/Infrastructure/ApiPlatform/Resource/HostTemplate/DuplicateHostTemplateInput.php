@@ -44,6 +44,7 @@ final readonly class DuplicateHostTemplateInput
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(max: HostTemplateName::MAX_LENGTH, normalizer: 'trim'),
+            new Assert\Regex(pattern: '/[\x00-\x1F\x7F]/', message: 'This value must not contain control characters.', match: false),
         ])]
         public ?string $name = null,
     ) {

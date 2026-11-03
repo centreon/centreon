@@ -210,6 +210,10 @@ final class DuplicateHostTemplateProcessorTest extends ApiTestCase
 
         yield 'not a string' => [['json' => ['name' => 5]], 422];
 
+        yield 'line break inside' => [['json' => ['name' => "copy\ndefine command"]], 422];
+
+        yield 'tab inside' => [['json' => ['name' => "copy\tname"]], 422];
+
         yield 'malformed JSON' => [['body' => '{"name":', 'headers' => ['Content-Type' => 'application/json']], 400];
 
         yield 'not JSON' => [['body' => 'name=copy', 'headers' => ['Content-Type' => 'text/plain']], 400];
