@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
@@ -178,6 +179,19 @@ final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
             'secret::vault::monitoring/hosts/source::_HOSTPWD',
             $this->connection->fetchOne('SELECT host_macro_value FROM on_demand_macro_host WHERE host_host_id = ? AND host_macro_name = ?', [$sourceId, '$_HOSTPWD$']),
         );
+    }
+
+    public function testACopyOfAVanishedSourceFailsWithoutTakingAnUnrelatedId(): void
+    {
+        $this->insertTemplate();
+        $copy = new HostTemplate(null, new HostTemplateName($this->uniqueName()));
+
+        try {
+            $this->repository->addCopyOf($copy, new HostTemplateId($this->insertHost()));
+            self::fail('A source that is not a host template must not be copied.');
+        } catch (HostTemplateNotFoundException) {
+            self::assertFalse($this->connection->fetchOne('SELECT 1 FROM host WHERE host_name = ?', [$copy->name->value]));
+        }
     }
 
     public function testACopyLeavesOutHostOnlyRelations(): void

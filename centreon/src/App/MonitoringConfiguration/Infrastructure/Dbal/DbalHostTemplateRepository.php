@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
@@ -323,13 +324,17 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     {
         $source = $sourceId->value;
 
-        $this->copyRow(
+        $inserted = $this->copyRow(
             self::TABLE_NAME,
             'host_id',
             $source,
             ['host_name' => $copy->name->value, 'host_snmp_community' => $copy->snmpCommunity?->value],
             ['host_register' => self::HOST_TEMPLATE_REGISTER],
         );
+        // No row copied leaves lastInsertId() at a previous, unrelated value.
+        if ($inserted !== 1) {
+            throw new HostTemplateNotFoundException([$source], 'id');
+        }
 
         $copyId = (int) $this->connection->lastInsertId();
         if ($copyId === 0) {
@@ -885,6 +890,8 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
      * @param non-empty-string $ownerColumn
      * @param array<string, int|string|null> $overrides
      * @param array<string, string> $conditions extra column = value filters on the source rows
+     *
+     * @return int the number of rows copied
      */
     private function copyRow(
         string $table,
@@ -892,7 +899,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         int $sourceId,
         array $overrides,
         array $conditions = [],
-    ): void {
+    ): int {
         /** @var list<string> $columns */
         $columns = $this->connection->fetchFirstColumn(
             <<<'SQL'
@@ -927,7 +934,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             $types['condition' . $index] = ParameterType::STRING;
         }
 
-        $this->connection->executeStatement(
+        return (int) $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %1$s (%2$s) SELECT %3$s FROM %1$s WHERE %4$s',
                 $this->connection->quoteSingleIdentifier($table),

@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\Shared\Domain\Collection;
 
@@ -132,6 +133,8 @@ interface HostTemplateRepository
      * macro values from $copy; every other `host` column, the macro rows and the relations (parent
      * templates in order, service template links, extended information, categories, contacts, contact
      * groups, monitoring server) are copied from $sourceId.
+     *
+     * @throws HostTemplateNotFoundException when $sourceId is no longer a host template
      */
     public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void;
 
