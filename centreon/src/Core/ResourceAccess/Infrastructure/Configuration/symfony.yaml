@@ -53,6 +53,8 @@ services:
 
     Core\ResourceAccess\Application\UseCase\UpdateRule\UpdateRule:
         arguments:
+          # an explicit definition drops the "bind" of the resource above, so repeat it
+          $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
           $repositoryManager: '@resource_access.legacy_repository_manager'
 
     Core\Media\Application\Repository\ReadImageFolderRepositoryInterface:
