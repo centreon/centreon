@@ -55,6 +55,9 @@ function createXrayGraphqlClient(xrayToken) {
         body: JSON.stringify({ query: graphqlQuery, variables: queryVariables }),
       });
     const response = retry ? await fetchWithRetry(request, "Xray GraphQL") : await request();
+    if (!response.ok) {
+      throw new Error(`Xray GraphQL HTTP ${response.status}: ${(await response.text()).slice(0, 500)}`);
+    }
     const responseJson = await response.json();
     if (responseJson.errors && responseJson.errors.length > 0) {
       throw new Error(`Xray GraphQL error: ${JSON.stringify(responseJson.errors)}`);

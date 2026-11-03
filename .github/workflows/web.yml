@@ -1425,6 +1425,7 @@ jobs:
     needs: [get-environment, xray-prepare-test-plan, e2e-test]
     if: |
       ! cancelled() &&
+      github.ref_name == 'develop' &&
       needs.get-environment.outputs.is_nightly == 'true' &&
       needs.xray-prepare-test-plan.outputs.jira_test_plan_key != '' &&
       needs.e2e-test.result != 'skipped'
@@ -1458,7 +1459,7 @@ jobs:
       # run would create the same Tests again every night.
       - name: Detect scenarios without Xray Test
         id: detect-untagged
-        if: ${{ !cancelled() && github.ref_name == 'develop' }}
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/xray-provision-tests
         with:
           features_dir: centreon/tests/e2e/features
