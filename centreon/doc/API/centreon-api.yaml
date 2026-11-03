@@ -6761,6 +6761,66 @@ paths:
             maximum: 30
           style: form
           explode: true
+    post:
+      operationId: api_configurationservices_post
+      tags:
+        - Service
+      responses:
+        '403':
+          description: 'You are not allowed to create services'
+        '404':
+          description: 'A nested reference (command, time period, icon, contact, contact group) no longer exists'
+        '409':
+          description: 'The name was taken on the host in the meantime'
+        '422':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '201':
+          description: 'Service resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Service.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Create a service'
+      description: 'Creates a service linked directly to one host, enabled, and answers its form as a Get does. Its own macros are not taken yet.'
+      parameters: []
+      requestBody:
+        description: 'The new Service resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Service.CreateServiceInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service.CreateServiceInput'
+        required: true
   '/api/configuration/services/{id}':
     delete:
       operationId: api_configurationservices_id_delete
@@ -14917,3 +14977,337 @@ components:
               type: integer
             name:
               type: string
+    Service.CreateServiceInput:
+      type: object
+      required:
+        - name
+        - host_id
+      properties:
+        name:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          maxLength: 200
+          description: 'Trimmed, and its inner runs of spaces collapsed into one, before it is stored.'
+          type: string
+        host_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type: integer
+        service_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Mandatory on a Cloud platform, optional otherwise.'
+          type:
+            - integer
+            - 'null'
+        service_group_ids:
+          type: array
+          items:
+            type: integer
+        category_ids:
+          type: array
+          items:
+            type: integer
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        trap_ids:
+          description: 'Not available on a Cloud platform.'
+          type: array
+          items:
+            type: integer
+        graph_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Not available on a Cloud platform.'
+          type:
+            - integer
+            - 'null'
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceCheckOptionsInput'
+            -
+              type: 'null'
+        monitoring_engine:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceMonitoringEngineInput'
+            -
+              type: 'null'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceNotificationsInput'
+            -
+              type: 'null'
+        advanced:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceAdvancedInput'
+            -
+              type: 'null'
+    ServiceAdvancedInput:
+      type: object
+      properties:
+        obsess_over_service:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        acknowledgment_timeout:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        check_freshness:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        freshness_threshold:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        retain_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        retain_non_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        stalking_options:
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        event_handler_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        event_handler_command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+        comment:
+          maxLength: 65535
+          type:
+            - string
+            - 'null'
+    ServiceCheckOptionsInput:
+      type: object
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'the check command, null to use the one of the template chain'
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'ordered check-command arguments'
+          type: array
+          items:
+            type: string
+    ServiceMonitoringEngineInput:
+      type: object
+      properties:
+        check_timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        max_check_attempts:
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        is_volatile:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        note_url:
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        note:
+          maxLength: 512
+          type:
+            - string
+            - 'null'
+        action_url:
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        icon_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        alt_icon:
+          maxLength: 200
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    ServiceNotificationsInput:
+      type: object
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+          description: 'Whether notifications are enabled; "use_default" leaves the directive to the template chain.'
+          type: string
+        use_only_contacts_from_host:
+          description: 'When true, the service notifies the contacts of its host only: its own contacts and contact groups are cleared, and both additive-inheritance flags switched off.'
+          type: boolean
+        contact_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contact_group_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contacts:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          description: 'imported LDAP groups included'
+          type: array
+          items:
+            type: integer
+        interval:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        options:
+          description: 'State transitions triggering a notification. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        first_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'

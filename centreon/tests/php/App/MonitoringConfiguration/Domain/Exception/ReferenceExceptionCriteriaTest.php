@@ -23,10 +23,14 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Exception;
 
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ContactGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\EventHandlerArgumentsRequireAHandlerException;
 use App\MonitoringConfiguration\Domain\Exception\GraphTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\MediaNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckArgumentsPartlyFilledException;
@@ -35,10 +39,12 @@ use App\MonitoringConfiguration\Domain\Exception\ServiceExtendedInformationsTooL
 use App\MonitoringConfiguration\Domain\Exception\ServiceGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceTemplateNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\TimePeriodNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TrapNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesException;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\CreateServiceInput;
 use App\Shared\Domain\Exception\AggregateConflictException;
 use App\Shared\Domain\Exception\AggregateNotFoundException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -94,8 +100,7 @@ final class ReferenceExceptionCriteriaTest extends TestCase
     /**
      * The service exceptions name their criterion after the PHP property of the service create input, so that
      * the listener turns a reference that vanished after the input validation into the same 422 on that field;
-     * their message is the one the 422 shows. That the criterion names a property of the input is checked once
-     * the input exists.
+     * their message is the one the 422 shows.
      *
      * @param array<string, mixed> $expected
      */
@@ -107,6 +112,31 @@ final class ReferenceExceptionCriteriaTest extends TestCase
     ): void {
         self::assertSame($expected, $exception->criteria);
         self::assertSame($message, $exception->getMessage());
+        foreach (array_keys($expected) as $criterion) {
+            self::assertTrue(
+                property_exists(CreateServiceInput::class, $criterion),
+                sprintf('"%s" must name a property of CreateServiceInput.', $criterion),
+            );
+        }
+    }
+
+    /**
+     * The counterpart for the service: a reference nested in a sub-object of the input (a contact, a contact
+     * group, a time period, an icon, a command) names no top-level property, and keeps answering 404.
+     */
+    public function testTheNestedReferencesOfAServiceNameNoInputField(): void
+    {
+        foreach ([
+            new NotificationContactNotFoundException([1]),
+            new ContactGroupNotFoundException([1]),
+            new TimePeriodNotFoundException(1),
+            new MediaNotFoundException(1),
+            new CommandNotFoundException(['id' => 1]),
+        ] as $exception) {
+            foreach (array_keys($exception->criteria) as $criterion) {
+                self::assertFalse(property_exists(CreateServiceInput::class, (string) $criterion), $exception::class);
+            }
+        }
     }
 
     /**

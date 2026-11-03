@@ -1,0 +1,69 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Infrastructure\Validator;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
+use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\Security\Infrastructure\Security\CredentialUser;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+
+/**
+ * Early duplicate of the create handler's own host check, which stays the authority: the host exists, is a real
+ * host (never a template) and is in the actor's scope. An unknown host and one the actor cannot see get the same
+ * answer. Only the host's state is read, so none of its other stored data can make the check fail.
+ *
+ * Always declared after Assert\Positive inside an Assert\Sequentially: HostId asserts a positive int.
+ */
+final class AccessibleHostValidator extends ConstraintValidator
+{
+    public function __construct(
+        private readonly Security $security,
+        private readonly HostRepository $hostRepository,
+    ) {
+    }
+
+    public function validate(mixed $value, Constraint $constraint): void
+    {
+        if (! $constraint instanceof AccessibleHost) {
+            throw new UnexpectedTypeException($constraint, AccessibleHost::class);
+        }
+
+        if (! is_int($value)) {
+            return;
+        }
+
+        $credentialUser = $this->security->getUser();
+        if (! $credentialUser instanceof CredentialUser) {
+            return;
+        }
+
+        if (! $this->hostRepository->findState(new HostId($value), $credentialUser->credential->actingUser()) instanceof HostState) {
+            $this->context->buildViolation($constraint->message)->addViolation();
+        }
+    }
+}
