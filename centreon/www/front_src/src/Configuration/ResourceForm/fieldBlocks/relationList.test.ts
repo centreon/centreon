@@ -75,6 +75,27 @@ describe('Relation list with options of its own', () => {
     });
   });
 
+  it('fails on a detail without the list, unless told it may leave it out', () => {
+    const decode = (block: typeof traps) =>
+      JsonDecoder.object(block.detailDecoders, 'Detail').decode({});
+
+    expect(decode(traps).isOk()).toBe(false);
+
+    const lenientTraps = getRelationListBlock({
+      decoderNames: ['Trap', 'Traps'],
+      endpoint: '/traps',
+      id: 'snmpTraps',
+      label: 'Traps',
+      name: 'traps',
+      payloadKey: 'trap_ids',
+      resource: { baseEndpoint: '/services', idPrefix: 'service-form' },
+      withOptionalDetailKey: true
+    });
+    const decoded = decode(lenientTraps);
+
+    expect(decoded.isOk() && decoded.value).toEqual({ snmpTraps: [] });
+  });
+
   it('exists where it is available only', () => {
     expect(traps.isAvailable?.({ isCloudPlatform: false })).toBe(true);
     expect(traps.isAvailable?.({ isCloudPlatform: true })).toBe(false);

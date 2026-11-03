@@ -124,12 +124,15 @@ export const getServiceCheckOptionsResponse = (id: number) => {
 };
 
 // Relations: the service groups are always sent, the traps on-premise only.
+// Service 1's detail leaves the traps out.
 const getRelationsResponse = (id: number) => ({
   service_groups: id === 0 ? [{ id: 1, name: 'Web services' }] : [],
-  traps:
-    id === 0
-      ? [{ id: 21, name: 'linkDown', vendor: { id: 3, name: 'Generic' } }]
-      : []
+  ...(id !== 1 && {
+    traps:
+      id === 0
+        ? [{ id: 21, name: 'linkDown', vendor: { id: 3, name: 'Generic' } }]
+        : []
+  })
 });
 
 export const getServiceResponse = (id: number) => ({
