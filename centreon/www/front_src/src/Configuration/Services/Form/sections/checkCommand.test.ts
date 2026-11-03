@@ -48,8 +48,8 @@ const getCheckOptionsPayload = (values: object): unknown =>
   getPayload(blocks, { ...identity, ...values }, { isCloudPlatform: false })
     .check_options;
 
-// The template field (F03) is MON-213082's: these rules read its `template`
-// form key, which no rstest can set yet.
+// These rules read the `template` form key that the template field (F03)
+// fills.
 describe('Service check options', () => {
   it('requires a command only without a template', async () => {
     expect(await getErrors({ checkOptions: checkOptions() })).toEqual([
