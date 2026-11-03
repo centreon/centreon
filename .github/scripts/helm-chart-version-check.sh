@@ -1,37 +1,32 @@
 #!/usr/bin/env bash
-# Chart major = year of .version MAJOR; on PRs (BASE_REF set), a changed chart (outside ci/) needs a higher version.
+# On PRs (BASE_REF set), a changed chart (outside ci/) needs a higher minor.patch.
+# The major is not compared: the CI sets it from .version at packaging.
 # Env: CHART_DIR, BASE_REF.
 set -euo pipefail
 
-chart_version() {
-  awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }'
+minor_patch() {
+  awk '$1 == "version:" { gsub(/"/, "", $2); sub(/^[^.]*\./, "", $2); print $2; exit }'
 }
-
-head_version=$(chart_version < "$CHART_DIR/Chart.yaml")
-MAJOR=$(. ./.version && echo "$MAJOR")
-if [[ "${head_version%%.*}" != "${MAJOR%%.*}" ]]; then
-  echo "::error file=$CHART_DIR/Chart.yaml::$CHART_DIR version $head_version must start with ${MAJOR%%.*} (.version MAJOR=$MAJOR): ${MAJOR%%.*}.y.z."
-  exit 1
-fi
 
 if [[ -z "${BASE_REF:-}" ]]; then
   exit 0
 fi
 
+head_version=$(minor_patch < "$CHART_DIR/Chart.yaml")
 if ! base_chart=$(git show "origin/$BASE_REF:$CHART_DIR/Chart.yaml" 2>/dev/null); then
-  echo "New chart $CHART_DIR ($head_version): nothing to compare."
+  echo "New chart $CHART_DIR (x.$head_version): nothing to compare."
   exit 0
 fi
-base_version=$(chart_version <<< "$base_chart")
+base_version=$(minor_patch <<< "$base_chart")
 
 if git diff --quiet "origin/$BASE_REF...HEAD" -- "$CHART_DIR" ":(exclude)$CHART_DIR/ci"; then
-  echo "$CHART_DIR unchanged against $BASE_REF ($base_version)."
+  echo "$CHART_DIR unchanged against $BASE_REF (x.$base_version)."
   exit 0
 fi
 
 highest=$(printf '%s\n%s\n' "$base_version" "$head_version" | sort -V | tail -n1)
 if [[ "$head_version" == "$base_version" || "$highest" != "$head_version" ]]; then
-  echo "::error file=$CHART_DIR/Chart.yaml::$CHART_DIR changed but its version ($head_version) is not higher than on $BASE_REF ($base_version): bump it."
+  echo "::error file=$CHART_DIR/Chart.yaml::$CHART_DIR changed but its minor.patch ($head_version) is not higher than on $BASE_REF ($base_version): bump it."
   exit 1
 fi
-echo "$CHART_DIR: $base_version -> $head_version"
+echo "$CHART_DIR: x.$base_version -> x.$head_version"
