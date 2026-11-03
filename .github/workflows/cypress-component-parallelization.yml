@@ -443,7 +443,7 @@ jobs:
         type_of_report: [test-results, test-reports, test-coverage]
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact/merge@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: |
           (needs.cypress-component-test-run.result == 'failure' && contains(fromJson('["test-results", "test-reports"]'), matrix.type_of_report)) ||
           matrix.type_of_report == 'test-coverage'
