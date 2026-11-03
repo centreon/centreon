@@ -131,6 +131,62 @@ final class CreateServiceProcessorTest extends ApiTestCase
     }
 
     /**
+     * The macros of `check_options` are deserialized and stored as the service's own; they are answered with the
+     * ids of their rows, a password macro without its value.
+     */
+    public function testItCreatesAServiceWithMacros(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $checkCommandId = $this->insertCommand('check', type: 2);
+        $this->login();
+
+        $body = $this->request('POST', self::ENDPOINT, [
+            'headers' => ['accept' => 'application/json'],
+            'json' => [
+                'name' => 'web check',
+                'host_id' => $hostId,
+                'check_options' => [
+                    'command_id' => $checkCommandId,
+                    'macros' => [
+                        ['name' => 'port', 'value' => '8080', 'is_password' => false],
+                        ['name' => 'token', 'value' => 's3cr3t', 'is_password' => true],
+                    ],
+                ],
+            ],
+        ])->toArray();
+
+        self::assertResponseStatusCodeSame(201);
+        $serviceId = $body['id'];
+        \assert(is_int($serviceId));
+        \assert(is_array($body['check_options']) && is_array($body['check_options']['macros']));
+        $macros = array_values($body['check_options']['macros']);
+        self::assertCount(2, $macros);
+        \assert(is_array($macros[0]) && is_array($macros[1]));
+        self::assertSame(['name' => 'PORT', 'value' => '8080', 'is_password' => false], array_intersect_key($macros[0], array_flip(['name', 'value', 'is_password'])));
+        self::assertSame(['name' => 'TOKEN', 'is_password' => true], array_intersect_key($macros[1], array_flip(['name', 'value', 'is_password'])));
+        self::assertArrayNotHasKey('value', $macros[1]);
+        self::assertArrayNotHasKey('parent', $macros[0]);
+        self::assertArrayNotHasKey('parent', $macros[1]);
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->fetchFirstColumn('SELECT svc_macro_id FROM on_demand_macro_service WHERE svc_svc_id = ? ORDER BY svc_macro_id', [$serviceId]);
+        self::assertSame(array_map('intval', $ids), [$macros[0]['id'] ?? null, $macros[1]['id'] ?? null]);
+
+        // A password value depends on the vault configuration: only the plain one is compared.
+        self::assertSame(
+            [
+                ['svc_macro_name' => '$_SERVICEPORT$', 'plain_value' => '8080', 'is_password' => null],
+                ['svc_macro_name' => '$_SERVICETOKEN$', 'plain_value' => null, 'is_password' => '1'],
+            ],
+            $this->connection->fetchAllAssociative(
+                'SELECT svc_macro_name, CASE WHEN is_password IS NULL THEN svc_macro_value END AS plain_value,
+                        CAST(is_password AS CHAR) AS is_password
+                    FROM on_demand_macro_service WHERE svc_svc_id = ? ORDER BY svc_macro_id',
+                [$serviceId],
+            ),
+        );
+    }
+
+    /**
      * One line per violation, each prefixed with its snake_case path, a nested field included.
      */
     public function testItAnswers422WithTheFieldPath(): void
