@@ -33,7 +33,8 @@ export const getRelationListBlock = <Id extends BlockId>({
   label,
   name,
   payloadKey,
-  resource: { baseEndpoint, idPrefix }
+  resource: { baseEndpoint, idPrefix },
+  withOptionalDetailKey = false
 }: {
   // As the decoder reports a failure: one entity, then the list.
   decoderNames: [entity: string, list: string];
@@ -57,16 +58,23 @@ export const getRelationListBlock = <Id extends BlockId>({
   name: string;
   payloadKey: string;
   resource: ResourceOptions;
+  // A detail that leaves the list out opens on an empty one instead of
+  // failing.
+  withOptionalDetailKey?: boolean;
 }): FieldBlock<Record<Id, Array<NamedEntity>>> => {
   const isRequiredOn = (context: PlatformContext): boolean =>
     !context.isMassChange && !!isRequired?.(context);
 
+  const listDecoder = entityDecoder
+    ? JsonDecoder.array(entityDecoder, decoderNames[1])
+    : namedEntitiesDecoder(...decoderNames);
+
   return {
     defaultValues: { [id]: [] },
     detailDecoders: {
-      [id]: entityDecoder
-        ? JsonDecoder.array(entityDecoder, decoderNames[1])
-        : namedEntitiesDecoder(...decoderNames)
+      [id]: withOptionalDetailKey
+        ? JsonDecoder.optional(listDecoder).map((list) => list ?? [])
+        : listDecoder
     } as FieldBlock<Record<Id, Array<NamedEntity>>>['detailDecoders'],
     ...(detailKey && {
       detailKeyMap: { [id]: detailKey } as FieldBlock<

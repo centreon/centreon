@@ -80,6 +80,25 @@ export default () => {
       expect(getChips(labelServiceTraps)).toEqual(['Generic - linkDown']);
     });
 
+    it('opens a service whose detail leaves the traps out, with no trap', async () => {
+      await initializeListing();
+
+      await openRow('memory');
+
+      await waitForRequest('@getService1');
+
+      await waitFor(() =>
+        expect(screen.getAllByText(labelRelations)[0]).toBeVisible()
+      );
+      // The form opens on the detail, not on the defaults a failed decode
+      // leaves.
+      await waitFor(async () =>
+        expect(await getInput('service-form-name')).toHaveValue('memory')
+      );
+      expect(getChips(labelServiceTraps)).toEqual([]);
+      expect(getChips(labelServiceGroups)).toEqual([]);
+    });
+
     it('sends the picked groups and traps as ids', async () => {
       await initializeListing();
 

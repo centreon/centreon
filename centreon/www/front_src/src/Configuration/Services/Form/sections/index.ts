@@ -134,7 +134,8 @@ export const blocks = [
     resource
   }),
   getSnmpTrapsBlock({ endpoint: serviceFormTrapsEndpoint, resource }),
-  // The user's visible categories only: the server keeps the others.
+  // The user's visible categories only: the server keeps the others. A
+  // detail without them opens on none, as the previous service form did.
   getRelationListBlock({
     decoderNames: ['Category', 'Categories'],
     endpoint: serviceFormServiceCategoriesEndpoint,
@@ -142,7 +143,8 @@ export const blocks = [
     label: labelServiceCategories,
     name: 'categories',
     payloadKey: 'category_ids',
-    resource
+    resource,
+    withOptionalDetailKey: true
   }),
   getSeverityBlock({
     endpoint: serviceFormServiceSeveritiesEndpoint,
