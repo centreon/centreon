@@ -385,6 +385,8 @@ jobs:
       enrich_tests: true
       # The trailing dash keeps the regrouped artifact of a previous attempt out of the import.
       artifact_pattern: "${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-xray-reports-*"
+      # Gherkin sync on the nightly only, so unmerged scenarios never reach Xray.
+      features_dir: ${{ inputs.is_nightly == 'true' && format('{0}/{1}', inputs.module_name, inputs.features_path) || '' }}
     secrets:
       XRAY_CLIENT_ID: ${{ secrets.xray_client_id }}
       XRAY_CLIENT_SECRET: ${{ secrets.xray_client_secret }}
