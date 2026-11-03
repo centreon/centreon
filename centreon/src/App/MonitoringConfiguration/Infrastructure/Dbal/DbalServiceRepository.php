@@ -436,6 +436,14 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         $this->deleteDependenciesWithoutMember('dependency_serviceParent_relation', $parentDependencyIds);
     }
 
+    public function findMacros(ServiceId $id): Collection
+    {
+        return new Collection(
+            array_map(ServiceTransformer::createMacro(...), $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? []),
+            ServiceMacro::class,
+        );
+    }
+
     /**
      * Takes the exclusive lock of the poller row of the service's host, before any row of the service is written.
      *
