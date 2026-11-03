@@ -5,7 +5,7 @@ import { JsonDecoder } from 'ts.data.json';
 import {
   iconDecoder,
   namedEntityDecoder
-} from '../../Hosts/api/namedEntityDecoders';
+} from '../../ResourceForm/api/decoders';
 import type { HostTemplateListItem } from '../models';
 
 const hostTemplateDecoder = JsonDecoder.object<HostTemplateListItem>(
