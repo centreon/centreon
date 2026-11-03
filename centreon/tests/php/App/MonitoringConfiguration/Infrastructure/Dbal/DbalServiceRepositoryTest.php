@@ -1406,6 +1406,88 @@ final class DbalServiceRepositoryTest extends KernelTestCase
     }
 
     /**
+     * The own macros are written one row each, in the order given: the `$_SERVICE<NAME>$` name, the value as
+     * given (a vaulted password is its `secret::` reference), 1 for a password and NULL otherwise. The columns the
+     * API does not expose keep their defaults: no description, order 0.
+     */
+    public function testAddPersistsMacros(): void
+    {
+        $reference = 'secret::hashicorp_vault::monitoring/services/0f6a2f6e-1a1b-4c2d-9e8f-123456789abc::_SERVICEPASSWORD';
+        $service = new Service(
+            id: null,
+            name: new ServiceName('ping'),
+            hostId: new HostId($this->insertListedHost('h1')),
+            hostActivated: true,
+            hostPollerId: null,
+            checkOptions: new ServiceCheckOptions(
+                null,
+                [],
+                [
+                    new ServiceMacro(new ServiceMacroName('port'), '8080', isPassword: false),
+                    new ServiceMacro(new ServiceMacroName('password'), $reference, isPassword: true),
+                    new ServiceMacro(new ServiceMacroName('empty'), '', isPassword: false),
+                ],
+            ),
+        );
+
+        $this->repository->add($service);
+
+        self::assertSame(
+            [
+                ['svc_macro_name' => '$_SERVICEPORT$', 'svc_macro_value' => '8080', 'is_password' => null, 'description' => null, 'macro_order' => '0'],
+                ['svc_macro_name' => '$_SERVICEPASSWORD$', 'svc_macro_value' => $reference, 'is_password' => '1', 'description' => null, 'macro_order' => '0'],
+                ['svc_macro_name' => '$_SERVICEEMPTY$', 'svc_macro_value' => '', 'is_password' => null, 'description' => null, 'macro_order' => '0'],
+            ],
+            $this->rows(
+                'SELECT svc_macro_name, svc_macro_value, is_password, description, macro_order
+                    FROM on_demand_macro_service WHERE svc_svc_id = ? ORDER BY svc_macro_id',
+                $service->id()->value,
+            ),
+        );
+    }
+
+    /**
+     * Only the service's own rows, in storage order, each with its row id; a row not in the `$_SERVICE<NAME>$` form
+     * is not a service macro.
+     */
+    public function testFindMacrosReturnsTheServiceOwnMacrosWithTheirIds(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $serviceId = $this->insertListedService('svc', $hostId);
+        $otherServiceId = $this->insertListedService('other', $hostId);
+        $this->createMacro($serviceId, 'PORT', '8080', isPassword: false);
+        $this->createMacro($serviceId, 'TOKEN', 's3cr3t', isPassword: true);
+        $this->connection->insert('on_demand_macro_service', ['svc_macro_name' => 'NOT_A_MACRO', 'svc_macro_value' => 'v', 'svc_svc_id' => $serviceId]);
+        $this->createMacro($otherServiceId, 'ELSEWHERE', 'x', isPassword: false);
+
+        $macros = array_values($this->repository->findMacros(new ServiceId($serviceId))->toArray());
+
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->fetchFirstColumn(
+            "SELECT svc_macro_id FROM on_demand_macro_service WHERE svc_svc_id = ? AND svc_macro_name <> 'NOT_A_MACRO' ORDER BY svc_macro_id",
+            [$serviceId],
+        );
+        self::assertCount(2, $ids);
+        self::assertSame(
+            [
+                [(int) $ids[0], 'PORT', '8080', false, null],
+                [(int) $ids[1], 'TOKEN', 's3cr3t', true, null],
+            ],
+            array_map(
+                static fn (ServiceMacro $macro): array => [$macro->id?->value, $macro->name->value, $macro->value, $macro->isPassword, $macro->parent],
+                $macros,
+            ),
+        );
+    }
+
+    public function testFindMacrosReturnsNothingForAServiceWithoutMacros(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+
+        self::assertCount(0, $this->repository->findMacros(new ServiceId($this->insertListedService('svc', $hostId))));
+    }
+
+    /**
      * Over the three cases each column gets a sequence of values no other gets, so a swapped binding turns red.
      *
      * @param array<string, TriStateEnum> $triStates
