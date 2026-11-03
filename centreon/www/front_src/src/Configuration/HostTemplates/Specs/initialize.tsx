@@ -19,7 +19,11 @@ import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
 import HostTemplates from '..';
-import { hostTemplatesListEndpoint } from '../api/endpoints';
+import {
+  getDuplicateHostTemplateEndpoint,
+  getHostTemplateEndpoint,
+  hostTemplatesListEndpoint
+} from '../api/endpoints';
 import { emptyListingResponse, getListingResponse } from './utils';
 
 interface Props {
@@ -66,6 +70,22 @@ const initialize = ({
     method: Method.GET,
     path: `**${hostTemplatesListEndpoint}?**`,
     response: isEmpty ? emptyListingResponse : getListingResponse()
+  });
+
+  // Every row, the locked one included: a write to it must show in the calls.
+  [1, 2, 3].forEach((id) => {
+    interceptAPIRequest({
+      alias: `deleteHostTemplate${id}`,
+      method: Method.DELETE,
+      path: `**${getHostTemplateEndpoint({ id })}`,
+      response: {}
+    });
+    interceptAPIRequest({
+      alias: `duplicateHostTemplate${id}`,
+      method: Method.POST,
+      path: `**${getDuplicateHostTemplateEndpoint({ id })}`,
+      response: {}
+    });
   });
 
   const queryErrors: InitializeResult['queryErrors'] = [];
