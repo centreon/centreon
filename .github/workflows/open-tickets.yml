@@ -903,3 +903,40 @@ jobs:
           pulp_url: ${{ vars.PULP_API_URL }}
           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+
+  # Reports this run's delivery to its testing bundle: runs on testing-* tags only.
+  release-bundle-status:
+    needs: [get-environment, deliver, deliver-pulp]
+    if: |
+      always() &&
+      startsWith(github.ref, 'refs/tags/testing-') &&
+      needs.get-environment.outputs.stability == 'testing'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      actions: read
+    steps:
+      - name: Flag a cancelled run
+        id: run_cancelled
+        if: cancelled()
+        run: echo "value=true" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Checkout sources
+        if: always()
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/actions/release-bundle-status
+
+      - name: Report the delivery state to the bundle status
+        if: always()
+        uses: ./.github/actions/release-bundle-status
+        with:
+          component: centreon-open-tickets
+          bundle: ${{ needs.get-environment.outputs.testing_tag }}
+          bundle_path: ${{ needs.get-environment.outputs.testing_bundle_path }}
+          needs: ${{ toJSON(needs) }}
+          expected_jobs: deliver,deliver-pulp
+          run_cancelled: ${{ steps.run_cancelled.outputs.value || 'false' }}

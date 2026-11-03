@@ -1,0 +1,81 @@
+name: "release-bundle-status"
+description: "Report the delivery state of a component run on a testing bundle tag to the release-orchestrator bucket"
+inputs:
+  component:
+    description: "Component name in the bundle (e.g. centreon-web, centreon-collect)"
+    required: true
+  bundle:
+    description: "Testing bundle tag (get-environment testing_tag output)"
+    required: true
+  bundle_path:
+    description: "Bundle path in the bucket (get-environment testing_bundle_path output)"
+    required: true
+  needs:
+    description: "toJSON(needs) of the calling job"
+    required: true
+  expected_jobs:
+    description: "Comma-separated delivery jobs that must succeed; empty means the component is not delivered in this scope, nothing is reported"
+    required: true
+  run_cancelled:
+    description: "'true' when the run was cancelled"
+    required: false
+    default: "false"
+  dry_run:
+    description: "Write under dry-run/ instead of the real bundle tree"
+    required: false
+    default: "false"
+  bucket:
+    description: "Bundle status bucket"
+    required: false
+    default: "release-orchestrator"
+  role_arn:
+    description: "OIDC role allowed to write the bundle status files"
+    required: false
+    default: "arn:aws:iam::625664829291:role/release-orchestrator-github-bundle-writer"
+outputs:
+  state:
+    description: "Reported state: success, failed or cancelled (empty when nothing was reported)"
+    value: ${{ steps.state.outputs.state }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Compute the delivery state
+      id: state
+      shell: bash
+      env:
+        NEEDS: ${{ inputs.needs }}
+        EXPECTED_JOBS: ${{ inputs.expected_jobs }}
+        RUN_CANCELLED: ${{ inputs.run_cancelled }}
+      run: ${{ github.action_path }}/state.sh
+
+    - name: Download the delivery manifests of the run
+      if: steps.state.outputs.state != ''
+      # a missing manifest only leaves the package list empty
+      continue-on-error: true
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        pattern: pulp-manifest-*
+        path: ${{ runner.temp }}/pulp-manifests
+
+    - name: Get credentials for the bundle status bucket
+      if: steps.state.outputs.state != ''
+      uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+      with:
+        role-to-assume: ${{ inputs.role_arn }}
+        role-session-name: release-bundle-status-${{ github.run_id }}
+        aws-region: eu-west-1
+
+    - name: Write the bundle status
+      if: steps.state.outputs.state != ''
+      shell: bash
+      env:
+        COMPONENT: ${{ inputs.component }}
+        BUNDLE: ${{ inputs.bundle }}
+        BUNDLE_PATH: ${{ inputs.bundle_path }}
+        DRY_RUN: ${{ inputs.dry_run }}
+        BUCKET: ${{ inputs.bucket }}
+        STATE: ${{ steps.state.outputs.state }}
+        JOB_RESULTS: ${{ steps.state.outputs.job_results }}
+        MANIFESTS_DIR: ${{ runner.temp }}/pulp-manifests
+      run: ${{ github.action_path }}/report.sh

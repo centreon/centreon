@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "global-build-status.json",
+  "type": "object",
+  "required": ["schema_version", "bundle", "scope", "type", "major", "release_number", "iteration", "status", "updated_at", "repos", "components"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "bundle": {"type": "string", "pattern": "^testing-(cloud|onprem)-(release|hotfix)-[0-9]{8}-[0-9]{2}\\.[0-9]{2}-[1-9][0-9]*$"},
+    "scope": {"enum": ["cloud", "onprem"]},
+    "type": {"enum": ["release", "hotfix"]},
+    "major": {"type": "string", "pattern": "^[0-9]{2}\\.[0-9]{2}$"},
+    "release_number": {"type": "string", "pattern": "^[0-9]{8}$"},
+    "iteration": {"type": "integer", "minimum": 1},
+    "status": {"enum": ["incomplete", "complete"]},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "repos": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["commit", "expected"],
+        "properties": {"commit": {"type": "string"}, "run_url": {"type": "string"}, "expected": {"type": "array", "items": {"type": "string"}}}
+      }
+    },
+    "components": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["repo", "state", "commit", "run_url", "attempt", "finished_at", "packages"],
+        "properties": {
+          "repo": {"type": "string"}, "state": {"enum": ["success", "failed", "cancelled"]},
+          "commit": {"type": "string"}, "run_url": {"type": "string"}, "attempt": {"type": "integer", "minimum": 1},
+          "finished_at": {"type": "string", "format": "date-time"},
+          "packages": {"type": "array", "items": {"$ref": "component.schema.json#/$defs/package"}}
+        }
+      }
+    }
+  }
+}
