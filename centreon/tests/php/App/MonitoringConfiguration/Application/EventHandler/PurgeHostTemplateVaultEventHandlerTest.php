@@ -74,6 +74,15 @@ final class PurgeHostTemplateVaultEventHandlerTest extends TestCase
         ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new SnmpCommunity(self::VAULTED_SNMP))));
     }
 
+    public function testWithoutAVaultASharedEntryIsNeverPurged(): void
+    {
+        $this->vault->vaultEnabled = false;
+
+        ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new SnmpCommunity(self::VAULTED_SNMP))));
+
+        self::assertSame([], $this->vault->deleteCalls);
+    }
+
     private function hostTemplate(?SnmpCommunity $snmpCommunity): HostTemplate
     {
         return new HostTemplate(new HostTemplateId(1), new HostTemplateName('generic'), snmpCommunity: $snmpCommunity);

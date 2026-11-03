@@ -44,6 +44,11 @@ final readonly class PurgeHostTemplateVaultEventHandler
 
     public function __invoke(HostTemplateVaultPurgeRequested $event): void
     {
+        // Without a vault, a copy keeps its source's references: its entry may not be its own.
+        if (! $this->vault->isEnabled()) {
+            return;
+        }
+
         try {
             $uuid = $event->hostTemplate->getVaultUuid($this->vault);
             if ($uuid === null) {

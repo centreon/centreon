@@ -241,7 +241,49 @@ final class DuplicateHostTemplateCommandHandlerTest extends TestCase
         }
     }
 
-    private function seedVaulted(): void
+    public function testAFailedCopyNeverPurgesTheSourceEntryItShares(): void
+    {
+        $this->seedVaulted();
+        $this->vault->vaultEnabled = false;
+        $this->repository->addCopyThrows = new \RuntimeException('insert failed');
+
+        try {
+            ($this->handler)(new DuplicateHostTemplateCommand(new HostTemplateId(7), null, TestActingUsers::unrestricted()));
+            self::fail('The insert failure must be rethrown.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('insert failed', $exception->getMessage());
+        }
+
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame([], $this->vault->deleteCalls);
+    }
+
+    public function testATakenNameIsRefusedBeforeAnyVaultWrite(): void
+    {
+        $this->seedVaulted();
+        $this->repository->hostNames = ['taken'];
+
+        try {
+            ($this->handler)(new DuplicateHostTemplateCommand(new HostTemplateId(7), new HostTemplateName('taken'), TestActingUsers::unrestricted()));
+            self::fail('A taken name must be refused.');
+        } catch (HostTemplateAlreadyExistsException) {
+            self::assertSame([], $this->vault->writeManyCalls);
+        }
+    }
+
+    public function testALockedSourceIsRefusedBeforeAnyVaultWrite(): void
+    {
+        $this->seedVaulted(isLocked: true);
+
+        try {
+            ($this->handler)(new DuplicateHostTemplateCommand(new HostTemplateId(7), null, TestActingUsers::unrestricted()));
+            self::fail('A locked source must be refused.');
+        } catch (HostTemplateLockedException) {
+            self::assertSame([], $this->vault->writeManyCalls);
+        }
+    }
+
+    private function seedVaulted(bool $isLocked = false): void
     {
         $this->vault->vaultEnabled = true;
         $this->vault->resolved = [self::SOURCE_SNMP => 'community', self::SOURCE_PASSWORD => 'secret'];
@@ -252,6 +294,7 @@ final class DuplicateHostTemplateCommandHandlerTest extends TestCase
                 new HostMacro(new HostMacroName('PWD'), self::SOURCE_PASSWORD, isPassword: true, id: new HostMacroId(1)),
                 new HostMacro(new HostMacroName('PLAIN'), 'plain', isPassword: false, id: new HostMacroId(2)),
             ], HostMacro::class),
+            isLocked: $isLocked,
             snmpCommunity: new SnmpCommunity(self::SOURCE_SNMP),
         );
     }
