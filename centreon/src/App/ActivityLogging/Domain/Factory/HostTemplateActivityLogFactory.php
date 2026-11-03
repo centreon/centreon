@@ -35,7 +35,7 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
- * Legacy logs a host template's duplication and deletion without details.
+ * Duplication and deletion are logged without details.
  *
  * @implements ActivityLogFactoryInterface<HostTemplate>
  */

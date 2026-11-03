@@ -24,12 +24,11 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\Shared\Domain\Exception\AggregateConflictException;
 
-final class HostTemplateLockedException extends AggregateConflictException
+final class HostTemplateLockedException extends \RuntimeException
 {
     public static function forId(HostTemplateId $id, ?\Throwable $previous = null): self
     {
-        return new self(['id' => $id->value], 'A locked host template cannot be changed.', previous: $previous);
+        return new self(sprintf('Host template %d is locked and cannot be changed.', $id->value), 0, $previous);
     }
 }

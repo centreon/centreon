@@ -132,7 +132,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
                     204 => new Model\Response('Host template duplicated'),
                     403 => new Model\Response('You are not allowed to duplicate host templates'),
                     404 => new Model\Response('Host template not found'),
-                    409 => new Model\Response('A host or host template already uses this name, or the host template is locked'),
+                    400 => new Model\Response('The host template is locked'),
+                    409 => new Model\Response('A host or host template already uses this name'),
                     422 => new Model\Response('Invalid name, or the generated name would exceed the maximum length'),
                 ],
             ),
@@ -149,7 +150,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
                 responses: [
                     403 => new Model\Response('You are not allowed to delete host templates'),
                     404 => new Model\Response('Host template not found'),
-                    409 => new Model\Response('The host template is locked'),
+                    400 => new Model\Response('The host template is locked'),
                 ],
             ),
             security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',

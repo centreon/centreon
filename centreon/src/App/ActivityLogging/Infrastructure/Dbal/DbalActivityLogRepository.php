@@ -47,7 +47,7 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
     private const TARGET_TYPE_VALUE_MAP = [
         TargetTypeEnum::Command->value => 'command',
         TargetTypeEnum::Host->value => 'host',
-        // legacy logs host templates as hosts
+        // host templates share the host object type
         TargetTypeEnum::HostTemplate->value => 'host',
         TargetTypeEnum::Poller->value => 'poller',
         TargetTypeEnum::Service->value => 'service',
