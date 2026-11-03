@@ -28,6 +28,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\Shared\Domain\Collection;
 
@@ -117,4 +119,30 @@ interface HostTemplateRepository
      * @return Collection<HostTemplateId>
      */
     public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection;
+
+    /**
+     * Null when the id is unknown or is a host; never ACL-filtered.
+     */
+    public function findOne(HostTemplateId $id): ?HostTemplate;
+
+    public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool;
+
+    /**
+     * Persists $copy (name, SNMP community, re-minted password macros) and copies everything else from $sourceId.
+     *
+     * @throws HostTemplateNotFoundException when $sourceId is no longer a host template
+     */
+    public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void;
+
+    /**
+     * The pollers of every enabled host inheriting the template, directly or not.
+     *
+     * @return Collection<PollerId>
+     */
+    public function findPollerIdsOfInheritingHosts(HostTemplateId $id): Collection;
+
+    /**
+     * Deletes the template and any host dependency it leaves empty.
+     */
+    public function remove(HostTemplate $hostTemplate): void;
 }
