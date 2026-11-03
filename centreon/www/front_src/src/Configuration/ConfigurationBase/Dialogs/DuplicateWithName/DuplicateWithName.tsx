@@ -1,7 +1,7 @@
 import { Form } from '@centreon/ui';
 import { FormActions, Modal } from '@centreon/ui/components';
 
-import { type JSX, useCallback } from 'react';
+import { type ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { labelCancel, labelDuplicate } from '../../translatedLabels';
@@ -11,7 +11,7 @@ import useDuplicateWithName, {
 import useFormInputs from './useFormInputs';
 import useValidationSchema from './useValidationSchema';
 
-const DuplicateWithNameDialog = (): JSX.Element => {
+const DuplicateWithNameDialog = (): ReactElement => {
   const { t } = useTranslation();
 
   const { close, headerContent, initialValues, isOpened, submit } =
