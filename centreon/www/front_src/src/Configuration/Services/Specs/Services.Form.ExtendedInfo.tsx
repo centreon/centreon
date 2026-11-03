@@ -146,6 +146,24 @@ export default () => {
     expect(screen.getByTestId(testIds.graphTemplate)).toHaveValue('');
   });
 
+  it('opens a service whose detail leaves the categories out, with none', async () => {
+    await initializeListing();
+
+    await openRow('memory', '@getService1');
+
+    // The form opens on the detail, not on the defaults a failed decode
+    // leaves.
+    await waitFor(async () =>
+      expect(await getInput('service-form-name')).toHaveValue('memory')
+    );
+    expect(
+      screen
+        .getByTestId(testIds.categories)
+        .closest('.MuiAutocomplete-root')
+        ?.querySelectorAll('.MuiChip-root')
+    ).toHaveLength(0);
+  });
+
   it('shows each severity with its level, and by its name when it has none', async () => {
     await initializeListing();
 

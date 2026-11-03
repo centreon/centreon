@@ -136,10 +136,14 @@ const getRelationsResponse = (id: number) => ({
 });
 
 // Extended info (F41-F50). Service 0 has every field but the note URL and the
-// alt icon, which the API then leaves out; the others have none, and their
-// categories are an empty list as for hosts.
-const getExtendedInfoDetail = (id: number): Record<string, unknown> =>
-  id === 0
+// alt icon, which the API then leaves out; the others have none. Service 2's
+// categories are an empty list as for hosts, service 1's are left out.
+const getExtendedInfoDetail = (id: number): Record<string, unknown> => {
+  if (id === 1) {
+    return {};
+  }
+
+  return id === 0
     ? {
         categories: [{ id: 3, name: 'Web' }],
         extended_informations: {
@@ -153,6 +157,7 @@ const getExtendedInfoDetail = (id: number): Record<string, unknown> =>
         severity: { id: 1, level: 2, name: 'Major' }
       }
     : { categories: [] };
+};
 
 export const getServiceResponse = (id: number) => ({
   '@context': '/centreon/api/contexts/Service',
