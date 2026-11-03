@@ -47,10 +47,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@centreon/ui/components': resolve(root, 'packages/ui/src/components'),
-      '@centreon/ui/fonts': resolve(
-        root,
-        'node_modules/@centreon/ui/public/fonts'
-      ),
       '@mui/material': resolve(root, 'node_modules/@mui/material'),
       '@test-setup': resolve(root, 'test-setup'),
       dayjs: resolve(root, 'node_modules/dayjs'),
