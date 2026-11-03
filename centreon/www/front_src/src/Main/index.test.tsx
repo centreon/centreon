@@ -6,6 +6,7 @@ import {
 } from '@centreon/ui/test/testRenderer';
 import {
   defaultLimitPerPageAtom,
+  intervalLengthAtom,
   isAdditiveInheritanceEnabledAtom
 } from '@centreon/ui-context';
 
@@ -293,6 +294,7 @@ describe('Main', () => {
     store.set(platformInstallationStatusAtom, null);
     store.set(isAdditiveInheritanceEnabledAtom, false);
     store.set(defaultLimitPerPageAtom, null);
+    store.set(intervalLengthAtom, 60);
   });
 
   it('displays the login page when the path is "/login" and the user is not connected', async () => {
@@ -489,6 +491,35 @@ describe('Main', () => {
     await waitFor(() => {
       expect(store.get(isAdditiveInheritanceEnabledAtom)).toBe(true);
     });
+  });
+
+  it('sets the interval length from the platform parameters', async () => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      monitoring_interval_length: 30
+    });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(intervalLengthAtom)).toBe(30);
+    });
+  });
+
+  it('keeps an interval length of 60 when the platform parameters do not have one', async () => {
+    const { monitoring_interval_length, ...parametersWithoutInterval } = {
+      ...retrievedParameters,
+      monitoring_interval_length: 30
+    };
+    mockGetRequestsByUrl(parametersWithoutInterval);
+
+    renderMain();
+
+    // Set in the same callback, once the parameters are read.
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+    expect(store.get(intervalLengthAtom)).toBe(60);
   });
 
   // 50, not 30: 30 is also the fallback, which would pass this test without

@@ -46,6 +46,7 @@ use App\Shared\Infrastructure\ApiPlatform\Routing\PlatformCondition;
             itemUriTemplate: '/configuration/contact_groups/{id}',
             output: ContactGroupChoicesOutput::class,
             provider: ListContactGroupsChoicesProvider::class,
+            extraProperties: ['list_ldap' => true],
         ),
         new GetCollection(
             uriTemplate: '/configuration/services/contact_groups',
@@ -56,6 +57,7 @@ use App\Shared\Infrastructure\ApiPlatform\Routing\PlatformCondition;
             itemUriTemplate: '/configuration/contact_groups/{id}',
             output: ContactGroupChoicesOutput::class,
             provider: ListContactGroupsChoicesProvider::class,
+            extraProperties: ['list_ldap' => true],
         ),
         new GetCollection(
             uriTemplate: '/configuration/contact_groups',

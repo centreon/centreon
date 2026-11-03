@@ -37,6 +37,7 @@ final class FindUserPermissions
         'poller_statistics' => Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS,
         'configuration_host_group_write' => Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE,
         'configuration_host_write' => Contact::ROLE_CONFIGURATION_HOSTS_WRITE,
+        'configuration_host_template_write' => Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE,
         'configuration_service_write' => Contact::ROLE_CONFIGURATION_SERVICES_WRITE,
         'see_check_commands' => Contact::ROLE_SEE_CHECK_COMMANDS,
         'manage_check_commands' => Contact::ROLE_MANAGE_CHECK_COMMANDS,

@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Ser
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\GrantsServiceTopologyRole;
+use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 
 /**
@@ -36,6 +37,7 @@ use Tests\App\Shared\ApiTestCase;
 final class ListServiceTemplatesChoicesProviderTest extends ApiTestCase
 {
     use GrantsServiceTopologyRole;
+    use InsertsMonitoringConnectorTemplates;
     private const ENDPOINT = '/api/configuration/services/service_templates';
 
     private Connection $connection;
@@ -51,6 +53,13 @@ final class ListServiceTemplatesChoicesProviderTest extends ApiTestCase
         $this->connection = $connection;
 
         $this->tag = Uuid::v4()->toRfc4122();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->dropMonitoringConnectorTables($this->connection);
+
+        parent::tearDown();
     }
 
     /**
@@ -73,5 +82,30 @@ final class ListServiceTemplatesChoicesProviderTest extends ApiTestCase
         self::assertSame("/api/configuration/service_templates/{$serviceTemplateId}", $member[0]['@id']);
         self::assertSame($serviceTemplateId, $member[0]['id']);
         self::assertSame($name, $member[0]['name']);
+    }
+
+    /**
+     * Once the license host limit is reached (the test platform has no license manager), the templates
+     * coming from Monitoring Connectors and the ones inheriting from them are excluded, as on the host form.
+     */
+    public function testItExcludesTheTemplatesTheLicenseNoLongerAllows(): void
+    {
+        $allowedName = "allowed-{$this->tag}";
+        $this->connection->insert('service', ['service_description' => $allowedName, 'service_register' => '0']);
+        $this->connection->insert('service', ['service_description' => "unlicensed-{$this->tag}", 'service_register' => '0']);
+
+        $unlicensedId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('service', [
+            'service_description' => "unlicensed-child-{$this->tag}",
+            'service_register' => '0',
+            'service_template_model_stm_id' => $unlicensedId,
+        ]);
+        $this->insertMonitoringConnectorServiceTemplates($this->connection, $unlicensedId);
+        $this->loginAsServiceReadWriteUser($this->connection, $this->tag);
+
+        $response = $this->request('GET', self::ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSame([$allowedName], array_column((array) $response->toArray()['member'], 'name'));
     }
 }
