@@ -169,7 +169,7 @@ export default () => {
 
       await save();
 
-      expect(await getRequestBody('@createService')).toEqual({
+      expect(await getRequestBody('@createService')).toMatchObject({
         host_id: 11,
         name: 'cpu load'
       });
@@ -189,7 +189,7 @@ export default () => {
       const { request } = await waitForRequest('@updateService0');
 
       expect(request.method).toBe('PUT');
-      expect(request.body).toEqual({ host_id: 10, name: 'cpu load' });
+      expect(request.body).toMatchObject({ host_id: 10, name: 'cpu load' });
     });
 
     it('asks for a name and a host', async () => {

@@ -43,6 +43,10 @@ const normalizeName = (name: string | undefined): string =>
 
 interface ServiceIdentityDetail {
   host: NamedEntity | null;
+  // Read for the panel header's switch, which enables and disables the service
+  // on a request of its own: on a deep link there is no row to take it from.
+  // Never sent.
+  isActivated?: boolean;
   name: string;
 }
 
@@ -82,8 +86,10 @@ export const getServiceIdentityBlock = ({
   defaultValues: { host: null, name: '' },
   detailDecoders: {
     host: optionalNamedEntityDecoder('Host'),
+    isActivated: JsonDecoder.optional(JsonDecoder.boolean),
     name: JsonDecoder.string
   },
+  detailKeyMap: { isActivated: 'activated' },
   getInputs: ({ t }) => ({
     basicInformation: getBlock({
       className: twoColumnsFromNarrow,

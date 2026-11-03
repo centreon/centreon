@@ -23,6 +23,7 @@ import {
   getDuplicateServiceEndpoint,
   getServiceEndpoint,
   serviceFormHostsEndpoint,
+  serviceFormTimePeriodsEndpoint,
   servicesListEndpoint,
   serviceTemplatesEndpoint
 } from '../api/endpoints';
@@ -30,6 +31,7 @@ import {
   emptyListingResponse,
   getListingResponse,
   getServiceFormHostsResponse,
+  getServiceFormTimePeriodsResponse,
   getServiceResponse,
   getServiceTemplatesResponse
 } from './utils';
@@ -101,6 +103,13 @@ const initialize = ({
     method: Method.GET,
     path: `**${serviceFormHostsEndpoint}?**`,
     response: getServiceFormHostsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getServiceFormTimePeriods',
+    method: Method.GET,
+    path: `**${serviceFormTimePeriodsEndpoint}?**`,
+    response: getServiceFormTimePeriodsResponse()
   });
 
   interceptAPIRequest({

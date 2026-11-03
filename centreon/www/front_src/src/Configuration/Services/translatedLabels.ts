@@ -19,6 +19,11 @@ export const labelCreateService = 'Create a service';
 // Form sections and blocks
 export const labelGeneralInformation = 'General information';
 export const labelServiceBasicInformation = 'Service Basic Information';
+export const labelCheckCommandTemplateCustomMacros =
+  'Check command / Template / Custom macros';
+export const labelMonitoringEngineSchedulingOptions =
+  'Monitoring engine / Scheduling options';
+export const labelSchedulingOptions = 'Scheduling options';
 
 // Form validation
 export const labelNameContainsForbiddenCharacters = 'Unauthorized value';

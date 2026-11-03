@@ -66,9 +66,31 @@ export const getServiceTemplatesResponse = () => ({
 // The detail of each listed service, as the API Platform detail route answers:
 // the host as an object where the create takes its id.
 const serviceDetails: Record<number, Record<string, unknown>> = {
-  0: { host: { id: 10, name: 'host A' }, name: 'cpu' },
-  1: { host: { id: 11, name: 'host B' }, name: 'memory' },
-  2: { host: { id: 10, name: 'host A' }, name: 'disk' }
+  0: {
+    activated: true,
+    host: { id: 10, name: 'host A' },
+    name: 'cpu',
+    // MON-213082: the template and the scheduling options.
+    scheduling_options: {
+      active_check_enabled: 'false',
+      check_period: { id: 21, name: 'workhours' },
+      is_volatile: 'true',
+      max_check_attempts: 3,
+      normal_check_interval: 5,
+      passive_check_enabled: 'use_default',
+      retry_check_interval: null
+    },
+    template: { id: 30, name: 'generic-active-service' }
+  },
+  // Unset fields left out: no template, no scheduling options.
+  1: { activated: false, host: { id: 11, name: 'host B' }, name: 'memory' },
+  // A cloud service always has a template.
+  2: {
+    activated: true,
+    host: { id: 10, name: 'host A' },
+    name: 'disk',
+    template: { id: 31, name: 'generic-passive-service' }
+  }
 };
 
 export const getServiceResponse = (id: number) => ({
@@ -86,6 +108,18 @@ export const getServiceFormHostsResponse = () => ({
   member: [
     { id: 10, name: 'host A' },
     { id: 11, name: 'host B' }
+  ],
+  totalItems: 2
+});
+
+// MON-213082: the check period selector.
+export const getServiceFormTimePeriodsResponse = () => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': '/centreon/api/configuration/services/timeperiods',
+  '@type': 'Collection',
+  member: [
+    { id: 20, name: '24x7' },
+    { id: 21, name: 'workhours' }
   ],
   totalItems: 2
 });
