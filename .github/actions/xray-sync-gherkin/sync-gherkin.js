@@ -13,15 +13,13 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
+const { createXrayGraphqlClient, loadGraphqlOperation: loadGraphqlFile } = require("../xray-common/xray-client");
 
-const XRAY_GRAPHQL_URL = "https://xray.cloud.getxray.app/api/v2/graphql";
 const SCENARIO_REGEX = /^\s*(?:Scenario|Scenario Outline):\s*(.+?)\s*$/;
 const FEATURE_REGEX = /^\s*Feature:/;
 const BLOCK_END_REGEX = /^\s*(?:@|Scenario|Feature|Rule|Background)\b/;
 const IGNORE_TAG_REGEX = /@ignore\b/;
 const BATCH_SIZE = 100;
-const MAX_HTTP_RETRIES = 5;
-const RETRY_DELAY_MS = 2000;
 
 const {
   FEATURES_DIR,
@@ -34,7 +32,6 @@ const {
 
 const dryRun = DRY_RUN === "true";
 const keyTagRegex = () => new RegExp(`@(${PROJECT_KEY}-\\d+)\\b`, "g");
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Xray stores only the scenario steps (and Examples): drop a leading Scenario line,
 // dedent, strip trailing spaces and surrounding blank lines, LF line endings.
@@ -138,38 +135,8 @@ function groupByKey(scenarios) {
   return { resolved, conflicts };
 }
 
-function loadGraphqlOperation(operationName) {
-  return fs.readFileSync(path.join(__dirname, `${operationName}.graphql`), "utf8");
-}
-
-// Xray GraphQL call with retry on transient failures. Throws on GraphQL errors.
-async function callXrayGraphql(graphqlQuery, queryVariables) {
-  for (let attempt = 0; ; attempt++) {
-    let response = null;
-    let networkError = null;
-    try {
-      response = await fetch(XRAY_GRAPHQL_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${XRAY_TOKEN}` },
-        body: JSON.stringify({ query: graphqlQuery, variables: queryVariables }),
-      });
-    } catch (error) {
-      networkError = error;
-    }
-    const status = networkError ? null : response.status;
-    const isTransient = status === null || status === 429 || status >= 500;
-    if (!isTransient || attempt >= MAX_HTTP_RETRIES) {
-      if (networkError) throw networkError;
-      const responseJson = await response.json();
-      if (responseJson.errors && responseJson.errors.length > 0) {
-        throw new Error(`Xray GraphQL error: ${JSON.stringify(responseJson.errors)}`);
-      }
-      return responseJson;
-    }
-    console.log(`  Xray GraphQL: transient failure, retry #${attempt + 1} in ${RETRY_DELAY_MS}ms`);
-    await sleep(RETRY_DELAY_MS);
-  }
-}
+const loadGraphqlOperation = (operationName) => loadGraphqlFile(__dirname, operationName);
+const callXrayGraphql = createXrayGraphqlClient(XRAY_TOKEN);
 
 // Current Xray definition of the given keys, by batches: Map key -> { issueId, gherkin, testType }.
 async function fetchXrayTests(keys) {

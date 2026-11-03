@@ -9,8 +9,8 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
+const { createXrayGraphqlClient, loadGraphqlOperation } = require("../xray-common/xray-client");
 
-const XRAY_GRAPHQL_URL = "https://xray.cloud.getxray.app/api/v2/graphql";
 const SCENARIO_REGEX = /^(\s*)(?:Scenario|Scenario Outline):\s*(.+?)\s*$/;
 const FEATURE_REGEX = /^\s*Feature:/;
 const BLOCK_END_REGEX = /^\s*(?:@|Scenario|Feature|Rule|Background)\b/;
@@ -31,26 +31,15 @@ if (!dryRun && !xrayToken) {
   throw new Error("missing XRAY_TOKEN (required unless DRY_RUN=true)");
 }
 
-const createTestMutation = fs.readFileSync(path.join(__dirname, "create-test.graphql"), "utf8");
+const createTestMutation = loadGraphqlOperation(__dirname, "create-test");
+const callXrayGraphql = createXrayGraphqlClient(xrayToken);
 
 // Create one Cucumber Test in Xray and return its Jira key (e.g. "MON-12345").
 async function createTest(summary, gherkin) {
-  const response = await fetch(XRAY_GRAPHQL_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${xrayToken}`,
-    },
-    body: JSON.stringify({
-      query: createTestMutation,
-      variables: { projectKey, summary, gherkin },
-    }),
-  });
-
-  const result = await response.json();
+  const result = await callXrayGraphql(createTestMutation, { projectKey, summary, gherkin }, { retry: false });
   const key = result.data?.createTest?.test?.jira?.key;
   if (!key) {
-    throw new Error(`createTest failed for "${summary}": ${JSON.stringify(result.errors ?? result)}`);
+    throw new Error(`createTest failed for "${summary}": ${JSON.stringify(result)}`);
   }
   return key;
 }
