@@ -19,7 +19,7 @@ const getValues = (checkOptions: unknown): FormValues => {
   };
 };
 
-// The value the check command selector (MON-213083) holds.
+// Each case passes `getValues` what the check command selector holds.
 describe('data processing payload', () => {
   it('keeps the freshness settings with a regular check command', () => {
     const payload = getPayload(
