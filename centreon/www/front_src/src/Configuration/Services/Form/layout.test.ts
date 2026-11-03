@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 
 import {
+  labelAdvanced,
   labelCheckCommandTemplateCustomMacros,
   labelGeneralInformation,
   labelMonitoringEngineSchedulingOptions,
@@ -69,6 +70,25 @@ describe('layout', () => {
     ]);
   });
 
+  it('shows the sections in the order of the design', () => {
+    expect(getSectionLabels({ isCloudPlatform: false, t })).toEqual([
+      labelGeneralInformation,
+      labelCheckCommandTemplateCustomMacros,
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions,
+      labelAdvanced
+    ]);
+  });
+
+  it('has no advanced section on a cloud platform, where the comment is refused', () => {
+    expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
+      labelGeneralInformation,
+      labelCheckCommandTemplateCustomMacros,
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions
+    ]);
+  });
+
   it('places the macros next to the check command', () => {
     const [, checkCommandSection] = placeBlocks({
       blocks: getBlocks({ isCloudPlatform: false, t }),
@@ -113,6 +133,15 @@ describe('layout', () => {
 
     expect(cloudBlocks).toContain('groups');
     expect(cloudBlocks).not.toContain('snmpTraps');
+  });
+
+  it('places the graph template on-premise only', () => {
+    expect(Object.keys(getBlocks({ isCloudPlatform: false, t }))).toContain(
+      'graphTemplate'
+    );
+    expect(Object.keys(getBlocks({ isCloudPlatform: true, t }))).not.toContain(
+      'graphTemplate'
+    );
   });
 
   it('has no general information in a mass change', () => {

@@ -3,11 +3,17 @@ import {
   getInputBlocks
 } from '../../../ResourceForm/blocks';
 import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
+import {
+  getActionUrlAndGeoCoordinatesBlock,
+  getCommentBlock,
+  getNotesAndIconsBlock
+} from '../../../ResourceForm/fieldBlocks/extendedInfos';
 import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
 import {
   getActiveAndPassiveChecksBlock,
   getCheckPeriodAndIntervalsBlock
 } from '../../../ResourceForm/fieldBlocks/scheduling';
+import { getSeverityBlock } from '../../../ResourceForm/fieldBlocks/severity';
 import type {
   Blocks,
   DetailOfBlocks,
@@ -17,14 +23,23 @@ import type {
 } from '../../../ResourceForm/models';
 import {
   serviceFormCommandsEndpoint,
+  serviceFormGraphTemplatesEndpoint,
   serviceFormHostsEndpoint,
+  serviceFormMediasEndpoint,
+  serviceFormServiceCategoriesEndpoint,
   serviceFormServiceGroupsEndpoint,
+  serviceFormServiceSeveritiesEndpoint,
   serviceFormTimePeriodsEndpoint,
   serviceFormTrapsEndpoint,
   servicesBaseEndpoint,
   serviceTemplatesEndpoint
 } from '../../api/endpoints';
-import { labelServiceGroups } from '../../translatedLabels';
+import {
+  labelServiceCategories,
+  labelServiceGroups,
+  labelServiceSeverity
+} from '../../translatedLabels';
+import { getGraphTemplateBlock } from '../blocks/graphTemplate';
 import { getMacrosBlock } from '../blocks/macros';
 import { getServiceIdentityBlock } from '../blocks/serviceIdentity';
 import { getSnmpTrapsBlock } from '../blocks/snmpTraps';
@@ -56,11 +71,6 @@ export const blocks = [
   }),
   getTemplateBlock({ resource, serviceTemplatesEndpoint }),
   getMacrosBlock({ resource }),
-  getCheckPeriodAndIntervalsBlock({
-    resource,
-    timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
-  }),
-  getActiveAndPassiveChecksBlock({ resource, withVolatile: true }),
   // Unlike the host groups of a host, optional on a cloud platform too.
   getRelationListBlock({
     decoderNames: ['Service group', 'Service groups'],
@@ -72,7 +82,39 @@ export const blocks = [
     payloadKey: 'service_group_ids',
     resource
   }),
-  getSnmpTrapsBlock({ endpoint: serviceFormTrapsEndpoint, resource })
+  getSnmpTrapsBlock({ endpoint: serviceFormTrapsEndpoint, resource }),
+  // The user's visible categories only: the server keeps the others.
+  getRelationListBlock({
+    decoderNames: ['Category', 'Categories'],
+    endpoint: serviceFormServiceCategoriesEndpoint,
+    id: 'categories',
+    label: labelServiceCategories,
+    name: 'categories',
+    payloadKey: 'category_ids',
+    resource
+  }),
+  getSeverityBlock({
+    endpoint: serviceFormServiceSeveritiesEndpoint,
+    label: labelServiceSeverity,
+    resource,
+    // As the legacy service form shows a severity.
+    withLevel: true
+  }),
+  getGraphTemplateBlock({
+    endpoint: serviceFormGraphTemplatesEndpoint,
+    resource
+  }),
+  getNotesAndIconsBlock({
+    mediasEndpoint: serviceFormMediasEndpoint,
+    resource
+  }),
+  getActionUrlAndGeoCoordinatesBlock({ resource }),
+  getCheckPeriodAndIntervalsBlock({
+    resource,
+    timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
+  }),
+  getActiveAndPassiveChecksBlock({ resource, withVolatile: true }),
+  getCommentBlock({ resource })
 ] as const;
 
 // Each available block, as a section of the data.

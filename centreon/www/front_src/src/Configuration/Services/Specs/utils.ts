@@ -132,6 +132,25 @@ const getRelationsResponse = (id: number) => ({
       : []
 });
 
+// Extended info (F41-F50). Service 0 has every field but the note URL and the
+// alt icon, which the API then leaves out; the others have none, and their
+// categories are an empty list as for hosts.
+const getExtendedInfoDetail = (id: number): Record<string, unknown> =>
+  id === 0
+    ? {
+        categories: [{ id: 3, name: 'Web' }],
+        extended_informations: {
+          action_url: 'https://example.com/actions/cpu',
+          comment: 'Checked by the web team',
+          geo_coordinates: '48.8566,2.3522',
+          icon: { id: 12, name: 'cpu.png', url: iconUrl },
+          note: 'CPU load'
+        },
+        graph_template: { id: 7, name: 'CPU' },
+        severity: { id: 1, level: 2, name: 'Major' }
+      }
+    : { categories: [] };
+
 export const getServiceResponse = (id: number) => ({
   '@context': '/centreon/api/contexts/Service',
   '@id': `/centreon/api/configuration/services/${id}`,
@@ -139,42 +158,39 @@ export const getServiceResponse = (id: number) => ({
   id,
   ...serviceDetails[id],
   ...getServiceCheckOptionsResponse(id),
-  ...getRelationsResponse(id)
+  ...getRelationsResponse(id),
+  ...getExtendedInfoDetail(id)
 });
 
-export const getServiceFormHostsResponse = () => ({
+const getSelectorResponse = (
+  path: string,
+  member: Array<Record<string, unknown>>
+) => ({
   '@context': '/centreon/api/contexts/Collection',
-  '@id': '/centreon/api/configuration/services/hosts',
+  '@id': `/centreon/api/configuration/services/${path}`,
   '@type': 'Collection',
-  member: [
+  member,
+  totalItems: member.length
+});
+
+export const getServiceFormHostsResponse = () =>
+  getSelectorResponse('hosts', [
     { id: 10, name: 'host A' },
     { id: 11, name: 'host B' }
-  ],
-  totalItems: 2
-});
+  ]);
 
 // MON-213082: the check period selector.
-export const getServiceFormTimePeriodsResponse = () => ({
-  '@context': '/centreon/api/contexts/Collection',
-  '@id': '/centreon/api/configuration/services/timeperiods',
-  '@type': 'Collection',
-  member: [
+export const getServiceFormTimePeriodsResponse = () =>
+  getSelectorResponse('timeperiods', [
     { id: 20, name: '24x7' },
     { id: 21, name: 'workhours' }
-  ],
-  totalItems: 2
-});
+  ]);
 
-export const getServiceFormCommandsResponse = () => ({
-  '@context': '/centreon/api/contexts/Collection',
-  '@id': '/centreon/api/configuration/services/commands',
-  '@type': 'Collection',
-  member: [
+export const getServiceFormCommandsResponse = () =>
+  getSelectorResponse('commands', [
     { id: 8, name: 'check-centreon-ping' },
     { id: 9, name: 'check-centreon-cpu' }
-  ],
-  totalItems: 2
-});
+  ]);
 
 // One service template's macros, its own then those it inherits, for when the
 // template field (F03) can pick one.
@@ -184,23 +200,41 @@ export const getServiceTemplateMacrosResponse = () => ({
   name: 'generic-active-service'
 });
 
-const toCollection = (path: string, member: Array<object>) => ({
-  '@context': '/centreon/api/contexts/Collection',
-  '@id': `/centreon/api/configuration/services/${path}`,
-  '@type': 'Collection',
-  member,
-  totalItems: member.length
-});
-
 export const getServiceGroupsResponse = () =>
-  toCollection('service_groups', [
+  getSelectorResponse('service_groups', [
     { id: 1, name: 'Web services' },
     { id: 2, name: 'Database services' }
   ]);
 
 // The vendor apart, as `TrapChoicesOutput` sends it.
 export const getTrapsResponse = () =>
-  toCollection('traps', [
+  getSelectorResponse('traps', [
     { id: 21, name: 'linkDown', vendor: { id: 3, name: 'Generic' } },
     { id: 22, name: 'linkUp', vendor: { id: 3, name: 'Generic' } }
+  ]);
+
+export const getGraphTemplatesResponse = () =>
+  getSelectorResponse('graph_templates', [
+    { id: 7, name: 'CPU' },
+    { id: 8, name: 'Memory' }
+  ]);
+
+export const getServiceCategoriesResponse = () =>
+  getSelectorResponse('service_categories', [
+    { id: 3, name: 'Web' },
+    { id: 4, name: 'Database' }
+  ]);
+
+export const getServiceSeveritiesResponse = () =>
+  getSelectorResponse('service_severities', [
+    { id: 1, level: 2, name: 'Major' },
+    { id: 2, level: 1, name: 'Critical' },
+    // No level sent: shown by its name alone.
+    { id: 3, name: 'Minor' }
+  ]);
+
+export const getServiceMediasResponse = () =>
+  getSelectorResponse('medias', [
+    { id: 12, name: 'cpu.png', url: iconUrl },
+    { id: 13, name: 'disk.png', url: iconUrl }
   ]);
