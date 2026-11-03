@@ -38,6 +38,23 @@ services:
         arguments:
           $repositoryProviders: !tagged_iterator 'resource.access.dataset.filter.resource.repository.providers'
 
+    # Every resource access write repository uses the legacy connection, so the rule use cases
+    # must open their transaction on it, and image folders must be written through it too.
+    # Mixing it with the DBAL connection makes two independent transactions: lock wait on
+    # creation, partial save on update.
+    Core\ResourceAccess\Infrastructure\Repository\Dataset\DbWriteImageFolderRepository:
+        arguments:
+          $connection: '@Centreon\Infrastructure\DatabaseConnection'
+
+    resource_access.legacy_repository_manager:
+        class: Core\Common\Infrastructure\Repository\DatabaseRepositoryManager
+        arguments:
+          $connection: '@Centreon\Infrastructure\DatabaseConnection'
+
+    Core\ResourceAccess\Application\UseCase\UpdateRule\UpdateRule:
+        arguments:
+          $repositoryManager: '@resource_access.legacy_repository_manager'
+
     Core\Media\Application\Repository\ReadImageFolderRepositoryInterface:
         class: Core\Media\Infrastructure\Repository\DbReadImageFolderRepository
 
