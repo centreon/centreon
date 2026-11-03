@@ -269,4 +269,39 @@ it('should present a GetMediaResponse as non-admin user without any access when 
         ->toBeInstanceOf(GetMediaResponse::class)
         ->and($response->directory)
         ->toBe($systemFolder);
-})->with(ImageFolder::SYSTEM_FOLDER_NAMES);
+})->with(['centreon-map', 'dashboards', 'ppm']);
+
+it('should present a NotFoundResponse as non-admin user without any access when the folder only differs from a system folder by case', function (string $folder): void {
+    $media = new Media(id: 3, filename: 'upper.png', directory: $folder, comment: '', data: null);
+
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
+    $this->readMediaRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($media);
+
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn([]);
+
+    $this->readImageFolderRepository
+        ->expects($this->once())
+        ->method('hasAccessToAllImageFolders')
+        ->willReturn(false);
+
+    $this->readMediaRepository
+        ->expects($this->once())
+        ->method('existsByAccessGroups')
+        ->willReturn(false);
+
+    expect(($this->useCase)($media->getId()))->toBeInstanceOf(NotFoundResponse::class);
+})->with(['PPM', 'Dashboards', 'Centreon-Map']);
+
+it('should define exactly the system folders shipped with Centreon', function (): void {
+    expect(ImageFolder::SYSTEM_FOLDER_NAMES)->toBe(['centreon-map', 'dashboards', 'ppm']);
+});

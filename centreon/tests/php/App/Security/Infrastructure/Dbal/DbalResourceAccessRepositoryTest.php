@@ -754,7 +754,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
-    public function testUserWithNoAclGroupHasAccessToNoImageFolders(): void
+    public function testUserWithNoAclGroupHasAccessToNoGrantedImageFolders(): void
     {
         // A user with no accessible ACL resource is fully restricted (fails closed): their scope
         // is not unrestricted, and holds nothing but the system folders.
@@ -766,7 +766,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([], $this->fixtureImageFolderIds($folderScope));
     }
 
-    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoImageFolders(): void
+    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoGrantedImageFolders(): void
     {
         $contactId = $this->createContact('user-empty-resource-media');
         $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [], allImageFolders: false);

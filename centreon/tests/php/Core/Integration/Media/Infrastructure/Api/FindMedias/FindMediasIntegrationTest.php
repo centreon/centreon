@@ -35,6 +35,10 @@ use Tests\Core\Integration\CoreApiTestCase;
  * subject to ACL; the media of the other folders only when an ACL resource of the user grants
  * their folder.
  *
+ * The "all image folders" flag of an ACL resource is not tested here: the use case reads it
+ * through the DBAL connection, which does not see the rows this test inserts in its transaction
+ * on the legacy connection. ListMediasProviderTest covers it for the new API.
+ *
  * Run inside the Docker container:
  *   docker exec centreon-app bash -c "cd /usr/share/centreon && vendor/bin/phpunit -c phpunit.core-integration.xml --filter FindMediasIntegrationTest"
  */
@@ -121,15 +125,20 @@ final class FindMediasIntegrationTest extends CoreApiTestCase
         self::assertSame([], $this->listTaggedMediaNames());
     }
 
-    public function testAnOrSearchCannotReachTheMediaOfAFolderThatIsNotGranted(): void
+    public function testAnOrSearchFiltersWithinTheReadableMediaOnly(): void
     {
-        $systemMedia = $this->createMedia('system', $this->systemFolderId());
+        $grantedFolderId = $this->createFolder('granted');
+        $grantedMedia = $this->createMedia('granted', $grantedFolderId);
+        // matches the search, but its folder is not granted
         $this->createMedia('other', $this->createFolder('other'));
-        $this->allowApiAccess(self::USER_WITHOUT_GROUP);
+        // readable, but neither its name nor its folder matches the search
+        $this->createMedia('system-' . bin2hex(random_bytes(4)), $this->systemFolderId(), tagged: false);
+        $this->grantImageFolders($this->aclGroupIdOf(self::USER_WITH_GROUP), [$grantedFolderId]);
 
-        $this->login(self::USER_WITHOUT_GROUP);
+        $this->login(self::USER_WITH_GROUP);
 
-        // the user search is appended after the ACL condition: its OR must stay in its own parentheses
+        // The ACL condition is "system folder OR granted folder", and the user search is appended
+        // after it: each must keep its own parentheses, or the OR of one escapes the other.
         $names = $this->listMediaNames([
             '$or' => [
                 ['name' => ['$lk' => "%{$this->tag}%"]],
@@ -137,7 +146,7 @@ final class FindMediasIntegrationTest extends CoreApiTestCase
             ],
         ]);
 
-        self::assertSame([$systemMedia], $names);
+        self::assertSame([$grantedMedia], $names);
     }
 
     protected static function apiUsers(): array
@@ -184,7 +193,7 @@ final class FindMediasIntegrationTest extends CoreApiTestCase
 
     private function systemFolderId(): int
     {
-        $statement = self::$db->prepare("SELECT dir_id FROM view_img_dir WHERE BINARY dir_name = 'centreon-map' LIMIT 1");
+        $statement = self::$db->prepare("SELECT dir_id FROM view_img_dir WHERE CAST(dir_name AS BINARY) = 'centreon-map' LIMIT 1");
         $statement->execute();
         $folderId = $statement->fetchColumn();
 
@@ -200,11 +209,13 @@ final class FindMediasIntegrationTest extends CoreApiTestCase
     }
 
     /**
+     * @param bool $tagged false for a media that the tag search must not find
+     *
      * @return string the name of the created media
      */
-    private function createMedia(string $name, int $folderId): string
+    private function createMedia(string $name, int $folderId, bool $tagged = true): string
     {
-        $fileName = "{$name}-{$this->tag}.png";
+        $fileName = $tagged ? "{$name}-{$this->tag}.png" : "{$name}.png";
         $statement = self::$db->prepare('INSERT INTO view_img (img_name, img_path) VALUES (:name, :name)');
         $statement->execute([':name' => $fileName]);
         $mediaId = (int) self::$db->lastInsertId();

@@ -1689,7 +1689,7 @@ parameters:
 		-
 			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 22
+			count: 27
 			path: tests/php/Core/Media/Application/UseCase/GetMedia/GetMediaTest.php
 
 		-

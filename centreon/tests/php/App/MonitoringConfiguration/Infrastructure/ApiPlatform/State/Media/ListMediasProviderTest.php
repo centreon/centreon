@@ -151,12 +151,12 @@ final class ListMediasProviderTest extends ApiTestCase
 
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
         self::assertResponseIsSuccessful();
-        self::assertSame([], (array) $response->toArray()['member'], 'An actor with no active Access Group is restricted and sees no media.');
+        self::assertSame([], (array) $response->toArray()['member'], 'An actor with no active Access Group is restricted and sees no media outside the system folders.');
     }
 
     public function testItListsTheSystemFolderMediaForARestrictedUserWithNoAccessGroup(): void
     {
-        $existingDirId = $this->connection->fetchOne("SELECT dir_id FROM view_img_dir WHERE dir_name = 'centreon-map'");
+        $existingDirId = $this->connection->fetchOne("SELECT dir_id FROM view_img_dir WHERE CAST(dir_name AS BINARY) = 'centreon-map' LIMIT 1");
         $systemDirId = is_numeric($existingDirId) ? (int) $existingDirId : $this->insertFolder('centreon-map');
         $systemName = "system-{$this->tag}.png";
         $this->insertMedia($systemName, $systemDirId);
