@@ -1932,7 +1932,8 @@ function display_services_recap() {
 		db_unit="${mysql_service_name:-mysqld}"
 	fi
 
-	# label | systemd unit | topologies the check applies to (space-separated)
+	# label | systemd unit | topologies the check applies to | topologies where inactive = failure (default: same as previous)
+	# Topology lists are space-separated; outside the 4th field an inactive unit is reported as [INFO].
 	# http and php units differ per distro (httpd/php-fpm on EL, apache2/php8.x-fpm on
 	# Debian); they are resolved via the variables set in set_required_prerequisite.
 	# Topologies mirror what enable_new_services actually starts: centengine runs on
