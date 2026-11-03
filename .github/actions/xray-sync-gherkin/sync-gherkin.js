@@ -1,7 +1,7 @@
 // Sync the Gherkin definition of Xray Tests with the e2e scenarios tagged @<KEY>.
 // The Cucumber import links results to existing Tests through their tag but never
 // rewrites their definition, so a Test created empty or whose scenario changed stays
-// stale. For each tagged scenario not marked @ignore, compare its normalized Gherkin
+// stale. For each tagged scenario not marked @ignore, compare its normalized steps
 // with the Test's and rewrite the Test when they differ (switching a non-Gherkin Test
 // Type first).
 //
@@ -36,9 +36,12 @@ const dryRun = DRY_RUN === "true";
 const keyTagRegex = () => new RegExp(`@(${PROJECT_KEY}-\\d+)\\b`, "g");
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Dedent, strip trailing spaces and surrounding blank lines, LF line endings.
+// Xray stores only the scenario steps (and Examples): drop a leading Scenario line,
+// dedent, strip trailing spaces and surrounding blank lines, LF line endings.
 function normalizeGherkin(text) {
   const lines = (text || "").split(/\r?\n/).map((line) => line.replace(/\s+$/, ""));
+  while (lines.length > 0 && lines[0] === "") lines.shift();
+  if (lines.length > 0 && SCENARIO_REGEX.test(lines[0])) lines.shift();
   while (lines.length > 0 && lines[0] === "") lines.shift();
   while (lines.length > 0 && lines[lines.length - 1] === "") lines.pop();
   const indents = lines.filter((line) => line !== "").map((line) => line.match(/^\s*/)[0].length);

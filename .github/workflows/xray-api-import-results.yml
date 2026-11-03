@@ -43,11 +43,6 @@ on:
         required: false
         type: string
         default: "*"
-      features_dir:
-        description: "Directory of the .feature files whose tagged scenarios are synced to their Xray Tests (cucumber only, empty to skip)."
-        required: false
-        type: string
-        default: ""
 
     secrets:
       XRAY_CLIENT_ID:
@@ -195,17 +190,6 @@ jobs:
           test_execution_key=$(jq -r '.key // empty' <<<"$body")
           echo "Created/updated Test Execution: $test_execution_key"
           echo "test_execution_key=$test_execution_key" >> "$GITHUB_OUTPUT"
-
-      # -------------------------------
-      # Sync the Gherkin of every tagged Test from its scenario (best effort)
-      # -------------------------------
-      - name: Sync Xray Gherkin definitions
-        if: ${{ inputs.result_format == 'cucumber' && inputs.features_dir != '' && steps.import.outputs.test_execution_key != '' }}
-        continue-on-error: true
-        uses: ./.github/actions/xray-sync-gherkin
-        with:
-          features_dir: ${{ inputs.features_dir }}
-          xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
 
       # -------------------------------
       # Enrich the imported Test issues (opt-in)
