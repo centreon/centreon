@@ -35,19 +35,19 @@ use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 use Symfony\Component\Serializer\Exception\PartialDenormalizationException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Webmozart\Assert\Assert;
 
 /**
- * One copy per call, answered with 204: the client refetches the listing.
+ * One copy per call, answered with 204.
  *
- * The body is optional, which the platform deserializer refuses (415 without a content type, 400 on
- * an empty body): the operation does not deserialize, and the body is read here when there is one.
+ * The body is optional, which the platform deserializer refuses with a 415: the operation does not
+ * deserialize, and the body is read here when there is one.
  *
  * @implements ProcessorInterface<null, null>
  */
@@ -56,7 +56,7 @@ final readonly class DuplicateHostTemplateProcessor implements ProcessorInterfac
     public function __construct(
         private CommandBus $commandBus,
         private Security $security,
-        private SerializerInterface $serializer,
+        private DenormalizerInterface $denormalizer,
         private ValidatorInterface $validator,
     ) {
     }
@@ -89,8 +89,18 @@ final readonly class DuplicateHostTemplateProcessor implements ProcessorInterfac
         }
 
         try {
-            $input = $this->serializer->deserialize(
-                $request->getContent(),
+            $body = json_decode($request->getContent(), false, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            throw new BadRequestHttpException('The request body is not valid JSON.', $exception);
+        }
+
+        if (! $body instanceof \stdClass) {
+            throw new BadRequestHttpException('The request body must be a JSON object.');
+        }
+
+        try {
+            $input = $this->denormalizer->denormalize(
+                json_decode($request->getContent(), true, 512, \JSON_THROW_ON_ERROR),
                 DuplicateHostTemplateInput::class,
                 'json',
                 [DenormalizerInterface::COLLECT_DENORMALIZATION_ERRORS => true],
