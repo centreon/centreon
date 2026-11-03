@@ -8,6 +8,7 @@ import { labelNameContainsForbiddenCharacters } from '../translatedLabels';
 import initialize from './initialize';
 
 interface RequestBody {
+  check_options?: unknown;
   host_id?: number | null;
   name?: string;
 }
@@ -166,10 +167,17 @@ export default () => {
         '  cpu   load '
       );
       await pickOption('service-form-host', 'host B');
+      // Required without a template.
+      await pickOption(
+        'service-form-check-options-command',
+        'check-centreon-ping'
+      );
 
       await save();
 
+      // The template and scheduling options are the other sections' specs.
       expect(await getRequestBody('@createService')).toMatchObject({
+        check_options: { args: [], command_id: 8, macros: [] },
         host_id: 11,
         name: 'cpu load'
       });
@@ -189,7 +197,30 @@ export default () => {
       const { request } = await waitForRequest('@updateService0');
 
       expect(request.method).toBe('PUT');
-      expect(request.body).toMatchObject({ host_id: 10, name: 'cpu load' });
+      expect(request.body).toMatchObject({
+        check_options: {
+          args: ['80', '90'],
+          command_id: 9,
+          macros: [
+            {
+              id: 1,
+              is_password: false,
+              name: 'WARNING',
+              parent: null,
+              value: '80'
+            },
+            {
+              id: 2,
+              is_password: true,
+              name: 'API_TOKEN',
+              parent: null,
+              value: null
+            }
+          ]
+        },
+        host_id: 10,
+        name: 'cpu load'
+      });
     });
 
     it('asks for a name and a host', async () => {

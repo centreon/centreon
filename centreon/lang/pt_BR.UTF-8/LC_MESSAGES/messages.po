@@ -24279,5 +24279,9 @@ msgid "{{count}} sec"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Arguments must not contain #BR#, #T# or #R#"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Check command / Template / Custom macros"
 msgstr ""

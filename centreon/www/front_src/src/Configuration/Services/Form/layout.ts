@@ -1,6 +1,10 @@
 import type { TFunction } from 'i18next';
 
-import { schedulingColumns } from '../../ResourceForm/grid';
+import {
+  schedulingColumns,
+  stackedColumns,
+  twoColumnsFromWide
+} from '../../ResourceForm/grid';
 import {
   getPlacedBlockIds as getLayoutBlockIds,
   type LayoutNode,
@@ -20,7 +24,26 @@ import { type BlockId, type Blocks, serviceResource } from './sections';
 // block is placed exactly once (`layout.test.ts`).
 export const layout: Array<LayoutSection> = [
   { label: labelGeneralInformation, nodes: ['basicInformation'] },
-  { label: labelCheckCommandTemplateCustomMacros, nodes: ['templates'] },
+  {
+    label: labelCheckCommandTemplateCustomMacros,
+    nodes: [
+      {
+        // The command on the left, over the template; the macros on the
+        // right.
+        className: twoColumnsFromWide,
+        columnSeparator: true,
+        columns: [
+          {
+            className: stackedColumns,
+            columns: ['checkCommand', 'templates'],
+            name: 'check-command-template'
+          },
+          'macros'
+        ],
+        name: 'check-command-layout'
+      }
+    ]
+  },
   {
     label: labelMonitoringEngineSchedulingOptions,
     nodes: [

@@ -93,12 +93,43 @@ const serviceDetails: Record<number, Record<string, unknown>> = {
   }
 };
 
+// Service 0 has its own command, arguments and macros: its own, a stored
+// password (no value sent back) and one inherited from its template. Service 1
+// has only a command, which a service without a template needs to be saved;
+// service 2 none: the key is left out.
+export const getServiceCheckOptionsResponse = (id: number) => {
+  if (id === 0) {
+    return {
+      check_options: {
+        args: ['80', '90'],
+        command: { id: 9, name: 'check-centreon-cpu' },
+        macros: [
+          { id: 1, is_password: false, name: 'WARNING', value: '80' },
+          { id: 2, is_password: true, name: 'API_TOKEN' },
+          {
+            id: 11,
+            is_password: false,
+            name: 'TIMEOUT',
+            parent: 'template',
+            value: '10'
+          }
+        ]
+      }
+    };
+  }
+
+  return id === 1
+    ? { check_options: { command: { id: 8, name: 'check-centreon-ping' } } }
+    : {};
+};
+
 export const getServiceResponse = (id: number) => ({
   '@context': '/centreon/api/contexts/Service',
   '@id': `/centreon/api/configuration/services/${id}`,
   '@type': 'Service',
   id,
-  ...serviceDetails[id]
+  ...serviceDetails[id],
+  ...getServiceCheckOptionsResponse(id)
 });
 
 export const getServiceFormHostsResponse = () => ({
@@ -122,4 +153,23 @@ export const getServiceFormTimePeriodsResponse = () => ({
     { id: 21, name: 'workhours' }
   ],
   totalItems: 2
+});
+
+export const getServiceFormCommandsResponse = () => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': '/centreon/api/configuration/services/commands',
+  '@type': 'Collection',
+  member: [
+    { id: 8, name: 'check-centreon-ping' },
+    { id: 9, name: 'check-centreon-cpu' }
+  ],
+  totalItems: 2
+});
+
+// One service template's macros, its own then those it inherits, for when the
+// template field (F03) can pick one.
+export const getServiceTemplateMacrosResponse = () => ({
+  id: 30,
+  macros: [{ id: 31, is_password: false, name: 'TIMEOUT', value: '10' }],
+  name: 'generic-active-service'
 });

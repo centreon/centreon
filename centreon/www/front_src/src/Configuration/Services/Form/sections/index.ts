@@ -2,6 +2,7 @@ import {
   getAvailableBlocks,
   getInputBlocks
 } from '../../../ResourceForm/blocks';
+import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
 import {
   getActiveAndPassiveChecksBlock,
   getCheckPeriodAndIntervalsBlock
@@ -14,13 +15,16 @@ import type {
   SectionContext
 } from '../../../ResourceForm/models';
 import {
+  serviceFormCommandsEndpoint,
   serviceFormHostsEndpoint,
   serviceFormTimePeriodsEndpoint,
   servicesBaseEndpoint,
   serviceTemplatesEndpoint
 } from '../../api/endpoints';
+import { getMacrosBlock } from '../blocks/macros';
 import { getServiceIdentityBlock } from '../blocks/serviceIdentity';
 import { getTemplateBlock } from '../blocks/template';
+import { hasServiceTemplate } from '../inheritance';
 
 export const serviceResource: ResourceOptions = {
   baseEndpoint: servicesBaseEndpoint,
@@ -36,7 +40,17 @@ export const blocks = [
     hostsEndpoint: serviceFormHostsEndpoint,
     resource
   }),
+  // Required without a template, whose command the service runs otherwise:
+  // the usual case is a template's command with the service's own arguments.
+  getCheckCommandBlock({
+    endpoint: serviceFormCommandsEndpoint,
+    hasInheritedCommand: hasServiceTemplate,
+    isCommandRequired: true,
+    resource,
+    validateArguments: true
+  }),
   getTemplateBlock({ resource, serviceTemplatesEndpoint }),
+  getMacrosBlock({ resource }),
   getCheckPeriodAndIntervalsBlock({
     resource,
     timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
