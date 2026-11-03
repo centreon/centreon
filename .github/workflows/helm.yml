@@ -290,7 +290,7 @@ jobs:
         id: candidate
         run: |
           set -euo pipefail
-          version=$(awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }' "$CHART_DIR/Chart.yaml")
+          version=$(bash .github/scripts/helm-chart-version.sh)
           if ! digest=$(crane digest "$CHART_REPOSITORY/${{ matrix.chart }}:$version"); then
             echo "::error::No release candidate on Harbor at $CHART_REPOSITORY/${{ matrix.chart }}:$version (published by the release/hotfix branch)."
             exit 1
@@ -393,7 +393,7 @@ jobs:
         id: candidate
         run: |
           set -euo pipefail
-          version=$(awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }' "$CHART_DIR/Chart.yaml")
+          version=$(bash .github/scripts/helm-chart-version.sh)
           if ! digest=$(crane digest "$CHART_REPOSITORY/${{ matrix.chart }}:$version"); then
             echo "::error::No release candidate on Harbor at $CHART_REPOSITORY/${{ matrix.chart }}:$version (published by the release/hotfix branch)."
             exit 1
