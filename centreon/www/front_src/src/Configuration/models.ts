@@ -173,6 +173,8 @@ export interface APIType {
     disable?: Method;
   };
   isSingleDuplicate?: boolean;
+  // Row duplicate asks the copy's name and POSTs `{ name }`; needs a per-id `duplicate` endpoint.
+  isDuplicateWithName?: boolean;
 }
 
 export interface FilterConfiguration {
