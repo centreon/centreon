@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\Shared\Domain\Collection;
@@ -36,6 +37,9 @@ final class FakeServiceTemplateRepository implements ServiceTemplateRepository
     /** @var \IteratorAggregate<int, ServiceTemplate>&\Countable */
     public \IteratorAggregate&\Countable $result;
 
+    /** @var list<int> the templates of the paid Monitoring Connectors, the excluded connector slugs being ignored */
+    public array $monitoringConnectorTemplateIds = [];
+
     public function __construct()
     {
         $this->result = new Collection([], ServiceTemplate::class);
@@ -46,5 +50,13 @@ final class FakeServiceTemplateRepository implements ServiceTemplateRepository
         $this->receivedCriteria = $criteria;
 
         return $this->result;
+    }
+
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection
+    {
+        return new Collection(
+            array_map(static fn (int $id): ServiceTemplateId => new ServiceTemplateId($id), $this->monitoringConnectorTemplateIds),
+            ServiceTemplateId::class,
+        );
     }
 }

@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceTemplateCriteria;
+use App\Shared\Domain\Collection;
 
 interface ServiceTemplateRepository
 {
@@ -34,4 +36,15 @@ interface ServiceTemplateRepository
      * @return \IteratorAggregate<int, ServiceTemplate>&\Countable
      */
     public function findAll(?ServiceTemplateCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * The service templates of the Monitoring Connectors, and every template inheriting from them.
+     * Empty when the plugin pack manager module, which provides the Monitoring Connectors, is not
+     * installed.
+     *
+     * @param list<string> $excludedConnectorSlugs the Monitoring Connectors whose templates are left out
+     *
+     * @return Collection<ServiceTemplateId>
+     */
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection;
 }

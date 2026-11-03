@@ -27,6 +27,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
+use App\MonitoringConfiguration\Application\Service\UnlicensedServiceTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
@@ -52,6 +53,7 @@ final readonly class ListServiceTemplatesChoicesProvider implements ProviderInte
         private TransformerInterface $transformer,
         private ServiceTemplateRepository $repository,
         private Pagination $pagination,
+        private UnlicensedServiceTemplates $unlicensedServiceTemplates,
     ) {
     }
 
@@ -61,6 +63,8 @@ final readonly class ListServiceTemplatesChoicesProvider implements ProviderInte
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
         // No viewer scoping: the legacy service form's source (centreon_configuration_servicetemplate::listClassic) ignores ACL.
+        // Unlike legacy, which never filters service templates on the license, the templates coming from
+        // Monitoring Connectors are excluded once the license host limit is reached, as the host form does.
         $criteria = new ServiceTemplateCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
@@ -75,6 +79,7 @@ final readonly class ListServiceTemplatesChoicesProvider implements ProviderInte
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
+        $criteria = $criteria->withExcludedIds($this->unlicensedServiceTemplates->findIds());
 
         $serviceTemplates = $this->repository->findAll($criteria);
         $resources = [];

@@ -26,6 +26,8 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Ser
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
+use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
+use App\MonitoringConfiguration\Application\Service\UnlicensedServiceTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateName;
@@ -37,6 +39,8 @@ use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceTemplateRepository;
 
 /**
@@ -56,6 +60,8 @@ final class ListServiceTemplatesChoicesProviderLogicTest extends TestCase
             new ServiceTemplateChoicesTransformer(),
             $this->repository,
             new Pagination(['client_items_per_page' => true]),
+            // without the license services, the license host limit is reached
+            new UnlicensedServiceTemplates(new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()), $this->repository),
         );
     }
 
@@ -114,14 +120,24 @@ final class ListServiceTemplatesChoicesProviderLogicTest extends TestCase
     }
 
     /**
-     * The selector is not ACL-scoped (legacy listClassic ignores ACL): the provider adds no dimension but the
-     * default pagination (page 1, 30 items) to the criteria, whoever the caller is.
+     * The selector is not ACL-scoped (legacy listClassic ignores ACL): without any template to exclude for the
+     * license, the provider adds no dimension but the default pagination (page 1, 30 items) to the criteria,
+     * whoever the caller is.
      */
     public function testItNeverScopes(): void
     {
         $this->provide([]);
 
         self::assertEquals((new ServiceTemplateCriteria())->withPagination(1, 30), $this->repository->receivedCriteria);
+    }
+
+    public function testItExcludesTheTemplatesTheLicenseNoLongerAllows(): void
+    {
+        $this->repository->monitoringConnectorTemplateIds = [4, 7];
+
+        $this->provide([]);
+
+        self::assertSame([4, 7], $this->repository->receivedCriteria?->getExcludedIds());
     }
 
     /**

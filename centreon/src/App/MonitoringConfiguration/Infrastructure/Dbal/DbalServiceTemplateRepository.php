@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceTemplateCriteria;
+use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
@@ -32,6 +34,7 @@ use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -46,6 +49,9 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
     use DbalCriteriaApplierTrait;
     public const TABLE_NAME = 'service';
 
+    // provides the Monitoring Connectors, stored in its own tables
+    private const PLUGIN_PACK_MANAGER_MODULE = 'centreon-pp-manager';
+
     /**
      * @param TransformerInterface<RowTypeAlias, ServiceTemplate> $transformer
      */
@@ -55,6 +61,8 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
 
         #[Autowire(service: ServiceTemplateTransformer::class)]
         private TransformerInterface $transformer,
+
+        private ModuleRepository $moduleRepository,
     ) {
     }
 
@@ -73,6 +81,10 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
 
         if (($name = $criteria?->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('s.service_description', $qb->createNamedParameter('%' . $name . '%')));
+        }
+
+        if (($excludedIds = $criteria?->getExcludedIds() ?? []) !== []) {
+            $qb->andWhere($qb->expr()->notIn('s.service_id', $qb->createNamedParameter($excludedIds, ArrayParameterType::INTEGER)));
         }
 
         $pagination = $criteria?->getPagination();
@@ -96,6 +108,44 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
             totalItems: $count,
             currentPage: $pagination->page,
             itemsPerPage: $pagination->itemsPerPage,
+        );
+    }
+
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection
+    {
+        if (! $this->moduleRepository->isInstalled(self::PLUGIN_PACK_MANAGER_MODULE)) {
+            return new Collection([], ServiceTemplateId::class);
+        }
+
+        // The connector templates, then every template inheriting from them. UNION dedupes the
+        // reached ids, so a template loop already in the data cannot make the recursion run forever.
+        [$excludeClause, $params, $types] = $excludedConnectorSlugs === []
+            ? ['', [], []]
+            : ['WHERE pp.slug NOT IN (:excludedSlugs)', ['excludedSlugs' => $excludedConnectorSlugs], ['excludedSlugs' => ArrayParameterType::STRING]];
+        $sql = <<<SQL
+            WITH RECURSIVE connector_templates (id) AS (
+                SELECT ps.svc_id
+                FROM mod_ppm_pluginpack_service ps
+                INNER JOIN mod_ppm_pluginpack pp ON pp.pluginpack_id = ps.pluginpack_id
+                {$excludeClause}
+                UNION
+                SELECT child.service_id
+                FROM service child
+                INNER JOIN connector_templates ct ON ct.id = child.service_template_model_stm_id
+            )
+            SELECT s.service_id
+            FROM service s
+            INNER JOIN connector_templates ct ON ct.id = s.service_id
+            WHERE s.service_register = '0'
+            ORDER BY s.service_id
+            SQL;
+
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->executeQuery($sql, $params, $types)->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $id): ServiceTemplateId => new ServiceTemplateId((int) $id), $ids),
+            ServiceTemplateId::class,
         );
     }
 

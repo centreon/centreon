@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\PaginableCriteria;
 use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 use Webmozart\Assert\Assert;
@@ -32,6 +34,9 @@ final class ServiceTemplateCriteria implements PaginableCriteria
     use PaginableCriteriaTrait;
 
     private ?string $name = null;
+
+    /** @var list<int> */
+    private array $excludedIds = [];
 
     public function withName(string $name): self
     {
@@ -47,5 +52,24 @@ final class ServiceTemplateCriteria implements PaginableCriteria
     public function getName(): ?string
     {
         return $this->name;
+    }
+
+    /**
+     * @param Collection<ServiceTemplateId> $ids
+     */
+    public function withExcludedIds(Collection $ids): self
+    {
+        $new = clone $this;
+        $new->excludedIds = array_values(array_map(static fn (ServiceTemplateId $id): int => $id->value, $ids->toArray()));
+
+        return $new;
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getExcludedIds(): array
+    {
+        return $this->excludedIds;
     }
 }
