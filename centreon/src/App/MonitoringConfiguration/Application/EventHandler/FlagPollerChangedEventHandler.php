@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Application\EventHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
+use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
@@ -63,8 +64,9 @@ final readonly class FlagPollerChangedEventHandler
         $this->pollerRepository->flagAsChanged($event->aggregate);
 
         // On a move to another poller, the previous one must be regenerated too, or it keeps monitoring a
-        // host it no longer owns. Both events carry the previous poller only when it actually changed.
-        if (($event instanceof HostMassChanged || $event instanceof HostUpdated)
+        // host (or a service moved to another host) it no longer owns. These events carry the previous poller only
+        // when it actually changed.
+        if (($event instanceof HostMassChanged || $event instanceof HostUpdated || $event instanceof ServiceUpdated)
             && $event->previousPollerId instanceof PollerId
         ) {
             $this->pollerRepository->flagIdAsChanged($event->previousPollerId);

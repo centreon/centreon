@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Exception\VaultPurgeFailedException;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
+use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class PurgeServiceVaultEventHandlerTest extends TestCase
 {
@@ -43,10 +44,13 @@ final class PurgeServiceVaultEventHandlerTest extends TestCase
 
     private PurgeServiceVaultEventHandler $handler;
 
+    private LoggerSpy $logger;
+
     protected function setUp(): void
     {
         $this->vault = new FakeVault();
-        $this->handler = new PurgeServiceVaultEventHandler($this->vault, new VaultCredentialWriter($this->vault));
+        $this->logger = new LoggerSpy();
+        $this->handler = new PurgeServiceVaultEventHandler($this->vault, new VaultCredentialWriter($this->vault), $this->logger);
     }
 
     public function testItDoesNotPurgeAnythingWhenNothingIsVaulted(): void
@@ -77,6 +81,30 @@ final class PurgeServiceVaultEventHandlerTest extends TestCase
             self::assertStringContainsString(' 1 ', $exception->getMessage());
             self::assertInstanceOf(\RuntimeException::class, $exception->getPrevious());
         }
+    }
+
+    public function testItPurgesAnEntryReleasedByASave(): void
+    {
+        $this->vault->extractedUuids['secret::vault::monitoring/services/uuid-1::_SERVICETOKEN'] = 'uuid-1';
+
+        ($this->handler)(new ServiceVaultPurgeRequested($this->service(vaulted: true), bestEffort: true));
+
+        self::assertSame([['customPath' => 'monitoring/services', 'uuid' => 'uuid-1']], $this->vault->deleteCalls);
+    }
+
+    /**
+     * The save that released the entry succeeded: an orphan entry is harmless, so the failure is only logged.
+     */
+    public function testABestEffortPurgeFailureIsOnlyLogged(): void
+    {
+        $this->vault->extractedUuids['secret::vault::monitoring/services/uuid-1::_SERVICETOKEN'] = 'uuid-1';
+        $this->vault->deleteThrows = true;
+
+        ($this->handler)(new ServiceVaultPurgeRequested($this->service(vaulted: true), bestEffort: true));
+
+        self::assertCount(1, $this->logger->warningMessages);
+        self::assertSame(1, $this->logger->warningMessages[0]['context']['service_id']);
+        self::assertInstanceOf(\RuntimeException::class, $this->logger->warningMessages[0]['context']['exception']);
     }
 
     private function service(bool $vaulted = false): Service
