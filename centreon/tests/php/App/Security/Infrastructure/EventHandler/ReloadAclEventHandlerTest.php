@@ -47,6 +47,7 @@ use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceDisabled;
 use App\MonitoringConfiguration\Domain\Event\ServiceEnabled;
+use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
@@ -332,6 +333,45 @@ final class ReloadAclEventHandlerTest extends TestCase
         self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
         self::assertSame([], $resourceAccessRepository->grantedAccess);
         self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    /**
+     * A non-admin who moves a service to another host keeps seeing it there at once: the service, on its new
+     * host, is granted to their groups.
+     */
+    public function testItGrantsAMovedService(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $service = $this->createService();
+        $handler(new ServiceUpdated($service, 7, previousHostId: new HostId(9)));
+
+        self::assertCount(1, $resourceAccessRepository->grantedAccess);
+        self::assertSame($service, $resourceAccessRepository->grantedAccess[0]['resource']);
+        self::assertSame([10, 20], $resourceAccessRepository->grantedAccess[0]['accessGroupIds']);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItDoesNotGrantForAnAdminOrAnUnchangedHost(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $nonAdmin = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+        $nonAdmin(new ServiceUpdated($this->createService(), 7));
+        $nonAdmin(new ServiceUpdated($this->createService(), 7, loggable: false));
+
+        $admin = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+        $admin(new ServiceUpdated($this->createService(), 1, previousHostId: new HostId(9)));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20, 10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
     }
 
     private function createService(): Service

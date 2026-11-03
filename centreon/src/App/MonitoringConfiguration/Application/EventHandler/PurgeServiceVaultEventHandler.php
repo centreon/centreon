@@ -29,10 +29,12 @@ use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\AsEventHandler;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
+use Psr\Log\LoggerInterface;
 
 /**
- * Delivered after the commit: a failure cannot roll the deletion back, it is reported to the caller
- * instead of being swallowed, since the vault entry is left behind.
+ * Delivered after the commit: a failure cannot roll the write back. For a deleted service it is reported to the
+ * caller instead of being swallowed, since the vault entry is left behind; for an entry merely left by a save
+ * ($bestEffort), it is only logged.
  */
 #[AsEventHandler]
 final readonly class PurgeServiceVaultEventHandler
@@ -40,6 +42,7 @@ final readonly class PurgeServiceVaultEventHandler
     public function __construct(
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -53,6 +56,15 @@ final readonly class PurgeServiceVaultEventHandler
 
             $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringServices, $uuid);
         } catch (\Throwable $exception) {
+            if ($event->bestEffort) {
+                $this->logger->warning('The vault entry a service no longer uses could not be purged.', [
+                    'service_id' => $event->service->id()->value,
+                    'exception' => $exception,
+                ]);
+
+                return;
+            }
+
             throw VaultPurgeFailedException::forService($event->service->id(), $exception);
         }
     }

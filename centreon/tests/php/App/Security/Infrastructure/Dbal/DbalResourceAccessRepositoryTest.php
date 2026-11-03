@@ -120,6 +120,64 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     }
 
     /**
+     * A service moved to another host is granted on its new host: the rows name the new pair.
+     */
+    public function testGrantResourceAccessForAMovedService(): void
+    {
+        $service = (new Service(
+            id: new ServiceId(9003),
+            name: new ServiceName('ping'),
+            hostId: new HostId(9001),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        ))->with(hostId: new HostId(9004), hostPollerId: new PollerId(2));
+
+        $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9003],
+        );
+
+        self::assertSame(
+            [[10, 9004, 9003]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    /**
+     * A service moved back to a host before the real-time ACL cache is recomputed: its pair is still there for one
+     * of the groups. The grant keeps it and adds the others.
+     */
+    public function testGrantResourceAccessKeepsAPairAlreadyGranted(): void
+    {
+        $this->realTimeConnection->executeStatement(
+            'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (10, 9005, 9006)',
+        );
+        $service = new Service(
+            id: new ServiceId(9006),
+            name: new ServiceName('ping'),
+            hostId: new HostId(9005),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        );
+
+        $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9006],
+        );
+
+        self::assertSame(
+            [[10, 9005, 9006], [20, 9005, 9006]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    /**
      * An ACL-scoped aggregate with no mapping is refused rather than granted with rows of the wrong shape.
      */
     public function testGrantResourceAccessRefusesAnAggregateWithoutMapping(): void
