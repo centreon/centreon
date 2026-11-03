@@ -104,6 +104,18 @@ final readonly class ServiceExtendedInformations
         return $fields;
     }
 
+    public function equals(self $other): bool
+    {
+        return $this->noteUrl === $other->noteUrl
+            && $this->note === $other->note
+            && $this->actionUrl === $other->actionUrl
+            && $this->iconId?->value === $other->iconId?->value
+            && $this->altIcon === $other->altIcon
+            && $this->comment === $other->comment
+            && $this->geoCoordinates?->latitude === $other->geoCoordinates?->latitude
+            && $this->geoCoordinates?->longitude === $other->geoCoordinates?->longitude;
+    }
+
     private function text(?string $value, string $field): ?string
     {
         if ($value === null) {

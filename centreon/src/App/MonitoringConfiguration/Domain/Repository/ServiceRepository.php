@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
@@ -38,6 +39,37 @@ interface ServiceRepository
      * Writes a real service linked directly to its host, with its whole form and its relations, and sets its id.
      */
     public function add(Service $service): void;
+
+    /**
+     * Rewrites the form columns of a stored real service (its alias and the columns the form does not expose are
+     * left as they are) and its extended information: every `extended_service_information` row of the service is
+     * updated, and one is written when it has none. Precondition: the caller loaded the service (typically
+     * {@see findOne()} in the same transaction); a service template is never touched.
+     */
+    public function update(Service $service): void;
+
+    /**
+     * Rewrites the relations of a stored real service and its own macros:
+     * - its host link only when its host changed;
+     * - its service groups, with its current host, only when they or its host changed: every service-group row
+     *   of the service is then replaced, those of another host or of a host group included;
+     * - its levelless categories and its severity, each in its own half of the shared category table, every
+     *   levelled row being replaced by the one severity;
+     * - its contacts, contact groups and traps;
+     * - its own macros in place: a stored macro keeps its row (id, description, order), a new one is inserted, one
+     *   no longer held is deleted.
+     * Escalations, dependencies and downtimes stay on the (host, service) pair they name.
+     */
+    public function replaceRelationsAndMacros(Service $service): void;
+
+    /**
+     * The levelled categories (severities) the service is linked to, lowest id first, whatever the actor may see:
+     * {@see findOne()} reads only the one the actor may see, so a write preserving a severity hidden from the
+     * actor needs this unscoped read.
+     *
+     * @return Collection<ServiceSeverityId>
+     */
+    public function findSeverityIds(ServiceId $id): Collection;
 
     /**
      * Whether a service linked directly to this host already has this name, as legacy compares it: whatever the
