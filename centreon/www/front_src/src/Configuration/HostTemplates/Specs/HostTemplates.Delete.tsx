@@ -1,4 +1,9 @@
-import { getRequestCalls, waitForRequest } from '@test-setup/api';
+import {
+  getRequestCalls,
+  interceptAPIRequest,
+  Method,
+  waitForRequest
+} from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -7,6 +12,7 @@ import {
   labelDelete,
   labelMoreActions
 } from '../../ConfigurationBase/translatedLabels';
+import { getHostTemplateEndpoint } from '../api/endpoints';
 import initialize from './initialize';
 
 const initializeListing = async (
@@ -19,6 +25,23 @@ const initializeListing = async (
 
   return result;
 };
+
+const answerDelete = ({
+  id,
+  message,
+  statusCode
+}: {
+  id: number;
+  message: string;
+  statusCode: number;
+}): void =>
+  interceptAPIRequest({
+    alias: `deleteHostTemplate${id}`,
+    method: Method.DELETE,
+    path: `**${getHostTemplateEndpoint({ id })}`,
+    response: { code: statusCode, message },
+    statusCode
+  });
 
 const deleteSelection = async (): Promise<void> => {
   await userEvent.click(screen.getByTestId(labelMoreActions));
@@ -58,6 +81,7 @@ export default () => {
 
     it('deletes a selection with one request per template, then clears it', async () => {
       const { store } = await initializeListing();
+      const callsBefore = listingCalls();
 
       await userEvent.click(screen.getByLabelText('Select row 1'));
       await userEvent.click(screen.getByLabelText('Select row 2'));
@@ -68,6 +92,49 @@ export default () => {
 
       expect(await screen.findByText('Host templates deleted')).toBeVisible();
       expect(store.get(selectedRowsAtom)).toEqual([]);
+      await waitFor(() => expect(listingCalls()).toBeGreaterThan(callsBefore));
+    });
+
+    it('reports the server reason when a row deletion fails', async () => {
+      await initializeListing();
+      answerDelete({
+        id: 1,
+        message: 'Host template not found',
+        statusCode: 404
+      });
+
+      await userEvent.click(screen.getByTestId(`${labelDelete}_1`));
+      await userEvent.click(await screen.findByTestId('confirm'));
+      await waitForRequest('@deleteHostTemplate1');
+
+      const message = await screen.findByText('Host template not found');
+
+      expect(message.closest('[role="alert"]')).not.toBeNull();
+      expect(
+        screen.queryByText('Host template deleted')
+      ).not.toBeInTheDocument();
+    });
+
+    it('names the template that failed and still deletes the others', async () => {
+      await initializeListing();
+      answerDelete({
+        id: 2,
+        message: 'Host template not found',
+        statusCode: 404
+      });
+
+      await userEvent.click(screen.getByLabelText('Select row 1'));
+      await userEvent.click(screen.getByLabelText('Select row 2'));
+      await deleteSelection();
+
+      await waitForRequest('@deleteHostTemplate1');
+      await waitForRequest('@deleteHostTemplate2');
+
+      const warning = await screen.findByText(
+        'Failed to delete: generic-active-host'
+      );
+
+      expect(warning.closest('[role="alert"]')).not.toBeNull();
     });
 
     it('never sends the locked template, even after select-all', async () => {

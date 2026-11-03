@@ -207,6 +207,7 @@ export default () => {
 
     it('confirms the count, then sends one request per template without a body', async () => {
       const { store } = await initializeListing();
+      const callsBefore = listingCalls();
 
       await duplicateSelection();
 
@@ -226,6 +227,7 @@ export default () => {
         await screen.findByText('Host templates duplicated')
       ).toBeVisible();
       expect(store.get(selectedRowsAtom)).toEqual([]);
+      await waitFor(() => expect(listingCalls()).toBeGreaterThan(callsBefore));
     });
 
     it('names the template that failed and still duplicates the others', async () => {
