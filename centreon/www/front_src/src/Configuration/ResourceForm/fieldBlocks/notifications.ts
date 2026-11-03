@@ -113,6 +113,17 @@ const optionalBooleanDecoder = JsonDecoder.optional(JsonDecoder.boolean).map(
   (value) => value ?? false
 );
 
+// With `withOptionalDetailKeys`, a key the detail leaves out decodes to its
+// default instead of failing.
+const orDefault = <T>(
+  decoder: JsonDecoder.Decoder<T>,
+  defaultValue: T,
+  isOptional: boolean
+): JsonDecoder.Decoder<T> =>
+  isOptional
+    ? JsonDecoder.optional(decoder).map((value) => value ?? defaultValue)
+    : decoder;
+
 const toApiBoolean = (value: AdditiveInheritance): boolean | null => {
   if (value === 'true' || value === 'false') {
     return value === 'true';
@@ -155,16 +166,19 @@ const isUsingOnlyContactsFromHost = (values: FormikValues): boolean =>
 
 // Whether to notify, and whom. With `withUseOnlyContactsFromHost` (a
 // service), the resource may notify its host's recipients instead of its own:
-// these are then emptied, disabled and sent empty, as legacy does.
+// these are then emptied, disabled and sent empty, as legacy does. With
+// `withOptionalDetailKeys`, the detail may leave out the lists and `enabled`.
 export const getNotificationRecipientsBlock = ({
   contactGroupsEndpoint,
   contactsEndpoint,
   resource: { baseEndpoint, idPrefix },
+  withOptionalDetailKeys = false,
   withUseOnlyContactsFromHost = false
 }: {
   contactGroupsEndpoint: string;
   contactsEndpoint: string;
   resource: ResourceOptions;
+  withOptionalDetailKeys?: boolean;
   withUseOnlyContactsFromHost?: boolean;
 }): FieldBlock<NotificationsDetail<RecipientsValues>> => {
   const defaultValues: RecipientsValues = withUseOnlyContactsFromHost
@@ -181,9 +195,21 @@ export const getNotificationRecipientsBlock = ({
       decoders: {
         contactAdditiveInheritance: optionalBooleanDecoder,
         contactGroupAdditiveInheritance: optionalBooleanDecoder,
-        contactGroups: namedEntitiesDecoder('Contact group', 'Contact groups'),
-        contacts: namedEntitiesDecoder('Contact', 'Contacts'),
-        enabled: triStateDecoder,
+        contactGroups: orDefault(
+          namedEntitiesDecoder('Contact group', 'Contact groups'),
+          [],
+          withOptionalDetailKeys
+        ),
+        contacts: orDefault(
+          namedEntitiesDecoder('Contact', 'Contacts'),
+          [],
+          withOptionalDetailKeys
+        ),
+        enabled: orDefault(
+          triStateDecoder,
+          defaultTriState,
+          withOptionalDetailKeys
+        ),
         ...(withUseOnlyContactsFromHost && {
           useOnlyContactsFromHost: optionalBooleanDecoder
         })
@@ -377,26 +403,33 @@ export const getNotificationRecipientsBlock = ({
 // excludes the others.
 export type NotificationOptions = Array<[label: string, apiValue: string]>;
 
-// The events that trigger a notification: the resource's own set.
+// The events that trigger a notification: the resource's own set. With
+// `withOptionalDetailKeys`, the detail may leave them out.
 export const getNotifyOnBlock = ({
   options,
-  resource: { idPrefix }
+  resource: { idPrefix },
+  withOptionalDetailKeys = false
 }: {
   options: NotificationOptions;
   resource: ResourceOptions;
+  withOptionalDetailKeys?: boolean;
 }): FieldBlock<NotificationsDetail<{ options: Array<string> }>> => ({
   defaultValues: { notifications: { options: [] } },
   detailDecoders: getNotificationsDecoder<{ options: Array<string> }>({
     decoders: {
       // The labels of the checked options.
-      options: JsonDecoder.array(
-        JsonDecoder.oneOf(
-          options.map(([label, apiValue]) =>
-            JsonDecoder.isExactly(apiValue).map(() => label)
+      options: orDefault(
+        JsonDecoder.array(
+          JsonDecoder.oneOf(
+            options.map(([label, apiValue]) =>
+              JsonDecoder.isExactly(apiValue).map(() => label)
+            ),
+            'Notification option'
           ),
-          'Notification option'
+          'Notification options'
         ),
-        'Notification options'
+        [],
+        withOptionalDetailKeys
       )
     },
     defaultValues: { options: [] }

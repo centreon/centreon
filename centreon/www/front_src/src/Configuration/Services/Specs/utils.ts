@@ -174,8 +174,10 @@ export const getServiceResponse = (id: number) => ({
   ...getServiceCheckOptionsResponse(id),
   ...getRelationsResponse(id),
   ...getExtendedInfoDetail(id),
-  // Service 0 carries notification settings, service 1 none.
-  ...(id === 0 && { notifications: getServiceNotificationsResponse() })
+  // Service 0 carries notification settings, service 1 none, service 2 only
+  // some of them.
+  ...(id === 0 && { notifications: getServiceNotificationsResponse() }),
+  ...(id === 2 && { notifications: { interval: 5 } })
 });
 
 const getSelectorResponse = (
@@ -268,6 +270,19 @@ export const getContactGroupsResponse = () =>
     { id: 3, name: 'Supervisors' },
     { id: 4, name: 'Guests' }
   ]);
+
+// What a form opened on service 0 sends, its notifications untouched.
+export const openedNotificationsPayload = {
+  contact_groups: [3],
+  contacts: [1],
+  enabled: 'false',
+  first_delay: 1,
+  interval: 3,
+  options: ['warning', 'critical', 'recovery'],
+  recovery_delay: null,
+  timeperiod_id: 20,
+  use_only_contacts_from_host: false
+};
 
 // What a form that never touched the notifications sends.
 export const untouchedNotificationsPayload = {

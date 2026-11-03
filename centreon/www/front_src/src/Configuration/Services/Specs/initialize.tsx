@@ -219,8 +219,8 @@ const initialize = ({
     response: getContactGroupsResponse()
   });
 
-  // Service 0 carries notification settings, service 1 none.
-  [0, 1].forEach((id) => {
+  // Service 0 carries notification settings, service 1 none, service 2 some.
+  [0, 1, 2].forEach((id) => {
     interceptAPIRequest({
       alias: `updateService${id}`,
       method: Method.PUT,

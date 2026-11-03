@@ -145,9 +145,16 @@ export const blocks = [
     contactGroupsEndpoint: serviceFormContactGroupsEndpoint,
     contactsEndpoint: serviceFormContactsEndpoint,
     resource,
+    // The service detail route is a placeholder: unlike the hosts one, it is
+    // not known to send every key, so a missing one keeps its default.
+    withOptionalDetailKeys: true,
     withUseOnlyContactsFromHost: true
   }),
-  getNotifyOnBlock({ options: serviceNotificationOptions, resource }),
+  getNotifyOnBlock({
+    options: serviceNotificationOptions,
+    resource,
+    withOptionalDetailKeys: true
+  }),
   getNotificationDelaysBlock({
     resource,
     timePeriodsEndpoint: serviceFormTimePeriodsEndpoint

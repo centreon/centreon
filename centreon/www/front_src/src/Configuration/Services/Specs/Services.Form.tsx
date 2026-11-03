@@ -6,11 +6,16 @@ import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import { labelRequired } from '../../ResourceForm/translatedLabels';
 import { labelNameContainsForbiddenCharacters } from '../translatedLabels';
 import initialize from './initialize';
+import {
+  openedNotificationsPayload,
+  untouchedNotificationsPayload
+} from './utils';
 
 interface RequestBody {
   check_options?: unknown;
   host_id?: number | null;
   name?: string;
+  notifications?: unknown;
 }
 
 const initializeListing = async (
@@ -175,12 +180,16 @@ export default () => {
 
       await save();
 
-      // The other sections send their own keys, which their specs check.
-      expect(await getRequestBody('@createService')).toMatchObject({
+      // The other sections' keys are their own specs'; the notifications
+      // here, as never touched.
+      const body = await getRequestBody('@createService');
+
+      expect(body).toMatchObject({
         check_options: { args: [], command_id: 8, macros: [] },
         host_id: 11,
         name: 'cpu load'
       });
+      expect(body.notifications).toEqual(untouchedNotificationsPayload);
     });
 
     it('updates a service with the whole form', async () => {
@@ -197,6 +206,8 @@ export default () => {
       const { request } = await waitForRequest('@updateService0');
 
       expect(request.method).toBe('PUT');
+      // The other sections' keys are their own specs'; the notifications
+      // here, as opened.
       expect(request.body).toMatchObject({
         check_options: {
           args: ['80', '90'],
@@ -221,6 +232,9 @@ export default () => {
         host_id: 10,
         name: 'cpu load'
       });
+      expect((request.body as RequestBody).notifications).toEqual(
+        openedNotificationsPayload
+      );
     });
 
     it('asks for a name and a host', async () => {

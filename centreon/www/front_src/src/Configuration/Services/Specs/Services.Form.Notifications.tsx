@@ -186,6 +186,26 @@ export default () => {
     });
   });
 
+  it('opens a service with only some notification settings, the others on their defaults', async () => {
+    await openService({}, { id: 2, name: 'disk' });
+
+    expect(await getInput('interval')).toHaveValue(5);
+    await expectEnabled(labelDefault);
+    expect(getOption(labelWarning)).toHaveAttribute('aria-pressed', 'false');
+
+    await clickEnabled(labelYes);
+
+    await save();
+
+    const body = await getRequestBody('@updateService2');
+
+    expect(body.notifications).toEqual({
+      ...untouchedNotificationsPayload,
+      enabled: 'true',
+      interval: 5
+    });
+  });
+
   it('creates a service with its notification settings', async () => {
     await openNewService();
 
