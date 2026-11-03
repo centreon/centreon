@@ -1419,6 +1419,52 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
       github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
+  # Sync the Gherkin of the tagged Xray Tests from the scenarios, once per nightly run
+  # (not per OS/database leg), after the e2e results are imported. Best effort.
+  xray-sync-gherkin:
+    needs: [get-environment, xray-prepare-test-plan, e2e-test]
+    if: |
+      ! cancelled() &&
+      github.ref_name == 'develop' &&
+      needs.get-environment.outputs.is_nightly == 'true' &&
+      needs.xray-prepare-test-plan.outputs.jira_test_plan_key != '' &&
+      needs.e2e-test.result != 'skipped'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    continue-on-error: true
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            .github/actions
+            centreon/tests/e2e/features
+
+      - name: Authenticate with Xray API
+        id: generate-xray-token
+        uses: ./.github/actions/xray-api-auth
+        with:
+          client_id: ${{ secrets.XRAY_CLIENT_ID }}
+          client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+
+      - name: Sync Xray Gherkin definitions
+        uses: ./.github/actions/xray-sync-gherkin
+        with:
+          features_dir: centreon/tests/e2e/features
+          xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
+
+      # Dry run only: the tags it would inject are never committed from CI, so a real
+      # run would create the same Tests again every night.
+      - name: Detect scenarios without Xray Test
+        id: detect-untagged
+        if: ${{ !cancelled() }}
+        uses: ./.github/actions/xray-provision-tests
+        with:
+          features_dir: centreon/tests/e2e/features
+          dry_run: "true"
+
   resolve-e2e-debug-analysis-actor:
     needs: [e2e-test]
     if: |

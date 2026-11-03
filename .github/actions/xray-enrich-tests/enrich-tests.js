@@ -8,10 +8,8 @@
 //
 // Uses Node's global fetch (Node 20+) so it stays dependency-free, like merge-junit.js.
 
-const fs = require("node:fs");
-const path = require("node:path");
+const { createXrayGraphqlClient, fetchWithRetry, loadGraphqlOperation: loadGraphqlFile } = require("../xray-common/xray-client");
 
-const XRAY_GRAPHQL_URL = "https://xray.cloud.getxray.app/api/v2/graphql";
 const JIRA_REST_BASE_URL = "https://centreon.atlassian.net/rest/api/2";
 // Known Test resolution chain (Open Request -> Ready for implementation -> Start ->
 // Ready for review -> Resolved). Preferred when available; the walk falls back to any
@@ -65,40 +63,6 @@ for (const [variableName, variableValue] of Object.entries({
 
 const jiraAuthorizationHeader = `Basic ${Buffer.from(`${JIRA_USER_EMAIL}:${JIRA_TOKEN}`).toString("base64")}`;
 
-const MAX_HTTP_RETRIES = 5;
-const RETRY_DELAY_MS = 2000;
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// Backoff before retrying a transient failure. `status` is null on a network error.
-// Return the delay in ms, or null to stop retrying.
-function retryDelayMs(attempt, status) {
-  if (attempt >= MAX_HTTP_RETRIES) return null;
-  const isTransient = status === null || status === 429 || status >= 500;
-  if (!isTransient) return null;
-  return RETRY_DELAY_MS;
-}
-
-// Fetch with retry/backoff on transient failures (policy in retryDelayMs).
-async function fetchWithRetry(operation, label) {
-  for (let attempt = 0; ; attempt++) {
-    let response = null;
-    let networkError = null;
-    try {
-      response = await operation();
-      if (response.ok) return response;
-    } catch (error) {
-      networkError = error;
-    }
-    const delay = retryDelayMs(attempt, networkError ? null : response.status);
-    if (delay == null) {
-      if (networkError) throw networkError;
-      return response;
-    }
-    console.log(`  ${label}: transient failure, retry #${attempt + 1} in ${delay}ms`);
-    await sleep(delay);
-  }
-}
-
 // Jira REST call -> { ok, status, body } where body is parsed JSON or raw text.
 async function callJiraRest(httpMethod, endpointPath, requestPayload) {
   const response = await fetchWithRetry(
@@ -126,30 +90,9 @@ async function callJiraRest(httpMethod, endpointPath, requestPayload) {
 
 // Load a GraphQL document from a .graphql file next to this script, mirroring the
 // xray-api-graphql convention (one operation per file) so queries stay out of the code.
-function loadGraphqlOperation(operationName) {
-  return fs.readFileSync(path.join(__dirname, `${operationName}.graphql`), "utf8");
-}
+const loadGraphqlOperation = (operationName) => loadGraphqlFile(__dirname, operationName);
 
-// Xray GraphQL call -> parsed JSON. Throws on a GraphQL-level error array.
-async function callXrayGraphql(graphqlQuery, queryVariables) {
-  const response = await fetchWithRetry(
-    () =>
-      fetch(XRAY_GRAPHQL_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${XRAY_TOKEN}`,
-        },
-        body: JSON.stringify({ query: graphqlQuery, variables: queryVariables }),
-      }),
-    "Xray GraphQL",
-  );
-  const responseJson = await response.json();
-  if (responseJson.errors && responseJson.errors.length > 0) {
-    throw new Error(`Xray GraphQL error: ${JSON.stringify(responseJson.errors)}`);
-  }
-  return responseJson;
-}
+const callXrayGraphql = createXrayGraphqlClient(XRAY_TOKEN);
 
 async function resolveIssueId(issueKey) {
   const { ok, status, body } = await callJiraRest("GET", `/issue/${issueKey}?fields=id`);
