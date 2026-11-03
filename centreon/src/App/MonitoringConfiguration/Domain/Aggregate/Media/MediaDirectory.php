@@ -34,6 +34,13 @@ final readonly class MediaDirectory
 {
     public const MAX_LENGTH = 255;
 
+    /**
+     * Folders holding the media shipped with Centreon (dashboards, MAP, connectors). A user subject to
+     * ACL can always read them, whatever their image folder access, which is why the folder
+     * selectors do not offer them.
+     */
+    public const SYSTEM_NAMES = ['centreon-map', 'dashboards', 'ppm'];
+
     public function __construct(
         public string $value,
     ) {

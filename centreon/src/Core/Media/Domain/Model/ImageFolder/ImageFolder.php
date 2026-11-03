@@ -25,6 +25,13 @@ namespace Core\Media\Domain\Model\ImageFolder;
 
 final class ImageFolder
 {
+    /**
+     * Folders holding the media shipped with Centreon (dashboards, MAP, connectors). A user subject to
+     * ACL can always read them, whatever their image folder access, which is why the folder
+     * selectors do not offer them.
+     */
+    public const SYSTEM_FOLDER_NAMES = ['centreon-map', 'dashboards', 'ppm'];
+
     private ?ImageFolderName $alias = null;
 
     private ?ImageFolderDescription $description = null;

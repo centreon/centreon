@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectory;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -463,9 +464,9 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         }
 
         // No "all image folders" flag anywhere: the accessible set is the union of image-folder
-        // relations across every accessible resource (legacy findByRequestParametersAndAccessGroups()).
-        // This is naturally empty — not "everything" — for a user with no accessible resource at
-        // all, or whose accessible resources carry no image-folder relation.
+        // relations across every accessible resource (legacy findByRequestParametersAndAccessGroups()),
+        // plus the system folders, readable whatever the ACL. So a user with no accessible resource
+        // at all, or whose resources carry no image-folder relation, still gets the system folders.
         $qb = $this->connection->createQueryBuilder();
         $qb
             ->select('DISTINCT arifr.dir_id')
@@ -475,11 +476,20 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->where('arifr.dir_id IS NOT NULL')
             ->setParameter('contactId', $userId->value);
 
-        /** @var list<array{dir_id: numeric-string}> $rows */
-        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+        /** @var list<numeric-string> $grantedIds */
+        $grantedIds = $this->connection->fetchFirstColumn($qb->getSQL(), ['contactId' => $userId->value]);
+
+        /** @var list<numeric-string> $systemIds */
+        $systemIds = $this->connection->fetchFirstColumn(
+            'SELECT dir_id FROM view_img_dir WHERE dir_name IN (:systemNames)',
+            ['systemNames' => MediaDirectory::SYSTEM_NAMES],
+            ['systemNames' => ArrayParameterType::STRING],
+        );
+
+        $ids = array_values(array_unique(array_map('intval', [...$grantedIds, ...$systemIds])));
 
         return AccessScope::restrictedTo(MediaDirectoryId::class, new Collection(
-            array_map(static fn (array $row): MediaDirectoryId => new MediaDirectoryId((int) $row['dir_id']), $rows),
+            array_map(static fn (int $id): MediaDirectoryId => new MediaDirectoryId($id), $ids),
             MediaDirectoryId::class,
         ));
     }

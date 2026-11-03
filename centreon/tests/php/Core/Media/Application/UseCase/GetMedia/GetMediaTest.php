@@ -32,6 +32,7 @@ use Core\Media\Application\Repository\ReadImageFolderRepositoryInterface;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Application\UseCase\GetMedia\GetMedia;
 use Core\Media\Application\UseCase\GetMedia\GetMediaResponse;
+use Core\Media\Domain\Model\ImageFolder\ImageFolder;
 use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -229,8 +230,9 @@ it('should present a NotFoundResponse as non-admin user when media is not access
         ->willReturn(false);
 
     $this->readMediaRepository
-        ->expects($this->never())
-        ->method('findById');
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->media);
 
     $response = ($this->useCase)($this->media->getId());
 
@@ -239,3 +241,32 @@ it('should present a NotFoundResponse as non-admin user when media is not access
         ->and($response->getMessage())
         ->toBe('Media not found');
 });
+
+it('should present a GetMediaResponse as non-admin user without any access when the media is in a system folder', function (string $systemFolder): void {
+    $media = new Media(id: 2, filename: 'map.png', directory: $systemFolder, comment: '', data: null);
+
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
+    $this->readMediaRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($media);
+
+    $this->readAccessGroupRepository
+        ->expects($this->never())
+        ->method('findByContact');
+
+    $this->readMediaRepository
+        ->expects($this->never())
+        ->method('existsByAccessGroups');
+
+    $response = ($this->useCase)($media->getId());
+
+    expect($response)
+        ->toBeInstanceOf(GetMediaResponse::class)
+        ->and($response->directory)
+        ->toBe($systemFolder);
+})->with(ImageFolder::SYSTEM_FOLDER_NAMES);

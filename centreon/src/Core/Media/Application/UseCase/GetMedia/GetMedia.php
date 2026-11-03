@@ -32,6 +32,8 @@ use Core\Contact\Domain\AdminResolver;
 use Core\Media\Application\Exception\MediaException;
 use Core\Media\Application\Repository\ReadImageFolderRepositoryInterface;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
+use Core\Media\Domain\Model\ImageFolder\ImageFolder;
+use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class GetMedia
@@ -63,13 +65,10 @@ final class GetMedia
                 $media = $this->readMediaRepository->findById($mediaId);
 
             } else {
-                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $media = $this->readMediaRepository->findById($mediaId);
 
-                if (
-                    $this->readImageFolderRepository->hasAccessToAllImageFolders($accessGroups)
-                    || $this->readMediaRepository->existsByAccessGroups($mediaId, $accessGroups)
-                ) {
-                    $media = $this->readMediaRepository->findById($mediaId);
+                if ($media !== null && ! $this->canRead($media)) {
+                    $media = null;
                 }
             }
 
@@ -90,5 +89,22 @@ final class GetMedia
 
             return new ErrorResponse(MediaException::errorWhileRetrieving());
         }
+    }
+
+    /**
+     * The media of the system folders are readable whatever the user's image folder access.
+     *
+     * @throws \Throwable
+     */
+    private function canRead(Media $media): bool
+    {
+        if (in_array($media->getDirectory(), ImageFolder::SYSTEM_FOLDER_NAMES, true)) {
+            return true;
+        }
+
+        $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+
+        return $this->readImageFolderRepository->hasAccessToAllImageFolders($accessGroups)
+            || $this->readMediaRepository->existsByAccessGroups($media->getId(), $accessGroups);
     }
 }

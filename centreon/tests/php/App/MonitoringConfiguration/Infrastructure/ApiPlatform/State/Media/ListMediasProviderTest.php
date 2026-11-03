@@ -154,6 +154,28 @@ final class ListMediasProviderTest extends ApiTestCase
         self::assertSame([], (array) $response->toArray()['member'], 'An actor with no active Access Group is restricted and sees no media.');
     }
 
+    public function testItListsTheSystemFolderMediaForARestrictedUserWithNoAccessGroup(): void
+    {
+        $existingDirId = $this->connection->fetchOne("SELECT dir_id FROM view_img_dir WHERE dir_name = 'centreon-map'");
+        $systemDirId = is_numeric($existingDirId) ? (int) $existingDirId : $this->insertFolder('centreon-map');
+        $systemName = "system-{$this->tag}.png";
+        $this->insertMedia($systemName, $systemDirId);
+        $this->insertMedia("other-{$this->tag}.png", $this->insertFolder("dir-{$this->tag}"));
+
+        $username = bin2hex(random_bytes(8));
+        $this->createApiUser($this->connection, $username, admin: false);
+
+        $this->login($username);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
+        self::assertResponseIsSuccessful();
+        self::assertSame(
+            [$systemName],
+            array_column((array) $response->toArray()['member'], 'name'),
+            'The system folders are readable whatever the ACL, even without any Access Group.'
+        );
+    }
+
     public function testItAllowsEverythingForAUserWithAnAllImageFoldersAclResource(): void
     {
         $dirId = $this->insertFolder("dir-{$this->tag}");

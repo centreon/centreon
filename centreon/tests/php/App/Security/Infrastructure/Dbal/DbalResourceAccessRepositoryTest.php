@@ -754,9 +754,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
     public function testUserWithNoAclGroupHasAccessToNoImageFolders(): void
     {
-        // Legacy `if ($accessGroups === []) return new \EmptyIterator()`: a user with no accessible
-        // ACL resource is fully restricted (fails closed): their scope allows nothing, it is
-        // not unrestricted.
+        // A user with no accessible ACL resource is fully restricted (fails closed): their scope
+        // is not unrestricted, and holds nothing but the system folders (none in this fixture).
         $userId = new UserId($this->createContact('user-no-acl-media'));
 
         $folderScope = $this->repository->findImageFolderAccessScope($userId);
@@ -807,6 +806,31 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301, null], allImageFolders: false);
 
         self::assertSame([301], $this->repository->findImageFolderAccessScope(new UserId($contactId))->allowedIdValues());
+    }
+
+    public function testUserWithNoAclGroupStillHasAccessToTheSystemImageFolders(): void
+    {
+        $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'centreon-map']);
+        $userId = new UserId($this->createContact('user-no-acl-system-media'));
+
+        $folderScope = $this->repository->findImageFolderAccessScope($userId);
+
+        self::assertFalse($folderScope->isUnrestricted());
+        self::assertSame([303], $folderScope->allowedIdValues());
+    }
+
+    public function testSystemImageFoldersAreAddedToTheGrantedImageFoldersOnce(): void
+    {
+        $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'centreon-map']);
+        $this->connection->insert('view_img_dir', ['dir_id' => 304, 'dir_name' => 'ppm']);
+        $contactId = $this->createContact('user-granted-and-system-media');
+        // granting a system folder explicitly must not duplicate it in the scope
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301, 303], allImageFolders: false);
+
+        $allowed = $this->repository->findImageFolderAccessScope(new UserId($contactId))->allowedIdValues();
+        sort($allowed);
+
+        self::assertSame([301, 303, 304], $allowed);
     }
 
     /**

@@ -1683,13 +1683,13 @@ parameters:
 		-
 			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 2
+			count: 3
 			path: tests/php/Core/Media/Application/UseCase/GetMedia/GetMediaTest.php
 
 		-
 			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 19
+			count: 22
 			path: tests/php/Core/Media/Application/UseCase/GetMedia/GetMediaTest.php
 
 		-
