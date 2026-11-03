@@ -40,9 +40,9 @@ const useDuplicateWithName = (): UseDuplicateWithNameState => {
   const { showSuccessMessage } = useSnackbar();
 
   const [resource, setResource] = useAtom(resourceToDuplicateWithNameAtom);
-  // The answer can land once the dialog was closed and another row's opened.
-  const resourceRef = useRef(resource);
-  resourceRef.current = resource;
+  // The answer can land once the dialog was closed and reopened, on any row:
+  // the row's entity can be the same object both times.
+  const sessionRef = useRef(0);
   const setSelectedRows = useSetAtom(selectedRowsAtom);
   const configuration = useAtomValue(configurationAtom);
 
@@ -51,6 +51,7 @@ const useDuplicateWithName = (): UseDuplicateWithNameState => {
   const { duplicateWithNameMutation } = useDuplicateRequest();
 
   const close = useCallback((): void => {
+    sessionRef.current += 1;
     setSelectedRows([]);
     setResource(null);
   }, [setResource, setSelectedRows]);
@@ -64,6 +65,7 @@ const useDuplicateWithName = (): UseDuplicateWithNameState => {
       return;
     }
 
+    const session = sessionRef.current;
     const response = await duplicateWithNameMutation({ id: resource.id, name });
     const { isError, message, statusCode } = response as ResponseError;
 
@@ -77,7 +79,7 @@ const useDuplicateWithName = (): UseDuplicateWithNameState => {
 
     showSuccessMessage(t(labelResourceDuplicated(capitalize(resourceType))));
 
-    if (resourceRef.current === resource) {
+    if (sessionRef.current === session) {
       close();
     }
   };
