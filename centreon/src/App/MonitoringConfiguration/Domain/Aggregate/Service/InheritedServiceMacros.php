@@ -83,6 +83,39 @@ final readonly class InheritedServiceMacros
         return new self($macrosByName);
     }
 
+    public function findByName(ServiceMacroName $name): ?ServiceMacro
+    {
+        return $this->macrosByName[$name->value] ?? null;
+    }
+
+    public function findBySource(ServiceMacroParentEnum $parent, ServiceMacroId $id): ?ServiceMacro
+    {
+        return array_find(
+            $this->macrosByName,
+            static fn (ServiceMacro $macro): bool => $macro->isIdentifiedBy($parent, $id),
+        );
+    }
+
+    /**
+     * Keeps only the macros that do not merely repeat what is inherited: a macro equivalent to the inherited macro
+     * of the same name is dropped, so the service relies on inheritance instead of storing a redundant copy.
+     *
+     * @param list<ServiceMacro> $macros
+     *
+     * @return list<ServiceMacro>
+     */
+    public function withoutRedundant(array $macros): array
+    {
+        return array_values(array_filter(
+            $macros,
+            function (ServiceMacro $macro): bool {
+                $inherited = $this->findByName($macro->name);
+
+                return ! $inherited instanceof ServiceMacro || ! $macro->isEquivalentTo($inherited);
+            },
+        ));
+    }
+
     /**
      * Every macro a service effectively has: its own macros first, then the inherited ones they do not shadow
      * by name.
