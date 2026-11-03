@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Package the pre-release (Harbor images) and, on testing branches, the release candidate.
-# appVersion comes from .version (MAJOR). Env: CHART_DIR, STABILITY, REF_NAME, RUN_NUMBER, HARBOR_REGISTRY, OUT_DIR.
+# The chart major and appVersion come from .version (MAJOR). Env: CHART_DIR, STABILITY, REF_NAME, RUN_NUMBER, HARBOR_REGISTRY, OUT_DIR.
 set -euo pipefail
 
 output="${GITHUB_OUTPUT:-/dev/stdout}"
 chart=$(basename "$CHART_DIR")
-version=$(awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }' "$CHART_DIR/Chart.yaml")
+version=$(bash .github/scripts/helm-chart-version.sh)
 MAJOR=$(. ./.version && echo "$MAJOR")
 
 case "$STABILITY" in
