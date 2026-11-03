@@ -1,6 +1,7 @@
+import { listingDataTestIds } from '../Listing/dataTestIds';
 import { getDefaultPanelWidth, maxPanelWidth } from '../Panel';
 import { panelDataTestIds } from '../Panel/dataTestIds';
-import { labelClose, labelDelete, labelMoreActions } from '../translatedLabels';
+import { labelClose } from '../translatedLabels';
 import initialize, {
   mockActionsRequests,
   mockModalRequests
@@ -480,8 +481,8 @@ export default (resourceType, { hasSnapshots }: Options): void => {
         cy.findByLabelText('Select row 3').click();
         cy.findByLabelText('Select row 5').click();
 
-        cy.findAllByTestId(labelMoreActions).eq(0).click();
-        cy.findAllByTestId(labelDelete).eq(0).click();
+        cy.findAllByTestId(listingDataTestIds.moreActions).eq(0).click();
+        cy.findAllByTestId(listingDataTestIds.massive.delete).eq(0).click();
         cy.findByTestId('confirm').click();
 
         cy.waitForRequest('@delete');

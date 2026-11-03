@@ -1,3 +1,4 @@
+import { listingDataTestIds } from '../Listing/dataTestIds';
 import { labelActions, labelEnableDisable } from '../translatedLabels';
 import initialize from './initialize';
 
@@ -31,8 +32,10 @@ export default () => {
 
       cy.waitForRequest('@getAll');
 
-      cy.findByTestId(`${labelEnableDisable}_1`).should('exist');
-      cy.findByTestId(`${labelEnableDisable}_2`).should('not.exist');
+      cy.findByTestId(listingDataTestIds.row.enableDisable(1)).should('exist');
+      cy.findByTestId(listingDataTestIds.row.enableDisable(2)).should(
+        'not.exist'
+      );
     });
 
     it('disables those rows instead when the module keeps them without write access', () => {
@@ -46,10 +49,10 @@ export default () => {
 
       cy.waitForRequest('@getAll');
 
-      cy.findByTestId(`${labelEnableDisable}_1`)
+      cy.findByTestId(listingDataTestIds.row.enableDisable(1))
         .find('input')
         .should('be.enabled');
-      cy.findByTestId(`${labelEnableDisable}_2`)
+      cy.findByTestId(listingDataTestIds.row.enableDisable(2))
         .find('input')
         .should('be.disabled');
     });
