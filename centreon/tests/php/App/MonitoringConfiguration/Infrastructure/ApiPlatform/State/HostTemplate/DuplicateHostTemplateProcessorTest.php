@@ -245,6 +245,19 @@ final class DuplicateHostTemplateProcessorTest extends ApiTestCase
         self::assertCount(1, $this->connection->fetchFirstColumn('SELECT host_id FROM host WHERE host_name = ?', ["{$taken}_copy"]));
     }
 
+    public function testAGeneratedNameOverTheLimitIsAValidationFailure(): void
+    {
+        $name = mb_substr($this->uniqueName() . str_repeat('x', HostTemplateName::MAX_LENGTH), 0, HostTemplateName::MAX_LENGTH - 1);
+        $templateId = $this->insertTemplate(['host_name' => $name]);
+        $this->login();
+
+        $this->request('POST', "/api/configuration/host_templates/{$templateId}/_duplicate", ['headers' => ['Accept' => '*/*']]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains(['message' => "The name generated from \"{$name}\" would exceed the maximum length."]);
+        self::assertSame([$name], $this->copiesOf($name));
+    }
+
     public function testErrorsKeepTheirShapeForABrowserClient(): void
     {
         $taken = $this->uniqueName();

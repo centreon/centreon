@@ -132,6 +132,30 @@ final class DuplicateHostTemplateCommandHandlerTest extends TestCase
         }
     }
 
+    public function testEveryTakenSuffixIsAConflictAndNothingIsCreated(): void
+    {
+        $this->seed(7, 'generic');
+        $this->repository->hostNames = array_map(static fn (int $suffix): string => "generic_{$suffix}", range(1, 999));
+
+        try {
+            ($this->handler)(new DuplicateHostTemplateCommand(new HostTemplateId(7), null, TestActingUsers::unrestricted()));
+            self::fail('An exhausted suffix range must be a conflict.');
+        } catch (HostTemplateAlreadyExistsException $exception) {
+            self::assertSame('Every name from "generic_1" to "generic_999" is already used by a host or host template.', $exception->getMessage());
+            self::assertSame([], $this->repository->copiedFrom);
+        }
+    }
+
+    public function testTheLastFreeSuffixIsTaken(): void
+    {
+        $this->seed(7, 'generic');
+        $this->repository->hostNames = array_map(static fn (int $suffix): string => "generic_{$suffix}", range(1, 998));
+
+        ($this->handler)(new DuplicateHostTemplateCommand(new HostTemplateId(7), null, TestActingUsers::unrestricted()));
+
+        self::assertSame('generic_999', $this->onlyCopy()->name->value);
+    }
+
     public function testAGeneratedNameOverTheLimitIsAValidationFailure(): void
     {
         $this->seed(7, str_repeat('a', HostTemplateName::MAX_LENGTH - 1));
