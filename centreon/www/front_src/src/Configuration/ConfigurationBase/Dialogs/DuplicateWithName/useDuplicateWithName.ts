@@ -5,7 +5,7 @@ import { type ResponseError, useSnackbar } from '@centreon/ui';
 import type { FormikHelpers } from 'formik';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { includes, isNotNil } from 'ramda';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDuplicate as useDuplicateRequest } from '../../api';
@@ -40,6 +40,9 @@ const useDuplicateWithName = (): UseDuplicateWithNameState => {
   const { showSuccessMessage } = useSnackbar();
 
   const [resource, setResource] = useAtom(resourceToDuplicateWithNameAtom);
+  // The answer can land once the dialog was closed and another row's opened.
+  const resourceRef = useRef(resource);
+  resourceRef.current = resource;
   const setSelectedRows = useSetAtom(selectedRowsAtom);
   const configuration = useAtomValue(configurationAtom);
 
@@ -73,7 +76,10 @@ const useDuplicateWithName = (): UseDuplicateWithNameState => {
     }
 
     showSuccessMessage(t(labelResourceDuplicated(capitalize(resourceType))));
-    close();
+
+    if (resourceRef.current === resource) {
+      close();
+    }
   };
 
   return {

@@ -125,6 +125,32 @@ export default () => {
       expect(await openNameDialog(2)).toHaveValue('generic-active-host_1');
     });
 
+    it('lets a late answer leave alone a dialog opened since on another row', async () => {
+      await initializeListing();
+      interceptAPIRequest({
+        alias: 'duplicateHostTemplate1',
+        delay: 1000,
+        method: Method.POST,
+        path: `**${getDuplicateHostTemplateEndpoint({ id: 1 })}`,
+        response: {}
+      });
+
+      await openNameDialog(1);
+      await submitName();
+      await userEvent.click(screen.getByLabelText('close'));
+      await waitFor(() =>
+        expect(document.querySelector(nameInputSelector)).toBeNull()
+      );
+      await openNameDialog(2);
+
+      await waitForRequest('@duplicateHostTemplate1');
+
+      expect(await screen.findByText('Host template duplicated')).toBeVisible();
+      expect(document.querySelector(nameInputSelector)).toHaveValue(
+        'generic-active-host_1'
+      );
+    });
+
     it('clears the selection on cancel and sends nothing', async () => {
       const { store } = await initializeListing();
 
