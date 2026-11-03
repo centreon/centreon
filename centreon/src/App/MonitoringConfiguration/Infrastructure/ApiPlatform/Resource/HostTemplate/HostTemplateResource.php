@@ -25,12 +25,16 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTe
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\DeleteHostTemplateProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\DuplicateHostTemplateProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\GetHostTemplateMacrosProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesProvider;
@@ -107,6 +111,49 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
                 is_granted("' . HostTemplatePermissionEnum::CanRead->value . '") or
                 is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list host templates',
+        ),
+        new Post(
+            uriTemplate: '/configuration/host_templates/{id}/_duplicate',
+            requirements: ['id' => '[1-9]\d*'],
+            // Write-only action: the handler loads the source itself and answers 404 when it is missing.
+            read: false,
+            // Optional body: read by the processor, see DuplicateHostTemplateProcessor.
+            deserialize: false,
+            validate: false,
+            input: DuplicateHostTemplateInput::class,
+            output: false,
+            status: 204,
+            processor: DuplicateHostTemplateProcessor::class,
+            openapi: new Model\Operation(
+                summary: 'Duplicate a host template',
+                description: 'Duplicates a single host template. The copy takes the given name, or, when none is '
+                    . 'given, the source name with the first free "_<n>" suffix.',
+                responses: [
+                    204 => new Model\Response('Host template duplicated'),
+                    403 => new Model\Response('You are not allowed to duplicate host templates'),
+                    404 => new Model\Response('Host template not found'),
+                    409 => new Model\Response('A host or host template already uses this name, or the host template is locked'),
+                    422 => new Model\Response('Invalid name, or the generated name would exceed the maximum length'),
+                ],
+            ),
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to duplicate host templates',
+        ),
+        new Delete(
+            uriTemplate: '/configuration/host_templates/{id}',
+            requirements: ['id' => '[1-9]\d*'],
+            read: false,
+            processor: DeleteHostTemplateProcessor::class,
+            openapi: new Model\Operation(
+                summary: 'Delete a host template',
+                responses: [
+                    403 => new Model\Response('You are not allowed to delete host templates'),
+                    404 => new Model\Response('Host template not found'),
+                    409 => new Model\Response('The host template is locked'),
+                ],
+            ),
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to delete host templates',
         ),
         // temporary, to make itemUriTemplate work
         new NotExposed(uriTemplate: '/configuration/host_templates/{id}'),
