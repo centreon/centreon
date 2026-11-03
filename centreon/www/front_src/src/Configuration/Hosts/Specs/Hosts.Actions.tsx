@@ -3,14 +3,13 @@ import { waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds';
 import {
   labelDelete,
   labelDisable,
   labelDuplicate,
   labelEnable,
-  labelEnableDisable,
-  labelMassChange,
-  labelMoreActions
+  labelMassChange
 } from '../../ConfigurationBase/translatedLabels';
 import {
   labelDeployServices,
@@ -30,7 +29,7 @@ const selectAll = async (): Promise<void> => {
 };
 
 const openMoreActions = async (): Promise<HTMLElement> => {
-  await userEvent.click(screen.getByTestId(labelMoreActions));
+  await userEvent.click(screen.getByTestId(listingDataTestIds.moreActions));
 
   // The last one opened: a closing menu may still be in the page.
   return (await screen.findAllByRole('menu')).at(-1) as HTMLElement;
@@ -63,7 +62,9 @@ export default () => {
     it('deletes a host through the confirmation modal', async () => {
       await initializeListing();
 
-      await userEvent.click(screen.getByTestId(`${labelDelete}_0`));
+      await userEvent.click(
+        screen.getByTestId(listingDataTestIds.row.delete(0))
+      );
 
       await userEvent.click(await screen.findByTestId('confirm'));
 
@@ -83,7 +84,9 @@ export default () => {
     it('duplicates a host through the confirmation modal', async () => {
       await initializeListing();
 
-      await userEvent.click(screen.getByTestId(`${labelDuplicate}_0`));
+      await userEvent.click(
+        screen.getByTestId(listingDataTestIds.row.duplicate(0))
+      );
 
       await userEvent.click(await screen.findByTestId('confirm'));
 
@@ -116,7 +119,9 @@ export default () => {
     it('disables an activated host from the row toggle', async () => {
       await initializeListing();
 
-      await userEvent.click(screen.getByTestId(`${labelEnableDisable}_0`));
+      await userEvent.click(
+        screen.getByTestId(listingDataTestIds.row.enableDisable(0))
+      );
 
       const { request } = await waitForRequest('@patchHost');
 
@@ -127,7 +132,9 @@ export default () => {
     it('enables a deactivated host from the row toggle', async () => {
       await initializeListing();
 
-      await userEvent.click(screen.getByTestId(`${labelEnableDisable}_1`));
+      await userEvent.click(
+        screen.getByTestId(listingDataTestIds.row.enableDisable(1))
+      );
 
       // `activated`, the key the endpoint reads: any other is ignored.
       const { request } = await waitForRequest('@patchHost1');
@@ -196,6 +203,29 @@ export default () => {
       ]);
     });
 
+    it('tags every massive action with a fixed, non-translated test id', async () => {
+      await initializeListing();
+
+      await selectFirstRow();
+
+      const menu = await openMoreActions();
+
+      // Pendo tags these by id alone (`excludeAllText`): a wording change
+      // must not move them.
+      expect(
+        within(menu)
+          .getAllByRole('menuitem')
+          .map((entry) => entry.getAttribute('data-testid'))
+      ).toEqual([
+        listingDataTestIds.massive.duplicate,
+        listingDataTestIds.massive.enable,
+        listingDataTestIds.massive.disable,
+        listingDataTestIds.massive.delete,
+        'mass-change',
+        'deploy-services'
+      ]);
+    });
+
     it('disables every selected host, not just the first', async () => {
       await initializeListing();
 
@@ -224,20 +254,22 @@ export default () => {
         expect(screen.getByTestId('go-to-services_0')).toBeVisible();
 
         expect(
-          within(screen.getByTestId(`${labelEnableDisable}_0`)).getByRole(
-            'checkbox'
-          )
+          within(
+            screen.getByTestId(listingDataTestIds.row.enableDisable(0))
+          ).getByRole('checkbox')
         ).toBeDisabled();
       });
 
       it('hides the add button, more actions and the row write actions', () => {
-        expect(screen.queryByTestId(labelMoreActions)).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId(listingDataTestIds.moreActions)
+        ).not.toBeInTheDocument();
         expect(screen.queryByTestId('add-resource')).not.toBeInTheDocument();
         expect(
-          screen.queryByTestId(`${labelDelete}_0`)
+          screen.queryByTestId(listingDataTestIds.row.delete(0))
         ).not.toBeInTheDocument();
         expect(
-          screen.queryByTestId(`${labelDuplicate}_0`)
+          screen.queryByTestId(listingDataTestIds.row.duplicate(0))
         ).not.toBeInTheDocument();
       });
     });

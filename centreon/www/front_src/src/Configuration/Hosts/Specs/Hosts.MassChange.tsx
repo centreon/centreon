@@ -2,12 +2,12 @@ import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds';
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
   labelClose,
   labelFailedToUpdateSomeResources,
-  labelMassChange,
-  labelMoreActions
+  labelMassChange
 } from '../../ConfigurationBase/translatedLabels';
 import {
   labelDown,
@@ -30,7 +30,7 @@ const tickRow = async (id: number): Promise<void> => {
 };
 
 const openMassChange = async (): Promise<void> => {
-  await userEvent.click(screen.getByTestId(labelMoreActions));
+  await userEvent.click(screen.getByTestId(listingDataTestIds.moreActions));
   await userEvent.click(
     within(
       (await screen.findAllByRole('menu')).at(-1) as HTMLElement
