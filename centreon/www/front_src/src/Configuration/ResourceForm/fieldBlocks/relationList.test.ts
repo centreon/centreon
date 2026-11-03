@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next';
+import { JsonDecoder } from 'ts.data.json';
 import { array, object } from 'yup';
 
 import type { SectionContext } from '../models';
@@ -41,5 +42,42 @@ describe('Relation list', () => {
     expect(() => validate([{ id: 666, name: 'forbidden' }], onPremise)).toThrow(
       'forbidden group'
     );
+  });
+});
+
+describe('Relation list with options of its own', () => {
+  const traps = getRelationListBlock({
+    decoderNames: ['Trap', 'Traps'],
+    endpoint: '/traps',
+    entityDecoder: JsonDecoder.object(
+      {
+        id: JsonDecoder.number,
+        name: JsonDecoder.string,
+        vendor: JsonDecoder.string
+      },
+      'Trap'
+    ).map(({ id, name, vendor }) => ({ id, name: `${vendor} - ${name}` })),
+    id: 'snmpTraps',
+    isAvailable: ({ isCloudPlatform }) => !isCloudPlatform,
+    label: 'Traps',
+    name: 'traps',
+    payloadKey: 'trap_ids',
+    resource: { baseEndpoint: '/services', idPrefix: 'service-form' }
+  });
+
+  it('reads each entity with its own decoder', () => {
+    const decoded = JsonDecoder.object(traps.detailDecoders, 'Detail').decode({
+      snmpTraps: [{ id: 1, name: 'linkDown', vendor: 'Generic' }]
+    });
+
+    expect(decoded.isOk() && decoded.value).toEqual({
+      snmpTraps: [{ id: 1, name: 'Generic - linkDown' }]
+    });
+  });
+
+  it('exists where it is available only', () => {
+    expect(traps.isAvailable?.({ isCloudPlatform: false })).toBe(true);
+    expect(traps.isAvailable?.({ isCloudPlatform: true })).toBe(false);
+    expect(groups.isAvailable).toBeUndefined();
   });
 });
