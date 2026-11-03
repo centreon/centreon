@@ -1454,6 +1454,16 @@ jobs:
           features_dir: centreon/tests/e2e/features
           xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
 
+      # Dry run only: the tags it would inject are never committed from CI, so a real
+      # run would create the same Tests again every night.
+      - name: Detect scenarios without Xray Test
+        id: detect-untagged
+        if: ${{ !cancelled() && github.ref_name == 'develop' }}
+        uses: ./.github/actions/xray-provision-tests
+        with:
+          features_dir: centreon/tests/e2e/features
+          dry_run: "true"
+
   resolve-e2e-debug-analysis-actor:
     needs: [e2e-test]
     if: |

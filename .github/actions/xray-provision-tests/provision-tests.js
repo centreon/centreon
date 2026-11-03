@@ -22,6 +22,7 @@ const featuresDir = process.env.FEATURES_DIR;
 const xrayToken = process.env.XRAY_TOKEN;
 const projectKey = process.env.PROJECT_KEY || "MON";
 const dryRun = process.env.DRY_RUN === "true";
+const untagged = [];
 
 if (!featuresDir) {
   throw new Error("missing FEATURES_DIR");
@@ -114,6 +115,8 @@ async function provisionFeatureFile(featureFile) {
     const [, indent, name] = match;
     if (dryRun) {
       console.log(`[dry-run] ${shortPath}:${index + 1}  ${name}`);
+      console.log(`::warning file=${featureFile},line=${index + 1}::Scenario without Xray Test tag: ${name}`);
+      untagged.push({ location: `${shortPath}:${index + 1}`, name });
     } else {
       const key = await createTest(name, scenarioGherkin(lines, index));
       lines.splice(index, 0, `${indent}@${key}`);
@@ -136,6 +139,14 @@ async function main() {
     total += await provisionFeatureFile(featureFile);
   }
   console.log(`Done: ${total} test(s) ${dryRun ? "to create" : "created + tagged"}.`);
+
+  if (dryRun && untagged.length > 0 && process.env.GITHUB_STEP_SUMMARY) {
+    const rows = untagged.map(({ location, name }) => `| \`${location}\` | ${name.replaceAll("|", "\\|")} |`);
+    fs.appendFileSync(
+      process.env.GITHUB_STEP_SUMMARY,
+      ["### Scenarios without Xray Test", "", "| Location | Scenario |", "| --- | --- |", ...rows, ""].join("\n"),
+    );
+  }
 }
 
 main().catch((error) => {
