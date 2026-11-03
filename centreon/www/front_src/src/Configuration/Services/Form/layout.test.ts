@@ -5,6 +5,7 @@ import {
   labelCheckCommandTemplateCustomMacros,
   labelGeneralInformation,
   labelMonitoringEngineSchedulingOptions,
+  labelNotification,
   labelRelations
 } from '../translatedLabels';
 import { getPlacedBlockIds, layout, placeBlocks } from './layout';
@@ -76,8 +77,23 @@ describe('layout', () => {
       labelCheckCommandTemplateCustomMacros,
       labelRelations,
       labelMonitoringEngineSchedulingOptions,
+      labelNotification,
       labelAdvanced
     ]);
+  });
+
+  it('shows the notifications on premise only', () => {
+    const labels = getSectionLabels({ isCloudPlatform: false, t });
+
+    expect(labels.indexOf(labelNotification)).toBe(
+      labels.indexOf(labelMonitoringEngineSchedulingOptions) + 1
+    );
+    expect(getSectionLabels({ isCloudPlatform: true, t })).not.toContain(
+      labelNotification
+    );
+    expect(
+      getSectionLabels({ isCloudPlatform: false, isMassChange: true, t })
+    ).toContain(labelNotification);
   });
 
   it('has no advanced section on a cloud platform, where the comment is refused', () => {

@@ -26,6 +26,7 @@ export const labelMonitoringEngineSchedulingOptions =
   'Monitoring engine / Scheduling options';
 export const labelMonitoringEngine = 'Monitoring engine';
 export const labelSchedulingOptions = 'Scheduling options';
+export const labelNotification = 'Notification';
 export const labelAdvanced = 'Advanced';
 export const labelCustomMacros = 'Custom macros';
 
@@ -35,6 +36,14 @@ export const labelServiceTraps = 'Service Trap Relation';
 export const labelServiceCategories = 'Service Categories';
 export const labelServiceSeverity = 'Service severity';
 export const labelServiceGraphTemplate = 'Graph Template';
+
+// What a service notifies on, as legacy's `w,u,c,r,f,s,n`.
+export const labelWarning = 'Warning';
+export const labelUnknown = 'Unknown';
+export const labelCritical = 'Critical';
+export const labelRecovery = 'Recovery';
+export const labelFlapping = 'Flapping';
+export const labelDowntimeScheduled = 'Downtime Scheduled';
 
 // Form validation
 export const labelNameContainsForbiddenCharacters = 'Unauthorized value';

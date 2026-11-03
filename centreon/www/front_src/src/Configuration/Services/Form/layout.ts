@@ -19,6 +19,7 @@ import {
   labelGeneralInformation,
   labelMonitoringEngine,
   labelMonitoringEngineSchedulingOptions,
+  labelNotification,
   labelRelations,
   labelSchedulingOptions
 } from '../translatedLabels';
@@ -91,6 +92,25 @@ export const layout: Array<LayoutSection> = [
         columns: ['checkPeriodAndIntervals', 'activeAndPassiveChecks'],
         name: 'scheduling-options',
         title: labelSchedulingOptions
+      }
+    ]
+  },
+  {
+    // Absent on cloud, where no notification block is available.
+    label: labelNotification,
+    nodes: [
+      {
+        className: twoColumnsFromWide,
+        columnSeparator: true,
+        columns: [
+          'notificationRecipients',
+          {
+            className: stackedColumns,
+            columns: ['notifyOn', 'notificationDelays'],
+            name: 'notifications-when'
+          }
+        ],
+        name: 'notifications-layout'
       }
     ]
   },

@@ -2,6 +2,7 @@ import { SnackbarProvider } from '@centreon/ui';
 import {
   defaultLimitPerPageAtom,
   intervalLengthAtom,
+  isAdditiveInheritanceEnabledAtom,
   type PlatformFeatures,
   platformFeaturesAtom,
   type UserPermissions,
@@ -24,6 +25,8 @@ import {
   getServiceEndpoint,
   getServiceTemplateMacrosEndpoint,
   serviceFormCommandsEndpoint,
+  serviceFormContactGroupsEndpoint,
+  serviceFormContactsEndpoint,
   serviceFormGraphTemplatesEndpoint,
   serviceFormHostsEndpoint,
   serviceFormMediasEndpoint,
@@ -37,6 +40,8 @@ import {
 } from '../api/endpoints';
 import {
   emptyListingResponse,
+  getContactGroupsResponse,
+  getContactsResponse,
   getGraphTemplatesResponse,
   getListingResponse,
   getServiceCategoriesResponse,
@@ -56,6 +61,9 @@ interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
   intervalLength?: number;
+  // The platform's vertical inheritance mode, which reads the additive
+  // inheritance of the notification recipients.
+  isAdditiveInheritanceEnabled?: boolean;
   isCloudPlatform?: boolean;
   // Opens the page on a deep link, such as `?mode=edit&id=0`.
   searchParams?: string;
@@ -65,6 +73,7 @@ const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
   intervalLength = 60,
+  isAdditiveInheritanceEnabled = false,
   isCloudPlatform = false,
   searchParams = ''
 }: Props = {}): RenderResult => {
@@ -89,6 +98,7 @@ const initialize = ({
   store.set(intervalLengthAtom, intervalLength);
   store.set(defaultLimitPerPageAtom, 10);
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
+  store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
 
   interceptAPIRequest({
     alias: 'getAllServices',
@@ -196,10 +206,27 @@ const initialize = ({
   });
 
   interceptAPIRequest({
-    alias: 'updateService0',
-    method: Method.PUT,
-    path: `**${getServiceEndpoint({ id: 0 })}`,
-    response: {}
+    alias: 'getFormContacts',
+    method: Method.GET,
+    path: `**${serviceFormContactsEndpoint}?**`,
+    response: getContactsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormContactGroups',
+    method: Method.GET,
+    path: `**${serviceFormContactGroupsEndpoint}?**`,
+    response: getContactGroupsResponse()
+  });
+
+  // Service 0 carries notification settings, service 1 none.
+  [0, 1].forEach((id) => {
+    interceptAPIRequest({
+      alias: `updateService${id}`,
+      method: Method.PUT,
+      path: `**${getServiceEndpoint({ id })}`,
+      response: {}
+    });
   });
 
   // Enable and disable are a partial update of the service, one request each.

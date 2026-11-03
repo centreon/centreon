@@ -48,6 +48,9 @@ export const labelNotificationEnabled = 'Enable notifications';
 export const labelContactAdditiveInheritance = 'Add to inherited contacts';
 export const labelContactGroupAdditiveInheritance =
   'Add to inherited contact groups';
+// Only a service may notify its host's recipients instead of its own.
+export const labelInheritContactsFromHost =
+  'Inherit only contacts/contacts group from host';
 export const labelLinkedContacts = 'Linked contacts';
 export const labelLinkedContactGroups = 'Linked contact groups';
 export const labelNotificationInterval = 'Notify again every';

@@ -17,7 +17,8 @@ export const serviceTemplatesEndpoint =
 // the host one.
 export const serviceFormHostsEndpoint = '/configuration/services/hosts';
 
-// The form's check period selector, granted by the service write right too.
+// The form's check period and notification period selector, granted by the
+// service write right too.
 export const serviceFormTimePeriodsEndpoint =
   '/configuration/services/timeperiods';
 
@@ -49,6 +50,11 @@ export const serviceFormServiceCategoriesEndpoint =
   '/configuration/services/service_categories';
 export const serviceFormServiceSeveritiesEndpoint =
   '/configuration/services/service_severities';
+
+// The notification selectors, granted by the service write right as well.
+export const serviceFormContactsEndpoint = '/configuration/services/contacts';
+export const serviceFormContactGroupsEndpoint =
+  '/configuration/services/contact_groups';
 
 export const getServiceEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/services/${id}`;

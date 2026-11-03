@@ -8,6 +8,12 @@ import {
   getCommentBlock,
   getNotesAndIconsBlock
 } from '../../../ResourceForm/fieldBlocks/extendedInfos';
+import {
+  getNotificationDelaysBlock,
+  getNotificationRecipientsBlock,
+  getNotifyOnBlock,
+  type NotificationOptions
+} from '../../../ResourceForm/fieldBlocks/notifications';
 import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
 import {
   getActiveAndPassiveChecksBlock,
@@ -21,8 +27,11 @@ import type {
   ResourceOptions,
   SectionContext
 } from '../../../ResourceForm/models';
+import { labelNone } from '../../../ResourceForm/translatedLabels';
 import {
   serviceFormCommandsEndpoint,
+  serviceFormContactGroupsEndpoint,
+  serviceFormContactsEndpoint,
   serviceFormGraphTemplatesEndpoint,
   serviceFormHostsEndpoint,
   serviceFormMediasEndpoint,
@@ -35,9 +44,15 @@ import {
   serviceTemplatesEndpoint
 } from '../../api/endpoints';
 import {
+  labelCritical,
+  labelDowntimeScheduled,
+  labelFlapping,
+  labelRecovery,
   labelServiceCategories,
   labelServiceGroups,
-  labelServiceSeverity
+  labelServiceSeverity,
+  labelUnknown,
+  labelWarning
 } from '../../translatedLabels';
 import { getGraphTemplateBlock } from '../blocks/graphTemplate';
 import { getMacrosBlock } from '../blocks/macros';
@@ -52,6 +67,18 @@ export const serviceResource: ResourceOptions = {
 };
 
 const resource = serviceResource;
+
+// Legacy `w,u,c,r,f,s,n`, spelled as the Hosts API spells its own options
+// (placeholder values until the service API is there).
+const serviceNotificationOptions: NotificationOptions = [
+  [labelWarning, 'warning'],
+  [labelUnknown, 'unknown'],
+  [labelCritical, 'critical'],
+  [labelRecovery, 'recovery'],
+  [labelFlapping, 'flapping'],
+  [labelDowntimeScheduled, 'downtime_scheduled'],
+  [labelNone, 'none']
+];
 
 // The blocks of fields the service form edits. The sections it shows them in,
 // and their order, are `../layout.ts`'s.
@@ -114,6 +141,17 @@ export const blocks = [
     timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
   }),
   getActiveAndPassiveChecksBlock({ resource, withVolatile: true }),
+  getNotificationRecipientsBlock({
+    contactGroupsEndpoint: serviceFormContactGroupsEndpoint,
+    contactsEndpoint: serviceFormContactsEndpoint,
+    resource,
+    withUseOnlyContactsFromHost: true
+  }),
+  getNotifyOnBlock({ options: serviceNotificationOptions, resource }),
+  getNotificationDelaysBlock({
+    resource,
+    timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
+  }),
   getCommentBlock({ resource })
 ] as const;
 

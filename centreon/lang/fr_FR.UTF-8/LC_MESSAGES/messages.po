@@ -9575,7 +9575,7 @@ msgstr "Informations"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Inherit only contacts/contacts group from host"
-msgstr ""
+msgstr "Hériter uniquement des contacts/groupes de contacts de l'hôte"
 "Hériter seulement les contacts/groupes de contacts depuis la définition de "
 "l'hôte"
 
