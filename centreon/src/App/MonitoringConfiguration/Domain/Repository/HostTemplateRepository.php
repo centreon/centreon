@@ -121,7 +121,7 @@ interface HostTemplateRepository
 
     /**
      * A host template with its name, alias, lock state, own macros, SNMP community and direct parents;
-     * null when the id is unknown or is a host.
+     * null when the id is unknown or is a host. Unscoped: host templates are never ACL-filtered.
      */
     public function findOne(HostTemplateId $id): ?HostTemplate;
 

@@ -65,11 +65,14 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   host_locked: int|string|null,
  *   icon_id: int|string|null,
  *   parent_template_ids: list<int>,
+ *   snmp_community?: ?string,
+ *   macros?: list<HostMacro>,
  * }
  */
 final readonly class DbalHostTemplateRepository extends DbalRepository implements HostTemplateRepository
 {
     use DbalCriteriaApplierTrait;
+    use RemovesEmptiedDependenciesTrait;
     public const TABLE_NAME = 'host';
 
     // host templates are host rows discriminated by host_register = '0'
@@ -279,30 +282,140 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
     public function findOne(HostTemplateId $id): ?HostTemplate
     {
-        throw new \LogicException('Not implemented yet.');
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(
+            'h.host_id',
+            'h.host_name',
+            'h.host_alias',
+            'h.host_locked',
+            'h.host_snmp_community AS snmp_community',
+            'ehi.ehi_icon_image AS icon_id',
+        )
+            ->from(self::TABLE_NAME, 'h')
+            ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
+            ->where($qb->expr()->eq('h.host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->andWhere('h.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER));
+
+        /** @var array{host_id: int, host_name: string, host_alias: ?string, host_locked: int|string|null, snmp_community: ?string, icon_id: int|string|null}|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->transformer->transform($row + [
+            'parent_template_ids' => $this->findParentTemplateIdValues([$id->value])[$id->value] ?? [],
+            'macros' => $this->findMacrosByOwner([$id->value])[$id->value] ?? [],
+        ]);
     }
 
     public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool
     {
-        throw new \LogicException('Not implemented yet.');
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('1')
+            ->from(self::TABLE_NAME)
+            ->where($qb->expr()->eq('host_name', $qb->createNamedParameter($name->value)))
+            ->setMaxResults(1);
+
+        return (bool) $qb->executeQuery()->fetchOne();
     }
 
     public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void
     {
-        throw new \LogicException('Not implemented yet.');
+        $source = $sourceId->value;
+
+        $this->copyRow(
+            self::TABLE_NAME,
+            'host_id',
+            $source,
+            ['host_id'],
+            ['host_name' => $copy->name->value, 'host_snmp_community' => $copy->snmpCommunity?->value],
+            ['host_register' => self::HOST_TEMPLATE_REGISTER],
+        );
+
+        $copyId = (int) $this->connection->lastInsertId();
+        if ($copyId === 0) {
+            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+        }
+
+        $this->setId($copy, new HostTemplateId($copyId));
+
+        $this->copyRow('extended_host_information', 'host_host_id', $source, ['ehi_id'], ['host_host_id' => $copyId]);
+        $this->copyRow('on_demand_macro_host', 'host_host_id', $source, ['host_macro_id'], ['host_host_id' => $copyId]);
+        foreach (['host_template_relation', 'hostcategories_relation', 'contact_host_relation', 'contactgroup_host_relation', 'ns_host_relation'] as $table) {
+            $this->copyRow($table, 'host_host_id', $source, [], ['host_host_id' => $copyId]);
+        }
+
+        // Links to the same service templates, never copies of them.
+        $this->connection->executeStatement(
+            <<<'SQL'
+                INSERT INTO host_service_relation (host_host_id, service_service_id)
+                SELECT DISTINCT :copyId, service_service_id
+                FROM host_service_relation
+                WHERE host_host_id = :sourceId AND service_service_id IS NOT NULL
+                SQL,
+            ['copyId' => $copyId, 'sourceId' => $source],
+            ['copyId' => ParameterType::INTEGER, 'sourceId' => ParameterType::INTEGER],
+        );
+
+        // Re-minted secrets replace the copied vault references.
+        foreach ($copy->macros as $macro) {
+            if (! $macro->isPassword) {
+                continue;
+            }
+
+            $this->connection->update(
+                'on_demand_macro_host',
+                ['host_macro_value' => $macro->value],
+                ['host_host_id' => $copyId, 'host_macro_name' => $macro->name->toStorageName()],
+            );
+        }
     }
 
-    /**
-     * @return Collection<PollerId>
-     */
     public function findPollerIdsOfInheritingHosts(HostTemplateId $id): Collection
     {
-        throw new \LogicException('Not implemented yet.');
+        // UNION dedupes the reached ids, so a template loop already in the data cannot make the
+        // recursion run forever.
+        $sql = <<<'SQL'
+            WITH RECURSIVE inheritors (id) AS (
+                SELECT host_host_id
+                FROM host_template_relation
+                WHERE host_tpl_id = :id
+                UNION
+                SELECT htr.host_host_id
+                FROM host_template_relation htr
+                INNER JOIN inheritors i ON i.id = htr.host_tpl_id
+            )
+            SELECT DISTINCT nhr.nagios_server_id
+            FROM inheritors i
+            INNER JOIN host h ON h.host_id = i.id AND h.host_register = '1' AND h.host_activate = '1'
+            INNER JOIN ns_host_relation nhr ON nhr.host_host_id = h.host_id
+            ORDER BY nhr.nagios_server_id
+            SQL;
+
+        /** @var list<int|string> $pollerIds */
+        $pollerIds = $this->connection->executeQuery($sql, ['id' => $id->value], ['id' => ParameterType::INTEGER])
+            ->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $pollerId): PollerId => new PollerId((int) $pollerId), $pollerIds),
+            PollerId::class,
+        );
     }
 
     public function remove(HostTemplate $hostTemplate): void
     {
-        throw new \LogicException('Not implemented yet.');
+        $id = $hostTemplate->id()->value;
+        $parentDependencyIds = $this->findDependencyIds('dependency_hostParent_relation', 'host_host_id', $id);
+        $childDependencyIds = $this->findDependencyIds('dependency_hostChild_relation', 'host_host_id', $id);
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->delete(self::TABLE_NAME)
+            ->where($qb->expr()->eq('host_id', $qb->createNamedParameter($id, ParameterType::INTEGER)))
+            ->andWhere('host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
+            ->executeStatement();
+
+        $this->deleteDependenciesWithoutMember('dependency_hostParent_relation', $parentDependencyIds);
+        $this->deleteDependenciesWithoutMember('dependency_hostChild_relation', $childDependencyIds);
     }
 
     public function findInheritanceLine(Collection $directTemplateIds): Collection
@@ -762,6 +875,72 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         }
 
         return $parentIdsById;
+    }
+
+    /**
+     * Copies the rows of $table owned by $sourceId, every column included so that none is forgotten,
+     * except $excluded ones (left to their defaults) and $overrides ones (bound values).
+     *
+     * @param non-empty-string $table
+     * @param non-empty-string $ownerColumn
+     * @param list<string> $excluded
+     * @param array<string, int|string|null> $overrides
+     * @param array<string, string> $conditions extra column = value filters on the source rows
+     */
+    private function copyRow(
+        string $table,
+        string $ownerColumn,
+        int $sourceId,
+        array $excluded,
+        array $overrides,
+        array $conditions = [],
+    ): void {
+        /** @var list<string> $allColumns */
+        $allColumns = $this->connection->fetchFirstColumn(
+            <<<'SQL'
+                SELECT COLUMN_NAME
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table
+                ORDER BY ORDINAL_POSITION
+                SQL,
+            ['table' => $table],
+        );
+        $columns = array_values(array_filter(
+            $allColumns,
+            static fn (string $column): bool => ! in_array($column, $excluded, true),
+        ));
+
+        $selected = [];
+        $parameters = ['sourceId' => $sourceId];
+        $types = ['sourceId' => ParameterType::INTEGER];
+        foreach ($columns as $index => $column) {
+            if (array_key_exists($column, $overrides)) {
+                $selected[] = ':override' . $index;
+                $parameters['override' . $index] = $overrides[$column];
+                $types['override' . $index] = is_int($overrides[$column]) ? ParameterType::INTEGER : ParameterType::STRING;
+            } else {
+                $selected[] = $this->connection->quoteSingleIdentifier($column);
+            }
+        }
+
+        $where = [$this->connection->quoteSingleIdentifier($ownerColumn) . ' = :sourceId'];
+        foreach (array_keys($conditions) as $index => $column) {
+            $where[] = $this->connection->quoteSingleIdentifier($column) . ' = :condition' . $index;
+            $parameters['condition' . $index] = $conditions[$column];
+            $types['condition' . $index] = ParameterType::STRING;
+        }
+
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %1$s (%2$s) SELECT %3$s FROM %1$s WHERE %4$s',
+                $this->connection->quoteSingleIdentifier($table),
+                implode(', ', array_map($this->connection->quoteSingleIdentifier(...), $columns)),
+                implode(', ', $selected),
+                implode(' AND ', $where),
+            ),
+            $parameters,
+            $types,
+        );
     }
 
     private function paginate(QueryBuilder $qb, HostTemplateCriteria $criteria): void
