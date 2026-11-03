@@ -55,6 +55,7 @@ export type BlockId =
   | 'notificationDelays'
   | 'notificationRecipients'
   | 'notifyOn'
+  | 'obsessRetainAndStalking'
   | 'parentHosts'
   | 'poller'
   | 'severity'

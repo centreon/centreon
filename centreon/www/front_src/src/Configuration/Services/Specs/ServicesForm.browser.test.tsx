@@ -1,5 +1,6 @@
 import Form from './Services.Form';
 import CheckOptions from './Services.Form.CheckOptions';
+import DataProcessing from './Services.Form.DataProcessing';
 import ExtendedInfo from './Services.Form.ExtendedInfo';
 import Notifications from './Services.Form.Notifications';
 import Relations from './Services.Form.Relations';
@@ -18,4 +19,5 @@ describe('Services configuration: ', () => {
   describe('Form: ', Relations);
   describe('Form extended info: ', ExtendedInfo);
   describe('Notifications: ', Notifications);
+  describe('Form: ', DataProcessing);
 });

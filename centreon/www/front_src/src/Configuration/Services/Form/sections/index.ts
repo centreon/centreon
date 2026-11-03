@@ -4,6 +4,13 @@ import {
 } from '../../../ResourceForm/blocks';
 import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
 import {
+  getAcknowledgmentTimeoutBlock,
+  getEventHandlerBlock,
+  getFlappingBlock,
+  getFreshnessBlock,
+  getObsessRetainAndStalkingBlock
+} from '../../../ResourceForm/fieldBlocks/dataProcessing';
+import {
   getActionUrlAndGeoCoordinatesBlock,
   getCommentBlock,
   getNotesAndIconsBlock
@@ -23,11 +30,17 @@ import { getSeverityBlock } from '../../../ResourceForm/fieldBlocks/severity';
 import type {
   Blocks,
   DetailOfBlocks,
+  FormValues,
   PlatformContext,
   ResourceOptions,
   SectionContext
 } from '../../../ResourceForm/models';
-import { labelNone } from '../../../ResourceForm/translatedLabels';
+import {
+  labelCritical,
+  labelNone,
+  labelUnknown,
+  labelWarning
+} from '../../../ResourceForm/translatedLabels';
 import {
   serviceFormCommandsEndpoint,
   serviceFormContactGroupsEndpoint,
@@ -44,15 +57,13 @@ import {
   serviceTemplatesEndpoint
 } from '../../api/endpoints';
 import {
-  labelCritical,
   labelDowntimeScheduled,
   labelFlapping,
+  labelMustBeIntegerBetweenZeroAndOneHundred,
   labelRecovery,
   labelServiceCategories,
   labelServiceGroups,
-  labelServiceSeverity,
-  labelUnknown,
-  labelWarning
+  labelServiceSeverity
 } from '../../translatedLabels';
 import { getGraphTemplateBlock } from '../blocks/graphTemplate';
 import { getMacrosBlock } from '../blocks/macros';
@@ -79,6 +90,19 @@ const serviceNotificationOptions: NotificationOptions = [
   [labelDowntimeScheduled, 'downtime_scheduled'],
   [labelNone, 'none']
 ];
+
+// PLACEHOLDER: the flag is an assumption. The commands selector
+// (`CommandChoicesOutput`) only gives an id and a name so far, while the
+// backend tells such a command by its connector and name
+// (`Command::isCentreonMonitoringAgent()`).
+export const hasCentreonMonitoringAgentCommand = (
+  values: FormValues
+): boolean =>
+  (
+    values.checkOptions as {
+      command?: { isCentreonMonitoringAgent?: boolean } | null;
+    } | null
+  )?.command?.isCentreonMonitoringAgent === true;
 
 // The blocks of fields the service form edits. The sections it shows them in,
 // and their order, are `../layout.ts`'s.
@@ -159,6 +183,21 @@ export const blocks = [
     resource,
     timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
   }),
+  getEventHandlerBlock({
+    commandsEndpoint: serviceFormCommandsEndpoint,
+    resource,
+    withArgumentsRules: true
+  }),
+  getFreshnessBlock({ isForced: hasCentreonMonitoringAgentCommand, resource }),
+  getAcknowledgmentTimeoutBlock({ resource }),
+  getFlappingBlock({
+    maxThreshold: {
+      max: 100,
+      message: labelMustBeIntegerBetweenZeroAndOneHundred
+    },
+    resource
+  }),
+  getObsessRetainAndStalkingBlock({ resource }),
   getCommentBlock({ resource })
 ] as const;
 

@@ -37,13 +37,13 @@ export const labelServiceCategories = 'Service Categories';
 export const labelServiceSeverity = 'Service severity';
 export const labelServiceGraphTemplate = 'Graph Template';
 
-// What a service notifies on, as legacy's `w,u,c,r,f,s,n`.
-export const labelWarning = 'Warning';
-export const labelUnknown = 'Unknown';
-export const labelCritical = 'Critical';
+// What a service notifies on, as legacy's `w,u,c,r,f,s,n`: warning, unknown
+// and critical are the shared `ResourceForm` labels.
 export const labelRecovery = 'Recovery';
 export const labelFlapping = 'Flapping';
 export const labelDowntimeScheduled = 'Downtime Scheduled';
 
 // Form validation
 export const labelNameContainsForbiddenCharacters = 'Unauthorized value';
+export const labelMustBeIntegerBetweenZeroAndOneHundred =
+  'Must be an integer between 0 and 100';
