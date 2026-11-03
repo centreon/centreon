@@ -70,7 +70,7 @@ const serviceDetails: Record<number, Record<string, unknown>> = {
     activated: true,
     host: { id: 10, name: 'host A' },
     name: 'cpu',
-    // MON-213082: the template and the scheduling options.
+    // The template and the scheduling options.
     scheduling_options: {
       active_check_enabled: 'false',
       check_period: { id: 21, name: 'workhours' },
@@ -143,7 +143,7 @@ export const getServiceFormHostsResponse = () => ({
   totalItems: 2
 });
 
-// MON-213082: the check period selector.
+// The check period selector.
 export const getServiceFormTimePeriodsResponse = () => ({
   '@context': '/centreon/api/contexts/Collection',
   '@id': '/centreon/api/configuration/services/timeperiods',
