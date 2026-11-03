@@ -6785,6 +6785,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
+        '502':
+          description: 'The vault could not be reached'
         '201':
           description: 'Service resource created'
           content:
@@ -6809,7 +6811,7 @@ paths:
                 $ref: '#/components/schemas/Error'
           links: {}
       summary: 'Create a service'
-      description: 'Creates a service linked directly to one host, enabled, and answers its form as a Get does. Its own macros are not taken yet.'
+      description: 'Creates a service linked directly to one host, enabled, and answers its form as a Get does. Its own macros are taken from `check_options.macros`; an inherited macro is resent, with its id and parent, only to override it. Password macros are written to the vault, when one is configured, before the service is saved.'
       parameters: []
       requestBody:
         description: 'The new Service resource'
@@ -15168,6 +15170,10 @@ components:
           type: array
           items:
             type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceMacroInput'
     ServiceMonitoringEngineInput:
       type: object
       properties:
@@ -15310,4 +15316,33 @@ components:
           minimum: 0
           type:
             - integer
+            - 'null'
+    ServiceMacroInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          maxLength: 245
+          type: string
+        value:
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        parent:
+          enum:
+            - template
+            - command
+          type:
+            - string
             - 'null'
