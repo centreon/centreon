@@ -391,13 +391,7 @@ class QueryGenerator
             logs.type,
             logs.instance_name
             FROM logs ' . $this->generateInnerJoinQuery()
-            . (
-                ! $this->is_admin
-                ? ' INNER JOIN centreon_acl acl ON (logs.host_id = acl.host_id AND (acl.service_id IS NULL OR '
-                . ' acl.service_id = logs.service_id)) '
-                . ' WHERE acl.group_id IN (' . $this->access->getAccessGroupsString() . ') AND '
-                : 'WHERE '
-            )
+            . $this->generateAclQuery()
             . " logs.ctime > '{$this->start}' AND logs.ctime <= '{$this->end}' {$whereOutput} {$msg_req}";
 
         // Add Host
@@ -503,31 +497,91 @@ class QueryGenerator
     }
 
     /**
+     * Generates the ACL join and the start of the WHERE clause for non-admin users
+     *
+     * The returned string always ends with "WHERE " or "AND ", so the caller must append a condition.
+     * In engine mode, also registers the :aclPollerIdN bind values.
+     *
+     * @return string
+     */
+    private function generateAclQuery(): string
+    {
+        if ($this->is_admin) {
+            return 'WHERE ';
+        }
+
+        if ($this->engine == 'true') {
+            // Engine messages have no host_id, so the host-based centreon_acl join would hide them: keep engine
+            // messages only, whatever the requested filters, and restrict them to the pollers allowed by the ACL
+            // (see CentreonACL::getPollerRuntimeIds()). Users without access to the System Logs page get nothing.
+            $aclPollerIds = $this->access->page('20302') === CentreonACL::ACL_ACCESS_NONE
+                ? []
+                : $this->access->getPollerRuntimeIds();
+            if ($aclPollerIds === []) {
+                return ' WHERE 0 = 1 AND ';
+            }
+
+            $placeholders = [];
+            foreach ($aclPollerIds as $index => $pollerId) {
+                $key = ':aclPollerId' . $index;
+                $this->queryValues[$key] = [\PDO::PARAM_INT => $pollerId];
+                $placeholders[] = $key;
+            }
+
+            // When pollers are selected, check the ACL on the instance row picked by generateInnerJoinQuery():
+            // instance names are not unique, so a name-only match could pair it with another, allowed row
+            $selectedInstanceCondition = $this->getSelectedPollerIds() !== []
+                ? ' AND acl_i.instance_id = i.instance_id'
+                : '';
+
+            return " WHERE logs.msg_type IN ('4','5')"
+                . ' AND EXISTS (SELECT 1 FROM instances acl_i WHERE acl_i.name = logs.instance_name'
+                . ' AND acl_i.instance_id IN (' . implode(',', $placeholders) . ')'
+                . $selectedInstanceCondition . ') AND ';
+        }
+
+        return ' INNER JOIN centreon_acl acl ON (logs.host_id = acl.host_id AND (acl.service_id IS NULL OR '
+            . ' acl.service_id = logs.service_id)) '
+            . ' WHERE acl.group_id IN (' . $this->access->getAccessGroupsString() . ') AND ';
+    }
+
+    /**
      * Creates join statement with instances and filters on poller IDs
      * @return string
      */
     private function generateInnerJoinQuery(): string
     {
-        $innerJoinEngineLog = '';
-        if ($this->engine == 'true' && isset($this->openid) && $this->openid != '') {
-            // filtering poller ids and keeping only real ids
-            $pollerIds = explode(',', $this->openid);
-            $filteredIds = array_filter($pollerIds, function ($id) {
-                return is_numeric($id);
-            });
-
-            if ($filteredIds !== []) {
-                foreach ($filteredIds as $index => $filteredId) {
-                    $key = ':pollerId' . $index;
-                    $this->queryValues[$key] = [\PDO::PARAM_INT => $filteredId];
-                    $pollerIds[] = $key;
-                }
-                $innerJoinEngineLog = ' INNER JOIN instances i ON i.name = logs.instance_name'
-                    . ' AND i.instance_id IN ( ' . implode(',', array_values($pollerIds)) . ')';
-            }
+        $filteredIds = $this->getSelectedPollerIds();
+        if ($filteredIds === []) {
+            return '';
         }
 
-        return $innerJoinEngineLog;
+        $placeholders = [];
+        foreach ($filteredIds as $index => $filteredId) {
+            $key = ':pollerId' . $index;
+            $this->queryValues[$key] = [\PDO::PARAM_INT => $filteredId];
+            $placeholders[] = $key;
+        }
+
+        return ' INNER JOIN instances i ON i.name = logs.instance_name'
+            . ' AND i.instance_id IN ( ' . implode(',', $placeholders) . ')';
+    }
+
+    /**
+     * Poller ids selected in the filter, in engine mode only
+     *
+     * Only positive integers are kept: with no poller selected, Request::getOpenid() falls back to '-1',
+     * which must not be turned into an instance filter.
+     *
+     * @return string[]
+     */
+    private function getSelectedPollerIds(): array
+    {
+        if ($this->engine != 'true' || $this->openid === '') {
+            return [];
+        }
+
+        return array_filter(explode(',', $this->openid), 'ctype_digit');
     }
 
     /**
