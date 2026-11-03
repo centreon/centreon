@@ -331,7 +331,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             ['host_name' => $copy->name->value, 'host_snmp_community' => $copy->snmpCommunity?->value],
             ['host_register' => self::HOST_TEMPLATE_REGISTER],
         );
-        // No row copied leaves lastInsertId() at a previous, unrelated value.
+        // A source that is no longer a template copies no row.
         if ($inserted !== 1) {
             throw new HostTemplateNotFoundException([$source], 'id');
         }

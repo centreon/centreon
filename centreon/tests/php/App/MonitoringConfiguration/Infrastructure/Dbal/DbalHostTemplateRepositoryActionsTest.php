@@ -178,7 +178,7 @@ final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
         );
     }
 
-    public function testACopyOfAVanishedSourceFailsWithoutTakingAnUnrelatedId(): void
+    public function testACopyOfAVanishedSourceIsNotFound(): void
     {
         $this->insertTemplate();
         $copy = new HostTemplate(null, new HostTemplateName($this->uniqueName()));
