@@ -327,7 +327,6 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             self::TABLE_NAME,
             'host_id',
             $source,
-            ['host_id'],
             ['host_name' => $copy->name->value, 'host_snmp_community' => $copy->snmpCommunity?->value],
             ['host_register' => self::HOST_TEMPLATE_REGISTER],
         );
@@ -339,10 +338,10 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
         $this->setId($copy, new HostTemplateId($copyId));
 
-        $this->copyRow('extended_host_information', 'host_host_id', $source, ['ehi_id'], ['host_host_id' => $copyId]);
-        $this->copyRow('on_demand_macro_host', 'host_host_id', $source, ['host_macro_id'], ['host_host_id' => $copyId]);
+        $this->copyRow('extended_host_information', 'host_host_id', $source, ['host_host_id' => $copyId]);
+        $this->copyRow('on_demand_macro_host', 'host_host_id', $source, ['host_host_id' => $copyId]);
         foreach (['host_template_relation', 'hostcategories_relation', 'contact_host_relation', 'contactgroup_host_relation', 'ns_host_relation'] as $table) {
-            $this->copyRow($table, 'host_host_id', $source, [], ['host_host_id' => $copyId]);
+            $this->copyRow($table, 'host_host_id', $source, ['host_host_id' => $copyId]);
         }
 
         // Links to the same service templates, never copies of them.
@@ -879,11 +878,11 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
     /**
      * Copies the rows of $table owned by $sourceId, every column included so that none is forgotten,
-     * except $excluded ones (left to their defaults) and $overrides ones (bound values).
+     * except the auto-increment and generated ones (left to the database) and $overrides ones (bound
+     * values).
      *
      * @param non-empty-string $table
      * @param non-empty-string $ownerColumn
-     * @param list<string> $excluded
      * @param array<string, int|string|null> $overrides
      * @param array<string, string> $conditions extra column = value filters on the source rows
      */
@@ -891,24 +890,22 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         string $table,
         string $ownerColumn,
         int $sourceId,
-        array $excluded,
         array $overrides,
         array $conditions = [],
     ): void {
-        /** @var list<string> $allColumns */
-        $allColumns = $this->connection->fetchFirstColumn(
+        /** @var list<string> $columns */
+        $columns = $this->connection->fetchFirstColumn(
             <<<'SQL'
                 SELECT COLUMN_NAME
                 FROM information_schema.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = :table
+                  AND EXTRA NOT LIKE '%auto_increment%'
+                  AND EXTRA NOT LIKE '% GENERATED'
                 ORDER BY ORDINAL_POSITION
                 SQL,
             ['table' => $table],
         );
-        $columns = array_values(array_filter(
-            $allColumns,
-            static fn (string $column): bool => ! in_array($column, $excluded, true),
-        ));
 
         $selected = [];
         $parameters = ['sourceId' => $sourceId];

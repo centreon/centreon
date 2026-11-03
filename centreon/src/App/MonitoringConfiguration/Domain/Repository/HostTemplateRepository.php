@@ -128,10 +128,10 @@ interface HostTemplateRepository
     public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool;
 
     /**
-     * Persists $copy and sets its id. The copy takes its name, SNMP community and macros from $copy;
-     * every other `host` column and the relations (parent templates in order, service template links,
-     * extended information, categories, contacts, contact groups, monitoring server) are copied from
-     * $sourceId.
+     * Persists $copy and sets its id. The copy takes its name, SNMP community and re-minted password
+     * macro values from $copy; every other `host` column, the macro rows and the relations (parent
+     * templates in order, service template links, extended information, categories, contacts, contact
+     * groups, monitoring server) are copied from $sourceId.
      */
     public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void;
 
@@ -143,7 +143,8 @@ interface HostTemplateRepository
     public function findPollerIdsOfInheritingHosts(HostTemplateId $id): Collection;
 
     /**
-     * Deletes the template; the relations cascade, and a dependency left without any member is removed.
+     * Deletes the template; the relations cascade, and a host dependency left without a parent or a child
+     * host is removed.
      */
     public function remove(HostTemplate $hostTemplate): void;
 }

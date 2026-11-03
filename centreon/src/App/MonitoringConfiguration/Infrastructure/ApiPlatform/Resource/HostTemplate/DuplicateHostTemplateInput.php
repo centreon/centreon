@@ -36,10 +36,12 @@ final readonly class DuplicateHostTemplateInput
 {
     public function __construct(
         // Uniqueness against hosts and templates is checked by the command handler (409).
-        #[ApiProperty(
-            description: 'The name of the copy, its spaces turned into underscores. Left out, the copy is named "<source name>_<n>".',
-            schema: ['type' => 'string', 'minLength' => HostTemplateName::MIN_LENGTH, 'maxLength' => HostTemplateName::MAX_LENGTH],
-        )]
+        #[ApiProperty(schema: [
+            'type' => 'string',
+            'minLength' => HostTemplateName::MIN_LENGTH,
+            'maxLength' => HostTemplateName::MAX_LENGTH,
+            'description' => 'The name of the copy, its spaces turned into underscores. Left out, the copy is named "<source name>_<n>".',
+        ])]
         #[NotNullWhenProvided]
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),

@@ -188,6 +188,6 @@ final readonly class DuplicateHostTemplateCommandHandler
             }
         }
 
-        throw HostTemplateAlreadyExistsException::forName($sourceName->value);
+        throw HostTemplateAlreadyExistsException::forExhaustedSuffixes($sourceName->value, self::MAX_NAME_ATTEMPTS);
     }
 }

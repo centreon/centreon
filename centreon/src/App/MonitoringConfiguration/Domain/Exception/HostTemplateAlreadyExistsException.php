@@ -34,4 +34,13 @@ final class HostTemplateAlreadyExistsException extends AggregateAlreadyExistsExc
     {
         return new self(['name' => $name], 'A host or host template already uses this name.', previous: $previous);
     }
+
+    public static function forExhaustedSuffixes(string $sourceName, int $maxSuffix, ?\Throwable $previous = null): self
+    {
+        return new self(
+            ['name' => $sourceName],
+            sprintf('Every name from "%1$s_1" to "%1$s_%2$d" is already used by a host or host template.', $sourceName, $maxSuffix),
+            previous: $previous,
+        );
+    }
 }

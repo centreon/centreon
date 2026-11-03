@@ -13741,3 +13741,4 @@ components:
           type: string
           minLength: 1
           maxLength: 200
+          description: 'The name of the copy, its spaces turned into underscores. Left out, the copy is named "<source name>_<n>".'
