@@ -4,14 +4,18 @@ set -euo pipefail
 # Inputs
 # BASE_SHA is latest stable release bundle tag commit sha
 # HEAD_SHA is release or hotfix branch head sha
+# COMPONENTS_FILE is release-components.json read at HEAD_SHA
 BASE_SHA="$1"
 HEAD_SHA="$2"
+COMPONENTS_FILE="$3"
 
 echo "[DEBUG] Using BASE_SHA $BASE_SHA and HEAD_SHA $HEAD_SHA to build commit list..."
 
-# Paths to identify changes in components
-echo "[DEBUG] Using $(dirname "$0")/release-component-paths.sh for paths."
-source "$(dirname "$0")/release-component-paths.sh"
+# Paths to identify changes in components, from the mapping read at the target ref
+declare -A COMPONENT_PATHS
+while IFS=$'\t' read -r component paths; do
+  COMPONENT_PATHS[$component]="$paths"
+done < <(jq -r '.components | to_entries[] | "\(.key)\t\(.value.paths | join(" "))"' "$COMPONENTS_FILE")
 
 # Prepare list of commit-list
 mkdir -p artifacts/commit-lists
