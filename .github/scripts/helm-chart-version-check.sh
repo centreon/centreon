@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# On PRs (BASE_REF set), a changed chart (outside ci/) needs a higher minor.patch.
+# Chart.yaml version must be X.Y.Z; on PRs (BASE_REF set), a changed chart (outside ci/) needs a higher minor.patch.
 # The major is not compared: the CI sets it from .version at packaging.
 # Env: CHART_DIR, BASE_REF.
 set -euo pipefail
@@ -7,6 +7,8 @@ set -euo pipefail
 minor_patch() {
   awk '$1 == "version:" { gsub(/"/, "", $2); sub(/^[^.]*\./, "", $2); print $2; exit }'
 }
+
+bash .github/scripts/helm-chart-version.sh > /dev/null
 
 if [[ -z "${BASE_REF:-}" ]]; then
   exit 0
