@@ -238,6 +238,27 @@ final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
         self::assertNotFalse($this->connection->fetchOne('SELECT 1 FROM service WHERE service_id = ?', [$serviceTemplateId]));
     }
 
+    public function testRemoveDetachesAChildTemplateAndTakesItsOwnRowsAlong(): void
+    {
+        $templateId = $this->insertTemplate();
+        $childTemplateId = $this->insertTemplate();
+        $this->linkToTemplate($childTemplateId, $templateId, 1);
+        $this->insertMacro($templateId, '$_HOSTUSER$', 'admin', false);
+        $this->connection->insert('extended_host_information', ['host_host_id' => $templateId, 'ehi_notes' => 'notes']);
+        $this->connection->insert('hostcategories_relation', ['host_host_id' => $templateId, 'hostcategories_hc_id' => $this->insertCategory(null)]);
+        $this->connection->insert('contact_host_relation', ['host_host_id' => $templateId, 'contact_id' => $this->anyContactId()]);
+        $this->connection->insert('contactgroup_host_relation', ['host_host_id' => $templateId, 'contactgroup_cg_id' => $this->insertContactGroup()]);
+        $this->connection->insert('ns_host_relation', ['host_host_id' => $templateId, 'nagios_server_id' => $this->insertPoller()]);
+
+        $this->repository->remove($this->template($templateId));
+
+        self::assertNotFalse($this->connection->fetchOne('SELECT 1 FROM host WHERE host_id = ?', [$childTemplateId]));
+        self::assertSame([], $this->column('SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = ?', [$childTemplateId]));
+        foreach (['on_demand_macro_host', 'extended_host_information', 'hostcategories_relation', 'contact_host_relation', 'contactgroup_host_relation', 'ns_host_relation', 'host_template_relation'] as $table) {
+            self::assertSame(0, $this->rowCount($table, $templateId), "{$table} keeps rows of the deleted template");
+        }
+    }
+
     public function testRemoveNeverDeletesAHost(): void
     {
         $hostId = $this->insertHost();
@@ -426,8 +447,12 @@ final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
         );
     }
 
-    private function rowCount(string $table): int
+    private function rowCount(string $table, ?int $hostId = null): int
     {
+        if ($hostId !== null) {
+            return self::asInt($this->connection->fetchOne("SELECT COUNT(*) FROM {$table} WHERE host_host_id = ?", [$hostId]));
+        }
+
         return self::asInt($this->connection->fetchOne("SELECT COUNT(*) FROM {$table}"));
     }
 

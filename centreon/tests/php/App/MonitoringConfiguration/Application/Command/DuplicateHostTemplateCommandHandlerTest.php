@@ -156,6 +156,15 @@ final class DuplicateHostTemplateCommandHandlerTest extends TestCase
         self::assertSame('generic_999', $this->onlyCopy()->name->value);
     }
 
+    public function testAGeneratedNameOfExactlyTheMaximumLengthIsAccepted(): void
+    {
+        $this->seed(7, str_repeat('a', HostTemplateName::MAX_LENGTH - 2));
+
+        ($this->handler)(new DuplicateHostTemplateCommand(new HostTemplateId(7), null, TestActingUsers::unrestricted()));
+
+        self::assertSame(HostTemplateName::MAX_LENGTH, mb_strlen($this->onlyCopy()->name->value));
+    }
+
     public function testAGeneratedNameOverTheLimitIsAValidationFailure(): void
     {
         $this->seed(7, str_repeat('a', HostTemplateName::MAX_LENGTH - 1));
