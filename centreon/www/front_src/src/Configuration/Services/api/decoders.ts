@@ -2,6 +2,12 @@ import { buildListingDecoder } from '@centreon/ui';
 
 import { JsonDecoder } from 'ts.data.json';
 
+import { getDetailDecoder } from '../../ResourceForm/blocks';
+import {
+  blocks,
+  type PlatformContext,
+  type ServiceDetail
+} from '../Form/sections';
 import type {
   Icon,
   NamedEntity,
@@ -67,3 +73,7 @@ export const namedEntitiesListDecoder = buildListingDecoder({
   entityDecoderName: 'Entity',
   listingDecoderName: 'Entity List'
 });
+
+// The detail of one service, each block of the form reading its own fields.
+export const getServiceDecoder = (context: PlatformContext) =>
+  getDetailDecoder<ServiceDetail>({ blocks, context, name: 'Service' });

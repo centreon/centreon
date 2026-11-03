@@ -62,3 +62,30 @@ export const getServiceTemplatesResponse = () => ({
   ],
   totalItems: 2
 });
+
+// The detail of each listed service, as the API Platform detail route answers:
+// the host as an object where the create takes its id.
+const serviceDetails: Record<number, Record<string, unknown>> = {
+  0: { host: { id: 10, name: 'host A' }, name: 'cpu' },
+  1: { host: { id: 11, name: 'host B' }, name: 'memory' },
+  2: { host: { id: 10, name: 'host A' }, name: 'disk' }
+};
+
+export const getServiceResponse = (id: number) => ({
+  '@context': '/centreon/api/contexts/Service',
+  '@id': `/centreon/api/configuration/services/${id}`,
+  '@type': 'Service',
+  id,
+  ...serviceDetails[id]
+});
+
+export const getServiceFormHostsResponse = () => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': '/centreon/api/configuration/services/hosts',
+  '@type': 'Collection',
+  member: [
+    { id: 10, name: 'host A' },
+    { id: 11, name: 'host B' }
+  ],
+  totalItems: 2
+});
