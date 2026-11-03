@@ -33,10 +33,14 @@ const {
 const dryRun = DRY_RUN === "true";
 const keyTagRegex = () => new RegExp(`@(${PROJECT_KEY}-\\d+)\\b`, "g");
 
-// Xray stores only the scenario steps (and Examples): drop a leading Scenario line,
-// dedent, strip trailing spaces and surrounding blank lines, LF line endings.
+// Xray stores only the scenario steps (and Examples): drop a leading Scenario line and
+// comment lines (commented-out code must not reach Xray), dedent, strip trailing spaces
+// and surrounding blank lines, LF line endings.
 function normalizeGherkin(text) {
-  const lines = (text || "").split(/\r?\n/).map((line) => line.replace(/\s+$/, ""));
+  const lines = (text || "")
+    .split(/\r?\n/)
+    .map((line) => line.replace(/\s+$/, ""))
+    .filter((line) => !line.trimStart().startsWith("#"));
   while (lines.length > 0 && lines[0] === "") lines.shift();
   if (lines.length > 0 && SCENARIO_REGEX.test(lines[0])) lines.shift();
   while (lines.length > 0 && lines[0] === "") lines.shift();
@@ -44,6 +48,27 @@ function normalizeGherkin(text) {
   const indents = lines.filter((line) => line !== "").map((line) => line.match(/^\s*/)[0].length);
   const commonIndent = indents.length > 0 ? Math.min(...indents) : 0;
   return lines.map((line) => line.slice(commonIndent)).join("\n");
+}
+
+// Comparison form of a normalized definition: Xray re-indents Examples, aligns tables
+// and collapses spaces on its side, so layout alone must not trigger a rewrite.
+function comparisonKey(gherkin) {
+  return gherkin
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trim().replace(/\s+/g, " ");
+      return trimmed.startsWith("|") ? trimmed.split("|").map((cell) => cell.trim()).join("|") : trimmed;
+    })
+    .filter((line) => line !== "")
+    .join("\n");
+}
+
+// An Xray definition holding more than one scenario's steps (Feature, Background, Rule,
+// tags, several scenarios) would lose content if overwritten: leave it for a human.
+function holdsMoreThanSteps(xrayGherkin) {
+  const lines = (xrayGherkin || "").split(/\r?\n/).map((line) => line.trim());
+  const scenarioLines = lines.filter((line) => SCENARIO_REGEX.test(line)).length;
+  return scenarioLines > 1 || lines.some((line) => /^(?:Feature|Background|Rule):/.test(line) || line.startsWith("@"));
 }
 
 // Every *.feature file under a directory, recursively, in a stable order.
@@ -125,7 +150,7 @@ function groupByKey(scenarios) {
   const conflicts = new Map();
   for (const [key, entries] of byKey) {
     const names = new Set(entries.map((entry) => entry.name));
-    const bodies = new Set(entries.map((entry) => entry.gherkin));
+    const bodies = new Set(entries.map((entry) => comparisonKey(entry.gherkin)));
     if (names.size > 1 || bodies.size > 1) {
       conflicts.set(key, entries);
     } else {
@@ -215,11 +240,15 @@ async function main() {
   const missingKeys = targetKeys.filter((key) => !xrayTests.has(key));
   const upToDateKeys = [];
   const outdatedKeys = [];
+  const protectedKeys = [];
   for (const key of targetKeys) {
     const test = xrayTests.get(key);
     if (!test) continue;
-    if (normalizeGherkin(test.gherkin) === resolved.get(key).gherkin) {
+    if (comparisonKey(normalizeGherkin(test.gherkin)) === comparisonKey(resolved.get(key).gherkin)) {
       upToDateKeys.push(key);
+    } else if (holdsMoreThanSteps(test.gherkin)) {
+      console.log(`WARNING: ${key} holds more than one scenario's steps in Xray, not overwritten`);
+      protectedKeys.push(key);
     } else {
       outdatedKeys.push(key);
     }
@@ -251,6 +280,7 @@ async function main() {
     `- Up to date: ${upToDateKeys.length}`,
     `- ${dryRun ? "To resync" : "Resynced"}: ${syncedKeys.length} ${keyList(syncedKeys)}`,
     `- Not found in Xray: ${missingKeys.length} ${keyList(missingKeys)}`,
+    `- Not overwritten (Xray holds Feature/Background/Rule/tags/several scenarios): ${protectedKeys.length} ${keyList(protectedKeys)}`,
   );
   if (failedKeys.length > 0) summary.push(`- Failed: ${failedKeys.length} ${keyList(failedKeys)}`);
   writeStepSummary(summary.join("\n"));
@@ -266,4 +296,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { normalizeGherkin, extractTaggedScenarios, groupByKey };
+module.exports = { normalizeGherkin, comparisonKey, holdsMoreThanSteps, extractTaggedScenarios, groupByKey };
