@@ -1439,7 +1439,9 @@ function enable_new_services() {
 		poller)
 			log "DEBUG" "On poller..."
 			systemctl enable centreon centengine centreontrapd snmpd snmptrapd gorgoned || log "WARN" "Some services could not be enabled"
-			systemctl start centreontrapd snmptrapd || log "WARN" "Some services could not be started"
+			# gorgoned is started by its package %post; start it explicitly too since the
+			# recap requires it (a poller without gorgone cannot be registered).
+			systemctl start centreontrapd snmptrapd gorgoned || log "WARN" "Some services could not be started (see recap below)"
 			# Same mid-transaction restart issue as on central (see above).
 			if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 				systemctl restart centengine || log "WARN" "centengine could not be restarted (see recap below)"
@@ -1940,8 +1942,6 @@ function display_services_recap() {
 		"httpd|${HTTP_SERVICE_UNIT:-httpd}|central"
 		"php-fpm|${PHP_SERVICE_UNIT:-php-fpm}|central"
 		"centengine|centengine|central poller"
-		# On pollers gorgoned is only started by its package %post (enable_new_services
-		# does not start it there): report it without failing the run.
 		"gorgone|gorgoned|central poller"
 		"cbd|cbd|central"
 		"centreontrapd|centreontrapd|central poller"
