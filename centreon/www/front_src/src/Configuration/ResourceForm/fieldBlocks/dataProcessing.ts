@@ -7,7 +7,7 @@ import { type ObjectShape, object, string } from 'yup';
 
 import { optionalNamedEntityDecoder } from '../api/decoders';
 import { argumentsToText, textToArguments } from '../commandArguments';
-import { getBlock, threeColumnsFromWide } from '../grid';
+import { fourColumnsFromNarrow, getBlock, threeColumnsFromWide } from '../grid';
 import type {
   FieldBlock,
   FormValues,
@@ -631,7 +631,7 @@ export const getObsessRetainAndStalkingBlock = ({
           name: 'data-processing-obsess-and-retain'
         }),
         getBlock({
-          className: 'grid-cols-2 @[600px]:grid-cols-4',
+          className: fourColumnsFromNarrow,
           columns: stalkingOptions.map(({ label, letter }) => ({
             dataTestId: `${idPrefix}-data-processing-stalkingOptions-${letter}`,
             fieldName: `dataProcessing.stalkingOptions.${letter}`,
