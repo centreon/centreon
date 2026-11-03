@@ -1,45 +1,23 @@
-import { Form, InputType } from '@centreon/ui';
+import { Form } from '@centreon/ui';
 import { FormActions, Modal } from '@centreon/ui/components';
 
-import { type JSX, useCallback, useMemo } from 'react';
+import { type JSX, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { object, string } from 'yup';
 
-import {
-  labelCancel,
-  labelDuplicate,
-  labelName,
-  labelRequired
-} from '../../translatedLabels';
+import { labelCancel, labelDuplicate } from '../../translatedLabels';
 import useDuplicateWithName, {
   type DuplicateWithNameValues
 } from './useDuplicateWithName';
+import useFormInputs from './useFormInputs';
+import useValidationSchema from './useValidationSchema';
 
 const DuplicateWithNameDialog = (): JSX.Element => {
   const { t } = useTranslation();
 
   const { close, headerContent, initialValues, isOpened, submit } =
     useDuplicateWithName();
-
-  const inputs = useMemo(
-    () => [
-      {
-        autoFocus: true,
-        dataTestId: labelName,
-        fieldName: 'name',
-        group: 'main',
-        label: t(labelName),
-        required: true,
-        type: InputType.Text
-      }
-    ],
-    [t]
-  );
-
-  const validationSchema = useMemo(
-    () => object({ name: string().trim().required(t(labelRequired)) }),
-    [t]
-  );
+  const { inputs } = useFormInputs();
+  const { validationSchema } = useValidationSchema();
 
   const Buttons = useCallback(
     () => (

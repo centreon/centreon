@@ -25,6 +25,9 @@ interface UseDuplicateProps {
   isMutating: boolean;
 }
 
+// What a refused name answers: shown on the name field instead of a snackbar.
+export const nameErrorStatuses = [409, 422];
+
 const useDuplicate = (): UseDuplicateProps => {
   const configuration = useAtomValue(configurationAtom);
 
@@ -38,11 +41,21 @@ const useDuplicate = (): UseDuplicateProps => {
 
   const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
 
+  const getEndpoint = duplicatesEachByItself
+    ? (endpoint as ({ id }: { id: number }) => string)
+    : () => endpoint as string;
+
   const { isMutating, mutateAsync } = useMutationQuery({
     baseEndpoint: writeBaseEndpoint,
-    getEndpoint: duplicatesEachByItself
-      ? (endpoint as ({ id }: { id: number }) => string)
-      : () => endpoint as string,
+    getEndpoint,
+    method: Method.POST
+  });
+
+  // Its own instance, so the bypass leaves the selection's feedback as is.
+  const { mutateAsync: mutateWithName } = useMutationQuery({
+    baseEndpoint: writeBaseEndpoint,
+    getEndpoint,
+    httpCodesBypassErrorSnackbar: nameErrorStatuses,
     method: Method.POST
   });
 
@@ -79,7 +92,9 @@ const useDuplicate = (): UseDuplicateProps => {
     id: number;
     name: string;
   }) =>
-    mutateAsync({ _meta: { id }, payload: { name } }).then(invalidateListing);
+    mutateWithName({ _meta: { id }, payload: { name } }).then(
+      invalidateListing
+    );
 
   return {
     duplicateMutation,

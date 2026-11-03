@@ -173,7 +173,7 @@ export interface APIType {
     disable?: Method;
   };
   isSingleDuplicate?: boolean;
-  // The row duplicate asks the copy's name and sends `{ name }`; a selection sends no body.
+  // Row duplicate asks the copy's name and POSTs `{ name }`; needs a per-id `duplicate` endpoint.
   isDuplicateWithName?: boolean;
 }
 

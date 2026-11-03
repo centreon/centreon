@@ -4,10 +4,12 @@ import { type ResponseError, useSnackbar } from '@centreon/ui';
 
 import type { FormikHelpers } from 'formik';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { isNotNil } from 'ramda';
+import { includes, isNotNil } from 'ramda';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDuplicate as useDuplicateRequest } from '../../api';
+import { nameErrorStatuses } from '../../api/useDuplicate';
 import { configurationAtom } from '../../atoms';
 import {
   resourceToDuplicateWithNameAtom,
@@ -45,9 +47,12 @@ const useDuplicateWithName = (): UseDuplicateWithNameState => {
 
   const { duplicateWithNameMutation } = useDuplicateRequest();
 
-  const close = (): void => setResource(null);
+  const close = useCallback((): void => {
+    setSelectedRows([]);
+    setResource(null);
+  }, [setResource, setSelectedRows]);
 
-  // A refused name is shown on the field and the dialog stays open to fix it.
+  // A refused name goes on the field; any error keeps the dialog open.
   const submit = async (
     { name }: DuplicateWithNameValues,
     { setFieldError }: FormikHelpers<DuplicateWithNameValues>
@@ -57,16 +62,17 @@ const useDuplicateWithName = (): UseDuplicateWithNameState => {
     }
 
     const response = await duplicateWithNameMutation({ id: resource.id, name });
-    const { isError, message } = response as ResponseError;
+    const { isError, message, statusCode } = response as ResponseError;
 
     if (isError) {
-      setFieldError('name', message);
+      if (includes(statusCode, nameErrorStatuses)) {
+        setFieldError('name', message);
+      }
 
       return;
     }
 
     showSuccessMessage(t(labelResourceDuplicated(capitalize(resourceType))));
-    setSelectedRows([]);
     close();
   };
 
