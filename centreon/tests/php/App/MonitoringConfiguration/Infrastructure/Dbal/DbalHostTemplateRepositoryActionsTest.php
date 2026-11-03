@@ -249,12 +249,17 @@ final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
         $this->connection->insert('contact_host_relation', ['host_host_id' => $templateId, 'contact_id' => $this->anyContactId()]);
         $this->connection->insert('contactgroup_host_relation', ['host_host_id' => $templateId, 'contactgroup_cg_id' => $this->insertContactGroup()]);
         $this->connection->insert('ns_host_relation', ['host_host_id' => $templateId, 'nagios_server_id' => $this->insertPoller()]);
+        $this->linkToTemplate($templateId, $this->insertTemplate(), 1);
+        $ownedTables = ['on_demand_macro_host', 'extended_host_information', 'hostcategories_relation', 'contact_host_relation', 'contactgroup_host_relation', 'ns_host_relation', 'host_template_relation'];
+        foreach ($ownedTables as $table) {
+            self::assertSame(1, $this->rowCount($table, $templateId), "{$table} must hold a row of the template before the delete");
+        }
 
         $this->repository->remove($this->template($templateId));
 
         self::assertNotFalse($this->connection->fetchOne('SELECT 1 FROM host WHERE host_id = ?', [$childTemplateId]));
         self::assertSame([], $this->column('SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = ?', [$childTemplateId]));
-        foreach (['on_demand_macro_host', 'extended_host_information', 'hostcategories_relation', 'contact_host_relation', 'contactgroup_host_relation', 'ns_host_relation', 'host_template_relation'] as $table) {
+        foreach ($ownedTables as $table) {
             self::assertSame(0, $this->rowCount($table, $templateId), "{$table} keeps rows of the deleted template");
         }
     }
