@@ -1,9 +1,7 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pick } from 'ramda';
 
-import { ResourceRow, RowAction } from '../../../../models';
+import { NamedEntity, ResourceRow, RowAction } from '../../../../models';
 import { configurationAtom } from '../../../atoms';
 import {
   resourcesToDeleteAtom,
@@ -29,7 +27,7 @@ const useActions = (row: ResourceRow): UseActionsState => {
     resourceToDuplicateWithNameAtom
   );
 
-  const hostGroupEntity = pick(['id', 'name'], row);
+  const hostGroupEntity = pick(['id', 'name'], row) as NamedEntity;
 
   const openDeleteModal = (): void => setResourcesToDelete([hostGroupEntity]);
   const openDuplicateModal = (): void =>

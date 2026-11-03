@@ -20,6 +20,8 @@ import initialize from './initialize';
 const nameInputSelector = 'input[data-testid="duplicate-name"]';
 // The backend's error body: `{ code, message }`.
 const nameTaken = 'A host or host template already uses this name.';
+const nameTooLong =
+  '[name] This value is too long. It should have 200 characters or less.\n';
 
 const initializeListing = async (
   props: Parameters<typeof initialize>[0] = {}
@@ -148,11 +150,13 @@ export default () => {
       expect(getRequestCalls('duplicateHostTemplate1')).toHaveLength(0);
     });
 
-    // 409: name taken; 422: name invalid. Both are the name's fault.
-    [409, 422].forEach((statusCode) => {
+    [
+      { message: nameTaken, statusCode: 409 },
+      { message: nameTooLong, statusCode: 422 }
+    ].forEach(({ message, statusCode }) => {
       it(`shows a ${statusCode} on the name field and keeps the dialog open`, async () => {
         await initializeListing();
-        answerDuplicate({ id: 1, message: nameTaken, statusCode });
+        answerDuplicate({ id: 1, message, statusCode });
 
         await openNameDialog(1);
         await submitName();
@@ -160,7 +164,7 @@ export default () => {
 
         const dialog = await screen.findByRole('dialog');
 
-        expect(await within(dialog).findByText(nameTaken)).toBeVisible();
+        expect(await within(dialog).findByText(message.trim())).toBeVisible();
         expect(document.querySelector(nameInputSelector)).not.toBeNull();
         expect(getSnackbarTexts()).toEqual([]);
       });

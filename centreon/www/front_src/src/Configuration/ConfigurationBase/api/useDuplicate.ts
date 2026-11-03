@@ -25,7 +25,7 @@ interface UseDuplicateProps {
   isMutating: boolean;
 }
 
-// What a refused name answers: shown on the name field instead of a snackbar.
+// The statuses of a refused name: taken (409) or invalid (422).
 export const nameErrorStatuses = [409, 422];
 
 const useDuplicate = (): UseDuplicateProps => {
