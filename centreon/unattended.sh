@@ -565,7 +565,7 @@ function install_mariadb_repo_setup() {
 #
 function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
-	if (( $(version_int) >= $(version_int 26.07) )); then
+	if (( $(version_int) >= $(version_int 26.10) )); then
 		detected_mariadb_version="11.8"
 	else
 		detected_mariadb_version="10.11"
@@ -573,7 +573,7 @@ function set_mariadb_repos() {
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		install_mariadb_repo_setup --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale || error_and_exit "Could not install the $dbms repository"
-	elif (( $(version_int) >= $(version_int 26.07) )); then
+	elif (( $(version_int) >= $(version_int 26.10) )); then
 		# el9 has no 11.8 dnf module stream and el10 dropped dnf modularity, so MariaDB 11.8
 		# is installed from the MariaDB official repository for both.
 		install_mariadb_repo_setup --os-type=rhel --os-version="$detected_os_major" --mariadb-server-version="mariadb-$detected_mariadb_version" --skip-maxscale || error_and_exit "Could not install the $dbms repository"
@@ -593,8 +593,8 @@ function set_mariadb_repos() {
 #
 function setup_mysql() {
 	log "INFO" "Install MySQL repository"
-	# Centreon 26.07+ ships with MySQL 8.4 (LTS); earlier versions use MySQL 8.0.
-	if (( $(version_int) >= $(version_int 26.07) )); then
+	# Centreon 26.10+ ships with MySQL 8.4 (LTS); earlier versions use MySQL 8.0.
+	if (( $(version_int) >= $(version_int 26.10) )); then
 		detected_mysql_version="8.4"
 	else
 		detected_mysql_version="8.0"
@@ -666,7 +666,7 @@ function set_required_prerequisite() {
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
-			if (( $(version_int) >= $(version_int 26.07) )); then
+			if (( $(version_int) >= $(version_int 26.10) )); then
 				error_and_exit "Centreon $version is not supported on Red-Hat compatible v8 (el8). Please use el9, el10 or Debian 13. See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			fi
 			set_release_repo_file
@@ -742,7 +742,7 @@ function set_required_prerequisite() {
 			esac
 
 			if [ "$topology" == "central" ]; then
-				if (( $(version_int) >= $(version_int 26.07) )); then
+				if (( $(version_int) >= $(version_int 26.10) )); then
 					# PHP 8.4 is not available in the el9 OS repositories, so it is
 					# provided by the remi repository.
 					log "INFO" "Installing PHP 8.4 from the remi repository and enable it"
@@ -761,8 +761,8 @@ function set_required_prerequisite() {
 
 		10*)
 			log "INFO" "Setting specific part for v10 ($detected_os_version)"
-			if (( $(version_int) < $(version_int 26.07) )); then
-				error_and_exit "Centreon $version is not supported on Red-Hat compatible v10 (el10). Only Centreon >= 26.07 is compatible. You chose $version"
+			if (( $(version_int) < $(version_int 26.10) )); then
+				error_and_exit "Centreon $version is not supported on Red-Hat compatible v10 (el10). Only Centreon >= 26.10 is compatible. You chose $version"
 			fi
 			set_release_repo_file
 			PHP_SERVICE_UNIT="php-fpm"
@@ -825,8 +825,8 @@ function set_required_prerequisite() {
 		PKG_MGR="apt -qq"
 		case "$detected_os_version" in
 		13)
-			if (( $(version_int) < $(version_int 26.07) )); then
-				error_and_exit "For Debian $detected_os_version, only Centreon >= 26.07 is compatible. You chose $version"
+			if (( $(version_int) < $(version_int 26.10) )); then
+				error_and_exit "For Debian $detected_os_version, only Centreon >= 26.10 is compatible. You chose $version"
 			fi
 			# On Debian 13 (trixie), PHP 8.4 is provided by the official OS repositories.
 			PHP_SERVICE_UNIT="php8.4-fpm"
@@ -1788,7 +1788,7 @@ function install_central() {
 	' 2>/dev/null) || true
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		# Determine the PHP version Centreon expects for this release...
-		if (( $(version_int) >= $(version_int 26.07) )); then
+		if (( $(version_int) >= $(version_int 26.10) )); then
 			expected_php_version="8.4"
 		elif (( $(version_int) >= $(version_int 24.10) )); then
 			expected_php_version="8.2"
@@ -1933,16 +1933,23 @@ function display_services_recap() {
 	fi
 
 	# label | systemd unit | topologies the check applies to | topologies where inactive = failure (default: same as previous)
-	# Topology lists are space-separated; outside the 4th field an inactive unit is reported as [INFO].
+	# Topology lists are space-separated; outside the 4th field ("-" = none) an inactive unit is reported as [INFO].
 	# http and php units differ per distro (httpd/php-fpm on EL, apache2/php8.x-fpm on
 	# Debian); they are resolved via the variables set in set_required_prerequisite.
 	# Topologies mirror what enable_new_services actually starts: centengine runs on
 	# central AND pollers; cbd is central-only (pollers do not ship/enable a cbd unit).
+	# Before 26.10 the packaged centengine.cfg has no broker_module_cfg_file and the engine
+	# refuses to start until a first configuration export: report it without failing the run.
+	local centengine_required_topos="-"
+	if (( $(version_int) >= $(version_int 26.10) )); then
+		centengine_required_topos="central poller"
+	fi
+	local centengine_hint=""
 	local -a recap_services=(
 		"database|${db_unit}|central"
 		"httpd|${HTTP_SERVICE_UNIT:-httpd}|central"
 		"php-fpm|${PHP_SERVICE_UNIT:-php-fpm}|central"
-		"centengine|centengine|central poller"
+		"centengine|centengine|central poller|${centengine_required_topos}"
 		"gorgone|gorgoned|central poller"
 		"cbd|cbd|central"
 		"centreontrapd|centreontrapd|central poller"
@@ -1963,7 +1970,8 @@ function display_services_recap() {
 		# Skip services that do not apply to the installed topology.
 		[[ " $topos " == *" $topology "* ]] || continue
 		active=$(systemctl is-active "$unit" 2>/dev/null || true)
-		while [ "$active" != "active" ] && [ "$SECONDS" -lt "$deadline" ]; do
+		# Only wait for units whose inactivity would fail the run.
+		while [ "$active" != "active" ] && [[ " $required_topos " == *" $topology "* ]] && [ "$SECONDS" -lt "$deadline" ]; do
 			sleep 1
 			active=$(systemctl is-active "$unit" 2>/dev/null || true)
 		done
@@ -1975,10 +1983,16 @@ function display_services_recap() {
 			failed_services+=("$name")
 		else
 			state="[INFO]  "
+			if [ "$name" == "centengine" ]; then
+				centengine_hint="  centengine starts once a first configuration has been exported to this $topology (Configuration > Pollers > Export configuration on the central)"
+			fi
 		fi
 		results+=("$(printf '  %s %-14s (%-13s) active=%-10s enabled=%s' \
 			"$state" "$name" "$unit" "${active:-unknown}" "${enabled:-unknown}")")
 	done
+	if [ -n "$centengine_hint" ]; then
+		results+=("$centengine_hint")
+	fi
 
 	# Record in the log file.
 	log "INFO" "============== Centreon platform healthcheck ([$topology]) =============="
