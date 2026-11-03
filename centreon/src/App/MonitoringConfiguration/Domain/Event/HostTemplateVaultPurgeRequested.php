@@ -28,8 +28,7 @@ use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
 use App\Shared\Domain\Event\EventInterface;
 
 /**
- * Deferred because a vault purge cannot be rolled back: it must only happen once the deletion is
- * committed. $hostTemplate is the deleted template, still pointing to its entry.
+ * Deferred: a vault purge cannot be rolled back, so it runs once the deletion is committed.
  */
 final readonly class HostTemplateVaultPurgeRequested implements DeliveredAfterCommitInterface, EventInterface
 {

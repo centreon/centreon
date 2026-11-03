@@ -121,33 +121,28 @@ interface HostTemplateRepository
     public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection;
 
     /**
-     * A host template with its name, alias, lock state, own macros, SNMP community and direct parents;
-     * null when the id is unknown or is a host. Unscoped: host templates are never ACL-filtered.
+     * Null when the id is unknown or is a host; never ACL-filtered.
      */
     public function findOne(HostTemplateId $id): ?HostTemplate;
 
     public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool;
 
     /**
-     * Persists $copy and sets its id. The copy takes its name, SNMP community and re-minted password
-     * macro values from $copy; every other `host` column, the macro rows and the relations (parent
-     * templates in order, service template links, extended information, categories, contacts, contact
-     * groups, monitoring server) are copied from $sourceId.
+     * Persists $copy (name, SNMP community, re-minted password macros) and copies everything else from $sourceId.
      *
      * @throws HostTemplateNotFoundException when $sourceId is no longer a host template
      */
     public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void;
 
     /**
-     * The pollers of every host inheriting the template, directly or through other templates.
+     * The pollers of every enabled host inheriting the template, directly or not.
      *
      * @return Collection<PollerId>
      */
     public function findPollerIdsOfInheritingHosts(HostTemplateId $id): Collection;
 
     /**
-     * Deletes the template; the relations cascade, and a host dependency left without a parent or a child
-     * host is removed.
+     * Deletes the template and any host dependency it leaves empty.
      */
     public function remove(HostTemplate $hostTemplate): void;
 }

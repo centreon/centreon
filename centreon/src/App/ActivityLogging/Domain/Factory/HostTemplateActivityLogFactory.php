@@ -35,7 +35,7 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
- * Duplication and deletion are logged without details.
+ * Logged without details.
  *
  * @implements ActivityLogFactoryInterface<HostTemplate>
  */

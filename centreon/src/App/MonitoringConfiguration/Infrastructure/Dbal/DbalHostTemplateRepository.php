@@ -377,8 +377,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
     public function findPollerIdsOfInheritingHosts(HostTemplateId $id): Collection
     {
-        // UNION dedupes the reached ids, so a template loop already in the data cannot make the
-        // recursion run forever.
+        // UNION dedupes, so a template loop cannot recurse forever.
         $sql = <<<'SQL'
             WITH RECURSIVE inheritors (id) AS (
                 SELECT host_host_id
@@ -882,9 +881,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     }
 
     /**
-     * Copies the rows of $table owned by $sourceId, every column included so that none is forgotten,
-     * except the auto-increment and generated ones (left to the database) and $overrides ones (bound
-     * values).
+     * Copies the $table rows of $sourceId, all columns but auto-increment, generated and $overrides ones.
      *
      * @param non-empty-string $table
      * @param non-empty-string $ownerColumn

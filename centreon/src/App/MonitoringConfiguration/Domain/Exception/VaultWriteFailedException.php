@@ -27,8 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 
 /**
- * A secret could not be written to the vault before the host or host template was saved: nothing was
- * persisted.
+ * A secret could not be written to the vault before saving: nothing was persisted.
  */
 final class VaultWriteFailedException extends \RuntimeException
 {

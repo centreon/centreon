@@ -44,10 +44,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Webmozart\Assert\Assert;
 
 /**
- * One copy per call, answered with 204.
- *
- * The body is optional, which the platform deserializer refuses with a 415: the operation does not
- * deserialize, and the body is read here when there is one.
+ * Reads the optional body itself: the platform deserializer would refuse an empty one with a 415.
  *
  * @implements ProcessorInterface<null, null>
  */

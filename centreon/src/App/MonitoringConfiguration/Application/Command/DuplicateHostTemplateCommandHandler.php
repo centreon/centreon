@@ -91,8 +91,7 @@ final readonly class DuplicateHostTemplateCommandHandler
     }
 
     /**
-     * The copy gets its own vault entry: copied verbatim, its `secret::` references would share the
-     * source's entry. Every secret lands under one new UUID.
+     * Re-mints the vaulted secrets under a new UUID so the copy does not share the source's entry.
      *
      * @return array{0: ?SnmpCommunity, 1: Collection<HostMacro>}
      */

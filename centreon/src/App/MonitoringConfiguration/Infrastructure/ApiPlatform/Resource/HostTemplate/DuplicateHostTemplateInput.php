@@ -29,13 +29,11 @@ use App\Shared\Infrastructure\Validator\Constraints\NotNullWhenProvided;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Do not add an `id` property here: it would flip a missing-template 404 into a 422 via
- * InvalidReferenceExceptionListener.
+ * No id property: InvalidReferenceExceptionListener would turn a missing-template 404 into a 422.
  */
 final readonly class DuplicateHostTemplateInput
 {
     public function __construct(
-        // Uniqueness against hosts and templates is checked by the command handler (409).
         #[ApiProperty(schema: [
             'type' => 'string',
             'minLength' => HostTemplateName::MIN_LENGTH,

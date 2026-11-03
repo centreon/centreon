@@ -31,7 +31,7 @@ use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 
 /**
- * Delivered after the commit: a failure cannot roll the deletion back, so it is reported to the caller.
+ * A failed purge is reported: the deletion is already committed.
  */
 #[AsEventHandler]
 final readonly class PurgeHostTemplateVaultEventHandler

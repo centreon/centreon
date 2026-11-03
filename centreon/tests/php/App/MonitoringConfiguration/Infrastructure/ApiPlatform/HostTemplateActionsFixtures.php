@@ -28,10 +28,7 @@ use Symfony\Component\Uid\Uuid;
 use Webmozart\Assert\Assert;
 
 /**
- * Fixtures of the host template duplicate and delete HTTP tests.
- *
- * Requires the using class to extend Tests\App\Shared\ApiTestCase and to set $connection and
- * $realTimeConnection.
+ * Requires an ApiTestCase setting $connection and $realTimeConnection.
  */
 trait HostTemplateActionsFixtures
 {

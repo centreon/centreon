@@ -42,9 +42,6 @@ use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 
-/**
- * The write and lookup paths behind the duplicate and delete actions.
- */
 final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
 {
     private Connection $connection;

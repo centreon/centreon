@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Exception;
 
 /**
- * A validation failure on the generated name (HTTP 422), not a name-already-taken conflict (HTTP 409).
+ * The name generated for a copy would exceed the maximum length.
  */
 final class DuplicatedHostTemplateNameTooLongException extends \RuntimeException
 {

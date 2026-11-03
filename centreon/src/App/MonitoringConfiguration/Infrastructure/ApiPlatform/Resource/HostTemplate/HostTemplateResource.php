@@ -115,7 +115,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
         new Post(
             uriTemplate: '/configuration/host_templates/{id}/_duplicate',
             requirements: ['id' => '[1-9]\d*'],
-            // Write-only action: the handler loads the source itself and answers 404 when it is missing.
+            // The handler loads the source (404).
             read: false,
             // Optional body: read by the processor, see DuplicateHostTemplateProcessor.
             deserialize: false,
