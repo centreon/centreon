@@ -5,17 +5,15 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import pluralize from 'pluralize';
 
+import { listingDataTestIds } from '../Listing/dataTestIds';
 import {
   labelActions,
   labelAlias,
   labelClear,
-  labelDelete,
   labelDisabled,
-  labelDuplicate,
   labelEnableDisable,
   labelEnabled,
   labelFilters,
-  labelMoreActions,
   labelName,
   labelSearch
 } from '../translatedLabels';
@@ -69,16 +67,22 @@ export default (resourceType: string): void => {
 
       expect(screen.getByText('1-10 of 12')).toBeVisible();
       expect(screen.getByTestId('add-resource')).toBeEnabled();
-      expect(screen.getByTestId(labelMoreActions)).toBeDisabled();
+      expect(screen.getByTestId(listingDataTestIds.moreActions)).toBeDisabled();
     });
 
     it('displays configuration static columns', async () => {
       expect(await screen.findByText(labelEnableDisable)).toBeVisible();
       expect(screen.getByText(labelActions)).toBeVisible();
 
-      expect(screen.getByTestId(`${labelDuplicate}_1`)).toBeVisible();
-      expect(screen.getByTestId(`${labelDelete}_1`)).toBeVisible();
-      expect(screen.getByTestId(`${labelEnableDisable}_1`)).toBeVisible();
+      expect(
+        screen.getByTestId(listingDataTestIds.row.duplicate(1))
+      ).toBeVisible();
+      expect(
+        screen.getByTestId(listingDataTestIds.row.delete(1))
+      ).toBeVisible();
+      expect(
+        screen.getByTestId(listingDataTestIds.row.enableDisable(1))
+      ).toBeVisible();
     });
 
     it('displays resource-specific additional columns', async () => {
@@ -87,7 +91,9 @@ export default (resourceType: string): void => {
     });
 
     it('displays more actions', async () => {
-      expect(await screen.findByTestId(labelMoreActions)).toBeVisible();
+      expect(
+        await screen.findByTestId(listingDataTestIds.moreActions)
+      ).toBeVisible();
     });
 
     it('displays and interacts with filters', async () => {

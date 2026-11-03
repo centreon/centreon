@@ -5,6 +5,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import pluralize from 'pluralize';
 
+import { listingDataTestIds } from '../Listing/dataTestIds';
 import {
   labelCancel,
   labelDelete,
@@ -14,8 +15,6 @@ import {
   labelDuplicateResource,
   labelDuplications,
   labelEnable,
-  labelEnableDisable,
-  labelMoreActions,
   labelResourceDeleted,
   labelResourceDisabled,
   labelResourceDuplicated,
@@ -44,7 +43,7 @@ const selectRows = async (): Promise<void> => {
 };
 
 const openMoreActions = async (): Promise<HTMLElement> => {
-  await userEvent.click(screen.getByTestId(labelMoreActions));
+  await userEvent.click(screen.getByTestId(listingDataTestIds.moreActions));
 
   // The last one opened: a closing menu may still be in the page.
   return (await screen.findAllByRole('menu')).at(-1) as HTMLElement;
@@ -73,7 +72,7 @@ const expectDialogClosed = async (): Promise<void> => {
 // row renders again, so it proves nothing here.
 const expectDialogClosedAndSelectionCleared = async (): Promise<void> => {
   await expectDialogClosed();
-  expect(screen.getByTestId(labelMoreActions)).toBeDisabled();
+  expect(screen.getByTestId(listingDataTestIds.moreActions)).toBeDisabled();
 };
 
 export default (resourceType: string): void => {
@@ -89,18 +88,24 @@ export default (resourceType: string): void => {
     });
 
     it('enables the more actions button when selecting resources', async () => {
-      expect(screen.getAllByTestId(labelMoreActions)[0]).toBeDisabled();
+      expect(
+        screen.getAllByTestId(listingDataTestIds.moreActions)[0]
+      ).toBeDisabled();
 
       await selectRows();
 
       await waitFor(() =>
-        expect(screen.getAllByTestId(labelMoreActions)[0]).toBeEnabled()
+        expect(
+          screen.getAllByTestId(listingDataTestIds.moreActions)[0]
+        ).toBeEnabled()
       );
     });
 
     describe('Delete', () => {
       it('displays the confirmation dialog when the inline delete button is clicked', async () => {
-        await userEvent.click(screen.getByTestId(`${labelDelete}_1`));
+        await userEvent.click(
+          screen.getByTestId(listingDataTestIds.row.delete(1))
+        );
 
         expect(
           await screen.findByText(labelDeleteResource(resourceType))
@@ -133,7 +138,9 @@ export default (resourceType: string): void => {
       });
 
       it('sends a delete request for a single resource and displays a success message', async () => {
-        await userEvent.click(screen.getByTestId(`${labelDelete}_1`));
+        await userEvent.click(
+          screen.getByTestId(listingDataTestIds.row.delete(1))
+        );
 
         await userEvent.click(await screen.findByTestId('confirm'));
 
@@ -178,7 +185,9 @@ export default (resourceType: string): void => {
 
     describe('duplicate', () => {
       it('displays the confirmation dialog when the inline duplicate button is clicked', async () => {
-        await userEvent.click(screen.getByTestId(`${labelDuplicate}_1`));
+        await userEvent.click(
+          screen.getByTestId(listingDataTestIds.row.duplicate(1))
+        );
 
         expect(
           await screen.findByText(labelDuplicateResource(resourceType))
@@ -223,7 +232,9 @@ export default (resourceType: string): void => {
       });
 
       it('sends a duplicate request for a single resource and displays a success message', async () => {
-        await userEvent.click(screen.getByTestId(`${labelDuplicate}_1`));
+        await userEvent.click(
+          screen.getByTestId(listingDataTestIds.row.duplicate(1))
+        );
 
         await userEvent.click(await screen.findByTestId('confirm'));
 
@@ -311,7 +322,9 @@ export default (resourceType: string): void => {
 
     describe('Enable', () => {
       it('sends an Enable request for a single resource and displays a success message', async () => {
-        await userEvent.click(screen.getByTestId(`${labelEnableDisable}_2`));
+        await userEvent.click(
+          screen.getByTestId(listingDataTestIds.row.enableDisable(2))
+        );
 
         const { request } = await waitForRequest('@enable');
 
@@ -355,7 +368,9 @@ export default (resourceType: string): void => {
 
     describe('Disable', () => {
       it('sends a disable request for a single resource and displays a success message', async () => {
-        await userEvent.click(screen.getByTestId(`${labelEnableDisable}_1`));
+        await userEvent.click(
+          screen.getByTestId(listingDataTestIds.row.enableDisable(1))
+        );
 
         const { request } = await waitForRequest('@disable');
 

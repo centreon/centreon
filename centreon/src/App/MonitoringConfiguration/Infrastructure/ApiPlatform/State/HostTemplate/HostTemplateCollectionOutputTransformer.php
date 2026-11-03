@@ -37,6 +37,8 @@ final readonly class HostTemplateCollectionOutputTransformer implements Transfor
         return new HostTemplateCollectionOutput(
             id: $from->id()->value,
             name: $from->name->value,
+            alias: $from->alias?->value,
+            isLocked: $from->isLocked,
         );
     }
 }

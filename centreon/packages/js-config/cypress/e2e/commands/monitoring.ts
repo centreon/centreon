@@ -150,17 +150,20 @@ Cypress.Commands.add(
           updatetime
         };
 
-        cy.request({
-          body: {
-            results: [result]
-          },
-          headers: {
-            'Content-Type': 'application/json',
-            'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
-          },
-          method: 'POST',
-          url: `${apiActionV1}?action=submit&object=centreon_submit_results`
-        });
+        cy.ensureUserTokenApiV1().then(() =>
+          cy.request({
+            body: {
+              results: [result]
+            },
+            headers: {
+              'Content-Type': 'application/json',
+              'centreon-auth-token':
+                window.localStorage.getItem('userTokenApiV1')
+            },
+            method: 'POST',
+            url: `${apiActionV1}?action=submit&object=centreon_submit_results`
+          })
+        );
       }
     );
 

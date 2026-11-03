@@ -1,6 +1,7 @@
 import { waitForRequest } from '@test-setup/api';
 import { screen } from '@testing-library/react';
 
+import { listingDataTestIds } from '../Listing/dataTestIds';
 import { labelActions, labelEnableDisable } from '../translatedLabels';
 import initialize from './initialize';
 
@@ -39,9 +40,11 @@ export default () => {
         actions: { edit: true, enableDisable: (row) => row?.id === 1 }
       });
 
-      expect(screen.getByTestId(`${labelEnableDisable}_1`)).toBeInTheDocument();
       expect(
-        screen.queryByTestId(`${labelEnableDisable}_2`)
+        screen.getByTestId(listingDataTestIds.row.enableDisable(1))
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByTestId(listingDataTestIds.row.enableDisable(2))
       ).not.toBeInTheDocument();
     });
 
@@ -55,10 +58,14 @@ export default () => {
       });
 
       expect(
-        screen.getByTestId(`${labelEnableDisable}_1`).querySelector('input')
+        screen
+          .getByTestId(listingDataTestIds.row.enableDisable(1))
+          .querySelector('input')
       ).toBeEnabled();
       expect(
-        screen.getByTestId(`${labelEnableDisable}_2`).querySelector('input')
+        screen
+          .getByTestId(listingDataTestIds.row.enableDisable(2))
+          .querySelector('input')
       ).toBeDisabled();
     });
 

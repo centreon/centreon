@@ -32,6 +32,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
@@ -374,6 +377,69 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         ));
     }
 
+    public function findServiceGroupAccessScope(UserId $userId): AccessScope
+    {
+        // Built on the active ACL resources only (acl_res_activate = '1'): an inactive resource grants
+        // neither its "all service groups" flag nor its relations. Disabled service groups stay
+        // accessible: sg_activate is not read, whereas legacy centreonACL hides them
+        // from restricted users unless an ACL resource grants all service groups.
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // Like host groups, service groups carry an explicit "all service groups" flag on the ACL
+        // resource (acl_resources.all_servicegroups); a resource without relation rows grants none.
+        $allServiceGroupsQb = $this->connection->createQueryBuilder();
+        $allServiceGroupsQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources', 'res', "res.acl_res_id = accessible_res.acl_res_id AND res.all_servicegroups = '1'")
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($allServiceGroupsQb->getSQL(), ['contactId' => $userId->value]) !== false) {
+            return AccessScope::unrestricted(ServiceGroupId::class);
+        }
+
+        // No flag anywhere: the union of service-group relations across every accessible resource,
+        // naturally empty for a user with no accessible resource or no relation.
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arsr.sg_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_sg_relations', 'arsr', 'arsr.acl_res_id = accessible_res.acl_res_id')
+            ->where('arsr.sg_id IS NOT NULL');
+
+        /** @var list<array{sg_id: int|numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return AccessScope::restrictedTo(ServiceGroupId::class, new Collection(
+            array_map(static fn (array $row): ServiceGroupId => new ServiceGroupId((int) $row['sg_id']), $rows),
+            ServiceGroupId::class,
+        ));
+    }
+
+    public function findServiceCategoryAccessScope(UserId $userId): AccessScope
+    {
+        $ids = $this->findGrantedServiceCategoryIdValues($userId, withLevel: false);
+
+        return $ids === null
+            ? AccessScope::unrestricted(ServiceCategoryId::class)
+            : AccessScope::restrictedTo(
+                ServiceCategoryId::class,
+                array_map(static fn (int $id): ServiceCategoryId => new ServiceCategoryId($id), $ids),
+            );
+    }
+
+    public function findServiceSeverityAccessScope(UserId $userId): AccessScope
+    {
+        $ids = $this->findGrantedServiceCategoryIdValues($userId, withLevel: true);
+
+        return $ids === null
+            ? AccessScope::unrestricted(ServiceSeverityId::class)
+            : AccessScope::restrictedTo(
+                ServiceSeverityId::class,
+                array_map(static fn (int $id): ServiceSeverityId => new ServiceSeverityId($id), $ids),
+            );
+    }
+
     public function findImageFolderAccessScope(UserId $userId): AccessScope
     {
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
@@ -586,6 +652,61 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         return array_map(static fn (array $row): int => (int) $row['contact_id'], $rows);
+    }
+
+    /**
+     * Service categories and service severities share the `service_categories` table (a severity is a
+     * category carrying a level) and the `acl_resources_sc_relations` grants, so both follow the same
+     * three tiers, built on the user's active ACL resources only, like the host categories:
+     *  - no accessible ACL resource → restricted to nothing (fails closed): an empty list
+     *  - accessible resources, none carrying a service-category relation of any level → no
+     *    restriction: null (an unrestricted scope)
+     *  - otherwise → the granted rows of the requested kind only (levelless categories, or severities);
+     *    a user granted only the other kind gets an empty list
+     *
+     * Disabled categories and severities stay grantable: sc_activate is not read.
+     *
+     * @return list<int>|null
+     */
+    private function findGrantedServiceCategoryIdValues(UserId $userId, bool $withLevel): ?array
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+        $parameters = ['contactId' => $userId->value];
+
+        $hasAccessibleResourceQb = $this->connection->createQueryBuilder();
+        $hasAccessibleResourceQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasAccessibleResourceQb->getSQL(), $parameters) === false) {
+            return [];
+        }
+
+        $hasServiceCategoryRelationQb = $this->connection->createQueryBuilder();
+        $hasServiceCategoryRelationQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_sc_relations', 'arscr', 'arscr.acl_res_id = accessible_res.acl_res_id')
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasServiceCategoryRelationQb->getSQL(), $parameters) === false) {
+            return null;
+        }
+
+        // the inner join on service_categories also drops relation rows whose sc_id is NULL
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arscr.sc_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_sc_relations', 'arscr', 'arscr.acl_res_id = accessible_res.acl_res_id')
+            ->innerJoin('arscr', 'service_categories', 'sc', 'sc.sc_id = arscr.sc_id')
+            ->where($withLevel ? 'sc.level IS NOT NULL' : 'sc.level IS NULL');
+
+        /** @var list<int|numeric-string> $ids */
+        $ids = $this->connection->fetchFirstColumn($qb->getSQL(), $parameters);
+
+        return array_map(intval(...), $ids);
     }
 
     private function getAccessibleAclResourcesQueryBuilder(): QueryBuilder

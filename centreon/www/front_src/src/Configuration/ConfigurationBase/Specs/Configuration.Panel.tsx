@@ -4,12 +4,12 @@ import { waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { listingDataTestIds } from '../Listing/dataTestIds';
 import { getDefaultPanelWidth, maxPanelWidth } from '../Panel';
 import { panelDataTestIds } from '../Panel/dataTestIds';
 import {
   labelClose,
   labelDelete,
-  labelMoreActions,
   labelResourceDisabled
 } from '../translatedLabels';
 import initialize, {
@@ -560,7 +560,9 @@ export default (resourceType: string): void => {
         await userEvent.click(screen.getByLabelText('Select row 3'));
         await userEvent.click(screen.getByLabelText('Select row 5'));
 
-        await userEvent.click(screen.getAllByTestId(labelMoreActions)[0]);
+        await userEvent.click(
+          screen.getAllByTestId(listingDataTestIds.moreActions)[0]
+        );
 
         const menu = (await screen.findAllByRole('menu')).at(-1) as HTMLElement;
 

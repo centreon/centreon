@@ -73,6 +73,7 @@ const Listing = <TFilters,>({
           : columns
       }
       currentPage={(page || 1) - 1}
+      disableRowCheckCondition={(row) => !(actions?.selectable?.(row) ?? true)}
       disableRowCondition={disableRowCondition}
       limit={limit}
       loading={isLoading}

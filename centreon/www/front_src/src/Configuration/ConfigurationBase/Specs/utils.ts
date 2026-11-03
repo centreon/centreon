@@ -13,7 +13,7 @@ import {
   FieldType,
   type FilterConfiguration
 } from '../../models';
-import { labelEnableDisable } from '../translatedLabels';
+import { listingDataTestIds } from '../Listing/dataTestIds';
 
 interface Resource {
   alias: string | null;
@@ -207,5 +207,5 @@ export const findByWholeText = async (text: string): Promise<HTMLElement> =>
 // The input of a row's Enable/Disable toggle: the test id is on its wrapper.
 export const getToggle = (id: number): HTMLInputElement =>
   screen
-    .getByTestId(`${labelEnableDisable}_${id}`)
+    .getByTestId(listingDataTestIds.row.enableDisable(id))
     .querySelector('input') as HTMLInputElement;
