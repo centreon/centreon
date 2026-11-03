@@ -1711,8 +1711,8 @@ jobs:
             echo "additional_tag=" >> "$GITHUB_OUTPUT"
           fi
 
-          # On a release/hotfix branch or a testing bundle tag (stability 'testing'), also tag with the
-          # deterministic target version (e.g. 26.10.5). promote-docker-to-ghcr
+          # On a release/hotfix branch or a testing bundle tag (stability 'testing'), also
+          # tag with the deterministic target version (e.g. 26.10.5). promote-docker-to-ghcr
           # pulls this exact tag on the eventual stable event — computed the same
           # way from the same version file, so no release_type reconstruction is
           # needed to find the candidate to promote. version_tag is only ever
@@ -2671,7 +2671,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-      actions: read
     steps:
       - name: Flag a cancelled run
         id: run_cancelled

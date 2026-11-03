@@ -763,7 +763,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-      actions: read
     steps:
       - name: Flag a cancelled run
         id: run_cancelled
