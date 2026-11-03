@@ -8,10 +8,8 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { selectedRowsAtom } from '../../ConfigurationBase/Listing/atoms';
-import {
-  labelDelete,
-  labelMoreActions
-} from '../../ConfigurationBase/translatedLabels';
+import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds';
+import { labelDelete } from '../../ConfigurationBase/translatedLabels';
 import { getHostTemplateEndpoint } from '../api/endpoints';
 import initialize from './initialize';
 
@@ -44,7 +42,7 @@ const answerDelete = ({
   });
 
 const deleteSelection = async (): Promise<void> => {
-  await userEvent.click(screen.getByTestId(labelMoreActions));
+  await userEvent.click(screen.getByTestId(listingDataTestIds.moreActions));
 
   const menu = (await screen.findAllByRole('menu')).at(-1) as HTMLElement;
 
@@ -61,7 +59,9 @@ export default () => {
       await initializeListing();
       const callsBefore = listingCalls();
 
-      await userEvent.click(screen.getByTestId(`${labelDelete}_1`));
+      await userEvent.click(
+        screen.getByTestId(listingDataTestIds.row.delete(1))
+      );
 
       expect(
         await screen.findByText('generic-active-host-custom', {
@@ -103,7 +103,9 @@ export default () => {
         statusCode: 404
       });
 
-      await userEvent.click(screen.getByTestId(`${labelDelete}_1`));
+      await userEvent.click(
+        screen.getByTestId(listingDataTestIds.row.delete(1))
+      );
       await userEvent.click(await screen.findByTestId('confirm'));
       await waitForRequest('@deleteHostTemplate1');
 

@@ -8,10 +8,10 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { selectedRowsAtom } from '../../ConfigurationBase/Listing/atoms';
+import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds';
 import {
   labelDuplicate,
   labelDuplications,
-  labelMoreActions,
   labelRequired
 } from '../../ConfigurationBase/translatedLabels';
 import { getDuplicateHostTemplateEndpoint } from '../api/endpoints';
@@ -53,7 +53,9 @@ const answerDuplicate = ({
   });
 
 const openNameDialog = async (id: number): Promise<HTMLInputElement> => {
-  await userEvent.click(screen.getByTestId(`${labelDuplicate}_${id}`));
+  await userEvent.click(
+    screen.getByTestId(listingDataTestIds.row.duplicate(id))
+  );
 
   await waitFor(() =>
     expect(document.querySelector(nameInputSelector)).not.toBeNull()
@@ -224,7 +226,7 @@ export default () => {
     const duplicateSelection = async (): Promise<void> => {
       await userEvent.click(screen.getByLabelText('Select row 1'));
       await userEvent.click(screen.getByLabelText('Select row 2'));
-      await userEvent.click(screen.getByTestId(labelMoreActions));
+      await userEvent.click(screen.getByTestId(listingDataTestIds.moreActions));
 
       const menu = (await screen.findAllByRole('menu')).at(-1) as HTMLElement;
 
