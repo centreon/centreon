@@ -1,14 +1,18 @@
 import { LoadingSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { PrimitiveAtom, useAtom, useSetAtom } from 'jotai';
+import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNil, isNotEmpty, or } from 'ramda';
 import { JSX, useLayoutEffect } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { ConfigurationBase } from '../models';
-import { formStateAtom } from './atoms';
-import { DeleteDialog, DuplicateDialog } from './Dialogs';
+import { configurationAtom, formStateAtom } from './atoms';
+import {
+  DeleteDialog,
+  DuplicateDialog,
+  DuplicateWithNameDialog
+} from './Dialogs';
 import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
 import { Listing } from './Listing';
 import useLoadData from './Listing/useLoadData';
@@ -94,6 +98,8 @@ const Page = <TFilters,>({
   const [, setSearchParams] = useSearchParams();
 
   const setFormState = useSetAtom(formStateAtom);
+  const isDuplicateWithName =
+    !!useAtomValue(configurationAtom)?.api?.isDuplicateWithName;
   const [isWelcomePageDisplayed, setIsWelcomePageDisplayed] = useAtom(
     isWelcomePageDisplayedAtom
   );
@@ -176,6 +182,7 @@ const Page = <TFilters,>({
       )}
       {actions?.delete && <DeleteDialog />}
       {actions?.duplicate && <DuplicateDialog />}
+      {actions?.duplicate && isDuplicateWithName && <DuplicateWithNameDialog />}
     </PageLayout>
   );
 };

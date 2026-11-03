@@ -32,3 +32,4 @@ export const selectedRowsAtom = atom([]);
 
 export const resourcesToDeleteAtom = atom<Array<NamedEntity>>([]);
 export const resourcesToDuplicateAtom = atom<Array<NamedEntity>>([]);
+export const resourceToDuplicateWithNameAtom = atom<NamedEntity | null>(null);
