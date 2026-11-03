@@ -52,8 +52,8 @@ export const layout: Array<LayoutSection> = [
     label: labelRelations,
     nodes: [
       {
-        // The service groups and traps in the left column. The right one
-        // stays empty until what classifies the service is placed there.
+        // The service groups and traps on the left, the classification of
+        // the service on the right.
         className: twoColumnsFromNarrow,
         columnSeparator: true,
         columns: [
