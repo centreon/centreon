@@ -70,7 +70,7 @@ const serviceDetails: Record<number, Record<string, unknown>> = {
     activated: true,
     host: { id: 10, name: 'host A' },
     name: 'cpu',
-    // MON-213082: the template and the scheduling options.
+    // The template and the scheduling options.
     scheduling_options: {
       active_check_enabled: 'false',
       check_period: { id: 21, name: 'workhours' },
@@ -124,12 +124,15 @@ export const getServiceCheckOptionsResponse = (id: number) => {
 };
 
 // Relations: the service groups are always sent, the traps on-premise only.
+// Service 1's detail leaves the traps out.
 const getRelationsResponse = (id: number) => ({
   service_groups: id === 0 ? [{ id: 1, name: 'Web services' }] : [],
-  traps:
-    id === 0
-      ? [{ id: 21, name: 'linkDown', vendor: { id: 3, name: 'Generic' } }]
-      : []
+  ...(id !== 1 && {
+    traps:
+      id === 0
+        ? [{ id: 21, name: 'linkDown', vendor: { id: 3, name: 'Generic' } }]
+        : []
+  })
 });
 
 // Extended info (F41-F50). Service 0 has every field but the note URL and the
@@ -179,7 +182,7 @@ export const getServiceFormHostsResponse = () =>
     { id: 11, name: 'host B' }
   ]);
 
-// MON-213082: the check period selector.
+// The check period selector.
 export const getServiceFormTimePeriodsResponse = () =>
   getSelectorResponse('timeperiods', [
     { id: 20, name: '24x7' },

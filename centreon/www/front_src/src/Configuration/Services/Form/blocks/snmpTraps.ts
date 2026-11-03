@@ -36,7 +36,8 @@ export const trapDecoder = JsonDecoder.object<Trap>(
 }));
 
 // The SNMP traps that update the service. On-premise only: the cloud API has
-// no trap and refuses them.
+// no trap and refuses them. A detail without them opens on none, as the
+// previous service form did.
 export const getSnmpTrapsBlock = ({
   endpoint,
   resource
@@ -54,5 +55,6 @@ export const getSnmpTrapsBlock = ({
     label: labelServiceTraps,
     name: 'traps',
     payloadKey: 'trap_ids',
-    resource
+    resource,
+    withOptionalDetailKey: true
   });
