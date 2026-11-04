@@ -12,6 +12,7 @@ import {
 } from './utils';
 
 interface RequestBody {
+  activated?: boolean;
   check_options?: unknown;
   host_id?: number | null;
   name?: string;
@@ -132,6 +133,9 @@ export default () => {
         expect(await getInput('service-form-name')).toBeDisabled()
       );
       expect(screen.getByTestId('service-form-host')).toBeDisabled();
+      // Shown, not just locked.
+      expect(await getInput('service-form-name')).toHaveValue('cpu');
+      expect(screen.getByTestId('service-form-host')).toHaveValue('host A');
     });
 
     it('opens the service a deep link names, in edit mode', async () => {
@@ -206,9 +210,11 @@ export default () => {
       const { request } = await waitForRequest('@updateService0');
 
       expect(request.method).toBe('PUT');
-      // The other sections' keys are their own specs'; the notifications
-      // here, as opened.
+      // The whole service is replaced, its activation included. The other
+      // sections' keys are their own specs'; the notifications here, as
+      // opened.
       expect(request.body).toMatchObject({
+        activated: true,
         check_options: {
           args: ['80', '90'],
           command_id: 9,
@@ -235,6 +241,34 @@ export default () => {
       expect((request.body as RequestBody).notifications).toEqual(
         openedNotificationsPayload
       );
+    });
+
+    it('keeps the activation the panel switch set when the service is saved', async () => {
+      await openService();
+
+      const name = await getInput('service-form-name');
+
+      await waitFor(() => expect(name).toHaveValue('cpu'));
+
+      const enableSwitch = (
+        await screen.findByTestId(panelDataTestIds.enable)
+      ).querySelector('input') as HTMLInputElement;
+
+      await waitFor(() => expect(enableSwitch).toBeChecked());
+      await userEvent.click(enableSwitch);
+      await waitForRequest('@patchService0');
+      await waitFor(() => expect(enableSwitch).not.toBeChecked());
+
+      await userEvent.clear(name);
+      await userEvent.type(name, 'cpu load');
+
+      await save();
+
+      expect(await getRequestBody('@updateService0')).toMatchObject({
+        activated: false,
+        host_id: 10,
+        name: 'cpu load'
+      });
     });
 
     it('asks for a name and a host', async () => {
