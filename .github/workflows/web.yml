@@ -23,8 +23,6 @@ on:
   pull_request:
     paths:
       - ".github/workflows/web.yml"
-      - ".github/docker/centreon-snmptrapd/**"
-      - ".github/docker/centreon-centreontrapd/**"
       - ".github/docker/centreon-trapd/**"
       - ".github/scripts/centreon-trapd-docker-boot-test.sh"
       - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
@@ -41,8 +39,6 @@ on:
       - "release-[2-9][0-9].[0-9][0-9]-next"
       - "hotfix-[2-9][0-9].[0-9][0-9]-next"
     paths:
-      - ".github/docker/centreon-snmptrapd/**"
-      - ".github/docker/centreon-centreontrapd/**"
       - ".github/docker/centreon-trapd/**"
       - ".github/scripts/centreon-trapd-docker-boot-test.sh"
       - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
@@ -154,21 +150,12 @@ jobs:
       translation_paths: |
         "centreon/lang/**"
       trapd_paths: |
-        ".github/docker/centreon-snmptrapd/**"
-        ".github/docker/centreon-centreontrapd/**"
         ".github/docker/centreon-trapd/**"
         ".github/scripts/centreon-trapd-docker-boot-test.sh"
         ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
         ".github/scripts/lib/centreon-trapd-common.sh"
         "centreon/snmptrapd/**"
         "centreon/bin/centreontrapd*"
-        "centreon/packaging/centreon-trap.yaml"
-        "centreon/packaging/scripts/centreon-trap-postinstall.sh"
-        "centreon/packaging/scripts/centreon-trap-preremove.sh"
-        "centreon/tmpl/install/systemd/centreontrapd.rpm.systemd"
-        "centreon/tmpl/install/systemd/centreontrapd.deb.systemd"
-        "centreon/tmpl/install/systemd/centreontrapd.sysconfig"
-        "centreon/logrotate/centreontrapd"
         ".version"
         ".version.centreon-web"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
@@ -1288,118 +1275,23 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
       github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  # The centreon-snmptrapd / centreon-centreontrapd product images (MON-207531):
-  # folded into this workflow, rather than kept in a standalone docker-trapd.yml,
-  # so they inherit the same trigger paths. Not gated on e2e-test: that suite
-  # only exercises centreon-web, not these images — see dockerize-trapd-image
-  # below for the actual validation gate (docker-boot-test/
-  # docker-config-wiring-test).
-  package-centreon-trap:
-    needs: [get-environment, changes]
-    if: |
-      needs.changes.outputs.trigger_trapd == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false'
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      packages: read
-    strategy:
-      fail-fast: false
-      matrix:
-        distrib: [trixie]
-    container:
-      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.distrib }}
-    name: package centreon-trap ${{ matrix.distrib }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-
-      - name: Package centreon-trap
-        uses: ./.github/actions/package-nfpm
-        with:
-          nfpm_file_pattern: "centreon/packaging/centreon-trap.yaml"
-          module_name: "centreon"
-          distrib: ${{ matrix.distrib }}
-          package_extension: deb
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          release: ${{ needs.get-environment.outputs.release }}
-          arch: all
-          commit_hash: ${{ github.sha }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}-trap
-          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
-          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
-          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
-          php_version: ${{ needs.get-environment.outputs.php_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-
-  package-perl-libs:
-    needs: [get-environment, changes]
-    if: |
-      needs.changes.outputs.trigger_trapd == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false'
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      packages: read
-    strategy:
-      fail-fast: false
-      matrix:
-        distrib: [trixie]
-    container:
-      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.distrib }}
-    name: package centreon-perl-libs ${{ matrix.distrib }}
-
-    steps:
-      - name: Checkout sources (centreon/centreon for actions)
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-
-      - name: Checkout centreon-collect (for perl-libs packaging)
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          repository: centreon/centreon-collect
-          ref: ${{ needs.get-environment.outputs.linked_dev_branch || github.ref_name }}
-          path: centreon-collect
-          persist-credentials: false
-
-      - name: Set PERL_VENDORLIB for deb
-        run: echo "PERL_VENDORLIB=/usr/share/perl5" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Package centreon-perl-libs
-        uses: ./.github/actions/package-nfpm
-        with:
-          nfpm_file_pattern: "centreon-collect/perl-libs/packaging/centreon-perl-libs.yaml centreon-collect/perl-libs/packaging/centreon-perl-libs-common.yaml"
-          module_name: "centreon-collect"
-          distrib: ${{ matrix.distrib }}
-          package_extension: deb
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          release: ${{ needs.get-environment.outputs.release }}
-          arch: all
-          commit_hash: ${{ github.sha }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}-perl
-          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
-          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
-          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
-          php_version: ${{ needs.get-environment.outputs.php_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-
+  # The centreon-trapd product image (MON-207531, merged snmptrapd +
+  # centreontrapd in MON-213783): folded into this workflow, rather than kept
+  # in a standalone docker-trapd.yml, so it inherits the same trigger paths.
+  # Package-less: built straight from this repo (centreon/bin/centreontrapd*)
+  # and centreon-collect's perl-libs, no .deb. Not gated on e2e-test: that
+  # suite only exercises centreon-web, not this image — see docker-boot-test/
+  # docker-config-wiring-test below for the actual validation gate.
   dockerize-trapd-image:
     # Named "dockerize-trapd-image" (not "dockerize") to avoid colliding with the
     # internal centreon-web-testing-* dependency image job above. Not gated on
     # e2e-test: that suite only exercises centreon-web (image_name: centreon-web),
-    # never centreon-snmptrapd/centreon-centreontrapd, so waiting on it here would
+    # never centreon-trapd, so waiting on it here would
     # just serialize this job behind an unrelated test run for no validation
     # value. This job alone doesn't guarantee the resulting image is validated:
     # docker-boot-test/docker-config-wiring-test below are what actually gate
     # version_tag and promote-docker-tag/promote-docker-to-ghcr.
-    needs: [get-environment, changes, package-centreon-trap, package-perl-libs]
+    needs: [get-environment, changes]
     # stability != 'stable' matches the dockerize job's own gate above, so this
     # runs on canary/feature branches the same way centreon-web images do,
     # instead of the narrower testing/unstable-only allowlist this job used to have.
@@ -1418,7 +1310,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [centreon-snmptrapd, centreon-centreontrapd]
+        component: [centreon-trapd]
         operating_system: [trixie]
     name: dockerize ${{ matrix.component }}-${{ matrix.operating_system }}
     # Matrix job outputs come from the last completed matrix leg. Safe here
@@ -1449,26 +1341,17 @@ jobs:
         with:
           distrib: ${{ matrix.operating_system }}
 
-      - name: Restore centreon-trap package
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Checkout centreon-collect (perl-libs build context)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          path: ./*.${{ steps.parse-distrib.outputs.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.parse-distrib.outputs.package_extension }}-${{ matrix.operating_system }}-trap
-          fail-on-cache-miss: true
+          repository: centreon/centreon-collect
+          ref: ${{ needs.get-environment.outputs.linked_dev_branch || github.ref_name }}
+          path: centreon-collect
+          persist-credentials: false
 
-      - name: Restore centreon-perl-libs packages
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ./*.${{ steps.parse-distrib.outputs.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.parse-distrib.outputs.package_extension }}-${{ matrix.operating_system }}-perl
-          fail-on-cache-miss: true
-
-      - name: Prepare packages-centreon directory
-        env:
-          PACKAGE_EXTENSION: ${{ steps.parse-distrib.outputs.package_extension }}
-        run: |
-          mkdir -p packages-centreon
-          mv *."$PACKAGE_EXTENSION" packages-centreon/
+      - name: Get centreon-collect revision
+        id: collect-revision
+        run: echo "sha=$(git -C centreon-collect rev-parse HEAD)" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Set up QEMU
@@ -1530,13 +1413,17 @@ jobs:
         with:
           context: .
           file: .github/docker/${{ matrix.component }}/${{ matrix.operating_system }}/Dockerfile
+          # Perl modules (centreon::script, centreon::trapd, centreon::common)
+          # come from the centreon-collect checkout above, same branch.
+          build-contexts: |
+            perl-libs=centreon-collect/perl-libs/lib
           platforms: linux/amd64,linux/arm64
           pull: true
           push: ${{ github.event.pull_request.head.repo.fork != true }}
           build-args: |
             BUILD_DATE=${{ steps.build-date.outputs.date }}
             BUILD_VERSION=${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}-${{ needs.get-environment.outputs.release }}
-            PACKAGE_SOURCES=centreon-trap-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} + centreon-perl-libs-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+            PACKAGE_SOURCES=centreon@${{ github.event.pull_request.head.sha || github.sha }} + centreon-collect@${{ steps.collect-revision.outputs.sha }}
             GIT_REVISION=${{ github.event.pull_request.head.sha || github.sha }}
           # Disabled: BuildKit's own attestation manifests would make this
           # digest diverge from the ghcr.io one docker-push-to-ghcr.sh
@@ -1583,10 +1470,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [centreon-snmptrapd, centreon-centreontrapd]
+        component: [centreon-trapd]
+        role: [snmptrapd, centreontrapd]
         operating_system: [trixie]
         platform: [linux/amd64, linux/arm64]
-    name: docker boot test ${{ matrix.component }}-${{ matrix.operating_system }} (${{ matrix.platform }})
+    name: docker boot test ${{ matrix.component }}-${{ matrix.operating_system }} ${{ matrix.role }} (${{ matrix.platform }})
     permissions:
       contents: read
     env:
@@ -1627,7 +1515,7 @@ jobs:
         env:
           IMAGE: ${{ env.TRAPD_IMAGE }}
           PLATFORM: ${{ matrix.platform }}
-          COMPONENT: ${{ matrix.component }}
+          ROLE: ${{ matrix.role }}
           SUMMARY_FRAGMENT_FILE: /tmp/summary-fragment.md
         run: ./.github/scripts/centreon-trapd-docker-boot-test.sh
         shell: bash
@@ -1636,7 +1524,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: test-summary-fragment-${{ matrix.component }}-${{ matrix.operating_system }}-${{ steps.platform-name.outputs.dashed }}
+          name: test-summary-fragment-${{ matrix.component }}-${{ matrix.operating_system }}-${{ matrix.role }}-${{ steps.platform-name.outputs.dashed }}
           path: /tmp/summary-fragment.md
           retention-days: 1
           if-no-files-found: ignore
@@ -1645,7 +1533,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ matrix.component }}-boot-test-${{ matrix.operating_system }}-${{ steps.platform-name.outputs.dashed }}
+          name: ${{ matrix.component }}-boot-test-${{ matrix.operating_system }}-${{ matrix.role }}-${{ steps.platform-name.outputs.dashed }}
           path: /tmp/centreon-trapd-boot-test.log
           retention-days: 1
 
@@ -1664,8 +1552,7 @@ jobs:
     permissions:
       contents: read
     env:
-      CENTREONTRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-centreontrapd-${{ matrix.operating_system }}:${{ needs.dockerize-trapd-image.outputs.image_tag }}
-      SNMPTRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-snmptrapd-${{ matrix.operating_system }}:${{ needs.dockerize-trapd-image.outputs.image_tag }}
+      TRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-trapd-${{ matrix.operating_system }}:${{ needs.dockerize-trapd-image.outputs.image_tag }}
 
     steps:
       - name: Checkout sources
@@ -1685,10 +1572,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends snmp sqlite3
         shell: bash
 
-      - name: Pull images
-        run: |
-          docker pull --platform linux/amd64 "$CENTREONTRAPD_IMAGE"
-          docker pull --platform linux/amd64 "$SNMPTRAPD_IMAGE"
+      - name: Pull image
+        run: docker pull --platform linux/amd64 "$TRAPD_IMAGE"
         shell: bash
 
       - name: Run config/wiring test scenarios
@@ -1711,7 +1596,7 @@ jobs:
         run: docker compose -f .github/docker/centreon-trapd/docker-compose.config-wiring-test.yml -p centreon-trapd-config-wiring-test logs
 
   docker-test-summary:
-    # Combines the docker-boot-test matrix (4 legs) and docker-config-wiring-test
+    # Combines the docker-boot-test matrix (4 legs: 2 roles x 2 platforms) and docker-config-wiring-test
     # into ONE Step Summary block. GitHub renders one Step Summary block per job
     # unconditionally, so merging what several jobs write is only possible from
     # a downstream job that collects their output - not by changing what each
@@ -1768,7 +1653,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [centreon-snmptrapd, centreon-centreontrapd]
+        component: [centreon-trapd]
         operating_system: [trixie]
     name: docker trivy cves ${{ matrix.component }}-${{ matrix.operating_system }}
     permissions:
@@ -1921,7 +1806,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [centreon-snmptrapd, centreon-centreontrapd]
+        component: [centreon-trapd]
         operating_system: [trixie]
     name: promote ${{ matrix.component }}-${{ matrix.operating_system }} validated tag
     steps:
@@ -2268,7 +2153,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [centreon-snmptrapd, centreon-centreontrapd]
+        component: [centreon-trapd]
         operating_system: [trixie]
     name: promote ${{ matrix.component }}-${{ matrix.operating_system }} to ghcr.io stable
     steps:
@@ -2357,7 +2242,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [centreon-snmptrapd, centreon-centreontrapd]
+        component: [centreon-trapd]
         operating_system: [trixie]
     name: promote ${{ matrix.component }}-${{ matrix.operating_system }} to Pulp
     steps:

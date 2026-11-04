@@ -70,7 +70,9 @@ services:
       retries: 3
 
   snmptrapd:
-    image: "docker.centreon.com/centreon/centreon-snmptrapd-trixie:${SNMPTRAPD_TAG:?set SNMPTRAPD_TAG in .env}"
+    image: "docker.centreon.com/centreon/centreon-trapd-trixie:${TRAPD_TAG:?set TRAPD_TAG in .env}"
+    # Same image as centreontrapd below, role picked by the command keyword.
+    command: ["snmptrapd"]
     container_name: "${NAME}-snmptrap"
     hostname: snmptrapd
     restart: unless-stopped
@@ -91,7 +93,8 @@ services:
       retries: 3
 
   centreontrapd:
-    image: "docker.centreon.com/centreon/centreon-centreontrapd-trixie:${CENTREONTRAPD_TAG:?set CENTREONTRAPD_TAG in .env}"
+    image: "docker.centreon.com/centreon/centreon-trapd-trixie:${TRAPD_TAG:?set TRAPD_TAG in .env}"
+    command: ["centreontrapd"]
     container_name: "${NAME}-centreontrap"
     hostname: centreontrapd
     restart: unless-stopped

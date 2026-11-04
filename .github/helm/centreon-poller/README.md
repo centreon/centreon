@@ -107,7 +107,9 @@ Poller-initiated (reverse) connections do not use this identity.
 them) and `centreontrapd` (matches them against the definitions delivered by
 the central, submits results to the engine's command FIFO) to the poller pod,
 plus a `traps-config` directory on `poller-data` (`/etc/snmp/centreon_traps`) and a
-`<release>-snmptrap` Service (LoadBalancer, UDP 162).
+`<release>-snmptrap` Service (LoadBalancer, UDP 162). Both containers run the
+same `ghcr.io/centreon/centreon-trapd` image; the role comes from the
+container `args` (`snmptrapd` / `centreontrapd`).
 
 - Generate and apply the SNMP traps database for the poller from the central
   (Configuration > SNMP Traps > Generate). `centreontrapd` crash-loops until
@@ -125,6 +127,11 @@ plus a `traps-config` directory on `poller-data` (`/etc/snmp/centreon_traps`) an
 - Enabling traps on a poller installed with chart 26.2.0 or later is a plain
   upgrade: their definitions are the `traps-config` directory of
   `poller-data`. Earlier charts: reinstall first (see Persistence).
+- Chart 26.3.0 and later require the `centreon-trapd` image for both trap
+  containers (role passed as `args`). If `traps.images.*.repository` was
+  overridden to the former `centreon-snmptrapd` / `centreon-centreontrapd`
+  images, drop or update that override when upgrading: those images do not
+  understand the role keyword and their containers exit.
 
 ## VMware connector
 
