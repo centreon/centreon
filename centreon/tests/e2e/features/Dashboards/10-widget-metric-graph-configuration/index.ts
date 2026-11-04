@@ -692,6 +692,7 @@ When(
 );
 
 Then('the graph updates to reflect data for the selected time period', () => {
+  cy.waitForElementToBeVisible('div[label="From"]');
   cy.getByLabel({
     label: 'From',
     tag: 'div'
