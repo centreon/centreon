@@ -546,11 +546,6 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
 
         $grouped = [];
         foreach ($rows as $row) {
-            // Stored as the engine form $_SERVICE<NAME>$; a row not in that form is not a service macro, as for
-            // the macros of service templates.
-            if (preg_match('/^\$_SERVICE.+\$$/', $row['name']) !== 1) {
-                continue;
-            }
             $grouped[(int) $row['svc_svc_id']][] = [
                 'id' => $row['id'],
                 'name' => $row['name'],

@@ -27,7 +27,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
-use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
@@ -977,19 +976,6 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertInstanceOf(Service::class, $service);
         self::assertSame([$categoryId], $this->idValues($service->categoryIds));
         self::assertSame([$trapId], $this->idValues($service->trapIds));
-    }
-
-    public function testFindOneIgnoresAnOwnMacroRowNotInTheServiceMacroForm(): void
-    {
-        $serviceId = $this->insertListedService('ping', $this->insertListedHost('h1'));
-        $this->createMacro($serviceId, '', 'empty name', isPassword: false);
-        $this->connection->insert('on_demand_macro_service', ['svc_macro_name' => 'NOT_A_MACRO', 'svc_macro_value' => 'v', 'svc_svc_id' => $serviceId]);
-        $this->createMacro($serviceId, 'KEPT', 'v', isPassword: false);
-
-        $service = $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted());
-
-        self::assertInstanceOf(Service::class, $service);
-        self::assertSame(['KEPT'], array_map(static fn (ServiceMacro $macro): string => $macro->name->value, $service->checkOptions->macros));
     }
 
     public function testTheListingReadsTheIconOfTheFirstExtendedInformationRowAsTheGetDoes(): void
