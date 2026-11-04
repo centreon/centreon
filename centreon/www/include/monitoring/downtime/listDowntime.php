@@ -295,11 +295,20 @@ for ($i = 0; ($data = $pearDBO->fetch($downtimesStatement)) !== false; $i++) {
 
     if (preg_match('/_Module_BAM_\d+/', $data['host_name'])) {
         $tab_downtime_svc[$i]['host_name'] = 'Module BAM';
-        $tab_downtime_svc[$i]['h_details_uri'] = './main.php?p=207&o=d&ba_id='
-            . $tab_service_bam[$data['service_description']]['id'];
-        $tab_downtime_svc[$i]['s_details_uri'] = './main.php?p=207&o=d&ba_id='
-            . $tab_service_bam[$data['service_description']]['id'];
-        $tab_downtime_svc[$i]['service_description'] = $tab_service_bam[$data['service_description']]['name'];
+        // The BA can be missing from the configuration (deleted, or BAM module
+        // removed) while its downtime remains: keep the downtime listed, without
+        // a link to the BA.
+        $businessActivity = $tab_service_bam[$data['service_description']] ?? null;
+        if ($businessActivity !== null) {
+            $tab_downtime_svc[$i]['h_details_uri'] = $resourceController->buildBaDetailsUri(
+                (int) $businessActivity['id']
+            );
+            $tab_downtime_svc[$i]['s_details_uri'] = $tab_downtime_svc[$i]['h_details_uri'];
+            $tab_downtime_svc[$i]['service_description'] = $businessActivity['name'];
+        } else {
+            $tab_downtime_svc[$i]['h_details_uri'] = '';
+            $tab_downtime_svc[$i]['service_description'] = $data['service_description'];
+        }
         $tab_downtime_svc[$i]['downtime_type'] = 'SVC';
         if ($tab_downtime_svc[$i]['author_name'] === 'Centreon Broker BAM Module') {
             $tab_downtime_svc[$i]['scheduled_end_time'] = 'Automatic';
