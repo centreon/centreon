@@ -69,9 +69,8 @@ const serviceDetails: Record<number, Record<string, unknown>> = {
   0: {
     activated: true,
     host: { id: 10, name: 'host A' },
-    name: 'cpu',
     // The template and the scheduling options.
-    scheduling_options: {
+    monitoring_engine: {
       active_check_enabled: 'false',
       check_period: { id: 21, name: 'workhours' },
       is_volatile: 'true',
@@ -80,6 +79,7 @@ const serviceDetails: Record<number, Record<string, unknown>> = {
       passive_check_enabled: 'use_default',
       retry_check_interval: null
     },
+    name: 'cpu',
     template: { id: 30, name: 'generic-active-service' }
   },
   // Unset fields left out: no template, no scheduling options.

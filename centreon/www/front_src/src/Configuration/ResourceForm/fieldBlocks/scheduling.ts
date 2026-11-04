@@ -30,7 +30,9 @@ import {
   triStateOptions
 } from '../triState';
 
-// Both blocks fill the API's `scheduling_options`.
+// Both blocks fill one group of the API: `scheduling_options` for a host, the
+// `apiGroup` a resource names otherwise.
+const defaultApiGroup = 'scheduling_options';
 
 interface CheckPeriodAndIntervalsValues {
   checkPeriod: NamedEntity | null;
@@ -65,9 +67,11 @@ const getInputIds = (idPrefix: string, fieldName: string) => ({
 
 // The check period and the counts and intervals the engine schedules with.
 export const getCheckPeriodAndIntervalsBlock = ({
+  apiGroup = defaultApiGroup,
   resource: { baseEndpoint, idPrefix },
   timePeriodsEndpoint
 }: {
+  apiGroup?: string;
   resource: ResourceOptions;
   timePeriodsEndpoint: string;
 }): FieldBlock<{ schedulingOptions: CheckPeriodAndIntervalsValues }> => ({
@@ -93,7 +97,7 @@ export const getCheckPeriodAndIntervalsBlock = ({
       )
     ).map((value) => value ?? defaultCheckPeriodAndIntervals)
   },
-  detailKeyMap: { schedulingOptions: 'scheduling_options' },
+  detailKeyMap: { schedulingOptions: apiGroup },
   getInputs: ({ t }) => {
     const getNumberInput = (
       fieldName: keyof CheckPeriodAndIntervalsValues,
@@ -146,7 +150,7 @@ export const getCheckPeriodAndIntervalsBlock = ({
     };
 
     return {
-      scheduling_options: {
+      [apiGroup]: {
         check_timeperiod_id: schedulingOptions.checkPeriod?.id ?? null,
         max_check_attempts: toApiNumber(schedulingOptions.maxCheckAttempts),
         normal_check_interval: toApiNumber(
@@ -162,9 +166,11 @@ export const getCheckPeriodAndIntervalsBlock = ({
 // `withVolatile` adds whether each non-OK result counts as a new problem, which
 // only a service has. On premise only: cloud refuses all of them.
 export const getActiveAndPassiveChecksBlock = ({
+  apiGroup = defaultApiGroup,
   resource: { idPrefix },
   withVolatile = false
 }: {
+  apiGroup?: string;
   resource: ResourceOptions;
   withVolatile?: boolean;
 }): FieldBlock<{ schedulingOptions: ActiveAndPassiveChecksValues }> => {
@@ -195,7 +201,7 @@ export const getActiveAndPassiveChecksBlock = ({
         )
       ).map((value) => value ?? defaultValues)
     },
-    detailKeyMap: { schedulingOptions: 'scheduling_options' },
+    detailKeyMap: { schedulingOptions: apiGroup },
     getInputs: ({ isCloudPlatform, t }) => {
       if (isCloudPlatform) {
         return {};
@@ -236,7 +242,7 @@ export const getActiveAndPassiveChecksBlock = ({
       };
 
       return {
-        scheduling_options: {
+        [apiGroup]: {
           active_check_enabled: schedulingOptions.activeCheckEnabled,
           passive_check_enabled: schedulingOptions.passiveCheckEnabled,
           ...(withVolatile && {
