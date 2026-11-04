@@ -89,7 +89,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: centreon/dotfiles
-          ref: feat/qa-ticket-verify-orchestrator-contract # TEMPORARY: testing centreon/dotfiles#184, revert to develop once validated
+          ref: develop # the centreon-qa-ci plugin lands with centreon/dotfiles#133, orchestrator contract + QA tab support with #184
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           path: dotfiles
 
