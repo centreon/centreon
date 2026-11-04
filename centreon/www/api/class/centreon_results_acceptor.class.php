@@ -33,17 +33,14 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
     /** @var CentreonDB */
     protected $pearDBMonitoring;
 
-    /** @var string */
-    protected $centcore_file;
+    /** @var list<string> Commands waiting to be sent to Gorgone */
+    protected $commands = [];
 
     /** @var */
     protected $pollers;
 
     /** @var int */
-    protected $pipeOpened;
-
-    /** @var resource */
-    protected $fh;
+    protected $pipeOpened = 0;
 
     /** @var CentreonDB */
     protected $pearDBC;
@@ -60,14 +57,8 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
     public function __construct()
     {
         parent::__construct();
-        if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
-        } else {
-            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore.cmd';
-        }
         $this->pearDBC = new CentreonDB('centstorage');
         $this->getPollers();
-        $this->pipeOpened = 0;
     }
 
     /**
@@ -206,20 +197,26 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
      */
     private function openPipe(): void
     {
-        if ($this->fh = @fopen($this->centcore_file, 'a+')) {
-            $this->pipeOpened = 1;
-        } else {
-            throw new RestBadRequestException("Can't open centcore pipe");
-        }
+        $this->commands = [];
+        $this->pipeOpened = 1;
     }
 
     /**
+     * Send the buffered commands to Gorgone
+     *
+     * @throws RestBadRequestException
      * @return void
      */
     private function closePipe(): void
     {
-        fclose($this->fh);
         $this->pipeOpened = 0;
+        try {
+            Centreon\Infrastructure\Gorgone\LegacyCommandSender::create()->sendLines($this->commands);
+        } catch (Centreon\Infrastructure\Gorgone\LegacyCommandException $e) {
+            throw new RestBadRequestException("Can't send results to Gorgone: " . $e->getMessage());
+        } finally {
+            $this->commands = [];
+        }
     }
 
     /**
@@ -235,7 +232,7 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         }
 
         if ($string != '') {
-            fwrite($this->fh, $string . "\n");
+            $this->commands[] = $string;
         }
     }
 

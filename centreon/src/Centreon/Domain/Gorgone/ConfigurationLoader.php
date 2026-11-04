@@ -41,6 +41,11 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
     private const GORGONE_API_SSL = 'gorgone_api_ssl';
     private const GORGONE_API_CERTIFICATE_SELF_SIGNED = 'gorgone_api_allow_self_signed';
     private const GORGONE_COMMAND_TIMEOUT = 'gorgone_cmd_timeout';
+    private const ENVIRONMENT_OVERRIDES = [
+        self::GORGONE_API_ADDRESS => 'CENTREON_GORGONE_API_ADDRESS',
+        self::GORGONE_API_PORT => 'CENTREON_GORGONE_API_PORT',
+        self::GORGONE_API_SSL => 'CENTREON_GORGONE_API_SSL',
+    ];
 
     /** @var OptionServiceInterface */
     private $optionService;
@@ -166,6 +171,13 @@ class ConfigurationLoader implements ConfigurationLoaderApiInterface
             ]);
             foreach ($options as $option) {
                 $this->gorgoneParameters[$option->getName()] = $option->getValue();
+            }
+            // Containerized deployments reach Gorgone through a service name that is not stored in database
+            foreach (self::ENVIRONMENT_OVERRIDES as $parameter => $variable) {
+                $value = $_SERVER[$variable] ?? getenv($variable);
+                if (is_string($value) && $value !== '') {
+                    $this->gorgoneParameters[$parameter] = $value;
+                }
             }
             $this->isOptionsLoaded = true;
         } catch (\Exception $ex) {

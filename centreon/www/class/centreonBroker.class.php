@@ -40,13 +40,22 @@ class CentreonBroker
     }
 
     /**
-     * Reload centreon broker process
+     * Reload centreon broker process, through Gorgone (RELOADBROKER) when the central is containerized
      *
      * @throws PDOException
+     * @throws Centreon\Infrastructure\Gorgone\LegacyCommandException
      * @return void
      */
     public function reload(): void
     {
+        $containerizedCentralId = $this->getContainerizedCentralId();
+        if ($containerizedCentralId !== null) {
+            Centreon\Infrastructure\Gorgone\LegacyCommandSender::create()
+                ->sendCommand('RELOADBROKER', $containerizedCentralId);
+
+            return;
+        }
+
         $command = $this->getReloadCommand();
         if (! empty($command)) {
             if (preg_match(Core\MonitoringServer\Model\MonitoringServer::VALID_COMMAND_RELOAD_REGEX, $command) !== 1) {
@@ -54,6 +63,33 @@ class CentreonBroker
             }
             shell_exec(escapeshellcmd("sudo -n -- {$command}"));
         }
+    }
+
+    /**
+     * Get the id of the monitoring server hosting the central broker when it is containerized.
+     * The central registered in the platform topology wins over the localhost flag, which several
+     * servers may carry. Servers without broker reload command are skipped, as in getReloadCommand().
+     *
+     * @throws PDOException
+     * @return int|null null when the central is not containerized
+     */
+    private function getContainerizedCentralId(): ?int
+    {
+        $result = $this->db->query(
+            "SELECT ns.id, ns.poller_type
+            FROM nagios_server ns
+            LEFT JOIN platform_topology pt ON pt.server_id = ns.id AND pt.type = 'central'
+            WHERE ns.broker_reload_command IS NOT NULL
+            AND ns.broker_reload_command != ''
+            ORDER BY pt.id IS NULL, ns.localhost DESC, ns.id ASC
+            LIMIT 1"
+        );
+
+        if (($row = $result->fetch()) && $row['poller_type'] === 'docker') {
+            return (int) $row['id'];
+        }
+
+        return null;
     }
 
     /**
