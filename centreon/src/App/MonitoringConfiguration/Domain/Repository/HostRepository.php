@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
@@ -129,6 +130,16 @@ interface HostRepository
      * @return Collection<HostName> indexed by id
      */
     public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * The hosts' own icons, not the ones inherited from their templates. Never a host template; not scoped by
+     * ACL. A host without its own icon is absent from the result.
+     *
+     * @param Collection<HostId> $ids
+     *
+     * @return Collection<MediaId> indexed by host id
+     */
+    public function findIconIdsByIds(Collection $ids): Collection;
 
     /**
      * Includes $ids themselves, minus any that is not a host.

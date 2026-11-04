@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\Shared\Domain\Collection;
 
 interface ServiceRepository
@@ -58,4 +59,15 @@ interface ServiceRepository
      * Also removes the dependencies left without a parent service by this deletion.
      */
     public function remove(Service $service): void;
+
+    /**
+     * The real services, each with the real host it is directly linked to, the services having no host group
+     * link at all. For an actor whose access is restricted, only the (host, service) pairs the real-time ACL
+     * cache grants to one of their active Access Groups; a pair granted by several groups is listed and counted
+     * once. Each service carries its own values only, not what it inherits from its templates, and comes without
+     * its macros, which a listing does not show.
+     *
+     * @return \IteratorAggregate<int, Service>&\Countable
+     */
+    public function findAll(ServiceCriteria $criteria): \IteratorAggregate&\Countable;
 }
