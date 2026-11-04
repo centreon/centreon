@@ -658,11 +658,13 @@ RUN rm -f /usr/local/etc/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/zz-docker.c
 # logs and /etc/centreon at runtime. /etc/centreon-engine/engine-context.json
 # (app_secret+salt) is unrelated to having a real engine — it's just a JSON
 # file (EngineContextWriter), needed by both the install flow and "Generate
-# Configuration Files" in the legacy UI.
+# Configuration Files" in the legacy UI. /etc/snmp/centreon_traps: "Generate
+# traps" writes <poller id>/centreontrapd.sdb there (generateSqlLite) before
+# sending it to gorgone, and /etc/snmp is root-owned.
 RUN bash -e <<'EOF'
 mkdir -p /var/log/centreon /var/cache/centreon/symfony /var/cache/centreon/symfony.new \
     /etc/centreon /etc/centreon/config.d /etc/centreon/license.d /etc/centreon-engine /var/lib/centreon \
-    /var/lib/php/sessions /var/lib/php/wsdlcache
+    /var/lib/php/sessions /var/lib/php/wsdlcache /etc/snmp/centreon_traps
 touch /var/log/centreon/prod.web.log /var/log/centreon/prod.access.log \
     /var/log/centreon/prod.token.log /var/log/centreon/prod.password.log \
     /var/log/centreon/prod.upgrade.log /var/log/centreon/prod.plugin-pack-manager.log \
@@ -670,8 +672,8 @@ touch /var/log/centreon/prod.web.log /var/log/centreon/prod.access.log \
 chown -R www-data:www-data /usr/share/centreon /var/log/centreon \
     /etc/centreon /etc/centreon-engine \
     /var/lib/php/sessions /var/lib/php/wsdlcache
-chown -R centreon:centreon /var/lib/centreon /var/cache/centreon /etc/centreon/license.d
-chmod -R 775 /var/cache/centreon /var/lib/centreon /etc/centreon/license.d
+chown -R centreon:centreon /var/lib/centreon /var/cache/centreon /etc/centreon/license.d /etc/snmp/centreon_traps
+chmod -R 775 /var/cache/centreon /var/lib/centreon /etc/centreon/license.d /etc/snmp/centreon_traps
 EOF
 
 # /var/log/centreon/*.log are real on-disk files, NOT symlinked to
