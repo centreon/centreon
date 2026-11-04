@@ -9,7 +9,7 @@ import { type ReactElement, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
-import { type Actions, type ResourceRow, ResourceType } from '../models';
+import { type Actions, ResourceType } from '../models';
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
@@ -28,11 +28,9 @@ import {
   columnsAtomKey,
   defaultSelectedColumnIds,
   filtersAtomKey,
-  filtersInitialValues
+  filtersInitialValues,
+  isUnlocked
 } from './utils';
-
-// A locked template cannot be selected, duplicated or deleted.
-const isUnlocked = (row?: ResourceRow): boolean => !row?.isLocked;
 
 const HostTemplates = (): ReactElement => {
   const { t } = useTranslation();
@@ -67,6 +65,7 @@ const HostTemplates = (): ReactElement => {
       delete: (row) => canEdit && isUnlocked(row),
       duplicate: (row) => canEdit && isUnlocked(row),
       edit: canEdit,
+      editable: isUnlocked,
       massive: canEdit && { delete: true, duplicate: true },
       selectable: isUnlocked,
       viewDetails: true

@@ -1,3 +1,4 @@
+import { type MockInstance, rs } from '@rstest/core';
 import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -76,6 +77,14 @@ const getFieldError = (element: HTMLElement, message: string) =>
     message
   );
 
+// The form's own routes: not the listing, nor a template's detail.
+const getChoiceRouteCalls = (
+  fetchSpy: MockInstance<typeof fetch>
+): Array<string> =>
+  fetchSpy.mock.calls
+    .map(([input]) => (input instanceof Request ? input.url : String(input)))
+    .filter((url) => /\/configuration\/host_templates\/[a-z_]/.test(url));
+
 const getWriteRequestCount = (): number =>
   [
     'createHostTemplate',
@@ -97,6 +106,11 @@ const getTooLongMessage = (label: string): string =>
   labelMustBeAtMostCharacters
     .replace('{{label}}', label)
     .replace('{{max}}', '200');
+
+const expectNoSaveOrReset = (): void => {
+  expect(getSaveButton()).not.toBeInTheDocument();
+  expect(screen.queryByTestId(panelDataTestIds.reset)).not.toBeInTheDocument();
+};
 
 const getRect = (testId: string): DOMRect =>
   screen.getAllByTestId(testId)[0].getBoundingClientRect();
@@ -168,14 +182,23 @@ export default () => {
     });
 
     it('opens a template read-only for a user who may only look at templates', async () => {
+      const fetchSpy = rs.spyOn(window, 'fetch');
+
       await initializeListing({ hasWriteAccess: false });
 
       await openRow('generic-active-host-custom');
       await waitForRequest('@getHostTemplate1');
 
       await expectHeader('generic-active-host-custom');
-      expect(getSaveButton()).not.toBeInTheDocument();
+      await waitFor(async () =>
+        expect(await getName()).toHaveValue('generic-active-host-custom')
+      );
       await expectReadOnly();
+      expectNoSaveOrReset();
+      // Those routes answer 403 without write access.
+      expect(getChoiceRouteCalls(fetchSpy)).toEqual([]);
+
+      fetchSpy.mockRestore();
     });
 
     it('opens a locked template read-only from its row, without delete or duplicate', async () => {
@@ -189,7 +212,7 @@ export default () => {
         expect(await getName()).toHaveValue('OS-Linux-SNMP-custom')
       );
       await expectReadOnly();
-      expect(getSaveButton()).toBeDisabled();
+      expectNoSaveOrReset();
       expect(
         screen.queryByTestId(panelDataTestIds.delete)
       ).not.toBeInTheDocument();
@@ -207,7 +230,38 @@ export default () => {
         expect(await getName()).toHaveValue('OS-Linux-SNMP-custom')
       );
       await expectReadOnly();
-      expect(getSaveButton()).toBeDisabled();
+      expectNoSaveOrReset();
+    });
+
+    it('drops Save and Reset when the panel moves from a template to a locked one', async () => {
+      await initializeListing();
+
+      await openRow('generic-active-host-custom');
+      await waitForRequest('@getHostTemplate1');
+      await waitFor(() => expect(getSaveButton()).toBeInTheDocument());
+
+      await openRow('OS-Linux-SNMP-custom');
+      await waitForRequest('@getHostTemplate3');
+
+      await waitFor(async () =>
+        expect(await getName()).toHaveValue('OS-Linux-SNMP-custom')
+      );
+      await expectReadOnly();
+      expectNoSaveOrReset();
+    });
+
+    it('brings Save back when the panel moves from a locked template to another one', async () => {
+      await initializeListing();
+      await openRow('OS-Linux-SNMP-custom');
+      await waitForRequest('@getHostTemplate3');
+      await waitFor(async () =>
+        expect(await getName()).toHaveValue('OS-Linux-SNMP-custom')
+      );
+      expectNoSaveOrReset();
+      await openRow('generic-active-host-custom');
+      await waitForRequest('@getHostTemplate1');
+      await waitFor(() => expect(getSaveButton()).toBeInTheDocument());
+      expect(await getName()).toBeEnabled();
     });
   });
 
@@ -288,6 +342,7 @@ export default () => {
         alias: 'Generic host',
         name: 'generic-active-host-custom'
       });
+      expect(request.body).not.toHaveProperty('is_locked');
       expect(
         await screen.findByText(labelResourceUpdated('Host template'))
       ).toBeInTheDocument();
