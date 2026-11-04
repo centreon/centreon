@@ -385,6 +385,7 @@ export default () => {
 
       expect(request.method).toBe('PUT');
       expect(request.body).toEqual({
+        activated: true,
         category_ids: [3],
         // The macro inherited from the template is not the service's own.
         check_options: {
