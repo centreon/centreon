@@ -1178,6 +1178,8 @@ describe('Dashboard', () => {
         action: FavoriteAction.add,
         customDetailsPath: 'Dashboards/Dashboard/details.json'
       });
+      // Only the icon: the toast, tooltip and widgets vary between runs
+      cy.get('@favoriteIcon').matchImageSnapshot();
     });
 
     it('remove a dashboard from favorites when clicking on the corresponding icon in the details view', () => {
@@ -1186,6 +1188,7 @@ describe('Dashboard', () => {
         action: FavoriteAction.delete,
         customDetailsPath: 'Dashboards/favorites/details.json'
       });
+      cy.get('@favoriteIcon').matchImageSnapshot();
     });
 
     it('disable favorite icon button on click', () => {
