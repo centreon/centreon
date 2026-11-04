@@ -420,6 +420,43 @@ class CentreonACL
     }
 
     /**
+     * Runtime ids of the pollers the user can see, to match against instances.instance_id
+     *
+     * Returns the Snowflake uid (nagios_server.uid) of each poller when set, and always its
+     * configuration id (nagios_server.id): legacy pollers unaware of the uid still report the id
+     * as instance_id, so both are kept for mixed-version platforms.
+     *
+     * Poller ACLs are only loaded for non-admin users: always returns [] for admins, so callers
+     * must check admin status first.
+     *
+     * Also returns [] for a user with no ACL resource: setPollers() then falls back to every
+     * active poller, which only makes sense when the user's resources set no poller restriction.
+     *
+     * @return int[]
+     */
+    public function getPollerRuntimeIds(): array
+    {
+        if ($this->pollers === [] || $this->resourceGroups === []) {
+            return [];
+        }
+
+        $pollerIds = array_map('intval', array_keys($this->pollers));
+        $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query(
+            'SELECT id, uid FROM nagios_server WHERE id IN (' . implode(',', $pollerIds) . ')'
+        );
+        $runtimeIds = [];
+        while ($row = $DBRESULT->fetchRow()) {
+            $runtimeIds[] = (int) $row['id'];
+            if ($row['uid'] !== null) {
+                $runtimeIds[] = (int) $row['uid'];
+            }
+        }
+        $DBRESULT->closeCursor();
+
+        return $runtimeIds;
+    }
+
+    /**
      * Service groups Getter
      *
      * @return array
