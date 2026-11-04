@@ -255,16 +255,31 @@ async function main() {
     return;
   }
 
-  const xrayTests = await fetchXrayTests(targetKeys);
-  const missingKeys = targetKeys.filter((key) => !xrayTests.has(key));
-  const nonTestTypes = missingKeys.length > 0 ? await fetchNonTestIssueTypes(missingKeys) : new Map();
+  // Conflicting keys are looked up too, so a ticket key set on several scenarios is still
+  // reported; they stay out of the sync below.
+  const xrayTests = await fetchXrayTests([...targetKeys, ...conflictKeys]);
+  const missingKeys = [...targetKeys, ...conflictKeys].filter((key) => !xrayTests.has(key)).sort();
+  // Diagnostic only: a failed lookup must not stop the sync of the known Tests.
+  let nonTestTypes = new Map();
+  let classificationFailed = false;
+  if (missingKeys.length > 0) {
+    try {
+      nonTestTypes = await fetchNonTestIssueTypes(missingKeys);
+    } catch (error) {
+      classificationFailed = true;
+      console.log(`::warning::Could not check the issue type of keys missing from Xray: ${error.message}`);
+    }
+  }
   const nonTestKeys = missingKeys.filter((key) => nonTestTypes.has(key));
   const unknownKeys = missingKeys.filter((key) => !nonTestTypes.has(key));
+  const locationsOf = (key) => scenarios.filter((scenario) => scenario.key === key).map((scenario) => scenario.location);
   for (const key of nonTestKeys) {
-    const [file, line] = resolved.get(key).location.split(":");
-    console.log(
-      `::warning file=${path.join(FEATURES_DIR, file)},line=${line}::${key} is a ${nonTestTypes.get(key)}, not an Xray Test: tag this scenario with a Test key`,
-    );
+    for (const location of locationsOf(key)) {
+      const [file, line] = location.split(":");
+      console.log(
+        `::warning file=${path.join(FEATURES_DIR, file)},line=${line}::${key} is a ${nonTestTypes.get(key)}, not an Xray Test: tag this scenario with a Test key`,
+      );
+    }
   }
   const upToDateKeys = [];
   const outdatedKeys = [];
@@ -307,8 +322,10 @@ async function main() {
   summary.push(
     `- Up to date: ${upToDateKeys.length}`,
     `- ${dryRun ? "To resync" : "Resynced"}: ${syncedKeys.length} ${keyList(syncedKeys)}`,
-    `- Not a Test (development ticket key used as a tag): ${nonTestKeys.length} ${nonTestKeys.length > 0 ? nonTestKeys.map((key) => `\`${key}\` (${nonTestTypes.get(key)}, ${resolved.get(key).location})`).join(", ") : "-"}`,
-    `- Not found in Jira: ${unknownKeys.length} ${keyList(unknownKeys)}`,
+    `- Not a Test (development ticket key used as a tag): ${nonTestKeys.length} ${nonTestKeys.length > 0 ? nonTestKeys.map((key) => `\`${key}\` (${nonTestTypes.get(key)}, ${locationsOf(key).join(", ")})`).join(", ") : "-"}`,
+    classificationFailed
+      ? `- Missing from Xray, issue type not checked (lookup failed): ${unknownKeys.length} ${keyList(unknownKeys)}`
+      : `- Neither a Test nor a coverable issue (deleted key, typo or non-coverable issue type): ${unknownKeys.length} ${keyList(unknownKeys)}`,
     `- Not overwritten (Xray holds Feature/Background/Rule/tags/several scenarios): ${protectedKeys.length} ${keyList(protectedKeys)}`,
   );
   if (failedKeys.length > 0) summary.push(`- Failed: ${failedKeys.length} ${keyList(failedKeys)}`);
