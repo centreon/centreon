@@ -27,8 +27,11 @@ use App\Shared\Domain\Exception\AggregateNotFoundException;
 
 final class ServiceTemplateNotFoundException extends AggregateNotFoundException
 {
-    public function __construct(int $id)
+    /**
+     * @param string $criterion the input field the id was looked up by
+     */
+    public function __construct(int $id, string $criterion = 'serviceTemplateId')
     {
-        parent::__construct(['serviceTemplateId' => $id], 'This service template does not exist.');
+        parent::__construct([$criterion => $id], 'This service template does not exist.');
     }
 }
