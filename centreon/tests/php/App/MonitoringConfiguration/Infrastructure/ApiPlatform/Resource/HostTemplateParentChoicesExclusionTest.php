@@ -114,12 +114,19 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
         self::assertSame([$otherWeb], array_column((array) $response->toArray()['member'], 'id'));
     }
 
-    public function testAnUnknownIdExcludesNothing(): void
+    /**
+     * A host inherits from the two templates: excluding it by id must not exclude them.
+     */
+    #[DataProvider('provideIdsNamingNoTemplate')]
+    public function testAnIdNamingNoTemplateExcludesNothing(string $kind): void
     {
         $ids = $this->templates(2);
+        $this->connection->insert('host', ['host_name' => "host-{$this->tag}", 'host_register' => '1', 'host_activate' => '1']);
+        $hostId = (int) $this->connection->lastInsertId();
+        $this->linkTemplates($this->connection, [$hostId, $ids[0]], [$hostId, $ids[1]]);
         $this->login();
 
-        self::assertSame($ids, $this->offeredIds(\PHP_INT_MAX));
+        self::assertSame($ids, $this->offeredIds($kind === 'host' ? $hostId : \PHP_INT_MAX));
     }
 
     /**
@@ -217,6 +224,16 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame([$template, $child], array_column((array) $response->toArray()['member'], 'id'));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideIdsNamingNoTemplate(): iterable
+    {
+        yield 'unknown id' => ['unknown'];
+
+        yield 'host id' => ['host'];
     }
 
     /**

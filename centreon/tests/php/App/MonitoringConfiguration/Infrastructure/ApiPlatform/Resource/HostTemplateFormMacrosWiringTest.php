@@ -43,6 +43,9 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
     use GrantsHostTemplateTopologyRole;
     private const MESSAGE = 'You are not allowed to access host templates';
 
+    // about 100 times a warm response (under 30 ms), so a loaded runner cannot flake
+    private const MAX_SECONDS = 2.0;
+
     private Connection $connection;
 
     private string $tag;
@@ -176,6 +179,34 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
     }
 
     /**
+     * A loop is refused on save, but older data may hold one: the route must still answer, at once,
+     * for a template in the loop and for a template reaching it through its parent.
+     */
+    public function testItAnswersPromptlyOnALoopAlreadyInTheData(): void
+    {
+        $first = $this->insertHostTemplate("loop-first-{$this->tag}");
+        $second = $this->insertHostTemplate("loop-second-{$this->tag}");
+        $child = $this->insertHostTemplate("loop-child-{$this->tag}");
+        foreach ([[$first, $second], [$second, $first], [$child, $first]] as [$inheriting, $inherited]) {
+            $this->connection->insert('host_template_relation', ['host_host_id' => $inheriting, 'host_tpl_id' => $inherited, '`order`' => 1]);
+        }
+        $firstMacroId = $this->insertMacro($first, '$_HOSTFIRST$', '1');
+        $secondMacroId = $this->insertMacro($second, '$_HOSTSECOND$', '2');
+        $this->login();
+
+        [$seconds, $firstMacros] = $this->timedMacros($first);
+        self::assertLessThan(self::MAX_SECONDS, $seconds);
+        self::assertSame([$firstMacroId, $secondMacroId], array_column($firstMacros, 'id'));
+        self::assertArrayNotHasKey('parent', $firstMacros[0]);
+        self::assertSame('template', $firstMacros[1]['parent']);
+
+        [$seconds, $childMacros] = $this->timedMacros($child);
+        self::assertLessThan(self::MAX_SECONDS, $seconds);
+        self::assertSame([$firstMacroId, $secondMacroId], array_column($childMacros, 'id'));
+        self::assertSame(['template', 'template'], array_column($childMacros, 'parent'));
+    }
+
+    /**
      * "0<id>" names an existing template once the leading zero is dropped: only the id requirement
      * keeps it unrouted.
      */
@@ -228,6 +259,28 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         yield 'leading zero' => ['0<id>'];
 
         yield 'not a number' => ['not-a-number'];
+    }
+
+    /**
+     * The first requests of a test process are slow whatever their query: two warm-ups, then the
+     * timed request.
+     *
+     * @return array{float, list<array<string, mixed>>}
+     */
+    private function timedMacros(int $templateId): array
+    {
+        $this->request('GET', $this->uri((string) $templateId));
+        $this->request('GET', $this->uri((string) $templateId));
+
+        $start = hrtime(true);
+        $response = $this->request('GET', $this->uri((string) $templateId));
+        $seconds = (hrtime(true) - $start) / 1e9;
+        self::assertResponseIsSuccessful();
+
+        /** @var list<array<string, mixed>> $macros */
+        $macros = $response->toArray()['macros'];
+
+        return [$seconds, $macros];
     }
 
     private function uri(string $id): string
