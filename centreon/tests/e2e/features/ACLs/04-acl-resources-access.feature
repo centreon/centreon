@@ -33,7 +33,7 @@ Feature: ACL Resources Access administration
     Then the modifications are saved
 
   # Cloud: identical
-  @MON-208725
+  @REQ_MON-208725 @MON-214153
   Scenario: Browsing every tab of one existing Resources access record
     Given one existing Resources access
     When I open the Resources access for editing
