@@ -3,6 +3,11 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
+import {
+  labelChildHosts,
+  labelHostGroups,
+  labelParentHosts
+} from '../../Hosts/translatedLabels';
 import initialize from './initialize';
 
 const testIds = {
@@ -111,6 +116,17 @@ export default () => {
 
       expect(body.category_ids).toEqual([]);
       expect(body.severity_id).toBeNull();
+    });
+
+    it('shows none of the relations only a host has', async () => {
+      await openTemplate(1);
+
+      await waitFor(() =>
+        expect(getChips(testIds.categories)).toEqual(['Virtual'])
+      );
+      expect(screen.queryByLabelText(labelHostGroups)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(labelParentHosts)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(labelChildHosts)).not.toBeInTheDocument();
     });
 
     it('opens a locked template with its relations read-only', async () => {
