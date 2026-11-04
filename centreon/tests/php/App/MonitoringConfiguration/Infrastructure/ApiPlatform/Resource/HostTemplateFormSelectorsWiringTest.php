@@ -204,6 +204,10 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
         $this->grantHostTopologyRole($this->connection, $this->createNonAdminContact($this->connection, $username), self::ACL_ACCESS_READ_WRITE, $this->tag);
         $this->login($username);
 
+        // guard: the user does hold Hosts read-write
+        $this->request('GET', '/api/configuration/hosts/commands');
+        self::assertResponseIsSuccessful();
+
         $response = $this->request('GET', self::SELECTORS[$selector]['uri']);
 
         self::assertResponseStatusCodeSame(403);
@@ -258,6 +262,10 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
     {
         $this->forceCloudPlatform();
         $this->loginAsHostTemplateReadWriteUser($this->connection, $this->tag);
+
+        // guard: cloud is in force, where this on-premise-only list is not routed
+        $this->request('GET', '/api/configuration/services/contacts');
+        self::assertResponseStatusCodeSame(404);
 
         $this->request('GET', self::SELECTORS[$selector]['uri']);
 

@@ -89,6 +89,10 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $this->grantHostTopologyRole($this->connection, $this->createNonAdminContact($this->connection, $username), self::ACL_ACCESS_READ_WRITE, $this->tag);
         $this->login($username);
 
+        // guard: the user does hold Hosts read-write
+        $this->request('GET', "/api/configuration/hosts/host_templates/{$templateId}");
+        self::assertResponseIsSuccessful();
+
         $response = $this->request('GET', self::ENDPOINT . "/{$templateId}");
 
         self::assertResponseStatusCodeSame(403);
