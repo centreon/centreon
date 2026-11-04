@@ -63,6 +63,7 @@ case "$ROLE" in
     check_as www-data "Symfony console boots (www-data)" 'cd /usr/share/centreon && php bin/console --version'
     check "bin/ scripts are executable (git tracks them 644)" 'test -x /usr/share/centreon/bin/generateSqlLite && test -x /usr/share/centreon/bin/centFillTrapDB'
     check "real centengine for config-verification" 'centengine -V'
+    check "redis extension loaded (MON-214095, Valkey sessions)" 'php -m | grep -qix redis'
     check "entrypoint present" 'test -x /usr/local/lib/centreon-fpm/container.sh'
     ;;
   cron)

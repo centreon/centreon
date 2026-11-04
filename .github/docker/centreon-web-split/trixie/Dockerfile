@@ -555,6 +555,16 @@ docker-php-ext-install -j"$(nproc)" pdo_mysql mysqli gd intl ldap snmp zip gette
 # official image), same reasoning as the SourceGuardian loader below.
 pecl install gnupg
 docker-php-ext-enable gnupg
+# redis (phpredis), for storing fpm's PHP sessions in Valkey instead of a
+# shared file volume (MON-214095) — PECL-only like gnupg above, same
+# reasoning (built against this exact PHP build, not a Debian package with
+# no ABI guarantee). Valkey is protocol-compatible with Redis, so the same
+# client extension works against either; no extra system -dev packages
+# needed, phpredis has no required external library for its base build.
+# pecl asks its configure questions on stdin, which is this heredoc: answer
+# them with -D and close stdin, or it swallows the next line as an answer.
+pecl install -D 'enable-redis-igbinary="no" enable-redis-lzf="no" enable-redis-zstd="no" enable-redis-msgpack="no" enable-redis-lz4="no" with-liblz4="no"' redis-6.3.0 </dev/null
+docker-php-ext-enable redis
 EOF
 
 #############################################
@@ -636,7 +646,7 @@ for so in "$(php -r 'echo ini_get("extension_dir");')"/*.so; do
 done
 mods=$(php -m 2>&1)
 if grep -i 'warning' <<<"$mods"; then echo "PHP startup warning" >&2; exit 1; fi
-for ext in gd gettext gnupg intl ldap mysqli pcntl pdo_mysql snmp sysvsem zip; do
+for ext in gd gettext gnupg intl ldap mysqli pcntl pdo_mysql redis snmp sysvsem zip; do
   grep -qix "$ext" <<<"$mods" || { echo "$ext extension not loaded" >&2; exit 1; }
 done
 grep -qi 'SourceGuardian' <<<"$(php -v)" || { echo "SourceGuardian loader not active" >&2; exit 1; }
@@ -653,6 +663,10 @@ COPY --chmod=755 .github/docker/centreon-web-split/trixie/entrypoint/fpm \
 # 01-config.sh) — same UTC fallback the real packaging postinstall's
 # setPhpTimezone() uses when it can't detect a host timezone either.
 ENV PHP_TIMEZONE=UTC
+# MON-214095: files by default — nothing changes for a deployment that
+# never sets this. Switched to Valkey explicitly (PHP_SESSION_HANDLER=redis
+# + PHP_SESSION_SAVE_PATH, see 01-config.sh/centreon.ini.template).
+ENV PHP_SESSION_HANDLER=files
 
 # Dev/CI convenience only, mirrors the monolithic image's own
 # container.d/15-installation.sh + JSON answer-file fixtures (opt-in via

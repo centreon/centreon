@@ -156,4 +156,34 @@ if has_service gorgone-central; then
   fi
 fi
 
+# PHP sessions in Valkey: only once a valkey service exists. A UI login (session
+# cookie, not the REST token) must still work after fpm is recreated: internal.php
+# answers 401 unless $_SESSION['centreon'] is still in the session store.
+if has_service valkey; then
+  jar="$LOG_DIR/session.cookies"
+  session_call() {
+    curl -s -o /dev/null -w '%{http_code}' -b "$jar" \
+      "http://127.0.0.1:${port}/centreon/api/internal.php?object=centreon_topcounter&action=user" || true
+  }
+  curl -s -o /dev/null -c "$jar" -H 'Content-Type: application/json' \
+    -d '{"login":"admin","password":"Centreon!2021"}' \
+    "http://127.0.0.1:${port}/centreon/api/latest/authentication/providers/configurations/local" || true
+  before=$(session_call)
+  keys=$(compose exec -T valkey sh -c 'REDISCLI_AUTH="$VALKEY_PASSWORD" valkey-cli --scan --pattern "PHPREDIS_SESSION:*" | wc -l' 2>/dev/null | tr -d '[:space:]' || true)
+  if [[ "$before" == 200 && "${keys:-0}" -gt 0 ]]; then
+    record "UI session stored in valkey (${keys} key(s))" ok
+  else
+    record "UI session stored in valkey (HTTP ${before}, ${keys:-0} key(s))" ko
+  fi
+  compose up -d --no-build --force-recreate fpm >/dev/null 2>&1 || true
+  deadline=$(( $(date +%s) + 300 ))
+  until service_ready fpm || (( $(date +%s) >= deadline )); do sleep 5; done
+  after=$(session_call)
+  if [[ "$after" == 200 ]]; then
+    record "UI session survives fpm recreate" ok
+  else
+    record "UI session survives fpm recreate (HTTP ${after})" ko
+  fi
+fi
+
 (( failures == 0 ))
