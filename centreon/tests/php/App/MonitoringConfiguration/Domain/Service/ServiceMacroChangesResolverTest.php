@@ -198,6 +198,22 @@ final class ServiceMacroChangesResolverTest extends TestCase
         self::assertSame([], $macros);
     }
 
+    public function testAnInheritedPasswordEchoedBackAsAnEmptyStringOverridesIt(): void
+    {
+        // A password value is never echoed back: only null keeps the inherited one. An empty string is an explicit
+        // value, so a client sending it instead of null overrides the template's secret with an empty password.
+        $macros = $this->resolver->resolve(
+            [$this->change('tplpwd', '', isPassword: true, id: 12, parent: ServiceMacroParentEnum::Template)],
+            [],
+            $this->inherited,
+        );
+
+        self::assertCount(1, $macros);
+        self::assertFalse($macros[0]->isInherited());
+        self::assertTrue($macros[0]->isPassword);
+        self::assertSame('', $macros[0]->value);
+    }
+
     public function testADirectOverrideSetBackToTheInheritedValueCollapses(): void
     {
         $current = [$this->direct(5, 'tplval', 'overridden')];
