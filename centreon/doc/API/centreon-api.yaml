@@ -6628,9 +6628,9 @@ paths:
             schema:
               $ref: '#/components/schemas/HostTemplate.DuplicateHostTemplateInput'
         required: false
-  '/api/configuration/host_templates/host_templates/{id}':
+  '/api/configuration/host_templates/host_templates/{id}/macros':
     get:
-      operationId: api_configurationhost_templateshost_templates_id_get
+      operationId: api_configurationhost_templateshost_templates_idmacros_get
       tags:
         - HostTemplate
       responses:

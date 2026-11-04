@@ -80,7 +80,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             extraProperties: ['exclude_template_id' => true],
         ),
         new Get(
-            uriTemplate: '/configuration/host_templates/host_templates/{id}',
+            uriTemplate: '/configuration/host_templates/host_templates/{id}/macros',
             requirements: ['id' => '[1-9]\d*'],
             output: HostTemplateMacrosOutput::class,
             provider: GetHostTemplateMacrosProvider::class,

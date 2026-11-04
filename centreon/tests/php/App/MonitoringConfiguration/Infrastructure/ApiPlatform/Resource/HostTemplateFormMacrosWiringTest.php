@@ -29,6 +29,7 @@ use ApiPlatform\OpenApi\Model\PathItem;
 use ApiPlatform\OpenApi\Model\Response;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\GrantsHostTemplateTopologyRole;
 use Tests\App\Shared\ApiTestCase;
@@ -40,7 +41,6 @@ use Tests\App\Shared\ApiTestCase;
 final class HostTemplateFormMacrosWiringTest extends ApiTestCase
 {
     use GrantsHostTemplateTopologyRole;
-    private const ENDPOINT = '/api/configuration/host_templates/host_templates';
     private const MESSAGE = 'You are not allowed to access host templates';
 
     private Connection $connection;
@@ -62,7 +62,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
     {
         $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
 
-        $this->request('GET', self::ENDPOINT . "/{$templateId}");
+        $this->request('GET', $this->uri((string) $templateId));
 
         self::assertResponseStatusCodeSame(401);
     }
@@ -74,7 +74,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $this->grantHostTemplateTopologyRole($this->connection, $this->createNonAdminContact($this->connection, $username), self::ACL_ACCESS_READ_ONLY, $this->tag);
         $this->login($username);
 
-        $response = $this->request('GET', self::ENDPOINT . "/{$templateId}");
+        $response = $this->request('GET', $this->uri((string) $templateId));
 
         self::assertResponseStatusCodeSame(403);
         $body = $response->toArray(false);
@@ -93,7 +93,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $this->request('GET', "/api/configuration/hosts/host_templates/{$templateId}");
         self::assertResponseIsSuccessful();
 
-        $response = $this->request('GET', self::ENDPOINT . "/{$templateId}");
+        $response = $this->request('GET', $this->uri((string) $templateId));
 
         self::assertResponseStatusCodeSame(403);
         self::assertSame(self::MESSAGE, $response->toArray(false)['message']);
@@ -112,7 +112,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $this->request('GET', "/api/configuration/hosts/host_templates/{$templateId}");
         self::assertResponseStatusCodeSame(403);
 
-        $response = $this->request('GET', self::ENDPOINT . "/{$templateId}");
+        $response = $this->request('GET', $this->uri((string) $templateId));
 
         self::assertResponseIsSuccessful();
         $body = $response->toArray();
@@ -137,7 +137,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $this->login();
 
         $hostFormBody = $this->request('GET', "/api/configuration/hosts/host_templates/{$templateId}")->toArray();
-        $templateFormBody = $this->request('GET', self::ENDPOINT . "/{$templateId}")->toArray();
+        $templateFormBody = $this->request('GET', $this->uri((string) $templateId))->toArray();
 
         self::assertCount(2, (array) $templateFormBody['macros']);
         self::assertSame($this->withoutGeneratedIds($hostFormBody['macros']), $this->withoutGeneratedIds($templateFormBody['macros']));
@@ -149,7 +149,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('GET', self::ENDPOINT . '/' . PHP_INT_MAX);
+        $this->request('GET', $this->uri((string) PHP_INT_MAX));
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -160,7 +160,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $hostId = (int) $this->connection->lastInsertId();
         $this->login();
 
-        $this->request('GET', self::ENDPOINT . "/{$hostId}");
+        $this->request('GET', $this->uri((string) $hostId));
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -170,7 +170,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $templateId = $this->insertHostTemplate("inactive-{$this->tag}", active: false);
         $this->login();
 
-        $this->request('GET', self::ENDPOINT . "/{$templateId}");
+        $this->request('GET', $this->uri((string) $templateId));
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -185,7 +185,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
         $this->login();
 
-        $this->request('GET', self::ENDPOINT . '/' . str_replace('<id>', (string) $templateId, $invalidId));
+        $this->request('GET', $this->uri(str_replace('<id>', (string) $templateId, $invalidId)));
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -194,7 +194,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
     {
         /** @var OpenApiFactoryInterface $openApiFactory */
         $openApiFactory = self::getContainer()->get('api_platform.openapi.factory');
-        $pathItem = $openApiFactory()->getPaths()->getPath(self::ENDPOINT . '/{id}');
+        $pathItem = $openApiFactory()->getPaths()->getPath($this->uri('{id}'));
 
         self::assertInstanceOf(PathItem::class, $pathItem);
         $operation = $pathItem->getGet();
@@ -207,6 +207,17 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         }
     }
 
+    public function testThePathIsRoutedToTheMacrosOperationOnly(): void
+    {
+        /** @var RouterInterface $router */
+        $router = self::getContainer()->get('router');
+
+        self::assertSame(
+            '_api_/configuration/host_templates/host_templates/{id}/macros_get',
+            $router->match($this->uri('5'))['_route'] ?? null,
+        );
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
@@ -217,6 +228,11 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         yield 'leading zero' => ['0<id>'];
 
         yield 'not a number' => ['not-a-number'];
+    }
+
+    private function uri(string $id): string
+    {
+        return "/api/configuration/host_templates/host_templates/{$id}/macros";
     }
 
     /**
