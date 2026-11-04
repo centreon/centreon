@@ -39,12 +39,10 @@ use Webmozart\Assert\Assert;
 /**
  * Returns a host template's own macros (direct, parent null), then those it inherits from its
  * ancestor templates and check commands that it does not override (parent "template" or
- * "command"), resolved like GetHost.
+ * "command").
  *
- * No actor scoping, like the host template choices list (ListHostTemplatesChoicesProvider). Unlike
- * that list, the license host limit does not apply: a template the license no longer allows still
- * gives its macros, as a host or a host template may already inherit from it. An inactive template
- * is not found.
+ * Not ACL-scoped and not license-filtered: a template the license no longer allows still passes
+ * its macros to the hosts and templates that inherit from it. An inactive template is not found.
  *
  * @implements ProviderInterface<HostTemplateMacrosOutput>
  */
