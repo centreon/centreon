@@ -1,4 +1,6 @@
 export const labelDashboards = 'Dashboards';
+export const labelDashboardsDescription =
+  'Visualize and monitor your infrastructure through customizable dashboards';
 export const labelCreateADashboard = 'Create a dashboard';
 export const labelWelcomeToDashboardInterface =
   'Welcome to the Dashboards interface!';

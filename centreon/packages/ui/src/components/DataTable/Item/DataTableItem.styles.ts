@@ -7,31 +7,21 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between'
   },
   cardActions: {
-    backgroundColor: theme.palette.background.paper,
-    bottom: 0,
-    position: 'absolute',
-    width: '100%'
+    flexShrink: 0,
+    padding: 0
   },
   cardContent: {
+    alignItems: 'flex-start',
+    display: 'flex',
+    gap: theme.spacing(1),
+    justifyContent: 'space-between',
     padding: theme.spacing(2),
     zIndex: 1
   },
+  cardContentText: {
+    minWidth: 0
+  },
   dataTableItem: {
-    '& .MuiCardActionArea-root': {
-      alignItems: 'flex-start',
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      justifyContent: 'flex-start'
-    },
-    '& .MuiCardActions-root': {
-      '& > span': {
-        display: 'flex',
-        gap: theme.spacing(1)
-      },
-      display: 'flex',
-      justifyContent: 'space-between'
-    },
     '&:hover img[alt*="thumbnail"]': {
       transform: 'scale(1.1)',
       transformOrigin: 'center'
@@ -39,8 +29,7 @@ const useStyles = makeStyles()((theme) => ({
     borderRadius: theme.shape.borderRadius,
     display: 'flex',
     flexDirection: 'column',
-    height: '250px',
-    justifyContent: 'space-between',
+    height: '200px',
     p: {
       color: theme.palette.text.secondary,
       letterSpacing: '0',
@@ -49,15 +38,28 @@ const useStyles = makeStyles()((theme) => ({
     position: 'relative'
   },
   description: {
+    marginLeft: theme.spacing(1),
     maxHeight: '42px',
     overflow: 'hidden'
   },
   thumbnail: {
-    height: theme.spacing(10.25),
+    height: '100%',
     objectFit: 'cover',
     objectPosition: 'top',
     transition: 'transform 150ms ease-out',
     width: '100%'
+  },
+  thumbnailArea: {
+    display: 'block',
+    flex: 1,
+    minHeight: 0,
+    overflow: 'hidden',
+    position: 'relative'
+  },
+  title: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
   }
 }));
 
