@@ -101,12 +101,25 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
         }
       ]
     },
+    // `note_url` and `alt_icon` unset: left out.
+    extended_informations: {
+      icon: { id: 12, name: 'server.png', url: hostTemplateIcon },
+      note: 'Front web servers'
+    },
     is_locked: false,
     linked_service_templates: [{ id: 31, name: 'generic-ping' }],
     name: 'generic-active-host-custom',
+    scheduling_options: {
+      active_check_enabled: 'false',
+      check_period: { id: 2, name: 'workhours' },
+      max_check_attempts: 3,
+      normal_check_interval: 5,
+      passive_check_enabled: 'true'
+    },
     severity: { id: 2, name: 'Minor' },
     snmp_version: '2c',
-    templates: [{ id: 2, name: 'generic-active-host' }]
+    templates: [{ id: 2, name: 'generic-active-host' }],
+    timezone: { id: 7, name: 'Europe/Paris' }
   },
   2: {
     categories: [],
@@ -222,3 +235,23 @@ export const getFormServiceTemplatesResponse = () =>
     { id: 31, name: 'generic-ping' },
     { id: 32, name: 'generic-cpu' }
   ]);
+
+export const getFormMediasResponse = () =>
+  toCollection('medias', [
+    { id: 12, name: 'server.png', url: hostTemplateIcon },
+    { id: 13, name: 'router.png', url: hostTemplateIcon }
+  ]);
+
+export const getFormTimePeriodsResponse = () =>
+  toCollection('timeperiods', [
+    { id: 1, name: '24x7' },
+    { id: 2, name: 'workhours' }
+  ]);
+
+export const getTimezonesResponse = () => ({
+  ...toCollection('timezones', [
+    { id: 1, name: 'Europe/London' },
+    { id: 7, name: 'Europe/Paris' }
+  ]),
+  '@id': '/centreon/api/configuration/timezones'
+});

@@ -31,8 +31,11 @@ import {
   hostTemplateFormHostCategoriesEndpoint,
   hostTemplateFormHostSeveritiesEndpoint,
   hostTemplateFormHostTemplatesEndpoint,
+  hostTemplateFormMediasEndpoint,
   hostTemplateFormServiceTemplatesEndpoint,
-  hostTemplatesListEndpoint
+  hostTemplateFormTimePeriodsEndpoint,
+  hostTemplatesListEndpoint,
+  timezonesEndpoint
 } from '../api/endpoints';
 import { getDefaultValues, useFormInputs } from '../Form';
 import {
@@ -40,11 +43,14 @@ import {
   getFormCommandsResponse,
   getFormHostCategoriesResponse,
   getFormHostSeveritiesResponse,
+  getFormMediasResponse,
   getFormParentTemplatesResponse,
   getFormServiceTemplatesResponse,
+  getFormTimePeriodsResponse,
   getHostTemplateResponse,
   getListingResponse,
-  getTemplateMacrosResponses
+  getTemplateMacrosResponses,
+  getTimezonesResponse
 } from './utils';
 
 interface Props {
@@ -150,6 +156,21 @@ const initialize = ({
       alias: 'getFormServiceTemplates',
       path: hostTemplateFormServiceTemplatesEndpoint,
       response: getFormServiceTemplatesResponse()
+    },
+    {
+      alias: 'getFormMedias',
+      path: hostTemplateFormMediasEndpoint,
+      response: getFormMediasResponse()
+    },
+    {
+      alias: 'getFormTimePeriods',
+      path: hostTemplateFormTimePeriodsEndpoint,
+      response: getFormTimePeriodsResponse()
+    },
+    {
+      alias: 'getFormTimezones',
+      path: timezonesEndpoint,
+      response: getTimezonesResponse()
     }
   ].forEach(({ alias, path, response }) => {
     interceptAPIRequest({
