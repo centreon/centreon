@@ -219,7 +219,8 @@ final readonly class ListServicesProvider implements ProviderInterface
             $hostId = $service->hostId->value;
             $output = $this->transformer->transform($service);
 
-            // Only reached if the host is deleted between the two queries: both keep real hosts only.
+            // Reached for a host without a name (hosts are out of scope: their nullable name is not filtered here, and
+            // findNamesByIds() leaves them out) or for a host deleted between the two queries.
             $host = ['id' => $hostId, 'name' => $hostNames[$hostId]->value ?? ''];
             // An own icon that no longer resolves gives no icon: it does not fall back on the inherited one.
             $hostIcon = $this->icon($hostIconIds[$hostId] ?? $inheritedHostIconIds[$hostId] ?? null, $media);
