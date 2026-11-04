@@ -35,10 +35,16 @@ import {
 } from '../translatedLabels';
 import { panelDataTestIds } from './dataTestIds';
 
-const EnableAction = ({ row }: { row: ResourceRow }): ReactElement => {
+const EnableAction = ({
+  onChanged,
+  row
+}: {
+  onChanged: (isActivated: boolean) => void;
+  row: ResourceRow;
+}): ReactElement => {
   const { t } = useTranslation();
 
-  const { isMutating, change, checked } = useStatus({ row });
+  const { isMutating, change, checked } = useStatus({ onChanged, row });
 
   return (
     <Tooltip title={checked ? t(labelEnabled) : t(labelDisabled)}>
@@ -66,6 +72,7 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
   const configuration = useAtomValue(configurationAtom);
   const { id, mode, resource: openedResource } = useAtomValue(formStateAtom);
   const formActions = useAtomValue(formActionsAtom);
+  const setFormState = useSetAtom(formStateAtom);
   const setIsResetConfirmationDialogOpen = useSetAtom(
     isResetConfirmationDialogOpenAtom
   );
@@ -125,7 +132,18 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
         {title}
       </Typography>
       <Box className="ml-auto flex items-center gap-1">
-        {canEnableDisable && <EnableAction row={row} />}
+        {canEnableDisable && (
+          <EnableAction
+            // Kept on the opened resource, which a save sends back.
+            onChanged={(isActivated) =>
+              setFormState((current) => ({
+                ...current,
+                resource: { ...resource, isActivated }
+              }))
+            }
+            row={row}
+          />
+        )}
         {isEditMode && formActions && (
           <IconButton
             ariaLabel={t(labelReset)}
