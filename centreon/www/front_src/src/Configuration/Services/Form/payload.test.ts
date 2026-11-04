@@ -1,8 +1,16 @@
+import { pick } from 'ramda';
+
 import { getPayload } from '../../ResourceForm/blocks';
 import { blocks, type FormValues } from './sections';
 
+// The keys of the name and host block: the other blocks' are their own tests'.
+const identityKeys = ['activated', 'host_id', 'name'];
+
 const payloadOf = (values: FormValues, { isMassChange = false } = {}) =>
-  getPayload(blocks, values, { isCloudPlatform: false, isMassChange });
+  pick(
+    identityKeys,
+    getPayload(blocks, values, { isCloudPlatform: false, isMassChange })
+  );
 
 describe('Service payload', () => {
   it('sends the name as the server stores it', () => {
