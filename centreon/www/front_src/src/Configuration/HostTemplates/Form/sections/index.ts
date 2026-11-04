@@ -3,7 +3,10 @@ import {
   getInputBlocks
 } from '../../../ResourceForm/blocks';
 import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
-import { getNotesAndIconsBlock } from '../../../ResourceForm/fieldBlocks/extendedInfos';
+import {
+  getActionUrlBlock,
+  getNotesAndIconsBlock
+} from '../../../ResourceForm/fieldBlocks/extendedInfos';
 import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
 import {
   getActiveAndPassiveChecksBlock,
@@ -90,6 +93,7 @@ export const blocks = [
     mediasEndpoint: hostTemplateFormMediasEndpoint,
     resource
   }),
+  getActionUrlBlock({ resource }),
   getTimezoneBlock({ endpoint: timezonesEndpoint, resource }),
   getCheckPeriodAndIntervalsBlock({
     resource,

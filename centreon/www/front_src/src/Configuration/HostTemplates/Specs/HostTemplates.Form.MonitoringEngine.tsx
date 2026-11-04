@@ -71,8 +71,19 @@ export default () => {
       expect(screen.getByTestId(`${prefix}-extended-infos-icon`)).toHaveValue(
         'server.png'
       );
+      expect(await getInput(`${prefix}-extended-infos-actionUrl`)).toHaveValue(
+        'https://example.com/actions'
+      );
       expect(screen.getByTestId(`${prefix}-timezone`)).toHaveValue(
         'Europe/Paris'
+      );
+      // Above the timezone, as designed.
+      expect(
+        screen
+          .getAllByTestId(`${prefix}-extended-infos-actionUrl`)[0]
+          .getBoundingClientRect().bottom
+      ).toBeLessThanOrEqual(
+        screen.getByTestId(`${prefix}-timezone`).getBoundingClientRect().top
       );
       expect(
         screen.getByTestId(`${prefix}-scheduling-options-checkPeriod`)
@@ -119,6 +130,10 @@ export default () => {
         await getInput(`${prefix}-extended-infos-altIcon`),
         'Router'
       );
+      await userEvent.type(
+        await getInput(`${prefix}-extended-infos-actionUrl`),
+        'https://example.com/act'
+      );
 
       await userEvent.click(
         screen.getByTestId(`${prefix}-extended-infos-icon`)
@@ -164,11 +179,13 @@ export default () => {
       const body = await getCreateBody();
 
       expect(body.extended_informations).toEqual({
+        action_url: 'https://example.com/act',
         alt_icon: 'Router',
         icon_id: 13,
         note: 'Routers',
         note_url: null
       });
+      expect(body.extended_informations).not.toHaveProperty('geo_coordinates');
       expect(body.timezone_id).toBe(1);
       expect(body.scheduling_options).toEqual({
         active_check_enabled: 'true',
@@ -193,6 +210,7 @@ export default () => {
       const body = await getCreateBody();
 
       expect(body.extended_informations).toEqual({
+        action_url: null,
         icon_id: null,
         note: null,
         note_url: null
@@ -203,6 +221,49 @@ export default () => {
         normal_check_interval: null,
         retry_check_interval: null
       });
+    });
+
+    it('opens a template with its host details and scheduling options read-only for a user who may only look at templates', async () => {
+      initialize({ hasWriteAccess: false, search: '?mode=edit&id=1' });
+
+      await waitForRequest('@getHostTemplate1');
+
+      await waitFor(async () =>
+        expect(await getInput(`${prefix}-extended-infos-note`)).toHaveValue(
+          'Front web servers'
+        )
+      );
+      for (const field of ['note', 'noteUrl', 'altIcon', 'actionUrl']) {
+        expect(
+          await getInput(`${prefix}-extended-infos-${field}`)
+        ).toBeDisabled();
+      }
+      for (const testId of [
+        `${prefix}-extended-infos-icon`,
+        `${prefix}-timezone`,
+        `${prefix}-scheduling-options-checkPeriod`
+      ]) {
+        expect(screen.getByTestId(testId)).toBeDisabled();
+      }
+      for (const field of [
+        'maxCheckAttempts',
+        'normalCheckInterval',
+        'retryCheckInterval'
+      ]) {
+        expect(
+          await getInput(`${prefix}-scheduling-options-${field}`)
+        ).toBeDisabled();
+      }
+      for (const field of ['activeCheckEnabled', 'passiveCheckEnabled']) {
+        const buttons = within(
+          screen.getByTestId(`${prefix}-scheduling-options-${field}`)
+        ).getAllByRole('button');
+
+        expect(buttons).toHaveLength(3);
+        buttons.forEach((button) => {
+          expect(button).toBeDisabled();
+        });
+      }
     });
 
     it('opens a locked template with its host details and scheduling options read-only', async () => {

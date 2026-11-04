@@ -82,7 +82,7 @@ export const layout: Array<LayoutSection> = [
               'notesAndIcons',
               {
                 className: stackedColumns,
-                columns: ['timezone'],
+                columns: ['actionUrl', 'timezone'],
                 name: 'host-details-right'
               }
             ],

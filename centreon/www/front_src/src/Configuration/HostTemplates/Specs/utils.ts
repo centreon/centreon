@@ -103,6 +103,7 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
     },
     // `note_url` and `alt_icon` unset: left out.
     extended_informations: {
+      action_url: 'https://example.com/actions',
       icon: { id: 12, name: 'server.png', url: hostTemplateIcon },
       note: 'Front web servers'
     },
