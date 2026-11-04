@@ -3,6 +3,8 @@ import {
   getInputBlocks
 } from '../../../ResourceForm/blocks';
 import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
+import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
+import { getSeverityBlock } from '../../../ResourceForm/fieldBlocks/severity';
 import { getSnmpBlock } from '../../../ResourceForm/fieldBlocks/snmp';
 import type {
   Blocks,
@@ -13,9 +15,15 @@ import type {
 } from '../../../ResourceForm/models';
 import {
   hostTemplateFormCommandsEndpoint,
+  hostTemplateFormHostCategoriesEndpoint,
+  hostTemplateFormHostSeveritiesEndpoint,
   hostTemplatesBaseEndpoint
 } from '../../api/endpoints';
-import { labelHostCheckOptions } from '../../translatedLabels';
+import {
+  labelHostCategories,
+  labelHostCheckOptions,
+  labelHostSeverity
+} from '../../translatedLabels';
 import { getHostTemplateIdentityBlock } from '../blocks/hostTemplateIdentity';
 import { getLockedBlock } from '../blocks/locked';
 import { getMacrosBlock } from '../blocks/macros';
@@ -42,7 +50,21 @@ export const blocks = [
   }),
   getMacrosBlock({ resource }),
   getSnmpBlock({ resource }),
-  getTemplatesBlock({ resource })
+  getTemplatesBlock({ resource }),
+  getRelationListBlock({
+    decoderNames: ['Category', 'Categories'],
+    endpoint: hostTemplateFormHostCategoriesEndpoint,
+    id: 'categories',
+    label: labelHostCategories,
+    name: 'categories',
+    payloadKey: 'category_ids',
+    resource
+  }),
+  getSeverityBlock({
+    endpoint: hostTemplateFormHostSeveritiesEndpoint,
+    label: labelHostSeverity,
+    resource
+  })
 ] as const;
 
 // Each available block, as a section of the data.

@@ -13,6 +13,11 @@ export const labelCreateHostTemplate = 'Create a host template';
 // Form sections and blocks
 export const labelGeneralInformation = 'General information';
 export const labelHostMonitoringProperties = 'Host monitoring properties';
+export const labelRelations = 'Relations';
 export const labelHostBasicInformation = 'Host basic information';
 export const labelHostCheckOptions = 'Host check options';
 export const labelCustomMacros = 'Custom macros';
+
+// Relations
+export const labelHostCategories = 'Host categories';
+export const labelHostSeverity = 'Host severity';

@@ -28,6 +28,8 @@ import {
   getHostTemplateEndpoint,
   getHostTemplateMacrosEndpoint,
   hostTemplateFormCommandsEndpoint,
+  hostTemplateFormHostCategoriesEndpoint,
+  hostTemplateFormHostSeveritiesEndpoint,
   hostTemplateFormHostTemplatesEndpoint,
   hostTemplatesListEndpoint
 } from '../api/endpoints';
@@ -35,6 +37,8 @@ import { getDefaultValues, useFormInputs } from '../Form';
 import {
   emptyListingResponse,
   getFormCommandsResponse,
+  getFormHostCategoriesResponse,
+  getFormHostSeveritiesResponse,
   getFormParentTemplatesResponse,
   getHostTemplateResponse,
   getListingResponse,
@@ -123,11 +127,30 @@ const initialize = ({
     });
   });
 
-  interceptAPIRequest({
-    alias: 'getFormCommands',
-    method: Method.GET,
-    path: `**${hostTemplateFormCommandsEndpoint}?**`,
-    response: getFormCommandsResponse()
+  // The form's selectors.
+  [
+    {
+      alias: 'getFormCommands',
+      path: hostTemplateFormCommandsEndpoint,
+      response: getFormCommandsResponse()
+    },
+    {
+      alias: 'getFormHostCategories',
+      path: hostTemplateFormHostCategoriesEndpoint,
+      response: getFormHostCategoriesResponse()
+    },
+    {
+      alias: 'getFormHostSeverities',
+      path: hostTemplateFormHostSeveritiesEndpoint,
+      response: getFormHostSeveritiesResponse()
+    }
+  ].forEach(({ alias, path, response }) => {
+    interceptAPIRequest({
+      alias,
+      method: Method.GET,
+      path: `**${path}?**`,
+      response
+    });
   });
 
   interceptAPIRequest({

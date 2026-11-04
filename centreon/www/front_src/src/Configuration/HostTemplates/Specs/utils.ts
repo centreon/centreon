@@ -85,6 +85,7 @@ export const emptyListingResponse = {
 const hostTemplateDetails: Record<number, Record<string, unknown>> = {
   1: {
     alias: 'Generic active host',
+    categories: [{ id: 4, name: 'Virtual' }],
     // Its own macro, then one its check command lends.
     check_options: {
       args: ['3', '80%'],
@@ -102,12 +103,14 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
     },
     is_locked: false,
     name: 'generic-active-host-custom',
+    severity: { id: 2, name: 'Minor' },
     snmp_version: '2c',
     templates: [{ id: 2, name: 'generic-active-host' }]
   },
-  2: { is_locked: false, name: 'generic-active-host' },
+  2: { categories: [], is_locked: false, name: 'generic-active-host' },
   3: {
     alias: 'Linux SNMP',
+    categories: [],
     is_locked: true,
     name: 'OS-Linux-SNMP-custom',
     templates: [
@@ -115,7 +118,12 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
       { id: 4, name: 'OS-Linux-SNMP' }
     ]
   },
-  4: { alias: 'Linux SNMP base', is_locked: true, name: 'OS-Linux-SNMP' }
+  4: {
+    alias: 'Linux SNMP base',
+    categories: [],
+    is_locked: true,
+    name: 'OS-Linux-SNMP'
+  }
 };
 
 // Template 2 has check arguments but no check command of its own.
@@ -188,3 +196,15 @@ export const getTemplateMacrosResponses = (): Record<number, object> => ({
     name: 'OS-Linux-SNMP'
   }
 });
+
+export const getFormHostCategoriesResponse = () =>
+  toCollection('host_categories', [
+    { id: 4, name: 'Virtual' },
+    { id: 5, name: 'Physical' }
+  ]);
+
+export const getFormHostSeveritiesResponse = () =>
+  toCollection('host_severities', [
+    { id: 1, name: 'Critical' },
+    { id: 2, name: 'Minor' }
+  ]);
