@@ -101,9 +101,21 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
         }
       ]
     },
+    // `low_flap_threshold` unset: left out.
+    data_processing: {
+      acknowledgment_timeout: 15,
+      check_freshness: 'true',
+      event_handler: { id: 8, name: 'check-centreon-ping' },
+      event_handler_args: ['80', 'graceful'],
+      event_handler_enabled: 'false',
+      flap_detection_enabled: 'true',
+      freshness_threshold: 120,
+      high_flap_threshold: 50
+    },
     // `note_url` and `alt_icon` unset: left out.
     extended_informations: {
       action_url: 'https://example.com/actions',
+      comment: 'Racked in room B',
       icon: { id: 12, name: 'server.png', url: hostTemplateIcon },
       note: 'Front web servers'
     },
