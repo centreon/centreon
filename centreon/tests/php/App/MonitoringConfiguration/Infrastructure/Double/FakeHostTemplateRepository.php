@@ -56,6 +56,11 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var list<int> the templates of the paid Monitoring Connectors, the excluded connector slugs being ignored */
     public array $monitoringConnectorTemplateIds = [];
 
+    /** @var array<int, list<int>> the templates inheriting from each template, directly or not, indexed by template id */
+    public array $descendantIds = [];
+
+    public ?HostTemplateCriteria $receivedCriteria = null;
+
     /** @var list<string> names used by hosts, templates excluded */
     public array $hostNames = [];
 
@@ -130,6 +135,8 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public function findAll(HostTemplateCriteria $criteria): \IteratorAggregate&\Countable
     {
+        $this->receivedCriteria = $criteria;
+
         return new Collection(array_values($this->hostTemplates), HostTemplate::class);
     }
 
@@ -155,6 +162,14 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     {
         return new Collection(
             array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $this->monitoringConnectorTemplateIds),
+            HostTemplateId::class,
+        );
+    }
+
+    public function findDescendantIds(HostTemplateId $id): Collection
+    {
+        return new Collection(
+            array_map(static fn (int $descendantId): HostTemplateId => new HostTemplateId($descendantId), $this->descendantIds[$id->value] ?? []),
             HostTemplateId::class,
         );
     }

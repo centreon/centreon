@@ -281,6 +281,34 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         );
     }
 
+    public function findDescendantIds(HostTemplateId $id): Collection
+    {
+        // UNION dedupes the reached ids, so a template loop already in the data cannot make the
+        // recursion run forever.
+        $sql = <<<'SQL'
+            WITH RECURSIVE descendants (id) AS (
+                SELECT htr.host_host_id
+                FROM host_template_relation htr
+                INNER JOIN host h ON h.host_id = htr.host_host_id AND h.host_register = '0'
+                WHERE htr.host_tpl_id = :id
+                UNION
+                SELECT htr.host_host_id
+                FROM host_template_relation htr
+                INNER JOIN descendants d ON d.id = htr.host_tpl_id
+                INNER JOIN host h ON h.host_id = htr.host_host_id AND h.host_register = '0'
+            )
+            SELECT id FROM descendants ORDER BY id
+            SQL;
+
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->executeQuery($sql, ['id' => $id->value], ['id' => ParameterType::INTEGER])->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $descendantId): HostTemplateId => new HostTemplateId((int) $descendantId), $ids),
+            HostTemplateId::class,
+        );
+    }
+
     public function findOne(HostTemplateId $id): ?HostTemplate
     {
         $qb = $this->connection->createQueryBuilder();
