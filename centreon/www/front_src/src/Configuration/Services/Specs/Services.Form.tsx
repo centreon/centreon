@@ -1,6 +1,7 @@
-import { waitForRequest } from '@test-setup/api';
+import { interceptRequest, Method, waitForRequest } from '@test-setup/api';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { HttpResponse } from 'msw';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import { labelRequired } from '../../ResourceForm/translatedLabels';
@@ -255,6 +256,42 @@ export default () => {
         host_id: 10,
         name: 'cpu load'
       });
+    });
+
+    it('leaves another opened service alone when a switch answers late', async () => {
+      await openService();
+
+      let answer: () => void = () => undefined;
+      const answered = new Promise<void>((resolve) => {
+        answer = resolve;
+      });
+
+      interceptRequest(
+        Method.PATCH,
+        '**/configuration/services/0',
+        async () => {
+          await answered;
+
+          return HttpResponse.json({});
+        },
+        'latePatchService0'
+      );
+
+      const enableSwitch = (
+        await screen.findByTestId(panelDataTestIds.enable)
+      ).querySelector('input') as HTMLInputElement;
+
+      await waitFor(() => expect(enableSwitch).toBeChecked());
+      await userEvent.click(enableSwitch);
+
+      await openRow('memory');
+      await waitForRequest('@getService1');
+      await expectHeader('memory');
+
+      answer();
+      await waitForRequest('@latePatchService0');
+
+      await expectHeader('memory');
     });
 
     it('asks for a name and a host', async () => {
