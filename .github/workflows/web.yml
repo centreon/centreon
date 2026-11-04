@@ -1900,100 +1900,8 @@ jobs:
           cloudfront_role_doc_production: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}
 
-  deliver:
-    runs-on: ubuntu-24.04
-    needs:
-      [
-        changes,
-        get-environment,
-        e2e-test,
-        bruno-api-test
-      ]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      github.event.pull_request.head.repo.fork != true
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
-    name: deliver ${{ matrix.distrib }}
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Deliver RPM package on Artifactory
-        if: matrix.package_extension == 'rpm'
-        uses: ./.github/actions/rpm-delivery
-        with:
-          module_name: web
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-environment.outputs.major_version }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
-          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
-      - name: Deliver DEB package on Artifactory
-        if: matrix.package_extension == 'deb'
-        uses: ./.github/actions/deb-delivery
-        with:
-          module_name: web
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-environment.outputs.major_version }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-
-  promote:
-    needs: [get-environment, deliver]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
-    name: promote ${{ matrix.distrib }}
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Promote ${{ matrix.distrib }} to stable on Artifactory
-        uses: ./.github/actions/promote-to-stable
-        with:
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module_name: web
-          distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          github_ref_name: ${{ github.ref_name }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-
   set-skip-label:
-    needs: [get-environment, deliver, promote]
+    needs: [get-environment, deliver-pulp, promote-pulp]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
@@ -2003,7 +1911,7 @@ jobs:
 
   clear-branch-cache:
     runs-on: ubuntu-24.04
-    needs: [get-environment, deliver, deliver-pulp]
+    needs: [get-environment, deliver-pulp]
     env:
       GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
     if: |
@@ -2031,7 +1939,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [
       get-environment,
-      deliver
+      deliver-pulp
     ]
     # Disabled unless the NIGHTLY_JIRA_TICKETS_ENABLED organization variable is set to 'true'
     if: |
@@ -2059,7 +1967,8 @@ jobs:
       [
         changes,
         get-environment,
-        e2e-test
+        e2e-test,
+        bruno-api-test
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -2186,8 +2095,7 @@ jobs:
         # version_tag from dockerize-trapd-image (only ever applied by
         # promote-docker-tag, once docker-boot-test/docker-config-wiring-test
         # have passed) or if the ghcr.io push itself fails — continue-on-error
-        # swallows that into a warning below, mirroring how
-        # promote-to-stable-pulp is called. Deliberately no fallback to the
+        # swallows that into a warning below. Deliberately no fallback to the
         # legacy release_type-based tag: that tag is written at build time,
         # before container e2e tests run, so it's never a validated candidate.
         continue-on-error: true
