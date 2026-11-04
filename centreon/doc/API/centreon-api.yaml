@@ -6628,6 +6628,38 @@ paths:
             schema:
               $ref: '#/components/schemas/HostTemplate.DuplicateHostTemplateInput'
         required: false
+  '/api/configuration/host_templates/host_templates/{id}':
+    get:
+      operationId: api_configurationhost_templateshost_templates_id_get
+      tags:
+        - HostTemplate
+      responses:
+        '403':
+          description: 'You are not allowed to access host templates'
+        '404':
+          description: 'Host template not found'
+        '200':
+          description: 'HostTemplate resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate.HostTemplateMacrosOutput.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate.HostTemplateMacrosOutput'
+      summary: "Get a host template's own and inherited macros, for the host template form"
+      description: "Get a host template's own and inherited macros, for the host template form"
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
 components:
   securitySchemes:
     Token:

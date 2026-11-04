@@ -78,6 +78,21 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             output: HostTemplateChoicesOutput::class,
             provider: ListHostTemplatesChoicesProvider::class,
         ),
+        new Get(
+            uriTemplate: '/configuration/host_templates/host_templates/{id}',
+            requirements: ['id' => '[1-9]\d*'],
+            output: HostTemplateMacrosOutput::class,
+            provider: GetHostTemplateMacrosProvider::class,
+            openapi: new Model\Operation(
+                summary: "Get a host template's own and inherited macros, for the host template form",
+                responses: [
+                    403 => new Model\Response('You are not allowed to access host templates'),
+                    404 => new Model\Response('Host template not found'),
+                ],
+            ),
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host templates',
+        ),
         new GetCollection(
             uriTemplate: '/configuration/host_templates',
             provider: ListHostTemplatesProvider::class,
