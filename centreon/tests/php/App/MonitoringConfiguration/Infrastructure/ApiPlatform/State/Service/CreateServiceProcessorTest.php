@@ -37,6 +37,7 @@ final class CreateServiceProcessorTest extends ApiTestCase
 {
     use InsertsMonitoringConnectorTemplates;
     private const ENDPOINT = '/api/configuration/services';
+    private const READ_WRITE = 1;
     private const READ_ONLY = 2;
 
     private Connection $connection;
@@ -172,6 +173,46 @@ final class CreateServiceProcessorTest extends ApiTestCase
     }
 
     /**
+     * The creator's group is granted the new service in the real-time ACL cache within the request, so the 201 body,
+     * read through that cache, is the created service and not a 404.
+     */
+    public function testANonAdminCreatorSeesTheServiceAtOnce(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $templateId = $this->insertServiceTemplate('generic', $this->insertCommand('check', type: 2));
+        $username = 'service-writer-' . $this->tag;
+        $this->createApiUser($this->connection, $username, admin: false);
+        $contactId = $this->connection->fetchOne('SELECT contact_id FROM contact WHERE contact_alias = :alias', ['alias' => $username]);
+        \assert(is_numeric($contactId));
+        $aclGroupId = $this->grantServicesByHostTopologyRole((int) $contactId, self::READ_WRITE);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => $hostId, 'service_id' => null]);
+        $this->connection->update('acl_groups', ['acl_group_changed' => 0], ['acl_group_id' => $aclGroupId]);
+        $this->login($username);
+
+        $body = $this->request('POST', self::ENDPOINT, [
+            'headers' => ['accept' => 'application/json'],
+            'json' => ['name' => 'ping', 'host_id' => $hostId, 'service_template_id' => $templateId],
+        ])->toArray();
+
+        self::assertResponseStatusCodeSame(201);
+        $serviceId = $body['id'];
+        \assert(is_int($serviceId));
+        self::assertSame(['ping', $hostId], [$body['name'], is_array($body['host']) ? $body['host']['id'] : null]);
+        self::assertSame(
+            [(string) $aclGroupId],
+            array_map(
+                static fn (mixed $id): string => is_scalar($id) ? (string) $id : '',
+                $this->realTimeConnection->fetchFirstColumn('SELECT group_id FROM centreon_acl WHERE host_id = ? AND service_id = ?', [$hostId, $serviceId]),
+            ),
+        );
+        $changedFlag = $this->connection->fetchOne('SELECT acl_group_changed FROM acl_groups WHERE acl_group_id = ?', [$aclGroupId]);
+        self::assertTrue(is_numeric($changedFlag) && (int) $changedFlag === 1, "The creator's group is flagged for the ACL recomputation.");
+
+        $this->request('GET', self::ENDPOINT . '/' . $serviceId);
+        self::assertResponseStatusCodeSame(200);
+    }
+
+    /**
      * The license check is the handler's: its refusal reaches the client as a 422 on the template.
      */
     public function testItRejectsAnUnlicensedConnectorTemplate(): void
@@ -194,7 +235,7 @@ final class CreateServiceProcessorTest extends ApiTestCase
     /**
      * "Configuration > Services > Services by host" with the given access right.
      */
-    private function grantServicesByHostTopologyRole(int $contactId, int $accessRight): void
+    private function grantServicesByHostTopologyRole(int $contactId, int $accessRight): int
     {
         $this->connection->insert('acl_groups', [
             'acl_group_name' => 'service-group-' . $this->tag,
@@ -221,6 +262,8 @@ final class CreateServiceProcessorTest extends ApiTestCase
                 'access_right' => $accessRight,
             ]);
         }
+
+        return $groupId;
     }
 
     private function insertPoller(): int

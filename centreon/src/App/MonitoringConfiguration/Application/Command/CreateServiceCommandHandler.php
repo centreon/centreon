@@ -82,8 +82,9 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 
 /**
- * Creates a real service directly linked to one host. Every rule the input validates is checked again here, as
- * the authority (the state may change between the validation and the write), in this order: the references,
+ * Creates a real service directly linked to one host. Every reference and form rule the input validates is checked
+ * again here, as the authority (the state may change between the validation and the write); the Cloud platform
+ * rules stay the input's, as for hosts. The order is: the references,
  * then the rules depending on several of them (license of the template, check command and event handler of the
  * template chain), then the form bounds, then the name. References come before the name so that an actor whose
  * access is restricted cannot learn that a name exists on a host they cannot use.
