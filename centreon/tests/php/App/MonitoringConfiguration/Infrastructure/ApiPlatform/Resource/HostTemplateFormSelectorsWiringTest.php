@@ -243,6 +243,23 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
         self::assertNull($paths->getPath($uri));
     }
 
+    /**
+     * The form lists time zones from the generic list, which has no host template variant.
+     */
+    public function testTheTimezonesListAnswersAHostTemplateReadWriteUserWithoutHostAccess(): void
+    {
+        $this->loginAsHostTemplateReadWriteUser($this->connection, $this->tag);
+
+        // guard: the user holds no Hosts right
+        $this->request('GET', '/api/configuration/hosts/commands');
+        self::assertResponseStatusCodeSame(403);
+
+        $response = $this->request('GET', '/api/configuration/timezones');
+
+        self::assertResponseIsSuccessful();
+        self::assertNotEmpty($response->toArray()['member']);
+    }
+
     public function testSelectorsAreNotAliasedUnderApiLatest(): void
     {
         $this->login();
