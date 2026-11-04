@@ -29,9 +29,11 @@ use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateChoicesOutput;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -73,12 +75,23 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
             $criteria = $criteria->withPagination($this->pagination->getPage($context), $itemsPerPage);
         }
 
-        /** @var array{name?: mixed} $filters */
+        /** @var array{name?: mixed, exclude_template_id?: mixed} $filters */
         $filters = $context['filters'] ?? [];
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-        $criteria = $criteria->withExcludedIds($this->unlicensedHostTemplates->findIds());
+
+        // An operation accepts exclude_template_id by opting in through its extra property.
+        $templateId = ($operation->getExtraProperties()['exclude_template_id'] ?? false) === true
+            ? $this->parseTemplateId($filters['exclude_template_id'] ?? null)
+            : null;
+
+        $excludedIds = $this->unlicensedHostTemplates->findIds()->toArray();
+        if ($templateId instanceof HostTemplateId) {
+            // the template itself and its descendants: picking any of them as its parent makes a loop
+            array_push($excludedIds, $templateId, ...$this->repository->findDescendantIds($templateId)->toArray());
+        }
+        $criteria = $criteria->withExcludedIds(new Collection($excludedIds, HostTemplateId::class));
 
         $hostTemplates = $this->repository->findAll($criteria);
         $resources = [];
@@ -96,5 +109,19 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
             $hostTemplates->getItemsPerPage(),
             $hostTemplates->getTotalItems()
         );
+    }
+
+    private function parseTemplateId(mixed $value): ?HostTemplateId
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        // digits only: is_numeric() would read "1.5" or "1e3" as another id
+        if (! is_string($value) || preg_match('/^[1-9]\d*$/', $value) !== 1 || ($id = filter_var($value, \FILTER_VALIDATE_INT)) === false) {
+            throw new BadRequestHttpException('The "exclude_template_id" filter must be a positive integer.');
+        }
+
+        return new HostTemplateId($id);
     }
 }

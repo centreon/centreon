@@ -77,6 +77,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             itemUriTemplate: '/configuration/host_templates/{id}',
             output: HostTemplateChoicesOutput::class,
             provider: ListHostTemplatesChoicesProvider::class,
+            extraProperties: ['exclude_template_id' => true],
         ),
         new Get(
             uriTemplate: '/configuration/host_templates/host_templates/{id}',
