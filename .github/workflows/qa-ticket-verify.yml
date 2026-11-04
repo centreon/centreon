@@ -32,6 +32,24 @@ on:
         description: "Jira ticket key to verify (e.g. MON-12345)"
         required: true
         type: string
+      pr_number:
+        description: "Force this PR instead of searching for one referencing jira_key (an orchestrator usually already knows it)"
+        required: false
+        type: string
+      report_mode:
+        description: "comment posts the verdict on the Jira ticket as usual; artifact keeps the report and its evidence in the run's artifacts only, for a reviewer to read before anything reaches Jira"
+        required: false
+        type: choice
+        default: comment
+        options:
+          - comment
+          - artifact
+      request_id:
+        description: "Opaque id an orchestrator can set to find this exact run back (echoed in the run's name) — unused by the skill itself"
+        required: false
+        type: string
+
+run-name: "qa-ticket-verify ${{ inputs.jira_key }}${{ inputs.request_id && format(' ({0})', inputs.request_id) || '' }}"
 
 permissions:
   contents: read
@@ -108,8 +126,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TICKET_KEY: ${{ inputs.jira_key }}
+          PR_NUMBER_INPUT: ${{ inputs.pr_number }}
           CURRENT_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
+          if [ -n "$PR_NUMBER_INPUT" ]; then
+            selected=$(gh pr view "$PR_NUMBER_INPUT" --repo centreon/centreon --json number,url,headRefName,state)
+            number=$(echo "$selected" | jq -r '.number')
+            head_ref=$(echo "$selected" | jq -r '.headRefName')
+            url=$(echo "$selected" | jq -r '.url')
+            echo "number=$number" >> "$GITHUB_OUTPUT"
+            echo "head_ref=$head_ref" >> "$GITHUB_OUTPUT"
+            echo "url=$url" >> "$GITHUB_OUTPUT"
+            # Nothing was searched: the skill's PR_CANDIDATES caveat ("more than one line
+            # means the workflow picked one") only applies to the search path below.
+            state=$(echo "$selected" | jq -r '.state')
+            echo "PR_CANDIDATES=#$number $state $url" >> "$GITHUB_ENV"
+            echo "Using forced PR #$number ($url) for $TICKET_KEY (pr_number input, no search)"
+            exit 0
+          fi
+
           pr_json_raw=$(gh pr list --repo centreon/centreon --search "$TICKET_KEY in:title,body" --state all \
             --json number,url,headRefName,isDraft,updatedAt,state)
           # Exclude this workflow's own branch — its PR description mentions ticket keys
@@ -156,6 +191,34 @@ jobs:
           cat resolved-env.txt >> "$GITHUB_ENV"
           while IFS='=' read -r key value; do export "$key=$value"; done < resolved-env.txt
 
+          # The image is tagged by branch, not by commit: it can still be the build from a
+          # previous push if the PR's latest commit hasn't finished dockerizing yet. There's no
+          # OCI revision label to read back from the image itself (centreon-web-slim doesn't set
+          # one), so check the PR's own "dockerize <os>" status check for its *current* head
+          # commit instead — same signal a human reads on the PR's checks tab.
+          os=$(echo "$WEB_IMAGE" | grep -oE 'alma[0-9]+|trixie|jammy' | head -1)
+          attempts=0
+          max_attempts=5
+          while :; do
+            pr_state=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json headRefOid,statusCheckRollup)
+            head_sha=$(echo "$pr_state" | jq -r '.headRefOid')
+            dockerize_ok=$(echo "$pr_state" | jq -r --arg name "dockerize $os" \
+              '[.statusCheckRollup[]? | select(.name == $name)] | last | (.conclusion // .state // "") | ascii_downcase == "success"')
+            if [ "$dockerize_ok" = "true" ]; then
+              echo "TESTED_COMMIT=$head_sha" >> "$GITHUB_ENV"
+              echo "Image build confirmed green for $head_sha (dockerize $os)"
+              break
+            fi
+            attempts=$((attempts + 1))
+            if [ "$attempts" -ge "$max_attempts" ]; then
+              echo "::warning::Could not confirm a green 'dockerize $os' check for $head_sha after $max_attempts attempts — proceeding with whatever $WEB_IMAGE currently resolves to, but the report will flag the tested commit as unconfirmed."
+              echo "TESTED_COMMIT=$head_sha (unconfirmed — dockerize $os not green)" >> "$GITHUB_ENV"
+              break
+            fi
+            echo "dockerize $os not green yet for $head_sha (attempt $attempts/$max_attempts) — waiting 60s"
+            sleep 60
+          done
+
           attempts=0
           max_attempts=5
           until docker compose -f .github/docker/docker-compose.yml ${COMPOSE_PROFILE:+--profile "$COMPOSE_PROFILE"} up -d --wait; do
@@ -201,6 +264,7 @@ jobs:
           PR_NUMBER: ${{ steps.find_pr.outputs.number }}
           PR_URL: ${{ steps.find_pr.outputs.url }}
           TRIGGERED_BY: ${{ github.actor }}
+          REPORT_MODE: ${{ inputs.report_mode || 'comment' }}
           QA_SKILL_DIR: ${{ github.workspace }}/dotfiles/plugins/centreon-qa-ci/skills/qa-ticket-verify
         run: |
           set -o pipefail  # otherwise `| tee` makes this step "succeed" even when claude fails
@@ -234,6 +298,32 @@ jobs:
                   else empty end
               ' \
             | tee claude-progress.log
+
+      - name: Enrich the report with execution metadata
+        if: ${{ !cancelled() }}
+        run: |
+          report=".claude/skills/qa-ticket-verify/runs/${{ inputs.jira_key }}.report.json"
+          if [ ! -f "$report" ]; then
+            echo "No report.json written (notice-only or failed run) — nothing to enrich."
+            exit 0
+          fi
+          # These two come from the Claude stream-json transcript, not from report.json itself:
+          # Claude can't know its own cost/duration/model mid-session, only the CLI does once the
+          # whole turn is over — so the workflow fills them in from the outside, for an
+          # orchestrator reading report.json as the machine-readable artifact (not the Jira
+          # comment, already posted by now if report_mode was "comment").
+          result_line=$(jq -c 'select(.type == "result")' claude-output.jsonl 2>/dev/null | tail -n 1)
+          init_line=$(jq -c 'select(.type == "system" and .subtype == "init")' claude-output.jsonl 2>/dev/null | head -n 1)
+          [ -z "$result_line" ] && result_line='{}'
+          [ -z "$init_line" ] && init_line='{}'
+          model=$(echo "$init_line" | jq -r '.model // ""')
+          duration_ms=$(echo "$result_line" | jq '.duration_ms // 0')
+          cost_usd=$(echo "$result_line" | jq '.total_cost_usd // 0')
+          jq --arg model "$model" --argjson duration_ms "$duration_ms" --argjson cost_usd "$cost_usd" \
+             --arg image "$WEB_IMAGE" \
+             '. + {model: $model, duration_ms: $duration_ms, cost_usd: $cost_usd, image: $image}' \
+             "$report" > "$report.tmp" && mv "$report.tmp" "$report"
+          echo "Enriched $report with model=$model duration_ms=$duration_ms cost_usd=$cost_usd image=$WEB_IMAGE"
 
       - name: Post failure notice to Jira if the run errored before reporting
         if: failure()
