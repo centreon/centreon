@@ -1,3 +1,5 @@
+import { mergeDeepRight } from 'ramda';
+
 // A 16x16 inline PNG rather than a committed fixture: `useLoadImage` only needs
 // `new Image()` to fire `onload`, which a data URI does.
 export const iconUrl =
@@ -145,15 +147,16 @@ const getExtendedInfoDetail = (id: number): Record<string, unknown> => {
 
   return id === 0
     ? {
+        // The comment sits with the data processing.
+        advanced: { comment: 'Checked by the web team' },
         categories: [{ id: 3, name: 'Web' }],
-        extended_informations: {
+        graph_template: { id: 7, name: 'CPU' },
+        monitoring_engine: {
           action_url: 'https://example.com/actions/cpu',
-          comment: 'Checked by the web team',
           geo_coordinates: '48.8566,2.3522',
           icon: { id: 12, name: 'cpu.png', url: iconUrl },
           note: 'CPU load'
         },
-        graph_template: { id: 7, name: 'CPU' },
         severity: { id: 1, level: 2, name: 'Major' }
       }
     : { categories: [] };
@@ -164,10 +167,15 @@ export const getServiceResponse = (id: number) => ({
   '@id': `/centreon/api/configuration/services/${id}`,
   '@type': 'Service',
   id,
-  ...serviceDetails[id],
-  ...getServiceCheckOptionsResponse(id),
-  ...getRelationsResponse(id),
-  ...getExtendedInfoDetail(id)
+  // Merged: several sections fill the same group of the API.
+  ...[
+    getServiceCheckOptionsResponse(id),
+    getRelationsResponse(id),
+    getExtendedInfoDetail(id)
+  ].reduce(
+    (detail, section) => mergeDeepRight(detail, section),
+    serviceDetails[id] as Record<string, unknown>
+  )
 });
 
 const getSelectorResponse = (

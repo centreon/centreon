@@ -147,7 +147,7 @@ export default () => {
         name: 'cpu load',
         service_template_id: 30
       });
-      expect(body.monitoring_engine).toEqual({
+      expect(body.monitoring_engine).toMatchObject({
         active_check_enabled: 'false',
         check_timeperiod_id: 21,
         is_volatile: 'true',
@@ -220,7 +220,7 @@ export default () => {
         name: 'cpu',
         service_template_id: 31
       });
-      expect(body.monitoring_engine).toEqual({
+      expect(body.monitoring_engine).toMatchObject({
         active_check_enabled: 'true',
         check_timeperiod_id: 20,
         is_volatile: 'true',
@@ -247,7 +247,7 @@ export default () => {
       const body = await getRequestBody('@createService');
 
       expect(body.service_template_id).toBeNull();
-      expect(body.monitoring_engine).toEqual({
+      expect(body.monitoring_engine).toMatchObject({
         active_check_enabled: 'use_default',
         check_timeperiod_id: null,
         is_volatile: 'use_default',
@@ -322,7 +322,7 @@ export default () => {
       const body = await getRequestBody('@createService');
 
       expect(body.service_template_id).toBe(30);
-      expect(body.monitoring_engine).toEqual({
+      expect(body.monitoring_engine).toMatchObject({
         check_timeperiod_id: null,
         max_check_attempts: null,
         normal_check_interval: null,

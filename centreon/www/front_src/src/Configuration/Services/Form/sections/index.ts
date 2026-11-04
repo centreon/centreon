@@ -53,8 +53,11 @@ export const serviceResource: ResourceOptions = {
 
 const resource = serviceResource;
 
-// Where the services API keeps what the host API calls its scheduling options.
+// Where the services API keeps what the host API calls its scheduling options
+// and most of its extended informations.
 const monitoringEngineGroup = 'monitoring_engine';
+// And where it keeps the comment, with the data processing.
+const advancedGroup = 'advanced';
 
 // The blocks of fields the service form edits. The sections it shows them in,
 // and their order, are `../layout.ts`'s.
@@ -110,16 +113,25 @@ export const blocks = [
     resource
   }),
   getNotesAndIconsBlock({
+    apiGroup: monitoringEngineGroup,
     mediasEndpoint: serviceFormMediasEndpoint,
     resource
   }),
-  getActionUrlAndGeoCoordinatesBlock({ resource }),
+  getActionUrlAndGeoCoordinatesBlock({
+    apiGroup: monitoringEngineGroup,
+    resource
+  }),
   getCheckPeriodAndIntervalsBlock({
+    apiGroup: monitoringEngineGroup,
     resource,
     timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
   }),
-  getActiveAndPassiveChecksBlock({ resource, withVolatile: true }),
-  getCommentBlock({ resource })
+  getActiveAndPassiveChecksBlock({
+    apiGroup: monitoringEngineGroup,
+    resource,
+    withVolatile: true
+  }),
+  getCommentBlock({ apiGroup: advancedGroup, resource })
 ] as const;
 
 // Each available block, as a section of the data.
