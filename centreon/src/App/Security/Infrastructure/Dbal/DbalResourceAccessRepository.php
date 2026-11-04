@@ -78,7 +78,8 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         // of its first stay there, which the unique key of the table would refuse to insert again.
         foreach ($accessGroupIds as $accessGroupId) {
             $this->realTimeConnection->executeStatement(
-                'INSERT IGNORE INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)',
+                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
+                    ON DUPLICATE KEY UPDATE group_id = group_id',
                 ['groupId' => $accessGroupId->value, 'hostId' => $hostId, 'serviceId' => $serviceId],
             );
         }
