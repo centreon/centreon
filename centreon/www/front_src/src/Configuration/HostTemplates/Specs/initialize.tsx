@@ -31,6 +31,7 @@ import {
   hostTemplateFormHostCategoriesEndpoint,
   hostTemplateFormHostSeveritiesEndpoint,
   hostTemplateFormHostTemplatesEndpoint,
+  hostTemplateFormServiceTemplatesEndpoint,
   hostTemplatesListEndpoint
 } from '../api/endpoints';
 import { getDefaultValues, useFormInputs } from '../Form';
@@ -40,6 +41,7 @@ import {
   getFormHostCategoriesResponse,
   getFormHostSeveritiesResponse,
   getFormParentTemplatesResponse,
+  getFormServiceTemplatesResponse,
   getHostTemplateResponse,
   getListingResponse,
   getTemplateMacrosResponses
@@ -143,6 +145,11 @@ const initialize = ({
       alias: 'getFormHostSeverities',
       path: hostTemplateFormHostSeveritiesEndpoint,
       response: getFormHostSeveritiesResponse()
+    },
+    {
+      alias: 'getFormServiceTemplates',
+      path: hostTemplateFormServiceTemplatesEndpoint,
+      response: getFormServiceTemplatesResponse()
     }
   ].forEach(({ alias, path, response }) => {
     interceptAPIRequest({

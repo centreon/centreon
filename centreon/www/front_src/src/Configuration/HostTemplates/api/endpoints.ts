@@ -31,6 +31,8 @@ export const hostTemplateFormHostCategoriesEndpoint =
   '/configuration/host_templates/host_categories';
 export const hostTemplateFormHostSeveritiesEndpoint =
   '/configuration/host_templates/host_severities';
+export const hostTemplateFormServiceTemplatesEndpoint =
+  '/configuration/host_templates/service_templates';
 
 // One template's macros, its own and those it inherits.
 export const getHostTemplateMacrosEndpoint = ({ id }: { id: number }): string =>

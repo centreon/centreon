@@ -102,16 +102,23 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
       ]
     },
     is_locked: false,
+    linked_service_templates: [{ id: 31, name: 'generic-ping' }],
     name: 'generic-active-host-custom',
     severity: { id: 2, name: 'Minor' },
     snmp_version: '2c',
     templates: [{ id: 2, name: 'generic-active-host' }]
   },
-  2: { categories: [], is_locked: false, name: 'generic-active-host' },
+  2: {
+    categories: [],
+    is_locked: false,
+    linked_service_templates: [],
+    name: 'generic-active-host'
+  },
   3: {
     alias: 'Linux SNMP',
     categories: [],
     is_locked: true,
+    linked_service_templates: [],
     name: 'OS-Linux-SNMP-custom',
     templates: [
       { id: 2, name: 'generic-active-host' },
@@ -122,6 +129,7 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
     alias: 'Linux SNMP base',
     categories: [],
     is_locked: true,
+    linked_service_templates: [],
     name: 'OS-Linux-SNMP'
   }
 };
@@ -207,4 +215,10 @@ export const getFormHostSeveritiesResponse = () =>
   toCollection('host_severities', [
     { id: 1, name: 'Critical' },
     { id: 2, name: 'Minor' }
+  ]);
+
+export const getFormServiceTemplatesResponse = () =>
+  toCollection('service_templates', [
+    { id: 31, name: 'generic-ping' },
+    { id: 32, name: 'generic-cpu' }
   ]);

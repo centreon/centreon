@@ -17,12 +17,14 @@ import {
   hostTemplateFormCommandsEndpoint,
   hostTemplateFormHostCategoriesEndpoint,
   hostTemplateFormHostSeveritiesEndpoint,
+  hostTemplateFormServiceTemplatesEndpoint,
   hostTemplatesBaseEndpoint
 } from '../../api/endpoints';
 import {
   labelHostCategories,
   labelHostCheckOptions,
-  labelHostSeverity
+  labelHostSeverity,
+  labelLinkedServiceTemplates
 } from '../../translatedLabels';
 import { getHostTemplateIdentityBlock } from '../blocks/hostTemplateIdentity';
 import { getLockedBlock } from '../blocks/locked';
@@ -63,6 +65,16 @@ export const blocks = [
   getSeverityBlock({
     endpoint: hostTemplateFormHostSeveritiesEndpoint,
     label: labelHostSeverity,
+    resource
+  }),
+  getRelationListBlock({
+    decoderNames: ['Service template', 'Service templates'],
+    detailKey: 'linked_service_templates',
+    endpoint: hostTemplateFormServiceTemplatesEndpoint,
+    id: 'linkedServiceTemplates',
+    label: labelLinkedServiceTemplates,
+    name: 'linked-service-templates',
+    payloadKey: 'linked_service_template_ids',
     resource
   })
 ] as const;

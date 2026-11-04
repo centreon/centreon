@@ -52,6 +52,11 @@ export const layout: Array<LayoutSection> = [
         columns: [
           {
             className: stackedColumns,
+            columns: ['linkedServiceTemplates'],
+            name: 'relations-left'
+          },
+          {
+            className: stackedColumns,
             columns: ['categories', 'severity'],
             name: 'relations-right'
           }
