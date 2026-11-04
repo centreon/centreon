@@ -182,6 +182,25 @@ async function fetchXrayTests(keys) {
   return tests;
 }
 
+// Jira issue type of tagged keys that are not Xray Tests: Map key -> type name. A key that
+// is neither a Test nor a coverable issue (deleted key, typo) is absent from the map.
+async function fetchNonTestIssueTypes(keys) {
+  const query = loadGraphqlOperation("get-coverable-issues");
+  const types = new Map();
+  for (let index = 0; index < keys.length; index += BATCH_SIZE) {
+    const jql = `key in (${keys.slice(index, index + BATCH_SIZE).join(",")})`;
+    for (let start = 0; ; start += BATCH_SIZE) {
+      const json = await callXrayGraphql(query, { jql, limit: BATCH_SIZE, start });
+      const page = json.data?.getCoverableIssues;
+      for (const issue of page?.results || []) {
+        if (issue?.jira?.key) types.set(issue.jira.key, issue.jira.issuetype?.name || "unknown type");
+      }
+      if (start + BATCH_SIZE >= (page?.total || 0)) break;
+    }
+  }
+  return types;
+}
+
 // Switch a non-Gherkin Test to the Gherkin Test Type, retrying once when it does not stick.
 async function ensureGherkinTestType(issueId) {
   const mutation = loadGraphqlOperation("update-test-type");
@@ -238,6 +257,15 @@ async function main() {
 
   const xrayTests = await fetchXrayTests(targetKeys);
   const missingKeys = targetKeys.filter((key) => !xrayTests.has(key));
+  const nonTestTypes = missingKeys.length > 0 ? await fetchNonTestIssueTypes(missingKeys) : new Map();
+  const nonTestKeys = missingKeys.filter((key) => nonTestTypes.has(key));
+  const unknownKeys = missingKeys.filter((key) => !nonTestTypes.has(key));
+  for (const key of nonTestKeys) {
+    const [file, line] = resolved.get(key).location.split(":");
+    console.log(
+      `::warning file=${path.join(FEATURES_DIR, file)},line=${line}::${key} is a ${nonTestTypes.get(key)}, not an Xray Test: tag this scenario with a Test key`,
+    );
+  }
   const upToDateKeys = [];
   const outdatedKeys = [];
   const protectedKeys = [];
@@ -279,7 +307,8 @@ async function main() {
   summary.push(
     `- Up to date: ${upToDateKeys.length}`,
     `- ${dryRun ? "To resync" : "Resynced"}: ${syncedKeys.length} ${keyList(syncedKeys)}`,
-    `- Not found in Xray: ${missingKeys.length} ${keyList(missingKeys)}`,
+    `- Not a Test (development ticket key used as a tag): ${nonTestKeys.length} ${nonTestKeys.length > 0 ? nonTestKeys.map((key) => `\`${key}\` (${nonTestTypes.get(key)}, ${resolved.get(key).location})`).join(", ") : "-"}`,
+    `- Not found in Jira: ${unknownKeys.length} ${keyList(unknownKeys)}`,
     `- Not overwritten (Xray holds Feature/Background/Rule/tags/several scenarios): ${protectedKeys.length} ${keyList(protectedKeys)}`,
   );
   if (failedKeys.length > 0) summary.push(`- Failed: ${failedKeys.length} ${keyList(failedKeys)}`);
