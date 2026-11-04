@@ -59,7 +59,7 @@ Feature: Configuring status grid widget
     When the dashboard administrator adds a status grid widget
     Then the newly added host is displayed in the status grid widget
 
-  @MON-149365
+  @MON-149854
   Scenario: Adding and Filtering Resources in a Status Grid Widget on a Dashboard
     Given a dashboard in the dashboard administrator user's dashboard library
     When the dashboard administrator user selects the option to add a new widget

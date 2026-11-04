@@ -259,7 +259,7 @@ function runDockerInstall() {
     echo "  Existing docker-compose.yaml/.env were left untouched. Review and merge manually, e.g.:"
     echo "       diff docker-compose.yaml docker-compose.yaml.new"
     echo "       diff .env .env.new"
-    echo "  Adopt both together: docker-compose.yaml.new expects ENGINE_TAG/GORGONE_TAG/SNMPTRAPD_TAG/CENTREONTRAPD_TAG"
+    echo "  Adopt both together: docker-compose.yaml.new expects ENGINE_TAG/GORGONE_TAG/TRAPD_TAG"
     echo "  to be set in .env (an older .env leaves them empty, and compose then refuses to start)."
     echo ""
     return
@@ -373,8 +373,7 @@ TAG=${image_tag}
 # podman-compose leaves unexpanded.
 ENGINE_TAG=\${TAG}
 GORGONE_TAG=\${TAG}
-SNMPTRAPD_TAG=\${TAG}
-CENTREONTRAPD_TAG=\${TAG}
+TRAPD_TAG=\${TAG}
 # centreon-vmware is built locally (leave empty for "local")
 VMWARE_TAG=
 
@@ -478,7 +477,7 @@ function _pollerImageMajor() {
   printf "%02d.10" "${onprem_year}"
 }
 
-# Registry + repo (no tag) for one of the 5 poller component images, per
+# Registry + repo (no tag) for one of the poller component images, per
 # effective stability (see _dockerEffectiveStability). Only 'stable' is
 # published to ghcr.io (MON-207531); testing and unstable stay on Harbor, as
 # neither ever gets a validated stable-equivalent tag there.
@@ -631,7 +630,9 @@ EOF
     cat >> "${out}" <<'EOF'
   snmptrapd:
 EOF
-    printf '    image: "%s:${SNMPTRAPD_TAG:?set SNMPTRAPD_TAG in .env}"\n' "$(_pollerImageRepo snmptrapd)" >> "${out}"
+    printf '    image: "%s:${TRAPD_TAG:?set TRAPD_TAG in .env}"\n' "$(_pollerImageRepo trapd)" >> "${out}"
+    # Same centreon-trapd image as centreontrapd, role picked by the command.
+    echo '    command: ["snmptrapd"]' >> "${out}"
     # Rootless Podman's bridge port forwarder replaces the trap sender's IP
     # with the container's, so centreontrapd can't match the host: publish
     # 162/udp through pasta (or slirp4netns' own forwarder) instead.
@@ -664,7 +665,8 @@ EOF
 
   centreontrapd:
 EOF
-    printf '    image: "%s:${CENTREONTRAPD_TAG:?set CENTREONTRAPD_TAG in .env}"\n' "$(_pollerImageRepo centreontrapd)" >> "${out}"
+    printf '    image: "%s:${TRAPD_TAG:?set TRAPD_TAG in .env}"\n' "$(_pollerImageRepo trapd)" >> "${out}"
+    echo '    command: ["centreontrapd"]' >> "${out}"
     cat >> "${out}" <<'EOF'
     container_name: "${NAME}-centreontrap"
     hostname: centreontrapd

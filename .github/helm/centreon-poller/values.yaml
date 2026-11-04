@@ -118,15 +118,18 @@ engine:
       annotations: {}
 
 # SNMP traps: snmptrapd (162/udp) + centreontrapd in the poller pod.
+# Both containers run the same centreon-trapd image, the role being picked by
+# the container args (snmptrapd / centreontrapd); kept as two image entries so
+# each can still be pinned independently.
 traps:
   enabled: false
   images:
     snmptrapd:
-      repository: ghcr.io/centreon/centreon-snmptrapd
+      repository: ghcr.io/centreon/centreon-trapd
       tag: ""
       pullPolicy: IfNotPresent
     centreontrapd:
-      repository: ghcr.io/centreon/centreon-centreontrapd
+      repository: ghcr.io/centreon/centreon-trapd
       tag: ""
       pullPolicy: IfNotPresent
   logLevel: error
