@@ -80,8 +80,8 @@ interface ServiceRepository
      * Hydrated with every own column, its own macros (ids included), its notifications with their contacts and
      * contact groups, its traps, its service groups on its host (rows of a host group excluded), its levelless
      * categories, its extended information and graph template from its `extended_service_information` row with
-     * the lowest id, and as severity the levelled category with the lowest id among those the actor may see.
-     * Relations other than the severity are not filtered by the actor's scope: that is the caller's.
+     * the lowest id, and as severity the levelled category with the lowest id, whatever the actor may see.
+     * No relation is filtered by the actor's scope: that is the caller's.
      * Stored numbers outside their bounds read as unset.
      */
     public function findOne(ServiceId $id, ActingUser $actor): ?Service;

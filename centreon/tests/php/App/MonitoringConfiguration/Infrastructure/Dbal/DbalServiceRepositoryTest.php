@@ -944,7 +944,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertSame($firstGraph, $service->graphTemplateId?->value);
     }
 
-    public function testFindOneReadsTheLowestSeverityTheActorMaySee(): void
+    public function testFindOneReadsTheStoredSeverityWhateverTheActorMaySee(): void
     {
         $this->givenTheRestrictedActorBelongsTo(11);
         $hostId = $this->insertListedHost('h1');
@@ -955,15 +955,9 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $this->linkToServiceCategory($serviceId, $hidden);
         $this->linkToServiceCategory($serviceId, $visible);
 
+        // The severity is hidden on output only (see ServiceResourceBuilder), as for hosts.
         $this->resourceAccess->serviceSeverityScope = AccessScope::restrictedTo(ServiceSeverityId::class, [new ServiceSeverityId($visible)]);
-        self::assertSame($visible, $this->findOneRestricted($serviceId)?->severityId?->value);
-
-        $this->resourceAccess->serviceSeverityScope = AccessScope::restrictedTo(ServiceSeverityId::class, []);
-        $service = $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::restricted(self::RESTRICTED_USER_ID));
-        self::assertInstanceOf(Service::class, $service, 'The service stays visible without any visible severity.');
-        self::assertNull($service->severityId);
-
-        // An unrestricted actor sees the lowest of all.
+        self::assertSame($hidden, $this->findOneRestricted($serviceId)?->severityId?->value);
         self::assertSame($hidden, $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted())?->severityId?->value);
     }
 

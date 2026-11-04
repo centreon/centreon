@@ -297,6 +297,19 @@ final class ServiceResourceBuilderTest extends TestCase
         self::assertSame(73, $resource->graphTemplate?->id);
     }
 
+    public function testARestrictedActorSeesTheSeverityOnlyWhenInItsScope(): void
+    {
+        $this->givenTheReferencesOfAFullService();
+
+        $this->resourceAccess->serviceSeverityScope = AccessScope::restrictedTo(ServiceSeverityId::class, [new ServiceSeverityId(72)]);
+        $resource = $this->builder()->build($this->fullService(), TestActingUsers::restricted(self::RESTRICTED_USER_ID));
+        self::assertSame(72, $resource->severity?->id);
+
+        $this->resourceAccess->serviceSeverityScope = AccessScope::restrictedTo(ServiceSeverityId::class, []);
+        $resource = $this->builder()->build($this->fullService(), TestActingUsers::restricted(self::RESTRICTED_USER_ID));
+        self::assertNull($resource->severity);
+    }
+
     public function testOnACloudPlatformTheOnPremiseOnlyFieldsAreLeftOut(): void
     {
         $this->givenTheReferencesOfAFullService();

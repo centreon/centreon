@@ -81,7 +81,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   effective ones (its own, then those it inherits, each with the id and parent to send back).
  * - A reference whose name no longer resolves (a template deleted since: that link has no foreign key) is left out.
  * - A restricted actor's view is narrowed to what they may access: service groups, categories, contacts and
- *   contact groups; the severity is already the lowest one the actor may see. The host, the template, the
+ *   contact groups and the severity. The host, the template, the
  *   commands, the time periods, the icon, the graph template and the traps are not ACL-scoped.
  * - On a Cloud platform, the on-premise-only fields are left out, as for hosts.
  * - Password macro values are never part of the output.
@@ -149,8 +149,10 @@ final readonly class ServiceResourceBuilder
             }
         }
 
+        // Severity is ACL-scoped too: an out-of-scope severity is hidden (left null) from a restricted actor rather
+        // than surfaced, as for hosts.
         $resource->severity = null;
-        if ($service->severityId instanceof ServiceSeverityId) {
+        if ($service->severityId instanceof ServiceSeverityId && $this->accessScopes->serviceSeverities($actor)->allows($service->severityId)) {
             $severityName = $this->serviceSeverityRepository->findNameById($service->severityId);
             $resource->severity = $severityName instanceof ServiceSeverityName
                 ? new ServiceSeverityOutput($service->severityId->value, $severityName->value)

@@ -26,7 +26,6 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
@@ -258,7 +257,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             return null;
         }
 
-        $formRow = $this->findFormRow($id->value, (int) $row['host_id'], $this->accessScopes->serviceSeverities($actor));
+        $formRow = $this->findFormRow($id->value, (int) $row['host_id']);
         if ($formRow === null) {
             // Deleted between the two reads: not found, like a service that never existed.
             return null;
@@ -301,31 +300,20 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     /**
      * Every form column of the service and its relations: the extended information of its
      * `extended_service_information` row with the lowest id, its service groups on this host only (not the rows of
-     * a host group), its levelless categories, and as severity the levelled category with the lowest id the
-     * scope allows.
-     *
-     * @param AccessScope<ServiceSeverityId> $severityScope
+     * a host group), its levelless categories, and as severity the levelled category with the lowest id. The
+     * severity is the stored one, whatever the actor may see: it is hidden from a restricted actor on output only,
+     * as for hosts.
      *
      * @return ?FormRowTypeAlias null when the service no longer exists
      */
-    private function findFormRow(int $serviceId, int $hostId, AccessScope $severityScope): ?array
+    private function findFormRow(int $serviceId, int $hostId): ?array
     {
         $qb = $this->connection->createQueryBuilder();
 
-        $severity = 'NULL';
-        if (! $severityScope->allowsNothing()) {
-            $severity = '(SELECT MIN(scr.sc_id)
-                FROM service_categories_relation scr
-                INNER JOIN service_categories sc ON sc.sc_id = scr.sc_id
-                WHERE scr.service_service_id = s.service_id AND sc.level IS NOT NULL';
-            if (! $severityScope->isUnrestricted()) {
-                $severity .= ' AND ' . $qb->expr()->in(
-                    'scr.sc_id',
-                    $qb->createNamedParameter($severityScope->allowedIdValues(), ArrayParameterType::INTEGER),
-                );
-            }
-            $severity .= ')';
-        }
+        $severity = '(SELECT MIN(scr.sc_id)
+            FROM service_categories_relation scr
+            INNER JOIN service_categories sc ON sc.sc_id = scr.sc_id
+            WHERE scr.service_service_id = s.service_id AND sc.level IS NOT NULL)';
 
         $qb->select(
             's.command_command_id AS check_command_id',
