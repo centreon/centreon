@@ -122,7 +122,7 @@ export default () => {
       ).toHaveAttribute('aria-pressed', 'true');
     });
 
-    it('opens a service on its enable switch, which the form leaves out', async () => {
+    it('opens a service on its enable switch, whose state the form sends back', async () => {
       await openService();
 
       expect(
@@ -139,9 +139,10 @@ export default () => {
 
       const body = await getRequestBody('@updateService0');
 
-      expect(body).not.toHaveProperty('activated');
+      // The update replaces the whole service, its activation included.
       expect(body).not.toHaveProperty('isActivated');
       expect(body).toMatchObject({
+        activated: true,
         host_id: 10,
         name: 'cpu load',
         service_template_id: 30
