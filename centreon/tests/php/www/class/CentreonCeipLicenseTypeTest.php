@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\www\class;
 
 use CentreonCeipLicenseType;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/../../../../www/class/centreonCeipLicenseType.class.php';
@@ -33,8 +32,9 @@ final class CentreonCeipLicenseTypeTest extends TestCase
 {
     /**
      * @param array<string, array<string, mixed>> $licenses
+     *
+     * @dataProvider licensesWithoutEditionProvider
      */
-    #[DataProvider('licensesWithoutEditionProvider')]
     public function testResolveComputesTheLicenseTypeWhenNoLicenseCarriesAnEdition(
         array $licenses,
         string $expectedLicenseType,
@@ -92,7 +92,9 @@ final class CentreonCeipLicenseTypeTest extends TestCase
         yield 'no license' => [[], 'Open Source', false];
     }
 
-    #[DataProvider('declaredEditionProvider')]
+    /**
+     * @dataProvider declaredEditionProvider
+     */
     public function testResolveUsesTheDeclaredEditionAsLicenseType(
         string $edition,
         bool $isCloudPlatform,
@@ -137,8 +139,9 @@ final class CentreonCeipLicenseTypeTest extends TestCase
 
     /**
      * @param array<string, array<string, mixed>> $licenses
+     *
+     * @dataProvider editionOverridingComputedTypeProvider
      */
-    #[DataProvider('editionOverridingComputedTypeProvider')]
     public function testResolveMakesTheFingerprintFollowTheDeclaredEditionRatherThanTheComputedType(
         array $licenses,
         string $expectedLicenseType,
@@ -170,8 +173,9 @@ final class CentreonCeipLicenseTypeTest extends TestCase
 
     /**
      * @param array<string, array<string, mixed>> $licenses
+     *
+     * @dataProvider combinedEditionsProvider
      */
-    #[DataProvider('combinedEditionsProvider')]
     public function testResolveCombinesTheEditionsDeclaredByEveryLicense(
         array $licenses,
         string $expectedLicenseType,
@@ -254,8 +258,9 @@ final class CentreonCeipLicenseTypeTest extends TestCase
     /**
      * @param array<string, array<string, mixed>> $licenses
      * @param list<string> $expectedUnknownEditions
+     *
+     * @dataProvider nonStandardEditionProvider
      */
-    #[DataProvider('nonStandardEditionProvider')]
     public function testResolveReportsAnyNonStandardEditionAsCustomAndKeepsItsRawValue(
         array $licenses,
         array $expectedUnknownEditions,
@@ -312,8 +317,9 @@ final class CentreonCeipLicenseTypeTest extends TestCase
 
     /**
      * @param array<string, array<string, mixed>> $licenses
+     *
+     * @dataProvider assetIdProvider
      */
-    #[DataProvider('assetIdProvider')]
     public function testResolveReturnsTheAssetIdOfMspPlatformsOnly(array $licenses, ?string $expectedAssetId): void
     {
         self::assertSame($expectedAssetId, CentreonCeipLicenseType::resolve($licenses, false)['assetId']);
@@ -350,7 +356,9 @@ final class CentreonCeipLicenseTypeTest extends TestCase
         yield 'custom edition' => [['epp' => self::license(['edition' => 'foo', 'asset_id' => 'A1'])], null];
     }
 
-    #[DataProvider('ignoredEditionProvider')]
+    /**
+     * @dataProvider ignoredEditionProvider
+     */
     public function testResolveIgnoresAnEmptyOrNonStringEdition(mixed $edition): void
     {
         self::assertSame(
@@ -381,8 +389,9 @@ final class CentreonCeipLicenseTypeTest extends TestCase
 
     /**
      * @param array<string, mixed> $licensing
+     *
+     * @dataProvider invalidDateProvider
      */
-    #[DataProvider('invalidDateProvider')]
     public function testResolveSkipsALicenseWithAnInvalidDate(array $licensing): void
     {
         self::assertSame(
@@ -416,8 +425,9 @@ final class CentreonCeipLicenseTypeTest extends TestCase
     /**
      * @param array<string, array<string, mixed>> $licenses
      * @param list<string> $expectedLicensesWithInvalidDate
+     *
+     * @dataProvider otherLicenseWithInvalidDateProvider
      */
-    #[DataProvider('otherLicenseWithInvalidDateProvider')]
     public function testResolveKeepsTheOtherLicensesWhenOneHasAnInvalidDate(
         array $licenses,
         string $expectedLicenseType,
