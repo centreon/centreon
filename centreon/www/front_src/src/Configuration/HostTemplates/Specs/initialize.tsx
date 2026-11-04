@@ -28,6 +28,8 @@ import {
   getHostTemplateEndpoint,
   getHostTemplateMacrosEndpoint,
   hostTemplateFormCommandsEndpoint,
+  hostTemplateFormContactGroupsEndpoint,
+  hostTemplateFormContactsEndpoint,
   hostTemplateFormHostCategoriesEndpoint,
   hostTemplateFormHostSeveritiesEndpoint,
   hostTemplateFormHostTemplatesEndpoint,
@@ -41,6 +43,8 @@ import { getDefaultValues, useFormInputs } from '../Form';
 import {
   emptyListingResponse,
   getFormCommandsResponse,
+  getFormContactGroupsResponse,
+  getFormContactsResponse,
   getFormHostCategoriesResponse,
   getFormHostSeveritiesResponse,
   getFormMediasResponse,
@@ -141,6 +145,16 @@ const initialize = ({
       alias: 'getFormCommands',
       path: hostTemplateFormCommandsEndpoint,
       response: getFormCommandsResponse()
+    },
+    {
+      alias: 'getFormContacts',
+      path: hostTemplateFormContactsEndpoint,
+      response: getFormContactsResponse()
+    },
+    {
+      alias: 'getFormContactGroups',
+      path: hostTemplateFormContactGroupsEndpoint,
+      response: getFormContactGroupsResponse()
     },
     {
       alias: 'getFormHostCategories',
