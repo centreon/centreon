@@ -66,9 +66,9 @@ export const getServiceTemplatesResponse = () => ({
 // The detail of each listed service, as the API Platform detail route answers:
 // the host as an object where the create takes its id.
 const serviceDetails: Record<number, Record<string, unknown>> = {
-  0: { host: { id: 10, name: 'host A' }, name: 'cpu' },
-  1: { host: { id: 11, name: 'host B' }, name: 'memory' },
-  2: { host: { id: 10, name: 'host A' }, name: 'disk' }
+  0: { activated: true, host: { id: 10, name: 'host A' }, name: 'cpu' },
+  1: { activated: false, host: { id: 11, name: 'host B' }, name: 'memory' },
+  2: { activated: true, host: { id: 10, name: 'host A' }, name: 'disk' }
 };
 
 export const getServiceResponse = (id: number) => ({

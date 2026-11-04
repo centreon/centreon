@@ -8,6 +8,7 @@ import { labelNameContainsForbiddenCharacters } from '../translatedLabels';
 import initialize from './initialize';
 
 interface RequestBody {
+  activated?: boolean;
   host_id?: number | null;
   name?: string;
 }
@@ -126,6 +127,9 @@ export default () => {
         expect(await getInput('service-form-name')).toBeDisabled()
       );
       expect(screen.getByTestId('service-form-host')).toBeDisabled();
+      // Shown, not just locked.
+      expect(await getInput('service-form-name')).toHaveValue('cpu');
+      expect(screen.getByTestId('service-form-host')).toHaveValue('host A');
     });
 
     it('opens the service a deep link names, in edit mode', async () => {
@@ -189,7 +193,40 @@ export default () => {
       const { request } = await waitForRequest('@updateService0');
 
       expect(request.method).toBe('PUT');
-      expect(request.body).toEqual({ host_id: 10, name: 'cpu load' });
+      // The whole service is replaced, its activation included.
+      expect(request.body).toEqual({
+        activated: true,
+        host_id: 10,
+        name: 'cpu load'
+      });
+    });
+
+    it('keeps the activation the panel switch set when the service is saved', async () => {
+      await openService();
+
+      const name = await getInput('service-form-name');
+
+      await waitFor(() => expect(name).toHaveValue('cpu'));
+
+      const enableSwitch = (
+        await screen.findByTestId(panelDataTestIds.enable)
+      ).querySelector('input') as HTMLInputElement;
+
+      await waitFor(() => expect(enableSwitch).toBeChecked());
+      await userEvent.click(enableSwitch);
+      await waitForRequest('@patchService0');
+      await waitFor(() => expect(enableSwitch).not.toBeChecked());
+
+      await userEvent.clear(name);
+      await userEvent.type(name, 'cpu load');
+
+      await save();
+
+      expect(await getRequestBody('@updateService0')).toEqual({
+        activated: false,
+        host_id: 10,
+        name: 'cpu load'
+      });
     });
 
     it('asks for a name and a host', async () => {

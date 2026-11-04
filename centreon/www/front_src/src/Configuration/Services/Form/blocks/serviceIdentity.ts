@@ -1,6 +1,7 @@
 import { InputType, type SelectEntry } from '@centreon/ui';
 
 import type { TFunction } from 'i18next';
+import { isNil } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 import { number, object, string } from 'yup';
 
@@ -43,6 +44,10 @@ const normalizeName = (name: string | undefined): string =>
 
 interface ServiceIdentityDetail {
   host: NamedEntity | null;
+  // Read for the panel header's switch, which enables and disables the service
+  // on a request of its own: on a deep link there is no row to take it from.
+  // Sent back on an update, which replaces the whole service.
+  isActivated?: boolean;
   name: string;
 }
 
@@ -53,12 +58,14 @@ const getServiceOwnSchema = (t: TFunction) => ({
   // Trimmed as the server normalises it, so blanks report as missing.
   name: string()
     .trim()
-    .max(
-      nameMaxLength,
+    // Measured on what the server stores.
+    .test(
+      'is-at-most-max-length',
       t(labelMustBeAtMostCharacters, {
         label: t(labelName),
         max: nameMaxLength
-      })
+      }),
+      (value) => normalizeName(value).length <= nameMaxLength
     )
     .matches(forbiddenNameCharacters, t(labelNameContainsForbiddenCharacters))
     .test(
@@ -82,8 +89,10 @@ export const getServiceIdentityBlock = ({
   defaultValues: { host: null, name: '' },
   detailDecoders: {
     host: optionalNamedEntityDecoder('Host'),
+    isActivated: JsonDecoder.optional(JsonDecoder.boolean),
     name: JsonDecoder.string
   },
+  detailKeyMap: { isActivated: 'activated' },
   getInputs: ({ t }) => ({
     basicInformation: getBlock({
       className: twoColumnsFromNarrow,
@@ -117,12 +126,17 @@ export const getServiceIdentityBlock = ({
   getSchema: ({ t }) => getServiceOwnSchema(t),
   isAvailable: ({ isMassChange }) => !isMassChange,
   toPayload: (values) => {
-    const { host, name } = values as {
+    const { host, isActivated, name } = values as {
       host?: { id: number } | null;
+      isActivated?: boolean;
       name?: string;
     };
 
+    // Only an opened service has one: a new one is created enabled.
+    const activation = isNil(isActivated) ? {} : { activated: isActivated };
+
     return {
+      ...activation,
       host_id: host?.id ?? null,
       name: normalizeName(name)
     };

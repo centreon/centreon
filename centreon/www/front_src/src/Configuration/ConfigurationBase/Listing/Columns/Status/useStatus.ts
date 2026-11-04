@@ -31,7 +31,8 @@ interface Props {
   checked: boolean;
 }
 
-const useStatus = ({ row }): Props => {
+// `onChanged` hears the state the server accepted.
+const useStatus = ({ row, onChanged }): Props => {
   const { t } = useTranslation();
 
   const handleBulkResponse = useBulkResponse();
@@ -84,6 +85,7 @@ const useStatus = ({ row }): Props => {
 
     if (equals(method, Method.PATCH)) {
       showSuccessMessage(labelSuccessMessage);
+      onChanged?.(!checked);
 
       return;
     }
@@ -95,6 +97,8 @@ const useStatus = ({ row }): Props => {
 
       return;
     }
+
+    onChanged?.(!checked);
 
     handleBulkResponse({
       data: results,
