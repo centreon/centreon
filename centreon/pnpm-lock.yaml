@@ -291,9 +291,6 @@ importers:
       '@types/testing-library__cypress':
         specifier: ^5.0.13
         version: 5.0.13
-      chromatic:
-        specifier: ^11.7.1
-        version: 11.29.0
       css-loader:
         specifier: ^7.1.2
         version: 7.1.3(@rspack/core@0.7.5(@swc/helpers@0.5.18))(webpack@5.104.1(@swc/core@1.6.6(@swc/helpers@0.5.18)))
@@ -8175,18 +8172,6 @@ packages:
   chownr@2.0.0:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
-
-  chromatic@11.29.0:
-    resolution: {integrity: sha512-yisBlntp9hHVj19lIQdpTlcYIXuU9H/DbFuu6tyWHmj6hWT2EtukCCcxYXL78XdQt1vm2GfIrtgtKpj/Rzmo4A==}
-    hasBin: true
-    peerDependencies:
-      '@chromatic-com/cypress': ^0.*.* || ^1.0.0
-      '@chromatic-com/playwright': ^0.*.* || ^1.0.0
-    peerDependenciesMeta:
-      '@chromatic-com/cypress':
-        optional: true
-      '@chromatic-com/playwright':
-        optional: true
 
   chrome-launcher@0.15.2:
     resolution: {integrity: sha512-zdLEwNo3aUVzIhKhTtXfxhdvZhUghrnmkvcAq2NoDd+LeOHKf03H5jwZ8T/STsAlzyALkBVK552iaG1fGf1xVQ==}
@@ -25626,8 +25611,6 @@ snapshots:
   chownr@1.1.4: {}
 
   chownr@2.0.0: {}
-
-  chromatic@11.29.0: {}
 
   chrome-launcher@0.15.2:
     dependencies:
