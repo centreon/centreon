@@ -1,0 +1,1018 @@
+/*
+ * Centreon Modern Listing Styles
+ *
+ * Shared CSS for AJAX-based configuration listing pages.
+ * Prefix: cl- (centreon-listing)
+ *
+ * Usage: Include this file in any Smarty listing template, then use
+ * the CentreonListing JS module for AJAX data loading and rendering.
+ */
+
+/* ==========================================================================
+   Layout container
+   ========================================================================== */
+
+.cl-listing-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+/* ==========================================================================
+   Actions bar (top toolbar: add button, bulk actions, search, pagination)
+   ========================================================================== */
+
+.cl-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    gap: 12px;
+}
+
+.cl-actions-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* "More actions" dropdown in actions bar */
+.cl-actions-left select {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--color-divider, #E3E3E3);
+    border-radius: 4px;
+    background: var(--select-background, #fff);
+    cursor: pointer;
+    line-height: 1.4;
+    height: auto;
+}
+
+/* ==========================================================================
+   Add button (blue with "+" prefix)
+   ========================================================================== */
+
+.cl-btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    background-color: var(--color-primary-light, #2E68AA);
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1.4;
+    transition: background-color 0.15s ease;
+}
+
+.cl-btn-add:hover {
+    background-color: var(--color-primary-hover, #255891);
+    color: #fff;
+    text-decoration: none;
+}
+
+.cl-btn-add::before {
+    content: '+';
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+/* ==========================================================================
+   Search bar (centered between actions and pagination)
+   ========================================================================== */
+
+.cl-search-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 24px;
+}
+
+.cl-search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--color-divider, #E3E3E3);
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.cl-search-input:focus {
+    border-color: var(--color-primary-light, #2E68AA);
+}
+
+.cl-search-input::placeholder {
+    color: var(--color-grey-chateau, #a7a9ac);
+}
+
+/* ==========================================================================
+   Pagination (page numbers, nav arrows, limit selector, row count)
+   ========================================================================== */
+
+.cl-pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cl-pagination a,
+.cl-pagination span.cl-page-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.cl-pagination a {
+    color: var(--color-primary-light, #2E68AA);
+}
+
+.cl-pagination a:hover {
+    background-color: var(--color-listing-hover, #E6EDF5);
+    text-decoration: none;
+}
+
+/* Navigation arrows (first, prev, next, last) */
+.cl-pagination a.cl-page-nav img {
+    width: 14px;
+    height: 14px;
+    opacity: 0.6;
+}
+
+.cl-pagination a.cl-page-nav:hover img {
+    opacity: 1;
+}
+
+/* Current page indicator */
+.cl-pagination span.cl-page-current {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background-color: var(--color-primary-light, #2E68AA);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* "X-Y of Z" label */
+.cl-pagination .cl-page-info {
+    font-size: 13px;
+    color: var(--body-color, #555);
+    padding: 0 4px;
+}
+
+/* Rows-per-page selector */
+.cl-pagination .cl-limit-select {
+    padding: 4px 8px;
+    font-size: 13px;
+    border: 1px solid var(--color-divider, #E3E3E3);
+    border-radius: 4px;
+    background: var(--select-background, #fff);
+    cursor: pointer;
+    min-width: 50px;
+}
+
+/* ==========================================================================
+   Data table
+   ========================================================================== */
+
+.cl-listing-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background: var(--select-background, #fff);
+    border: none;
+}
+
+/* -- Table header --------------------------------------------------------- */
+
+.cl-listing-table thead th {
+    padding: 6px 16px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #fff;
+    text-align: left;
+    border-bottom: none;
+    background: #8C8C8C;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.cl-listing-table thead th.cl-col-center {
+    text-align: center;
+}
+
+.cl-listing-table thead th.cl-col-right {
+    text-align: right;
+}
+
+.cl-listing-table thead th.cl-col-picker {
+    width: 40px;
+    text-align: center;
+    padding: 6px 8px;
+    vertical-align: middle;
+}
+
+/* -- Table body rows ------------------------------------------------------ */
+
+.cl-listing-table tbody tr {
+    background: var(--select-background, #fff);
+    transition: background-color 0.15s ease;
+    cursor: pointer;
+}
+
+.cl-listing-table tbody tr:hover {
+    background-color: var(--color-listing-hover, #E6EDF5);
+}
+
+.cl-listing-table tbody td {
+    padding: 4px 16px;
+    font-size: 13px;
+    color: var(--body-color, #555);
+    border-bottom: 1px solid var(--color-divider, #E3E3E3);
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+}
+
+.cl-listing-table tbody td.cl-col-center {
+    text-align: center;
+}
+
+.cl-listing-table tbody td.cl-col-right {
+    text-align: right;
+}
+
+.cl-listing-table tbody td.cl-col-picker {
+    width: 40px;
+    text-align: center;
+    padding: 4px 8px;
+}
+
+/* -- Links inside rows ---------------------------------------------------- */
+
+.cl-listing-table tbody td a {
+    color: var(--color-primary-light, #2E68AA);
+    text-decoration: none;
+}
+
+.cl-listing-table tbody td a:hover {
+    text-decoration: underline;
+}
+
+.cl-listing-table tbody tr:hover td {
+    color: var(--color-charcoal, #444);
+}
+
+.cl-listing-table tbody tr:hover td a {
+    color: var(--color-primary-hover, #255891);
+}
+
+/* ==========================================================================
+   Options cell (actions column: toggle + duplication input)
+   ========================================================================== */
+
+.cl-options-cell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.cl-dup-input {
+    width: 36px;
+    height: 22px;
+    text-align: center;
+    border: 1px solid var(--color-divider, #E3E3E3);
+    border-radius: 4px;
+    font-size: 11px;
+    margin: 0;
+    padding: 0 2px;
+    line-height: 20px;
+}
+
+.cl-dup-input:focus {
+    border-color: var(--color-primary-light, #2E68AA);
+    outline: none;
+}
+
+/* ==========================================================================
+   Toggle switch (iPhone style enable/disable)
+   ========================================================================== */
+
+.cl-toggle {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.cl-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.cl-toggle-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 20px;
+    transition: background-color 0.25s ease;
+}
+
+.cl-toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.cl-toggle input:checked + .cl-toggle-slider {
+    background-color: var(--color-success, #88B922);
+}
+
+.cl-toggle input:checked + .cl-toggle-slider::before {
+    transform: translateX(16px);
+}
+
+.cl-toggle input:disabled + .cl-toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Bottom bar (bulk actions + pagination)
+   ========================================================================== */
+
+.cl-bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+/* ==========================================================================
+   Checkbox alignment (header and body rows)
+   ========================================================================== */
+
+.cl-listing-table .cl-col-picker .md-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    height: 100%;
+}
+
+.cl-listing-table .cl-col-picker .md-checkbox input[type="checkbox"] {
+    margin: 0;
+}
+
+.cl-listing-table .cl-col-picker .md-checkbox label {
+    margin: 0;
+    padding: 0;
+    min-height: auto;
+    line-height: 1;
+}
+
+/* White checkbox border on dark header */
+.cl-listing-table thead th .md-checkbox label::before {
+    border-color: #fff;
+}
+
+/* ==========================================================================
+   States: loading, empty, fade-in animation
+   ========================================================================== */
+
+.cl-loading {
+    text-align: center;
+    padding: 24px;
+    color: var(--color-grey-chateau, #a7a9ac);
+    font-size: 14px;
+}
+
+.cl-listing-table tbody {
+    transition: opacity 0.2s ease;
+}
+
+.cl-listing-table tbody.cl-fade-in {
+    animation: clFadeIn 0.25s ease;
+}
+
+@keyframes clFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ==========================================================================
+   Sub-listing header (e.g. meta service metric listing)
+   ========================================================================== */
+
+.cl-meta-header {
+    padding: 10px 16px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--body-color, #555);
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   Tooltip (instant, no-delay, fixed position in body)
+   ========================================================================== */
+
+.cl-tooltip-popup {
+    position: fixed;
+    z-index: 99999;
+    background: var(--body-background, #222);
+    color: var(--body-color, #eee);
+    border: 1px solid var(--listing-border-botom-color, #555);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+.cl-tooltip-popup b {
+    margin-right: 4px;
+}
+
+/* ==========================================================================
+   Add button dropdown (two-level: Wizard / Advanced)
+   ========================================================================== */
+
+.cl-add-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.cl-add-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 160px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.cl-add-dropdown.cl-open .cl-add-dropdown-menu {
+    display: block;
+}
+
+.cl-add-dropdown-menu a {
+    display: block;
+    padding: 8px 16px;
+    color: var(--body-color, #444);
+    text-decoration: none;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.cl-add-dropdown-menu a:hover {
+    background: var(--list-hover-background-color, #E6EDF5);
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   Filter box (advanced search with multiple fields)
+   ========================================================================== */
+
+.cl-filter-box {
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 6px;
+    padding: 10px 16px;
+    margin-bottom: 8px;
+}
+
+.cl-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cl-filter-bar .cl-search-input {
+    max-width: none;
+    width: 200px;
+    height: 28px;
+    padding: 4px 8px;
+    font-size: 13px;
+}
+
+.cl-filter-bar .select2-container {
+    width: 180px !important;
+}
+
+.cl-filter-bar .select2-container .select2-selection {
+    height: 30px;
+    min-height: 30px;
+}
+
+.cl-filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--body-color, #555);
+    margin-right: 4px;
+}
+
+/* ==========================================================================
+   Clear button for individual select2 dropdowns
+   ========================================================================== */
+
+.cl-clear-select {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--color-danger, #FF4A4A);
+    padding: 0 2px;
+    margin-left: -2px;
+    margin-right: 4px;
+    opacity: 0.6;
+}
+
+.cl-clear-select:hover {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   Monitoring status badges (real-time host/poller status)
+   ========================================================================== */
+
+.cl-mon-badge {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.cl-mon-up {
+    background: var(--color-success, #88B922);
+    box-shadow: 0 0 4px var(--color-success, #88B922);
+}
+
+.cl-mon-down {
+    background: var(--color-danger, #FF4A4A);
+    box-shadow: 0 0 4px var(--color-danger, #FF4A4A);
+}
+
+.cl-mon-unreach {
+    background: var(--color-aluminium, #818285);
+    box-shadow: 0 0 4px var(--color-aluminium, #818285);
+}
+
+.cl-mon-warning {
+    background: var(--color-warning, #FD9B27);
+    box-shadow: 0 0 4px var(--color-warning, #FD9B27);
+}
+
+.cl-mon-unknown {
+    background: var(--color-aluminium, #818285);
+    box-shadow: 0 0 4px var(--color-aluminium, #818285);
+}
+
+.cl-mon-pending {
+    background: var(--color-pending, #1EBEB3);
+    box-shadow: 0 0 4px var(--color-pending, #1EBEB3);
+}
+
+/* ==========================================================================
+   Stale last-update highlight (pollers)
+   ========================================================================== */
+
+.cl-stale {
+    background-color: #F7D507 !important;
+    color: #333 !important;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* ==========================================================================
+   Trap status colors
+   ========================================================================== */
+
+.cl-status-ok { color: var(--color-success, #88B922); }
+.cl-status-warning { color: var(--color-warning, #FD9B27); }
+.cl-status-critical { color: var(--color-danger, #FF4A4A); }
+.cl-status-unknown { color: var(--color-aluminium, #818285); }
+.cl-status-pending { color: var(--color-pending, #1EBEB3); }
+
+/* ==========================================================================
+   Infinite scroll wrapper (full-height flex layout)
+   ========================================================================== */
+
+.cl-scroll-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+}
+.cl-scroll-wrapper .cl-filter-box,
+.cl-scroll-wrapper .cl-actions-bar {
+    flex-shrink: 0;
+}
+.cl-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+.cl-scroll-area table {
+    width: 100%;
+}
+.cl-scroll-area .cl-listing-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--table-header-background, #6b7888);
+}
+
+/* ==========================================================================
+   Expand button (inline detail toggle: +/− in listing rows)
+   ========================================================================== */
+
+.cl-expand-btn {
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--list-color, #555);
+    background: var(--color-divider, #e8e8e8);
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+}
+.cl-expand-btn:hover {
+    background: #3a7bbf;
+    color: #fff;
+}
+.cl-expand-btn.open {
+    background: #3a7bbf;
+    color: #fff;
+}
+.cl-expand-btn.disabled {
+    cursor: default;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   Inline detail row (expanded diff inside listing)
+   ========================================================================== */
+
+.cl-detail-row td {
+    padding: 0 !important;
+    background: var(--body-background, #f9f9f9);
+}
+.cl-diff-container {
+    margin: 6px 16px 10px 36px;
+    border: 1px solid var(--color-divider, #ddd);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 12px;
+}
+.cl-diff-header {
+    display: flex;
+    background: var(--table-header-background, #6b7888);
+    color: #fff;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.cl-diff-header span {
+    flex: 1;
+    padding: 6px 10px;
+}
+.cl-diff-header span:first-child {
+    flex: 0 0 200px;
+}
+.cl-diff-row {
+    display: flex;
+    border-bottom: 1px solid var(--color-divider, #eee);
+}
+.cl-diff-row:last-child {
+    border-bottom: none;
+}
+.cl-diff-row:hover {
+    background: rgba(0,0,0,0.02);
+}
+.cl-diff-field {
+    flex: 0 0 200px;
+    padding: 5px 10px;
+    font-weight: 500;
+    color: var(--list-color, #555);
+    word-break: break-all;
+    border-right: 1px solid var(--color-divider, #eee);
+}
+.cl-diff-before, .cl-diff-after {
+    flex: 1;
+    padding: 5px 10px;
+    word-break: break-all;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 11px;
+}
+.cl-diff-before {
+    background: rgba(255, 74, 74, 0.06);
+    color: #c0392b;
+    border-right: 1px solid var(--color-divider, #eee);
+}
+.cl-diff-after {
+    background: rgba(39, 174, 96, 0.06);
+    color: #27ae60;
+}
+.cl-diff-before:empty, .cl-diff-after:empty {
+    background: transparent;
+}
+.cl-diff-empty {
+    padding: 12px 16px;
+    color: #a7a9ac;
+    font-style: italic;
+    text-align: center;
+}
+.cl-diff-loading {
+    padding: 12px 16px;
+    text-align: center;
+    color: #a7a9ac;
+}
+
+/* ==========================================================================
+   Changelog detail page — Timeline layout (cld- prefix)
+   ========================================================================== */
+
+.cld-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 20px;
+}
+
+/* Header card */
+.cld-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--body-background, #fff);
+    border: 1px solid var(--color-divider, #ddd);
+    border-radius: 8px;
+    padding: 16px 24px;
+    margin-bottom: 24px;
+}
+.cld-header-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.cld-header-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3a7bbf, #2c5f8f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.cld-header-text h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--list-color, #333);
+}
+.cld-header-text .cld-subtitle {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.cld-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    background: var(--color-divider, #e8e8e8);
+    color: var(--list-color, #555);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.15s;
+}
+.cld-back-btn:hover {
+    background: #3a7bbf;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Timeline */
+.cld-timeline {
+    position: relative;
+    padding-left: 40px;
+}
+.cld-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-divider, #ddd);
+    border-radius: 1px;
+}
+.cld-entry {
+    position: relative;
+    margin-bottom: 16px;
+}
+.cld-entry:last-child {
+    margin-bottom: 0;
+}
+
+/* Timeline dot */
+.cld-dot {
+    position: absolute;
+    left: -33px;
+    top: 16px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px var(--color-divider, #ddd);
+}
+.cld-dot.dot-create  { background: #27ae60; box-shadow: 0 0 0 2px #27ae60; }
+.cld-dot.dot-change  { background: #e67e22; box-shadow: 0 0 0 2px #e67e22; }
+.cld-dot.dot-delete  { background: #e74c3c; box-shadow: 0 0 0 2px #e74c3c; }
+.cld-dot.dot-enable  { background: #27ae60; box-shadow: 0 0 0 2px #27ae60; }
+.cld-dot.dot-disable { background: #e74c3c; box-shadow: 0 0 0 2px #e74c3c; }
+
+/* Entry card */
+.cld-card {
+    background: var(--body-background, #fff);
+    border: 1px solid var(--color-divider, #ddd);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+}
+.cld-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.cld-card-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+.cld-card-header:hover {
+    background: rgba(0,0,0,0.015);
+}
+.cld-card-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--list-color, #555);
+    background: var(--color-divider, #e8e8e8);
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+.cld-card-header:hover .cld-card-toggle {
+    background: #3a7bbf;
+    color: #fff;
+}
+.cld-card-toggle.open {
+    background: #3a7bbf;
+    color: #fff;
+}
+.cld-card-toggle.no-expand {
+    opacity: 0.2;
+    cursor: default;
+    pointer-events: none;
+}
+.cld-card-date {
+    font-size: 13px;
+    color: #888;
+    white-space: nowrap;
+    min-width: 130px;
+}
+.cld-card-badge {
+    flex-shrink: 0;
+}
+.cld-card-author {
+    font-size: 12px;
+    color: #999;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+/* Diff panel (inside timeline cards) */
+.cld-diff-panel {
+    display: none;
+    border-top: 1px solid var(--color-divider, #eee);
+}
+.cld-diff-panel.open {
+    display: block;
+}
+.cld-diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.cld-diff-table th {
+    background: var(--table-header-background, #6b7888);
+    color: #fff;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 7px 12px;
+    text-align: left;
+}
+.cld-diff-table td {
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--color-divider, #eee);
+    vertical-align: top;
+    word-break: break-all;
+}
+.cld-diff-table tr:last-child td {
+    border-bottom: none;
+}
+.cld-diff-table .cld-fname {
+    width: 220px;
+    font-weight: 500;
+    color: var(--list-color, #555);
+}
+.cld-diff-table .cld-fbefore {
+    background: rgba(255, 74, 74, 0.05);
+    color: #c0392b;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 11px;
+}
+.cld-diff-table .cld-fafter {
+    background: rgba(39, 174, 96, 0.05);
+    color: #27ae60;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 11px;
+}
+.cld-no-changes {
+    padding: 14px 16px;
+    color: #aaa;
+    font-style: italic;
+    text-align: center;
+    font-size: 12px;
+}

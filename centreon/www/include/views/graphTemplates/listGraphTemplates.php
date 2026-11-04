@@ -24,128 +24,57 @@ if (! isset($centreon)) {
 
 include './include/common/autoNumLimit.php';
 
-$SearchTool = null;
-$queryValues = [];
-$search = null;
-
-if (isset($_POST['searchGT'])) {
-    $search = $_POST['searchGT'];
-    $centreon->historySearch[$url] = $search;
-} elseif (isset($_GET['searchGT'])) {
-    $search = $_GET['searchGT'];
-    $centreon->historySearch[$url] = $search;
-} elseif (isset($centreon->historySearch[$url])) {
-    $search = $centreon->historySearch[$url];
-}
-
-if ($search) {
-    $SearchTool = ' WHERE name LIKE :search';
-    $queryValues['search'] = '%' . $search . '%';
-}
-
-$rq = 'SELECT SQL_CALC_FOUND_ROWS graph_id, name, default_tpl1, vertical_label, base, split_component FROM '
-    . 'giv_graphs_template gg ' . $SearchTool . ' ORDER BY name LIMIT ' . $num * $limit . ', ' . $limit;
-$stmt = $pearDB->prepare($rq);
-foreach ($queryValues as $key => $value) {
-    $stmt->bindValue(':' . $key, $value, PDO::PARAM_STR);
-}
-
-$stmt->execute();
-
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-include './include/common/checkPagination.php';
-
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-// start header menu
+// Access level
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
+$tpl->assign('mode_access', $lvl_access);
+
+// Column headers
 $tpl->assign('headerMenu_name', _('Name'));
 $tpl->assign('headerMenu_desc', _('Description'));
 $tpl->assign('headerMenu_split_component', _('Split Components'));
 $tpl->assign('headerMenu_base', _('Base'));
-$tpl->assign('headerMenu_options', _('Options'));
 
-// List
-$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
-// Different style between each lines
-$style = 'one';
+$tpl->assign('gtPage', $p);
 
-$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
-$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
-
-// Fill a tab with a mutlidimensionnal Array we put in $tpl
-$elemArr = [];
-for ($i = 0; $graph = $stmt->fetch(); $i++) {
-    $selectedElements = $form->addElement('checkbox', 'select[' . $graph['graph_id'] . ']');
-    $moptions = '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
-        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;'
-        . "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
-        . $graph['graph_id'] . "]' />";
-    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => $graph['name'], 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&graph_id=' . $graph['graph_id'], 'RowMenu_desc' => $graph['vertical_label'], 'RowMenu_base' => $graph['base'], 'RowMenu_split_component' => $graph['split_component'] ? _('Yes') : _('No'), 'RowMenu_options' => $moptions];
-    $style = $style != 'two' ? 'two' : 'one';
+// Restore search from history
+$search = '';
+if (isset($_POST['searchGT'])) {
+    $search = $_POST['searchGT'];
+} elseif (isset($centreon->historySearch[$url])) {
+    $search = $centreon->historySearch[$url];
 }
-$tpl->assign('elemArr', $elemArr);
+$tpl->assign('searchGT', htmlentities($search ?? '', ENT_QUOTES));
 
-// Different messages we put in the template
-$tpl->assign(
-    'msg',
-    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
-);
+// Default limit
+$dbResult = $pearDB->query("SELECT `value` FROM `options` WHERE `key` = 'maxViewConfiguration'");
+$gopt = $dbResult->fetch();
+$defaultLimit = (int) ($gopt['value'] ?? 30) ?: 30;
+$tpl->assign('defaultLimit', $defaultLimit);
 
-// Toolbar select
+// Form (bulk actions + search submit)
+$form = new HTML_QuickFormCustom('form', 'POST', '?p=' . $p);
+$form->addElement('submit', 'Search', _('Search'), ['class' => 'btc bt_success']);
 ?>
-    <script type="text/javascript">
-        function setO(_i) {
-            document.forms['form'].elements['o'].value = _i;
-        }
-    </SCRIPT>
+<script type="text/javascript">
+    function setO(_i) {
+        document.forms['form'].elements['o'].value = _i;
+    }
+</script>
 <?php
-$attrs1 = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 3) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . ''];
-$form->addElement(
-    'select',
-    'o1',
-    null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
-    $attrs1
-);
-$form->setDefaults(['o1' => null]);
-$o1 = $form->getElement('o1');
-$o1->setValue(null);
-
 $attrs = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . "else if (this.form.elements['o2'].selectedIndex == 3) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . ''];
-$form->addElement(
-    'select',
-    'o2',
-    null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
-    $attrs
-);
-$form->setDefaults(['o2' => null]);
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _('Do you confirm the duplication ?') . "')) {"
+    . " setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
+    . " setO(this.form.elements['o1'].value); submit();} "];
+$form->addElement('select', 'o1', null, [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
+$form->setDefaults(['o1' => null]);
+$form->getElement('o1')->setValue(null);
 
-$o2 = $form->getElement('o2');
-$o2->setValue(null);
-
+$tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
 $tpl->assign('limit', $limit);
-$tpl->assign('searchGT', htmlentities($search));
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
