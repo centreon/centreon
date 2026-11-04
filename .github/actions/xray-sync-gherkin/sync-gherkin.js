@@ -218,8 +218,6 @@ function writeStepSummary(markdown) {
   }
 }
 
-const keyList = (keys) => (keys.length > 0 ? keys.map((key) => `\`${key}\``).join(", ") : "-");
-
 async function main() {
   if (!FEATURES_DIR) throw new Error("missing FEATURES_DIR");
   if (!dryRun && !XRAY_TOKEN) throw new Error("missing XRAY_TOKEN (required unless DRY_RUN=true)");
@@ -245,7 +243,7 @@ async function main() {
     "",
     `- Tagged scenarios: ${scenarios.length} (${ignoredCount} @ignore skipped)`,
     `- Keys in scope: ${targetKeys.length}`,
-    `- Conflicting keys (not synced): ${conflictKeys.length} ${keyList(conflictKeys)}`,
+    `- Conflicting keys (not synced): ${conflictKeys.length}`,
   ];
 
   if (!XRAY_TOKEN) {
@@ -319,18 +317,49 @@ async function main() {
     }
   }
 
-  summary.push(
-    `- Up to date: ${upToDateKeys.length}`,
-    `- ${dryRun ? "To resync" : "Resynced"}: ${syncedKeys.length} ${keyList(syncedKeys)}`,
-    `- Not a Test (development ticket key used as a tag): ${nonTestKeys.length} ${nonTestKeys.length > 0 ? nonTestKeys.map((key) => `\`${key}\` (${nonTestTypes.get(key)}, ${locationsOf(key).join(", ")})`).join(", ") : "-"}`,
-    classificationFailed
-      ? `- Missing from Xray, issue type not checked (lookup failed): ${unknownKeys.length} ${keyList(unknownKeys)}`
-      : `- Neither a Test nor a coverable issue (deleted key, typo or non-coverable issue type): ${unknownKeys.length} ${keyList(unknownKeys)}`,
-    `- Not overwritten (Xray holds Feature/Background/Rule/tags/several scenarios): ${protectedKeys.length} ${keyList(protectedKeys)}`,
-  );
-  if (failedKeys.length > 0) summary.push(`- Failed: ${failedKeys.length} ${keyList(failedKeys)}`);
-  writeStepSummary(summary.join("\n"));
+  const notFoundLabel = classificationFailed ? "Missing from Xray, type not checked" : "Neither a Test nor a coverable issue";
+  const counts = [
+    ["Up to date", upToDateKeys.length],
+    [dryRun ? "To resync" : "Resynced", syncedKeys.length],
+    ["Failed", failedKeys.length],
+    ["Conflict, not synced", conflictKeys.length],
+    ["Not a Test (ticket key used as a tag)", nonTestKeys.length],
+    [notFoundLabel, unknownKeys.length],
+    ["Not overwritten (Xray holds more than the steps)", protectedKeys.length],
+  ];
+  // One row per key that needs a look; up-to-date Tests are only counted.
+  const conflictOnly = conflictKeys.filter((key) => !missingKeys.includes(key));
+  const detailRows = [
+    ...syncedKeys.map((key) => {
+      const type = xrayTests.get(key).testType;
+      return [key, dryRun ? "To resync" : "Resynced", type?.kind === "Gherkin" ? "" : `type ${type?.name} -> ${GHERKIN_TEST_TYPE}`];
+    }),
+    ...failedKeys.map((key) => [key, "Failed", "see the job log"]),
+    ...conflictOnly.map((key) => [key, "Conflict, not synced", "same key on different scenarios"]),
+    ...nonTestKeys.map((key) => [key, "Not a Test", `${nonTestTypes.get(key)} key: tag the scenario with a Test key`]),
+    ...unknownKeys.map((key) => [key, notFoundLabel, classificationFailed ? "issue type lookup failed" : "deleted key, typo or non-coverable type"]),
+    ...protectedKeys.map((key) => [key, "Not overwritten", "Feature, Background, Rule, tags or several scenarios in Xray"]),
+  ];
+  const cell = (text) => String(text).replaceAll("|", "\\|");
+  const jiraLink = (key) => `[${key}](https://centreon.atlassian.net/browse/${key})`;
+  const markdown = [
+    ...summary,
+    "",
+    "| Result | Keys |",
+    "| --- | ---: |",
+    ...counts.map(([label, count]) => `| ${label} | ${count} |`),
+  ];
+  if (detailRows.length > 0) {
+    markdown.push(
+      "",
+      "| Key | Result | Scenario | Detail |",
+      "| --- | --- | --- | --- |",
+      ...detailRows.map(([key, result, detail]) => `| ${jiraLink(key)} | ${result} | ${locationsOf(key).map((location) => `\`${cell(location)}\``).join("<br>")} | ${cell(detail)} |`),
+    );
+  }
+  writeStepSummary(markdown.join("\n"));
   console.log(summary.slice(2).join("\n"));
+  for (const [label, count] of counts) console.log(`- ${label}: ${count}`);
 
   if (failedKeys.length > 0) process.exit(1);
 }
