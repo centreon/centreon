@@ -32,7 +32,7 @@ export const layout: Array<LayoutSection> = [
       {
         className: twoColumnsFromWide,
         columnSeparator: true,
-        columns: ['macros'],
+        columns: ['templates', 'macros'],
         name: 'templates-layout'
       }
     ]

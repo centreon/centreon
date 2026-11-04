@@ -233,6 +233,30 @@ export default () => {
       ]);
     });
 
+    it('opens a template with its check command, SNMP and macros read-only for a user who may only look at templates', async () => {
+      initialize({ hasWriteAccess: false, search: '?mode=edit&id=1' });
+
+      await waitForRequest('@getHostTemplate1');
+
+      const command = await screen.findByTestId(
+        'host-template-form-check-options-command'
+      );
+
+      await waitFor(() => expect(command).toHaveValue('check-host-alive'));
+      expect(command).toBeDisabled();
+      // Template 1 has a command: only read-only keeps its arguments disabled.
+      expect(
+        await getInput('host-template-form-check-options-args')
+      ).toBeDisabled();
+      expect(
+        await getInput('host-template-form-snmp-community')
+      ).toBeDisabled();
+      expect(screen.getByLabelText(labelSnmpVersion)).toBeDisabled();
+      expect(await getAddMacroButton()).toBeDisabled();
+      expect(await findMacroInput(0, 'name')).toBeDisabled();
+      expect(await findMacroInput(0, 'value')).toBeDisabled();
+    });
+
     it('opens a locked template with its check command, SNMP and macros read-only', async () => {
       await openTemplate(3);
 

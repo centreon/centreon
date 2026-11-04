@@ -6,6 +6,7 @@ import type { ReactElement } from 'react';
 import Macros, {
   type InheritedMacrosConfig
 } from '../../ConfigurationBase/Form/Macros';
+import type { TemplateRow } from '../../ResourceForm/OrderedTemplates';
 import {
   getHostTemplateMacrosEndpoint,
   hostTemplatesBaseEndpoint
@@ -19,7 +20,7 @@ const inheritance: InheritedMacrosConfig = {
   getCommandId: (values: FormikValues): number | null =>
     getIn(values, 'checkOptions.command')?.id ?? null,
   getTemplateIds: (values: FormikValues): Array<number> =>
-    ((getIn(values, 'templates') ?? []) as Array<NamedEntity | null>)
+    ((getIn(values, 'templates') ?? []) as Array<TemplateRow>)
       .filter((template): template is NamedEntity => !!template)
       .map(({ id }) => id),
   getTemplateMacrosEndpoint: getHostTemplateMacrosEndpoint,

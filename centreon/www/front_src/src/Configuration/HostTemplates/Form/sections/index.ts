@@ -19,6 +19,7 @@ import { labelHostCheckOptions } from '../../translatedLabels';
 import { getHostTemplateIdentityBlock } from '../blocks/hostTemplateIdentity';
 import { getLockedBlock } from '../blocks/locked';
 import { getMacrosBlock } from '../blocks/macros';
+import { getTemplatesBlock } from '../blocks/templates';
 
 export const hostTemplateResource: ResourceOptions = {
   baseEndpoint: hostTemplatesBaseEndpoint,
@@ -40,7 +41,8 @@ export const blocks = [
     title: labelHostCheckOptions
   }),
   getMacrosBlock({ resource }),
-  getSnmpBlock({ resource })
+  getSnmpBlock({ resource }),
+  getTemplatesBlock({ resource })
 ] as const;
 
 // Each available block, as a section of the data.
