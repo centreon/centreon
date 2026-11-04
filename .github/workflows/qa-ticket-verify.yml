@@ -325,6 +325,21 @@ jobs:
              "$report" > "$report.tmp" && mv "$report.tmp" "$report"
           echo "Enriched $report with model=$model duration_ms=$duration_ms cost_usd=$cost_usd image=$WEB_IMAGE"
 
+      - name: Render the report as HTML
+        if: ${{ !cancelled() }}
+        run: |
+          report=".claude/skills/qa-ticket-verify/runs/${{ inputs.jira_key }}.report.json"
+          if [ ! -f "$report" ]; then
+            echo "No report.json written (notice-only or failed run) — nothing to render."
+            exit 0
+          fi
+          python3 "$QA_SKILL_DIR/scripts/render-report-html.py" "$report" "${report%.json}.html"
+        env:
+          TICKET_KEY: ${{ inputs.jira_key }}
+          PR_URL: ${{ steps.find_pr.outputs.url }}
+          TRIGGERED_BY: ${{ github.actor }}
+          QA_SKILL_DIR: ${{ github.workspace }}/dotfiles/plugins/centreon-qa-ci/skills/qa-ticket-verify
+
       - name: Post failure notice to Jira if the run errored before reporting
         if: failure()
         env:
