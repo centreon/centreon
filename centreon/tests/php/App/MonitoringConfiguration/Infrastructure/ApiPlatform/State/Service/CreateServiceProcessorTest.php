@@ -173,8 +173,9 @@ final class CreateServiceProcessorTest extends ApiTestCase
     }
 
     /**
-     * The creator's group is granted the new service in the real-time ACL cache within the request, so the 201 body,
-     * read through that cache, is the created service and not a 404.
+     * The creator's group is granted the new service in the real-time ACL cache within the request, so they see it at
+     * once. A GET is not replayed here: the test transactions keep the grant, written on the real-time connection,
+     * out of sight of the configuration connection that scopes the read.
      */
     public function testANonAdminCreatorSeesTheServiceAtOnce(): void
     {
@@ -207,9 +208,6 @@ final class CreateServiceProcessorTest extends ApiTestCase
         );
         $changedFlag = $this->connection->fetchOne('SELECT acl_group_changed FROM acl_groups WHERE acl_group_id = ?', [$aclGroupId]);
         self::assertTrue(is_numeric($changedFlag) && (int) $changedFlag === 1, "The creator's group is flagged for the ACL recomputation.");
-
-        $this->request('GET', self::ENDPOINT . '/' . $serviceId);
-        self::assertResponseStatusCodeSame(200);
     }
 
     /**
