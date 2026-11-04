@@ -70,6 +70,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             securityMessage: 'You are not allowed to access host templates',
         ),
         new GetCollection(
+            uriTemplate: '/configuration/host_templates/host_templates',
+            openapi: false,
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host templates',
+            itemUriTemplate: '/configuration/host_templates/{id}',
+            output: HostTemplateChoicesOutput::class,
+            provider: ListHostTemplatesChoicesProvider::class,
+        ),
+        new GetCollection(
             uriTemplate: '/configuration/host_templates',
             provider: ListHostTemplatesProvider::class,
             itemUriTemplate: '/configuration/host_templates/{id}',
@@ -164,7 +173,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             securityMessage: 'You are not allowed to delete host templates',
         ),
         // temporary, to make itemUriTemplate work
-        new NotExposed(uriTemplate: '/configuration/host_templates/{id}'),
+        new NotExposed(uriTemplate: '/configuration/host_templates/{id}', requirements: ['id' => '[1-9]\d*']),
     ],
 )]
 final class HostTemplateResource
