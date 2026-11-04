@@ -28,7 +28,7 @@ describe('data processing payload', () => {
       { isCloudPlatform: false }
     );
 
-    expect(payload.data_processing).toMatchObject({
+    expect(payload.advanced).toMatchObject({
       check_freshness: 'false',
       freshness_threshold: 30
     });
@@ -46,7 +46,7 @@ describe('data processing payload', () => {
         { isCloudPlatform }
       );
 
-      expect(payload.data_processing).toMatchObject({
+      expect(payload.advanced).toMatchObject({
         check_freshness: 'true',
         freshness_threshold: 500
       });
@@ -58,7 +58,7 @@ describe('data processing payload', () => {
       isCloudPlatform: true
     });
 
-    expect(Object.keys(payload.data_processing as object).sort()).toEqual([
+    expect(Object.keys(payload.advanced as object).sort()).toEqual([
       'check_freshness',
       'event_handler_command_id',
       'event_handler_enabled',

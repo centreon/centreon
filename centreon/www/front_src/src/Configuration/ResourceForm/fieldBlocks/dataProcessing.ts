@@ -60,8 +60,9 @@ import {
   triStateOptions
 } from '../triState';
 
-// The four blocks fill the form's `dataProcessing` and the API's
-// `data_processing`.
+// The blocks fill the form's `dataProcessing`, and a group of the API:
+// `data_processing` for a host, the `apiGroup` a resource names otherwise.
+const defaultApiGroup = 'data_processing';
 interface DataProcessingDetail<Values> {
   dataProcessing: Values;
 }
@@ -83,7 +84,7 @@ const getDataProcessingDecoder = <Values>({
     ).map((value) => value ?? defaultValues)
   }) as JsonDecoder.DecoderObject<DataProcessingDetail<Values>>;
 
-const detailKeyMap = { dataProcessing: 'data_processing' } as const;
+const getDetailKeyMap = (apiGroup: string) => ({ dataProcessing: apiGroup });
 
 const getDataProcessing = <Values>(
   values: Record<string, unknown>,
@@ -187,10 +188,12 @@ const getEventHandlerArgumentsSchema = (t: TFunction) =>
 // The command the engine runs on a state change. Its arguments are refused on
 // cloud.
 export const getEventHandlerBlock = ({
+  apiGroup = defaultApiGroup,
   commandsEndpoint,
   resource: { baseEndpoint, idPrefix },
   withArgumentsRules = false
 }: {
+  apiGroup?: string;
   commandsEndpoint: string;
   resource: ResourceOptions;
   // Checks the arguments as `getEventHandlerArgumentsSchema` says, where the
@@ -213,7 +216,7 @@ export const getEventHandlerBlock = ({
       eventHandlerEnabled: 'event_handler_enabled'
     }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ isCloudPlatform, t }) => ({
     eventHandler: getBlock({
       columns: [
@@ -265,7 +268,7 @@ export const getEventHandlerBlock = ({
     const dataProcessing = getDataProcessing(values, defaultEventHandler);
 
     return {
-      data_processing: {
+      [apiGroup]: {
         event_handler_command_id: dataProcessing.eventHandler?.id ?? null,
         event_handler_enabled: dataProcessing.eventHandlerEnabled,
         ...(!isCloudPlatform && {
@@ -292,9 +295,11 @@ const forcedFreshnessThreshold = 500;
 
 // Whether the engine checks the results are recent enough, and how recent.
 export const getFreshnessBlock = ({
+  apiGroup = defaultApiGroup,
   isForced,
   resource: { idPrefix }
 }: {
+  apiGroup?: string;
   // When it holds, as for a Centreon Monitoring Agent check command, the
   // check is on with a 500 s threshold whatever the fields say: they are
   // disabled and the payload sends those values.
@@ -313,7 +318,7 @@ export const getFreshnessBlock = ({
       freshnessThreshold: 'freshness_threshold'
     }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ t }) => ({
     freshness: getBlock({
       columns: [
@@ -349,7 +354,7 @@ export const getFreshnessBlock = ({
   toPayload: (values) => {
     if (isForced?.(values)) {
       return {
-        data_processing: {
+        [apiGroup]: {
           check_freshness: 'true',
           freshness_threshold: forcedFreshnessThreshold
         }
@@ -359,7 +364,7 @@ export const getFreshnessBlock = ({
     const dataProcessing = getDataProcessing(values, defaultFreshness);
 
     return {
-      data_processing: {
+      [apiGroup]: {
         check_freshness: dataProcessing.checkFreshness,
         freshness_threshold: toApiNumber(dataProcessing.freshnessThreshold)
       }
@@ -377,8 +382,10 @@ const defaultAcknowledgmentTimeout: AcknowledgmentTimeoutValues = {
 
 // How long an acknowledgement lasts. Refused on cloud.
 export const getAcknowledgmentTimeoutBlock = ({
+  apiGroup = defaultApiGroup,
   resource: { idPrefix }
 }: {
+  apiGroup?: string;
   resource: ResourceOptions;
 }): FieldBlock<DataProcessingDetail<AcknowledgmentTimeoutValues>> => ({
   defaultValues: { dataProcessing: defaultAcknowledgmentTimeout },
@@ -388,7 +395,7 @@ export const getAcknowledgmentTimeoutBlock = ({
     // The API spells it without the legacy `e`.
     keyMap: { acknowledgmentTimeout: 'acknowledgment_timeout' }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ isCloudPlatform, t }) =>
     isCloudPlatform
       ? {}
@@ -420,7 +427,7 @@ export const getAcknowledgmentTimeoutBlock = ({
     isCloudPlatform
       ? {}
       : {
-          data_processing: {
+          [apiGroup]: {
             acknowledgment_timeout: toApiNumber(
               getDataProcessing(values, defaultAcknowledgmentTimeout)
                 .acknowledgmentTimeout
@@ -444,9 +451,11 @@ const defaultFlapping: FlappingValues = {
 // Whether the engine detects a flapping state, and between which thresholds.
 // Refused on cloud.
 export const getFlappingBlock = ({
+  apiGroup = defaultApiGroup,
   maxThreshold,
   resource: { idPrefix }
 }: {
+  apiGroup?: string;
   // The highest threshold the form takes, and the untranslated message for
   // one out of 0–max. Without it the server alone enforces a cap.
   maxThreshold?: { max: number; message: string };
@@ -466,7 +475,7 @@ export const getFlappingBlock = ({
       lowFlapThreshold: 'low_flap_threshold'
     }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ isCloudPlatform, t }) =>
     isCloudPlatform
       ? {}
@@ -526,7 +535,7 @@ export const getFlappingBlock = ({
     const dataProcessing = getDataProcessing(values, defaultFlapping);
 
     return {
-      data_processing: {
+      [apiGroup]: {
         flap_detection_enabled: dataProcessing.flapDetectionEnabled,
         high_flap_threshold: toApiNumber(dataProcessing.highFlapThreshold),
         low_flap_threshold: toApiNumber(dataProcessing.lowFlapThreshold)
@@ -535,27 +544,27 @@ export const getFlappingBlock = ({
   }
 });
 
-// In the order the API normalizes them.
+// In the order the API normalizes them, spelled as it does.
 const stalkingOptions = [
-  { label: labelOk, letter: 'o' },
-  { label: labelWarning, letter: 'w' },
-  { label: labelUnknown, letter: 'u' },
-  { label: labelCritical, letter: 'c' }
+  { label: labelOk, option: 'ok' },
+  { label: labelWarning, option: 'warning' },
+  { label: labelUnknown, option: 'unknown' },
+  { label: labelCritical, option: 'critical' }
 ] as const;
 
-type StalkingOption = (typeof stalkingOptions)[number]['letter'];
+type StalkingOption = (typeof stalkingOptions)[number]['option'];
 
 // One checkbox input each, as `@centreon/ui` stores them: `CheckboxGroup`
 // empties its field once disabled, so read-only would show none checked.
 type StalkingOptionsValues = Record<StalkingOption, { checked: boolean }>;
 
 const toStalkingOptionsValues = (
-  letters: Array<string>
+  options: Array<string>
 ): StalkingOptionsValues =>
   Object.fromEntries(
-    stalkingOptions.map(({ letter }) => [
-      letter,
-      { checked: letters.includes(letter) }
+    stalkingOptions.map(({ option }) => [
+      option,
+      { checked: options.includes(option) }
     ])
   ) as StalkingOptionsValues;
 
@@ -577,8 +586,10 @@ const defaultObsessRetainAndStalking: ObsessRetainAndStalkingValues = {
 // and the other information over a restart, and which states log every change
 // of the plugin output. On-premise only.
 export const getObsessRetainAndStalkingBlock = ({
+  apiGroup = defaultApiGroup,
   resource: { idPrefix }
 }: {
+  apiGroup?: string;
   resource: ResourceOptions;
 }): FieldBlock<DataProcessingDetail<ObsessRetainAndStalkingValues>> => ({
   defaultValues: { dataProcessing: defaultObsessRetainAndStalking },
@@ -601,7 +612,7 @@ export const getObsessRetainAndStalkingBlock = ({
       stalkingOptions: 'stalking_options'
     }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ t }) => ({
     obsessRetainAndStalking: getBlock({
       columns: [
@@ -632,9 +643,9 @@ export const getObsessRetainAndStalkingBlock = ({
         }),
         getBlock({
           className: fourColumnsFromNarrow,
-          columns: stalkingOptions.map(({ label, letter }) => ({
-            dataTestId: `${idPrefix}-data-processing-stalkingOptions-${letter}`,
-            fieldName: `dataProcessing.stalkingOptions.${letter}`,
+          columns: stalkingOptions.map(({ label, option }) => ({
+            dataTestId: `${idPrefix}-data-processing-stalkingOptions-${option}`,
+            fieldName: `dataProcessing.stalkingOptions.${option}`,
             label: t(label),
             type: InputType.Checkbox
           })),
@@ -657,15 +668,15 @@ export const getObsessRetainAndStalkingBlock = ({
     );
 
     return {
-      data_processing: {
+      [apiGroup]: {
         obsess_over_service: dataProcessing.obsessOverService,
         retain_non_status_information:
           dataProcessing.retainNonStatusInformation,
         retain_status_information: dataProcessing.retainStatusInformation,
         // Deduplicated and in the API order by construction.
         stalking_options: stalkingOptions
-          .map(({ letter }) => letter)
-          .filter((letter) => dataProcessing.stalkingOptions?.[letter]?.checked)
+          .map(({ option }) => option)
+          .filter((option) => dataProcessing.stalkingOptions?.[option]?.checked)
       }
     };
   }

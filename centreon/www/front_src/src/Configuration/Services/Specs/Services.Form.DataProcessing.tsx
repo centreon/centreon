@@ -11,7 +11,7 @@ import { labelMustBeIntegerBetweenZeroAndOneHundred } from '../translatedLabels'
 import initialize from './initialize';
 
 interface RequestBody {
-  data_processing: Record<string, unknown>;
+  advanced: Record<string, unknown>;
 }
 
 const getTestId = (field: string): string =>
@@ -31,8 +31,8 @@ const pickOption = async (testId: string, option: string): Promise<void> => {
 const getInput = async (field: string): Promise<HTMLInputElement> =>
   (await screen.findAllByTestId(getTestId(field)))[1] as HTMLInputElement;
 
-const getCheckbox = (letter: string): HTMLInputElement =>
-  within(screen.getByTestId(getTestId(`stalkingOptions-${letter}`))).getByRole(
+const getCheckbox = (option: string): HTMLInputElement =>
+  within(screen.getByTestId(getTestId(`stalkingOptions-${option}`))).getByRole(
     'checkbox'
   ) as HTMLInputElement;
 
@@ -121,7 +121,7 @@ const onPremiseOnlyFields = [
   'obsessOverService',
   'retainStatusInformation',
   'retainNonStatusInformation',
-  'stalkingOptions-o'
+  'stalkingOptions-ok'
 ];
 
 export default () => {
@@ -138,10 +138,10 @@ export default () => {
       expect(await getInput('highFlapThreshold')).toHaveValue(50);
       await expectPressed('retainStatusInformation', 'true');
       await expectPressed('retainNonStatusInformation', 'use_default');
-      expect(getCheckbox('o')).not.toBeChecked();
-      expect(getCheckbox('w')).toBeChecked();
-      expect(getCheckbox('u')).not.toBeChecked();
-      expect(getCheckbox('c')).toBeChecked();
+      expect(getCheckbox('ok')).not.toBeChecked();
+      expect(getCheckbox('warning')).toBeChecked();
+      expect(getCheckbox('unknown')).not.toBeChecked();
+      expect(getCheckbox('critical')).toBeChecked();
       await expectPressed('eventHandlerEnabled', 'false');
       await waitFor(() =>
         expect(screen.getByTestId(getTestId('eventHandler'))).toHaveValue(
@@ -173,8 +173,8 @@ export default () => {
         getTriStateButton('retainNonStatusInformation', 'true')
       );
       // Checked out of order, sent in the API order.
-      await userEvent.click(getCheckbox('c'));
-      await userEvent.click(getCheckbox('o'));
+      await userEvent.click(getCheckbox('critical'));
+      await userEvent.click(getCheckbox('ok'));
       await userEvent.click(getTriStateButton('eventHandlerEnabled', 'true'));
 
       await userEvent.click(screen.getByTestId(getTestId('eventHandler')));
@@ -196,9 +196,11 @@ export default () => {
 
       const body = await getRequestBody('@createService');
 
-      expect(body.data_processing).toEqual({
+      expect(body.advanced).toEqual({
         acknowledgment_timeout: 10,
         check_freshness: 'false',
+        // The comment shares the group.
+        comment: null,
         event_handler_args: ['80', '', 'graceful'],
         event_handler_command_id: 7,
         event_handler_enabled: 'true',
@@ -209,7 +211,7 @@ export default () => {
         obsess_over_service: 'true',
         retain_non_status_information: 'true',
         retain_status_information: 'false',
-        stalking_options: ['o', 'c']
+        stalking_options: ['ok', 'critical']
       });
     });
 
@@ -226,9 +228,10 @@ export default () => {
 
       const body = await getRequestBody('@updateService0');
 
-      expect(body.data_processing).toEqual({
+      expect(body.advanced).toEqual({
         acknowledgment_timeout: 15,
         check_freshness: 'true',
+        comment: 'Checked by the web team',
         event_handler_args: ['80', 'graceful'],
         event_handler_command_id: 7,
         event_handler_enabled: 'false',
@@ -239,7 +242,7 @@ export default () => {
         obsess_over_service: 'false',
         retain_non_status_information: 'use_default',
         retain_status_information: 'true',
-        stalking_options: ['w', 'c']
+        stalking_options: ['warning', 'critical']
       });
     });
 
@@ -312,8 +315,8 @@ export default () => {
       expect(await getInput('eventHandlerArgs')).toBeDisabled();
       expect(screen.getByTestId(getTestId('eventHandler'))).toBeDisabled();
       // Disabled, the stalking options still show what the service sets.
-      expect(getCheckbox('w')).toBeDisabled();
-      expect(getCheckbox('w')).toBeChecked();
+      expect(getCheckbox('warning')).toBeDisabled();
+      expect(getCheckbox('warning')).toBeChecked();
     });
 
     it('offers only the cloud data processing settings on a cloud platform', async () => {
@@ -351,7 +354,7 @@ export default () => {
 
       const body = await getRequestBody('@updateService2');
 
-      expect(body.data_processing).toEqual({
+      expect(body.advanced).toEqual({
         check_freshness: 'true',
         event_handler_command_id: null,
         event_handler_enabled: 'true',

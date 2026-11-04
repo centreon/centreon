@@ -82,7 +82,7 @@ const resource = serviceResource;
 // Where the services API keeps what the host API calls its scheduling options
 // and most of its extended informations.
 const monitoringEngineGroup = 'monitoring_engine';
-// And where it keeps the comment, with the data processing.
+// And where it keeps the data processing, and the comment with it.
 const advancedGroup = 'advanced';
 
 // Legacy `w,u,c,r,f,s,n`, spelled as the Hosts API spells its own options
@@ -201,20 +201,26 @@ export const blocks = [
     timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
   }),
   getEventHandlerBlock({
+    apiGroup: advancedGroup,
     commandsEndpoint: serviceFormCommandsEndpoint,
     resource,
     withArgumentsRules: true
   }),
-  getFreshnessBlock({ isForced: hasCentreonMonitoringAgentCommand, resource }),
-  getAcknowledgmentTimeoutBlock({ resource }),
+  getFreshnessBlock({
+    apiGroup: advancedGroup,
+    isForced: hasCentreonMonitoringAgentCommand,
+    resource
+  }),
+  getAcknowledgmentTimeoutBlock({ apiGroup: advancedGroup, resource }),
   getFlappingBlock({
+    apiGroup: advancedGroup,
     maxThreshold: {
       max: 100,
       message: labelMustBeIntegerBetweenZeroAndOneHundred
     },
     resource
   }),
-  getObsessRetainAndStalkingBlock({ resource }),
+  getObsessRetainAndStalkingBlock({ apiGroup: advancedGroup, resource }),
   getCommentBlock({ apiGroup: advancedGroup, resource })
 ] as const;
 

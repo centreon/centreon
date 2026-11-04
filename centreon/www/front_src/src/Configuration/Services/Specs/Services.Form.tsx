@@ -323,11 +323,10 @@ export default () => {
 
       expect(request.method).toBe('POST');
       expect(request.body).toEqual({
-        category_ids: [],
-        check_options: { args: [], command_id: null, macros: [] },
-        data_processing: {
+        advanced: {
           acknowledgment_timeout: null,
           check_freshness: 'use_default',
+          comment: null,
           event_handler_args: [],
           event_handler_command_id: null,
           event_handler_enabled: 'use_default',
@@ -340,28 +339,27 @@ export default () => {
           retain_status_information: 'use_default',
           stalking_options: []
         },
-        extended_informations: {
-          action_url: null,
-          alt_icon: null,
-          comment: null,
-          geo_coordinates: null,
-          icon_id: null,
-          note: null,
-          note_url: null
-        },
+        category_ids: [],
+        check_options: { args: [], command_id: null, macros: [] },
         graph_template_id: null,
         host_id: 11,
-        name: 'cpu load',
-        notifications: untouchedNotificationsPayload,
-        scheduling_options: {
+        monitoring_engine: {
+          action_url: null,
           active_check_enabled: 'use_default',
+          alt_icon: null,
           check_timeperiod_id: null,
+          geo_coordinates: null,
+          icon_id: null,
           is_volatile: 'use_default',
           max_check_attempts: null,
           normal_check_interval: null,
+          note: null,
+          note_url: null,
           passive_check_enabled: 'use_default',
           retry_check_interval: null
         },
+        name: 'cpu load',
+        notifications: untouchedNotificationsPayload,
         service_group_ids: [],
         service_template_id: 30,
         severity_id: null,
@@ -386,6 +384,22 @@ export default () => {
       expect(request.method).toBe('PUT');
       expect(request.body).toEqual({
         activated: true,
+        advanced: {
+          acknowledgment_timeout: 15,
+          check_freshness: 'true',
+          comment: 'Checked by the web team',
+          event_handler_args: ['80', 'graceful'],
+          event_handler_command_id: 7,
+          event_handler_enabled: 'false',
+          flap_detection_enabled: 'true',
+          freshness_threshold: 120,
+          high_flap_threshold: 50,
+          low_flap_threshold: null,
+          obsess_over_service: 'false',
+          retain_non_status_information: 'use_default',
+          retain_status_information: 'true',
+          stalking_options: ['warning', 'critical']
+        },
         category_ids: [3],
         // The macro inherited from the template is not the service's own.
         check_options: {
@@ -408,43 +422,25 @@ export default () => {
             }
           ]
         },
-        data_processing: {
-          acknowledgment_timeout: 15,
-          check_freshness: 'true',
-          event_handler_args: ['80', 'graceful'],
-          event_handler_command_id: 7,
-          event_handler_enabled: 'false',
-          flap_detection_enabled: 'true',
-          freshness_threshold: 120,
-          high_flap_threshold: 50,
-          low_flap_threshold: null,
-          obsess_over_service: 'false',
-          retain_non_status_information: 'use_default',
-          retain_status_information: 'true',
-          stalking_options: ['w', 'c']
-        },
-        extended_informations: {
-          action_url: 'https://example.com/actions/cpu',
-          alt_icon: null,
-          comment: 'Checked by the web team',
-          geo_coordinates: '48.8566,2.3522',
-          icon_id: 12,
-          note: 'CPU load',
-          note_url: null
-        },
         graph_template_id: 7,
         host_id: 10,
-        name: 'cpu load',
-        notifications: openedNotificationsPayload,
-        scheduling_options: {
+        monitoring_engine: {
+          action_url: 'https://example.com/actions/cpu',
           active_check_enabled: 'false',
+          alt_icon: null,
           check_timeperiod_id: 21,
+          geo_coordinates: '48.8566,2.3522',
+          icon_id: 12,
           is_volatile: 'true',
           max_check_attempts: 3,
           normal_check_interval: 5,
+          note: 'CPU load',
+          note_url: null,
           passive_check_enabled: 'use_default',
           retry_check_interval: null
         },
+        name: 'cpu load',
+        notifications: openedNotificationsPayload,
         service_group_ids: [1],
         service_template_id: 30,
         severity_id: 1,
