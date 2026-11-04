@@ -151,6 +151,8 @@ final class ListHostTemplatesChoicesProviderExclusionTest extends TestCase
 
         yield 'leading space' => [' 5'];
 
+        yield 'trailing newline' => ["5\n"];
+
         yield 'plus sign' => ['+5'];
 
         yield 'beyond PHP_INT_MAX' => ['99999999999999999999'];

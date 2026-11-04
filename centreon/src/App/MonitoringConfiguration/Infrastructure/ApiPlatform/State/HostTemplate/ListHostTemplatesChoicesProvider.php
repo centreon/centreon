@@ -81,7 +81,6 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
             $criteria = $criteria->withName($name);
         }
 
-        // An operation accepts exclude_template_id by opting in through its extra property.
         $templateId = ($operation->getExtraProperties()['exclude_template_id'] ?? false) === true
             ? $this->parseTemplateId($filters['exclude_template_id'] ?? null)
             : null;
@@ -117,8 +116,8 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
             return null;
         }
 
-        // digits only: is_numeric() would read "1.5" or "1e3" as another id
-        if (! is_string($value) || preg_match('/^[1-9]\d*$/', $value) !== 1 || ($id = filter_var($value, \FILTER_VALIDATE_INT)) === false) {
+        // digits only: an int cast would read "1.5" as 1 and "1e3" as 1000
+        if (! is_string($value) || preg_match('/^[1-9]\d*$/D', $value) !== 1 || ($id = filter_var($value, \FILTER_VALIDATE_INT)) === false) {
             throw new BadRequestHttpException('The "exclude_template_id" filter must be a positive integer.');
         }
 
