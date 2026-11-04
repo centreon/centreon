@@ -64,7 +64,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     public function migrate(MigrationSet $set): array
     {
         $configuration = $this->registry->configuration($set);
-        if (! is_dir($configuration->directory)) {
+        if (! $this->hasDirectory($set, $configuration->directory)) {
             return [];
         }
 
@@ -136,7 +136,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     public function status(MigrationSet $set): MigrationSetStatus
     {
         $configuration = $this->registry->configuration($set);
-        if (! is_dir($configuration->directory)) {
+        if (! $this->hasDirectory($set, $configuration->directory)) {
             return new MigrationSetStatus($set, [], []);
         }
 
@@ -185,6 +185,22 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         )));
 
         return $factory;
+    }
+
+    /**
+     * @throws \RuntimeException when the directory of a core set is missing
+     */
+    private function hasDirectory(MigrationSet $set, string $directory): bool
+    {
+        if (is_dir($directory)) {
+            return true;
+        }
+
+        if ($set->isModule()) {
+            return false;
+        }
+
+        throw new \RuntimeException(sprintf('The %s cannot run: "%s" does not exist.', $set->label(), $directory));
     }
 
     /**

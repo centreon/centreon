@@ -247,6 +247,22 @@ final class DoctrineMigrationRunnerTest extends TestCase
         self::assertSame([], $this->connection->createSchemaManager()->listTableNames());
     }
 
+    public function testACoreSetWithoutMigrationDirectoryFails(): void
+    {
+        $realtime = MigrationSet::core(MigrationSet::REALTIME);
+        $message = 'The "realtime" migration set cannot run: "/nonexistent/migrations/realtime" does not exist.';
+
+        foreach (['migrate', 'status'] as $method) {
+            try {
+                $this->runner->{$method}($realtime);
+                self::fail(sprintf('%s() must fail without the migration directory', $method));
+            } catch (\RuntimeException $exception) {
+                self::assertSame($message, $exception->getMessage());
+            }
+        }
+        self::assertSame([], $this->connection->createSchemaManager()->listTableNames());
+    }
+
     public function testRefusesAMigrationDoctrineWouldIgnore(): void
     {
         $this->expectException(\RuntimeException::class);

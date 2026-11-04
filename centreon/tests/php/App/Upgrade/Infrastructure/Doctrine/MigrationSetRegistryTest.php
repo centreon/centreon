@@ -68,6 +68,15 @@ final class MigrationSetRegistryTest extends TestCase
         self::assertSame('doctrine_migration_versions', $configuration->table);
     }
 
+    public function testTheCoreMigrationDirectoriesAreShipped(): void
+    {
+        $registry = new MigrationSetRegistry(\dirname(__DIR__, 6), '/nonexistent');
+
+        foreach (MigrationSet::coreSets() as $set) {
+            self::assertDirectoryExists($registry->configuration($set)->directory);
+        }
+    }
+
     public function testModuleSetsHaveTheirOwnNamespaceAndTable(): void
     {
         $set = $this->registry->configuration(MigrationSet::module('centreon-open-tickets'));
