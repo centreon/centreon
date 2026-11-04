@@ -80,8 +80,8 @@ export const emptyListingResponse = {
   totalItems: 0
 };
 
-// The detail of each listed template. Template 2's leaves its alias out;
-// template 3 is locked.
+// The detail of each template the listing names, parents included. Template
+// 2's leaves its alias out; templates 3 and 4 are locked.
 const hostTemplateDetails: Record<number, Record<string, unknown>> = {
   1: {
     alias: 'Generic active host',
@@ -89,7 +89,8 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
     name: 'generic-active-host-custom'
   },
   2: { is_locked: false, name: 'generic-active-host' },
-  3: { alias: 'Linux SNMP', is_locked: true, name: 'OS-Linux-SNMP-custom' }
+  3: { alias: 'Linux SNMP', is_locked: true, name: 'OS-Linux-SNMP-custom' },
+  4: { alias: 'Linux SNMP base', is_locked: true, name: 'OS-Linux-SNMP' }
 };
 
 export const getHostTemplateResponse = (id: number) => ({

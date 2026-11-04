@@ -99,17 +99,21 @@ const initialize = ({
       response: {}
     });
     interceptAPIRequest({
-      alias: `getHostTemplate${id}`,
-      method: Method.GET,
-      path: `**${getHostTemplateEndpoint({ id })}`,
-      response: getHostTemplateResponse(id)
-    });
-    interceptAPIRequest({
       alias: `updateHostTemplate${id}`,
       method: Method.PATCH,
       path: `**${getHostTemplateEndpoint({ id })}`,
       // No body, as the server answers a partial update.
       statusCode: 204
+    });
+  });
+
+  // Every template the listing names opens the form: its rows and their parents.
+  [1, 2, 3, 4].forEach((id) => {
+    interceptAPIRequest({
+      alias: `getHostTemplate${id}`,
+      method: Method.GET,
+      path: `**${getHostTemplateEndpoint({ id })}`,
+      response: getHostTemplateResponse(id)
     });
   });
 
