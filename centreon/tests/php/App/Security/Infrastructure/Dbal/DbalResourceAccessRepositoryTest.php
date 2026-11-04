@@ -1104,6 +1104,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // this only proves the scope is built from them.
         $actorId = $this->createContact('actor-services-' . uniqid());
         $groupId = $this->createAccessGroupForContact($actorId);
+        $this->createAccessGroupForContact($actorId, activated: '0');
         $this->createAccessGroupForContact($this->createContact('other-services-' . uniqid()));
 
         $scope = $this->repository->findServiceAccessGroupScope(new UserId($actorId));
@@ -1123,13 +1124,13 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         return (int) $count;
     }
 
-    private function createAccessGroupForContact(int $contactId): int
+    private function createAccessGroupForContact(int $contactId, string $activated = '1'): int
     {
         $name = 'contact-acl-group-' . $contactId . '-' . random_int(1, PHP_INT_MAX);
         $this->connection->insert('acl_groups', [
             'acl_group_name' => $name,
             'acl_group_alias' => $name,
-            'acl_group_activate' => '1',
+            'acl_group_activate' => $activated,
         ]);
         $aclGroupId = (int) $this->connection->lastInsertId();
 

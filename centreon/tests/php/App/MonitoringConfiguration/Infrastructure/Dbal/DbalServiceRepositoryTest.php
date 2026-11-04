@@ -268,6 +268,22 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testFindAllRestrictedActorsTotalCountsOnlyThePairsGrantedToIt(): void
+    {
+        $this->givenTheRestrictedActorBelongsTo(11);
+        $hostId = $this->insertListedHost('h1');
+        $granted = $this->insertListedService('granted', $hostId);
+        $grantedToAnotherGroup = $this->insertListedService('granted-to-another-group', $hostId);
+        $this->insertListedService('not-granted', $hostId);
+        $this->grant(11, $hostId, $granted);
+        $this->grant(99, $hostId, $grantedToAnotherGroup);
+
+        $page = $this->findAll($this->restricted()->withPagination(1, 10));
+
+        self::assertSame([[$hostId, $granted]], $this->pairs($page));
+        self::assertSame(1, $this->totalItems($page));
+    }
+
     public function testPairGrantedByTwoGroupsIsListedOnce(): void
     {
         $this->givenTheRestrictedActorBelongsTo(11, 12);
@@ -349,6 +365,24 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $this->linkServiceToHostGroup($mixed, $hostGroupId);
 
         self::assertSame([[$hostId, $listed]], $this->pairs($this->findAll($this->unrestricted())));
+    }
+
+    public function testFindAllHostGroupLinkedServicesAreHiddenFromARestrictedActorEvenWhenGranted(): void
+    {
+        $this->givenTheRestrictedActorBelongsTo(11);
+        $hostId = $this->insertListedHost('h1');
+        $hostGroupId = $this->insertHostGroup();
+        $this->connection->insert('hostgroup_relation', ['hostgroup_hg_id' => $hostGroupId, 'host_host_id' => $hostId]);
+        $listed = $this->insertListedService('direct-only', $hostId);
+        $mixed = $this->insertListedService('mixed', $hostId);
+        $this->linkServiceToHostGroup($mixed, $hostGroupId);
+        $this->grant(11, $hostId, $listed);
+        $this->grant(11, $hostId, $mixed);
+
+        $page = $this->findAll($this->restricted()->withPagination(1, 10));
+
+        self::assertSame([[$hostId, $listed]], $this->pairs($page));
+        self::assertSame(1, $this->totalItems($page));
     }
 
     public function testFindAllListsOneRowPerHostLink(): void
