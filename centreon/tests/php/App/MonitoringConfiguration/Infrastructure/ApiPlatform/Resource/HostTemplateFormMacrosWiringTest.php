@@ -178,10 +178,6 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
-    /**
-     * A loop is refused on save, but older data may hold one: the route must still answer, at once,
-     * for a template in the loop and for a template reaching it through its parent.
-     */
     public function testItAnswersPromptlyOnALoopAlreadyInTheData(): void
     {
         $first = $this->insertHostTemplate("loop-first-{$this->tag}");
