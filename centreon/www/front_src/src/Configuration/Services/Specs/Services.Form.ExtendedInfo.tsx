@@ -253,15 +253,20 @@ export default () => {
     const { request } = await waitForRequest('@createService');
     const body = request.body as Record<string, unknown>;
 
-    expect(body.extended_informations).toEqual({
+    // With the scheduling under `monitoring_engine`; the comment with the
+    // data processing under `advanced`.
+    expect(body.monitoring_engine).toMatchObject({
       action_url: 'https://example.com/actions',
       alt_icon: 'CPU',
-      comment: 'Checked by the web team',
       geo_coordinates: '-33.8688,151.2093',
       icon_id: 13,
       note: 'CPU load',
       note_url: 'https://example.com/notes'
     });
+    expect(body.advanced).toMatchObject({
+      comment: 'Checked by the web team'
+    });
+    expect(body).not.toHaveProperty('extended_informations');
     expect(body.graph_template_id).toBe(8);
     expect(body.severity_id).toBe(2);
     expect(body.category_ids).toEqual([4]);
@@ -291,7 +296,7 @@ export default () => {
     const { request } = await waitForRequest('@updateService0');
     const body = request.body as Record<string, unknown>;
 
-    expect(body.extended_informations).toMatchObject({
+    expect(body.monitoring_engine).toMatchObject({
       action_url: null,
       icon_id: null,
       note: null
@@ -368,8 +373,8 @@ export default () => {
 
     // Refused by the API on cloud, so never sent.
     expect(body).not.toHaveProperty('graph_template_id');
-    expect(body.extended_informations).not.toHaveProperty('alt_icon');
-    expect(body.extended_informations).not.toHaveProperty('comment');
-    expect(body.extended_informations).toMatchObject({ note: 'CPU load' });
+    expect(body.monitoring_engine).not.toHaveProperty('alt_icon');
+    expect(body).not.toHaveProperty(['advanced', 'comment']);
+    expect(body.monitoring_engine).toMatchObject({ note: 'CPU load' });
   });
 };
