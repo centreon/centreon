@@ -134,12 +134,14 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
       <Box className="ml-auto flex items-center gap-1">
         {canEnableDisable && (
           <EnableAction
-            // Kept on the opened resource, which a save sends back.
+            // Kept on the opened resource, which a save sends back, while the
+            // same one is still open: the request can answer after another.
             onChanged={(isActivated) =>
-              setFormState((current) => ({
-                ...current,
-                resource: { ...resource, isActivated }
-              }))
+              setFormState((current) =>
+                equals(current.id, id)
+                  ? { ...current, resource: { ...resource, isActivated } }
+                  : current
+              )
             }
             row={row}
           />
