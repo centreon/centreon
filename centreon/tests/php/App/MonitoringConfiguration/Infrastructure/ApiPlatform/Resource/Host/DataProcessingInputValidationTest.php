@@ -32,15 +32,14 @@ use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\Validation;
 
 /**
- * The on-premise-only fields of the "Data Processing" sub-object, validated one property at a time with their
- * attribute constraints.
+ * Cloud rejects the on-premise-only fields of the "Data Processing" sub-object; on-premise accepts them.
  */
 final class DataProcessingInputValidationTest extends TestCase
 {
     /**
      * @param array{acknowledgmentTimeout?: int, flapDetectionEnabled?: TriStateEnum, lowFlapThreshold?: int, highFlapThreshold?: int, eventHandlerArgs?: list<string>} $changes
      */
-    #[DataProvider('cloudOnlyFieldProvider')]
+    #[DataProvider('onPremiseOnlyFieldProvider')]
     public function testCloudRejectsOnPremiseOnlyFields(array $changes, string $property, string $expected): void
     {
         self::assertSame([$expected], $this->violations(new DataProcessingInput(...$changes), $property, isCloudPlatform: true));
@@ -49,7 +48,7 @@ final class DataProcessingInputValidationTest extends TestCase
     /**
      * @param array{acknowledgmentTimeout?: int, flapDetectionEnabled?: TriStateEnum, lowFlapThreshold?: int, highFlapThreshold?: int, eventHandlerArgs?: list<string>} $changes
      */
-    #[DataProvider('cloudOnlyFieldProvider')]
+    #[DataProvider('onPremiseOnlyFieldProvider')]
     public function testOnPremiseAcceptsOnPremiseOnlyFields(array $changes, string $property): void
     {
         self::assertSame([], $this->violations(new DataProcessingInput(...$changes), $property, isCloudPlatform: false));
@@ -58,7 +57,7 @@ final class DataProcessingInputValidationTest extends TestCase
     /**
      * @return iterable<string, array{array{acknowledgmentTimeout?: int, flapDetectionEnabled?: TriStateEnum, lowFlapThreshold?: int, highFlapThreshold?: int, eventHandlerArgs?: list<string>}, string, string}>
      */
-    public static function cloudOnlyFieldProvider(): iterable
+    public static function onPremiseOnlyFieldProvider(): iterable
     {
         yield 'acknowledgment timeout' => [['acknowledgmentTimeout' => 5], 'acknowledgmentTimeout', 'acknowledgment_timeout is not available on a Cloud platform.'];
 
