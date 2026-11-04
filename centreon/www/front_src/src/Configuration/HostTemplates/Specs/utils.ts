@@ -79,3 +79,23 @@ export const emptyListingResponse = {
   member: [],
   totalItems: 0
 };
+
+// The detail of each listed template. Template 2's leaves its alias out;
+// template 3 is locked.
+const hostTemplateDetails: Record<number, Record<string, unknown>> = {
+  1: {
+    alias: 'Generic active host',
+    is_locked: false,
+    name: 'generic-active-host-custom'
+  },
+  2: { is_locked: false, name: 'generic-active-host' },
+  3: { alias: 'Linux SNMP', is_locked: true, name: 'OS-Linux-SNMP-custom' }
+};
+
+export const getHostTemplateResponse = (id: number) => ({
+  '@context': '/centreon/api/contexts/HostTemplate',
+  '@id': `/centreon/api/configuration/host_templates/${id}`,
+  '@type': 'HostTemplate',
+  id,
+  ...hostTemplateDetails[id]
+});
