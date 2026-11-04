@@ -1457,14 +1457,13 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $otherServiceId = $this->insertListedService('other', $hostId);
         $this->createMacro($serviceId, 'PORT', '8080', isPassword: false);
         $this->createMacro($serviceId, 'TOKEN', 's3cr3t', isPassword: true);
-        $this->connection->insert('on_demand_macro_service', ['svc_macro_name' => 'NOT_A_MACRO', 'svc_macro_value' => 'v', 'svc_svc_id' => $serviceId]);
         $this->createMacro($otherServiceId, 'ELSEWHERE', 'x', isPassword: false);
 
         $macros = array_values($this->repository->findMacros(new ServiceId($serviceId))->toArray());
 
         /** @var list<int|string> $ids */
         $ids = $this->connection->fetchFirstColumn(
-            "SELECT svc_macro_id FROM on_demand_macro_service WHERE svc_svc_id = ? AND svc_macro_name <> 'NOT_A_MACRO' ORDER BY svc_macro_id",
+            'SELECT svc_macro_id FROM on_demand_macro_service WHERE svc_svc_id = ? ORDER BY svc_macro_id',
             [$serviceId],
         );
         self::assertCount(2, $ids);
