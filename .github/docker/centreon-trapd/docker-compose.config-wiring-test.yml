@@ -1,5 +1,5 @@
 # Service definitions for the trap-forwarding wiring test on the
-# centreon-centreontrapd / centreon-snmptrapd product images. Driven by
+# centreon-trapd product image (one image, one container per role). Driven by
 # .github/scripts/centreon-trapd-docker-config-wiring-test.sh — this file
 # only declares the services.
 #
@@ -8,7 +8,9 @@
 # watches it - this reproduces the real production wiring.
 services:
   centreontrapd:
-    image: ${CENTREONTRAPD_IMAGE}
+    image: ${TRAPD_IMAGE}
+    # Image default role, spelled out for symmetry with snmptrapd below.
+    command: ["centreontrapd"]
     # Override the image's default --severity=error so the "Processing
     # file: ..." trace (and everything else) shows up in `docker compose
     # logs` - the test greps for it as direct proof centreontrapd picked up
@@ -22,7 +24,8 @@ services:
       - ${CENTREONTRAPD_SDB_FIXTURE}:/etc/snmp/centreon_traps/centreontrapd.sdb
 
   snmptrapd:
-    image: ${SNMPTRAPD_IMAGE}
+    image: ${TRAPD_IMAGE}
+    command: ["snmptrapd"]
     # Required for the non-root (uid 900) daemon to bind UDP/162.
     cap_add:
       - NET_BIND_SERVICE
