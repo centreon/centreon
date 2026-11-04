@@ -257,9 +257,10 @@ final readonly class UpdateServiceCommandHandler
             )
             // Absent on Cloud, where notifications follow another model: the stored block is kept.
             : new NoValue();
-        // Read whatever the actor may see: the service as loaded only carries the lowest severity they may see.
+        $severityId = $this->preserveInaccessibleSeverity($command->severityId, $existing->severityId, $severityScope);
+        // A legacy service may hold several severities, which the service as loaded does not show (it carries the
+        // lowest): the write leaves the single one kept, so extra ones are a change.
         $storedSeverityIds = $this->repository->findSeverityIds($existing->id());
-        $severityId = $this->preserveInaccessibleSeverity($command->severityId, $storedSeverityIds, $severityScope);
         // A restricted actor never sees, so never resends, the groups and categories outside their scope: they are
         // kept rather than dropped by the full replace.
         $serviceGroupIds = $this->preserveInaccessible($command->serviceGroupIds, $existing->serviceGroupIds, $serviceGroupScope, ServiceGroupId::class);
@@ -323,12 +324,11 @@ final readonly class UpdateServiceCommandHandler
         $loggedChange = $this->hasLoggedChange($existing, $service);
         // Macros, contacts and relations are compared but never logged: they are the unlogged changes. A secret
         // rewritten under the service's entry leaves the very same reference, so it is tracked apart.
-        // The severity is compared with every stored one, which the service as loaded does not show: one hidden
-        // from the actor and kept is no change, extra legacy ones are, since the write leaves a single one.
+        // Extra legacy severities are a change, since the write leaves a single one.
         $unloggedChange = $passwordRewritten
             || ! $severitiesKept
             || ! $service->hasSameConfigurationAs($existing)
-            || ! $service->hasSameRelationsAs($existing->with(severityId: $service->severityId));
+            || ! $service->hasSameRelationsAs($existing);
 
         if (! $activationFlipped && ! $loggedChange && ! $unloggedChange) {
             return $service;
@@ -536,23 +536,22 @@ final readonly class UpdateServiceCommandHandler
     }
 
     /**
-     * The one severity the service keeps: the submitted one when there is one; otherwise a stored severity the
-     * actor cannot see is kept (the one with the lowest id), and one they can see is cleared. Every levelled row of
-     * the service is then replaced by it.
+     * The one severity the service keeps, as for hosts: the submitted one when there is one; otherwise a stored
+     * severity the actor cannot see is kept, and one they can see is cleared. Every levelled row of the service is
+     * then replaced by it.
      *
-     * @param Collection<ServiceSeverityId> $stored every severity the service is linked to, lowest id first
      * @param AccessScope<ServiceSeverityId> $scope
      */
-    private function preserveInaccessibleSeverity(?ServiceSeverityId $submitted, Collection $stored, AccessScope $scope): ?ServiceSeverityId
-    {
-        if ($submitted instanceof ServiceSeverityId) {
+    private function preserveInaccessibleSeverity(
+        ?ServiceSeverityId $submitted,
+        ?ServiceSeverityId $existing,
+        AccessScope $scope,
+    ): ?ServiceSeverityId {
+        if ($submitted instanceof ServiceSeverityId || ! $existing instanceof ServiceSeverityId) {
             return $submitted;
         }
 
-        $hidden = array_values(array_filter($stored->toArray(), static fn (ServiceSeverityId $id): bool => ! $scope->allows($id)));
-        usort($hidden, static fn (ServiceSeverityId $left, ServiceSeverityId $right): int => $left->value <=> $right->value);
-
-        return $hidden[0] ?? null;
+        return $scope->allows($existing) ? null : $existing;
     }
 
     /**
