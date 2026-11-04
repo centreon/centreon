@@ -19,7 +19,8 @@ import {
   listingLimitAtom,
   pageAtom,
   sortFieldAtom,
-  sortOrderAtom
+  sortOrderAtom,
+  sortsByListingAtom
 } from './atoms';
 
 interface UseListing {
@@ -68,6 +69,7 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   const [page, setPage] = useAtom(pageAtom);
   const limit = useAtomValue(listingLimitAtom);
   const setLimit = useSetAtom(limitAtom);
+  const setSortsByListing = useSetAtom(sortsByListingAtom);
 
   const resetColumns = (): void => {
     setSelectedColumnIds(defaultSelectedColumnIds);
@@ -76,6 +78,10 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   const changeSort = ({ sortOrder, sortField }): void => {
     setSortf(sortField);
     setSorto(sortOrder);
+    setSortsByListing((sorts) => ({
+      ...sorts,
+      [configuration?.resourceType]: { field: sortField, order: sortOrder }
+    }));
   };
 
   const changePage = (updatedPage): void => {

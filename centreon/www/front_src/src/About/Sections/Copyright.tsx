@@ -15,7 +15,10 @@ const Copyright = (): ReactElement => {
   });
 
   return (
-    <div className="mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-text-secondary">
+    <div
+      className="mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-text-secondary"
+      id="about-footer"
+    >
       <p>Copyright © 2005 - {year} Centreon</p>
       <p>{t(labelMadeWithCare)}</p>
     </div>

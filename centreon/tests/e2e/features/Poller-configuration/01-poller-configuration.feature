@@ -1,4 +1,4 @@
-@REQ_MON-22134 @ignore
+@REQ_MON-22134
 Feature: Generate poller configuration
   As a Centreon user
   I want to generate the poller configuration

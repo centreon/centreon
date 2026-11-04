@@ -20,7 +20,16 @@ export const pageAtom = atom<number | undefined>(undefined);
 export const sortOrderAtom = atom<SortOrder>('asc');
 export const sortFieldAtom = atom<string>('name');
 
+interface Sort {
+  field: string;
+  order: SortOrder;
+}
+
+// The sort each listing was left on, by resource type, for the session.
+export const sortsByListingAtom = atom<Record<string, Sort>>({});
+
 export const selectedRowsAtom = atom([]);
 
 export const resourcesToDeleteAtom = atom<Array<NamedEntity>>([]);
 export const resourcesToDuplicateAtom = atom<Array<NamedEntity>>([]);
+export const resourceToDuplicateWithNameAtom = atom<NamedEntity | null>(null);

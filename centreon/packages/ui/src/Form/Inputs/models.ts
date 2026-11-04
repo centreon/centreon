@@ -5,6 +5,7 @@ import type { JsonDecoder } from 'ts.data.json';
 
 import type { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
 import type { SelectEntry } from '../../InputField/Select';
+import type { GetEndpointParams } from '../../InputField/Select/Autocomplete/Connected';
 import type { QueryParameter } from '../../queryParameters/models';
 
 export interface ChangeArgs {
@@ -52,7 +53,8 @@ export enum InputType {
   File = 14,
   Divider = 15,
   ExclusiveCheckboxGroup = 16,
-  SegmentedButtons = 17
+  SegmentedButtons = 17,
+  IconSelector = 18
 }
 
 interface FieldsTableGetRequiredProps {
@@ -155,6 +157,10 @@ export interface InputProps {
   };
   group: string;
   hideInput?: (values: FormikValues) => boolean;
+  // `InputType.IconSelector`: the listing of the images to pick from.
+  iconSelector?: {
+    getEndpoint: (parameters: GetEndpointParams) => string;
+  };
   inputClassName?: string;
   label: string;
   list?: {

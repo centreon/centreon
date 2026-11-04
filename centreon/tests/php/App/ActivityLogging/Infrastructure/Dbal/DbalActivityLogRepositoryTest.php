@@ -107,6 +107,25 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
         self::assertSame('command', $objectType);
     }
 
+    public function testAHostTemplateTargetIsStoredAsAHostLikeLegacy(): void
+    {
+        $activityLog = $this->logFor(TargetTypeEnum::HostTemplate, 'a_template');
+
+        $this->repository->add($activityLog);
+
+        self::assertSame('host', $this->storedObjectType($activityLog));
+    }
+
+    public function testAStoredHostRowReadsBackAsAHost(): void
+    {
+        $activityLog = $this->logFor(TargetTypeEnum::Host, 'a_host');
+
+        $this->repository->add($activityLog);
+
+        self::assertSame('host', $this->storedObjectType($activityLog));
+        self::assertSame(TargetTypeEnum::Host, $this->repository->find($activityLog->id())?->target->type);
+    }
+
     public function testServiceTargetIsStoredWithTheCanonicalSingularToken(): void
     {
         $activityLog = new ActivityLog(
@@ -453,5 +472,31 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
             self::assertArrayHasKey($key, $found->details);
             self::assertSame($value, $found->details[$key]);
         }
+    }
+
+    private function logFor(TargetTypeEnum $type, string $name): ActivityLog
+    {
+        return new ActivityLog(
+            id: null,
+            action: ActionEnum::Delete,
+            actor: new Actor(id: new ActorId(1)),
+            target: new Target(id: new TargetId(1), name: new TargetName($name), type: $type),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+    }
+
+    private function storedObjectType(ActivityLog $activityLog): mixed
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+
+        return $connection->createQueryBuilder()
+            ->select('object_type')
+            ->from('log_action')
+            ->where('action_log_id = :id')
+            ->setParameter('id', $activityLog->id()->value)
+            ->executeQuery()
+            ->fetchOne();
     }
 }

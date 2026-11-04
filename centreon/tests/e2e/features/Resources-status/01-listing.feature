@@ -14,7 +14,7 @@ Feature: List Resources
     When I put in some criterias
     Then only the Resources matching the selected criterias are displayed in the result
 
-  @MON-22030
+  @MON-213710
   Scenario: Selecting filters
     Given a saved custom filter
     When I select the custom filter

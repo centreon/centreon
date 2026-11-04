@@ -25672,6 +25672,18 @@ msgstr ""
 # msgid "Centreon Central address, as seen by this poller"
 # msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Configure the services monitored on your hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Create a service"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Include disabled hosts"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
 msgid "This contact group is not available"
 msgstr "Este grupo de contactos no está disponible"
@@ -25679,3 +25691,79 @@ msgstr "Este grupo de contactos no está disponible"
 #: centreon/www/include/configuration/configObject/contact/displayNotification.php
 msgid "This contact is not available"
 msgstr "Este contacto no está disponible"
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the Services interface!"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} min"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} sec"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Delete host template"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Delete host templates"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Duplicate host template"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Duplicate host templates"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Host template deleted"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Host templates deleted"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Host template duplicated"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Host templates duplicated"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Failed to delete the host template"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Failed to delete the host templates"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Failed to duplicate the host template"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Failed to duplicate the host templates"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "You are about to delete the <strong>{{ name }}</strong> host template. This action cannot be undone. Do you want to delete it?"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "You are about to delete <strong>{{ count }} host templates.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host template."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "You are about to duplicate <strong>{{ count }} host templates.</strong>"
+msgstr ""
