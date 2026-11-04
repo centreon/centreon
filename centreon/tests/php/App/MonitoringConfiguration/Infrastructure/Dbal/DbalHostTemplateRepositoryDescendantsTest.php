@@ -44,7 +44,7 @@ final class DbalHostTemplateRepositoryDescendantsTest extends KernelTestCase
 {
     use InsertsHostTemplateInheritance;
 
-    // about 200 times the cost of the query (under 5 ms), so a loaded runner cannot flake
+    // over 60 times the cost of these queries (under 16 ms), so a loaded runner cannot flake
     private const DEEP_CHAIN_MAX_SECONDS = 1.0;
     private const WIDE_TREE_MAX_SECONDS = 1.0;
 
@@ -108,6 +108,16 @@ final class DbalHostTemplateRepositoryDescendantsTest extends KernelTestCase
         self::assertSame($this->sorted($inactive, $belowInactive), $this->descendantsOf($root));
     }
 
+    public function testItWalksThroughAnInactiveTemplateDeeperDown(): void
+    {
+        [$root, $child] = $this->templates(2);
+        $inactive = $this->insertTemplate("inactive-{$this->tag}", active: false);
+        [$belowInactive] = $this->templates(1, prefix: 'below');
+        $this->link([$child, $root], [$inactive, $child], [$belowInactive, $inactive]);
+
+        self::assertSame($this->sorted($child, $inactive, $belowInactive), $this->descendantsOf($root));
+    }
+
     public function testItLeavesOutTheHostsInheritingTheTemplate(): void
     {
         [$root, $child] = $this->templates(2);
@@ -161,6 +171,25 @@ final class DbalHostTemplateRepositoryDescendantsTest extends KernelTestCase
         self::assertSame(array_slice($chain, 1), $descendants);
         // from the middle: the lower half only, the ancestors are not descendants
         self::assertSame(array_slice($chain, 101), $this->descendantsOf($chain[100]));
+    }
+
+    /**
+     * 999 levels stay under the recursion cap of the database server (1000 on MySQL and MariaDB).
+     */
+    public function testItResolvesA999LevelChainInOneQuery(): void
+    {
+        $chain = $this->templates(1000);
+        $links = [];
+        for ($level = 1; $level < 1000; ++$level) {
+            $links[] = [$chain[$level], $chain[$level - 1]];
+        }
+        $this->link(...$links);
+
+        [$queries, $seconds, $descendants] = $this->measure($chain[0]);
+
+        self::assertSame(1, $queries);
+        self::assertLessThan(self::DEEP_CHAIN_MAX_SECONDS, $seconds);
+        self::assertSame(array_slice($chain, 1), $descendants);
     }
 
     public function testItResolvesA2000TemplateTreeInOneQuery(): void

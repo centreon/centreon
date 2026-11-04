@@ -88,6 +88,22 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
         self::assertSame($this->sorted($grandparent, $parent, $sibling, $unrelated), $this->offeredIds($edited));
     }
 
+    /**
+     * The list offers inactive templates, so an inactive descendant and what inherits from it are
+     * left out like any other.
+     */
+    public function testItLeavesOutAnInactiveDescendantAndTheTemplatesBelowIt(): void
+    {
+        [$edited, $child, $unrelated] = $this->templates(3);
+        $this->connection->insert('host', ['host_name' => "inactive-{$this->tag}", 'host_register' => '0', 'host_activate' => '0', 'host_locked' => 0]);
+        $inactive = (int) $this->connection->lastInsertId();
+        [$belowInactive] = $this->templates(1, prefix: 'below');
+        $this->linkTemplates($this->connection, [$child, $edited], [$inactive, $child], [$belowInactive, $inactive]);
+        $this->login();
+
+        self::assertSame([$unrelated], $this->offeredIds($edited));
+    }
+
     public function testItAlsoLeavesOutTheTemplatesTheLicenseNoLongerAllows(): void
     {
         [$edited, $child, $unlicensed, $kept] = $this->templates(4);
@@ -172,6 +188,27 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
         self::assertLessThan(self::MAX_SECONDS, $seconds);
         // the 100 ancestors stay, the template and its 100 descendants go
         self::assertSame(100, $total);
+    }
+
+    /**
+     * 999 levels stay under the recursion cap of the database server (1000 on MySQL and MariaDB).
+     */
+    public function testItLeavesOutA999LevelChainWithOneMoreQuery(): void
+    {
+        $chain = $this->templates(1000);
+        $this->templates(1, prefix: 'unrelated');
+        $links = [];
+        for ($level = 1; $level < 1000; ++$level) {
+            $links[] = [$chain[$level], $chain[$level - 1]];
+        }
+        $this->linkTemplates($this->connection, ...$links);
+        $this->login();
+
+        [$extraQueries, $seconds, $total] = $this->measureAgainstPlainListing($chain[0]);
+
+        self::assertSame(1, $extraQueries);
+        self::assertLessThan(self::MAX_SECONDS, $seconds);
+        self::assertSame(1, $total);
     }
 
     public function testItHandlesA2000TemplateTreeWithOneMoreQuery(): void
