@@ -38,6 +38,9 @@ export const serviceResource: ResourceOptions = {
 
 const resource = serviceResource;
 
+// Where the services API keeps what the host API calls its scheduling options.
+const monitoringEngineGroup = 'monitoring_engine';
+
 // The blocks of fields the service form edits. The sections it shows them in,
 // and their order, are `../layout.ts`'s.
 export const blocks = [
@@ -57,10 +60,15 @@ export const blocks = [
   getTemplateBlock({ resource, serviceTemplatesEndpoint }),
   getMacrosBlock({ resource }),
   getCheckPeriodAndIntervalsBlock({
+    apiGroup: monitoringEngineGroup,
     resource,
     timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
   }),
-  getActiveAndPassiveChecksBlock({ resource, withVolatile: true }),
+  getActiveAndPassiveChecksBlock({
+    apiGroup: monitoringEngineGroup,
+    resource,
+    withVolatile: true
+  }),
   // Unlike the host groups of a host, optional on a cloud platform too.
   getRelationListBlock({
     decoderNames: ['Service group', 'Service groups'],
