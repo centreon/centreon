@@ -1,3 +1,5 @@
+import { mergeDeepRight } from 'ramda';
+
 // A 16x16 inline PNG rather than a committed fixture: `useLoadImage` only needs
 // `new Image()` to fire `onload`, which a data URI does.
 export const iconUrl =
@@ -69,9 +71,8 @@ const serviceDetails: Record<number, Record<string, unknown>> = {
   0: {
     activated: true,
     host: { id: 10, name: 'host A' },
-    name: 'cpu',
     // The template and the scheduling options.
-    scheduling_options: {
+    monitoring_engine: {
       active_check_enabled: 'false',
       check_period: { id: 21, name: 'workhours' },
       is_volatile: 'true',
@@ -80,6 +81,7 @@ const serviceDetails: Record<number, Record<string, unknown>> = {
       passive_check_enabled: 'use_default',
       retry_check_interval: null
     },
+    name: 'cpu',
     template: { id: 30, name: 'generic-active-service' }
   },
   // Unset fields left out: no template, no scheduling options.
@@ -145,15 +147,16 @@ const getExtendedInfoDetail = (id: number): Record<string, unknown> => {
 
   return id === 0
     ? {
+        // The comment sits with the data processing.
+        advanced: { comment: 'Checked by the web team' },
         categories: [{ id: 3, name: 'Web' }],
-        extended_informations: {
+        graph_template: { id: 7, name: 'CPU' },
+        monitoring_engine: {
           action_url: 'https://example.com/actions/cpu',
-          comment: 'Checked by the web team',
           geo_coordinates: '48.8566,2.3522',
           icon: { id: 12, name: 'cpu.png', url: iconUrl },
           note: 'CPU load'
         },
-        graph_template: { id: 7, name: 'CPU' },
         severity: { id: 1, level: 2, name: 'Major' }
       }
     : { categories: [] };
@@ -209,10 +212,15 @@ export const getServiceResponse = (id: number) => ({
   '@id': `/centreon/api/configuration/services/${id}`,
   '@type': 'Service',
   id,
-  ...serviceDetails[id],
-  ...getServiceCheckOptionsResponse(id),
-  ...getRelationsResponse(id),
-  ...getExtendedInfoDetail(id),
+  // Merged: several sections fill the same group of the API.
+  ...[
+    getServiceCheckOptionsResponse(id),
+    getRelationsResponse(id),
+    getExtendedInfoDetail(id)
+  ].reduce(
+    (detail, section) => mergeDeepRight(detail, section),
+    serviceDetails[id] as Record<string, unknown>
+  ),
   // Service 0 carries notification settings, service 1 none, service 2 only
   // some of them.
   ...(id === 0 && { notifications: getServiceNotificationsResponse() }),

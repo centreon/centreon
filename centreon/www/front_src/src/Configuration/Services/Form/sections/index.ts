@@ -79,6 +79,12 @@ export const serviceResource: ResourceOptions = {
 
 const resource = serviceResource;
 
+// Where the services API keeps what the host API calls its scheduling options
+// and most of its extended informations.
+const monitoringEngineGroup = 'monitoring_engine';
+// And where it keeps the comment, with the data processing.
+const advancedGroup = 'advanced';
+
 // Legacy `w,u,c,r,f,s,n`, spelled as the Hosts API spells its own options
 // (placeholder values until the service API is there).
 const serviceNotificationOptions: NotificationOptions = [
@@ -158,15 +164,24 @@ export const blocks = [
     resource
   }),
   getNotesAndIconsBlock({
+    apiGroup: monitoringEngineGroup,
     mediasEndpoint: serviceFormMediasEndpoint,
     resource
   }),
-  getActionUrlAndGeoCoordinatesBlock({ resource }),
+  getActionUrlAndGeoCoordinatesBlock({
+    apiGroup: monitoringEngineGroup,
+    resource
+  }),
   getCheckPeriodAndIntervalsBlock({
+    apiGroup: monitoringEngineGroup,
     resource,
     timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
   }),
-  getActiveAndPassiveChecksBlock({ resource, withVolatile: true }),
+  getActiveAndPassiveChecksBlock({
+    apiGroup: monitoringEngineGroup,
+    resource,
+    withVolatile: true
+  }),
   getNotificationRecipientsBlock({
     contactGroupsEndpoint: serviceFormContactGroupsEndpoint,
     contactsEndpoint: serviceFormContactsEndpoint,
@@ -200,7 +215,7 @@ export const blocks = [
     resource
   }),
   getObsessRetainAndStalkingBlock({ resource }),
-  getCommentBlock({ resource })
+  getCommentBlock({ apiGroup: advancedGroup, resource })
 ] as const;
 
 // Each available block, as a section of the data.
