@@ -26,11 +26,13 @@ import HostTemplates from '..';
 import {
   getDuplicateHostTemplateEndpoint,
   getHostTemplateEndpoint,
+  hostTemplateFormCommandsEndpoint,
   hostTemplatesListEndpoint
 } from '../api/endpoints';
 import { getDefaultValues, useFormInputs } from '../Form';
 import {
   emptyListingResponse,
+  getFormCommandsResponse,
   getHostTemplateResponse,
   getListingResponse
 } from './utils';
@@ -115,6 +117,13 @@ const initialize = ({
       path: `**${getHostTemplateEndpoint({ id })}`,
       response: getHostTemplateResponse(id)
     });
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormCommands',
+    method: Method.GET,
+    path: `**${hostTemplateFormCommandsEndpoint}?**`,
+    response: getFormCommandsResponse()
   });
 
   interceptAPIRequest({

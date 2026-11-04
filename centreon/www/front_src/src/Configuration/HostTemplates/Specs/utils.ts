@@ -85,8 +85,24 @@ export const emptyListingResponse = {
 const hostTemplateDetails: Record<number, Record<string, unknown>> = {
   1: {
     alias: 'Generic active host',
+    // Its own macro, then one its check command lends.
+    check_options: {
+      args: ['3', '80%'],
+      command: { id: 9, name: 'check-host-alive' },
+      macros: [
+        { id: 1, is_password: false, name: 'SNMPPORT', value: '161' },
+        {
+          id: 4,
+          is_password: false,
+          name: 'WARNING',
+          parent: 'command',
+          value: '90'
+        }
+      ]
+    },
     is_locked: false,
-    name: 'generic-active-host-custom'
+    name: 'generic-active-host-custom',
+    snmp_version: '2c'
   },
   2: { is_locked: false, name: 'generic-active-host' },
   3: { alias: 'Linux SNMP', is_locked: true, name: 'OS-Linux-SNMP-custom' },
@@ -100,3 +116,20 @@ export const getHostTemplateResponse = (id: number) => ({
   id,
   ...hostTemplateDetails[id]
 });
+
+const toCollection = (
+  path: string,
+  member: Array<Record<string, unknown>>
+) => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': `/centreon/api/configuration/host_templates/${path}`,
+  '@type': 'Collection',
+  member,
+  totalItems: member.length
+});
+
+export const getFormCommandsResponse = () =>
+  toCollection('commands', [
+    { id: 8, name: 'check-centreon-ping' },
+    { id: 9, name: 'check-host-alive' }
+  ]);
