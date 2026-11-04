@@ -1,0 +1,113 @@
+{{- /*
+Centreon's scheduled jobs (/etc/cron.d/centreon and centstorage on a VM), one
+Kubernetes CronJob each, on the cron image. No cron daemon: the cron image's
+container.sh writes the same centreon.conf.php / conf.pm a VM has, then runs
+the single command it is given, as the user of the original cron.d line.
+Output goes to the pod's stdout (kubectl logs), not to /var/log/centreon.
+*/ -}}
+{{- if .Values.cronJobs.enabled }}
+{{- range $name, $job := .Values.cronJobs.jobs }}
+{{- if $job.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $.Release.Name }}-cron-{{ $name }}
+  labels:
+    {{- include "centreon-central.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: cron
+spec:
+  schedule: {{ $job.schedule | quote }}
+  suspend: {{ $job.suspend | default false }}
+  {{- with ($.Values.cronJobs.timeZone | default $.Values.timezone) }}
+  timeZone: {{ . | quote }}
+  {{- end }}
+  # Never two runs of the same job at once (partitioning, purge and the
+  # report builders can outlast their own period on a big database).
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: {{ $.Values.cronJobs.startingDeadlineSeconds }}
+  successfulJobsHistoryLimit: {{ $.Values.cronJobs.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ $.Values.cronJobs.failedJobsHistoryLimit }}
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "centreon-central.selectorLabels" (dict "ctx" $ "component" "cron") | nindent 8 }}
+        centreon.com/cron-job: {{ $name }}
+    spec:
+      # A failed run is retried at the next schedule, as cron does.
+      backoffLimit: 0
+      {{- with $job.activeDeadlineSeconds }}
+      activeDeadlineSeconds: {{ . }}
+      {{- end }}
+      template:
+        metadata:
+          labels:
+            {{- include "centreon-central.selectorLabels" (dict "ctx" $ "component" "cron") | nindent 12 }}
+            centreon.com/cron-job: {{ $name }}
+        spec:
+          {{- include "centreon-central.podScheduling" $ | nindent 10 }}
+          restartPolicy: Never
+          initContainers:
+            # The jobs connect to the database once, right at start. With
+            # NetworkPolicies the CNI only allows a new pod's IP a moment
+            # after it starts (first connection refused on k3s): wait until
+            # the database answers instead of failing the run.
+            - name: wait-db
+              image: {{ include "centreon-central.image" $.Values.images.cron }}
+              imagePullPolicy: {{ $.Values.images.cron.pullPolicy }}
+              command: ["/bin/bash", "-c"]
+              args:
+                - |
+                  for i in $(seq 1 60); do
+                    timeout 2 bash -c '</dev/tcp/{{ include "centreon-central.dbHost" $ }}/{{ $.Values.database.port | default 3306 }}' 2>/dev/null && exit 0
+                    sleep 1
+                  done
+                  echo "database {{ include "centreon-central.dbHost" $ }} not reachable after 60 s" >&2
+                  exit 1
+            {{- with include "centreon-central.vaultInit" $ }}{{ . | nindent 12 }}{{ end }}
+          containers:
+            - name: {{ $name }}
+              image: {{ include "centreon-central.image" $.Values.images.cron }}
+              imagePullPolicy: {{ $.Values.images.cron.pullPolicy }}
+              # container.sh (as root) writes /etc/centreon/centreon.conf.php
+              # and conf.pm, then execs the args: su to the cron.d line's user.
+              command: ["/usr/local/lib/centreon-cron/container.sh"]
+              args: ["su", "-s", "/bin/sh", {{ $job.user | quote }}, "-c", {{ $job.command | quote }}]
+              env:
+                - { name: MYSQL_HOST, value: {{ include "centreon-central.dbHost" $ | quote }} }
+                - { name: MYSQL_DB_CONFIGURATION, value: {{ $.Values.database.configurationDb | quote }} }
+                - { name: MYSQL_DB_STORAGE, value: {{ $.Values.database.storageDb | quote }} }
+                {{- include "centreon-central.secretEnv" (dict "ctx" $ "name" "APP_SECRET" "key" "APP_SECRET") | nindent 16 }}
+                {{- include "centreon-central.secretEnv" (dict "ctx" $ "name" "MYSQL_PASSWORD" "key" "MYSQL_PASSWORD") | nindent 16 }}
+                - { name: TZ, value: {{ $.Values.cronJobs.timeZone | default $.Values.timezone | default "UTC" | quote }} }
+                # PHP's own timezone, the one fpm (and the install) use: the
+                # partitioning job must read partition boundaries in it.
+                - { name: PHP_TIMEZONE, value: {{ $.Values.fpm.phpTimezone | default $.Values.timezone | quote }} }
+                # downtimeManager sends its external commands to gorgone's API.
+                {{- include "centreon-central.gorgoneApiEnv" $ | nindent 16 }}
+                {{- with include "centreon-central.vaultEnv" $ }}{{ . | nindent 16 }}{{ end }}
+                {{- with include "centreon-central.dbTlsEnv" $ }}{{ . | nindent 16 }}{{ end }}
+              {{- with ($job.resources | default $.Values.cronJobs.resources) }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              {{- if or $job.licenses $.Values.vault.enabled (include "centreon-central.dbTlsVolume" $) }}
+              volumeMounts:
+                {{- if $job.licenses }}
+                - { name: centreon-web, mountPath: /etc/centreon/license.d, subPath: license, readOnly: true }
+                {{- end }}
+                {{- with include "centreon-central.vaultMounts" (dict "ctx" $ "collect" false) }}{{ . | nindent 16 }}{{ end }}
+                {{- with include "centreon-central.dbTlsMounts" $ }}{{ . | nindent 16 }}{{ end }}
+          volumes:
+            {{- if $job.licenses }}
+            - name: centreon-web
+              persistentVolumeClaim:
+                claimName: {{ include "centreon-central.pvcName" (dict "ctx" $ "name" "centreon-web") }}
+                readOnly: true
+            {{- end }}
+            {{- with include "centreon-central.vaultVolume" $ }}{{ . | nindent 12 }}{{ end }}
+            {{- with include "centreon-central.dbTlsVolume" $ }}{{ . | nindent 12 }}{{ end }}
+              {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

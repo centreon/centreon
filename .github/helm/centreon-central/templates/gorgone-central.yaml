@@ -1,0 +1,120 @@
+{{- $gorgoneImage := mergeOverwrite (deepCopy .Values.images.gorgone) (.Values.images.gorgoneCentral | default dict) -}}
+# gorgone-central (TYPE=central): singleton orchestrator. The web sends it
+# commands and configuration file content through its HTTP API (legacycmd),
+# so it shares no volume with fpm. With vault.enabled it gets its own
+# vault/vault.json (read at startup to resolve its secrets, and by the
+# autodiscovery module) from the vault-config init container.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-gorgone-central
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gorgone-central
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "gorgone-central") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "gorgone-central") | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- include "centreon-central.podScheduling" . | nindent 6 }}
+      {{- with include "centreon-central.vaultInit" . }}
+      initContainers:
+        {{- . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: gorgone-central
+          image: {{ include "centreon-central.image" $gorgoneImage }}
+          imagePullPolicy: {{ $gorgoneImage.pullPolicy }}
+          env:
+            - { name: TYPE, value: central }
+            {{- if .Values.vault.enabled }}
+            # centreonvault.pm decrypts vault.json's role_id/secret_id with it.
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" "APP_SECRET") | nindent 12 }}
+            {{- end }}
+            # Its cron module runs the schedules set in the UI (autodiscovery
+            # jobs, cron.d) in local time, as on a VM sharing the web's clock.
+            - { name: TZ, value: {{ .Values.timezone | default "UTC" | quote }} }
+            # GORGONE__ segments must be all uppercase (load_env_config
+            # silently drops mixed-case overrides).
+            - name: GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__DSN
+              value: {{ printf "mysql:host=%s;dbname=%s%s" (include "centreon-central.dbHost" .) .Values.database.configurationDb (include "centreon-central.dbTlsDsn" .) | quote }}
+            - name: GORGONE__CENTREON__DATABASE__DB_REALTIME__DSN
+              value: {{ printf "mysql:host=%s;dbname=%s%s" (include "centreon-central.dbHost" .) .Values.database.storageDb (include "centreon-central.dbTlsDsn" .) | quote }}
+            # The image writes centreon/centreon into 30-centreon.yaml
+            # (10-create-config.sh): override with the release's DB user.
+            - { name: GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__USERNAME, value: centreon }
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__PASSWORD" "key" "MYSQL_PASSWORD") | nindent 12 }}
+            - { name: GORGONE__CENTREON__DATABASE__DB_REALTIME__USERNAME, value: centreon }
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "GORGONE__CENTREON__DATABASE__DB_REALTIME__PASSWORD" "key" "MYSQL_PASSWORD") | nindent 12 }}
+            # The image hardcodes allowed_hosts to 127.0.0.1/32 + 172.16.0.0/12
+            # (Docker's default range): every pod IP (10.42.0.0/16 on k3s) gets
+            # a 401, which breaks fpm's node-sync call and the config-delivery
+            # Job. Pod IPs are ephemeral, so the allowlist is replaced by the
+            # NetworkPolicy in networkpolicy.yaml (8085 from fpm and
+            # config-delivery only).
+            - { name: GORGONE__GORGONE__MODULES__HTTPSERVER__ALLOWED_HOSTS__ENABLED, value: "false" }
+            # ...but the API itself requires the centreon-gorgone service
+            # account (basic auth), on top of the NetworkPolicy: the web reads
+            # it from options gorgone_api_username/password (install Job), the
+            # config-delivery Job from its env.
+            - { name: GORGONE__GORGONE__MODULES__HTTPSERVER__AUTH__ENABLED, value: "true" }
+            - { name: GORGONE__GORGONE__MODULES__HTTPSERVER__AUTH__USER, value: {{ .Values.centreonApiUsername | quote }} }
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "GORGONE__GORGONE__MODULES__HTTPSERVER__AUTH__PASSWORD" "key" "GORGONE_API_PASSWORD") | nindent 12 }}
+            # Same account under the names newer gorgone images require in
+            # central mode (they write the auth block themselves).
+            - { name: GORGONE_API_USERNAME, value: {{ .Values.centreonApiUsername | quote }} }
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "GORGONE_API_PASSWORD" "key" "GORGONE_API_PASSWORD") | nindent 12 }}
+            - { name: CENTREON_API_BASE_URL, value: "http://httpd/centreon/api/latest/" }
+            - { name: CENTREON_API_USERNAME, value: {{ .Values.centreonApiUsername | quote }} }
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "CENTREON_API_PASSWORD" "key" "GORGONE_API_PASSWORD") | nindent 12 }}
+          ports:
+            - { name: gorgone-api, containerPort: 8085 }
+            - { name: gorgone-wss, containerPort: 8087 }
+          readinessProbe:
+            tcpSocket:
+              port: gorgone-wss
+            periodSeconds: 10
+          # No volume: commands and config file content arrive through the API
+          # (legacycmd), /var/lib/centreon is the image's (centcore dir,
+          # unused), Vault's file is generated per pod; the database CA with
+          # database.tls (its DSN reads it).
+          {{- with print (include "centreon-central.vaultMounts" (dict "ctx" . "collect" false)) (include "centreon-central.dbTlsMounts" .) }}
+          volumeMounts:
+            {{- . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.gorgoneCentral.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with print (include "centreon-central.vaultVolume" .) (include "centreon-central.dbTlsVolume" .) }}
+      volumes:
+        {{- . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # Fixed name: stored in options.gorgone_api_address (fpm's node-sync call),
+  # and httpd's GORGONE_WSS_UPSTREAM (pollers' pullwss is proxied by httpd).
+  name: gorgone-central
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gorgone-central
+spec:
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "gorgone-central") | nindent 4 }}
+  ports:
+    - { name: gorgone-api, port: 8085, targetPort: gorgone-api }
+    - { name: gorgone-wss, port: 8087, targetPort: gorgone-wss }

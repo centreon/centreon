@@ -1,0 +1,31 @@
+{{- with .Values.centralPoller.otel.tls.certManager }}
+{{- if and .enabled (not $.Values.centralPoller.otel.tls.existingSecret) }}
+{{- if not .dnsNames }}
+{{- fail "centralPoller.otel.tls.certManager.dnsNames is required (FQDN the agents dial)" }}
+{{- end }}
+# CMA TLS identity of the Central poller, issued and renewed by cert-manager.
+# The pod copies the Secret at start: a renewed certificate is used from the
+# next restart.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $.Release.Name }}-central-otel
+  labels:
+    {{- include "centreon-central.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: central-poller
+spec:
+  secretName: {{ include "centreon-central.otelTlsSecret" $ }}
+  commonName: {{ first .dnsNames | quote }}
+  dnsNames:
+    {{- toYaml .dnsNames | nindent 4 }}
+  duration: {{ .duration }}
+  renewBefore: {{ .renewBefore }}
+  privateKey:
+    {{- toYaml .privateKey | nindent 4 }}
+  usages: [server auth, digital signature, key encipherment]
+  issuerRef:
+    name: {{ required "centralPoller.otel.tls.certManager.issuerRef.name is required" .issuerRef.name }}
+    kind: {{ .issuerRef.kind }}
+    group: {{ .issuerRef.group }}
+{{- end }}
+{{- end }}

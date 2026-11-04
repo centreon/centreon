@@ -1,0 +1,101 @@
+{{- if .Values.autodiscoveryWorker.enabled }}
+{{- $image := mergeOverwrite (deepCopy .Values.images.fpm) (.Values.autodiscoveryWorker.image | default dict) -}}
+# autodiscovery-worker: long-running loop on the fpm image (no php-fpm) that
+# saves discovered hosts from the request queue and from finished automatic
+# jobs, then exports and reloads through the web API. Same entrypoint as fpm
+# for the per-container setup (INSTALL_DB_STEPS=false: no database write).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-autodiscovery-worker
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: autodiscovery-worker
+spec:
+  # One worker: requests are claimed atomically, but a single loop is enough.
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "autodiscovery-worker") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "autodiscovery-worker") | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- include "centreon-central.podScheduling" . | nindent 6 }}
+      terminationGracePeriodSeconds: {{ .Values.autodiscoveryWorker.terminationGracePeriodSeconds }}
+      initContainers:
+        {{- include "centreon-central.waitInstall" . | nindent 8 }}
+        {{- with include "centreon-central.vaultInit" . }}{{ . | nindent 8 }}{{ end }}
+      containers:
+        - name: worker
+          image: {{ include "centreon-central.image" $image }}
+          imagePullPolicy: {{ $image.pullPolicy }}
+          # The fpm entrypoint writes centreon.conf.php, .env and the Symfony
+          # cache, then runs the worker as www-data (bin/console refuses root).
+          args:
+            - su
+            - -s
+            - /bin/sh
+            - www-data
+            - -c
+            - exec /usr/share/centreon/bin/console centreon-autodiscovery:save-worker --poll-interval={{ .Values.autodiscoveryWorker.pollInterval }} --stale-timeout={{ .Values.autodiscoveryWorker.staleTimeout }}
+          env:
+            - { name: RUN_INSTALL, value: "true" }
+            - { name: INSTALL_DB_STEPS, value: "false" }
+            - { name: RUN_CONFIG_DELIVERY, value: "false" }
+            - { name: RRD_VOLUMES_CHOWN, value: "false" }
+            - { name: MYSQL_HOST, value: {{ include "centreon-central.dbHost" . | quote }} }
+            - { name: MYSQL_DB_CONFIGURATION, value: {{ .Values.database.configurationDb | quote }} }
+            - { name: MYSQL_DB_STORAGE, value: {{ .Values.database.storageDb | quote }} }
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_ROOT_PASSWORD" "key" "MYSQL_ROOT_PASSWORD") | nindent 12 }}
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_PASSWORD" "key" "MYSQL_PASSWORD") | nindent 12 }}
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" "APP_SECRET") | nindent 12 }}
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "SALT" "key" "SALT") | nindent 12 }}
+            - { name: PHP_TIMEZONE, value: {{ .Values.fpm.phpTimezone | default .Values.timezone | quote }} }
+            - { name: CENTREON_INTERNAL_API_BASE_URL, value: "http://httpd:80" }
+            # Automatic saves export and reload through the web API as the
+            # centreon-gorgone service account.
+            - { name: CENTREON_API_USERNAME, value: {{ .Values.centreonApiUsername | quote }} }
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "CENTREON_API_PASSWORD" "key" "GORGONE_API_PASSWORD") | nindent 12 }}
+            - { name: DEBUG, value: {{ .Values.fpm.debug | quote }} }
+            {{- with include "centreon-central.vaultEnv" . }}{{ . | nindent 12 }}{{ end }}
+            {{- with include "centreon-central.dbTlsEnv" . }}{{ . | nindent 12 }}{{ end }}
+            {{- with .Values.autodiscoveryWorker.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          startupProbe:
+            exec:
+              command: [test, -f, /tmp/docker.ready]
+            periodSeconds: 5
+            failureThreshold: 120
+          livenessProbe:
+            exec:
+              command: [sh, -c, "find /tmp/autodiscovery-worker.alive -mmin -{{ .Values.autodiscoveryWorker.heartbeatMaxAgeMinutes }} | grep -q ."]
+            periodSeconds: 60
+            failureThreshold: 3
+          volumeMounts:
+            # Licences imported through the UI (the module checks them).
+            - { name: centreon-web, mountPath: /etc/centreon/license.d, subPath: license, readOnly: true }
+            # With vault.enabled: vault/vault.json (without it the worker
+            # would take Vault for disabled; it refuses to save when Vault is
+            # on but unreadable).
+            {{- with include "centreon-central.vaultMounts" (dict "ctx" . "collect" false) }}{{ . | nindent 12 }}{{ end }}
+            {{- with include "centreon-central.dbTlsMounts" . }}{{ . | nindent 12 }}{{ end }}
+          {{- with .Values.autodiscoveryWorker.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: centreon-web
+          persistentVolumeClaim:
+            claimName: {{ include "centreon-central.pvcName" (dict "ctx" . "name" "centreon-web") }}
+            readOnly: true
+        {{- with include "centreon-central.vaultVolume" . }}{{ . | nindent 8 }}{{ end }}
+        {{- with include "centreon-central.dbTlsVolume" . }}{{ . | nindent 8 }}{{ end }}
+{{- end }}

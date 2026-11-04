@@ -1,0 +1,136 @@
+# httpd: serves www/ static assets baked in the image, proxies *.php to fpm
+# over FastCGI and the gorgone pullwss websocket to gorgone-central. No PHP,
+# no shared filesystem with fpm except the read-only media volume.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-httpd
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: httpd
+spec:
+  {{- if not .Values.httpd.autoscaling.enabled }}
+  replicas: {{ .Values.httpd.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "httpd") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "httpd") | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- include "centreon-central.podScheduling" . | nindent 6 }}
+      {{- include "centreon-central.topologySpread" (dict "ctx" . "component" "httpd") | nindent 6 }}
+      terminationGracePeriodSeconds: {{ .Values.httpd.terminationGracePeriodSeconds }}
+      containers:
+        - name: httpd
+          image: {{ include "centreon-central.image" .Values.images.httpd }}
+          imagePullPolicy: {{ .Values.images.httpd.pullPolicy }}
+          env:
+            - { name: PHP_FPM_UPSTREAM, value: "fpm:9000" }
+            - { name: HTTPD_SERVER_NAME, value: {{ include "centreon-central.serverName" . | quote }} }
+            - { name: GORGONE_WSS_UPSTREAM, value: "gorgone-central:8087" }
+          ports:
+            - { name: http, containerPort: 80 }
+          # Graceful stop: leave the Service endpoints first, then SIGWINCH
+          # (Apache graceful-stop: finish in-flight requests) instead of
+          # SIGTERM (immediate). Long-lived pullwss websockets are cut at the
+          # end of the grace period; pollers reconnect through the other
+          # replicas.
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 10; kill -WINCH 1; while kill -0 1 2>/dev/null; do sleep 1; done"]
+          readinessProbe:
+            exec:
+              command: [test, -f, /tmp/docker.ready]
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          volumeMounts:
+            # fpm writes UI-uploaded media, httpd only serves it back.
+            - name: centreon-web
+              mountPath: /usr/share/centreon/www/img/media
+              subPath: media
+              readOnly: true
+          {{- with .Values.httpd.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: centreon-web
+          persistentVolumeClaim:
+            claimName: {{ include "centreon-central.pvcName" (dict "ctx" . "name" "centreon-web") }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # Fixed name: fpm's CENTREON_INTERNAL_API_BASE_URL, gorgone's
+  # CENTREON_API_BASE_URL and the poller's CENTRAL_HOST all say "httpd".
+  name: httpd
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: httpd
+  {{- with .Values.httpd.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- include "centreon-central.serviceSpecType" .Values.httpd.service | nindent 2 }}
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "httpd") | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.httpd.service.port }}
+      targetPort: http
+      {{- if and .Values.httpd.service.nodePort (ne .Values.httpd.service.type "ClusterIP") }}
+      nodePort: {{ .Values.httpd.service.nodePort }}
+      {{- end }}
+{{- if .Values.ingress.enabled }}
+# UI, REST API and the pullwss websocket of pollers outside the cluster
+# (/centreon/gorgone/pullwss/websocket): all served by httpd. "/" too, so
+# the bare host redirects to /centreon (httpd's RedirectMatch).
+# The controller must allow websocket upgrades and long-lived connections
+# (pullwss): nginx and traefik do by default, nginx closes idle ones after
+# 60s unless proxy-read-timeout / proxy-send-timeout are raised (see
+# values-prod.yaml).
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-httpd
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: httpd
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: httpd
+                port:
+                  name: http
+{{- end }}

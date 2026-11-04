@@ -1,0 +1,112 @@
+{{- $installId := include "centreon-central.installId" . -}}
+{{- $spec := include "centreon-central.configDeliveryJobSpec" . -}}
+# One-shot delivery of the Central poller's config after an install or
+# upgrade: asks gorgone-central to resync its node list (it loads it once at
+# startup, possibly before the install created it), waits for the Central
+# poller to be connected, then runs "generate + move + reload" through the
+# REST API, and exits. Never loops afterwards: later exports are the admin's
+# job, and gorgone-central re-reads its nodes from the DB on restart / on
+# poller save. Same name suffix as the install Job, so a new image re-runs it;
+# plus a hash of the spec, like the install Job (pod template immutable).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-config-delivery-{{ $installId }}-{{ $spec | sha256sum | trunc 6 }}
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: config-delivery
+spec:
+  {{- $spec | nindent 2 }}
+{{- define "centreon-central.configDeliveryJobSpec" -}}
+{{- /* Pollers whose centreontrapd needs a first trap database: the Central
+       poller by id, remote pollers by uid (all the chart knows of them). */ -}}
+{{- $trapUids := list }}
+{{- range .Values.pollers }}
+{{- if and .traps .traps.enabled }}
+{{- $trapUids = append $trapUids (toString .id) }}
+{{- end }}
+{{- end }}
+{{- $traps := or .Values.centralPoller.traps.enabled (gt (len $trapUids) 0) }}
+# The container retries internally; this only bounds the whole thing.
+backoffLimit: 3
+activeDeadlineSeconds: {{ .Values.configDelivery.timeoutSeconds }}
+template:
+  metadata:
+    labels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "config-delivery") | nindent 6 }}
+  spec:
+    {{- include "centreon-central.podScheduling" . | nindent 4 }}
+    restartPolicy: OnFailure
+    {{- if not $traps }}
+    securityContext:
+      runAsUser: 33
+      runAsGroup: 33
+    {{- end }}
+    # On an upgrade the old fpm pods keep serving the API: without this the
+    # Job delivered config within seconds, before the install Job had
+    # migrated the schema (seen on a live helm2 -> helm3 upgrade). Remaining
+    # window: until the fpm rollout ends, the generate call may still hit an
+    # old fpm pod (same mixed-version window as web traffic).
+    initContainers:
+      {{- include "centreon-central.waitInstall" . | nindent 6 }}
+    containers:
+      # Runs the fpm image's script directly, without php-fpm or the
+      # install entrypoint. Exits 0 only on a 204 obtained while gorgone
+      # confirms the node is connected (a 204 without it delivers nothing).
+      # With traps, through the install entrypoint (database steps skipped,
+      # as root like the install Job): deliver-traps.php generates the trap
+      # databases from the configuration database, which needs the config
+      # files it writes. A poller it can't reach is reported, not retried:
+      # the admin can still generate the traps from the UI.
+      - name: config-delivery
+        image: {{ include "centreon-central.image" .Values.images.fpm }}
+        imagePullPolicy: {{ .Values.images.fpm.pullPolicy }}
+        {{- if $traps }}
+        command: ["/usr/local/lib/centreon-fpm/container.sh", "/bin/sh", "-c"]
+        {{- else }}
+        command: ["/bin/sh", "-c"]
+        {{- end }}
+        args:
+          - |
+            until php -d allow_url_fopen=On /usr/local/lib/centreon-fpm/generate-broker-configuration.php; do
+              sleep 15
+            done
+            echo "Central poller configuration delivered, done."
+            {{- if $traps }}
+            php -d allow_url_fopen=On /usr/local/lib/centreon-fpm/deliver-traps.php ||
+              echo "WARNING: some trap databases were not delivered, generate them from the UI (Configuration > SNMP Traps > Generate)."
+            {{- end }}
+        env:
+          {{- if $traps }}
+          {{- include "centreon-central.fpmInstallEnv" . | nindent 10 }}
+          - { name: INSTALL_DB_STEPS, value: "false" }
+          - { name: TRAP_POLLER_IDS, value: {{ ternary (toString .Values.configDelivery.centralPollerId) "" .Values.centralPoller.traps.enabled | quote }} }
+          - { name: TRAP_POLLER_UIDS, value: {{ join " " $trapUids | quote }} }
+          {{- else }}
+          {{- /* Already in fpmInstallEnv above: a list-map key twice is
+                 refused by server-side apply. */}}
+          - { name: CENTREON_INTERNAL_API_BASE_URL, value: "http://httpd:80" }
+          # Same service account against gorgone-central's API (basic auth).
+          - { name: GORGONE_API_USERNAME, value: {{ .Values.centreonApiUsername | quote }} }
+          {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "GORGONE_API_PASSWORD" "key" "GORGONE_API_PASSWORD") | nindent 10 }}
+          {{- end }}
+          - { name: CONFIG_DELIVERY_REQUIRE_CONNECTED, value: "1" }
+          - { name: GORGONE_API_BASE_URL, value: "http://gorgone-central:8085" }
+          - { name: CENTRAL_POLLER_ID, value: {{ .Values.configDelivery.centralPollerId | quote }} }
+          - { name: CENTREON_API_USERNAME, value: {{ .Values.centreonApiUsername | quote }} }
+          {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "CENTREON_API_PASSWORD" "key" "GORGONE_API_PASSWORD") | nindent 10 }}
+        {{- with .Values.configDelivery.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- if $traps }}
+        {{- with include "centreon-central.dbTlsMounts" . }}
+        volumeMounts:
+          {{- . | nindent 10 }}
+        {{- end }}
+        {{- end }}
+    {{- with include "centreon-central.dbTlsVolume" . }}
+    volumes:
+      {{- . | nindent 6 }}
+    {{- end }}
+{{- end }}
