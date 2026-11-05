@@ -21842,6 +21842,7 @@ msgstr ""
 msgid "Check command / Template / Custom macros"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
 msgid "Delete host template"
 msgstr ""
 
