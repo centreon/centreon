@@ -118,7 +118,7 @@ final class DbalHostTemplateRepositoryUpdateTest extends KernelTestCase
         self::assertSame([$categoryId, $newSeverityId], $stored);
     }
 
-    public function testItNeverWritesAHost(): void
+    public function testItNeverWritesTheHostRowOfAHost(): void
     {
         $hostName = $this->uniqueName();
         $hostId = $this->insert('host', ['host_name' => $hostName, 'host_register' => '1']);

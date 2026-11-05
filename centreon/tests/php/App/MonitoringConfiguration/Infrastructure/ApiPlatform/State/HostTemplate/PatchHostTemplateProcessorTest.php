@@ -23,12 +23,14 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
+use App\Shared\Domain\VaultInterface;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\GrantsHostTemplateTopologyRole;
 use Tests\App\Shared\ApiTestCase;
+use Tests\App\Shared\Double\FakeVault;
 
 final class PatchHostTemplateProcessorTest extends ApiTestCase
 {
@@ -223,6 +225,28 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         }
     }
 
+    #[DataProvider('provideAdditiveInheritanceFlags')]
+    public function testANullAdditiveInheritanceFlagIsRefused(string $flag): void
+    {
+        $id = $this->insertTemplate('additive-null');
+        $this->login();
+
+        $response = $this->patch($id, ['notifications' => [$flag => null]]);
+
+        self::assertResponseStatusCodeSame(422);
+        $this->assertRefusedOn("notifications.{$flag}", $response);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideAdditiveInheritanceFlags(): iterable
+    {
+        foreach (['contact_additive_inheritance', 'contact_group_additive_inheritance'] as $flag) {
+            yield $flag => [$flag];
+        }
+    }
+
     public function testNullClearsTheClearableFields(): void
     {
         $timezoneId = $this->insertRow('timezone', ['timezone_name' => "Zone/{$this->tag}", 'timezone_offset' => '+00:00', 'timezone_dst_offset' => '+00:00']);
@@ -304,6 +328,128 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         self::assertSame('0', $this->pollerUpdated($pollerId));
     }
 
+    public function testAnUnchangedSaveOfEveryKeyLogsNothingAndFlagsNoPoller(): void
+    {
+        $commandId = $this->insertRow('command', ['command_name' => "check-{$this->tag}", 'command_line' => '$USER1$/check', 'command_type' => 2]);
+        $eventHandlerId = $this->insertRow('command', ['command_name' => "handler-{$this->tag}", 'command_line' => '$USER1$/handle', 'command_type' => 3]);
+        $periodId = $this->insertRow('timeperiod', ['tp_name' => "period-{$this->tag}", 'tp_alias' => 'period']);
+        $timezoneId = $this->insertRow('timezone', ['timezone_name' => "Zone/{$this->tag}", 'timezone_offset' => '+00:00', 'timezone_dst_offset' => '+00:00']);
+        $severityId = $this->insertRow('hostcategories', ['hc_name' => "severity-{$this->tag}", 'hc_alias' => 'severity', 'hc_activate' => '1', 'level' => 1]);
+        $iconId = $this->insertMedia("icon-{$this->tag}.png");
+        $id = $this->insertTemplate('every-key', [
+            'host_alias' => 'Every key',
+            'host_snmp_version' => '2c',
+            'host_location' => $timezoneId,
+            'host_comment' => 'A comment',
+            'command_command_id' => $commandId,
+            'command_command_id_arg1' => '!-w!80',
+            'timeperiod_tp_id' => $periodId,
+            'host_max_check_attempts' => 3,
+            'host_check_interval' => 5,
+            'host_retry_check_interval' => 1,
+            'host_active_checks_enabled' => '1',
+            'host_passive_checks_enabled' => '0',
+            'host_check_freshness' => '1',
+            'host_freshness_threshold' => 60,
+            'host_flap_detection_enabled' => '2',
+            'host_low_flap_threshold' => 10,
+            'host_high_flap_threshold' => 90,
+            'host_event_handler_enabled' => '0',
+            'command_command_id2' => $eventHandlerId,
+            'command_command_id_arg2' => '!a!b',
+            'host_acknowledgement_timeout' => 15,
+            'host_notifications_enabled' => '1',
+            'host_notification_interval' => 30,
+            'timeperiod_tp_id2' => $periodId,
+            'host_first_notification_delay' => 2,
+            'host_recovery_notification_delay' => 3,
+            'contact_additive_inheritance' => 0,
+            'cg_additive_inheritance' => 0,
+        ]);
+        $this->insertRow('extended_host_information', [
+            'host_host_id' => $id,
+            'ehi_notes' => 'A note',
+            'ehi_notes_url' => 'https://notes.example.com',
+            'ehi_action_url' => 'https://action.example.com',
+            'ehi_icon_image' => $iconId,
+            'ehi_icon_image_alt' => 'An icon',
+        ]);
+        $this->connection->insert('hostcategories_relation', ['host_host_id' => $id, 'hostcategories_hc_id' => $severityId]);
+        $pollerId = $this->insertPoller();
+        $this->insertHostOn($id, $pollerId);
+        $this->login();
+
+        $this->patch($id, [
+            'name' => "every-key-{$this->tag}",
+            'alias' => 'Every key',
+            'snmp_version' => '2c',
+            'timezone_id' => $timezoneId,
+            'severity_id' => $severityId,
+            'check_options' => ['command_id' => $commandId, 'args' => ['-w', '80']],
+            'extended_informations' => [
+                'icon_id' => $iconId,
+                'note' => 'A note',
+                'note_url' => 'https://notes.example.com',
+                'action_url' => 'https://action.example.com',
+                'alt_icon' => 'An icon',
+                'comment' => 'A comment',
+            ],
+            'scheduling_options' => [
+                'check_timeperiod_id' => $periodId,
+                'max_check_attempts' => 3,
+                'normal_check_interval' => 5,
+                'retry_check_interval' => 1,
+                'active_check_enabled' => 'true',
+                'passive_check_enabled' => 'false',
+            ],
+            'data_processing' => [
+                'check_freshness' => 'true',
+                'freshness_threshold' => 60,
+                'flap_detection_enabled' => 'use_default',
+                'low_flap_threshold' => 10,
+                'high_flap_threshold' => 90,
+                'event_handler_enabled' => 'false',
+                'event_handler_command_id' => $eventHandlerId,
+                'event_handler_args' => ['a', 'b'],
+                'acknowledgment_timeout' => 15,
+            ],
+            'notifications' => [
+                'enabled' => 'true',
+                'interval' => 30,
+                'timeperiod_id' => $periodId,
+                'first_delay' => 2,
+                'recovery_delay' => 3,
+                'contact_additive_inheritance' => false,
+                'contact_group_additive_inheritance' => false,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame(0, $this->logRowCount($id));
+        self::assertSame('0', $this->pollerUpdated($pollerId));
+    }
+
+    public function testTheExtendedTextsAreStoredTrimmed(): void
+    {
+        $id = $this->insertTemplate('trimmed');
+        $this->login();
+
+        $this->patch($id, ['extended_informations' => [
+            'note' => ' a note ',
+            'note_url' => ' https://notes.example.com ',
+            'action_url' => ' https://action.example.com ',
+            'alt_icon' => ' an icon ',
+            'comment' => ' a comment ',
+        ]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame(
+            ['ehi_notes' => 'a note', 'ehi_notes_url' => 'https://notes.example.com', 'ehi_action_url' => 'https://action.example.com', 'ehi_icon_image_alt' => 'an icon'],
+            $this->connection->fetchAssociative('SELECT ehi_notes, ehi_notes_url, ehi_action_url, ehi_icon_image_alt FROM extended_host_information WHERE host_host_id = ?', [$id]),
+        );
+        self::assertSame('a comment', $this->connection->fetchOne('SELECT host_comment FROM host WHERE host_id = ?', [$id]));
+    }
+
     public function testAConfigurationChangeIsLoggedAndFlagsThePollersOfEveryEnabledInheritingHost(): void
     {
         $id = $this->insertTemplate('changed', ['host_alias' => 'Old']);
@@ -340,6 +486,21 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         $this->login();
 
         $this->patch($id, ['check_options' => ['command_id' => null, 'args' => ['-w', '80']]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame(
+            ['command_command_id' => null, 'command_command_id_arg1' => '!-w!80'],
+            $this->connection->fetchAssociative('SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?', [$id]),
+        );
+    }
+
+    public function testRemovingOnlyTheCommandKeepsTheStoredArguments(): void
+    {
+        $commandId = $this->insertRow('command', ['command_name' => "check-{$this->tag}", 'command_line' => '$USER1$/check', 'command_type' => 2]);
+        $id = $this->insertTemplate('command-only', ['command_command_id' => $commandId, 'command_command_id_arg1' => '!-w!80']);
+        $this->login();
+
+        $this->patch($id, ['check_options' => ['command_id' => null]]);
 
         self::assertResponseStatusCodeSame(204);
         self::assertSame(
@@ -414,6 +575,10 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         yield 'notification interval 2147483648' => [['notifications' => ['interval' => 2147483648]], 'notifications.interval'];
 
         yield 'an argument with the delimiter' => [['check_options' => ['args' => ['a!b']]], 'check_options.args[0]'];
+
+        yield 'arguments over 65535 bytes' => [['check_options' => ['args' => [str_repeat('a', 65536)]]], 'check_options.args'];
+
+        yield 'snmp community 256' => [['snmp_community' => str_repeat('s', 256)], 'snmp_community'];
 
         yield 'a name over 200' => [['name' => str_repeat('n', 201)], 'name'];
 
@@ -522,6 +687,34 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         yield 'a template' => ['0'];
     }
 
+    public function testACaseOnlyRenameIsSaved(): void
+    {
+        $id = $this->insertTemplate('case');
+        $this->login();
+
+        $this->patch($id, ['name' => 'CASE-' . mb_strtoupper($this->tag)]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('CASE-' . mb_strtoupper($this->tag), $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$id]));
+    }
+
+    public function testAVaultFailureAnswers502AndSavesNothing(): void
+    {
+        $vault = new FakeVault();
+        $vault->writeThrows = true;
+        self::getContainer()->set(VaultInterface::class, $vault);
+        $id = $this->insertTemplate('vault', ['host_snmp_community' => 'public']);
+        $this->login();
+
+        $this->patch($id, ['alias' => 'New alias', 'snmp_community' => 'private']);
+
+        self::assertResponseStatusCodeSame(502);
+        self::assertSame(
+            ['host_alias' => 'vault', 'host_snmp_community' => 'public'],
+            $this->connection->fetchAssociative('SELECT host_alias, host_snmp_community FROM host WHERE host_id = ?', [$id]),
+        );
+    }
+
     public function testAMonitoringAgentCommandForcesTheFreshnessCheck(): void
     {
         $commandId = $this->insertRow('command', ['command_name' => "check-Centreon-Monitoring-Agent-{$this->tag}", 'command_line' => 'cma', 'command_type' => 2, 'command_locked' => 1]);
@@ -562,6 +755,15 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
     private function insertTemplate(string $prefix, array $columns = []): int
     {
         return $this->insertRow('host', $columns + ['host_name' => "{$prefix}-{$this->tag}", 'host_alias' => $prefix, 'host_register' => '0', 'host_activate' => '1']);
+    }
+
+    private function insertMedia(string $name): int
+    {
+        $directoryId = $this->insertRow('view_img_dir', ['dir_name' => "dir-{$this->tag}"]);
+        $imageId = $this->insertRow('view_img', ['img_name' => $name, 'img_path' => $name]);
+        $this->connection->insert('view_img_dir_relation', ['dir_dir_parent_id' => $directoryId, 'img_img_id' => $imageId]);
+
+        return $imageId;
     }
 
     private function insertPoller(): int
