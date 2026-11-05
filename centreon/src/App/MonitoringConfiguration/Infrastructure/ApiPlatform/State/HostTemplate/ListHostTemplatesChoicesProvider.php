@@ -75,19 +75,17 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
             $criteria = $criteria->withPagination($this->pagination->getPage($context), $itemsPerPage);
         }
 
-        /** @var array{name?: mixed, exclude_template_id?: mixed} $filters */
+        /** @var array{name?: mixed} $filters */
         $filters = $context['filters'] ?? [];
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
 
-        $templateId = ($operation->getExtraProperties()['exclude_template_id'] ?? false) === true
-            ? $this->parseTemplateId($filters['exclude_template_id'] ?? null)
-            : null;
-
         $excludedIds = $this->unlicensedHostTemplates->findIds()->toArray();
-        if ($templateId instanceof HostTemplateId) {
+        $templateId = $operation->getParameters()?->get('exclude_template_id')?->getValue(null);
+        if (is_int($templateId)) {
             // the template itself and its descendants: picking any of them as its parent makes a loop
+            $templateId = new HostTemplateId($templateId);
             array_push($excludedIds, $templateId, ...$this->repository->findDescendantIds($templateId)->toArray());
         }
         $criteria = $criteria->withExcludedIds(new Collection($excludedIds, HostTemplateId::class));
@@ -108,19 +106,5 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
             $hostTemplates->getItemsPerPage(),
             $hostTemplates->getTotalItems()
         );
-    }
-
-    private function parseTemplateId(mixed $value): ?HostTemplateId
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        // digits only: an int cast would read "1.5" as 1 and "1e3" as 1000
-        if (! is_string($value) || preg_match('/^[1-9]\d*$/D', $value) !== 1 || ($id = filter_var($value, \FILTER_VALIDATE_INT)) === false) {
-            throw new BadRequestHttpException('The "exclude_template_id" filter must be a positive integer.');
-        }
-
-        return new HostTemplateId($id);
     }
 }

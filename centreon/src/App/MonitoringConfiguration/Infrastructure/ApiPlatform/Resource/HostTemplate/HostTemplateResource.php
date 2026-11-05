@@ -30,6 +30,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
@@ -71,7 +72,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             itemUriTemplate: '/configuration/host_templates/{id}',
             output: HostTemplateChoicesOutput::class,
             provider: ListHostTemplatesChoicesProvider::class,
-            extraProperties: ['exclude_template_id' => true],
+            parameters: ['exclude_template_id' => new QueryParameter(schema: ['type' => 'integer', 'minimum' => 1], castToNativeType: true)],
         ),
         new Get(
             uriTemplate: '/configuration/host_templates/host_templates/{id}/macros',

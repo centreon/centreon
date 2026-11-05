@@ -41,7 +41,6 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
     use InsertsMonitoringConnectorTemplates;
     private const ENDPOINT = '/api/configuration/host_templates/host_templates';
     private const HOST_FORM_ENDPOINT = '/api/configuration/hosts/host_templates';
-    private const INVALID_MESSAGE = 'The "exclude_template_id" filter must be a positive integer.';
 
     // about 100 times a warm response (under 30 ms), so a loaded runner cannot flake
     private const MAX_SECONDS = 2.0;
@@ -231,16 +230,17 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
     }
 
     #[DataProvider('provideInvalidValues')]
-    public function testAnInvalidValueIsABadRequest(string $value): void
+    public function testAnInvalidValueIsRefusedOnTheParameter(string $value): void
     {
         $this->login();
 
         $response = $this->request('GET', self::ENDPOINT . '?exclude_template_id=' . rawurlencode($value));
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
         $body = $response->toArray(false);
         self::assertSame(['code', 'message'], array_keys($body));
-        self::assertSame(self::INVALID_MESSAGE, $body['message']);
+        self::assertIsString($body['message']);
+        self::assertStringStartsWith('[exclude_template_id] ', $body['message']);
     }
 
     /**
@@ -284,6 +284,10 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
         yield 'letters' => ['abc'];
 
         yield 'empty' => [''];
+
+        yield 'decimal' => ['1.5'];
+
+        yield 'exponent' => ['1e3'];
     }
 
     /**
