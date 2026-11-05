@@ -1,0 +1,10 @@
+# Query a batch of coverable issues (by JQL) with their Jira issue type, to tell a scenario
+# tagged with a non-Test key (bug, story, task…) from a key that does not exist.
+query GetCoverableIssueTypes($jql: String!, $limit: Int!, $start: Int!) {
+  getCoverableIssues(jql: $jql, limit: $limit, start: $start) {
+    total
+    results {
+      jira(fields: ["key", "issuetype"])
+    }
+  }
+}

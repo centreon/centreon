@@ -182,6 +182,25 @@ async function fetchXrayTests(keys) {
   return tests;
 }
 
+// Jira issue type of tagged keys that are not Xray Tests: Map key -> type name. A key that
+// is neither a Test nor a coverable issue (deleted key, typo) is absent from the map.
+async function fetchNonTestIssueTypes(keys) {
+  const query = loadGraphqlOperation("get-coverable-issues");
+  const types = new Map();
+  for (let index = 0; index < keys.length; index += BATCH_SIZE) {
+    const jql = `key in (${keys.slice(index, index + BATCH_SIZE).join(",")})`;
+    for (let start = 0; ; start += BATCH_SIZE) {
+      const json = await callXrayGraphql(query, { jql, limit: BATCH_SIZE, start });
+      const page = json.data?.getCoverableIssues;
+      for (const issue of page?.results || []) {
+        if (issue?.jira?.key) types.set(issue.jira.key, issue.jira.issuetype?.name || "unknown type");
+      }
+      if (start + BATCH_SIZE >= (page?.total || 0)) break;
+    }
+  }
+  return types;
+}
+
 // Switch a non-Gherkin Test to the Gherkin Test Type, retrying once when it does not stick.
 async function ensureGherkinTestType(issueId) {
   const mutation = loadGraphqlOperation("update-test-type");
@@ -198,8 +217,6 @@ function writeStepSummary(markdown) {
     fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${markdown}\n`);
   }
 }
-
-const keyList = (keys) => (keys.length > 0 ? keys.map((key) => `\`${key}\``).join(", ") : "-");
 
 async function main() {
   if (!FEATURES_DIR) throw new Error("missing FEATURES_DIR");
@@ -226,7 +243,7 @@ async function main() {
     "",
     `- Tagged scenarios: ${scenarios.length} (${ignoredCount} @ignore skipped)`,
     `- Keys in scope: ${targetKeys.length}`,
-    `- Conflicting keys (not synced): ${conflictKeys.length} ${keyList(conflictKeys)}`,
+    `- Conflicting keys (not synced): ${conflictKeys.length}`,
   ];
 
   if (!XRAY_TOKEN) {
@@ -236,8 +253,32 @@ async function main() {
     return;
   }
 
-  const xrayTests = await fetchXrayTests(targetKeys);
-  const missingKeys = targetKeys.filter((key) => !xrayTests.has(key));
+  // Conflicting keys are looked up too, so a ticket key set on several scenarios is still
+  // reported; they stay out of the sync below.
+  const xrayTests = await fetchXrayTests([...targetKeys, ...conflictKeys]);
+  const missingKeys = [...targetKeys, ...conflictKeys].filter((key) => !xrayTests.has(key)).sort();
+  // Diagnostic only: a failed lookup must not stop the sync of the known Tests.
+  let nonTestTypes = new Map();
+  let classificationFailed = false;
+  if (missingKeys.length > 0) {
+    try {
+      nonTestTypes = await fetchNonTestIssueTypes(missingKeys);
+    } catch (error) {
+      classificationFailed = true;
+      console.log(`::warning::Could not check the issue type of keys missing from Xray: ${error.message}`);
+    }
+  }
+  const nonTestKeys = missingKeys.filter((key) => nonTestTypes.has(key));
+  const unknownKeys = missingKeys.filter((key) => !nonTestTypes.has(key));
+  const locationsOf = (key) => scenarios.filter((scenario) => scenario.key === key).map((scenario) => scenario.location);
+  for (const key of nonTestKeys) {
+    for (const location of locationsOf(key)) {
+      const [file, line] = location.split(":");
+      console.log(
+        `::warning file=${path.join(FEATURES_DIR, file)},line=${line}::${key} is a ${nonTestTypes.get(key)}, not an Xray Test: tag this scenario with a Test key`,
+      );
+    }
+  }
   const upToDateKeys = [];
   const outdatedKeys = [];
   const protectedKeys = [];
@@ -276,15 +317,49 @@ async function main() {
     }
   }
 
-  summary.push(
-    `- Up to date: ${upToDateKeys.length}`,
-    `- ${dryRun ? "To resync" : "Resynced"}: ${syncedKeys.length} ${keyList(syncedKeys)}`,
-    `- Not found in Xray: ${missingKeys.length} ${keyList(missingKeys)}`,
-    `- Not overwritten (Xray holds Feature/Background/Rule/tags/several scenarios): ${protectedKeys.length} ${keyList(protectedKeys)}`,
-  );
-  if (failedKeys.length > 0) summary.push(`- Failed: ${failedKeys.length} ${keyList(failedKeys)}`);
-  writeStepSummary(summary.join("\n"));
+  const notFoundLabel = classificationFailed ? "Missing from Xray, type not checked" : "Neither a Test nor a coverable issue";
+  const counts = [
+    ["Up to date", upToDateKeys.length],
+    [dryRun ? "To resync" : "Resynced", syncedKeys.length],
+    ["Failed", failedKeys.length],
+    ["Conflict, not synced", conflictKeys.length],
+    ["Not a Test (ticket key used as a tag)", nonTestKeys.length],
+    [notFoundLabel, unknownKeys.length],
+    ["Not overwritten (Xray holds more than the steps)", protectedKeys.length],
+  ];
+  // One row per key that needs a look; up-to-date Tests are only counted.
+  const conflictOnly = conflictKeys.filter((key) => !missingKeys.includes(key));
+  const detailRows = [
+    ...syncedKeys.map((key) => {
+      const type = xrayTests.get(key).testType;
+      return [key, dryRun ? "To resync" : "Resynced", type?.kind === "Gherkin" ? "" : `type ${type?.name} -> ${GHERKIN_TEST_TYPE}`];
+    }),
+    ...failedKeys.map((key) => [key, "Failed", "see the job log"]),
+    ...conflictOnly.map((key) => [key, "Conflict, not synced", "same key on different scenarios"]),
+    ...nonTestKeys.map((key) => [key, "Not a Test", `${nonTestTypes.get(key)} key: tag the scenario with a Test key`]),
+    ...unknownKeys.map((key) => [key, notFoundLabel, classificationFailed ? "issue type lookup failed" : "deleted key, typo or non-coverable type"]),
+    ...protectedKeys.map((key) => [key, "Not overwritten", "Feature, Background, Rule, tags or several scenarios in Xray"]),
+  ];
+  const cell = (text) => String(text).replaceAll("|", "\\|");
+  const jiraLink = (key) => `[${key}](https://centreon.atlassian.net/browse/${key})`;
+  const markdown = [
+    ...summary,
+    "",
+    "| Result | Keys |",
+    "| --- | ---: |",
+    ...counts.map(([label, count]) => `| ${label} | ${count} |`),
+  ];
+  if (detailRows.length > 0) {
+    markdown.push(
+      "",
+      "| Key | Result | Scenario | Detail |",
+      "| --- | --- | --- | --- |",
+      ...detailRows.map(([key, result, detail]) => `| ${jiraLink(key)} | ${result} | ${locationsOf(key).map((location) => `\`${cell(location)}\``).join("<br>")} | ${cell(detail)} |`),
+    );
+  }
+  writeStepSummary(markdown.join("\n"));
   console.log(summary.slice(2).join("\n"));
+  for (const [label, count] of counts) console.log(`- ${label}: ${count}`);
 
   if (failedKeys.length > 0) process.exit(1);
 }

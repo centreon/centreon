@@ -9,9 +9,6 @@ import { dateFormat } from './models';
 
 const meta: Meta<typeof TimePeriod> = {
   component: TimePeriod,
-  parameters: {
-    chromatic: { disableSnapshot: true }
-  },
   tags: ['autodocs']
 };
 
