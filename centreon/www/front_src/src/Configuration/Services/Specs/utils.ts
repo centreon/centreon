@@ -64,7 +64,8 @@ export const getServiceTemplatesResponse = () => ({
 });
 
 // The detail of each listed service, as the API Platform detail route answers:
-// the host as an object where the create takes its id.
+// the host as an object where the create takes its id, `monitoring_engine`
+// always there, and unset values left out.
 const serviceDetails: Record<number, Record<string, unknown>> = {
   0: {
     activated: true,
@@ -76,18 +77,27 @@ const serviceDetails: Record<number, Record<string, unknown>> = {
       is_volatile: 'true',
       max_check_attempts: 3,
       normal_check_interval: 5,
-      passive_check_enabled: 'use_default',
-      retry_check_interval: null
+      passive_check_enabled: 'use_default'
     },
     name: 'cpu',
     template: { id: 30, name: 'generic-active-service' }
   },
-  // Unset fields left out: no template, no scheduling options.
-  1: { activated: false, host: { id: 11, name: 'host B' }, name: 'memory' },
-  // A cloud service always has a template.
+  // No template, and the scheduling on its defaults.
+  1: {
+    activated: false,
+    host: { id: 11, name: 'host B' },
+    monitoring_engine: {
+      active_check_enabled: 'use_default',
+      is_volatile: 'use_default',
+      passive_check_enabled: 'use_default'
+    },
+    name: 'memory'
+  },
+  // A cloud service always has a template, and no check switches.
   2: {
     activated: true,
     host: { id: 10, name: 'host A' },
+    monitoring_engine: {},
     name: 'disk',
     template: { id: 31, name: 'generic-passive-service' }
   }
@@ -112,7 +122,6 @@ export const getServiceFormHostsResponse = () => ({
   totalItems: 2
 });
 
-// The check period selector.
 export const getServiceFormTimePeriodsResponse = () => ({
   '@context': '/centreon/api/contexts/Collection',
   '@id': '/centreon/api/configuration/services/timeperiods',
