@@ -26,7 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
 
 /**
- * Maps {@see HostTemplateNotificationOptionEnum} to the strings of the API contract.
+ * Maps {@see HostTemplateNotificationOptionEnum} to and from the strings of the API contract.
  */
 final readonly class HostTemplateNotificationOptionEnumResolver
 {
@@ -57,6 +57,22 @@ final readonly class HostTemplateNotificationOptionEnumResolver
             HostTemplateNotificationOptionEnum::None => self::NONE_VALUE,
             HostTemplateNotificationOptionEnum::Recovery => self::RECOVERY_VALUE,
             HostTemplateNotificationOptionEnum::Unreachable => self::UNREACHABLE_VALUE,
+        };
+    }
+
+    /**
+     * Only called on a value the input's `Assert\Choice` accepted: an unknown string is a programming error.
+     */
+    public static function toDomain(string $option): HostTemplateNotificationOptionEnum
+    {
+        return match ($option) {
+            self::DOWN_VALUE => HostTemplateNotificationOptionEnum::Down,
+            self::DOWNTIME_SCHEDULED_VALUE => HostTemplateNotificationOptionEnum::DowntimeScheduled,
+            self::FLAPPING_VALUE => HostTemplateNotificationOptionEnum::Flapping,
+            self::NONE_VALUE => HostTemplateNotificationOptionEnum::None,
+            self::RECOVERY_VALUE => HostTemplateNotificationOptionEnum::Recovery,
+            self::UNREACHABLE_VALUE => HostTemplateNotificationOptionEnum::Unreachable,
+            default => throw new \ValueError(sprintf('"%s" is not a valid notification option.', $option)),
         };
     }
 }
