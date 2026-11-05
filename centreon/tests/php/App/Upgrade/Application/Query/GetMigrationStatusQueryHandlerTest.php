@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Application\Query;
 
-use App\Upgrade\Application\MigrationLogger;
 use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Application\Query\GetMigrationStatusQuery;
@@ -32,12 +31,11 @@ use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
-use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
 use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateScriptFinder;
+use Tests\App\Upgrade\Infrastructure\Double\FakeUpgradeLogger;
 
 final class GetMigrationStatusQueryHandlerTest extends TestCase
 {
@@ -48,7 +46,7 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
 
         $configuration = MigrationSet::core(MigrationSet::CONFIGURATION);
 
-        $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(), $this->recorder(), new MigrationLogger(new NullLogger(), '26.12.0')))(new GetMigrationStatusQuery($configuration));
+        $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(), $this->recorder(), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery($configuration));
 
         self::assertEquals([new MigrationSetStatus($configuration, [], ['configuration\Version1'])], $statuses);
     }
@@ -58,7 +56,7 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         $runner = new FakeMigrationRunner();
         $runner->sets = [MigrationSet::core(MigrationSet::CONFIGURATION), MigrationSet::module('centreon-bam-server'), MigrationSet::module('centreon-open-tickets')];
 
-        $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(['centreon-open-tickets']), $this->recorder(), new MigrationLogger(new NullLogger(), '26.12.0')))(new GetMigrationStatusQuery());
+        $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(['centreon-open-tickets']), $this->recorder(), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery());
 
         self::assertEquals([MigrationSet::core(MigrationSet::CONFIGURATION), MigrationSet::module('centreon-open-tickets')], $runner->statusRequests);
         self::assertEquals($runner->statusRequests, array_map(static fn (MigrationSetStatus $status): MigrationSet => $status->set, $statuses));
@@ -70,18 +68,16 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         $runner->sets = [MigrationSet::core(MigrationSet::REALTIME), MigrationSet::core(MigrationSet::CONFIGURATION)];
         $runner->failingSets = [MigrationSet::REALTIME];
 
-        $logger = new RecordingLogger();
+        $logger = new FakeUpgradeLogger();
 
-        $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(), $this->recorder(), new MigrationLogger($logger, '26.12.0')))(new GetMigrationStatusQuery());
+        $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(), $this->recorder(), $logger, '26.12.0'))(new GetMigrationStatusQuery());
 
         self::assertEquals([
             new MigrationSetStatus(MigrationSet::core(MigrationSet::REALTIME), [], [], 'Status of "realtime" failed'),
             new MigrationSetStatus(MigrationSet::core(MigrationSet::CONFIGURATION), [], ['configuration\Version1']),
         ], $statuses);
-        self::assertCount(1, $logger->records());
-        self::assertSame('migration.status_failure', $logger->records()[0]['context']['event'] ?? null);
-        self::assertSame('realtime', $logger->records()[0]['context']['set'] ?? null);
-        self::assertInstanceOf(\ParseError::class, $logger->records()[0]['context']['exception'] ?? null);
+        self::assertSame(['error'], array_column($logger->calls, 'method'));
+        self::assertInstanceOf(\ParseError::class, $logger->calls[0]['exception'] ?? null);
     }
 
     public function testReportsThatMigrateRefusesTheCoreSetsWhileLegacyScriptsArePendingWithoutHidingThem(): void
@@ -89,7 +85,7 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         $runner = new FakeMigrationRunner();
         $runner->sets = [MigrationSet::core(MigrationSet::CONFIGURATION), MigrationSet::module('centreon-open-tickets')];
 
-        $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(['centreon-open-tickets']), $this->recorder(['26.12.0']), new MigrationLogger(new NullLogger(), '26.12.0')))(new GetMigrationStatusQuery());
+        $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(['centreon-open-tickets']), $this->recorder(['26.12.0']), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery());
 
         self::assertEquals([
             new MigrationSetStatus(MigrationSet::core(MigrationSet::CONFIGURATION), [], ['configuration\Version1'], 'The update scripts of 26.12.0 are pending: update the platform first, with the upgrade wizard or the API.'),
@@ -119,7 +115,7 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
             }
         };
 
-        $statuses = (new GetMigrationStatusQueryHandler($runner, $modules, new TargetVersionRecorder($updateRepository, new FakeUpdateScriptFinder(), '26.12.0', new MigrationLogger(new NullLogger(), '26.12.0')), new MigrationLogger(new NullLogger(), '26.12.0')))(new GetMigrationStatusQuery());
+        $statuses = (new GetMigrationStatusQueryHandler($runner, $modules, new TargetVersionRecorder($updateRepository, new FakeUpdateScriptFinder(), '26.12.0', new FakeUpgradeLogger()), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery());
 
         self::assertEquals([
             new MigrationSetStatus(MigrationSet::core(MigrationSet::REALTIME), [], ['realtime\Version1'], 'informations is locked'),
@@ -133,7 +129,7 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         $this->expectException(ModuleNotInstalledException::class);
         $this->expectExceptionMessage('The module "centreon-open-ticket" is not installed');
 
-        (new GetMigrationStatusQueryHandler(new FakeMigrationRunner(), new FakeModuleRepository(['centreon-open-tickets']), $this->recorder(), new MigrationLogger(new NullLogger(), '26.12.0')))(new GetMigrationStatusQuery(MigrationSet::module('centreon-open-ticket')));
+        (new GetMigrationStatusQueryHandler(new FakeMigrationRunner(), new FakeModuleRepository(['centreon-open-tickets']), $this->recorder(), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery(MigrationSet::module('centreon-open-ticket')));
     }
 
     /**
@@ -144,6 +140,6 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         $scriptFinder = new FakeUpdateScriptFinder();
         $scriptFinder->availableUpdates = $pendingLegacyScripts;
 
-        return new TargetVersionRecorder(new FakeUpdateRepository(), $scriptFinder, '26.12.0', new MigrationLogger(new NullLogger(), '26.12.0'));
+        return new TargetVersionRecorder(new FakeUpdateRepository(), $scriptFinder, '26.12.0', new FakeUpgradeLogger());
     }
 }

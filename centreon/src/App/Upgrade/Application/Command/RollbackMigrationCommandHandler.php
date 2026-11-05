@@ -24,11 +24,11 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\AsCommandHandler;
-use App\Upgrade\Application\MigrationLogger;
-use App\Upgrade\Application\MigrationOperationEnum;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetGuard;
 use App\Upgrade\Application\ModuleNotInstalledException;
+use App\Upgrade\Application\UpgradeLogger;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommandHandler]
 final readonly class RollbackMigrationCommandHandler
@@ -36,7 +36,9 @@ final readonly class RollbackMigrationCommandHandler
     public function __construct(
         private MigrationRunner $migrationRunner,
         private MigrationSetGuard $migrationSetGuard,
-        private MigrationLogger $migrationLogger,
+        private UpgradeLogger $upgradeLogger,
+        #[Autowire(param: 'centreon.version')]
+        private string $platformVersion,
     ) {
     }
 
@@ -48,23 +50,36 @@ final readonly class RollbackMigrationCommandHandler
      */
     public function __invoke(RollbackMigrationCommand $command): array
     {
-        $rollback = fn (): array => $this->migrationSetGuard->run($command->set, fn (): array => $this->migrationRunner->rollback($command->set, $command->version, $command->dryRun, $command->expected));
+        $set = $command->set;
+        $rollback = fn (): array => $this->migrationRunner->rollback($set, $command->version, $command->dryRun, $command->expected);
         if ($command->dryRun) {
-            return $rollback();
+            return $this->migrationSetGuard->run($set, $rollback);
         }
 
-        $startedAt = $this->migrationLogger->start(MigrationOperationEnum::Rollback, $command->set);
+        $step = $set->rollbackStep();
 
         try {
-            $reverted = $rollback();
+            return $this->migrationSetGuard->run($set, function () use ($step, $rollback): array {
+                $this->upgradeLogger->step($this->platformVersion, $step, "Starting step '{$step}'");
+                $startedAt = hrtime(true);
+
+                try {
+                    $reverted = $rollback();
+                } catch (\Throwable $exception) {
+                    $this->upgradeLogger->stepFailure($this->platformVersion, $step, "Step '{$step}' failed: {$exception->getMessage()}", $exception);
+
+                    throw $exception;
+                }
+
+                $durationMs = intdiv(hrtime(true) - $startedAt, 1_000_000);
+                $this->upgradeLogger->stepCompleted($this->platformVersion, $step, $durationMs, sprintf("Step '%s' completed in %dms: %d migration(s) reverted", $step, $durationMs, \count($reverted)));
+
+                return $reverted;
+            });
         } catch (\Throwable $exception) {
-            $this->migrationLogger->failure(MigrationOperationEnum::Rollback, $command->set, $exception, $startedAt);
+            $this->upgradeLogger->error($this->platformVersion, sprintf('Rollback of the %s failed: %s', $set->label(), $exception->getMessage()), $exception);
 
             throw $exception;
         }
-
-        $this->migrationLogger->success(MigrationOperationEnum::Rollback, $command->set, $reverted, $startedAt);
-
-        return $reverted;
     }
 }

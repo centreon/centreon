@@ -25,19 +25,17 @@ namespace Tests\App\Upgrade\Application\Command;
 
 use App\Upgrade\Application\Command\MigrateCommand;
 use App\Upgrade\Application\Command\MigrateCommandHandler;
-use App\Upgrade\Application\MigrationLogger;
 use App\Upgrade\Application\MigrationSetGuard;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
-use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationSetLocker;
 use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateLocker;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateScriptFinder;
+use Tests\App\Upgrade\Infrastructure\Double\FakeUpgradeLogger;
 
 final class MigrateCommandHandlerTest extends TestCase
 {
@@ -53,7 +51,7 @@ final class MigrateCommandHandlerTest extends TestCase
 
     private FakeUpdateScriptFinder $scriptFinder;
 
-    private RecordingLogger $logger;
+    private FakeUpgradeLogger $logger;
 
     private MigrateCommandHandler $handler;
 
@@ -64,13 +62,13 @@ final class MigrateCommandHandlerTest extends TestCase
         $this->updateRepository = new FakeUpdateRepository();
         $this->migrationSetLocker = new FakeMigrationSetLocker();
         $this->scriptFinder = new FakeUpdateScriptFinder();
-        $this->logger = new RecordingLogger();
+        $this->logger = new FakeUpgradeLogger();
 
         $this->handler = new MigrateCommandHandler(
             $this->migrationRunner,
             new MigrationSetGuard($this->locker, $this->migrationSetLocker, new FakeModuleRepository(['centreon-open-tickets'])),
-            new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION, new MigrationLogger(new NullLogger(), self::TARGET_VERSION)),
-            new MigrationLogger($this->logger, self::TARGET_VERSION),
+            new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION, new FakeUpgradeLogger()),
+            $this->logger, self::TARGET_VERSION,
         );
     }
 
@@ -230,30 +228,44 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
     }
 
-    public function testLogsTheMigrationLifecycle(): void
+    public function testLogsAStepPerSet(): void
     {
         ($this->handler)(new MigrateCommand());
 
-        self::assertSame(['migration.start', 'migration.success'], array_column(array_column($this->logger->records(), 'context'), 'event'));
-        $context = $this->logger->lastRecord()['context'] ?? [];
-        self::assertSame('core', $context['set'] ?? null);
-        self::assertSame(self::TARGET_VERSION, $context['version'] ?? null);
-        self::assertSame(['realtime\\Version1', 'configuration\\Version1'], $context['migrations'] ?? null);
-        self::assertIsInt($context['duration_ms'] ?? null);
+        self::assertSame(
+            [
+                ['step', 'migrations:realtime'],
+                ['stepCompleted', 'migrations:realtime'],
+                ['step', 'migrations:configuration'],
+                ['stepCompleted', 'migrations:configuration'],
+            ],
+            array_map(static fn (array $call): array => [$call['method'], $call['stepName'] ?? null], $this->logger->calls),
+        );
+        self::assertSame([self::TARGET_VERSION], array_unique(array_column($this->logger->calls, 'version')));
     }
 
-    public function testLogsARefusalBeforeRethrowingIt(): void
+    public function testLogsTheFailedStepThenTheFailure(): void
+    {
+        $this->migrationRunner->failingSets = [MigrationSet::REALTIME];
+
+        try {
+            ($this->handler)(new MigrateCommand());
+            self::fail('Expected the migration failure to propagate');
+        } catch (\RuntimeException $exception) {
+            self::assertSame(['step', 'stepFailure', 'error'], array_column($this->logger->calls, 'method'));
+            self::assertSame($exception, $this->logger->calls[2]['exception'] ?? null);
+        }
+    }
+
+    public function testLogsARefusalOutsideAnyStep(): void
     {
         $this->scriptFinder->availableUpdates = ['26.10.0'];
 
         try {
             ($this->handler)(new MigrateCommand());
             self::fail('The core sets must wait for the legacy update scripts');
-        } catch (\RuntimeException $exception) {
-            $record = $this->logger->lastRecord();
-            self::assertSame('error', $record['level'] ?? null);
-            self::assertSame('migration.failure', $record['context']['event'] ?? null);
-            self::assertSame($exception, $record['context']['exception'] ?? null);
+        } catch (\RuntimeException) {
+            self::assertSame(['error'], array_column($this->logger->calls, 'method'));
         }
     }
 }

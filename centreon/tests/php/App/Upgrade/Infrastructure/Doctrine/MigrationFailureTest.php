@@ -43,7 +43,7 @@ final class MigrationFailureTest extends TestCase
     public function testTheErrorOfAMigrationIsKeptWhenTheDatabaseCannotTellWhichOneFailed(): void
     {
         $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
-        $runner = new DoctrineMigrationRunner(new MigrationSetRegistry('/nonexistent', '/nonexistent'), new SingleConnectionRegistry($connection), new NullLogger());
+        $runner = new DoctrineMigrationRunner(new MigrationSetRegistry('/nonexistent', '/nonexistent'), new SingleConnectionRegistry($connection), new NullLogger(), '26.12.0');
         $factory = DependencyFactory::fromConnection(new ConfigurationArray([]), new ExistingConnection($connection));
         // The database went away along with the migration.
         $factory->setService(MetadataStorage::class, new class () implements MetadataStorage {

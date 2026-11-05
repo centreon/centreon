@@ -75,6 +75,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
             new MigrationSetRegistry('/nonexistent', __DIR__ . '/Fixtures/modules'),
             new SingleConnectionRegistry($this->connection),
             new NullLogger(),
+            '26.12.0',
         );
     }
 
@@ -354,6 +355,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
             new MigrationSetRegistry('/nonexistent', __DIR__ . '/Fixtures/modules'),
             $registry,
             new NullLogger(),
+            '26.12.0',
         );
 
         $this->expectException(\LogicException::class);
@@ -368,6 +370,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
             new MigrationSetRegistry('/nonexistent', __DIR__ . '/Fixtures/invalid-modules'),
             new SingleConnectionRegistry($this->connection),
             new NullLogger(),
+            '26.12.0',
         );
     }
 

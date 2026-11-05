@@ -38,7 +38,7 @@ final readonly class TargetVersionRecorder
         private UpdateScriptFinder $updateScriptFinder,
         #[Autowire(param: 'centreon.version')]
         private string $platformVersion,
-        private MigrationLogger $migrationLogger,
+        private UpgradeLogger $upgradeLogger,
     ) {
     }
 
@@ -90,7 +90,7 @@ final readonly class TargetVersionRecorder
         $targetVersion = $this->resolve($legacyVersion);
         if ($targetVersion !== $legacyVersion) {
             $this->updateRepository->updateVersionInformation($targetVersion);
-            $this->migrationLogger->versionRecorded($targetVersion, $legacyVersion);
+            $this->upgradeLogger->info($targetVersion, sprintf('Recorded the platform version %s, previously %s', $targetVersion, $legacyVersion));
         }
     }
 }

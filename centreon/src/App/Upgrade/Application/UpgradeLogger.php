@@ -31,6 +31,8 @@ interface UpgradeLogger
 
     public function failure(?string $fromVersion, ?string $toVersion, string $message, ?\Throwable $exception = null): void;
 
+    public function info(string $version, string $message): void;
+
     public function error(string $version, string $message, ?\Throwable $exception = null): void;
 
     public function step(string $version, string $stepName, string $message): void;

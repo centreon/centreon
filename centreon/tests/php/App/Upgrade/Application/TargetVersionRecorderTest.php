@@ -23,12 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Application;
 
-use App\Upgrade\Application\MigrationLogger;
 use App\Upgrade\Application\TargetVersionRecorder;
 use PHPUnit\Framework\TestCase;
-use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateScriptFinder;
+use Tests\App\Upgrade\Infrastructure\Double\FakeUpgradeLogger;
 
 final class TargetVersionRecorderTest extends TestCase
 {
@@ -36,7 +35,7 @@ final class TargetVersionRecorderTest extends TestCase
 
     private FakeUpdateScriptFinder $updateScriptFinder;
 
-    private RecordingLogger $logger;
+    private FakeUpgradeLogger $logger;
 
     private TargetVersionRecorder $recorder;
 
@@ -44,8 +43,8 @@ final class TargetVersionRecorderTest extends TestCase
     {
         $this->updateRepository = new FakeUpdateRepository();
         $this->updateScriptFinder = new FakeUpdateScriptFinder();
-        $this->logger = new RecordingLogger();
-        $this->recorder = new TargetVersionRecorder($this->updateRepository, $this->updateScriptFinder, '26.11.0', new MigrationLogger($this->logger, '26.11.0'));
+        $this->logger = new FakeUpgradeLogger();
+        $this->recorder = new TargetVersionRecorder($this->updateRepository, $this->updateScriptFinder, '26.11.0', $this->logger);
     }
 
     public function testResolvesThePlatformVersionUnlessALegacyScriptIsAhead(): void
@@ -59,11 +58,10 @@ final class TargetVersionRecorderTest extends TestCase
         $this->recorder->record('26.09.1');
 
         self::assertSame(['26.11.0'], $this->updateRepository->updatesRun);
-        self::assertCount(1, $this->logger->records());
-        $context = $this->logger->records()[0]['context'];
-        self::assertSame('migration.version_recorded', $context['event'] ?? null);
-        self::assertSame('26.11.0', $context['recorded_version'] ?? null);
-        self::assertSame('26.09.1', $context['previous_version'] ?? null);
+        self::assertSame(
+            [['method' => 'info', 'version' => '26.11.0', 'message' => 'Recorded the platform version 26.11.0, previously 26.09.1']],
+            $this->logger->calls,
+        );
     }
 
     public function testNeverMovesTheVersionBackwards(): void
@@ -71,7 +69,7 @@ final class TargetVersionRecorderTest extends TestCase
         $this->recorder->record('26.11.1');
 
         self::assertSame([], $this->updateRepository->updatesRun);
-        self::assertSame([], $this->logger->records());
+        self::assertSame([], $this->logger->calls);
     }
 
     public function testRecordsNothingOnceAnUpdateRemovedTheInstallDirectory(): void

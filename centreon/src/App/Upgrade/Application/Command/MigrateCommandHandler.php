@@ -24,13 +24,13 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\AsCommandHandler;
-use App\Upgrade\Application\MigrationLogger;
-use App\Upgrade\Application\MigrationOperationEnum;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetGuard;
 use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Application\TargetVersionRecorder;
+use App\Upgrade\Application\UpgradeLogger;
 use App\Upgrade\Domain\MigrationSet;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommandHandler]
 final readonly class MigrateCommandHandler
@@ -39,7 +39,9 @@ final readonly class MigrateCommandHandler
         private MigrationRunner $migrationRunner,
         private MigrationSetGuard $migrationSetGuard,
         private TargetVersionRecorder $targetVersionRecorder,
-        private MigrationLogger $migrationLogger,
+        private UpgradeLogger $upgradeLogger,
+        #[Autowire(param: 'centreon.version')]
+        private string $platformVersion,
     ) {
     }
 
@@ -53,19 +55,18 @@ final readonly class MigrateCommandHandler
     public function __invoke(MigrateCommand $command): array
     {
         $set = $command->set;
-        $startedAt = $this->migrationLogger->start(MigrationOperationEnum::Migrate, $set);
 
         try {
-            $executed = $this->migrationSetGuard->run($set, fn (): array => $set?->isModule() === true ? $this->migrationRunner->migrate($set) : $this->migrateCore($set));
+            return $this->migrationSetGuard->run($set, fn (): array => $set?->isModule() === true ? $this->migrateSet($set) : $this->migrateCore($set));
         } catch (\Throwable $exception) {
-            $this->migrationLogger->failure(MigrationOperationEnum::Migrate, $set, $exception, $startedAt);
+            $this->upgradeLogger->error(
+                $this->platformVersion,
+                sprintf('Migration of the %s failed: %s', $set?->label() ?? 'core migration sets', $exception->getMessage()),
+                $exception,
+            );
 
             throw $exception;
         }
-
-        $this->migrationLogger->success(MigrationOperationEnum::Migrate, $set, $executed, $startedAt);
-
-        return $executed;
     }
 
     /**
@@ -78,15 +79,38 @@ final readonly class MigrateCommandHandler
         $legacyVersion = $this->targetVersionRecorder->legacyVersion();
 
         if ($set instanceof MigrationSet) {
-            return $this->migrationRunner->migrate($set);
+            return $this->migrateSet($set);
         }
 
         $executed = [];
         foreach (MigrationSet::coreSets() as $coreSet) {
-            $executed = [...$executed, ...$this->migrationRunner->migrate($coreSet)];
+            $executed = [...$executed, ...$this->migrateSet($coreSet)];
         }
 
         $this->targetVersionRecorder->record($legacyVersion);
+
+        return $executed;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function migrateSet(MigrationSet $set): array
+    {
+        $step = $set->migrationStep();
+        $this->upgradeLogger->step($this->platformVersion, $step, "Starting step '{$step}'");
+        $startedAt = hrtime(true);
+
+        try {
+            $executed = $this->migrationRunner->migrate($set);
+        } catch (\Throwable $exception) {
+            $this->upgradeLogger->stepFailure($this->platformVersion, $step, "Step '{$step}' failed: {$exception->getMessage()}", $exception);
+
+            throw $exception;
+        }
+
+        $durationMs = intdiv(hrtime(true) - $startedAt, 1_000_000);
+        $this->upgradeLogger->stepCompleted($this->platformVersion, $step, $durationMs, sprintf("Step '%s' completed in %dms: %d migration(s) executed", $step, $durationMs, \count($executed)));
 
         return $executed;
     }

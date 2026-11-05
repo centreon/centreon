@@ -92,6 +92,22 @@ final readonly class MigrationSet
     }
 
     /**
+     * The upgrade step that migrates this set, as the upgrade log names it.
+     */
+    public function migrationStep(): string
+    {
+        return 'migrations:' . $this->name;
+    }
+
+    /**
+     * The upgrade step that rolls this set back, as the upgrade log names it.
+     */
+    public function rollbackStep(): string
+    {
+        return 'migrations_rollback:' . $this->name;
+    }
+
+    /**
      * For people: the name is internal, and a module set is chosen by the name of its module.
      */
     public function label(): string

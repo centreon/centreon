@@ -58,6 +58,8 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         private ConnectionRegistry $connections,
         #[Autowire(service: 'monolog.logger.upgrade')]
         private LoggerInterface $logger,
+        #[Autowire(param: 'centreon.version')]
+        private string $platformVersion,
     ) {
     }
 
@@ -68,7 +70,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             return [];
         }
 
-        $factory = $this->createCheckedFactory($set, $configuration);
+        $factory = $this->createCheckedFactory($set, $configuration, $set->migrationStep());
         $latest = $factory->getVersionAliasResolver()->resolveVersionAlias('latest');
 
         return $this->execute($set, $factory, $factory->getMigrationPlanCalculator()->getPlanUntilVersion($latest));
@@ -82,7 +84,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         }
 
         // A dry run writes nothing: not even the metadata table.
-        $factory = $this->createCheckedFactory($set, $configuration, initialize: ! $dryRun);
+        $factory = $this->createCheckedFactory($set, $configuration, $set->rollbackStep(), initialize: ! $dryRun);
 
         // As status shows them, or as the generated file names end.
         $alias = preg_match('/^(Version\d+|\d{14})$/D', $versionOrAlias) === 1
@@ -140,7 +142,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             return new MigrationSetStatus($set, [], []);
         }
 
-        $factory = $this->createCheckedFactory($set, $configuration, initialize: false);
+        $factory = $this->createCheckedFactory($set, $configuration, $set->migrationStep(), initialize: false);
 
         return new MigrationSetStatus(
             $set,
@@ -154,7 +156,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         return $this->registry->all();
     }
 
-    private function createFactory(MigrationSetConfiguration $configuration): DependencyFactory
+    private function createFactory(MigrationSetConfiguration $configuration, string $step): DependencyFactory
     {
         $connection = $this->connections->getConnection($configuration->connection);
         if (! $connection instanceof Connection) {
@@ -178,7 +180,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
                 'table_storage' => ['table_name' => $configuration->table],
             ]),
             new ExistingConnection($connection),
-            $this->logger,
+            new MigrationStepLogger($this->logger, $this->platformVersion, $step),
         );
         $factory->setService(SchemaDiffProvider::class, new ReadOnlySchemaDiffProvider(new LazySchemaDiffProvider(
             new DBALSchemaDiffProvider($connection->createSchemaManager(), $platform),
@@ -211,9 +213,9 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
      * @throws \RuntimeException when migrations recorded as executed are missing from the code base, or when a migration
      *                           breaks the conventions
      */
-    private function createCheckedFactory(MigrationSet $set, MigrationSetConfiguration $configuration, bool $initialize = true): DependencyFactory
+    private function createCheckedFactory(MigrationSet $set, MigrationSetConfiguration $configuration, string $step, bool $initialize = true): DependencyFactory
     {
-        $factory = $this->createFactory($configuration);
+        $factory = $this->createFactory($configuration, $step);
         if ($initialize) {
             $factory->getMetadataStorage()->ensureInitialized();
         }
@@ -291,8 +293,6 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         if (\count($plan) === 0) {
             return [];
         }
-
-        $this->logger->info('Running the {set}', ['set' => $set->label(), 'direction' => $plan->getDirection()]);
 
         try {
             return array_map('strval', array_keys($factory->getMigrator()->migrate($plan, new MigratorConfiguration())));

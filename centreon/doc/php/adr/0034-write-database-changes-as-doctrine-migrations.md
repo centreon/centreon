@@ -28,9 +28,9 @@ Write a schema or data change as a **Doctrine migration of the upgrade engine**:
 ## Consequences
 
 - The engine refuses a migration that breaks the conventions: wrong base class, namespace or file name, or an empty description. `DmlMigration` and `DdlMigration` reject the statements they cannot run safely.
-- The upgrade log carries the context of the legacy scripts, so the two read as one:
-  - the engine writes `event`, `status`, `version`, `set` and `duration_ms` (`migration.start`, `migration.success`, `migration.failure`, `migration.version_recorded`);
-  - Doctrine writes one line per migration with its description and duration.
+- The upgrade log reads as one with the legacy scripts: every line carries `event`, `status`, `version` and `step`.
+  - Each set runs as an upgrade step (`migrations:realtime`, `migrations_rollback:configuration`), logged through `UpgradeLogger` as `upgrade.step`, `upgrade.step_completed` (with `duration_ms`) or `upgrade.step_failure`.
+  - Doctrine writes one `upgrade.migration` line per migration, with its description and duration.
 - A failed write to the upgrade log never fails an upgrade, as with `LoggerUpgrade`. The file is group-writable (`0664`).
 - Idempotency, revert scripts and the relevance of the traced decisions are checked in review only.
 - The usage details live in [`migrations/README.md`](../../../migrations/README.md).

@@ -24,13 +24,14 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Query;
 
 use App\Shared\Application\Query\AsQueryHandler;
-use App\Upgrade\Application\MigrationLogger;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Application\TargetVersionRecorder;
+use App\Upgrade\Application\UpgradeLogger;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsQueryHandler]
 final readonly class GetMigrationStatusQueryHandler
@@ -39,7 +40,9 @@ final readonly class GetMigrationStatusQueryHandler
         private MigrationRunner $migrationRunner,
         private ModuleRepository $moduleRepository,
         private TargetVersionRecorder $targetVersionRecorder,
-        private MigrationLogger $migrationLogger,
+        private UpgradeLogger $upgradeLogger,
+        #[Autowire(param: 'centreon.version')]
+        private string $platformVersion,
     ) {
     }
 
@@ -71,7 +74,7 @@ final readonly class GetMigrationStatusQueryHandler
                 $statuses[] = $this->status($set, $legacyRefusal);
             } catch (\Throwable $exception) {
                 // A check of migrate(), a database failure or a broken migration file: the other sets are still worth showing.
-                $this->migrationLogger->statusFailure($set, $exception);
+                $this->upgradeLogger->error($this->platformVersion, sprintf('Cannot read the status of the %s: %s', $set->label(), $exception->getMessage()), $exception);
                 $statuses[] = new MigrationSetStatus($set, [], [], $exception->getMessage());
             }
         }
@@ -101,7 +104,7 @@ final readonly class GetMigrationStatusQueryHandler
         } catch (\RuntimeException $exception) {
             return $exception->getMessage();
         } catch (\Throwable $exception) {
-            $this->migrationLogger->statusFailure(null, $exception);
+            $this->upgradeLogger->error($this->platformVersion, sprintf('Cannot read the platform version: %s', $exception->getMessage()), $exception);
 
             return $exception->getMessage();
         }
