@@ -11,8 +11,11 @@ name: docker-central
 # gorgone/broker/engine images for the smoke test) are pinned in
 # .github/docker/centreon-web-split/trixie/dependencies.env.
 
+# A `labeled` event for another label creates an empty run (get-environment
+# skips it): give it its own group, otherwise it would cancel the build in
+# progress on the branch.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}${{ github.event.action == 'labeled' && github.event.label.name != 'build-docker-central' && format('-{0}', github.run_id) || '' }}
   cancel-in-progress: true
 
 on:
