@@ -430,6 +430,28 @@ final class GetHostTemplateProviderTest extends ApiTestCase
         self::assertSame($routeMacros, $detailMacros);
     }
 
+    public function testTheCommandMacrosOfItsOwnLinkedServiceTemplatesAreNotInherited(): void
+    {
+        $commandId = $this->insertCommand('service-check', '$USER1$/check -t $_HOSTFROMSERVICE$');
+        $this->connection->insert('on_demand_macro_command', [
+            'command_command_id' => $commandId,
+            'command_macro_name' => 'FROMSERVICE',
+            'command_macro_type' => '1',
+        ]);
+        $linkedId = $this->insertServiceTemplate('linked');
+        $this->connection->update('service', ['command_command_id' => $commandId], ['service_id' => $linkedId]);
+        $id = $this->insertTemplate('tpl');
+        $this->connection->insert('host_service_relation', ['host_host_id' => $id, 'service_service_id' => $linkedId]);
+        $this->login();
+
+        $detailMacros = $this->listMember($this->request('GET', $this->uri($id), self::JSON)->toArray(), 'check_options', 'macros');
+        $routeMacros = $this->request('GET', "/api/configuration/host_templates/host_templates/{$id}/macros", self::JSON)->toArray()['macros'];
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame([], $detailMacros);
+        self::assertSame(['FROMSERVICE'], array_column((array) $routeMacros, 'name'));
+    }
+
     public function testItAnswersPromptlyOnALoopAlreadyInTheData(): void
     {
         $first = $this->insertTemplate('loop-first');

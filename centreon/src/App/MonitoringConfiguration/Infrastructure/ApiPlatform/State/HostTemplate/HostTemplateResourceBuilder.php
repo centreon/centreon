@@ -167,8 +167,8 @@ final readonly class HostTemplateResourceBuilder
     }
 
     /**
-     * The macros are resolved along the template itself, whatever its activation, then its active
-     * ancestors.
+     * The inherited macros come from the active ancestors and from the check command, the template's own
+     * or else the nearest ancestor's. The template's own linked service templates do not feed them.
      */
     private function buildCheckOptions(HostTemplate $template): HostTemplateCheckOptionsOutput
     {
@@ -178,12 +178,11 @@ final readonly class HostTemplateResourceBuilder
             $command = new HostTemplateCheckCommandOutput($checkCommand->id()->value, $checkCommand->name->value);
         }
 
-        $line = [$template, ...array_values($this->hostTemplateRepository->findInheritanceLine($template->parentTemplateIds)->toArray())];
         $ownMacros = array_values(array_map(
             static fn (HostTemplateMacro $macro): HostMacro => $macro->toHostMacro(),
             $template->checkOptions->macros->toArray(),
         ));
-        $inherited = $this->inheritedHostMacrosResolver->resolveLine($line, null);
+        $inherited = $this->inheritedHostMacrosResolver->resolve($template->parentTemplateIds, $template->checkOptions->checkCommandId);
 
         return new HostTemplateCheckOptionsOutput(
             $command,
