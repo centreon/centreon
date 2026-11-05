@@ -234,8 +234,6 @@ install:
   # First install only: force the admin to change its password at first
   # login (web UI; the REST API does not handle that state).
   adminPasswordExpired: false
-  # 1 = load the CI test dataset after install (CENTREON_DATASET).
-  dataset: "0"
   resources: {}
 
 # ---------------------------------------------------------------------------
