@@ -15,13 +15,13 @@ import {
 } from '../../ResourceForm/layout';
 import {
   labelAdvanced,
-  labelCheckCommandTemplateCustomMacros,
   labelGeneralInformation,
   labelMonitoringEngine,
   labelMonitoringEngineSchedulingOptions,
   labelNotification,
   labelRelations,
-  labelSchedulingOptions
+  labelSchedulingOptions,
+  labelServiceMonitoringProperties
 } from '../translatedLabels';
 import { type BlockId, type Blocks, serviceResource } from './sections';
 
@@ -30,7 +30,7 @@ import { type BlockId, type Blocks, serviceResource } from './sections';
 export const layout: Array<LayoutSection> = [
   { label: labelGeneralInformation, nodes: ['basicInformation'] },
   {
-    label: labelCheckCommandTemplateCustomMacros,
+    label: labelServiceMonitoringProperties,
     nodes: [
       {
         // The command on the left, over the template; the macros on the
