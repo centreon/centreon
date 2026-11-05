@@ -214,6 +214,10 @@ final readonly class CreateHostTemplateCommandHandler
 
     private function vaultUuidOf(?HostTemplateSnmpCommunity $snmpCommunity): ?string
     {
+        if (! $this->vault->isEnabled()) {
+            return null;
+        }
+
         return $snmpCommunity instanceof HostTemplateSnmpCommunity && $this->vault->isVaultPath($snmpCommunity->value)
             ? $this->vault->extractUuid($snmpCommunity->value)
             : null;
@@ -224,6 +228,10 @@ final readonly class CreateHostTemplateCommandHandler
      */
     private function vaultUuidOfMacros(array $macros): ?string
     {
+        if (! $this->vault->isEnabled()) {
+            return null;
+        }
+
         $vaulted = array_find(
             $macros,
             fn (HostTemplateMacro $macro): bool => $macro->isPassword && $this->vault->isVaultPath($macro->value),
