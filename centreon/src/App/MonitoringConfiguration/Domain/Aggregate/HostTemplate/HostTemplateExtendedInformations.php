@@ -53,11 +53,18 @@ final readonly class HostTemplateExtendedInformations
 
     public function equals(self $other): bool
     {
-        return $this->noteUrl === $other->noteUrl
-            && $this->note === $other->note
-            && $this->actionUrl === $other->actionUrl
+        return $this->trimmed($this->noteUrl) === $this->trimmed($other->noteUrl)
+            && $this->trimmed($this->note) === $this->trimmed($other->note)
+            && $this->trimmed($this->actionUrl) === $this->trimmed($other->actionUrl)
             && $this->iconId?->value === $other->iconId?->value
-            && $this->altIcon === $other->altIcon
-            && $this->comment === $other->comment;
+            && $this->trimmed($this->altIcon) === $this->trimmed($other->altIcon)
+            && $this->trimmed($this->comment) === $this->trimmed($other->comment);
+    }
+
+    private function trimmed(?string $text): ?string
+    {
+        $trimmed = trim($text ?? '');
+
+        return $trimmed === '' ? null : $trimmed;
     }
 }

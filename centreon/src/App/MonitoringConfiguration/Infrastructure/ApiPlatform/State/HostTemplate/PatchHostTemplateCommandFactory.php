@@ -52,8 +52,7 @@ use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
 use Webmozart\Assert\Assert;
 
 /**
- * A key left out of the body is NoValue; a key sent as null clears the value, and a tri-state sent as
- * null is "use_default".
+ * A key left out of the body becomes NoValue; a tri-state sent as null becomes "use_default".
  */
 final readonly class PatchHostTemplateCommandFactory
 {
@@ -89,11 +88,7 @@ final readonly class PatchHostTemplateCommandFactory
                     $payload->section('notifications'),
                 )),
             ),
-            snmpCommunity: $this->provided($payload, 'snmp_community', static function () use ($input): ?string {
-                $community = trim($input->snmpCommunity ?? '');
-
-                return $community === '' ? null : $community;
-            }),
+            snmpCommunity: $this->provided($payload, 'snmp_community', fn (): ?string => $this->trimmedOrNull($input->snmpCommunity)),
         );
     }
 
@@ -108,13 +103,20 @@ final readonly class PatchHostTemplateCommandFactory
     private function extendedInformations(PatchHostTemplateExtendedInformationsInput $data, RequestPayload $sent): HostTemplateExtendedInformationsChange
     {
         return new HostTemplateExtendedInformationsChange(
-            noteUrl: $this->provided($sent, 'note_url', static fn (): ?string => $data->noteUrl),
-            note: $this->provided($sent, 'note', static fn (): ?string => $data->note),
-            actionUrl: $this->provided($sent, 'action_url', static fn (): ?string => $data->actionUrl),
+            noteUrl: $this->provided($sent, 'note_url', fn (): ?string => $this->trimmedOrNull($data->noteUrl)),
+            note: $this->provided($sent, 'note', fn (): ?string => $this->trimmedOrNull($data->note)),
+            actionUrl: $this->provided($sent, 'action_url', fn (): ?string => $this->trimmedOrNull($data->actionUrl)),
             iconId: $this->provided($sent, 'icon_id', static fn (): ?MediaId => $data->iconId !== null ? new MediaId($data->iconId) : null),
-            altIcon: $this->provided($sent, 'alt_icon', static fn (): ?string => $data->altIcon),
-            comment: $this->provided($sent, 'comment', static fn (): ?string => $data->comment),
+            altIcon: $this->provided($sent, 'alt_icon', fn (): ?string => $this->trimmedOrNull($data->altIcon)),
+            comment: $this->provided($sent, 'comment', fn (): ?string => $this->trimmedOrNull($data->comment)),
         );
+    }
+
+    private function trimmedOrNull(?string $value): ?string
+    {
+        $trimmed = trim($value ?? '');
+
+        return $trimmed === '' ? null : $trimmed;
     }
 
     private function schedulingOptions(CreateHostTemplateSchedulingOptionsInput $data, RequestPayload $sent): HostTemplateSchedulingOptionsChange

@@ -29,10 +29,6 @@ use App\MonitoringConfiguration\Infrastructure\Validator\ExistingMedia;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * The texts are stored as sent, so that a form save resending a stored text unchanged changes nothing.
- * The alternative icon text is bounded untrimmed: its column holds 200 characters.
- */
 final readonly class PatchHostTemplateExtendedInformationsInput
 {
     public function __construct(
@@ -59,7 +55,7 @@ final readonly class PatchHostTemplateExtendedInformationsInput
 
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
-            new Assert\Length(max: HostTemplateExtendedInformations::MAX_ALT_ICON_LENGTH),
+            new Assert\Length(max: HostTemplateExtendedInformations::MAX_ALT_ICON_LENGTH, normalizer: 'trim'),
         ])]
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Blank(message: 'This field is not available on a Cloud platform.'),

@@ -235,13 +235,41 @@ final class HostTemplateChangeTest extends TestCase
 
         yield 'arguments' => [static fn (): HostTemplateChange => new HostTemplateChange(checkOptions: new HostTemplateCheckOptionsChange(args: ['-c']))];
 
-        yield 'an extended text' => [static fn (): HostTemplateChange => new HostTemplateChange(extendedInformations: new HostTemplateExtendedInformationsChange(note: 'kept as stored'))];
+        yield 'an extended text' => [static fn (): HostTemplateChange => new HostTemplateChange(extendedInformations: new HostTemplateExtendedInformationsChange(note: 'another note'))];
 
         yield 'a scheduling option' => [static fn (): HostTemplateChange => new HostTemplateChange(schedulingOptions: new HostTemplateSchedulingOptionsChange(activeCheckEnabled: TriStateEnum::False))];
 
         yield 'a data processing option' => [static fn (): HostTemplateChange => new HostTemplateChange(dataProcessing: new HostTemplateDataProcessingChange(eventHandlerArgs: ['x']))];
 
         yield 'a notification setting' => [static fn (): HostTemplateChange => new HostTemplateChange(notifications: new HostTemplateNotificationsChange(contactAdditiveInheritance: true))];
+    }
+
+    public function testAStoredTextResentTrimmedChangesNothing(): void
+    {
+        $template = $this->template();
+
+        $changed = $template->withChange(new HostTemplateChange(extendedInformations: new HostTemplateExtendedInformationsChange(note: 'kept as stored')));
+
+        self::assertTrue($changed->hasSameConfigurationAs($template));
+    }
+
+    #[DataProvider('provideExtendedTexts')]
+    public function testExtendedTextsAreComparedTrimmed(string $text): void
+    {
+        $stored = new HostTemplateExtendedInformations(...[$text => ' x ']);
+
+        self::assertTrue($stored->equals(new HostTemplateExtendedInformations(...[$text => 'x'])));
+        self::assertFalse($stored->equals(new HostTemplateExtendedInformations(...[$text => 'y'])));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideExtendedTexts(): iterable
+    {
+        foreach (['noteUrl', 'note', 'actionUrl', 'altIcon', 'comment'] as $text) {
+            yield $text => [$text];
+        }
     }
 
     public function testContactsComparedAsSets(): void
