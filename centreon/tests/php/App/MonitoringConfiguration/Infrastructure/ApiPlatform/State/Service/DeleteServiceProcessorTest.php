@@ -29,9 +29,7 @@ use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
 /**
- * The HTTP wiring of the service deletion: route, authentication and access gate, error bodies, and one deletion
- * end to end with its side effects. The order of the checks and the events are pinned by
- * DeleteServiceCommandHandlerTest, which service a user can reach by the repository's integration test.
+ * HTTP wiring of the service deletion: route, access gate, error bodies, one end-to-end deletion.
  */
 final class DeleteServiceProcessorTest extends ApiTestCase
 {

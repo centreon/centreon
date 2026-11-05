@@ -92,8 +92,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     ];
 
     /**
-     * The state of the host `h` the service is read with, which decides the poller to flag when the service changes.
-     * Read with the service, so it is still known once the service row is deleted.
+     * Host state read with the service, so the poller to flag survives the service row deletion.
      */
     private const HOST_STATE_COLUMNS = [
         'h.host_activate',

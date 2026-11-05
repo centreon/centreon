@@ -41,8 +41,7 @@ final readonly class DeleteServiceCommandHandler
     }
 
     /**
-     * The service is loaded before anything is written: the deletion event carries it as it was, with the
-     * poller of its host, which can no longer be read once its row is gone.
+     * Loaded first: the deletion event needs the host's poller, unreadable once the row is gone.
      */
     public function __invoke(DeleteServiceCommand $command): void
     {

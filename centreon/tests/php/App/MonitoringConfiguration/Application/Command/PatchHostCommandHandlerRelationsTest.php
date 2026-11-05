@@ -661,9 +661,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
         ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
 
-        // The update succeeds, and the removed service, ACL- and poller-scoped, goes through the generic handlers
-        // too: one more ACL flag on the same tables as the host's own, and its host's poller while that host is
-        // enabled.
+        // The removed service also flags ACL once more and its enabled host's poller.
         $deleted = $this->eventBus->getDispatchedEvents(ServiceDeleted::class);
         self::assertCount(1, $deleted);
         self::assertSame($service, $deleted[0]->aggregate);

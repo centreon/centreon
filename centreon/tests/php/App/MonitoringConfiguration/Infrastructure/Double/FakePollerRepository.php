@@ -142,8 +142,7 @@ final class FakePollerRepository implements PollerRepository
     }
 
     /**
-     * Records the resource whose poller is flagged; like the real repository, a service with no poller to flag
-     * flags nothing.
+     * Records the flagged resource; a service with no poller to flag is skipped, as in the real repository.
      */
     public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
     {

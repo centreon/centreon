@@ -38,9 +38,7 @@ interface ServiceRepository
      * a service also reachable through a hostgroup or another host is left alone, only one that
      * would be orphaned by deleting this host is cascade-deleted with it.
      *
-     * Returns hydrated `Service` aggregates, not just ids: the caller needs the name (activity log),
-     * macros (vault purge) and the host's activation and poller as they are now (poller flag, once the
-     * rows are gone) for each one.
+     * Returns hydrated `Service` aggregates: name (activity log), macros (vault purge), host state (poller flag).
      *
      * @return Collection<Service>
      */

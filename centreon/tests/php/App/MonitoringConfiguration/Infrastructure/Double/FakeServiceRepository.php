@@ -112,8 +112,7 @@ final class FakeServiceRepository implements ServiceRepository
     }
 
     /**
-     * Visibility is SQL, pinned by the integration tests of the real repository: here a stored service is found
-     * unless it is listed in {@see $outOfRestrictedScopeIds} and the actor's access is restricted.
+     * Service found unless listed in {@see $outOfRestrictedScopeIds} for a restricted actor; real visibility is SQL.
      */
     public function findOne(ServiceId $id, ActingUser $actor): ?Service
     {

@@ -160,8 +160,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
 
         ($this->handler)(new DeleteHostCommand($host->id(), actor: TestActingUsers::unrestricted(1)));
 
-        // The cascaded service is ACL-scoped, so the generic ACL handler flags once more for it (same tables as
-        // the host's own flag), and it still names the poller of its enabled host after its row is gone.
+        // The cascaded service also flags ACL once more and names its enabled host's poller.
         $deleted = $this->eventBus->getDispatchedEvents(ServiceDeleted::class);
         self::assertCount(1, $deleted);
         self::assertInstanceOf(AclScopedInterface::class, $deleted[0]->aggregate);
@@ -181,7 +180,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
     }
 
     /**
-     * Runs the deletion events fired through the generic poller handler: the services' events first, then
+     * Runs the fired deletion events through the poller handler, services first, then
      * the host's.
      *
      * @return list<object>

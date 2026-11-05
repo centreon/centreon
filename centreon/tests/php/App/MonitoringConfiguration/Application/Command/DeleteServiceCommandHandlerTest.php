@@ -83,8 +83,7 @@ final class DeleteServiceCommandHandlerTest extends TestCase
 
         self::assertArrayNotHasKey($service->id()->value, $this->serviceRepository->services);
 
-        // The deleted service, as loaded before its deletion: it still knows its name and host (activity log)
-        // and the poller to flag, which the database can no longer tell.
+        // The service as loaded before deletion: name, host and poller to flag.
         $deleted = $this->eventBus->getDispatchedEvents(ServiceDeleted::class);
         self::assertCount(1, $deleted);
         self::assertSame($service, $deleted[0]->aggregate);

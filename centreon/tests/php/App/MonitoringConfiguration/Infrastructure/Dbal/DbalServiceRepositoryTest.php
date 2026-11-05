@@ -639,8 +639,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
 
     public function testFindOneHostGroupDerivedPairAloneGrantsNothing(): void
     {
-        // The real-time ACL cache also holds pairs derived from host group links: a granted pair whose host the
-        // service is not directly linked to grants nothing.
+        // A host-group-derived ACL pair grants nothing to a service not directly linked to that host.
         $this->givenTheRestrictedActorBelongsTo(11);
         $linkedHostId = $this->insertListedHost('h1');
         $otherHostId = $this->insertListedHost('h2');
@@ -723,8 +722,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
 
     public function testTheHostFlowFindersLoadTheStateOfTheHost(): void
     {
-        // Read with the services, before anything is deleted: the poller to flag is no longer readable once the
-        // service rows are gone.
+        // Host state is read before service deletion.
         $pollerId = $this->createPoller('poller-' . $this->token);
         $hostId = $this->createHost('server-' . $this->token, $pollerId);
         $this->connection->update('host', ['host_activate' => '0'], ['host_id' => $hostId]);

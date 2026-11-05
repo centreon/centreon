@@ -439,8 +439,6 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
      */
     public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
     {
-        // Extend this match when another poller-scoped resource type needs the same bookkeeping
-        // (see PollerScopedInterface).
         $pollerId = match (true) {
             $resource instanceof Host => $resource->pollerId,
             $resource instanceof Service => $resource->pollerToFlag(),

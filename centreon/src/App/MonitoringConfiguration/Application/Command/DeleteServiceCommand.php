@@ -29,8 +29,7 @@ use App\Security\Domain\Aggregate\ActingUser;
 final readonly class DeleteServiceCommand
 {
     /**
-     * @param ActingUser $actor the acting user: the action-log actor, whose ACL scope also bounds the
-     *                          service lookup
+     * @param ActingUser $actor action-log actor; its ACL scope bounds the service lookup
      */
     public function __construct(
         public ServiceId $id,
