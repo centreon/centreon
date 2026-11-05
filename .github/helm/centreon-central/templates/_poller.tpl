@@ -247,13 +247,8 @@ containers:
   - name: centengine
     image: {{ include "centreon-central.image" $.Values.images.engine }}
     imagePullPolicy: {{ $.Values.images.engine.pullPolicy }}
-    # centengine exits without its cbmod config, which gorgone delivers on
-    # the first export. gorgone runs in this pod, so an initContainer can't
-    # wait for it: the container waits (files/centreon-central-wait-broker-
-    # module-config.sh, the script compose mounts), then runs the image's
-    # entrypoint with its command.
-    command: ["/bin/sh", "-c", {{ printf "%s\nexec /usr/local/lib/centreon-engine/container.sh \"$@\"\n" (required "files/centreon-central-wait-broker-module-config.sh missing from the chart" ($.Files.Get "files/centreon-central-wait-broker-module-config.sh")) | toJson }}, "wait-broker-module-config"]
-    args: ["/usr/sbin/centengine", "/etc/centreon-engine/centengine.cfg"]
+    # The image waits for its cbmod config (delivered by gorgone on the first
+    # export) before starting centengine.
     env:
       - { name: NAME, value: {{ $p.name | quote }} }
       - { name: TZ, value: {{ $p.timezone | default "UTC" | quote }} }
