@@ -158,6 +158,7 @@ jobs:
         "centreon/phpstan.*"
         "centreon/phpunit*.xml"
         "centreon/rector.*"
+        "centreon/tests/acl/**"
         "centreon/tests/php/**"
       frontend_test_paths: |
         "centreon/cypress.config.ts"
@@ -681,6 +682,30 @@ jobs:
 
       - name: Run Core integration tests
         run: composer run test:core
+        working-directory: centreon
+
+      - name: Check ACL computation on dataset S
+        # After the PHPUnit suites: their bootstrap created the schema, and they leave no ACL data behind.
+        # Runs centAcl.php on dataset S, checks its rows and writes, and writes the time and memory of each run to the
+        # job summary. On a pull request, the cron scripts of the target branch are measured on the same runner: the
+        # step fails when this branch is more than 20 % slower, or uses more than 5 % more PHP memory, when little or
+        # nothing changed. See centreon/tests/acl/README.md.
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          # A failed git archive must fail the step, not leave tar an empty archive.
+          set -o pipefail
+          sudo mkdir -p /var/lib/centreon && sudo chown "$USER:$USER" /var/lib/centreon
+          if [ -n "$BASE_REF" ]; then
+            git fetch --no-tags --depth=1 origin "$BASE_REF"
+            mkdir -p "$RUNNER_TEMP/acl-baseline-cron"
+            # From the repository root: run from a subdirectory, git archive keeps only the paths under it.
+            git -C "$GITHUB_WORKSPACE" archive FETCH_HEAD:centreon/cron | tar -x -C "$RUNNER_TEMP/acl-baseline-cron"
+            php tests/acl/qualify.php scenarios S --baseline "$RUNNER_TEMP/acl-baseline-cron" \
+              --baseline-ref "$BASE_REF" --baseline-commit "$(git rev-parse FETCH_HEAD)"
+          else
+            php tests/acl/qualify.php scenarios S
+          fi
         working-directory: centreon
 
       - name: Display application logs
