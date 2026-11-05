@@ -109,12 +109,18 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
   4: { alias: 'Linux SNMP base', is_locked: true, name: 'OS-Linux-SNMP' }
 };
 
+// Template 2 has check arguments but no check command of its own.
+const checkOptionsWithoutCommand: Record<number, Record<string, unknown>> = {
+  2: { check_options: { args: ['80', 'graceful'] } }
+};
+
 export const getHostTemplateResponse = (id: number) => ({
   '@context': '/centreon/api/contexts/HostTemplate',
   '@id': `/centreon/api/configuration/host_templates/${id}`,
   '@type': 'HostTemplate',
   id,
-  ...hostTemplateDetails[id]
+  ...hostTemplateDetails[id],
+  ...checkOptionsWithoutCommand[id]
 });
 
 const toCollection = (

@@ -164,6 +164,47 @@ export default () => {
       expect(body).not.toHaveProperty('snmp_community');
     });
 
+    it('takes arguments without a check command and sends them with none', async () => {
+      await openCreationForm();
+
+      const args = await getInput('host-template-form-check-options-args');
+
+      expect(args).toBeEnabled();
+      await userEvent.type(args, '!80!90');
+
+      await save();
+
+      const { request } = await waitForRequest('@createHostTemplate');
+
+      expect(
+        (request.body as Record<string, unknown>).check_options
+      ).toMatchObject({ args: ['80', '90'], command_id: null });
+    });
+
+    it('keeps the arguments of a template without a check command on save', async () => {
+      await openTemplate(2);
+
+      const args = await getInput('host-template-form-check-options-args');
+
+      await waitFor(() => expect(args).toHaveValue('!80!graceful'));
+      expect(args).toBeEnabled();
+      expect(
+        screen.getByTestId('host-template-form-check-options-command')
+      ).toHaveValue('');
+
+      const alias = await getInput('host-template-form-alias');
+
+      await userEvent.type(alias, 'Generic host');
+
+      await save();
+
+      const { request } = await waitForRequest('@updateHostTemplate2');
+
+      expect(
+        (request.body as Record<string, unknown>).check_options
+      ).toMatchObject({ args: ['80', 'graceful'], command_id: null });
+    });
+
     it('sends only the macros the template owns or changes', async () => {
       await openTemplate(1);
 

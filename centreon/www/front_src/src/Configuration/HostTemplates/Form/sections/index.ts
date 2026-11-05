@@ -34,6 +34,8 @@ export const blocks = [
   getLockedBlock(),
   getCheckCommandBlock({
     endpoint: hostTemplateFormCommandsEndpoint,
+    // A template's arguments may apply to the command its parents set.
+    hasInheritedCommand: () => true,
     resource,
     title: labelHostCheckOptions
   }),
