@@ -88,7 +88,14 @@ export default () => {
         screen.getByTestId(listingDataTestIds.row.duplicate(0))
       );
 
-      await userEvent.click(await screen.findByTestId('confirm'));
+      const confirm = await screen.findByTestId('confirm');
+
+      // A plain confirmation: the copy is not named.
+      expect(
+        document.querySelector('input[data-testid="duplicate-name"]')
+      ).toBeNull();
+
+      await userEvent.click(confirm);
 
       // The route names the host and takes no body.
       const { request } = await waitForRequest('@duplicateHost');
@@ -97,6 +104,7 @@ export default () => {
         '/api/configuration/hosts/0/_duplicate'
       );
       expect(request.url.pathname).not.toContain('/api/latest');
+      expect(request.body).toBeUndefined();
     });
 
     it('deletes every selected host, one request each', async () => {

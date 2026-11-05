@@ -83,6 +83,7 @@ tags:
     name: Proxy
   -
     name: Service
+    description: "Resource 'Service' operations."
   -
     name: 'Service group'
   -
@@ -6533,6 +6534,233 @@ paths:
             type: string
           style: simple
           explode: false
+  '/api/configuration/host_templates/{id}':
+    delete:
+      operationId: api_configurationhost_templates_id_delete
+      tags:
+        - HostTemplate
+      responses:
+        '400':
+          description: 'The host template is locked'
+        '403':
+          description: 'You are not allowed to delete host templates'
+        '404':
+          description: 'Host template not found'
+        '502':
+          description: 'The host template was deleted but its vault entry could not be purged'
+        '204':
+          description: 'HostTemplate resource deleted'
+      summary: 'Delete a host template'
+      description: 'Delete a host template'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+  '/api/configuration/host_templates/{id}/_duplicate':
+    post:
+      operationId: api_configurationhost_templates_id_duplicate_post
+      tags:
+        - HostTemplate
+      responses:
+        '204':
+          description: 'Host template duplicated'
+          links: {}
+        '400':
+          description: 'The host template is locked, or the body is not a JSON object'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '403':
+          description: 'You are not allowed to duplicate host templates'
+        '404':
+          description: 'Host template not found'
+        '409':
+          description: 'A host or host template already uses this name'
+        '422':
+          description: 'Invalid name, or the generated name would exceed the maximum length'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+      summary: 'Duplicate a host template'
+      description: 'Duplicates a single host template. The copy takes the given name, or, when none is given, the source name with the first free "_<n>" suffix.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'Optional: without a body, or without a name, the copy is named "<source name>_<n>".'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.DuplicateHostTemplateInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.DuplicateHostTemplateInput'
+        required: false
+  /api/configuration/services:
+    get:
+      operationId: api_configurationservices_get_collection
+      tags:
+        - Service
+      responses:
+        '200':
+          description: 'Service collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'Service.ServiceCollectionOutput.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Service.ServiceCollectionOutput.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service.ServiceCollectionOutput'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'List the services'
+      description: 'Services linked to host groups are not listed. The check intervals and the icon are the effective ones, inherited from the service templates when the service has none of its own; intervals are in engine units.'
+      parameters:
+        -
+          name: 'host_name[lk]'
+          in: query
+          description: 'Filter by host name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by service name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: template_id
+          in: query
+          description: 'Filter by direct service template id'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+          style: form
+          explode: true
+        -
+          name: activated
+          in: query
+          description: 'Filter by service activation status'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: host_activated
+          in: query
+          description: 'Filter by host activation status; all hosts when absent'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: sort
+          in: query
+          description: 'Sort by one or several fields, in order of precedence (e.g. `sort[host_name]=asc`). Default: host name, then service name.'
+          required: false
+          deprecated: false
+          schema:
+            type: object
+            properties:
+              host_name:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              name:
+                type: string
+                enum:
+                  - asc
+                  - desc
+          style: deepObject
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
 components:
   securitySchemes:
     Token:
@@ -13639,3 +13867,111 @@ components:
         contact_group_additive_inheritance:
           description: "Ignored unless the platform's inheritance mode enables additive inheritance."
           type: boolean
+    HostTemplate.DuplicateHostTemplateInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: 'The name of the copy, its spaces turned into underscores. Left out, the copy is named "<source name>_<n>".'
+    Service.ServiceCollectionOutput:
+      type: object
+      properties:
+        host:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            icon:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                url:
+                  type: string
+        icon:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            url:
+              type: string
+        normal_check_interval:
+          description: 'Effective normal check interval, in engine interval units'
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          description: 'Effective retry check interval, in engine interval units'
+          type:
+            - integer
+            - 'null'
+        template:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        id:
+          type: integer
+        name:
+          type: string
+        activated:
+          type: boolean
+    Service.ServiceCollectionOutput.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            host:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                icon:
+                  type: object
+                  properties: { id: { type: integer }, name: { type: string }, url: { type: string } }
+            icon:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                url:
+                  type: string
+            normal_check_interval:
+              description: 'Effective normal check interval, in engine interval units'
+              type:
+                - integer
+                - 'null'
+            retry_check_interval:
+              description: 'Effective retry check interval, in engine interval units'
+              type:
+                - integer
+                - 'null'
+            template:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+            id:
+              type: integer
+            name:
+              type: string
+            activated:
+              type: boolean

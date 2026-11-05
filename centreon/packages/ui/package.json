@@ -48,7 +48,6 @@
   "exports": {
     ".": "./src/index.ts",
     "./components": "./src/components/index.ts",
-    "./fonts/*": "./src/fonts/*",
     "./test/testRenderer": "./test/testRenderer.tsx",
     "./tailwindcss": "./src/ThemeProvider/tailwindcss.css"
   },
@@ -129,6 +128,7 @@
     "@centreon/ui-context": "workspace:*"
   },
   "dependencies": {
+    "@fontsource/roboto": "^5.3.0",
     "@lexical/html": "^0.27.0",
     "@lexical/link": "^0.27.0",
     "@lexical/list": "^0.27.0",
@@ -153,7 +153,6 @@
     "@visx/visx": "3.12.0",
     "@visx/zoom": "^3.12.0",
     "anylogger": "^1.0.11",
-    "chromatic": "^13.3.3",
     "d3-array": "3.2.4",
     "dayjs": "^1.11.13",
     "highlight.js": "^11.11.1",

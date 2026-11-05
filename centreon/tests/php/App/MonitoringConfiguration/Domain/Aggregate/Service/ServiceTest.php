@@ -24,11 +24,14 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
 
@@ -42,6 +45,46 @@ final class ServiceTest extends TestCase
         self::assertSame('web-check', $service->name->value);
         self::assertSame(1, $service->hostId->value);
         self::assertSame([], $service->macros);
+    }
+
+    public function testItHasNoOwnTemplateIconNorIntervalsAndIsEnabledByDefault(): void
+    {
+        $service = $this->service();
+
+        self::assertTrue($service->activated);
+        self::assertNull($service->templateId);
+        self::assertNull($service->iconId);
+        self::assertEquals(new ServiceCheckIntervals(), $service->checkIntervals);
+    }
+
+    public function testItHoldsItsOwnTemplateIconAndIntervals(): void
+    {
+        $service = new Service(
+            id: new ServiceId(42),
+            name: new ServiceName('web-check'),
+            hostId: new HostId(1),
+            activated: false,
+            templateId: new ServiceTemplateId(7),
+            iconId: new MediaId(8),
+            checkIntervals: new ServiceCheckIntervals(normal: 5, retry: 1),
+        );
+
+        self::assertFalse($service->activated);
+        self::assertSame(7, $service->templateId?->value);
+        self::assertSame(8, $service->iconId?->value);
+        self::assertSame(5, $service->checkIntervals->normal);
+        self::assertSame(1, $service->checkIntervals->retry);
+    }
+
+    public function testDisableThenEnable(): void
+    {
+        $service = $this->service();
+
+        $service->disable();
+        self::assertFalse($service->activated);
+
+        $service->enable();
+        self::assertTrue($service->activated);
     }
 
     public function testGetVaultUuidReturnsNullWhenNothingIsVaulted(): void

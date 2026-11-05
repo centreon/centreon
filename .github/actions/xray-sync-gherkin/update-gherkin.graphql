@@ -1,0 +1,6 @@
+# Mutation to replace the Gherkin definition of a Cucumber Test.
+mutation UpdateGherkinTestDefinition($id: String!, $gherkin: String!) {
+  updateGherkinTestDefinition(issueId: $id, gherkin: $gherkin) {
+    issueId
+  }
+}

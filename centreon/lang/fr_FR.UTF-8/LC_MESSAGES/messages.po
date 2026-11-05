@@ -25619,3 +25619,51 @@ msgstr "Commande de vérification / Modèle / Macros personnalisées"
 #: centreon/www/install/front_translate.php
 msgid "{{name}} ({{level}})"
 msgstr "{{name}} ({{level}})"
+
+msgid "Delete host template"
+msgstr "Supprimer le modèle d'hôte"
+
+msgid "Delete host templates"
+msgstr "Supprimer les modèles d'hôtes"
+
+msgid "Duplicate host template"
+msgstr "Dupliquer le modèle d'hôte"
+
+msgid "Duplicate host templates"
+msgstr "Dupliquer les modèles d'hôtes"
+
+msgid "Host template deleted"
+msgstr "Modèle d'hôte supprimé"
+
+msgid "Host templates deleted"
+msgstr "Modèles d'hôtes supprimés"
+
+msgid "Host template duplicated"
+msgstr "Modèle d'hôte dupliqué"
+
+msgid "Host templates duplicated"
+msgstr "Modèles d'hôtes dupliqués"
+
+msgid "Failed to delete the host template"
+msgstr "Échec de la suppression du modèle d'hôte"
+
+msgid "Failed to delete the host templates"
+msgstr "Échec de la suppression des modèles d'hôtes"
+
+msgid "Failed to duplicate the host template"
+msgstr "Échec de la duplication du modèle d'hôte"
+
+msgid "Failed to duplicate the host templates"
+msgstr "Échec de la duplication des modèles d'hôtes"
+
+msgid "You are about to delete the <strong>{{ name }}</strong> host template. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer le modèle d'hôte <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
+
+msgid "You are about to delete <strong>{{ count }} host templates.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} modèles d'hôtes.</strong> Cette action est irréversible. Voulez-vous les supprimer ?"
+
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host template."
+msgstr "Vous êtes sur le point de dupliquer le modèle d'hôte <strong>{{ name }}</strong>."
+
+msgid "You are about to duplicate <strong>{{ count }} host templates.</strong>"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} modèles d'hôtes.</strong>"

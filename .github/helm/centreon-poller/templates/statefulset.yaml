@@ -268,6 +268,9 @@ spec:
         - name: snmptrapd
           image: {{ include "centreon-poller.image" (dict "ctx" $ "image" .images.snmptrapd) }}
           imagePullPolicy: {{ .images.snmptrapd.pullPolicy }}
+          # Role keyword for centreon-trapd's entrypoint: `args`, not
+          # `command` (which would replace the entrypoint itself).
+          args: ["snmptrapd"]
           env:
             - { name: TZ, value: {{ $.Values.poller.timezone | quote }} }
             - { name: DEBUG, value: {{ $.Values.debug | quote }} }
@@ -282,6 +285,7 @@ spec:
         - name: centreontrapd
           image: {{ include "centreon-poller.image" (dict "ctx" $ "image" .images.centreontrapd) }}
           imagePullPolicy: {{ .images.centreontrapd.pullPolicy }}
+          args: ["centreontrapd"]
           env:
             - { name: TZ, value: {{ $.Values.poller.timezone | quote }} }
             - { name: DEBUG, value: {{ $.Values.debug | quote }} }
