@@ -32,6 +32,9 @@ use App\Shared\Domain\NoValue;
  */
 final readonly class HostTemplateNotificationsChange
 {
+    /**
+     * @param NoValue|list<HostTemplateNotificationOptionEnum> $options the options the template ends up with
+     */
     public function __construct(
         public NoValue|TriStateEnum $enabled = new NoValue(),
         public NoValue|int|null $interval = new NoValue(),
@@ -40,7 +43,39 @@ final readonly class HostTemplateNotificationsChange
         public NoValue|int|null $recoveryDelay = new NoValue(),
         public NoValue|bool $contactAdditiveInheritance = new NoValue(),
         public NoValue|bool $contactGroupAdditiveInheritance = new NoValue(),
+        public NoValue|array $options = new NoValue(),
     ) {
+    }
+
+    /**
+     * @param list<HostTemplateNotificationOptionEnum> $options
+     */
+    public function withOptions(array $options): self
+    {
+        return new self(
+            $this->enabled,
+            $this->interval,
+            $this->periodId,
+            $this->firstDelay,
+            $this->recoveryDelay,
+            $this->contactAdditiveInheritance,
+            $this->contactGroupAdditiveInheritance,
+            $options,
+        );
+    }
+
+    public function withAdditiveInheritance(bool $contactAdditiveInheritance, bool $contactGroupAdditiveInheritance): self
+    {
+        return new self(
+            $this->enabled,
+            $this->interval,
+            $this->periodId,
+            $this->firstDelay,
+            $this->recoveryDelay,
+            $contactAdditiveInheritance,
+            $contactGroupAdditiveInheritance,
+            $this->options,
+        );
     }
 
     public function applyTo(?HostTemplateNotifications $current): HostTemplateNotifications
@@ -51,7 +86,7 @@ final readonly class HostTemplateNotificationsChange
             enabled: NoValue::resolve($this->enabled, $current->enabled),
             contactIds: $current->contactIds,
             contactGroupIds: $current->contactGroupIds,
-            options: $current->options,
+            options: NoValue::resolve($this->options, $current->options),
             interval: NoValue::resolve($this->interval, $current->interval),
             periodId: NoValue::resolve($this->periodId, $current->periodId),
             firstDelay: NoValue::resolve($this->firstDelay, $current->firstDelay),

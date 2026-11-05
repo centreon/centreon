@@ -56,20 +56,52 @@ final readonly class HostTemplateNotifications
     }
 
     /**
-     * The contacts and contact groups compared as sets.
+     * The contacts, the contact groups and the options compared as sets.
      */
     public function equals(self $other): bool
     {
+        return $this->hasSameSettingsAs($other) && $this->hasSameContactsAs($other);
+    }
+
+    /**
+     * Every field but the contacts and the contact groups.
+     */
+    public function hasSameSettingsAs(self $other): bool
+    {
         return $this->enabled === $other->enabled
-            && $this->options === $other->options
+            && $this->sortedOptions($this->options) === $this->sortedOptions($other->options)
             && $this->interval === $other->interval
             && $this->periodId?->value === $other->periodId?->value
             && $this->firstDelay === $other->firstDelay
             && $this->recoveryDelay === $other->recoveryDelay
             && $this->contactAdditiveInheritance === $other->contactAdditiveInheritance
-            && $this->contactGroupAdditiveInheritance === $other->contactGroupAdditiveInheritance
-            && $this->sortedIds($this->contactIds) === $this->sortedIds($other->contactIds)
+            && $this->contactGroupAdditiveInheritance === $other->contactGroupAdditiveInheritance;
+    }
+
+    public function hasSameContactsAs(self $other): bool
+    {
+        return $this->sortedIds($this->contactIds) === $this->sortedIds($other->contactIds)
             && $this->sortedIds($this->contactGroupIds) === $this->sortedIds($other->contactGroupIds);
+    }
+
+    /**
+     * @param Collection<NotificationContactId> $contactIds
+     * @param Collection<ContactGroupId> $contactGroupIds
+     */
+    public function withContacts(Collection $contactIds, Collection $contactGroupIds): self
+    {
+        return new self(
+            enabled: $this->enabled,
+            contactIds: $contactIds,
+            contactGroupIds: $contactGroupIds,
+            options: $this->options,
+            interval: $this->interval,
+            periodId: $this->periodId,
+            firstDelay: $this->firstDelay,
+            recoveryDelay: $this->recoveryDelay,
+            contactAdditiveInheritance: $this->contactAdditiveInheritance,
+            contactGroupAdditiveInheritance: $this->contactGroupAdditiveInheritance,
+        );
     }
 
     /**
@@ -87,6 +119,19 @@ final readonly class HostTemplateNotifications
             firstDelay: $this->firstDelay,
             recoveryDelay: $this->recoveryDelay,
         );
+    }
+
+    /**
+     * @param list<HostTemplateNotificationOptionEnum> $options
+     *
+     * @return list<string>
+     */
+    private function sortedOptions(array $options): array
+    {
+        $names = array_map(static fn (HostTemplateNotificationOptionEnum $option): string => $option->name, $options);
+        sort($names);
+
+        return $names;
     }
 
     /**
