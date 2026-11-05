@@ -5453,7 +5453,7 @@ paths:
         - HostTemplate
       responses:
         '400':
-          description: 'Malformed body, or a field the host template does not have'
+          description: 'A field the host template does not have'
           content:
             application/ld+json:
               schema:

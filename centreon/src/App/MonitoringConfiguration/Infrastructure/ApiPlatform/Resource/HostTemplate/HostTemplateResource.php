@@ -136,7 +136,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             openapi: new Model\Operation(
                 summary: 'Create a host template',
                 responses: [
-                    400 => new Model\Response('Malformed body, or a field the host template does not have'),
+                    400 => new Model\Response('A field the host template does not have'),
                     401 => new Model\Response('Authentication required'),
                     403 => new Model\Response('You are not allowed to create host templates'),
                     409 => new Model\Response('A host or host template already uses this name'),
