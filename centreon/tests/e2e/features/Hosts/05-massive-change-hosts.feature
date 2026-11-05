@@ -12,7 +12,7 @@ Feature: Massive Change on Hosts
     When the user has applied "Mass Change" operation on several hosts
     Then all the selected hosts are updated with the same values
 
-  @MON-163479
+  @MON-214152
   Scenario Outline: Change by massive change the host template of several hosts
     Given the selected hosts use a host template whose services are deployed
     When the user applies a "Mass Change" with another host template in "<mode>" mode
