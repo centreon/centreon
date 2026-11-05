@@ -402,14 +402,9 @@ services:
   # by shipping a real centengine binary into the fpm image too (MON-214031,
   # see trixie/Dockerfile's engine_verifier stage).
   #
-  # MON-214281: this image's own entrypoint execs centengine the instant it
-  # starts, before gorgone's first "Generate Configuration Files" export has
-  # delivered the broker module config cbmod needs — crash-looping until
-  # that first delivery lands, same first-boot race as centreon-broker
-  # below. entrypoint wraps the image's own
-  # /usr/local/lib/centreon-engine/container.sh with a wait for that file,
-  # shared with the Helm chart's own wait-config initContainer (same script,
-  # mounted here instead of inlined — see the file itself).
+  # MON-214281: entrypoint wraps container.sh with a wait for the broker
+  # module config (same first-boot race as centreon-broker below), using the
+  # script shared with the Helm chart's own wait-config (see the file).
   centengine:
     image: "${ENGINE_IMAGE:-docker.centreon.com/centreon/centreon-engine-trixie:develop}"
     pull_policy: always
