@@ -31,6 +31,18 @@ const contexts: Array<[name: string, context: SectionContext]> = [
 const getSectionLabels = (context: SectionContext): Array<string> =>
   placeBlocks({ blocks: getBlocks(context), t }).map(({ label }) => label);
 
+// The blocks one section places. A missing section fails here rather than
+// falling back to the whole layout.
+const getSectionBlockIds = (sectionLabel: string): Array<string> => {
+  const section = layout.find(({ label }) => label === sectionLabel);
+
+  if (!section) {
+    throw new Error(`No "${sectionLabel}" section in the layout`);
+  }
+
+  return getPlacedBlockIds(section.nodes);
+};
+
 describe('layout', () => {
   it('places every block once', () => {
     const placed = getPlacedBlockIds();
@@ -150,20 +162,14 @@ describe('layout', () => {
     ).not.toContain(labelGeneralInformation);
   });
 
-  it('places the template in the check command section', () => {
-    const section = layout.find(
-      ({ label }) => label === labelServiceMonitoringProperties
+  it('places the template in the service monitoring properties section', () => {
+    expect(getSectionBlockIds(labelServiceMonitoringProperties)).toContain(
+      'templates'
     );
-
-    expect(getPlacedBlockIds(section?.nodes)).toContain('templates');
   });
 
   it('places the scheduling options in the monitoring engine section', () => {
-    const section = layout.find(
-      ({ label }) => label === labelMonitoringEngineSchedulingOptions
-    );
-
-    expect(getPlacedBlockIds(section?.nodes)).toEqual(
+    expect(getSectionBlockIds(labelMonitoringEngineSchedulingOptions)).toEqual(
       expect.arrayContaining([
         'checkPeriodAndIntervals',
         'activeAndPassiveChecks'
