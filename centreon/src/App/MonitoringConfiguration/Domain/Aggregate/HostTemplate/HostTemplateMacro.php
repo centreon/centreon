@@ -53,6 +53,11 @@ final readonly class HostTemplateMacro
         Assert::maxLength($value, self::MAX_VALUE_LENGTH);
     }
 
+    public function withValue(string $value, bool $isPassword): self
+    {
+        return new self($this->name, $value, $isPassword, $this->id);
+    }
+
     /**
      * A new row of a copy: the id is dropped, the value replaced by $value when one is given (a
      * re-minted secret).

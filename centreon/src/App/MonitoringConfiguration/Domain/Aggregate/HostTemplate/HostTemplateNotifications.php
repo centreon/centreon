@@ -53,4 +53,21 @@ final readonly class HostTemplateNotifications
     ) {
         $this->options = array_values($options);
     }
+
+    /**
+     * Both additive-inheritance flags off, every other field untouched.
+     */
+    public function withoutAdditiveInheritance(): self
+    {
+        return new self(
+            enabled: $this->enabled,
+            contactIds: $this->contactIds,
+            contactGroupIds: $this->contactGroupIds,
+            options: $this->options,
+            interval: $this->interval,
+            periodId: $this->periodId,
+            firstDelay: $this->firstDelay,
+            recoveryDelay: $this->recoveryDelay,
+        );
+    }
 }

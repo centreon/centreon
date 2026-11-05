@@ -136,6 +136,11 @@ interface HostTemplateRepository
     public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool;
 
     /**
+     * Persists a new template, active and unlocked, with its relations and macros, and gives it its id.
+     */
+    public function add(HostTemplate $hostTemplate): void;
+
+    /**
      * Persists $copy (name, SNMP community, re-minted password macros) and copies everything else from $sourceId.
      *
      * @throws HostTemplateNotFoundException when $sourceId is no longer a host template

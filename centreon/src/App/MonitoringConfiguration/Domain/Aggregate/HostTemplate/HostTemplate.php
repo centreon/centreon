@@ -34,12 +34,21 @@ use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @extends AggregateRoot<HostTemplateId>
  */
 final class HostTemplate extends AggregateRoot
 {
+    public const MAX_NOTE_LENGTH = 512;
+    public const MAX_URL_LENGTH = 2048;
+    public const MAX_COMMENT_LENGTH = 65535;
+    public const MAX_FLAP_THRESHOLD = 100;
+
+    // the int(11) columns
+    public const MAX_INTEGER = 2147483647;
+
     /**
      * @param Collection<CommandId> $serviceTemplateCheckCommandIds the check commands of the service
      *                                                              templates linked to this template,
@@ -72,6 +81,61 @@ final class HostTemplate extends AggregateRoot
         public readonly Collection $linkedServiceTemplateIds = new Collection([], ServiceTemplateId::class),
     ) {
         parent::__construct($id);
+    }
+
+    /**
+     * A new template, not yet persisted, whose values must all be within the write bounds; a stored
+     * template may hold values outside them.
+     *
+     * @param Collection<HostTemplateId> $parentTemplateIds in inheritance order
+     * @param Collection<HostCategoryId> $categoryIds
+     * @param Collection<ServiceTemplateId> $linkedServiceTemplateIds in relation order
+     *
+     * @throws \InvalidArgumentException when a value is out of the write bounds
+     */
+    public static function create(
+        HostTemplateName $name,
+        HostTemplateAlias $alias,
+        HostTemplateCheckOptions $checkOptions = new HostTemplateCheckOptions(),
+        Collection $parentTemplateIds = new Collection([], HostTemplateId::class),
+        ?HostTemplateSnmpCommunity $snmpCommunity = null,
+        ?HostTemplateSnmpVersionEnum $snmpVersion = null,
+        ?TimezoneId $timezoneId = null,
+        ?HostSeverityId $severityId = null,
+        ?HostTemplateExtendedInformations $extendedInformations = null,
+        HostTemplateSchedulingOptions $schedulingOptions = new HostTemplateSchedulingOptions(),
+        HostTemplateDataProcessing $dataProcessing = new HostTemplateDataProcessing(),
+        ?HostTemplateNotifications $notifications = null,
+        Collection $categoryIds = new Collection([], HostCategoryId::class),
+        Collection $linkedServiceTemplateIds = new Collection([], ServiceTemplateId::class),
+    ): self {
+        self::assertMacroNamesAreUnique($checkOptions);
+        if ($extendedInformations instanceof HostTemplateExtendedInformations) {
+            self::assertExtendedInformationsBounds($extendedInformations);
+        }
+        self::assertSchedulingOptionsBounds($schedulingOptions);
+        self::assertDataProcessingBounds($dataProcessing);
+        if ($notifications instanceof HostTemplateNotifications) {
+            self::assertNotificationsBounds($notifications);
+        }
+
+        return new self(
+            id: null,
+            name: $name,
+            checkOptions: $checkOptions,
+            alias: $alias,
+            parentTemplateIds: $parentTemplateIds,
+            snmpCommunity: $snmpCommunity,
+            snmpVersion: $snmpVersion,
+            timezoneId: $timezoneId,
+            severityId: $severityId,
+            extendedInformations: $extendedInformations,
+            schedulingOptions: $schedulingOptions,
+            dataProcessing: $dataProcessing,
+            notifications: $notifications,
+            categoryIds: $categoryIds,
+            linkedServiceTemplateIds: $linkedServiceTemplateIds,
+        );
     }
 
     /**
@@ -145,5 +209,46 @@ final class HostTemplate extends AggregateRoot
             static fn (HostTemplateMacro $macro): HostMacro => $macro->toHostMacro(HostMacroParentEnum::Template),
             $this->checkOptions->macros->toArray(),
         ));
+    }
+
+    private static function assertMacroNamesAreUnique(HostTemplateCheckOptions $checkOptions): void
+    {
+        $names = array_map(static fn (HostTemplateMacro $macro): string => $macro->name->value, $checkOptions->macros->toArray());
+        Assert::uniqueValues($names, 'A host template cannot have two macros with the same name.');
+    }
+
+    private static function assertExtendedInformationsBounds(HostTemplateExtendedInformations $informations): void
+    {
+        Assert::nullOrLengthBetween($informations->noteUrl, 1, self::MAX_URL_LENGTH);
+        Assert::nullOrLengthBetween($informations->note, 1, self::MAX_NOTE_LENGTH);
+        Assert::nullOrLengthBetween($informations->actionUrl, 1, self::MAX_URL_LENGTH);
+        Assert::nullOrLengthBetween($informations->altIcon, 1, HostTemplateExtendedInformations::MAX_ALT_ICON_LENGTH);
+        Assert::nullOrLengthBetween($informations->comment, 1, self::MAX_COMMENT_LENGTH);
+    }
+
+    private static function assertSchedulingOptionsBounds(HostTemplateSchedulingOptions $options): void
+    {
+        Assert::nullOrRange($options->maxCheckAttempts, 1, self::MAX_INTEGER);
+        Assert::nullOrRange($options->normalCheckInterval, 1, self::MAX_INTEGER);
+        Assert::nullOrRange($options->retryCheckInterval, 1, self::MAX_INTEGER);
+    }
+
+    private static function assertDataProcessingBounds(HostTemplateDataProcessing $dataProcessing): void
+    {
+        Assert::nullOrRange($dataProcessing->acknowledgmentTimeout, 1, self::MAX_INTEGER);
+        Assert::nullOrRange($dataProcessing->freshnessThreshold, 0, self::MAX_INTEGER);
+        Assert::nullOrRange($dataProcessing->lowFlapThreshold, 0, self::MAX_FLAP_THRESHOLD);
+        Assert::nullOrRange($dataProcessing->highFlapThreshold, 0, self::MAX_FLAP_THRESHOLD);
+    }
+
+    private static function assertNotificationsBounds(HostTemplateNotifications $notifications): void
+    {
+        Assert::nullOrRange($notifications->interval, 0, self::MAX_INTEGER);
+        Assert::nullOrRange($notifications->firstDelay, 0, self::MAX_INTEGER);
+        Assert::nullOrRange($notifications->recoveryDelay, 0, self::MAX_INTEGER);
+        Assert::false(
+            in_array(HostTemplateNotificationOptionEnum::None, $notifications->options, true) && count($notifications->options) > 1,
+            'The "none" notification option cannot be combined with another option.',
+        );
     }
 }
