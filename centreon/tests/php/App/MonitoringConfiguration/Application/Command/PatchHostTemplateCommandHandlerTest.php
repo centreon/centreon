@@ -38,18 +38,27 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptionsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessingChange;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateServicesCleanupRequested;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateVaultPurgeRequested;
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\MediaNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\TimePeriodNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -65,6 +74,8 @@ use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\VaultInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
@@ -77,6 +88,7 @@ use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
+use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
 {
@@ -98,6 +110,8 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
 
     private EventBusSpy $eventBus;
 
+    private LoggerSpy $logger;
+
     protected function setUp(): void
     {
         $container = self::getContainer();
@@ -111,6 +125,7 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         $this->vault->vaultEnabled = false;
 
         $this->eventBus = new EventBusSpy();
+        $this->logger = new LoggerSpy();
 
         $container->set(HostTemplateRepository::class, $this->repository);
         $container->set(CommandRepository::class, $this->commandRepository);
@@ -123,6 +138,7 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         $container->set(VaultInterface::class, $this->vault);
         $container->set(VaultCredentialWriter::class, new VaultCredentialWriter($this->vault));
         $container->set(EventBus::class, $this->eventBus);
+        $container->set(LoggerInterface::class, $this->logger);
 
         /** @var PatchHostTemplateCommandHandler $handler */
         $handler = $container->get(PatchHostTemplateCommandHandler::class);
@@ -148,13 +164,58 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->command(7, new HostTemplateChange(timezoneId: new TimezoneId(404))));
     }
 
-    public function testAnUnknownReferenceIsRefused(): void
+    /**
+     * @param class-string<\Throwable> $exception
+     */
+    #[DataProvider('provideUnknownReferences')]
+    public function testAnUnknownReferenceIsRefused(HostTemplateChange $change, string $exception, bool $restricted = false): void
     {
         $this->addTemplate();
+        $this->hostSeverityRepository->hostSeverities[8] = new HostSeverityName('Critical');
+        if ($restricted) {
+            $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, []);
+        }
 
-        $this->expectException(TimezoneNotFoundException::class);
+        $this->expectException($exception);
 
-        ($this->handler)($this->command(7, new HostTemplateChange(timezoneId: new TimezoneId(404))));
+        ($this->handler)($this->command(7, $change, restricted: $restricted));
+    }
+
+    /**
+     * @return iterable<string, array{0: HostTemplateChange, 1: class-string<\Throwable>, 2?: bool}>
+     */
+    public static function provideUnknownReferences(): iterable
+    {
+        yield 'timezone' => [new HostTemplateChange(timezoneId: new TimezoneId(404)), TimezoneNotFoundException::class];
+
+        yield 'severity' => [new HostTemplateChange(severityId: new HostSeverityId(404)), HostSeverityNotFoundException::class];
+
+        yield 'severity out of the actor scope' => [new HostTemplateChange(severityId: new HostSeverityId(8)), HostSeverityNotFoundException::class, true];
+
+        yield 'icon' => [
+            new HostTemplateChange(extendedInformations: new HostTemplateExtendedInformationsChange(iconId: new MediaId(404))),
+            MediaNotFoundException::class,
+        ];
+
+        yield 'check time period' => [
+            new HostTemplateChange(schedulingOptions: new HostTemplateSchedulingOptionsChange(checkTimeperiodId: new TimePeriodId(404))),
+            TimePeriodNotFoundException::class,
+        ];
+
+        yield 'notification time period' => [
+            new HostTemplateChange(notifications: new HostTemplateNotificationsChange(periodId: new TimePeriodId(404))),
+            TimePeriodNotFoundException::class,
+        ];
+
+        yield 'event handler command' => [
+            new HostTemplateChange(dataProcessing: new HostTemplateDataProcessingChange(eventHandlerCommandId: new CommandId(404))),
+            CommandNotFoundException::class,
+        ];
+
+        yield 'check command' => [
+            new HostTemplateChange(checkOptions: new HostTemplateCheckOptionsChange(checkCommandId: new CommandId(404))),
+            CommandNotFoundException::class,
+        ];
     }
 
     public function testAChangeIsSavedAndFiredAsALoggedUpdate(): void
@@ -331,6 +392,94 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
 
         self::assertSame([], $this->repository->updatedIds);
         self::assertSame([], $this->dispatchedClasses());
+    }
+
+    public function testAFailedSavePurgesTheVaultEntryItMinted(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->addTemplate();
+        $this->repository->updateThrows = new \RuntimeException('The save failed.');
+
+        try {
+            ($this->handler)($this->command(7, new HostTemplateChange(), snmpCommunity: 'new-community'));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('The save failed.', $exception->getMessage());
+        }
+
+        self::assertSame(['new-uuid'], array_column($this->vault->deleteCalls, 'uuid'));
+        self::assertSame([], $this->logger->warningMessages);
+        self::assertSame([], $this->dispatchedClasses());
+    }
+
+    public function testAFailedSaveAfterWritingTheExistingEntryLogsTheDivergence(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->addTemplate(snmpCommunity: self::VAULTED_COMMUNITY);
+        $this->vault->writtenPaths['_HOSTSNMPCOMMUNITY'] = self::VAULTED_COMMUNITY;
+        $this->repository->updateThrows = new \RuntimeException('The save failed.');
+
+        try {
+            ($this->handler)($this->command(7, new HostTemplateChange(), snmpCommunity: 'new-community'));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('The save failed.', $exception->getMessage());
+        }
+
+        self::assertSame([], $this->vault->deleteCalls);
+        self::assertCount(1, $this->logger->warningMessages);
+        self::assertSame(7, $this->logger->warningMessages[0]['context']['host_template_id'] ?? null);
+    }
+
+    public function testAFailedSaveAfterClearingTheVaultedCommunityLogsTheDivergence(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->addTemplate(snmpCommunity: self::VAULTED_COMMUNITY);
+        $this->repository->updateThrows = new \RuntimeException('The save failed.');
+
+        try {
+            ($this->handler)($this->command(7, new HostTemplateChange(), snmpCommunity: null));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException) {
+        }
+
+        self::assertSame([], $this->vault->deleteCalls);
+        self::assertCount(1, $this->logger->warningMessages);
+        self::assertSame([], $this->dispatchedClasses());
+    }
+
+    public function testAFailingPurgeDoesNotHideTheCause(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->vault->deleteThrows = true;
+        $this->addTemplate();
+        $this->repository->updateThrows = new \RuntimeException('The save failed.');
+
+        try {
+            ($this->handler)($this->command(7, new HostTemplateChange(), snmpCommunity: 'new-community'));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('The save failed.', $exception->getMessage());
+        }
+
+        self::assertCount(1, $this->vault->deleteCalls);
+        self::assertCount(1, $this->logger->warningMessages);
+    }
+
+    public function testAFailedSaveWithoutAVaultWriteTouchesNoVault(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->addTemplate(snmpCommunity: self::VAULTED_COMMUNITY);
+        $this->repository->updateThrows = new \RuntimeException('The save failed.');
+
+        try {
+            ($this->handler)($this->command(7, new HostTemplateChange(alias: new HostTemplateAlias('Other'))));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException) {
+        }
+
+        self::assertSame([], $this->vault->deleteCalls);
+        self::assertSame([], $this->logger->warningMessages);
     }
 
     private function command(int $id, HostTemplateChange $change, string|null|false $snmpCommunity = false, bool $restricted = false): PatchHostTemplateCommand

@@ -57,6 +57,7 @@ use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
+use Psr\Log\LoggerInterface;
 
 #[AsCommandHandler]
 final readonly class PatchHostTemplateCommandHandler
@@ -70,6 +71,7 @@ final readonly class PatchHostTemplateCommandHandler
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
         private EventBus $eventBus,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -84,7 +86,7 @@ final readonly class PatchHostTemplateCommandHandler
             throw new HostTemplateNotFoundException([$command->id->value], 'id');
         }
 
-        // Before the references: a locked template must not reveal whether a referenced id exists.
+        // The lock is refused before this handler checks any reference.
         $template->assertUnlocked();
 
         $change = $command->change;
@@ -96,15 +98,23 @@ final readonly class PatchHostTemplateCommandHandler
 
         $changed = $template->withChange($change);
 
-        [$snmpCommunity, $secretRewritten] = $this->moveTheCommunityToTheVault($template, $command->snmpCommunity);
+        ['community' => $snmpCommunity, 'secretRewritten' => $secretRewritten, 'vaultWritten' => $vaultWritten] = $this->moveTheCommunityToTheVault($template, $command->snmpCommunity);
         $changed = $changed->withChange(new HostTemplateChange(snmpCommunity: $snmpCommunity));
 
         if (! $secretRewritten && $changed->hasSameConfigurationAs($template)) {
             return $changed;
         }
 
-        $this->repository->update($changed);
-        $this->eventBus->fire(new HostTemplateUpdated($changed, $command->actor->userId->value));
+        try {
+            $this->repository->update($changed);
+            $this->eventBus->fire(new HostTemplateUpdated($changed, $command->actor->userId->value));
+        } catch (\Throwable $exception) {
+            if ($vaultWritten) {
+                $this->undoTheVaultWrite($template, $changed, $exception);
+            }
+
+            throw $exception;
+        }
 
         if ($this->vault->isEnabled() && $changed->releasesVaultEntryOf($template, $this->vault)) {
             $this->eventBus->fire(new HostTemplateVaultPurgeRequested($template, bestEffort: true));
@@ -219,39 +229,68 @@ final readonly class PatchHostTemplateCommandHandler
     }
 
     /**
-     * Left out keeps the community, null clears it (and its key in the template's vault entry), a
-     * plaintext replaces it. A vault reference given is ignored: no community is ever echoed back, so a
-     * client has no legitimate one to send. A secret written counts as a change even when the stored
-     * reference stays the same, since the path of a vaulted value only depends on its entry and its key.
+     * A vault reference is ignored: none is ever returned, so none can come back legitimately. A secret
+     * written counts as a change even when its reference stays the same (same entry, same key).
      *
-     * @return array{NoValue|HostTemplateSnmpCommunity|null, bool}
+     * @return array{community: NoValue|HostTemplateSnmpCommunity|null, secretRewritten: bool, vaultWritten: bool}
      */
     private function moveTheCommunityToTheVault(HostTemplate $template, NoValue|string|null $community): array
     {
         if ($community instanceof NoValue) {
-            return [new NoValue(), false];
+            return ['community' => new NoValue(), 'secretRewritten' => false, 'vaultWritten' => false];
         }
 
         if (! $this->vault->isEnabled()) {
-            return [$community === null ? null : new HostTemplateSnmpCommunity($community), false];
+            return ['community' => $community === null ? null : new HostTemplateSnmpCommunity($community), 'secretRewritten' => false, 'vaultWritten' => false];
         }
 
         $vaultUuid = $template->getVaultUuid($this->vault);
         if ($community === null) {
             if ($vaultUuid !== null && $template->snmpCommunity instanceof HostTemplateSnmpCommunity && $this->vault->isVaultPath($template->snmpCommunity->value)) {
                 $this->writeToTheVault($template, VaultCredentials::empty()->clear(VaultKeyEnum::HostSnmpCommunity), $vaultUuid);
+
+                return ['community' => null, 'secretRewritten' => false, 'vaultWritten' => true];
             }
 
-            return [null, false];
+            return ['community' => null, 'secretRewritten' => false, 'vaultWritten' => false];
         }
 
         if ($this->vault->isVaultPath($community)) {
-            return [new NoValue(), false];
+            return ['community' => new NoValue(), 'secretRewritten' => false, 'vaultWritten' => false];
         }
 
         $stored = $this->writeToTheVault($template, VaultCredentials::empty()->set(VaultKeyEnum::HostSnmpCommunity, $community), $vaultUuid);
 
-        return [new HostTemplateSnmpCommunity($stored[VaultKeyEnum::HostSnmpCommunity->value]), true];
+        return ['community' => new HostTemplateSnmpCommunity($stored[VaultKeyEnum::HostSnmpCommunity->value]), 'secretRewritten' => true, 'vaultWritten' => true];
+    }
+
+    /**
+     * Best effort, never thrown over the cause: an entry minted by this write is purged; an existing one
+     * cannot be restored, so its divergence from the database is logged.
+     */
+    private function undoTheVaultWrite(HostTemplate $before, HostTemplate $changed, \Throwable $cause): void
+    {
+        try {
+            $mintedUuid = $before->getVaultUuid($this->vault) === null ? $changed->getVaultUuid($this->vault) : null;
+            if ($mintedUuid !== null) {
+                $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringHosts, $mintedUuid);
+
+                return;
+            }
+
+            $this->logger->warning(
+                'A host template update failed after writing to its vault entry: the vault may now diverge from the host template stored in the database.',
+                ['host_template_id' => $before->id()->value, 'exception' => $cause],
+            );
+        } catch (\Throwable $vaultException) {
+            try {
+                $this->logger->warning('The vault entry minted for a failed host template update could not be purged.', [
+                    'host_template_id' => $before->id()->value,
+                    'exception' => $vaultException,
+                ]);
+            } catch (\Throwable) {
+            }
+        }
     }
 
     /**

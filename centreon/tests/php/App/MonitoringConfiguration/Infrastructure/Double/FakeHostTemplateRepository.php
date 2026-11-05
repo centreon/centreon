@@ -85,6 +85,8 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public ?\Throwable $addThrows = null;
 
+    public ?\Throwable $updateThrows = null;
+
     public ?\Throwable $addCopyThrows = null;
 
     private int $nextId = 1000;
@@ -206,6 +208,10 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public function update(HostTemplate $hostTemplate): void
     {
+        if ($this->updateThrows instanceof \Throwable) {
+            throw $this->updateThrows;
+        }
+
         $this->hostTemplates[$hostTemplate->id()->value] = $hostTemplate;
         $this->updatedIds[] = $hostTemplate->id()->value;
     }
