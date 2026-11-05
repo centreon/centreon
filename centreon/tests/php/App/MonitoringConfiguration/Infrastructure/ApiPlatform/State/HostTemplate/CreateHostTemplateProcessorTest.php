@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateResource;
+use App\Shared\Domain\VaultInterface;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Uid\Uuid;
@@ -31,6 +32,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\GrantsHostTemplateTopologyRole;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
+use Tests\App\Shared\Double\FakeVault;
 use Webmozart\Assert\Assert;
 
 final class CreateHostTemplateProcessorTest extends ApiTestCase
@@ -136,7 +138,9 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(201);
         $body = $response->toArray();
-        self::assertSame(self::URI . '/' . self::asInt($body['id']), $body['@id']);
+        $detailUri = self::URI . '/' . $this->asInt($body['id']);
+        self::assertSame($detailUri, $body['@id']);
+        self::assertSame($detailUri, $this->request('GET', $detailUri)->toArray()['@id']);
     }
 
     public function testItStoresAnActiveUnlockedTemplate(): void
@@ -205,6 +209,16 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         $id = $this->create(['name' => "  my template {$this->tag} ", 'alias' => 'alias']);
 
         self::assertSame("my_template_{$this->tag}", $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$id]));
+    }
+
+    public function testTheHostNameRulesDoNotApply(): void
+    {
+        $this->login();
+        $name = "_Module_tpl\$~-{$this->tag}";
+
+        $id = $this->create(['name' => $name, 'alias' => 'alias']);
+
+        self::assertSame($name, $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$id]));
     }
 
     /**
@@ -390,6 +404,14 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
 
         yield 'a name over 200' => [['name' => str_repeat('n', 201)], 'name'];
 
+        yield 'snmp community 256' => [['snmp_community' => str_repeat('s', 256)], 'snmp_community'];
+
+        yield 'macro name 249' => [['check_options' => ['macros' => [['name' => str_repeat('m', 249), 'value' => 'x']]]], 'check_options.macros[0].name'];
+
+        yield 'macro value 4097' => [['check_options' => ['macros' => [['name' => 'long', 'value' => str_repeat('v', 4097)]]]], 'check_options.macros[0].value'];
+
+        yield 'arguments over 65535 bytes' => [['check_options' => ['args' => [str_repeat('a', 65536)]]], 'check_options.args'];
+
         yield 'an alias over 200' => [['alias' => str_repeat('a', 201)], 'alias'];
     }
 
@@ -427,13 +449,16 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         self::assertSame(['args' => ['-w', '80'], 'macros' => []], $checkOptions);
     }
 
-    public function testAMacroNamedLikeAStandardMacroIsAccepted(): void
+    public function testAReservedMacroNameIsAccepted(): void
     {
+        if ($this->connection->fetchOne('SELECT 1 FROM nagios_macro WHERE macro_name = ?', ['$_HOSTSNMPCOMMUNITY$']) === false) {
+            $this->connection->insert('nagios_macro', ['macro_name' => '$_HOSTSNMPCOMMUNITY$']);
+        }
         $this->login();
 
-        $id = $this->create(['name' => "macro-{$this->tag}", 'alias' => 'alias', 'check_options' => ['macros' => [['name' => 'HOSTADDRESS', 'value' => 'x']]]]);
+        $id = $this->create(['name' => "macro-{$this->tag}", 'alias' => 'alias', 'check_options' => ['macros' => [['name' => 'SNMPCOMMUNITY', 'value' => 'x']]]]);
 
-        self::assertSame('$_HOSTHOSTADDRESS$', $this->connection->fetchOne('SELECT host_macro_name FROM on_demand_macro_host WHERE host_host_id = ?', [$id]));
+        self::assertSame('$_HOSTSNMPCOMMUNITY$', $this->connection->fetchOne('SELECT host_macro_name FROM on_demand_macro_host WHERE host_host_id = ?', [$id]));
     }
 
     public function testAnInheritedMacroResentUnchangedIsNotStored(): void
@@ -466,12 +491,39 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
 
     public function testNoPollerIsFlagged(): void
     {
+        $pollerId = $this->insertRow('nagios_server', ['name' => 'poller-' . Uuid::v4()->toBase58(), 'ns_ip_address' => '127.0.0.1', 'uid' => random_int(1, \PHP_INT_MAX), 'updated' => '0']);
         $this->login();
-        $before = $this->connection->fetchFirstColumn("SELECT id FROM nagios_server WHERE updated = '1' ORDER BY id");
 
         $this->create(['name' => "no-flag-{$this->tag}", 'alias' => 'alias']);
 
-        self::assertSame($before, $this->connection->fetchFirstColumn("SELECT id FROM nagios_server WHERE updated = '1' ORDER BY id"));
+        self::assertSame('0', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$pollerId]));
+    }
+
+    public function testAVaultFailureAnswers502AndSavesNothing(): void
+    {
+        $vault = new FakeVault();
+        $vault->writeThrows = true;
+        self::getContainer()->set(VaultInterface::class, $vault);
+        $this->login();
+
+        $this->request('POST', self::URI, ['headers' => self::JSON, 'json' => ['name' => "vault-{$this->tag}", 'alias' => 'alias', 'snmp_community' => 'public']]);
+
+        self::assertResponseStatusCodeSame(502);
+        self::assertFalse($this->connection->fetchOne('SELECT 1 FROM host WHERE host_name = ?', ["vault-{$this->tag}"]));
+    }
+
+    public function testAMacroReferringToNothingInheritedIsRefusedOnCheckOptions(): void
+    {
+        $this->login();
+
+        $response = $this->request('POST', self::URI, ['json' => [
+            'name' => "macro-ref-{$this->tag}",
+            'alias' => 'alias',
+            'check_options' => ['macros' => [['id' => 2147483647, 'parent' => 'template', 'name' => 'X', 'value' => 'y']]],
+        ]]);
+
+        self::assertResponseStatusCodeSame(422);
+        $this->assertRefusedOn('check_options', $response);
     }
 
     public function testTheCreationIsLoggedWithItsDetails(): void
