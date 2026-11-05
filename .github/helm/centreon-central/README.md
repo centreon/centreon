@@ -234,12 +234,14 @@ server-side dry-run of `pod-security.kubernetes.io/enforce=baseline`), not
 Recommended namespace labels: `enforce=baseline`, `warn=restricted`,
 `audit=restricted`.
 
-## rrdcached (`rrdcached.enabled`, off by default)
+## rrdcached (`rrdcached.enabled`, on by default)
 
-By default the broker writes every RRD update itself. With
-`rrdcached.enabled`, an rrdcached sidecar in the broker pod (image
-`--target rrdcached`, port 42217) batches them, which cuts IOPS on network
-RWX storage (EFS, NFS):
+An rrdcached sidecar in the broker pod (image `--target rrdcached`, port
+42217) receives the broker's RRD updates and writes them in batches, instead
+of the broker writing every update itself. On by default for the storage:
+the RRD files live on a PVC, often network RWX storage (EFS, NFS), where
+every small write is expensive. `rrdcached.enabled: false` goes back to
+direct writes:
 
 - The install Job sets `rrd_cached_option=tcp`, the port (`RRDCACHED_PORT`)
   and the host (`RRDCACHED_HOST=127.0.0.1`: the sidecar, in cbd's own pod)
@@ -253,9 +255,13 @@ RWX storage (EFS, NFS):
   not written yet are lost only on an abrupt pod death.
 
 **Requirement**: a broker image whose TCP RRD output initializes its logger
-(centreon-collect MON-213839). Up to centreon-collect develop of 2026-11-02
-its constructor leaves `_logger` null and cbd segfaults on the first update
-(seen with chart 0.19 / 0.20).
+(centreon-collect MON-213839). Without it the output's constructor leaves
+`_logger` null and cbd segfaults on the first RRD update: with an older
+broker image, set `rrdcached.enabled: false`.
+
+**Upgrading from 26.12 or earlier**: rrdcached was off by default. An upgrade
+that does not set `rrdcached.enabled` turns it on: the install Job and the
+config delivery run again, and the broker pod restarts with the sidecar.
 
 ## Upgrading from 0.12 or earlier (Deployments to StatefulSets)
 
