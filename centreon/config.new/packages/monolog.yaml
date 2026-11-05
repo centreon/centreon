@@ -105,11 +105,16 @@ when@dev:
                 level: debug
                 formatter: monolog.formatter.line
             upgrade:
-                type: rotating_file
+                type: whatfailuregroup
                 channels: [upgrade]
+                members: [upgrade_file]
+            upgrade_file:
+                type: rotating_file
+                nested: true
                 path: "%kernel.logs_dir%/%kernel.environment%.upgrade.log"
                 max_files: 14
                 level: debug
+                file_permission: 0664
                 formatter: monolog.formatter.line
             plugin-pack-manager:
                 type: rotating_file
@@ -171,11 +176,17 @@ when@prod:
                 path: "%kernel.logs_dir%/%kernel.environment%.password.log"
                 level: info
                 formatter: monolog.formatter.line
+            # A failing write must not fail an upgrade: the legacy LoggerUpgrade swallows it too.
             upgrade:
-                type: stream
+                type: whatfailuregroup
                 channels: [upgrade]
+                members: [upgrade_file]
+            upgrade_file:
+                type: stream
+                nested: true
                 path: "%kernel.logs_dir%/%kernel.environment%.upgrade.log"
                 level: info
+                file_permission: 0664
                 formatter: monolog.formatter.line
             plugin-pack-manager:
                 type: stream

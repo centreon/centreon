@@ -25,6 +25,7 @@ namespace Tests\App\Upgrade\Application\Command;
 
 use App\Upgrade\Application\Command\MigrateCommand;
 use App\Upgrade\Application\Command\MigrateCommandHandler;
+use App\Upgrade\Application\MigrationLogger;
 use App\Upgrade\Application\MigrationSetGuard;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
@@ -68,8 +69,8 @@ final class MigrateCommandHandlerTest extends TestCase
         $this->handler = new MigrateCommandHandler(
             $this->migrationRunner,
             new MigrationSetGuard($this->locker, $this->migrationSetLocker, new FakeModuleRepository(['centreon-open-tickets'])),
-            new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION, new NullLogger()),
-            $this->logger,
+            new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION, new MigrationLogger(new NullLogger(), self::TARGET_VERSION)),
+            new MigrationLogger($this->logger, self::TARGET_VERSION),
         );
     }
 
@@ -229,14 +230,16 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
     }
 
-    public function testLogsTheExecutedMigrations(): void
+    public function testLogsTheMigrationLifecycle(): void
     {
         ($this->handler)(new MigrateCommand());
 
-        self::assertEquals(
-            ['level' => 'info', 'message' => 'Migrated the {set}', 'context' => ['set' => 'core migration sets', 'executed' => ['realtime\Version1', 'configuration\Version1']]],
-            $this->logger->lastRecord(),
-        );
+        self::assertSame(['migration.start', 'migration.success'], array_column(array_column($this->logger->records(), 'context'), 'event'));
+        $context = $this->logger->lastRecord()['context'] ?? [];
+        self::assertSame('core', $context['set'] ?? null);
+        self::assertSame(self::TARGET_VERSION, $context['version'] ?? null);
+        self::assertSame(['realtime\\Version1', 'configuration\\Version1'], $context['migrations'] ?? null);
+        self::assertIsInt($context['duration_ms'] ?? null);
     }
 
     public function testLogsARefusalBeforeRethrowingIt(): void
@@ -249,7 +252,7 @@ final class MigrateCommandHandlerTest extends TestCase
         } catch (\RuntimeException $exception) {
             $record = $this->logger->lastRecord();
             self::assertSame('error', $record['level'] ?? null);
-            self::assertSame('core migration sets', $record['context']['set'] ?? null);
+            self::assertSame('migration.failure', $record['context']['event'] ?? null);
             self::assertSame($exception, $record['context']['exception'] ?? null);
         }
     }

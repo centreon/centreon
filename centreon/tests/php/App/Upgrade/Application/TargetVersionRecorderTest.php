@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Application;
 
+use App\Upgrade\Application\MigrationLogger;
 use App\Upgrade\Application\TargetVersionRecorder;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
@@ -44,7 +45,7 @@ final class TargetVersionRecorderTest extends TestCase
         $this->updateRepository = new FakeUpdateRepository();
         $this->updateScriptFinder = new FakeUpdateScriptFinder();
         $this->logger = new RecordingLogger();
-        $this->recorder = new TargetVersionRecorder($this->updateRepository, $this->updateScriptFinder, '26.11.0', $this->logger);
+        $this->recorder = new TargetVersionRecorder($this->updateRepository, $this->updateScriptFinder, '26.11.0', new MigrationLogger($this->logger, '26.11.0'));
     }
 
     public function testResolvesThePlatformVersionUnlessALegacyScriptIsAhead(): void
@@ -58,10 +59,11 @@ final class TargetVersionRecorderTest extends TestCase
         $this->recorder->record('26.09.1');
 
         self::assertSame(['26.11.0'], $this->updateRepository->updatesRun);
-        self::assertEquals(
-            [['level' => 'info', 'message' => 'Recorded the platform version {version}', 'context' => ['version' => '26.11.0', 'previous_version' => '26.09.1']]],
-            $this->logger->records(),
-        );
+        self::assertCount(1, $this->logger->records());
+        $context = $this->logger->records()[0]['context'];
+        self::assertSame('migration.version_recorded', $context['event'] ?? null);
+        self::assertSame('26.11.0', $context['recorded_version'] ?? null);
+        self::assertSame('26.09.1', $context['previous_version'] ?? null);
     }
 
     public function testNeverMovesTheVersionBackwards(): void

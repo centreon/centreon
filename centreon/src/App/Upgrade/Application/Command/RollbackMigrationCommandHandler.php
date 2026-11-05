@@ -24,10 +24,11 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\AsCommandHandler;
+use App\Upgrade\Application\MigrationLogger;
+use App\Upgrade\Application\MigrationOperationEnum;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetGuard;
 use App\Upgrade\Application\ModuleNotInstalledException;
-use Psr\Log\LoggerInterface;
 
 #[AsCommandHandler]
 final readonly class RollbackMigrationCommandHandler
@@ -35,7 +36,7 @@ final readonly class RollbackMigrationCommandHandler
     public function __construct(
         private MigrationRunner $migrationRunner,
         private MigrationSetGuard $migrationSetGuard,
-        private LoggerInterface $upgradeLogger,
+        private MigrationLogger $migrationLogger,
     ) {
     }
 
@@ -47,19 +48,22 @@ final readonly class RollbackMigrationCommandHandler
      */
     public function __invoke(RollbackMigrationCommand $command): array
     {
-        $label = $command->set->label();
+        $rollback = fn (): array => $this->migrationSetGuard->run($command->set, fn (): array => $this->migrationRunner->rollback($command->set, $command->version, $command->dryRun, $command->expected));
+        if ($command->dryRun) {
+            return $rollback();
+        }
+
+        $startedAt = $this->migrationLogger->start(MigrationOperationEnum::Rollback, $command->set);
 
         try {
-            $reverted = $this->migrationSetGuard->run($command->set, fn (): array => $this->migrationRunner->rollback($command->set, $command->version, $command->dryRun, $command->expected));
+            $reverted = $rollback();
         } catch (\Throwable $exception) {
-            $this->upgradeLogger->error('Rollback of the {set} to "{version}" failed: {reason}', ['set' => $label, 'version' => $command->version, 'reason' => $exception->getMessage(), 'exception' => $exception]);
+            $this->migrationLogger->failure(MigrationOperationEnum::Rollback, $command->set, $exception, $startedAt);
 
             throw $exception;
         }
 
-        if (! $command->dryRun) {
-            $this->upgradeLogger->info('Rolled the {set} back to "{version}"', ['set' => $label, 'version' => $command->version, 'reverted' => $reverted]);
-        }
+        $this->migrationLogger->success(MigrationOperationEnum::Rollback, $command->set, $reverted, $startedAt);
 
         return $reverted;
     }

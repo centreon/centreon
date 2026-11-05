@@ -24,13 +24,13 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Query;
 
 use App\Shared\Application\Query\AsQueryHandler;
+use App\Upgrade\Application\MigrationLogger;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
-use Psr\Log\LoggerInterface;
 
 #[AsQueryHandler]
 final readonly class GetMigrationStatusQueryHandler
@@ -39,7 +39,7 @@ final readonly class GetMigrationStatusQueryHandler
         private MigrationRunner $migrationRunner,
         private ModuleRepository $moduleRepository,
         private TargetVersionRecorder $targetVersionRecorder,
-        private LoggerInterface $upgradeLogger,
+        private MigrationLogger $migrationLogger,
     ) {
     }
 
@@ -71,7 +71,7 @@ final readonly class GetMigrationStatusQueryHandler
                 $statuses[] = $this->status($set, $legacyRefusal);
             } catch (\Throwable $exception) {
                 // A check of migrate(), a database failure or a broken migration file: the other sets are still worth showing.
-                $this->upgradeLogger->error('Cannot read the status of the {set}: {reason}', ['set' => $set->label(), 'reason' => $exception->getMessage(), 'exception' => $exception]);
+                $this->migrationLogger->statusFailure($set, $exception);
                 $statuses[] = new MigrationSetStatus($set, [], [], $exception->getMessage());
             }
         }
@@ -101,7 +101,7 @@ final readonly class GetMigrationStatusQueryHandler
         } catch (\RuntimeException $exception) {
             return $exception->getMessage();
         } catch (\Throwable $exception) {
-            $this->upgradeLogger->error('Cannot read the platform version: {reason}', ['reason' => $exception->getMessage(), 'exception' => $exception]);
+            $this->migrationLogger->statusFailure(null, $exception);
 
             return $exception->getMessage();
         }

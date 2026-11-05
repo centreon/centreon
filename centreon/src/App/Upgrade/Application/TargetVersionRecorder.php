@@ -26,7 +26,6 @@ namespace App\Upgrade\Application;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 use App\Upgrade\Domain\UpgradeTargetVersion;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
@@ -39,7 +38,7 @@ final readonly class TargetVersionRecorder
         private UpdateScriptFinder $updateScriptFinder,
         #[Autowire(param: 'centreon.version')]
         private string $platformVersion,
-        private LoggerInterface $upgradeLogger,
+        private MigrationLogger $migrationLogger,
     ) {
     }
 
@@ -91,7 +90,7 @@ final readonly class TargetVersionRecorder
         $targetVersion = $this->resolve($legacyVersion);
         if ($targetVersion !== $legacyVersion) {
             $this->updateRepository->updateVersionInformation($targetVersion);
-            $this->upgradeLogger->info('Recorded the platform version {version}', ['version' => $targetVersion, 'previous_version' => $legacyVersion]);
+            $this->migrationLogger->versionRecorded($targetVersion, $legacyVersion);
         }
     }
 }
