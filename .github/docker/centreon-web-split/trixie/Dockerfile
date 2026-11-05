@@ -577,13 +577,14 @@ FROM php:${PHP_VERSION}-fpm AS fpm
 
 # Same fixed UIDs/GIDs as every other Centreon container image (see
 # centreon-collect/.github/docker/centreon-gorgone/trixie/Dockerfile) — for
-# volume consistency across containers, not just this one: Pilier 2 already
-# needs www-data <-> centreon-gorgone cross-group access on the shared
-# /var/cache/centreon and /var/lib/centreon volumes (confirmed empirically —
-# REMOTECOPY got "Permission denied" without it), and centreon-engine/
-# centreon-broker will matter the same way once engine/broker containers join
-# this topology. www-data here is already 33:33 (official php:8.4-fpm image),
-# matching what gorgone's own Dockerfile assumes.
+# volume consistency across containers, not just this one: www-data <->
+# centreon-gorgone cross-group access on the shared /var/cache/centreon and
+# /var/lib/centreon volumes (confirmed empirically — REMOTECOPY got
+# "Permission denied" without it), and centreon-engine/centreon-broker
+# matter the same way now that those containers are part of this topology
+# too (the RRD volumes they share with fpm, see 03-rrd-volumes.sh). www-data
+# here is already 33:33 (official php:8.4-fpm image), matching what
+# gorgone's own Dockerfile assumes.
 RUN bash -e <<'EOF'
 groupadd -g 900 centreon
 useradd -u 900 -g centreon -M -r -l -d /var/spool/centreon -s /usr/sbin/nologin centreon
