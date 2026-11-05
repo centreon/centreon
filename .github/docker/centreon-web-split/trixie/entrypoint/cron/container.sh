@@ -211,6 +211,34 @@ if [ "$#" -gt 0 ]; then
   exec "$@"
 fi
 
+# MON-214281: wait for the DB grants fpm's own install step creates
+# (12-install.sh: "GRANT ALL ... TO '<user>'@'%'"), not just for the DB
+# server being reachable (depends_on: db above only covers that) -- a
+# scheduled job firing before that GRANT lands fails outright ("1044 Access
+# denied for user '...'@'%'"). Probed with a real authenticated connection
+# using the same credentials every job already uses, instead of a literal
+# marker file: this container deliberately shares no volume with fpm (see
+# the comment at the top of this script), so a connectivity probe is the
+# equivalent check without the coupling. Daemon mode only -- the Kubernetes
+# CronJob one-shot branch above has its own install-marker wait at the chart
+# level instead.
+waited=0
+until DB_ADDRESS="$DB_ADDRESS" DB_PORT="$DB_PORT" DB_USER="$DB_USER" DB_PASSWORD="$DB_PASSWORD" DB_CONFDB="$DB_CONFDB" \
+  php -r '
+    $options = [];
+    if (getenv("DATABASE_SSL_ENABLED") === "1") {
+      $options[PDO::MYSQL_ATTR_SSL_CA] = getenv("DATABASE_CA_PATH") ?: "";
+      $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = getenv("DATABASE_VERIFY_SERVER_CERT") === "1";
+    }
+    new PDO("mysql:host=" . getenv("DB_ADDRESS") . ";port=" . (getenv("DB_PORT") ?: 3306) . ";dbname=" . getenv("DB_CONFDB"),
+      getenv("DB_USER"), getenv("DB_PASSWORD"), $options);
+  ' > /dev/null 2>&1; do
+  [ $((waited % 60)) -eq 0 ] && echo "Waiting for the ${DB_USER}@'%' grant on ${DB_CONFDB} (created by fpm's install step)..."
+  sleep 2
+  waited=$((waited + 2))
+done
+echo "Database grants ready."
+
 tail -F /var/log/centreon/*.log > /proc/1/fd/1 2>/proc/1/fd/2 &
 
 exec cron -f
