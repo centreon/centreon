@@ -321,6 +321,29 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
     }
 
     /**
+     * Once the license host limit is reached, the Monitoring Connector service templates and the
+     * ones inheriting from them are not offered to a template either.
+     */
+    public function testTheServiceTemplatesSelectorExcludesTheTemplatesTheLicenseNoLongerAllows(): void
+    {
+        $allowedName = "allowed-{$this->tag}";
+        $this->insertRow('service', ['service_description' => $allowedName, 'service_register' => '0']);
+        $unlicensedId = $this->insertRow('service', ['service_description' => "unlicensed-{$this->tag}", 'service_register' => '0']);
+        $this->insertRow('service', [
+            'service_description' => "unlicensed-child-{$this->tag}",
+            'service_register' => '0',
+            'service_template_model_stm_id' => $unlicensedId,
+        ]);
+        $this->insertMonitoringConnectorServiceTemplates($this->connection, $unlicensedId);
+        $this->loginAsHostTemplateReadWriteUser($this->connection, $this->tag);
+
+        $response = $this->request('GET', self::SELECTORS['service_templates']['uri'], ['query' => ['name' => ['lk' => $this->tag]]]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSame([$allowedName], array_column((array) $response->toArray()['member'], 'name'));
+    }
+
+    /**
      * @return iterable<string, array{string}>
      */
     public static function provideSelectors(): iterable
