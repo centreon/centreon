@@ -26,9 +26,6 @@ const meta = {
 
   component: ButtonSave,
 
-  parameters: {
-    chromatic: { delay: 300 }
-  },
   title: 'Button/Save'
 };
 
