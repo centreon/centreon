@@ -377,6 +377,7 @@ try {
      *  if yes : let's go to build cache and update database
      */
     $tabGroups = [];
+    // Ordered by id: every run processes the groups in the same order, so that a run stopped by an error is reproducible
     $dbResult1 = $pearDB->query(
         "SELECT DISTINCT acl_groups.acl_group_id
         FROM acl_res_group_relations, `acl_groups`, `acl_resources`
@@ -386,7 +387,8 @@ try {
             AND (
                 acl_groups.acl_group_changed = '1' OR 
                 (acl_resources.changed = '1' AND acl_resources.acl_res_activate IS NOT NULL)
-            )"
+            )
+        ORDER BY acl_groups.acl_group_id"
     );
     while ($result = $dbResult1->fetch()) {
         $tabGroups[] = $result['acl_group_id'];
@@ -602,7 +604,8 @@ try {
         foreach ($tabGroups as $aclGroupId) {
             // Rows of this group: the union of the rows of its resources, written once they are all known
             $groupRows = [];
-            $groupResourceIds = [];
+            // Resources of this group used by no later group of the run: their flag is reset once this group is written
+            $lastUsedResourceIds = [];
 
             /**
              * Select
@@ -740,21 +743,22 @@ try {
                 if ($resourceUses[$res2['acl_res_id']] <= 0) {
                     // Last group of the run using this resource: free its rows
                     unset($resourceCache[$res2['acl_res_id']]);
+                    $lastUsedResourceIds[] = (int) $res2['acl_res_id'];
                 }
-                $groupResourceIds[] = (int) $res2['acl_res_id'];
             }
 
             // Write only the rows that changed, in one transaction; skipped when the fingerprint did not change
             centAclWriteGroupRows($pearDBO, (int) $aclGroupId, $groupRows, $useFingerprint, $aclRunStats);
             unset($groupRows);
 
-            // reset flags of acl_resources, once the rows of the group are written: on an error, the next run retries
+            // reset flags of acl_resources, once every group of the run using them is written: on an error, a resource
+            // shared with a group not written yet stays flagged, so that the next run computes that group again
             $stmt = $pearDB->prepare("UPDATE `acl_resources` SET `changed` = '0' WHERE acl_res_id = :aclResId");
-            foreach ($groupResourceIds as $resourceId) {
+            foreach ($lastUsedResourceIds as $resourceId) {
                 $stmt->bindValue(':aclResId', $resourceId, PDO::PARAM_INT);
                 $stmt->execute();
             }
-            unset($groupResourceIds);
+            unset($lastUsedResourceIds);
 
             if ($debug) {
                 $time_end = microtime_float2();

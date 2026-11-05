@@ -44,9 +44,10 @@ declare(strict_types=1);
  *   F. a disabled access group: its rows and its fingerprint must go, the groups of centreon_acl being listed through
  *      its unique key (EXPLAIN), and the other groups skipped;
  *   G. no fingerprint table, as before the database upgrade: the rows must stay the same, no group skipped;
- *   H. a write error on a group, the resource accesses flagged as "Reload ACL" does: the group must keep its rows,
- *      its resource accesses their flag, and centAcl.php must release its lock, so that once the cause is gone, the
- *      next run writes the group again.
+ *   H. a write error on a group that shares a resource access with the group written before it, the resource
+ *      accesses flagged as "Reload ACL" does: the group must keep its rows, its resource accesses their flag (the
+ *      shared one included), and centAcl.php must release its lock, so that once the cause is gone, the next run
+ *      writes the group again.
  * Every run of centAcl.php is timed, with its PHP peak memory, max resident size and writes (measure.php). The writes
  * the engine reports are checked: a run that reports none fails. The scenarios print their report as plain-text tables,
  * and append it in Markdown to the GitHub job summary when $GITHUB_STEP_SUMMARY is set.
@@ -74,8 +75,10 @@ const CHANGED_HOST_GROUP_ID = B;
 const ADDED_HOSTS = 20;
 const REMOVED_HOSTS = 5;
 
-// Write error of scenario H: the check constraint that rejects a row of the group.
+// Write error of scenario H: the check constraint that rejects a row of the group, and a resource access of the first
+// dataset group, processed before it, that the failing group shares.
 const WRITE_ERROR_CONSTRAINT = 'acl_qualify_write_error';
+const SHARED_RESOURCE_ID = B;
 
 // Comparison with a baseline engine: runs per scenario (median kept), the slowdown allowed for the variations of a
 // shared machine, and the PHP memory growth allowed for the code a pull request adds to the files the cron loads.
@@ -1242,14 +1245,22 @@ function scenarios(PDO $configuration, PDO $storage, string $size, ?array $basel
     fwrite(STDERR, "Scenario H: a write error, then the next run (the error below is expected)\n");
     $failingGroupId = FIRST_DATASET_GROUP_ID + 1;
     $rowCountBefore = prepareWriteError($storage, $failingGroupId);
+    // The failing group also gets a resource access of the group written just before it: writing that group must not
+    // reset the flag of the shared resource access, or the next run would not compute the failing group again.
+    $sharedRelation = 'acl_res_id = ' . SHARED_RESOURCE_ID . " AND acl_group_id = {$failingGroupId}";
+    $configuration->exec(
+        'INSERT INTO acl_res_group_relations (acl_res_id, acl_group_id, `order`) VALUES ('
+        . SHARED_RESOURCE_ID . ", {$failingGroupId}, 0)",
+    );
     try {
         // Like "Reload ACL": only the resource accesses are flagged, not the groups.
         $configuration->exec("UPDATE acl_resources SET changed = '1' WHERE acl_res_id >= " . B);
         runEngine($configuration);
+        $failureProblems = checkFailedWrite($configuration, $storage, $failingGroupId, $rowCountBefore);
     } finally {
         $storage->exec('ALTER TABLE centreon_acl DROP CONSTRAINT ' . WRITE_ERROR_CONSTRAINT);
+        $configuration->exec("DELETE FROM acl_res_group_relations WHERE {$sharedRelation}");
     }
-    $failureProblems = checkFailedWrite($configuration, $storage, $failingGroupId, $rowCountBefore);
     $metrics = runEngine($configuration);
     $comparison = compare($storage, $afterChangePath);
     unlink($afterChangePath);
