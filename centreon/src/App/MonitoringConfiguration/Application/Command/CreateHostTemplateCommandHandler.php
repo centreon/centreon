@@ -61,11 +61,13 @@ use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
+use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
+use Psr\Log\LoggerInterface;
 
 #[AsCommandHandler]
 final readonly class CreateHostTemplateCommandHandler
@@ -85,7 +87,9 @@ final readonly class CreateHostTemplateCommandHandler
         private HostTemplateAdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private AccessScopeResolver $accessScopes,
         private VaultInterface $vault,
+        private VaultCredentialWriter $vaultWriter,
         private EventBus $eventBus,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -110,41 +114,49 @@ final readonly class CreateHostTemplateCommandHandler
 
         $macros = $this->resolveMacros($command);
 
-        // Every check runs before the first vault write, so a refused request leaves no secret behind.
+        // A failure after the first vault write purges the entry minted here.
+        $mintedVaultUuid = null;
         try {
-            $snmpCommunity = $this->vaultOrPlaintext($command->snmpCommunity);
-            $vaultUuid = $snmpCommunity instanceof HostTemplateSnmpCommunity && $this->vault->isVaultPath($snmpCommunity->value)
-                ? $this->vault->extractUuid($snmpCommunity->value)
-                : null;
-            $macros = $this->macroSecretsSynchronizer->synchronize($macros, [], $vaultUuid);
+            try {
+                $snmpCommunity = $this->vaultOrPlaintext($command->snmpCommunity);
+                $mintedVaultUuid = $this->vaultUuidOf($snmpCommunity);
+                $macros = $this->macroSecretsSynchronizer->synchronize($macros, [], $mintedVaultUuid);
+                $mintedVaultUuid ??= $this->vaultUuidOfMacros($macros);
+            } catch (\Throwable $exception) {
+                throw VaultWriteFailedException::forNewHostTemplate($command->name, $exception);
+            }
+
+            $template = HostTemplate::create(
+                name: $command->name,
+                alias: $command->alias,
+                checkOptions: new HostTemplateCheckOptions(
+                    $command->checkCommandId,
+                    $command->checkCommandArgs,
+                    new Collection($macros, HostTemplateMacro::class),
+                ),
+                parentTemplateIds: $command->templateIds,
+                snmpCommunity: $snmpCommunity,
+                snmpVersion: $command->snmpVersion,
+                timezoneId: $command->timezoneId,
+                severityId: $command->severityId,
+                extendedInformations: $command->extendedInformations,
+                schedulingOptions: $command->schedulingOptions,
+                dataProcessing: $command->dataProcessing,
+                notifications: $this->additiveInheritanceModeApplier->apply($command->notifications),
+                categoryIds: $command->categoryIds,
+                linkedServiceTemplateIds: $command->linkedServiceTemplateIds,
+            );
+
+            $this->repository->add($template);
+
+            $this->eventBus->fire(new HostTemplateCreated($template, $command->actor->userId->value));
         } catch (\Throwable $exception) {
-            throw VaultWriteFailedException::forNewHostTemplate($command->name, $exception);
+            if ($mintedVaultUuid !== null) {
+                $this->purgeMintedVaultEntry($mintedVaultUuid);
+            }
+
+            throw $exception;
         }
-
-        $template = HostTemplate::create(
-            name: $command->name,
-            alias: $command->alias,
-            checkOptions: new HostTemplateCheckOptions(
-                $command->checkCommandId,
-                $command->checkCommandArgs,
-                new Collection($macros, HostTemplateMacro::class),
-            ),
-            parentTemplateIds: $command->templateIds,
-            snmpCommunity: $snmpCommunity,
-            snmpVersion: $command->snmpVersion,
-            timezoneId: $command->timezoneId,
-            severityId: $command->severityId,
-            extendedInformations: $command->extendedInformations,
-            schedulingOptions: $command->schedulingOptions,
-            dataProcessing: $command->dataProcessing,
-            notifications: $this->additiveInheritanceModeApplier->apply($command->notifications),
-            categoryIds: $command->categoryIds,
-            linkedServiceTemplateIds: $command->linkedServiceTemplateIds,
-        );
-
-        $this->repository->add($template);
-
-        $this->eventBus->fire(new HostTemplateCreated($template, $command->actor->userId->value));
 
         return $template;
     }
@@ -199,6 +211,44 @@ final readonly class CreateHostTemplateCommandHandler
             VaultKeyEnum::HostSnmpCommunity->value,
             $snmpCommunity,
         ));
+    }
+
+    private function vaultUuidOf(?HostTemplateSnmpCommunity $snmpCommunity): ?string
+    {
+        return $snmpCommunity instanceof HostTemplateSnmpCommunity && $this->vault->isVaultPath($snmpCommunity->value)
+            ? $this->vault->extractUuid($snmpCommunity->value)
+            : null;
+    }
+
+    /**
+     * @param list<HostTemplateMacro> $macros
+     */
+    private function vaultUuidOfMacros(array $macros): ?string
+    {
+        $vaulted = array_find(
+            $macros,
+            fn (HostTemplateMacro $macro): bool => $macro->isPassword && $this->vault->isVaultPath($macro->value),
+        );
+
+        return $vaulted instanceof HostTemplateMacro ? $this->vault->extractUuid($vaulted->value) : null;
+    }
+
+    /**
+     * Best effort: the purge failure is logged, never thrown over the original cause.
+     */
+    private function purgeMintedVaultEntry(string $uuid): void
+    {
+        try {
+            $this->vaultWriter->delete(VaultPathEnum::MonitoringHosts, $uuid);
+        } catch (\Throwable $purgeException) {
+            try {
+                $this->logger->warning('The vault entry minted for a failed host template creation could not be purged.', [
+                    'vault_uuid' => $uuid,
+                    'exception' => $purgeException,
+                ]);
+            } catch (\Throwable) {
+            }
+        }
     }
 
     /**

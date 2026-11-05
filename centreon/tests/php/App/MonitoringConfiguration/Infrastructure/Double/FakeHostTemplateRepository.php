@@ -80,6 +80,8 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var list<int> the ids given by add(), in order */
     public array $addedIds = [];
 
+    public ?\Throwable $addThrows = null;
+
     public ?\Throwable $addCopyThrows = null;
 
     private int $nextId = 1000;
@@ -198,6 +200,10 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public function add(HostTemplate $hostTemplate): void
     {
+        if ($this->addThrows instanceof \Throwable) {
+            throw $this->addThrows;
+        }
+
         $id = $this->nextId++;
         (new \ReflectionProperty(AggregateRoot::class, 'id'))->setValue($hostTemplate, new HostTemplateId($id));
         $this->hostTemplates[$id] = $hostTemplate;

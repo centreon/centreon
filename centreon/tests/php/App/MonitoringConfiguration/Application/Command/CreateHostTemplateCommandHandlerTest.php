@@ -342,6 +342,84 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostTemplateCreated::class));
     }
 
+    public function testAFailedSavePurgesTheVaultEntryMintedForTheCommunity(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->repository->addThrows = new \RuntimeException('The save failed.');
+
+        try {
+            ($this->handler)($this->command(snmpCommunity: 'public'));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('The save failed.', $exception->getMessage());
+        }
+
+        self::assertSame(['new-uuid'], array_column($this->vault->deleteCalls, 'uuid'));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostTemplateCreated::class));
+    }
+
+    public function testAFailedSavePurgesTheVaultEntryMintedForThePasswordMacros(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->repository->addThrows = new \RuntimeException('The save failed.');
+
+        try {
+            ($this->handler)($this->command(macroChanges: [new HostTemplateMacroChange(new HostTemplateMacroName('pwd'), 's3cr3t', true)]));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException) {
+        }
+
+        self::assertSame(['new-uuid'], array_column($this->vault->deleteCalls, 'uuid'));
+    }
+
+    public function testAMacroWriteFailureAfterTheCommunityWritePurgesTheCommunityEntry(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->vault->writeThrowsOnCall = 2;
+
+        try {
+            ($this->handler)($this->command(
+                snmpCommunity: 'public',
+                macroChanges: [new HostTemplateMacroChange(new HostTemplateMacroName('pwd'), 's3cr3t', true)],
+            ));
+            self::fail('A vault failure must stop the creation.');
+        } catch (VaultWriteFailedException) {
+        }
+
+        self::assertSame(['new-uuid'], array_column($this->vault->deleteCalls, 'uuid'));
+        self::assertSame([], $this->repository->addedIds);
+    }
+
+    public function testAFailingPurgeDoesNotHideTheCause(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->vault->deleteThrows = true;
+
+        $this->repository->addThrows = new \RuntimeException('The save failed.');
+
+        try {
+            ($this->handler)($this->command(snmpCommunity: 'public'));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('The save failed.', $exception->getMessage());
+        }
+
+        self::assertCount(1, $this->vault->deleteCalls);
+    }
+
+    public function testWithoutAVaultAFailedSavePurgesNothing(): void
+    {
+        $this->repository->addThrows = new \RuntimeException('The save failed.');
+
+        try {
+            ($this->handler)($this->command(snmpCommunity: 'public'));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException) {
+        }
+
+        self::assertSame([], $this->vault->deleteCalls);
+    }
+
     public function testAMacroValueThatIsAVaultReferenceIsRefused(): void
     {
         $this->expectException(HostTemplateMacroValueIsAVaultReferenceException::class);
