@@ -4,13 +4,17 @@
 # step. Use `return` for the early-exit guards below.
 set -eu
 
-# Opt-in only: this is a dev/CI convenience to get a real database behind the
-# split images for manual testing, NOT the real T9 (productised automated
-# install). Trimmed down from the monolithic image's own
+# Opt-in only (RUN_INSTALL): the actual install mechanism for this image,
+# reused as-is by the k8s chart's dedicated install Job (INSTALL_DB_STEPS=
+# true there, false on regular fpm replicas) — not a disposable dev/CI-only
+# fixture. Trimmed down from the monolithic image's own
 # .github/docker/centreon-web/trixie/entrypoint/container.d/15-installation.sh
 # (same JSON answer-file fixtures, copied into this image at build time) —
-# the gorgone/sysconfig/engine-context steps are dropped here on purpose:
-# this image has no gorgone/engine package at all, they belong to Pilier 2.
+# the sysconfig/gorgone-node-registration steps are dropped here on purpose:
+# gorgone and the monitoring engine run as their own dedicated containers
+# (Pilier 2), not inside fpm — fpm does ship a real centengine binary, but
+# only for "Generate Configuration Files"' local verification (MON-214031),
+# never to run it.
 if [ "${RUN_INSTALL:-false}" != "true" ]; then
   return 0
 fi
