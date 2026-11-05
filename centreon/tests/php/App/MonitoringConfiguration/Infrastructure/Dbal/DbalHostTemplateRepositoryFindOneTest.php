@@ -259,16 +259,49 @@ final class DbalHostTemplateRepositoryFindOneTest extends KernelTestCase
         self::assertSame([], $template->notifications?->options);
     }
 
-    public function testTheLowestLevelledCategoryIsTheSeverityWhenSeveralAreStored(): void
+    public function testTheLowestLevelIsTheSeverityWhenSeveralAreStored(): void
     {
         $id = $this->insertTemplate();
-        $lowerId = $this->insertCategory(5);
-        $higherId = $this->insertCategory(1);
+        $levelFiveId = $this->insertCategory(5);
+        $levelOneId = $this->insertCategory(1);
+        foreach ([$levelOneId, $levelFiveId] as $severityId) {
+            $this->connection->insert('hostcategories_relation', ['host_host_id' => $id, 'hostcategories_hc_id' => $severityId]);
+        }
+
+        self::assertSame($levelOneId, $this->findOne($id)->severityId?->value);
+    }
+
+    public function testTheLowestIdIsTheSeverityAmongSeveralOfTheSameLevel(): void
+    {
+        $id = $this->insertTemplate();
+        $lowerId = $this->insertCategory(2);
+        $higherId = $this->insertCategory(2);
         foreach ([$higherId, $lowerId] as $severityId) {
             $this->connection->insert('hostcategories_relation', ['host_host_id' => $id, 'hostcategories_hc_id' => $severityId]);
         }
 
         self::assertSame($lowerId, $this->findOne($id)->severityId?->value);
+    }
+
+    public function testALinkedServiceAndAHostAsParentAreLeftOut(): void
+    {
+        $id = $this->insertTemplate();
+        $serviceTemplateId = $this->insertServiceTemplate();
+        $this->connection->insert('service', ['service_description' => $this->uniqueName(), 'service_register' => '1']);
+        $serviceId = (int) $this->connection->lastInsertId();
+        foreach ([$serviceId, $serviceTemplateId] as $linkedId) {
+            $this->connection->insert('host_service_relation', ['host_host_id' => $id, 'service_service_id' => $linkedId]);
+        }
+        $parentId = $this->insertTemplate();
+        $this->connection->insert('host', ['host_name' => $this->uniqueName(), 'host_register' => '1', 'host_activate' => '1']);
+        $hostId = (int) $this->connection->lastInsertId();
+        $this->linkToTemplate($id, $hostId, 1);
+        $this->linkToTemplate($id, $parentId, 2);
+
+        $template = $this->findOne($id);
+
+        self::assertSame([$serviceTemplateId], $this->ids($template->linkedServiceTemplateIds));
+        self::assertSame([$parentId], $this->ids($template->parentTemplateIds));
     }
 
     public function testANoneNotificationOptionNextToRealOnesIsDropped(): void

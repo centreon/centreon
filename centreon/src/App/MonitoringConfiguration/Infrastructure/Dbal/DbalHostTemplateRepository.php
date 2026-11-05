@@ -968,8 +968,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     }
 
     /**
-     * The levelless categories, in id order, and the severity: the lowest-id levelled one when
-     * several are stored.
+     * The levelless categories, in id order, and the severity: the lowest level, then the lowest id.
      *
      * @return array{list<int>, ?int}
      */
@@ -980,7 +979,8 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             ->from('hostcategories_relation', 'hcr')
             ->innerJoin('hcr', 'hostcategories', 'hc', 'hc.hc_id = hcr.hostcategories_hc_id')
             ->where($qb->expr()->eq('hcr.host_host_id', $qb->createNamedParameter($templateId, ParameterType::INTEGER)))
-            ->orderBy('hcr.hostcategories_hc_id');
+            ->orderBy('hc.level')
+            ->addOrderBy('hcr.hostcategories_hc_id');
 
         /** @var list<array{id: int|string, level: int|string|null}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -1019,18 +1019,18 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     }
 
     /**
-     * Every service linked to the template, in relation order, each once at its first position.
+     * The service templates linked to the template, in relation order, each once at its first position.
      *
      * @return list<int>
      */
     private function findLinkedServiceTemplateIds(int $templateId): array
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('service_service_id')
-            ->from('host_service_relation')
-            ->where($qb->expr()->eq('host_host_id', $qb->createNamedParameter($templateId, ParameterType::INTEGER)))
-            ->andWhere('service_service_id IS NOT NULL')
-            ->orderBy('hsr_id');
+        $qb->select('hsr.service_service_id')
+            ->from('host_service_relation', 'hsr')
+            ->innerJoin('hsr', 'service', 's', "s.service_id = hsr.service_service_id AND s.service_register = '0'")
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($templateId, ParameterType::INTEGER)))
+            ->orderBy('hsr.hsr_id');
 
         /** @var list<int|string> $ids */
         $ids = $qb->executeQuery()->fetchFirstColumn();
@@ -1054,6 +1054,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         $qb = $this->connection->createQueryBuilder();
         $qb->select('htr.host_host_id', 'htr.host_tpl_id')
             ->from('host_template_relation', 'htr')
+            ->innerJoin('htr', self::TABLE_NAME, 'p', 'p.host_id = htr.host_tpl_id AND p.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
             ->where($qb->expr()->in('htr.host_host_id', $qb->createNamedParameter($templateIds, ArrayParameterType::INTEGER)))
             ->orderBy('htr.host_host_id')
             ->addOrderBy('htr.`order`')
