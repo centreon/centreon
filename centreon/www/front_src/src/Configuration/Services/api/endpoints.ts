@@ -13,6 +13,10 @@ export const servicesListEndpoint = '/configuration/services';
 export const serviceTemplatesEndpoint =
   '/configuration/services/service_templates';
 
+// The form's host selector, granted by the service write right rather than by
+// the host one.
+export const serviceFormHostsEndpoint = '/configuration/services/hosts';
+
 export const getServiceEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/services/${id}`;
 

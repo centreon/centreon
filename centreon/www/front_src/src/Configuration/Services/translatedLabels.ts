@@ -15,3 +15,10 @@ export const labelDurationInSeconds = '{{count}} sec';
 
 export const labelWelcomeToServices = 'Welcome to the Services interface!';
 export const labelCreateService = 'Create a service';
+
+// Form sections and blocks
+export const labelGeneralInformation = 'General information';
+export const labelServiceBasicInformation = 'Service Basic Information';
+
+// Form validation
+export const labelNameContainsForbiddenCharacters = 'Unauthorized value';

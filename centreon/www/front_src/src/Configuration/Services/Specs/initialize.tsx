@@ -2,6 +2,8 @@ import { SnackbarProvider } from '@centreon/ui';
 import {
   defaultLimitPerPageAtom,
   intervalLengthAtom,
+  type PlatformFeatures,
+  platformFeaturesAtom,
   type UserPermissions,
   userPermissionsAtom
 } from '@centreon/ui-context';
@@ -20,12 +22,15 @@ import Services from '..';
 import {
   getDuplicateServiceEndpoint,
   getServiceEndpoint,
+  serviceFormHostsEndpoint,
   servicesListEndpoint,
   serviceTemplatesEndpoint
 } from '../api/endpoints';
 import {
   emptyListingResponse,
   getListingResponse,
+  getServiceFormHostsResponse,
+  getServiceResponse,
   getServiceTemplatesResponse
 } from './utils';
 
@@ -33,12 +38,17 @@ interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
   intervalLength?: number;
+  isCloudPlatform?: boolean;
+  // Opens the page on a deep link, such as `?mode=edit&id=0`.
+  searchParams?: string;
 }
 
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
-  intervalLength = 60
+  intervalLength = 60,
+  isCloudPlatform = false,
+  searchParams = ''
 }: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -46,7 +56,11 @@ const initialize = ({
   });
 
   // The form is URL-driven, and the page is not reloaded between tests.
-  window.history.pushState({}, '', window.location.pathname);
+  window.history.pushState(
+    {},
+    '',
+    `${window.location.pathname}${searchParams}`
+  );
 
   const store = createStore();
 
@@ -56,6 +70,7 @@ const initialize = ({
   } as UserPermissions);
   store.set(intervalLengthAtom, intervalLength);
   store.set(defaultLimitPerPageAtom, 10);
+  store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
 
   interceptAPIRequest({
     alias: 'getAllServices',
@@ -69,6 +84,37 @@ const initialize = ({
     method: Method.GET,
     path: `**${serviceTemplatesEndpoint}?**`,
     response: getServiceTemplatesResponse()
+  });
+
+  // Any row opens the form, so each one has a detail response of its own.
+  [0, 1, 2].forEach((id) => {
+    interceptAPIRequest({
+      alias: `getService${id}`,
+      method: Method.GET,
+      path: `**${getServiceEndpoint({ id })}`,
+      response: getServiceResponse(id)
+    });
+  });
+
+  interceptAPIRequest({
+    alias: 'getServiceFormHosts',
+    method: Method.GET,
+    path: `**${serviceFormHostsEndpoint}?**`,
+    response: getServiceFormHostsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'createService',
+    method: Method.POST,
+    path: `**${servicesListEndpoint}`,
+    response: { id: 12, name: 'new service' }
+  });
+
+  interceptAPIRequest({
+    alias: 'updateService0',
+    method: Method.PUT,
+    path: `**${getServiceEndpoint({ id: 0 })}`,
+    response: {}
   });
 
   // Enable and disable are a partial update of the service, one request each.
