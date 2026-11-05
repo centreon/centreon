@@ -214,10 +214,9 @@ services:
       su -s /bin/sh www-data -c
       "exec /usr/share/centreon/bin/console centreon-autodiscovery:save-worker"
     volumes:
-      # Same Symfony/app-state volumes as fpm (console runs the same
-      # application tree) — not :ro, 15-cache.sh rebuilds the Symfony cache
-      # on every start, same as fpm does.
-      - centreon-cache:/var/cache/centreon
+      # No centreon-cache here: this worker's own Symfony cache never needs
+      # to be fpm's exact files, and sharing it made 15-cache.sh's rm -rf
+      # race between the two containers on every cold start (MON-214281).
       # vault.json lives here (var/lib/centreon/vault) — read-only, this
       # worker never writes Centreon state of its own.
       - centreon-varlib:/var/lib/centreon:ro
