@@ -27,6 +27,7 @@ use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetGuard;
 use App\Upgrade\Application\ModuleNotInstalledException;
+use Psr\Log\LoggerInterface;
 
 #[AsCommandHandler]
 final readonly class RollbackMigrationCommandHandler
@@ -34,6 +35,7 @@ final readonly class RollbackMigrationCommandHandler
     public function __construct(
         private MigrationRunner $migrationRunner,
         private MigrationSetGuard $migrationSetGuard,
+        private LoggerInterface $upgradeLogger,
     ) {
     }
 
@@ -45,6 +47,20 @@ final readonly class RollbackMigrationCommandHandler
      */
     public function __invoke(RollbackMigrationCommand $command): array
     {
-        return $this->migrationSetGuard->run($command->set, fn (): array => $this->migrationRunner->rollback($command->set, $command->version, $command->dryRun, $command->expected));
+        $label = $command->set->label();
+
+        try {
+            $reverted = $this->migrationSetGuard->run($command->set, fn (): array => $this->migrationRunner->rollback($command->set, $command->version, $command->dryRun, $command->expected));
+        } catch (\Throwable $exception) {
+            $this->upgradeLogger->error('Rollback of the {set} to "{version}" failed: {reason}', ['set' => $label, 'version' => $command->version, 'reason' => $exception->getMessage(), 'exception' => $exception]);
+
+            throw $exception;
+        }
+
+        if (! $command->dryRun) {
+            $this->upgradeLogger->info('Rolled the {set} back to "{version}"', ['set' => $label, 'version' => $command->version, 'reverted' => $reverted]);
+        }
+
+        return $reverted;
     }
 }

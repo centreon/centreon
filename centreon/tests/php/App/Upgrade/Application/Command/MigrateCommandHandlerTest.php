@@ -29,6 +29,8 @@ use App\Upgrade\Application\MigrationSetGuard;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationSetLocker;
 use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
@@ -50,6 +52,8 @@ final class MigrateCommandHandlerTest extends TestCase
 
     private FakeUpdateScriptFinder $scriptFinder;
 
+    private RecordingLogger $logger;
+
     private MigrateCommandHandler $handler;
 
     protected function setUp(): void
@@ -59,11 +63,13 @@ final class MigrateCommandHandlerTest extends TestCase
         $this->updateRepository = new FakeUpdateRepository();
         $this->migrationSetLocker = new FakeMigrationSetLocker();
         $this->scriptFinder = new FakeUpdateScriptFinder();
+        $this->logger = new RecordingLogger();
 
         $this->handler = new MigrateCommandHandler(
             $this->migrationRunner,
             new MigrationSetGuard($this->locker, $this->migrationSetLocker, new FakeModuleRepository(['centreon-open-tickets'])),
-            new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION),
+            new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION, new NullLogger()),
+            $this->logger,
         );
     }
 
@@ -221,5 +227,30 @@ final class MigrateCommandHandlerTest extends TestCase
         }
 
         self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+    }
+
+    public function testLogsTheExecutedMigrations(): void
+    {
+        ($this->handler)(new MigrateCommand());
+
+        self::assertEquals(
+            ['level' => 'info', 'message' => 'Migrated the {set}', 'context' => ['set' => 'core migration sets', 'executed' => ['realtime\Version1', 'configuration\Version1']]],
+            $this->logger->lastRecord(),
+        );
+    }
+
+    public function testLogsARefusalBeforeRethrowingIt(): void
+    {
+        $this->scriptFinder->availableUpdates = ['26.10.0'];
+
+        try {
+            ($this->handler)(new MigrateCommand());
+            self::fail('The core sets must wait for the legacy update scripts');
+        } catch (\RuntimeException $exception) {
+            $record = $this->logger->lastRecord();
+            self::assertSame('error', $record['level'] ?? null);
+            self::assertSame('core migration sets', $record['context']['set'] ?? null);
+            self::assertSame($exception, $record['context']['exception'] ?? null);
+        }
     }
 }

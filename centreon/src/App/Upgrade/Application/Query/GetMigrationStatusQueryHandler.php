@@ -30,6 +30,7 @@ use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
+use Psr\Log\LoggerInterface;
 
 #[AsQueryHandler]
 final readonly class GetMigrationStatusQueryHandler
@@ -38,6 +39,7 @@ final readonly class GetMigrationStatusQueryHandler
         private MigrationRunner $migrationRunner,
         private ModuleRepository $moduleRepository,
         private TargetVersionRecorder $targetVersionRecorder,
+        private LoggerInterface $upgradeLogger,
     ) {
     }
 
@@ -69,6 +71,7 @@ final readonly class GetMigrationStatusQueryHandler
                 $statuses[] = $this->status($set, $legacyRefusal);
             } catch (\Throwable $exception) {
                 // A check of migrate(), a database failure or a broken migration file: the other sets are still worth showing.
+                $this->upgradeLogger->error('Cannot read the status of the {set}: {reason}', ['set' => $set->label(), 'reason' => $exception->getMessage(), 'exception' => $exception]);
                 $statuses[] = new MigrationSetStatus($set, [], [], $exception->getMessage());
             }
         }
@@ -95,7 +98,11 @@ final readonly class GetMigrationStatusQueryHandler
     {
         try {
             $this->targetVersionRecorder->legacyVersion();
+        } catch (\RuntimeException $exception) {
+            return $exception->getMessage();
         } catch (\Throwable $exception) {
+            $this->upgradeLogger->error('Cannot read the platform version: {reason}', ['reason' => $exception->getMessage(), 'exception' => $exception]);
+
             return $exception->getMessage();
         }
 

@@ -29,6 +29,7 @@ use App\Upgrade\Application\MigrationSetGuard;
 use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
+use Psr\Log\LoggerInterface;
 
 #[AsCommandHandler]
 final readonly class MigrateCommandHandler
@@ -37,6 +38,7 @@ final readonly class MigrateCommandHandler
         private MigrationRunner $migrationRunner,
         private MigrationSetGuard $migrationSetGuard,
         private TargetVersionRecorder $targetVersionRecorder,
+        private LoggerInterface $upgradeLogger,
     ) {
     }
 
@@ -50,8 +52,19 @@ final readonly class MigrateCommandHandler
     public function __invoke(MigrateCommand $command): array
     {
         $set = $command->set;
+        $label = $set?->label() ?? 'core migration sets';
 
-        return $this->migrationSetGuard->run($set, fn (): array => $set?->isModule() === true ? $this->migrationRunner->migrate($set) : $this->migrateCore($set));
+        try {
+            $executed = $this->migrationSetGuard->run($set, fn (): array => $set?->isModule() === true ? $this->migrationRunner->migrate($set) : $this->migrateCore($set));
+        } catch (\Throwable $exception) {
+            $this->upgradeLogger->error('Migration of the {set} failed: {reason}', ['set' => $label, 'reason' => $exception->getMessage(), 'exception' => $exception]);
+
+            throw $exception;
+        }
+
+        $this->upgradeLogger->info('Migrated the {set}', ['set' => $label, 'executed' => $executed]);
+
+        return $executed;
     }
 
     /**
