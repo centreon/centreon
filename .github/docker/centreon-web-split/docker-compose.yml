@@ -324,12 +324,13 @@ services:
       # "please registernodes" — confirmed testing the full C12 stack).
       GORGONE_API_USERNAME: centreon-gorgone
       GORGONE_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
-    volumes:
-      # Same named volumes as fpm — REMOTECOPY reads source files off its own
-      # disk, never from the triggering request, so this has to be the exact
-      # same filesystem fpm wrote to, not a copy.
-      - centreon-cache:/var/cache/centreon
-      - centreon-varlib:/var/lib/centreon
+      # No shared centreon-cache/centreon-varlib: since G7/MON-213813
+      # (legacycmd, payload_dir) + MON-213827 (LegacyCommandSender), a
+      # poller_type=docker poller (the Central's own, see 12-install.sh)
+      # gets file CONTENT embedded straight in the triggering HTTP request
+      # (SENDCFGFILE/SYNCTRAP/SENDEXPORTFILE), staged under gorgone's own
+      # /var/lib/centreon-gorgone/payload and used as the REMOTECOPY source
+      # from there — it no longer reads fpm's disk at all (MON-214281).
 
   # Central's own engine acting as a poller for config-delivery purposes (the
   # existing, unmodified TYPE=poller image/config, reused as-is).
