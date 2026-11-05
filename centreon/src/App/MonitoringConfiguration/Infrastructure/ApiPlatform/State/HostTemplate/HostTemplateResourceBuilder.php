@@ -167,8 +167,7 @@ final readonly class HostTemplateResourceBuilder
     }
 
     /**
-     * The inherited macros come from the active ancestors and from the check command, the template's own
-     * or else the nearest ancestor's. The template's own linked service templates do not feed them.
+     * The command macros of its own linked service templates are inherited by its descendants only.
      */
     private function buildCheckOptions(HostTemplate $template): HostTemplateCheckOptionsOutput
     {
