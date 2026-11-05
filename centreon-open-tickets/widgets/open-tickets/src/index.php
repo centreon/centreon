@@ -406,15 +406,16 @@ if (isset($preferences['display_severities'])
     && $preferences['criticality_filter'] != ''
 ) {
     $tab = explode(',', $preferences['criticality_filter']);
-    $labels = '';
-    foreach ($tab as $p) {
-        if ($labels != '') {
-            $labels .= ',';
-        }
-        $labels .= "'" . trim($p) . "'";
+    [$bindValues, $bindQuery] = createMultipleBindQuery(
+        list: array_map('trim', $tab),
+        prefix: ':criticality_',
+        bindType: PDO::PARAM_STR
+    );
+    $RES = $db->prepare('SELECT sc_id FROM service_categories WHERE sc_name IN (' . $bindQuery . ')');
+    foreach ($bindValues as $key => [$value, $type]) {
+        $RES->bindValue($key, $value, $type);
     }
-    $query2 = 'SELECT sc_id FROM service_categories WHERE sc_name IN (' . $labels . ')';
-    $RES = $db->query($query2);
+    $RES->execute();
     $idC = '';
     while ($d1 = $RES->fetch()) {
         if ($idC != '') {
