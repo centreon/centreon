@@ -596,7 +596,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
         $macrosByOwner = $this->findMacrosByOwner($line);
         $serviceTemplateCommandIds = $this->findServiceTemplateCheckCommandIds($line);
-        // every stored direct parent, active or not, as in findAll(): $parentIdsById has active ones only
+        // every stored parent template, active or not, as in findAll(): $parentIdsById has active ones only
         $storedParentIdsById = $this->findParentTemplateIdValues($line);
 
         return new Collection(
