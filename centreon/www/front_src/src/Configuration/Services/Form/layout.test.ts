@@ -2,10 +2,10 @@ import type { TFunction } from 'i18next';
 
 import {
   labelAdvanced,
-  labelCheckCommandTemplateCustomMacros,
   labelGeneralInformation,
   labelMonitoringEngineSchedulingOptions,
-  labelRelations
+  labelRelations,
+  labelServiceMonitoringProperties
 } from '../translatedLabels';
 import { getPlacedBlockIds, layout, placeBlocks } from './layout';
 import {
@@ -62,18 +62,18 @@ describe('layout', () => {
 
   it('opens on the general information, then the check command', () => {
     expect(getSectionLabels({ isCloudPlatform: false, t }).slice(0, 2)).toEqual(
-      [labelGeneralInformation, labelCheckCommandTemplateCustomMacros]
+      [labelGeneralInformation, labelServiceMonitoringProperties]
     );
     expect(getSectionLabels({ isCloudPlatform: true, t }).slice(0, 2)).toEqual([
       labelGeneralInformation,
-      labelCheckCommandTemplateCustomMacros
+      labelServiceMonitoringProperties
     ]);
   });
 
   it('shows the sections in the order of the design', () => {
     expect(getSectionLabels({ isCloudPlatform: false, t })).toEqual([
       labelGeneralInformation,
-      labelCheckCommandTemplateCustomMacros,
+      labelServiceMonitoringProperties,
       labelRelations,
       labelMonitoringEngineSchedulingOptions,
       labelAdvanced
@@ -83,7 +83,7 @@ describe('layout', () => {
   it('has no advanced section on a cloud platform, where the comment is refused', () => {
     expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
       labelGeneralInformation,
-      labelCheckCommandTemplateCustomMacros,
+      labelServiceMonitoringProperties,
       labelRelations,
       labelMonitoringEngineSchedulingOptions
     ]);
@@ -120,7 +120,7 @@ describe('layout', () => {
     const labels = getSectionLabels({ isCloudPlatform: false, t });
 
     expect(labels.indexOf(labelRelations)).toBe(
-      labels.indexOf(labelCheckCommandTemplateCustomMacros) + 1
+      labels.indexOf(labelServiceMonitoringProperties) + 1
     );
   });
 
@@ -152,7 +152,7 @@ describe('layout', () => {
 
   it('places the template in the check command section', () => {
     const section = layout.find(
-      ({ label }) => label === labelCheckCommandTemplateCustomMacros
+      ({ label }) => label === labelServiceMonitoringProperties
     );
 
     expect(getPlacedBlockIds(section?.nodes)).toContain('templates');
