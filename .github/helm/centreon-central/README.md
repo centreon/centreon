@@ -526,7 +526,7 @@ k3d cluster create centreon-helm --no-lb --k3s-arg "--disable=traefik@server:0" 
 # cluster from docker.centreon.com: give the nodes registry credentials
 # (k3d `--registry-config`) or set `imagePullSecrets`.
 foreach ($img in 'centreon-web-split-fpm:latest','centreon-web-split-httpd:latest',
-  'mariadb:11.8') {
+  'centreon-web-split-cron:latest','centreon-web-split-rrdcached:latest','mariadb:11.8') {
   docker save $img | docker exec -i k3d-centreon-helm-server-0 ctr -n k8s.io images import -
 }
 # APP_SECRET and SALT: no default, keep them for the life of the release.
@@ -561,5 +561,6 @@ If the kubeconfig entry points at `host.docker.internal` and times out:
   it fails, wipe the DB and reinstall.
 - The collect images default to the floating `develop` tag (pullPolicy
   Always); a broken nightly can leave `develop` stale. `values-prod.yaml`
-  image names are placeholders: pin immutable tags there.
+  has `CHANGE_ME` placeholders for the web images (fpm, httpd, cron,
+  rrdcached): set them, and pin immutable collect tags there too.
 - Eventual GitOps home is the Infrastructure repo (ArgoCD).
