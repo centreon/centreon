@@ -11,6 +11,7 @@ import {
   labelMustBePositiveIntegerOrZero,
   labelNo,
   labelNone,
+  labelNotifications,
   labelUnknown,
   labelWarning,
   labelYes
@@ -18,7 +19,6 @@ import {
 import {
   labelDowntimeScheduled,
   labelFlapping,
-  labelNotification,
   labelRecovery
 } from '../translatedLabels';
 import initialize from './initialize';
@@ -386,7 +386,7 @@ export default () => {
   it('has no notification settings on a cloud platform', async () => {
     await openNewService({ isCloudPlatform: true });
 
-    expect(screen.queryByText(labelNotification)).not.toBeInTheDocument();
+    expect(screen.queryByText(labelNotifications)).not.toBeInTheDocument();
     expect(screen.queryByTestId(testId('enabled'))).not.toBeInTheDocument();
 
     await save();

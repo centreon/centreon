@@ -14,12 +14,12 @@ import {
   type PlacedSection,
   placeBlocks as placeLayoutBlocks
 } from '../../ResourceForm/layout';
+import { labelNotifications } from '../../ResourceForm/translatedLabels';
 import {
   labelAdvanced,
   labelGeneralInformation,
   labelMonitoringEngine,
   labelMonitoringEngineSchedulingOptions,
-  labelNotification,
   labelRelations,
   labelSchedulingOptions,
   labelServiceMonitoringProperties
@@ -98,7 +98,7 @@ export const layout: Array<LayoutSection> = [
   },
   {
     // Absent on cloud, where no notification block is available.
-    label: labelNotification,
+    label: labelNotifications,
     nodes: [
       {
         className: twoColumnsFromWide,
