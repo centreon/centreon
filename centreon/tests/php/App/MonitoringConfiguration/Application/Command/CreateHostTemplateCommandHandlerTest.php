@@ -420,6 +420,38 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         self::assertSame([], $this->vault->deleteCalls);
     }
 
+    public function testWithoutAVaultAFailedSaveNeverPurgesAnInheritedEntry(): void
+    {
+        $this->repository->addThrows = new \RuntimeException('The save failed.');
+        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostTemplateMacroName('pwd'), self::PARENT_SECRET, true, new HostTemplateMacroId(70))]);
+
+        try {
+            ($this->handler)($this->command(
+                templateIds: [7],
+                macroChanges: [new HostTemplateMacroChange(new HostTemplateMacroName('renamed'), null, true, 70, HostMacroParentEnum::Template)],
+            ));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('The save failed.', $exception->getMessage());
+        }
+
+        self::assertSame([], $this->vault->deleteCalls);
+    }
+
+    public function testWithoutAVaultAFailedSaveNeverPurgesACommunityReference(): void
+    {
+        $this->repository->addThrows = new \RuntimeException('The save failed.');
+
+        try {
+            ($this->handler)($this->command(snmpCommunity: 'secret::hashicorp_vault::monitoring/hosts/stored-uuid::_HOSTSNMPCOMMUNITY'));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('The save failed.', $exception->getMessage());
+        }
+
+        self::assertSame([], $this->vault->deleteCalls);
+    }
+
     public function testAMacroValueThatIsAVaultReferenceIsRefused(): void
     {
         $this->expectException(HostTemplateMacroValueIsAVaultReferenceException::class);
