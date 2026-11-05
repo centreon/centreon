@@ -48,14 +48,10 @@ spec:
           {{- include "centreon-central.podScheduling" $ | nindent 10 }}
           restartPolicy: Never
           initContainers:
-            # The jobs connect to the database once, right at start, as
-            # "centreon": wait for this release's install marker, read as that
-            # user, so a run neither starts before the install Job's GRANTs
-            # (1044 Access denied on a fresh install) nor on a schema being
-            # migrated by an upgrade. Also covers the CNI's delay before a
-            # new pod's IP is allowed by the NetworkPolicies. Bounded: a run
-            # stuck here would hold the next ones (concurrencyPolicy Forbid).
-            {{- include "centreon-central.waitInstallAs" (dict "ctx" $ "user" "centreon" "passwordKey" "MYSQL_PASSWORD" "timeoutSeconds" 1800) | nindent 12 }}
+            # Wait for this release's install marker, read as "centreon":
+            # no run before the install Job's GRANTs or during a schema
+            # upgrade (also absorbs the NetworkPolicy delay of a new pod).
+            {{- include "centreon-central.waitInstallAs" (dict "ctx" $ "user" "centreon" "passwordKey" "MYSQL_PASSWORD") | nindent 12 }}
             {{- with include "centreon-central.vaultInit" $ }}{{ . | nindent 12 }}{{ end }}
           containers:
             - name: {{ $name }}

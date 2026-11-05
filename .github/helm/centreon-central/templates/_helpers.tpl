@@ -96,9 +96,9 @@ externalTrafficPolicy: {{ .externalTrafficPolicy }}
 {{- end -}}
 
 {{/* waitInstall as a given database user: (dict "ctx" $ "user" <user>
-     "passwordKey" <Secret key> "timeoutSeconds" <optional, 0 = none>). As
-     "centreon" (CronJobs) the query also fails until the install Job has
-     granted that user its database, and no root password reaches the pod. */}}
+     "passwordKey" <Secret key>). As "centreon" (CronJobs) the query also
+     fails until the install Job has granted that user its database, and no
+     root password reaches the pod. */}}
 {{- define "centreon-central.waitInstallAs" -}}
 {{- $ := .ctx -}}
 - name: wait-install
@@ -107,18 +107,10 @@ externalTrafficPolicy: {{ .externalTrafficPolicy }}
   command: ["/bin/sh", "-c"]
   args:
     - |
-      waited=0
       until [ "$(mysql {{ include "centreon-central.dbCliTls" $ }} -N -s -h"$MYSQL_HOST" -u"$MYSQL_USER" "$MYSQL_DB_CONFIGURATION" \
           -e "SELECT value FROM options WHERE \`key\` = 'helm_install_id'" 2>/dev/null)" = "$INSTALL_ID" ]; do
-        {{- with .timeoutSeconds }}
-        if [ "$waited" -ge {{ . }} ]; then
-          echo "Install $INSTALL_ID not done after {{ . }} s." >&2
-          exit 1
-        fi
-        {{- end }}
         echo "Waiting for install $INSTALL_ID..."
         sleep 5
-        waited=$((waited + 5))
       done
       echo "Install $INSTALL_ID done."
   env:
