@@ -156,6 +156,20 @@ final class PatchServiceProcessorTest extends ApiTestCase
         self::assertJsonEquals(['code' => 0, 'message' => 'One or more services do not exist.']);
     }
 
+    public function testItLetsARestrictedActorDisableAServiceInItsScope(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $serviceId = $this->insertService('ping', $hostId);
+        ['contactId' => $contactId, 'groupId' => $groupId] = $this->loginAsNonAdmin(self::READ_WRITE);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $groupId, 'host_id' => $hostId, 'service_id' => $serviceId]);
+
+        $this->patch((string) $serviceId, ['activated' => false]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('0', $this->serviceActivation($serviceId));
+        self::assertEquals($contactId, $this->activityLogActor($serviceId));
+    }
+
     public function testAServiceOutsideTheRestrictedActorScopeIsNotFound(): void
     {
         $serviceId = $this->insertService('ping', $this->insertHost($this->insertPoller()));
@@ -227,6 +241,14 @@ final class PatchServiceProcessorTest extends ApiTestCase
         ];
     }
 
+    private function activityLogActor(int $serviceId): mixed
+    {
+        return $this->realTimeConnection->fetchOne(
+            "SELECT log_contact_id FROM log_action WHERE object_type = 'service' AND object_id = ?",
+            [$serviceId],
+        );
+    }
+
     private function insertUnchangedAclResource(): int
     {
         $this->connection->insert('acl_resources', ['acl_res_name' => 'r-' . $this->tag, 'acl_res_alias' => 'r', 'acl_res_activate' => '1', 'changed' => '0']);
@@ -242,20 +264,25 @@ final class PatchServiceProcessorTest extends ApiTestCase
         return (int) $changed;
     }
 
-    private function loginAsNonAdmin(int $accessRight): void
+    /**
+     * @return array{contactId: int, groupId: int}
+     */
+    private function loginAsNonAdmin(int $accessRight): array
     {
         $username = 'service-user-' . $this->tag;
         $this->createApiUser($this->connection, $username, admin: false);
         $contactId = $this->connection->fetchOne('SELECT contact_id FROM contact WHERE contact_alias = :alias', ['alias' => $username]);
         Assert::integerish($contactId);
-        $this->grantServicesByHostTopologyRole((int) $contactId, $accessRight);
+        $groupId = $this->grantServicesByHostTopologyRole((int) $contactId, $accessRight);
         $this->login($username);
+
+        return ['contactId' => (int) $contactId, 'groupId' => $groupId];
     }
 
     /**
      * "Configuration > Services > Services by host" with the given access right.
      */
-    private function grantServicesByHostTopologyRole(int $contactId, int $accessRight): void
+    private function grantServicesByHostTopologyRole(int $contactId, int $accessRight): int
     {
         $this->connection->insert('acl_groups', [
             'acl_group_name' => 'service-group-' . $this->tag,
@@ -282,6 +309,8 @@ final class PatchServiceProcessorTest extends ApiTestCase
                 'access_right' => $accessRight,
             ]);
         }
+
+        return $groupId;
     }
 
     private function insertPoller(): int
