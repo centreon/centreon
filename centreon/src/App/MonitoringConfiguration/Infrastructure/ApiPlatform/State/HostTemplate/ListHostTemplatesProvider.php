@@ -144,7 +144,7 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
             $ownIconId = $hostTemplate->extendedInformations?->iconId;
             if ($ownIconId instanceof MediaId) {
                 $iconIds[$ownIconId->value] = $ownIconId;
-            } elseif (count($hostTemplate->parentTemplateIds) > 0) {
+            } else {
                 $idsWithoutIcon[] = $hostTemplate->id();
             }
         }
