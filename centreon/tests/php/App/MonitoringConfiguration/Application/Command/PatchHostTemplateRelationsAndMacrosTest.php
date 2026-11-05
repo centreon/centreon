@@ -44,12 +44,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateRelationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateServicesCleanupRequested;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateUpdated;
+use App\MonitoringConfiguration\Domain\Event\HostTemplateVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostTemplateInheritanceException;
 use App\MonitoringConfiguration\Domain\Exception\DuplicateHostTemplateMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateExclusiveNotificationOptionException;
@@ -285,6 +287,28 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->expectException(\App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException::class);
 
         ($this->handler)($this->command(categoryIds: ListChange::add([new HostCategoryId(11)]), restricted: true));
+    }
+
+    public function testAReplacementKeepsTheContactsAndGroupsTheActorCannotSee(): void
+    {
+        $this->addTemplate(7);
+        $this->repository->hostTemplates[7] = $this->repository->hostTemplates[7]->withRelations(new HostTemplateRelationsChange(
+            contactIds: new Collection([new NotificationContactId(30), new NotificationContactId(31)], NotificationContactId::class),
+            contactGroupIds: new Collection([new ContactGroupId(40), new ContactGroupId(41)], ContactGroupId::class),
+        ));
+        $this->contactRepository->names = [32 => new NotificationContactName('visible')];
+        $this->contactGroupRepository->names = [42 => new ContactGroupName('visible')];
+        $this->resourceAccessRepository->accessibleContactIds = new Collection([new NotificationContactId(31), new NotificationContactId(32)], NotificationContactId::class);
+        $this->resourceAccessRepository->accessibleContactGroupIds = new Collection([new ContactGroupId(41), new ContactGroupId(42)], ContactGroupId::class);
+
+        $template = ($this->handler)($this->command(
+            contactIds: ListChange::replace([new NotificationContactId(32)]),
+            contactGroupIds: ListChange::replace([new ContactGroupId(42)]),
+            restricted: true,
+        ));
+
+        self::assertSame([30, 32], $this->sortedIdValues($template->notifications->contactIds ?? new Collection([], NotificationContactId::class)));
+        self::assertSame([40, 42], $this->sortedIdValues($template->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class)));
     }
 
     public function testAnUnknownLinkedServiceTemplateIsRefused(): void
@@ -569,6 +593,68 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
                 array_map(static fn (HostTemplateMacro $macro): string => $macro->value, array_values($template->checkOptions->macros->toArray())),
             ),
         );
+    }
+
+    public function testAFailedPasswordWriteNeverPurgesTheParentEntryOfACopiedPassword(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->vault->writeThrows = true;
+
+        $parentSecret = 'secret::vault::monitoring/hosts/parent-uuid::_HOSTPWD';
+        $this->vault->resolved[$parentSecret] = 'parent-secret';
+        $this->addTemplate(1, macros: [new HostTemplateMacro(new HostTemplateMacroName('PWD'), $parentSecret, true, new HostTemplateMacroId(10))]);
+        $this->addTemplate(7, parentIds: [1]);
+
+        try {
+            ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
+                new HostTemplateMacroChange(new HostTemplateMacroName('pwd_copy'), null, true, 10, \App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum::Template),
+            ])));
+            self::fail('A vault failure must stop the update.');
+        } catch (VaultWriteFailedException) {
+        }
+
+        self::assertSame([], $this->vault->deleteCalls);
+    }
+
+    public function testWithoutAVaultAFailedSaveNeverPurgesTheParentEntryOfACopiedPassword(): void
+    {
+        $this->repository->updateThrows = new \RuntimeException('The save failed.');
+        $parentSecret = 'secret::vault::monitoring/hosts/parent-uuid::_HOSTPWD';
+        $this->addTemplate(1, macros: [new HostTemplateMacro(new HostTemplateMacroName('PWD'), $parentSecret, true, new HostTemplateMacroId(10))]);
+        $this->addTemplate(7, parentIds: [1]);
+
+        try {
+            ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
+                new HostTemplateMacroChange(new HostTemplateMacroName('pwd_copy'), null, true, 10, \App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum::Template),
+            ])));
+            self::fail('The save failure must reach the caller.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('The save failed.', $exception->getMessage());
+        }
+
+        self::assertSame([], $this->vault->deleteCalls);
+    }
+
+    public function testClearingTheCommunityKeepsTheEntryAPasswordMacroStillUses(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostTemplateMacroName('PWD'), 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTPWD', true, new HostTemplateMacroId(70))], snmpCommunity: self::VAULTED_COMMUNITY);
+
+        ($this->handler)(new PatchHostTemplateCommand(new HostTemplateId(7), TestActingUsers::unrestricted(5), new HostTemplateChange(), null));
+
+        self::assertSame(['_HOSTSNMPCOMMUNITY'], $this->vault->writeManyCalls[0]['deletes']);
+        self::assertSame([], $this->eventBus->getDispatchedEvents(HostTemplateVaultPurgeRequested::class));
+    }
+
+    public function testRemovingTheLastVaultedPasswordClearsItsKeyAndPurgesTheEntry(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostTemplateMacroName('PWD'), 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTPWD', true, new HostTemplateMacroId(70))]);
+
+        ($this->handler)($this->command(macros: HostTemplateMacroChanges::remove([new HostTemplateMacroId(70)])));
+
+        self::assertSame(['_HOSTPWD'], $this->vault->writeManyCalls[0]['deletes']);
+        self::assertCount(1, $this->eventBus->getDispatchedEvents(HostTemplateVaultPurgeRequested::class));
     }
 
     /**
