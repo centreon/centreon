@@ -1560,10 +1560,15 @@ flow, not for API-driven testing.
 
 ## rrdcached sidecar (`rrdcached` service), MON-213837
 
-A write-cache TCP sidecar for Central's merged RRD output, disabled by
-default (`RRDCACHED_PORT` unset) and only turned on once a `BROKER_TAG`
-carrying MON-213839's fix is in use (C12). `rrd_cached_option`/`rrd_cached`
-in `cfg_centreonbroker_info` are toggled idempotently by `12-install.sh`.
+A write-cache TCP sidecar for Central's merged RRD output, **enabled by
+default** (`RRDCACHED_PORT=42217`, decided 2026-11-04 once MON-213839's
+broker fix was pinned). Local volumes make the I/O gain small in this dev
+stack, but keeping it on here matches the k8s chart's topology and keeps
+this exact path covered by the CI smoke test — the path MON-213839's bug
+was originally found on. `RRDCACHED_PORT` stays a real opt-out: unsetting it
+disables rrdcached, and `rrd_cached_option`/`rrd_cached` in
+`cfg_centreonbroker_info` are toggled idempotently either way by
+`12-install.sh`.
 
 **DESIGN CHANGE (2026-11-02)**: originally shipped with
 `network_mode: "service:centreon-broker"` — `broker/rrd/src/output.cc`

@@ -407,13 +407,17 @@ mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
 # network namespace — DESIGN CHANGE, see trixie/README.md: G9/MON-213839 adds
 # a 'host' key to the rrd output, find_param(cfg, "host", false, "localhost")
 # in broker.class.php, letting cbd dial out to a separate container instead
-# of requiring netns sharing). Disabled by default stack-wide (RRDCACHED_PORT
-# unset) until a BROKER_TAG carrying that fix is in use (C12). Idempotent
-# BOTH ways, on every start (UPDATE/DELETE+INSERT, not INSERT-if-missing): an
-# unset/empty RRDCACHED_PORT forces 'disable' and drops the 'host' row
-# explicitly rather than leaving whatever was there — otherwise toggling
-# rrdcached off on an already-running release would leave cbd configured for
-# tcp with nothing listening on the other end.
+# of requiring netns sharing). The MON-213839 broker fix is now pinned, and
+# compose enables rrdcached by default (RRDCACHED_PORT=42217) — local
+# volumes make the I/O gain small in dev, but this keeps the topology
+# identical to the k8s chart and keeps this exact path covered by the CI
+# smoke test (the path where MON-213839 was found in the first place).
+# RRDCACHED_PORT stays an opt-out, not a dead knob: unsetting it still fully
+# disables rrdcached, idempotent BOTH ways on every start (UPDATE/
+# DELETE+INSERT, not INSERT-if-missing) — an unset/empty RRDCACHED_PORT
+# forces 'disable' and drops the 'host' row explicitly rather than leaving
+# whatever was there, so toggling it off on an already-running release never
+# leaves cbd configured for tcp with nothing listening on the other end.
 if [ -n "${RRDCACHED_PORT:-}" ]; then
   echo "Enabling rrdcached for Central's RRD output (${RRDCACHED_HOST:-rrdcached}:${RRDCACHED_PORT})..."
   RRD_CACHED_OPTION_VALUE=tcp

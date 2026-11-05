@@ -396,10 +396,11 @@ services:
   # Real monitoring engine for Central-as-a-poller, matching centreon/
   # install-poller's own generated docker-compose.yaml service definition
   # almost verbatim — same image family, same volumes, same healthcheck.
-  # Needed for the COMMAND/reload path (gorgone's systemctl shim targets a
-  # hostname literally called "centengine" over gRPC) — does NOT fix
-  # "Generate Configuration Files"' local centengine -v shell-out in
-  # php-fpm, that's a separate, still-unaddressed local shell-out.
+  # Needed for the COMMAND/reload path (gorgone's own gRPC reload targets a
+  # hostname literally called "centengine"). "Generate Configuration Files"'
+  # local centengine -v shell-out in php-fpm is a separate concern, addressed
+  # by shipping a real centengine binary into the fpm image too (MON-214031,
+  # see trixie/Dockerfile's engine_verifier stage).
   centengine:
     image: "${ENGINE_IMAGE:-docker.centreon.com/centreon/centreon-engine-trixie:develop}"
     pull_policy: always
