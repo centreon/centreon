@@ -109,20 +109,24 @@ source files off gorgone's own disk, never from the triggering request, so
 this has to be the literal same filesystem `fpm` writes to, not a copy (see
 `www/include/configuration/configGenerate/xml/moveFiles.php`).
 
-`gorgone-central-test:src` (default `GORGONE_IMAGE`) carries a one-word fix —
-`gorgone/gorgone/modules/core/register/class.pm`: `REGISTERNODES` →
-`REGISTERNODESFROMDB` in `action_registerresync` — not yet merged upstream,
-without which `gorgone-central` can never self-register (`register_nodes()`
-can only update an already-known node, never create one; only
-`register_nodes_from_db()` can). Override `GORGONE_IMAGE` once it lands on
-the real `centreon-gorgone-trixie` image.
+Self-registration needed a one-word fix upstream —
+`gorgone/gorgone/modules/centreon/nodes/class.pm` sending
+`REGISTERNODESFROMDB` instead of `REGISTERNODES`, without which
+`gorgone-central` could never self-register (`register_nodes()` can only
+update an already-known node, never create one; only
+`register_nodes_from_db()` can) — which has since landed: the default
+`GORGONE_IMAGE` (`centreon-gorgone-trixie:develop`) carries it, no custom
+fork needed any more.
 
 Two permission gaps found only by actually running this (not assumed):
 - Named volumes start root:root regardless of what the image chowns at
-  build time — `poller-broker-init` handles this (plus real content seeding)
-  for broker's config volume; the equivalent for the fpm↔gorgone cache/varlib
-  pair is folded into the `fpm` Dockerfile now (see below), no separate init
-  service for that pair any more.
+  build time — a dedicated `poller-broker-init` service used to handle this
+  (plus real content seeding) for broker's config volume, dropped
+  2026-10-01 once the pinned broker image's own fingerprint guard made
+  seeding it with a fake default actively harmful (see below); the
+  equivalent for the fpm↔gorgone cache/varlib pair is folded into the `fpm`
+  Dockerfile instead (see below), no separate init service for either pair
+  any more.
 - `/var/cache/centreon`/`/var/lib/centreon` need to be writable by **both**
   `www-data` (fpm) and `centreon-gorgone` (gorgone-central, a different user)
   — `fpm`'s Dockerfile creates the same fixed UIDs/GIDs every Centreon
