@@ -21,6 +21,7 @@
 
 declare(strict_types=1);
 
+use Adaptation\Log\Adapter\MonologAdapter;
 use Adaptation\Log\Adapter\MonologAdapterResetter;
 use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use App\Shared\Infrastructure\Logging\SanitizingProcessor;
@@ -49,6 +50,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Platform processors, registered globally (no channel tag): every logger —
     // catch-all and dedicated — carries the same enriched record shape.
     $services->set('monolog.processor.uid', UidProcessor::class)
+        ->factory([MonologAdapter::class, 'uidProcessor'])
         ->tag('monolog.processor');
 
     $services->set('monolog.processor.web', WebProcessor::class)

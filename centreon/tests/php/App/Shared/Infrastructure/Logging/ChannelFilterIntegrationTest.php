@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Logging;
 
+use Adaptation\Log\Adapter\MonologAdapter;
 use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\FingersCrossedHandler;
@@ -250,6 +251,20 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
             $appRecord->extra['uid'],
             'Records emitted in the same process on different channels must share the same UidProcessor uid',
         );
+    }
+
+    public function testSymfonyAndLegacyLoggersShareTheSameUid(): void
+    {
+        self::bootKernel();
+
+        $upgradeLogger = self::getContainer()->get('monolog.logger.upgrade');
+        \assert($upgradeLogger instanceof Logger);
+        $testHandler = new TestHandler();
+        $upgradeLogger->pushHandler($testHandler);
+
+        $upgradeLogger->info('from the upgrade channel');
+
+        self::assertSame(MonologAdapter::uidProcessor()->getUid(), $testHandler->getRecords()[0]->extra['uid'] ?? null);
     }
 
     public function testWebFingerCrossedExcludesHttp404And405(): void
