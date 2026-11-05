@@ -40,6 +40,14 @@ final class VaultWriteFailedException extends \RuntimeException
         );
     }
 
+    public static function forHostTemplate(HostTemplateId $id, \Throwable $previous): self
+    {
+        return new self(
+            sprintf('Host template %d was not updated: its credentials could not be written to the vault.', $id->value),
+            previous: $previous,
+        );
+    }
+
     public static function forNewHostTemplate(HostTemplateName $name, \Throwable $previous): self
     {
         return new self(

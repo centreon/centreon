@@ -40,4 +40,24 @@ final readonly class HostTemplateExtendedInformations
     ) {
         Assert::nullOrMaxLength($altIcon, self::MAX_ALT_ICON_LENGTH);
     }
+
+    public function isEmpty(): bool
+    {
+        return $this->noteUrl === null
+            && $this->note === null
+            && $this->actionUrl === null
+            && ! $this->iconId instanceof MediaId
+            && $this->altIcon === null
+            && $this->comment === null;
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->noteUrl === $other->noteUrl
+            && $this->note === $other->note
+            && $this->actionUrl === $other->actionUrl
+            && $this->iconId?->value === $other->iconId?->value
+            && $this->altIcon === $other->altIcon
+            && $this->comment === $other->comment;
+    }
 }

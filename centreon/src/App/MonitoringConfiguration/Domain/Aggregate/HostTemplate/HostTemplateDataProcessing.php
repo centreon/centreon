@@ -28,6 +28,9 @@ use App\Shared\Domain\Aggregate\TriStateEnum;
 
 final readonly class HostTemplateDataProcessing
 {
+    /** Seconds a Centreon Monitoring Agent host may stay silent before its result is stale. */
+    public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = 500;
+
     /** @var list<string> */
     public array $eventHandlerArgs;
 
@@ -48,5 +51,18 @@ final readonly class HostTemplateDataProcessing
         HostTemplateCommandArguments::assertValid($eventHandlerArgs, 'HostTemplateDataProcessing::eventHandlerArgs');
 
         $this->eventHandlerArgs = array_values($eventHandlerArgs);
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->checkFreshness === $other->checkFreshness
+            && $this->flapDetectionEnabled === $other->flapDetectionEnabled
+            && $this->eventHandlerEnabled === $other->eventHandlerEnabled
+            && $this->acknowledgmentTimeout === $other->acknowledgmentTimeout
+            && $this->freshnessThreshold === $other->freshnessThreshold
+            && $this->lowFlapThreshold === $other->lowFlapThreshold
+            && $this->highFlapThreshold === $other->highFlapThreshold
+            && $this->eventHandlerCommandId?->value === $other->eventHandlerCommandId?->value
+            && $this->eventHandlerArgs === $other->eventHandlerArgs;
     }
 }

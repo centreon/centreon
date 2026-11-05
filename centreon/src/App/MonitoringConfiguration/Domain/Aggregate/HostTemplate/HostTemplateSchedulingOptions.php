@@ -37,4 +37,14 @@ final readonly class HostTemplateSchedulingOptions
         public TriStateEnum $passiveCheckEnabled = TriStateEnum::UseDefault,
     ) {
     }
+
+    public function equals(self $other): bool
+    {
+        return $this->checkTimeperiodId?->value === $other->checkTimeperiodId?->value
+            && $this->maxCheckAttempts === $other->maxCheckAttempts
+            && $this->normalCheckInterval === $other->normalCheckInterval
+            && $this->retryCheckInterval === $other->retryCheckInterval
+            && $this->activeCheckEnabled === $other->activeCheckEnabled
+            && $this->passiveCheckEnabled === $other->passiveCheckEnabled;
+    }
 }

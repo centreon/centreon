@@ -80,6 +80,9 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var list<int> the ids given by add(), in order */
     public array $addedIds = [];
 
+    /** @var list<int> the ids saved by update(), in order */
+    public array $updatedIds = [];
+
     public ?\Throwable $addThrows = null;
 
     public ?\Throwable $addCopyThrows = null;
@@ -189,13 +192,22 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
         return $this->hostTemplates[$id->value] ?? null;
     }
 
-    public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool
+    public function isNameUsedByHostOrTemplate(HostTemplateName $name, ?HostTemplateId $excluding = null): bool
     {
         if (in_array($name->value, $this->hostNames, true)) {
             return true;
         }
 
-        return array_any($this->hostTemplates, static fn (HostTemplate $template): bool => $template->name->value === $name->value);
+        return array_any(
+            $this->hostTemplates,
+            static fn (HostTemplate $template, int $id): bool => $template->name->value === $name->value && $id !== $excluding?->value,
+        );
+    }
+
+    public function update(HostTemplate $hostTemplate): void
+    {
+        $this->hostTemplates[$hostTemplate->id()->value] = $hostTemplate;
+        $this->updatedIds[] = $hostTemplate->id()->value;
     }
 
     public function add(HostTemplate $hostTemplate): void

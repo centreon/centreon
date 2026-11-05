@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 
@@ -55,6 +56,23 @@ final readonly class HostTemplateNotifications
     }
 
     /**
+     * The contacts and contact groups compared as sets.
+     */
+    public function equals(self $other): bool
+    {
+        return $this->enabled === $other->enabled
+            && $this->options === $other->options
+            && $this->interval === $other->interval
+            && $this->periodId?->value === $other->periodId?->value
+            && $this->firstDelay === $other->firstDelay
+            && $this->recoveryDelay === $other->recoveryDelay
+            && $this->contactAdditiveInheritance === $other->contactAdditiveInheritance
+            && $this->contactGroupAdditiveInheritance === $other->contactGroupAdditiveInheritance
+            && $this->sortedIds($this->contactIds) === $this->sortedIds($other->contactIds)
+            && $this->sortedIds($this->contactGroupIds) === $this->sortedIds($other->contactGroupIds);
+    }
+
+    /**
      * Both additive-inheritance flags off, every other field untouched.
      */
     public function withoutAdditiveInheritance(): self
@@ -69,5 +87,20 @@ final readonly class HostTemplateNotifications
             firstDelay: $this->firstDelay,
             recoveryDelay: $this->recoveryDelay,
         );
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     *
+     * @return list<int>
+     */
+    private function sortedIds(Collection $ids): array
+    {
+        $values = array_values(array_map(static fn (AggregateRootId $id): int => $id->value, $ids->toArray()));
+        sort($values);
+
+        return $values;
     }
 }

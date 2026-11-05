@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\NoValue;
 use App\Shared\Domain\VaultInterface;
 use Webmozart\Assert\Assert;
 
@@ -139,6 +140,109 @@ final class HostTemplate extends AggregateRoot
     }
 
     /**
+     * The template once the write is applied. Only the values the change provides are checked against
+     * the write bounds: a stored value out of them that the change leaves alone stays.
+     *
+     * @throws HostTemplateLockedException
+     * @throws \InvalidArgumentException when a provided value is out of the write bounds
+     */
+    public function withChange(HostTemplateChange $change): self
+    {
+        $this->assertUnlocked();
+
+        if ($change->extendedInformations instanceof HostTemplateExtendedInformationsChange) {
+            $informations = $change->extendedInformations;
+            foreach ([
+                [$informations->noteUrl, self::MAX_URL_LENGTH],
+                [$informations->note, self::MAX_NOTE_LENGTH],
+                [$informations->actionUrl, self::MAX_URL_LENGTH],
+                [$informations->altIcon, HostTemplateExtendedInformations::MAX_ALT_ICON_LENGTH],
+                [$informations->comment, self::MAX_COMMENT_LENGTH],
+            ] as [$text, $maxLength]) {
+                if (is_string($text)) {
+                    Assert::lengthBetween(trim($text), 1, $maxLength);
+                }
+            }
+        }
+        if ($change->schedulingOptions instanceof HostTemplateSchedulingOptionsChange) {
+            foreach ([$change->schedulingOptions->maxCheckAttempts, $change->schedulingOptions->normalCheckInterval, $change->schedulingOptions->retryCheckInterval] as $value) {
+                $this->assertProvidedRange($value, 1, self::MAX_INTEGER);
+            }
+        }
+        if ($change->dataProcessing instanceof HostTemplateDataProcessingChange) {
+            $this->assertProvidedRange($change->dataProcessing->acknowledgmentTimeout, 1, self::MAX_INTEGER);
+            $this->assertProvidedRange($change->dataProcessing->freshnessThreshold, 0, self::MAX_INTEGER);
+            $this->assertProvidedRange($change->dataProcessing->lowFlapThreshold, 0, self::MAX_FLAP_THRESHOLD);
+            $this->assertProvidedRange($change->dataProcessing->highFlapThreshold, 0, self::MAX_FLAP_THRESHOLD);
+        }
+        if ($change->notifications instanceof HostTemplateNotificationsChange) {
+            foreach ([$change->notifications->interval, $change->notifications->firstDelay, $change->notifications->recoveryDelay] as $value) {
+                $this->assertProvidedRange($value, 0, self::MAX_INTEGER);
+            }
+        }
+
+        return new self(
+            id: $this->id(),
+            name: NoValue::resolve($change->name, $this->name),
+            checkOptions: $change->checkOptions instanceof HostTemplateCheckOptionsChange
+                ? $change->checkOptions->applyTo($this->checkOptions)
+                : $this->checkOptions,
+            serviceTemplateCheckCommandIds: $this->serviceTemplateCheckCommandIds,
+            alias: NoValue::resolve($change->alias, $this->alias),
+            isLocked: $this->isLocked,
+            parentTemplateIds: $this->parentTemplateIds,
+            snmpCommunity: NoValue::resolve($change->snmpCommunity, $this->snmpCommunity),
+            snmpVersion: NoValue::resolve($change->snmpVersion, $this->snmpVersion),
+            timezoneId: NoValue::resolve($change->timezoneId, $this->timezoneId),
+            severityId: NoValue::resolve($change->severityId, $this->severityId),
+            extendedInformations: $change->extendedInformations instanceof HostTemplateExtendedInformationsChange
+                ? $change->extendedInformations->applyTo($this->extendedInformations)
+                : $this->extendedInformations,
+            schedulingOptions: $change->schedulingOptions instanceof HostTemplateSchedulingOptionsChange
+                ? $change->schedulingOptions->applyTo($this->schedulingOptions)
+                : $this->schedulingOptions,
+            dataProcessing: $change->dataProcessing instanceof HostTemplateDataProcessingChange
+                ? $change->dataProcessing->applyTo($this->dataProcessing)
+                : $this->dataProcessing,
+            notifications: $change->notifications instanceof HostTemplateNotificationsChange
+                ? $change->notifications->applyTo($this->notifications)
+                : $this->notifications,
+            categoryIds: $this->categoryIds,
+            linkedServiceTemplateIds: $this->linkedServiceTemplateIds,
+        );
+    }
+
+    /**
+     * Every field but the relations and the macros, which are compared on their own. Contacts and contact
+     * groups are compared through the notifications.
+     */
+    public function hasSameConfigurationAs(self $other): bool
+    {
+        return $this->name->value === $other->name->value
+            && $this->alias?->value === $other->alias?->value
+            && $this->snmpVersion === $other->snmpVersion
+            && $this->snmpCommunity?->value === $other->snmpCommunity?->value
+            && $this->timezoneId?->value === $other->timezoneId?->value
+            && $this->severityId?->value === $other->severityId?->value
+            && $this->checkOptions->hasSameCommandAs($other->checkOptions)
+            && $this->schedulingOptions->equals($other->schedulingOptions)
+            && $this->dataProcessing->equals($other->dataProcessing)
+            && ($this->extendedInformations ?? new HostTemplateExtendedInformations())->equals($other->extendedInformations ?? new HostTemplateExtendedInformations())
+            && ($this->notifications ?? new HostTemplateNotifications())->equals($other->notifications ?? new HostTemplateNotifications());
+    }
+
+    /**
+     * Whether $before kept its secrets in a vault entry this template no longer references: the entry
+     * can then be deleted once the write is committed.
+     */
+    public function releasesVaultEntryOf(self $before, VaultInterface $vault): bool
+    {
+        $uuid = $before->getVaultUuid($vault);
+
+        return $uuid !== null && $this->getVaultUuid($vault) !== $uuid;
+    }
+
+    /**
      * @throws HostTemplateLockedException
      */
     public function assertUnlocked(): void
@@ -209,6 +313,13 @@ final class HostTemplate extends AggregateRoot
             static fn (HostTemplateMacro $macro): HostMacro => $macro->toHostMacro(HostMacroParentEnum::Template),
             $this->checkOptions->macros->toArray(),
         ));
+    }
+
+    private function assertProvidedRange(NoValue|int|null $value, int $min, int $max): void
+    {
+        if (is_int($value)) {
+            Assert::range($value, $min, $max);
+        }
     }
 
     private static function assertMacroNamesAreUnique(HostTemplateCheckOptions $checkOptions): void

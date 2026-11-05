@@ -433,13 +433,16 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         return $this->transformer->transform($fullRow);
     }
 
-    public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool
+    public function isNameUsedByHostOrTemplate(HostTemplateName $name, ?HostTemplateId $excluding = null): bool
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('1')
             ->from(self::TABLE_NAME)
             ->where($qb->expr()->eq('host_name', $qb->createNamedParameter($name->value)))
             ->setMaxResults(1);
+        if ($excluding instanceof HostTemplateId) {
+            $qb->andWhere($qb->expr()->neq('host_id', $qb->createNamedParameter($excluding->value, ParameterType::INTEGER)));
+        }
 
         return (bool) $qb->executeQuery()->fetchOne();
     }
@@ -447,38 +450,14 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     public function add(HostTemplate $hostTemplate): void
     {
         $informations = $hostTemplate->extendedInformations;
-        $scheduling = $hostTemplate->schedulingOptions;
-        $dataProcessing = $hostTemplate->dataProcessing;
         $notifications = $hostTemplate->notifications;
 
         $this->connection->insert(self::TABLE_NAME, [
+            ...$this->configurationColumns($hostTemplate),
             'host_name' => $hostTemplate->name->value,
-            'host_alias' => $hostTemplate->alias?->value,
             'host_register' => self::HOST_TEMPLATE_REGISTER,
             'host_activate' => '1',
             'host_locked' => 0,
-            'host_snmp_version' => $hostTemplate->snmpVersion?->value,
-            'host_snmp_community' => $hostTemplate->snmpCommunity?->value,
-            'host_location' => $hostTemplate->timezoneId?->value,
-            'host_comment' => $informations?->comment,
-            'command_command_id' => $hostTemplate->checkOptions->checkCommandId?->value,
-            'command_command_id_arg1' => CommandArgumentsFormatter::format($hostTemplate->checkOptions->args),
-            'timeperiod_tp_id' => $scheduling->checkTimeperiodId?->value,
-            'host_max_check_attempts' => $scheduling->maxCheckAttempts,
-            'host_check_interval' => $scheduling->normalCheckInterval,
-            'host_retry_check_interval' => $scheduling->retryCheckInterval,
-            'host_active_checks_enabled' => $this->triStateToColumn($scheduling->activeCheckEnabled),
-            'host_passive_checks_enabled' => $this->triStateToColumn($scheduling->passiveCheckEnabled),
-            'host_check_freshness' => $this->triStateToColumn($dataProcessing->checkFreshness),
-            'host_freshness_threshold' => $dataProcessing->freshnessThreshold,
-            'host_flap_detection_enabled' => $this->triStateToColumn($dataProcessing->flapDetectionEnabled),
-            'host_low_flap_threshold' => $dataProcessing->lowFlapThreshold,
-            'host_high_flap_threshold' => $dataProcessing->highFlapThreshold,
-            'host_event_handler_enabled' => $this->triStateToColumn($dataProcessing->eventHandlerEnabled),
-            'command_command_id2' => $dataProcessing->eventHandlerCommandId?->value,
-            'command_command_id_arg2' => CommandArgumentsFormatter::format($dataProcessing->eventHandlerArgs),
-            'host_acknowledgement_timeout' => $dataProcessing->acknowledgmentTimeout,
-            ...$this->notificationColumns($notifications),
         ]);
 
         $id = (int) $this->connection->lastInsertId();
@@ -529,6 +508,58 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
                 // stored as 1 or NULL, never 0
                 'is_password' => $macro->isPassword ? 1 : null,
             ]);
+        }
+    }
+
+    public function update(HostTemplate $hostTemplate): void
+    {
+        $id = $hostTemplate->id()->value;
+        $informations = $hostTemplate->extendedInformations;
+
+        $this->connection->update(
+            self::TABLE_NAME,
+            [
+                ...$this->configurationColumns($hostTemplate),
+                'host_name' => $hostTemplate->name->value,
+            ],
+            ['host_id' => $id, 'host_register' => self::HOST_TEMPLATE_REGISTER],
+        );
+
+        $this->connection->executeStatement(
+            <<<'SQL'
+                INSERT INTO extended_host_information
+                    (host_host_id, ehi_notes_url, ehi_notes, ehi_action_url, ehi_icon_image, ehi_icon_image_alt)
+                VALUES (:id, :noteUrl, :note, :actionUrl, :iconId, :altIcon)
+                ON DUPLICATE KEY UPDATE
+                    ehi_notes_url = VALUES(ehi_notes_url),
+                    ehi_notes = VALUES(ehi_notes),
+                    ehi_action_url = VALUES(ehi_action_url),
+                    ehi_icon_image = VALUES(ehi_icon_image),
+                    ehi_icon_image_alt = VALUES(ehi_icon_image_alt)
+                SQL,
+            [
+                'id' => $id,
+                'noteUrl' => $informations?->noteUrl,
+                'note' => $informations?->note,
+                'actionUrl' => $informations?->actionUrl,
+                'iconId' => $informations?->iconId?->value,
+                'altIcon' => $informations?->altIcon,
+            ],
+            ['id' => ParameterType::INTEGER, 'iconId' => ParameterType::INTEGER],
+        );
+
+        // The severity shares the table with the categories, told apart by the category level.
+        $this->connection->executeStatement(
+            <<<'SQL'
+                DELETE hcr FROM hostcategories_relation hcr
+                INNER JOIN hostcategories hc ON hc.hc_id = hcr.hostcategories_hc_id
+                WHERE hcr.host_host_id = :id AND hc.level IS NOT NULL
+                SQL,
+            ['id' => $id],
+            ['id' => ParameterType::INTEGER],
+        );
+        if ($hostTemplate->severityId instanceof HostSeverityId) {
+            $this->connection->insert('hostcategories_relation', ['host_host_id' => $id, 'hostcategories_hc_id' => $hostTemplate->severityId->value]);
         }
     }
 
@@ -1060,6 +1091,44 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             ),
             HostTemplate::class
         );
+    }
+
+    /**
+     * The `host` columns a template write sets, its name, activation and lock aside.
+     *
+     * @return array<string, int|string|null>
+     */
+    private function configurationColumns(HostTemplate $hostTemplate): array
+    {
+        $informations = $hostTemplate->extendedInformations;
+        $scheduling = $hostTemplate->schedulingOptions;
+        $dataProcessing = $hostTemplate->dataProcessing;
+
+        return [
+            'host_alias' => $hostTemplate->alias?->value,
+            'host_snmp_version' => $hostTemplate->snmpVersion?->value,
+            'host_snmp_community' => $hostTemplate->snmpCommunity?->value,
+            'host_location' => $hostTemplate->timezoneId?->value,
+            'host_comment' => $informations?->comment,
+            'command_command_id' => $hostTemplate->checkOptions->checkCommandId?->value,
+            'command_command_id_arg1' => CommandArgumentsFormatter::format($hostTemplate->checkOptions->args),
+            'timeperiod_tp_id' => $scheduling->checkTimeperiodId?->value,
+            'host_max_check_attempts' => $scheduling->maxCheckAttempts,
+            'host_check_interval' => $scheduling->normalCheckInterval,
+            'host_retry_check_interval' => $scheduling->retryCheckInterval,
+            'host_active_checks_enabled' => $this->triStateToColumn($scheduling->activeCheckEnabled),
+            'host_passive_checks_enabled' => $this->triStateToColumn($scheduling->passiveCheckEnabled),
+            'host_check_freshness' => $this->triStateToColumn($dataProcessing->checkFreshness),
+            'host_freshness_threshold' => $dataProcessing->freshnessThreshold,
+            'host_flap_detection_enabled' => $this->triStateToColumn($dataProcessing->flapDetectionEnabled),
+            'host_low_flap_threshold' => $dataProcessing->lowFlapThreshold,
+            'host_high_flap_threshold' => $dataProcessing->highFlapThreshold,
+            'host_event_handler_enabled' => $this->triStateToColumn($dataProcessing->eventHandlerEnabled),
+            'command_command_id2' => $dataProcessing->eventHandlerCommandId?->value,
+            'command_command_id_arg2' => CommandArgumentsFormatter::format($dataProcessing->eventHandlerArgs),
+            'host_acknowledgement_timeout' => $dataProcessing->acknowledgmentTimeout,
+            ...$this->notificationColumns($hostTemplate->notifications),
+        ];
     }
 
     /**
