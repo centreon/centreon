@@ -47,6 +47,8 @@ if ((int) $nbProc > 0) {
 
 ini_set('max_execution_time', 0);
 
+// Whether this run holds the lock of cron_operation, to release it after an error
+$lockTaken = false;
 try {
     // Init values
     $debug = 0;
@@ -87,6 +89,7 @@ try {
     // Lock in MySQL (ie: by setting the `running` value to 1)
     if ($is_running == 0) {
         putALock($appId);
+        $lockTaken = true;
     } else {
         if ($nbProc <= 1) {
             $errorMessage = 'According to DB another instance of centAcl.php is already running and I found '
@@ -792,5 +795,9 @@ try {
     $pearDB = null;
     $pearDBO = null;
 } catch (Exception $e) {
+    // Released so that the next run computes again what this one could not write
+    if ($lockTaken) {
+        releaseLockAfterError($pearDB, $appId);
+    }
     programExit($e->getMessage());
 }
