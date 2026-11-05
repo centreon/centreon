@@ -1540,6 +1540,32 @@ logging in through the real UI and getting the expected password-reset
 prompt. `ADMIN_PASSWORD_EXPIRED` is therefore only useful for the web login
 flow, not for API-driven testing.
 
+## Admin/ops: running CLAPI inside `fpm`
+
+Run CLAPI as `www-data`, never as root:
+
+```bash
+docker compose exec -u www-data fpm /usr/share/centreon/bin/centreon -u admin -p '...' -a <ACTION> ...
+# or, from a root shell already inside the container:
+runuser -u www-data -- /usr/share/centreon/bin/centreon -u admin -p '...' -a <ACTION> ...
+```
+
+**Verified for real.** `bin/centreon` is a plain PHP script with no setuid —
+it runs as whichever user invokes it, and a config-generating action (e.g.
+`POLLERGENERATE`) chowns the monitoring server's `/var/cache/centreon/config/
+{engine,broker,vmware}/<id>` directories to that same user as part of
+generating into them. Run as root, `POLLERGENERATE` itself warns ("Please
+check that files in the followings directory are writable by apache user")
+but still exits 0, leaving those three directories `root:root`. Every later
+web/REST-triggered generation (`www-data`) then fails outright:
+`Exception received : Not writeable directory '/var/cache/centreon/config/
+engine/1'` (`www/class/config-generate/backend.class.php`), surfaced to the
+API as `{"code":0,"message":"There was an consistency error in the exported
+files - please use the legacy export menu to troubleshoot"}`. Recovered by
+`chown -R www-data:www-data` on the three `<id>` directories a root run
+touched — no data loss, but a real outage until someone notices and fixes
+the ownership.
+
 ## rrdcached sidecar (`rrdcached` service), MON-213837
 
 A write-cache TCP sidecar for Central's merged RRD output, **enabled by
