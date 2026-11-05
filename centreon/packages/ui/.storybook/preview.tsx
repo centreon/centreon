@@ -27,7 +27,6 @@ import { Decorator, Preview } from '@storybook/react';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import StoryBookThemeProvider from '../src/StoryBookThemeProvider';
 import QueryProvider from '../src/api/QueryProvider';
-import { allModes } from './modes';
 import { useEffect } from 'react';
 
 initialize();
@@ -88,13 +87,6 @@ const preview: Preview = {
       matchers: {
         color: /(background|color)$/i,
         date: /Date$/
-      }
-    },
-    chromatic: {
-      diffThreshold: 0.1,
-      delay: 300,
-      modes: {
-        desktop: allModes.desktop
       }
     },
     viewport: {
