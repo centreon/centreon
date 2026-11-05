@@ -28,10 +28,15 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
+use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostCategories;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostSeverity;
+use App\MonitoringConfiguration\Infrastructure\Validator\ExistingHostTemplates;
+use App\MonitoringConfiguration\Infrastructure\Validator\ExistingServiceTemplates;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimezone;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
+use App\Shared\Infrastructure\Validator\Constraints\ExclusiveKeys;
+use App\Shared\Infrastructure\Validator\Constraints\IdList;
 use App\Shared\Infrastructure\Validator\Constraints\NotNullWhenProvided;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use App\Shared\Infrastructure\Validator\Constraints\WhenVault;
@@ -45,10 +50,26 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Do not add an `id` property here: it would turn a missing template's 404 into a 422 through
  * InvalidReferenceExceptionListener.
  */
+#[ExclusiveKeys([
+    ['templateIds', 'templateIdsToAdd', 'templateIdsToRemove'],
+    ['categoryIds', 'categoryIdsToAdd', 'categoryIdsToRemove'],
+    ['linkedServiceTemplateIds', 'linkedServiceTemplateIdsToAdd', 'linkedServiceTemplateIdsToRemove'],
+])]
 final readonly class PatchHostTemplateInput
 {
     private const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
 
+    /**
+     * @param list<int> $templateIds
+     * @param list<int> $templateIdsToAdd
+     * @param list<int> $templateIdsToRemove
+     * @param list<int> $categoryIds
+     * @param list<int> $categoryIdsToAdd
+     * @param list<int> $categoryIdsToRemove
+     * @param list<int> $linkedServiceTemplateIds
+     * @param list<int> $linkedServiceTemplateIdsToAdd
+     * @param list<int> $linkedServiceTemplateIdsToRemove
+     */
     public function __construct(
         // Unique among hosts and templates: the check needs the template being changed, so it lives
         // in the command handler.
@@ -84,6 +105,38 @@ final readonly class PatchHostTemplateInput
         #[ApiProperty(description: 'null removes the severity, unless it is one the user cannot see.')]
         #[Assert\Sequentially([new Assert\Positive(), new AccessibleHostSeverity()])]
         public ?int $severityId = null,
+
+        #[ApiProperty(description: 'Replaces the parents, in the order given: it sets the inheritance order. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.')]
+        #[Assert\Sequentially([new IdList(), new ExistingHostTemplates()])]
+        public array $templateIds = [],
+
+        #[ApiProperty(description: 'Added after the current parents.')]
+        #[Assert\Sequentially([new IdList(), new ExistingHostTemplates()])]
+        public array $templateIdsToAdd = [],
+
+        #[IdList]
+        public array $templateIdsToRemove = [],
+
+        #[ApiProperty(description: 'Replaces the categories; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.')]
+        #[Assert\Sequentially([new IdList(), new AccessibleHostCategories()])]
+        public array $categoryIds = [],
+
+        #[Assert\Sequentially([new IdList(), new AccessibleHostCategories()])]
+        public array $categoryIdsToAdd = [],
+
+        #[IdList]
+        public array $categoryIdsToRemove = [],
+
+        #[ApiProperty(description: 'Replaces the linked service templates, in the order given. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.')]
+        #[Assert\Sequentially([new IdList(), new ExistingServiceTemplates()])]
+        public array $linkedServiceTemplateIds = [],
+
+        #[ApiProperty(description: 'Added after the current linked service templates.')]
+        #[Assert\Sequentially([new IdList(), new ExistingServiceTemplates()])]
+        public array $linkedServiceTemplateIdsToAdd = [],
+
+        #[IdList]
+        public array $linkedServiceTemplateIdsToRemove = [],
 
         #[NotNullWhenProvided]
         #[Assert\Valid]

@@ -15093,6 +15093,47 @@ components:
           type:
             - integer
             - 'null'
+        template_ids:
+          description: 'Replaces the parents, in the order given: it sets the inheritance order. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        template_ids_to_add:
+          description: 'Added after the current parents.'
+          type: array
+          items:
+            type: integer
+        template_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        category_ids:
+          description: 'Replaces the categories; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        category_ids_to_add:
+          type: array
+          items:
+            type: integer
+        category_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        linked_service_template_ids:
+          description: 'Replaces the linked service templates, in the order given. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        linked_service_template_ids_to_add:
+          description: 'Added after the current linked service templates.'
+          type: array
+          items:
+            type: integer
+        linked_service_template_ids_to_remove:
+          type: array
+          items:
+            type: integer
         check_options:
           anyOf:
             -
@@ -15139,6 +15180,19 @@ components:
           type: array
           items:
             type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateMacroInput'
+        macros_to_upsert:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateMacroInput'
+        macros_to_remove:
+          description: "The ids of the template's own macros to remove."
+          type: array
+          items:
+            type: integer
     PatchHostTemplateExtendedInformationsInput:
       type: object
       additionalProperties: false
@@ -15187,6 +15241,68 @@ components:
           type:
             - string
             - 'null'
+        options:
+          description: 'State transitions triggering a notification, an empty list clears them. "none" is exclusive. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        options_to_add:
+          description: 'Added to the current options. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        options_to_remove:
+          description: 'Removed from the current options.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        contacts:
+          description: 'Replaces the contacts; an empty list removes them all, those the user cannot see stay. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        contacts_to_add:
+          type: array
+          items:
+            type: integer
+        contacts_to_remove:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          description: 'Replaces the contact groups; an empty list removes them all, those the user cannot see stay. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        contact_groups_to_add:
+          type: array
+          items:
+            type: integer
+        contact_groups_to_remove:
+          type: array
+          items:
+            type: integer
         interval:
           minimum: 0
           maximum: 2147483647
