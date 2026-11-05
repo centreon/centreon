@@ -24,9 +24,6 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource;
 
 use ApiPlatform\OpenApi\Factory\OpenApiFactoryInterface;
-use ApiPlatform\OpenApi\Model\Operation;
-use ApiPlatform\OpenApi\Model\PathItem;
-use ApiPlatform\OpenApi\Model\Response;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Routing\RouterInterface;
@@ -93,7 +90,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $this->login($username);
 
         // guard: the user does hold Hosts read-write
-        $this->request('GET', "/api/configuration/hosts/host_templates/{$templateId}");
+        $this->request('GET', "/api/configuration/hosts/host_templates/{$templateId}/macros");
         self::assertResponseIsSuccessful();
 
         $response = $this->request('GET', $this->uri((string) $templateId));
@@ -112,7 +109,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $this->loginAsHostTemplateReadWriteUser($this->connection, $this->tag);
 
         // guard: the user holds no Hosts right
-        $this->request('GET', "/api/configuration/hosts/host_templates/{$templateId}");
+        $this->request('GET', "/api/configuration/hosts/host_templates/{$templateId}/macros");
         self::assertResponseStatusCodeSame(403);
 
         $response = $this->request('GET', $this->uri((string) $templateId));
@@ -139,7 +136,7 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $this->insertMacro($templateId, '$_HOSTPORT$', '443');
         $this->login();
 
-        $hostFormBody = $this->request('GET', "/api/configuration/hosts/host_templates/{$templateId}")->toArray();
+        $hostFormBody = $this->request('GET', "/api/configuration/hosts/host_templates/{$templateId}/macros")->toArray();
         $templateFormBody = $this->request('GET', $this->uri((string) $templateId))->toArray();
 
         self::assertCount(2, (array) $templateFormBody['macros']);
@@ -217,21 +214,15 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
-    public function testItIsDocumentedWithItsErrorResponses(): void
+    public function testItIsAbsentFromTheOpenApiDoc(): void
     {
         /** @var OpenApiFactoryInterface $openApiFactory */
         $openApiFactory = self::getContainer()->get('api_platform.openapi.factory');
-        $pathItem = $openApiFactory()->getPaths()->getPath($this->uri('{id}'));
+        $paths = $openApiFactory()->getPaths();
 
-        self::assertInstanceOf(PathItem::class, $pathItem);
-        $operation = $pathItem->getGet();
-        self::assertInstanceOf(Operation::class, $operation);
-        $responses = $operation->getResponses() ?? [];
-        foreach ([403 => self::MESSAGE, 404 => 'Host template not found'] as $status => $description) {
-            $response = $responses[$status] ?? null;
-            self::assertInstanceOf(Response::class, $response);
-            self::assertSame($description, $response->getDescription());
-        }
+        // guard: the documented paths carry the /api prefix, so an absence below is meaningful
+        self::assertNotNull($paths->getPath('/api/configuration/host_templates'));
+        self::assertNull($paths->getPath($this->uri('{id}')));
     }
 
     public function testThePathIsRoutedToTheMacrosOperationOnly(): void

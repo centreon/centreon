@@ -6502,38 +6502,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Host'
         required: true
-  '/api/configuration/hosts/host_templates/{id}':
-    get:
-      operationId: api_configurationhostshost_templates_id_get
-      tags:
-        - HostTemplate
-      responses:
-        '403':
-          description: 'You are not allowed to access host templates'
-        '404':
-          description: 'Host template not found'
-        '200':
-          description: 'HostTemplate resource'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/HostTemplate.HostTemplateMacrosOutput.jsonld'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HostTemplate.HostTemplateMacrosOutput'
-      summary: "Get a host template's own and inherited macros, to prefill a new host"
-      description: "Get a host template's own and inherited macros, to prefill a new host"
-      parameters:
-        -
-          name: id
-          in: path
-          description: 'HostTemplate identifier'
-          required: true
-          deprecated: false
-          schema:
-            type: string
-          style: simple
-          explode: false
   '/api/configuration/host_templates/{id}':
     delete:
       operationId: api_configurationhost_templates_id_delete
@@ -6794,38 +6762,6 @@ paths:
             maximum: 30
           style: form
           explode: true
-  '/api/configuration/host_templates/host_templates/{id}/macros':
-    get:
-      operationId: api_configurationhost_templateshost_templates_idmacros_get
-      tags:
-        - HostTemplate
-      responses:
-        '403':
-          description: 'You are not allowed to access host templates'
-        '404':
-          description: 'Host template not found'
-        '200':
-          description: 'HostTemplate resource'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/HostTemplate.HostTemplateMacrosOutput.jsonld'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HostTemplate.HostTemplateMacrosOutput'
-      summary: "Get a host template's own and inherited macros, for the host template form"
-      description: "Get a host template's own and inherited macros, for the host template form"
-      parameters:
-        -
-          name: id
-          in: path
-          description: 'HostTemplate identifier'
-          required: true
-          deprecated: false
-          schema:
-            type: string
-          style: simple
-          explode: false
 components:
   securitySchemes:
     Token:
@@ -13777,32 +13713,6 @@ components:
               $ref: '#/components/schemas/CreateHostNotificationsInput'
             -
               type: 'null'
-    HostTemplate.HostTemplateMacrosOutput:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        macros:
-          type: array
-          items:
-            $ref: '#/components/schemas/HostMacroOutput'
-    HostTemplate.HostTemplateMacrosOutput.jsonld:
-      allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
-        -
-          type: object
-          properties:
-            id:
-              type: integer
-            name:
-              type: string
-            macros:
-              type: array
-              items:
-                $ref: '#/components/schemas/HostMacroOutput.jsonld'
     PatchHostCheckOptionsInput:
       type: object
       properties:
