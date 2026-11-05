@@ -320,10 +320,6 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
         self::assertSame([$allowedName], array_column((array) $response->toArray()['member'], 'name'));
     }
 
-    /**
-     * Once the license host limit is reached, the Monitoring Connector service templates and the
-     * ones inheriting from them are not offered to a template either.
-     */
     public function testTheServiceTemplatesSelectorExcludesTheTemplatesTheLicenseNoLongerAllows(): void
     {
         $allowedName = "allowed-{$this->tag}";

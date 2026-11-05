@@ -89,8 +89,7 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
     }
 
     /**
-     * The list offers inactive templates, so an inactive descendant and what inherits from it are
-     * left out like any other.
+     * The list offers inactive templates: an inactive descendant must still be left out.
      */
     public function testItLeavesOutAnInactiveDescendantAndTheTemplatesBelowIt(): void
     {
