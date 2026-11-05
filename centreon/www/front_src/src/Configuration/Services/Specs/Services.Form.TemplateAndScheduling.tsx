@@ -36,13 +36,57 @@ const openNewService = async (
 };
 
 const openService = async (
-  props: Parameters<typeof initialize>[0] = {}
+  props: Parameters<typeof initialize>[0] = {},
+  { id, name }: { id: number; name: string } = { id: 0, name: 'cpu' }
 ): Promise<void> => {
   await openListing(props);
 
-  await userEvent.click(await screen.findByText('cpu'));
+  await userEvent.click(await screen.findByText(name));
 
-  await waitForRequest('@getService0');
+  await waitForRequest(`@getService${id}`);
+};
+
+// The keys the services API takes on a create and an update: a form value
+// sent under its own name, or a group the host API spells otherwise, is not
+// one of them.
+const createServiceKeys = [
+  'advanced',
+  'category_ids',
+  'check_options',
+  'graph_template_id',
+  'host_id',
+  'monitoring_engine',
+  'name',
+  'notifications',
+  'service_group_ids',
+  'service_template_id',
+  'severity_id',
+  'trap_ids'
+];
+const updateServiceKeys = [...createServiceKeys, 'activated'];
+
+const expectOnlyApiKeys = (body: RequestBody, apiKeys: Array<string>): void => {
+  expect(Object.keys(body).filter((key) => !apiKeys.includes(key))).toEqual([]);
+};
+
+const clearTemplate = async (): Promise<void> => {
+  // The clear indicator only shows on hover; userEvent clicks it anyway.
+  await userEvent.click(
+    screen
+      .getByTestId('service-form-template')
+      .closest('.MuiAutocomplete-root')
+      ?.querySelector('.MuiAutocomplete-clearIndicator') as HTMLElement
+  );
+};
+
+const defaultScheduling = {
+  active_check_enabled: 'use_default',
+  check_timeperiod_id: null,
+  is_volatile: 'use_default',
+  max_check_attempts: null,
+  normal_check_interval: null,
+  passive_check_enabled: 'use_default',
+  retry_check_interval: null
 };
 
 // `@centreon/ui` text fields put the test id on the wrapper and the input.
@@ -140,7 +184,7 @@ export default () => {
       const body = await getRequestBody('@updateService0');
 
       // The update replaces the whole service, its activation included.
-      expect(body).not.toHaveProperty('isActivated');
+      expectOnlyApiKeys(body, updateServiceKeys);
       expect(body).toMatchObject({
         activated: true,
         host_id: 10,
@@ -156,6 +200,58 @@ export default () => {
         passive_check_enabled: 'use_default',
         retry_check_interval: null
       });
+    });
+
+    it('opens a service with no template and the default scheduling', async () => {
+      await openService({}, { id: 1, name: 'memory' });
+
+      const name = await getInput('service-form-name');
+
+      await waitFor(() => expect(name).toHaveValue('memory'));
+      expect(screen.getByTestId('service-form-template')).toHaveValue('');
+      expect(screen.getByTestId(schedulingTestId('checkPeriod'))).toHaveValue(
+        ''
+      );
+      expect(await getInput(schedulingTestId('maxCheckAttempts'))).toHaveValue(
+        null
+      );
+      ['activeCheckEnabled', 'passiveCheckEnabled', 'isVolatile'].forEach(
+        (field) => {
+          expect(
+            screen.getByTestId(schedulingTestId(`${field}-use_default`))
+          ).toHaveAttribute('aria-pressed', 'true');
+        }
+      );
+
+      await userEvent.type(name, ' usage');
+
+      await save();
+
+      const body = await getRequestBody('@updateService1');
+
+      expect(body.service_template_id).toBeNull();
+      expect(body.monitoring_engine).toEqual(defaultScheduling);
+    });
+
+    it('removes the template of a service', async () => {
+      await openService();
+
+      await waitFor(() =>
+        expect(screen.getByTestId('service-form-template')).toHaveValue(
+          'generic-active-service'
+        )
+      );
+
+      await clearTemplate();
+      await waitFor(() =>
+        expect(screen.getByTestId('service-form-template')).toHaveValue('')
+      );
+
+      await save();
+
+      const body = await getRequestBody('@updateService0');
+
+      expect(body.service_template_id).toBeNull();
     });
 
     it('shows the enable switch on a deep link, from the detail', async () => {
@@ -247,15 +343,7 @@ export default () => {
       const body = await getRequestBody('@createService');
 
       expect(body.service_template_id).toBeNull();
-      expect(body.monitoring_engine).toEqual({
-        active_check_enabled: 'use_default',
-        check_timeperiod_id: null,
-        is_volatile: 'use_default',
-        max_check_attempts: null,
-        normal_check_interval: null,
-        passive_check_enabled: 'use_default',
-        retry_check_interval: null
-      });
+      expect(body.monitoring_engine).toEqual(defaultScheduling);
     });
 
     it('refuses a check attempt count below 1', async () => {
@@ -321,6 +409,7 @@ export default () => {
 
       const body = await getRequestBody('@createService');
 
+      expectOnlyApiKeys(body, createServiceKeys);
       expect(body.service_template_id).toBe(30);
       expect(body.monitoring_engine).toEqual({
         check_timeperiod_id: null,
