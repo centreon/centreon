@@ -293,7 +293,7 @@ final class HostTemplate extends AggregateRoot
 
     /**
      * The parents and the linked service templates in order (it sets the inheritance and the macro
-     * priority), the categories as a set. The contacts are compared with the configuration.
+     * priority), the categories as a set.
      */
     public function hasSameRelationsAs(self $other): bool
     {
@@ -415,8 +415,7 @@ final class HostTemplate extends AggregateRoot
     }
 
     /**
-     * A copy with the given values; NoValue keeps the current one. Values that can be null are passed
-     * already resolved against NoValue by the callers.
+     * A copy with the given values; NoValue keeps the current one.
      *
      * @param NoValue|Collection<HostTemplateId> $parentTemplateIds
      * @param NoValue|Collection<HostCategoryId> $categoryIds

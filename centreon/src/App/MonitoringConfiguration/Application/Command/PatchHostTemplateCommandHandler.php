@@ -114,8 +114,6 @@ final readonly class PatchHostTemplateCommandHandler
             $changed = $changed->withMacros($this->macros->resolve($changed, $command->macros));
         }
 
-        // A failure after the first vault write purges the entry minted here, or is logged when the
-        // template's own entry was written.
         $previousVaultUuid = $this->vault->isEnabled() ? $template->getVaultUuid($this->vault) : null;
         $vaultUuid = $previousVaultUuid;
         try {

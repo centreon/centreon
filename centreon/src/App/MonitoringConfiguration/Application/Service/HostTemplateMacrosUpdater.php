@@ -42,12 +42,9 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
 
 /**
- * Turns what a partial update says about the macros into the macros the template must own, against the
- * template as the update leaves it: what it inherits depends on the parents and the check command it
- * ends up with. Its own linked service templates do not feed it, as on the detail.
- *
- * A macro named like a standard one is accepted. A vault reference as a value is refused: no password
- * is ever echoed back, so a client has no legitimate one to send. Nothing is written to the vault here.
+ * The macros the template must own after the change. What it inherits comes from its resulting parents and
+ * check command, never from its own linked service templates. A standard macro name is accepted; a vault
+ * reference as a value is refused.
  */
 final readonly class HostTemplateMacrosUpdater
 {

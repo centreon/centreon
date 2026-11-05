@@ -52,14 +52,8 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\NoValue;
 
 /**
- * Gives a template the relations a partial update changes: parents, categories, linked service
- * templates, contacts and contact groups.
- *
- * What a change brings is checked here, as the authority, after the input ran the same rules. A
- * resource the requester cannot access is reported like one that does not exist, and a replacement
- * leaves in place the links the requester cannot see (categories, contacts and contact groups are
- * scoped by access rights; templates and service templates are not). Only an added parent or an added
- * linked service template is held to the license: the ones the template already has stay.
+ * Gives a template the relations a partial update changes. A link the requester cannot see is reported as
+ * unknown and stays on a replacement; only an added parent or linked service template is held to the license.
  */
 final readonly class HostTemplateRelationsUpdater
 {
