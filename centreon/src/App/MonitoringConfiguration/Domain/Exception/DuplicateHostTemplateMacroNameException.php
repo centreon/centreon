@@ -25,10 +25,6 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\Shared\Domain\Exception\AggregateConflictException;
 
-/**
- * A host template holds one macro per name. Reported against `checkOptions`, the payload field the
- * macros are submitted in.
- */
 final class DuplicateHostTemplateMacroNameException extends AggregateConflictException
 {
     /**

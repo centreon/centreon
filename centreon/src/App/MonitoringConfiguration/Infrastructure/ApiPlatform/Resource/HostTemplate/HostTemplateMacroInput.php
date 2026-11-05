@@ -31,9 +31,6 @@ use App\Shared\Domain\VaultInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-/**
- * Addressed by id + parent: no id is a new macro, a parent one the template inherits.
- */
 final readonly class HostTemplateMacroInput
 {
     public function __construct(

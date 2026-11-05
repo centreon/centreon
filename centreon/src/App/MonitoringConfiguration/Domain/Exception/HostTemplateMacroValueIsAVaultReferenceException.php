@@ -25,10 +25,6 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\Shared\Domain\Exception\AggregateConflictException;
 
-/**
- * No password value is ever echoed back, so a client has no legitimate vault reference to send:
- * accepting one would copy another resource's secret. Reported against `checkOptions`.
- */
 final class HostTemplateMacroValueIsAVaultReferenceException extends AggregateConflictException
 {
     /**

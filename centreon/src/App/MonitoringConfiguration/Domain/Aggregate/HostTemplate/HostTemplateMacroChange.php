@@ -40,7 +40,6 @@ final readonly class HostTemplateMacroChange
      */
     public function __construct(
         public HostTemplateMacroName $name,
-        // The attribute is static, so every value is masked in logs, non-secret ones included.
         #[Sensitive] public ?string $value,
         public bool $isPassword,
         public ?int $id = null,

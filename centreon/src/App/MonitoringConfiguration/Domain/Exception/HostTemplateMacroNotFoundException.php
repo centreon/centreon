@@ -26,8 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 use App\Shared\Domain\Exception\AggregateNotFoundException;
 
 /**
- * A submitted macro refers (by id + parent) to a macro the template neither owns nor inherits.
- * Reported against `checkOptions`, the payload field the macros are submitted in.
+ * A macro referred to by id + parent that the template neither owns nor inherits.
  */
 final class HostTemplateMacroNotFoundException extends AggregateNotFoundException
 {

@@ -26,8 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 use App\Shared\Domain\Exception\AggregateConflictException;
 
 /**
- * A submitted macro asks to keep its stored value (null) while the macro it refers to is not a
- * stored password. Reported against `checkOptions`, the payload field the macros are submitted in.
+ * Keeping the stored value (a null value) applies only to a stored password macro.
  */
 final class HostTemplateMacroValueRequiredException extends AggregateConflictException
 {

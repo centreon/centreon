@@ -95,8 +95,7 @@ final readonly class CreateHostTemplateCommandHandler
 
     public function __invoke(CreateHostTemplateCommand $command): HostTemplate
     {
-        // References first: a restricted actor must not tell a taken name (409) from a reference
-        // out of their scope.
+        // References first: a restricted actor must not tell a taken name from a reference out of their scope.
         $this->assertTemplatesExist($command->templateIds);
         $this->templateLicenseGuard->assertLicensed($command->templateIds);
         $this->assertServiceTemplatesExist($command->linkedServiceTemplateIds);

@@ -26,8 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 use App\Shared\Domain\Exception\AggregateConflictException;
 
 /**
- * A submitted macro turns a password macro into a plain one, which would store and echo back its
- * secret in clear. Reported against `checkOptions`, the payload field the macros are submitted in.
+ * A password macro made plain would store its secret in clear.
  */
 final class HostTemplateMacroPasswordUnmaskedException extends AggregateConflictException
 {
