@@ -247,6 +247,13 @@ containers:
   - name: centengine
     image: {{ include "centreon-central.image" $.Values.images.engine }}
     imagePullPolicy: {{ $.Values.images.engine.pullPolicy }}
+    # centengine exits without its cbmod config, which gorgone delivers on
+    # the first export. gorgone runs in this pod, so an initContainer can't
+    # wait for it: the container waits (files/centreon-central-wait-broker-
+    # module-config.sh, the script compose mounts), then runs the image's
+    # entrypoint with its command.
+    command: ["/bin/sh", "-c", {{ printf "%s\nexec /usr/local/lib/centreon-engine/container.sh \"$@\"\n" (required "files/centreon-central-wait-broker-module-config.sh missing from the chart" ($.Files.Get "files/centreon-central-wait-broker-module-config.sh")) | toJson }}, "wait-broker-module-config"]
+    args: ["/usr/sbin/centengine", "/etc/centreon-engine/centengine.cfg"]
     env:
       - { name: NAME, value: {{ $p.name | quote }} }
       - { name: TZ, value: {{ $p.timezone | default "UTC" | quote }} }
@@ -259,8 +266,7 @@ containers:
       # OpenTelemetry / Centreon Monitoring Agent (CMA) gRPC server, active
       # when an agent configuration is attached to the poller (otl_server.json).
       - { name: otel, containerPort: 4317 }
-    # No probes: centengine crash-loops until its delivered config lands
-    # (accepted, self-resolving).
+    # No probes.
     volumeMounts:
       - { name: poller-data, mountPath: /etc/centreon-engine, subPath: engine }
       - {{ $brokerMount }}

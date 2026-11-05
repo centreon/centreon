@@ -417,10 +417,12 @@ gorgone image (`10-create-config.sh`, centreon-collect).
   `/tmp/docker.ready`, liveness on its heartbeat file. Valkey and the
   bundled DB: readiness on a ping. Poller pods (gorgone, centengine,
   traps, vmware): none.
-- **centengine crash-loops until its config is delivered** (the broker
-  waits for it in its `wait-config` init container). Accepted
-  as in compose, but CrashLoopBackOff grows to 5 minutes: count up to ~10
-  minutes on a fresh install.
+- **Cold start, no restart loop.** centengine waits in its container for
+  its cbmod config (`Waiting for /etc/centreon-broker/central-module.json`),
+  the broker in its `wait-config` init container, fpm, the autodiscovery
+  worker and the config-delivery Job for the install Job's marker, and the
+  CronJobs for the same marker read as the `centreon` database user (up
+  to 30 minutes per run). A fresh install converges in a few minutes.
 
 ## Running CLAPI
 

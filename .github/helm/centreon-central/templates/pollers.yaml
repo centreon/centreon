@@ -14,9 +14,8 @@ metadata:
 spec:
   serviceName: {{ $.Release.Name }}-poller-{{ $poller.name }}
   replicas: 1
-  # centengine crash-loops until the first config delivery, so the pod can be
-  # NotReady for good after a bad value: with OrderedReady a helm upgrade
-  # never replaces it. Immutable: an existing StatefulSet must be deleted with
+  # The pod can be NotReady for good after a bad value: with OrderedReady a
+  # helm upgrade never replaces it. Immutable: an existing StatefulSet must be deleted with
   # --cascade=orphan before upgrading.
   podManagementPolicy: Parallel
   selector:
