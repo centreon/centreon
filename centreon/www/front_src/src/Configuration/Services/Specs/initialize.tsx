@@ -195,11 +195,13 @@ const initialize = ({
     response: { id: 12, name: 'new service' }
   });
 
-  interceptAPIRequest({
-    alias: 'updateService0',
-    method: Method.PUT,
-    path: `**${getServiceEndpoint({ id: 0 })}`,
-    response: {}
+  [0, 1].forEach((id) => {
+    interceptAPIRequest({
+      alias: `updateService${id}`,
+      method: Method.PUT,
+      path: `**${getServiceEndpoint({ id })}`,
+      response: {}
+    });
   });
 
   // Enable and disable are a partial update of the service, one request each.
