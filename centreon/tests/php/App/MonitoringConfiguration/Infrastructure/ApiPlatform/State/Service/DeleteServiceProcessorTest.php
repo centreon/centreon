@@ -171,15 +171,76 @@ final class DeleteServiceProcessorTest extends ApiTestCase
         self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$pollerId]));
     }
 
+    public function testARestrictedActorDeletesAServiceInTheirScopeAndFlagsOnlyTheirOwnAccessGroups(): void
+    {
+        $hostId = $this->insertHost('central', $this->insertPoller());
+        $serviceId = $this->insertService('ping', $hostId);
+        $username = 'service-editor-' . $this->tag;
+        $this->createApiUser($this->connection, $username, admin: false);
+        $contactId = $this->connection->fetchOne('SELECT contact_id FROM contact WHERE contact_alias = :alias', ['alias' => $username]);
+        Assert::integerish($contactId);
+        $groupId = $this->grantServicesByHostTopologyRole((int) $contactId, self::READ_WRITE);
+        // Through the main connection: the lookup reads centreon_acl cross-database, inside the test transaction.
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.centreon_acl (group_id, host_id, service_id) VALUES (?, ?, ?)',
+                $this->connection->quoteSingleIdentifier($this->realTimeDatabaseName()),
+            ),
+            [$groupId, $hostId, $serviceId],
+        );
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'other-group-' . $this->tag,
+            'acl_group_alias' => 'other-group-' . $this->tag,
+            'acl_group_activate' => '1',
+        ]);
+        $otherGroupId = (int) $this->connection->lastInsertId();
+        $this->connection->update('acl_groups', ['acl_group_changed' => '0'], ['acl_group_id' => $groupId]);
+        $this->connection->update('acl_groups', ['acl_group_changed' => '0'], ['acl_group_id' => $otherGroupId]);
+        $this->connection->insert('acl_resources', ['acl_res_name' => 'r-' . $this->tag, 'acl_res_alias' => 'r', 'acl_res_activate' => '1', 'changed' => '0']);
+
+        $aclResourceId = (int) $this->connection->lastInsertId();
+
+        $this->login($username);
+        $this->request('DELETE', self::BASE_ENDPOINT . '/' . $serviceId);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertFalse($this->serviceExists($serviceId));
+
+        // A restricted actor flags their own access groups, never every ACL resource.
+        self::assertSame(1, $this->aclGroupChanged($groupId));
+        self::assertSame(0, $this->aclGroupChanged($otherGroupId));
+        /** @var int|string $changed */
+        $changed = $this->connection->fetchOne('SELECT changed FROM acl_resources WHERE acl_res_id = ?', [$aclResourceId]);
+        self::assertSame(0, (int) $changed);
+    }
+
     private function serviceExists(int $serviceId): bool
     {
         return $this->connection->fetchOne('SELECT service_id FROM service WHERE service_id = ?', [$serviceId]) !== false;
     }
 
+    private function realTimeDatabaseName(): string
+    {
+        $name = $this->realTimeConnection->getDatabase();
+        Assert::stringNotEmpty($name);
+
+        return $name;
+    }
+
+    private function aclGroupChanged(int $groupId): int
+    {
+        /** @var int|string $changed */
+        $changed = $this->connection->fetchOne('SELECT acl_group_changed FROM acl_groups WHERE acl_group_id = ?', [$groupId]);
+
+        return (int) $changed;
+    }
+
     /**
      * "Configuration > Services > Services by host" with the given access right.
+     *
+     * @return int the user's access group id, reusable to scope centreon_acl rows
      */
-    private function grantServicesByHostTopologyRole(int $contactId, int $accessRight): void
+    private function grantServicesByHostTopologyRole(int $contactId, int $accessRight): int
     {
         $this->connection->insert('acl_groups', [
             'acl_group_name' => 'service-group-' . $this->tag,
@@ -206,6 +267,8 @@ final class DeleteServiceProcessorTest extends ApiTestCase
                 'access_right' => $accessRight,
             ]);
         }
+
+        return $groupId;
     }
 
     private function insertPoller(): int
