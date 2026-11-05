@@ -25716,6 +25716,7 @@ msgstr ""
 msgid "{{name}} ({{level}})"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
 msgid "Delete host template"
 msgstr ""
 
