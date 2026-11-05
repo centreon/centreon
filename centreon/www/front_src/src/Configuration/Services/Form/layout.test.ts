@@ -1,9 +1,9 @@
 import type { TFunction } from 'i18next';
 
 import {
-  labelCheckCommandTemplateCustomMacros,
   labelGeneralInformation,
-  labelMonitoringEngineSchedulingOptions
+  labelMonitoringEngineSchedulingOptions,
+  labelServiceMonitoringProperties
 } from '../translatedLabels';
 import { getPlacedBlockIds, layout, placeBlocks } from './layout';
 import {
@@ -75,7 +75,7 @@ describe('layout', () => {
 
   it('places the template in the check command section', () => {
     const section = layout.find(
-      ({ label }) => label === labelCheckCommandTemplateCustomMacros
+      ({ label }) => label === labelServiceMonitoringProperties
     );
 
     expect(getPlacedBlockIds(section?.nodes)).toContain('templates');

@@ -9,10 +9,10 @@ import {
   placeBlocks as placeLayoutBlocks
 } from '../../ResourceForm/layout';
 import {
-  labelCheckCommandTemplateCustomMacros,
   labelGeneralInformation,
   labelMonitoringEngineSchedulingOptions,
-  labelSchedulingOptions
+  labelSchedulingOptions,
+  labelServiceMonitoringProperties
 } from '../translatedLabels';
 import { type BlockId, type Blocks, serviceResource } from './sections';
 
@@ -20,7 +20,7 @@ import { type BlockId, type Blocks, serviceResource } from './sections';
 // block is placed exactly once (`layout.test.ts`).
 export const layout: Array<LayoutSection> = [
   { label: labelGeneralInformation, nodes: ['basicInformation'] },
-  { label: labelCheckCommandTemplateCustomMacros, nodes: ['templates'] },
+  { label: labelServiceMonitoringProperties, nodes: ['templates'] },
   {
     label: labelMonitoringEngineSchedulingOptions,
     nodes: [
