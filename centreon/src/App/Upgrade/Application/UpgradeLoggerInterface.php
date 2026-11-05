@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application;
 
-interface UpgradeLogger
+interface UpgradeLoggerInterface
 {
     public function start(string $fromVersion, string $toVersion): void;
 

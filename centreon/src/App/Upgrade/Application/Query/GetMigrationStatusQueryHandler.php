@@ -28,7 +28,7 @@ use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Application\TargetVersionRecorder;
-use App\Upgrade\Application\UpgradeLogger;
+use App\Upgrade\Application\UpgradeLoggerInterface;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -40,7 +40,7 @@ final readonly class GetMigrationStatusQueryHandler
         private MigrationRunner $migrationRunner,
         private ModuleRepository $moduleRepository,
         private TargetVersionRecorder $targetVersionRecorder,
-        private UpgradeLogger $upgradeLogger,
+        private UpgradeLoggerInterface $upgradeLogger,
         #[Autowire(param: 'centreon.version')]
         private string $platformVersion,
     ) {

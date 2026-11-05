@@ -23,14 +23,14 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Log;
 
-use App\Upgrade\Application\UpgradeLogger;
+use App\Upgrade\Application\UpgradeLoggerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 /**
  * Writes the context keys of the legacy LoggerUpgrade, so that both read as one in the upgrade log.
  */
-final readonly class UpgradeChannelLogger implements UpgradeLogger
+final readonly class UpgradeLogger implements UpgradeLoggerInterface
 {
     public function __construct(
         private LoggerInterface $upgradeLogger,

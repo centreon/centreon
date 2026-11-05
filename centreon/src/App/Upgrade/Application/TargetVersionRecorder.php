@@ -38,7 +38,7 @@ final readonly class TargetVersionRecorder
         private UpdateScriptFinder $updateScriptFinder,
         #[Autowire(param: 'centreon.version')]
         private string $platformVersion,
-        private UpgradeLogger $upgradeLogger,
+        private UpgradeLoggerInterface $upgradeLogger,
     ) {
     }
 

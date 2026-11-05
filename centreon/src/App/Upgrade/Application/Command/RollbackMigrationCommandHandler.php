@@ -27,7 +27,7 @@ use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetGuard;
 use App\Upgrade\Application\ModuleNotInstalledException;
-use App\Upgrade\Application\UpgradeLogger;
+use App\Upgrade\Application\UpgradeLoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommandHandler]
@@ -36,7 +36,7 @@ final readonly class RollbackMigrationCommandHandler
     public function __construct(
         private MigrationRunner $migrationRunner,
         private MigrationSetGuard $migrationSetGuard,
-        private UpgradeLogger $upgradeLogger,
+        private UpgradeLoggerInterface $upgradeLogger,
         #[Autowire(param: 'centreon.version')]
         private string $platformVersion,
     ) {

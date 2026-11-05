@@ -23,20 +23,20 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Log;
 
-use App\Upgrade\Infrastructure\Log\UpgradeChannelLogger;
+use App\Upgrade\Infrastructure\Log\UpgradeLogger;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 
-final class UpgradeChannelLoggerTest extends TestCase
+final class UpgradeLoggerTest extends TestCase
 {
     private RecordingLogger $logger;
 
-    private UpgradeChannelLogger $upgradeLogger;
+    private UpgradeLogger $upgradeLogger;
 
     protected function setUp(): void
     {
         $this->logger = new RecordingLogger();
-        $this->upgradeLogger = new UpgradeChannelLogger($this->logger);
+        $this->upgradeLogger = new UpgradeLogger($this->logger);
     }
 
     public function testWritesTheContextOfTheLegacyLoggerUpgrade(): void

@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Double;
 
-use App\Upgrade\Application\UpgradeLogger;
+use App\Upgrade\Application\UpgradeLoggerInterface;
 
-final class FakeUpgradeLogger implements UpgradeLogger
+final class FakeUpgradeLogger implements UpgradeLoggerInterface
 {
     /**
      * @var list<array{
