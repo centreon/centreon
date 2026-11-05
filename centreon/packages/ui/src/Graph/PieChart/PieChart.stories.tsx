@@ -18,12 +18,7 @@ const dataWithBigNumbers = [
 ];
 
 const meta: Meta<typeof ResponsivePie> = {
-  component: ResponsivePie,
-  parameters: {
-    chromatic: {
-      delay: 1000
-    }
-  }
+  component: ResponsivePie
 };
 
 export default meta;

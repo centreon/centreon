@@ -35,11 +35,6 @@ const Template = (args): JSX.Element => {
 
 const meta: Meta<typeof Timeline> = {
   component: Timeline,
-  parameters: {
-    chromatic: {
-      delay: 1000
-    }
-  },
   render: Template
 };
 

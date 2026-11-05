@@ -14,15 +14,15 @@ import { GlobalStyles } from '@mui/system';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 import { useAtomValue } from 'jotai';
 import { equals, mergeDeepRight } from 'ramda';
 import { type ReactNode, useMemo } from 'react';
 import type { CSSInterpolation } from 'tss-react';
 
-import RobotoBoldWoff2 from '../fonts/roboto-bold-webfont.woff2';
-import RobotoLightWoff2 from '../fonts/roboto-light-webfont.woff2';
-import RobotoMediumWoff2 from '../fonts/roboto-medium-webfont.woff2';
-import RobotoRegularWoff2 from '../fonts/roboto-regular-webfont.woff2';
 import { getPalette } from './palettes';
 
 declare module '@mui/styles/defaultTheme' {
@@ -149,30 +149,6 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     MuiCssBaseline: {
       styleOverrides: (theme) => `
-        @font-face {
-          font-family: 'Roboto';
-          font-style: normal;
-          font-weight: 300;
-          src: local('Roboto'), local('Roboto-Light'), url(${RobotoLightWoff2}) format('woff2');
-        }
-        @font-face {
-          font-family: 'Roboto';
-          font-style: normal;
-          font-weight: 400;
-          src: local('Roboto'), local('Roboto-Regular'), url(${RobotoRegularWoff2}) format('woff2');
-        }
-        @font-face {
-          font-family: 'Roboto';
-          font-style: normal;
-          font-weight: 500;
-          src: local('Roboto'), local('Roboto-Medium'), url(${RobotoMediumWoff2}) format('woff2');
-        }
-        @font-face {
-          font-family: 'Roboto';
-          font-style: normal;
-          font-weight: 700;
-          src: local('Roboto'), local('Roboto-Bold'), url(${RobotoBoldWoff2}) format('woff2');
-        }
         body {
           background-color: ${theme.palette.background.paper};
         }

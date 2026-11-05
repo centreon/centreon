@@ -24,14 +24,18 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\VaultScopedInterface;
 use App\Shared\Domain\VaultInterface;
 
 /**
- * Deliberately minimal: only what the DeleteHost cascade needs (identify the service, know its
- * host, log its deletion, purge its vault entry). Not the full ~40-field service configuration
- * model — that belongs to a future dedicated Service CRUD migration, not this one.
+ * Deliberately minimal: what the DeleteHost cascade needs (identify the service, know its host, log its
+ * deletion, purge its vault entry) and what the service listing shows of the service itself (activation,
+ * direct template, own icon, own check intervals). What it inherits from its templates is not part of it.
+ * Not the full ~40-field service configuration model — that belongs to a future dedicated Service CRUD
+ * migration.
  *
  * @extends AggregateRoot<ServiceId>
  */
@@ -45,8 +49,23 @@ final class Service extends AggregateRoot implements VaultScopedInterface
         public readonly ServiceName $name,
         public readonly HostId $hostId,
         public readonly array $macros = [],
+        // Mutable (the other fields are readonly) so enable()/disable() can toggle it.
+        public bool $activated = true,
+        public readonly ?ServiceTemplateId $templateId = null,
+        public readonly ?MediaId $iconId = null,
+        public readonly ServiceCheckIntervals $checkIntervals = new ServiceCheckIntervals(),
     ) {
         parent::__construct($id);
+    }
+
+    public function enable(): void
+    {
+        $this->activated = true;
+    }
+
+    public function disable(): void
+    {
+        $this->activated = false;
     }
 
     /**

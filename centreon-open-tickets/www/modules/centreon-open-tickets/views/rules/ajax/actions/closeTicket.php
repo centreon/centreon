@@ -195,16 +195,23 @@ $hosts_selected_str = '';
 $hosts_selected_str_append = '';
 $hosts_done = [];
 $services_done = [];
-foreach ($selected_values as $value) {
+$queryParams = [];
+foreach ($selected_values as $key => $value) {
     $str = explode(';', $value);
-    $selected_str .= $selected_str_append . 'services.host_id = '
-        . $str[0] . ' AND services.service_id = ' . $str[1];
+    $hostId = (int) $str[0];
+    $serviceId = (int) ($str[1] ?? 0);
+    $selected_str .= $selected_str_append
+        . 'services.host_id = :host_id_' . $key
+        . ' AND services.service_id = :service_id_' . $key;
+    $queryParams[] = QueryParameter::int('host_id_' . $key, $hostId);
+    $queryParams[] = QueryParameter::int('service_id_' . $key, $serviceId);
     $selected_str_append = ' OR ';
 
-    if (! isset($hosts_done[$str[0]])) {
-        $hosts_selected_str .= $hosts_selected_str_append . $str[0];
+    if (! isset($hosts_done[$hostId])) {
+        $hosts_selected_str .= $hosts_selected_str_append . ':hosts_host_id_' . $key;
+        $queryParams[] = QueryParameter::int('hosts_host_id_' . $key, $hostId);
         $hosts_selected_str_append = ', ';
-        $hosts_done[$str[0]] = 1;
+        $hosts_done[$hostId] = 1;
     }
 }
 $accessGroupIds = '';
@@ -255,7 +262,7 @@ $query .= ' AND motl.host_id = hosts.host_id
 
 $hosts_done = [];
 try {
-    $dbResult = $db_storage->fetchAllAssociative($query);
+    $dbResult = $db_storage->fetchAllAssociative($query, QueryParameters::create($queryParams));
 } catch (ConnectionException $e) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_BUSINESS_LOG,
