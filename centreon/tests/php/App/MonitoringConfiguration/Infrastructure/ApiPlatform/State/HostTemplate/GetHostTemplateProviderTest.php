@@ -54,7 +54,7 @@ final class GetHostTemplateProviderTest extends ApiTestCase
     use GrantsHostTemplateTopologyRole;
     private const MESSAGE = 'You are not allowed to view host templates';
 
-    // far above a warm response, so a loaded runner cannot flake
+    // about 3 times the slowest warm 900-level response measured (1.6 s), so a loaded runner cannot flake
     private const MAX_SECONDS = 5.0;
     private const JSON = ['headers' => ['accept' => 'application/json']];
 

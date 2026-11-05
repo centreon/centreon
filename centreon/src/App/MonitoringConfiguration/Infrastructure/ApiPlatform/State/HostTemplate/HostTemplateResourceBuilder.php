@@ -77,8 +77,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Resolves the ids the template carries into the `{id, name}` objects of the detail. The categories,
- * the severity, the contacts and the contact groups out of the actor's scope are left out; the
- * template itself is not ACL-scoped.
+ * the severity, the contacts and the contact groups out of the actor's scope are left out.
  */
 final readonly class HostTemplateResourceBuilder
 {
