@@ -44,6 +44,8 @@ final class ServiceActivityLogFactoryTest extends TestCase
             id: new ServiceId(42),
             name: new ServiceName('web-check'),
             hostId: new HostId(7),
+            hostActivated: true,
+            hostPollerId: null,
         );
 
         $firedAt = new \DateTimeImmutable();

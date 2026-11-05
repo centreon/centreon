@@ -25,29 +25,37 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Aggregate\VaultScopedInterface;
 use App\Shared\Domain\VaultInterface;
 
 /**
  * Deliberately minimal: what the DeleteHost cascade needs (identify the service, know its host, log its
- * deletion, purge its vault entry) and what the service listing shows of the service itself (activation,
- * direct template, own icon, own check intervals). What it inherits from its templates is not part of it.
- * Not the full ~40-field service configuration model — that belongs to a future dedicated Service CRUD
- * migration.
+ * deletion, purge its vault entry), what the service listing shows of the service itself (activation,
+ * direct template, own icon, own check intervals) and the state of its host as loaded with it (activation,
+ * poller), which decides the poller to flag when the service changes. What it inherits from its templates
+ * is not part of it. Not the full ~40-field service configuration model — that belongs to a future
+ * dedicated Service CRUD migration.
  *
  * @extends AggregateRoot<ServiceId>
  */
-final class Service extends AggregateRoot implements VaultScopedInterface
+final class Service extends AggregateRoot implements AclScopedInterface, PollerScopedInterface, VaultScopedInterface
 {
     /**
+     * @param bool $hostActivated whether its host is enabled, as loaded with the service
+     * @param ?PollerId $hostPollerId the poller of its host, as loaded with the service, null when the host has none
      * @param list<ServiceMacro> $macros the service's own custom macros ($_SERVICE<NAME>$)
      */
     public function __construct(
         ?ServiceId $id,
         public readonly ServiceName $name,
         public readonly HostId $hostId,
+        public readonly bool $hostActivated,
+        public readonly ?PollerId $hostPollerId,
         public readonly array $macros = [],
         // Mutable (the other fields are readonly) so enable()/disable() can toggle it.
         public bool $activated = true,
@@ -56,6 +64,16 @@ final class Service extends AggregateRoot implements VaultScopedInterface
         public readonly ServiceCheckIntervals $checkIntervals = new ServiceCheckIntervals(),
     ) {
         parent::__construct($id);
+    }
+
+    /**
+     * The poller whose configuration must be regenerated when this service changes: the one of its host, and
+     * only while that host is enabled (a disabled host is not monitored, so its poller has nothing to reload).
+     * Read from the host state loaded with the service, so it is still known once the service row is deleted.
+     */
+    public function pollerToFlag(): ?PollerId
+    {
+        return $this->hostActivated ? $this->hostPollerId : null;
     }
 
     public function enable(): void

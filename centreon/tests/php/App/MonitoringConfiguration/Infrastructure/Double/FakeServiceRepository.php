@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
@@ -46,6 +47,9 @@ final class FakeServiceRepository implements ServiceRepository
 
     /** @var list<ServiceCriteria> */
     public array $requestedCriteria = [];
+
+    /** @var list<int> ids of stored services that {@see findOne()} hides from an actor whose access is restricted */
+    public array $outOfRestrictedScopeIds = [];
 
     public function add(Service $service): void
     {
@@ -105,5 +109,22 @@ final class FakeServiceRepository implements ServiceRepository
             $pagination->page,
             $pagination->itemsPerPage,
         );
+    }
+
+    /**
+     * Service found unless listed in {@see $outOfRestrictedScopeIds} for a restricted actor; real visibility is SQL.
+     */
+    public function findOne(ServiceId $id, ActingUser $actor): ?Service
+    {
+        $service = $this->services[$id->value] ?? null;
+        if ($service === null) {
+            return null;
+        }
+
+        if (! $actor->hasUnrestrictedResourceAccess() && in_array($id->value, $this->outOfRestrictedScopeIds, true)) {
+            return null;
+        }
+
+        return $service;
     }
 }
