@@ -25,13 +25,14 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\DuplicateHostTemplateCommand;
 use App\MonitoringConfiguration\Application\Command\DuplicateHostTemplateCommandHandler;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateDuplicated;
 use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostTemplateNameTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
@@ -189,7 +190,7 @@ final class DuplicateHostTemplateCommandHandlerTest extends TestCase
 
         $copy = $this->onlyCopy();
         self::assertSame('secret::vault::monitoring/hosts/new-uuid::_HOSTSNMPCOMMUNITY', $copy->snmpCommunity?->value);
-        $macros = $copy->macros->toArray();
+        $macros = $copy->checkOptions->macros->toArray();
         self::assertSame('secret::vault::monitoring/hosts/new-uuid::_HOSTPWD', $macros[0]->value);
         self::assertNull($macros[0]->id);
         self::assertSame('plain', $macros[1]->value);
@@ -290,12 +291,12 @@ final class DuplicateHostTemplateCommandHandlerTest extends TestCase
         $this->repository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic'),
-            macros: new Collection([
-                new HostMacro(new HostMacroName('PWD'), self::SOURCE_PASSWORD, isPassword: true, id: new HostMacroId(1)),
-                new HostMacro(new HostMacroName('PLAIN'), 'plain', isPassword: false, id: new HostMacroId(2)),
-            ], HostMacro::class),
+            checkOptions: new HostTemplateCheckOptions(macros: new Collection([
+                new HostTemplateMacro(new HostTemplateMacroName('PWD'), self::SOURCE_PASSWORD, isPassword: true, id: new HostTemplateMacroId(1)),
+                new HostTemplateMacro(new HostTemplateMacroName('PLAIN'), 'plain', isPassword: false, id: new HostTemplateMacroId(2)),
+            ], HostTemplateMacro::class)),
             isLocked: $isLocked,
-            snmpCommunity: new SnmpCommunity(self::SOURCE_SNMP),
+            snmpCommunity: new HostTemplateSnmpCommunity(self::SOURCE_SNMP),
         );
     }
 

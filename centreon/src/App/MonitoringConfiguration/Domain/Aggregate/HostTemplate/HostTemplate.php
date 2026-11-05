@@ -24,61 +24,54 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
-use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
-use Webmozart\Assert\Assert;
 
 /**
  * @extends AggregateRoot<HostTemplateId>
  */
 final class HostTemplate extends AggregateRoot
 {
-    /** @var Collection<HostMacro> */
-    public readonly Collection $macros;
-
-    /** @var Collection<CommandId> */
-    public readonly Collection $serviceTemplateCheckCommandIds;
-
-    /** @var Collection<HostTemplateId> */
-    public readonly Collection $parentTemplateIds;
-
     /**
-     * @param ?Collection<HostMacro> $macros the template's own custom macros, in insertion order;
-     *                                       possibly lazy
-     * @param ?CommandId $checkCommandId the template's own check command, null when none is set
-     * @param ?Collection<CommandId> $serviceTemplateCheckCommandIds the check commands of the service
-     *                                                               templates linked to this template,
-     *                                                               each followed by those of its own
-     *                                                               templates, in priority order
-     * @param ?MediaId $iconId the template's own icon, null when none is set (an inherited icon is
-     *                         not carried here)
-     * @param ?Collection<HostTemplateId> $parentTemplateIds the templates this template directly
-     *                                                       inherits from, in relation order
-     * @param ?SnmpCommunity $snmpCommunity plaintext, or the `secret::` reference once vaulted
+     * @param Collection<CommandId> $serviceTemplateCheckCommandIds the check commands of the service
+     *                                                              templates linked to this template,
+     *                                                              each followed by those of its own
+     *                                                              templates, in priority order
+     * @param Collection<HostTemplateId> $parentTemplateIds the templates this template directly
+     *                                                      inherits from, in relation order
+     * @param ?HostTemplateSnmpCommunity $snmpCommunity plaintext, or the `secret::` reference once vaulted
+     * @param ?HostSeverityId $severityId the levelled `hostcategories` row; the levelless ones are $categoryIds
+     * @param Collection<HostCategoryId> $categoryIds
+     * @param Collection<ServiceTemplateId> $linkedServiceTemplateIds in relation order
      */
     public function __construct(
         ?HostTemplateId $id,
         public readonly HostTemplateName $name,
-        ?Collection $macros = null,
-        public readonly ?CommandId $checkCommandId = null,
-        ?Collection $serviceTemplateCheckCommandIds = null,
-        public readonly ?HostAlias $alias = null,
+        public readonly HostTemplateCheckOptions $checkOptions = new HostTemplateCheckOptions(),
+        public readonly Collection $serviceTemplateCheckCommandIds = new Collection([], CommandId::class),
+        public readonly ?HostTemplateAlias $alias = null,
         public readonly bool $isLocked = false,
-        public readonly ?MediaId $iconId = null,
-        ?Collection $parentTemplateIds = null,
-        public readonly ?SnmpCommunity $snmpCommunity = null,
+        public readonly Collection $parentTemplateIds = new Collection([], HostTemplateId::class),
+        public readonly ?HostTemplateSnmpCommunity $snmpCommunity = null,
+        public readonly ?HostTemplateSnmpVersionEnum $snmpVersion = null,
+        public readonly ?TimezoneId $timezoneId = null,
+        public readonly ?HostSeverityId $severityId = null,
+        public readonly ?HostTemplateExtendedInformations $extendedInformations = null,
+        public readonly HostTemplateSchedulingOptions $schedulingOptions = new HostTemplateSchedulingOptions(),
+        public readonly HostTemplateDataProcessing $dataProcessing = new HostTemplateDataProcessing(),
+        public readonly ?HostTemplateNotifications $notifications = null,
+        public readonly Collection $categoryIds = new Collection([], HostCategoryId::class),
+        public readonly Collection $linkedServiceTemplateIds = new Collection([], ServiceTemplateId::class),
     ) {
         parent::__construct($id);
-        $this->macros = $macros ?? new Collection([], HostMacro::class);
-        $this->serviceTemplateCheckCommandIds = $serviceTemplateCheckCommandIds ?? new Collection([], CommandId::class);
-        $this->parentTemplateIds = $parentTemplateIds ?? new Collection([], HostTemplateId::class);
     }
 
     /**
@@ -92,27 +85,34 @@ final class HostTemplate extends AggregateRoot
     }
 
     /**
-     * A copy not yet persisted, always unlocked: what is not modelled here is copied from the source by
-     * the repository.
+     * A copy not yet persisted, always unlocked, with its own name, secrets and macros.
      *
-     * @param Collection<HostMacro> $macros the copy's own macros, without source identity
+     * @param Collection<HostTemplateMacro> $macros the copy's own macros, without source identity
      *
      * @throws HostTemplateLockedException
      */
-    public function duplicate(HostTemplateName $newName, ?SnmpCommunity $snmpCommunity, Collection $macros): self
+    public function duplicate(HostTemplateName $newName, ?HostTemplateSnmpCommunity $snmpCommunity, Collection $macros): self
     {
         $this->assertUnlocked();
 
         return new self(
             id: null,
             name: $newName,
-            macros: $macros,
-            checkCommandId: $this->checkCommandId,
+            checkOptions: new HostTemplateCheckOptions($this->checkOptions->checkCommandId, $this->checkOptions->args, $macros),
+            serviceTemplateCheckCommandIds: $this->serviceTemplateCheckCommandIds,
             alias: $this->alias,
             isLocked: false,
-            iconId: $this->iconId,
             parentTemplateIds: $this->parentTemplateIds,
             snmpCommunity: $snmpCommunity,
+            snmpVersion: $this->snmpVersion,
+            timezoneId: $this->timezoneId,
+            severityId: $this->severityId,
+            extendedInformations: $this->extendedInformations,
+            schedulingOptions: $this->schedulingOptions,
+            dataProcessing: $this->dataProcessing,
+            notifications: $this->notifications,
+            categoryIds: $this->categoryIds,
+            linkedServiceTemplateIds: $this->linkedServiceTemplateIds,
         );
     }
 
@@ -121,11 +121,11 @@ final class HostTemplate extends AggregateRoot
      */
     public function getVaultUuid(VaultInterface $vault): ?string
     {
-        if ($this->snmpCommunity instanceof SnmpCommunity && $vault->isVaultPath($this->snmpCommunity->value)) {
+        if ($this->snmpCommunity instanceof HostTemplateSnmpCommunity && $vault->isVaultPath($this->snmpCommunity->value)) {
             return $vault->extractUuid($this->snmpCommunity->value);
         }
 
-        foreach ($this->macros as $macro) {
+        foreach ($this->checkOptions->macros as $macro) {
             if ($macro->isPassword && $vault->isVaultPath($macro->value)) {
                 return $vault->extractUuid($macro->value);
             }
@@ -142,14 +142,8 @@ final class HostTemplate extends AggregateRoot
     public function macrosAsInherited(): array
     {
         return array_values(array_map(
-            static function (HostMacro $macro): HostMacro {
-                // A template only ever owns direct macros: what it inherits itself is resolved
-                // along the inheritance line, never stored on it.
-                Assert::true($macro->isDirect(), 'A host template only owns direct macros.');
-
-                return $macro->inheritedFrom(HostMacroParentEnum::Template);
-            },
-            $this->macros->toArray(),
+            static fn (HostTemplateMacro $macro): HostMacro => $macro->toHostMacro(HostMacroParentEnum::Template),
+            $this->checkOptions->macros->toArray(),
         ));
     }
 }

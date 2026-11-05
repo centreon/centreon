@@ -74,8 +74,8 @@ final readonly class InheritedHostMacrosResolver
         $commandIds = [];
         $checkCommandId ??= array_find(
             $inheritanceLine,
-            static fn (HostTemplate $template): bool => $template->checkCommandId instanceof CommandId,
-        )?->checkCommandId;
+            static fn (HostTemplate $template): bool => $template->checkOptions->checkCommandId instanceof CommandId,
+        )?->checkOptions->checkCommandId;
         if ($checkCommandId instanceof CommandId) {
             $commandIds[$checkCommandId->value] = $checkCommandId;
         }

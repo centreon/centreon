@@ -42,7 +42,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
@@ -193,7 +192,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
         foreach ([1, 2, 3] as $id) {
             $this->hostGroupRepository->hostGroups[$id] = new HostGroup(new HostGroupId($id), new HostGroupName('group-' . $id));
-            $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('template-' . $id), new Collection([], HostMacro::class));
+            $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('template-' . $id));
             $this->hostCategoryRepository->hostCategories[$id] = new HostCategory(new HostCategoryId($id), new HostCategoryName('category-' . $id));
             $this->contactRepository->names[$id] = new NotificationContactName('contact-' . $id);
             $this->contactGroupRepository->names[$id] = new ContactGroupName('contact-group-' . $id);

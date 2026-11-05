@@ -23,12 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
@@ -81,7 +82,7 @@ final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
         self::assertTrue($template->isLocked);
         self::assertSame('public', $template->snmpCommunity?->value);
         self::assertSame([$parentA, $parentB], array_map(static fn (HostTemplateId $parent): int => $parent->value, $template->parentTemplateIds->toArray()));
-        self::assertSame(['USER'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $template->macros->toArray()));
+        self::assertSame(['USER'], array_map(static fn (HostTemplateMacro $macro): string => $macro->name->value, $template->checkOptions->macros->toArray()));
     }
 
     public function testFindOneIgnoresAHostAndAnUnknownId(): void
@@ -135,8 +136,8 @@ final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
         $copy = new HostTemplate(
             null,
             new HostTemplateName($this->uniqueName()),
-            new Collection([new HostMacro(new HostMacroName('PWD'), 'secret::vault::monitoring/hosts/copy::_HOSTPWD', isPassword: true)], HostMacro::class),
-            snmpCommunity: new SnmpCommunity('copy-community'),
+            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostTemplateMacroName('PWD'), 'secret::vault::monitoring/hosts/copy::_HOSTPWD', isPassword: true)], HostTemplateMacro::class)),
+            snmpCommunity: new HostTemplateSnmpCommunity('copy-community'),
         );
         $this->repository->addCopyOf($copy, new HostTemplateId($sourceId));
         $copyId = $copy->id()->value;

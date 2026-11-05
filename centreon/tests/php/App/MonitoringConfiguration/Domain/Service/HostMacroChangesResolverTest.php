@@ -38,7 +38,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroPasswordUnmaskedException;
@@ -76,11 +80,11 @@ final class HostMacroChangesResolverTest extends TestCase
         $command->setStoredMacros([new CommandMacro(new CommandMacroId(31), 'CMD', CommandMacroTypeEnum::Host)]);
 
         $this->inherited = InheritedHostMacros::resolve([
-            new HostTemplate(new HostTemplateId(1), new HostTemplateName('tpl'), new Collection([
-                new HostMacro(new HostMacroName('tplval'), 'inherited', isPassword: false, id: new HostMacroId(11)),
-                new HostMacro(new HostMacroName('tplpwd'), self::TEMPLATE_SECRET, isPassword: true, id: new HostMacroId(12)),
-                new HostMacro(new HostMacroName('shared'), 'x', isPassword: false, id: new HostMacroId(13)),
-            ], HostMacro::class)),
+            new HostTemplate(new HostTemplateId(1), new HostTemplateName('tpl'), new HostTemplateCheckOptions(macros: new Collection([
+                new HostTemplateMacro(new HostTemplateMacroName('tplval'), 'inherited', isPassword: false, id: new HostTemplateMacroId(11)),
+                new HostTemplateMacro(new HostTemplateMacroName('tplpwd'), self::TEMPLATE_SECRET, isPassword: true, id: new HostTemplateMacroId(12)),
+                new HostTemplateMacro(new HostTemplateMacroName('shared'), 'x', isPassword: false, id: new HostTemplateMacroId(13)),
+            ], HostTemplateMacro::class))),
         ], [$command]);
     }
 

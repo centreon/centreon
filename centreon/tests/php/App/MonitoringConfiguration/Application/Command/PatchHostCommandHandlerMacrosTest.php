@@ -54,7 +54,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
@@ -586,7 +590,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         $this->templateRepository->hostTemplates[1] = new HostTemplate(
             new HostTemplateId(1),
             new HostTemplateName('template-1'),
-            new Collection([$this->macro('PORT', '80', false, 500)], HostMacro::class),
+            new HostTemplateCheckOptions(macros: new Collection([$this->templateMacro('PORT', '80', false, 500)], HostTemplateMacro::class)),
         );
         $this->repository->seed(new Host(
             id: null,
@@ -719,10 +723,10 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             $this->templateRepository->hostTemplates[$templateId] = new HostTemplate(
                 new HostTemplateId($templateId),
                 new HostTemplateName('template-' . $templateId),
-                new Collection(
-                    array_map(fn (array $macro): HostMacro => $this->macro($macro[0], $macro[1], $macro[2], $macro[3]), $macros),
-                    HostMacro::class,
-                ),
+                new HostTemplateCheckOptions(macros: new Collection(
+                    array_map(fn (array $macro): HostTemplateMacro => $this->templateMacro($macro[0], $macro[1], $macro[2], $macro[3]), $macros),
+                    HostTemplateMacro::class,
+                )),
             );
         }
 
@@ -990,6 +994,11 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
     private function macro(string $name, string $value, bool $isPassword = false, ?int $id = null): HostMacro
     {
         return new HostMacro(new HostMacroName($name), $value, $isPassword, $id === null ? null : new HostMacroId($id));
+    }
+
+    private function templateMacro(string $name, string $value, bool $isPassword, int $id): HostTemplateMacro
+    {
+        return new HostTemplateMacro(new HostTemplateMacroName($name), $value, $isPassword, new HostTemplateMacroId($id));
     }
 
     private function macroNamed(Host $host, string $name): HostMacro

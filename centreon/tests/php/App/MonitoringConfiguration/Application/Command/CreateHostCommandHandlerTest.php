@@ -54,7 +54,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
@@ -317,7 +321,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new Collection([new HostMacro(new HostMacroName('tplpwd'), 'tpl-secret', isPassword: true, id: new HostMacroId(70))], HostMacro::class),
+            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostTemplateMacroName('tplpwd'), 'tpl-secret', isPassword: true, id: new HostTemplateMacroId(70))], HostTemplateMacro::class)),
         );
 
         $host = ($this->handler)(new CreateHostCommand(
@@ -346,7 +350,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new Collection([new HostMacro(new HostMacroName('plain'), 'tpl-value', isPassword: false, id: new HostMacroId(70))], HostMacro::class),
+            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostTemplateMacroName('plain'), 'tpl-value', isPassword: false, id: new HostTemplateMacroId(70))], HostTemplateMacro::class)),
         );
 
         $this->expectException(HostMacroValueRequiredException::class);
@@ -377,7 +381,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new Collection([new HostMacro(new HostMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostMacroId(70))], HostMacro::class),
+            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostTemplateMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostTemplateMacroId(70))], HostTemplateMacro::class)),
         );
 
         $host = ($this->handler)(new CreateHostCommand(
@@ -416,7 +420,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new Collection([new HostMacro(new HostMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostMacroId(70))], HostMacro::class),
+            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostTemplateMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostTemplateMacroId(70))], HostTemplateMacro::class)),
         );
 
         $host = ($this->handler)(new CreateHostCommand(
@@ -462,7 +466,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new Collection([new HostMacro(new HostMacroName('inherited'), 'shared', isPassword: false, id: new HostMacroId(70))], HostMacro::class),
+            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostTemplateMacroName('inherited'), 'shared', isPassword: false, id: new HostTemplateMacroId(70))], HostTemplateMacro::class)),
         );
 
         $host = ($this->handler)(new CreateHostCommand(
@@ -491,7 +495,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[8] = new HostTemplate(
             new HostTemplateId(8),
             new HostTemplateName('linux-host'),
-            new Collection([new HostMacro(new HostMacroName('fromtemplate'), 'tpl', isPassword: false, id: new HostMacroId(80))], HostMacro::class),
+            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostTemplateMacroName('fromtemplate'), 'tpl', isPassword: false, id: new HostTemplateMacroId(80))], HostTemplateMacro::class)),
         );
 
         $host = ($this->handler)(new CreateHostCommand(
@@ -523,7 +527,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            checkCommandId: new CommandId(9),
+            checkOptions: new HostTemplateCheckOptions(new CommandId(9)),
         );
 
         $host = ($this->handler)(new CreateHostCommand(
@@ -1164,7 +1168,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         foreach ([7, 8] as $id) {
-            $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('template-' . $id), new Collection([], HostMacro::class));
+            $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('template-' . $id));
         }
         $this->hostTemplateRepository->monitoringConnectorTemplateIds = [8];
 
@@ -1181,7 +1185,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     public function testItAcceptsATemplateTheLicenseStillAllows(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
-        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('template-7'), new Collection([], HostMacro::class));
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('template-7'));
         $this->hostTemplateRepository->monitoringConnectorTemplateIds = [8];
 
         $host = ($this->handler)($this->relationCommand($poller->id(), templateIds: [7]));

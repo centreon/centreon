@@ -37,7 +37,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
@@ -224,16 +228,20 @@ final class InheritedHostMacrosTest extends TestCase
     }
 
     /**
-     * @param list<HostMacro> $macros
+     * @param list<HostTemplateMacro> $macros
      */
     private function template(int $id, array $macros): HostTemplate
     {
-        return new HostTemplate(new HostTemplateId($id), new HostTemplateName('tpl-' . $id), new Collection($macros, HostMacro::class));
+        return new HostTemplate(
+            new HostTemplateId($id),
+            new HostTemplateName('tpl-' . $id),
+            new HostTemplateCheckOptions(macros: new Collection($macros, HostTemplateMacro::class)),
+        );
     }
 
-    private function macro(int $id, string $name, string $value, bool $isPassword = false): HostMacro
+    private function macro(int $id, string $name, string $value, bool $isPassword = false): HostTemplateMacro
     {
-        return new HostMacro(new HostMacroName($name), $value, $isPassword, new HostMacroId($id));
+        return new HostTemplateMacro(new HostTemplateMacroName($name), $value, $isPassword, new HostTemplateMacroId($id));
     }
 
     /**

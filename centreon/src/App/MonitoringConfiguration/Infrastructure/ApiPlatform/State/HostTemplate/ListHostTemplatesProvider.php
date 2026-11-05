@@ -141,8 +141,9 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
             foreach ($hostTemplate->parentTemplateIds as $parentId) {
                 $parentIds[$parentId->value] = $parentId;
             }
-            if ($hostTemplate->iconId instanceof MediaId) {
-                $iconIds[$hostTemplate->iconId->value] = $hostTemplate->iconId;
+            $ownIconId = $hostTemplate->extendedInformations?->iconId;
+            if ($ownIconId instanceof MediaId) {
+                $iconIds[$ownIconId->value] = $ownIconId;
             } elseif (count($hostTemplate->parentTemplateIds) > 0) {
                 $idsWithoutIcon[] = $hostTemplate->id();
             }
@@ -179,7 +180,7 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
             }
             $resource->parentTemplates = $parents;
 
-            $iconId = $hostTemplate->iconId ?? $inheritedIconIds[$id] ?? null;
+            $iconId = $hostTemplate->extendedInformations->iconId ?? $inheritedIconIds[$id] ?? null;
             $icon = $iconId !== null ? $icons[$iconId->value] ?? null : null;
             $resource->icon = $icon instanceof Media
                 ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
