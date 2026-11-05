@@ -8,6 +8,9 @@ inputs:
   head_sha:
     description: ref for current release or hotfix branch
     required: true
+  components_file:
+    description: release-components.json read at head_sha
+    required: true
 
 outputs:
   changed_components:
@@ -17,19 +20,15 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Fetch all references
-      shell: bash
-      run: |
-        git fetch --all --tags --prune
-
     - name: Detect changed components
       id: detect-changed-components
       shell: bash
       env:
         BASE_SHA: ${{ inputs.base_sha }}
         HEAD_SHA: ${{ inputs.head_sha }}
+        COMPONENTS_FILE: ${{ inputs.components_file }}
       run: |
-        .github/scripts/release/release-detect-changed-components.sh "$BASE_SHA" "$HEAD_SHA"
+        .github/scripts/release/release-detect-changed-components.sh "$BASE_SHA" "$HEAD_SHA" "$COMPONENTS_FILE"
         echo "changed_components=$(tr '\n' ' ' < artifacts/changed-components.txt)" >> "$GITHUB_OUTPUT"
 
     - name: Build commit list of the release
@@ -37,8 +36,9 @@ runs:
       env:
         BASE_SHA: ${{ inputs.base_sha }}
         HEAD_SHA: ${{ inputs.head_sha }}
+        COMPONENTS_FILE: ${{ inputs.components_file }}
       run: |
-        .github/scripts/release/release-generate-commit-lists.sh "$BASE_SHA" "$HEAD_SHA"
+        .github/scripts/release/release-generate-commit-lists.sh "$BASE_SHA" "$HEAD_SHA" "$COMPONENTS_FILE"
 
     - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
