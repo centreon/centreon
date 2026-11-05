@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
 use App\MonitoringConfiguration\Application\Service\LinkedServiceTemplateLicenseGuard;
 use App\MonitoringConfiguration\Application\Service\UnlicensedServiceTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
-use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedLinkedServiceTemplatesException;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
@@ -63,7 +63,7 @@ final class LinkedServiceTemplateLicenseGuardTest extends TestCase
         try {
             $this->guard->assertLicensed($this->ids(1, 2, 4));
             self::fail('The service templates the license no longer allows must be rejected.');
-        } catch (UnlicensedServiceTemplatesException $exception) {
+        } catch (UnlicensedLinkedServiceTemplatesException $exception) {
             self::assertSame(['linkedServiceTemplateIds' => [2, 4]], $exception->criteria);
         }
     }
@@ -80,7 +80,7 @@ final class LinkedServiceTemplateLicenseGuardTest extends TestCase
     {
         $this->serviceTemplateRepository->monitoringConnectorTemplateIds = [2, 3];
 
-        $this->expectException(UnlicensedServiceTemplatesException::class);
+        $this->expectException(UnlicensedLinkedServiceTemplatesException::class);
 
         $this->guard->assertLicensed($this->ids(2, 3), currentServiceTemplateIds: $this->ids(2));
     }

@@ -55,10 +55,10 @@ use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsExcept
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroValueIsAVaultReferenceException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
-use App\MonitoringConfiguration\Domain\Exception\ServiceTemplateNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\LinkedServiceTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
-use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedLinkedServiceTemplatesException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
@@ -227,7 +227,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         try {
             ($this->handler)($this->command(linkedServiceTemplateIds: [404]));
             self::fail('An unknown service template must be refused.');
-        } catch (ServiceTemplateNotFoundException $exception) {
+        } catch (LinkedServiceTemplateNotFoundException $exception) {
             self::assertSame(['linkedServiceTemplateIds' => [404]], $exception->criteria);
         }
     }
@@ -240,7 +240,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         try {
             ($this->handler)($this->command(linkedServiceTemplateIds: [20, 21]));
             self::fail('An unlicensed service template must be refused.');
-        } catch (UnlicensedServiceTemplatesException $exception) {
+        } catch (UnlicensedLinkedServiceTemplatesException $exception) {
             self::assertSame(['linkedServiceTemplateIds' => [21]], $exception->criteria);
         }
 

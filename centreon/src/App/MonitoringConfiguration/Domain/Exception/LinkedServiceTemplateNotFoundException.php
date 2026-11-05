@@ -25,14 +25,13 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-final class ServiceTemplateNotFoundException extends AggregateNotFoundException
+final class LinkedServiceTemplateNotFoundException extends AggregateNotFoundException
 {
     /**
      * @param list<int> $ids
-     * @param string $criterion the input field the ids were looked up by
      */
-    public function __construct(array $ids, string $criterion = 'linkedServiceTemplateIds')
+    public function __construct(array $ids)
     {
-        parent::__construct([$criterion => $ids], 'One or more service templates do not exist.');
+        parent::__construct(['linkedServiceTemplateIds' => $ids], 'One or more service templates do not exist.');
     }
 }

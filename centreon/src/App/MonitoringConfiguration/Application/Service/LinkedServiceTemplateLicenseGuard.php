@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
-use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedLinkedServiceTemplatesException;
 use App\Shared\Domain\Collection;
 
 /**
@@ -42,7 +42,7 @@ final readonly class LinkedServiceTemplateLicenseGuard
      * @param Collection<ServiceTemplateId> $serviceTemplateIds the service templates the template is given
      * @param Collection<ServiceTemplateId>|null $currentServiceTemplateIds the ones it already has
      *
-     * @throws UnlicensedServiceTemplatesException
+     * @throws UnlicensedLinkedServiceTemplatesException
      */
     public function assertLicensed(Collection $serviceTemplateIds, ?Collection $currentServiceTemplateIds = null): void
     {
@@ -54,7 +54,7 @@ final readonly class LinkedServiceTemplateLicenseGuard
 
         $unlicensedIds = array_values(array_intersect($addedIds, $this->toIntegers($this->unlicensedServiceTemplates->findIds())));
         if ($unlicensedIds !== []) {
-            throw new UnlicensedServiceTemplatesException($unlicensedIds);
+            throw new UnlicensedLinkedServiceTemplatesException($unlicensedIds);
         }
     }
 

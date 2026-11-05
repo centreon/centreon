@@ -47,7 +47,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroValueIsAVaultReferenceException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
-use App\MonitoringConfiguration\Domain\Exception\ServiceTemplateNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\LinkedServiceTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -279,7 +279,7 @@ final readonly class CreateHostTemplateCommandHandler
         )));
 
         if ($missingIds !== []) {
-            throw new ServiceTemplateNotFoundException($missingIds);
+            throw new LinkedServiceTemplateNotFoundException($missingIds);
         }
     }
 

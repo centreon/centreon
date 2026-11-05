@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\Shared\Domain\Exception\AggregateConflictException;
 
-final class UnlicensedServiceTemplatesException extends AggregateConflictException
+final class UnlicensedLinkedServiceTemplatesException extends AggregateConflictException
 {
     /**
      * @param list<int> $ids
