@@ -229,7 +229,9 @@ valkey:
 # ---------------------------------------------------------------------------
 # A plain Job (not a Helm hook: a hook would deadlock with `--wait` / ArgoCD
 # PostSync, since fpm waits for the install). Its name derives from the fpm
-# image reference, so a new image tag runs it again (upgrade). Use immutable
+# image reference, the chart version, runId and the install's environment,
+# so a new image tag, chart version or install-related value runs it again
+# (upgrade). Use immutable
 # tags in prod: rebuilding "latest" does not re-run it. Bump runId to force a
 # re-run. backoffLimit is 0 on purpose: 12-install.sh is not resumable, a
 # retried half-install would report success on a broken schema.
@@ -371,6 +373,8 @@ configDelivery:
 # Each run is a short-lived pod on the cron image, output in `kubectl logs`.
 # Per job: `enabled: false` removes the CronJob, `suspend: true` keeps it but
 # stops scheduling it (e.g. during a maintenance; `kubectl patch` works too).
+# Optional per job too: `activeDeadlineSeconds` (kills a run that takes
+# longer) and `resources` (overrides cronJobs.resources below).
 cronJobs:
   enabled: true
   # The VM runs them in the server's local time. Empty = timezone above.
@@ -590,8 +594,11 @@ pollers: []
 #      key: GORGONE_TOKEN
 #    timezone: Europe/Paris    # optional: the poller's own TZ (default: timezone above)
 #    resources: {}
+#    persistence:              # optional, default persistence.local.pollerData / pollerSpool sizes
+#      size: 1Gi               # poller-data
+#      spoolSize: 5Gi          # poller-spool
 #    traps:                    # same keys as centralPoller.traps; service merged over it.
-#      enabled: false          # Changes the volume list: --cascade=orphan delete first
+#      enabled: false
 #    vmware:
 #      enabled: false
 
@@ -603,8 +610,9 @@ pollers: []
 # in the node's attachment limit), so small directories share one volume.
 # Cross-pod volumes (sharedAccessMode) need ReadWriteMany on a multi-node
 # cluster (EFS, NFS, CephFS...: billed on usage, the size below is only a
-# request): centreonWeb (fpm rw, httpd ro), centreonRrd (broker rw, fpm ro),
-# pollerBroker (central poller rw, broker ro). With ReadWriteOnce every pod
+# request): centreonWeb (fpm rw; httpd, the autodiscovery worker and the
+# send-stats CronJob ro), centreonRrd (broker and its rrdcached sidecar rw,
+# fpm ro), pollerBroker (central poller rw, broker ro). With ReadWriteOnce every pod
 # using them must land on the same node (fine for single-node dev).
 persistence:
   # Per-pod volumes (and shared ones when sharedStorageClass is empty).
@@ -623,8 +631,8 @@ persistence:
     # RRD graphs, status/ + metrics/: about 330 KiB per file, one file per
     # metric and one per service (status). 25 GiB ~ 75,000 files.
     centreonRrd: { size: 25Gi }
-    # /etc/centreon-broker, the delivered broker config (KB). Unchanged from
-    # earlier charts (a PVC can only grow, and only if its class allows it).
+    # /etc/centreon-broker, the delivered broker config (KB). Keep an existing
+    # size: a PVC can only grow, and only if its class allows it.
     pollerBroker: { size: 256Mi }
   local:
     # Poller config and state (remote pollers: pollers[].persistence.size or
