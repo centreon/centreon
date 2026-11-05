@@ -28,14 +28,15 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\DeleteHostTemplateProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\DuplicateHostTemplateProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\GetHostTemplateMacrosProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\GetHostTemplateProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesProvider;
 
@@ -188,17 +189,65 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to delete host templates',
         ),
-        // temporary, to make itemUriTemplate work
-        new NotExposed(uriTemplate: '/configuration/host_templates/{id}', requirements: ['id' => '[1-9]\d*']),
+        new Get(
+            uriTemplate: '/configuration/host_templates/{id}',
+            requirements: ['id' => '[1-9]\d*'],
+            provider: GetHostTemplateProvider::class,
+            openapi: new Model\Operation(
+                summary: 'Get a host template',
+                responses: [
+                    401 => new Model\Response('Authentication required'),
+                    403 => new Model\Response('You are not allowed to view host templates'),
+                    404 => new Model\Response('Host template not found'),
+                ],
+            ),
+            security: '
+                is_granted("' . HostTemplatePermissionEnum::CanRead->value . '") or
+                is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to view host templates',
+        ),
     ],
 )]
 final class HostTemplateResource
 {
+    public ?HostTemplateTimezoneOutput $timezone = null;
+
+    public ?HostTemplateSeverityOutput $severity = null;
+
+    /** @var list<HostTemplateCategoryOutput> */
+    public array $categories = [];
+
+    /** @var list<HostTemplateParentOutput> the parent templates, in inheritance order */
+    public array $templates = [];
+
+    /** @var list<HostTemplateLinkedServiceTemplateOutput> */
+    public array $linkedServiceTemplates = [];
+
+    public HostTemplateCheckOptionsOutput $checkOptions;
+
+    public ?HostTemplateExtendedInformationsOutput $extendedInformations = null;
+
+    public HostTemplateSchedulingOptionsOutput $schedulingOptions;
+
+    public HostTemplateDataProcessingOutput $dataProcessing;
+
+    public ?HostTemplateNotificationsOutput $notifications = null;
+
     public function __construct(
-        #[ApiProperty(identifier: true)]
+        #[ApiProperty(identifier: true, writable: false)]
         public int $id,
 
         public string $name,
+
+        public ?string $alias = null,
+
+        #[ApiProperty(writable: false)]
+        public bool $isLocked = false,
+
+        public ?HostTemplateSnmpVersionEnum $snmpVersion = null,
+
+        #[ApiProperty(description: 'Whether an SNMP community is set. The community itself is never returned.', writable: false)]
+        public bool $isSnmpCommunityDefined = false,
     ) {
     }
 }
