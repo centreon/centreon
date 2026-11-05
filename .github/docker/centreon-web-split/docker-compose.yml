@@ -525,9 +525,11 @@ services:
 
   # Scheduled jobs a real RPM/DEB install gets via /etc/cron.d/{centreon,
   # centstorage} (CentACL, downtime start/stop, token/storage purge,
-  # partitioning, reporting, backup) — never ported to this split image
-  # before now. Dedicated container, not folded into fpm: 3 of the 10 jobs
-  # are Perl, and a persistent scheduler inside fpm would multiply per fpm
+  # partitioning, reporting) — never ported to this split image before now.
+  # Of the 10 jobs a real install ships, 8 run here: centreon-send-stats.php
+  # and centreon-backup.pl are dropped (see container.sh). Dedicated
+  # container, not folded into fpm: 2 of those 8 jobs are Perl, and a
+  # persistent scheduler inside fpm would multiply per fpm
   # replica if that image is ever scaled (same reasoning INSTALL_DB_STEPS
   # exists for the install step). Deliberately no shared volume with fpm —
   # see trixie/entrypoint/cron/container.sh for why that would be a real
