@@ -430,6 +430,31 @@ final class GetHostTemplateProviderTest extends ApiTestCase
         self::assertSame($routeMacros, $detailMacros);
     }
 
+    public function testItsOwnCheckCommandOverridesItsAncestorsOneForTheMacros(): void
+    {
+        $ancestorCommandId = $this->insertCommand('ancestor-check', '$USER1$/check -t $_HOSTFROMANCESTOR$');
+        $ownCommandId = $this->insertCommand('own-check', '$USER1$/check -t $_HOSTFROMOWN$');
+        foreach ([$ancestorCommandId => 'FROMANCESTOR', $ownCommandId => 'FROMOWN'] as $commandId => $macroName) {
+            $this->connection->insert('on_demand_macro_command', [
+                'command_command_id' => $commandId,
+                'command_macro_name' => $macroName,
+                'command_macro_type' => '1',
+            ]);
+        }
+        $ancestorId = $this->insertTemplate('ancestor', ['command_command_id' => $ancestorCommandId]);
+        $id = $this->insertTemplate('tpl', ['command_command_id' => $ownCommandId]);
+        $this->linkTemplates($id, $ancestorId, 1);
+        $this->login();
+
+        $macros = $this->listMember($this->request('GET', $this->uri($id), self::JSON)->toArray(), 'check_options', 'macros');
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame([['FROMOWN', 'command']], array_map(
+            static fn (mixed $macro): array => [((array) $macro)['name'] ?? null, ((array) $macro)['parent'] ?? null],
+            $macros,
+        ));
+    }
+
     public function testTheCommandMacrosOfItsOwnLinkedServiceTemplatesAreNotInherited(): void
     {
         $commandId = $this->insertCommand('service-check', '$USER1$/check -t $_HOSTFROMSERVICE$');
