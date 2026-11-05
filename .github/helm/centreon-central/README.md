@@ -211,10 +211,11 @@ enforces them, k3s does):
 
 | Policy | Ingress allowed |
 |--------|-----------------|
-| `<release>-gorgone-central` | 8085 from fpm + config-delivery Job, 8087 from httpd |
+| `<release>-gorgone-central` | 8085 from fpm, cron + config-delivery Job, 8087 from httpd |
 | `<release>-fpm` | 9000 from httpd |
 | `<release>-broker` | 5669 from anywhere (pollers), 51001 (cbd gRPC) from the Central poller pod only, 42217 from fpm (rrdcached) |
-| `<release>-db` (bundled DB only) | 3306 from fpm, install, config-delivery, cron, gorgone-central, broker |
+| `<release>-db` (bundled DB only) | 3306 from fpm, install, config-delivery, cron, gorgone-central, broker, autodiscovery-worker |
+| `<release>-valkey` (`valkey.enabled`) | 6379 from fpm |
 | `<release>-pollers` | 4317 (`otelFrom`), 162/udp when traps (`trapsFrom`) |
 
 httpd stays open (Ingress / users). Kubelet probes are not affected.
@@ -291,10 +292,10 @@ before upgrading from 0.10 or earlier.
 | `httpd` | 80 | via the Ingress (or `httpd.service.type`) | users, REST API, pollers' pullwss |
 | `centreon-broker` | 5669 BBDO | `broker.service.type` (LoadBalancer in prod, raw TCP: no Ingress) | Central poller, remote pollers |
 | `cbd` | 51001 gRPC | never (ClusterIP, no auth, NetworkPolicy: Central poller pod only) | gorgone's reload after an export |
-| `gorgone-central` | 8085, 8087 | never (NetworkPolicy) | fpm, config-delivery Job, httpd |
+| `gorgone-central` | 8085, 8087 | never (NetworkPolicy) | fpm, cron, config-delivery Job, httpd |
 | `fpm` | 9000 | never | httpd |
 | poller pods (engine gRPC) | 50155 | never (NetworkPolicy `<release>-pollers`: only 4317 reachable, from `networkPolicy.pollers.otelFrom`) | gorgone in the same pod |
-| `db` | 3306 | never | install, fpm, gorgone, broker |
+| `db` | 3306 | never | install, config-delivery, fpm, cron, autodiscovery worker, gorgone-central, broker |
 
 The Ingress routes `host/` to httpd: UI, API and the pullwss websocket of
 pollers outside the cluster (`/centreon/gorgone/pullwss/websocket`). With
@@ -369,11 +370,13 @@ The gorgone image hardcodes its httpserver `allowed_hosts` to
 (`10.42.0.0/16` on k3s) get a 401, which broke fpm's node-sync call and the
 config-delivery Job. Pod IPs are ephemeral, so the chart disables the
 allowlist (`GORGONE__GORGONE__MODULES__HTTPSERVER__ALLOWED_HOSTS__ENABLED`)
-and replaces it with a NetworkPolicy: 8085 only from fpm and the
+and replaces it with a NetworkPolicy: 8085 only from fpm, cron and the
 config-delivery Job, 8087 only from httpd (verified on k3s: an unlabeled pod
-is blocked). The API has no auth: set `networkPolicy.enabled=false` only on
-a cluster dedicated to Centreon. Better fix: make the subnets configurable in
-the gorgone image (`10-create-config.sh`, centreon-collect).
+is blocked). The API itself requires basic auth with the `centreon-gorgone`
+service account (`centreonApiUsername`, Secret key `GORGONE_API_PASSWORD`):
+the NetworkPolicy is defence in depth, keep it on unless the cluster is
+dedicated to Centreon. Better fix: make the subnets configurable in the
+gorgone image (`10-create-config.sh`, centreon-collect).
 
 ## Differences from the compose stack
 
