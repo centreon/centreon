@@ -402,19 +402,14 @@ services:
   # by shipping a real centengine binary into the fpm image too (MON-214031,
   # see trixie/Dockerfile's engine_verifier stage).
   #
-  # MON-214281: entrypoint wraps container.sh with a wait for the broker
-  # module config (same first-boot race as centreon-broker below), using the
-  # script shared with the Helm chart's own wait-config (see the file).
+  # MON-214281: waiting for the broker module config instead of crash-looping
+  # is now native to this image (centreon-collect G10) — no entrypoint
+  # override needed here any more.
   centengine:
     image: "${ENGINE_IMAGE:-docker.centreon.com/centreon/centreon-engine-trixie:develop}"
     pull_policy: always
     hostname: centengine
     restart: unless-stopped
-    entrypoint:
-      - /bin/sh
-      - -c
-      - /usr/local/bin/wait-broker-module-config.sh && exec /usr/local/lib/centreon-engine/container.sh "$$@"
-      - sh
     environment:
       NAME: gorgone-central-poller
       TZ: UTC
@@ -423,7 +418,6 @@ services:
       SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
       ENGINE_PORT: "5669"
     volumes:
-      - ../../helm/centreon-central/files/centreon-central-wait-broker-module-config.sh:/usr/local/bin/wait-broker-module-config.sh:ro
       - poller-engine:/etc/centreon-engine
       - poller-broker:/etc/centreon-broker
       - poller-centcmd:/var/lib/centreon-engine/rw
