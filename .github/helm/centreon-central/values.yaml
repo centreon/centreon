@@ -116,15 +116,17 @@ secrets:
   # and by fpm (config files, install marker check).
   dbRootPassword: "centreon"
   # "centreon" DB user. Injected into the install fixture (database.json):
-  # web config, broker outputs and gorgone-central use it. 12-install.sh GRANTs 'centreon'@'%', which only works if the
-  # user already exists: the bundled MariaDB pre-creates it, an external DB
-  # must too.
+  # web config, broker outputs and gorgone-central use it. 12-install.sh
+  # GRANTs 'centreon'@'%', which only works if the user already exists: the
+  # bundled MariaDB pre-creates it, an external DB must too.
   dbCentreonPassword: "centreon"
   # Password of the centreon-gorgone service account (key
   # GORGONE_API_PASSWORD). The install Job sets it on every run (the split
-  # install would otherwise leave it EMPTY); gorgone-central, the pollers'
-  # gorgone and the config-delivery Job log in to the Centreon API with it,
-  # never with admin. Change it here to rotate it.
+  # install would otherwise leave it EMPTY); gorgone-central, the Central
+  # poller's gorgone, the autodiscovery worker and the config-delivery Job
+  # log in to the Centreon API with it, never with admin (remote pollers use
+  # their own token). It is also gorgone-central's API basic auth password.
+  # Change it here to rotate it.
   gorgoneApiPassword: "centreon-gorgone"
   # Web "admin" password set at the FIRST install (key ADMIN_PASSWORD,
   # optional). Empty = the image fixture's Centreon!2021. Not applied to an
@@ -159,8 +161,9 @@ vault:
   # bundle. Empty = the image's system CAs only.
   caCert: ""
 
-# Centreon API user of gorgone and the config-delivery Job: the dedicated
-# service account, not admin.
+# Centreon API user of gorgone, the autodiscovery worker and the
+# config-delivery Job, and gorgone-central's API basic auth user: the
+# dedicated service account, not admin.
 centreonApiUsername: centreon-gorgone
 
 # ---------------------------------------------------------------------------
@@ -496,7 +499,8 @@ centralPoller:
     # Matches the Central nagios_server.id.
     uid: "1"
     # Fetches the real "poller-default" API token at startup (only for this
-    # in-cluster Central poller — never hand admin API creds to a remote one).
+    # in-cluster Central poller — never hand the service-account API creds to
+    # a remote one).
     pullwssTokenName: poller-default
     pullwssTokenFetchRetries: "90"
     resources: {}

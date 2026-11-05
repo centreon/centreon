@@ -17,7 +17,8 @@ the host:port you browse to (UseCanonicalName On), e.g.:
 {{- end }}
 
 Apache ServerName in use: {{ include "centreon-central.serverName" . }}
-Login: admin / the image's install fixture password.
+Login: admin / secrets.adminPassword if it was set at the first install,
+otherwise the image's install fixture password.
 
 Remote pollers: pullwss through the ingress (/centreon/gorgone/pullwss/websocket),
 BBDO to the "centreon-broker" Service on 5669 (type {{ .Values.broker.service.type }}).
