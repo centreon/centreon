@@ -10,13 +10,13 @@ import {
   labelMustBePositiveIntegerOrZero,
   labelNo,
   labelNone,
+  labelNotifications,
   labelYes
 } from '../../ResourceForm/translatedLabels';
 import {
   labelCritical,
   labelDowntimeScheduled,
   labelFlapping,
-  labelNotification,
   labelRecovery,
   labelUnknown,
   labelWarning
@@ -386,7 +386,7 @@ export default () => {
   it('has no notification settings on a cloud platform', async () => {
     await openNewService({ isCloudPlatform: true });
 
-    expect(screen.queryByText(labelNotification)).not.toBeInTheDocument();
+    expect(screen.queryByText(labelNotifications)).not.toBeInTheDocument();
     expect(screen.queryByTestId(testId('enabled'))).not.toBeInTheDocument();
 
     await save();

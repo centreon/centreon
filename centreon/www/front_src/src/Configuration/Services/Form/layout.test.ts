@@ -1,10 +1,10 @@
 import type { TFunction } from 'i18next';
 
+import { labelNotifications } from '../../ResourceForm/translatedLabels';
 import {
   labelAdvanced,
   labelGeneralInformation,
   labelMonitoringEngineSchedulingOptions,
-  labelNotification,
   labelRelations,
   labelServiceMonitoringProperties
 } from '../translatedLabels';
@@ -77,7 +77,7 @@ describe('layout', () => {
       labelServiceMonitoringProperties,
       labelRelations,
       labelMonitoringEngineSchedulingOptions,
-      labelNotification,
+      labelNotifications,
       labelAdvanced
     ]);
   });
@@ -85,15 +85,15 @@ describe('layout', () => {
   it('shows the notifications on premise only', () => {
     const labels = getSectionLabels({ isCloudPlatform: false, t });
 
-    expect(labels.indexOf(labelNotification)).toBe(
+    expect(labels.indexOf(labelNotifications)).toBe(
       labels.indexOf(labelMonitoringEngineSchedulingOptions) + 1
     );
     expect(getSectionLabels({ isCloudPlatform: true, t })).not.toContain(
-      labelNotification
+      labelNotifications
     );
     expect(
       getSectionLabels({ isCloudPlatform: false, isMassChange: true, t })
-    ).toContain(labelNotification);
+    ).toContain(labelNotifications);
   });
 
   it('has no advanced section on a cloud platform, where the comment is refused', () => {

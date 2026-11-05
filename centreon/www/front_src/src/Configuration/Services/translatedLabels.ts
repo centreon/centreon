@@ -25,7 +25,6 @@ export const labelMonitoringEngineSchedulingOptions =
   'Monitoring engine / Scheduling options';
 export const labelMonitoringEngine = 'Monitoring engine';
 export const labelSchedulingOptions = 'Scheduling options';
-export const labelNotification = 'Notification';
 export const labelAdvanced = 'Advanced';
 export const labelCustomMacros = 'Custom macros';
 
