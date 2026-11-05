@@ -316,8 +316,9 @@ containers:
     volumeMounts:
       - { name: poller-traps-spool, mountPath: /var/spool/centreontrapd }
       # Read-only: only gorgone writes the definitions (as install-poller's
-      # :ro). centreontrapd fails with "Read-only file system" only while
-      # centreontrapd.sdb has not been delivered yet (SQLite tries to create it).
+      # :ro). The image waits for centreontrapd.sdb before starting the
+      # daemon (older images exit with "Read-only file system" until the
+      # first trap database is sent: SQLite tries to create it).
       - { name: poller-data, mountPath: /etc/snmp/centreon_traps, subPath: traps-config, readOnly: true }
       - { name: poller-centcmd, mountPath: /var/lib/centreon-engine/rw }
     {{- with $p.traps.centreontrapdResources }}

@@ -3,7 +3,8 @@
 # The image tags follow the PoC stack branches that build them (this PR only
 # touches the chart, so nothing is built at its own tag): web-split from the
 # base PR (C12d, MON-214157), collect from the top of the collect stack (G9,
-# MON-213839, with the TCP RRD output fix rrdcached needs). Move them along
+# MON-213839, with the TCP RRD output fix rrdcached needs), trapd from C15
+# (MON-214281: centreontrapd waits for its trap database). Move them along
 # with the stack; back to develop once it is merged.
 # APP_SECRET and SALT have no default: placeholders, only to render the Secret.
 secrets:
@@ -35,10 +36,10 @@ images:
   # One merged image for both trap containers (centreon/centreon#12403).
   snmptrapd:
     repository: docker.centreon.com/centreon/centreon-trapd-trixie
-    tag: develop
+    tag: MON-214281-central-stack-clean-cold-start-ordering
   centreontrapd:
     repository: docker.centreon.com/centreon/centreon-trapd-trixie
-    tag: develop
+    tag: MON-214281-central-stack-clean-cold-start-ordering
 
 # Render the optional parts too (rrdcached is on by default).
 centralPoller:

@@ -419,6 +419,7 @@ gorgone image (`10-create-config.sh`, centreon-collect).
   traps, vmware): none.
 - **Cold start, no restart loop.** centengine waits in its container for
   its cbmod config (`Waiting for /etc/centreon-broker/central-module.json`),
+  centreontrapd (trapd image) for its trap database,
   the broker in its `wait-config` init container, fpm, the autodiscovery
   worker and the config-delivery Job for the install Job's marker, and the
   CronJobs for the same marker read as the `centreon` database user (up
