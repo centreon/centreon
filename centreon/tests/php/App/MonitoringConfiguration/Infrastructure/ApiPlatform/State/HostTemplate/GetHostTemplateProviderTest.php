@@ -54,7 +54,7 @@ final class GetHostTemplateProviderTest extends ApiTestCase
     use GrantsHostTemplateTopologyRole;
     private const MESSAGE = 'You are not allowed to view host templates';
 
-    // about 3 times the slowest warm 900-level response measured (1.6 s), so a loaded runner cannot flake
+    // about 5 times the slowest warm 900-level response measured (1.05 s), so a loaded runner cannot flake
     private const MAX_SECONDS = 5.0;
     private const JSON = ['headers' => ['accept' => 'application/json']];
 
@@ -595,13 +595,14 @@ final class GetHostTemplateProviderTest extends ApiTestCase
     }
 
     /**
-     * The first requests of a test process are slow whatever their query: one warm-up, then the
+     * The first requests of a test process are slow whatever their query: two warm-ups, then the
      * timed request.
      *
      * @return array{float, array<array-key, mixed>}
      */
     private function timedDetail(int $id): array
     {
+        $this->request('GET', $this->uri($id), self::JSON);
         $this->request('GET', $this->uri($id), self::JSON);
 
         $start = hrtime(true);
