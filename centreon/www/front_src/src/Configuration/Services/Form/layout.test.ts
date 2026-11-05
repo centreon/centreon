@@ -1,9 +1,9 @@
 import type { TFunction } from 'i18next';
 
 import {
-  labelCheckCommandTemplateCustomMacros,
   labelGeneralInformation,
-  labelMonitoringEngineSchedulingOptions
+  labelMonitoringEngineSchedulingOptions,
+  labelServiceMonitoringProperties
 } from '../translatedLabels';
 import { getPlacedBlockIds, layout, placeBlocks } from './layout';
 import {
@@ -60,11 +60,11 @@ describe('layout', () => {
 
   it('opens on the general information, then the check command', () => {
     expect(getSectionLabels({ isCloudPlatform: false, t }).slice(0, 2)).toEqual(
-      [labelGeneralInformation, labelCheckCommandTemplateCustomMacros]
+      [labelGeneralInformation, labelServiceMonitoringProperties]
     );
     expect(getSectionLabels({ isCloudPlatform: true, t }).slice(0, 2)).toEqual([
       labelGeneralInformation,
-      labelCheckCommandTemplateCustomMacros
+      labelServiceMonitoringProperties
     ]);
   });
 
@@ -103,7 +103,7 @@ describe('layout', () => {
 
   it('places the template in the check command section', () => {
     const section = layout.find(
-      ({ label }) => label === labelCheckCommandTemplateCustomMacros
+      ({ label }) => label === labelServiceMonitoringProperties
     );
 
     expect(getPlacedBlockIds(section?.nodes)).toContain('templates');
