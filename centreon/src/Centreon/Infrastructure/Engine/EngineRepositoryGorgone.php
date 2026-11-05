@@ -29,7 +29,8 @@ use Centreon\Infrastructure\Gorgone\LegacyCommandException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 
 /**
- * Sends the external commands (EXTERNALCMD:<poller id>:[timestamp] COMMAND;...) to Gorgone through its API.
+ * Sends the external commands (EXTERNALCMD:<poller id>:[timestamp] COMMAND;...) to Gorgone through
+ * LegacyCommandSender: its HTTP API for containerized pollers, the centcore files otherwise.
  */
 final class EngineRepositoryGorgone implements EngineRepositoryInterface
 {
