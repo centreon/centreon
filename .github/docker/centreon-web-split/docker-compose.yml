@@ -549,10 +549,11 @@ services:
   # exists for the install step). Deliberately no shared volume with fpm —
   # see trixie/entrypoint/cron/container.sh for why that would be a real
   # regression risk (fpm's own "already installed" guard on
-  # /etc/centreon/centreon.conf.php). No depends_on fpm either: a job
-  # firing before fpm's own install has finished just gets a harmless DB
-  # error, logged, retried on its own next scheduled run — same
-  # self-healing philosophy as the rest of this stack's config delivery.
+  # /etc/centreon/centreon.conf.php). MON-214281: depends_on fpm below
+  # (service_healthy, same as httpd/gorgone-central/autodisco-save-worker)
+  # instead of a job racing fpm's install and hitting a real "1044 Access
+  # denied" before its GRANT lands — fpm is only healthy once that install
+  # (and its GRANT) has finished.
   centreon-cron:
     build:
       context: ../../..
@@ -568,6 +569,8 @@ services:
       - ../.env
     depends_on:
       db:
+        condition: service_healthy
+      fpm:
         condition: service_healthy
     environment:
       MYSQL_HOST: db
