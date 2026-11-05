@@ -27,6 +27,9 @@ storage, a managed database or remote pollers.
 | `central-poller` | StatefulSet | 1 | gorgone (poller) + centengine for Central itself |
 | `poller-<name>` | StatefulSet | 1 per poller | Remote pollers from `pollers:` (untested) |
 | `db` | StatefulSet | 1 | Bundled MariaDB (dev) |
+| `cron-<name>` | CronJob | per schedule | Centreon's scheduled jobs (`cronJobs`, on by default) |
+| `autodiscovery-worker` | Deployment | 1 | Saves host discovery results (`autodiscoveryWorker.enabled`) |
+| `valkey` | StatefulSet | 1 | PHP sessions (`valkey.enabled`) |
 
 Scaling Centreon means adding pollers, not replicas: gorgone-central, the
 broker and each poller are singletons by design.
@@ -37,6 +40,27 @@ a hash of their spec): a new image tag, chart version or install-related
 value runs both Jobs again (upgrade). Use immutable tags; rebuilding the same
 tag does not re-run them. Both are plain Jobs, not Helm hooks (a hook would
 deadlock with `--wait` / ArgoCD PostSync, since fpm waits for the install).
+
+### Upgrading from 0.12 or earlier (Deployments to StatefulSets)
+
+0.13 turns the Central poller and the broker into one-replica StatefulSets
+(never two pods on their RWO volumes, e.g. after a node loss). They keep the
+same PVCs. Helm creates the StatefulSets before deleting the Deployments, so
+stop the old pods first, otherwise two engines briefly share the volumes:
+
+```powershell
+kubectl -n <ns> scale deploy <release>-central-poller <release>-broker --replicas=0
+helm upgrade <release> ...
+```
+
+The Central poller's host name changes from `<release>-central-engine-otel`
+(`centralPoller.hostname`, removed) to `<release>-central-poller-0`. The
+persisted default CA keeps its CN and fingerprint; agents that check the
+name should move to `centralPoller.otel.tls`.
+
+Remote pollers (`pollers[]`) got `podManagementPolicy: Parallel` in 0.11
+(immutable): `kubectl delete sts <release>-poller-<name> --cascade=orphan`
+before upgrading from 0.10 or earlier.
 
 ## Why some containers share a pod
 
@@ -57,7 +81,7 @@ GiB minimum and counts in the node's attachment limit (EFS bills usage only).
 | Volume | Directories | Writers | Readers |
 |--------|-------------|---------|---------|
 | centreon-web (shared) | `media` (www/img/media), `sessions` (PHP, not with Valkey), `license` (/etc/centreon/license.d), `cache-config` (only when fpm can scale) | fpm | httpd (media), cron send-stats and autodiscovery worker (license) |
-| centreon-rrd (shared) | `status`, `metrics` (RRD, ~330 KiB per file) | broker | fpm |
+| centreon-rrd (shared) | `status`, `metrics` (RRD, ~330 KiB per file) | broker (cbd, rrdcached sidecar) | fpm |
 | poller-broker (shared) | /etc/centreon-broker of the Central poller | central-poller gorgone | broker, centengine |
 | poller-data (Central poller; one per remote poller) | `engine`, `etc`, `pki` (CMA CA), `gorgone-data` (gorgone's history DB), `traps-config`, `broker` (remote) | gorgone, centengine | centreontrapd, vmware |
 | poller-spool (Central poller; one per remote poller) | `centlog` (engine logs, retention.dat), `cbmod-cache` (queue while the broker is unreachable) | centengine | |
@@ -137,8 +161,8 @@ dedicated volumes:
 | Central cbmod (Central poller pod) | the broker is down | `centralPoller.cbmodCacheDirectory` | poller-spool (`cbmod-cache`) |
 | central-broker-master (broker pod) | the database is down | `broker.cacheDirectory` | `brokerCache` |
 
-The first delivery after enabling them needs one restart of the pod
-concerned (a reload does not switch `cache_directory`). Abrupt deaths
+A reload does not switch `cache_directory`: a change of these directories
+takes effect at the next restart of the pod concerned. Abrupt deaths
 (node loss, OOM kill) still lose the in-memory part. Remote pollers need the
 same "Cache directory" set in their broker configuration in Centreon.
 
@@ -199,8 +223,8 @@ Service `<release>-central-snmptrap` / `<release>-poller-<name>-snmptrap`
   the UI then. Trap changes afterwards are generated from the UI as usual.
 - `centreontrapd` finds the host by **address**: the trap's source IP, or its
   reverse DNS name. Keep the source IP: `externalTrafficPolicy: Local` on a
-  cloud / MetalLB LoadBalancer (k3s' klipper SNATs it, so do NodePort-less
-  clusters with kube-proxy SNAT).
+  cloud / MetalLB LoadBalancer. k3s' klipper LoadBalancer SNATs it anyway, as
+  does any Service with `externalTrafficPolicy: Cluster`.
 - `snmptrapd` runs as uid 900: the pod gets the
   `net.ipv4.ip_unprivileged_port_start=162` sysctl (allowed by `baseline`).
 
@@ -267,30 +291,11 @@ direct writes. When enabled:
 `_logger` null and cbd segfaults on the first RRD update: with an older
 broker image, set `rrdcached.enabled: false`.
 
-**Upgrading from 26.12 or earlier**: rrdcached was off by default. An upgrade
+### Upgrading from 26.12 or earlier: rrdcached
+
+rrdcached was off by default. An upgrade
 that does not set `rrdcached.enabled` turns it on: the install Job and the
 config delivery run again, and the broker pod restarts with the sidecar.
-
-## Upgrading from 0.12 or earlier (Deployments to StatefulSets)
-
-0.13 turns the Central poller and the broker into one-replica StatefulSets
-(never two pods on their RWO volumes, e.g. after a node loss). They keep the
-same PVCs. Helm creates the StatefulSets before deleting the Deployments, so
-stop the old pods first, otherwise two engines briefly share the volumes:
-
-```powershell
-kubectl -n <ns> scale deploy <release>-central-poller <release>-broker --replicas=0
-helm upgrade <release> ...
-```
-
-The Central poller's host name changes from `<release>-central-engine-otel`
-(`centralPoller.hostname`, removed) to `<release>-central-poller-0`. The
-persisted default CA keeps its CN and fingerprint; agents that check the
-name should move to `centralPoller.otel.tls`.
-
-Remote pollers (`pollers[]`) got `podManagementPolicy: Parallel` in 0.11
-(immutable): `kubectl delete sts <release>-poller-<name> --cascade=orphan`
-before upgrading from 0.10 or earlier.
 
 ## Exposure (Services and Ingress)
 
@@ -301,6 +306,10 @@ before upgrading from 0.10 or earlier.
 | `cbd` | 51001 gRPC | never (ClusterIP, no auth, NetworkPolicy: Central poller pod only) | gorgone's reload after an export |
 | `gorgone-central` | 8085, 8087 | never (NetworkPolicy) | fpm, cron, config-delivery Job, httpd |
 | `fpm` | 9000 | never | httpd |
+| `centreon-rrdcached` | 42217 | never (ClusterIP, NetworkPolicy: fpm only) | fpm (flush before a graph) |
+| `valkey` | 6379 | never (ClusterIP, NetworkPolicy: fpm only; `valkey.enabled`) | fpm (PHP sessions) |
+| `<release>-central-engine-otel` | 4317 | `centralPoller.otel.service.type` (LoadBalancer for agents outside the cluster) | CMA agents |
+| `<release>-central-snmptrap`, `<release>-poller-<name>-snmptrap` | 162/udp | `centralPoller.traps.service.type` (with traps; LoadBalancer for devices outside the cluster) | SNMP devices |
 | poller pods (engine gRPC) | 50155 | never (NetworkPolicy `<release>-pollers`: only 4317 reachable, from `networkPolicy.pollers.otelFrom`) | gorgone in the same pod |
 | `db` | 3306 | never | install, config-delivery, fpm, cron, autodiscovery worker, gorgone-central, broker |
 
@@ -401,8 +410,13 @@ gorgone image (`10-create-config.sh`, centreon-collect).
   config-delivery Job POSTs `/api/centreon/nodes/sync` until the Central
   poller is connected.
 - **Probes.** fpm: startup + readiness on `/tmp/docker.ready`, liveness on
-  9000. broker: readiness = cbd listening on 5669 (read from
-  `/proc/net/tcp`, no connection). centengine/gorgone: none.
+  9000. httpd: readiness on `/tmp/docker.ready`, liveness on 80. broker:
+  readiness = cbd listening on 5669 (read from `/proc/net/tcp`, no
+  connection); its rrdcached sidecar: startup + readiness on PING.
+  gorgone-central: readiness on 8087. Autodiscovery worker: startup on
+  `/tmp/docker.ready`, liveness on its heartbeat file. Valkey and the
+  bundled DB: readiness on a ping. Poller pods (gorgone, centengine,
+  traps, vmware): none.
 - **centengine crash-loops until its config is delivered** (the broker
   waits for it in its `wait-config` init container). Accepted
   as in compose, but CrashLoopBackOff grows to 5 minutes: count up to ~10
