@@ -50,8 +50,8 @@ flowchart TD
   TP --> E2E
   API -. "run → import → enrich" .-> XA["Xray TE [API]"]
   E2E -. "run → import → enrich" .-> XE["Xray TE [E2E]"]
-  API --> DL[deliver]
-  E2E --> DL[deliver]
+  API --> DL[deliver-pulp]
+  E2E --> DL[deliver-pulp]
 ```
 
 > `package` waits on the whole build+lint set; `dockerize` waits on `package`; each test job also

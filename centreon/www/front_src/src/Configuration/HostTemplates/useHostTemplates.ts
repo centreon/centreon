@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 import { type APIType, FieldType, type FilterConfiguration } from '../models';
 import {
+  getDuplicateHostTemplateEndpoint,
+  getHostTemplateEndpoint,
   hostTemplatesBaseEndpoint,
   hostTemplatesListDecoder,
   hostTemplatesListEndpoint
@@ -14,15 +16,21 @@ interface UseHostTemplatesState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
-// Listing only: no write endpoint is declared yet.
 // No `activationField`: a host template cannot be enabled or disabled.
 const api: APIType = {
   apiFormat: 'JSON-LD',
   baseEndpoint: hostTemplatesBaseEndpoint,
   decoders: { getAll: hostTemplatesListDecoder },
+  // Every write names one template, so a selection becomes one request per row.
   endpoints: {
+    deleteOne: getHostTemplateEndpoint,
+    duplicate: getDuplicateHostTemplateEndpoint,
     getAll: hostTemplatesListEndpoint
-  }
+  },
+  isDuplicateWithName: true,
+  // Each call makes one copy: there is no copy count to ask for.
+  isSingleDuplicate: true,
+  writeBaseEndpoint: hostTemplatesBaseEndpoint
 };
 
 const useHostTemplates = (): UseHostTemplatesState => {
