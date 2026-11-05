@@ -23,18 +23,30 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\NoValue;
 
+/**
+ * A partial update: NoValue leaves a field untouched, null clears a clearable one. The lists are
+ * replaced, added to or removed from.
+ */
 final readonly class PatchHostTemplateCommand
 {
     /**
-     * @param HostTemplateChange $change what the write changes, the SNMP community aside
-     * @param NoValue|string|null $snmpCommunity left out keeps it, null clears it, a string replaces it;
-     *                                           plaintext until the handler vaults it
+     * @param NoValue|ListChange<HostTemplateId> $templateIds
+     * @param NoValue|ListChange<HostCategoryId> $categoryIds
+     * @param NoValue|ListChange<ServiceTemplateId> $linkedServiceTemplateIds
+     * @param NoValue|ListChange<NotificationContactId> $contactIds
+     * @param NoValue|ListChange<ContactGroupId> $contactGroupIds
+     * @param NoValue|ListChange<HostTemplateNotificationOptionEnum> $notificationOptions
      */
     public function __construct(
         public HostTemplateId $id,
@@ -42,6 +54,13 @@ final readonly class PatchHostTemplateCommand
         public HostTemplateChange $change,
         #[Sensitive]
         public NoValue|string|null $snmpCommunity = new NoValue(),
+        public NoValue|ListChange $templateIds = new NoValue(),
+        public NoValue|ListChange $categoryIds = new NoValue(),
+        public NoValue|ListChange $linkedServiceTemplateIds = new NoValue(),
+        public NoValue|ListChange $contactIds = new NoValue(),
+        public NoValue|ListChange $contactGroupIds = new NoValue(),
+        public NoValue|ListChange $notificationOptions = new NoValue(),
+        public NoValue|HostTemplateMacroChanges $macros = new NoValue(),
     ) {
     }
 }
