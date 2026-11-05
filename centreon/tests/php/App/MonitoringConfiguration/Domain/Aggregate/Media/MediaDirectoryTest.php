@@ -66,6 +66,15 @@ final class MediaDirectoryTest extends TestCase
         new MediaDirectory('foo/bar');
     }
 
+    public function testDefinesExactlyTheSystemFoldersShippedWithCentreon(): void
+    {
+        // must stay equal to Core\Media\Domain\Model\ImageFolder\ImageFolder::SYSTEM_FOLDER_NAMES;
+        // read at runtime, as static analysis already knows the value and would call it always true
+        $systemNames = (new \ReflectionClassConstant(MediaDirectory::class, 'SYSTEM_NAMES'))->getValue();
+
+        self::assertSame(['centreon-map', 'dashboards', 'ppm'], $systemNames);
+    }
+
     public function testRejectsASpace(): void
     {
         $this->expectException(\InvalidArgumentException::class);

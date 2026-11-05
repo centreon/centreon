@@ -31,6 +31,7 @@ use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
+use Core\Media\Domain\Model\ImageFolder\ImageFolder;
 use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Psr\Log\LoggerInterface;
@@ -60,17 +61,38 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
         RequestParametersInterface $requestParameters,
         array $accessGroups,
     ): \Traversable {
-        try {
-            if ($accessGroups === []) {
-                return new \EmptyIterator();
-            }
+        $accessGroupIds = array_map(
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
 
-            $accessGroupIds = array_map(
-                static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
-                $accessGroups
+        try {
+            [$systemFolderBindValues, $systemFolderBindQuery] = $this->createMultipleBindQuery(
+                ImageFolder::SYSTEM_FOLDER_NAMES,
+                ':system_folder_',
             );
 
-            [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id');
+            // The system folders are readable whatever the access groups, even when there are none.
+            // Binary comparison: their names must match exactly, as GetMedia checks them, whereas
+            // the column collation would also accept "PPM" or "Dashboards". CAST rather than the
+            // BINARY operator, deprecated by MySQL.
+            // EXISTS rather than a join: a folder granted by several access groups must not
+            // return its media several times.
+            $bindValues = [];
+            $grantedFolderCondition = '';
+            if ($accessGroupIds !== []) {
+                [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id');
+                $grantedFolderCondition = <<<SQL
+                    OR EXISTS (
+                        SELECT 1
+                        FROM `:db`.acl_resources_image_folder_relations amdr
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = amdr.acl_res_id
+                            AND argr.acl_group_id IN ({$bindQuery})
+                        WHERE amdr.dir_id = dir.dir_id
+                    )
+                    SQL;
+            }
 
             $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
             $sqlTranslator->setConcordanceArray([
@@ -89,14 +111,13 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
                     ON rel.img_img_id = img.img_id
                 INNER JOIN `:db`.`view_img_dir` dir
                     ON dir.dir_id = rel.dir_dir_parent_id
-                INNER JOIN `:db`.acl_resources_image_folder_relations amdr
-                    ON amdr.dir_id = dir.dir_id
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON argr.acl_res_id = amdr.acl_res_id
-                    AND argr.acl_group_id IN ({$bindQuery})
+                WHERE (
+                    CAST(dir.dir_name AS BINARY) IN ({$systemFolderBindQuery})
+                    {$grantedFolderCondition}
+                )
                 SQL_WRAP;
 
-            $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+            $searchRequest = $sqlTranslator->translateSearchParameterToSql(prependWhere: false);
             if ($searchRequest !== null) {
                 $request .= $searchRequest;
             }
@@ -116,6 +137,10 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
 
             foreach ($bindValues as $bindKey => $bindValue) {
                 $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+            }
+
+            foreach ($systemFolderBindValues as $bindKey => $bindValue) {
+                $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_STR);
             }
 
             $statement->setFetchMode(\PDO::FETCH_ASSOC);
