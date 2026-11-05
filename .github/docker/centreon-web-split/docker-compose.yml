@@ -217,9 +217,10 @@ services:
       # No centreon-cache here: this worker's own Symfony cache never needs
       # to be fpm's exact files, and sharing it made 15-cache.sh's rm -rf
       # race between the two containers on every cold start (MON-214281).
-      # vault.json lives here (var/lib/centreon/vault) — read-only, this
-      # worker never writes Centreon state of its own.
-      - centreon-varlib:/var/lib/centreon:ro
+      # No centreon-varlib either: this compose has no Vault, so vault.json
+      # (the only thing under it this worker ever reads) never exists here
+      # anyway — the chart's own per-pod vault-config.sh (fpm image) is what
+      # this worker would run itself if this compose ever grows Vault.
       - centreon-license:/etc/centreon/license.d:ro
     healthcheck:
       # save-worker touches this file at the end of every successful poll
