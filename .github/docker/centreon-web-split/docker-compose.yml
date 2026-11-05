@@ -428,7 +428,7 @@ services:
       SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
       ENGINE_PORT: "5669"
     volumes:
-      - ../centreon-central-wait-broker-module-config.sh:/usr/local/bin/wait-broker-module-config.sh:ro
+      - ../../helm/centreon-central/files/centreon-central-wait-broker-module-config.sh:/usr/local/bin/wait-broker-module-config.sh:ro
       - poller-engine:/etc/centreon-engine
       - poller-broker:/etc/centreon-broker
       - poller-centcmd:/var/lib/centreon-engine/rw
