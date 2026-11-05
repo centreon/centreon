@@ -205,13 +205,6 @@ else
     su www-data -s /bin/bash -c "php partitionTables.php" > /dev/null
   fi
 
-  if [ "${CENTREON_DATASET:-0}" = "1" ]; then
-    echo "CENTREON_DATASET is set, inserting sample dataset..."
-    for file in /usr/local/src/sql/data/*; do
-      [ -e "$file" ] || continue
-      mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" < "$file"
-    done
-  fi
 fi
 
 # Non-interactive equivalent of the browser upgrade wizard (new

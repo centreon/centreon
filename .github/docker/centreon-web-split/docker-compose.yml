@@ -72,11 +72,10 @@ services:
       # connection-status API (GET /internal/constatus, confirmed reachable
       # here over plain HTTP, no auth) before attempting config delivery —
       # a latency optimization over blind-retrying, not a correctness
-      # requirement (that script's own fallback, and this script's outer
-      # retry-forever loop, both still hold if gorgone's API is unreachable
-      # for any reason).
+      # requirement (that script's own CONFIG_DELIVERY_REQUIRE_CONNECTED
+      # check and the outer retry-on-failure loop, both still hold if
+      # gorgone's API is unreachable for any reason).
       GORGONE_API_BASE_URL: "http://gorgone-central:8085"
-      CENTREON_DATASET: "${CENTREON_DATASET:-0}"
       # Opt-in overrides, both unset/off by default — same fixture-default
       # behavior as before (admin / Centreon!2021, no forced password
       # change) unless explicitly set. See 12-install.sh for the full
