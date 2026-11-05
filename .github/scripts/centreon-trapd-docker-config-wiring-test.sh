@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Config/wiring test for the centreon-centreontrapd / centreon-snmptrapd
-# product Docker images. Boots both containers together (sharing the spool
+# Config/wiring test for the centreon-trapd product Docker image. Boots both
+# roles (one container each, same image) together (sharing the spool
 # volume like a real deployment), sends a real SNMP trap into snmptrapd, and
 # checks the full trap-forwarding path end to end: snmptrapd receives it and
 # writes it to the shared spool, then centreontrapd picks it up and removes
@@ -11,8 +11,7 @@ set -e
 # shellcheck source=.github/scripts/lib/centreon-trapd-common.sh
 source .github/scripts/lib/centreon-trapd-common.sh
 
-CENTREONTRAPD_IMAGE="${CENTREONTRAPD_IMAGE:?ERROR: CENTREONTRAPD_IMAGE env var must be set}"
-SNMPTRAPD_IMAGE="${SNMPTRAPD_IMAGE:?ERROR: SNMPTRAPD_IMAGE env var must be set}"
+TRAPD_IMAGE="${TRAPD_IMAGE:?ERROR: TRAPD_IMAGE env var must be set}"
 COMPOSE_FILE=".github/docker/centreon-trapd/docker-compose.config-wiring-test.yml"
 PROJECT="centreon-trapd-config-wiring-test"
 COMPOSE=(docker compose -f "$COMPOSE_FILE" -p "$PROJECT")
@@ -21,7 +20,7 @@ TRAP_TIMEOUT="${TRAP_TIMEOUT:-15}"
 
 CENTREONTRAPD_SDB_FIXTURE=$(build_centreontrapd_sdb_fixture "centreontrapd-wiring-test") || exit 1
 
-export CENTREONTRAPD_IMAGE SNMPTRAPD_IMAGE CENTREONTRAPD_SDB_FIXTURE
+export TRAPD_IMAGE CENTREONTRAPD_SDB_FIXTURE
 
 cleanup() {
   local rc=$?
@@ -32,7 +31,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# /tmp/docker.ready is touched by container.d/99-logs.sh, the last entrypoint
+# /tmp/docker.ready is touched by container.d/99-logs.<role>.sh, the last entrypoint
 # script, right before the real daemon is exec'd.
 wait_ready() {
   local service="$1" timeout="${2:-$READY_TIMEOUT}"

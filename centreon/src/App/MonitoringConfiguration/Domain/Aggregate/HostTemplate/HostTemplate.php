@@ -27,9 +27,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\VaultInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -58,6 +61,7 @@ final class HostTemplate extends AggregateRoot
      *                         not carried here)
      * @param ?Collection<HostTemplateId> $parentTemplateIds the templates this template directly
      *                                                       inherits from, in relation order
+     * @param ?SnmpCommunity $snmpCommunity plaintext, or the `secret::` reference once vaulted
      */
     public function __construct(
         ?HostTemplateId $id,
@@ -69,11 +73,65 @@ final class HostTemplate extends AggregateRoot
         public readonly bool $isLocked = false,
         public readonly ?MediaId $iconId = null,
         ?Collection $parentTemplateIds = null,
+        public readonly ?SnmpCommunity $snmpCommunity = null,
     ) {
         parent::__construct($id);
         $this->macros = $macros ?? new Collection([], HostMacro::class);
         $this->serviceTemplateCheckCommandIds = $serviceTemplateCheckCommandIds ?? new Collection([], CommandId::class);
         $this->parentTemplateIds = $parentTemplateIds ?? new Collection([], HostTemplateId::class);
+    }
+
+    /**
+     * @throws HostTemplateLockedException
+     */
+    public function assertUnlocked(): void
+    {
+        if ($this->isLocked) {
+            throw HostTemplateLockedException::forId($this->id());
+        }
+    }
+
+    /**
+     * A copy not yet persisted, always unlocked: what is not modelled here is copied from the source by
+     * the repository.
+     *
+     * @param Collection<HostMacro> $macros the copy's own macros, without source identity
+     *
+     * @throws HostTemplateLockedException
+     */
+    public function duplicate(HostTemplateName $newName, ?SnmpCommunity $snmpCommunity, Collection $macros): self
+    {
+        $this->assertUnlocked();
+
+        return new self(
+            id: null,
+            name: $newName,
+            macros: $macros,
+            checkCommandId: $this->checkCommandId,
+            alias: $this->alias,
+            isLocked: false,
+            iconId: $this->iconId,
+            parentTemplateIds: $this->parentTemplateIds,
+            snmpCommunity: $snmpCommunity,
+        );
+    }
+
+    /**
+     * The vault entry holding the template's secrets, null when none is vaulted.
+     */
+    public function getVaultUuid(VaultInterface $vault): ?string
+    {
+        if ($this->snmpCommunity instanceof SnmpCommunity && $vault->isVaultPath($this->snmpCommunity->value)) {
+            return $vault->extractUuid($this->snmpCommunity->value);
+        }
+
+        foreach ($this->macros as $macro) {
+            if ($macro->isPassword && $vault->isVaultPath($macro->value)) {
+                return $vault->extractUuid($macro->value);
+            }
+        }
+
+        return null;
     }
 
     /**

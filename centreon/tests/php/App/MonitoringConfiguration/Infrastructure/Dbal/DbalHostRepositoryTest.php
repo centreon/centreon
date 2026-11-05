@@ -1295,6 +1295,30 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertCount(0, $this->repository->findNamesByIds(new Collection([], HostId::class)));
     }
 
+    public function testFindIconIdsByIdsReturnsTheHostsOwnIconsOnly(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $iconId = $this->createImage('server.png');
+        $templateIconId = $this->createImage('template.png');
+        $withIcon = $this->createHost('server-01', $pollerId, iconId: $iconId);
+        $withoutIcon = $this->createHost('server-02', $pollerId);
+        // An icon inherited from a template is not the host's own.
+        $templateId = $this->createHostTemplate('generic-active-host');
+        $this->connection->insert('extended_host_information', ['host_host_id' => $templateId, 'ehi_icon_image' => $templateIconId]);
+        $this->linkHostToTemplate($withoutIcon, $templateId);
+
+        $iconIds = $this->repository->findIconIdsByIds(
+            new Collection([new HostId($withIcon), new HostId($withoutIcon), new HostId($templateId)], HostId::class),
+        )->toArray();
+
+        self::assertSame([$withIcon => $iconId], array_map(static fn (MediaId $id): int => $id->value, $iconIds));
+    }
+
+    public function testFindIconIdsByIdsReturnsNothingForAnEmptyInput(): void
+    {
+        self::assertCount(0, $this->repository->findIconIdsByIds(new Collection([], HostId::class)));
+    }
+
     public function testFindAncestorIdsWalksTheWholeParentChain(): void
     {
         $pollerId = $this->createPoller('Central');

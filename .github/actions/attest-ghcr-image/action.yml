@@ -9,7 +9,7 @@ description: >
   Build provenance is attested separately, at build time.
 inputs:
   ghcr_image:
-    description: "Image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-snmptrapd)"
+    description: "Image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-trapd)"
     required: true
   digest:
     description: "Digest of the promoted manifest list to attest (sha256:...)"
