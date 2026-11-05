@@ -23,7 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
+use ApiPlatform\OpenApi\Factory\OpenApiFactoryInterface;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
@@ -68,7 +71,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
     {
         $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
 
-        $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $this->request('GET', $this->uri($templateId));
         self::assertResponseStatusCodeSame(401);
     }
 
@@ -82,7 +85,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
         $this->login($username);
 
         // the macros prefill a host, so it demands read-write, like the choices list
-        $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $this->request('GET', $this->uri($templateId));
         self::assertResponseStatusCodeSame(403);
     }
 
@@ -96,7 +99,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
         $this->login($username);
 
         // no host template role of its own is needed
-        $response = $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $response = $this->request('GET', $this->uri($templateId));
         self::assertResponseIsSuccessful();
         self::assertSame("tpl-{$this->tag}", $response->toArray()['name']);
     }
@@ -112,7 +115,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $response = $this->request('GET', $this->uri($templateId));
         self::assertResponseIsSuccessful();
 
         $body = $response->toArray();
@@ -152,7 +155,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $response = $this->request('GET', $this->uri($templateId));
         self::assertResponseIsSuccessful();
 
         /** @var list<array<string, mixed>> $macros */
@@ -167,7 +170,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('GET', self::BASE_ENDPOINT . '/' . PHP_INT_MAX);
+        $this->request('GET', $this->uri(PHP_INT_MAX));
         self::assertResponseStatusCodeSame(404);
     }
 
@@ -178,7 +181,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
         $this->login();
 
-        $this->request('GET', self::BASE_ENDPOINT . "/{$hostId}");
+        $this->request('GET', $this->uri($hostId));
         self::assertResponseStatusCodeSame(404);
     }
 
@@ -193,7 +196,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $response = $this->request('GET', $this->uri($templateId));
         self::assertResponseIsSuccessful();
         self::assertSame(['PORT'], array_column((array) $response->toArray()['macros'], 'name'));
     }
@@ -204,8 +207,65 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
         $this->login();
 
+        $this->request('GET', $this->uri($templateId));
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testTheTemplateUriWithoutTheMacrosSegmentServesNothing(): void
+    {
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->login();
+
         $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
         self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * "0<id>" names an existing template once the leading zero is dropped: only the id requirement
+     * keeps it unrouted.
+     */
+    #[DataProvider('provideInvalidIds')]
+    public function testAnInvalidIdIsNotRouted(string $invalidId): void
+    {
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT . '/' . str_replace('<id>', (string) $templateId, $invalidId) . '/macros');
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideInvalidIds(): iterable
+    {
+        yield 'zero' => ['0'];
+
+        yield 'leading zero' => ['0<id>'];
+
+        yield 'not a number' => ['not-a-number'];
+    }
+
+    public function testItIsRoutedButAbsentFromTheOpenApiDoc(): void
+    {
+        /** @var RouterInterface $router */
+        $router = self::getContainer()->get('router');
+        self::assertSame(
+            '_api_/configuration/hosts/host_templates/{id}/macros_get',
+            $router->match($this->uri(5))['_route'] ?? null,
+        );
+
+        /** @var OpenApiFactoryInterface $openApiFactory */
+        $openApiFactory = self::getContainer()->get('api_platform.openapi.factory');
+        $paths = $openApiFactory()->getPaths();
+        // guard: the documented paths carry the /api prefix, so an absence below is meaningful
+        self::assertNotNull($paths->getPath('/api/configuration/host_templates'));
+        self::assertNull($paths->getPath('/api/configuration/hosts/host_templates/{id}/macros'));
+    }
+
+    private function uri(int $templateId): string
+    {
+        return self::BASE_ENDPOINT . "/{$templateId}/macros";
     }
 
     private function insertHostTemplate(string $name, bool $locked = false, bool $active = true, ?int $commandId = null): int

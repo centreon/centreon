@@ -55,17 +55,11 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
         // Same family as the host template choices list above, so it takes the same right, not a
         // host template one.
         new Get(
-            uriTemplate: '/configuration/hosts/host_templates/{id}',
-            requirements: ['id' => '\d+'],
+            uriTemplate: '/configuration/hosts/host_templates/{id}/macros',
+            requirements: ['id' => '[1-9]\d*'],
             output: HostTemplateMacrosOutput::class,
             provider: GetHostTemplateMacrosProvider::class,
-            openapi: new Model\Operation(
-                summary: "Get a host template's own and inherited macros, to prefill a new host",
-                responses: [
-                    403 => new Model\Response('You are not allowed to access host templates'),
-                    404 => new Model\Response('Host template not found'),
-                ],
-            ),
+            openapi: false,
             security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access host templates',
         ),
@@ -84,13 +78,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             requirements: ['id' => '[1-9]\d*'],
             output: HostTemplateMacrosOutput::class,
             provider: GetHostTemplateMacrosProvider::class,
-            openapi: new Model\Operation(
-                summary: "Get a host template's own and inherited macros, for the host template form",
-                responses: [
-                    403 => new Model\Response('You are not allowed to access host templates'),
-                    404 => new Model\Response('Host template not found'),
-                ],
-            ),
+            openapi: false,
             security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access host templates',
         ),
