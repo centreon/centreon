@@ -213,8 +213,7 @@ final class HostTemplate extends AggregateRoot
     }
 
     /**
-     * Every field but the relations and the macros, which are compared on their own. Contacts and contact
-     * groups are compared through the notifications.
+     * Every field but the relations and the macros; contacts and contact groups count through the notifications.
      */
     public function hasSameConfigurationAs(self $other): bool
     {

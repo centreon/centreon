@@ -51,9 +51,6 @@ final readonly class HostTemplateCheckOptions
         $this->macros = $macros ?? new Collection([], HostTemplateMacro::class);
     }
 
-    /**
-     * The check command and its arguments; the macros are compared on their own.
-     */
     public function hasSameCommandAs(self $other): bool
     {
         return $this->checkCommandId?->value === $other->checkCommandId?->value

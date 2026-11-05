@@ -32,7 +32,7 @@ use App\Shared\Domain\VaultInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * A failed purge is reported: the deletion is already committed.
+ * A failed purge after a deletion is reported, the deletion being committed; a best-effort one is only logged.
  */
 #[AsEventHandler]
 final readonly class PurgeHostTemplateVaultEventHandler

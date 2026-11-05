@@ -186,7 +186,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Pa
             uriTemplate: '/configuration/host_templates/{id}',
             requirements: ['id' => '[1-9]\d*'],
             status: 204,
-            // The handler loads the template itself (404).
             read: false,
             input: PatchHostTemplateInput::class,
             output: false,

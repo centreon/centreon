@@ -31,8 +31,7 @@ use App\Shared\Domain\Event\AsEventHandler;
 use Webmozart\Assert\Assert;
 
 /**
- * A template change reaches every host inheriting from it, directly or through other templates: their
- * pollers must regenerate their configuration, whether the change is logged or not.
+ * Any template change makes the inheriting hosts' pollers regenerate, whether it is logged or not.
  */
 #[AsEventHandler]
 final readonly class FlagHostTemplateInheritorsPollersEventHandler
