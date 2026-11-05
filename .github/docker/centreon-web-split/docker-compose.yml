@@ -437,9 +437,11 @@ services:
   # adaptation block), not two containers.
   #
   # Pinned to an image bundling a fingerprint guard (refuses to start on
-  # the package-default config) and an HTTP reload/restart shim as PID 1 —
-  # not yet wired up here (its HTTP endpoints aren't consumed by anything
-  # in this stack yet).
+  # the package-default config). Its PID 1 also wraps cbd in an HTTP
+  # reload/restart/health shim (api_control.py), but this stack never
+  # calls it: a config change is still applied via a full container
+  # restart, and centengine's own reload goes over gRPC instead (see
+  # gorgone-central-poller below) — no port exposed for the shim here.
   #
   # No seeding step for the `poller-broker` volume: a genuinely empty
   # volume at first boot is the correct, already-handled state on that
@@ -484,14 +486,6 @@ services:
         condition: service_started
     ports:
       - "5669:5669"
-      # api_control.py's HTTP reload/restart/health shim (uvicorn): POST
-      # /reload (SIGHUP, in-place config+AES-key refresh), POST /restart
-      # (SIGTERM then exits the wrapper itself so `restart: unless-stopped`
-      # relaunches the container), GET /health. Not consumed by anything in
-      # this stack yet (still manual `docker compose restart centreon-broker`
-      # after a config change) — exposed so it's reachable for that
-      # follow-up without another compose edit.
-      - "8080:8080"
 
   # TCP write-cache sidecar for Central's merged RRD output (MON-213837).
   # DESIGN CHANGE, see trixie/README.md: no longer network_mode:
