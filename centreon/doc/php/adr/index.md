@@ -56,4 +56,4 @@ Decisions taken by the PHP team on the backend architecture, by topic. The terms
 
 | ADR | Decision | Status |
 |---|---|---|
-| [0034](0034-write-database-changes-as-doctrine-migrations.md) | Write database changes as Doctrine migrations that the engine checks and logs | Proposed |
+| [0035](0035-write-database-changes-as-doctrine-migrations.md) | Write database changes as Doctrine migrations that the engine checks and logs | Proposed |

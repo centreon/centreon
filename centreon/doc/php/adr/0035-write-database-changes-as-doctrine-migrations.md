@@ -1,4 +1,4 @@
-# ADR-0034: Write database changes as Doctrine migrations that the engine checks and logs
+# ADR-0035: Write database changes as Doctrine migrations that the engine checks and logs
 
 - **Status:** Proposed
 - **Date:** 2026-11-05
