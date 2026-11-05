@@ -40,13 +40,14 @@ runner refuses any other one.
 - `DdlMigration` for schema changes (`CREATE`, `ALTER`, `DROP`...). MySQL commits implicitly around DDL, so it runs
   outside any transaction: hold a **single idempotent statement**, so that replaying it after a failure is harmless.
   MySQL has no `ADD COLUMN IF NOT EXISTS`: guard in `up()` by reading the one table at stake, e.g.
-  `if ($this->connection->createSchemaManager()->introspectTable('host')->hasColumn('host_notes_url')) { return; }`.
+  `if ($this->connection->createSchemaManager()->introspectTable('host')->hasColumn('host_notes_url')) { $this->write('host_notes_url already exists, skipped'); return; }`.
   Reading `$schema` works too, but loads every table of the database, for each migration.
 - `DmlMigration` for data changes (`INSERT`, `UPDATE`, `DELETE`...). It runs in a transaction with its metadata row:
   all or nothing. DDL, transaction control and `CALL` are rejected, as they would silently commit that transaction.
 
-In both, pass one statement per `addSql()` call, and implement `revert()`, which `down()` calls. `$schema` is read
-only: a migration changing it fails, as doctrine would run the SQL of the change out of reach of these checks.
+In both, describe the change in `getDescription()`, pass one statement per `addSql()` call, and implement `revert()`,
+which `down()` calls. `$schema` is read only: a migration changing it fails, as doctrine would run the SQL of the
+change out of reach of these checks.
 
 Rules:
 
@@ -61,6 +62,13 @@ Rules:
   does not revert them.
 - A module version that failed resumes after its last successful `upgrade.sql` query. If that `upgrade.sql` is fixed
   in between, it restarts from its first query: a fixed `upgrade.sql` must be idempotent.
+
+Logging (`/var/log/centreon/prod.upgrade.log`, as the legacy scripts):
+
+- The engine logs the start, the outcome and the duration of each run, then each migration with its description and
+  duration, and the failing one with its error: do not log the statements yourself. An empty description is refused.
+- Trace a decision the migration takes with `$this->write()`, a skipped change included, and a degraded but accepted
+  outcome with `$this->warnIf()`. Never log a secret.
 
 ## Operating
 

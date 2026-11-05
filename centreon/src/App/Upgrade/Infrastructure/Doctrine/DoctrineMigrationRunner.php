@@ -265,6 +265,12 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         foreach (array_diff($classes, $expected) as $class) {
             throw new \RuntimeException(\sprintf('The migration "%s" must be alone in a file named after it.', $class));
         }
+
+        foreach ($factory->getMigrationRepository()->getMigrations()->getItems() as $available) {
+            if (trim($available->getMigration()->getDescription()) === '') {
+                throw new \RuntimeException(sprintf('The migration "%s" must describe what it changes in getDescription(): the upgrade log shows it.', $available->getMigration()::class));
+            }
+        }
     }
 
     /**

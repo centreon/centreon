@@ -28,6 +28,11 @@ use Doctrine\DBAL\Schema\Schema;
 
 final class Version20260101000003 extends DmlMigration
 {
+    public function getDescription(): string
+    {
+        return 'Fixture forward-port Version20260101000003';
+    }
+
     public function up(Schema $schema): void
     {
         $this->addSql('SELECT 3');

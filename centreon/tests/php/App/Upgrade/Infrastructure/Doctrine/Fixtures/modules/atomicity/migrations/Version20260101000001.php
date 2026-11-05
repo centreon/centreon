@@ -28,6 +28,11 @@ use Doctrine\DBAL\Schema\Schema;
 
 final class Version20260101000001 extends DdlMigration
 {
+    public function getDescription(): string
+    {
+        return 'Fixture atomicity Version20260101000001';
+    }
+
     public function up(Schema $schema): void
     {
         $this->addSql('CREATE TABLE IF NOT EXISTS fx_atomicity (id INT PRIMARY KEY)');

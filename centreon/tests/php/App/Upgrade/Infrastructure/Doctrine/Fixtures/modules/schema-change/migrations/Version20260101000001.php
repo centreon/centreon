@@ -28,6 +28,11 @@ use Doctrine\DBAL\Schema\Schema;
 
 final class Version20260101000001 extends DmlMigration
 {
+    public function getDescription(): string
+    {
+        return 'Fixture schema-change Version20260101000001';
+    }
+
     public function up(Schema $schema): void
     {
         $schema->getTable('fx_schema_change')->addColumn('label', 'string', ['length' => 255, 'notnull' => false]);

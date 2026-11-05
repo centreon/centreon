@@ -296,6 +296,14 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->invalidModulesRunner()->migrate(MigrationSet::module('two-classes'));
     }
 
+    public function testRefusesAMigrationWithoutDescription(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The migration "NoDescription\Migrations\Version20260101000001" must describe what it changes in getDescription()');
+
+        $this->invalidModulesRunner()->migrate(MigrationSet::module('no-description'));
+    }
+
     public function testRefusesAMigrationEscapingTheBaseClassChecks(): void
     {
         try {
