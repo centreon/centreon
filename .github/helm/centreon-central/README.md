@@ -1,9 +1,9 @@
 # centreon-central Helm chart
 
 Kubernetes deployment of a Centreon central node built on the split httpd /
-php-fpm images (Pilier 1), gorgone central + pullwss (Pilier 2), centengine
-and centreon-broker. Port of `../../docker/centreon-web-split/docker-compose.yml`, reorganised so the
-web tier scales horizontally.
+php-fpm images, gorgone central + pullwss, centengine and centreon-broker.
+Port of `../../docker/centreon-web-split/docker-compose.yml`, reorganised so
+the web tier scales horizontally.
 
 - `values.yaml`: single-node dev/test defaults (1 replica each, RWO volumes,
   bundled MariaDB).
@@ -23,23 +23,30 @@ storage, a managed database or remote pollers.
 | `fpm` | Deployment | N (HPA) | Web backend. Per-container init only, waits for the install marker |
 | `httpd` | Deployment | N (HPA) | Static assets, FastCGI to fpm, wss to gorgone-central |
 | `gorgone-central` | Deployment | 1 | Orchestrator (TYPE=central) |
-| `broker` | Deployment | 1 | central-broker-master (RRD merged in), Service 5669 for pollers |
-| `central-poller` | Deployment | 1 | gorgone (poller) + centengine for Central itself |
+| `broker` | StatefulSet | 1 | central-broker-master (RRD merged in), Service 5669 for pollers, rrdcached sidecar |
+| `central-poller` | StatefulSet | 1 | gorgone (poller) + centengine for Central itself |
 | `poller-<name>` | StatefulSet | 1 per poller | Remote pollers from `pollers:` (untested) |
 | `db` | StatefulSet | 1 | Bundled MariaDB (dev) |
 
 Scaling Centreon means adding pollers, not replicas: gorgone-central, the
 broker and each poller are singletons by design.
 
-`<id>` is a hash of the fpm image reference (+ `install.runId`): a new image
-tag runs both Jobs again (upgrade). Use immutable tags; rebuilding the same
+`<id>` is a hash of the fpm image reference, the chart version,
+`install.runId` and the install's environment (the Job names also end with
+a hash of their spec): a new image tag, chart version or install-related
+value runs both Jobs again (upgrade). Use immutable tags; rebuilding the same
 tag does not re-run them. Both are plain Jobs, not Helm hooks (a hook would
 deadlock with `--wait` / ArgoCD PostSync, since fpm waits for the install).
 
 ## Why some containers share a pod
 
-Only gorgone + centengine in a poller pod: centengine's external command
-file is a FIFO that gorgone writes to, which only works within one kernel.
+- Poller pods: gorgone + centengine, because centengine's external command
+  file is a FIFO that gorgone writes to, which only works within one kernel.
+  With traps, snmptrapd + centreontrapd join them (centreontrapd writes the
+  same FIFO); with VMware, centreon-vmware (the engine's plugins reach it as
+  `centreon-vmware:5700`, a host alias to the pod itself).
+- Broker pod: cbd + the rrdcached sidecar (cbd sends its RRD updates to
+  `127.0.0.1:42217`).
 
 ## Volumes
 
@@ -127,7 +134,7 @@ dedicated volumes:
 
 | Process | Queues while | Value | Volume |
 |---------|--------------|-------|--------|
-| Central cbmod (Central poller pod) | the broker is down | `centralPoller.cbmodCacheDirectory` | `pollerCbmodCache` |
+| Central cbmod (Central poller pod) | the broker is down | `centralPoller.cbmodCacheDirectory` | poller-spool (`cbmod-cache`) |
 | central-broker-master (broker pod) | the database is down | `broker.cacheDirectory` | `brokerCache` |
 
 The first delivery after enabling them needs one restart of the pod
@@ -142,7 +149,7 @@ LoadBalancer for agents outside the cluster). With `encryption: full` they
 check the certificate against the FQDN of their `endpoint`.
 
 The engine's default CA (`/etc/pki/centreon-engine/default_cma_ca.*`,
-persisted on `pollerCmaPki`) has CN = host name and no SAN. The pod host name
+persisted in poller-data, `pki`) has CN = host name and no SAN. The pod host name
 is `<release>-central-poller-0` (forced by the StatefulSet controller), so it
 never matches an external FQDN. Provide the TLS identity instead (same value
 names as the `centreon-poller` chart):
@@ -242,7 +249,7 @@ An rrdcached sidecar in the broker pod (image `--target rrdcached`, port
 of the broker writing every update itself. On by default for the storage:
 the RRD files live on a PVC, often network RWX storage (EFS, NFS), where
 every small write is expensive. `rrdcached.enabled: false` goes back to
-direct writes:
+direct writes. When enabled:
 
 - The install Job sets `rrd_cached_option=tcp`, the port (`RRDCACHED_PORT`)
   and the host (`RRDCACHED_HOST=127.0.0.1`: the sidecar, in cbd's own pod)
@@ -358,9 +365,9 @@ be decrypted. The 25.10 test dataset had no encrypted value.
 
 ## Fixed Service names: one release per namespace
 
-`db`, `fpm`, `httpd`, `gorgone-central` and `centreon-broker` are not
-release-prefixed: the install writes these hostnames into the Centreon DB or
-the images use them. In every poller pod `centengine` resolves to
+`db`, `fpm`, `httpd`, `gorgone-central`, `centreon-broker`, `cbd`,
+`centreon-rrdcached` and `valkey` are not release-prefixed: the install
+writes these hostnames into the Centreon DB or the images use them. In every poller pod `centengine` resolves to
 `127.0.0.1`, so a poller's gorgone never reloads another poller's engine.
 
 ## gorgone-central API access
@@ -383,7 +390,8 @@ gorgone image (`10-create-config.sh`, centreon-collect).
 - **Named-volume copy-up made explicit.** Init containers reuse each pod's
   own image as root and `cp -an` + `chown/chmod --reference` the same paths
   (no-op on restart; chown failures are non-fatal for RWX backends such as
-  EFS access points). `/var/lib/centreon` is seeded from the gorgone image,
+  EFS access points). In poller pods `/etc/centreon` and
+  `/var/lib/centreon-gorgone` are seeded from the gorgone image;
   `/etc/centreon-broker` is not seeded (the broker refuses its default).
 - **Config delivered once, not every 60s.** compose re-runs "generate + move
   + reload" every minute; here the config-delivery Job does it once per
@@ -395,7 +403,8 @@ gorgone image (`10-create-config.sh`, centreon-collect).
 - **Probes.** fpm: startup + readiness on `/tmp/docker.ready`, liveness on
   9000. broker: readiness = cbd listening on 5669 (read from
   `/proc/net/tcp`, no connection). centengine/gorgone: none.
-- **centengine/broker crash-loop until their config is delivered.** Accepted
+- **centengine crash-loops until its config is delivered** (the broker
+  waits for it in its `wait-config` init container). Accepted
   as in compose, but CrashLoopBackOff grows to 5 minutes: count up to ~10
   minutes on a fresh install.
 

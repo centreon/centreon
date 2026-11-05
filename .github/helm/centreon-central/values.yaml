@@ -4,7 +4,8 @@
 # the production overlay (replicas, RWX storage, autoscaling, external DB).
 #
 # One release per namespace: several Service names (db, fpm, httpd,
-# gorgone-central, centreon-broker) are NOT release-prefixed on purpose.
+# gorgone-central, centreon-broker, cbd, centreon-rrdcached, valkey) are NOT
+# release-prefixed on purpose.
 # They are hostnames the install writes into the Centreon database
 # (12-install.sh: cfg_centreonbroker_info host=centreon-broker,
 # options.gorgone_api_address=gorgone-central) or that the images use.
