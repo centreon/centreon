@@ -1098,6 +1098,21 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testTheServiceScopeIsRestrictedToTheUsersActiveAccessGroups(): void
+    {
+        // Which groups are active, directly or through a contact group, is pinned by DbalAccessGroupRepositoryTest:
+        // this only proves the scope is built from them.
+        $actorId = $this->createContact('actor-services-' . uniqid());
+        $groupId = $this->createAccessGroupForContact($actorId);
+        $this->createAccessGroupForContact($actorId, activated: '0');
+        $this->createAccessGroupForContact($this->createContact('other-services-' . uniqid()));
+
+        $scope = $this->repository->findServiceAccessGroupScope(new UserId($actorId));
+
+        self::assertFalse($scope->isUnrestricted());
+        self::assertSame([$groupId], $scope->allowedIdValues());
+    }
+
     /**
      * @param list<int|string> $params
      */
@@ -1109,13 +1124,13 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         return (int) $count;
     }
 
-    private function createAccessGroupForContact(int $contactId): int
+    private function createAccessGroupForContact(int $contactId, string $activated = '1'): int
     {
         $name = 'contact-acl-group-' . $contactId . '-' . random_int(1, PHP_INT_MAX);
         $this->connection->insert('acl_groups', [
             'acl_group_name' => $name,
             'acl_group_alias' => $name,
-            'acl_group_activate' => '1',
+            'acl_group_activate' => $activated,
         ]);
         $aclGroupId = (int) $this->connection->lastInsertId();
 
