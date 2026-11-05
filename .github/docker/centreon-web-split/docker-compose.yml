@@ -401,11 +401,25 @@ services:
   # local centengine -v shell-out in php-fpm is a separate concern, addressed
   # by shipping a real centengine binary into the fpm image too (MON-214031,
   # see trixie/Dockerfile's engine_verifier stage).
+  #
+  # MON-214281: this image's own entrypoint execs centengine the instant it
+  # starts, before gorgone's first "Generate Configuration Files" export has
+  # delivered the broker module config cbmod needs — crash-looping until
+  # that first delivery lands, same first-boot race as centreon-broker
+  # below. entrypoint wraps the image's own
+  # /usr/local/lib/centreon-engine/container.sh with a wait for that file,
+  # shared with the Helm chart's own wait-config initContainer (same script,
+  # mounted here instead of inlined — see the file itself).
   centengine:
     image: "${ENGINE_IMAGE:-docker.centreon.com/centreon/centreon-engine-trixie:develop}"
     pull_policy: always
     hostname: centengine
     restart: unless-stopped
+    entrypoint:
+      - /bin/sh
+      - -c
+      - /usr/local/bin/wait-broker-module-config.sh && exec /usr/local/lib/centreon-engine/container.sh "$$@"
+      - sh
     environment:
       NAME: gorgone-central-poller
       TZ: UTC
@@ -414,6 +428,7 @@ services:
       SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
       ENGINE_PORT: "5669"
     volumes:
+      - ../centreon-central-wait-broker-module-config.sh:/usr/local/bin/wait-broker-module-config.sh:ro
       - poller-engine:/etc/centreon-engine
       - poller-broker:/etc/centreon-broker
       - poller-centcmd:/var/lib/centreon-engine/rw
