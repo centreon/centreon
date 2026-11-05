@@ -161,7 +161,14 @@ final class PatchServiceProcessorTest extends ApiTestCase
         $hostId = $this->insertHost($this->insertPoller());
         $serviceId = $this->insertService('ping', $hostId);
         ['contactId' => $contactId, 'groupId' => $groupId] = $this->loginAsNonAdmin(self::READ_WRITE);
-        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $groupId, 'host_id' => $hostId, 'service_id' => $serviceId]);
+        // Through the main connection: the lookup reads centreon_acl cross-database, inside the test transaction.
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.centreon_acl (group_id, host_id, service_id) VALUES (?, ?, ?)',
+                $this->connection->quoteSingleIdentifier($this->realTimeDatabaseName()),
+            ),
+            [$groupId, $hostId, $serviceId],
+        );
 
         $this->patch((string) $serviceId, ['activated' => false]);
 
@@ -247,6 +254,14 @@ final class PatchServiceProcessorTest extends ApiTestCase
             "SELECT log_contact_id FROM log_action WHERE object_type = 'service' AND object_id = ?",
             [$serviceId],
         );
+    }
+
+    private function realTimeDatabaseName(): string
+    {
+        $name = $this->realTimeConnection->getDatabase();
+        Assert::stringNotEmpty($name);
+
+        return $name;
     }
 
     private function insertUnchangedAclResource(): int
