@@ -145,11 +145,10 @@ describe('layout', () => {
   ])(
     'places the data processing blocks in the advanced section (%s)',
     (_name, isCloudPlatform, expected) => {
-      const advanced = layout.find(({ label }) => label === labelAdvanced);
       const handedOver = getBlocks({ isCloudPlatform, t });
 
       expect(
-        getPlacedBlockIds(advanced?.nodes).filter((id) => id in handedOver)
+        getSectionBlockIds(labelAdvanced).filter((id) => id in handedOver)
       ).toEqual(expected);
     }
   );
