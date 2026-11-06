@@ -300,6 +300,21 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         return $qb->executeQuery()->fetchOne() !== false;
     }
 
+    public function isExactNameUsedOnHost(ServiceName $name, HostId $hostId): bool
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('1')
+            ->from(self::TABLE_NAME, 's')
+            ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
+            ->andWhere("s.service_register = '1'")
+            // A binary string bypasses the column collation, which ignores case, accents and trailing spaces.
+            ->andWhere('CAST(s.service_description AS BINARY) = ' . $qb->createNamedParameter($name->value))
+            ->setMaxResults(1);
+
+        return $qb->executeQuery()->fetchOne() !== false;
+    }
+
     /**
      * One query selects, filters, sorts and pages the (host, service) pairs, whatever the number of services, plus
      * one to count them.
