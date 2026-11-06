@@ -1,4 +1,4 @@
-import { Box, LinearProgress, Table, TableBody } from '@mui/material';
+import { Box, Divider, LinearProgress, Table, TableBody } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
@@ -525,11 +525,10 @@ const Listing = <
 
   return (
     <div className="h-full w-full overflow-hidden">
-      {loading && rows.length > 0 && (
-        <LinearProgress className="w-full h-[3px]" />
-      )}
-      {(!loading || (loading && rows.length < 1)) && (
-        <div className="w-full h-[3px]" />
+      {loading && rows.length > 0 ? (
+        <LinearProgress className="w-full h-[1px]" />
+      ) : (
+        <Divider />
       )}
       <div
         className="bg-[none] flex flex-col h-full w-full"
