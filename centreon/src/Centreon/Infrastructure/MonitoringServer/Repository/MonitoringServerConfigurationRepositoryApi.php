@@ -28,6 +28,7 @@ use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\MonitoringServer\Repository\Exception\MonitoringServerConfigurationRepositoryException;
@@ -160,6 +161,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
      * @throws RepositoryException
      * @throws TimeoutException
      * @throws AuthenticationException
+     * @throws GorgoneDeliveryException
      */
     private function callHttp(string $filePath, string $payloadBody): void
     {
@@ -199,13 +201,18 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
             if (! empty($xml)) {
                 if (($element = simplexml_load_string($xml)) !== false) {
                     if ((string) $element->statuscode !== '0') {
+                        $errorCode = (int) $element->errorcode;
+                        if (GorgoneDeliveryException::isKnownReason($errorCode)) {
+                            throw new GorgoneDeliveryException((string) $element->error, $errorCode);
+                        }
+
                         throw new RepositoryException((string) $element->error);
                     }
                 }
             } else {
                 throw MonitoringServerConfigurationRepositoryException::responseEmpty();
             }
-        } catch (RepositoryException|AuthenticationException $ex) {
+        } catch (RepositoryException|AuthenticationException|GorgoneDeliveryException $ex) {
             throw $ex;
         } catch (\Assert\AssertionFailedException $ex) {
             throw MonitoringServerConfigurationRepositoryException::errorWhenInitializingApiUri();
