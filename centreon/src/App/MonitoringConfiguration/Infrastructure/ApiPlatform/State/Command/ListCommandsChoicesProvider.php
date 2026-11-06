@@ -61,8 +61,7 @@ final readonly class ListCommandsChoicesProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
-        // No per-type command permission here: the host and service forms fill a check and event handler
-        // command, so the read-write permission each operation checks (host or service) is the only gate.
+        // No command permission here: the read-write permission of the operation's form is the only gate.
         $criteria = new CommandCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);

@@ -27,7 +27,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroOutput;
 
 /**
- * A host template's macros, own and inherited, to prefill a host before it is created.
+ * A host template's macros, own and inherited.
  */
 final readonly class HostTemplateMacrosOutput
 {

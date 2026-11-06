@@ -6502,38 +6502,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Host'
         required: true
-  '/api/configuration/hosts/host_templates/{id}':
-    get:
-      operationId: api_configurationhostshost_templates_id_get
-      tags:
-        - HostTemplate
-      responses:
-        '403':
-          description: 'You are not allowed to access host templates'
-        '404':
-          description: 'Host template not found'
-        '200':
-          description: 'HostTemplate resource'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/HostTemplate.HostTemplateMacrosOutput.jsonld'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HostTemplate.HostTemplateMacrosOutput'
-      summary: "Get a host template's own and inherited macros, to prefill a new host"
-      description: "Get a host template's own and inherited macros, to prefill a new host"
-      parameters:
-        -
-          name: id
-          in: path
-          description: 'HostTemplate identifier'
-          required: true
-          deprecated: false
-          schema:
-            type: string
-          style: simple
-          explode: false
   '/api/configuration/host_templates/{id}':
     delete:
       operationId: api_configurationhost_templates_id_delete
@@ -6761,6 +6729,111 @@ paths:
             maximum: 30
           style: form
           explode: true
+  '/api/configuration/services/{id}':
+    delete:
+      operationId: api_configurationservices_id_delete
+      tags:
+        - Service
+      responses:
+        '204':
+          description: 'Service resource deleted'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '404':
+          description: 'Not found'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Removes the Service resource.'
+      description: 'Removes the Service resource.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Service identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+    patch:
+      operationId: api_configurationservices_id_patch
+      tags:
+        - Service
+      responses:
+        '204':
+          description: 'Service updated (or left as it was when nothing changed)'
+          links: {}
+        '403':
+          description: 'You are not allowed to update services'
+        '404':
+          description: 'Service not found'
+        '422':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Updates the Service resource.'
+      description: 'Enables or disables a service.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Service identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The updated Service resource'
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/Service.PatchServiceInput.jsonMergePatch'
+        required: true
 components:
   securitySchemes:
     Token:
@@ -13712,32 +13785,6 @@ components:
               $ref: '#/components/schemas/CreateHostNotificationsInput'
             -
               type: 'null'
-    HostTemplate.HostTemplateMacrosOutput:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        macros:
-          type: array
-          items:
-            $ref: '#/components/schemas/HostMacroOutput'
-    HostTemplate.HostTemplateMacrosOutput.jsonld:
-      allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
-        -
-          type: object
-          properties:
-            id:
-              type: integer
-            name:
-              type: string
-            macros:
-              type: array
-              items:
-                $ref: '#/components/schemas/HostMacroOutput.jsonld'
     PatchHostCheckOptionsInput:
       type: object
       properties:
@@ -13975,3 +14022,25 @@ components:
               type: string
             activated:
               type: boolean
+    Service:
+      type: object
+      properties:
+        id:
+          type: integer
+    Service.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+    Service.PatchServiceInput.jsonMergePatch:
+      type: object
+      properties:
+        activated:
+          description: 'Whether the service is enabled.'
+          type:
+            - boolean
+            - 'null'
