@@ -25,11 +25,12 @@ namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
-use App\MonitoringConfiguration\Application\Service\HostTemplateMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostTemplateRelationsUpdater;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
@@ -41,7 +42,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -64,7 +67,7 @@ final readonly class PatchHostTemplateCommandHandler
         private HostTemplateRepository $repository,
         private HostReferencesChecker $references,
         private HostTemplateRelationsUpdater $relations,
-        private HostTemplateMacrosUpdater $macros,
+        private HostMacrosUpdater $macros,
         private HostMacroSecretsSynchronizer $macroSecrets,
         private CommandRepository $commandRepository,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
@@ -92,11 +95,11 @@ final readonly class PatchHostTemplateCommandHandler
         $template->assertUnlocked();
 
         $this->assertReferencesExist($command);
-        $relations = $this->relations->resolve($template, $command);
+        $withRelations = $this->relations->applyTo($template, $command);
         $this->assertNameIsAvailable($template, $command);
         $this->assertArgumentsHaveACheckCommand($template, $command);
 
-        $changed = $template->with(
+        $changed = $withRelations->with(
             name: $command->name,
             alias: $command->alias,
             snmpVersion: $command->snmpVersion,
@@ -104,22 +107,22 @@ final readonly class PatchHostTemplateCommandHandler
             severityId: $this->severityToApply($template, $command),
             checkOptions: $command->checkOptions instanceof NoValue
                 ? new NoValue()
-                : $command->checkOptions->applyTo($template->checkOptions),
+                : $command->checkOptions->applyTo($withRelations->checkOptions),
             extendedInformations: $command->extendedInformations instanceof NoValue
                 ? new NoValue()
-                : $command->extendedInformations->applyTo($template->extendedInformations),
+                : $command->extendedInformations->applyTo($withRelations->extendedInformations),
             schedulingOptions: $command->schedulingOptions instanceof NoValue
                 ? new NoValue()
-                : $command->schedulingOptions->applyTo($template->schedulingOptions),
+                : $command->schedulingOptions->applyTo($withRelations->schedulingOptions),
             dataProcessing: $this->dataProcessing($template, $command),
             // With the platform option disabled, the additive inheritance flags the template already has are
             // reset along with any notification change.
             notifications: $command->notifications instanceof NoValue
                 ? new NoValue()
-                : $this->additiveInheritanceModeApplier->apply($command->notifications->applyTo($template->notifications)),
-        )->withRelations($relations);
-        if ($command->macros instanceof HostTemplateMacroChanges) {
-            $changed = $changed->withMacros($this->macros->resolve($changed, $command->macros));
+                : $this->additiveInheritanceModeApplier->apply($command->notifications->applyTo($withRelations->notifications)),
+        );
+        if ($command->macros instanceof MacroChanges) {
+            $changed = $changed->withMacros($this->resolveMacros($changed, $command->macros));
         }
 
         $previousVaultUuid = $this->vault->isEnabled() ? $template->getVaultUuid($this->vault) : null;
@@ -131,7 +134,7 @@ final readonly class PatchHostTemplateCommandHandler
                 $vaultUuid = $this->vault->extractUuid($snmpCommunity->value);
             }
 
-            if ($command->macros instanceof HostTemplateMacroChanges && $this->vault->isEnabled()) {
+            if ($command->macros instanceof MacroChanges && $this->vault->isEnabled()) {
                 $changed = $this->moveTheMacrosToTheVault($template, $changed, $vaultUuid);
                 // Every vaulted macro is now under the template's own entry.
                 $vaultUuid ??= $changed->getVaultUuid($this->vault);
@@ -145,6 +148,21 @@ final readonly class PatchHostTemplateCommandHandler
         }
 
         return $changed;
+    }
+
+    /**
+     * The host rules, but a reserved name is accepted on a template, and a template reports its own
+     * unknown macros.
+     *
+     * @return list<HostMacro>
+     */
+    private function resolveMacros(HostTemplate $template, MacroChanges $changes): array
+    {
+        try {
+            return $this->macros->resolve($template->checkOptions->macros, $template->parentTemplateIds, $template->checkOptions->checkCommandId, $changes);
+        } catch (HostMacroNotFoundException $exception) {
+            throw new HostTemplateMacroNotFoundException($exception->ids, $exception);
+        }
     }
 
     private function save(HostTemplate $template, HostTemplate $changed, PatchHostTemplateCommand $command, bool $secretRewritten): void
@@ -329,7 +347,7 @@ final readonly class PatchHostTemplateCommandHandler
     private function providesAPassword(PatchHostTemplateCommand $command): bool
     {
         return $this->vault->isEnabled()
-            && $command->macros instanceof HostTemplateMacroChanges
+            && $command->macros instanceof MacroChanges
             && array_any($command->macros->changes, static fn (HostMacroChange $change): bool => $change->isPassword && $change->value !== null);
     }
 
@@ -350,7 +368,7 @@ final readonly class PatchHostTemplateCommandHandler
                 return;
             }
 
-            if ($previousVaultUuid !== null && (! $command->snmpCommunity instanceof NoValue || $command->macros instanceof HostTemplateMacroChanges)) {
+            if ($previousVaultUuid !== null && (! $command->snmpCommunity instanceof NoValue || $command->macros instanceof MacroChanges)) {
                 $this->logger->warning(
                     'A host template update failed after writing to its vault entry: the vault may now diverge from the host template stored in the database.',
                     ['host_template_id' => $template->id()->value, 'exception' => $cause],

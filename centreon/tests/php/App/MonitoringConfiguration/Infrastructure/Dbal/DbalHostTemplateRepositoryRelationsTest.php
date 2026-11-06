@@ -30,8 +30,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateRelationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
@@ -87,13 +87,15 @@ final class DbalHostTemplateRepositoryRelationsTest extends KernelTestCase
         $this->connection->insert('host_service_relation', ['host_host_id' => $id, 'service_service_id' => $oldLinked]);
         $template = $this->findOne($id);
 
-        $this->repository->replaceRelations($template->withRelations(new HostTemplateRelationsChange(
+        $this->repository->replaceRelations($template->with(
+            notifications: ($template->notifications ?? Notifications::default())->withContacts(
+                new Collection([new NotificationContactId($contact)], NotificationContactId::class),
+                new Collection([new ContactGroupId($group)], ContactGroupId::class),
+            ),
             parentTemplateIds: new Collection([new HostTemplateId($secondParent), new HostTemplateId($firstParent)], HostTemplateId::class),
             categoryIds: new Collection([new HostCategoryId($newCategory)], HostCategoryId::class),
             linkedServiceTemplateIds: new Collection([new ServiceTemplateId($newLinked)], ServiceTemplateId::class),
-            contactIds: new Collection([new NotificationContactId($contact)], NotificationContactId::class),
-            contactGroupIds: new Collection([new ContactGroupId($group)], ContactGroupId::class),
-        )));
+        ));
 
         self::assertSame(
             [[$secondParent, 1], [$firstParent, 2]],

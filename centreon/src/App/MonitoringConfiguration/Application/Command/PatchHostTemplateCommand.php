@@ -71,7 +71,7 @@ final readonly class PatchHostTemplateCommand
         public NoValue|ListChange $linkedServiceTemplateIds = new NoValue(),
         public NoValue|ListChange $contactIds = new NoValue(),
         public NoValue|ListChange $contactGroupIds = new NoValue(),
-        public NoValue|HostTemplateMacroChanges $macros = new NoValue(),
+        public NoValue|MacroChanges $macros = new NoValue(),
     ) {
     }
 }

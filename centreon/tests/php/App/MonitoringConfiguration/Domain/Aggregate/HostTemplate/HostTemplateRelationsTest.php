@@ -32,7 +32,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateRelationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
@@ -49,10 +48,10 @@ final class HostTemplateRelationsTest extends TestCase
     {
         $template = $this->template();
 
-        $changed = $template->withRelations(new HostTemplateRelationsChange(
+        $changed = $template->with(
+            notifications: $template->notifications?->with(contactIds: new Collection([new NotificationContactId(31)], NotificationContactId::class)),
             parentTemplateIds: new Collection([new HostTemplateId(3)], HostTemplateId::class),
-            contactIds: new Collection([new NotificationContactId(31)], NotificationContactId::class),
-        ));
+        );
 
         self::assertSame([3], $this->values($changed->parentTemplateIds));
         self::assertSame([10], $this->values($changed->categoryIds));
@@ -61,23 +60,12 @@ final class HostTemplateRelationsTest extends TestCase
         self::assertSame(30, $changed->notifications?->interval);
     }
 
-    public function testContactsGivenToATemplateWithoutNotificationsGetTheDefaults(): void
-    {
-        $template = new HostTemplate(new HostTemplateId(7), new HostTemplateName('tpl'));
-
-        $changed = $template->withRelations(new HostTemplateRelationsChange(contactIds: new Collection([new NotificationContactId(31)], NotificationContactId::class)));
-
-        self::assertSame([31], $this->values($changed->notifications->contactIds ?? new Collection([], NotificationContactId::class)));
-        self::assertTrue($changed->hasSameLoggedConfigurationAs($template));
-        self::assertFalse($changed->hasSameContactsAs($template));
-    }
-
     public function testALockedTemplateRefusesRelationsAndMacros(): void
     {
         $template = new HostTemplate(new HostTemplateId(7), new HostTemplateName('tpl'), isLocked: true);
 
         try {
-            $template->withRelations(new HostTemplateRelationsChange());
+            $template->with(parentTemplateIds: new Collection([], HostTemplateId::class));
             self::fail('A locked template must refuse its relations.');
         } catch (HostTemplateLockedException) {
         }
@@ -98,10 +86,10 @@ final class HostTemplateRelationsTest extends TestCase
     {
         $template = $this->template();
 
-        $sameCategoriesReordered = $template->withRelations(new HostTemplateRelationsChange(categoryIds: new Collection([new HostCategoryId(10)], HostCategoryId::class)));
-        $parentsReordered = $template->withRelations(new HostTemplateRelationsChange(parentTemplateIds: new Collection([new HostTemplateId(2), new HostTemplateId(1)], HostTemplateId::class)));
-        $linkedReordered = $template->withRelations(new HostTemplateRelationsChange(linkedServiceTemplateIds: new Collection([new ServiceTemplateId(21), new ServiceTemplateId(20)], ServiceTemplateId::class)));
-        $categoriesChanged = $template->withRelations(new HostTemplateRelationsChange(categoryIds: new Collection([new HostCategoryId(11)], HostCategoryId::class)));
+        $sameCategoriesReordered = $template->with(categoryIds: new Collection([new HostCategoryId(10)], HostCategoryId::class));
+        $parentsReordered = $template->with(parentTemplateIds: new Collection([new HostTemplateId(2), new HostTemplateId(1)], HostTemplateId::class));
+        $linkedReordered = $template->with(linkedServiceTemplateIds: new Collection([new ServiceTemplateId(21), new ServiceTemplateId(20)], ServiceTemplateId::class));
+        $categoriesChanged = $template->with(categoryIds: new Collection([new HostCategoryId(11)], HostCategoryId::class));
 
         self::assertTrue($sameCategoriesReordered->hasSameRelationsAs($template));
         self::assertFalse($parentsReordered->hasSameRelationsAs($template));
@@ -113,7 +101,7 @@ final class HostTemplateRelationsTest extends TestCase
     {
         $template = $this->template();
 
-        $changed = $template->withRelations(new HostTemplateRelationsChange(contactGroupIds: new Collection([], ContactGroupId::class)));
+        $changed = $template->with(notifications: $template->notifications?->with(contactGroupIds: new Collection([], ContactGroupId::class)));
 
         self::assertFalse($changed->hasSameConfigurationAs($template));
         self::assertTrue($changed->hasSameLoggedConfigurationAs($template));

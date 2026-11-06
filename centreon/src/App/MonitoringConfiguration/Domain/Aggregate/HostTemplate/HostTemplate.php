@@ -197,31 +197,6 @@ final class HostTemplate extends AggregateRoot
     }
 
     /**
-     * The template with the relations the change gives it. The contacts and contact groups live in the
-     * notifications, created with their defaults when the template has none yet.
-     *
-     * @throws HostTemplateLockedException
-     */
-    public function withRelations(HostTemplateRelationsChange $relations): self
-    {
-        $notifications = new NoValue();
-        if (! $relations->contactIds instanceof NoValue || ! $relations->contactGroupIds instanceof NoValue) {
-            $current = $this->notifications ?? Notifications::default();
-            $notifications = $current->withContacts(
-                NoValue::resolve($relations->contactIds, $current->contactIds),
-                NoValue::resolve($relations->contactGroupIds, $current->contactGroupIds),
-            );
-        }
-
-        return $this->with(
-            notifications: $notifications,
-            parentTemplateIds: $relations->parentTemplateIds,
-            categoryIds: $relations->categoryIds,
-            linkedServiceTemplateIds: $relations->linkedServiceTemplateIds,
-        );
-    }
-
-    /**
      * @param list<HostMacro> $macros the template's own macros, replacing the current ones
      *
      * @throws HostTemplateLockedException

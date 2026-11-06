@@ -30,7 +30,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateRelationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
@@ -70,10 +69,8 @@ final readonly class HostTemplateRelationsUpdater
     ) {
     }
 
-    public function resolve(HostTemplate $template, PatchHostTemplateCommand $command): HostTemplateRelationsChange
+    public function applyTo(HostTemplate $template, PatchHostTemplateCommand $command): HostTemplate
     {
-        $notifications = $template->notifications ?? Notifications::default();
-
         $parentIds = $this->resolveList(
             $command->templateIds,
             $template->parentTemplateIds,
@@ -89,7 +86,7 @@ final readonly class HostTemplateRelationsUpdater
             $this->inheritance->assertNoLoop($template->id(), $parentIds, $this->hostTemplateRepository->findTemplateParentIds());
         }
 
-        return new HostTemplateRelationsChange(
+        $updated = $template->with(
             parentTemplateIds: $parentIds,
             categoryIds: $this->resolveScoped(
                 $command->categoryIds,
@@ -115,6 +112,24 @@ final readonly class HostTemplateRelationsUpdater
                     $this->serviceTemplateLicenseGuard->assertLicensed(new Collection($ids, ServiceTemplateId::class), $template->linkedServiceTemplateIds);
                 },
             ),
+        );
+
+        return $this->withContacts($updated, $command);
+    }
+
+    /**
+     * The contacts and contact groups live in the notifications, created with their defaults when the
+     * template has none yet.
+     */
+    private function withContacts(HostTemplate $template, PatchHostTemplateCommand $command): HostTemplate
+    {
+        if ($command->contactIds instanceof NoValue && $command->contactGroupIds instanceof NoValue) {
+            return $template;
+        }
+
+        $notifications = $template->notifications ?? Notifications::default();
+
+        return $template->with(notifications: $notifications->with(
             contactIds: $this->resolveScoped(
                 $command->contactIds,
                 $notifications->contactIds,
@@ -139,7 +154,7 @@ final readonly class HostTemplateRelationsUpdater
                     }
                 },
             ),
-        );
+        ));
     }
 
     /**

@@ -26,8 +26,8 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTempl
 use App\MonitoringConfiguration\Application\Command\CheckOptionsChanges;
 use App\MonitoringConfiguration\Application\Command\DataProcessingChanges;
 use App\MonitoringConfiguration\Application\Command\ExtendedInformationsChanges;
-use App\MonitoringConfiguration\Application\Command\HostTemplateMacroChanges;
 use App\MonitoringConfiguration\Application\Command\ListChange;
+use App\MonitoringConfiguration\Application\Command\MacroChanges;
 use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostTemplateCommand;
 use App\MonitoringConfiguration\Application\Command\SchedulingOptionsChanges;
@@ -118,16 +118,16 @@ final readonly class PatchHostTemplateCommandFactory
         );
     }
 
-    private function macroChanges(RequestPayload $sent, ?PatchHostTemplateCheckOptionsInput $data): NoValue|HostTemplateMacroChanges
+    private function macroChanges(RequestPayload $sent, ?PatchHostTemplateCheckOptionsInput $data): NoValue|MacroChanges
     {
         if (! $data instanceof PatchHostTemplateCheckOptionsInput) {
             return new NoValue();
         }
 
         return match (true) {
-            $sent->has('macros') => HostTemplateMacroChanges::replace(array_map($this->toMacroChange(...), array_values($data->macros))),
-            $sent->has('macros_to_upsert') => HostTemplateMacroChanges::upsert(array_map($this->toMacroChange(...), array_values($data->macrosToUpsert))),
-            $sent->has('macros_to_remove') => HostTemplateMacroChanges::remove(array_map(static fn (int $id): HostMacroId => new HostMacroId($id), array_values($data->macrosToRemove))),
+            $sent->has('macros') => MacroChanges::replace(array_map($this->toMacroChange(...), array_values($data->macros))),
+            $sent->has('macros_to_upsert') => MacroChanges::upsert(array_map($this->toMacroChange(...), array_values($data->macrosToUpsert))),
+            $sent->has('macros_to_remove') => MacroChanges::remove(array_map(static fn (int $id): HostMacroId => new HostMacroId($id), array_values($data->macrosToRemove))),
             default => new NoValue(),
         };
     }
