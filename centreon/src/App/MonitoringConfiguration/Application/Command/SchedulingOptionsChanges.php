@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;

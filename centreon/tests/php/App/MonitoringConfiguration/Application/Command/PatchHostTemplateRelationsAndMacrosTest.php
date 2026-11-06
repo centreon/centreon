@@ -581,7 +581,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->addTemplate(7, parentIds: [1]);
 
         $template = ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-            new HostTemplateMacroChange(new HostTemplateMacroName('pwd_copy'), null, true, 10, \App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum::Template),
+            new HostTemplateMacroChange(new HostTemplateMacroName('pwd_copy'), null, true, 10, \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
             new HostTemplateMacroChange(new HostTemplateMacroName('other'), 'x', true),
         ])));
 
@@ -607,7 +607,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
 
         try {
             ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-                new HostTemplateMacroChange(new HostTemplateMacroName('pwd_copy'), null, true, 10, \App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum::Template),
+                new HostTemplateMacroChange(new HostTemplateMacroName('pwd_copy'), null, true, 10, \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
             ])));
             self::fail('A vault failure must stop the update.');
         } catch (VaultWriteFailedException) {
@@ -625,7 +625,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
 
         try {
             ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-                new HostTemplateMacroChange(new HostTemplateMacroName('pwd_copy'), null, true, 10, \App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum::Template),
+                new HostTemplateMacroChange(new HostTemplateMacroName('pwd_copy'), null, true, 10, \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
             ])));
             self::fail('The save failure must reach the caller.');
         } catch (\RuntimeException $exception) {
