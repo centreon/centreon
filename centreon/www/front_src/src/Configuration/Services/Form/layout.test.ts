@@ -1,7 +1,11 @@
 import type { TFunction } from 'i18next';
 
-import { labelGeneralInformation } from '../translatedLabels';
-import { getPlacedBlockIds, placeBlocks } from './layout';
+import {
+  labelGeneralInformation,
+  labelMonitoringEngineSchedulingOptions,
+  labelServiceMonitoringProperties
+} from '../translatedLabels';
+import { getPlacedBlockIds, layout, placeBlocks } from './layout';
 import {
   getAvailableSections,
   getBlocks,
@@ -24,6 +28,18 @@ const contexts: Array<[name: string, context: SectionContext]> = [
 
 const getSectionLabels = (context: SectionContext): Array<string> =>
   placeBlocks({ blocks: getBlocks(context), t }).map(({ label }) => label);
+
+// The blocks one section places. A missing section fails here rather than
+// falling back to the whole layout.
+const getSectionBlockIds = (sectionLabel: string): Array<string> => {
+  const section = layout.find(({ label }) => label === sectionLabel);
+
+  if (!section) {
+    throw new Error(`No "${sectionLabel}" section in the layout`);
+  }
+
+  return getPlacedBlockIds(section.nodes);
+};
 
 describe('layout', () => {
   it('places every block once', () => {
@@ -55,17 +71,47 @@ describe('layout', () => {
   );
 
   it('opens on the general information', () => {
-    expect(getSectionLabels({ isCloudPlatform: false, t })).toEqual([
+    expect(getSectionLabels({ isCloudPlatform: false, t })[0]).toBe(
       labelGeneralInformation
-    ]);
-    expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
+    );
+    expect(getSectionLabels({ isCloudPlatform: true, t })[0]).toBe(
       labelGeneralInformation
-    ]);
+    );
   });
 
   it('has no general information in a mass change', () => {
     expect(
       getSectionLabels({ isCloudPlatform: false, isMassChange: true, t })
     ).not.toContain(labelGeneralInformation);
+  });
+
+  it('places the template in the service monitoring properties section', () => {
+    expect(getSectionBlockIds(labelServiceMonitoringProperties)).toContain(
+      'templates'
+    );
+  });
+
+  it('places the scheduling options in the monitoring engine section', () => {
+    expect(getSectionBlockIds(labelMonitoringEngineSchedulingOptions)).toEqual(
+      expect.arrayContaining([
+        'checkPeriodAndIntervals',
+        'activeAndPassiveChecks'
+      ])
+    );
+  });
+
+  it('keeps the scheduling numbers but no check buttons on a cloud platform', () => {
+    expect(Object.keys(getBlocks({ isCloudPlatform: true, t }))).toContain(
+      'checkPeriodAndIntervals'
+    );
+    expect(Object.keys(getBlocks({ isCloudPlatform: true, t }))).not.toContain(
+      'activeAndPassiveChecks'
+    );
+  });
+
+  it('has no template in a mass change', () => {
+    expect(
+      Object.keys(getBlocks({ isCloudPlatform: false, isMassChange: true, t }))
+    ).not.toContain('templates');
   });
 });

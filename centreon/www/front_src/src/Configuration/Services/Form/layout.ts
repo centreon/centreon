@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next';
 
+import { schedulingColumns } from '../../ResourceForm/grid';
 import {
   getPlacedBlockIds as getLayoutBlockIds,
   type LayoutNode,
@@ -7,13 +8,33 @@ import {
   type PlacedSection,
   placeBlocks as placeLayoutBlocks
 } from '../../ResourceForm/layout';
-import { labelGeneralInformation } from '../translatedLabels';
+import {
+  labelGeneralInformation,
+  labelMonitoringEngineSchedulingOptions,
+  labelSchedulingOptions,
+  labelServiceMonitoringProperties
+} from '../translatedLabels';
 import { type BlockId, type Blocks, serviceResource } from './sections';
 
 // The one place that says where each block is shown, as in the design. Every
 // block is placed exactly once (`layout.test.ts`).
 export const layout: Array<LayoutSection> = [
-  { label: labelGeneralInformation, nodes: ['basicInformation'] }
+  { label: labelGeneralInformation, nodes: ['basicInformation'] },
+  { label: labelServiceMonitoringProperties, nodes: ['templates'] },
+  {
+    label: labelMonitoringEngineSchedulingOptions,
+    nodes: [
+      {
+        // The check numbers, then the Yes / No / Default buttons, which a
+        // cloud platform leaves out.
+        className: schedulingColumns,
+        columnSeparator: true,
+        columns: ['checkPeriodAndIntervals', 'activeAndPassiveChecks'],
+        name: 'scheduling-options',
+        title: labelSchedulingOptions
+      }
+    ]
+  }
 ];
 
 // Every block the layout places, as often as it places it.

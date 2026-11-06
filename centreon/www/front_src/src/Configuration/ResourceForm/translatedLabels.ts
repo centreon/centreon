@@ -32,6 +32,7 @@ export const labelNormalCheckInterval = 'Check interval';
 export const labelRetryCheckInterval = 'Retry interval';
 export const labelActiveChecksEnabled = 'Enable active checks';
 export const labelPassiveChecksEnabled = 'Enable passive checks';
+export const labelIsVolatile = 'Is Volatile';
 
 // Yes / No / third state fields: the design words the third state per field.
 export const labelYes = 'Yes';

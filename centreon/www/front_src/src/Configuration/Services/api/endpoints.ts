@@ -17,6 +17,10 @@ export const serviceTemplatesEndpoint =
 // the host one.
 export const serviceFormHostsEndpoint = '/configuration/services/hosts';
 
+// The form's check period selector, granted by the service write right too.
+export const serviceFormTimePeriodsEndpoint =
+  '/configuration/services/timeperiods';
+
 export const getServiceEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/services/${id}`;
 
