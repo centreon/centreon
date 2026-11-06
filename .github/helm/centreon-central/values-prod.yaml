@@ -42,6 +42,9 @@ fpm:
   pdb:
     enabled: true
     minAvailable: 1
+  # Up to ~10k hosts (generation peak ~375 MB in one worker, pod ~690Mi).
+  # Larger configurations: raise both together, see "Sizing" in the README.
+  phpMemoryLimit: "512M"
   resources:
     requests: { cpu: 500m, memory: 512Mi }
     limits: { memory: 1Gi }
@@ -76,9 +79,12 @@ ingress:
       hosts: [CHANGE_ME]
 
 gorgoneCentral:
+  # Relaying the generated files to a poller costs ~2x their size and is not
+  # given back: OOMKilled at 512Mi from ~10k hosts on one poller (15 MB);
+  # 810Mi peak at 30k (44 MB). See "Sizing" in the README.
   resources:
     requests: { cpu: 200m, memory: 256Mi }
-    limits: { memory: 512Mi }
+    limits: { memory: 1Gi }
 
 configDelivery:
   # With traps the Job runs the install entrypoint first (Symfony cache

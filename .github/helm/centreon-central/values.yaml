@@ -255,6 +255,12 @@ fpm:
   terminationGracePeriodSeconds: 60
   # PHP date.timezone; empty = timezone above.
   phpTimezone: ""
+  # PHP memory_limit of each php-fpm worker, as a PHP ini value ("512M",
+  # "1536M"); empty = the image's 256M. The configuration generation runs in
+  # one worker and needs ~375 MB at 10k hosts, ~1 GB at 30k: see "Sizing" in
+  # the README, and keep resources.limits.memory above it (the pod holds the
+  # other workers too).
+  phpMemoryLimit: ""
   debug: false
   resources: {}
   autoscaling:
