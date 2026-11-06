@@ -1,4 +1,5 @@
 import Form from './HostTemplates.Form';
+import MonitoringEngine from './HostTemplates.Form.MonitoringEngine';
 import MonitoringProperties from './HostTemplates.Form.MonitoringProperties';
 import ParentTemplates from './HostTemplates.Form.ParentTemplates';
 import Relations from './HostTemplates.Form.Relations';
@@ -14,4 +15,5 @@ describe('Host templates configuration: ', () => {
   describe('Form: ', MonitoringProperties);
   describe('Form: ', ParentTemplates);
   describe('Form: ', Relations);
+  describe('Form: ', MonitoringEngine);
 });
