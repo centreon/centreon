@@ -26,8 +26,8 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
@@ -144,7 +144,7 @@ final class DbalHostTemplateRepositoryFindOneTest extends KernelTestCase
         self::assertSame('An alias', $template->alias?->value);
         self::assertTrue($template->isLocked);
         self::assertSame('public', $template->snmpCommunity?->value);
-        self::assertSame(HostTemplateSnmpVersionEnum::TwoC, $template->snmpVersion);
+        self::assertSame(SnmpVersionEnum::TwoC, $template->snmpVersion);
         self::assertSame($timezoneId, $template->timezoneId?->value);
         self::assertSame($severityId, $template->severityId?->value);
         self::assertSame([$firstParentId, $secondParentId], $this->ids($template->parentTemplateIds));
@@ -193,7 +193,7 @@ final class DbalHostTemplateRepositoryFindOneTest extends KernelTestCase
         $notifications = $template->notifications;
         self::assertNotNull($notifications);
         self::assertSame(TriStateEnum::True, $notifications->enabled);
-        self::assertSame([HostTemplateNotificationOptionEnum::Down, HostTemplateNotificationOptionEnum::Recovery], $notifications->options);
+        self::assertSame([NotificationOptionEnum::Down, NotificationOptionEnum::Recovery], $notifications->options);
         self::assertSame([30, 2, 4], [$notifications->interval, $notifications->firstDelay, $notifications->recoveryDelay]);
         self::assertSame($notificationPeriodId, $notifications->periodId?->value);
         self::assertSame([$firstContactId, $secondContactId], $this->ids($notifications->contactIds));
@@ -308,7 +308,7 @@ final class DbalHostTemplateRepositoryFindOneTest extends KernelTestCase
     {
         $id = $this->insertTemplate(['host_notification_options' => 'n,f,x']);
 
-        self::assertSame([HostTemplateNotificationOptionEnum::Flapping], $this->findOne($id)->notifications?->options);
+        self::assertSame([NotificationOptionEnum::Flapping], $this->findOne($id)->notifications?->options);
     }
 
     public function testAnInactiveTemplateIsFound(): void

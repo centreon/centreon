@@ -30,25 +30,25 @@ use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\ActivityLogging\Domain\Factory\HostTemplateActivityLogFactory;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -157,12 +157,12 @@ final class HostTemplateActivityLogFactoryTest extends TestCase
             new HostTemplateCheckOptions(
                 new CommandId(9),
                 ['-w', "80\n90"],
-                new Collection([new HostTemplateMacro(new HostTemplateMacroName('PORT'), '443', false)], HostTemplateMacro::class),
+                new Collection([new HostTemplateMacro(new HostMacroName('PORT'), '443', false)], HostTemplateMacro::class),
             ),
-            alias: new HostTemplateAlias('Generic'),
+            alias: new HostAlias('Generic'),
             parentTemplateIds: new Collection([new HostTemplateId(30)], HostTemplateId::class),
-            snmpCommunity: new HostTemplateSnmpCommunity('public'),
-            snmpVersion: HostTemplateSnmpVersionEnum::TwoC,
+            snmpCommunity: new SnmpCommunity('public'),
+            snmpVersion: SnmpVersionEnum::TwoC,
             timezoneId: new TimezoneId(4),
             severityId: new HostSeverityId(5),
             extendedInformations: new HostTemplateExtendedInformations(
@@ -195,7 +195,7 @@ final class HostTemplateActivityLogFactoryTest extends TestCase
                 enabled: TriStateEnum::True,
                 contactIds: new Collection([new NotificationContactId(20), new NotificationContactId(21)], NotificationContactId::class),
                 contactGroupIds: new Collection([new ContactGroupId(22)], ContactGroupId::class),
-                options: [HostTemplateNotificationOptionEnum::Down, HostTemplateNotificationOptionEnum::Recovery],
+                options: [NotificationOptionEnum::Down, NotificationOptionEnum::Recovery],
                 interval: 30,
                 periodId: new TimePeriodId(10),
                 firstDelay: 2,

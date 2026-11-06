@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
@@ -72,7 +72,7 @@ final class DbalHostTemplateRepositoryUpdateTest extends KernelTestCase
 
         $template = $template->withChange(new HostTemplateChange(
             name: new HostTemplateName($name),
-            alias: new HostTemplateAlias('New alias'),
+            alias: new HostAlias('New alias'),
             extendedInformations: new HostTemplateExtendedInformationsChange(note: ' a note ', comment: 'A comment'),
             schedulingOptions: new HostTemplateSchedulingOptionsChange(maxCheckAttempts: 4),
         ));

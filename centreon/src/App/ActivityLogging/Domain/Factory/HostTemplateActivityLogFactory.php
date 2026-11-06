@@ -34,10 +34,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
@@ -154,13 +154,13 @@ final readonly class HostTemplateActivityLogFactory implements ActivityLogFactor
         return [
             'host_notifications_enabled' => $this->triState($notifications->enabled),
             'host_notification_options' => implode(',', array_map(
-                static fn (HostTemplateNotificationOptionEnum $option): string => match ($option) {
-                    HostTemplateNotificationOptionEnum::Down => 'd',
-                    HostTemplateNotificationOptionEnum::Unreachable => 'u',
-                    HostTemplateNotificationOptionEnum::Recovery => 'r',
-                    HostTemplateNotificationOptionEnum::Flapping => 'f',
-                    HostTemplateNotificationOptionEnum::DowntimeScheduled => 's',
-                    HostTemplateNotificationOptionEnum::None => 'n',
+                static fn (NotificationOptionEnum $option): string => match ($option) {
+                    NotificationOptionEnum::Down => 'd',
+                    NotificationOptionEnum::Unreachable => 'u',
+                    NotificationOptionEnum::Recovery => 'r',
+                    NotificationOptionEnum::Flapping => 'f',
+                    NotificationOptionEnum::DowntimeScheduled => 's',
+                    NotificationOptionEnum::None => 'n',
                 },
                 $notifications->options,
             )),

@@ -31,14 +31,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroNotFoundException;
@@ -78,9 +78,9 @@ final class HostTemplateMacroChangesResolverTest extends TestCase
 
         $this->inherited = InheritedHostMacros::resolve([
             new HostTemplate(new HostTemplateId(1), new HostTemplateName('tpl'), new HostTemplateCheckOptions(macros: new Collection([
-                new HostTemplateMacro(new HostTemplateMacroName('tplval'), 'inherited', isPassword: false, id: new HostTemplateMacroId(11)),
-                new HostTemplateMacro(new HostTemplateMacroName('tplpwd'), self::TEMPLATE_SECRET, isPassword: true, id: new HostTemplateMacroId(12)),
-                new HostTemplateMacro(new HostTemplateMacroName('shared'), 'x', isPassword: false, id: new HostTemplateMacroId(13)),
+                new HostTemplateMacro(new HostMacroName('tplval'), 'inherited', isPassword: false, id: new HostMacroId(11)),
+                new HostTemplateMacro(new HostMacroName('tplpwd'), self::TEMPLATE_SECRET, isPassword: true, id: new HostMacroId(12)),
+                new HostTemplateMacro(new HostMacroName('shared'), 'x', isPassword: false, id: new HostMacroId(13)),
             ], HostTemplateMacro::class))),
         ], [$command]);
     }
@@ -444,12 +444,12 @@ final class HostTemplateMacroChangesResolverTest extends TestCase
         ?int $id = null,
         ?HostMacroParentEnum $parent = null,
     ): HostTemplateMacroChange {
-        return new HostTemplateMacroChange(new HostTemplateMacroName($name), $value, $isPassword, $id, $parent);
+        return new HostTemplateMacroChange(new HostMacroName($name), $value, $isPassword, $id, $parent);
     }
 
     private function direct(int $id, string $name, string $value, bool $isPassword = false): HostTemplateMacro
     {
-        return new HostTemplateMacro(new HostTemplateMacroName($name), $value, $isPassword, new HostTemplateMacroId($id));
+        return new HostTemplateMacro(new HostMacroName($name), $value, $isPassword, new HostMacroId($id));
     }
 
     /**

@@ -25,8 +25,8 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTempl
 
 use App\MonitoringConfiguration\Application\Command\PatchHostTemplateCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptionsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessingChange;
@@ -35,8 +35,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateDataProcessingInput;
@@ -63,8 +63,8 @@ final readonly class PatchHostTemplateCommandFactory
             actor: $actor,
             change: new HostTemplateChange(
                 name: $this->provided($payload, 'name', fn (): HostTemplateName => HostTemplateName::fromUserInput($this->required($input->name))),
-                alias: $this->provided($payload, 'alias', fn (): HostTemplateAlias => new HostTemplateAlias($this->required($input->alias))),
-                snmpVersion: $this->provided($payload, 'snmp_version', static fn (): ?HostTemplateSnmpVersionEnum => $input->snmpVersion),
+                alias: $this->provided($payload, 'alias', fn (): HostAlias => new HostAlias($this->required($input->alias))),
+                snmpVersion: $this->provided($payload, 'snmp_version', static fn (): ?SnmpVersionEnum => $input->snmpVersion),
                 timezoneId: $this->provided($payload, 'timezone_id', static fn (): ?TimezoneId => $input->timezoneId !== null ? new TimezoneId($input->timezoneId) : null),
                 severityId: $this->provided($payload, 'severity_id', static fn (): ?HostSeverityId => $input->severityId !== null ? new HostSeverityId($input->severityId) : null),
                 checkOptions: $this->provided($payload, 'check_options', fn (): HostTemplateCheckOptionsChange => $this->checkOptions(

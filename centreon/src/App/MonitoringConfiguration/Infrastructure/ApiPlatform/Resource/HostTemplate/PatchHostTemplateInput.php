@@ -24,10 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
 
 use ApiPlatform\Metadata\ApiProperty;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostSeverity;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimezone;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
@@ -63,16 +63,16 @@ final readonly class PatchHostTemplateInput
         #[NotNullWhenProvided]
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
-            new Assert\Length(max: HostTemplateAlias::MAX_LENGTH, normalizer: 'trim'),
+            new Assert\Length(max: HostAlias::MAX_LENGTH, normalizer: 'trim'),
             new Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false),
         ])]
         public ?string $alias = null,
 
-        public ?HostTemplateSnmpVersionEnum $snmpVersion = null,
+        public ?SnmpVersionEnum $snmpVersion = null,
 
         #[ApiProperty(description: 'Write-only, never returned. Left out keeps the community, null removes it.')]
         #[WhenVault(forVault: false, constraints: [
-            new Assert\Length(max: HostTemplateSnmpCommunity::MAX_LENGTH, normalizer: 'trim'),
+            new Assert\Length(max: SnmpCommunity::MAX_LENGTH, normalizer: 'trim'),
         ])]
         #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false)]
         #[Sensitive]

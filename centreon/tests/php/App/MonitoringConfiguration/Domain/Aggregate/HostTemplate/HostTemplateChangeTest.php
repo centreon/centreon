@@ -25,9 +25,9 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptionsChange;
@@ -37,14 +37,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtend
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
@@ -69,7 +69,7 @@ final class HostTemplateChangeTest extends TestCase
     {
         $template = $this->template(schedulingOptions: new HostTemplateSchedulingOptions(maxCheckAttempts: 0));
 
-        $template = $template->withChange(new HostTemplateChange(alias: new HostTemplateAlias('New alias')));
+        $template = $template->withChange(new HostTemplateChange(alias: new HostAlias('New alias')));
 
         self::assertSame('New alias', $template->alias?->value);
         self::assertSame(0, $template->schedulingOptions->maxCheckAttempts);
@@ -192,8 +192,8 @@ final class HostTemplateChangeTest extends TestCase
 
         $changed = $template->withChange(new HostTemplateChange(
             name: new HostTemplateName('tpl'),
-            alias: new HostTemplateAlias('Alias'),
-            snmpVersion: HostTemplateSnmpVersionEnum::TwoC,
+            alias: new HostAlias('Alias'),
+            snmpVersion: SnmpVersionEnum::TwoC,
             extendedInformations: new HostTemplateExtendedInformationsChange(note: ' kept as stored '),
             notifications: new HostTemplateNotificationsChange(enabled: TriStateEnum::True, interval: 30),
         ));
@@ -221,11 +221,11 @@ final class HostTemplateChangeTest extends TestCase
     {
         yield 'name' => [static fn (): HostTemplateChange => new HostTemplateChange(name: new HostTemplateName('other'))];
 
-        yield 'alias' => [static fn (): HostTemplateChange => new HostTemplateChange(alias: new HostTemplateAlias('Other'))];
+        yield 'alias' => [static fn (): HostTemplateChange => new HostTemplateChange(alias: new HostAlias('Other'))];
 
-        yield 'SNMP version' => [static fn (): HostTemplateChange => new HostTemplateChange(snmpVersion: HostTemplateSnmpVersionEnum::Three)];
+        yield 'SNMP version' => [static fn (): HostTemplateChange => new HostTemplateChange(snmpVersion: SnmpVersionEnum::Three)];
 
-        yield 'SNMP community' => [static fn (): HostTemplateChange => new HostTemplateChange(snmpCommunity: new HostTemplateSnmpCommunity('other'))];
+        yield 'SNMP community' => [static fn (): HostTemplateChange => new HostTemplateChange(snmpCommunity: new SnmpCommunity('other'))];
 
         yield 'timezone' => [static fn (): HostTemplateChange => new HostTemplateChange(timezoneId: new TimezoneId(9))];
 
@@ -285,7 +285,7 @@ final class HostTemplateChangeTest extends TestCase
 
     public function testTheVaultEntryIsReleasedOnlyWhenNoSecretReferencesItAnyMore(): void
     {
-        $vaulted = new HostTemplateSnmpCommunity('secret::vault::monitoring/hosts/uuid-1::_HOSTSNMPCOMMUNITY');
+        $vaulted = new SnmpCommunity('secret::vault::monitoring/hosts/uuid-1::_HOSTSNMPCOMMUNITY');
         $before = $this->template(snmpCommunity: $vaulted);
         $kept = $before->withChange(new HostTemplateChange());
         $cleared = $before->withChange(new HostTemplateChange(snmpCommunity: null));
@@ -298,21 +298,21 @@ final class HostTemplateChangeTest extends TestCase
         ?HostTemplateCheckOptions $checkOptions = null,
         ?HostTemplateExtendedInformations $extendedInformations = null,
         ?HostTemplateSchedulingOptions $schedulingOptions = null,
-        ?HostTemplateSnmpCommunity $snmpCommunity = null,
+        ?SnmpCommunity $snmpCommunity = null,
     ): HostTemplate {
         return new HostTemplate(
             new HostTemplateId(1),
             new HostTemplateName('tpl'),
             $checkOptions ?? new HostTemplateCheckOptions(new CommandId(5)),
-            alias: new HostTemplateAlias('Alias'),
-            snmpCommunity: $snmpCommunity ?? new HostTemplateSnmpCommunity('public'),
-            snmpVersion: HostTemplateSnmpVersionEnum::TwoC,
+            alias: new HostAlias('Alias'),
+            snmpCommunity: $snmpCommunity ?? new SnmpCommunity('public'),
+            snmpVersion: SnmpVersionEnum::TwoC,
             timezoneId: new TimezoneId(4),
             severityId: new HostSeverityId(8),
             extendedInformations: $extendedInformations ?? new HostTemplateExtendedInformations(note: ' kept as stored '),
             schedulingOptions: $schedulingOptions ?? new HostTemplateSchedulingOptions(checkTimeperiodId: new TimePeriodId(2), maxCheckAttempts: 3),
             dataProcessing: new HostTemplateDataProcessing(acknowledgmentTimeout: 15),
-            notifications: new HostTemplateNotifications(enabled: TriStateEnum::True, options: [HostTemplateNotificationOptionEnum::Down], interval: 30),
+            notifications: new HostTemplateNotifications(enabled: TriStateEnum::True, options: [NotificationOptionEnum::Down], interval: 30),
         );
     }
 }

@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -37,7 +37,7 @@ final readonly class HostTemplateMacroInput
         // The short name: the stored `$_HOST<NAME>$` must fit its column.
         #[Assert\Sequentially([
             new Assert\NotBlank(normalizer: 'trim'),
-            new Assert\Length(max: HostTemplateMacroName::MAX_STORAGE_LENGTH - 7, normalizer: 'trim'),
+            new Assert\Length(max: HostMacroName::MAX_STORAGE_LENGTH - 7, normalizer: 'trim'),
         ])]
         public string $name,
 

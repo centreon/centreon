@@ -23,7 +23,10 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Shared\Domain\NoValue;
 
@@ -34,9 +37,9 @@ final readonly class HostTemplateChange
 {
     public function __construct(
         public NoValue|HostTemplateName $name = new NoValue(),
-        public NoValue|HostTemplateAlias $alias = new NoValue(),
-        public NoValue|HostTemplateSnmpVersionEnum|null $snmpVersion = new NoValue(),
-        public NoValue|HostTemplateSnmpCommunity|null $snmpCommunity = new NoValue(),
+        public NoValue|HostAlias $alias = new NoValue(),
+        public NoValue|SnmpVersionEnum|null $snmpVersion = new NoValue(),
+        public NoValue|SnmpCommunity|null $snmpCommunity = new NoValue(),
         public NoValue|TimezoneId|null $timezoneId = new NoValue(),
         public NoValue|HostSeverityId|null $severityId = new NoValue(),
         public NoValue|HostTemplateCheckOptionsChange $checkOptions = new NoValue(),
@@ -47,7 +50,7 @@ final readonly class HostTemplateChange
     ) {
     }
 
-    public function withSnmpCommunity(NoValue|HostTemplateSnmpCommunity|null $snmpCommunity): self
+    public function withSnmpCommunity(NoValue|SnmpCommunity|null $snmpCommunity): self
     {
         return new self(
             $this->name,

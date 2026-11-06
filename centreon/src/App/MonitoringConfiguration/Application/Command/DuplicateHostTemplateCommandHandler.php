@@ -26,7 +26,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateDuplicated;
 use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostTemplateNameTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
@@ -91,7 +91,7 @@ final readonly class DuplicateHostTemplateCommandHandler
     /**
      * Re-mints the vaulted secrets under a new UUID so the copy does not share the source's entry.
      *
-     * @return array{0: ?HostTemplateSnmpCommunity, 1: Collection<HostTemplateMacro>}
+     * @return array{0: ?SnmpCommunity, 1: Collection<HostTemplateMacro>}
      */
     private function duplicateSecrets(HostTemplate $source): array
     {
@@ -107,7 +107,7 @@ final readonly class DuplicateHostTemplateCommandHandler
 
         $credentials = VaultCredentials::empty();
         $sourceSnmp = $source->snmpCommunity;
-        if ($sourceSnmp instanceof HostTemplateSnmpCommunity && $this->vault->isVaultPath($sourceSnmp->value)) {
+        if ($sourceSnmp instanceof SnmpCommunity && $this->vault->isVaultPath($sourceSnmp->value)) {
             $credentials = $credentials->with(VaultKeyEnum::HostSnmpCommunity, $sourceSnmp->value);
         }
 
@@ -128,7 +128,7 @@ final readonly class DuplicateHostTemplateCommandHandler
 
         $snmpKey = VaultKeyEnum::HostSnmpCommunity->value;
         $snmpCommunity = isset($newReferences[$snmpKey])
-            ? new HostTemplateSnmpCommunity($newReferences[$snmpKey])
+            ? new SnmpCommunity($newReferences[$snmpKey])
             : $source->snmpCommunity;
 
         $macros = array_map(

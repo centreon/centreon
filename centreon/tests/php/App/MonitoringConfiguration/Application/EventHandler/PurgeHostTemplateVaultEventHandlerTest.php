@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Application\EventHandler\PurgeHostTemplateVaultE
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\VaultPurgeFailedException;
 use App\Shared\Application\Vault\VaultCredentialWriter;
@@ -63,7 +63,7 @@ final class PurgeHostTemplateVaultEventHandlerTest extends TestCase
     {
         $this->vault->extractedUuids[self::VAULTED_SNMP] = 'uuid-1';
 
-        ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new HostTemplateSnmpCommunity(self::VAULTED_SNMP))));
+        ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new SnmpCommunity(self::VAULTED_SNMP))));
 
         self::assertSame([['customPath' => 'monitoring/hosts', 'uuid' => 'uuid-1']], $this->vault->deleteCalls);
     }
@@ -75,7 +75,7 @@ final class PurgeHostTemplateVaultEventHandlerTest extends TestCase
 
         $this->expectException(VaultPurgeFailedException::class);
 
-        ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new HostTemplateSnmpCommunity(self::VAULTED_SNMP))));
+        ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new SnmpCommunity(self::VAULTED_SNMP))));
     }
 
     public function testABestEffortPurgeThatFailsIsOnlyLogged(): void
@@ -83,7 +83,7 @@ final class PurgeHostTemplateVaultEventHandlerTest extends TestCase
         $this->vault->extractedUuids[self::VAULTED_SNMP] = 'uuid-1';
         $this->vault->deleteThrows = true;
 
-        ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new HostTemplateSnmpCommunity(self::VAULTED_SNMP)), bestEffort: true));
+        ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new SnmpCommunity(self::VAULTED_SNMP)), bestEffort: true));
 
         self::assertCount(1, $this->logger->warningMessages);
     }
@@ -92,12 +92,12 @@ final class PurgeHostTemplateVaultEventHandlerTest extends TestCase
     {
         $this->vault->vaultEnabled = false;
 
-        ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new HostTemplateSnmpCommunity(self::VAULTED_SNMP))));
+        ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new SnmpCommunity(self::VAULTED_SNMP))));
 
         self::assertSame([], $this->vault->deleteCalls);
     }
 
-    private function hostTemplate(?HostTemplateSnmpCommunity $snmpCommunity): HostTemplate
+    private function hostTemplate(?SnmpCommunity $snmpCommunity): HostTemplate
     {
         return new HostTemplate(new HostTemplateId(1), new HostTemplateName('generic'), snmpCommunity: $snmpCommunity);
     }
