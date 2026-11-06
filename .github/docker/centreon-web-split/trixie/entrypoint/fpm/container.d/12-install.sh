@@ -26,6 +26,9 @@ fi
 
 : "${MYSQL_HOST:?RUN_INSTALL=true requires MYSQL_HOST}"
 : "${MYSQL_ROOT_PASSWORD:?RUN_INSTALL=true requires MYSQL_ROOT_PASSWORD}"
+# MON-214282: non-standard DB port support, same optional/defaulted style as
+# MYSQL_HOST. Exported: the inline PHP blocks below read it with getenv().
+export MYSQL_PORT="${MYSQL_PORT:-3306}"
 
 export MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
 # INSTALL_DB_STEPS=false: per-container steps only (config files, APP_SECRET,
@@ -66,12 +69,13 @@ fi
 # wait until the server answers; an "Access denied" also means it is up, and
 # the install then fails on the real query with a clear error.
 echo "Waiting for DB server to be ready..."
-until out=$(mysql -h"${MYSQL_HOST}" -uroot -p"${MYSQL_ROOT_PASSWORD}" --connect-timeout=5 -e 'SELECT 1' 2>&1) \
+until out=$(mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot -p"${MYSQL_ROOT_PASSWORD}" --connect-timeout=5 -e 'SELECT 1' 2>&1) \
   || printf '%s' "$out" | grep -q 'Access denied'; do
   sleep 1
 done
 
 sed -i "s/localhost/${MYSQL_HOST}/g" /usr/share/centreon/www/install/tmp/database.json
+sed -i "s/\"port\": \"[^\"]*\"/\"port\": \"${MYSQL_PORT}\"/" /usr/share/centreon/www/install/tmp/database.json
 sed -i "s/\"db_configuration\": \"[^\"]*\"/\"db_configuration\": \"${MYSQL_DB_CONFIGURATION}\"/" /usr/share/centreon/www/install/tmp/database.json
 sed -i "s/\"db_storage\": \"[^\"]*\"/\"db_storage\": \"${MYSQL_DB_STORAGE}\"/" /usr/share/centreon/www/install/tmp/database.json
 # The install's PHP steps (installConfigurationDb, createDbUser, insertBaseConf
@@ -157,7 +161,7 @@ if [ "$INSTALL_DB_STEPS" != "true" ]; then
   echo "INSTALL_DB_STEPS=false — skipping database install/upgrade steps."
   ALREADY_INSTALLED="skip"
 else
-  ALREADY_INSTALLED=$(mysql -N -s -h"${MYSQL_HOST}" -uroot -e \
+  ALREADY_INSTALLED=$(mysql -N -s -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot -e \
     "SELECT count(*) from information_schema.tables WHERE table_schema='${MYSQL_DB_CONFIGURATION}' and table_name='nagios_server'")
 fi
 
@@ -199,7 +203,7 @@ else
 
   if [ "${ADMIN_PASSWORD_EXPIRED:-false}" = "true" ]; then
     echo "Marking admin's password as expired (forces a change on next login)..."
-    mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+    mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
       UPDATE contact_password SET creation_date = UNIX_TIMESTAMP(NOW()) - 15552000 - 86400
       WHERE contact_id = (SELECT contact_id FROM contact WHERE contact_alias = 'admin')"
   fi
@@ -253,7 +257,7 @@ DB_JSON=/usr/share/centreon/www/install/tmp/database.json
 DB_USER=$(php -r 'echo json_decode(file_get_contents($argv[1]), true)["db_user"];' "$DB_JSON")
 DB_PASSWORD=$(php -r 'echo json_decode(file_get_contents($argv[1]), true)["db_password"];' "$DB_JSON")
 echo "Granting the Centreon DB user from any host..."
-mysql -h"${MYSQL_HOST}" -uroot -e "
+mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot -e "
   CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
   GRANT ALL ON *.* TO '${DB_USER}'@'%' WITH GRANT OPTION"
 
@@ -276,7 +280,7 @@ if [ -n "${GORGONE_API_PASSWORD:-}" ]; then
       $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = getenv("DATABASE_VERIFY_SERVER_CERT") === "1";
     }
     $pdo = new PDO(
-      "mysql:host=" . getenv("MYSQL_HOST") . ";dbname=" . getenv("MYSQL_DB_CONFIGURATION"),
+      "mysql:host=" . getenv("MYSQL_HOST") . ";port=" . getenv("MYSQL_PORT") . ";dbname=" . getenv("MYSQL_DB_CONFIGURATION"),
       "root", getenv("MYSQL_ROOT_PASSWORD"),
       $options
     );
@@ -315,7 +319,7 @@ fi
 # after insertBaseConf.php on a fresh install: it does, this block runs after
 # the install branch.
 echo "Marking Central as a containerized poller (poller_type=docker, pullwss)..."
-mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
   UPDATE nagios_server
      SET localhost = '1', poller_type = 'docker',
          gorgone_communication_type = '4', gorgone_port = '8087'
@@ -325,11 +329,13 @@ mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
 # triggerGorgoneNodesSyncIfPullwss() (configServers/DB-Func.php) uses it to
 # tell gorgone-central to resync its nodes whenever a poller is saved.
 echo "Pointing gorgone_api_address at gorgone-central..."
-mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e \
+mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e \
   "UPDATE options SET value = 'gorgone-central' WHERE \`key\` = 'gorgone_api_address'"
 
 # Broker configs of Central:
-# - master's unified_sql db_host: a migrated database keeps the old DB host.
+# - master's unified_sql db_host/db_port: a migrated database keeps the old
+#   DB host, and a port change on an existing release only re-runs this
+#   install (never a fresh insertBaseConf), so both need updating here.
 # - cbmod's output host ships localhost (co-located broker on a VM).
 # - RRD: merge central-rrd-master into the master (a type=rrd output writing
 #   /var/lib/centreon/{metrics,status} directly) instead of the default
@@ -338,8 +344,8 @@ mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e \
 #   rrd-master config only if present. Field list taken from a working,
 #   UI-created RRD output (blockId is UI bookkeeping, excluded from the
 #   generated JSON).
-echo "Adapting Central's broker configuration (db_host, cbmod output, RRD merge)..."
-mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+echo "Adapting Central's broker configuration (db_host/db_port, cbmod output, RRD merge)..."
+mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
   SET @master = (
     SELECT b.config_id FROM cfg_centreonbroker b
       JOIN cfg_centreonbroker_info i ON i.config_id = b.config_id
@@ -359,6 +365,12 @@ mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
 
   UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}'
    WHERE config_id = @master AND config_key = 'db_host';
+  -- MON-214282: same idempotent treatment as db_host just above — a port
+  -- change on an existing release only re-runs this install, never a fresh
+  -- insertBaseConf, so db_port would otherwise stay stuck on the DB's
+  -- original value (3306 on a fresh install).
+  UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_PORT}'
+   WHERE config_id = @master AND config_key = 'db_port';
   UPDATE cfg_centreonbroker_info SET config_value = 'centreon-broker'
    WHERE config_id = @module AND config_group = 'output' AND config_key = 'host';
   -- cbmod's cache_directory (where it saves its in-memory queue on a clean
@@ -433,7 +445,7 @@ else
   RRD_CACHED_VALUE=""
   RRD_HOST_VALUE=""
 fi
-mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
   SET @master = (
     SELECT b.config_id FROM cfg_centreonbroker b
       JOIN cfg_centreonbroker_info i ON i.config_id = b.config_id
@@ -464,7 +476,7 @@ mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
 # in the UI is kept. Engine never rotates it: the generator does not write
 # max_log_file_size, which stays 0 (a rotation would rename /dev/stdout).
 echo "Sending Central's engine log to stdout..."
-mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
   UPDATE cfg_nagios SET log_file = '/dev/stdout'
    WHERE nagios_server_id = ${CENTRAL_ID}
      AND log_file = '/var/log/centreon-engine/centengine.log'"
@@ -488,7 +500,7 @@ chown www-data:www-data /etc/centreon-engine/engine-context.json
 
 if [ "$INSTALL_DB_STEPS" = "true" ]; then
   echo "Disabling statistics collection..."
-  mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e \
+  mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e \
     "DELETE FROM options WHERE \`key\` = 'send_statistics'; INSERT INTO options (\`key\`, \`value\`) VALUES ('send_statistics', '0')"
 fi
 
