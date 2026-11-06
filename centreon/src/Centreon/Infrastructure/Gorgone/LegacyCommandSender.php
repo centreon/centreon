@@ -91,8 +91,8 @@ class LegacyCommandSender
 
     private HttpClientInterface $client;
 
-    /** @var array<int, array{containerized: bool, local: bool}> */
-    private array $pollersById = [];
+    /** @var array<int, bool> */
+    private array $isContainerizedByPollerId = [];
 
     public function __construct(
         private readonly ConfigurationLoaderApiInterface $configuration,
@@ -118,7 +118,19 @@ class LegacyCommandSender
      */
     public function isContainerized(int|string $pollerId): bool
     {
-        return is_numeric($pollerId) && $this->getPoller((int) $pollerId)['containerized'];
+        if (! is_numeric($pollerId)) {
+            return false;
+        }
+        $pollerId = (int) $pollerId;
+        if (! isset($this->isContainerizedByPollerId[$pollerId])) {
+            $pollerType = $this->connection->fetchOne(
+                'SELECT poller_type FROM nagios_server WHERE id = :pollerId',
+                QueryParameters::create([QueryParameter::int('pollerId', $pollerId)])
+            );
+            $this->isContainerizedByPollerId[$pollerId] = $pollerType === self::POLLER_TYPE_DOCKER;
+        }
+
+        return $this->isContainerizedByPollerId[$pollerId];
     }
 
     /**
@@ -231,25 +243,6 @@ class LegacyCommandSender
     }
 
     /**
-     * @return array{containerized: bool, local: bool}
-     */
-    private function getPoller(int $pollerId): array
-    {
-        if (! isset($this->pollersById[$pollerId])) {
-            $poller = $this->connection->fetchAssociative(
-                'SELECT poller_type, localhost FROM nagios_server WHERE id = :pollerId',
-                QueryParameters::create([QueryParameter::int('pollerId', $pollerId)])
-            );
-            $this->pollersById[$pollerId] = [
-                'containerized' => is_array($poller) && $poller['poller_type'] === self::POLLER_TYPE_DOCKER,
-                'local' => is_array($poller) && (string) $poller['localhost'] === '1',
-            ];
-        }
-
-        return $this->pollersById[$pollerId];
-    }
-
-    /**
      * The export directory contains sub-directories (media...): names are paths relative to the directory.
      *
      * @throws LegacyCommandException
@@ -322,16 +315,12 @@ class LegacyCommandSender
 
     /**
      * Same rule as the config-delivery script of the container images: at least one ping answered.
+     * Every containerized poller is a proxied (pullwss) node, the Central poller (localhost = 1) included.
      *
      * @throws LegacyCommandException
      */
     private function assertNodeConnected(int $pollerId): void
     {
-        // The central's own engine is driven by its local Gorgone, it is not a proxied node
-        if ($this->getPoller($pollerId)['local']) {
-            return;
-        }
-
         [, $response] = $this->callApi('GET', 'internal/constatus');
         $node = is_array($response) && is_array($response['data'] ?? null)
             ? ($response['data'][(string) $pollerId] ?? null)

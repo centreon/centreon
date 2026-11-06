@@ -48,7 +48,7 @@ class LegacyCommandSenderTest extends TestCase
 
     public function testDeliveryToDisconnectedNodeFailsWithoutSendingAnything(): void
     {
-        $sender = $this->createSender(['poller_type' => 'docker', 'localhost' => '0'], [
+        $sender = $this->createSender([
             'internal/constatus' => ['data' => ['2' => ['ping_ok' => 0, 'last_ping_recv' => 0]]],
         ]);
 
@@ -63,7 +63,7 @@ class LegacyCommandSenderTest extends TestCase
 
     public function testDeliveryFailsOnFailureLoggedUnderTheToken(): void
     {
-        $sender = $this->createSender(['poller_type' => 'docker', 'localhost' => '0'], [
+        $sender = $this->createSender([
             'internal/constatus' => ['data' => ['2' => ['ping_ok' => 3, 'last_ping_recv' => 1700000000]]],
             'log/' . self::TOKEN => ['data' => [
                 ['code' => 0, 'data' => '{"message":"action centreoncommand proceed"}'],
@@ -78,7 +78,7 @@ class LegacyCommandSenderTest extends TestCase
 
     public function testDeliverySucceedsOnlyOnTheFinalResult(): void
     {
-        $sender = $this->createSender(['poller_type' => 'docker', 'localhost' => '0'], [
+        $sender = $this->createSender([
             'internal/constatus' => ['data' => ['2' => ['ping_ok' => 3, 'last_ping_recv' => 1700000000]]],
             'log/' . self::TOKEN => ['data' => [
                 ['code' => 0, 'data' => '{"message":"action centreoncommand proceed"}'],
@@ -98,7 +98,7 @@ class LegacyCommandSenderTest extends TestCase
     public function testDeliveryFailsWithoutFinalResultWithinTheTimeout(): void
     {
         putenv('CENTREON_GORGONE_RESULT_TIMEOUT=1');
-        $sender = $this->createSender(['poller_type' => 'docker', 'localhost' => '0'], [
+        $sender = $this->createSender([
             'internal/constatus' => ['data' => ['2' => ['ping_ok' => 3, 'last_ping_recv' => 1700000000]]],
             'log/' . self::TOKEN => ['data' => [
                 ['code' => 2, 'data' => '{"message":"process copy finished"}'],
@@ -110,31 +110,35 @@ class LegacyCommandSenderTest extends TestCase
         $sender->sendCommand('RELOAD', 2);
     }
 
-    public function testCentralDeliverySkipsTheConnectionCheck(): void
+    public function testContainerizedCentralIsCheckedLikeAnyOtherNode(): void
     {
-        $sender = $this->createSender(['poller_type' => 'docker', 'localhost' => '1'], [
-            'log/' . self::TOKEN => ['data' => [
-                ['code' => 2, 'data' => ['message' => 'done', 'legacycmd_final' => 1]],
-            ]],
+        // The Central poller (localhost = 1, poller_type 'docker') is a pullwss node too
+        $sender = $this->createSender([
+            'internal/constatus' => ['data' => ['2' => ['ping_ok' => 3, 'last_ping_recv' => 1700000000]]],
         ]);
 
-        $this->assertSame(self::TOKEN, $sender->sendCommand('RELOAD', 1));
-        $this->assertSame(['POST centreon/legacycmd/command', 'GET log/' . self::TOKEN], $this->requests);
+        $this->expectException(LegacyCommandException::class);
+        $this->expectExceptionMessage('Gorgone node 1 is not connected');
+        try {
+            $sender->sendConfigurationFiles(1);
+        } finally {
+            $this->assertSame(['GET internal/constatus'], $this->requests);
+        }
     }
 
     public function testExternalCommandIsNotTracked(): void
     {
-        $sender = $this->createSender(['poller_type' => 'docker', 'localhost' => '0'], []);
+        $sender = $this->createSender([]);
 
         $this->assertSame(self::TOKEN, $sender->sendLines('EXTERNALCMD:2:[1700000000] SCHEDULE_FORCED_HOST_CHECK;h;1'));
         $this->assertSame(['POST centreon/legacycmd/command'], $this->requests);
     }
 
     /**
-     * @param array<string, string> $poller nagios_server row of every poller
      * @param array<string, array<string, mixed>> $getResponses JSON answered to each GET, by API path
+     * @param string $pollerType poller_type of every poller
      */
-    private function createSender(array $poller, array $getResponses): LegacyCommandSender
+    private function createSender(array $getResponses, string $pollerType = 'docker'): LegacyCommandSender
     {
         $configuration = $this->createMock(ConfigurationLoaderApiInterface::class);
         $configuration->method('isSecureConnectionSelfSigned')->willReturn(false);
@@ -145,7 +149,7 @@ class LegacyCommandSenderTest extends TestCase
         $configuration->method('getCommandTimeout')->willReturn(2);
 
         $connection = $this->createMock(ConnectionInterface::class);
-        $connection->method('fetchAssociative')->willReturn($poller);
+        $connection->method('fetchOne')->willReturn($pollerType);
 
         $client = new MockHttpClient(function (string $method, string $url) use ($getResponses): MockResponse {
             $path = (string) preg_replace('#^http://gorgone:8085/api/#', '', $url);
