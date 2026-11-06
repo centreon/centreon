@@ -37,7 +37,11 @@ class CentreonDowntimeAclTest extends TestCase
     private const FORBIDDEN_HOST_GROUP_ID = 20;
     private const ALLOWED_SERVICE_ID = 100;
     private const FORBIDDEN_SERVICE_ID = 200;
+    private const ALLOWED_SERVICE_GROUP_ID = 31;
     private const FORBIDDEN_SERVICE_GROUP_ID = 30;
+    private const META_HOST_ID = 99;
+    private const ALLOWED_META_ID = 7;
+    private const FORBIDDEN_META_ID = 8;
 
     private CentreonDowntime&MockObject $downtime;
 
@@ -53,7 +57,8 @@ class CentreonDowntimeAclTest extends TestCase
         $this->userAcl = $this->createMock(CentreonACL::class);
         $this->userAcl->method('getHostAclConf')->willReturn([self::ALLOWED_HOST_ID => 'host-a']);
         $this->userAcl->method('getHostGroupAclConf')->willReturn([self::ALLOWED_HOST_GROUP_ID => 'hg-a']);
-        $this->userAcl->method('getServiceGroupAclConf')->willReturn([]);
+        $this->userAcl->method('getServiceGroupAclConf')->willReturn([self::ALLOWED_SERVICE_GROUP_ID => 'sg-a']);
+        $this->userAcl->method('getMetaServices')->willReturn([self::ALLOWED_META_ID => 'meta-a']);
         // Services are looked up per host: only service ALLOWED_SERVICE_ID of host ALLOWED_HOST_ID is allowed
         $this->userAcl->method('getHostServiceAclConf')->willReturnCallback(
             static fn (int $hostId): array => $hostId === self::ALLOWED_HOST_ID
@@ -147,6 +152,54 @@ class CentreonDowntimeAclTest extends TestCase
         $this->givenRelations([1 => $this->relations()]);
 
         $this->assertTrue($this->downtime->isAllowedForUser(1, $this->userAcl));
+    }
+
+    public function testDowntimeOnAnAllowedServiceGroupIsAllowed(): void
+    {
+        $this->givenRelations([
+            1 => $this->relations(servicegroups: [$this->resource(self::ALLOWED_SERVICE_GROUP_ID)]),
+        ]);
+
+        $this->assertTrue($this->downtime->isAllowedForUser(1, $this->userAcl));
+    }
+
+    public function testDowntimeOnAnAllowedMetaServiceIsAllowed(): void
+    {
+        $this->givenRelations([
+            1 => $this->relations(services: [$this->metaService(self::ALLOWED_META_ID)]),
+        ]);
+
+        $this->assertTrue($this->downtime->isAllowedForUser(1, $this->userAcl));
+    }
+
+    public function testDowntimeWithAnEnabledMetaServiceOutsideTheAclIsRefused(): void
+    {
+        $this->givenRelations([
+            1 => $this->relations(services: [$this->metaService(self::FORBIDDEN_META_ID)]),
+        ]);
+
+        $this->assertFalse($this->downtime->isAllowedForUser(1, $this->userAcl));
+    }
+
+    public function testServicesAreCheckedAgainstTheAclOfTheirOwnHost(): void
+    {
+        $userAcl = $this->createMock(CentreonACL::class);
+        $userAcl->expects($this->exactly(2))
+            ->method('getHostServiceAclConf')
+            ->willReturnCallback(
+                static fn (int $hostId): array => $hostId === self::ALLOWED_HOST_ID
+                    ? [self::ALLOWED_SERVICE_ID => 'service-a']
+                    : [self::FORBIDDEN_SERVICE_ID => 'service-b']
+            );
+        $this->givenRelations([
+            1 => $this->relations(services: [
+                $this->service(self::ALLOWED_HOST_ID, self::ALLOWED_SERVICE_ID),
+                $this->service(self::FORBIDDEN_HOST_ID, self::FORBIDDEN_SERVICE_ID),
+            ]),
+            2 => $this->relations(services: [$this->service(self::FORBIDDEN_HOST_ID, self::ALLOWED_SERVICE_ID)]),
+        ]);
+
+        $this->assertSame([1], $this->downtime->filterIdsAllowedForUser([1, 2], $userAcl));
     }
 
     public function testDisabledResourceOutsideTheAclDoesNotBlockTheDowntime(): void
@@ -244,5 +297,15 @@ class CentreonDowntimeAclTest extends TestCase
     private function service(int $hostId, int $serviceId, bool $activated = true): array
     {
         return ['id' => $hostId . '-' . $serviceId, 'activated' => $activated ? '1' : '0'];
+    }
+
+    /**
+     * Meta services carry their meta id in CentreonDowntime::getRelations()
+     *
+     * @return array{id: string, activated: string, meta_id: string}
+     */
+    private function metaService(int $metaId): array
+    {
+        return ['id' => self::META_HOST_ID . '-' . (1000 + $metaId), 'activated' => '1', 'meta_id' => (string) $metaId];
     }
 }
