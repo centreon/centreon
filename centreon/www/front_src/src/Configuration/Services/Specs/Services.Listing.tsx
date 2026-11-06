@@ -30,7 +30,7 @@ export default () => {
 
       const { request } = await waitForRequest('@getAllServices');
 
-      expect(request.url.searchParams.get('sort[host.name]')).toBe('asc');
+      expect(request.url.searchParams.get('sort[host_name]')).toBe('asc');
       expect(request.url.searchParams.get('sort[name]')).toBeNull();
     });
 

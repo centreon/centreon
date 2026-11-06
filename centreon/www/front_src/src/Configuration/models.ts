@@ -189,6 +189,10 @@ export interface FilterConfiguration {
   // The autocomplete reads `{ result, meta }`; a Hydra selector needs a decoder
   // built with `apiFormat: 'JSON-LD'` to get there.
   decoder?: JsonDecoder.Decoder<unknown>;
+  // A checkbox sends `fieldName=true` when checked. A filter whose parameter
+  // reads the other way round names it here instead: it is then sent as `true`
+  // when the box is unchecked, and left out when checked.
+  uncheckedQueryParameter?: string;
 }
 
 export interface Configuration {

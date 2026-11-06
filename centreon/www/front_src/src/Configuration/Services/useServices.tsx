@@ -81,7 +81,7 @@ const useServices = ({
       },
       {
         // The host name only, not its alias or address as the legacy page did.
-        fieldName: 'host.name',
+        fieldName: 'host_name',
         fieldType: FieldType.Text,
         name: t(labelHostName)
       },
@@ -101,10 +101,12 @@ const useServices = ({
       },
       {
         // Off by default: the services of a disabled host are left out, as
-        // the legacy page did.
+        // the legacy page did. The API reads it the other way round: only
+        // enabled hosts with `host_activated=true`, every host without it.
         fieldName: 'include_disabled_hosts',
         fieldType: FieldType.Checkbox,
-        name: t(labelIncludeDisabledHosts)
+        name: t(labelIncludeDisabledHosts),
+        uncheckedQueryParameter: 'host_activated'
       }
     ],
     [t]
