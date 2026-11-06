@@ -150,7 +150,23 @@ final class DoctrineMigrationRunnerTest extends TestCase
             self::assertSame('The "skipping" module migration set skipped Skipping\Migrations\Version20260101000002: a migration must run or fail, never skip.', $exception->getMessage());
         }
 
-        self::assertSame([\Skipping\Migrations\Version20260101000002::class], $this->runner->status(MigrationSet::module('skipping'))->pending);
+        self::assertSame(
+            [\Skipping\Migrations\Version20260101000002::class, \Skipping\Migrations\Version20260101000003::class],
+            $this->runner->status(MigrationSet::module('skipping'))->pending,
+            'Nothing runs past a skipped migration',
+        );
+    }
+
+    public function testAStatementCommittingTheTransactionOfADmlMigrationFailsIt(): void
+    {
+        try {
+            $this->runner->migrate(MigrationSet::module('implicit-commit'));
+            self::fail('Expected the committed transaction to fail the migration');
+        } catch (\RuntimeException $exception) {
+            self::assertStringContainsString('committed its transaction', $exception->getMessage());
+        }
+
+        self::assertSame([\ImplicitCommit\Migrations\Version20260101000001::class], $this->runner->status(MigrationSet::module('implicit-commit'))->pending);
     }
 
     public function testRunsOnTheActualServerWhateverServerVersionIsConfigured(): void

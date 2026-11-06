@@ -45,6 +45,16 @@ abstract class DmlMigration extends AbstractMigration
 
     abstract public function revert(Schema $schema): void;
 
+    final public function postUp(Schema $schema): void
+    {
+        $this->assertTransactionIsOpen();
+    }
+
+    final public function postDown(Schema $schema): void
+    {
+        $this->assertTransactionIsOpen();
+    }
+
     final protected function addSql(string $sql, array $params = [], array $types = []): void
     {
         if (! SqlStatement::isSingle($sql)) {
@@ -56,5 +66,16 @@ abstract class DmlMigration extends AbstractMigration
         }
 
         parent::addSql($sql, $params, $types);
+    }
+
+    /**
+     * A statement run outside addSql(), through $this->connection, escapes its checks.
+     */
+    private function assertTransactionIsOpen(): void
+    {
+        $native = $this->connection->getNativeConnection();
+        if ($native instanceof \PDO && ! $native->inTransaction()) {
+            throw new \LogicException(sprintf('The DML migration "%s" committed its transaction: run its statements through addSql() only.', static::class));
+        }
     }
 }

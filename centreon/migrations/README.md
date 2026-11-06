@@ -42,7 +42,8 @@ runner refuses any other one.
   `if ($this->connection->createSchemaManager()->introspectTableByUnquotedName('host')->hasColumn('host_notes_url')) { $this->write('host_notes_url already exists, skipped'); return; }`.
   Reading `$schema` works too, but loads every table of the database, for each migration.
 - `DmlMigration` for data changes (`INSERT`, `UPDATE`, `DELETE`...). It runs in a transaction with its metadata row:
-  all or nothing. DDL, transaction control, `CALL`, `PREPARE`, `EXECUTE` and `SET STATEMENT` are rejected, as they would silently commit that transaction.
+  all or nothing. DDL, transaction control, `CALL`, `PREPARE`, `EXECUTE` and `SET STATEMENT` are rejected, as they
+  could silently commit that transaction, and so is a statement run through `$this->connection` that commits it.
 
 In both, never skip (`skipIf()`, `SkipMigration`): a skipped migration fails the run, as Doctrine would not record it.
 Describe the change in `getDescription()`, pass one statement per `addSql()` call, and implement `revert()`,

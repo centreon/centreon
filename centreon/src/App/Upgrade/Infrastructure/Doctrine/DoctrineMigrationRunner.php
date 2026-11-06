@@ -37,7 +37,6 @@ use Doctrine\Migrations\Exception\NoMigrationsToExecute;
 use Doctrine\Migrations\Exception\UnknownMigrationVersion;
 use Doctrine\Migrations\Metadata\AvailableMigration;
 use Doctrine\Migrations\Metadata\ExecutedMigration;
-use Doctrine\Migrations\Metadata\MigrationPlan;
 use Doctrine\Migrations\Metadata\MigrationPlanList;
 use Doctrine\Migrations\MigratorConfiguration;
 use Doctrine\Migrations\Provider\DBALSchemaDiffProvider;
@@ -247,6 +246,13 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     private function createCheckedFactory(MigrationSet $set, MigrationSetConfiguration $configuration, string $step, bool $initialize = true): DependencyFactory
     {
         $factory = $this->createFactory($configuration, $step);
+        $this->assertConventions($factory, $configuration);
+
+        // Once the conventions are checked, so that a refused set leaves no metadata table, and before reading the table,
+        // which Doctrine refuses to read until it is synced.
+        if ($initialize) {
+            $factory->getMetadataStorage()->ensureInitialized();
+        }
 
         // Not checked by the Migrator.
         $unavailable = $factory->getMigrationStatusCalculator()->getExecutedUnavailableMigrations();
@@ -258,13 +264,6 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
                 implode(', ', $this->versions($unavailable->getItems())),
                 $configuration->table,
             ));
-        }
-
-        $this->assertConventions($factory, $configuration);
-
-        // Once checked: a refused set leaves no metadata table behind.
-        if ($initialize) {
-            $factory->getMetadataStorage()->ensureInitialized();
         }
 
         return $factory;
@@ -321,57 +320,22 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
      */
     private function execute(MigrationSet $set, DependencyFactory $factory, MigrationPlanList $plan): array
     {
-        if (count($plan) === 0) {
-            return [];
-        }
+        $done = [];
+        // One at a time: Doctrine rethrows the error of a query without its migration, and runs past a skipped one.
+        foreach ($plan->getItems() as $item) {
+            try {
+                $factory->getMigrator()->migrate(new MigrationPlanList([$item], $plan->getDirection()), new MigratorConfiguration());
+            } catch (\Throwable $exception) {
+                throw new \RuntimeException(sprintf('The "%s" migration of the %s failed: %s', $item->getVersion(), $set->label(), $exception->getMessage()), 0, $exception);
+            }
 
-        try {
-            $done = array_map('strval', array_keys($factory->getMigrator()->migrate($plan, new MigratorConfiguration())));
-        } catch (\Throwable $exception) {
-            // Doctrine rethrows the error of the query as is: it would not tell which migration failed.
-            $version = $this->failedVersion($factory, $plan);
+            if ($item->getResult()?->isSkipped() === true) {
+                throw new \RuntimeException(sprintf('The %s skipped %s: a migration must run or fail, never skip.', $set->label(), $item->getVersion()));
+            }
 
-            throw new \RuntimeException(sprintf(
-                '%s of the %s failed: %s',
-                $version === null ? 'A migration' : sprintf('The "%s" migration', $version),
-                $set->label(),
-                $exception->getMessage(),
-            ), 0, $exception);
-        }
-
-        // Doctrine records nothing for a skipped migration, yet reports it and runs the next ones.
-        $skipped = $this->leftAsTheyWere($factory, $plan);
-        if ($skipped !== []) {
-            throw new \RuntimeException(sprintf('The %s skipped %s: a migration must run or fail, never skip.', $set->label(), implode(', ', $skipped)));
+            $done[] = (string) $item->getVersion();
         }
 
         return $done;
-    }
-
-    /**
-     * The first one of the plan left as it was: an upgrade records a migration once it ran, a rollback once reverted.
-     */
-    private function failedVersion(DependencyFactory $factory, MigrationPlanList $plan): ?string
-    {
-        try {
-            return $this->leftAsTheyWere($factory, $plan)[0] ?? null;
-        } catch (\Throwable) {
-            // The database may be what failed: the error of the migration matters more.
-            return null;
-        }
-    }
-
-    /**
-     * @return list<string> the versions of the plan left as they were: an upgrade records a migration once it ran, a
-     *                      rollback once reverted
-     */
-    private function leftAsTheyWere(DependencyFactory $factory, MigrationPlanList $plan): array
-    {
-        $executed = $factory->getMetadataStorage()->getExecutedMigrations();
-
-        return array_values(array_map(
-            static fn (MigrationPlan $item): string => (string) $item->getVersion(),
-            array_filter($plan->getItems(), static fn (MigrationPlan $item): bool => $executed->hasMigration($item->getVersion()) === ($plan->getDirection() === Direction::DOWN)),
-        ));
     }
 }
