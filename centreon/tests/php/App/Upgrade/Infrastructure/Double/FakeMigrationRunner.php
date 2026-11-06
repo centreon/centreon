@@ -35,6 +35,9 @@ final class FakeMigrationRunner implements MigrationRunner
     /** @var list<MigrationSet> */
     public array $sets = [];
 
+    /** @var list<list<string>> the expected migrations each rollback was given */
+    public array $confirmedPlans = [];
+
     /** @var list<MigrationSet> the sets whose status was computed */
     public array $statusRequests = [];
 
@@ -57,9 +60,21 @@ final class FakeMigrationRunner implements MigrationRunner
         return [$set->name . '\Version1'];
     }
 
-    public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false, ?array $expected = null): array
+    public function planRollback(MigrationSet $set, string $versionOrAlias): array
     {
-        $this->journal[] = ($dryRun ? 'rollback-dry-run:' : 'rollback:') . $set->name . ':' . $versionOrAlias;
+        $this->journal[] = 'plan-rollback:' . $set->name . ':' . $versionOrAlias;
+
+        if (in_array($set->name, $this->failingSets, true)) {
+            throw new \RuntimeException(sprintf('Rollback plan of "%s" failed', $set->name));
+        }
+
+        return [$set->name . '\Version1'];
+    }
+
+    public function rollback(MigrationSet $set, string $versionOrAlias, array $expected): array
+    {
+        $this->journal[] = 'rollback:' . $set->name . ':' . $versionOrAlias;
+        $this->confirmedPlans[] = $expected;
 
         if (in_array($set->name, $this->failingSets, true)) {
             throw new \RuntimeException(sprintf('Rollback of "%s" failed', $set->name));

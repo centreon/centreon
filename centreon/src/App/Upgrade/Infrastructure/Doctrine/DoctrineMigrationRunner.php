@@ -40,6 +40,7 @@ use Doctrine\Migrations\Provider\DBALSchemaDiffProvider;
 use Doctrine\Migrations\Provider\LazySchemaDiffProvider;
 use Doctrine\Migrations\Provider\SchemaDiffProvider;
 use Doctrine\Migrations\Version\Direction;
+use Doctrine\Migrations\Version\Version;
 use Doctrine\Persistence\ConnectionRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -76,54 +77,19 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         return $this->execute($set, $factory, $factory->getMigrationPlanCalculator()->getPlanUntilVersion($latest));
     }
 
-    public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false, ?array $expected = null): array
+    public function planRollback(MigrationSet $set, string $versionOrAlias): array
     {
-        $configuration = $this->registry->configuration($set);
-        if (! is_dir($configuration->directory)) {
-            throw new \RuntimeException(sprintf('The %s has no migration to roll back: "%s" does not exist.', $set->label(), $configuration->directory));
-        }
+        [, $toRevert] = $this->rollbackPlan($set, $versionOrAlias, initialize: false);
 
-        // A dry run writes nothing: not even the metadata table.
-        $factory = $this->createCheckedFactory($set, $configuration, $set->rollbackStep(), initialize: ! $dryRun);
+        return $this->versionNames($toRevert);
+    }
 
-        // Accept a class name or its bare timestamp.
-        $alias = preg_match('/^(Version\d+|\d{14})$/D', $versionOrAlias) === 1
-            ? $configuration->namespace . '\\Version' . preg_replace('/^Version/', '', $versionOrAlias)
-            : $versionOrAlias;
+    public function rollback(MigrationSet $set, string $versionOrAlias, array $expected): array
+    {
+        [$factory, $toRevert] = $this->rollbackPlan($set, $versionOrAlias, initialize: true);
 
-        try {
-            $target = $factory->getVersionAliasResolver()->resolveVersionAlias($alias);
-        } catch (UnknownMigrationVersion $exception) {
-            throw new \RuntimeException(sprintf(
-                'The %s has no "%s" migration: pass a version listed by centreon:migrations:status -v, its '
-                . 'class name (Version20260101000000) or its timestamp (20260101000000), "prev" or "first".',
-                $set->label(),
-                $versionOrAlias,
-            ), 0, $exception);
-        }
-
-        $executed = $factory->getMetadataStorage()->getExecutedMigrations();
-        $isFirst = (string) $target === '0';
-        if (! $isFirst && ! $executed->hasMigration($target)) {
-            throw new \RuntimeException(sprintf('Cannot roll the %s back to "%s": it is not executed.', $set->label(), $target));
-        }
-
-        // Not getPlanUntilVersion(), which plans an upgrade as soon as an older migration is pending.
-        $toRevert = [];
-        $isAfterTarget = $isFirst;
-        foreach ($executed->getItems() as $migration) {
-            if ($isAfterTarget) {
-                $toRevert[] = $migration->getVersion();
-            }
-            $isAfterTarget = $isAfterTarget || $migration->getVersion()->equals($target);
-        }
-
-        $planned = array_map('strval', array_reverse($toRevert));
-        if ($dryRun) {
-            return $planned;
-        }
-
-        if ($expected !== null && $planned !== $expected) {
+        $planned = $this->versionNames($toRevert);
+        if ($planned !== $expected) {
             throw new \RuntimeException(sprintf(
                 'The migrations of the %s changed since they were confirmed: it would now revert %s. Nothing was reverted.',
                 $set->label(),
@@ -210,6 +176,65 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
      * @throws \RuntimeException when migrations recorded as executed are missing from the code base, or when a migration
      *                           breaks the conventions
      */
+    /**
+     * @param bool $initialize false to write nothing, not even the metadata table
+     *
+     * @return array{DependencyFactory, list<Version>} the versions to revert, executed after the target, oldest first
+     */
+    private function rollbackPlan(MigrationSet $set, string $versionOrAlias, bool $initialize): array
+    {
+        $configuration = $this->registry->configuration($set);
+        if (! is_dir($configuration->directory)) {
+            throw new \RuntimeException(sprintf('The %s has no migration to roll back: "%s" does not exist.', $set->label(), $configuration->directory));
+        }
+
+        $factory = $this->createCheckedFactory($set, $configuration, $set->rollbackStep(), $initialize);
+
+        // Accept a class name or its bare timestamp.
+        $alias = preg_match('/^(Version\d+|\d{14})$/D', $versionOrAlias) === 1
+            ? $configuration->namespace . '\\Version' . preg_replace('/^Version/', '', $versionOrAlias)
+            : $versionOrAlias;
+
+        try {
+            $target = $factory->getVersionAliasResolver()->resolveVersionAlias($alias);
+        } catch (UnknownMigrationVersion $exception) {
+            throw new \RuntimeException(sprintf(
+                'The %s has no "%s" migration: pass a version listed by centreon:migrations:status -v, its '
+                . 'class name (Version20260101000000) or its timestamp (20260101000000), "prev" or "first".',
+                $set->label(),
+                $versionOrAlias,
+            ), 0, $exception);
+        }
+
+        $executed = $factory->getMetadataStorage()->getExecutedMigrations();
+        $isFirst = (string) $target === '0';
+        if (! $isFirst && ! $executed->hasMigration($target)) {
+            throw new \RuntimeException(sprintf('Cannot roll the %s back to "%s": it is not executed.', $set->label(), $target));
+        }
+
+        // Not getPlanUntilVersion(), which plans an upgrade as soon as an older migration is pending.
+        $toRevert = [];
+        $isAfterTarget = $isFirst;
+        foreach ($executed->getItems() as $migration) {
+            if ($isAfterTarget) {
+                $toRevert[] = $migration->getVersion();
+            }
+            $isAfterTarget = $isAfterTarget || $migration->getVersion()->equals($target);
+        }
+
+        return [$factory, $toRevert];
+    }
+
+    /**
+     * @param list<Version> $versions
+     *
+     * @return list<string> in the order they are reverted
+     */
+    private function versionNames(array $versions): array
+    {
+        return array_map('strval', array_reverse($versions));
+    }
+
     private function createCheckedFactory(MigrationSet $set, MigrationSetConfiguration $configuration, string $step, bool $initialize = true): DependencyFactory
     {
         $factory = $this->createFactory($configuration, $step);

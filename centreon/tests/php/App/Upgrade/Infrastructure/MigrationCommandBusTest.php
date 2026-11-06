@@ -58,7 +58,12 @@ final class MigrationCommandBusTest extends KernelTestCase
                 return [];
             }
 
-            public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false, ?array $expected = null): array
+            public function planRollback(MigrationSet $set, string $versionOrAlias): array
+            {
+                return [];
+            }
+
+            public function rollback(MigrationSet $set, string $versionOrAlias, array $expected): array
             {
                 $this->nestingLevels[] = $this->connection->getTransactionNestingLevel();
 
@@ -82,7 +87,7 @@ final class MigrationCommandBusTest extends KernelTestCase
         $nestingLevel = $connection->getTransactionNestingLevel();
 
         $commandBus->execute(new MigrateCommand(MigrationSet::module('centreon-bus-fixture')));
-        $commandBus->execute(new RollbackMigrationCommand(MigrationSet::module('centreon-bus-fixture'), 'prev'));
+        $commandBus->execute(new RollbackMigrationCommand(MigrationSet::module('centreon-bus-fixture'), 'prev', []));
 
         self::assertSame([$nestingLevel, $nestingLevel], $runner->nestingLevels);
     }

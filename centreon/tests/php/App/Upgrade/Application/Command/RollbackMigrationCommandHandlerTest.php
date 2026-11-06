@@ -38,25 +38,19 @@ use Tests\App\Upgrade\Infrastructure\Double\FakeUpgradeLogger;
 
 final class RollbackMigrationCommandHandlerTest extends TestCase
 {
+    private const array CONFIRMED = ['Centreon\\Migrations\\Configuration\\Version1'];
+
     public function testRollsTheSetBackUnderTheUpdateLock(): void
     {
         $migrationRunner = new FakeMigrationRunner();
         $locker = new FakeUpdateLocker();
 
-        $reverted = (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard($locker, new FakeMigrationSetLocker(), new FakeModuleRepository(['centreon-open-tickets'])), new FakeUpgradeLogger(), '26.11.0'))(new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev'));
+        $reverted = (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard($locker, new FakeMigrationSetLocker(), new FakeModuleRepository(['centreon-open-tickets'])), new FakeUpgradeLogger(), '26.11.0'))(new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev', self::CONFIRMED));
 
         self::assertSame(['configuration\Version1'], $reverted);
         self::assertSame(['rollback:configuration:prev'], $migrationRunner->journal->getArrayCopy());
+        self::assertSame([self::CONFIRMED], $migrationRunner->confirmedPlans, 'The runner refuses to revert other migrations than the confirmed ones');
         self::assertTrue($locker->unlockCalled);
-    }
-
-    public function testPassesADryRunToTheRunner(): void
-    {
-        $migrationRunner = new FakeMigrationRunner();
-
-        (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard(new FakeUpdateLocker(), new FakeMigrationSetLocker(), new FakeModuleRepository()), new FakeUpgradeLogger(), '26.11.0'))(new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev', dryRun: true));
-
-        self::assertSame(['rollback-dry-run:configuration:prev'], $migrationRunner->journal->getArrayCopy());
     }
 
     public function testFailsWhenAnUpdateIsAlreadyInProgress(): void
@@ -69,7 +63,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
         $this->expectExceptionMessage('An update is already in progress');
 
         try {
-            (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard($locker, new FakeMigrationSetLocker(), new FakeModuleRepository(['centreon-open-tickets'])), new FakeUpgradeLogger(), '26.11.0'))(new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev'));
+            (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard($locker, new FakeMigrationSetLocker(), new FakeModuleRepository(['centreon-open-tickets'])), new FakeUpgradeLogger(), '26.11.0'))(new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev', self::CONFIRMED));
         } finally {
             self::assertSame([], $migrationRunner->journal->getArrayCopy());
         }
@@ -84,7 +78,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
 
         $migrationSetLocker = new FakeMigrationSetLocker();
 
-        (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard($locker, $migrationSetLocker, new FakeModuleRepository(['centreon-open-tickets'])), new FakeUpgradeLogger(), '26.11.0'))(new RollbackMigrationCommand(MigrationSet::module('centreon-open-tickets'), 'prev'));
+        (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard($locker, $migrationSetLocker, new FakeModuleRepository(['centreon-open-tickets'])), new FakeUpgradeLogger(), '26.11.0'))(new RollbackMigrationCommand(MigrationSet::module('centreon-open-tickets'), 'prev', self::CONFIRMED));
 
         self::assertSame(['rollback:module:centreon-open-tickets:prev'], $migrationRunner->journal->getArrayCopy());
         self::assertSame(['module:centreon-open-tickets'], $migrationSetLocker->released);
@@ -92,7 +86,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
         $migrationSetLocker->lockedSets = ['module:centreon-open-tickets'];
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('is already being migrated');
-        (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard($locker, $migrationSetLocker, new FakeModuleRepository(['centreon-open-tickets'])), new FakeUpgradeLogger(), '26.11.0'))(new RollbackMigrationCommand(MigrationSet::module('centreon-open-tickets'), 'prev'));
+        (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard($locker, $migrationSetLocker, new FakeModuleRepository(['centreon-open-tickets'])), new FakeUpgradeLogger(), '26.11.0'))(new RollbackMigrationCommand(MigrationSet::module('centreon-open-tickets'), 'prev', self::CONFIRMED));
     }
 
     public function testReleasesTheLocksWhenTheRollbackFails(): void
@@ -106,7 +100,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
 
         foreach ([MigrationSet::web(WebMigrationSetEnum::Configuration), MigrationSet::module('centreon-open-tickets')] as $set) {
             try {
-                $handler(new RollbackMigrationCommand($set, 'prev'));
+                $handler(new RollbackMigrationCommand($set, 'prev', self::CONFIRMED));
                 self::fail('Expected the rollback failure to propagate');
             } catch (\RuntimeException $exception) {
                 self::assertSame(sprintf('Rollback of "%s" failed', $set->name), $exception->getMessage());
@@ -124,7 +118,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
         $migrationSetLocker = new FakeMigrationSetLocker();
 
         try {
-            (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard(new FakeUpdateLocker(), $migrationSetLocker, new FakeModuleRepository()), new FakeUpgradeLogger(), '26.11.0'))(new RollbackMigrationCommand(MigrationSet::module('centreon-open-tickets'), 'first'));
+            (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard(new FakeUpdateLocker(), $migrationSetLocker, new FakeModuleRepository()), new FakeUpgradeLogger(), '26.11.0'))(new RollbackMigrationCommand(MigrationSet::module('centreon-open-tickets'), 'first', self::CONFIRMED));
             self::fail('Expected the rollback to be refused');
         } catch (ModuleNotInstalledException $exception) {
             self::assertSame('The module "centreon-open-tickets" is not installed, or does not exist: its migrations can only be run, rolled back or listed once it is installed.', $exception->getMessage());
@@ -134,14 +128,10 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
         self::assertSame([], $migrationSetLocker->released, 'Refused before locking');
     }
 
-    public function testLogsTheRollbackStepButNotADryRun(): void
+    public function testLogsTheRollbackStep(): void
     {
-        $dryRunLogger = new FakeUpgradeLogger();
-        $this->rollbackHandler($dryRunLogger)(new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev', dryRun: true));
-        self::assertSame([], $dryRunLogger->calls);
-
         $logger = new FakeUpgradeLogger();
-        $this->rollbackHandler($logger)(new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev'));
+        $this->rollbackHandler($logger)(new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev', self::CONFIRMED));
         self::assertSame(['step', 'stepCompleted'], array_column($logger->calls, 'method'));
         self::assertSame(['migrations_rollback:configuration'], array_unique(array_column($logger->calls, 'stepName')));
     }
@@ -154,7 +144,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
         $logger = new FakeUpgradeLogger();
 
         try {
-            (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard(new FakeUpdateLocker(), new FakeMigrationSetLocker(), new FakeModuleRepository()), $logger, '26.11.0'))(new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev'));
+            (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard(new FakeUpdateLocker(), new FakeMigrationSetLocker(), new FakeModuleRepository()), $logger, '26.11.0'))(new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev', self::CONFIRMED));
             self::fail('Expected the rollback failure to propagate');
         } catch (\RuntimeException $exception) {
             self::assertSame(['step', 'stepFailure', 'error'], array_column($logger->calls, 'method'));

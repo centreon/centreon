@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Console;
 
 use App\Shared\Application\Command\CommandBus;
+use App\Shared\Application\Query\QueryBus;
 use App\Upgrade\Application\Command\RollbackMigrationCommand;
+use App\Upgrade\Application\Query\GetRollbackPlanQuery;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
@@ -36,6 +38,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final readonly class RollbackConsoleCommand
 {
     public function __construct(
+        private QueryBus $queryBus,
         private CommandBus $commandBus,
     ) {
     }
@@ -52,9 +55,8 @@ final readonly class RollbackConsoleCommand
     ): int {
         $migrationSet = MigrationSetOption::require($set, $module);
 
-        // Checked and planned by the rollback itself, before asking anything.
         /** @var list<string> $toRevert */
-        $toRevert = $this->commandBus->execute(new RollbackMigrationCommand($migrationSet, $version, dryRun: true));
+        $toRevert = $this->queryBus->ask(new GetRollbackPlanQuery($migrationSet, $version));
         if ($toRevert === []) {
             $io->success('No migration to revert.');
 

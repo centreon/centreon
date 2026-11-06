@@ -51,11 +51,7 @@ final readonly class RollbackMigrationCommandHandler
     public function __invoke(RollbackMigrationCommand $command): array
     {
         $set = $command->set;
-        $rollback = fn (): array => $this->migrationRunner->rollback($set, $command->version, $command->dryRun, $command->expected);
-        if ($command->dryRun) {
-            return $this->migrationSetGuard->run($set, $rollback);
-        }
-
+        $rollback = fn (): array => $this->migrationRunner->rollback($set, $command->version, $command->expected);
         $step = $set->rollbackStep();
 
         try {

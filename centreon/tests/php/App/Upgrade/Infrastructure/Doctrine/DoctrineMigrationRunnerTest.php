@@ -117,7 +117,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
     {
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
-        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'prev'));
+        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->revert(MigrationSet::module(self::ROLLBACK), 'prev'));
         self::assertSame([], $this->rows('fx_rollback'));
         self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->status(MigrationSet::module(self::ROLLBACK))->pending);
 
@@ -129,8 +129,8 @@ final class DoctrineMigrationRunnerTest extends TestCase
     {
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
-        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version20260101000001'));
-        self::assertSame([\Rollback\Migrations\Version20260101000001::class], $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'first'));
+        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->revert(MigrationSet::module(self::ROLLBACK), 'Version20260101000001'));
+        self::assertSame([\Rollback\Migrations\Version20260101000001::class], $this->revert(MigrationSet::module(self::ROLLBACK), 'first'));
         self::assertFalse($this->connection->createSchemaManager()->tablesExist(['fx_rollback']));
     }
 
@@ -138,7 +138,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
     {
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
-        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->rollback(MigrationSet::module(self::ROLLBACK), '20260101000001'));
+        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->revert(MigrationSet::module(self::ROLLBACK), '20260101000001'));
     }
 
     public function testRollbackNamesTheAcceptedFormsOfAnUnknownVersion(): void
@@ -148,26 +148,32 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('The "rollback" module migration set has no "Version2026" migration: pass a version listed by centreon:migrations:status -v');
 
-        $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version2026');
+        $this->runner->planRollback(MigrationSet::module(self::ROLLBACK), 'Version2026');
     }
 
     public function testRollbackRefusesToMigrateUp(): void
     {
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
-        $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'first');
+        $this->revert(MigrationSet::module(self::ROLLBACK), 'first');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Cannot roll the "rollback" module migration set back to "Rollback\Migrations\Version20260101000002": it is not executed.');
 
-        $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version20260101000002');
+        $this->runner->planRollback(MigrationSet::module(self::ROLLBACK), 'Version20260101000002');
     }
 
-    public function testARollbackDryRunTellsWhatWouldBeRevertedWithoutRevertingIt(): void
+    public function testARollbackPlanTellsWhatWouldBeRevertedWithoutRevertingIt(): void
     {
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
-        self::assertSame([\Rollback\Migrations\Version20260101000002::class, \Rollback\Migrations\Version20260101000001::class], $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'first', dryRun: true));
+        self::assertSame([\Rollback\Migrations\Version20260101000002::class, \Rollback\Migrations\Version20260101000001::class], $this->runner->planRollback(MigrationSet::module(self::ROLLBACK), 'first'));
         self::assertSame([], $this->runner->status(MigrationSet::module(self::ROLLBACK))->pending);
+    }
+
+    public function testARollbackPlanWritesNothingNotEvenTheMetadataTable(): void
+    {
+        self::assertSame([], $this->runner->planRollback(MigrationSet::module(self::ROLLBACK), 'first'));
+        self::assertFalse($this->connection->createSchemaManager()->tablesExist([MigrationSet::module(self::ROLLBACK)->table()]));
     }
 
     public function testARollbackRefusesToRevertOtherMigrationsThanTheConfirmedOnes(): void
@@ -176,7 +182,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
         try {
-            $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'prev', expected: [\Rollback\Migrations\Version20260101000001::class]);
+            $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'prev', [\Rollback\Migrations\Version20260101000001::class]);
             self::fail('Expected the rollback to be refused');
         } catch (\RuntimeException $exception) {
             self::assertStringContainsString('changed since they were confirmed', $exception->getMessage());
@@ -191,7 +197,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->runner->migrate(MigrationSet::module('forward-port'));
         $this->connection->delete('doctrine_migration_versions_forward_port', ['version' => \ForwardPort\Migrations\Version20260101000001::class]);
 
-        self::assertSame([\ForwardPort\Migrations\Version20260101000003::class], $this->runner->rollback(MigrationSet::module('forward-port'), 'prev'));
+        self::assertSame([\ForwardPort\Migrations\Version20260101000003::class], $this->revert(MigrationSet::module('forward-port'), 'prev'));
         self::assertSame([\ForwardPort\Migrations\Version20260101000001::class, \ForwardPort\Migrations\Version20260101000003::class], $this->runner->status(MigrationSet::module('forward-port'))->pending);
     }
 
@@ -235,7 +241,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('has no migration to roll back');
 
-        $this->runner->rollback(MigrationSet::module('without-migrations'), 'prev');
+        $this->runner->planRollback(MigrationSet::module('without-migrations'), 'prev');
     }
 
     public function testASetWithoutMigrationDirectoryIsANoop(): void
@@ -361,6 +367,14 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->expectExceptionMessage('is not a DBAL connection');
 
         $runner->migrate(MigrationSet::module(self::ROLLBACK));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function revert(MigrationSet $set, string $versionOrAlias): array
+    {
+        return $this->runner->rollback($set, $versionOrAlias, $this->runner->planRollback($set, $versionOrAlias));
     }
 
     private function invalidModulesRunner(): DoctrineMigrationRunner
