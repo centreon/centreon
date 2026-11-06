@@ -30,8 +30,41 @@ printf 'date.timezone = %s\n' "${PHP_TIMEZONE:-UTC}" \
 # rather than a clear SSL error (confirmed directly: the raw `mysql` CLI
 # gives the real "SSL is required" message, PDO swallows it into a generic
 # access-denied exception).
+# With DATABASE_SSL_ENABLED=1 (a server requiring TLS, e.g. AWS RDS MariaDB
+# 11.8): TLS instead, as fpm's 12-install.sh writes it.
 mkdir -p /etc/mysql/conf.d
-printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/client-no-ssl.cnf
+rm -f /etc/mysql/conf.d/client-no-ssl.cnf /etc/mysql/conf.d/client-tls.cnf
+if [ "${DATABASE_SSL_ENABLED:-0}" = "1" ]; then
+  {
+    printf '[client]\nssl\n'
+    [ -n "${DATABASE_CA_PATH:-}" ] && printf 'ssl-ca=%s\n' "$DATABASE_CA_PATH"
+    if [ "${DATABASE_VERIFY_SERVER_CERT:-0}" = "1" ]; then
+      printf 'ssl-verify-server-cert\n'
+    else
+      printf 'disable-ssl-verify-server-cert\n'
+    fi
+  } > /etc/mysql/conf.d/client-tls.cnf
+  # The PHP jobs read the TLS settings from $_ENV (DatabaseTLSResolver). The
+  # cron/*.php scripts load config/centreon.config.php only, never Dotenv, so
+  # .env.local.php (below, for the scripts booting the kernel) does not reach
+  # them: put the environment itself in $_ENV, which this PHP's default
+  # variables_order (GPCS) leaves out. su keeps it for the job's user.
+  printf 'variables_order = "EGPCS"\n' > "$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')/99-env.ini"
+  php -r '
+    $file = "/usr/share/centreon/.env.local.php";
+    $env = is_file($file) ? require $file : [];
+    foreach (["DATABASE_SSL_ENABLED", "DATABASE_VERIFY_SERVER_CERT", "DATABASE_CA_PATH"] as $key) {
+      $value = getenv($key);
+      if ($value !== false && $value !== "") {
+        $env[$key] = $value;
+      }
+    }
+    file_put_contents($file, "<?php\n\nreturn " . var_export($env, true) . ";\n");
+  '
+  chown www-data:www-data /usr/share/centreon/.env.local.php
+else
+  printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/client-no-ssl.cnf
+fi
 
 DB_JSON=/usr/share/centreon/www/install/tmp/database.json
 sed -i "s/\"address\": \"[^\"]*\"/\"address\": \"${MYSQL_HOST}\"/" "$DB_JSON"
@@ -80,6 +113,18 @@ sed \
   -e "s#--INSTANCEMODE--#central#g" \
   /usr/share/centreon/www/install/var/configFilePmTemplate > /etc/centreon/conf.pm
 
+# Database TLS for the Perl jobs (centreon::common::db: db_ssl, db_ssl_ca,
+# db_ssl_verify, read by the perl-libs that support it; ignored before).
+if [ "${DATABASE_SSL_ENABLED:-0}" = "1" ]; then
+  awk -v ca="${DATABASE_CA_PATH:-}" -v verify="${DATABASE_VERIFY_SERVER_CERT:-0}" '
+    { print }
+    /^[[:space:]]*"db_passwd" =>/ && !done {
+      printf "       ,\"db_ssl\" => 1\n       ,\"db_ssl_verify\" => %d\n", verify
+      if (ca != "") printf "       ,\"db_ssl_ca\" => \x27%s\x27\n", ca
+      done = 1
+    }' /etc/centreon/conf.pm > /etc/centreon/conf.pm.tls && mv /etc/centreon/conf.pm.tls /etc/centreon/conf.pm
+fi
+
 chown centreon:centreon /etc/centreon/centreon.conf.php /etc/centreon/conf.pm
 chmod 640 /etc/centreon/centreon.conf.php /etc/centreon/conf.pm
 
@@ -110,6 +155,21 @@ cp /usr/share/centreon/tmpl/install/centstorage.cron /etc/cron.d/centstorage
 # MariaDB client (no mysqldump), and the stack's persistence is volumes, not a
 # backup written inside a container torn down with `down -v`.
 sed -i -e '/centreon-send-stats\.php/d' -e '/centreon-backup\.pl/d' /etc/cron.d/centreon
+# Daemon mode: cron gives its jobs HOME/LOGNAME/PATH/SHELL only, not this
+# container's environment, so the database TLS settings are set in the
+# crontabs themselves (found by docker-web-split's compose run: the cron.d
+# jobs connected in plaintext). Kubernetes CronJobs run their command
+# directly and keep the environment.
+if [ "${DATABASE_SSL_ENABLED:-0}" = "1" ]; then
+  for f in /etc/cron.d/centreon /etc/cron.d/centstorage; do
+    {
+      printf 'DATABASE_SSL_ENABLED=%s\n' "$DATABASE_SSL_ENABLED"
+      printf 'DATABASE_VERIFY_SERVER_CERT=%s\n' "${DATABASE_VERIFY_SERVER_CERT:-0}"
+      [ -n "${DATABASE_CA_PATH:-}" ] && printf 'DATABASE_CA_PATH=%s\n' "$DATABASE_CA_PATH"
+      cat "$f"
+    } > "$f.tls" && mv "$f.tls" "$f"
+  done
+fi
 chmod 644 /etc/cron.d/centreon /etc/cron.d/centstorage
 
 # Real files, not stdout-symlinked, for the same reason fpm's own
@@ -154,8 +214,13 @@ if [ "$#" -gt 0 ]; then
     job_name=$(basename "$job_script")
     DB_ADDRESS="$DB_ADDRESS" DB_PORT="$DB_PORT" DB_USER="$DB_USER" DB_PASSWORD="$DB_PASSWORD" DB_CONFDB="$DB_CONFDB" \
     php -r '
+      $options = [];
+      if (getenv("DATABASE_SSL_ENABLED") === "1") {
+        $options[PDO::MYSQL_ATTR_SSL_CA] = getenv("DATABASE_CA_PATH") ?: "";
+        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = getenv("DATABASE_VERIFY_SERVER_CERT") === "1";
+      }
       $pdo = new PDO("mysql:host=" . getenv("DB_ADDRESS") . ";port=" . (getenv("DB_PORT") ?: 3306) . ";dbname=" . getenv("DB_CONFDB"),
-        getenv("DB_USER"), getenv("DB_PASSWORD"));
+        getenv("DB_USER"), getenv("DB_PASSWORD"), $options);
       $pdo->prepare("UPDATE cron_operation SET running = \"0\" WHERE name = ? AND running = \"1\"")->execute([$argv[1]]);
     ' "${job_name%.*}" || echo "warning: could not release the cron_operation lock of ${job_name%.*}" >&2
   fi
