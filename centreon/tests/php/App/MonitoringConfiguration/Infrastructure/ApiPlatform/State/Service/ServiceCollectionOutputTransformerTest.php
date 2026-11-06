@@ -41,6 +41,8 @@ final class ServiceCollectionOutputTransformerTest extends TestCase
             id: new ServiceId(1),
             name: new ServiceName('ping'),
             hostId: new HostId(2),
+            hostActivated: true,
+            hostPollerId: null,
             activated: false,
             templateId: new ServiceTemplateId(3),
             iconId: new MediaId(4),
@@ -58,7 +60,7 @@ final class ServiceCollectionOutputTransformerTest extends TestCase
     {
         // The host, the icon, the intervals and the template are resolved per page by the provider, from lookups.
         $output = (new ServiceCollectionOutputTransformer())->transform(
-            new Service(new ServiceId(1), new ServiceName('ping'), new HostId(2), checkIntervals: new ServiceCheckIntervals(normal: 5)),
+            new Service(new ServiceId(1), new ServiceName('ping'), new HostId(2), hostActivated: true, hostPollerId: null, checkIntervals: new ServiceCheckIntervals(normal: 5)),
         );
 
         self::assertNull($output->icon);

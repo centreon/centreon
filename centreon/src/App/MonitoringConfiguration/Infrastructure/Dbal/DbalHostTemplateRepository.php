@@ -330,8 +330,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
     public function findDescendantIds(HostTemplateId $id): Collection
     {
-        // UNION dedupes the reached ids, so a template loop already in the data cannot make the
-        // recursion run forever.
+        // UNION (not UNION ALL) stops the recursion on a template loop already in the data.
         $sql = <<<'SQL'
             WITH RECURSIVE descendants (id) AS (
                 SELECT htr.host_host_id

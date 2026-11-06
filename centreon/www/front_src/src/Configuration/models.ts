@@ -78,6 +78,8 @@ export interface Actions {
         disable?: boolean;
       };
   edit?: boolean;
+  // Whether an opened resource can be changed; every one by default.
+  editable?: (resource: ResourceRow) => boolean;
   // Whether a row can be checked, select-all included; every row by default.
   selectable?: (row: ResourceRow) => boolean;
   viewDetails?: boolean;

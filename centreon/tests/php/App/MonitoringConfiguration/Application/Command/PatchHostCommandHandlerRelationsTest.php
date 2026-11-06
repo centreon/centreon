@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Application\Command\ListChange;
 use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
+use App\MonitoringConfiguration\Application\EventHandler\FlagPollerChangedEventHandler;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
@@ -651,6 +652,24 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceVaultPurgeRequested::class, 1));
     }
 
+    public function testACleanedUpServiceAlsoFlagsAclAndThePollerOfItsEnabledHost(): void
+    {
+        $this->seedHost(templateIds: [1]);
+        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10]];
+        $service = $this->seedService('ping', serviceTemplateId: 10);
+
+        ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
+
+        // The removed service also flags ACL once more and its enabled host's poller.
+        $deleted = $this->eventBus->getDispatchedEvents(ServiceDeleted::class);
+        self::assertCount(1, $deleted);
+        self::assertSame($service, $deleted[0]->aggregate);
+
+        $pollerRepository = new FakePollerRepository();
+        (new FlagPollerChangedEventHandler($pollerRepository))($deleted[0]);
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+    }
+
     public function testAServiceAKeptTemplateAlsoProvidesIsKept(): void
     {
         $this->seedHost(templateIds: [1, 2]);
@@ -891,7 +910,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
     private function seedService(string $name, int $serviceTemplateId): Service
     {
-        $service = new Service(null, new ServiceName($name), new HostId(self::HOST_ID));
+        $service = new Service(null, new ServiceName($name), new HostId(self::HOST_ID), hostActivated: true, hostPollerId: new PollerId(1));
         $this->serviceRepository->add($service);
         $this->serviceRepository->serviceTemplateIdOf[$service->id()->value] = $serviceTemplateId;
 

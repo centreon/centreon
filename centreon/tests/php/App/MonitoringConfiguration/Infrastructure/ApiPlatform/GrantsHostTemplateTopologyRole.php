@@ -27,11 +27,7 @@ use Doctrine\DBAL\Connection;
 use Webmozart\Assert\Assert;
 
 /**
- * Creates non-admin API users holding the "Configuration > Hosts > Templates" topology role, or the
- * "Configuration > Hosts > Hosts" one, through real ACL menu rows bridged to HostTemplatePermissionEnum
- * and HostPermissionEnum by CredentialTransformer::LEGACY_PERMISSION_MAP.
- *
- * Requires the using class to extend Tests\App\Shared\ApiTestCase (createApiUser()).
+ * Creates non-admin API users holding the Hosts > Templates or Hosts > Hosts topology role (needs ApiTestCase).
  */
 trait GrantsHostTemplateTopologyRole
 {
