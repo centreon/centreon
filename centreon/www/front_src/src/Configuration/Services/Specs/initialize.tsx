@@ -41,6 +41,7 @@ interface Props {
   hasWriteAccess?: boolean;
   intervalLength?: number;
   isCloudPlatform?: boolean;
+  listingResponse?: object;
   // Opens the page on a deep link, such as `?mode=edit&id=0`.
   searchParams?: string;
 }
@@ -50,6 +51,7 @@ const initialize = ({
   hasWriteAccess = true,
   intervalLength = 60,
   isCloudPlatform = false,
+  listingResponse = getListingResponse(),
   searchParams = ''
 }: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
@@ -78,7 +80,7 @@ const initialize = ({
     alias: 'getAllServices',
     method: Method.GET,
     path: `**${servicesListEndpoint}?**`,
-    response: isEmpty ? emptyListingResponse : getListingResponse()
+    response: isEmpty ? emptyListingResponse : listingResponse
   });
 
   interceptAPIRequest({
