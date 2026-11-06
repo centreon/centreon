@@ -133,14 +133,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchSe
         ),
         new Post(
             uriTemplate: '/configuration/hosts/{hostId}/services/deploy',
-            // Positive integers only, as on the host routes: a non-numeric or zero id is a 404.
             requirements: ['hostId' => '[1-9]\d*'],
-            // Declared, or the operation would expect the service's own `{id}`.
             uriVariables: ['hostId'],
-            // A plain list of items: API Platform cannot build a collection IRI for a POST that is not a collection
-            // operation, it falls back to the item route, which needs a service id.
             normalizationContext: ['api_sub_level' => true],
-            // No body and no item to read: the processor answers the created services, or a 204 when none.
             read: false,
             deserialize: false,
             validate: false,
@@ -153,8 +148,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchSe
                 ],
                 description: 'Creates on the host one enabled service per service template of its host templates and '
                     . 'their ancestors, named after the template alias, with the service groups of the template, '
-                    . 'unless a service of the host already bears exactly that name. All or nothing: an invalid '
-                    . 'alias fails the whole deployment. Answers the created services, each as a Get does.',
+                    . 'unless a service of the host already has that name (case and accents ignored). All or '
+                    . 'nothing: an invalid alias fails the whole deployment. Answers the created services, each as '
+                    . 'a Get does.',
                 responses: [
                     201 => new Model\Response(
                         'The created services, each as a Get answers it',
@@ -177,7 +173,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchSe
                     ),
                 ],
             ),
-            // The right on hosts, read-only included, as the legacy deployment.
             security: '
                 is_granted("' . HostPermissionEnum::CanRead->value . '") or
                 is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
