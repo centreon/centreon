@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-09-03
+- **Scope:** APIP
 
 ## Context
 
@@ -18,7 +19,7 @@ Wrap any legacy code consumed from `src/App` in an **adapter under `Infrastructu
 - A release-blocker fix may still introduce legacy code, but as the smallest change possible, commented and tracked.
 - Exception: the `Upgrade` context's `LegacyConnectionFactory` returns `\CentreonDB`. Its consumers are the legacy upgrade scripts themselves, which need the legacy connection API, so no clean interface can stand between them.
 - Deptrac enforces the allowed layer dependencies and records explicit exceptions in `skip_violations`, but it does not enforce exception expiry, Jira tracking, or adapter placement.
-- The reverse direction, legacy code calling Symfony services, is covered by [ADR-0006](0006-expose-symfony-services-to-legacy-via-service-locator.md).
+- The reverse direction, legacy code calling Symfony services, is covered by [ADR-0006](0006-legacy-expose-symfony-services-to-legacy-via-service-locator.md).
 
 ## When to Amend
 
