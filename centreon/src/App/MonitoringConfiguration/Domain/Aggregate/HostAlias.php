@@ -21,19 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
+namespace App\MonitoringConfiguration\Domain\Aggregate;
 
 use Webmozart\Assert\Assert;
 
-/**
- * Identifies a macro within the table its {@see HostMacroParentEnum} points to: a direct or template
- * macro's `on_demand_macro_host.host_macro_id`, a check-command macro's
- * `on_demand_macro_command.command_macro_id`. Only meaningful together with that parent.
- */
-final readonly class HostMacroId
+final readonly class HostAlias
 {
-    public function __construct(public int $value)
+    public const MIN_LENGTH = 1;
+    public const MAX_LENGTH = 200;
+
+    public string $value;
+
+    public function __construct(string $value)
     {
-        Assert::positiveInteger($value);
+        $value = trim($value);
+        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
+        $this->value = $value;
     }
 }

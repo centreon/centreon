@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 
 /**
  * Maps {@see NotificationOptionEnum} to and from the strings of the API contract.

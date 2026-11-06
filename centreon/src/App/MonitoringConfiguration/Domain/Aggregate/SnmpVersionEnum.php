@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
+namespace App\MonitoringConfiguration\Domain\Aggregate;
 
 /**
  * The backing values are what legacy stores in `host.host_snmp_version`, so they never change.
