@@ -113,6 +113,35 @@ final class DoctrineMigrationRunnerTest extends TestCase
         self::assertFalse($this->connection->isTransactionActive(), 'No transaction may leak after a failure');
     }
 
+    public function testAFailingDdlMigrationStopsTheRunAndStaysPending(): void
+    {
+        try {
+            $this->runner->migrate(MigrationSet::module('ddl-failure'));
+            self::fail('Expected the missing table to fail the run');
+        } catch (\RuntimeException $exception) {
+            self::assertStringStartsWith('The "DdlFailure\Migrations\Version20260101000002" migration of the "ddl-failure" module migration set failed: ', $exception->getMessage());
+        }
+
+        $status = $this->runner->status(MigrationSet::module('ddl-failure'));
+        self::assertSame([\DdlFailure\Migrations\Version20260101000001::class], $status->executed, 'The DDL migration before it stays applied');
+        self::assertSame([\DdlFailure\Migrations\Version20260101000002::class], $status->pending, 'The next run replays it');
+    }
+
+    public function testAFailingRevertStopsTheRollbackAndNamesItsMigration(): void
+    {
+        $this->runner->migrate(MigrationSet::module('revert-failure'));
+
+        try {
+            $this->revert(MigrationSet::module('revert-failure'), 'first');
+            self::fail('Expected the missing table to fail the rollback');
+        } catch (\RuntimeException $exception) {
+            self::assertStringStartsWith('The "RevertFailure\Migrations\Version20260101000001" migration of the "revert-failure" module migration set failed: ', $exception->getMessage());
+        }
+
+        self::assertSame([\RevertFailure\Migrations\Version20260101000001::class], $this->runner->status(MigrationSet::module('revert-failure'))->executed, 'The migration reverted before it stays reverted');
+        self::assertSame([], $this->rows('fx_revert_failure'));
+    }
+
     public function testRollbackPrevRevertsTheLastMigrationAndMigrateReappliesIt(): void
     {
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));

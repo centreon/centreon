@@ -169,6 +169,22 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertTrue($this->locker->unlockCalled);
     }
 
+    public function testAFailureInTheSecondWebSetKeepsTheFirstOneAndRecordsNoVersion(): void
+    {
+        $this->migrationRunner->failingSets = [WebMigrationSetEnum::Configuration->value];
+
+        try {
+            ($this->handler)(new MigrateCommand());
+            self::fail('Expected the migration failure to propagate');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('Migration of "configuration" failed', $exception->getMessage());
+        }
+
+        self::assertSame(['migrate:realtime', 'migrate:configuration'], $this->migrationRunner->journal->getArrayCopy());
+        self::assertSame([], $this->updateRepository->updatesRun, 'The platform version waits for every web set');
+        self::assertTrue($this->locker->unlockCalled);
+    }
+
     public function testRefusesTheWebSetsWhileLegacyUpdateScriptsArePending(): void
     {
         $this->scriptFinder->availableUpdates = ['26.04.0', '26.10.0'];
