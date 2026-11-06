@@ -533,6 +533,51 @@ Not covered: RDS privileges. The install connects as `root` and runs
 `GRANT ALL ... WITH GRANT OPTION`, while the RDS master user is usually
 `admin` and may not hold those privileges.
 
+## Sizing for large configurations
+
+The configuration export ("Export configuration", REST
+`generate-and-reload`, the config-delivery Job) has three costs that grow with
+the configuration:
+
+- **Generation** runs in one php-fpm worker of one fpm pod: its memory is
+  bounded by PHP's `memory_limit` (`fpm.phpMemoryLimit`, the image's 256M by
+  default). Each worker has its own limit, and the pod also holds the other
+  workers and the page cache of the generated files, so keep
+  `fpm.resources.limits.memory` at least `phpMemoryLimit` + 512Mi (+1Gi from
+  ~30k hosts).
+- **Relay**: gorgone-central sends the generated files to the poller and
+  peaks at about twice their size, without giving the memory back
+  (`gorgoneCentral.resources`).
+- **Waits**: each poller is exported in turn (~10 s per poller for the files,
+  then ~10 s for the reload), whatever the size.
+
+Measured on k3d (one node, 7.6 GB VM), passive hosts with 5 services each,
+one poller:
+
+| Hosts / services | Generation | PHP peak (one worker) | fpm pod | Generated files | gorgone-central peak | Suggested `fpm.phpMemoryLimit` / fpm limit / gorgone-central limit |
+|---|---|---|---|---|---|---|
+| 1k / 5k | 2-3 s | 94 MB | ~150Mi | 1.5 MB | ~250Mi | default / 512Mi / 512Mi |
+| 5k / 25k | 14-24 s | 221 MB | ~290Mi | 7.4 MB | 429Mi | default / 1Gi / 1Gi |
+| 10k / 50k | 37-47 s | 375 MB | ~690Mi | 14.7 MB | OOMKilled at 512Mi | 512M / 1Gi / 1Gi (`values-prod.yaml`) |
+| 30k / 150k | 272 s | 991 MB | ~1.8Gi | 44 MB | 810Mi | 1536M / 3Gi / 1Gi (2Gi for headroom) |
+
+Memory alone does not make 30k hosts exportable today:
+
+- the REST `generate-and-reload` (and the config-delivery Job, which uses it)
+  gives up on the generation after 60 s: from ~10-15k hosts, use the
+  "Export configuration" menu;
+- httpd's `ProxyTimeout` (300 s) and PHP's `max_execution_time` (300 s) cut a
+  longer generation (504);
+- several pollers are exported serially (5 pollers: ~2 min on 5k hosts), and
+  the export failed at 10 pollers (gorgone-central stopped collecting the
+  pollers' results in time).
+
+Configurable generation timeouts are planned (MON-214473). Not measured:
+150k hosts, and 30k hosts with a tuned MariaDB (the test machine saturated).
+The packaged MariaDB settings (`centreon-database.cnf`, 1G buffer pool) did
+not speed up the generation up to 10k hosts: it is mostly PHP plus one query
+per host and per relation.
+
 ## Local test on k3d
 
 From PowerShell, at the repository root:
