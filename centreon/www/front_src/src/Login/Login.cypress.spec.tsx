@@ -10,6 +10,7 @@ import { BrowserRouter } from 'react-router';
 import { externalTranslationEndpoint } from '../App/endpoint';
 import { userEndpoint } from '../api/endpoint';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
+import { labelCentreonIsLoading } from '../Main/translatedLabels';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import LoginPage from '.';
 import {
@@ -32,7 +33,7 @@ import {
   labelPoweredByCentreon,
   labelRequired
 } from './translatedLabels';
-import { router } from './useLogin';
+import { browserLocation, router } from './useLogin';
 
 const labelInvalidCredentials = 'Invalid credentials';
 const labelError = 'This is an error from the server';
@@ -102,6 +103,23 @@ const retrievedForcedProvidersConfiguration = [
   {
     authentication_uri:
       '/centreon/authentication/providers/configurations/openid',
+    id: 2,
+    is_active: true,
+    is_forced: true,
+    name: 'openid'
+  }
+];
+
+const retrievedForcedProviderWithoutUriConfiguration = [
+  {
+    authentication_uri:
+      '/centreon/authentication/providers/configurations/local',
+    id: 1,
+    is_active: true,
+    name: 'local'
+  },
+  {
+    authentication_uri: '',
     id: 2,
     is_active: true,
     is_forced: true,
@@ -420,6 +438,90 @@ describe('Login Page', () => {
     cy.contains('An error occurred').should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  it('displays a loader instead of the login form while the providers configuration is loading', () => {
+    mountComponentAndStubs();
+
+    cy.contains(labelCentreonIsLoading).should('be.visible');
+    cy.findByLabelText(labelAlias).should('not.exist');
+
+    cy.waitForRequest('@getProvidersConfiguration');
+
+    cy.findByLabelText(labelAlias).should('be.visible');
+    cy.contains(labelCentreonIsLoading).should('not.exist');
+  });
+
+  it('redirects to the forced provider without displaying the login form', () => {
+    cy.interceptAPIRequest({
+      alias: 'getProvidersConfiguration',
+      method: Method.GET,
+      path: `${replace('./', '**', providersConfigurationEndpoint)}`,
+      response: retrievedForcedProvidersConfiguration
+    });
+    const replaceLocation = cy.stub(browserLocation, 'replace');
+
+    mountComponentAndStubs();
+
+    cy.waitForRequest('@getProvidersConfiguration');
+
+    cy.contains(labelCentreonIsLoading).should('be.visible');
+    cy.findByLabelText(labelAlias).should('not.exist');
+    cy.findByLabelText(labelConnect).should('not.exist');
+    cy.wrap(replaceLocation).should(
+      'have.been.calledWith',
+      '/centreon/authentication/providers/configurations/openid'
+    );
+  });
+
+  it('displays the login form when the providers configuration request fails', () => {
+    cy.interceptAPIRequest({
+      alias: 'getProvidersConfiguration',
+      method: Method.GET,
+      path: `${replace('./', '**', providersConfigurationEndpoint)}`,
+      response: { code: 500, message: 'Internal error' },
+      statusCode: 500
+    });
+
+    mountComponentAndStubs();
+
+    cy.waitForRequest('@getProvidersConfiguration');
+
+    cy.findByLabelText(labelAlias).should('be.visible');
+    cy.findByLabelText(labelConnect).should('be.visible');
+    cy.contains(labelCentreonIsLoading).should('not.exist');
+  });
+
+  it('displays the login form with the error when an authentication error occurred and no provider is forced', () => {
+    cy.stub(router, 'useSearchParams').returns([
+      new Map([['authenticationError', 'An error occurred']])
+    ]);
+
+    mountComponentAndStubs();
+
+    cy.waitForRequest('@getProvidersConfiguration');
+
+    cy.findByLabelText(labelAlias).should('be.visible');
+    cy.contains(labelAnErrorOccurredDuringAuthentication).should('not.exist');
+  });
+
+  it('displays the login form without the SSO button when the forced provider has no authentication URI', () => {
+    cy.interceptAPIRequest({
+      alias: 'getProvidersConfiguration',
+      method: Method.GET,
+      path: `${replace('./', '**', providersConfigurationEndpoint)}`,
+      response: retrievedForcedProviderWithoutUriConfiguration
+    });
+    const replaceLocation = cy.stub(browserLocation, 'replace');
+
+    mountComponentAndStubs();
+
+    cy.waitForRequest('@getProvidersConfiguration');
+
+    cy.findByLabelText(labelAlias).should('be.visible');
+    cy.contains(labelCentreonIsLoading).should('not.exist');
+    cy.findByLabelText(`${labelLoginWith} openid`).should('not.exist');
+    cy.wrap(replaceLocation).should('not.have.been.called');
   });
 });
 

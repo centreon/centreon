@@ -39,6 +39,7 @@ export {
 } from './api/useGraphQuery';
 export { WidgetResourceType as ResourceType } from './api/useGraphQuery/models';
 export { default as useMutationQuery, Method } from './api/useMutationQuery';
+export { default as usePrefetchQuery } from './api/usePrefetchQuery';
 export { default as useRequest } from './api/useRequest';
 export { default as IconButton } from './Button/Icon';
 export { default as SaveButton } from './Button/Save';

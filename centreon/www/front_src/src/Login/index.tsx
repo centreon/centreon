@@ -79,13 +79,22 @@ const LoginPage = (): JSX.Element => {
     submitLoginForm,
     providersConfiguration,
     authenticationError,
-    hasForcedProvider
+    hasForcedProvider,
+    isLoadingProviders
   } = useLogin();
 
   const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
   const platformVersions = useAtomValue(platformVersionsAtom);
 
-  if (areUserParametersLoaded || isNil(areUserParametersLoaded)) {
+  const isRedirectingToForcedProvider =
+    hasForcedProvider && !authenticationError;
+
+  if (
+    areUserParametersLoaded ||
+    isNil(areUserParametersLoaded) ||
+    isLoadingProviders ||
+    isRedirectingToForcedProvider
+  ) {
     return <MainLoaderWithoutTranslation />;
   }
 
