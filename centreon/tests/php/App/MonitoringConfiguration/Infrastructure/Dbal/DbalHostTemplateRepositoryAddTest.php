@@ -25,25 +25,25 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
@@ -84,7 +84,7 @@ final class DbalHostTemplateRepositoryAddTest extends KernelTestCase
 
     public function testItStoresAnActiveUnlockedTemplate(): void
     {
-        $template = HostTemplate::create($this->templateName(), new HostTemplateAlias('Alias'));
+        $template = HostTemplate::create($this->templateName(), new HostAlias('Alias'));
 
         $this->repository->add($template);
 
@@ -112,18 +112,18 @@ final class DbalHostTemplateRepositoryAddTest extends KernelTestCase
 
         $template = HostTemplate::create(
             $this->templateName(),
-            new HostTemplateAlias('Alias'),
+            new HostAlias('Alias'),
             new HostTemplateCheckOptions(
                 new CommandId($commandId),
                 ['-w', "80\n90"],
                 new Collection([
-                    new HostTemplateMacro(new HostTemplateMacroName('PORT'), '443', false),
-                    new HostTemplateMacro(new HostTemplateMacroName('PWD'), 'secret', true),
+                    new HostTemplateMacro(new HostMacroName('PORT'), '443', false),
+                    new HostTemplateMacro(new HostMacroName('PWD'), 'secret', true),
                 ], HostTemplateMacro::class),
             ),
             parentTemplateIds: new Collection([new HostTemplateId($secondParentId), new HostTemplateId($firstParentId)], HostTemplateId::class),
-            snmpCommunity: new HostTemplateSnmpCommunity('public'),
-            snmpVersion: HostTemplateSnmpVersionEnum::Three,
+            snmpCommunity: new SnmpCommunity('public'),
+            snmpVersion: SnmpVersionEnum::Three,
             timezoneId: new TimezoneId($timezoneId),
             severityId: new HostSeverityId($severityId),
             extendedInformations: new HostTemplateExtendedInformations('https://n.example.com', 'A note', 'https://a.example.com', new MediaId($iconId), 'An icon', 'A comment'),
@@ -133,7 +133,7 @@ final class DbalHostTemplateRepositoryAddTest extends KernelTestCase
                 TriStateEnum::True,
                 new Collection([new NotificationContactId($contactId)], NotificationContactId::class),
                 new Collection([new ContactGroupId($contactGroupId)], ContactGroupId::class),
-                [HostTemplateNotificationOptionEnum::Down, HostTemplateNotificationOptionEnum::Recovery],
+                [NotificationOptionEnum::Down, NotificationOptionEnum::Recovery],
                 30,
                 new TimePeriodId($periodId),
                 2,
@@ -157,7 +157,7 @@ final class DbalHostTemplateRepositoryAddTest extends KernelTestCase
         );
         self::assertSame('Alias', $read->alias?->value);
         self::assertSame('public', $read->snmpCommunity?->value);
-        self::assertSame(HostTemplateSnmpVersionEnum::Three, $read->snmpVersion);
+        self::assertSame(SnmpVersionEnum::Three, $read->snmpVersion);
         self::assertSame($timezoneId, $read->timezoneId?->value);
         self::assertSame($severityId, $read->severityId?->value);
         self::assertSame([$categoryId], $this->ids($read->categoryIds));
@@ -208,7 +208,7 @@ final class DbalHostTemplateRepositoryAddTest extends KernelTestCase
 
     public function testATemplateWithoutNotificationsStoresTheDefaults(): void
     {
-        $template = HostTemplate::create($this->templateName(), new HostTemplateAlias('Alias'));
+        $template = HostTemplate::create($this->templateName(), new HostAlias('Alias'));
 
         $this->repository->add($template);
 

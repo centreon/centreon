@@ -31,7 +31,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\CreateHostTemplateProcessor;
@@ -254,7 +254,7 @@ final class HostTemplateResource
         #[ApiProperty(writable: false)]
         public bool $isLocked = false,
 
-        public ?HostTemplateSnmpVersionEnum $snmpVersion = null,
+        public ?SnmpVersionEnum $snmpVersion = null,
 
         #[ApiProperty(description: 'Whether an SNMP community is set. The community itself is never returned.', writable: false)]
         public bool $isSnmpCommunityDefined = false,

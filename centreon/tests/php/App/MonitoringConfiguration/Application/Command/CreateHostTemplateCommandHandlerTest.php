@@ -27,20 +27,20 @@ use App\MonitoringConfiguration\Application\Command\CreateHostTemplateCommand;
 use App\MonitoringConfiguration\Application\Command\CreateHostTemplateCommandHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
@@ -154,7 +154,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
             templateIds: [7],
             linkedServiceTemplateIds: [20],
             checkCommandArgs: ['-w'],
-            macroChanges: [new HostTemplateMacroChange(new HostTemplateMacroName('port'), '443', false)],
+            macroChanges: [new HostTemplateMacroChange(new HostMacroName('port'), '443', false)],
         ));
 
         self::assertSame([$template->id()->value], $this->repository->addedIds);
@@ -304,7 +304,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
 
         $template = ($this->handler)($this->command(
             snmpCommunity: 'public',
-            macroChanges: [new HostTemplateMacroChange(new HostTemplateMacroName('pwd'), 's3cr3t', true)],
+            macroChanges: [new HostTemplateMacroChange(new HostMacroName('pwd'), 's3cr3t', true)],
         ));
 
         self::assertSame('secret::vault::monitoring/hosts/shared-uuid::_HOSTSNMPCOMMUNITY', $template->snmpCommunity?->value);
@@ -320,7 +320,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
     {
         $template = ($this->handler)($this->command(
             snmpCommunity: 'public',
-            macroChanges: [new HostTemplateMacroChange(new HostTemplateMacroName('pwd'), 's3cr3t', true)],
+            macroChanges: [new HostTemplateMacroChange(new HostMacroName('pwd'), 's3cr3t', true)],
         ));
 
         self::assertSame('public', $template->snmpCommunity?->value);
@@ -364,7 +364,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         $this->repository->addThrows = new \RuntimeException('The save failed.');
 
         try {
-            ($this->handler)($this->command(macroChanges: [new HostTemplateMacroChange(new HostTemplateMacroName('pwd'), 's3cr3t', true)]));
+            ($this->handler)($this->command(macroChanges: [new HostTemplateMacroChange(new HostMacroName('pwd'), 's3cr3t', true)]));
             self::fail('The save failure must reach the caller.');
         } catch (\RuntimeException) {
         }
@@ -380,7 +380,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         try {
             ($this->handler)($this->command(
                 snmpCommunity: 'public',
-                macroChanges: [new HostTemplateMacroChange(new HostTemplateMacroName('pwd'), 's3cr3t', true)],
+                macroChanges: [new HostTemplateMacroChange(new HostMacroName('pwd'), 's3cr3t', true)],
             ));
             self::fail('A vault failure must stop the creation.');
         } catch (VaultWriteFailedException) {
@@ -423,12 +423,12 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
     public function testWithoutAVaultAFailedSaveNeverPurgesAnInheritedEntry(): void
     {
         $this->repository->addThrows = new \RuntimeException('The save failed.');
-        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostTemplateMacroName('pwd'), self::PARENT_SECRET, true, new HostTemplateMacroId(70))]);
+        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostMacroName('pwd'), self::PARENT_SECRET, true, new HostMacroId(70))]);
 
         try {
             ($this->handler)($this->command(
                 templateIds: [7],
-                macroChanges: [new HostTemplateMacroChange(new HostTemplateMacroName('renamed'), null, true, 70, HostMacroParentEnum::Template)],
+                macroChanges: [new HostTemplateMacroChange(new HostMacroName('renamed'), null, true, 70, HostMacroParentEnum::Template)],
             ));
             self::fail('The save failure must reach the caller.');
         } catch (\RuntimeException $exception) {
@@ -457,7 +457,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         $this->expectException(HostTemplateMacroValueIsAVaultReferenceException::class);
 
         ($this->handler)($this->command(macroChanges: [
-            new HostTemplateMacroChange(new HostTemplateMacroName('pwd'), self::PARENT_SECRET, true),
+            new HostTemplateMacroChange(new HostMacroName('pwd'), self::PARENT_SECRET, true),
         ]));
     }
 
@@ -465,11 +465,11 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
     {
         $this->vault->vaultEnabled = true;
         $this->vault->resolved[self::PARENT_SECRET] = 'parent-secret';
-        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostTemplateMacroName('pwd'), self::PARENT_SECRET, true, new HostTemplateMacroId(70))]);
+        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostMacroName('pwd'), self::PARENT_SECRET, true, new HostMacroId(70))]);
 
         $template = ($this->handler)($this->command(
             templateIds: [7],
-            macroChanges: [new HostTemplateMacroChange(new HostTemplateMacroName('renamed'), null, true, 70, HostMacroParentEnum::Template)],
+            macroChanges: [new HostTemplateMacroChange(new HostMacroName('renamed'), null, true, 70, HostMacroParentEnum::Template)],
         ));
 
         self::assertSame(['RENAMED'], $this->macroNames($template));
@@ -479,11 +479,11 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
 
     public function testAMacroEqualToTheInheritedOneIsNotStored(): void
     {
-        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostTemplateMacroName('port'), '80', false, new HostTemplateMacroId(70))]);
+        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostMacroName('port'), '80', false, new HostMacroId(70))]);
 
         $template = ($this->handler)($this->command(
             templateIds: [7],
-            macroChanges: [new HostTemplateMacroChange(new HostTemplateMacroName('port'), '80', false, 70, HostMacroParentEnum::Template)],
+            macroChanges: [new HostTemplateMacroChange(new HostMacroName('port'), '80', false, 70, HostMacroParentEnum::Template)],
         ));
 
         self::assertSame([], $this->macroNames($template));
@@ -494,7 +494,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         $this->expectException(HostTemplateMacroNotFoundException::class);
 
         ($this->handler)($this->command(macroChanges: [
-            new HostTemplateMacroChange(new HostTemplateMacroName('port'), '80', false, 70, HostMacroParentEnum::Template),
+            new HostTemplateMacroChange(new HostMacroName('port'), '80', false, 70, HostMacroParentEnum::Template),
         ]));
     }
 
@@ -542,7 +542,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
     ): CreateHostTemplateCommand {
         return new CreateHostTemplateCommand(
             name: new HostTemplateName('tpl'),
-            alias: new HostTemplateAlias('Alias'),
+            alias: new HostAlias('Alias'),
             actor: $actor ?? TestActingUsers::unrestricted(5),
             snmpCommunity: $snmpCommunity,
             timezoneId: $timezoneId !== null ? new TimezoneId($timezoneId) : null,

@@ -23,14 +23,14 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
@@ -136,8 +136,8 @@ final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
         $copy = new HostTemplate(
             null,
             new HostTemplateName($this->uniqueName()),
-            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostTemplateMacroName('PWD'), 'secret::vault::monitoring/hosts/copy::_HOSTPWD', isPassword: true)], HostTemplateMacro::class)),
-            snmpCommunity: new HostTemplateSnmpCommunity('copy-community'),
+            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostMacroName('PWD'), 'secret::vault::monitoring/hosts/copy::_HOSTPWD', isPassword: true)], HostTemplateMacro::class)),
+            snmpCommunity: new SnmpCommunity('copy-community'),
         );
         $this->repository->addCopyOf($copy, new HostTemplateId($sourceId));
         $copyId = $copy->id()->value;

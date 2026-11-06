@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
 
 use ApiPlatform\Metadata\ApiProperty;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\HostTemplateNotificationOptionEnumResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\NotificationContact\NotificationContactResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
@@ -42,7 +42,7 @@ final readonly class HostTemplateNotificationsOutput
         public string $enabled,
         public array $contacts,
         public array $contactGroups,
-        #[ApiProperty(openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => HostTemplateNotificationOptionEnumResolver::API_VALUES]])]
+        #[ApiProperty(openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => NotificationOptionEnumResolver::API_VALUES]])]
         public array $options,
         public ?int $interval,
         #[ApiProperty(readableLink: true)]

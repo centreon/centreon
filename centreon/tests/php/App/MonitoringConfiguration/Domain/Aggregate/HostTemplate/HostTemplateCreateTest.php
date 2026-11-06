@@ -24,18 +24,18 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Exception\MissingIdException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -47,7 +47,7 @@ final class HostTemplateCreateTest extends TestCase
     {
         $template = HostTemplate::create(
             new HostTemplateName('tpl'),
-            new HostTemplateAlias('A template'),
+            new HostAlias('A template'),
             new HostTemplateCheckOptions(null, ['-w', '80']),
             parentTemplateIds: new Collection([new HostTemplateId(3)], HostTemplateId::class),
         );
@@ -121,7 +121,7 @@ final class HostTemplateCreateTest extends TestCase
 
         yield 'recovery delay 0' => [static fn (): HostTemplate => self::make(notifications: new HostTemplateNotifications(recoveryDelay: 0))];
 
-        yield 'none alone' => [static fn (): HostTemplate => self::make(notifications: new HostTemplateNotifications(options: [HostTemplateNotificationOptionEnum::None]))];
+        yield 'none alone' => [static fn (): HostTemplate => self::make(notifications: new HostTemplateNotifications(options: [NotificationOptionEnum::None]))];
     }
 
     /**
@@ -165,7 +165,7 @@ final class HostTemplateCreateTest extends TestCase
 
         yield 'recovery delay -1' => [static fn (): HostTemplate => self::make(notifications: new HostTemplateNotifications(recoveryDelay: -1))];
 
-        yield 'none with another option' => [static fn (): HostTemplate => self::make(notifications: new HostTemplateNotifications(options: [HostTemplateNotificationOptionEnum::Down, HostTemplateNotificationOptionEnum::None]))];
+        yield 'none with another option' => [static fn (): HostTemplate => self::make(notifications: new HostTemplateNotifications(options: [NotificationOptionEnum::Down, NotificationOptionEnum::None]))];
 
         yield 'two macros of one name' => [static fn (): HostTemplate => self::make(macroNames: ['PORT', 'port'])];
     }
@@ -192,12 +192,12 @@ final class HostTemplateCreateTest extends TestCase
     ): HostTemplate {
         return HostTemplate::create(
             new HostTemplateName('tpl'),
-            new HostTemplateAlias('alias'),
+            new HostAlias('alias'),
             new HostTemplateCheckOptions(
                 $args === [] ? new CommandId(1) : null,
                 $args,
                 new Collection(
-                    array_map(static fn (string $name): HostTemplateMacro => new HostTemplateMacro(new HostTemplateMacroName($name), 'v', false), $macroNames),
+                    array_map(static fn (string $name): HostTemplateMacro => new HostTemplateMacro(new HostMacroName($name), 'v', false), $macroNames),
                     HostTemplateMacro::class,
                 ),
             ),

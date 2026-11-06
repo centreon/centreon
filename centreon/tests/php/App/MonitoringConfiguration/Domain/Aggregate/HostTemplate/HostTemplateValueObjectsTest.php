@@ -23,16 +23,16 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -106,23 +106,23 @@ final class HostTemplateValueObjectsTest extends TestCase
      */
     public static function provideStorageViolations(): iterable
     {
-        yield 'alias over 200' => [static fn (): HostTemplateAlias => new HostTemplateAlias(str_repeat('a', 201))];
+        yield 'alias over 200' => [static fn (): HostAlias => new HostAlias(str_repeat('a', 201))];
 
-        yield 'blank alias' => [static fn (): HostTemplateAlias => new HostTemplateAlias('  ')];
+        yield 'blank alias' => [static fn (): HostAlias => new HostAlias('  ')];
 
         yield 'alternative icon text over 200' => [static fn (): HostTemplateExtendedInformations => new HostTemplateExtendedInformations(altIcon: str_repeat('a', 201))];
 
-        yield 'SNMP community over 255' => [static fn (): HostTemplateSnmpCommunity => new HostTemplateSnmpCommunity(str_repeat('s', 256))];
+        yield 'SNMP community over 255' => [static fn (): SnmpCommunity => new SnmpCommunity(str_repeat('s', 256))];
 
-        yield 'blank SNMP community' => [static fn (): HostTemplateSnmpCommunity => new HostTemplateSnmpCommunity(' ')];
+        yield 'blank SNMP community' => [static fn (): SnmpCommunity => new SnmpCommunity(' ')];
 
-        yield 'macro value over 4096' => [static fn (): HostTemplateMacro => new HostTemplateMacro(new HostTemplateMacroName('M'), str_repeat('v', 4097), isPassword: false)];
+        yield 'macro value over 4096' => [static fn (): HostTemplateMacro => new HostTemplateMacro(new HostMacroName('M'), str_repeat('v', 4097), isPassword: false)];
 
-        yield 'macro name over 255 once wrapped' => [static fn (): HostTemplateMacroName => new HostTemplateMacroName(str_repeat('N', 249))];
+        yield 'macro name over 255 once wrapped' => [static fn (): HostMacroName => new HostMacroName(str_repeat('N', 249))];
 
-        yield 'blank macro name' => [static fn (): HostTemplateMacroName => new HostTemplateMacroName(' ')];
+        yield 'blank macro name' => [static fn (): HostMacroName => new HostMacroName(' ')];
 
-        yield 'macro id 0' => [static fn (): HostTemplateMacroId => new HostTemplateMacroId(0)];
+        yield 'macro id 0' => [static fn (): HostMacroId => new HostMacroId(0)];
 
         yield 'check argument with the delimiter' => [static fn (): HostTemplateCheckOptions => new HostTemplateCheckOptions(null, ['a!b'])];
 
@@ -133,10 +133,10 @@ final class HostTemplateValueObjectsTest extends TestCase
 
     public function testTheBoundariesTheStorageCanHold(): void
     {
-        self::assertSame(200, mb_strlen(new HostTemplateAlias(str_repeat('a', 200))->value));
-        self::assertSame(255, mb_strlen(new HostTemplateSnmpCommunity(str_repeat('s', 255))->value));
-        self::assertSame(4096, mb_strlen(new HostTemplateMacro(new HostTemplateMacroName('M'), str_repeat('v', 4096), isPassword: false)->value));
-        self::assertSame('$_HOST' . str_repeat('N', 248) . '$', new HostTemplateMacroName(str_repeat('n', 248))->toStorageName());
+        self::assertSame(200, mb_strlen(new HostAlias(str_repeat('a', 200))->value));
+        self::assertSame(255, mb_strlen(new SnmpCommunity(str_repeat('s', 255))->value));
+        self::assertSame(4096, mb_strlen(new HostTemplateMacro(new HostMacroName('M'), str_repeat('v', 4096), isPassword: false)->value));
+        self::assertSame('$_HOST' . str_repeat('N', 248) . '$', new HostMacroName(str_repeat('n', 248))->toStorageName());
         self::assertSame(200, mb_strlen((string) new HostTemplateExtendedInformations(altIcon: str_repeat('a', 200))->altIcon));
     }
 }
