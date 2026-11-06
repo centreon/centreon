@@ -27,6 +27,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
+use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Infrastructure\Gorgone\Interfaces\ConfigurationLoaderApiInterface;
 use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -332,7 +333,7 @@ class LegacyCommandSender
             throw new LegacyCommandException(sprintf(
                 _('Gorgone node %d is not connected: nothing has been sent, retry once the poller is connected'),
                 $pollerId
-            ));
+            ), GorgoneDeliveryException::NODE_NOT_CONNECTED);
         }
     }
 
@@ -362,7 +363,7 @@ class LegacyCommandSender
                     throw new LegacyCommandException(sprintf(
                         _('Gorgone could not deliver the command: %s'),
                         is_array($data) && is_scalar($data['message'] ?? null) ? (string) $data['message'] : $token
-                    ));
+                    ), GorgoneDeliveryException::DELIVERY_FAILED);
                 }
                 if (
                     $code === self::GORGONE_ACTION_FINISH_OK
@@ -377,7 +378,7 @@ class LegacyCommandSender
                     _('Gorgone did not confirm the delivery within %d seconds (token %s)'),
                     $timeout,
                     $token
-                ));
+                ), GorgoneDeliveryException::RESULT_TIMEOUT);
             }
             usleep(self::RESULT_POLL_INTERVAL_US);
         }

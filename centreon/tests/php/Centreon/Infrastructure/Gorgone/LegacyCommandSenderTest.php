@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Centreon\Infrastructure\Gorgone;
 
 use Adaptation\Database\Connection\ConnectionInterface;
+use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Infrastructure\Gorgone\Interfaces\ConfigurationLoaderApiInterface;
 use Centreon\Infrastructure\Gorgone\LegacyCommandException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
@@ -54,6 +55,7 @@ class LegacyCommandSenderTest extends TestCase
 
         $this->expectException(LegacyCommandException::class);
         $this->expectExceptionMessage('Gorgone node 2 is not connected');
+        $this->expectExceptionCode(GorgoneDeliveryException::NODE_NOT_CONNECTED);
         try {
             $sender->sendCommand('RELOAD', 2);
         } finally {
@@ -73,6 +75,7 @@ class LegacyCommandSenderTest extends TestCase
 
         $this->expectException(LegacyCommandException::class);
         $this->expectExceptionMessage('proxy - no pathway for target 2');
+        $this->expectExceptionCode(GorgoneDeliveryException::DELIVERY_FAILED);
         $sender->sendCommand('RELOAD', 2);
     }
 
@@ -107,6 +110,7 @@ class LegacyCommandSenderTest extends TestCase
 
         $this->expectException(LegacyCommandException::class);
         $this->expectExceptionMessage('did not confirm the delivery within 1 seconds');
+        $this->expectExceptionCode(GorgoneDeliveryException::RESULT_TIMEOUT);
         $sender->sendCommand('RELOAD', 2);
     }
 
@@ -119,6 +123,7 @@ class LegacyCommandSenderTest extends TestCase
 
         $this->expectException(LegacyCommandException::class);
         $this->expectExceptionMessage('Gorgone node 1 is not connected');
+        $this->expectExceptionCode(GorgoneDeliveryException::NODE_NOT_CONNECTED);
         try {
             $sender->sendConfigurationFiles(1);
         } finally {

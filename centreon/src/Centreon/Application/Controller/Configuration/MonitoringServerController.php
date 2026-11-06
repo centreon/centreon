@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
@@ -254,6 +255,19 @@ class MonitoringServerController extends AbstractController
             $this->error($ex->getMessage());
 
             throw $ex;
+        } catch (GorgoneDeliveryException $ex) {
+            $this->error($ex->getMessage());
+
+            // The exception code is the HTTP status of the response (see CentreonEventSubscriber):
+            // 504 when Gorgone did not report the final result in time (the delivery may still happen),
+            // 409 when the poller is not connected to Gorgone or Gorgone reported a failure.
+            throw new MonitoringServerException(
+                $ex->getMessage(),
+                $ex->getCode() === GorgoneDeliveryException::RESULT_TIMEOUT
+                    ? Response::HTTP_GATEWAY_TIMEOUT
+                    : Response::HTTP_CONFLICT,
+                $ex,
+            );
         } catch (\Exception $ex) {
             $this->error($ex->getMessage());
 

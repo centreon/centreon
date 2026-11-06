@@ -24,6 +24,8 @@ ini_set('display_errors', 'Off');
 use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Entity\Task;
+use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
+use Centreon\Infrastructure\Gorgone\LegacyCommandException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 use Centreon\Infrastructure\Service\VmwareConfigurationService;
 
@@ -385,6 +387,10 @@ try {
     $xml->writeElement('status', $nokMsg);
     $xml->writeElement('statuscode', STATUS_NOK);
     $xml->writeElement('error', $e->getMessage());
+    if ($e instanceof LegacyCommandException && GorgoneDeliveryException::isKnownReason($e->getCode())) {
+        // Lets the REST export answer with a status matching the reason (see MonitoringServerController)
+        $xml->writeElement('errorcode', (string) $e->getCode());
+    }
 }
 // Restore default error handler
 restore_error_handler();
