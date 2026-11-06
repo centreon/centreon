@@ -115,6 +115,7 @@ spec:
           env:
             {{- include "centreon-central.fpmInstallEnv" . | nindent 12 }}
             - { name: INSTALL_DB_STEPS, value: "false" }
+            {{- include "centreon-central.exportTimeoutEnv" . | nindent 12 }}
             {{- with include "centreon-central.fpmSessionEnv" . }}{{ . | nindent 12 }}{{ end }}
             {{- with include "centreon-central.vaultEnv" . }}{{ . | nindent 12 }}{{ end }}
             {{- with .Values.fpm.extraEnv }}

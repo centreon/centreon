@@ -446,6 +446,26 @@ valkey:6379
 
 {{/* fpm's session handler (image contract: the entrypoint URL-encodes the
      password into the save path). */}}
+{{/*
+Configuration export timeouts (MON-214473), all derived from
+configurationExport.generationTimeoutSeconds: fpm runs the generation within
+it and PHP must not stop it first; httpd must outlast the whole REST
+generate-and-reload (generation + two gorgone deliveries of up to 60 s each).
+*/}}
+{{- define "centreon-central.generationTimeout" -}}
+{{- int .Values.configurationExport.generationTimeoutSeconds -}}
+{{- end }}
+
+{{- define "centreon-central.exportTimeoutEnv" -}}
+{{- $generation := include "centreon-central.generationTimeout" . | int -}}
+- { name: CENTREON_CONFIGURATION_GENERATION_TIMEOUT, value: {{ $generation | quote }} }
+- { name: PHP_MAX_EXECUTION_TIME, value: {{ max 300 (add $generation 60) | quote }} }
+{{- end }}
+
+{{- define "centreon-central.httpdProxyTimeout" -}}
+{{- max 300 (add (include "centreon-central.generationTimeout" . | int) 240) -}}
+{{- end }}
+
 {{- define "centreon-central.fpmSessionEnv" -}}
 {{- if include "centreon-central.valkeyOn" . }}
 - { name: PHP_SESSION_HANDLER, value: redis }

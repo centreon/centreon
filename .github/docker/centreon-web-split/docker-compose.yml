@@ -114,6 +114,10 @@ services:
       # MON-214472: default unchanged (256M, image's own default) when unset
       # or empty — raise it for large inventories (MON-213806).
       PHP_MEMORY_LIMIT: "${PHP_MEMORY_LIMIT:-256M}"
+      # MON-214473: generation timeout of the REST export (empty = 60 s), and
+      # PHP's own limit, which must stay above it.
+      CENTREON_CONFIGURATION_GENERATION_TIMEOUT: "${CENTREON_CONFIGURATION_GENERATION_TIMEOUT:-}"
+      PHP_MAX_EXECUTION_TIME: "${PHP_MAX_EXECUTION_TIME:-300}"
       # MON-214095: PHP sessions in Valkey instead of the (now removed)
       # centreon-sessions volume — fpm replicas no longer need shared RWX
       # storage for session state. PHP_SESSION_SAVE_PATH carries no
@@ -252,6 +256,8 @@ services:
       PHP_FPM_UPSTREAM: "fpm:9000"
       HTTPD_SERVER_NAME: "${HTTPD_SERVER_NAME:-localhost:18080}"
       GORGONE_WSS_UPSTREAM: "${GORGONE_WSS_UPSTREAM:-gorgone-central:8087}"
+      # MON-214473: must outlast the longest export request.
+      HTTPD_PROXY_TIMEOUT: "${HTTPD_PROXY_TIMEOUT:-300}"
     volumes:
       # See the matching comment on fpm's own mount of this volume — fpm
       # writes, httpd only serves it back statically, :ro here on purpose.

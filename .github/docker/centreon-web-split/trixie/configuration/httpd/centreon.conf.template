@@ -10,9 +10,10 @@
 #   - RewriteCond install-gate removed on purpose: T9 will own automated
 #     install, this vhost no longer redirects to www/install/install.php
 #
-# ${HTTPD_SERVER_NAME}, ${PHP_FPM_UPSTREAM} and ${GORGONE_WSS_UPSTREAM} are
-# substituted at container start by entrypoint/httpd/container.d/10-config.sh
-# (envsubst, restricted to these three variables — do not widen that
+# ${HTTPD_SERVER_NAME}, ${PHP_FPM_UPSTREAM}, ${GORGONE_WSS_UPSTREAM} and
+# ${HTTPD_PROXY_TIMEOUT} are substituted at container start by
+# entrypoint/httpd/container.d/10-config.sh (envsubst, restricted to these
+# variables — do not widen that
 # substitution list, this file also contains literal Apache regex
 # backreferences like $1 that must survive it).
 #
@@ -57,7 +58,9 @@ ServerTokens Prod
         ProxyPassMatch "fcgi://${PHP_FPM_UPSTREAM}${install_dir}/api/index.php/$1"
     </LocationMatch>
 
-    ProxyTimeout 300
+    # MON-214473: deployment-specific, must outlast the longest export request
+    # (REST generate-and-reload = generation + move + reload).
+    ProxyTimeout ${HTTPD_PROXY_TIMEOUT}
     ErrorDocument 404 ${base_uri}/index.html
     Options -Indexes +FollowSymLinks
 

@@ -360,12 +360,24 @@ networkPolicy:
     # Extra ingress rules (NetworkPolicy ingress items) for the poller pods.
     extraIngress: []
 
+# Configuration export ("generate + move + reload", UI and REST API).
+configurationExport:
+  # Timeout of the REST export's generation step (internal call to
+  # generateFiles.php). 60 s covers a few thousand hosts; raise it for large
+  # inventories (MON-213806 scale tests: ~10k hosts already take longer).
+  # Derived from it: php max_execution_time (at least this + 60 s, never
+  # below 300), httpd ProxyTimeout (at least this + 240 s for the REST
+  # generate-and-reload, never below 300) and the config-delivery client.
+  generationTimeoutSeconds: 60
+
 # One-shot Job after each install/upgrade (fpm image, no php-fpm): resyncs
 # gorgone-central's node list, waits for the Central poller to connect, runs
 # "generate + move + reload" once, exits. Later exports are the admin's job,
 # as on a VM (the compose stack's every-60s loop is dev-only).
 configDelivery:
   centralPollerId: "1"
+  # Raised to 3 attempts of generate-and-reload when
+  # configurationExport.generationTimeoutSeconds needs more.
   timeoutSeconds: 1800
   resources: {}
 

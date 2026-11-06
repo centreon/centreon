@@ -237,6 +237,9 @@ services:
         calls:
             -   method: setTimeout
                 arguments: ['%curl.timeout%']
+            # Generation takes much longer than the other calls on large configurations (empty = setTimeout's).
+            -   method: setGenerationTimeout
+                arguments: ['%env(CENTREON_CONFIGURATION_GENERATION_TIMEOUT)%']
 
     # Platform topology register server
     Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyServiceInterface:

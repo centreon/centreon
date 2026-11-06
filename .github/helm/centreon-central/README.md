@@ -407,6 +407,12 @@ gorgone image (`10-create-config.sh`, centreon-collect).
   + reload" every minute; here the config-delivery Job does it once per
   install/upgrade and exits, then exports are the admin's job as on a VM (no
   silent export of staged edits, no reload every minute).
+- **Export timeouts follow one value.** `configurationExport.generationTimeoutSeconds`
+  (60 s by default, raise it for large inventories) bounds the REST export's
+  generation step and sizes php `max_execution_time` (at least + 60 s),
+  httpd `ProxyTimeout` (at least + 240 s), the config-delivery client and
+  its Job deadline, never below their previous values. An ingress in front
+  of httpd may have its own read timeout to raise for external REST callers.
 - **gorgone-central may start before the schema exists.** The
   config-delivery Job POSTs `/api/centreon/nodes/sync` until the Central
   poller is connected.
