@@ -25,6 +25,7 @@ use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Entity\Task;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
+use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 use Centreon\Infrastructure\MonitoringServer\ConfigurationGenerationStatus;
@@ -400,6 +401,8 @@ try {
     if ($e instanceof LegacyCommandException && GorgoneDeliveryException::isKnownReason($e->getCode())) {
         // Lets the REST export answer with a status matching the reason (see MonitoringServerController)
         $xml->writeElement('errorcode', (string) $e->getCode());
+    } elseif ($e instanceof IncompleteGenerationException) {
+        $xml->writeElement('errorcode', (string) IncompleteGenerationException::REASON);
     }
 }
 // Restore default error handler

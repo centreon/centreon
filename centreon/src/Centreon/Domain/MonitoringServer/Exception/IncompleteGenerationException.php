@@ -29,4 +29,9 @@ namespace Centreon\Domain\MonitoringServer\Exception;
  */
 class IncompleteGenerationException extends \Exception
 {
+    /**
+     * Reason code carried by the legacy export pages' XML answer (errorcode, next to GorgoneDeliveryException's
+     * reasons), so that the REST export answers with a 409.
+     */
+    public const REASON = 4;
 }

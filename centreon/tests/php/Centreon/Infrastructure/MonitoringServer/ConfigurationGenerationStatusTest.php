@@ -70,11 +70,18 @@ class ConfigurationGenerationStatusTest extends TestCase
         // e.g. PHP memory exhausted in the middle of the generation: markCompleted() never runs
         $this->status->markStarted(1, 'admin');
 
-        $this->expectException(IncompleteGenerationException::class);
-        $this->expectExceptionMessageMatches(
-            '/monitoring server "Central" did not complete \(started \S+ admin\).*generate its configuration again/'
-        );
-        $this->status->assertCompleted(1, 'Central');
+        try {
+            $this->status->assertCompleted(1, 'Central');
+            $this->fail('An IncompleteGenerationException was expected');
+        } catch (IncompleteGenerationException $ex) {
+            $this->assertMatchesRegularExpression(
+                '/monitoring server "Central" did not complete \(started \S+ admin\).*generate its configuration again$/',
+                $ex->getMessage()
+            );
+            // The marker path is for the logs only, never shown to the user
+            $this->assertStringNotContainsString($this->generatePath, $ex->getMessage());
+            $this->assertSame(IncompleteGenerationException::REASON, $ex->getCode());
+        }
     }
 
     public function testOnlyThePollerWhoseGenerationDidNotCompleteIsRefused(): void

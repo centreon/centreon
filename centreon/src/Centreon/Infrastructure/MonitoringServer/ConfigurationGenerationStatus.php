@@ -76,7 +76,13 @@ class ConfigurationGenerationStatus
     {
         $marker = $this->getMarkerPath($monitoringServerId);
         if (file_exists($marker) && ! @unlink($marker)) {
-            throw new \RuntimeException(sprintf(_('Cannot remove the generation marker %s'), $marker));
+            // The path is for the administrator, in the logs only.
+            error_log(sprintf('Cannot remove the configuration generation marker %s', $marker));
+
+            throw new \RuntimeException(sprintf(
+                _('Cannot mark the configuration generation of the monitoring server #%d as complete, see the logs'),
+                $monitoringServerId
+            ));
         }
     }
 
@@ -91,14 +97,21 @@ class ConfigurationGenerationStatus
         }
 
         $startedBy = trim((string) @file_get_contents($marker));
+        // The path is for the administrator, in the logs only: never in what the user (UI, CLAPI, REST) sees.
+        error_log(sprintf(
+            'Last configuration generation of the monitoring server #%d did not complete (marker %s, started %s)',
+            $monitoringServerId,
+            $marker,
+            $startedBy
+        ));
 
         throw new IncompleteGenerationException(
             sprintf(
-                _('The last configuration generation of the monitoring server "%s" did not complete (started %s): it failed or is still running. Nothing has been moved nor restarted, generate its configuration again (marker: %s)'),
+                _('The last configuration generation of the monitoring server "%s" did not complete (started %s): it failed or is still running. Nothing has been moved nor restarted, generate its configuration again'),
                 $monitoringServerName,
                 $startedBy !== '' ? $startedBy : '?',
-                $marker,
-            )
+            ),
+            IncompleteGenerationException::REASON
         );
     }
 
