@@ -1,0 +1,13 @@
+{{- if and .Values.database.tls.enabled .Values.database.tls.caCert }}
+# CA bundle trusting the database server (database.tls.caCert): public
+# certificates only, mounted by every database client.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-db-ca
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+data:
+  ca.pem: |
+    {{- .Values.database.tls.caCert | nindent 4 }}
+{{- end }}
