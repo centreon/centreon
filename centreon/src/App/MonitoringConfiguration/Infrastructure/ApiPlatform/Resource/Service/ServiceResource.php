@@ -31,9 +31,11 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\CreateServiceProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\DeleteServiceProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\DeployHostServicesProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\GetServiceProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ListServicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchServiceProcessor;
@@ -128,6 +130,58 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchSe
             securityMessage: 'You are not allowed to create services',
             input: CreateServiceInput::class,
             processor: CreateServiceProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/configuration/hosts/{hostId}/services/deploy',
+            // Positive integers only, as on the host routes: a non-numeric or zero id is a 404.
+            requirements: ['hostId' => '[1-9]\d*'],
+            // Declared, or the operation would expect the service's own `{id}`.
+            uriVariables: ['hostId'],
+            // A plain list of items: API Platform cannot build a collection IRI for a POST that is not a collection
+            // operation, it falls back to the item route, which needs a service id.
+            normalizationContext: ['api_sub_level' => true],
+            // No body and no item to read: the processor answers the created services, or a 204 when none.
+            read: false,
+            deserialize: false,
+            validate: false,
+            input: false,
+            processor: DeployHostServicesProcessor::class,
+            openapi: new Model\Operation(
+                summary: 'Deploy the services of a host from its templates',
+                parameters: [
+                    new Model\Parameter(name: 'hostId', in: 'path', description: 'Host identifier', required: true, schema: ['type' => 'string']),
+                ],
+                description: 'Creates on the host one enabled service per service template of its host templates and '
+                    . 'their ancestors, named after the template alias, with the service groups of the template, '
+                    . 'unless a service of the host already bears exactly that name. All or nothing: an invalid '
+                    . 'alias fails the whole deployment. Answers the created services, each as a Get does.',
+                responses: [
+                    201 => new Model\Response(
+                        'The created services, each as a Get answers it',
+                        new \ArrayObject([
+                            'application/ld+json' => ['schema' => ['type' => 'array', 'items' => ['$ref' => '#/components/schemas/Service.jsonld']]],
+                            'application/json' => ['schema' => ['type' => 'array', 'items' => ['$ref' => '#/components/schemas/Service']]],
+                        ]),
+                    ),
+                    204 => new Model\Response('Nothing to deploy: no service template, or every name already on the host'),
+                    403 => new Model\Response('You are not allowed to deploy services'),
+                    404 => new Model\Response('Host not found'),
+                    422 => new Model\Response(
+                        'A service template alias cannot name a service; nothing was deployed',
+                        new \ArrayObject([
+                            'application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => ['code' => ['type' => 'integer'], 'message' => ['type' => 'string']],
+                            ]],
+                        ]),
+                    ),
+                ],
+            ),
+            // The right on hosts, read-only included, as the legacy deployment.
+            security: '
+                is_granted("' . HostPermissionEnum::CanRead->value . '") or
+                is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to deploy services',
         ),
         new Get(
             uriTemplate: '/configuration/services/{id}',
