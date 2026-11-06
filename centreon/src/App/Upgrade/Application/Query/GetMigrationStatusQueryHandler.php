@@ -73,7 +73,7 @@ final readonly class GetMigrationStatusQueryHandler
 
                 $statuses[] = $this->status($set, $legacyRefusal);
             } catch (\Throwable $exception) {
-                // A check of migrate(), a database failure or a broken migration file: the other sets are still worth showing.
+                // Report the failure on this set and keep listing the others.
                 $this->upgradeLogger->error($this->platformVersion, sprintf('Cannot read the status of the %s: %s', $set->label(), $exception->getMessage()), $exception);
                 $statuses[] = new MigrationSetStatus($set, [], [], $exception->getMessage());
             }
@@ -95,7 +95,7 @@ final readonly class GetMigrationStatusQueryHandler
     }
 
     /**
-     * As migrate(), which refuses the core sets while legacy scripts are pending. A rollback does not.
+     * Why migrate() refuses the core sets, null when it does not.
      */
     private function legacyRefusal(): ?string
     {

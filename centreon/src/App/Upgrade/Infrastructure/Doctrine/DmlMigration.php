@@ -27,8 +27,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * DDL, transaction control and procedure calls (which may run either) are rejected: MySQL would implicitly commit the
- * transaction, breaking the atomicity of this migration and of the next ones.
+ * Rejects DDL, transaction control and CALL: MySQL would implicitly commit the transaction.
  */
 abstract class DmlMigration extends AbstractMigration
 {

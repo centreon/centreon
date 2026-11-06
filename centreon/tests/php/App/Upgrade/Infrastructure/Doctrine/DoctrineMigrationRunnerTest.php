@@ -35,8 +35,7 @@ use Psr\Log\NullLogger;
 use Tests\App\Upgrade\Infrastructure\Double\SingleConnectionRegistry;
 
 /**
- * Runs real migrations against a throwaway database: DAMA wraps every test in a transaction,
- * which would hide the transactional behaviour under test.
+ * Uses a dedicated database: the DAMA transaction would hide the transactional behaviour under test.
  */
 final class DoctrineMigrationRunnerTest extends TestCase
 {

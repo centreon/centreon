@@ -108,7 +108,7 @@ final readonly class MigrationSet
     }
 
     /**
-     * For people: the name is internal, and a module set is chosen by the name of its module.
+     * Human-readable name, for console output.
      */
     public function label(): string
     {

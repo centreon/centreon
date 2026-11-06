@@ -24,8 +24,7 @@ declare(strict_types=1);
 namespace App\Upgrade\Application;
 
 /**
- * The migrations of a module run once it is installed: its install.sql, frozen once it ships migrations, would run on a
- * schema they already changed, and its uninstallation dropped their metadata table.
+ * Module migrations only run once the module is installed.
  */
 final class ModuleNotInstalledException extends \RuntimeException
 {

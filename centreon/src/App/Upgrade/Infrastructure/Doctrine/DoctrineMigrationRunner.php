@@ -86,7 +86,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         // A dry run writes nothing: not even the metadata table.
         $factory = $this->createCheckedFactory($set, $configuration, $set->rollbackStep(), initialize: ! $dryRun);
 
-        // As status shows them, or as the generated file names end.
+        // Accept a class name or its bare timestamp.
         $alias = preg_match('/^(Version\d+|\d{14})$/D', $versionOrAlias) === 1
             ? $configuration->namespace . '\\Version' . preg_replace('/^Version/', '', $versionOrAlias)
             : $versionOrAlias;
@@ -118,7 +118,6 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             $isAfterTarget = $isAfterTarget || $migration->getVersion()->equals($target);
         }
 
-        // In the order they would be reverted.
         $planned = array_map('strval', array_reverse($toRevert));
         if ($dryRun) {
             return $planned;
@@ -163,9 +162,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             throw new \LogicException(\sprintf('The "%s" connection is not a DBAL connection.', $configuration->connection));
         }
 
-        // A migration reading $schema reads every table, a module one included. Only read: the type does not matter. The
-        // mapping stays on the platform of the connection for the rest of the process: it only lets an introspection read
-        // these columns, as text, where it would throw.
+        // Map unknown column types to text so that introspecting module tables does not throw.
         $platform = $connection->getDatabasePlatform();
         foreach (self::UNMAPPED_TYPES as $type) {
             if (! $platform->hasDoctrineTypeMappingFor($type)) {
