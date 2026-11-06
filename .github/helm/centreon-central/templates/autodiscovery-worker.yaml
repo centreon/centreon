@@ -51,6 +51,7 @@ spec:
             - { name: RUN_CONFIG_DELIVERY, value: "false" }
             - { name: RRD_VOLUMES_CHOWN, value: "false" }
             - { name: MYSQL_HOST, value: {{ include "centreon-central.dbHost" . | quote }} }
+            - { name: MYSQL_PORT, value: {{ include "centreon-central.dbPort" . | quote }} }
             - { name: MYSQL_DB_CONFIGURATION, value: {{ .Values.database.configurationDb | quote }} }
             - { name: MYSQL_DB_STORAGE, value: {{ .Values.database.storageDb | quote }} }
             {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_ROOT_PASSWORD" "key" "MYSQL_ROOT_PASSWORD") | nindent 12 }}

@@ -14,6 +14,11 @@ set -eu
 # 12-install.sh reads — same values, independently derived, zero coupling to
 # fpm's own container state.
 MYSQL_HOST="${MYSQL_HOST:?MYSQL_HOST is required}"
+# MON-214282: non-standard DB port support, same optional/defaulted style as
+# MYSQL_HOST. Threaded through database.json's own "port" field below — every
+# downstream consumer (centreon.conf.php/conf.pm's --DBPORT--, this script's
+# own PDO lock-release call) already reads it from there, port-aware already.
+MYSQL_PORT="${MYSQL_PORT:-3306}"
 MYSQL_DB_CONFIGURATION="${MYSQL_DB_CONFIGURATION:-centreon}"
 MYSQL_DB_STORAGE="${MYSQL_DB_STORAGE:-centreon_storage}"
 
@@ -52,6 +57,7 @@ fi
 
 DB_JSON=/usr/share/centreon/www/install/tmp/database.json
 sed -i "s/\"address\": \"[^\"]*\"/\"address\": \"${MYSQL_HOST}\"/" "$DB_JSON"
+sed -i "s/\"port\": \"[^\"]*\"/\"port\": \"${MYSQL_PORT}\"/" "$DB_JSON"
 sed -i "s/\"db_configuration\": \"[^\"]*\"/\"db_configuration\": \"${MYSQL_DB_CONFIGURATION}\"/" "$DB_JSON"
 sed -i "s/\"db_storage\": \"[^\"]*\"/\"db_storage\": \"${MYSQL_DB_STORAGE}\"/" "$DB_JSON"
 
