@@ -21,38 +21,45 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Host;
+namespace Tests\App\MonitoringConfiguration\Domain\Aggregate;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use PHPUnit\Framework\TestCase;
 
-final class HostAliasTest extends TestCase
+final class SnmpCommunityTest extends TestCase
 {
     public function testItTrimsSurroundingWhitespace(): void
     {
-        $alias = new HostAlias('  my-alias  ');
+        $community = new SnmpCommunity('  public  ');
 
-        self::assertSame('my-alias', $alias->value);
+        self::assertSame('public', $community->value);
     }
 
-    public function testItRejectsAWhitespaceOnlyAlias(): void
+    public function testItRejectsAWhitespaceOnlyCommunity(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        new HostAlias('   ');
+        new SnmpCommunity('   ');
     }
 
-    public function testItRejectsAnEmptyAlias(): void
+    public function testItRejectsAnEmptyCommunity(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        new HostAlias('');
+        new SnmpCommunity('');
     }
 
-    public function testItRejectsAnAliasLongerThan200Characters(): void
+    public function testItRejectsACommunityLongerThan255Characters(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        new HostAlias(str_repeat('a', 201));
+        new SnmpCommunity(str_repeat('a', 256));
+    }
+
+    public function testItAcceptsAVaultReferenceUnchanged(): void
+    {
+        $path = 'secret::hashicorp_vault::monitoring/hosts/3f2a::_HOSTSNMPCOMMUNITY';
+
+        self::assertSame($path, new SnmpCommunity($path)->value);
     }
 }

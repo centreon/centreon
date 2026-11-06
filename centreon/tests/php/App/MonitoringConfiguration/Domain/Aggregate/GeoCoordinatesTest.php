@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Host;
+namespace Tests\App\MonitoringConfiguration\Domain\Aggregate;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
+use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use PHPUnit\Framework\TestCase;
 
 final class GeoCoordinatesTest extends TestCase

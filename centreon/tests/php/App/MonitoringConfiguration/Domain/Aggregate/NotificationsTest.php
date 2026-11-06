@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Host;
+namespace Tests\App\MonitoringConfiguration\Domain\Aggregate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;

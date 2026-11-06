@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;

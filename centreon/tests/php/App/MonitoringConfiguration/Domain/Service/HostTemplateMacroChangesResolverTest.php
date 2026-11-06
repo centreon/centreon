@@ -31,8 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
@@ -41,6 +40,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroC
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroPasswordUnmaskedException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroValueRequiredException;

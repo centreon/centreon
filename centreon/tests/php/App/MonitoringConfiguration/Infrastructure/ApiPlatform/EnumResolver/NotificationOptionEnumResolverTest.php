@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

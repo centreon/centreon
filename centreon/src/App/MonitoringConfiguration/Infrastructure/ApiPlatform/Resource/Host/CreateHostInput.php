@@ -25,10 +25,10 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostGroups;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessiblePoller;
 use App\MonitoringConfiguration\Infrastructure\Validator\UniqueHostName;

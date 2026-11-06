@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
+namespace App\MonitoringConfiguration\Domain\Aggregate;
 
 use Webmozart\Assert\Assert;
 

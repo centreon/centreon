@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Host;
+namespace Tests\App\MonitoringConfiguration\Domain\Aggregate;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use PHPUnit\Framework\TestCase;
