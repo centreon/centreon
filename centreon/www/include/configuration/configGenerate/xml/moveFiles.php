@@ -27,6 +27,7 @@ use Centreon\Domain\Entity\Task;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
+use Centreon\Infrastructure\MonitoringServer\ConfigurationGenerationStatus;
 use Centreon\Infrastructure\Service\VmwareConfigurationService;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
@@ -129,62 +130,6 @@ foreach ($pollers as $index => $pollerId) {
     }
 }
 
-// SELECT Remote Servers from selected pollers
-// Then add all simple pollers linked directly to those Remote Servers
-// Then add all pollers which have an additional link to those Remote Servers
-$statementRemotes = $pearDB->prepare(
-    'SELECT ns.id
-    FROM nagios_server AS ns
-    JOIN platform_topology AS pt ON (ns.id = pt.server_id)
-    WHERE ns.id IN (' . implode(',', array_keys($pollerParams)) . ')
-    AND pt.type = "remote"
-    UNION
-    SELECT ns1.id
-    FROM nagios_server AS ns1
-    JOIN platform_topology AS pt ON (ns1.id = pt.server_id)
-    JOIN nagios_server AS ns2 ON ns1.id = ns2.remote_id
-    WHERE ns2.id IN (' . implode(',', array_keys($pollerParams)) . ')
-    AND pt.type = "remote"
-    UNION
-    SELECT ns1.id
-    FROM nagios_server AS ns1
-    JOIN platform_topology AS pt ON (ns1.id = pt.server_id)
-    JOIN rs_poller_relation AS rspr ON rspr.remote_server_id = ns1.id
-    WHERE rspr.poller_server_id IN (' . implode(',', array_keys($pollerParams)) . ')
-    AND pt.type = "remote"'
-);
-foreach ($pollerParams as $key => $value) {
-    $statementRemotes->bindValue($key, $value, PDO::PARAM_INT);
-}
-$statementRemotes->execute();
-$remotesResults = $statementRemotes->fetchAll(PDO::FETCH_ASSOC);
-
-if (! empty($remotesResults)) {
-    foreach ($remotesResults as $remote) {
-        $linkedStatement = $pearDB->prepare(
-            'SELECT id
-            FROM nagios_server
-            WHERE remote_id = :remote_id
-            UNION
-            SELECT poller_server_id AS id
-            FROM rs_poller_relation
-            WHERE remote_server_id = :remote_id'
-        );
-        $linkedStatement->bindValue(':remote_id', $remote['id'], PDO::PARAM_INT);
-        $linkedStatement->execute();
-        $linkedResults = $linkedStatement->fetchAll(PDO::FETCH_ASSOC);
-
-        $exportParams = [
-            'server' => $remote['id'],
-            'pollers' => [],
-        ];
-
-        $exportParams['pollers'] = ! empty($linkedResults) ? array_column($linkedResults, 'id') : [$remote['id']];
-
-        $dependencyInjector['centreon.taskservice']->addTask(Task::TYPE_EXPORT, ['params' => $exportParams]);
-    }
-}
-
 /**
  * The error handler for get error from PHP
  *
@@ -237,6 +182,71 @@ try {
     foreach ($tabs as $tab) {
         if (isset($ret['host']) && ($ret['host'] == 0 || in_array($tab['id'], $ret['host']))) {
             $tab_server[$tab['id']] = ['id' => $tab['id'], 'name' => $tab['name'], 'localhost' => $tab['localhost']];
+        }
+    }
+
+    // MON-214474: nothing is moved, nor exported to a Remote Server, when the last configuration generation
+    // of a selected poller did not complete: its files would be those of an older generation, or a mix.
+    $generationStatus = ConfigurationGenerationStatus::create();
+    foreach ($tab_server as $host) {
+        if (in_array($host['id'], $pollers)) {
+            $generationStatus->assertCompleted((int) $host['id'], $host['name']);
+        }
+    }
+
+    // SELECT Remote Servers from selected pollers
+    // Then add all simple pollers linked directly to those Remote Servers
+    // Then add all pollers which have an additional link to those Remote Servers
+    $statementRemotes = $pearDB->prepare(
+        'SELECT ns.id
+        FROM nagios_server AS ns
+        JOIN platform_topology AS pt ON (ns.id = pt.server_id)
+        WHERE ns.id IN (' . implode(',', array_keys($pollerParams)) . ')
+        AND pt.type = "remote"
+        UNION
+        SELECT ns1.id
+        FROM nagios_server AS ns1
+        JOIN platform_topology AS pt ON (ns1.id = pt.server_id)
+        JOIN nagios_server AS ns2 ON ns1.id = ns2.remote_id
+        WHERE ns2.id IN (' . implode(',', array_keys($pollerParams)) . ')
+        AND pt.type = "remote"
+        UNION
+        SELECT ns1.id
+        FROM nagios_server AS ns1
+        JOIN platform_topology AS pt ON (ns1.id = pt.server_id)
+        JOIN rs_poller_relation AS rspr ON rspr.remote_server_id = ns1.id
+        WHERE rspr.poller_server_id IN (' . implode(',', array_keys($pollerParams)) . ')
+        AND pt.type = "remote"'
+    );
+    foreach ($pollerParams as $key => $value) {
+        $statementRemotes->bindValue($key, $value, PDO::PARAM_INT);
+    }
+    $statementRemotes->execute();
+    $remotesResults = $statementRemotes->fetchAll(PDO::FETCH_ASSOC);
+
+    if (! empty($remotesResults)) {
+        foreach ($remotesResults as $remote) {
+            $linkedStatement = $pearDB->prepare(
+                'SELECT id
+                FROM nagios_server
+                WHERE remote_id = :remote_id
+                UNION
+                SELECT poller_server_id AS id
+                FROM rs_poller_relation
+                WHERE remote_server_id = :remote_id'
+            );
+            $linkedStatement->bindValue(':remote_id', $remote['id'], PDO::PARAM_INT);
+            $linkedStatement->execute();
+            $linkedResults = $linkedStatement->fetchAll(PDO::FETCH_ASSOC);
+
+            $exportParams = [
+                'server' => $remote['id'],
+                'pollers' => [],
+            ];
+
+            $exportParams['pollers'] = ! empty($linkedResults) ? array_column($linkedResults, 'id') : [$remote['id']];
+
+            $dependencyInjector['centreon.taskservice']->addTask(Task::TYPE_EXPORT, ['params' => $exportParams]);
         }
     }
 

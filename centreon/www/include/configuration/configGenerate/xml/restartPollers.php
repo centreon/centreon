@@ -26,6 +26,7 @@ use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
+use Centreon\Infrastructure\MonitoringServer\ConfigurationGenerationStatus;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
@@ -201,6 +202,13 @@ try {
         if (isset($ret['host']) && ($ret['host'] == 0 || in_array($tab['id'], $ret['host']))) {
             $poller[$tab['id']] = ['id' => $tab['id'], 'name' => $tab['name'], 'engine_restart_command' => $tab['engine_restart_command'], 'engine_reload_command' => $tab['engine_reload_command'], 'broker_reload_command' => $tab['broker_reload_command']];
         }
+    }
+
+    // MON-214474: no poller is reloaded nor restarted when the last configuration generation of one of them
+    // did not complete (the files moved before it would be those of an older generation, or a mix).
+    $generationStatus = ConfigurationGenerationStatus::create();
+    foreach ($poller ?? [] as $host) {
+        $generationStatus->assertCompleted((int) $host['id'], $host['name']);
     }
 
     // Restart broker
