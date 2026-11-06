@@ -138,6 +138,22 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
     }
 
     /**
+     * The value is cast element by element but validated as a whole: a list must not pass as an id.
+     */
+    public function testTheArrayFormIsRefusedOnTheParameter(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', self::ENDPOINT . '?exclude_template_id[]=1');
+
+        self::assertResponseStatusCodeSame(422);
+        $body = $response->toArray(false);
+        self::assertSame(['code', 'message'], array_keys($body));
+        self::assertIsString($body['message']);
+        self::assertStringStartsWith('[exclude_template_id] ', $body['message']);
+    }
+
+    /**
      * @return iterable<string, array{string}>
      */
     public static function provideIdsNamingNoTemplate(): iterable
