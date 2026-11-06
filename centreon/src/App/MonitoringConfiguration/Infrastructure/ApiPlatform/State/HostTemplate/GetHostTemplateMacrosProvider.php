@@ -25,10 +25,8 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTempl
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
@@ -71,10 +69,7 @@ final readonly class GetHostTemplateMacrosProvider implements ProviderInterface
             throw new HostTemplateNotFoundException([$templateId->value], 'id');
         }
 
-        $ownMacros = array_values(array_map(
-            static fn (HostTemplateMacro $macro): HostMacro => $macro->toHostMacro(),
-            $template->checkOptions->macros->toArray(),
-        ));
+        $ownMacros = $template->checkOptions->macros;
         // The template's own check command falls back to the first ancestor's, as for a host.
         $inherited = $this->inheritedHostMacrosResolver->resolveLine($inheritanceLine, null);
 

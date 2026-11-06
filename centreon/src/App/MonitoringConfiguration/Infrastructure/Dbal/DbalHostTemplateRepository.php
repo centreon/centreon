@@ -23,15 +23,15 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -108,7 +108,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   recovery_notification_delay: int|string|null,
  *   contact_additive_inheritance: int|string|null,
  *   cg_additive_inheritance: int|string|null,
- *   macros: list<HostTemplateMacro>,
+ *   macros: list<HostMacro>,
  *   category_ids: list<int>,
  *   severity_id: ?int,
  *   contact_ids: list<int>,
@@ -604,9 +604,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
                 static fn (int $id): HostTemplate => new HostTemplate(
                     new HostTemplateId($id),
                     new HostTemplateName($templates[$id]['name']),
-                    new HostTemplateCheckOptions(
+                    new CheckOptions(
                         $templates[$id]['command_id'] !== null ? new CommandId($templates[$id]['command_id']) : null,
-                        macros: new Collection($macrosByOwner[$id] ?? [], HostTemplateMacro::class),
+                        macros: $macrosByOwner[$id] ?? [],
                     ),
                     new Collection(
                         array_map(static fn (int $commandId): CommandId => new CommandId($commandId), $serviceTemplateCommandIds[$id] ?? []),
@@ -825,7 +825,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
      *
      * @param list<int> $ownerIds
      *
-     * @return array<int, list<HostTemplateMacro>>
+     * @return array<int, list<HostMacro>>
      */
     private function findMacrosByOwner(array $ownerIds): array
     {
@@ -849,7 +849,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
                 continue;
             }
 
-            $byOwner[(int) $row['host_host_id']][] = new HostTemplateMacro(
+            $byOwner[(int) $row['host_host_id']][] = new HostMacro(
                 new HostMacroName($matches[1]),
                 $row['host_macro_value'],
                 isPassword: (bool) (int) ($row['is_password'] ?? 0),

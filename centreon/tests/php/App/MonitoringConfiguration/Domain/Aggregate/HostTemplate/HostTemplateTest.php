@@ -23,23 +23,26 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
@@ -60,7 +63,7 @@ final class HostTemplateTest extends TestCase
 
     public function testItExposesItsOwnMacrosAsInheritedFromATemplate(): void
     {
-        $template = $this->template(macros: [new HostTemplateMacro(new HostMacroName('foo'), 'bar', isPassword: true, id: new HostMacroId(4))]);
+        $template = $this->template(macros: [new HostMacro(new HostMacroName('foo'), 'bar', isPassword: true, id: new HostMacroId(4))]);
 
         $macros = $template->macrosAsInherited();
 
@@ -72,27 +75,20 @@ final class HostTemplateTest extends TestCase
         self::assertTrue($macros[0]->isPassword);
     }
 
-    public function testItLoadsLazyMacrosOnlyWhenRead(): void
+    public function testItHasNoGeoCoordinates(): void
     {
-        $calls = new \ArrayObject();
-        $template = new HostTemplate(
+        $this->expectException(\InvalidArgumentException::class);
+
+        new HostTemplate(
             new HostTemplateId(1),
             new HostTemplateName('tpl'),
-            new HostTemplateCheckOptions(macros: new Collection(static function () use ($calls): array {
-                $calls->append(true);
-
-                return [];
-            }, HostTemplateMacro::class)),
+            extendedInformations: new ExtendedInformations(geoCoordinates: new GeoCoordinates('48.85', '2.35')),
         );
-
-        self::assertCount(0, $calls);
-        $template->macrosAsInherited();
-        self::assertCount(1, $calls);
     }
 
     public function testNoVaultEntryWhenNothingIsVaulted(): void
     {
-        $template = $this->template(snmp: 'public', macros: [new HostTemplateMacro(new HostMacroName('PWD'), 'plain', isPassword: true)]);
+        $template = $this->template(snmp: 'public', macros: [new HostMacro(new HostMacroName('PWD'), 'plain', isPassword: true)]);
 
         self::assertNull($template->getVaultUuid(new FakeVault()));
     }
@@ -107,8 +103,8 @@ final class HostTemplateTest extends TestCase
     public function testTheVaultEntryOfAVaultedPasswordMacroAlone(): void
     {
         $template = $this->template(macros: [
-            new HostTemplateMacro(new HostMacroName('USER'), 'admin', isPassword: false),
-            new HostTemplateMacro(new HostMacroName('PWD'), 'secret::vault::monitoring/hosts/uuid-macro::_HOSTPWD', isPassword: true),
+            new HostMacro(new HostMacroName('USER'), 'admin', isPassword: false),
+            new HostMacro(new HostMacroName('PWD'), 'secret::vault::monitoring/hosts/uuid-macro::_HOSTPWD', isPassword: true),
         ]);
 
         self::assertSame('uuid-macro', $template->getVaultUuid(new FakeVault()));
@@ -116,24 +112,28 @@ final class HostTemplateTest extends TestCase
 
     public function testANonPasswordMacroHoldingAVaultPathIsIgnored(): void
     {
-        $template = $this->template(macros: [new HostTemplateMacro(new HostMacroName('NOTE'), 'secret::vault::monitoring/hosts/uuid-x::_HOSTNOTE', isPassword: false)]);
+        $template = $this->template(macros: [new HostMacro(new HostMacroName('NOTE'), 'secret::vault::monitoring/hosts/uuid-x::_HOSTNOTE', isPassword: false)]);
 
         self::assertNull($template->getVaultUuid(new FakeVault()));
     }
 
     public function testACopyCarriesTheSourceConfigurationWithItsOwnNameSecretsAndMacros(): void
     {
-        $extendedInformations = new HostTemplateExtendedInformations(note: 'a note', iconId: new MediaId(8));
-        $schedulingOptions = new HostTemplateSchedulingOptions(maxCheckAttempts: 3);
-        $dataProcessing = new HostTemplateDataProcessing(acknowledgmentTimeout: 4);
-        $notifications = new HostTemplateNotifications(enabled: TriStateEnum::True);
+        $extendedInformations = new ExtendedInformations(note: 'a note', iconId: new MediaId(8));
+        $schedulingOptions = new SchedulingOptions(maxCheckAttempts: 3);
+        $dataProcessing = new DataProcessing(acknowledgmentTimeout: 4);
+        $notifications = new Notifications(
+            TriStateEnum::True,
+            new Collection([], NotificationContactId::class),
+            new Collection([], ContactGroupId::class),
+        );
         $source = new HostTemplate(
             new HostTemplateId(1),
             new HostTemplateName('source'),
-            new HostTemplateCheckOptions(
+            new CheckOptions(
                 new CommandId(5),
                 ['-w', '80'],
-                new Collection([new HostTemplateMacro(new HostMacroName('OLD'), 'old', isPassword: false)], HostTemplateMacro::class),
+                [new HostMacro(new HostMacroName('OLD'), 'old', isPassword: false)],
             ),
             alias: new HostAlias('An alias'),
             isLocked: false,
@@ -149,7 +149,7 @@ final class HostTemplateTest extends TestCase
             categoryIds: new Collection([new HostCategoryId(9)], HostCategoryId::class),
             linkedServiceTemplateIds: new Collection([new ServiceTemplateId(10)], ServiceTemplateId::class),
         );
-        $macros = new Collection([new HostTemplateMacro(new HostMacroName('NEW'), 'new', isPassword: false)], HostTemplateMacro::class);
+        $macros = [new HostMacro(new HostMacroName('NEW'), 'new', isPassword: false)];
 
         $copy = $source->duplicate(new HostTemplateName('copy'), new SnmpCommunity('new-community'), $macros);
 
@@ -180,7 +180,7 @@ final class HostTemplateTest extends TestCase
 
         $this->expectException(HostTemplateLockedException::class);
 
-        $locked->duplicate(new HostTemplateName('copy'), null, new Collection([], HostTemplateMacro::class));
+        $locked->duplicate(new HostTemplateName('copy'), null, []);
     }
 
     public function testAnUnlockedTemplatePassesTheLockCheck(): void
@@ -191,14 +191,14 @@ final class HostTemplateTest extends TestCase
     }
 
     /**
-     * @param list<HostTemplateMacro> $macros
+     * @param list<HostMacro> $macros
      */
     private function template(?string $snmp = null, array $macros = []): HostTemplate
     {
         return new HostTemplate(
             new HostTemplateId(1),
             new HostTemplateName('tpl'),
-            new HostTemplateCheckOptions(macros: new Collection($macros, HostTemplateMacro::class)),
+            new CheckOptions(null, macros: $macros),
             snmpCommunity: $snmp !== null ? new SnmpCommunity($snmp) : null,
         );
     }

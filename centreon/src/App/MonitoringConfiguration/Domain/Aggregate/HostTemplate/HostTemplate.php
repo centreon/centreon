@@ -23,12 +23,17 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
@@ -37,6 +42,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @extends AggregateRoot<HostTemplateId>
@@ -58,7 +64,7 @@ final class HostTemplate extends AggregateRoot
     public function __construct(
         ?HostTemplateId $id,
         public readonly HostTemplateName $name,
-        public readonly HostTemplateCheckOptions $checkOptions = new HostTemplateCheckOptions(),
+        public readonly CheckOptions $checkOptions = new CheckOptions(null),
         public readonly Collection $serviceTemplateCheckCommandIds = new Collection([], CommandId::class),
         public readonly ?HostAlias $alias = null,
         public readonly bool $isLocked = false,
@@ -67,14 +73,15 @@ final class HostTemplate extends AggregateRoot
         public readonly ?SnmpVersionEnum $snmpVersion = null,
         public readonly ?TimezoneId $timezoneId = null,
         public readonly ?HostSeverityId $severityId = null,
-        public readonly ?HostTemplateExtendedInformations $extendedInformations = null,
-        public readonly HostTemplateSchedulingOptions $schedulingOptions = new HostTemplateSchedulingOptions(),
-        public readonly HostTemplateDataProcessing $dataProcessing = new HostTemplateDataProcessing(),
-        public readonly ?HostTemplateNotifications $notifications = null,
+        public readonly ?ExtendedInformations $extendedInformations = null,
+        public readonly SchedulingOptions $schedulingOptions = new SchedulingOptions(),
+        public readonly DataProcessing $dataProcessing = new DataProcessing(),
+        public readonly ?Notifications $notifications = null,
         public readonly Collection $categoryIds = new Collection([], HostCategoryId::class),
         public readonly Collection $linkedServiceTemplateIds = new Collection([], ServiceTemplateId::class),
     ) {
         parent::__construct($id);
+        Assert::null($extendedInformations?->geoCoordinates, 'A host template has no geographic coordinates.');
     }
 
     /**
@@ -90,18 +97,18 @@ final class HostTemplate extends AggregateRoot
     /**
      * A copy not yet persisted, always unlocked, with its own name, secrets and macros.
      *
-     * @param Collection<HostTemplateMacro> $macros the copy's own macros, without source identity
+     * @param list<HostMacro> $macros the copy's own macros, without source identity
      *
      * @throws HostTemplateLockedException
      */
-    public function duplicate(HostTemplateName $newName, ?SnmpCommunity $snmpCommunity, Collection $macros): self
+    public function duplicate(HostTemplateName $newName, ?SnmpCommunity $snmpCommunity, array $macros): self
     {
         $this->assertUnlocked();
 
         return new self(
             id: null,
             name: $newName,
-            checkOptions: new HostTemplateCheckOptions($this->checkOptions->checkCommandId, $this->checkOptions->args, $macros),
+            checkOptions: $this->checkOptions->with(macros: $macros),
             serviceTemplateCheckCommandIds: $this->serviceTemplateCheckCommandIds,
             alias: $this->alias,
             isLocked: false,
@@ -144,9 +151,9 @@ final class HostTemplate extends AggregateRoot
      */
     public function macrosAsInherited(): array
     {
-        return array_values(array_map(
-            static fn (HostTemplateMacro $macro): HostMacro => $macro->toHostMacro(HostMacroParentEnum::Template),
-            $this->checkOptions->macros->toArray(),
-        ));
+        return array_map(
+            static fn (HostMacro $macro): HostMacro => $macro->inheritedFrom(HostMacroParentEnum::Template),
+            $this->checkOptions->macros,
+        );
     }
 }

@@ -678,7 +678,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $line = $this->inheritanceLine($templateId);
 
         self::assertSame([$templateId], array_keys($line));
-        $macros = $line[$templateId]->checkOptions->macros->toArray();
+        $macros = $line[$templateId]->checkOptions->macros;
         self::assertCount(2, $macros);
         // With their own ids.
         self::assertSame($passwordId, $macros[0]->id?->value);
@@ -816,7 +816,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
         $this->insertMacro($templateId, 'NOT_A_HOST_MACRO', 'x', isPassword: false, order: 0);
 
-        self::assertSame([], $this->inheritanceLine($templateId)[$templateId]->checkOptions->macros->toArray());
+        self::assertSame([], $this->inheritanceLine($templateId)[$templateId]->checkOptions->macros);
     }
 
     public function testFindInheritanceLineReturnsAnEmptyCollectionForNoIds(): void

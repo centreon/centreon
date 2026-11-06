@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
@@ -38,6 +38,7 @@ use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 
@@ -157,8 +158,8 @@ final class DbalHostTemplateRepositoryFindOneTest extends KernelTestCase
         self::assertSame(
             [['PORT', '443', false], ['PWD', 'secret', true]],
             array_map(
-                static fn (HostTemplateMacro $macro): array => [$macro->name->value, $macro->value, $macro->isPassword],
-                array_values($template->checkOptions->macros->toArray()),
+                static fn (HostMacro $macro): array => [$macro->name->value, $macro->value, $macro->isPassword],
+                $template->checkOptions->macros,
             ),
         );
 
@@ -202,33 +203,47 @@ final class DbalHostTemplateRepositoryFindOneTest extends KernelTestCase
         self::assertFalse($notifications->contactGroupAdditiveInheritance);
     }
 
-    public function testItReadsOutOfBoundValuesAsStored(): void
+    /**
+     * @param array<string, int|string> $columns
+     */
+    #[DataProvider('provideRowsBreakingTheHostInvariants')]
+    public function testATemplateBreakingTheHostInvariantsFailsToLoad(array $columns): void
     {
-        $note = str_repeat('n', 600);
-        $url = 'https://example.com/' . str_repeat('u', 2980);
-        $id = $this->insertTemplate([
-            'host_max_check_attempts' => 0,
-            'host_check_interval' => 0,
-            'host_acknowledgement_timeout' => 0,
-            'host_low_flap_threshold' => -1,
-            'host_high_flap_threshold' => 150,
-            'host_notification_interval' => -1,
-            'command_command_id_arg1' => '!-w!80',
-        ]);
-        $this->connection->insert('extended_host_information', ['host_host_id' => $id, 'ehi_notes' => $note, 'ehi_notes_url' => $url]);
+        $id = $this->insertTemplate($columns);
 
-        $template = $this->findOne($id);
+        $this->expectException(\InvalidArgumentException::class);
 
-        self::assertSame([0, 0], [$template->schedulingOptions->maxCheckAttempts, $template->schedulingOptions->normalCheckInterval]);
-        self::assertSame(
-            [0, -1, 150],
-            [$template->dataProcessing->acknowledgmentTimeout, $template->dataProcessing->lowFlapThreshold, $template->dataProcessing->highFlapThreshold],
-        );
-        self::assertSame(-1, $template->notifications?->interval);
-        self::assertSame($note, $template->extendedInformations?->note);
-        self::assertSame($url, $template->extendedInformations->noteUrl);
-        self::assertNull($template->checkOptions->checkCommandId);
-        self::assertSame(['-w', '80'], $template->checkOptions->args);
+        $this->repository->findOne(new HostTemplateId($id));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, int|string>}>
+     */
+    public static function provideRowsBreakingTheHostInvariants(): iterable
+    {
+        yield 'check arguments without a check command' => [['command_command_id_arg1' => '!-w!80']];
+
+        yield 'no check attempt' => [['host_max_check_attempts' => 0]];
+
+        yield 'no check interval' => [['host_check_interval' => 0]];
+
+        yield 'no acknowledgment timeout' => [['host_acknowledgement_timeout' => 0]];
+
+        yield 'negative low flap threshold' => [['host_low_flap_threshold' => -1]];
+
+        yield 'high flap threshold over 100' => [['host_high_flap_threshold' => 150]];
+
+        yield 'negative notification interval' => [['host_notification_interval' => -1]];
+    }
+
+    public function testATemplateWithANoteLongerThanAHostOneFailsToLoad(): void
+    {
+        $id = $this->insertTemplate();
+        $this->connection->insert('extended_host_information', ['host_host_id' => $id, 'ehi_notes' => str_repeat('n', 600)]);
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->repository->findOne(new HostTemplateId($id));
     }
 
     public function testItReadsBlankTextsAndAnUnknownSnmpVersionAsNoValue(): void

@@ -50,6 +50,18 @@ final class HostMacroTest extends TestCase
         new HostMacro(new HostMacroName('big'), str_repeat('a', 4097), isPassword: false);
     }
 
+    public function testItAcceptsAValueExactly4096Long(): void
+    {
+        self::assertSame(4096, mb_strlen(new HostMacro(new HostMacroName('big'), str_repeat('a', 4096), isPassword: false)->value));
+    }
+
+    public function testItRejectsAZeroId(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new HostMacroId(0);
+    }
+
     public function testAMacroWithAParentIsInherited(): void
     {
         $macro = new HostMacro(new HostMacroName('foo'), '', isPassword: false, parent: HostMacroParentEnum::Command);

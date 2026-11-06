@@ -56,6 +56,11 @@ final class SnmpCommunityTest extends TestCase
         new SnmpCommunity(str_repeat('a', 256));
     }
 
+    public function testItAcceptsACommunityExactly255CharactersLong(): void
+    {
+        self::assertSame(255, mb_strlen(new SnmpCommunity(str_repeat('a', 255))->value));
+    }
+
     public function testItAcceptsAVaultReferenceUnchanged(): void
     {
         $path = 'secret::hashicorp_vault::monitoring/hosts/3f2a::_HOSTSNMPCOMMUNITY';
