@@ -148,7 +148,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchSe
                 ],
                 description: 'Creates on the host one enabled service per service template of its host templates and '
                     . 'their ancestors, named after the template alias, with the service groups of the template, '
-                    . 'unless a service of the host already has that name (case and accents ignored). All or '
+                    . 'unless a service of the host already has that name (case ignored). All or '
                     . 'nothing: an invalid alias fails the whole deployment. Answers the created services, each as '
                     . 'a Get does.',
                 responses: [
