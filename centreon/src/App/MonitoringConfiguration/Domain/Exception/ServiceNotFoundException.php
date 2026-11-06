@@ -23,15 +23,15 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\Shared\Domain\Exception\AggregateConflictException;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-final class HostTemplateMacroValueIsAVaultReferenceException extends AggregateConflictException
+final class ServiceNotFoundException extends AggregateNotFoundException
 {
     /**
-     * @param list<string> $names
+     * @param list<int> $ids
      */
-    public function __construct(array $names)
+    public function __construct(array $ids, string $criterion)
     {
-        parent::__construct(['checkOptions' => $names], 'A macro value cannot be a vault reference.');
+        parent::__construct([$criterion => $ids], 'One or more services do not exist.');
     }
 }

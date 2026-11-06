@@ -23,19 +23,19 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Application\Service\HostTemplateAdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
-use App\MonitoringConfiguration\Application\Service\HostTemplateMacroSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\LinkedServiceTemplateLicenseGuard;
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
@@ -43,9 +43,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateCreated;
 use App\MonitoringConfiguration\Domain\Exception\DuplicateHostTemplateMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroValueIsAVaultReferenceException;
 use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
-use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroValueIsAVaultReferenceException;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\LinkedServiceTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
@@ -56,7 +58,7 @@ use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\HostTemplateMacroChangesResolver;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
@@ -82,9 +84,9 @@ final readonly class CreateHostTemplateCommandHandler
         private HostTemplateLicenseGuard $templateLicenseGuard,
         private LinkedServiceTemplateLicenseGuard $serviceTemplateLicenseGuard,
         private InheritedHostMacrosResolver $inheritedHostMacrosResolver,
-        private HostTemplateMacroChangesResolver $macroChangesResolver,
-        private HostTemplateMacroSecretsSynchronizer $macroSecretsSynchronizer,
-        private HostTemplateAdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
+        private HostMacroChangesResolver $macroChangesResolver,
+        private HostMacroSecretsSynchronizer $macroSecretsSynchronizer,
+        private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private AccessScopeResolver $accessScopes,
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultWriter,
@@ -128,10 +130,10 @@ final readonly class CreateHostTemplateCommandHandler
             $template = HostTemplate::create(
                 name: $command->name,
                 alias: $command->alias,
-                checkOptions: new HostTemplateCheckOptions(
+                checkOptions: new CheckOptions(
                     $command->checkCommandId,
                     $command->checkCommandArgs,
-                    new Collection($macros, HostTemplateMacro::class),
+                    $macros,
                 ),
                 parentTemplateIds: $command->templateIds,
                 snmpCommunity: $snmpCommunity,
@@ -161,28 +163,32 @@ final readonly class CreateHostTemplateCommandHandler
     }
 
     /**
-     * @return list<HostTemplateMacro>
+     * @return list<HostMacro>
      */
     private function resolveMacros(CreateHostTemplateCommand $command): array
     {
-        /** @var list<HostTemplateMacroChange> $changes */
+        /** @var list<HostMacroChange> $changes */
         $changes = array_values($command->macroChanges->toArray());
 
         $references = array_values(array_map(
-            static fn (HostTemplateMacroChange $change): string => $change->name->value,
+            static fn (HostMacroChange $change): string => $change->name->value,
             array_filter(
                 $changes,
-                fn (HostTemplateMacroChange $change): bool => $change->value !== null && $this->vault->isVaultPath($change->value),
+                fn (HostMacroChange $change): bool => $change->value !== null && $this->vault->isVaultPath($change->value),
             ),
         ));
         if ($references !== []) {
-            throw new HostTemplateMacroValueIsAVaultReferenceException($references);
+            throw new HostMacroValueIsAVaultReferenceException($references);
         }
 
         $inherited = $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkCommandId);
-        $macros = $this->macroChangesResolver->resolve($changes, [], $inherited);
+        try {
+            $macros = $this->macroChangesResolver->resolve($changes, [], $inherited);
+        } catch (HostMacroNotFoundException $exception) {
+            throw new HostTemplateMacroNotFoundException($exception->ids, $exception);
+        }
 
-        $names = array_map(static fn (HostTemplateMacro $macro): string => $macro->name->value, $macros);
+        $names = array_map(static fn (HostMacro $macro): string => $macro->name->value, $macros);
         $duplicates = array_keys(array_filter(array_count_values($names), static fn (int $count): bool => $count > 1));
         if ($duplicates !== []) {
             throw new DuplicateHostTemplateMacroNameException(array_map(strval(...), $duplicates));
@@ -224,7 +230,7 @@ final readonly class CreateHostTemplateCommandHandler
     }
 
     /**
-     * @param list<HostTemplateMacro> $macros
+     * @param list<HostMacro> $macros
      */
     private function vaultUuidOfMacros(array $macros): ?string
     {
@@ -234,10 +240,10 @@ final readonly class CreateHostTemplateCommandHandler
 
         $vaulted = array_find(
             $macros,
-            fn (HostTemplateMacro $macro): bool => $macro->isPassword && $this->vault->isVaultPath($macro->value),
+            fn (HostMacro $macro): bool => $macro->isPassword && $this->vault->isVaultPath($macro->value),
         );
 
-        return $vaulted instanceof HostTemplateMacro ? $this->vault->extractUuid($vaulted->value) : null;
+        return $vaulted instanceof HostMacro ? $this->vault->extractUuid($vaulted->value) : null;
     }
 
     /**

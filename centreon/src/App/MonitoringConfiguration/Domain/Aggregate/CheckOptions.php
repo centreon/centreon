@@ -24,12 +24,14 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\NoValue;
 use Webmozart\Assert\Assert;
 
 final readonly class CheckOptions
 {
     /** @var list<string> */
+    #[Sensitive]
     public array $args;
 
     /** @var list<HostMacro> */

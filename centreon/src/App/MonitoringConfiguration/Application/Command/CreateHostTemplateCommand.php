@@ -24,16 +24,16 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
@@ -49,8 +49,8 @@ final readonly class CreateHostTemplateCommand
      * @param Collection<HostCategoryId> $categoryIds
      * @param Collection<ServiceTemplateId> $linkedServiceTemplateIds in relation order
      * @param list<string> $checkCommandArgs
-     * @param Collection<HostTemplateMacroChange> $macroChanges the submitted macros, in the order to store
-     *                                                          them; resolved against what the template inherits
+     * @param Collection<HostMacroChange> $macroChanges the submitted macros, in the order to store
+     *                                                  them; resolved against what the template inherits
      */
     public function __construct(
         public HostTemplateName $name,
@@ -66,14 +66,15 @@ final readonly class CreateHostTemplateCommand
         public Collection $categoryIds = new Collection([], HostCategoryId::class),
         public Collection $linkedServiceTemplateIds = new Collection([], ServiceTemplateId::class),
         public ?CommandId $checkCommandId = null,
+        #[Sensitive]
         public array $checkCommandArgs = [],
         // A change may carry a password macro's plaintext.
         #[Sensitive]
-        public Collection $macroChanges = new Collection([], HostTemplateMacroChange::class),
-        public ?HostTemplateExtendedInformations $extendedInformations = null,
-        public HostTemplateSchedulingOptions $schedulingOptions = new HostTemplateSchedulingOptions(),
-        public HostTemplateDataProcessing $dataProcessing = new HostTemplateDataProcessing(),
-        public ?HostTemplateNotifications $notifications = null,
+        public Collection $macroChanges = new Collection([], HostMacroChange::class),
+        public ?ExtendedInformations $extendedInformations = null,
+        public SchedulingOptions $schedulingOptions = new SchedulingOptions(),
+        public DataProcessing $dataProcessing = new DataProcessing(),
+        public ?Notifications $notifications = null,
     ) {
     }
 }

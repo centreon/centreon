@@ -21,29 +21,26 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
+namespace App\MonitoringConfiguration\Application\Command;
 
-use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\Security\Domain\Aggregate\ActingUser;
+use App\Shared\Domain\NoValue;
 
 /**
- * On a Cloud platform the acknowledgment timeout and the flap detection settings are null and the
- * event handler arguments empty.
+ * A partial update: every field left to {@see NoValue} is untouched, anything else replaces the current value.
  */
-final readonly class HostTemplateDataProcessingOutput
+final readonly class PatchServiceCommand
 {
     /**
-     * @param list<string> $eventHandlerArgs
+     * @param ActingUser $actor the acting user: the action-log actor, whose ACL scope also bounds the
+     *                          service lookup, so a service outside it is reported as not found rather
+     *                          than leaking its existence
      */
     public function __construct(
-        public TriStateEnum $checkFreshness,
-        public ?int $freshnessThreshold,
-        public TriStateEnum $eventHandlerEnabled,
-        public ?HostTemplateEventHandlerCommandOutput $eventHandler,
-        public ?int $acknowledgmentTimeout,
-        public ?TriStateEnum $flapDetectionEnabled,
-        public ?int $lowFlapThreshold,
-        public ?int $highFlapThreshold,
-        public array $eventHandlerArgs,
+        public ServiceId $id,
+        public ActingUser $actor,
+        public NoValue|bool $activated = new NoValue(),
     ) {
     }
 }

@@ -388,6 +388,8 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
 
         yield 'notification interval 2147483648' => [['notifications' => ['interval' => 2147483648]], 'notifications.interval'];
 
+        yield 'arguments without a check command' => [['check_options' => ['command_id' => null, 'args' => ['-w', '80']]], 'check_options.args'];
+
         yield 'an argument with the delimiter' => [['check_options' => ['args' => ['a!b']]], 'check_options.args[0]'];
 
         yield 'an argument with an escape token' => [['check_options' => ['args' => ['a#BR#b']]], 'check_options.args[0]'];
@@ -437,16 +439,6 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         $row = $this->connection->fetchAssociative('SELECT host_check_interval, host_high_flap_threshold FROM host WHERE host_id = ?', [$id]);
         self::assertIsArray($row);
         self::assertSame([2147483647, 100], [$this->asInt($row['host_check_interval']), $this->asInt($row['host_high_flap_threshold'])]);
-    }
-
-    public function testArgumentsWithoutACommandAreKept(): void
-    {
-        $this->login();
-
-        $id = $this->create(['name' => "args-{$this->tag}", 'alias' => 'alias', 'check_options' => ['command_id' => null, 'args' => ['-w', '80']]]);
-
-        $checkOptions = $this->request('GET', self::URI . '/' . $id, ['headers' => self::JSON])->toArray()['check_options'];
-        self::assertSame(['args' => ['-w', '80'], 'macros' => []], $checkOptions);
     }
 
     public function testAReservedMacroNameIsAccepted(): void

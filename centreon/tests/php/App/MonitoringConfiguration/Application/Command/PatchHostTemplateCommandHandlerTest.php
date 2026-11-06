@@ -25,27 +25,27 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\PatchHostTemplateCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostTemplateCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptionsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessingChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
@@ -295,7 +295,7 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         $template = ($this->handler)($this->command(7, new HostTemplateChange(checkOptions: new HostTemplateCheckOptionsChange(checkCommandId: new CommandId(9)))));
 
         self::assertSame(TriStateEnum::True, $template->dataProcessing->checkFreshness);
-        self::assertSame(HostTemplateDataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD, $template->dataProcessing->freshnessThreshold);
+        self::assertSame(DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD, $template->dataProcessing->freshnessThreshold);
     }
 
     public function testTheAdditiveInheritanceFlagsAreDroppedWhenTheOptionIsDisabled(): void
@@ -494,12 +494,12 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         $this->repository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('tpl'),
-            new HostTemplateCheckOptions(),
+            new CheckOptions(null),
             alias: new HostAlias('Alias'),
             isLocked: $isLocked,
             snmpCommunity: new SnmpCommunity($snmpCommunity),
             severityId: new HostSeverityId(8),
-            notifications: new HostTemplateNotifications(enabled: TriStateEnum::True, interval: 30),
+            notifications: Notifications::default()->with(enabled: TriStateEnum::True, interval: 30),
         );
     }
 

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\Shared\Domain\NoValue;
 
@@ -44,9 +45,9 @@ final readonly class HostTemplateExtendedInformationsChange
     /**
      * Null when every member ends up empty.
      */
-    public function applyTo(?HostTemplateExtendedInformations $current): ?HostTemplateExtendedInformations
+    public function applyTo(?ExtendedInformations $current): ?ExtendedInformations
     {
-        $informations = new HostTemplateExtendedInformations(
+        $informations = new ExtendedInformations(
             noteUrl: NoValue::resolve($this->noteUrl, $current?->noteUrl),
             note: NoValue::resolve($this->note, $current?->note),
             actionUrl: NoValue::resolve($this->actionUrl, $current?->actionUrl),
@@ -55,6 +56,6 @@ final readonly class HostTemplateExtendedInformationsChange
             comment: NoValue::resolve($this->comment, $current?->comment),
         );
 
-        return $informations->isEmpty() ? null : $informations;
+        return $informations->equals(new ExtendedInformations()) ? null : $informations;
     }
 }

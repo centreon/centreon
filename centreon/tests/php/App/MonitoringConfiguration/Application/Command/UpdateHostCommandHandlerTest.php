@@ -48,9 +48,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
@@ -571,11 +569,11 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         // R4/R6: an inherited macro is addressed by its template id, but changing it never writes to
         // the template: the host gets its own macro, with no id until it is inserted.
         $this->addPoller(1);
-        $templateMacro = new HostTemplateMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70));
+        $templateMacro = new HostMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70));
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new HostTemplateCheckOptions(macros: new Collection([$templateMacro], HostTemplateMacro::class)),
+            new CheckOptions(null, macros: [$templateMacro]),
         );
         $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
         $this->seedHost(10, templateIds: $templateIds);
@@ -600,7 +598,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70))], HostTemplateMacro::class)),
+            new CheckOptions(null, macros: [new HostMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70))]),
         );
         $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
         $this->seedHost(10, templateIds: $templateIds);
@@ -619,7 +617,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70))], HostTemplateMacro::class)),
+            new CheckOptions(null, macros: [new HostMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70))]),
         );
         $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
         $this->seedHost(
@@ -649,7 +647,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostMacroId(70))], HostTemplateMacro::class)),
+            new CheckOptions(null, macros: [new HostMacro(new HostMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostMacroId(70))]),
         );
         $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
         $this->seedHost(10, snmpCommunity: new SnmpCommunity($hostReference), templateIds: $templateIds);

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
 
@@ -59,7 +60,7 @@ final readonly class HostTemplateDataProcessingChange
             flapDetectionEnabled: $this->flapDetectionEnabled,
             eventHandlerEnabled: $this->eventHandlerEnabled,
             acknowledgmentTimeout: $this->acknowledgmentTimeout,
-            freshnessThreshold: HostTemplateDataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD,
+            freshnessThreshold: DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD,
             lowFlapThreshold: $this->lowFlapThreshold,
             highFlapThreshold: $this->highFlapThreshold,
             eventHandlerCommandId: $this->eventHandlerCommandId,
@@ -67,9 +68,9 @@ final readonly class HostTemplateDataProcessingChange
         );
     }
 
-    public function applyTo(HostTemplateDataProcessing $current): HostTemplateDataProcessing
+    public function applyTo(DataProcessing $current): DataProcessing
     {
-        return new HostTemplateDataProcessing(
+        return new DataProcessing(
             checkFreshness: NoValue::resolve($this->checkFreshness, $current->checkFreshness),
             flapDetectionEnabled: NoValue::resolve($this->flapDetectionEnabled, $current->flapDetectionEnabled),
             eventHandlerEnabled: NoValue::resolve($this->eventHandlerEnabled, $current->eventHandlerEnabled),

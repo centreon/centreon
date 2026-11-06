@@ -21,25 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service;
 
 use ApiPlatform\Metadata\ApiProperty;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
-use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
+use App\Shared\Infrastructure\Validator\Constraints\NotNullWhenProvided;
 
 /**
- * The active and passive check settings are null on a Cloud platform.
+ * Every key is optional: a key left out leaves the value untouched. The properties that cannot be null carry
+ * {@see NotNullWhenProvided}, since this DTO reads both cases as null (see {@see RequestPayload}).
+ *
+ * Do not add an `id` property here: it would flip a missing-service 404 into a 422 via
+ * InvalidReferenceExceptionListener.
  */
-final readonly class HostTemplateSchedulingOptionsOutput
+final readonly class PatchServiceInput
 {
     public function __construct(
-        #[ApiProperty(readableLink: true)]
-        public ?TimePeriodResource $checkPeriod,
-        public ?int $maxCheckAttempts,
-        public ?int $normalCheckInterval,
-        public ?int $retryCheckInterval,
-        public ?TriStateEnum $activeCheckEnabled,
-        public ?TriStateEnum $passiveCheckEnabled,
+        #[ApiProperty(description: 'Whether the service is enabled.')]
+        #[NotNullWhenProvided]
+        public ?bool $activated = null,
     ) {
     }
 }

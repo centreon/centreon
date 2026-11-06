@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
@@ -42,9 +43,9 @@ final readonly class HostTemplateSchedulingOptionsChange
     ) {
     }
 
-    public function applyTo(HostTemplateSchedulingOptions $current): HostTemplateSchedulingOptions
+    public function applyTo(SchedulingOptions $current): SchedulingOptions
     {
-        return new HostTemplateSchedulingOptions(
+        return new SchedulingOptions(
             checkTimeperiodId: NoValue::resolve($this->checkTimeperiodId, $current->checkTimeperiodId),
             maxCheckAttempts: NoValue::resolve($this->maxCheckAttempts, $current->maxCheckAttempts),
             normalCheckInterval: NoValue::resolve($this->normalCheckInterval, $current->normalCheckInterval),

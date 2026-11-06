@@ -55,4 +55,9 @@ final class HostAliasTest extends TestCase
 
         new HostAlias(str_repeat('a', 201));
     }
+
+    public function testItAcceptsAnAliasExactly200CharactersLong(): void
+    {
+        self::assertSame(200, mb_strlen(new HostAlias(str_repeat('a', 200))->value));
+    }
 }

@@ -38,8 +38,7 @@ final readonly class HostNotificationsOutput
      * @param list<string> $options
      */
     public function __construct(
-        #[ApiProperty(openapiContext: ['enum' => [TriStateEnum::False->value, TriStateEnum::True->value, TriStateEnum::UseDefault->value]])]
-        public string $enabled,
+        public TriStateEnum $enabled,
         public array $contacts,
         public array $contactGroups,
         #[ApiProperty(openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => NotificationOptionEnumResolver::API_VALUES]])]

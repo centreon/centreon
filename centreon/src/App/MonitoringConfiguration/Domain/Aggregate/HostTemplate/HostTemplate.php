@@ -23,13 +23,17 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
-use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
@@ -46,21 +50,12 @@ use Webmozart\Assert\Assert;
  */
 final class HostTemplate extends AggregateRoot
 {
-    public const MAX_NOTE_LENGTH = 512;
-    public const MAX_URL_LENGTH = 2048;
-    public const MAX_COMMENT_LENGTH = 65535;
-    public const MAX_FLAP_THRESHOLD = 100;
-
     // the int(11) columns
     public const MAX_INTEGER = 2147483647;
 
     /**
-     * @param Collection<CommandId> $serviceTemplateCheckCommandIds the check commands of the service
-     *                                                              templates linked to this template,
-     *                                                              each followed by those of its own
-     *                                                              templates, in priority order
-     * @param Collection<HostTemplateId> $parentTemplateIds the templates this template directly
-     *                                                      inherits from, in relation order
+     * @param Collection<CommandId> $serviceTemplateCheckCommandIds linked service templates' check commands, then their templates', in priority order
+     * @param Collection<HostTemplateId> $parentTemplateIds direct parents, in relation order
      * @param ?SnmpCommunity $snmpCommunity plaintext, or the `secret::` reference once vaulted
      * @param ?HostSeverityId $severityId the levelled `hostcategories` row; the levelless ones are $categoryIds
      * @param Collection<HostCategoryId> $categoryIds
@@ -69,7 +64,7 @@ final class HostTemplate extends AggregateRoot
     public function __construct(
         ?HostTemplateId $id,
         public readonly HostTemplateName $name,
-        public readonly HostTemplateCheckOptions $checkOptions = new HostTemplateCheckOptions(),
+        public readonly CheckOptions $checkOptions = new CheckOptions(null),
         public readonly Collection $serviceTemplateCheckCommandIds = new Collection([], CommandId::class),
         public readonly ?HostAlias $alias = null,
         public readonly bool $isLocked = false,
@@ -78,49 +73,45 @@ final class HostTemplate extends AggregateRoot
         public readonly ?SnmpVersionEnum $snmpVersion = null,
         public readonly ?TimezoneId $timezoneId = null,
         public readonly ?HostSeverityId $severityId = null,
-        public readonly ?HostTemplateExtendedInformations $extendedInformations = null,
-        public readonly HostTemplateSchedulingOptions $schedulingOptions = new HostTemplateSchedulingOptions(),
-        public readonly HostTemplateDataProcessing $dataProcessing = new HostTemplateDataProcessing(),
-        public readonly ?HostTemplateNotifications $notifications = null,
+        public readonly ?ExtendedInformations $extendedInformations = null,
+        public readonly SchedulingOptions $schedulingOptions = new SchedulingOptions(),
+        public readonly DataProcessing $dataProcessing = new DataProcessing(),
+        public readonly ?Notifications $notifications = null,
         public readonly Collection $categoryIds = new Collection([], HostCategoryId::class),
         public readonly Collection $linkedServiceTemplateIds = new Collection([], ServiceTemplateId::class),
     ) {
         parent::__construct($id);
+        Assert::null($extendedInformations?->geoCoordinates, 'A host template has no geographic coordinates.');
     }
 
     /**
-     * A new template, not yet persisted, whose values must all be within the write bounds; a stored
-     * template may hold values outside them.
+     * A new template, not yet persisted, whose numbers must fit their int(11) columns.
      *
      * @param Collection<HostTemplateId> $parentTemplateIds in inheritance order
      * @param Collection<HostCategoryId> $categoryIds
      * @param Collection<ServiceTemplateId> $linkedServiceTemplateIds in relation order
      *
-     * @throws \InvalidArgumentException when a value is out of the write bounds
+     * @throws \InvalidArgumentException when a number does not fit its column
      */
     public static function create(
         HostTemplateName $name,
         HostAlias $alias,
-        HostTemplateCheckOptions $checkOptions = new HostTemplateCheckOptions(),
+        CheckOptions $checkOptions = new CheckOptions(null),
         Collection $parentTemplateIds = new Collection([], HostTemplateId::class),
         ?SnmpCommunity $snmpCommunity = null,
         ?SnmpVersionEnum $snmpVersion = null,
         ?TimezoneId $timezoneId = null,
         ?HostSeverityId $severityId = null,
-        ?HostTemplateExtendedInformations $extendedInformations = null,
-        HostTemplateSchedulingOptions $schedulingOptions = new HostTemplateSchedulingOptions(),
-        HostTemplateDataProcessing $dataProcessing = new HostTemplateDataProcessing(),
-        ?HostTemplateNotifications $notifications = null,
+        ?ExtendedInformations $extendedInformations = null,
+        SchedulingOptions $schedulingOptions = new SchedulingOptions(),
+        DataProcessing $dataProcessing = new DataProcessing(),
+        ?Notifications $notifications = null,
         Collection $categoryIds = new Collection([], HostCategoryId::class),
         Collection $linkedServiceTemplateIds = new Collection([], ServiceTemplateId::class),
     ): self {
-        self::assertMacroNamesAreUnique($checkOptions);
-        if ($extendedInformations instanceof HostTemplateExtendedInformations) {
-            self::assertExtendedInformationsBounds($extendedInformations);
-        }
         self::assertSchedulingOptionsBounds($schedulingOptions);
         self::assertDataProcessingBounds($dataProcessing);
-        if ($notifications instanceof HostTemplateNotifications) {
+        if ($notifications instanceof Notifications) {
             self::assertNotificationsBounds($notifications);
         }
 
@@ -157,11 +148,11 @@ final class HostTemplate extends AggregateRoot
         if ($change->extendedInformations instanceof HostTemplateExtendedInformationsChange) {
             $informations = $change->extendedInformations;
             foreach ([
-                [$informations->noteUrl, self::MAX_URL_LENGTH],
-                [$informations->note, self::MAX_NOTE_LENGTH],
-                [$informations->actionUrl, self::MAX_URL_LENGTH],
-                [$informations->altIcon, HostTemplateExtendedInformations::MAX_ALT_ICON_LENGTH],
-                [$informations->comment, self::MAX_COMMENT_LENGTH],
+                [$informations->noteUrl, ExtendedInformations::MAX_NOTE_URL_LENGTH],
+                [$informations->note, ExtendedInformations::MAX_NOTE_LENGTH],
+                [$informations->actionUrl, ExtendedInformations::MAX_ACTION_URL_LENGTH],
+                [$informations->altIcon, ExtendedInformations::MAX_ALT_ICON_LENGTH],
+                [$informations->comment, ExtendedInformations::MAX_COMMENT_LENGTH],
             ] as [$text, $maxLength]) {
                 if (is_string($text)) {
                     Assert::lengthBetween(trim($text), 1, $maxLength);
@@ -176,8 +167,8 @@ final class HostTemplate extends AggregateRoot
         if ($change->dataProcessing instanceof HostTemplateDataProcessingChange) {
             $this->assertProvidedRange($change->dataProcessing->acknowledgmentTimeout, 1, self::MAX_INTEGER);
             $this->assertProvidedRange($change->dataProcessing->freshnessThreshold, 0, self::MAX_INTEGER);
-            $this->assertProvidedRange($change->dataProcessing->lowFlapThreshold, 0, self::MAX_FLAP_THRESHOLD);
-            $this->assertProvidedRange($change->dataProcessing->highFlapThreshold, 0, self::MAX_FLAP_THRESHOLD);
+            $this->assertProvidedRange($change->dataProcessing->lowFlapThreshold, 0, 100);
+            $this->assertProvidedRange($change->dataProcessing->highFlapThreshold, 0, 100);
         }
         if ($change->notifications instanceof HostTemplateNotificationsChange) {
             foreach ([$change->notifications->interval, $change->notifications->firstDelay, $change->notifications->recoveryDelay] as $value) {
@@ -227,11 +218,12 @@ final class HostTemplate extends AggregateRoot
             && $this->snmpCommunity?->value === $other->snmpCommunity?->value
             && $this->timezoneId?->value === $other->timezoneId?->value
             && $this->severityId?->value === $other->severityId?->value
-            && $this->checkOptions->hasSameCommandAs($other->checkOptions)
+            && $this->checkOptions->checkCommandId?->value === $other->checkOptions->checkCommandId?->value
+            && $this->checkOptions->args === $other->checkOptions->args
             && $this->schedulingOptions->equals($other->schedulingOptions)
             && $this->dataProcessing->equals($other->dataProcessing)
-            && ($this->extendedInformations ?? new HostTemplateExtendedInformations())->equals($other->extendedInformations ?? new HostTemplateExtendedInformations())
-            && ($this->notifications ?? new HostTemplateNotifications())->equals($other->notifications ?? new HostTemplateNotifications());
+            && ($this->extendedInformations ?? new ExtendedInformations())->equals($other->extendedInformations ?? new ExtendedInformations())
+            && ($this->notifications ?? Notifications::default())->equals($other->notifications ?? Notifications::default());
     }
 
     /**
@@ -258,18 +250,18 @@ final class HostTemplate extends AggregateRoot
     /**
      * A copy not yet persisted, always unlocked, with its own name, secrets and macros.
      *
-     * @param Collection<HostTemplateMacro> $macros the copy's own macros, without source identity
+     * @param list<HostMacro> $macros the copy's own macros, without source identity
      *
      * @throws HostTemplateLockedException
      */
-    public function duplicate(HostTemplateName $newName, ?SnmpCommunity $snmpCommunity, Collection $macros): self
+    public function duplicate(HostTemplateName $newName, ?SnmpCommunity $snmpCommunity, array $macros): self
     {
         $this->assertUnlocked();
 
         return new self(
             id: null,
             name: $newName,
-            checkOptions: new HostTemplateCheckOptions($this->checkOptions->checkCommandId, $this->checkOptions->args, $macros),
+            checkOptions: $this->checkOptions->with(macros: $macros),
             serviceTemplateCheckCommandIds: $this->serviceTemplateCheckCommandIds,
             alias: $this->alias,
             isLocked: false,
@@ -312,10 +304,10 @@ final class HostTemplate extends AggregateRoot
      */
     public function macrosAsInherited(): array
     {
-        return array_values(array_map(
-            static fn (HostTemplateMacro $macro): HostMacro => $macro->toHostMacro(HostMacroParentEnum::Template),
-            $this->checkOptions->macros->toArray(),
-        ));
+        return array_map(
+            static fn (HostMacro $macro): HostMacro => $macro->inheritedFrom(HostMacroParentEnum::Template),
+            $this->checkOptions->macros,
+        );
     }
 
     private function assertProvidedRange(NoValue|int|null $value, int $min, int $max): void
@@ -325,44 +317,23 @@ final class HostTemplate extends AggregateRoot
         }
     }
 
-    private static function assertMacroNamesAreUnique(HostTemplateCheckOptions $checkOptions): void
+    private static function assertSchedulingOptionsBounds(SchedulingOptions $options): void
     {
-        $names = array_map(static fn (HostTemplateMacro $macro): string => $macro->name->value, $checkOptions->macros->toArray());
-        Assert::uniqueValues($names, 'A host template cannot have two macros with the same name.');
+        Assert::nullOrLessThanEq($options->maxCheckAttempts, self::MAX_INTEGER);
+        Assert::nullOrLessThanEq($options->normalCheckInterval, self::MAX_INTEGER);
+        Assert::nullOrLessThanEq($options->retryCheckInterval, self::MAX_INTEGER);
     }
 
-    private static function assertExtendedInformationsBounds(HostTemplateExtendedInformations $informations): void
+    private static function assertDataProcessingBounds(DataProcessing $dataProcessing): void
     {
-        Assert::nullOrLengthBetween($informations->noteUrl, 1, self::MAX_URL_LENGTH);
-        Assert::nullOrLengthBetween($informations->note, 1, self::MAX_NOTE_LENGTH);
-        Assert::nullOrLengthBetween($informations->actionUrl, 1, self::MAX_URL_LENGTH);
-        Assert::nullOrLengthBetween($informations->altIcon, 1, HostTemplateExtendedInformations::MAX_ALT_ICON_LENGTH);
-        Assert::nullOrLengthBetween($informations->comment, 1, self::MAX_COMMENT_LENGTH);
+        Assert::nullOrLessThanEq($dataProcessing->acknowledgmentTimeout, self::MAX_INTEGER);
+        Assert::nullOrLessThanEq($dataProcessing->freshnessThreshold, self::MAX_INTEGER);
     }
 
-    private static function assertSchedulingOptionsBounds(HostTemplateSchedulingOptions $options): void
+    private static function assertNotificationsBounds(Notifications $notifications): void
     {
-        Assert::nullOrRange($options->maxCheckAttempts, 1, self::MAX_INTEGER);
-        Assert::nullOrRange($options->normalCheckInterval, 1, self::MAX_INTEGER);
-        Assert::nullOrRange($options->retryCheckInterval, 1, self::MAX_INTEGER);
-    }
-
-    private static function assertDataProcessingBounds(HostTemplateDataProcessing $dataProcessing): void
-    {
-        Assert::nullOrRange($dataProcessing->acknowledgmentTimeout, 1, self::MAX_INTEGER);
-        Assert::nullOrRange($dataProcessing->freshnessThreshold, 0, self::MAX_INTEGER);
-        Assert::nullOrRange($dataProcessing->lowFlapThreshold, 0, self::MAX_FLAP_THRESHOLD);
-        Assert::nullOrRange($dataProcessing->highFlapThreshold, 0, self::MAX_FLAP_THRESHOLD);
-    }
-
-    private static function assertNotificationsBounds(HostTemplateNotifications $notifications): void
-    {
-        Assert::nullOrRange($notifications->interval, 0, self::MAX_INTEGER);
-        Assert::nullOrRange($notifications->firstDelay, 0, self::MAX_INTEGER);
-        Assert::nullOrRange($notifications->recoveryDelay, 0, self::MAX_INTEGER);
-        Assert::false(
-            in_array(NotificationOptionEnum::None, $notifications->options, true) && count($notifications->options) > 1,
-            'The "none" notification option cannot be combined with another option.',
-        );
+        Assert::nullOrLessThanEq($notifications->interval, self::MAX_INTEGER);
+        Assert::nullOrLessThanEq($notifications->firstDelay, self::MAX_INTEGER);
+        Assert::nullOrLessThanEq($notifications->recoveryDelay, self::MAX_INTEGER);
     }
 }

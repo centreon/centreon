@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateListingTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
@@ -59,6 +60,7 @@ final class DbalHostTemplateRepositoryUpdateTest extends KernelTestCase
         $this->repository = new DbalHostTemplateRepository(
             $this->connection,
             new HostTemplateTransformer(),
+            new HostTemplateListingTransformer(),
             new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
             new DbalModuleRepository($this->connection),
         );
@@ -83,7 +85,7 @@ final class DbalHostTemplateRepositoryUpdateTest extends KernelTestCase
             ['host_name' => $name, 'host_alias' => 'New alias', 'host_activate' => '0', 'host_register' => '0', 'host_comment' => 'A comment', 'host_max_check_attempts' => 4],
             [...(array) $row, 'host_max_check_attempts' => $this->asInt($row['host_max_check_attempts'] ?? null)],
         );
-        self::assertSame(' a note ', $this->connection->fetchOne('SELECT ehi_notes FROM extended_host_information WHERE host_host_id = ?', [$id]));
+        self::assertSame('a note', $this->connection->fetchOne('SELECT ehi_notes FROM extended_host_information WHERE host_host_id = ?', [$id]));
     }
 
     public function testItUpdatesTheExtendedInformationRowWhenThereIsOne(): void

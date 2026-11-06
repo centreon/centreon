@@ -21,14 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-final readonly class HostTemplateIconOutput
+use App\Shared\Domain\Event\AggregateDisabled;
+
+final readonly class ServiceDisabled extends AggregateDisabled
 {
-    public function __construct(
-        public int $id,
-        public string $name,
-        public string $url,
-    ) {
-    }
 }

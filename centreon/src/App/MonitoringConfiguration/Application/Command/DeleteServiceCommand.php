@@ -21,13 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
+namespace App\MonitoringConfiguration\Application\Command;
 
-final readonly class HostTemplateTimezoneOutput
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\Security\Domain\Aggregate\ActingUser;
+
+final readonly class DeleteServiceCommand
 {
+    /**
+     * @param ActingUser $actor action-log actor; its ACL scope bounds the service lookup
+     */
     public function __construct(
-        public int $id,
-        public string $name,
+        public ServiceId $id,
+        public ActingUser $actor,
     ) {
     }
 }

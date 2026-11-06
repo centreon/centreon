@@ -21,13 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-final readonly class HostTemplateCheckCommandOutput
+use App\Shared\Domain\Event\AggregateEnabled;
+
+final readonly class ServiceEnabled extends AggregateEnabled
 {
-    public function __construct(
-        public int $id,
-        public string $name,
-    ) {
-    }
 }

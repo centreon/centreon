@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Application\Service\HostTemplateAdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostTemplateReferencesChecker;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -33,15 +33,16 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckO
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessingChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateVaultPurgeRequested;
+use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
@@ -66,7 +67,7 @@ final readonly class PatchHostTemplateCommandHandler
         private HostTemplateRepository $repository,
         private HostTemplateReferencesChecker $references,
         private CommandRepository $commandRepository,
-        private HostTemplateAdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
+        private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private AccessScopeResolver $accessScopes,
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
@@ -93,6 +94,7 @@ final readonly class PatchHostTemplateCommandHandler
         $this->assertReferencesExist($change, $command->actor);
         $change = $this->keepTheSeverityOutOfScope($template, $change, $command->actor);
         $this->assertNameIsAvailable($template, $change);
+        $this->assertArgumentsHaveACheckCommand($template, $change);
         $change = $this->applyTheMonitoringAgentRule($change);
         $change = $this->applyTheInheritanceMode($template, $change);
 
@@ -182,6 +184,24 @@ final readonly class PatchHostTemplateCommandHandler
     }
 
     /**
+     * Arguments sent on their own apply to the command the template already has.
+     */
+    private function assertArgumentsHaveACheckCommand(HostTemplate $template, HostTemplateChange $change): void
+    {
+        if (! $change->checkOptions instanceof HostTemplateCheckOptionsChange || ! is_array($change->checkOptions->args) || $change->checkOptions->args === []) {
+            return;
+        }
+
+        $commandId = $change->checkOptions->checkCommandId instanceof NoValue
+            ? $template->checkOptions->checkCommandId
+            : $change->checkOptions->checkCommandId;
+
+        if (! $commandId instanceof CommandId) {
+            throw new CheckArgumentsRequireACommandException();
+        }
+    }
+
+    /**
      * Throws CommandNotFoundException when the check command given does not exist.
      */
     private function applyTheMonitoringAgentRule(HostTemplateChange $change): HostTemplateChange
@@ -213,7 +233,7 @@ final readonly class PatchHostTemplateCommandHandler
         }
 
         $applied = $this->additiveInheritanceModeApplier->apply($notifications->applyTo($template->notifications));
-        if (! $applied instanceof HostTemplateNotifications) {
+        if (! $applied instanceof Notifications) {
             return $change;
         }
 

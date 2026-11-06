@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
@@ -43,11 +44,11 @@ final readonly class HostTemplateNotificationsChange
     ) {
     }
 
-    public function applyTo(?HostTemplateNotifications $current): HostTemplateNotifications
+    public function applyTo(?Notifications $current): Notifications
     {
-        $current ??= new HostTemplateNotifications();
+        $current ??= Notifications::default();
 
-        return new HostTemplateNotifications(
+        return new Notifications(
             enabled: NoValue::resolve($this->enabled, $current->enabled),
             contactIds: $current->contactIds,
             contactGroupIds: $current->contactGroupIds,

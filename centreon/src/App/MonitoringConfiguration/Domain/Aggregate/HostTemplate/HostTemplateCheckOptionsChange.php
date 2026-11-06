@@ -23,11 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\Shared\Domain\NoValue;
 
 /**
- * NoValue keeps the current value. Removing the command keeps the arguments.
+ * NoValue keeps the current value. Removing the command clears the arguments.
  */
 final readonly class HostTemplateCheckOptionsChange
 {
@@ -40,12 +41,8 @@ final readonly class HostTemplateCheckOptionsChange
     ) {
     }
 
-    public function applyTo(HostTemplateCheckOptions $current): HostTemplateCheckOptions
+    public function applyTo(CheckOptions $current): CheckOptions
     {
-        return new HostTemplateCheckOptions(
-            NoValue::resolve($this->checkCommandId, $current->checkCommandId),
-            NoValue::resolve($this->args, $current->args),
-            $current->macros,
-        );
+        return $current->with(checkCommandId: $this->checkCommandId, args: $this->args);
     }
 }

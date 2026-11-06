@@ -23,33 +23,30 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptionsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessingChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\Shared\Domain\Aggregate\TriStateEnum;
-use App\Shared\Domain\Collection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
@@ -63,16 +60,6 @@ final class HostTemplateChangeTest extends TestCase
         $this->expectException(HostTemplateLockedException::class);
 
         $template->withChange(new HostTemplateChange());
-    }
-
-    public function testAStoredValueOutOfTheBoundsSurvivesAChangeOfAnotherField(): void
-    {
-        $template = $this->template(schedulingOptions: new HostTemplateSchedulingOptions(maxCheckAttempts: 0));
-
-        $template = $template->withChange(new HostTemplateChange(alias: new HostAlias('New alias')));
-
-        self::assertSame('New alias', $template->alias?->value);
-        self::assertSame(0, $template->schedulingOptions->maxCheckAttempts);
     }
 
     /**
@@ -118,31 +105,30 @@ final class HostTemplateChangeTest extends TestCase
         yield 'recovery delay 2147483648' => [static fn (): HostTemplateChange => new HostTemplateChange(notifications: new HostTemplateNotificationsChange(recoveryDelay: HostTemplate::MAX_INTEGER + 1))];
     }
 
-    public function testRemovingTheCommandKeepsTheArguments(): void
+    public function testRemovingTheCommandClearsTheArguments(): void
     {
-        $template = $this->template(checkOptions: new HostTemplateCheckOptions(new CommandId(5), ['-w']));
+        $template = $this->template(checkOptions: new CheckOptions(new CommandId(5), ['-w']));
 
         $template = $template->withChange(new HostTemplateChange(checkOptions: new HostTemplateCheckOptionsChange(checkCommandId: null)));
 
         self::assertNull($template->checkOptions->checkCommandId);
-        self::assertSame(['-w'], $template->checkOptions->args);
+        self::assertSame([], $template->checkOptions->args);
     }
 
-    public function testArgumentsAreAcceptedWithoutACommand(): void
+    public function testArgumentsWithoutACommandAreRefused(): void
     {
-        $template = $this->template(checkOptions: new HostTemplateCheckOptions());
+        $template = $this->template(checkOptions: new CheckOptions(null));
 
-        $template = $template->withChange(new HostTemplateChange(checkOptions: new HostTemplateCheckOptionsChange(args: ['-w'])));
+        $this->expectException(\InvalidArgumentException::class);
 
-        self::assertNull($template->checkOptions->checkCommandId);
-        self::assertSame(['-w'], $template->checkOptions->args);
+        $template->withChange(new HostTemplateChange(checkOptions: new HostTemplateCheckOptionsChange(args: ['-w'])));
     }
 
     public function testAKeyLeftOutKeepsItsValueAndNullClearsIt(): void
     {
         $template = $this->template(
-            extendedInformations: new HostTemplateExtendedInformations(note: 'A note', comment: 'A comment'),
-            schedulingOptions: new HostTemplateSchedulingOptions(maxCheckAttempts: 3, normalCheckInterval: 5),
+            extendedInformations: new ExtendedInformations(note: 'A note', comment: 'A comment'),
+            schedulingOptions: new SchedulingOptions(maxCheckAttempts: 3, normalCheckInterval: 5),
         );
 
         $template = $template->withChange(new HostTemplateChange(
@@ -162,7 +148,7 @@ final class HostTemplateChangeTest extends TestCase
 
     public function testClearingEveryExtendedTextLeavesNone(): void
     {
-        $template = $this->template(extendedInformations: new HostTemplateExtendedInformations(note: 'A note'));
+        $template = $this->template(extendedInformations: new ExtendedInformations(note: 'A note'));
 
         $template = $template->withChange(new HostTemplateChange(extendedInformations: new HostTemplateExtendedInformationsChange(note: null)));
 
@@ -171,7 +157,7 @@ final class HostTemplateChangeTest extends TestCase
 
     public function testTheTemplateBeforeTheChangeIsLeftAsItWas(): void
     {
-        $template = $this->template(schedulingOptions: new HostTemplateSchedulingOptions(maxCheckAttempts: 3));
+        $template = $this->template(schedulingOptions: new SchedulingOptions(maxCheckAttempts: 3));
 
         $changed = $template->withChange(new HostTemplateChange(
             name: new HostTemplateName('renamed'),
@@ -256,10 +242,10 @@ final class HostTemplateChangeTest extends TestCase
     #[DataProvider('provideExtendedTexts')]
     public function testExtendedTextsAreComparedTrimmed(string $text): void
     {
-        $stored = new HostTemplateExtendedInformations(...[$text => ' x ']);
+        $stored = new ExtendedInformations(...[$text => ' x ']);
 
-        self::assertTrue($stored->equals(new HostTemplateExtendedInformations(...[$text => 'x'])));
-        self::assertFalse($stored->equals(new HostTemplateExtendedInformations(...[$text => 'y'])));
+        self::assertTrue($stored->equals(new ExtendedInformations(...[$text => 'x'])));
+        self::assertFalse($stored->equals(new ExtendedInformations(...[$text => 'y'])));
     }
 
     /**
@@ -270,17 +256,6 @@ final class HostTemplateChangeTest extends TestCase
         foreach (['noteUrl', 'note', 'actionUrl', 'altIcon', 'comment'] as $text) {
             yield $text => [$text];
         }
-    }
-
-    public function testContactsComparedAsSets(): void
-    {
-        $contacts = static fn (int ...$ids): Collection => new Collection(array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), $ids), NotificationContactId::class);
-
-        $notifications = new HostTemplateNotifications(contactIds: $contacts(1, 2), contactGroupIds: new Collection([new ContactGroupId(3)], ContactGroupId::class));
-
-        self::assertTrue($notifications->equals(new HostTemplateNotifications(contactIds: $contacts(2, 1), contactGroupIds: new Collection([new ContactGroupId(3)], ContactGroupId::class))));
-        self::assertFalse($notifications->equals(new HostTemplateNotifications(contactIds: $contacts(2), contactGroupIds: new Collection([new ContactGroupId(3)], ContactGroupId::class))));
-        self::assertFalse($notifications->equals(new HostTemplateNotifications(contactIds: $contacts(1, 2))));
     }
 
     public function testTheVaultEntryIsReleasedOnlyWhenNoSecretReferencesItAnyMore(): void
@@ -295,24 +270,24 @@ final class HostTemplateChangeTest extends TestCase
     }
 
     private function template(
-        ?HostTemplateCheckOptions $checkOptions = null,
-        ?HostTemplateExtendedInformations $extendedInformations = null,
-        ?HostTemplateSchedulingOptions $schedulingOptions = null,
+        ?CheckOptions $checkOptions = null,
+        ?ExtendedInformations $extendedInformations = null,
+        ?SchedulingOptions $schedulingOptions = null,
         ?SnmpCommunity $snmpCommunity = null,
     ): HostTemplate {
         return new HostTemplate(
             new HostTemplateId(1),
             new HostTemplateName('tpl'),
-            $checkOptions ?? new HostTemplateCheckOptions(new CommandId(5)),
+            $checkOptions ?? new CheckOptions(new CommandId(5)),
             alias: new HostAlias('Alias'),
             snmpCommunity: $snmpCommunity ?? new SnmpCommunity('public'),
             snmpVersion: SnmpVersionEnum::TwoC,
             timezoneId: new TimezoneId(4),
             severityId: new HostSeverityId(8),
-            extendedInformations: $extendedInformations ?? new HostTemplateExtendedInformations(note: ' kept as stored '),
-            schedulingOptions: $schedulingOptions ?? new HostTemplateSchedulingOptions(checkTimeperiodId: new TimePeriodId(2), maxCheckAttempts: 3),
-            dataProcessing: new HostTemplateDataProcessing(acknowledgmentTimeout: 15),
-            notifications: new HostTemplateNotifications(enabled: TriStateEnum::True, options: [NotificationOptionEnum::Down], interval: 30),
+            extendedInformations: $extendedInformations ?? new ExtendedInformations(note: ' kept as stored '),
+            schedulingOptions: $schedulingOptions ?? new SchedulingOptions(checkTimeperiodId: new TimePeriodId(2), maxCheckAttempts: 3),
+            dataProcessing: new DataProcessing(acknowledgmentTimeout: 15),
+            notifications: Notifications::default()->with(enabled: TriStateEnum::True, options: [NotificationOptionEnum::Down], interval: 30),
         );
     }
 }

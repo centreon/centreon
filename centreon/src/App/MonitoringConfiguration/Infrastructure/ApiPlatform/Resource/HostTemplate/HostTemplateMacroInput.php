@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -44,7 +44,7 @@ final readonly class HostTemplateMacroInput
         // Null keeps the stored value of a password macro. No password is ever echoed back, so a
         // client has no legitimate vault reference to send.
         #[Sensitive]
-        #[Assert\Length(max: HostTemplateMacro::MAX_VALUE_LENGTH)]
+        #[Assert\Length(max: HostMacro::MAX_VALUE_LENGTH)]
         #[Assert\Regex(
             pattern: '/^' . VaultInterface::VAULT_PATH_PREFIX . '/',
             match: false,

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Service;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
@@ -37,16 +38,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroPasswordUnmaskedException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
-use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
 
 final class HostMacroChangesResolverTest extends TestCase
@@ -78,11 +76,11 @@ final class HostMacroChangesResolverTest extends TestCase
         $command->setStoredMacros([new CommandMacro(new CommandMacroId(31), 'CMD', CommandMacroTypeEnum::Host)]);
 
         $this->inherited = InheritedHostMacros::resolve([
-            new HostTemplate(new HostTemplateId(1), new HostTemplateName('tpl'), new HostTemplateCheckOptions(macros: new Collection([
-                new HostTemplateMacro(new HostMacroName('tplval'), 'inherited', isPassword: false, id: new HostMacroId(11)),
-                new HostTemplateMacro(new HostMacroName('tplpwd'), self::TEMPLATE_SECRET, isPassword: true, id: new HostMacroId(12)),
-                new HostTemplateMacro(new HostMacroName('shared'), 'x', isPassword: false, id: new HostMacroId(13)),
-            ], HostTemplateMacro::class))),
+            new HostTemplate(new HostTemplateId(1), new HostTemplateName('tpl'), new CheckOptions(null, macros: [
+                new HostMacro(new HostMacroName('tplval'), 'inherited', isPassword: false, id: new HostMacroId(11)),
+                new HostMacro(new HostMacroName('tplpwd'), self::TEMPLATE_SECRET, isPassword: true, id: new HostMacroId(12)),
+                new HostMacro(new HostMacroName('shared'), 'x', isPassword: false, id: new HostMacroId(13)),
+            ])),
         ], [$command]);
     }
 

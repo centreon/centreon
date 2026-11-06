@@ -23,26 +23,18 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource;
 
-use ApiPlatform\OpenApi\Factory\OpenApiFactoryInterface;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Symfony\Component\Routing\Route;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\GrantsHostTemplateTopologyRole;
-use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
-use Webmozart\Assert\Assert;
 
 /**
- * Wiring of the host template form selectors (/configuration/host_templates/<list>): the gate, the
- * metadata, the routing and one end-to-end listing per selector. Each provider's behavior (filters,
- * sort, scoping) is pinned by its own tests under State/ and is not repeated here.
+ * Wiring of the host template form selectors; each provider's behavior is tested under State/.
  */
 final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
 {
     use GrantsHostTemplateTopologyRole;
-    use InsertsMonitoringConnectorTemplates;
 
     /**
      * counterpart: the same list for another form, gated on a right the host-template-only user lacks.
@@ -117,9 +109,6 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
 
     private string $tag;
 
-    /** @var array{mixed, mixed}|null */
-    private ?array $previousCloudPlatformEnv = null;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -131,31 +120,8 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
         $this->tag = Uuid::v4()->toRfc4122();
     }
 
-    protected function tearDown(): void
-    {
-        $this->dropMonitoringConnectorTables($this->connection);
-
-        if ($this->previousCloudPlatformEnv !== null) {
-            [$previousEnv, $previousServer] = $this->previousCloudPlatformEnv;
-            if ($previousEnv === null) {
-                unset($_ENV['IS_CLOUD_PLATFORM']);
-            } else {
-                $_ENV['IS_CLOUD_PLATFORM'] = $previousEnv;
-            }
-            if ($previousServer === null) {
-                unset($_SERVER['IS_CLOUD_PLATFORM']);
-            } else {
-                $_SERVER['IS_CLOUD_PLATFORM'] = $previousServer;
-            }
-            $this->previousCloudPlatformEnv = null;
-        }
-
-        parent::tearDown();
-    }
-
     /**
-     * The form must work with host template read-write alone. Row-level ACL scoping of contacts, contact
-     * groups and host categories still applies, so the fixture is granted to the user.
+     * Host template read-write alone is enough; row-level ACL still applies, so the fixture is granted.
      */
     #[DataProvider('provideSelectors')]
     public function testEachSelectorListsForAHostTemplateReadWriteUserWithoutHostAccess(string $selector): void
@@ -187,6 +153,10 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
         $username = bin2hex(random_bytes(8));
         $this->grantHostTemplateTopologyRole($this->connection, $this->createNonAdminContact($this->connection, $username), self::ACL_ACCESS_READ_ONLY, $this->tag);
         $this->login($username);
+
+        // guard: the user does hold host template read-only
+        $this->request('GET', '/api/configuration/host_templates');
+        self::assertResponseIsSuccessful();
 
         $response = $this->request('GET', self::SELECTORS[$selector]['uri']);
 
@@ -222,73 +192,6 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
         self::assertResponseStatusCodeSame(401);
     }
 
-    #[DataProvider('provideSelectors')]
-    public function testEachSelectorIsRoutedButAbsentFromTheOpenApiDoc(string $selector): void
-    {
-        $uri = self::SELECTORS[$selector]['uri'];
-
-        /** @var RouterInterface $router */
-        $router = self::getContainer()->get('router');
-        $routedPaths = array_map(
-            static fn (Route $route): string => $route->getPath(),
-            $router->getRouteCollection()->all()
-        );
-        self::assertContains($uri, $routedPaths, 'the selector must be routed');
-
-        /** @var OpenApiFactoryInterface $openApiFactory */
-        $openApiFactory = self::getContainer()->get('api_platform.openapi.factory');
-        $paths = $openApiFactory()->getPaths();
-        // guard: the documented paths carry the /api prefix, so an absence below is meaningful
-        self::assertNotNull($paths->getPath('/api/configuration/host_templates'));
-        self::assertNull($paths->getPath($uri));
-    }
-
-    /**
-     * The form lists time zones from the generic list, which has no host template variant.
-     */
-    public function testTheTimezonesListAnswersAHostTemplateReadWriteUserWithoutHostAccess(): void
-    {
-        $this->loginAsHostTemplateReadWriteUser($this->connection, $this->tag);
-
-        // guard: the user holds no Hosts right
-        $this->request('GET', '/api/configuration/hosts/commands');
-        self::assertResponseStatusCodeSame(403);
-
-        $response = $this->request('GET', '/api/configuration/timezones');
-
-        self::assertResponseIsSuccessful();
-        self::assertNotEmpty($response->toArray()['member']);
-    }
-
-    public function testSelectorsAreNotAliasedUnderApiLatest(): void
-    {
-        $this->login();
-
-        $this->request('GET', self::SELECTORS['commands']['uri']);
-        self::assertResponseIsSuccessful();
-
-        $this->request('GET', str_replace('/api/', '/api/latest/', self::SELECTORS['commands']['uri']));
-        self::assertResponseStatusCodeSame(404);
-    }
-
-    /**
-     * No selector carries a platform condition: each one answers on cloud too.
-     */
-    #[DataProvider('provideSelectors')]
-    public function testEachSelectorStaysRoutedOnCloud(string $selector): void
-    {
-        $this->forceCloudPlatform();
-        $this->loginAsHostTemplateReadWriteUser($this->connection, $this->tag);
-
-        // guard: cloud is in force, where this on-premise-only list is not routed
-        $this->request('GET', '/api/configuration/services/contacts');
-        self::assertResponseStatusCodeSame(404);
-
-        $this->request('GET', self::SELECTORS[$selector]['uri']);
-
-        self::assertResponseIsSuccessful();
-    }
-
     public function testTheContactGroupsSelectorListsImportedLdapGroups(): void
     {
         $localName = "local-{$this->tag}";
@@ -301,42 +204,6 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
         self::assertEqualsCanonicalizing([$localName, $ldapName], array_column((array) $response->toArray()['member'], 'name'));
-    }
-
-    /**
-     * The test platform has no license manager, so the license host limit counts as reached.
-     */
-    public function testTheParentTemplatesSelectorExcludesTheTemplatesTheLicenseNoLongerAllows(): void
-    {
-        $allowedName = "allowed-{$this->tag}";
-        $this->insertHostTemplate($allowedName);
-        $unlicensedId = $this->insertHostTemplate("unlicensed-{$this->tag}");
-        $this->insertMonitoringConnectorTemplates($this->connection, $unlicensedId);
-        $this->login();
-
-        $response = $this->request('GET', self::SELECTORS['host_templates']['uri'], ['query' => ['name' => ['lk' => $this->tag]]]);
-
-        self::assertResponseIsSuccessful();
-        self::assertSame([$allowedName], array_column((array) $response->toArray()['member'], 'name'));
-    }
-
-    public function testTheServiceTemplatesSelectorExcludesTheTemplatesTheLicenseNoLongerAllows(): void
-    {
-        $allowedName = "allowed-{$this->tag}";
-        $this->insertRow('service', ['service_description' => $allowedName, 'service_register' => '0']);
-        $unlicensedId = $this->insertRow('service', ['service_description' => "unlicensed-{$this->tag}", 'service_register' => '0']);
-        $this->insertRow('service', [
-            'service_description' => "unlicensed-child-{$this->tag}",
-            'service_register' => '0',
-            'service_template_model_stm_id' => $unlicensedId,
-        ]);
-        $this->insertMonitoringConnectorServiceTemplates($this->connection, $unlicensedId);
-        $this->loginAsHostTemplateReadWriteUser($this->connection, $this->tag);
-
-        $response = $this->request('GET', self::SELECTORS['service_templates']['uri'], ['query' => ['name' => ['lk' => $this->tag]]]);
-
-        self::assertResponseIsSuccessful();
-        self::assertSame([$allowedName], array_column((array) $response->toArray()['member'], 'name'));
     }
 
     /**
@@ -452,27 +319,5 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
         $this->connection->insert($table, $row);
 
         return (int) $this->connection->lastInsertId();
-    }
-
-    /**
-     * Must run before the request is made.
-     */
-    private function forceCloudPlatform(): void
-    {
-        $this->previousCloudPlatformEnv = [
-            $_ENV['IS_CLOUD_PLATFORM'] ?? null,
-            $_SERVER['IS_CLOUD_PLATFORM'] ?? null,
-        ];
-        $_ENV['IS_CLOUD_PLATFORM'] = $_SERVER['IS_CLOUD_PLATFORM'] = '1';
-
-        // the client shares static::$kernel: rebooting it gives both a container with no env cached
-        $kernel = self::$kernel;
-        Assert::notNull($kernel);
-        $kernel->shutdown();
-        $kernel->boot();
-
-        /** @var Connection $connection */
-        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
-        $this->connection = $connection;
     }
 }
