@@ -28,6 +28,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model;
@@ -49,6 +50,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Ge
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\GetHostTemplateProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\PatchHostTemplateProcessor;
 
 #[ApiResource(
     shortName: 'HostTemplate',
@@ -188,6 +190,33 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             ),
             security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to duplicate host templates',
+        ),
+        new Patch(
+            uriTemplate: '/configuration/host_templates/{id}',
+            requirements: ['id' => '[1-9]\d*'],
+            status: 204,
+            read: false,
+            input: PatchHostTemplateInput::class,
+            output: false,
+            processor: PatchHostTemplateProcessor::class,
+            denormalizationContext: ['allow_extra_attributes' => false],
+            openapi: new Model\Operation(
+                summary: 'Update a host template',
+                description: 'A key left out leaves its value untouched; a key sent as null clears its value where it can be cleared.',
+                responses: [
+                    204 => new Model\Response('Host template updated'),
+                    400 => new Model\Response('The host template is locked, or a field the host template does not have'),
+                    401 => new Model\Response('Authentication required'),
+                    403 => new Model\Response('You are not allowed to update host templates'),
+                    404 => new Model\Response('Host template not found'),
+                    409 => new Model\Response('A host or host template already uses this name'),
+                    415 => new Model\Response('The body is not sent as application/merge-patch+json'),
+                    422 => new Model\Response('Invalid value, or a reference that does not exist or cannot be used'),
+                    502 => new Model\Response('The vault could not be reached'),
+                ],
+            ),
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to update host templates',
         ),
         new Delete(
             uriTemplate: '/configuration/host_templates/{id}',

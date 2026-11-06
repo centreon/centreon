@@ -29,9 +29,10 @@ use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\AsEventHandler;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
+use Psr\Log\LoggerInterface;
 
 /**
- * A failed purge is reported: the deletion is already committed.
+ * A failed purge after a deletion is reported, the deletion being committed; a best-effort one is only logged.
  */
 #[AsEventHandler]
 final readonly class PurgeHostTemplateVaultEventHandler
@@ -39,6 +40,7 @@ final readonly class PurgeHostTemplateVaultEventHandler
     public function __construct(
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -57,6 +59,15 @@ final readonly class PurgeHostTemplateVaultEventHandler
 
             $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringHosts, $uuid);
         } catch (\Throwable $exception) {
+            if ($event->bestEffort) {
+                $this->logger->warning('The vault entry a host template no longer uses could not be purged.', [
+                    'host_template_id' => $event->hostTemplate->id()->value,
+                    'exception' => $exception,
+                ]);
+
+                return;
+            }
+
             throw VaultPurgeFailedException::forHostTemplate($event->hostTemplate->id(), $exception);
         }
     }

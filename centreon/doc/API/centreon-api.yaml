@@ -6626,6 +6626,72 @@ paths:
             type: string
           style: simple
           explode: false
+    patch:
+      operationId: api_configurationhost_templates_id_patch
+      tags:
+        - HostTemplate
+      responses:
+        '204':
+          description: 'Host template updated'
+          links: {}
+        '400':
+          description: 'The host template is locked, or a field the host template does not have'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '401':
+          description: 'Authentication required'
+        '403':
+          description: 'You are not allowed to update host templates'
+        '404':
+          description: 'Host template not found'
+        '409':
+          description: 'A host or host template already uses this name'
+        '415':
+          description: 'The body is not sent as application/merge-patch+json'
+        '422':
+          description: 'Invalid value, or a reference that does not exist or cannot be used'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+      summary: 'Update a host template'
+      description: 'A key left out leaves its value untouched; a key sent as null clears its value where it can be cleared.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The updated HostTemplate resource'
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.PatchHostTemplateInput.jsonMergePatch'
+        required: true
   '/api/configuration/host_templates/{id}/_duplicate':
     post:
       operationId: api_configurationhost_templates_id_duplicate_post
@@ -14693,4 +14759,141 @@ components:
             - command
           type:
             - string
+            - 'null'
+    HostTemplate.PatchHostTemplateInput.jsonMergePatch:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          maxLength: 200
+          description: 'Trimmed; inner spaces become underscores.'
+          type:
+            - string
+            - 'null'
+        alias:
+          maxLength: 200
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          type:
+            - string
+            - 'null'
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
+        snmp_community:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          description: 'Write-only, never returned. Left out keeps the community, null removes it.'
+          type:
+            - string
+            - 'null'
+        timezone_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'null removes the severity, unless it is one the user cannot see.'
+          type:
+            - integer
+            - 'null'
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchHostTemplateCheckOptionsInput'
+            -
+              type: 'null'
+        extended_informations:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateExtendedInformationsInput'
+            -
+              type: 'null'
+        scheduling_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateSchedulingOptionsInput'
+            -
+              type: 'null'
+        data_processing:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateDataProcessingInput'
+            -
+              type: 'null'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchHostTemplateNotificationsInput'
+            -
+              type: 'null'
+    PatchHostTemplateCheckOptionsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'null removes the command and its arguments'
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'an empty list clears them; they require a check command'
+          type: array
+          items:
+            type: string
+    PatchHostTemplateNotificationsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+          description: 'null means "use_default".'
+          type:
+            - string
+            - 'null'
+        interval:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        first_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type:
+            - boolean
+            - 'null'
+        contact_group_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type:
+            - boolean
             - 'null'
