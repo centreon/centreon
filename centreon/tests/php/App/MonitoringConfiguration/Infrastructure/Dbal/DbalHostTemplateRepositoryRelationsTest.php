@@ -25,11 +25,11 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateRelationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
@@ -126,8 +126,8 @@ final class DbalHostTemplateRepositoryRelationsTest extends KernelTestCase
         $foreign = $this->insertMacro($otherId, '$_HOSTFOREIGN$', 'y');
 
         $this->repository->replaceMacros($this->findOne($id)->withMacros(new Collection([
-            new HostTemplateMacro(new HostTemplateMacroName('PORT'), '443', false, new HostTemplateMacroId($kept)),
-            new HostTemplateMacro(new HostTemplateMacroName('NEW'), 's', true, new HostTemplateMacroId($foreign)),
+            new HostTemplateMacro(new HostMacroName('PORT'), '443', false, new HostMacroId($kept)),
+            new HostTemplateMacro(new HostMacroName('NEW'), 's', true, new HostMacroId($foreign)),
         ], HostTemplateMacro::class)));
 
         $rows = $this->connection->fetchAllAssociative('SELECT host_macro_id, host_macro_name, host_macro_value, is_password FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id', [$id]);

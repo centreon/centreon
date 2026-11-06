@@ -29,7 +29,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroPasswordUnmaskedException;
@@ -219,7 +218,7 @@ final readonly class HostTemplateMacroChangesResolver
             $change->name,
             $value,
             $change->isPassword,
-            $own?->id instanceof HostTemplateMacroId ? $own->id : null,
+            $own?->id instanceof HostMacroId ? $own->id : null,
         );
     }
 }

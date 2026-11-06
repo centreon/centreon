@@ -25,14 +25,14 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\DuplicateHostTemplateCommand;
 use App\MonitoringConfiguration\Application\Command\DuplicateHostTemplateCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateDuplicated;
 use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostTemplateNameTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
@@ -292,11 +292,11 @@ final class DuplicateHostTemplateCommandHandlerTest extends TestCase
             new HostTemplateId(7),
             new HostTemplateName('generic'),
             checkOptions: new HostTemplateCheckOptions(macros: new Collection([
-                new HostTemplateMacro(new HostTemplateMacroName('PWD'), self::SOURCE_PASSWORD, isPassword: true, id: new HostTemplateMacroId(1)),
-                new HostTemplateMacro(new HostTemplateMacroName('PLAIN'), 'plain', isPassword: false, id: new HostTemplateMacroId(2)),
+                new HostTemplateMacro(new HostMacroName('PWD'), self::SOURCE_PASSWORD, isPassword: true, id: new HostMacroId(1)),
+                new HostTemplateMacro(new HostMacroName('PLAIN'), 'plain', isPassword: false, id: new HostMacroId(2)),
             ], HostTemplateMacro::class)),
             isLocked: $isLocked,
-            snmpCommunity: new HostTemplateSnmpCommunity(self::SOURCE_SNMP),
+            snmpCommunity: new SnmpCommunity(self::SOURCE_SNMP),
         );
     }
 

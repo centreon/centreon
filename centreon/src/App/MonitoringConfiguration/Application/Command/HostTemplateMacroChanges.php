@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
 
 /**
  * How a partial update changes the template's own macros: it replaces them all, writes some of them,
@@ -34,7 +34,7 @@ final readonly class HostTemplateMacroChanges
 {
     /**
      * @param list<HostTemplateMacroChange> $changes
-     * @param list<HostTemplateMacroId> $removedIds
+     * @param list<HostMacroId> $removedIds
      */
     private function __construct(
         public MacroChangeModeEnum $mode,
@@ -60,7 +60,7 @@ final readonly class HostTemplateMacroChanges
     }
 
     /**
-     * @param list<HostTemplateMacroId> $ids
+     * @param list<HostMacroId> $ids
      */
     public static function remove(array $ids): self
     {

@@ -38,12 +38,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtend
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateUpdated;
@@ -119,7 +119,7 @@ final readonly class PatchHostTemplateCommandHandler
         try {
             ['community' => $snmpCommunity, 'secretRewritten' => $secretRewritten] = $this->moveTheCommunityToTheVault($template, $command->snmpCommunity);
             $changed = $changed->withChange(new HostTemplateChange(snmpCommunity: $snmpCommunity));
-            if ($snmpCommunity instanceof HostTemplateSnmpCommunity && $this->vault->isEnabled() && $this->vault->isVaultPath($snmpCommunity->value)) {
+            if ($snmpCommunity instanceof SnmpCommunity && $this->vault->isEnabled() && $this->vault->isVaultPath($snmpCommunity->value)) {
                 $vaultUuid = $this->vault->extractUuid($snmpCommunity->value);
             }
 
@@ -168,7 +168,7 @@ final readonly class PatchHostTemplateCommandHandler
     /**
      * The options follow the list rules: replaced, added to or removed from.
      *
-     * @param NoValue|ListChange<HostTemplateNotificationOptionEnum> $options
+     * @param NoValue|ListChange<NotificationOptionEnum> $options
      */
     private function applyTheOptions(HostTemplate $template, HostTemplateChange $change, NoValue|ListChange $options): HostTemplateChange
     {
@@ -288,7 +288,7 @@ final readonly class PatchHostTemplateCommandHandler
      * A vault reference is ignored: none is ever returned, so none can come back legitimately. A secret
      * written counts as a change even when its reference stays the same (same entry, same key).
      *
-     * @return array{community: NoValue|HostTemplateSnmpCommunity|null, secretRewritten: bool}
+     * @return array{community: NoValue|SnmpCommunity|null, secretRewritten: bool}
      */
     private function moveTheCommunityToTheVault(HostTemplate $template, NoValue|string|null $community): array
     {
@@ -297,12 +297,12 @@ final readonly class PatchHostTemplateCommandHandler
         }
 
         if (! $this->vault->isEnabled()) {
-            return ['community' => $community === null ? null : new HostTemplateSnmpCommunity($community), 'secretRewritten' => false];
+            return ['community' => $community === null ? null : new SnmpCommunity($community), 'secretRewritten' => false];
         }
 
         $vaultUuid = $template->getVaultUuid($this->vault);
         if ($community === null) {
-            if ($vaultUuid !== null && $template->snmpCommunity instanceof HostTemplateSnmpCommunity && $this->vault->isVaultPath($template->snmpCommunity->value)) {
+            if ($vaultUuid !== null && $template->snmpCommunity instanceof SnmpCommunity && $this->vault->isVaultPath($template->snmpCommunity->value)) {
                 $this->writeToTheVault($template, VaultCredentials::empty()->clear(VaultKeyEnum::HostSnmpCommunity), $vaultUuid);
             }
 
@@ -315,7 +315,7 @@ final readonly class PatchHostTemplateCommandHandler
 
         $stored = $this->writeToTheVault($template, VaultCredentials::empty()->set(VaultKeyEnum::HostSnmpCommunity, $community), $vaultUuid);
 
-        return ['community' => new HostTemplateSnmpCommunity($stored[VaultKeyEnum::HostSnmpCommunity->value]), 'secretRewritten' => true];
+        return ['community' => new SnmpCommunity($stored[VaultKeyEnum::HostSnmpCommunity->value]), 'secretRewritten' => true];
     }
 
     /**

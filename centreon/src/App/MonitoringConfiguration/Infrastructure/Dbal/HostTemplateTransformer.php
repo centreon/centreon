@@ -25,24 +25,24 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
@@ -80,7 +80,7 @@ final readonly class HostTemplateTransformer implements TransformerInterface
             return new HostTemplate(
                 id: new HostTemplateId($from['host_id']),
                 name: new HostTemplateName($from['host_name']),
-                alias: $alias !== null ? new HostTemplateAlias($alias) : null,
+                alias: $alias !== null ? new HostAlias($alias) : null,
                 isLocked: (bool) (int) ($from['host_locked'] ?? 0),
                 parentTemplateIds: $parentTemplateIds,
                 extendedInformations: $iconId instanceof MediaId ? new HostTemplateExtendedInformations(iconId: $iconId) : null,
@@ -99,11 +99,11 @@ final readonly class HostTemplateTransformer implements TransformerInterface
                 new Collection($from['macros'], HostTemplateMacro::class),
             ),
             serviceTemplateCheckCommandIds: new Collection($this->ids($from['service_template_check_command_ids'], CommandId::class), CommandId::class),
-            alias: $alias !== null ? new HostTemplateAlias($alias) : null,
+            alias: $alias !== null ? new HostAlias($alias) : null,
             isLocked: (bool) (int) ($from['host_locked'] ?? 0),
             parentTemplateIds: $parentTemplateIds,
-            snmpCommunity: $snmpCommunity !== null ? new HostTemplateSnmpCommunity($snmpCommunity) : null,
-            snmpVersion: $snmpVersion !== null ? HostTemplateSnmpVersionEnum::tryFrom($snmpVersion) : null,
+            snmpCommunity: $snmpCommunity !== null ? new SnmpCommunity($snmpCommunity) : null,
+            snmpVersion: $snmpVersion !== null ? SnmpVersionEnum::tryFrom($snmpVersion) : null,
             // host_location defaults to 0, not NULL: 0 means no timezone too.
             timezoneId: (int) $from['timezone_id'] > 0 ? new TimezoneId((int) $from['timezone_id']) : null,
             severityId: $from['severity_id'] !== null ? new HostSeverityId($from['severity_id']) : null,
@@ -172,19 +172,19 @@ final readonly class HostTemplateTransformer implements TransformerInterface
      * The engine's comma-separated letters, in the enum's order; an unknown letter is skipped, and
      * "n" next to real options is dropped.
      *
-     * @return list<HostTemplateNotificationOptionEnum>
+     * @return list<NotificationOptionEnum>
      */
     private function notificationOptions(?string $column): array
     {
         $options = [];
         foreach (explode(',', $column ?? '') as $letter) {
             $option = match (trim($letter)) {
-                'd' => HostTemplateNotificationOptionEnum::Down,
-                'u' => HostTemplateNotificationOptionEnum::Unreachable,
-                'r' => HostTemplateNotificationOptionEnum::Recovery,
-                'f' => HostTemplateNotificationOptionEnum::Flapping,
-                's' => HostTemplateNotificationOptionEnum::DowntimeScheduled,
-                'n' => HostTemplateNotificationOptionEnum::None,
+                'd' => NotificationOptionEnum::Down,
+                'u' => NotificationOptionEnum::Unreachable,
+                'r' => NotificationOptionEnum::Recovery,
+                'f' => NotificationOptionEnum::Flapping,
+                's' => NotificationOptionEnum::DowntimeScheduled,
+                'n' => NotificationOptionEnum::None,
                 default => null,
             };
             if ($option !== null) {
@@ -193,12 +193,12 @@ final readonly class HostTemplateTransformer implements TransformerInterface
         }
 
         if (count($options) > 1) {
-            unset($options[HostTemplateNotificationOptionEnum::None->name]);
+            unset($options[NotificationOptionEnum::None->name]);
         }
 
         return array_values(array_filter(
-            HostTemplateNotificationOptionEnum::cases(),
-            static fn (HostTemplateNotificationOptionEnum $option): bool => isset($options[$option->name]),
+            NotificationOptionEnum::cases(),
+            static fn (NotificationOptionEnum $option): bool => isset($options[$option->name]),
         ));
     }
 

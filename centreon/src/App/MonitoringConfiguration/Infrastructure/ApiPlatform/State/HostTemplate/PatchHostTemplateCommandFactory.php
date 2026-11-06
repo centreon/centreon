@@ -28,28 +28,28 @@ use App\MonitoringConfiguration\Application\Command\ListChange;
 use App\MonitoringConfiguration\Application\Command\PatchHostTemplateCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptionsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessingChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\HostTemplateNotificationOptionEnumResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateDataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateSchedulingOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateMacroInput;
@@ -75,8 +75,8 @@ final readonly class PatchHostTemplateCommandFactory
             actor: $actor,
             change: new HostTemplateChange(
                 name: $this->provided($payload, 'name', fn (): HostTemplateName => HostTemplateName::fromUserInput($this->required($input->name))),
-                alias: $this->provided($payload, 'alias', fn (): HostTemplateAlias => new HostTemplateAlias($this->required($input->alias))),
-                snmpVersion: $this->provided($payload, 'snmp_version', static fn (): ?HostTemplateSnmpVersionEnum => $input->snmpVersion),
+                alias: $this->provided($payload, 'alias', fn (): HostAlias => new HostAlias($this->required($input->alias))),
+                snmpVersion: $this->provided($payload, 'snmp_version', static fn (): ?SnmpVersionEnum => $input->snmpVersion),
                 timezoneId: $this->provided($payload, 'timezone_id', static fn (): ?TimezoneId => $input->timezoneId !== null ? new TimezoneId($input->timezoneId) : null),
                 severityId: $this->provided($payload, 'severity_id', static fn (): ?HostSeverityId => $input->severityId !== null ? new HostSeverityId($input->severityId) : null),
                 checkOptions: $this->provided($payload, 'check_options', fn (): HostTemplateCheckOptionsChange => $this->checkOptions(
@@ -118,7 +118,7 @@ final readonly class PatchHostTemplateCommandFactory
                 ? $this->listChange($payload->section('notifications'), 'contact_groups', $input->notifications->contactGroups, $input->notifications->contactGroupsToAdd, $input->notifications->contactGroupsToRemove, static fn (int $id): ContactGroupId => new ContactGroupId($id))
                 : new NoValue(),
             notificationOptions: $input->notifications instanceof PatchHostTemplateNotificationsInput
-                ? $this->listChange($payload->section('notifications'), 'options', $input->notifications->options, $input->notifications->optionsToAdd, $input->notifications->optionsToRemove, HostTemplateNotificationOptionEnumResolver::toDomain(...))
+                ? $this->listChange($payload->section('notifications'), 'options', $input->notifications->options, $input->notifications->optionsToAdd, $input->notifications->optionsToRemove, NotificationOptionEnumResolver::toDomain(...))
                 : new NoValue(),
             macros: $this->macroChanges($payload->section('check_options'), $input->checkOptions),
         );
@@ -133,7 +133,7 @@ final readonly class PatchHostTemplateCommandFactory
         return match (true) {
             $sent->has('macros') => HostTemplateMacroChanges::replace(array_map($this->toMacroChange(...), array_values($data->macros))),
             $sent->has('macros_to_upsert') => HostTemplateMacroChanges::upsert(array_map($this->toMacroChange(...), array_values($data->macrosToUpsert))),
-            $sent->has('macros_to_remove') => HostTemplateMacroChanges::remove(array_map(static fn (int $id): HostTemplateMacroId => new HostTemplateMacroId($id), array_values($data->macrosToRemove))),
+            $sent->has('macros_to_remove') => HostTemplateMacroChanges::remove(array_map(static fn (int $id): HostMacroId => new HostMacroId($id), array_values($data->macrosToRemove))),
             default => new NoValue(),
         };
     }
@@ -141,7 +141,7 @@ final readonly class PatchHostTemplateCommandFactory
     private function toMacroChange(HostTemplateMacroInput $input): HostTemplateMacroChange
     {
         return new HostTemplateMacroChange(
-            name: new HostTemplateMacroName($input->name),
+            name: new HostMacroName($input->name),
             value: $input->value,
             isPassword: $input->isPassword,
             id: $input->id,

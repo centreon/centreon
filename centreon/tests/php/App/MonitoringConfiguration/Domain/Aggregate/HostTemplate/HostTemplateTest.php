@@ -24,25 +24,25 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -60,7 +60,7 @@ final class HostTemplateTest extends TestCase
 
     public function testItExposesItsOwnMacrosAsInheritedFromATemplate(): void
     {
-        $template = $this->template(macros: [new HostTemplateMacro(new HostTemplateMacroName('foo'), 'bar', isPassword: true, id: new HostTemplateMacroId(4))]);
+        $template = $this->template(macros: [new HostTemplateMacro(new HostMacroName('foo'), 'bar', isPassword: true, id: new HostMacroId(4))]);
 
         $macros = $template->macrosAsInherited();
 
@@ -92,7 +92,7 @@ final class HostTemplateTest extends TestCase
 
     public function testNoVaultEntryWhenNothingIsVaulted(): void
     {
-        $template = $this->template(snmp: 'public', macros: [new HostTemplateMacro(new HostTemplateMacroName('PWD'), 'plain', isPassword: true)]);
+        $template = $this->template(snmp: 'public', macros: [new HostTemplateMacro(new HostMacroName('PWD'), 'plain', isPassword: true)]);
 
         self::assertNull($template->getVaultUuid(new FakeVault()));
     }
@@ -107,8 +107,8 @@ final class HostTemplateTest extends TestCase
     public function testTheVaultEntryOfAVaultedPasswordMacroAlone(): void
     {
         $template = $this->template(macros: [
-            new HostTemplateMacro(new HostTemplateMacroName('USER'), 'admin', isPassword: false),
-            new HostTemplateMacro(new HostTemplateMacroName('PWD'), 'secret::vault::monitoring/hosts/uuid-macro::_HOSTPWD', isPassword: true),
+            new HostTemplateMacro(new HostMacroName('USER'), 'admin', isPassword: false),
+            new HostTemplateMacro(new HostMacroName('PWD'), 'secret::vault::monitoring/hosts/uuid-macro::_HOSTPWD', isPassword: true),
         ]);
 
         self::assertSame('uuid-macro', $template->getVaultUuid(new FakeVault()));
@@ -116,7 +116,7 @@ final class HostTemplateTest extends TestCase
 
     public function testANonPasswordMacroHoldingAVaultPathIsIgnored(): void
     {
-        $template = $this->template(macros: [new HostTemplateMacro(new HostTemplateMacroName('NOTE'), 'secret::vault::monitoring/hosts/uuid-x::_HOSTNOTE', isPassword: false)]);
+        $template = $this->template(macros: [new HostTemplateMacro(new HostMacroName('NOTE'), 'secret::vault::monitoring/hosts/uuid-x::_HOSTNOTE', isPassword: false)]);
 
         self::assertNull($template->getVaultUuid(new FakeVault()));
     }
@@ -133,13 +133,13 @@ final class HostTemplateTest extends TestCase
             new HostTemplateCheckOptions(
                 new CommandId(5),
                 ['-w', '80'],
-                new Collection([new HostTemplateMacro(new HostTemplateMacroName('OLD'), 'old', isPassword: false)], HostTemplateMacro::class),
+                new Collection([new HostTemplateMacro(new HostMacroName('OLD'), 'old', isPassword: false)], HostTemplateMacro::class),
             ),
-            alias: new HostTemplateAlias('An alias'),
+            alias: new HostAlias('An alias'),
             isLocked: false,
             parentTemplateIds: new Collection([new HostTemplateId(3), new HostTemplateId(2)], HostTemplateId::class),
-            snmpCommunity: new HostTemplateSnmpCommunity('old-community'),
-            snmpVersion: HostTemplateSnmpVersionEnum::TwoC,
+            snmpCommunity: new SnmpCommunity('old-community'),
+            snmpVersion: SnmpVersionEnum::TwoC,
             timezoneId: new TimezoneId(6),
             severityId: new HostSeverityId(7),
             extendedInformations: $extendedInformations,
@@ -149,9 +149,9 @@ final class HostTemplateTest extends TestCase
             categoryIds: new Collection([new HostCategoryId(9)], HostCategoryId::class),
             linkedServiceTemplateIds: new Collection([new ServiceTemplateId(10)], ServiceTemplateId::class),
         );
-        $macros = new Collection([new HostTemplateMacro(new HostTemplateMacroName('NEW'), 'new', isPassword: false)], HostTemplateMacro::class);
+        $macros = new Collection([new HostTemplateMacro(new HostMacroName('NEW'), 'new', isPassword: false)], HostTemplateMacro::class);
 
-        $copy = $source->duplicate(new HostTemplateName('copy'), new HostTemplateSnmpCommunity('new-community'), $macros);
+        $copy = $source->duplicate(new HostTemplateName('copy'), new SnmpCommunity('new-community'), $macros);
 
         self::assertSame('copy', $copy->name->value);
         self::assertSame('new-community', $copy->snmpCommunity?->value);
@@ -160,7 +160,7 @@ final class HostTemplateTest extends TestCase
         self::assertSame(['-w', '80'], $copy->checkOptions->args);
         self::assertSame('An alias', $copy->alias?->value);
         self::assertSame([3, 2], array_map(static fn (HostTemplateId $id): int => $id->value, $copy->parentTemplateIds->toArray()));
-        self::assertSame(HostTemplateSnmpVersionEnum::TwoC, $copy->snmpVersion);
+        self::assertSame(SnmpVersionEnum::TwoC, $copy->snmpVersion);
         self::assertSame(6, $copy->timezoneId?->value);
         self::assertSame(7, $copy->severityId?->value);
         self::assertSame($extendedInformations, $copy->extendedInformations);
@@ -199,7 +199,7 @@ final class HostTemplateTest extends TestCase
             new HostTemplateId(1),
             new HostTemplateName('tpl'),
             new HostTemplateCheckOptions(macros: new Collection($macros, HostTemplateMacro::class)),
-            snmpCommunity: $snmp !== null ? new HostTemplateSnmpCommunity($snmp) : null,
+            snmpCommunity: $snmp !== null ? new SnmpCommunity($snmp) : null,
         );
     }
 }

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
@@ -33,7 +34,7 @@ use App\Shared\Domain\NoValue;
 final readonly class HostTemplateNotificationsChange
 {
     /**
-     * @param NoValue|list<HostTemplateNotificationOptionEnum> $options the options the template ends up with
+     * @param NoValue|list<NotificationOptionEnum> $options the options the template ends up with
      */
     public function __construct(
         public NoValue|TriStateEnum $enabled = new NoValue(),
@@ -48,7 +49,7 @@ final readonly class HostTemplateNotificationsChange
     }
 
     /**
-     * @param list<HostTemplateNotificationOptionEnum> $options
+     * @param list<NotificationOptionEnum> $options
      */
     public function withOptions(array $options): self
     {

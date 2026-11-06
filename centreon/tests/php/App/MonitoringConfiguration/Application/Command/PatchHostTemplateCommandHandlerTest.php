@@ -30,10 +30,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptionsChange;
@@ -45,8 +45,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateServicesCleanupRequested;
@@ -222,7 +222,7 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
     {
         $this->addTemplate();
 
-        $template = ($this->handler)($this->command(7, new HostTemplateChange(alias: new HostTemplateAlias('New alias'))));
+        $template = ($this->handler)($this->command(7, new HostTemplateChange(alias: new HostAlias('New alias'))));
 
         self::assertSame('New alias', $template->alias?->value);
         self::assertSame([7], $this->repository->updatedIds);
@@ -240,7 +240,7 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
 
         ($this->handler)($this->command(7, new HostTemplateChange(
             name: new HostTemplateName('tpl'),
-            alias: new HostTemplateAlias('Alias'),
+            alias: new HostAlias('Alias'),
             notifications: new HostTemplateNotificationsChange(interval: 30),
         )));
 
@@ -272,7 +272,7 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
     {
         $this->addTemplate();
 
-        ($this->handler)($this->command(7, new HostTemplateChange(name: new HostTemplateName('tpl'), alias: new HostTemplateAlias('Other'))));
+        ($this->handler)($this->command(7, new HostTemplateChange(name: new HostTemplateName('tpl'), alias: new HostAlias('Other'))));
 
         self::assertSame([7], $this->repository->updatedIds);
     }
@@ -313,7 +313,7 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         $this->addTemplate();
         $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, []);
 
-        $template = ($this->handler)($this->command(7, new HostTemplateChange(severityId: null, alias: new HostTemplateAlias('Other')), restricted: true));
+        $template = ($this->handler)($this->command(7, new HostTemplateChange(severityId: null, alias: new HostAlias('Other')), restricted: true));
 
         self::assertSame(8, $template->severityId?->value);
     }
@@ -385,7 +385,7 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         $this->addTemplate();
 
         try {
-            ($this->handler)($this->command(7, new HostTemplateChange(alias: new HostTemplateAlias('Other')), snmpCommunity: 'new-community'));
+            ($this->handler)($this->command(7, new HostTemplateChange(alias: new HostAlias('Other')), snmpCommunity: 'new-community'));
             self::fail('A vault failure must stop the update.');
         } catch (VaultWriteFailedException) {
         }
@@ -473,7 +473,7 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         $this->repository->updateThrows = new \RuntimeException('The save failed.');
 
         try {
-            ($this->handler)($this->command(7, new HostTemplateChange(alias: new HostTemplateAlias('Other'))));
+            ($this->handler)($this->command(7, new HostTemplateChange(alias: new HostAlias('Other'))));
             self::fail('The save failure must reach the caller.');
         } catch (\RuntimeException) {
         }
@@ -495,9 +495,9 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
             new HostTemplateId(7),
             new HostTemplateName('tpl'),
             new HostTemplateCheckOptions(),
-            alias: new HostTemplateAlias('Alias'),
+            alias: new HostAlias('Alias'),
             isLocked: $isLocked,
-            snmpCommunity: new HostTemplateSnmpCommunity($snmpCommunity),
+            snmpCommunity: new SnmpCommunity($snmpCommunity),
             severityId: new HostSeverityId(8),
             notifications: new HostTemplateNotifications(enabled: TriStateEnum::True, interval: 30),
         );

@@ -24,9 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
@@ -34,8 +34,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroC
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
@@ -54,9 +54,9 @@ final readonly class CreateHostTemplateCommand
      */
     public function __construct(
         public HostTemplateName $name,
-        public HostTemplateAlias $alias,
+        public HostAlias $alias,
         public ActingUser $actor,
-        public ?HostTemplateSnmpVersionEnum $snmpVersion = null,
+        public ?SnmpVersionEnum $snmpVersion = null,
         // Plaintext until the handler vaults it.
         #[Sensitive]
         public ?string $snmpCommunity = null,

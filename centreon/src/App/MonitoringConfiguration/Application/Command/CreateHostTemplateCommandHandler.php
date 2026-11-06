@@ -36,8 +36,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckO
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateCreated;
@@ -195,30 +195,30 @@ final readonly class CreateHostTemplateCommandHandler
      * With a vault, the column holds the `secret::` reference, so the community's length bound
      * measures that.
      */
-    private function vaultOrPlaintext(?string $snmpCommunity): ?HostTemplateSnmpCommunity
+    private function vaultOrPlaintext(?string $snmpCommunity): ?SnmpCommunity
     {
         if ($snmpCommunity === null) {
             return null;
         }
 
         if (! $this->vault->isEnabled()) {
-            return new HostTemplateSnmpCommunity($snmpCommunity);
+            return new SnmpCommunity($snmpCommunity);
         }
 
-        return new HostTemplateSnmpCommunity($this->vault->write(
+        return new SnmpCommunity($this->vault->write(
             VaultPathEnum::MonitoringHosts->value,
             VaultKeyEnum::HostSnmpCommunity->value,
             $snmpCommunity,
         ));
     }
 
-    private function vaultUuidOf(?HostTemplateSnmpCommunity $snmpCommunity): ?string
+    private function vaultUuidOf(?SnmpCommunity $snmpCommunity): ?string
     {
         if (! $this->vault->isEnabled()) {
             return null;
         }
 
-        return $snmpCommunity instanceof HostTemplateSnmpCommunity && $this->vault->isVaultPath($snmpCommunity->value)
+        return $snmpCommunity instanceof SnmpCommunity && $this->vault->isVaultPath($snmpCommunity->value)
             ? $this->vault->extractUuid($snmpCommunity->value)
             : null;
     }

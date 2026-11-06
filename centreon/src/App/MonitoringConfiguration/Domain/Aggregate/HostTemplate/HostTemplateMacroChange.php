@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
@@ -39,7 +40,7 @@ final readonly class HostTemplateMacroChange
      * @param ?string $value null keeps the stored value of a password macro
      */
     public function __construct(
-        public HostTemplateMacroName $name,
+        public HostMacroName $name,
         #[Sensitive] public ?string $value,
         public bool $isPassword,
         public ?int $id = null,

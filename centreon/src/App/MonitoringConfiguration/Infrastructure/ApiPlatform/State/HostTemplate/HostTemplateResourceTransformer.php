@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateResource;
 use App\Shared\Infrastructure\TransformerInterface;
 
@@ -41,7 +41,7 @@ final readonly class HostTemplateResourceTransformer implements TransformerInter
             alias: $from->alias?->value,
             isLocked: $from->isLocked,
             snmpVersion: $from->snmpVersion,
-            isSnmpCommunityDefined: $from->snmpCommunity instanceof HostTemplateSnmpCommunity,
+            isSnmpCommunityDefined: $from->snmpCommunity instanceof SnmpCommunity,
         );
     }
 }

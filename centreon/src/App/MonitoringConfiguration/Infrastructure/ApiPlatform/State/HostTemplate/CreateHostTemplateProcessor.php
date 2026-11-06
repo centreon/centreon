@@ -28,16 +28,16 @@ use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreateHostTemplateCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
@@ -47,7 +47,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\HostTemplateNotificationOptionEnumResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateCheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateDataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateExtendedInformationsInput;
@@ -92,7 +92,7 @@ final readonly class CreateHostTemplateProcessor implements ProcessorInterface
 
         $command = new CreateHostTemplateCommand(
             name: HostTemplateName::fromUserInput($data->name),
-            alias: new HostTemplateAlias($data->alias),
+            alias: new HostAlias($data->alias),
             actor: $actor,
             snmpVersion: $data->snmpVersion,
             snmpCommunity: $this->trimmedOrNull($data->snmpCommunity),
@@ -135,7 +135,7 @@ final readonly class CreateHostTemplateProcessor implements ProcessorInterface
     private function toMacroChange(HostTemplateMacroInput $input): HostTemplateMacroChange
     {
         return new HostTemplateMacroChange(
-            name: new HostTemplateMacroName($input->name),
+            name: new HostMacroName($input->name),
             value: $input->value,
             isPassword: $input->isPassword,
             id: $input->id,
@@ -181,7 +181,7 @@ final readonly class CreateHostTemplateProcessor implements ProcessorInterface
             contactIds: $this->toIdCollection($input->contacts, NotificationContactId::class),
             contactGroupIds: $this->toIdCollection($input->contactGroups, ContactGroupId::class),
             options: array_values(array_unique(
-                array_map(HostTemplateNotificationOptionEnumResolver::toDomain(...), $input->options),
+                array_map(NotificationOptionEnumResolver::toDomain(...), $input->options),
                 SORT_REGULAR,
             )),
             interval: $input->interval,

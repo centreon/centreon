@@ -25,19 +25,19 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateRelationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Exception\DuplicateHostTemplateMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateExclusiveNotificationOptionException;
@@ -138,10 +138,10 @@ final class HostTemplateRelationsTest extends TestCase
         $template = $this->template();
 
         $reordered = $template->withChange(new HostTemplateChange(notifications: new HostTemplateNotificationsChange(
-            options: [HostTemplateNotificationOptionEnum::Recovery, HostTemplateNotificationOptionEnum::Down],
+            options: [NotificationOptionEnum::Recovery, NotificationOptionEnum::Down],
         )));
         $changed = $template->withChange(new HostTemplateChange(notifications: new HostTemplateNotificationsChange(
-            options: [HostTemplateNotificationOptionEnum::Down],
+            options: [NotificationOptionEnum::Down],
         )));
 
         self::assertTrue($reordered->hasSameConfigurationAs($template));
@@ -153,17 +153,17 @@ final class HostTemplateRelationsTest extends TestCase
         $this->expectException(HostTemplateExclusiveNotificationOptionException::class);
 
         $this->template()->withChange(new HostTemplateChange(notifications: new HostTemplateNotificationsChange(
-            options: [HostTemplateNotificationOptionEnum::Down, HostTemplateNotificationOptionEnum::None],
+            options: [NotificationOptionEnum::Down, NotificationOptionEnum::None],
         )));
     }
 
     public function testNoneAloneIsAccepted(): void
     {
         $changed = $this->template()->withChange(new HostTemplateChange(notifications: new HostTemplateNotificationsChange(
-            options: [HostTemplateNotificationOptionEnum::None],
+            options: [NotificationOptionEnum::None],
         )));
 
-        self::assertSame([HostTemplateNotificationOptionEnum::None], $changed->notifications?->options);
+        self::assertSame([NotificationOptionEnum::None], $changed->notifications?->options);
     }
 
     private function template(): HostTemplate
@@ -176,7 +176,7 @@ final class HostTemplateRelationsTest extends TestCase
             notifications: new HostTemplateNotifications(
                 contactIds: new Collection([new NotificationContactId(30)], NotificationContactId::class),
                 contactGroupIds: new Collection([new ContactGroupId(40)], ContactGroupId::class),
-                options: [HostTemplateNotificationOptionEnum::Down, HostTemplateNotificationOptionEnum::Recovery],
+                options: [NotificationOptionEnum::Down, NotificationOptionEnum::Recovery],
                 interval: 30,
             ),
             categoryIds: new Collection([new HostCategoryId(10)], HostCategoryId::class),
@@ -186,7 +186,7 @@ final class HostTemplateRelationsTest extends TestCase
 
     private function macro(string $name, string $value, bool $isPassword = false): HostTemplateMacro
     {
-        return new HostTemplateMacro(new HostTemplateMacroName($name), $value, $isPassword, new HostTemplateMacroId(ord($name)));
+        return new HostTemplateMacro(new HostMacroName($name), $value, $isPassword, new HostMacroId(ord($name)));
     }
 
     /**

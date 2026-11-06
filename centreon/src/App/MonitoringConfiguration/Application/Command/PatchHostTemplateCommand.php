@@ -27,8 +27,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
@@ -46,7 +46,7 @@ final readonly class PatchHostTemplateCommand
      * @param NoValue|ListChange<ServiceTemplateId> $linkedServiceTemplateIds
      * @param NoValue|ListChange<NotificationContactId> $contactIds
      * @param NoValue|ListChange<ContactGroupId> $contactGroupIds
-     * @param NoValue|ListChange<HostTemplateNotificationOptionEnum> $notificationOptions
+     * @param NoValue|ListChange<NotificationOptionEnum> $notificationOptions
      */
     public function __construct(
         public HostTemplateId $id,

@@ -29,14 +29,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
@@ -62,7 +61,7 @@ final class InheritedHostMacrosResolverTest extends TestCase
 
     public function testItResolvesTheTemplateMacrosOfTheInheritanceLine(): void
     {
-        $this->addTemplate(1, macros: [new HostTemplateMacro(new HostTemplateMacroName('tpl'), 'x', isPassword: false, id: new HostTemplateMacroId(10))]);
+        $this->addTemplate(1, macros: [new HostTemplateMacro(new HostMacroName('tpl'), 'x', isPassword: false, id: new HostMacroId(10))]);
 
         $inherited = $this->resolver->resolve($this->templateIds(1), null);
 
@@ -143,7 +142,7 @@ final class InheritedHostMacrosResolverTest extends TestCase
     public function testATemplateMacroWinsOverAServiceTemplateCommandMacro(): void
     {
         $this->addCommand(8, '$USER1$/svc -a $_HOSTSHARED$');
-        $this->addTemplate(1, macros: [new HostTemplateMacro(new HostTemplateMacroName('shared'), 'tpl', isPassword: false, id: new HostTemplateMacroId(10))], serviceTemplateCheckCommandIds: [8]);
+        $this->addTemplate(1, macros: [new HostTemplateMacro(new HostMacroName('shared'), 'tpl', isPassword: false, id: new HostMacroId(10))], serviceTemplateCheckCommandIds: [8]);
 
         $inherited = $this->resolver->resolve($this->templateIds(1), null);
 
@@ -160,7 +159,7 @@ final class InheritedHostMacrosResolverTest extends TestCase
     public function testItResolvesAnAlreadyLoadedLineWithoutFetchingItAgain(): void
     {
         $this->addCommand(7, '$USER1$/check -a $_HOSTFROMTEMPLATE$');
-        $this->addTemplate(1, macros: [new HostTemplateMacro(new HostTemplateMacroName('tpl'), 'x', isPassword: false, id: new HostTemplateMacroId(10))], checkCommandId: 7);
+        $this->addTemplate(1, macros: [new HostTemplateMacro(new HostMacroName('tpl'), 'x', isPassword: false, id: new HostMacroId(10))], checkCommandId: 7);
         $line = [$this->templates->hostTemplates[1]];
 
         $inherited = $this->resolver->resolveLine($line, null);

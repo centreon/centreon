@@ -24,9 +24,9 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Application\Service;
 
 use App\MonitoringConfiguration\Application\Service\HostTemplateMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeVault;
@@ -214,6 +214,6 @@ final class HostTemplateMacroSecretsSynchronizerTest extends TestCase
 
     private function macro(string $name, string $value, bool $isPassword, ?int $id = null): HostTemplateMacro
     {
-        return new HostTemplateMacro(new HostTemplateMacroName($name), $value, $isPassword, $id !== null ? new HostTemplateMacroId($id) : null);
+        return new HostTemplateMacro(new HostMacroName($name), $value, $isPassword, $id !== null ? new HostMacroId($id) : null);
     }
 }

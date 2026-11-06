@@ -32,7 +32,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroValueIsAVaultReferenceException;
@@ -83,14 +82,14 @@ final readonly class HostTemplateMacrosUpdater
 
     /**
      * @param list<HostTemplateMacro> $current
-     * @param list<HostTemplateMacroId> $ids
+     * @param list<HostMacroId> $ids
      *
      * @return list<HostTemplateMacro>
      */
     private function remove(array $current, array $ids): array
     {
         $ownIds = array_map(static fn (HostTemplateMacro $macro): int => (int) $macro->id?->value, $current);
-        $removedIds = array_map(static fn (HostTemplateMacroId $id): int => $id->value, $ids);
+        $removedIds = array_map(static fn (HostMacroId $id): int => $id->value, $ids);
         $unknownIds = array_values(array_unique(array_diff($removedIds, $ownIds)));
         if ($unknownIds !== []) {
             throw new HostTemplateMacroNotFoundException($unknownIds);
