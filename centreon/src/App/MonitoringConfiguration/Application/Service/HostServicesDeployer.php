@@ -44,7 +44,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 /**
  * Creates on a host one enabled service per service template of its host template chain, named after the
  * template's alias, unless a service directly linked to the host already has that name, compared as on any service
- * creation (case and accents ignored, see {@see ServiceRepository::isNameUsedOnHost()}). It opens no
+ * creation (case ignored, see {@see ServiceRepository::isNameUsedOnHost()}). It opens no
  * transaction and fires no event: it must be reached through
  * {@see \App\MonitoringConfiguration\Application\Command\DeployHostServicesFromTemplatesCommand}, whose
  * handler fires the events and whose bus transaction (a savepoint when nested) makes the deployment all or nothing.
