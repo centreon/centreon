@@ -23,10 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
-use ApiPlatform\OpenApi\Factory\OpenApiFactoryInterface;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
@@ -246,21 +244,32 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
         yield 'not a number' => ['not-a-number'];
     }
 
-    public function testItIsRoutedButAbsentFromTheOpenApiDoc(): void
+    /**
+     * A loop is refused on save, but older data may hold one: the inheritance walk must still end.
+     */
+    public function testItResolvesTheMacrosOnALoopAlreadyInTheData(): void
     {
-        /** @var RouterInterface $router */
-        $router = self::getContainer()->get('router');
-        self::assertSame(
-            '_api_/configuration/hosts/host_templates/{id}/macros_get',
-            $router->match($this->uri(5))['_route'] ?? null,
-        );
+        $first = $this->insertHostTemplate("loop-first-{$this->tag}");
+        $second = $this->insertHostTemplate("loop-second-{$this->tag}");
+        $child = $this->insertHostTemplate("loop-child-{$this->tag}");
+        $this->linkToTemplate($first, $second, order: 1);
+        $this->linkToTemplate($second, $first, order: 1);
+        $this->linkToTemplate($child, $first, order: 1);
+        $firstMacroId = $this->insertMacro($first, '$_HOSTFIRST$', '1', isPassword: false, order: 0);
+        $secondMacroId = $this->insertMacro($second, '$_HOSTSECOND$', '2', isPassword: false, order: 0);
 
-        /** @var OpenApiFactoryInterface $openApiFactory */
-        $openApiFactory = self::getContainer()->get('api_platform.openapi.factory');
-        $paths = $openApiFactory()->getPaths();
-        // guard: the documented paths carry the /api prefix, so an absence below is meaningful
-        self::assertNotNull($paths->getPath('/api/configuration/host_templates'));
-        self::assertNull($paths->getPath('/api/configuration/hosts/host_templates/{id}/macros'));
+        $this->login();
+
+        /** @var list<array<string, mixed>> $firstMacros */
+        $firstMacros = $this->request('GET', $this->uri($first))->toArray()['macros'];
+        self::assertSame([$firstMacroId, $secondMacroId], array_column($firstMacros, 'id'));
+        self::assertArrayNotHasKey('parent', $firstMacros[0]);
+        self::assertSame('template', $firstMacros[1]['parent']);
+
+        /** @var list<array<string, mixed>> $childMacros */
+        $childMacros = $this->request('GET', $this->uri($child))->toArray()['macros'];
+        self::assertSame([$firstMacroId, $secondMacroId], array_column($childMacros, 'id'));
+        self::assertSame(['template', 'template'], array_column($childMacros, 'parent'));
     }
 
     private function uri(int $templateId): string
