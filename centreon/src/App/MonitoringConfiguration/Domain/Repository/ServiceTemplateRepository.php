@@ -81,4 +81,15 @@ interface ServiceTemplateRepository
      * @return Collection<ServiceCheckIntervals> indexed by service id
      */
     public function findInheritedCheckIntervals(Collection $serviceIds): Collection;
+
+    /**
+     * The template chain starting at this template, nearest first, each with what a service inherits from it
+     * (its own macros, check command and event handler) and its own parent: the template, then the template it
+     * inherits from, and so on through service templates only. The chain stops at an id that is not a service
+     * template (dangling or not a template) and at a template already in the chain (a loop). Empty when the
+     * given id is not a service template.
+     *
+     * @return Collection<ServiceTemplate>
+     */
+    public function findInheritanceLine(ServiceTemplateId $templateId): Collection;
 }

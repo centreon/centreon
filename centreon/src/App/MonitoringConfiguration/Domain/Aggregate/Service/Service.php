@@ -23,23 +23,28 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
+use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Aggregate\VaultScopedInterface;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
 
 /**
- * Deliberately minimal: what the DeleteHost cascade needs (identify the service, know its host, log its
- * deletion, purge its vault entry), what the service listing shows of the service itself (activation,
- * direct template, own icon, own check intervals) and the state of its host as loaded with it (activation,
- * poller), which decides the poller to flag when the service changes. What it inherits from its templates
- * is not part of it. Not the full ~40-field service configuration model — that belongs to a future
- * dedicated Service CRUD migration.
+ * A real service directly linked to its one host: its own configuration (what it inherits from its templates is
+ * not part of it), its relations by id, and the state of its host as loaded with it (activation, poller), which
+ * decides the poller to flag when the service changes.
+ *
+ * A listing reads only part of it (activation, template, own check intervals, own icon); the other fields then
+ * keep their defaults.
  *
  * @extends AggregateRoot<ServiceId>
  */
@@ -48,7 +53,9 @@ final class Service extends AggregateRoot implements AclScopedInterface, PollerS
     /**
      * @param bool $hostActivated whether its host is enabled, as loaded with the service
      * @param ?PollerId $hostPollerId the poller of its host, as loaded with the service, null when the host has none
-     * @param list<ServiceMacro> $macros the service's own custom macros ($_SERVICE<NAME>$)
+     * @param Collection<ServiceGroupId> $serviceGroupIds the groups it belongs to on its host
+     * @param Collection<ServiceCategoryId> $categoryIds levelless categories; the levelled one is $severityId
+     * @param Collection<TrapId> $trapIds
      */
     public function __construct(
         ?ServiceId $id,
@@ -56,12 +63,19 @@ final class Service extends AggregateRoot implements AclScopedInterface, PollerS
         public readonly HostId $hostId,
         public readonly bool $hostActivated,
         public readonly ?PollerId $hostPollerId,
-        public readonly array $macros = [],
         // Mutable (the other fields are readonly) so enable()/disable() can toggle it.
         public bool $activated = true,
         public readonly ?ServiceTemplateId $templateId = null,
-        public readonly ?MediaId $iconId = null,
-        public readonly ServiceCheckIntervals $checkIntervals = new ServiceCheckIntervals(),
+        public readonly ServiceCheckOptions $checkOptions = new ServiceCheckOptions(null),
+        public readonly ServiceSchedulingOptions $schedulingOptions = new ServiceSchedulingOptions(),
+        public readonly ?ServiceNotifications $notifications = null,
+        public readonly ServiceDataProcessing $dataProcessing = new ServiceDataProcessing(),
+        public readonly ?ServiceExtendedInformations $extendedInformations = null,
+        public readonly ?GraphTemplateId $graphTemplateId = null,
+        public readonly ?ServiceSeverityId $severityId = null,
+        public readonly Collection $serviceGroupIds = new Collection([], ServiceGroupId::class),
+        public readonly Collection $categoryIds = new Collection([], ServiceCategoryId::class),
+        public readonly Collection $trapIds = new Collection([], TrapId::class),
     ) {
         parent::__construct($id);
     }
@@ -95,7 +109,7 @@ final class Service extends AggregateRoot implements AclScopedInterface, PollerS
      */
     public function getVaultUuid(VaultInterface $vault): ?string
     {
-        foreach ($this->macros as $macro) {
+        foreach ($this->checkOptions->macros as $macro) {
             if ($macro->isPassword && $vault->isVaultPath($macro->value)) {
                 return $vault->extractUuid($macro->value);
             }
