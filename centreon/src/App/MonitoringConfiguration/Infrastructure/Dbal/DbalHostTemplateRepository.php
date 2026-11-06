@@ -130,7 +130,8 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     private const PLUGIN_PACK_MANAGER_MODULE = 'centreon-pp-manager';
 
     /**
-     * @param TransformerInterface<RowTypeAlias|FindOneRowTypeAlias, HostTemplate> $transformer
+     * @param TransformerInterface<FindOneRowTypeAlias, HostTemplate> $transformer
+     * @param TransformerInterface<RowTypeAlias, HostTemplate> $listingTransformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
@@ -138,6 +139,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
         #[Autowire(service: HostTemplateTransformer::class)]
         private TransformerInterface $transformer,
+
+        #[Autowire(service: HostTemplateListingTransformer::class)]
+        private TransformerInterface $listingTransformer,
 
         private AccessScopeResolver $accessScopes,
 
@@ -595,7 +599,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
         $macrosByOwner = $this->findMacrosByOwner($line);
         $serviceTemplateCommandIds = $this->findServiceTemplateCheckCommandIds($line);
-        // every stored parent template, active or not, as in findAll(): $parentIdsById has active ones only
+        // every stored direct parent, active or not, as in findAll(): $parentIdsById has active ones only
         $storedParentIdsById = $this->findParentTemplateIdValues($line);
 
         return new Collection(
@@ -957,7 +961,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
         return new Collection(
             array_map(
-                fn (array $row): HostTemplate => $this->transformer->transform(
+                fn (array $row): HostTemplate => $this->listingTransformer->transform(
                     $row + ['parent_template_ids' => $parentIdsById[$row['host_id']] ?? []]
                 ),
                 $rows

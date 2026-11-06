@@ -59,7 +59,7 @@ final readonly class HostNotificationsTransformer implements TransformerInterfac
         }
 
         return new HostNotificationsOutput(
-            enabled: $from->enabled->value,
+            enabled: $from->enabled,
             contacts: $this->resolveContacts($from),
             contactGroups: $this->resolveNotificationContactGroups($from),
             options: array_map(NotificationOptionEnumResolver::toString(...), $from->options),

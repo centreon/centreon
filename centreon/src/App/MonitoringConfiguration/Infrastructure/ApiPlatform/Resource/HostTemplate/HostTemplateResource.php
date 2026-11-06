@@ -214,7 +214,7 @@ final class HostTemplateResource
     /** @var list<HostCategoryOutput> */
     public array $categories = [];
 
-    /** @var list<HostTemplateOutput> the parent templates, in inheritance order */
+    /** @var list<HostTemplateOutput> in relation order */
     public array $templates = [];
 
     /** @var list<HostTemplateLinkedServiceTemplateOutput> */

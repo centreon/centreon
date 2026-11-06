@@ -50,12 +50,8 @@ use Webmozart\Assert\Assert;
 final class HostTemplate extends AggregateRoot
 {
     /**
-     * @param Collection<CommandId> $serviceTemplateCheckCommandIds the check commands of the service
-     *                                                              templates linked to this template,
-     *                                                              each followed by those of its own
-     *                                                              templates, in priority order
-     * @param Collection<HostTemplateId> $parentTemplateIds the templates this template directly
-     *                                                      inherits from, in relation order
+     * @param Collection<CommandId> $serviceTemplateCheckCommandIds linked service templates' check commands, then their templates', in priority order
+     * @param Collection<HostTemplateId> $parentTemplateIds direct parents, in relation order
      * @param ?SnmpCommunity $snmpCommunity plaintext, or the `secret::` reference once vaulted
      * @param ?HostSeverityId $severityId the levelled `hostcategories` row; the levelless ones are $categoryIds
      * @param Collection<HostCategoryId> $categoryIds
