@@ -57,7 +57,7 @@ final readonly class MigrateCommandHandler
         $set = $command->set;
 
         try {
-            return $this->migrationSetGuard->run($set, fn (): array => $set?->isModule() === true ? $this->migrateSet($set) : $this->migrateCore($set));
+            return $this->migrationSetGuard->run($set, fn (): array => $set?->isModule() === true ? $this->migrateSet($set) : $this->migrateWeb($set));
         } catch (\Throwable $exception) {
             $this->upgradeLogger->error(
                 $this->platformVersion,
@@ -74,7 +74,7 @@ final readonly class MigrateCommandHandler
      *
      * @return list<string>
      */
-    private function migrateCore(?MigrationSet $set): array
+    private function migrateWeb(?MigrationSet $set): array
     {
         $legacyVersion = $this->targetVersionRecorder->legacyVersion();
 
