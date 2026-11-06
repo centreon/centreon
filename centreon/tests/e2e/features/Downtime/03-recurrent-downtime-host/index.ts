@@ -93,6 +93,8 @@ When('a recurrent downtime on a host is applied', () => {
     .click();
 
   cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
+  // The listing replaces the form once the downtime is saved: the cron must see it
+  cy.waitForElementInIframe('#main-content', 'a:contains("dt-recurrent-host")');
 
   // Freeze the clock a few minutes before the start so the period is due, then
   // run the recurrent-downtime cron (it writes SCHEDULE_HOST_DOWNTIME).
