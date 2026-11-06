@@ -35,6 +35,7 @@ spec:
             - { name: PHP_FPM_UPSTREAM, value: "fpm:9000" }
             - { name: HTTPD_SERVER_NAME, value: {{ include "centreon-central.serverName" . | quote }} }
             - { name: GORGONE_WSS_UPSTREAM, value: "gorgone-central:8087" }
+            - { name: HTTPD_PROXY_TIMEOUT, value: {{ include "centreon-central.httpdProxyTimeout" . | quote }} }
           ports:
             - { name: http, containerPort: 80 }
           # Graceful stop: leave the Service endpoints first, then SIGWINCH

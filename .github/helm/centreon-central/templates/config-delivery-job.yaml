@@ -27,9 +27,11 @@ spec:
 {{- end }}
 {{- end }}
 {{- $traps := or .Values.centralPoller.traps.enabled (gt (len $trapUids) 0) }}
-# The container retries internally; this only bounds the whole thing.
+# The container retries internally; this only bounds the whole thing. Never
+# below a few attempts of its generate-and-reload call (generation timeout +
+# 150 s each, see generate-broker-configuration.php).
 backoffLimit: 3
-activeDeadlineSeconds: {{ .Values.configDelivery.timeoutSeconds }}
+activeDeadlineSeconds: {{ max (int .Values.configDelivery.timeoutSeconds) (mul 3 (add (include "centreon-central.generationTimeout" . | int) 165)) }}
 template:
   metadata:
     labels:
@@ -93,6 +95,8 @@ template:
           - { name: CONFIG_DELIVERY_REQUIRE_CONNECTED, value: "1" }
           - { name: GORGONE_API_BASE_URL, value: "http://gorgone-central:8085" }
           - { name: CENTRAL_POLLER_ID, value: {{ .Values.configDelivery.centralPollerId | quote }} }
+          # Sizes the client timeout of generate-and-reload (MON-214473).
+          - { name: CENTREON_CONFIGURATION_GENERATION_TIMEOUT, value: {{ include "centreon-central.generationTimeout" . | quote }} }
           - { name: CENTREON_API_USERNAME, value: {{ .Values.centreonApiUsername | quote }} }
           {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "CENTREON_API_PASSWORD" "key" "GORGONE_API_PASSWORD") | nindent 10 }}
         {{- with .Values.configDelivery.resources }}
