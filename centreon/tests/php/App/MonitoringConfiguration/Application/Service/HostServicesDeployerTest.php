@@ -190,22 +190,17 @@ final class HostServicesDeployerTest extends TestCase
         }
     }
 
-    public function testItSkipsAnExactNameAlreadyOnTheHost(): void
+    /**
+     * The name is compared as the repository compares it, under the column collation (case-insensitive with the
+     * fake): `ping` is not deployed next to `Ping`.
+     */
+    public function testItSkipsANameAlreadyOnTheHost(): void
     {
-        $this->addExistingService('ping');
+        $this->addExistingService('Ping');
         $this->serviceTemplateRepository->deployableOnHost[self::HOST_ID] = [$this->template(1, 'ping'), $this->template(2, 'http')];
 
         self::assertSame(['http'], $this->names($this->deploy()));
         self::assertCount(2, $this->serviceRepository->services);
-    }
-
-    public function testItCreatesANameDifferingByCaseOrAccent(): void
-    {
-        $this->addExistingService('Ping');
-        $this->addExistingService('Température');
-        $this->serviceTemplateRepository->deployableOnHost[self::HOST_ID] = [$this->template(1, 'ping'), $this->template(2, 'Temperature')];
-
-        self::assertSame(['ping', 'Temperature'], $this->names($this->deploy()));
     }
 
     /**
