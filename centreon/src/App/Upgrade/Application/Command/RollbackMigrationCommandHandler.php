@@ -72,7 +72,7 @@ final readonly class RollbackMigrationCommandHandler
                 }
 
                 $durationMs = intdiv(hrtime(true) - $startedAt, 1_000_000);
-                $this->upgradeLogger->stepCompleted($this->platformVersion, $step, $durationMs, sprintf("Step '%s' completed in %dms: %d migration(s) reverted", $step, $durationMs, \count($reverted)));
+                $this->upgradeLogger->stepCompleted($this->platformVersion, $step, $durationMs, sprintf("Step '%s' completed in %dms: %d migration(s) reverted", $step, $durationMs, count($reverted)));
 
                 return $reverted;
             });

@@ -68,7 +68,7 @@ final readonly class MigrationSetRegistry
         $sets = MigrationSet::coreSets();
 
         foreach (glob($this->modulesDir . '/*/migrations', \GLOB_ONLYDIR) ?: [] as $directory) {
-            $module = basename(\dirname($directory));
+            $module = basename(dirname($directory));
             // A stray directory ("centreon-foo.bak") must not break the other sets.
             if (MigrationSet::isModuleName($module)) {
                 $sets[] = MigrationSet::module($module);

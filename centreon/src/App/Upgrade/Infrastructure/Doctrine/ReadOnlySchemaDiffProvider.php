@@ -55,7 +55,7 @@ final readonly class ReadOnlySchemaDiffProvider implements SchemaDiffProvider
     {
         $sql = $this->provider->getSqlDiffToMigrate($fromSchema, $toSchema);
         if ($sql !== []) {
-            throw new \LogicException(\sprintf(
+            throw new \LogicException(sprintf(
                 'A migration must only read $schema, and change it with addSql(): it would run "%s".',
                 implode('; ', $sql),
             ));

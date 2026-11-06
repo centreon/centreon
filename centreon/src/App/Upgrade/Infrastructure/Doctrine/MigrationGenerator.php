@@ -94,16 +94,16 @@ final readonly class MigrationGenerator
     {
         $migrationSet = $this->registry->configuration($set);
         // A typo would otherwise create a module directory whose migrations never run.
-        $moduleDirectory = \dirname($migrationSet->directory);
+        $moduleDirectory = dirname($migrationSet->directory);
         if ($set->module !== null && ! $this->filesystem->exists($moduleDirectory)) {
-            throw new \RuntimeException(\sprintf('The module "%s" does not exist: "%s" is not a directory.', $set->module, $moduleDirectory));
+            throw new \RuntimeException(sprintf('The module "%s" does not exist: "%s" is not a directory.', $set->module, $moduleDirectory));
         }
 
         $class = 'Version' . $now->setTimezone(new \DateTimeZone('UTC'))->format('YmdHis');
         $path = $migrationSet->directory . '/' . $class . '.php';
 
         if ($this->filesystem->exists($path)) {
-            throw new \RuntimeException(\sprintf('The migration "%s" already exists.', $path));
+            throw new \RuntimeException(sprintf('The migration "%s" already exists.', $path));
         }
 
         $this->filesystem->dumpFile($path, strtr(self::TEMPLATE, [

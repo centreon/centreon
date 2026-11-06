@@ -58,7 +58,7 @@ final readonly class TargetVersionRecorder
 
         $pending = $this->updateScriptFinder->findOrderedAvailableUpdates($legacyVersion);
         if ($pending !== []) {
-            throw new \RuntimeException(\sprintf(
+            throw new \RuntimeException(sprintf(
                 'The update scripts of %s are pending: update the platform first, with the upgrade wizard or the API.',
                 implode(', ', $pending),
             ));

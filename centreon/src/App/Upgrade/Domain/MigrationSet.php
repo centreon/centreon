@@ -72,7 +72,7 @@ final readonly class MigrationSet
     public static function module(string $module): self
     {
         if (! self::isModuleName($module)) {
-            throw new \InvalidArgumentException(\sprintf('Unsupported module name "%s": %s.', $module, self::MODULE_NAME_RULE));
+            throw new \InvalidArgumentException(sprintf('Unsupported module name "%s": %s.', $module, self::MODULE_NAME_RULE));
         }
 
         return new self('module:' . $module, $module);
@@ -80,7 +80,7 @@ final readonly class MigrationSet
 
     public static function isModuleName(string $module): bool
     {
-        return preg_match(self::MODULE_NAME_PATTERN, $module) === 1 && \mb_strlen($module) <= self::MODULE_NAME_MAX_LENGTH;
+        return preg_match(self::MODULE_NAME_PATTERN, $module) === 1 && mb_strlen($module) <= self::MODULE_NAME_MAX_LENGTH;
     }
 
     /**
@@ -112,7 +112,7 @@ final readonly class MigrationSet
      */
     public function label(): string
     {
-        return $this->module === null ? \sprintf('"%s" migration set', $this->name) : \sprintf('"%s" module migration set', $this->module);
+        return $this->module === null ? sprintf('"%s" migration set', $this->name) : sprintf('"%s" module migration set', $this->module);
     }
 
     public function isModule(): bool

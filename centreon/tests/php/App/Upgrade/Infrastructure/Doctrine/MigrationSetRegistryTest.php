@@ -70,7 +70,7 @@ final class MigrationSetRegistryTest extends TestCase
 
     public function testTheCoreMigrationDirectoriesAreShipped(): void
     {
-        $registry = new MigrationSetRegistry(\dirname(__DIR__, 6), '/nonexistent');
+        $registry = new MigrationSetRegistry(dirname(__DIR__, 6), '/nonexistent');
 
         foreach (MigrationSet::coreSets() as $set) {
             self::assertDirectoryExists($registry->configuration($set)->directory);

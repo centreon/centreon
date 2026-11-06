@@ -56,9 +56,9 @@ final class DoctrineMigrationRunnerTest extends TestCase
             'user' => $this->env('rootUser', 'root'),
             'password' => $this->env('rootPassword', $this->env('password')),
         ]);
-        $root->executeStatement(\sprintf('DROP DATABASE IF EXISTS `%s`', self::DATABASE));
-        $root->executeStatement(\sprintf('CREATE DATABASE `%s`', self::DATABASE));
-        $root->executeStatement(\sprintf("GRANT ALL PRIVILEGES ON `%s`.* TO '%s'@'%%'", self::DATABASE, $this->env('user')));
+        $root->executeStatement(sprintf('DROP DATABASE IF EXISTS `%s`', self::DATABASE));
+        $root->executeStatement(sprintf('CREATE DATABASE `%s`', self::DATABASE));
+        $root->executeStatement(sprintf("GRANT ALL PRIVILEGES ON `%s`.* TO '%s'@'%%'", self::DATABASE, $this->env('user')));
         $root->close();
 
         $this->connection = DriverManager::getConnection([
@@ -80,7 +80,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->connection->executeStatement(\sprintf('DROP DATABASE IF EXISTS `%s`', self::DATABASE));
+        $this->connection->executeStatement(sprintf('DROP DATABASE IF EXISTS `%s`', self::DATABASE));
         $this->connection->close();
     }
 
@@ -379,12 +379,12 @@ final class DoctrineMigrationRunnerTest extends TestCase
     {
         return array_map(
             static fn (mixed $id): int => is_numeric($id) ? (int) $id : -1,
-            $this->connection->fetchFirstColumn(\sprintf('SELECT id FROM %s ORDER BY id', $table)),
+            $this->connection->fetchFirstColumn(sprintf('SELECT id FROM %s ORDER BY id', $table)),
         );
     }
 
     private function env(string $name, string $default = ''): string
     {
-        return \is_string($_ENV[$name] ?? null) ? $_ENV[$name] : $default;
+        return is_string($_ENV[$name] ?? null) ? $_ENV[$name] : $default;
     }
 }

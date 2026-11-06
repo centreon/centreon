@@ -258,7 +258,7 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         self::bootKernel();
 
         $upgradeLogger = self::getContainer()->get('monolog.logger.upgrade');
-        \assert($upgradeLogger instanceof Logger);
+        assert($upgradeLogger instanceof Logger);
         $testHandler = new TestHandler();
         $upgradeLogger->pushHandler($testHandler);
 

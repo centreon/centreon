@@ -30,6 +30,6 @@ final class ModuleNotInstalledException extends \RuntimeException
 {
     public function __construct(string $module)
     {
-        parent::__construct(\sprintf('The module "%s" is not installed, or does not exist: its migrations can only be run, rolled back or listed once it is installed.', $module));
+        parent::__construct(sprintf('The module "%s" is not installed, or does not exist: its migrations can only be run, rolled back or listed once it is installed.', $module));
     }
 }

@@ -62,7 +62,7 @@ final readonly class RollbackConsoleCommand
         }
 
         $io->listing($toRevert);
-        $question = \sprintf('Revert these %d migration(s) of the %s? The platform version is not changed.', \count($toRevert), $migrationSet->label());
+        $question = sprintf('Revert these %d migration(s) of the %s? The platform version is not changed.', count($toRevert), $migrationSet->label());
         if ($input->isInteractive() && ! $io->confirm($question, false)) {
             $io->warning('Rollback cancelled.');
 
@@ -72,7 +72,7 @@ final readonly class RollbackConsoleCommand
         /** @var list<string> $reverted */
         // Refused if another run changed the set meanwhile.
         $reverted = $this->commandBus->execute(new RollbackMigrationCommand($migrationSet, $version, expected: $toRevert));
-        $io->success(\sprintf('%d migration(s) reverted.', \count($reverted)));
+        $io->success(sprintf('%d migration(s) reverted.', count($reverted)));
 
         return Command::SUCCESS;
     }

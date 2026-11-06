@@ -40,11 +40,11 @@ final class MigrationConventionTest extends TestCase
      */
     public static function provideMigrationFiles(): iterable
     {
-        $root = \dirname(__DIR__, 7);
+        $root = dirname(__DIR__, 7);
         $core = new MigrationSetRegistry($root . '/centreon', '/nonexistent');
 
         foreach (glob($root . '/centreon/migrations/*/Version*.php') ?: [] as $file) {
-            yield mb_substr($file, mb_strlen($root) + 1) => [$file, $core->configuration(MigrationSet::core(basename(\dirname($file))))->namespace];
+            yield mb_substr($file, mb_strlen($root) + 1) => [$file, $core->configuration(MigrationSet::core(basename(dirname($file))))->namespace];
         }
 
         // Also keeps the data set from being empty while no migration is shipped.
@@ -53,8 +53,8 @@ final class MigrationConventionTest extends TestCase
             ...glob(__DIR__ . '/Fixtures/modules/*/migrations/Version*.php') ?: [],
         ];
         foreach ($moduleMigrations as $file) {
-            $moduleDir = \dirname($file, 2);
-            $modules = new MigrationSetRegistry('/nonexistent', \dirname($moduleDir));
+            $moduleDir = dirname($file, 2);
+            $modules = new MigrationSetRegistry('/nonexistent', dirname($moduleDir));
 
             yield mb_substr($file, mb_strlen($root) + 1) => [$file, $modules->configuration(MigrationSet::module(basename($moduleDir)))->namespace];
         }
@@ -72,7 +72,7 @@ final class MigrationConventionTest extends TestCase
 
         self::assertTrue(
             is_subclass_of($class, DdlMigration::class) || is_subclass_of($class, DmlMigration::class),
-            \sprintf('%s must extend %s or %s.', $class, DdlMigration::class, DmlMigration::class),
+            sprintf('%s must extend %s or %s.', $class, DdlMigration::class, DmlMigration::class),
         );
     }
 }

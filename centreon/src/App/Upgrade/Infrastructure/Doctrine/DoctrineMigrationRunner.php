@@ -80,7 +80,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     {
         $configuration = $this->registry->configuration($set);
         if (! is_dir($configuration->directory)) {
-            throw new \RuntimeException(\sprintf('The %s has no migration to roll back: "%s" does not exist.', $set->label(), $configuration->directory));
+            throw new \RuntimeException(sprintf('The %s has no migration to roll back: "%s" does not exist.', $set->label(), $configuration->directory));
         }
 
         // A dry run writes nothing: not even the metadata table.
@@ -94,7 +94,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         try {
             $target = $factory->getVersionAliasResolver()->resolveVersionAlias($alias);
         } catch (UnknownMigrationVersion $exception) {
-            throw new \RuntimeException(\sprintf(
+            throw new \RuntimeException(sprintf(
                 'The %s has no "%s" migration: pass a version listed by centreon:migrations:status -v, its '
                 . 'class name (Version20260101000000) or its timestamp (20260101000000), "prev" or "first".',
                 $set->label(),
@@ -105,7 +105,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         $executed = $factory->getMetadataStorage()->getExecutedMigrations();
         $isFirst = (string) $target === '0';
         if (! $isFirst && ! $executed->hasMigration($target)) {
-            throw new \RuntimeException(\sprintf('Cannot roll the %s back to "%s": it is not executed.', $set->label(), $target));
+            throw new \RuntimeException(sprintf('Cannot roll the %s back to "%s": it is not executed.', $set->label(), $target));
         }
 
         // Not getPlanUntilVersion(), which plans an upgrade as soon as an older migration is pending.
@@ -124,7 +124,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         }
 
         if ($expected !== null && $planned !== $expected) {
-            throw new \RuntimeException(\sprintf(
+            throw new \RuntimeException(sprintf(
                 'The migrations of the %s changed since they were confirmed: it would now revert %s. Nothing was reverted.',
                 $set->label(),
                 $planned === [] ? 'none' : implode(', ', $planned),
@@ -159,7 +159,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     {
         $connection = $this->connections->getConnection($configuration->connection);
         if (! $connection instanceof Connection) {
-            throw new \LogicException(\sprintf('The "%s" connection is not a DBAL connection.', $configuration->connection));
+            throw new \LogicException(sprintf('The "%s" connection is not a DBAL connection.', $configuration->connection));
         }
 
         // Map unknown column types to text so that introspecting module tables does not throw.
@@ -219,8 +219,8 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
 
         // Not checked by the Migrator.
         $unavailable = $factory->getMigrationStatusCalculator()->getExecutedUnavailableMigrations();
-        if (\count($unavailable) > 0) {
-            throw new \RuntimeException(\sprintf(
+        if (count($unavailable) > 0) {
+            throw new \RuntimeException(sprintf(
                 'The %s has executed migrations that are not available anymore: %s. Restore them (a migration is '
                 . 'never deleted nor renamed once released), or remove them from the "%s" table if they were dropped on purpose.',
                 $set->label(),
@@ -245,7 +245,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         foreach ($factory->getMigrationRepository()->getMigrations()->getItems() as $available) {
             $migration = $available->getMigration();
             if (! $migration instanceof DdlMigration && ! $migration instanceof DmlMigration) {
-                throw new \RuntimeException(\sprintf('The migration "%s" must extend DdlMigration or DmlMigration.', $migration::class));
+                throw new \RuntimeException(sprintf('The migration "%s" must extend DdlMigration or DmlMigration.', $migration::class));
             }
             $classes[] = $migration::class;
         }
@@ -253,14 +253,14 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         $expected = [];
         foreach (glob($configuration->directory . '/Version*.php') ?: [] as $file) {
             $expected[] = $class = $configuration->namespace . '\\' . basename($file, '.php');
-            if (! \in_array($class, $classes, true)) {
-                throw new \RuntimeException(\sprintf('"%s" must declare the "%s" migration.', $file, $class));
+            if (! in_array($class, $classes, true)) {
+                throw new \RuntimeException(sprintf('"%s" must declare the "%s" migration.', $file, $class));
             }
         }
 
         // Doctrine loads every class of the namespace declared in a migration file.
         foreach (array_diff($classes, $expected) as $class) {
-            throw new \RuntimeException(\sprintf('The migration "%s" must be alone in a file named after it.', $class));
+            throw new \RuntimeException(sprintf('The migration "%s" must be alone in a file named after it.', $class));
         }
 
         foreach ($factory->getMigrationRepository()->getMigrations()->getItems() as $available) {
@@ -285,7 +285,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
      */
     private function execute(MigrationSet $set, DependencyFactory $factory, MigrationPlanList $plan): array
     {
-        if (\count($plan) === 0) {
+        if (count($plan) === 0) {
             return [];
         }
 
@@ -295,9 +295,9 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             // Doctrine rethrows the error of the query as is: it would not tell which migration failed.
             $version = $this->failedVersion($factory, $plan);
 
-            throw new \RuntimeException(\sprintf(
+            throw new \RuntimeException(sprintf(
                 '%s of the %s failed: %s',
-                $version === null ? 'A migration' : \sprintf('The "%s" migration', $version),
+                $version === null ? 'A migration' : sprintf('The "%s" migration', $version),
                 $set->label(),
                 $exception->getMessage(),
             ), 0, $exception);

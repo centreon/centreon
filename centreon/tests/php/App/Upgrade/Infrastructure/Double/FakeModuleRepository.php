@@ -41,6 +41,6 @@ final class FakeModuleRepository implements ModuleRepository
 
     public function isInstalled(string $module): bool
     {
-        return \in_array($module, $this->installedModules, true);
+        return in_array($module, $this->installedModules, true);
     }
 }

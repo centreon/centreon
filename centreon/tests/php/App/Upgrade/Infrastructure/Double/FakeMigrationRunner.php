@@ -50,8 +50,8 @@ final class FakeMigrationRunner implements MigrationRunner
     {
         $this->journal[] = 'migrate:' . $set->name;
 
-        if (\in_array($set->name, $this->failingSets, true)) {
-            throw new \RuntimeException(\sprintf('Migration of "%s" failed', $set->name));
+        if (in_array($set->name, $this->failingSets, true)) {
+            throw new \RuntimeException(sprintf('Migration of "%s" failed', $set->name));
         }
 
         return [$set->name . '\Version1'];
@@ -61,8 +61,8 @@ final class FakeMigrationRunner implements MigrationRunner
     {
         $this->journal[] = ($dryRun ? 'rollback-dry-run:' : 'rollback:') . $set->name . ':' . $versionOrAlias;
 
-        if (\in_array($set->name, $this->failingSets, true)) {
-            throw new \RuntimeException(\sprintf('Rollback of "%s" failed', $set->name));
+        if (in_array($set->name, $this->failingSets, true)) {
+            throw new \RuntimeException(sprintf('Rollback of "%s" failed', $set->name));
         }
 
         return [$set->name . '\Version1'];
@@ -72,9 +72,9 @@ final class FakeMigrationRunner implements MigrationRunner
     {
         $this->statusRequests[] = $set;
 
-        if (\in_array($set->name, $this->failingSets, true)) {
+        if (in_array($set->name, $this->failingSets, true)) {
             // As a migration file that does not parse, which is not even an Exception.
-            throw new \ParseError(\sprintf('Status of "%s" failed', $set->name));
+            throw new \ParseError(sprintf('Status of "%s" failed', $set->name));
         }
 
         return new MigrationSetStatus($set, [], [$set->name . '\Version1']);

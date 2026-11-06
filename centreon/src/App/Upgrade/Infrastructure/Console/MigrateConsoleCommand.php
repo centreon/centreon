@@ -55,7 +55,7 @@ final readonly class MigrateConsoleCommand
         }
 
         $io->listing($executed);
-        $io->success(\sprintf('%d migration(s) executed.', \count($executed)));
+        $io->success(sprintf('%d migration(s) executed.', count($executed)));
 
         return Command::SUCCESS;
     }

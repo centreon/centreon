@@ -57,7 +57,7 @@ final readonly class MigrationSetGuard
             }
 
             if (! $this->migrationSetLocker->lock($set)) {
-                throw new \RuntimeException(\sprintf('The %s is already being migrated', $set->label()));
+                throw new \RuntimeException(sprintf('The %s is already being migrated', $set->label()));
             }
 
             try {

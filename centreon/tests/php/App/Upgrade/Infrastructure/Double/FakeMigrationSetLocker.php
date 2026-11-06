@@ -36,7 +36,7 @@ final class FakeMigrationSetLocker implements MigrationSetLocker
 
     public function lock(MigrationSet $set): bool
     {
-        return ! \in_array($set->name, $this->lockedSets, true);
+        return ! in_array($set->name, $this->lockedSets, true);
     }
 
     public function unlock(MigrationSet $set): void

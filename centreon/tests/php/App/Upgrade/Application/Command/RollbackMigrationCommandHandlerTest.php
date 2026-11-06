@@ -108,7 +108,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
                 $handler(new RollbackMigrationCommand($set, 'prev'));
                 self::fail('Expected the rollback failure to propagate');
             } catch (\RuntimeException $exception) {
-                self::assertSame(\sprintf('Rollback of "%s" failed', $set->name), $exception->getMessage());
+                self::assertSame(sprintf('Rollback of "%s" failed', $set->name), $exception->getMessage());
             }
         }
 

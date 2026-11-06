@@ -110,7 +110,7 @@ final readonly class MigrateCommandHandler
         }
 
         $durationMs = intdiv(hrtime(true) - $startedAt, 1_000_000);
-        $this->upgradeLogger->stepCompleted($this->platformVersion, $step, $durationMs, sprintf("Step '%s' completed in %dms: %d migration(s) executed", $step, $durationMs, \count($executed)));
+        $this->upgradeLogger->stepCompleted($this->platformVersion, $step, $durationMs, sprintf("Step '%s' completed in %dms: %d migration(s) executed", $step, $durationMs, count($executed)));
 
         return $executed;
     }

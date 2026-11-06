@@ -48,11 +48,11 @@ abstract class DmlMigration extends AbstractMigration
     protected function addSql(string $sql, array $params = [], array $types = []): void
     {
         if (! SqlStatement::isSingle($sql)) {
-            throw new \LogicException(\sprintf('The migration "%s" must pass one statement per addSql() call.', static::class));
+            throw new \LogicException(sprintf('The migration "%s" must pass one statement per addSql() call.', static::class));
         }
 
         if (preg_match(self::IMPLICIT_COMMIT_PATTERN, $sql) === 1) {
-            throw new \LogicException(\sprintf('The DML migration "%s" cannot run a statement committing its transaction (DDL, transaction control, CALL...): use a DdlMigration instead.', static::class));
+            throw new \LogicException(sprintf('The DML migration "%s" cannot run a statement committing its transaction (DDL, transaction control, CALL...): use a DdlMigration instead.', static::class));
         }
 
         parent::addSql($sql, $params, $types);
