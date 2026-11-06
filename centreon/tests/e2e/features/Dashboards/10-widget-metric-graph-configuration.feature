@@ -41,7 +41,7 @@ Feature: Configuring metrics graph widget
     And the second widget has the same properties as the first widget
 
   @MON-23932
-  Scenario: Adding new hosts in the Metrics Graph widget representation
+  Scenario: Selecting a metric with a different unit in the Metrics Graph widget
     Given a dashboard featuring a configured Metrics Graph widget
     When the dashboard administrator user selects a metric with a different unit than the initial metric in the dataset selection
     Then additional bars representing the metric behavior of these metrics are added to the Metrics Graph widget

@@ -173,7 +173,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
                 'host_host_id' => $hostId,
             ]);
         }
-        $service = new Service(id: new ServiceId($serviceId), name: new ServiceName('ping'), hostId: new HostId($hostId));
+        $service = new Service(id: new ServiceId($serviceId), name: new ServiceName('ping'), hostId: new HostId($hostId), hostActivated: true, hostPollerId: null);
 
         $this->repository->remove($service);
 
@@ -186,7 +186,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         // host_service_relation row), but the guard mirrors legacy DbWriteServiceRepository's own
         // `AND service_register = '1'` regardless of caller, so it's exercised directly here.
         $templateId = $this->createServiceTemplate('web-check-template');
-        $template = new Service(id: new ServiceId($templateId), name: new ServiceName('web-check-template'), hostId: new HostId(1));
+        $template = new Service(id: new ServiceId($templateId), name: new ServiceName('web-check-template'), hostId: new HostId(1), hostActivated: true, hostPollerId: null);
 
         $this->repository->remove($template);
 
@@ -590,6 +590,206 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         }
     }
 
+    public function testFindOneFindsAListableServiceWithItsMacrosForAnUnrestrictedActor(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $serviceId = $this->insertListedService(' ping ', $hostId);
+        $this->createMacro($serviceId, 'TOKEN', 'secret-value', isPassword: true);
+
+        // No real-time ACL row at all: an unrestricted actor does not need one.
+        $service = $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted());
+
+        self::assertInstanceOf(Service::class, $service);
+        self::assertSame($serviceId, $service->id()->value);
+        self::assertSame('ping', $service->name->value);
+        self::assertSame($hostId, $service->hostId->value);
+        self::assertCount(1, $service->macros);
+        self::assertSame('TOKEN', $service->macros[0]->name->value);
+        self::assertTrue($service->macros[0]->isPassword);
+    }
+
+    public function testFindOneFindsForARestrictedActorOnlyAPairGrantedToItsActiveGroups(): void
+    {
+        $this->givenTheRestrictedActorBelongsTo(11, 12);
+        $hostId = $this->insertListedHost('h1');
+        $granted = $this->insertListedService('granted', $hostId);
+        $grantedBySecondGroup = $this->insertListedService('granted-by-second-group', $hostId);
+        $grantedToAnotherGroup = $this->insertListedService('granted-to-another-group', $hostId);
+        $notGranted = $this->insertListedService('not-granted', $hostId);
+        $this->grant(11, $hostId, $granted);
+        $this->grant(12, $hostId, $grantedBySecondGroup);
+        $this->grant(99, $hostId, $grantedToAnotherGroup);
+        // A host-level row grants the host, not its services.
+        $this->grant(11, $hostId, null);
+
+        self::assertNotNull($this->findOneRestricted($granted));
+        self::assertNotNull($this->findOneRestricted($grantedBySecondGroup));
+        self::assertNull($this->findOneRestricted($grantedToAnotherGroup));
+        self::assertNull($this->findOneRestricted($notGranted));
+    }
+
+    public function testFindOneFindsNothingForARestrictedActorWithoutGroups(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $serviceId = $this->insertListedService('ping', $hostId);
+        $this->grant(11, $hostId, $serviceId);
+
+        self::assertNull($this->findOneRestricted($serviceId));
+    }
+
+    public function testFindOneHostGroupDerivedPairAloneGrantsNothing(): void
+    {
+        // A host-group-derived ACL pair grants nothing to a service not directly linked to that host.
+        $this->givenTheRestrictedActorBelongsTo(11);
+        $linkedHostId = $this->insertListedHost('h1');
+        $otherHostId = $this->insertListedHost('h2');
+        $serviceId = $this->insertListedService('ping', $linkedHostId);
+        $this->grant(11, $otherHostId, $serviceId);
+
+        self::assertNull($this->findOneRestricted($serviceId));
+    }
+
+    public function testFindOneIgnoresHostGroupLinkedServices(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $hostGroupId = $this->insertHostGroup();
+        $this->connection->insert('hostgroup_relation', ['hostgroup_hg_id' => $hostGroupId, 'host_host_id' => $hostId]);
+        $hostGroupOnly = $this->insertListedService('host-group-only', null);
+        $this->linkServiceToHostGroup($hostGroupOnly, $hostGroupId);
+        $mixed = $this->insertListedService('mixed', $hostId);
+        $this->linkServiceToHostGroup($mixed, $hostGroupId);
+
+        self::assertNull($this->repository->findOne(new ServiceId($hostGroupOnly), TestActingUsers::unrestricted()));
+        self::assertNull($this->repository->findOne(new ServiceId($mixed), TestActingUsers::unrestricted()));
+    }
+
+    public function testFindOneIgnoresWhatIsNotARealServiceDirectlyLinkedToARealHost(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $hostTemplateId = $this->insertListedHost('host-template', register: '0');
+        $onAHostTemplate = $this->insertListedService('on-a-host-template', $hostTemplateId);
+        $serviceTemplateId = $this->insertListedServiceTemplate('service-template');
+        $this->linkServiceToHost($serviceTemplateId, $hostId);
+        $orphan = $this->insertListedService('orphan', null);
+
+        foreach ([$onAHostTemplate, $serviceTemplateId, $orphan, $orphan + 1000000] as $serviceId) {
+            self::assertNull($this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted()));
+        }
+    }
+
+    public function testFindOneLoadsTheStateOfTheHost(): void
+    {
+        $pollerId = $this->createPoller('poller-' . $this->token);
+        $hostId = $this->insertListedHost('h1');
+        $this->attachToPoller($hostId, $pollerId);
+        $serviceId = $this->insertListedService('ping', $hostId);
+
+        $service = $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted());
+
+        self::assertInstanceOf(Service::class, $service);
+        self::assertTrue($service->hostActivated);
+        self::assertSame($pollerId, $service->hostPollerId?->value);
+    }
+
+    public function testFindOneLoadsTheStateOfADisabledHostWithoutPoller(): void
+    {
+        $hostId = $this->insertListedHost('h1', activated: '0');
+        $serviceId = $this->insertListedService('ping', $hostId);
+
+        $service = $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted());
+
+        self::assertInstanceOf(Service::class, $service);
+        self::assertFalse($service->hostActivated);
+        self::assertNull($service->hostPollerId);
+    }
+
+    public function testFindAllLoadsTheStateOfEachHost(): void
+    {
+        $pollerId = $this->createPoller('poller-' . $this->token);
+        $enabledHostId = $this->insertListedHost('h1');
+        $this->attachToPoller($enabledHostId, $pollerId);
+        $disabledHostWithoutPollerId = $this->insertListedHost('h2', activated: '0');
+        $this->insertListedService('ping', $enabledHostId);
+        $this->insertListedService('ping', $disabledHostWithoutPollerId);
+
+        [$onEnabledHost, $onDisabledHost] = $this->items($this->findAll($this->unrestricted()));
+
+        self::assertTrue($onEnabledHost->hostActivated);
+        self::assertSame($pollerId, $onEnabledHost->hostPollerId?->value);
+        self::assertFalse($onDisabledHost->hostActivated);
+        self::assertNull($onDisabledHost->hostPollerId);
+    }
+
+    public function testTheHostFlowFindersLoadTheStateOfTheHost(): void
+    {
+        // Host state is read before service deletion.
+        $pollerId = $this->createPoller('poller-' . $this->token);
+        $hostId = $this->createHost('server-' . $this->token, $pollerId);
+        $this->connection->update('host', ['host_activate' => '0'], ['host_id' => $hostId]);
+        $templateId = $this->createServiceTemplate('ping-template');
+        $serviceId = $this->createService('ping', $hostId);
+        $this->setServiceTemplate($serviceId, $templateId);
+
+        $exclusive = $this->repository->findExclusivelyLinkedToHostId(new HostId($hostId))->toArray();
+        $fromTemplates = $this->repository->findFromServiceTemplates(new HostId($hostId), [$templateId])->toArray();
+
+        foreach ([$exclusive, $fromTemplates] as $services) {
+            self::assertCount(1, $services);
+            self::assertFalse($services[0]->hostActivated);
+            self::assertSame($pollerId, $services[0]->hostPollerId?->value);
+        }
+    }
+
+    public function testUpdateActivationStatusPersistsTheFlag(): void
+    {
+        $serviceId = $this->insertListedService('ping', $this->insertListedHost('h1'));
+
+        $this->repository->updateActivationStatus(new ServiceId($serviceId), false);
+        self::assertSame('0', $this->serviceActivation($serviceId));
+
+        $this->repository->updateActivationStatus(new ServiceId($serviceId), true);
+        self::assertSame('1', $this->serviceActivation($serviceId));
+    }
+
+    public function testUpdateActivationStatusWritesOnlyTheActivationFlag(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $otherHostId = $this->insertListedHost('h2');
+        $serviceId = $this->insertListedService('ping', $hostId, normal: 5, retry: 1);
+        $this->linkServiceToHost($serviceId, $otherHostId);
+        $columnsBefore = $this->connection->fetchAssociative('SELECT * FROM service WHERE service_id = ?', [$serviceId]);
+        Assert::isArray($columnsBefore);
+
+        $this->repository->updateActivationStatus(new ServiceId($serviceId), false);
+
+        self::assertSame(
+            [...$columnsBefore, 'service_activate' => '0'],
+            $this->connection->fetchAssociative('SELECT * FROM service WHERE service_id = ?', [$serviceId]),
+        );
+        self::assertEquals(
+            [$hostId, $otherHostId],
+            $this->connection->fetchFirstColumn(
+                'SELECT host_host_id FROM host_service_relation WHERE service_service_id = ? ORDER BY host_host_id',
+                [$serviceId],
+            ),
+        );
+    }
+
+    public function testUpdateActivationStatusNeverTogglesAServiceTemplate(): void
+    {
+        // service_register = '0'; the guard makes the UPDATE match no row -> silent no-op by contract.
+        $templateId = $this->insertListedServiceTemplate('ping-template');
+
+        $this->repository->updateActivationStatus(new ServiceId($templateId), false);
+
+        self::assertSame('1', $this->serviceActivation($templateId));
+    }
+
+    private function serviceActivation(int $serviceId): mixed
+    {
+        return $this->connection->fetchOne('SELECT service_activate FROM service WHERE service_id = ?', [$serviceId]);
+    }
+
     private function createDependency(): int
     {
         $this->connection->insert('dependency', ['dep_name' => 'dependency-' . bin2hex(random_bytes(4))]);
@@ -675,6 +875,16 @@ final class DbalServiceRepositoryTest extends KernelTestCase
             'description' => $description,
             'svc_svc_id' => $serviceId,
         ]);
+    }
+
+    private function findOneRestricted(int $serviceId): ?Service
+    {
+        return $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::restricted(self::RESTRICTED_USER_ID));
+    }
+
+    private function attachToPoller(int $hostId, int $pollerId): void
+    {
+        $this->connection->insert('ns_host_relation', ['host_host_id' => $hostId, 'nagios_server_id' => $pollerId]);
     }
 
     private function unrestricted(): ServiceCriteria
