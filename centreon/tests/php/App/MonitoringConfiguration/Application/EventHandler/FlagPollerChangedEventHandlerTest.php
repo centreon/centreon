@@ -59,6 +59,7 @@ use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
+use App\MonitoringConfiguration\Domain\Event\ServiceDisabled;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
@@ -177,6 +178,29 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
         $handler = new FlagPollerChangedEventHandler($pollerRepository);
 
         $handler(new ServiceDeleted($this->createService(hostActivated: false), 1));
+
+        self::assertSame([], $pollerRepository->flaggedResources);
+        self::assertSame([], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testItFlagsThePollerOfTheEnabledHostOfADisabledService(): void
+    {
+        // Enabling or disabling a service is an update: caught through the AggregateUpdated supertype.
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $service = $this->createService(hostActivated: true);
+        $handler(new ServiceDisabled($service, 1));
+
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsNoPollerForADisabledServiceOfADisabledHost(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $handler(new ServiceDisabled($this->createService(hostActivated: false), 1));
 
         self::assertSame([], $pollerRepository->flaggedResources);
         self::assertSame([], $pollerRepository->flaggedPollerIds);
