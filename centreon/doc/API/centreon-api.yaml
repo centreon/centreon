@@ -5447,6 +5447,68 @@ paths:
             maximum: 100
           style: form
           explode: true
+    post:
+      operationId: api_configurationhost_templates_post
+      tags:
+        - HostTemplate
+      responses:
+        '400':
+          description: 'A field the host template does not have'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '401':
+          description: 'Authentication required'
+        '403':
+          description: 'You are not allowed to create host templates'
+        '409':
+          description: 'A host or host template already uses this name'
+        '422':
+          description: 'Invalid value, or a reference that does not exist or cannot be used'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+        '201':
+          description: 'HostTemplate resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate'
+          links: {}
+      summary: 'Create a host template'
+      description: 'Create a host template'
+      parameters: []
+      requestBody:
+        description: 'The new HostTemplate resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.CreateHostTemplateInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.CreateHostTemplateInput'
+        required: true
   /api/configuration/hosts:
     get:
       operationId: api_configurationhosts_get_collection
@@ -14287,3 +14349,348 @@ components:
           type: integer
         name:
           type: string
+    CreateHostTemplateCheckOptionsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'require a check command'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateMacroInput'
+    CreateHostTemplateDataProcessingInput:
+      type: object
+      additionalProperties: false
+      properties:
+        check_freshness:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        freshness_threshold:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        event_handler_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        event_handler_command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        acknowledgment_timeout:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+    CreateHostTemplateExtendedInformationsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        note_url:
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        note:
+          maxLength: 512
+          type:
+            - string
+            - 'null'
+        action_url:
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        icon_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        alt_icon:
+          maxLength: 200
+          type:
+            - string
+            - 'null'
+        comment:
+          maxLength: 65535
+          type:
+            - string
+            - 'null'
+    CreateHostTemplateNotificationsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+          type: string
+        contacts:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          type: array
+          items:
+            type: integer
+        options:
+          description: 'State transitions triggering a notification. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        interval:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        first_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contact_group_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+    CreateHostTemplateSchedulingOptionsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        check_timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        max_check_attempts:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+    HostTemplate.CreateHostTemplateInput:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - alias
+      properties:
+        name:
+          maxLength: 200
+          description: 'Trimmed; inner spaces become underscores. Unique among hosts and host templates.'
+          type:
+            - string
+            - 'null'
+        alias:
+          maxLength: 200
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          type:
+            - string
+            - 'null'
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
+        snmp_community:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          description: 'Write-only. Stored in the vault when one is configured, and never returned.'
+          type:
+            - string
+            - 'null'
+        timezone_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        template_ids:
+          description: 'Ordered: the position of a parent template sets the inheritance order.'
+          type: array
+          items:
+            type: integer
+        category_ids:
+          type: array
+          items:
+            type: integer
+        linked_service_template_ids:
+          description: 'Ordered: the position of a service template sets the priority of its check command macros.'
+          type: array
+          items:
+            type: integer
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateCheckOptionsInput'
+            -
+              type: 'null'
+        extended_informations:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateExtendedInformationsInput'
+            -
+              type: 'null'
+        scheduling_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateSchedulingOptionsInput'
+            -
+              type: 'null'
+        data_processing:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateDataProcessingInput'
+            -
+              type: 'null'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateNotificationsInput'
+            -
+              type: 'null'
+    HostTemplateMacroInput:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+      properties:
+        name:
+          maxLength: 248
+          type: string
+        value:
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        parent:
+          enum:
+            - template
+            - command
+          type:
+            - string
+            - 'null'

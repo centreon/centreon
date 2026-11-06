@@ -49,6 +49,9 @@ use Webmozart\Assert\Assert;
  */
 final class HostTemplate extends AggregateRoot
 {
+    // the int(11) columns
+    public const MAX_INTEGER = 2147483647;
+
     /**
      * @param Collection<CommandId> $serviceTemplateCheckCommandIds linked service templates' check commands, then their templates', in priority order
      * @param Collection<HostTemplateId> $parentTemplateIds direct parents, in relation order
@@ -78,6 +81,56 @@ final class HostTemplate extends AggregateRoot
     ) {
         parent::__construct($id);
         Assert::null($extendedInformations?->geoCoordinates, 'A host template has no geographic coordinates.');
+    }
+
+    /**
+     * A new template, not yet persisted, whose numbers must fit their int(11) columns.
+     *
+     * @param Collection<HostTemplateId> $parentTemplateIds in inheritance order
+     * @param Collection<HostCategoryId> $categoryIds
+     * @param Collection<ServiceTemplateId> $linkedServiceTemplateIds in relation order
+     *
+     * @throws \InvalidArgumentException when a number does not fit its column
+     */
+    public static function create(
+        HostTemplateName $name,
+        HostAlias $alias,
+        CheckOptions $checkOptions = new CheckOptions(null),
+        Collection $parentTemplateIds = new Collection([], HostTemplateId::class),
+        ?SnmpCommunity $snmpCommunity = null,
+        ?SnmpVersionEnum $snmpVersion = null,
+        ?TimezoneId $timezoneId = null,
+        ?HostSeverityId $severityId = null,
+        ?ExtendedInformations $extendedInformations = null,
+        SchedulingOptions $schedulingOptions = new SchedulingOptions(),
+        DataProcessing $dataProcessing = new DataProcessing(),
+        ?Notifications $notifications = null,
+        Collection $categoryIds = new Collection([], HostCategoryId::class),
+        Collection $linkedServiceTemplateIds = new Collection([], ServiceTemplateId::class),
+    ): self {
+        self::assertSchedulingOptionsBounds($schedulingOptions);
+        self::assertDataProcessingBounds($dataProcessing);
+        if ($notifications instanceof Notifications) {
+            self::assertNotificationsBounds($notifications);
+        }
+
+        return new self(
+            id: null,
+            name: $name,
+            checkOptions: $checkOptions,
+            alias: $alias,
+            parentTemplateIds: $parentTemplateIds,
+            snmpCommunity: $snmpCommunity,
+            snmpVersion: $snmpVersion,
+            timezoneId: $timezoneId,
+            severityId: $severityId,
+            extendedInformations: $extendedInformations,
+            schedulingOptions: $schedulingOptions,
+            dataProcessing: $dataProcessing,
+            notifications: $notifications,
+            categoryIds: $categoryIds,
+            linkedServiceTemplateIds: $linkedServiceTemplateIds,
+        );
     }
 
     /**
@@ -151,5 +204,25 @@ final class HostTemplate extends AggregateRoot
             static fn (HostMacro $macro): HostMacro => $macro->inheritedFrom(HostMacroParentEnum::Template),
             $this->checkOptions->macros,
         );
+    }
+
+    private static function assertSchedulingOptionsBounds(SchedulingOptions $options): void
+    {
+        Assert::nullOrLessThanEq($options->maxCheckAttempts, self::MAX_INTEGER);
+        Assert::nullOrLessThanEq($options->normalCheckInterval, self::MAX_INTEGER);
+        Assert::nullOrLessThanEq($options->retryCheckInterval, self::MAX_INTEGER);
+    }
+
+    private static function assertDataProcessingBounds(DataProcessing $dataProcessing): void
+    {
+        Assert::nullOrLessThanEq($dataProcessing->acknowledgmentTimeout, self::MAX_INTEGER);
+        Assert::nullOrLessThanEq($dataProcessing->freshnessThreshold, self::MAX_INTEGER);
+    }
+
+    private static function assertNotificationsBounds(Notifications $notifications): void
+    {
+        Assert::nullOrLessThanEq($notifications->interval, self::MAX_INTEGER);
+        Assert::nullOrLessThanEq($notifications->firstDelay, self::MAX_INTEGER);
+        Assert::nullOrLessThanEq($notifications->recoveryDelay, self::MAX_INTEGER);
     }
 }
