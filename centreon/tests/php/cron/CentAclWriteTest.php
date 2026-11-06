@@ -160,7 +160,6 @@ class CentAclWriteTest extends TestCase
             [
                 'groupId' => self::GROUP_ID,
                 'fingerprint' => centAclFingerprint(centAclSortedUniqueRows($rows)),
-                'rowCount' => 3,
             ],
             $fingerprints[0][1]
         );
