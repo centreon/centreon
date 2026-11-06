@@ -29,6 +29,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
+use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\MonitoringServer\Repository\Exception\MonitoringServerConfigurationRepositoryException;
@@ -195,6 +196,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
      * @throws TimeoutException
      * @throws AuthenticationException
      * @throws GorgoneDeliveryException
+     * @throws IncompleteGenerationException
      */
     private function callHttp(
         string $filePath,
@@ -243,6 +245,9 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
                         if (GorgoneDeliveryException::isKnownReason($errorCode)) {
                             throw new GorgoneDeliveryException((string) $element->error, $errorCode);
                         }
+                        if ($errorCode === IncompleteGenerationException::REASON) {
+                            throw new IncompleteGenerationException((string) $element->error, $errorCode);
+                        }
 
                         throw new RepositoryException((string) $element->error);
                     }
@@ -250,7 +255,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
             } else {
                 throw MonitoringServerConfigurationRepositoryException::responseEmpty();
             }
-        } catch (RepositoryException|AuthenticationException|GorgoneDeliveryException $ex) {
+        } catch (RepositoryException|AuthenticationException|GorgoneDeliveryException|IncompleteGenerationException $ex) {
             throw $ex;
         } catch (\Assert\AssertionFailedException $ex) {
             throw MonitoringServerConfigurationRepositoryException::errorWhenInitializingApiUri();
