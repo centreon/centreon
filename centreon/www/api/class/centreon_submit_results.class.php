@@ -33,8 +33,8 @@ class CentreonSubmitResults extends CentreonWebService
     /** @var list<string> Commands waiting to be sent to Gorgone */
     protected $commands = [];
 
-    /** @var bool If the file pipe is open */
-    protected $pipeOpened = false;
+    /** @var bool If the command buffer is started */
+    protected $bufferStarted = false;
 
     /** @var CentreonDB The database connection to centreon_storage (realtime database) */
     protected $pearDBC;
@@ -81,8 +81,8 @@ class CentreonSubmitResults extends CentreonWebService
 
         if (isset($this->arguments['results']) && is_array($this->arguments['results'])) {
             if ($this->arguments['results'] !== []) {
-                if ($this->pipeOpened === false) {
-                    $this->openPipe();
+                if ($this->bufferStarted === false) {
+                    $this->startBuffer();
                 }
                 foreach ($this->arguments['results'] as $data) {
                     try {
@@ -150,7 +150,7 @@ class CentreonSubmitResults extends CentreonWebService
                         $results[] = ['code' => $error->getCode(), 'message' => $error->getMessage()];
                     }
                 }
-                $this->closePipe();
+                $this->flushBuffer();
             }
             if ($hasError) {
                 throw new RestPartialContent(json_encode(['results' => $results]));
@@ -233,10 +233,10 @@ class CentreonSubmitResults extends CentreonWebService
      *
      * @return void
      */
-    private function openPipe(): void
+    private function startBuffer(): void
     {
         $this->commands = [];
-        $this->pipeOpened = true;
+        $this->bufferStarted = true;
     }
 
     /**
@@ -245,9 +245,9 @@ class CentreonSubmitResults extends CentreonWebService
      * @throws RestBadRequestException
      * @return void
      */
-    private function closePipe(): void
+    private function flushBuffer(): void
     {
-        $this->pipeOpened = false;
+        $this->bufferStarted = false;
         try {
             Centreon\Infrastructure\Gorgone\LegacyCommandSender::create()->sendLines($this->commands);
         } catch (Centreon\Infrastructure\Gorgone\LegacyCommandException $e) {
@@ -264,9 +264,9 @@ class CentreonSubmitResults extends CentreonWebService
      *
      * @return bool
      */
-    private function writeInPipe($string)
+    private function bufferCommand($string)
     {
-        if ($this->pipeOpened === false) {
+        if ($this->bufferStarted === false) {
             return false;
         }
 
@@ -297,14 +297,14 @@ class CentreonSubmitResults extends CentreonWebService
                 . $data['output'] . '|' . $data['perfdata'];
 
             // send data
-            return $this->writeInPipe('EXTERNALCMD:' . $this->pollerHosts['name'][$data['host']]
+            return $this->bufferCommand('EXTERNALCMD:' . $this->pollerHosts['name'][$data['host']]
                 . ':[' . $data['updatetime'] . '] PROCESS_SERVICE_CHECK_RESULT;' . $command);
         }
         // Host Update
         $command = $data['host'] . ';' . $data['status'] . ';' . $data['output'] . '|' . $data['perfdata'];
 
         // send data
-        return $this->writeInPipe('EXTERNALCMD:' . $this->pollerHosts['name'][$data['host']]
+        return $this->bufferCommand('EXTERNALCMD:' . $this->pollerHosts['name'][$data['host']]
             . ':[' . $data['updatetime'] . '] PROCESS_HOST_CHECK_RESULT;' . $command);
 
     }

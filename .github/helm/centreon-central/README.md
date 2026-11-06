@@ -1,9 +1,9 @@
 # centreon-central Helm chart
 
 Kubernetes deployment of a Centreon central node built on the split httpd /
-php-fpm images (Pilier 1), gorgone central + pullwss (Pilier 2), centengine
-and centreon-broker. Port of `../../docker/centreon-web-split/docker-compose.yml`, reorganised so the
-web tier scales horizontally.
+php-fpm images, gorgone central + pullwss, centengine and centreon-broker.
+Port of `../../docker/centreon-web-split/docker-compose.yml`, reorganised so
+the web tier scales horizontally.
 
 - `values.yaml`: single-node dev/test defaults (1 replica each, RWO volumes,
   bundled MariaDB).
@@ -23,23 +23,54 @@ storage, a managed database or remote pollers.
 | `fpm` | Deployment | N (HPA) | Web backend. Per-container init only, waits for the install marker |
 | `httpd` | Deployment | N (HPA) | Static assets, FastCGI to fpm, wss to gorgone-central |
 | `gorgone-central` | Deployment | 1 | Orchestrator (TYPE=central) |
-| `broker` | Deployment | 1 | central-broker-master (RRD merged in), Service 5669 for pollers |
-| `central-poller` | Deployment | 1 | gorgone (poller) + centengine for Central itself |
+| `broker` | StatefulSet | 1 | central-broker-master (RRD merged in), Service 5669 for pollers, rrdcached sidecar |
+| `central-poller` | StatefulSet | 1 | gorgone (poller) + centengine for Central itself |
 | `poller-<name>` | StatefulSet | 1 per poller | Remote pollers from `pollers:` (untested) |
 | `db` | StatefulSet | 1 | Bundled MariaDB (dev) |
+| `cron-<name>` | CronJob | per schedule | Centreon's scheduled jobs (`cronJobs`, on by default) |
+| `autodiscovery-worker` | Deployment | 1 | Saves host discovery results (`autodiscoveryWorker.enabled`) |
+| `valkey` | StatefulSet | 1 | PHP sessions (`valkey.enabled`) |
 
 Scaling Centreon means adding pollers, not replicas: gorgone-central, the
 broker and each poller are singletons by design.
 
-`<id>` is a hash of the fpm image reference (+ `install.runId`): a new image
-tag runs both Jobs again (upgrade). Use immutable tags; rebuilding the same
+`<id>` is a hash of the fpm image reference, the chart version,
+`install.runId` and the install's environment (the Job names also end with
+a hash of their spec): a new image tag, chart version or install-related
+value runs both Jobs again (upgrade). Use immutable tags; rebuilding the same
 tag does not re-run them. Both are plain Jobs, not Helm hooks (a hook would
 deadlock with `--wait` / ArgoCD PostSync, since fpm waits for the install).
 
+### Upgrading from 0.12 or earlier (Deployments to StatefulSets)
+
+0.13 turns the Central poller and the broker into one-replica StatefulSets
+(never two pods on their RWO volumes, e.g. after a node loss). They keep the
+same PVCs. Helm creates the StatefulSets before deleting the Deployments, so
+stop the old pods first, otherwise two engines briefly share the volumes:
+
+```powershell
+kubectl -n <ns> scale deploy <release>-central-poller <release>-broker --replicas=0
+helm upgrade <release> ...
+```
+
+The Central poller's host name changes from `<release>-central-engine-otel`
+(`centralPoller.hostname`, removed) to `<release>-central-poller-0`. The
+persisted default CA keeps its CN and fingerprint; agents that check the
+name should move to `centralPoller.otel.tls`.
+
+Remote pollers (`pollers[]`) got `podManagementPolicy: Parallel` in 0.11
+(immutable): `kubectl delete sts <release>-poller-<name> --cascade=orphan`
+before upgrading from 0.10 or earlier.
+
 ## Why some containers share a pod
 
-Only gorgone + centengine in a poller pod: centengine's external command
-file is a FIFO that gorgone writes to, which only works within one kernel.
+- Poller pods: gorgone + centengine, because centengine's external command
+  file is a FIFO that gorgone writes to, which only works within one kernel.
+  With traps, snmptrapd + centreontrapd join them (centreontrapd writes the
+  same FIFO); with VMware, centreon-vmware (the engine's plugins reach it as
+  `centreon-vmware:5700`, a host alias to the pod itself).
+- Broker pod: cbd + the rrdcached sidecar (cbd sends its RRD updates to
+  `127.0.0.1:42217`).
 
 ## Volumes
 
@@ -50,7 +81,7 @@ GiB minimum and counts in the node's attachment limit (EFS bills usage only).
 | Volume | Directories | Writers | Readers |
 |--------|-------------|---------|---------|
 | centreon-web (shared) | `media` (www/img/media), `sessions` (PHP, not with Valkey), `license` (/etc/centreon/license.d), `cache-config` (only when fpm can scale) | fpm | httpd (media), cron send-stats and autodiscovery worker (license) |
-| centreon-rrd (shared) | `status`, `metrics` (RRD, ~330 KiB per file) | broker | fpm |
+| centreon-rrd (shared) | `status`, `metrics` (RRD, ~330 KiB per file) | broker (cbd, rrdcached sidecar) | fpm |
 | poller-broker (shared) | /etc/centreon-broker of the Central poller | central-poller gorgone | broker, centengine |
 | poller-data (Central poller; one per remote poller) | `engine`, `etc`, `pki` (CMA CA), `gorgone-data` (gorgone's history DB), `traps-config`, `broker` (remote) | gorgone, centengine | centreontrapd, vmware |
 | poller-spool (Central poller; one per remote poller) | `centlog` (engine logs, retention.dat), `cbmod-cache` (queue while the broker is unreachable) | centengine | |
@@ -127,11 +158,11 @@ dedicated volumes:
 
 | Process | Queues while | Value | Volume |
 |---------|--------------|-------|--------|
-| Central cbmod (Central poller pod) | the broker is down | `centralPoller.cbmodCacheDirectory` | `pollerCbmodCache` |
+| Central cbmod (Central poller pod) | the broker is down | `centralPoller.cbmodCacheDirectory` | poller-spool (`cbmod-cache`) |
 | central-broker-master (broker pod) | the database is down | `broker.cacheDirectory` | `brokerCache` |
 
-The first delivery after enabling them needs one restart of the pod
-concerned (a reload does not switch `cache_directory`). Abrupt deaths
+A reload does not switch `cache_directory`: a change of these directories
+takes effect at the next restart of the pod concerned. Abrupt deaths
 (node loss, OOM kill) still lose the in-memory part. Remote pollers need the
 same "Cache directory" set in their broker configuration in Centreon.
 
@@ -142,7 +173,7 @@ LoadBalancer for agents outside the cluster). With `encryption: full` they
 check the certificate against the FQDN of their `endpoint`.
 
 The engine's default CA (`/etc/pki/centreon-engine/default_cma_ca.*`,
-persisted on `pollerCmaPki`) has CN = host name and no SAN. The pod host name
+persisted in poller-data, `pki`) has CN = host name and no SAN. The pod host name
 is `<release>-central-poller-0` (forced by the StatefulSet controller), so it
 never matches an external FQDN. Provide the TLS identity instead (same value
 names as the `centreon-poller` chart):
@@ -192,8 +223,8 @@ Service `<release>-central-snmptrap` / `<release>-poller-<name>-snmptrap`
   the UI then. Trap changes afterwards are generated from the UI as usual.
 - `centreontrapd` finds the host by **address**: the trap's source IP, or its
   reverse DNS name. Keep the source IP: `externalTrafficPolicy: Local` on a
-  cloud / MetalLB LoadBalancer (k3s' klipper SNATs it, so do NodePort-less
-  clusters with kube-proxy SNAT).
+  cloud / MetalLB LoadBalancer. k3s' klipper LoadBalancer SNATs it anyway, as
+  does any Service with `externalTrafficPolicy: Cluster`.
 - `snmptrapd` runs as uid 900: the pod gets the
   `net.ipv4.ip_unprivileged_port_start=162` sysctl (allowed by `baseline`).
 
@@ -211,10 +242,11 @@ enforces them, k3s does):
 
 | Policy | Ingress allowed |
 |--------|-----------------|
-| `<release>-gorgone-central` | 8085 from fpm + config-delivery Job, 8087 from httpd |
+| `<release>-gorgone-central` | 8085 from fpm, cron + config-delivery Job, 8087 from httpd |
 | `<release>-fpm` | 9000 from httpd |
 | `<release>-broker` | 5669 from anywhere (pollers), 51001 (cbd gRPC) from the Central poller pod only, 42217 from fpm (rrdcached) |
-| `<release>-db` (bundled DB only) | 3306 from fpm, install, config-delivery, cron, gorgone-central, broker |
+| `<release>-db` (bundled DB only) | 3306 from fpm, install, config-delivery, cron, gorgone-central, broker, autodiscovery-worker |
+| `<release>-valkey` (`valkey.enabled`) | 6379 from fpm |
 | `<release>-pollers` | 4317 (`otelFrom`), 162/udp when traps (`trapsFrom`) |
 
 httpd stays open (Ingress / users). Kubelet probes are not affected.
@@ -234,12 +266,14 @@ server-side dry-run of `pod-security.kubernetes.io/enforce=baseline`), not
 Recommended namespace labels: `enforce=baseline`, `warn=restricted`,
 `audit=restricted`.
 
-## rrdcached (`rrdcached.enabled`, off by default)
+## rrdcached (`rrdcached.enabled`, on by default)
 
-By default the broker writes every RRD update itself. With
-`rrdcached.enabled`, an rrdcached sidecar in the broker pod (image
-`--target rrdcached`, port 42217) batches them, which cuts IOPS on network
-RWX storage (EFS, NFS):
+An rrdcached sidecar in the broker pod (image `--target rrdcached`, port
+42217) receives the broker's RRD updates and writes them in batches, instead
+of the broker writing every update itself. On by default for the storage:
+the RRD files live on a PVC, often network RWX storage (EFS, NFS), where
+every small write is expensive. `rrdcached.enabled: false` goes back to
+direct writes. When enabled:
 
 - The install Job sets `rrd_cached_option=tcp`, the port (`RRDCACHED_PORT`)
   and the host (`RRDCACHED_HOST=127.0.0.1`: the sidecar, in cbd's own pod)
@@ -253,30 +287,15 @@ RWX storage (EFS, NFS):
   not written yet are lost only on an abrupt pod death.
 
 **Requirement**: a broker image whose TCP RRD output initializes its logger
-(centreon-collect MON-213839). Up to centreon-collect develop of 2026-11-02
-its constructor leaves `_logger` null and cbd segfaults on the first update
-(seen with chart 0.19 / 0.20).
+(centreon-collect MON-213839). Without it the output's constructor leaves
+`_logger` null and cbd segfaults on the first RRD update: with an older
+broker image, set `rrdcached.enabled: false`.
 
-## Upgrading from 0.12 or earlier (Deployments to StatefulSets)
+### Upgrading from 26.12 or earlier: rrdcached
 
-0.13 turns the Central poller and the broker into one-replica StatefulSets
-(never two pods on their RWO volumes, e.g. after a node loss). They keep the
-same PVCs. Helm creates the StatefulSets before deleting the Deployments, so
-stop the old pods first, otherwise two engines briefly share the volumes:
-
-```powershell
-kubectl -n <ns> scale deploy <release>-central-poller <release>-broker --replicas=0
-helm upgrade <release> ...
-```
-
-The Central poller's host name changes from `<release>-central-engine-otel`
-(`centralPoller.hostname`, removed) to `<release>-central-poller-0`. The
-persisted default CA keeps its CN and fingerprint; agents that check the
-name should move to `centralPoller.otel.tls`.
-
-Remote pollers (`pollers[]`) got `podManagementPolicy: Parallel` in 0.11
-(immutable): `kubectl delete sts <release>-poller-<name> --cascade=orphan`
-before upgrading from 0.10 or earlier.
+rrdcached was off by default. An upgrade
+that does not set `rrdcached.enabled` turns it on: the install Job and the
+config delivery run again, and the broker pod restarts with the sidecar.
 
 ## Exposure (Services and Ingress)
 
@@ -285,10 +304,14 @@ before upgrading from 0.10 or earlier.
 | `httpd` | 80 | via the Ingress (or `httpd.service.type`) | users, REST API, pollers' pullwss |
 | `centreon-broker` | 5669 BBDO | `broker.service.type` (LoadBalancer in prod, raw TCP: no Ingress) | Central poller, remote pollers |
 | `cbd` | 51001 gRPC | never (ClusterIP, no auth, NetworkPolicy: Central poller pod only) | gorgone's reload after an export |
-| `gorgone-central` | 8085, 8087 | never (NetworkPolicy) | fpm, config-delivery Job, httpd |
+| `gorgone-central` | 8085, 8087 | never (NetworkPolicy) | fpm, cron, config-delivery Job, httpd |
 | `fpm` | 9000 | never | httpd |
+| `centreon-rrdcached` | 42217 | never (ClusterIP, NetworkPolicy: fpm only) | fpm (flush before a graph) |
+| `valkey` | 6379 | never (ClusterIP, NetworkPolicy: fpm only; `valkey.enabled`) | fpm (PHP sessions) |
+| `<release>-central-engine-otel` | 4317 | `centralPoller.otel.service.type` (LoadBalancer for agents outside the cluster) | CMA agents |
+| `<release>-central-snmptrap`, `<release>-poller-<name>-snmptrap` | 162/udp | `centralPoller.traps.service.type` (with traps; LoadBalancer for devices outside the cluster) | SNMP devices |
 | poller pods (engine gRPC) | 50155 | never (NetworkPolicy `<release>-pollers`: only 4317 reachable, from `networkPolicy.pollers.otelFrom`) | gorgone in the same pod |
-| `db` | 3306 | never | install, fpm, gorgone, broker |
+| `db` | 3306 | never | install, config-delivery, fpm, cron, autodiscovery worker, gorgone-central, broker |
 
 The Ingress routes `host/` to httpd: UI, API and the pullwss websocket of
 pollers outside the cluster (`/centreon/gorgone/pullwss/websocket`). With
@@ -351,9 +374,9 @@ be decrypted. The 25.10 test dataset had no encrypted value.
 
 ## Fixed Service names: one release per namespace
 
-`db`, `fpm`, `httpd`, `gorgone-central` and `centreon-broker` are not
-release-prefixed: the install writes these hostnames into the Centreon DB or
-the images use them. In every poller pod `centengine` resolves to
+`db`, `fpm`, `httpd`, `gorgone-central`, `centreon-broker`, `cbd`,
+`centreon-rrdcached` and `valkey` are not release-prefixed: the install
+writes these hostnames into the Centreon DB or the images use them. In every poller pod `centengine` resolves to
 `127.0.0.1`, so a poller's gorgone never reloads another poller's engine.
 
 ## gorgone-central API access
@@ -363,18 +386,21 @@ The gorgone image hardcodes its httpserver `allowed_hosts` to
 (`10.42.0.0/16` on k3s) get a 401, which broke fpm's node-sync call and the
 config-delivery Job. Pod IPs are ephemeral, so the chart disables the
 allowlist (`GORGONE__GORGONE__MODULES__HTTPSERVER__ALLOWED_HOSTS__ENABLED`)
-and replaces it with a NetworkPolicy: 8085 only from fpm and the
+and replaces it with a NetworkPolicy: 8085 only from fpm, cron and the
 config-delivery Job, 8087 only from httpd (verified on k3s: an unlabeled pod
-is blocked). The API has no auth: set `networkPolicy.enabled=false` only on
-a cluster dedicated to Centreon. Better fix: make the subnets configurable in
-the gorgone image (`10-create-config.sh`, centreon-collect).
+is blocked). The API itself requires basic auth with the `centreon-gorgone`
+service account (`centreonApiUsername`, Secret key `GORGONE_API_PASSWORD`):
+the NetworkPolicy is defence in depth, keep it on unless the cluster is
+dedicated to Centreon. Better fix: make the subnets configurable in the
+gorgone image (`10-create-config.sh`, centreon-collect).
 
 ## Differences from the compose stack
 
 - **Named-volume copy-up made explicit.** Init containers reuse each pod's
   own image as root and `cp -an` + `chown/chmod --reference` the same paths
   (no-op on restart; chown failures are non-fatal for RWX backends such as
-  EFS access points). `/var/lib/centreon` is seeded from the gorgone image,
+  EFS access points). In poller pods `/etc/centreon` and
+  `/var/lib/centreon-gorgone` are seeded from the gorgone image;
   `/etc/centreon-broker` is not seeded (the broker refuses its default).
 - **Config delivered once, not every 60s.** compose re-runs "generate + move
   + reload" every minute; here the config-delivery Job does it once per
@@ -384,22 +410,49 @@ the gorgone image (`10-create-config.sh`, centreon-collect).
   config-delivery Job POSTs `/api/centreon/nodes/sync` until the Central
   poller is connected.
 - **Probes.** fpm: startup + readiness on `/tmp/docker.ready`, liveness on
-  9000. broker: readiness = cbd listening on 5669 (read from
-  `/proc/net/tcp`, no connection). centengine/gorgone: none.
-- **centengine/broker crash-loop until their config is delivered.** Accepted
+  9000. httpd: readiness on `/tmp/docker.ready`, liveness on 80. broker:
+  readiness = cbd listening on 5669 (read from `/proc/net/tcp`, no
+  connection); its rrdcached sidecar: startup + readiness on PING.
+  gorgone-central: readiness on 8087. Autodiscovery worker: startup on
+  `/tmp/docker.ready`, liveness on its heartbeat file. Valkey and the
+  bundled DB: readiness on a ping. Poller pods (gorgone, centengine,
+  traps, vmware): none.
+- **centengine crash-loops until its config is delivered** (the broker
+  waits for it in its `wait-config` init container). Accepted
   as in compose, but CrashLoopBackOff grows to 5 minutes: count up to ~10
   minutes on a fresh install.
+
+## Running CLAPI
+
+Run CLAPI (and the other `bin/` tools) in fpm as `www-data`, never as root,
+which is what `kubectl exec` gives by default:
+
+```sh
+kubectl -n <namespace> exec -it deploy/<release>-fpm -c fpm -- \
+  runuser -u www-data -- php /usr/share/centreon/bin/centreon -u admin -p '<password>' -a POLLERLIST
+```
+
+A configuration generation run as root (`APPLYCFG`, `POLLERGENERATE`)
+recreates `/var/cache/centreon/config/{engine,broker}/<poller id>` as
+`root:root` 0770 on the shared volume, and every later generation from the
+web or the REST API fails ("Not writeable directory", HTTP 500 "consistency
+error in the exported files"). Repair, in fpm: `chown -R www-data:www-data
+/var/cache/centreon/config/engine /var/cache/centreon/config/broker
+/var/cache/centreon/config/vmware`.
 
 ## Secrets
 
 Never generated by the chart (`lookup` is empty under `helm template` /
 ArgoCD, so APP_SECRET/SALT would rotate on each sync). Use
 `secrets.existingSecret` with keys `APP_SECRET`, `SALT`,
-`MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, `CENTREON_API_PASSWORD`, or set the
-`secrets.*` values. `secrets.appSecret` and `secrets.salt` have no default
-(the install fails without them): give each 64 random hex characters, and
-never change them afterwards. The admin password comes from the image's
-install fixture; `CENTREON_API_PASSWORD` must match.
+`MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, `GORGONE_API_PASSWORD` (the
+`centreon-gorgone` service account, set by the install Job), optionally
+`ADMIN_PASSWORD`, plus `VALKEY_PASSWORD` with Valkey and `VAULT_ROLE_ID` /
+`VAULT_SECRET_ID` with Vault; or set the `secrets.*` values.
+`secrets.appSecret` and `secrets.salt` have no default (the install fails
+without them): give each 64 random hex characters, and never change them
+afterwards. The admin password is `secrets.adminPassword` when set at the
+first install, otherwise the image's install fixture.
 
 ## PHP sessions in Valkey
 
@@ -487,7 +540,7 @@ k3d cluster create centreon-helm --no-lb --k3s-arg "--disable=traefik@server:0" 
 # cluster from docker.centreon.com: give the nodes registry credentials
 # (k3d `--registry-config`) or set `imagePullSecrets`.
 foreach ($img in 'centreon-web-split-fpm:latest','centreon-web-split-httpd:latest',
-  'mariadb:11.8') {
+  'centreon-web-split-cron:latest','centreon-web-split-rrdcached:latest','mariadb:11.8') {
   docker save $img | docker exec -i k3d-centreon-helm-server-0 ctr -n k8s.io images import -
 }
 # APP_SECRET and SALT: no default, keep them for the life of the release.
@@ -522,5 +575,6 @@ If the kubeconfig entry points at `host.docker.internal` and times out:
   it fails, wipe the DB and reinstall.
 - The collect images default to the floating `develop` tag (pullPolicy
   Always); a broken nightly can leave `develop` stale. `values-prod.yaml`
-  image names are placeholders: pin immutable tags there.
+  has `CHANGE_ME` placeholders for the web images (fpm, httpd, cron,
+  rrdcached): set them, and pin immutable collect tags there too.
 - Eventual GitOps home is the Infrastructure repo (ArgoCD).

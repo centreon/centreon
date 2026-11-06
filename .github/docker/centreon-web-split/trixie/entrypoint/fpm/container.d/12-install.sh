@@ -4,13 +4,17 @@
 # step. Use `return` for the early-exit guards below.
 set -eu
 
-# Opt-in only: this is a dev/CI convenience to get a real database behind the
-# split images for manual testing, NOT the real T9 (productised automated
-# install). Trimmed down from the monolithic image's own
+# Opt-in only (RUN_INSTALL): the actual install mechanism for this image,
+# reused as-is by the k8s chart's dedicated install Job (INSTALL_DB_STEPS=
+# true there, false on regular fpm replicas) — not a disposable dev/CI-only
+# fixture. Trimmed down from the monolithic image's own
 # .github/docker/centreon-web/trixie/entrypoint/container.d/15-installation.sh
 # (same JSON answer-file fixtures, copied into this image at build time) —
-# the gorgone/sysconfig/engine-context steps are dropped here on purpose:
-# this image has no gorgone/engine package at all, they belong to Pilier 2.
+# the sysconfig/gorgone-node-registration steps are dropped here on purpose:
+# gorgone and the monitoring engine run as their own dedicated containers
+# (Pilier 2), not inside fpm — fpm does ship a real centengine binary, but
+# only for "Generate Configuration Files"' local verification (MON-214031),
+# never to run it.
 if [ "${RUN_INSTALL:-false}" != "true" ]; then
   return 0
 fi
@@ -205,13 +209,6 @@ else
     su www-data -s /bin/bash -c "php partitionTables.php" > /dev/null
   fi
 
-  if [ "${CENTREON_DATASET:-0}" = "1" ]; then
-    echo "CENTREON_DATASET is set, inserting sample dataset..."
-    for file in /usr/local/src/sql/data/*; do
-      [ -e "$file" ] || continue
-      mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" < "$file"
-    done
-  fi
 fi
 
 # Non-interactive equivalent of the browser upgrade wizard (new
@@ -414,13 +411,17 @@ mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
 # network namespace — DESIGN CHANGE, see trixie/README.md: G9/MON-213839 adds
 # a 'host' key to the rrd output, find_param(cfg, "host", false, "localhost")
 # in broker.class.php, letting cbd dial out to a separate container instead
-# of requiring netns sharing). Disabled by default stack-wide (RRDCACHED_PORT
-# unset) until a BROKER_TAG carrying that fix is in use (C12). Idempotent
-# BOTH ways, on every start (UPDATE/DELETE+INSERT, not INSERT-if-missing): an
-# unset/empty RRDCACHED_PORT forces 'disable' and drops the 'host' row
-# explicitly rather than leaving whatever was there — otherwise toggling
-# rrdcached off on an already-running release would leave cbd configured for
-# tcp with nothing listening on the other end.
+# of requiring netns sharing). The MON-213839 broker fix is now pinned, and
+# compose enables rrdcached by default (RRDCACHED_PORT=42217) — local
+# volumes make the I/O gain small in dev, but this keeps the topology
+# identical to the k8s chart and keeps this exact path covered by the CI
+# smoke test (the path where MON-213839 was found in the first place).
+# RRDCACHED_PORT stays an opt-out, not a dead knob: unsetting it still fully
+# disables rrdcached, idempotent BOTH ways on every start (UPDATE/
+# DELETE+INSERT, not INSERT-if-missing) — an unset/empty RRDCACHED_PORT
+# forces 'disable' and drops the 'host' row explicitly rather than leaving
+# whatever was there, so toggling it off on an already-running release never
+# leaves cbd configured for tcp with nothing listening on the other end.
 if [ -n "${RRDCACHED_PORT:-}" ]; then
   echo "Enabling rrdcached for Central's RRD output (${RRDCACHED_HOST:-rrdcached}:${RRDCACHED_PORT})..."
   RRD_CACHED_OPTION_VALUE=tcp

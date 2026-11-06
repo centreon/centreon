@@ -109,20 +109,24 @@ source files off gorgone's own disk, never from the triggering request, so
 this has to be the literal same filesystem `fpm` writes to, not a copy (see
 `www/include/configuration/configGenerate/xml/moveFiles.php`).
 
-`gorgone-central-test:src` (default `GORGONE_IMAGE`) carries a one-word fix —
-`gorgone/gorgone/modules/core/register/class.pm`: `REGISTERNODES` →
-`REGISTERNODESFROMDB` in `action_registerresync` — not yet merged upstream,
-without which `gorgone-central` can never self-register (`register_nodes()`
-can only update an already-known node, never create one; only
-`register_nodes_from_db()` can). Override `GORGONE_IMAGE` once it lands on
-the real `centreon-gorgone-trixie` image.
+Self-registration needed a one-word fix upstream —
+`gorgone/gorgone/modules/centreon/nodes/class.pm` sending
+`REGISTERNODESFROMDB` instead of `REGISTERNODES`, without which
+`gorgone-central` could never self-register (`register_nodes()` can only
+update an already-known node, never create one; only
+`register_nodes_from_db()` can) — which has since landed: the default
+`GORGONE_IMAGE` (`centreon-gorgone-trixie:develop`) carries it, no custom
+fork needed any more.
 
 Two permission gaps found only by actually running this (not assumed):
 - Named volumes start root:root regardless of what the image chowns at
-  build time — `poller-broker-init` handles this (plus real content seeding)
-  for broker's config volume; the equivalent for the fpm↔gorgone cache/varlib
-  pair is folded into the `fpm` Dockerfile now (see below), no separate init
-  service for that pair any more.
+  build time — a dedicated `poller-broker-init` service used to handle this
+  (plus real content seeding) for broker's config volume, dropped
+  2026-10-01 once the pinned broker image's own fingerprint guard made
+  seeding it with a fake default actively harmful (see below); the
+  equivalent for the fpm↔gorgone cache/varlib pair is folded into the `fpm`
+  Dockerfile instead (see below), no separate init service for either pair
+  any more.
 - `/var/cache/centreon`/`/var/lib/centreon` need to be writable by **both**
   `www-data` (fpm) and `centreon-gorgone` (gorgone-central, a different user)
   — `fpm`'s Dockerfile creates the same fixed UIDs/GIDs every Centreon
@@ -820,34 +824,12 @@ not just reasoned about: wrote a marker file as `www-data` on `fpm`,
 fetched it back over real HTTP through `httpd` immediately — `200`, content
 matched, no propagation delay.
 
-### Backward compatibility of the `is_default`/`InternalApiClient` code fixes with a classic VM install
+### Backward compatibility of the `InternalApiClient` code fix with a classic VM install
 
-Both `common-Func.php`'s `printDebug()` fix and
-`MonitoringServerConfigurationRepositoryApi`'s fix touch real application
+`MonitoringServerConfigurationRepositoryApi`'s fix touches real application
 code shipped to every install, VM/RPM/DEB included, not just this Docker
 image — checked explicitly, not assumed, since a fix that only helps Docker
 while quietly breaking existing VM behavior would be worse than the bug.
-
-**`is_default` fallback.** On a fresh install, `localhost=1` and
-`is_default=1` are seeded together for Central, same `INSERT`
-(`www/install/var/baseconf/centreon-engine.sql`) — the fix is a no-op there.
-On an **upgraded** VM, `is_default` is not a new column needing a backfill:
-it predates the entire supported upgrade window (added 2011, seeded since
-2012), and any install that has passed through `Update-2.8.20.php` (2018,
-essentially every live install today) already had it backfilled once via
-`UPDATE nagios_server SET is_default = 1 WHERE localhost = '1'` if no row
-had it set. The one real gap, pre-existing and not introduced by this fix:
-`deleteServerInDB()` (`configServers/DB-Func.php`) never reassigns
-`is_default` when the currently-default poller is deleted, and the only
-self-heal (`defineLocalPollerToDefault()`) runs solely on the next poller
-add/edit form save, not on load — a VM admin who deletes the
-default-flagged poller and never touches the servers form again could see
-`is_default` empty everywhere. `printDebug()`'s query now falls back to the
-old `localhost = '1'` behavior in that exact case, matching the same
-fallback chain `Centreon_Object_Instance::getDefaultInstance()`
-(`lib/Centreon/Object/Instance/Instance.php`) already uses for the identical
-"is_default, else localhost" lookup — not a new convention invented for
-Docker, extending an existing one.
 
 **`InternalApiClient::convertToLocalUrl()` fallback.** `CENTREON_INTERNAL_API_BASE_URL`
 is empty by default on a VM (nothing sets it outside this split compose
@@ -1558,12 +1540,43 @@ logging in through the real UI and getting the expected password-reset
 prompt. `ADMIN_PASSWORD_EXPIRED` is therefore only useful for the web login
 flow, not for API-driven testing.
 
+## Admin/ops: running CLAPI inside `fpm`
+
+Run CLAPI as `www-data`, never as root:
+
+```bash
+docker compose exec -u www-data fpm /usr/share/centreon/bin/centreon -u admin -p '...' -a <ACTION> ...
+# or, from a root shell already inside the container:
+runuser -u www-data -- /usr/share/centreon/bin/centreon -u admin -p '...' -a <ACTION> ...
+```
+
+**Verified for real.** `bin/centreon` is a plain PHP script with no setuid —
+it runs as whichever user invokes it, and a config-generating action (e.g.
+`POLLERGENERATE`) chowns the monitoring server's `/var/cache/centreon/config/
+{engine,broker,vmware}/<id>` directories to that same user as part of
+generating into them. Run as root, `POLLERGENERATE` itself warns ("Please
+check that files in the followings directory are writable by apache user")
+but still exits 0, leaving those three directories `root:root`. Every later
+web/REST-triggered generation (`www-data`) then fails outright:
+`Exception received : Not writeable directory '/var/cache/centreon/config/
+engine/1'` (`www/class/config-generate/backend.class.php`), surfaced to the
+API as `{"code":0,"message":"There was an consistency error in the exported
+files - please use the legacy export menu to troubleshoot"}`. Recovered by
+`chown -R www-data:www-data` on the three `<id>` directories a root run
+touched — no data loss, but a real outage until someone notices and fixes
+the ownership.
+
 ## rrdcached sidecar (`rrdcached` service), MON-213837
 
-A write-cache TCP sidecar for Central's merged RRD output, disabled by
-default (`RRDCACHED_PORT` unset) and only turned on once a `BROKER_TAG`
-carrying MON-213839's fix is in use (C12). `rrd_cached_option`/`rrd_cached`
-in `cfg_centreonbroker_info` are toggled idempotently by `12-install.sh`.
+A write-cache TCP sidecar for Central's merged RRD output, **enabled by
+default** (`RRDCACHED_PORT=42217`, decided 2026-11-04 once MON-213839's
+broker fix was pinned). Local volumes make the I/O gain small in this dev
+stack, but keeping it on here matches the k8s chart's topology and keeps
+this exact path covered by the CI smoke test — the path MON-213839's bug
+was originally found on. `RRDCACHED_PORT` stays a real opt-out: unsetting it
+disables rrdcached, and `rrd_cached_option`/`rrd_cached` in
+`cfg_centreonbroker_info` are toggled idempotently either way by
+`12-install.sh`.
 
 **DESIGN CHANGE (2026-11-02)**: originally shipped with
 `network_mode: "service:centreon-broker"` — `broker/rrd/src/output.cc`
@@ -1752,25 +1765,6 @@ docker compose -f .../docker-compose.yml -f .../docker-compose.db-tls.yml \
   (opt-in, hardcoded fixture credentials), not a real init-container boundary
   with secrets. `APP_SECRET` stays as the literal `%APP_SECRET%` placeholder
   from `.env` either way — never generated by this image.
-- **`debug=true` step (`printDebug()`'s `centengine -v` shell-out) now works,
-  not just shimmed.** `/usr/sbin/centengine` in the `fpm` image is a fake
-  binary printing `Total Warnings: 0`/`Total Errors: 0` and exiting 0 (same
-  trick the historical bookworm-tmp prototype used, see ticket 03 in the
-  vault). The shim alone wasn't enough: `printDebug()`'s own query, `SELECT
-  nagios_bin FROM nagios_server WHERE localhost = '1' ...`, matched nothing
-  once Central's row is `0` (`sh: 1: : Permission denied`, an empty binary
-  path). **Real code fix, not a Docker-only workaround**: changed that query
-  to `WHERE is_default = '1'` instead
-  (`www/include/configuration/configGenerate/common-Func.php`). `is_default`
-  ("Is default poller?"/"Main poller" in the UI) is a real, already-existing,
-  UI-editable column that identifies Central independently of `localhost`,
-  kept in sync with it under normal deployments
-  (`DB-Func.php::defineLocalPollerToDefault()`) — `localhost` is a
-  delivery-routing flag (`moveFiles.php`'s local-copy-vs-gorgone branch), not
-  an identity flag, and a split-container Central can correctly be
-  `localhost=0` while still being the one `is_default=1` row. Verified end to
-  end: `GET .../generate` with `debug=true` returns `statuscode: 0`, green
-  `Total Warnings: 0`/`Total Errors: 0` in the response.
 - **`MonitoringServerConfigurationRepositoryApi`'s internal callback fixed,
   same bug class ticket 03 already found for `InternalApiClient`, second
   half now fixed too.** `generateConfiguration()`/`moveExportFiles()`/
