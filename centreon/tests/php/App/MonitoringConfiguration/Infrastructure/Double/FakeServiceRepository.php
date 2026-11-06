@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
@@ -60,6 +61,9 @@ final class FakeServiceRepository implements ServiceRepository
      * between the input validation and the write.
      */
     public bool $forceNameUsed = false;
+
+    /** @var array<int, list<ServiceMacro>> service id => own macros as read back after insertion */
+    public array $storedMacros = [];
 
     public function add(Service $service): void
     {
@@ -155,6 +159,18 @@ final class FakeServiceRepository implements ServiceRepository
         }
 
         return $service;
+    }
+
+    /**
+     * The own macros of the stored service; a test seeds {@see $storedMacros} to stand for the ids a real insert
+     * assigns.
+     */
+    public function findMacros(ServiceId $id): Collection
+    {
+        return new Collection(
+            $this->storedMacros[$id->value] ?? $this->services[$id->value]->checkOptions->macros ?? [],
+            ServiceMacro::class,
+        );
     }
 
     /**

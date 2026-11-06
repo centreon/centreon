@@ -28,6 +28,9 @@ use App\MonitoringConfiguration\Application\Command\CreateServiceCommandHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
@@ -47,6 +50,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOptions;
@@ -66,22 +74,27 @@ use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapVendorName;
 use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ContactGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\DuplicateServiceMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\EventHandlerArgumentsRequireAHandlerException;
 use App\MonitoringConfiguration\Domain\Exception\GraphTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\MediaNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ReservedServiceMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckArgumentsPartlyFilledException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckCommandMissingException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceExtendedInformationsTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceMacroValueIsAVaultReferenceException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimePeriodNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TrapNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesException;
+use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
@@ -94,10 +107,12 @@ use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\StandardMacroRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TrapRepository;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -105,6 +120,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\Exception\AggregateConflictException;
 use App\Shared\Domain\Exception\AggregateNotFoundException;
+use App\Shared\Domain\VaultInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
@@ -119,11 +135,13 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceGroupRepo
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceTemplateRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTrapRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeVault;
 
 final class CreateServiceCommandHandlerTest extends KernelTestCase
 {
@@ -166,6 +184,8 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
 
     private EventBusSpy $eventBus;
 
+    private FakeVault $vault;
+
     /**
      * Boots the real container and swaps only the repositories and the event bus for fakes, so the handler is
      * built by Symfony's DI exactly as it is in production.
@@ -190,6 +210,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
         $this->contactRepository = new FakeNotificationContactRepository();
         $this->contactGroupRepository = new FakeContactGroupRepository();
         $this->eventBus = new EventBusSpy();
+        $this->vault = new FakeVault();
 
         $container->set(ServiceRepository::class, $this->serviceRepository);
         $container->set(HostRepository::class, $this->hostRepository);
@@ -207,6 +228,10 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
         $container->set(NotificationContactRepository::class, $this->contactRepository);
         $container->set(ContactGroupRepository::class, $this->contactGroupRepository);
         $container->set(EventBus::class, $this->eventBus);
+        $container->set(VaultInterface::class, $this->vault);
+        // Rebuild the writer on the fake vault so vaulting is driven by the test's FakeVault.
+        $container->set(VaultCredentialWriter::class, new VaultCredentialWriter($this->vault));
+        $container->set(StandardMacroRepository::class, new FakeStandardMacroRepository(['$_SERVICECRITICALITY_LEVEL$']));
 
         /** @var CreateServiceCommandHandler $handler */
         $handler = $container->get(CreateServiceCommandHandler::class);
@@ -794,10 +819,193 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
+     * The own macros are stored with the service, the password ones as references to the service's vault entry,
+     * written under `monitoring/services` before the service is saved.
+     */
+    public function testItCreatesTheServiceWithItsOwnMacros(): void
+    {
+        $service = ($this->handler)($this->command(macroChanges: [
+            new ServiceMacroChange(new ServiceMacroName('port'), '8080', isPassword: false),
+            new ServiceMacroChange(new ServiceMacroName('pwd'), 's3cr3t', isPassword: true),
+        ]));
+
+        self::assertSame(
+            [['PORT', '8080', false], ['PWD', 'secret::vault::monitoring/services/new-uuid::_SERVICEPWD', true]],
+            $this->describeMacros($service->checkOptions->macros),
+        );
+        self::assertSame([$service], array_values($this->serviceRepository->services));
+        self::assertSame(
+            [['customPath' => 'monitoring/services', 'secrets' => ['_SERVICEPWD' => 's3cr3t'], 'uuid' => null, 'deletes' => []]],
+            $this->vault->writeManyCalls,
+        );
+    }
+
+    /**
+     * The macros are resolved against what the submitted template and the effective check command (here the one
+     * of the template, no command being set) make the service inherit: a template macro resent with a new value
+     * becomes an own macro, a command macro echoed back unchanged stays inherited.
+     */
+    public function testItResolvesTheMacrosAgainstTheSubmittedTemplateAndItsCheckCommand(): void
+    {
+        $command = new Command(
+            new CommandId(23),
+            new CommandName('check_http'),
+            CommandTypeEnum::Check,
+            new CommandLine('$USER1$/check -p $_SERVICEPORT$'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
+        $command->setStoredMacros([new CommandMacro(new CommandMacroId(31), 'PORT', CommandMacroTypeEnum::Service)]);
+        $this->commandRepository->commands[23] = $command;
+        $this->serviceTemplateRepository->templates[30] = new ServiceTemplate(
+            new ServiceTemplateId(30),
+            new ServiceTemplateName('template-30'),
+            checkCommandId: new CommandId(23),
+            macros: new Collection([new ServiceMacro(new ServiceMacroName('url'), '/', isPassword: false, id: new ServiceMacroId(11))], ServiceMacro::class),
+        );
+        $this->serviceTemplateRepository->names[30] = 'template-30';
+
+        $service = ($this->handler)($this->command(templateId: 30, checkCommandId: null, macroChanges: [
+            new ServiceMacroChange(new ServiceMacroName('url'), '/health', isPassword: false, id: new ServiceMacroId(11), parent: ServiceMacroParentEnum::Template),
+            new ServiceMacroChange(new ServiceMacroName('port'), '', isPassword: false, id: new ServiceMacroId(31), parent: ServiceMacroParentEnum::Command),
+        ]));
+
+        self::assertSame([['URL', '/health', false]], $this->describeMacros($service->checkOptions->macros));
+        self::assertNull($service->checkOptions->macros[0]->id);
+    }
+
+    /**
+     * A macro inherited only through another template answers not found.
+     */
+    public function testItRefusesAMacroTheServiceDoesNotInherit(): void
+    {
+        try {
+            ($this->handler)($this->command(macroChanges: [
+                new ServiceMacroChange(new ServiceMacroName('url'), '/', isPassword: false, id: new ServiceMacroId(11), parent: ServiceMacroParentEnum::Template),
+            ]));
+            self::fail('Expected ServiceMacroNotFoundException');
+        } catch (ServiceMacroNotFoundException $exception) {
+            self::assertSame(['checkOptions' => [11]], $exception->criteria);
+        }
+
+        self::assertSame([], $this->serviceRepository->services);
+    }
+
+    /**
+     * The handler checks the reserved names again, as the authority: the list may change after the input
+     * validation. Nothing is written, not even to the vault.
+     */
+    public function testItRefusesAReservedMacroName(): void
+    {
+        try {
+            ($this->handler)($this->command(macroChanges: [
+                new ServiceMacroChange(new ServiceMacroName('pwd'), 's3cr3t', isPassword: true),
+                new ServiceMacroChange(new ServiceMacroName('criticality_level'), '1', isPassword: false),
+            ]));
+            self::fail('Expected ReservedServiceMacroNameException');
+        } catch (ReservedServiceMacroNameException $exception) {
+            self::assertSame(['checkOptions' => ['CRITICALITY_LEVEL']], $exception->criteria);
+        }
+
+        self::assertSame([], $this->serviceRepository->services);
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
+    public function testItRefusesAMacroValueThatIsAVaultReference(): void
+    {
+        try {
+            ($this->handler)($this->command(macroChanges: [
+                new ServiceMacroChange(new ServiceMacroName('pwd'), 'secret::vault::monitoring/services/other::_SERVICEPWD', isPassword: true),
+            ]));
+            self::fail('Expected ServiceMacroValueIsAVaultReferenceException');
+        } catch (ServiceMacroValueIsAVaultReferenceException $exception) {
+            self::assertSame(['checkOptions' => ['PWD']], $exception->criteria);
+        }
+
+        self::assertSame([], $this->serviceRepository->services);
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
+    public function testItRefusesDuplicateMacroNames(): void
+    {
+        try {
+            ($this->handler)($this->command(macroChanges: [
+                new ServiceMacroChange(new ServiceMacroName('pwd'), 'a', isPassword: true),
+                new ServiceMacroChange(new ServiceMacroName('PWD'), 'b', isPassword: true),
+            ]));
+            self::fail('Expected DuplicateServiceMacroNameException');
+        } catch (DuplicateServiceMacroNameException $exception) {
+            self::assertSame(['checkOptions' => ['PWD']], $exception->criteria);
+        }
+
+        self::assertSame([], $this->serviceRepository->services);
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
+    /**
+     * The macros come after the name.
+     */
+    public function testTheNameIsCheckedBeforeTheMacros(): void
+    {
+        $this->serviceRepository->forceNameUsed = true;
+
+        $this->expectException(ServiceAlreadyExistsException::class);
+
+        ($this->handler)($this->command(macroChanges: [
+            new ServiceMacroChange(new ServiceMacroName('criticality_level'), '1', isPassword: false),
+        ]));
+    }
+
+    /**
+     * The vault is reached only once every rule passed, and before the service is saved: what is saved already
+     * holds the references.
+     */
+    public function testVaultWriteBeforeAdd(): void
+    {
+        $this->serviceRepository->forceNameUsed = true;
+        try {
+            ($this->handler)($this->command(macroChanges: [new ServiceMacroChange(new ServiceMacroName('pwd'), 's3cr3t', isPassword: true)]));
+            self::fail('Expected ServiceAlreadyExistsException');
+        } catch (ServiceAlreadyExistsException) {
+        }
+        self::assertSame([], $this->vault->writeManyCalls);
+
+        $this->serviceRepository->forceNameUsed = false;
+        ($this->handler)($this->command(macroChanges: [new ServiceMacroChange(new ServiceMacroName('pwd'), 's3cr3t', isPassword: true)]));
+
+        $saved = array_values($this->serviceRepository->services);
+        self::assertCount(1, $saved);
+        self::assertSame('secret::vault::monitoring/services/new-uuid::_SERVICEPWD', $saved[0]->checkOptions->macros[0]->value);
+    }
+
+    /**
+     * A vault failure is an upstream failure (HTTP 502): nothing is saved and no event fires.
+     */
+    public function testVaultFailureSavesNothing(): void
+    {
+        $this->vault->writeThrows = true;
+
+        try {
+            ($this->handler)($this->command(macroChanges: [new ServiceMacroChange(new ServiceMacroName('pwd'), 's3cr3t', isPassword: true)]));
+            self::fail('Expected VaultWriteFailedException');
+        } catch (VaultWriteFailedException $exception) {
+            self::assertSame('The service was not created: its credentials could not be written to the vault.', $exception->getMessage());
+            self::assertInstanceOf(\RuntimeException::class, $exception->getPrevious());
+        }
+
+        self::assertSame([], $this->serviceRepository->services);
+        self::assertSame([], $this->eventBus->getDispatchedEvents(ServiceCreated::class));
+    }
+
+    /**
      * @param list<string> $checkCommandArgs
      * @param list<int> $serviceGroupIds
      * @param list<int> $categoryIds
      * @param list<int> $trapIds
+     * @param list<ServiceMacroChange> $macroChanges
      */
     public function command(
         string $name = 'ping',
@@ -815,6 +1023,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
         array $categoryIds = [],
         array $trapIds = [],
         ?int $actorId = null,
+        array $macroChanges = [],
     ): CreateServiceCommand {
         return new CreateServiceCommand(
             name: new ServiceName($name),
@@ -832,6 +1041,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
             serviceGroupIds: new Collection(array_map(static fn (int $id): ServiceGroupId => new ServiceGroupId($id), $serviceGroupIds), ServiceGroupId::class),
             categoryIds: new Collection(array_map(static fn (int $id): ServiceCategoryId => new ServiceCategoryId($id), $categoryIds), ServiceCategoryId::class),
             trapIds: new Collection(array_map(static fn (int $id): TrapId => new TrapId($id), $trapIds), TrapId::class),
+            macroChanges: new Collection($macroChanges, ServiceMacroChange::class),
         );
     }
 
@@ -855,6 +1065,16 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
             contactGroupAdditiveInheritance: $additiveInheritance,
             useOnlyContactsFromHost: $useOnlyContactsFromHost,
         );
+    }
+
+    /**
+     * @param list<ServiceMacro> $macros
+     *
+     * @return list<array{string, string, bool}>
+     */
+    private function describeMacros(array $macros): array
+    {
+        return array_map(static fn (ServiceMacro $macro): array => [$macro->name->value, $macro->value, $macro->isPassword], $macros);
     }
 
     /**

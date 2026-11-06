@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOptions;
@@ -38,6 +39,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 final readonly class CreateServiceCommand
 {
@@ -49,6 +51,8 @@ final readonly class CreateServiceCommand
      * @param Collection<ServiceGroupId> $serviceGroupIds
      * @param Collection<ServiceCategoryId> $categoryIds
      * @param Collection<TrapId> $trapIds
+     * @param Collection<ServiceMacroChange> $macroChanges the submitted own macros, in the order to store them; resolved
+     *                                                     by the handler against what the service inherits
      */
     public function __construct(
         public ServiceName $name,
@@ -66,6 +70,9 @@ final readonly class CreateServiceCommand
         public Collection $serviceGroupIds = new Collection([], ServiceGroupId::class),
         public Collection $categoryIds = new Collection([], ServiceCategoryId::class),
         public Collection $trapIds = new Collection([], TrapId::class),
+        // Masked in logs: a change may carry a password macro's plaintext.
+        #[Sensitive]
+        public Collection $macroChanges = new Collection([], ServiceMacroChange::class),
     ) {
     }
 }

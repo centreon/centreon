@@ -25,8 +25,23 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use Symfony\Component\Validator\Constraint;
 
+/**
+ * A custom macro name must not be one of the engine's reserved macros once wrapped in its stored form
+ * (`<prefix><NAME>$`): `$_HOST` for a host macro (the default), `$_SERVICE` for a service macro.
+ */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class ReservedMacroName extends Constraint
 {
     public string $message = 'This macro name is reserved and cannot be used.';
+
+    /**
+     * @param string $prefix the start of the stored macro name, before the upper-cased short name
+     */
+    public function __construct(
+        public string $prefix = '$_HOST',
+        ?array $groups = null,
+        mixed $payload = null,
+    ) {
+        parent::__construct(groups: $groups, payload: $payload);
+    }
 }

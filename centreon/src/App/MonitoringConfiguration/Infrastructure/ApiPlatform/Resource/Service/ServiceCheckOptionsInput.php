@@ -37,6 +37,7 @@ final readonly class ServiceCheckOptionsInput
     /**
      * @param ?int $commandId the check command, null to use the one of the template chain
      * @param list<string> $args ordered check-command arguments
+     * @param list<ServiceMacroInput> $macros the service's own custom macros, and the inherited ones it overrides
      */
     public function __construct(
         #[Assert\Sequentially([
@@ -48,6 +49,9 @@ final readonly class ServiceCheckOptionsInput
         #[Assert\All([new Assert\Type('string')])]
         #[ValidCommandArguments('check command')]
         public array $args = [],
+
+        #[Assert\Valid]
+        public array $macros = [],
     ) {
     }
 

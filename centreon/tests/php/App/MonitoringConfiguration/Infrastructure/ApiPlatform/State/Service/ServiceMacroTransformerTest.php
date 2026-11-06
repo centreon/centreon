@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroParentEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceMacroInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceMacroTransformer;
 use PHPUnit\Framework\TestCase;
 
@@ -59,5 +60,25 @@ final class ServiceMacroTransformerTest extends TestCase
         self::assertSame('bar', $output->value);
         self::assertFalse($output->isPassword);
         self::assertNull($output->parent);
+    }
+
+    public function testToChange(): void
+    {
+        $change = (new ServiceMacroTransformer())->toChange(new ServiceMacroInput('pwd', null, isPassword: true, id: 3, parent: 'command'));
+
+        self::assertSame(
+            ['PWD', null, true, 3, ServiceMacroParentEnum::Command],
+            [$change->name->value, $change->value, $change->isPassword, $change->id?->value, $change->parent],
+        );
+    }
+
+    public function testToChangeOfANewMacro(): void
+    {
+        $change = (new ServiceMacroTransformer())->toChange(new ServiceMacroInput(' port ', '8080'));
+
+        self::assertSame(
+            ['PORT', '8080', false, null, null],
+            [$change->name->value, $change->value, $change->isPassword, $change->id, $change->parent],
+        );
     }
 }
