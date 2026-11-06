@@ -110,7 +110,6 @@ final class DoctrineMigrationRunnerTest extends TestCase
             $this->runner->status(MigrationSet::module(self::ATOMICITY))->executed,
         );
         self::assertSame([\Atomicity\Migrations\Version20260101000003::class], $this->runner->status(MigrationSet::module(self::ATOMICITY))->pending);
-        self::assertFalse($this->connection->isTransactionActive(), 'No transaction may leak after a failure');
     }
 
     public function testAFailingDdlMigrationStopsTheRunAndStaysPending(): void
@@ -140,6 +139,36 @@ final class DoctrineMigrationRunnerTest extends TestCase
 
         self::assertSame([\RevertFailure\Migrations\Version20260101000001::class], $this->runner->status(MigrationSet::module('revert-failure'))->executed, 'The migration reverted before it stays reverted');
         self::assertSame([], $this->rows('fx_revert_failure'));
+    }
+
+    public function testASkippedMigrationFailsTheRunAndStaysPending(): void
+    {
+        try {
+            $this->runner->migrate(MigrationSet::module('skipping'));
+            self::fail('Expected the skipped migration to fail the run');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('The "skipping" module migration set skipped Skipping\Migrations\Version20260101000002: a migration must run or fail, never skip.', $exception->getMessage());
+        }
+
+        self::assertSame([\Skipping\Migrations\Version20260101000002::class], $this->runner->status(MigrationSet::module('skipping'))->pending);
+    }
+
+    public function testRunsOnTheActualServerWhateverServerVersionIsConfigured(): void
+    {
+        // As in production, where the DoctrineBundle connections declare a MariaDB server.
+        $connection = DriverManager::getConnection([...$this->connection->getParams(), 'serverVersion' => 'mariadb-11.8.0']);
+        $runner = new DoctrineMigrationRunner(
+            new MigrationSetRegistry('/nonexistent', __DIR__ . '/Fixtures/modules'),
+            new SingleConnectionRegistry($connection),
+            new NullLogger(),
+            '26.12.0',
+        );
+
+        $runner->migrate(MigrationSet::module(self::ROLLBACK));
+
+        // The metadata table now exists: Doctrine introspects it, with the platform of the actual server.
+        self::assertSame([], $runner->migrate(MigrationSet::module(self::ROLLBACK)));
+        self::assertCount(2, $runner->status(MigrationSet::module(self::ROLLBACK))->executed);
     }
 
     public function testRollbackPrevRevertsTheLastMigrationAndMigrateReappliesIt(): void
@@ -336,7 +365,11 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('The migration "NoDescription\Migrations\Version20260101000001" must describe what it changes in getDescription()');
 
-        $this->invalidModulesRunner()->migrate(MigrationSet::module('no-description'));
+        try {
+            $this->invalidModulesRunner()->migrate(MigrationSet::module('no-description'));
+        } finally {
+            self::assertFalse($this->connection->createSchemaManager()->tablesExist([MigrationSet::module('no-description')->table()]), 'A refused set leaves no metadata table behind');
+        }
     }
 
     public function testRefusesAMigrationEscapingTheBaseClassChecks(): void

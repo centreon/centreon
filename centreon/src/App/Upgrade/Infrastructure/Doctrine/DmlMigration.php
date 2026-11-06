@@ -31,7 +31,7 @@ use Doctrine\Migrations\AbstractMigration;
  */
 abstract class DmlMigration extends AbstractMigration
 {
-    private const string IMPLICIT_COMMIT_PATTERN = '/^(\s|--(?=\s)[^\n]*\n|#[^\n]*\n|\/\*(?![!+]).*?\*\/|\/\*[!+]\d*)*(?:(ALTER|CREATE|DROP|RENAME|TRUNCATE|LOCK|UNLOCK|ANALYZE|OPTIMIZE|REPAIR|FLUSH|CACHE|GRANT|REVOKE|INSTALL|UNINSTALL|BEGIN|START|COMMIT|ROLLBACK|SAVEPOINT|RELEASE|XA|RESET|PURGE|LOAD\s+INDEX|CHECK|STOP|CHANGE|CALL|SET\s+PASSWORD)\b|SET\b.*?(?<!\w)(?<!(?<!@)@)AUTOCOMMIT\s*:?=)/is';
+    private const string IMPLICIT_COMMIT_PATTERN = '/^(\s|--(?=\s)[^\n]*\n|#[^\n]*\n|\/\*(?![!+]).*?\*\/|\/\*[!+]\d*)*(?:(ALTER|CREATE|DROP|RENAME|TRUNCATE|LOCK|UNLOCK|ANALYZE|OPTIMIZE|REPAIR|FLUSH|CACHE|GRANT|REVOKE|INSTALL|UNINSTALL|BEGIN|START|COMMIT|ROLLBACK|SAVEPOINT|RELEASE|XA|RESET|PURGE|LOAD\s+INDEX|CHECK|STOP|CHANGE|CALL|PREPARE|EXECUTE|SET\s+PASSWORD|SET\s+STATEMENT)\b|SET\b.*?(?<!\w)(?<!(?<!@)@)AUTOCOMMIT\s*:?=)/is';
 
     final public function isTransactional(): bool
     {

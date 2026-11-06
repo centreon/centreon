@@ -28,6 +28,7 @@ use App\Upgrade\Domain\WebMigrationSetEnum;
 use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
+use Psr\Log\LogLevel;
 use Symfony\Component\Filesystem\Filesystem;
 
 final class MigrationSetRegistryTest extends TestCase
@@ -105,7 +106,9 @@ final class MigrationSetRegistryTest extends TestCase
 
             public function log($level, string|\Stringable $message, array $context = []): void
             {
-                $this->warnings[] = (string) $message;
+                if ($level === LogLevel::WARNING) {
+                    $this->warnings[] = (string) $message;
+                }
             }
         };
 

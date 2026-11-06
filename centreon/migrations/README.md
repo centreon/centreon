@@ -39,12 +39,13 @@ runner refuses any other one.
 - `DdlMigration` for schema changes (`CREATE`, `ALTER`, `DROP`...). MySQL commits implicitly around DDL, so it runs
   outside any transaction: hold a **single idempotent statement**, so that replaying it after a failure is harmless.
   MySQL has no `ADD COLUMN IF NOT EXISTS`: guard in `up()` by reading the one table at stake, e.g.
-  `if ($this->connection->createSchemaManager()->introspectTable('host')->hasColumn('host_notes_url')) { $this->write('host_notes_url already exists, skipped'); return; }`.
+  `if ($this->connection->createSchemaManager()->introspectTableByUnquotedName('host')->hasColumn('host_notes_url')) { $this->write('host_notes_url already exists, skipped'); return; }`.
   Reading `$schema` works too, but loads every table of the database, for each migration.
 - `DmlMigration` for data changes (`INSERT`, `UPDATE`, `DELETE`...). It runs in a transaction with its metadata row:
-  all or nothing. DDL, transaction control and `CALL` are rejected, as they would silently commit that transaction.
+  all or nothing. DDL, transaction control, `CALL`, `PREPARE`, `EXECUTE` and `SET STATEMENT` are rejected, as they would silently commit that transaction.
 
-In both, describe the change in `getDescription()`, pass one statement per `addSql()` call, and implement `revert()`,
+In both, never skip (`skipIf()`, `SkipMigration`): a skipped migration fails the run, as Doctrine would not record it.
+Describe the change in `getDescription()`, pass one statement per `addSql()` call, and implement `revert()`,
 which `down()` calls. `$schema` is read only: a migration changing it fails, as doctrine would run the SQL of the
 change out of reach of these checks.
 

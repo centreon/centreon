@@ -27,13 +27,17 @@ use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Domain\MigrationSet;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\Configuration\Connection\ExistingConnection;
 use Doctrine\Migrations\Configuration\Migration\ConfigurationArray;
 use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Exception\NoMigrationsFoundWithCriteria;
+use Doctrine\Migrations\Exception\NoMigrationsToExecute;
 use Doctrine\Migrations\Exception\UnknownMigrationVersion;
 use Doctrine\Migrations\Metadata\AvailableMigration;
 use Doctrine\Migrations\Metadata\ExecutedMigration;
+use Doctrine\Migrations\Metadata\MigrationPlan;
 use Doctrine\Migrations\Metadata\MigrationPlanList;
 use Doctrine\Migrations\MigratorConfiguration;
 use Doctrine\Migrations\Provider\DBALSchemaDiffProvider;
@@ -123,10 +127,15 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
 
     private function createFactory(MigrationSetConfiguration $configuration, string $step): DependencyFactory
     {
-        $connection = $this->connections->getConnection($configuration->connection);
-        if (! $connection instanceof Connection) {
+        $shared = $this->connections->getConnection($configuration->connection);
+        if (! $shared instanceof Connection) {
             throw new \LogicException(sprintf('The "%s" connection is not a DBAL connection.', $configuration->connection));
         }
+
+        // The configured server version may not be the actual one: introspection needs the right platform.
+        $params = $shared->getParams();
+        unset($params['serverVersion'], $params['primary'], $params['replica']);
+        $connection = DriverManager::getConnection($params, $shared->getConfiguration());
 
         // Map unknown column types to text so that introspecting module tables does not throw.
         $platform = $connection->getDatabasePlatform();
@@ -189,7 +198,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
 
         try {
             $target = $factory->getVersionAliasResolver()->resolveVersionAlias($alias);
-        } catch (UnknownMigrationVersion $exception) {
+        } catch (UnknownMigrationVersion|NoMigrationsToExecute|NoMigrationsFoundWithCriteria $exception) {
             throw new \RuntimeException(sprintf(
                 'The %s has no "%s" migration: pass a version listed by centreon:migrations:status -v, its '
                 . 'class name (Version20260101000000) or its timestamp (20260101000000), "prev" or "first".',
@@ -238,9 +247,6 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     private function createCheckedFactory(MigrationSet $set, MigrationSetConfiguration $configuration, string $step, bool $initialize = true): DependencyFactory
     {
         $factory = $this->createFactory($configuration, $step);
-        if ($initialize) {
-            $factory->getMetadataStorage()->ensureInitialized();
-        }
 
         // Not checked by the Migrator.
         $unavailable = $factory->getMigrationStatusCalculator()->getExecutedUnavailableMigrations();
@@ -255,6 +261,11 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         }
 
         $this->assertConventions($factory, $configuration);
+
+        // Once checked: a refused set leaves no metadata table behind.
+        if ($initialize) {
+            $factory->getMetadataStorage()->ensureInitialized();
+        }
 
         return $factory;
     }
@@ -315,7 +326,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         }
 
         try {
-            return array_map('strval', array_keys($factory->getMigrator()->migrate($plan, new MigratorConfiguration())));
+            $done = array_map('strval', array_keys($factory->getMigrator()->migrate($plan, new MigratorConfiguration())));
         } catch (\Throwable $exception) {
             // Doctrine rethrows the error of the query as is: it would not tell which migration failed.
             $version = $this->failedVersion($factory, $plan);
@@ -327,6 +338,14 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
                 $exception->getMessage(),
             ), 0, $exception);
         }
+
+        // Doctrine records nothing for a skipped migration, yet runs the next ones.
+        $skipped = array_diff(array_map(static fn (MigrationPlan $item): string => (string) $item->getVersion(), $plan->getItems()), $done);
+        if ($skipped !== []) {
+            throw new \RuntimeException(sprintf('The %s skipped %s: a migration must run or fail, never skip.', $set->label(), implode(', ', $skipped)));
+        }
+
+        return $done;
     }
 
     /**

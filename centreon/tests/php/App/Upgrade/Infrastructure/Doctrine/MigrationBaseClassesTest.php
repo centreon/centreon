@@ -122,6 +122,7 @@ final class MigrationBaseClassesTest extends TestCase
             'SAVEPOINT s', 'RELEASE SAVEPOINT s', 'SET autocommit = 1', 'SET SESSION autocommit = 1', 'SET @@autocommit = 1',
             'XA START x', 'LOAD INDEX INTO CACHE t', 'RESET MASTER', 'PURGE BINARY LOGS TO x', 'CALL p()', 'CHECK TABLE t', "SET PASSWORD = 'p'",
             'STOP REPLICA', "CHANGE REPLICATION SOURCE TO SOURCE_HOST = 'h'", 'SET @x = 1, autocommit = 1', 'SET /* c */ autocommit = 1',
+            'SET STATEMENT max_statement_time = 60 FOR ALTER TABLE t ADD COLUMN c INT', 'PREPARE s FROM @ddl', 'EXECUTE s',
         ] as $statement) {
             yield $statement => [mb_strtolower($statement)];
         }
