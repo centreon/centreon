@@ -35,5 +35,13 @@ export const labelServiceCategories = 'Service Categories';
 export const labelServiceSeverity = 'Service severity';
 export const labelServiceGraphTemplate = 'Graph Template';
 
+// What a service notifies on, as legacy's `w,u,c,r,f,s,n`.
+export const labelWarning = 'Warning';
+export const labelUnknown = 'Unknown';
+export const labelCritical = 'Critical';
+export const labelRecovery = 'Recovery';
+export const labelFlapping = 'Flapping';
+export const labelDowntimeScheduled = 'Downtime Scheduled';
+
 // Form validation
 export const labelNameContainsForbiddenCharacters = 'Unauthorized value';

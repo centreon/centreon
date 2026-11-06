@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next';
 
+import { labelNotifications } from '../../ResourceForm/translatedLabels';
 import {
   labelAdvanced,
   labelGeneralInformation,
@@ -88,8 +89,23 @@ describe('layout', () => {
       labelServiceMonitoringProperties,
       labelRelations,
       labelMonitoringEngineSchedulingOptions,
+      labelNotifications,
       labelAdvanced
     ]);
+  });
+
+  it('shows the notifications on premise only', () => {
+    const labels = getSectionLabels({ isCloudPlatform: false, t });
+
+    expect(labels.indexOf(labelNotifications)).toBe(
+      labels.indexOf(labelMonitoringEngineSchedulingOptions) + 1
+    );
+    expect(getSectionLabels({ isCloudPlatform: true, t })).not.toContain(
+      labelNotifications
+    );
+    expect(
+      getSectionLabels({ isCloudPlatform: false, isMassChange: true, t })
+    ).toContain(labelNotifications);
   });
 
   it('has no advanced section on a cloud platform, where the comment is refused', () => {

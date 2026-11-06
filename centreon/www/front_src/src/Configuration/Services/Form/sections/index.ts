@@ -8,6 +8,12 @@ import {
   getCommentBlock,
   getNotesAndIconsBlock
 } from '../../../ResourceForm/fieldBlocks/extendedInfos';
+import {
+  getNotificationDelaysBlock,
+  getNotificationRecipientsBlock,
+  getNotifyOnBlock,
+  type NotificationOptions
+} from '../../../ResourceForm/fieldBlocks/notifications';
 import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
 import {
   getActiveAndPassiveChecksBlock,
@@ -21,8 +27,11 @@ import type {
   ResourceOptions,
   SectionContext
 } from '../../../ResourceForm/models';
+import { labelNone } from '../../../ResourceForm/translatedLabels';
 import {
   serviceFormCommandsEndpoint,
+  serviceFormContactGroupsEndpoint,
+  serviceFormContactsEndpoint,
   serviceFormGraphTemplatesEndpoint,
   serviceFormHostsEndpoint,
   serviceFormMediasEndpoint,
@@ -35,9 +44,15 @@ import {
   serviceTemplatesEndpoint
 } from '../../api/endpoints';
 import {
+  labelCritical,
+  labelDowntimeScheduled,
+  labelFlapping,
+  labelRecovery,
   labelServiceCategories,
   labelServiceGroups,
-  labelServiceSeverity
+  labelServiceSeverity,
+  labelUnknown,
+  labelWarning
 } from '../../translatedLabels';
 import { getGraphTemplateBlock } from '../blocks/graphTemplate';
 import { getMacrosBlock } from '../blocks/macros';
@@ -58,6 +73,18 @@ const resource = serviceResource;
 const monitoringEngineGroup = 'monitoring_engine';
 // And where it keeps the comment, with the data processing.
 const advancedGroup = 'advanced';
+
+// Legacy `w,u,c,r,f,s,n`, spelled as the Hosts API spells its own options
+// (placeholder values until the service API is there).
+const serviceNotificationOptions: NotificationOptions = [
+  [labelWarning, 'warning'],
+  [labelUnknown, 'unknown'],
+  [labelCritical, 'critical'],
+  [labelRecovery, 'recovery'],
+  [labelFlapping, 'flapping'],
+  [labelDowntimeScheduled, 'downtime_scheduled'],
+  [labelNone, 'none']
+];
 
 // The blocks of fields the service form edits. The sections it shows them in,
 // and their order, are `../layout.ts`'s.
@@ -130,6 +157,24 @@ export const blocks = [
     apiGroup: monitoringEngineGroup,
     resource,
     withVolatile: true
+  }),
+  getNotificationRecipientsBlock({
+    contactGroupsEndpoint: serviceFormContactGroupsEndpoint,
+    contactsEndpoint: serviceFormContactsEndpoint,
+    resource,
+    // The service detail route is a placeholder: unlike the hosts one, it is
+    // not known to send every key, so a missing one keeps its default.
+    withOptionalDetailKeys: true,
+    withUseOnlyContactsFromHost: true
+  }),
+  getNotifyOnBlock({
+    options: serviceNotificationOptions,
+    resource,
+    withOptionalDetailKeys: true
+  }),
+  getNotificationDelaysBlock({
+    resource,
+    timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
   }),
   getCommentBlock({ apiGroup: advancedGroup, resource })
 ] as const;
