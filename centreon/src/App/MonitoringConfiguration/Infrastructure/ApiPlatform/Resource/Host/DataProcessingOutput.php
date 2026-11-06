@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
  * The `data_processing` sub-object of the Host output. On a Cloud platform the on-premise-only
@@ -43,7 +44,7 @@ final readonly class DataProcessingOutput
         public ?TriStateEnum $flapDetectionEnabled,
         public ?int $lowFlapThreshold,
         public ?int $highFlapThreshold,
-        public array $eventHandlerArgs,
+        #[Sensitive] public array $eventHandlerArgs,
     ) {
     }
 }
