@@ -27,6 +27,7 @@ The guides show how to apply the records; the code examples live there.
 | [0009](0009-apip-aggregates-readonly-by-default.md) | Make aggregate properties `readonly` by default, and mutate them only through business methods | APIP | Accepted |
 | [0012](0012-apip-change-aggregate-internals-through-the-root.md) | Change an aggregate's inner entities and value objects only through its aggregate root | APIP | Accepted |
 | [0044](0044-apip-back-every-enum-and-suffix-it-with-enum.md) | Back every new `src/App` enum, with a string by default, and suffix it with `Enum` | APIP | Accepted |
+| [0045](0045-core-back-every-enum-and-suffix-it-with-enum.md) | Back every new `src/Core` enum, with a string by default, and suffix it with `Enum` | Core | Accepted |
 
 ## Project structure
 
