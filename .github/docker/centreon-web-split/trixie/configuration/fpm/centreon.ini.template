@@ -6,7 +6,11 @@ output_buffering = 4096
 display_errors = Off
 log_errors = On
 date.timezone = ${PHP_TIMEZONE}
-memory_limit = 256M
+; MON-214472: deployment-specific, resolved from PHP_MEMORY_LIMIT at
+; container start (see 01-config.sh) — defaults to the packaged 256M,
+; raise it for large inventories (generateFiles() holding every host/
+; service row in memory at once, see MON-213806).
+memory_limit = ${PHP_MEMORY_LIMIT}
 max_execution_time = 300
 upload_max_filesize = 5M
 post_max_size = 8M
