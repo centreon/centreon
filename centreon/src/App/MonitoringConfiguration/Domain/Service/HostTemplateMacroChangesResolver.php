@@ -27,7 +27,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroNotFoundException;
@@ -54,13 +53,13 @@ final readonly class HostTemplateMacroChangesResolver
 {
     /**
      * @param list<HostTemplateMacroChange> $changes the macros as submitted, in the order to store them
-     * @param list<HostTemplateMacro> $current the template's stored own macros (empty on creation)
+     * @param list<HostMacro> $current the template's stored own macros (empty on creation)
      *
      * @throws HostTemplateMacroNotFoundException when a change refers to a macro the template neither owns nor inherits
      * @throws HostTemplateMacroPasswordUnmaskedException when a change turns a password macro into a plain one
      * @throws HostTemplateMacroValueRequiredException when a change keeps the stored value of a macro that is not a stored password
      *
-     * @return list<HostTemplateMacro> the macros the template must own
+     * @return list<HostMacro> the macros the template must own
      */
     public function resolve(array $changes, array $current, InheritedHostMacros $inherited): array
     {
@@ -73,7 +72,7 @@ final readonly class HostTemplateMacroChangesResolver
             $inheritedSource = $this->findInheritedSource($change, $inherited);
             $sourceIsPassword = $own->isPassword ?? $inheritedSource->isPassword ?? false;
 
-            if (! $this->isResolvedByName($change) && ! $own instanceof HostTemplateMacro && ! $inheritedSource instanceof HostMacro) {
+            if (! $this->isResolvedByName($change) && ! $own instanceof HostMacro && ! $inheritedSource instanceof HostMacro) {
                 $unknownIds[] = (int) $change->id;
 
                 continue;
@@ -108,7 +107,7 @@ final readonly class HostTemplateMacroChangesResolver
 
         return array_values(array_filter(
             $resolved,
-            static function (HostTemplateMacro $macro) use ($inherited): bool {
+            static function (HostMacro $macro) use ($inherited): bool {
                 $shadowed = $inherited->findByName(new HostMacroName($macro->name->value));
 
                 return ! $shadowed instanceof HostMacro
@@ -164,7 +163,7 @@ final readonly class HostTemplateMacroChangesResolver
      */
     private function unmasksPassword(
         HostTemplateMacroChange $change,
-        ?HostTemplateMacro $own,
+        ?HostMacro $own,
         bool $sourceIsPassword,
         InheritedHostMacros $inherited,
     ): bool {
@@ -176,15 +175,15 @@ final readonly class HostTemplateMacroChangesResolver
             return true;
         }
 
-        $keepsOwnName = $own instanceof HostTemplateMacro && $own->name->value === $change->name->value;
+        $keepsOwnName = $own instanceof HostMacro && $own->name->value === $change->name->value;
 
         return ! $keepsOwnName && (bool) $inherited->findByName(new HostMacroName($change->name->value))?->isPassword;
     }
 
     /**
-     * @param list<HostTemplateMacro> $current
+     * @param list<HostMacro> $current
      */
-    private function findOwnSource(HostTemplateMacroChange $change, array $current): ?HostTemplateMacro
+    private function findOwnSource(HostTemplateMacroChange $change, array $current): ?HostMacro
     {
         if ($change->id === null || $change->parent instanceof HostMacroParentEnum) {
             return null;
@@ -192,7 +191,7 @@ final readonly class HostTemplateMacroChangesResolver
 
         return array_find(
             $current,
-            static fn (HostTemplateMacro $macro): bool => $macro->id?->value === $change->id,
+            static fn (HostMacro $macro): bool => $macro->id?->value === $change->id,
         );
     }
 
@@ -209,12 +208,12 @@ final readonly class HostTemplateMacroChangesResolver
         return $inherited->findBySource($change->parent, new HostMacroId($change->id));
     }
 
-    private function apply(HostTemplateMacroChange $change, ?HostTemplateMacro $own, ?HostMacro $inheritedSource): HostTemplateMacro
+    private function apply(HostTemplateMacroChange $change, ?HostMacro $own, ?HostMacro $inheritedSource): HostMacro
     {
         // keepsStoredValue() is only reached with a stored password source (checked by the caller).
         $value = $change->value ?? (string) ($own->value ?? $inheritedSource?->value);
 
-        return new HostTemplateMacro(
+        return new HostMacro(
             $change->name,
             $value,
             $change->isPassword,

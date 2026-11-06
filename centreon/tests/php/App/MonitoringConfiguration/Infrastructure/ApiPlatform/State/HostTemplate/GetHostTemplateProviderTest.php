@@ -348,30 +348,27 @@ final class GetHostTemplateProviderTest extends ApiTestCase
         }
     }
 
-    public function testItReturnsAStoredOutOfBoundTemplateAsStored(): void
+    public function testItReturnsBlankTextsAndAnUnknownSnmpVersionAsAbsent(): void
     {
-        $note = str_repeat('n', 600);
-        $url = 'https://example.com/' . str_repeat('u', 2980);
-        $id = $this->insertTemplate('legacy', [
-            'host_max_check_attempts' => 0,
-            'host_acknowledgement_timeout' => 0,
-            'host_high_flap_threshold' => 150,
-            'host_snmp_version' => 'v9',
-            'host_comment' => '',
-            'command_command_id_arg1' => '!-w!80',
-        ]);
-        $this->connection->insert('extended_host_information', ['host_host_id' => $id, 'ehi_notes' => $note, 'ehi_notes_url' => $url, 'ehi_action_url' => ' ']);
+        $id = $this->insertTemplate('legacy', ['host_snmp_version' => 'v9', 'host_comment' => '']);
+        $this->connection->insert('extended_host_information', ['host_host_id' => $id, 'ehi_notes' => 'a note', 'ehi_action_url' => ' ']);
         $this->login();
 
         $body = $this->request('GET', $this->uri($id), self::JSON)->toArray();
 
         self::assertResponseStatusCodeSame(200);
         self::assertArrayNotHasKey('snmp_version', $body);
-        self::assertSame(['note_url' => $url, 'note' => $note], $body['extended_informations']);
-        self::assertSame(0, $this->member($body, 'scheduling_options', 'max_check_attempts'));
-        self::assertSame(0, $this->member($body, 'data_processing', 'acknowledgment_timeout'));
-        self::assertSame(150, $this->member($body, 'data_processing', 'high_flap_threshold'));
-        self::assertSame(['args' => ['-w', '80'], 'macros' => []], $body['check_options']);
+        self::assertSame(['note' => 'a note'], $body['extended_informations']);
+    }
+
+    public function testATemplateBreakingTheHostInvariantsCannotBeRead(): void
+    {
+        $id = $this->insertTemplate('legacy', ['command_command_id_arg1' => '!-w!80']);
+        $this->login();
+
+        $this->request('GET', $this->uri($id), self::JSON);
+
+        self::assertResponseStatusCodeSame(500);
     }
 
     public function testALockedTemplateReadsAsLocked(): void

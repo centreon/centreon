@@ -25,25 +25,25 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\CreateHostTemplateCommand;
 use App\MonitoringConfiguration\Application\Command\CreateHostTemplateCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
@@ -153,7 +153,6 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         $template = ($this->handler)($this->command(
             templateIds: [7],
             linkedServiceTemplateIds: [20],
-            checkCommandArgs: ['-w'],
             macroChanges: [new HostTemplateMacroChange(new HostMacroName('port'), '443', false)],
         ));
 
@@ -161,7 +160,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         self::assertSame('tpl', $template->name->value);
         self::assertSame('Alias', $template->alias?->value);
         self::assertNull($template->checkOptions->checkCommandId);
-        self::assertSame(['-w'], $template->checkOptions->args);
+        self::assertSame([], $template->checkOptions->args);
         self::assertSame(['PORT'], $this->macroNames($template));
         self::assertSame([7], array_map(static fn (HostTemplateId $id): int => $id->value, $template->parentTemplateIds->toArray()));
         self::assertSame([20], array_map(static fn (ServiceTemplateId $id): int => $id->value, $template->linkedServiceTemplateIds->toArray()));
@@ -423,7 +422,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
     public function testWithoutAVaultAFailedSaveNeverPurgesAnInheritedEntry(): void
     {
         $this->repository->addThrows = new \RuntimeException('The save failed.');
-        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostMacroName('pwd'), self::PARENT_SECRET, true, new HostMacroId(70))]);
+        $this->addTemplate(7, macros: [new HostMacro(new HostMacroName('pwd'), self::PARENT_SECRET, true, new HostMacroId(70))]);
 
         try {
             ($this->handler)($this->command(
@@ -465,7 +464,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
     {
         $this->vault->vaultEnabled = true;
         $this->vault->resolved[self::PARENT_SECRET] = 'parent-secret';
-        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostMacroName('pwd'), self::PARENT_SECRET, true, new HostMacroId(70))]);
+        $this->addTemplate(7, macros: [new HostMacro(new HostMacroName('pwd'), self::PARENT_SECRET, true, new HostMacroId(70))]);
 
         $template = ($this->handler)($this->command(
             templateIds: [7],
@@ -479,7 +478,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
 
     public function testAMacroEqualToTheInheritedOneIsNotStored(): void
     {
-        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostMacroName('port'), '80', false, new HostMacroId(70))]);
+        $this->addTemplate(7, macros: [new HostMacro(new HostMacroName('port'), '80', false, new HostMacroId(70))]);
 
         $template = ($this->handler)($this->command(
             templateIds: [7],
@@ -504,7 +503,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
 
         $template = ($this->handler)($this->command(notifications: $this->notifications()));
 
-        self::assertInstanceOf(HostTemplateNotifications::class, $template->notifications);
+        self::assertInstanceOf(Notifications::class, $template->notifications);
         self::assertFalse($template->notifications->contactAdditiveInheritance);
         self::assertFalse($template->notifications->contactGroupAdditiveInheritance);
         self::assertSame(TriStateEnum::True, $template->notifications->enabled);
@@ -537,7 +536,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         ?string $snmpCommunity = null,
         array $checkCommandArgs = [],
         array $macroChanges = [],
-        ?HostTemplateNotifications $notifications = null,
+        ?Notifications $notifications = null,
         ?ActingUser $actor = null,
     ): CreateHostTemplateCommand {
         return new CreateHostTemplateCommand(
@@ -559,9 +558,9 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
         );
     }
 
-    private function notifications(): HostTemplateNotifications
+    private function notifications(): Notifications
     {
-        return new HostTemplateNotifications(
+        return new Notifications(
             enabled: TriStateEnum::True,
             contactIds: new Collection([new NotificationContactId(7)], NotificationContactId::class),
             contactGroupIds: new Collection([new ContactGroupId(9)], ContactGroupId::class),
@@ -571,16 +570,16 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * @param list<HostTemplateMacro> $macros
+     * @param list<HostMacro> $macros
      */
     private function addTemplate(int $id, string $name = '', array $macros = [], ?int $commandId = null): void
     {
         $this->repository->hostTemplates[$id] = new HostTemplate(
             new HostTemplateId($id),
             new HostTemplateName($name !== '' ? $name : 'parent-' . $id),
-            new HostTemplateCheckOptions(
+            new CheckOptions(
                 $commandId !== null ? new CommandId($commandId) : null,
-                macros: new Collection($macros, HostTemplateMacro::class),
+                macros: $macros,
             ),
         );
     }
@@ -590,7 +589,7 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
      */
     private function macroNames(HostTemplate $template): array
     {
-        return array_values(array_map(static fn (HostTemplateMacro $macro): string => $macro->name->value, $template->checkOptions->macros->toArray()));
+        return array_map(static fn (HostMacro $macro): string => $macro->name->value, $template->checkOptions->macros);
     }
 
     /**
@@ -598,6 +597,6 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
      */
     private function macroValues(HostTemplate $template): array
     {
-        return array_values(array_map(static fn (HostTemplateMacro $macro): string => $macro->value, $template->checkOptions->macros->toArray()));
+        return array_map(static fn (HostMacro $macro): string => $macro->value, $template->checkOptions->macros);
     }
 }

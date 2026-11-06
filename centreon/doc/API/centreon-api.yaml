@@ -14018,29 +14018,29 @@ components:
         timezone:
           anyOf:
             -
-              $ref: '#/components/schemas/HostTemplateTimezoneOutput'
+              $ref: '#/components/schemas/HostTimezoneOutput'
             -
               type: 'null'
         severity:
           anyOf:
             -
-              $ref: '#/components/schemas/HostTemplateSeverityOutput'
+              $ref: '#/components/schemas/HostSeverityOutput'
             -
               type: 'null'
         categories:
           type: array
           items:
-            $ref: '#/components/schemas/HostTemplateCategoryOutput'
+            $ref: '#/components/schemas/HostCategoryOutput'
         templates:
           type: array
           items:
-            $ref: '#/components/schemas/HostTemplateParentOutput'
+            $ref: '#/components/schemas/HostTemplateOutput'
         linked_service_templates:
           type: array
           items:
             $ref: '#/components/schemas/HostTemplateLinkedServiceTemplateOutput'
         check_options:
-          $ref: '#/components/schemas/HostTemplateCheckOptionsOutput'
+          $ref: '#/components/schemas/HostCheckOptionsOutput'
         extended_informations:
           anyOf:
             -
@@ -14048,13 +14048,13 @@ components:
             -
               type: 'null'
         scheduling_options:
-          $ref: '#/components/schemas/HostTemplateSchedulingOptionsOutput'
+          $ref: '#/components/schemas/HostSchedulingOptionsOutput'
         data_processing:
-          $ref: '#/components/schemas/HostTemplateDataProcessingOutput'
+          $ref: '#/components/schemas/DataProcessingOutput'
         notifications:
           anyOf:
             -
-              $ref: '#/components/schemas/HostTemplateNotificationsOutput'
+              $ref: '#/components/schemas/HostNotificationsOutput'
             -
               type: 'null'
         id:
@@ -14089,29 +14089,29 @@ components:
             timezone:
               anyOf:
                 -
-                  $ref: '#/components/schemas/HostTemplateTimezoneOutput.jsonld'
+                  $ref: '#/components/schemas/HostTimezoneOutput.jsonld'
                 -
                   type: 'null'
             severity:
               anyOf:
                 -
-                  $ref: '#/components/schemas/HostTemplateSeverityOutput.jsonld'
+                  $ref: '#/components/schemas/HostSeverityOutput.jsonld'
                 -
                   type: 'null'
             categories:
               type: array
               items:
-                $ref: '#/components/schemas/HostTemplateCategoryOutput.jsonld'
+                $ref: '#/components/schemas/HostCategoryOutput.jsonld'
             templates:
               type: array
               items:
-                $ref: '#/components/schemas/HostTemplateParentOutput.jsonld'
+                $ref: '#/components/schemas/HostTemplateOutput.jsonld'
             linked_service_templates:
               type: array
               items:
                 $ref: '#/components/schemas/HostTemplateLinkedServiceTemplateOutput.jsonld'
             check_options:
-              $ref: '#/components/schemas/HostTemplateCheckOptionsOutput.jsonld'
+              $ref: '#/components/schemas/HostCheckOptionsOutput.jsonld'
             extended_informations:
               anyOf:
                 -
@@ -14119,13 +14119,13 @@ components:
                 -
                   type: 'null'
             scheduling_options:
-              $ref: '#/components/schemas/HostTemplateSchedulingOptionsOutput.jsonld'
+              $ref: '#/components/schemas/HostSchedulingOptionsOutput.jsonld'
             data_processing:
-              $ref: '#/components/schemas/HostTemplateDataProcessingOutput.jsonld'
+              $ref: '#/components/schemas/DataProcessingOutput.jsonld'
             notifications:
               anyOf:
                 -
-                  $ref: '#/components/schemas/HostTemplateNotificationsOutput.jsonld'
+                  $ref: '#/components/schemas/HostNotificationsOutput.jsonld'
                 -
                   type: 'null'
             id:
@@ -14150,184 +14150,6 @@ components:
             is_snmp_community_defined:
               description: 'Whether an SNMP community is set. The community itself is never returned.'
               type: boolean
-    HostTemplateCategoryOutput:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    HostTemplateCategoryOutput.jsonld:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    HostTemplateCheckCommandOutput:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    HostTemplateCheckCommandOutput.jsonld:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    HostTemplateCheckOptionsOutput:
-      type: object
-      properties:
-        command:
-          anyOf:
-            -
-              $ref: '#/components/schemas/HostTemplateCheckCommandOutput'
-            -
-              type: 'null'
-        args:
-          description: 'returned even when no command is set'
-          type: array
-          items:
-            type: string
-        macros:
-          type: array
-          items:
-            $ref: '#/components/schemas/HostMacroOutput'
-    HostTemplateCheckOptionsOutput.jsonld:
-      type: object
-      properties:
-        command:
-          anyOf:
-            -
-              $ref: '#/components/schemas/HostTemplateCheckCommandOutput.jsonld'
-            -
-              type: 'null'
-        args:
-          description: 'returned even when no command is set'
-          type: array
-          items:
-            type: string
-        macros:
-          type: array
-          items:
-            $ref: '#/components/schemas/HostMacroOutput.jsonld'
-    HostTemplateDataProcessingOutput:
-      type: object
-      properties:
-        check_freshness:
-          type: string
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-        freshness_threshold:
-          type:
-            - integer
-            - 'null'
-        event_handler_enabled:
-          type: string
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-        event_handler:
-          anyOf:
-            -
-              $ref: '#/components/schemas/HostTemplateEventHandlerCommandOutput'
-            -
-              type: 'null'
-        acknowledgment_timeout:
-          type:
-            - integer
-            - 'null'
-        flap_detection_enabled:
-          type:
-            - string
-            - 'null'
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-            - null
-        low_flap_threshold:
-          type:
-            - integer
-            - 'null'
-        high_flap_threshold:
-          type:
-            - integer
-            - 'null'
-        event_handler_args:
-          type: array
-          items:
-            type: string
-    HostTemplateDataProcessingOutput.jsonld:
-      type: object
-      properties:
-        check_freshness:
-          type: string
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-        freshness_threshold:
-          type:
-            - integer
-            - 'null'
-        event_handler_enabled:
-          type: string
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-        event_handler:
-          anyOf:
-            -
-              $ref: '#/components/schemas/HostTemplateEventHandlerCommandOutput.jsonld'
-            -
-              type: 'null'
-        acknowledgment_timeout:
-          type:
-            - integer
-            - 'null'
-        flap_detection_enabled:
-          type:
-            - string
-            - 'null'
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-            - null
-        low_flap_threshold:
-          type:
-            - integer
-            - 'null'
-        high_flap_threshold:
-          type:
-            - integer
-            - 'null'
-        event_handler_args:
-          type: array
-          items:
-            type: string
-    HostTemplateEventHandlerCommandOutput:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    HostTemplateEventHandlerCommandOutput.jsonld:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
     HostTemplateExtendedInformationsOutput:
       type: object
       properties:
@@ -14346,7 +14168,7 @@ components:
         icon:
           anyOf:
             -
-              $ref: '#/components/schemas/HostTemplateIconOutput'
+              $ref: '#/components/schemas/HostIconOutput'
             -
               type: 'null'
         alt_icon:
@@ -14375,7 +14197,7 @@ components:
         icon:
           anyOf:
             -
-              $ref: '#/components/schemas/HostTemplateIconOutput.jsonld'
+              $ref: '#/components/schemas/HostIconOutput.jsonld'
             -
               type: 'null'
         alt_icon:
@@ -14386,24 +14208,6 @@ components:
           type:
             - string
             - 'null'
-    HostTemplateIconOutput:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        url:
-          type: string
-    HostTemplateIconOutput.jsonld:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        url:
-          type: string
     HostTemplateLinkedServiceTemplateOutput:
       type: object
       properties:
@@ -14412,226 +14216,6 @@ components:
         name:
           type: string
     HostTemplateLinkedServiceTemplateOutput.jsonld:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    HostTemplateNotificationsOutput:
-      type: object
-      properties:
-        enabled:
-          type: string
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-        contacts:
-          type: array
-          items:
-            $ref: '#/components/schemas/NotificationContact'
-        contact_groups:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContactGroup'
-        options:
-          type: array
-          items:
-            type: string
-            enum:
-              - down
-              - unreachable
-              - recovery
-              - flapping
-              - downtime_scheduled
-              - none
-        interval:
-          type:
-            - integer
-            - 'null'
-        timeperiod:
-          anyOf:
-            -
-              $ref: '#/components/schemas/TimePeriod'
-            -
-              type: 'null'
-        first_delay:
-          type:
-            - integer
-            - 'null'
-        recovery_delay:
-          type:
-            - integer
-            - 'null'
-        contact_additive_inheritance:
-          type: boolean
-        contact_group_additive_inheritance:
-          type: boolean
-    HostTemplateNotificationsOutput.jsonld:
-      type: object
-      properties:
-        enabled:
-          type: string
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-        contacts:
-          type: array
-          items:
-            $ref: '#/components/schemas/NotificationContact.jsonld'
-        contact_groups:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContactGroup.jsonld'
-        options:
-          type: array
-          items:
-            type: string
-            enum:
-              - down
-              - unreachable
-              - recovery
-              - flapping
-              - downtime_scheduled
-              - none
-        interval:
-          type:
-            - integer
-            - 'null'
-        timeperiod:
-          anyOf:
-            -
-              $ref: '#/components/schemas/TimePeriod.jsonld'
-            -
-              type: 'null'
-        first_delay:
-          type:
-            - integer
-            - 'null'
-        recovery_delay:
-          type:
-            - integer
-            - 'null'
-        contact_additive_inheritance:
-          type: boolean
-        contact_group_additive_inheritance:
-          type: boolean
-    HostTemplateParentOutput:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    HostTemplateParentOutput.jsonld:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    HostTemplateSchedulingOptionsOutput:
-      type: object
-      properties:
-        check_period:
-          anyOf:
-            -
-              $ref: '#/components/schemas/TimePeriod'
-            -
-              type: 'null'
-        max_check_attempts:
-          type:
-            - integer
-            - 'null'
-        normal_check_interval:
-          type:
-            - integer
-            - 'null'
-        retry_check_interval:
-          type:
-            - integer
-            - 'null'
-        active_check_enabled:
-          type:
-            - string
-            - 'null'
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-            - null
-        passive_check_enabled:
-          type:
-            - string
-            - 'null'
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-            - null
-    HostTemplateSchedulingOptionsOutput.jsonld:
-      type: object
-      properties:
-        check_period:
-          anyOf:
-            -
-              $ref: '#/components/schemas/TimePeriod.jsonld'
-            -
-              type: 'null'
-        max_check_attempts:
-          type:
-            - integer
-            - 'null'
-        normal_check_interval:
-          type:
-            - integer
-            - 'null'
-        retry_check_interval:
-          type:
-            - integer
-            - 'null'
-        active_check_enabled:
-          type:
-            - string
-            - 'null'
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-            - null
-        passive_check_enabled:
-          type:
-            - string
-            - 'null'
-          enum:
-            - 'false'
-            - 'true'
-            - use_default
-            - null
-    HostTemplateSeverityOutput:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    HostTemplateSeverityOutput.jsonld:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    HostTemplateTimezoneOutput:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    HostTemplateTimezoneOutput.jsonld:
       type: object
       properties:
         id:
@@ -14649,7 +14233,7 @@ components:
             - integer
             - 'null'
         args:
-          description: 'accepted without a command'
+          description: 'require a check command'
           type: array
           items:
             type: string

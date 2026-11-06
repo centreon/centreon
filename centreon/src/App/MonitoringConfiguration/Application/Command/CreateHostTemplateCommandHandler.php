@@ -27,14 +27,14 @@ use App\MonitoringConfiguration\Application\Service\HostTemplateAdditiveInherita
 use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
 use App\MonitoringConfiguration\Application\Service\HostTemplateMacroSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\LinkedServiceTemplateLicenseGuard;
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
@@ -128,10 +128,10 @@ final readonly class CreateHostTemplateCommandHandler
             $template = HostTemplate::create(
                 name: $command->name,
                 alias: $command->alias,
-                checkOptions: new HostTemplateCheckOptions(
+                checkOptions: new CheckOptions(
                     $command->checkCommandId,
                     $command->checkCommandArgs,
-                    new Collection($macros, HostTemplateMacro::class),
+                    $macros,
                 ),
                 parentTemplateIds: $command->templateIds,
                 snmpCommunity: $snmpCommunity,
@@ -161,7 +161,7 @@ final readonly class CreateHostTemplateCommandHandler
     }
 
     /**
-     * @return list<HostTemplateMacro>
+     * @return list<HostMacro>
      */
     private function resolveMacros(CreateHostTemplateCommand $command): array
     {
@@ -182,7 +182,7 @@ final readonly class CreateHostTemplateCommandHandler
         $inherited = $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkCommandId);
         $macros = $this->macroChangesResolver->resolve($changes, [], $inherited);
 
-        $names = array_map(static fn (HostTemplateMacro $macro): string => $macro->name->value, $macros);
+        $names = array_map(static fn (HostMacro $macro): string => $macro->name->value, $macros);
         $duplicates = array_keys(array_filter(array_count_values($names), static fn (int $count): bool => $count > 1));
         if ($duplicates !== []) {
             throw new DuplicateHostTemplateMacroNameException(array_map(strval(...), $duplicates));
@@ -224,7 +224,7 @@ final readonly class CreateHostTemplateCommandHandler
     }
 
     /**
-     * @param list<HostTemplateMacro> $macros
+     * @param list<HostMacro> $macros
      */
     private function vaultUuidOfMacros(array $macros): ?string
     {
@@ -234,10 +234,10 @@ final readonly class CreateHostTemplateCommandHandler
 
         $vaulted = array_find(
             $macros,
-            fn (HostTemplateMacro $macro): bool => $macro->isPassword && $this->vault->isVaultPath($macro->value),
+            fn (HostMacro $macro): bool => $macro->isPassword && $this->vault->isVaultPath($macro->value),
         );
 
-        return $vaulted instanceof HostTemplateMacro ? $this->vault->extractUuid($vaulted->value) : null;
+        return $vaulted instanceof HostMacro ? $this->vault->extractUuid($vaulted->value) : null;
     }
 
     /**

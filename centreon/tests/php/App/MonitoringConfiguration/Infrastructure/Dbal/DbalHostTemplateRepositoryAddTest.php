@@ -23,24 +23,24 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
@@ -113,23 +113,23 @@ final class DbalHostTemplateRepositoryAddTest extends KernelTestCase
         $template = HostTemplate::create(
             $this->templateName(),
             new HostAlias('Alias'),
-            new HostTemplateCheckOptions(
+            new CheckOptions(
                 new CommandId($commandId),
                 ['-w', "80\n90"],
-                new Collection([
-                    new HostTemplateMacro(new HostMacroName('PORT'), '443', false),
-                    new HostTemplateMacro(new HostMacroName('PWD'), 'secret', true),
-                ], HostTemplateMacro::class),
+                [
+                    new HostMacro(new HostMacroName('PORT'), '443', false),
+                    new HostMacro(new HostMacroName('PWD'), 'secret', true),
+                ],
             ),
             parentTemplateIds: new Collection([new HostTemplateId($secondParentId), new HostTemplateId($firstParentId)], HostTemplateId::class),
             snmpCommunity: new SnmpCommunity('public'),
             snmpVersion: SnmpVersionEnum::Three,
             timezoneId: new TimezoneId($timezoneId),
             severityId: new HostSeverityId($severityId),
-            extendedInformations: new HostTemplateExtendedInformations('https://n.example.com', 'A note', 'https://a.example.com', new MediaId($iconId), 'An icon', 'A comment'),
-            schedulingOptions: new HostTemplateSchedulingOptions(new TimePeriodId($periodId), 3, 5, 1, TriStateEnum::True, TriStateEnum::False),
-            dataProcessing: new HostTemplateDataProcessing(TriStateEnum::True, TriStateEnum::False, TriStateEnum::True, 15, 60, 10, 40, new CommandId($eventHandlerId), ['restart']),
-            notifications: new HostTemplateNotifications(
+            extendedInformations: new ExtendedInformations('https://n.example.com', 'A note', 'https://a.example.com', new MediaId($iconId), 'An icon', 'A comment'),
+            schedulingOptions: new SchedulingOptions(new TimePeriodId($periodId), 3, 5, 1, TriStateEnum::True, TriStateEnum::False),
+            dataProcessing: new DataProcessing(TriStateEnum::True, TriStateEnum::False, TriStateEnum::True, 15, 60, 10, 40, new CommandId($eventHandlerId), ['restart']),
+            notifications: new Notifications(
                 TriStateEnum::True,
                 new Collection([new NotificationContactId($contactId)], NotificationContactId::class),
                 new Collection([new ContactGroupId($contactGroupId)], ContactGroupId::class),
@@ -153,7 +153,7 @@ final class DbalHostTemplateRepositoryAddTest extends KernelTestCase
         self::assertSame($commandId, $read->checkOptions->checkCommandId?->value);
         self::assertSame(
             [['PORT', '443', false], ['PWD', 'secret', true]],
-            array_values(array_map(static fn (HostTemplateMacro $macro): array => [$macro->name->value, $macro->value, $macro->isPassword], $read->checkOptions->macros->toArray())),
+            array_map(static fn (HostMacro $macro): array => [$macro->name->value, $macro->value, $macro->isPassword], $read->checkOptions->macros),
         );
         self::assertSame('Alias', $read->alias?->value);
         self::assertSame('public', $read->snmpCommunity?->value);

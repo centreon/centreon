@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateDuplicated;
@@ -36,7 +36,6 @@ use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialReader;
 use App\Shared\Application\Vault\VaultCredentialWriter;
-use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultKeyEnum;
@@ -91,17 +90,14 @@ final readonly class DuplicateHostTemplateCommandHandler
     /**
      * Re-mints the vaulted secrets under a new UUID so the copy does not share the source's entry.
      *
-     * @return array{0: ?SnmpCommunity, 1: Collection<HostTemplateMacro>}
+     * @return array{0: ?SnmpCommunity, 1: list<HostMacro>}
      */
     private function duplicateSecrets(HostTemplate $source): array
     {
         if (! $this->vault->isEnabled() || $source->getVaultUuid($this->vault) === null) {
             return [
                 $source->snmpCommunity,
-                new Collection(
-                    array_map(static fn (HostTemplateMacro $macro): HostTemplateMacro => $macro->copyWithoutIdentity(), $source->checkOptions->macros->toArray()),
-                    HostTemplateMacro::class,
-                ),
+                array_map(static fn (HostMacro $macro): HostMacro => $macro->copyWithoutIdentity(), $source->checkOptions->macros),
             ];
         }
 
@@ -132,15 +128,15 @@ final readonly class DuplicateHostTemplateCommandHandler
             : $source->snmpCommunity;
 
         $macros = array_map(
-            function (HostTemplateMacro $macro) use ($newReferences): HostTemplateMacro {
+            function (HostMacro $macro) use ($newReferences): HostMacro {
                 $key = $this->macroVaultKey($macro);
 
                 return $macro->copyWithoutIdentity($macro->isPassword && isset($newReferences[$key]) ? $newReferences[$key] : null);
             },
-            $source->checkOptions->macros->toArray(),
+            $source->checkOptions->macros,
         );
 
-        return [$snmpCommunity, new Collection($macros, HostTemplateMacro::class)];
+        return [$snmpCommunity, $macros];
     }
 
     /**
@@ -165,7 +161,7 @@ final readonly class DuplicateHostTemplateCommandHandler
         }
     }
 
-    private function macroVaultKey(HostTemplateMacro $macro): string
+    private function macroVaultKey(HostMacro $macro): string
     {
         return '_HOST' . $macro->name->value;
     }

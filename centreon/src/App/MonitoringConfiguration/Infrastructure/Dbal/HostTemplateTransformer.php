@@ -23,23 +23,22 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
@@ -52,8 +51,7 @@ use App\Shared\Infrastructure\Dbal\TriStateColumnTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * Reads what is stored, out-of-bound values included: a blank text is no value and an unknown SNMP
- * version reads as none.
+ * A blank text is no value and an unknown SNMP version reads as none.
  *
  * @phpstan-import-type RowTypeAlias from DbalHostTemplateRepository
  * @phpstan-import-type FindOneRowTypeAlias from DbalHostTemplateRepository
@@ -83,7 +81,7 @@ final readonly class HostTemplateTransformer implements TransformerInterface
                 alias: $alias !== null ? new HostAlias($alias) : null,
                 isLocked: (bool) (int) ($from['host_locked'] ?? 0),
                 parentTemplateIds: $parentTemplateIds,
-                extendedInformations: $iconId instanceof MediaId ? new HostTemplateExtendedInformations(iconId: $iconId) : null,
+                extendedInformations: $iconId instanceof MediaId ? new ExtendedInformations(iconId: $iconId) : null,
             );
         }
 
@@ -93,10 +91,10 @@ final readonly class HostTemplateTransformer implements TransformerInterface
         return new HostTemplate(
             id: new HostTemplateId($from['host_id']),
             name: new HostTemplateName($from['host_name']),
-            checkOptions: new HostTemplateCheckOptions(
+            checkOptions: new CheckOptions(
                 $this->commandId($from['check_command_id']),
                 CommandArgumentsFormatter::parse($from['check_command_args']),
-                new Collection($from['macros'], HostTemplateMacro::class),
+                $from['macros'],
             ),
             serviceTemplateCheckCommandIds: new Collection($this->ids($from['service_template_check_command_ids'], CommandId::class), CommandId::class),
             alias: $alias !== null ? new HostAlias($alias) : null,
@@ -108,7 +106,7 @@ final readonly class HostTemplateTransformer implements TransformerInterface
             timezoneId: (int) $from['timezone_id'] > 0 ? new TimezoneId((int) $from['timezone_id']) : null,
             severityId: $from['severity_id'] !== null ? new HostSeverityId($from['severity_id']) : null,
             extendedInformations: $this->extendedInformations($from, $iconId),
-            schedulingOptions: new HostTemplateSchedulingOptions(
+            schedulingOptions: new SchedulingOptions(
                 checkTimeperiodId: $this->timePeriodId($from['check_timeperiod_id']),
                 maxCheckAttempts: $this->int($from['max_check_attempts']),
                 normalCheckInterval: $this->int($from['normal_check_interval']),
@@ -116,7 +114,7 @@ final readonly class HostTemplateTransformer implements TransformerInterface
                 activeCheckEnabled: $this->columnToTriState($from['active_check_enabled']),
                 passiveCheckEnabled: $this->columnToTriState($from['passive_check_enabled']),
             ),
-            dataProcessing: new HostTemplateDataProcessing(
+            dataProcessing: new DataProcessing(
                 checkFreshness: $this->columnToTriState($from['check_freshness']),
                 flapDetectionEnabled: $this->columnToTriState($from['flap_detection_enabled']),
                 eventHandlerEnabled: $this->columnToTriState($from['event_handler_enabled']),
@@ -127,7 +125,7 @@ final readonly class HostTemplateTransformer implements TransformerInterface
                 eventHandlerCommandId: $this->commandId($from['event_handler_command_id']),
                 eventHandlerArgs: CommandArgumentsFormatter::parse($from['event_handler_args']),
             ),
-            notifications: new HostTemplateNotifications(
+            notifications: new Notifications(
                 enabled: $this->columnToTriState($from['notifications_enabled']),
                 contactIds: new Collection($this->ids($from['contact_ids'], NotificationContactId::class), NotificationContactId::class),
                 contactGroupIds: new Collection($this->ids($from['contact_group_ids'], ContactGroupId::class), ContactGroupId::class),
@@ -147,9 +145,9 @@ final readonly class HostTemplateTransformer implements TransformerInterface
     /**
      * @param FindOneRowTypeAlias $from
      */
-    private function extendedInformations(array $from, ?MediaId $iconId): ?HostTemplateExtendedInformations
+    private function extendedInformations(array $from, ?MediaId $iconId): ?ExtendedInformations
     {
-        $informations = new HostTemplateExtendedInformations(
+        $informations = new ExtendedInformations(
             noteUrl: $this->nullIfBlank($from['note_url']),
             note: $this->nullIfBlank($from['note']),
             actionUrl: $this->nullIfBlank($from['action_url']),

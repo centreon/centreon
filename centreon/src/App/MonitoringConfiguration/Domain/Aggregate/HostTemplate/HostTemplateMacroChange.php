@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
@@ -51,7 +52,7 @@ final readonly class HostTemplateMacroChange
             Assert::notNull($id, 'A null value keeps the stored value: a new macro (without id) must have a value.');
             Assert::true($isPassword, 'A null value keeps the stored value: only a password macro can do so.');
         } else {
-            Assert::maxLength($value, HostTemplateMacro::MAX_VALUE_LENGTH);
+            Assert::maxLength($value, HostMacro::MAX_VALUE_LENGTH);
         }
     }
 

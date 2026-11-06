@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Service;
 
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
@@ -41,9 +41,9 @@ final readonly class HostTemplateAdditiveInheritanceModeApplier
     {
     }
 
-    public function apply(?HostTemplateNotifications $notifications): ?HostTemplateNotifications
+    public function apply(?Notifications $notifications): ?Notifications
     {
-        if (! $notifications instanceof HostTemplateNotifications) {
+        if (! $notifications instanceof Notifications) {
             return null;
         }
 

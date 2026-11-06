@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Service;
 
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultPathEnum;
@@ -51,19 +51,19 @@ final readonly class HostTemplateMacroSecretsSynchronizer
     }
 
     /**
-     * @param list<HostTemplateMacro> $macros the macros the template will own, values in raw stored form
-     * @param list<HostTemplateMacro> $previous the macros the template owned so far (empty on creation)
+     * @param list<HostMacro> $macros the macros the template will own, values in raw stored form
+     * @param list<HostMacro> $previous the macros the template owned so far (empty on creation)
      * @param ?string $templateVaultUuid the template's vault entry, null when it has none yet (one is minted
      *                                   if a secret must be written)
      *
-     * @return list<HostTemplateMacro> $macros with every password value to store
+     * @return list<HostMacro> $macros with every password value to store
      */
     public function synchronize(array $macros, array $previous, ?string $templateVaultUuid): array
     {
         $previousKeys = $this->templateEntryKeys($previous, $templateVaultUuid);
 
         // Nothing to vault nor to purge: the vault is not reached at all.
-        $hasPasswordMacro = array_any($macros, static fn (HostTemplateMacro $macro): bool => $macro->isPassword);
+        $hasPasswordMacro = array_any($macros, static fn (HostMacro $macro): bool => $macro->isPassword);
         if (! $hasPasswordMacro && $previousKeys === []) {
             return $macros;
         }
@@ -148,7 +148,7 @@ final readonly class HostTemplateMacroSecretsSynchronizer
     }
 
     /**
-     * @param list<HostTemplateMacro> $macros
+     * @param list<HostMacro> $macros
      *
      * @return array<string, true> the keys of the template's entry the macros reference
      */
@@ -165,7 +165,7 @@ final readonly class HostTemplateMacroSecretsSynchronizer
     }
 
     /**
-     * @param list<HostTemplateMacro> $macros
+     * @param list<HostMacro> $macros
      * @param array<int, string> $toWrite
      */
     private function isKeptBy(string $key, array $macros, ?string $templateVaultUuid, array $toWrite): bool
@@ -191,7 +191,7 @@ final readonly class HostTemplateMacroSecretsSynchronizer
             && $this->vault->extractUuid($value) === $templateVaultUuid;
     }
 
-    private function keyFor(HostTemplateMacro $macro): string
+    private function keyFor(HostMacro $macro): string
     {
         return self::KEY_PREFIX . $macro->name->value;
     }

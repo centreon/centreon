@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingMedia;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -55,7 +55,7 @@ final readonly class CreateHostTemplateExtendedInformationsInput
 
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
-            new Assert\Length(max: HostTemplateExtendedInformations::MAX_ALT_ICON_LENGTH, normalizer: 'trim'),
+            new Assert\Length(max: ExtendedInformations::MAX_ALT_ICON_LENGTH, normalizer: 'trim'),
         ])]
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Blank(message: 'This field is not available on a Cloud platform.'),
