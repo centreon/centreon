@@ -43,7 +43,7 @@ final readonly class TargetVersionRecorder
     }
 
     /**
-     * The Centreon Web migrations expect the schema of the legacy scripts, and recording the platform version would skip them.
+     * Refused while legacy scripts are pending: the Centreon Web migrations expect their schema.
      *
      * @throws \RuntimeException when the platform version cannot be read, or legacy scripts are pending
      *

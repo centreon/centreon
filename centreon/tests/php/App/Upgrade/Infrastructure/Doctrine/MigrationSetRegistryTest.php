@@ -27,6 +27,7 @@ use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\WebMigrationSetEnum;
 use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 final class MigrationSetRegistryTest extends TestCase
@@ -69,7 +70,7 @@ final class MigrationSetRegistryTest extends TestCase
         self::assertSame('doctrine_migration_versions', $configuration->table);
     }
 
-    public function testTheCoreMigrationDirectoriesAreShipped(): void
+    public function testTheWebMigrationDirectoriesAreShipped(): void
     {
         $registry = new MigrationSetRegistry(dirname(__DIR__, 6), '/nonexistent');
 
@@ -94,5 +95,23 @@ final class MigrationSetRegistryTest extends TestCase
             ['realtime', 'configuration', 'module:centreon-open-tickets'],
             array_map(static fn (MigrationSet $set): string => $set->name, $this->registry->all()),
         );
+    }
+
+    public function testLogsTheModuleDirectoriesItIgnores(): void
+    {
+        $logger = new class () extends AbstractLogger {
+            /** @var list<string> */
+            public array $warnings = [];
+
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+                $this->warnings[] = (string) $message;
+            }
+        };
+
+        (new MigrationSetRegistry('/usr/share/centreon', $this->modulesDir, $logger))->all();
+
+        self::assertCount(2, $logger->warnings);
+        self::assertStringContainsString('4centreon/migrations', implode("\n", $logger->warnings));
     }
 }

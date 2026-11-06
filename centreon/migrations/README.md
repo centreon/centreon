@@ -15,7 +15,7 @@ Each set is versioned on its own, with its own metadata table:
 
 A module ships migrations only if its name is made of lowercase letters and digits, starting with a letter, in words
 separated by single dashes, at most 35 characters (`centreon-open-tickets`): it names its metadata table and its
-namespace.
+namespace. A module directory with another name is ignored, with a warning in the upgrade log.
 
 `centreon:migrations:migrate` without a set runs `realtime`, then `configuration`, then records `centreon.version`
 (`config.new/packages/centreon.yaml`).
@@ -30,8 +30,8 @@ bin/console.new centreon:migrations:generate --set=configuration --dml --env=dev
 bin/console.new centreon:migrations:generate --module=centreon-open-tickets --ddl --env=dev
 ```
 
-The generated `up()` and `revert()` throw until they are written: an unfinished migration fails with a clear
-message.
+The generated migration fails until written: its empty `getDescription()` makes the runner refuse the whole set,
+and its `up()` and `revert()` throw.
 
 Every migration extends one of the two base classes, in the namespace of its set, alone in a file named after it: the
 runner refuses any other one.
@@ -76,9 +76,8 @@ bin/console.new centreon:migrations:rollback <version|prev|first> (--set=realtim
 - A failing migration stops the run: a `DmlMigration` leaves nothing behind, the migrations executed before it stay
   applied, and the next run resumes there.
 - A rollback is explicit and per set: it reverts the migrations executed after the given version (as `status -v` lists
-  it, or its timestamp), after listing them for confirmation. It changes neither `informations.version`, nor
+  it, or its timestamp), after listing them for confirmation (skipped with `--no-interaction`). It changes neither `informations.version`, nor
   `mod_release`, nor the code. The legacy scripts stay irreversible.
-- Logs go to the `upgrade` channel (`/var/log/centreon/prod.upgrade.log`).
 
 ## Known limits
 

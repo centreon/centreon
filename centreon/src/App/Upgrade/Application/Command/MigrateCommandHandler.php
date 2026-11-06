@@ -87,7 +87,11 @@ final readonly class MigrateCommandHandler
             $executed = [...$executed, ...$this->migrateSet($webSet)];
         }
 
-        $this->targetVersionRecorder->record($legacyVersion);
+        try {
+            $this->targetVersionRecorder->record($legacyVersion);
+        } catch (\Throwable $exception) {
+            throw new \RuntimeException(sprintf('Every Centreon Web migration ran, but recording the platform version failed: %s', $exception->getMessage()), 0, $exception);
+        }
 
         return $executed;
     }

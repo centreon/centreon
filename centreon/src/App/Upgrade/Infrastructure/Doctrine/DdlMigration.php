@@ -43,10 +43,9 @@ abstract class DdlMigration extends AbstractMigration
 
     abstract public function revert(Schema $schema): void;
 
-    protected function addSql(string $sql, array $params = [], array $types = []): void
+    final protected function addSql(string $sql, array $params = [], array $types = []): void
     {
         if ($this->getSql() !== [] || ! SqlStatement::isSingle($sql)) {
-            // Any semicolon outside a literal or a comment separates statements, even in a BEGIN ... END body.
             throw new \LogicException(sprintf('The DDL migration "%s" must hold a single statement per direction, with no semicolon: a trigger, procedure, function or event body cannot be one yet.', static::class));
         }
 

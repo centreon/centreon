@@ -169,14 +169,6 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     }
 
     /**
-     * The checks migrate() relies on, which status() reports too.
-     *
-     * @param bool $initialize false to only read: the metadata table is not created
-     *
-     * @throws \RuntimeException when migrations recorded as executed are missing from the code base, or when a migration
-     *                           breaks the conventions
-     */
-    /**
      * @param bool $initialize false to write nothing, not even the metadata table
      *
      * @return array{DependencyFactory, list<Version>} the versions to revert, executed after the target, oldest first
@@ -235,6 +227,14 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         return array_map('strval', array_reverse($versions));
     }
 
+    /**
+     * The checks migrate() relies on, which status() reports too.
+     *
+     * @param bool $initialize false to only read: the metadata table is not created
+     *
+     * @throws \RuntimeException when migrations recorded as executed are missing from the code base, or when a migration
+     *                           breaks the conventions
+     */
     private function createCheckedFactory(MigrationSet $set, MigrationSetConfiguration $configuration, string $step, bool $initialize = true): DependencyFactory
     {
         $factory = $this->createFactory($configuration, $step);

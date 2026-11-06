@@ -45,7 +45,7 @@ abstract class DmlMigration extends AbstractMigration
 
     abstract public function revert(Schema $schema): void;
 
-    protected function addSql(string $sql, array $params = [], array $types = []): void
+    final protected function addSql(string $sql, array $params = [], array $types = []): void
     {
         if (! SqlStatement::isSingle($sql)) {
             throw new \LogicException(sprintf('The migration "%s" must pass one statement per addSql() call.', static::class));

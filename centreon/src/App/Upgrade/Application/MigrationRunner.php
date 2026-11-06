@@ -30,7 +30,8 @@ interface MigrationRunner
     /**
      * Stops at the first failure.
      *
-     * @throws \RuntimeException when the set has executed migrations that are no longer available
+     * @throws \RuntimeException when a migration fails, the set has executed migrations that are no longer available,
+     *                           or a migration breaks the conventions
      *
      * @return list<string> the executed versions
      */
@@ -39,7 +40,7 @@ interface MigrationRunner
     /**
      * Read-only: the migrations executed after the given version (kept applied), or alias ("prev", "first").
      *
-     * @throws \RuntimeException when the target is unknown or not executed
+     * @throws \RuntimeException when the target is unknown or not executed, or a migration breaks the conventions
      *
      * @return list<string> the versions to revert, in the order they would be reverted
      */
@@ -50,7 +51,8 @@ interface MigrationRunner
      *
      * @param list<string> $expected the versions planRollback() returned, as confirmed
      *
-     * @throws \RuntimeException when the target is unknown or not executed, or the migrations to revert are not the expected ones
+     * @throws \RuntimeException when the target is unknown or not executed, a migration breaks the conventions or fails,
+     *                           or the migrations to revert are not the expected ones
      *
      * @return list<string> the reverted versions, in the order they are reverted
      */

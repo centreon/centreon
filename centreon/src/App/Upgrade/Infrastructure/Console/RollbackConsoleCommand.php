@@ -71,8 +71,8 @@ final readonly class RollbackConsoleCommand
             return Command::SUCCESS;
         }
 
-        /** @var list<string> $reverted */
         // Refused if another run changed the set meanwhile.
+        /** @var list<string> $reverted */
         $reverted = $this->commandBus->execute(new RollbackMigrationCommand($migrationSet, $version, expected: $toRevert));
         $io->success(sprintf('%d migration(s) reverted.', count($reverted)));
 

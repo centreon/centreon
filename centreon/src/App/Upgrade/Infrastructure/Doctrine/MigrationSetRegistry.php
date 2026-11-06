@@ -25,6 +25,8 @@ namespace App\Upgrade\Infrastructure\Doctrine;
 
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\WebMigrationSetEnum;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class MigrationSetRegistry
@@ -34,6 +36,8 @@ final readonly class MigrationSetRegistry
         private string $projectDir,
         #[Autowire(param: 'upgrade.modules_dir')]
         private string $modulesDir,
+        #[Autowire(service: 'monolog.logger.upgrade')]
+        private LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -75,9 +79,13 @@ final readonly class MigrationSetRegistry
         foreach (glob($this->modulesDir . '/*/migrations', \GLOB_ONLYDIR) ?: [] as $directory) {
             $module = basename(dirname($directory));
             // A stray directory ("centreon-foo.bak") must not break the other sets.
-            if (MigrationSet::isModuleName($module)) {
-                $sets[] = MigrationSet::module($module);
+            if (! MigrationSet::isModuleName($module)) {
+                $this->logger->warning(sprintf('Ignored the migrations of "%s": its name is not a supported module name.', $directory));
+
+                continue;
             }
+
+            $sets[] = MigrationSet::module($module);
         }
 
         return $sets;
