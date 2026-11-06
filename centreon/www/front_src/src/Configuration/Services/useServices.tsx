@@ -49,6 +49,8 @@ const getApi = (context: PlatformContext): APIType => ({
     getOne: getServiceEndpoint,
     update: getServiceEndpoint
   },
+  // The listing sorts on the host and service names only.
+  isActivationSortable: false,
   // The duplicate route takes no body, so there is no copy count to ask for.
   isSingleDuplicate: true,
   methods: {

@@ -161,6 +161,9 @@ export interface APIType {
   // The field a PATCH-based enable/disable sets, when an endpoint does not
   // spell it the way the older migrated listings do.
   activationField?: string;
+  // The status column sorts on `activationField` unless the endpoint cannot
+  // sort on it.
+  isActivationSortable?: boolean;
   decoders?: {
     getOne?: JsonDecoder.Decoder<unknown>;
     getAll?: JsonDecoder.Decoder<unknown>;
