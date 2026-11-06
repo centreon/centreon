@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next';
 import {
   schedulingColumns,
   stackedColumns,
+  threeColumnsFromWide,
   twoColumnsFromNarrow,
   twoColumnsFromWide
 } from '../../ResourceForm/grid';
@@ -116,8 +117,29 @@ export const layout: Array<LayoutSection> = [
   },
   {
     label: labelAdvanced,
-    // Full width, under the other advanced fields.
-    nodes: ['comment']
+    nodes: [
+      {
+        // Auto-remediation | freshness and acknowledgement | flapping: the
+        // cloud keeps the first two only.
+        className: (count) =>
+          count === 3 ? threeColumnsFromWide : twoColumnsFromWide,
+        columnSeparator: true,
+        columns: [
+          'eventHandler',
+          {
+            className: stackedColumns,
+            columns: ['freshness', 'acknowledgmentTimeout'],
+            name: 'freshness-layout'
+          },
+          'flapping'
+        ],
+        name: 'advanced-layout'
+      },
+      // Not in the design, on-premise only: below, full width.
+      'obsessRetainAndStalking',
+      // Full width, under the other advanced fields.
+      'comment'
+    ]
   }
 ];
 

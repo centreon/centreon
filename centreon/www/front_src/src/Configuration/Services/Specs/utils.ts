@@ -172,6 +172,37 @@ const getExtendedInfoDetail = (id: number): Record<string, unknown> => {
     : { categories: [] };
 };
 
+// Service 0 sets every data processing field, service 1 none, service 2 only
+// those a cloud platform keeps. Under `advanced`, with the comment.
+const dataProcessingDetails: Record<number, Record<string, unknown>> = {
+  0: {
+    advanced: {
+      acknowledgment_timeout: 15,
+      check_freshness: 'true',
+      event_handler: { id: 7, name: 'restart-httpd' },
+      event_handler_args: ['80', 'graceful'],
+      event_handler_enabled: 'false',
+      flap_detection_enabled: 'true',
+      freshness_threshold: 120,
+      high_flap_threshold: 50,
+      low_flap_threshold: null,
+      obsess_over_service: 'false',
+      retain_non_status_information: 'use_default',
+      retain_status_information: 'true',
+      stalking_options: ['warning', 'critical']
+    }
+  },
+  1: {},
+  2: {
+    advanced: {
+      check_freshness: 'false',
+      event_handler: null,
+      event_handler_enabled: 'true',
+      freshness_threshold: 60
+    }
+  }
+};
+
 // `recovery_delay` left out, as the API leaves unset values out.
 export const getServiceNotificationsResponse = () => ({
   contact_additive_inheritance: true,
@@ -195,7 +226,8 @@ export const getServiceResponse = (id: number) => ({
   ...[
     getServiceCheckOptionsResponse(id),
     getRelationsResponse(id),
-    getExtendedInfoDetail(id)
+    getExtendedInfoDetail(id),
+    dataProcessingDetails[id]
   ].reduce(
     (detail, section) => mergeDeepRight(detail, section),
     serviceDetails[id] as Record<string, unknown>
@@ -229,8 +261,10 @@ export const getServiceFormTimePeriodsResponse = () =>
     { id: 21, name: 'workhours' }
   ]);
 
+// The check command and the event handler selector.
 export const getServiceFormCommandsResponse = () =>
   getSelectorResponse('commands', [
+    { id: 7, name: 'restart-httpd' },
     { id: 8, name: 'check-centreon-ping' },
     { id: 9, name: 'check-centreon-cpu' }
   ]);
