@@ -82,7 +82,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             );
             $groupIds[] = $accessGroupId->value;
         }
-        $this->invalidateFingerprints($groupIds);
+        $this->invalidateAclFingerprints($groupIds);
     }
 
     public function flagAllResourcesAsChanged(): void
@@ -123,7 +123,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :newHostId AND service_id IS NULL',
             ['newHostId' => $newHostId->value],
         );
-        $this->invalidateFingerprints(array_map('intval', $groupIds));
+        $this->invalidateAclFingerprints(array_map('intval', $groupIds));
     }
 
     public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
@@ -156,7 +156,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 );
             }
         }
-        $this->invalidateFingerprints(array_map('intval', $groupIds));
+        $this->invalidateAclFingerprints(array_map('intval', $groupIds));
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool
@@ -613,7 +613,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      *
      * @param list<int> $groupIds
      */
-    private function invalidateFingerprints(array $groupIds): void
+    private function invalidateAclFingerprints(array $groupIds): void
     {
         if ($groupIds === []) {
             return;
