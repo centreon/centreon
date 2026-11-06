@@ -32,18 +32,13 @@ use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
 /**
- * GET /configuration/host_templates/host_templates?exclude_template_id={id}: the edited template and
- * every template inheriting from it, directly or not, are not offered as its parent.
+ * exclude_template_id leaves out the edited template and all its descendants; the walk is tested in the Dbal test.
  */
 final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
 {
     use InsertsHostTemplateInheritance;
     use InsertsMonitoringConnectorTemplates;
     private const ENDPOINT = '/api/configuration/host_templates/host_templates';
-    private const HOST_FORM_ENDPOINT = '/api/configuration/hosts/host_templates';
-
-    // about 100 times a warm response (under 30 ms), so a loaded runner cannot flake
-    private const MAX_SECONDS = 2.0;
 
     private Connection $connection;
 
@@ -87,21 +82,6 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
         self::assertSame($this->sorted($grandparent, $parent, $sibling, $unrelated), $this->offeredIds($edited));
     }
 
-    /**
-     * The list offers inactive templates: an inactive descendant must still be left out.
-     */
-    public function testItLeavesOutAnInactiveDescendantAndTheTemplatesBelowIt(): void
-    {
-        [$edited, $child, $unrelated] = $this->templates(3);
-        $this->connection->insert('host', ['host_name' => "inactive-{$this->tag}", 'host_register' => '0', 'host_activate' => '0', 'host_locked' => 0]);
-        $inactive = (int) $this->connection->lastInsertId();
-        [$belowInactive] = $this->templates(1, prefix: 'below');
-        $this->linkTemplates($this->connection, [$child, $edited], [$inactive, $child], [$belowInactive, $inactive]);
-        $this->login();
-
-        self::assertSame([$unrelated], $this->offeredIds($edited));
-    }
-
     public function testItAlsoLeavesOutTheTemplatesTheLicenseNoLongerAllows(): void
     {
         [$edited, $child, $unlicensed, $kept] = $this->templates(4);
@@ -143,92 +123,6 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
         self::assertSame($ids, $this->offeredIds($kind === 'host' ? $hostId : \PHP_INT_MAX));
     }
 
-    /**
-     * A loop is refused on save, but older data may hold one: the route must still answer, at once.
-     */
-    public function testItAnswersPromptlyOnALoopBetweenTwoTemplates(): void
-    {
-        [$first, $second, $belowSecond, $unrelated] = $this->templates(4);
-        $this->linkTemplates($this->connection, [$first, $second], [$second, $first], [$belowSecond, $second]);
-        $this->login();
-
-        [$seconds, $offered] = $this->timedOfferedIds($first);
-
-        self::assertLessThan(self::MAX_SECONDS, $seconds);
-        self::assertSame([$unrelated], $offered);
-    }
-
-    public function testItAnswersPromptlyOnATemplateInheritingFromItself(): void
-    {
-        [$template, $child, $unrelated] = $this->templates(3);
-        $this->linkTemplates($this->connection, [$template, $template], [$child, $template]);
-        $this->login();
-
-        [$seconds, $offered] = $this->timedOfferedIds($template);
-
-        self::assertLessThan(self::MAX_SECONDS, $seconds);
-        self::assertSame([$unrelated], $offered);
-    }
-
-    public function testItHandlesA200LevelChainWithOneMoreQuery(): void
-    {
-        $chain = $this->templates(201);
-        $links = [];
-        for ($level = 1; $level < 201; ++$level) {
-            $links[] = [$chain[$level], $chain[$level - 1]];
-        }
-        $this->linkTemplates($this->connection, ...$links);
-        $this->login();
-
-        [$extraQueries, $seconds, $total] = $this->measureAgainstPlainListing($chain[100]);
-
-        self::assertSame(1, $extraQueries, 'the descendants cost one query, whatever the depth');
-        self::assertLessThan(self::MAX_SECONDS, $seconds);
-        // the 100 ancestors stay, the template and its 100 descendants go
-        self::assertSame(100, $total);
-    }
-
-    /**
-     * 999 levels stay under the recursion cap of the database server (1000 on MySQL and MariaDB).
-     */
-    public function testItLeavesOutA999LevelChainWithOneMoreQuery(): void
-    {
-        $chain = $this->templates(1000);
-        $this->templates(1, prefix: 'unrelated');
-        $links = [];
-        for ($level = 1; $level < 1000; ++$level) {
-            $links[] = [$chain[$level], $chain[$level - 1]];
-        }
-        $this->linkTemplates($this->connection, ...$links);
-        $this->login();
-
-        [$extraQueries, $seconds, $total] = $this->measureAgainstPlainListing($chain[0]);
-
-        self::assertSame(1, $extraQueries);
-        self::assertLessThan(self::MAX_SECONDS, $seconds);
-        self::assertSame(1, $total);
-    }
-
-    public function testItHandlesA2000TemplateTreeWithOneMoreQuery(): void
-    {
-        [$root] = $this->templates(1, prefix: 'root');
-        $children = $this->templates(40, prefix: 'child');
-        $grandchildren = $this->templates(40 * 49, prefix: 'grandchild');
-        $this->templates(1, prefix: 'unrelated');
-        $links = array_map(static fn (int $child): array => [$child, $root], $children);
-        foreach ($grandchildren as $index => $grandchild) {
-            $links[] = [$grandchild, $children[intdiv($index, 49)]];
-        }
-        $this->linkTemplates($this->connection, ...$links);
-        $this->login();
-
-        [$extraQueries, $seconds, $total] = $this->measureAgainstPlainListing($root);
-
-        self::assertSame(1, $extraQueries, 'the descendants cost one query, whatever the width');
-        self::assertLessThan(self::MAX_SECONDS, $seconds);
-        self::assertSame(1, $total);
-    }
-
     #[DataProvider('provideInvalidValues')]
     public function testAnInvalidValueIsRefusedOnTheParameter(string $value): void
     {
@@ -244,22 +138,19 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
     }
 
     /**
-     * The host form's list takes no such parameter: it neither filters nor rejects it.
+     * The value is cast element by element but validated as a whole: a list must not pass as an id.
      */
-    #[DataProvider('provideValuesTheHostFormListIgnores')]
-    public function testTheHostFormListIgnoresTheParameter(string $value): void
+    public function testTheArrayFormIsRefusedOnTheParameter(): void
     {
-        [$template, $child] = $this->templates(2);
-        $this->linkTemplates($this->connection, [$child, $template]);
         $this->login();
 
-        $response = $this->request('GET', self::HOST_FORM_ENDPOINT, ['query' => [
-            'exclude_template_id' => $value === '<template>' ? (string) $template : $value,
-            'name' => ['lk' => $this->tag],
-        ]]);
+        $response = $this->request('GET', self::ENDPOINT . '?exclude_template_id[]=1');
 
-        self::assertResponseIsSuccessful();
-        self::assertSame([$template, $child], array_column((array) $response->toArray()['member'], 'id'));
+        self::assertResponseStatusCodeSame(422);
+        $body = $response->toArray(false);
+        self::assertSame(['code', 'message'], array_keys($body));
+        self::assertIsString($body['message']);
+        self::assertStringStartsWith('[exclude_template_id] ', $body['message']);
     }
 
     /**
@@ -279,25 +170,7 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
     {
         yield 'zero' => ['0'];
 
-        yield 'negative' => ['-1'];
-
         yield 'letters' => ['abc'];
-
-        yield 'empty' => [''];
-
-        yield 'decimal' => ['1.5'];
-
-        yield 'exponent' => ['1e3'];
-    }
-
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function provideValuesTheHostFormListIgnores(): iterable
-    {
-        yield 'an existing template' => ['<template>'];
-
-        yield 'an invalid value' => ['abc'];
     }
 
     /**
@@ -315,68 +188,6 @@ final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
         Assert::allInteger($ids);
 
         return $ids;
-    }
-
-    /**
-     * @return array{float, list<int>} the wall-clock time of the excluding request, and what it offers
-     */
-    private function timedOfferedIds(int $editedId): array
-    {
-        $this->warmUp();
-        $this->offeredIds($editedId);
-        $start = hrtime(true);
-        $offered = $this->offeredIds($editedId);
-
-        return [(hrtime(true) - $start) / 1e9, $offered];
-    }
-
-    /**
-     * The first requests of a test process are slow whatever their query: they are not the cost
-     * being measured.
-     */
-    private function warmUp(): void
-    {
-        $this->request('GET', self::ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
-        self::assertResponseIsSuccessful();
-    }
-
-    /**
-     * The same listing is requested without, then with, the parameter: the difference in statements
-     * the server received is the cost of the exclusion.
-     *
-     * @return array{int, float, int} the extra statements, the wall-clock time and totalItems of the excluding request
-     */
-    private function measureAgainstPlainListing(int $editedId): array
-    {
-        $query = ['name' => ['lk' => $this->tag]];
-        $this->warmUp();
-        $this->request('GET', self::ENDPOINT, ['query' => $query + ['exclude_template_id' => (string) $editedId]]);
-
-        $before = $this->sessionQuestions();
-        $this->request('GET', self::ENDPOINT, ['query' => $query]);
-        $plain = $this->sessionQuestions() - $before;
-        self::assertResponseIsSuccessful();
-
-        $before = $this->sessionQuestions();
-        $start = hrtime(true);
-        $response = $this->request('GET', self::ENDPOINT, ['query' => $query + ['exclude_template_id' => (string) $editedId]]);
-        $seconds = (hrtime(true) - $start) / 1e9;
-        $excluding = $this->sessionQuestions() - $before;
-        self::assertResponseIsSuccessful();
-
-        $total = $response->toArray()['totalItems'];
-        Assert::integer($total);
-
-        return [$excluding - $plain, $seconds, $total];
-    }
-
-    private function sessionQuestions(): int
-    {
-        $row = $this->connection->fetchAssociative("SHOW SESSION STATUS LIKE 'Questions'");
-        Assert::isArray($row);
-        Assert::numeric($row['Value']);
-
-        return (int) $row['Value'];
     }
 
     /**

@@ -36,12 +36,7 @@ use App\Shared\Domain\Collection;
 use Webmozart\Assert\Assert;
 
 /**
- * Returns a host template's own macros (direct, parent null), then those it inherits from its
- * ancestor templates and check commands that it does not override (parent "template" or
- * "command").
- *
- * Not ACL-scoped and not license-filtered: a template the license no longer allows still passes
- * its macros to the hosts and templates that inherit from it. An inactive template is not found.
+ * A host template's own macros, then the inherited ones it does not override; not ACL- or license-scoped.
  *
  * @implements ProviderInterface<HostTemplateMacrosOutput>
  */

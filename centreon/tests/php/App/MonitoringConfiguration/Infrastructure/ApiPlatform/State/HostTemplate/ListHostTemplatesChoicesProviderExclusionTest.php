@@ -37,8 +37,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepo
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
 
 /**
- * The exclude_template_id parameter, validated by API Platform: the ids it adds to the excluded ones.
- * The descendants query itself is pinned by DbalHostTemplateRepositoryDescendantsTest.
+ * The ids exclude_template_id adds to the excluded ones; the query is tested in the Dbal test.
  */
 final class ListHostTemplatesChoicesProviderExclusionTest extends TestCase
 {
