@@ -43,13 +43,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostNotificationsInput;
@@ -206,7 +206,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
                 array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), $input->contactGroups),
                 ContactGroupId::class,
             ),
-            options: array_map(NotificationOptionEnumResolver::toDomain(...), $input->options),
+            options: array_map(NotificationOptionEnum::from(...), $input->options),
             interval: $input->interval,
             periodId: $input->timeperiodId !== null ? new TimePeriodId($input->timeperiodId) : null,
             firstDelay: $input->firstDelay,

@@ -45,11 +45,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostExtendedInformationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostSchedulingOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingInput;
@@ -198,7 +198,7 @@ final readonly class PatchHostCommandFactory
     {
         return new NotificationsChanges(
             enabled: $this->provided($sent, 'enabled', static fn (): TriStateEnum => $data->enabled !== null ? TriStateEnum::from($data->enabled) : TriStateEnum::UseDefault),
-            options: $this->listChange($sent, 'options', $data->options, $data->optionsToAdd, $data->optionsToRemove, NotificationOptionEnumResolver::toDomain(...)),
+            options: $this->listChange($sent, 'options', $data->options, $data->optionsToAdd, $data->optionsToRemove, NotificationOptionEnum::from(...)),
             interval: $this->provided($sent, 'interval', static fn (): ?int => $data->interval),
             periodId: $this->provided($sent, 'timeperiod_id', static fn (): ?TimePeriodId => $data->timeperiodId !== null ? new TimePeriodId($data->timeperiodId) : null),
             firstDelay: $this->provided($sent, 'first_delay', static fn (): ?int => $data->firstDelay),

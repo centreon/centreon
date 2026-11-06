@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
@@ -47,7 +48,6 @@ use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
@@ -260,7 +260,7 @@ final readonly class HostTemplateResourceBuilder
             enabled: $notifications->enabled,
             contacts: $contacts,
             contactGroups: $contactGroups,
-            options: array_map(NotificationOptionEnumResolver::toString(...), $notifications->options),
+            options: array_map(static fn (NotificationOptionEnum $option): string => $option->value, $notifications->options),
             interval: $notifications->interval,
             timeperiod: $this->resolveTimePeriod($notifications->periodId),
             firstDelay: $notifications->firstDelay,
