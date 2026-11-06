@@ -39,8 +39,8 @@ final readonly class MigrationSet
         . 'at most ' . self::MODULE_NAME_MAX_LENGTH . ' characters';
     private const string MODULE_NAME_PATTERN = '/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/D';
 
-    // Its metadata table name must fit the 64 characters of a MySQL identifier.
-    private const int MODULE_NAME_MAX_LENGTH = 36;
+    // Its metadata table name must fit the shortest identifier limit of the usual databases (63, PostgreSQL).
+    private const int MODULE_NAME_MAX_LENGTH = 35;
 
     private function __construct(
         public string $name,

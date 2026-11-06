@@ -14,7 +14,7 @@ Each set is versioned on its own, with its own metadata table:
 | a module (`--module=<name>`) | `centreon` | `www/modules/<name>/migrations/` | `<Name>\Migrations` (`centreon-open-tickets` gives `CentreonOpenTickets\Migrations`) | `doctrine_migration_versions_<name>` |
 
 A module ships migrations only if its name is made of lowercase letters and digits, starting with a letter, in words
-separated by single dashes, at most 36 characters (`centreon-open-tickets`): it names its metadata table and its
+separated by single dashes, at most 35 characters (`centreon-open-tickets`): it names its metadata table and its
 namespace.
 
 `centreon:migrations:migrate` without a set runs `realtime`, then `configuration`, then records `centreon.version`
