@@ -19,7 +19,7 @@ const ActionsBar = <TFilters,>({
   filtersAtom,
   filtersAtomKey
 }: Props<TFilters>): JSX.Element => {
-  const { classes } = useActionsStyles({ hasWriteAccess });
+  const { classes } = useActionsStyles();
 
   return (
     <div className={classes.bar}>
@@ -29,7 +29,11 @@ const ActionsBar = <TFilters,>({
           {hasMassiveActions && <MassiveActions />}
         </div>
       )}
-      <div className={classes.searchBar}>
+      {/* Centered whether or not the Add and More actions buttons sit on
+          its left, so a read-only user gets the same layout. */}
+      <div
+        className={`flex w-full items-center justify-center ${hasWriteAccess ? 'px-2' : ''}`}
+      >
         <Filters<TFilters>
           filtersAtom={filtersAtom}
           filtersAtomKey={filtersAtomKey}

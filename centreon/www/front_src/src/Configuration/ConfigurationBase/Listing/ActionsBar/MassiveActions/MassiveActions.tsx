@@ -17,7 +17,7 @@ import MoreActions from './MoreActions';
 
 const MassiveActions = (): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useActionsStyles({});
+  const { classes } = useActionsStyles();
 
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
 
