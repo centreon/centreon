@@ -56,8 +56,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
@@ -998,7 +996,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
 
     private function templateMacro(string $name, string $value, bool $isPassword, int $id): HostTemplateMacro
     {
-        return new HostTemplateMacro(new HostTemplateMacroName($name), $value, $isPassword, new HostTemplateMacroId($id));
+        return new HostTemplateMacro(new HostMacroName($name), $value, $isPassword, new HostMacroId($id));
     }
 
     private function macroNamed(Host $host, string $name): HostMacro

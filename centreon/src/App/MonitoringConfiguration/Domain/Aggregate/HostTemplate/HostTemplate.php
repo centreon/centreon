@@ -24,11 +24,14 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\Shared\Domain\Aggregate\AggregateRoot;
@@ -47,7 +50,7 @@ final class HostTemplate extends AggregateRoot
      *                                                              templates, in priority order
      * @param Collection<HostTemplateId> $parentTemplateIds the templates this template directly
      *                                                      inherits from, in relation order
-     * @param ?HostTemplateSnmpCommunity $snmpCommunity plaintext, or the `secret::` reference once vaulted
+     * @param ?SnmpCommunity $snmpCommunity plaintext, or the `secret::` reference once vaulted
      * @param ?HostSeverityId $severityId the levelled `hostcategories` row; the levelless ones are $categoryIds
      * @param Collection<HostCategoryId> $categoryIds
      * @param Collection<ServiceTemplateId> $linkedServiceTemplateIds in relation order
@@ -57,11 +60,11 @@ final class HostTemplate extends AggregateRoot
         public readonly HostTemplateName $name,
         public readonly HostTemplateCheckOptions $checkOptions = new HostTemplateCheckOptions(),
         public readonly Collection $serviceTemplateCheckCommandIds = new Collection([], CommandId::class),
-        public readonly ?HostTemplateAlias $alias = null,
+        public readonly ?HostAlias $alias = null,
         public readonly bool $isLocked = false,
         public readonly Collection $parentTemplateIds = new Collection([], HostTemplateId::class),
-        public readonly ?HostTemplateSnmpCommunity $snmpCommunity = null,
-        public readonly ?HostTemplateSnmpVersionEnum $snmpVersion = null,
+        public readonly ?SnmpCommunity $snmpCommunity = null,
+        public readonly ?SnmpVersionEnum $snmpVersion = null,
         public readonly ?TimezoneId $timezoneId = null,
         public readonly ?HostSeverityId $severityId = null,
         public readonly ?HostTemplateExtendedInformations $extendedInformations = null,
@@ -91,7 +94,7 @@ final class HostTemplate extends AggregateRoot
      *
      * @throws HostTemplateLockedException
      */
-    public function duplicate(HostTemplateName $newName, ?HostTemplateSnmpCommunity $snmpCommunity, Collection $macros): self
+    public function duplicate(HostTemplateName $newName, ?SnmpCommunity $snmpCommunity, Collection $macros): self
     {
         $this->assertUnlocked();
 
@@ -121,7 +124,7 @@ final class HostTemplate extends AggregateRoot
      */
     public function getVaultUuid(VaultInterface $vault): ?string
     {
-        if ($this->snmpCommunity instanceof HostTemplateSnmpCommunity && $vault->isVaultPath($this->snmpCommunity->value)) {
+        if ($this->snmpCommunity instanceof SnmpCommunity && $vault->isVaultPath($this->snmpCommunity->value)) {
             return $vault->extractUuid($this->snmpCommunity->value);
         }
 

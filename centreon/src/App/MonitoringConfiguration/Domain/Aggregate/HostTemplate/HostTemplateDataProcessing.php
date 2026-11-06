@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\CommandArguments;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 
 final readonly class HostTemplateDataProcessing
@@ -45,7 +46,7 @@ final readonly class HostTemplateDataProcessing
         public ?CommandId $eventHandlerCommandId = null,
         array $eventHandlerArgs = [],
     ) {
-        HostTemplateCommandArguments::assertValid($eventHandlerArgs, 'HostTemplateDataProcessing::eventHandlerArgs');
+        CommandArguments::assertValid($eventHandlerArgs, 'HostTemplateDataProcessing::eventHandlerArgs');
 
         $this->eventHandlerArgs = array_values($eventHandlerArgs);
     }

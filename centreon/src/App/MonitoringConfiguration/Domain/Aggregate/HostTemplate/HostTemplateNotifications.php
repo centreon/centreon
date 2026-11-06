@@ -25,19 +25,20 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 
 final readonly class HostTemplateNotifications
 {
-    /** @var list<HostTemplateNotificationOptionEnum> */
+    /** @var list<NotificationOptionEnum> */
     public array $options;
 
     /**
      * @param Collection<NotificationContactId> $contactIds
      * @param Collection<ContactGroupId> $contactGroupIds
-     * @param array<int, HostTemplateNotificationOptionEnum> $options
+     * @param array<int, NotificationOptionEnum> $options
      */
     public function __construct(
         public TriStateEnum $enabled = TriStateEnum::UseDefault,

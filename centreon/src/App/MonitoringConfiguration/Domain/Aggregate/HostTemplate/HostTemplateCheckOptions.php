@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\CommandArguments;
 use App\Shared\Domain\Collection;
 
 final readonly class HostTemplateCheckOptions
@@ -45,7 +46,7 @@ final readonly class HostTemplateCheckOptions
         array $args = [],
         ?Collection $macros = null,
     ) {
-        HostTemplateCommandArguments::assertValid($args, 'HostTemplateCheckOptions::args');
+        CommandArguments::assertValid($args, 'HostTemplateCheckOptions::args');
 
         $this->args = array_values($args);
         $this->macros = $macros ?? new Collection([], HostTemplateMacro::class);

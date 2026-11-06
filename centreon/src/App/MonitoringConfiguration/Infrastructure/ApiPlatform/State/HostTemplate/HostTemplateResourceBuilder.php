@@ -49,7 +49,7 @@ use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\HostTemplateNotificationOptionEnumResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateCategoryOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateCheckCommandOutput;
@@ -266,7 +266,7 @@ final readonly class HostTemplateResourceBuilder
             enabled: $notifications->enabled->value,
             contacts: $contacts,
             contactGroups: $contactGroups,
-            options: array_map(HostTemplateNotificationOptionEnumResolver::toString(...), $notifications->options),
+            options: array_map(NotificationOptionEnumResolver::toString(...), $notifications->options),
             interval: $notifications->interval,
             timeperiod: $this->resolveTimePeriod($notifications->periodId),
             firstDelay: $notifications->firstDelay,

@@ -41,14 +41,14 @@ final readonly class HostTemplateMacro
     /**
      * @param bool $isPassword when true the value is a secret, eligible for the vault and never
      *                         echoed back in a response
-     * @param ?HostTemplateMacroId $id null until persisted
+     * @param ?HostMacroId $id null until persisted
      */
     public function __construct(
-        public HostTemplateMacroName $name,
+        public HostMacroName $name,
         // The attribute is static, so every value is masked in logs, non-secret ones included.
         #[Sensitive] public string $value,
         public bool $isPassword,
-        public ?HostTemplateMacroId $id = null,
+        public ?HostMacroId $id = null,
     ) {
         Assert::maxLength($value, self::MAX_VALUE_LENGTH);
     }
@@ -72,7 +72,7 @@ final readonly class HostTemplateMacro
             new HostMacroName($this->name->value),
             $this->value,
             $this->isPassword,
-            $this->id instanceof HostTemplateMacroId ? new HostMacroId($this->id->value) : null,
+            $this->id instanceof HostMacroId ? new HostMacroId($this->id->value) : null,
             $parent,
         );
     }
