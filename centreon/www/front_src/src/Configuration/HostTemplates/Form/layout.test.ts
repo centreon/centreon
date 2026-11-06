@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 
 import {
+  labelAdvanced,
   labelGeneralInformation,
   labelHostMonitoringProperties,
   labelMonitoringEngineSchedulingOptions,
@@ -64,7 +65,8 @@ describe('layout', () => {
       labelHostMonitoringProperties,
       labelRelations,
       labelMonitoringEngineSchedulingOptions,
-      labelNotifications
+      labelNotifications,
+      labelAdvanced
     ]);
   });
 
@@ -73,7 +75,8 @@ describe('layout', () => {
       labelGeneralInformation,
       labelHostMonitoringProperties,
       labelRelations,
-      labelMonitoringEngineSchedulingOptions
+      labelMonitoringEngineSchedulingOptions,
+      labelAdvanced
     ]);
   });
 

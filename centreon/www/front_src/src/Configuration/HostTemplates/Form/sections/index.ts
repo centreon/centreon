@@ -4,7 +4,14 @@ import {
 } from '../../../ResourceForm/blocks';
 import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
 import {
+  getAcknowledgmentTimeoutBlock,
+  getEventHandlerBlock,
+  getFlappingBlock,
+  getFreshnessBlock
+} from '../../../ResourceForm/fieldBlocks/dataProcessing';
+import {
   getActionUrlBlock,
+  getCommentBlock,
   getNotesAndIconsBlock
 } from '../../../ResourceForm/fieldBlocks/extendedInfos';
 import {
@@ -132,7 +139,15 @@ export const blocks = [
   getNotificationDelaysBlock({
     resource,
     timePeriodsEndpoint: hostTemplateFormTimePeriodsEndpoint
-  })
+  }),
+  getEventHandlerBlock({
+    commandsEndpoint: hostTemplateFormCommandsEndpoint,
+    resource
+  }),
+  getFreshnessBlock({ resource }),
+  getAcknowledgmentTimeoutBlock({ resource }),
+  getFlappingBlock({ resource }),
+  getCommentBlock({ resource })
 ] as const;
 
 // Each available block, as a section of the data.
