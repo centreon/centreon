@@ -16,6 +16,7 @@ export const labelHostMonitoringProperties = 'Host monitoring properties';
 export const labelRelations = 'Relations';
 export const labelMonitoringEngineSchedulingOptions =
   'Monitoring engine / Scheduling options';
+export const labelNotifications = 'Notifications';
 export const labelHostBasicInformation = 'Host basic information';
 export const labelHostCheckOptions = 'Host check options';
 export const labelCustomMacros = 'Custom macros';
@@ -25,3 +26,10 @@ export const labelSchedulingOptions = 'Scheduling options';
 // Relations
 export const labelHostCategories = 'Host categories';
 export const labelHostSeverity = 'Host severity';
+
+// What a host template notifies on.
+export const labelDown = 'Down';
+export const labelUnreachable = 'Unreachable';
+export const labelRecovery = 'Recovery';
+export const labelFlapping = 'Flapping';
+export const labelDowntimeScheduled = 'Scheduled downtime';
