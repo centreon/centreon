@@ -92,7 +92,7 @@ final class FakeMigrationRunner implements MigrationRunner
             throw new \ParseError(sprintf('Status of "%s" failed', $set->name));
         }
 
-        return new MigrationSetStatus($set, [], [$set->name . '\Version1']);
+        return MigrationSetStatus::read($set, [], [$set->name . '\Version1']);
     }
 
     public function sets(): array

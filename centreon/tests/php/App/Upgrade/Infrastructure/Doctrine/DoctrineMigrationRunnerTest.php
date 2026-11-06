@@ -248,7 +248,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
     {
         self::assertSame([], $this->runner->migrate(MigrationSet::module('without-migrations')));
         self::assertEquals(
-            new MigrationSetStatus(MigrationSet::module('without-migrations'), [], []),
+            MigrationSetStatus::read(MigrationSet::module('without-migrations'), [], []),
             $this->runner->status(MigrationSet::module('without-migrations')),
         );
         self::assertSame([], $this->connection->createSchemaManager()->listTableNames());

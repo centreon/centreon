@@ -52,12 +52,16 @@ final readonly class StatusConsoleCommand
         $exitCode = Command::SUCCESS;
         foreach ($statuses as $setStatus) {
             $io->section($setStatus->set->label());
-            if ($setStatus->error !== null) {
-                $io->error($setStatus->error);
+            if ($setStatus->readError !== null) {
+                $io->error($setStatus->readError);
                 $exitCode = Command::FAILURE;
-                if ($setStatus->executed === [] && $setStatus->pending === []) {
-                    continue;
-                }
+
+                continue;
+            }
+
+            if ($setStatus->refusal !== null) {
+                $io->error($setStatus->refusal);
+                $exitCode = Command::FAILURE;
             }
 
             $io->definitionList(

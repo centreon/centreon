@@ -30,13 +30,34 @@ final readonly class MigrationSetStatus
     /**
      * @param list<string> $executed
      * @param list<string> $pending
-     * @param string|null $error why migrate would refuse the set, its migrations being empty when they cannot be read
+     * @param string|null $refusal why migrate refuses the set for now, its migrations being read
+     * @param string|null $readError why the set cannot be read, its migrations being unknown
      */
-    public function __construct(
+    private function __construct(
         public MigrationSet $set,
         public array $executed,
         public array $pending,
-        public ?string $error = null,
+        public ?string $refusal,
+        public ?string $readError,
     ) {
+    }
+
+    /**
+     * @param list<string> $executed
+     * @param list<string> $pending
+     */
+    public static function read(MigrationSet $set, array $executed, array $pending, ?string $refusal = null): self
+    {
+        return new self($set, $executed, $pending, $refusal, null);
+    }
+
+    public static function unreadable(MigrationSet $set, string $reason): self
+    {
+        return new self($set, [], [], null, $reason);
+    }
+
+    public function isReadable(): bool
+    {
+        return $this->readError === null;
     }
 }

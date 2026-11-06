@@ -104,12 +104,12 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     {
         $configuration = $this->registry->configuration($set);
         if (! $this->hasDirectory($set, $configuration->directory)) {
-            return new MigrationSetStatus($set, [], []);
+            return MigrationSetStatus::read($set, [], []);
         }
 
         $factory = $this->createCheckedFactory($set, $configuration, $set->migrationStep(), initialize: false);
 
-        return new MigrationSetStatus(
+        return MigrationSetStatus::read(
             $set,
             $this->versions($factory->getMetadataStorage()->getExecutedMigrations()->getItems()),
             $this->versions($factory->getMigrationStatusCalculator()->getNewMigrations()->getItems()),

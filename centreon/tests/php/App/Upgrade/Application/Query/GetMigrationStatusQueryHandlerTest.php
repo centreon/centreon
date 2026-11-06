@@ -49,7 +49,7 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
 
         $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(), $this->recorder(), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery($configuration));
 
-        self::assertEquals([new MigrationSetStatus($configuration, [], ['configuration\Version1'])], $statuses);
+        self::assertEquals([MigrationSetStatus::read($configuration, [], ['configuration\Version1'])], $statuses);
     }
 
     public function testComputesTheStatusOfTheInstalledModulesOnly(): void
@@ -74,8 +74,8 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(), $this->recorder(), $logger, '26.12.0'))(new GetMigrationStatusQuery());
 
         self::assertEquals([
-            new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Realtime), [], [], 'Status of "realtime" failed'),
-            new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['configuration\Version1']),
+            MigrationSetStatus::unreadable(MigrationSet::web(WebMigrationSetEnum::Realtime), 'Status of "realtime" failed'),
+            MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['configuration\Version1']),
         ], $statuses);
         self::assertSame(['error'], array_column($logger->calls, 'method'));
         self::assertInstanceOf(\ParseError::class, $logger->calls[0]['exception'] ?? null);
@@ -89,8 +89,8 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(['centreon-open-tickets']), $this->recorder(['26.12.0']), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery());
 
         self::assertEquals([
-            new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['configuration\Version1'], 'The update scripts of 26.12.0 are pending: update the platform first, with the upgrade wizard or the API.'),
-            new MigrationSetStatus(MigrationSet::module('centreon-open-tickets'), [], ['module:centreon-open-tickets\Version1']),
+            MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['configuration\Version1'], 'The update scripts of 26.12.0 are pending: update the platform first, with the upgrade wizard or the API.'),
+            MigrationSetStatus::read(MigrationSet::module('centreon-open-tickets'), [], ['module:centreon-open-tickets\Version1']),
         ], $statuses);
     }
 
@@ -119,8 +119,8 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         $statuses = (new GetMigrationStatusQueryHandler($runner, $modules, new TargetVersionRecorder($updateRepository, new FakeUpdateScriptFinder(), '26.12.0', new FakeUpgradeLogger()), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery());
 
         self::assertEquals([
-            new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Realtime), [], ['realtime\Version1'], 'informations is locked'),
-            new MigrationSetStatus(MigrationSet::module('centreon-open-tickets'), [], [], 'modules_informations is locked'),
+            MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Realtime), [], ['realtime\Version1'], 'informations is locked'),
+            MigrationSetStatus::unreadable(MigrationSet::module('centreon-open-tickets'), 'modules_informations is locked'),
         ], $statuses);
     }
 

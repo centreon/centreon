@@ -75,7 +75,7 @@ final readonly class GetMigrationStatusQueryHandler
             } catch (\Throwable $exception) {
                 // Report the failure on this set and keep listing the others.
                 $this->upgradeLogger->error($this->platformVersion, sprintf('Cannot read the status of the %s: %s', $set->label(), $exception->getMessage()), $exception);
-                $statuses[] = new MigrationSetStatus($set, [], [], $exception->getMessage());
+                $statuses[] = MigrationSetStatus::unreadable($set, $exception->getMessage());
             }
         }
 
@@ -91,7 +91,7 @@ final readonly class GetMigrationStatusQueryHandler
 
         return $set->isModule() || $legacyRefusal === null
             ? $status
-            : new MigrationSetStatus($set, $status->executed, $status->pending, $legacyRefusal);
+            : MigrationSetStatus::read($set, $status->executed, $status->pending, $legacyRefusal);
     }
 
     /**

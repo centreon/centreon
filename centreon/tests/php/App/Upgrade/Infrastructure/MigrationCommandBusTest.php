@@ -72,7 +72,7 @@ final class MigrationCommandBusTest extends KernelTestCase
 
             public function status(MigrationSet $set): MigrationSetStatus
             {
-                return new MigrationSetStatus($set, [], []);
+                return MigrationSetStatus::read($set, [], []);
             }
 
             public function sets(): array

@@ -206,8 +206,8 @@ final class MigrationConsoleCommandsTest extends TestCase
                 $this->dispatched[] = $query;
 
                 return [
-                    new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Realtime), ['Centreon\Migrations\Realtime\Version1'], []),
-                    new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['Centreon\Migrations\Configuration\Version1']),
+                    MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Realtime), ['Centreon\Migrations\Realtime\Version1'], []),
+                    MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['Centreon\Migrations\Configuration\Version1']),
                 ];
             }
         };
@@ -228,7 +228,7 @@ final class MigrationConsoleCommandsTest extends TestCase
              */
             public function ask(object $query): array
             {
-                return [new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Configuration), ['Centreon\Migrations\Configuration\Version1', 'Centreon\Migrations\Configuration\Version2'], [])];
+                return [MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Configuration), ['Centreon\Migrations\Configuration\Version1', 'Centreon\Migrations\Configuration\Version2'], [])];
             }
         };
         $tester = $this->tester(new StatusConsoleCommand($queryBus), 'centreon:migrations:status');
@@ -249,8 +249,8 @@ final class MigrationConsoleCommandsTest extends TestCase
             public function ask(object $query): array
             {
                 return [
-                    new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Realtime), [], [], 'The "realtime" migration set has executed migrations that are not available anymore'),
-                    new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['Centreon\Migrations\Configuration\Version1'], 'The update scripts of 26.12.0 are pending'),
+                    MigrationSetStatus::unreadable(MigrationSet::web(WebMigrationSetEnum::Realtime), 'The "realtime" migration set has executed migrations that are not available anymore'),
+                    MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['Centreon\Migrations\Configuration\Version1'], 'The update scripts of 26.12.0 are pending'),
                 ];
             }
         };
@@ -260,6 +260,23 @@ final class MigrationConsoleCommandsTest extends TestCase
         self::assertStringContainsString('migrations that are not available anymore', (string) preg_replace('/\s+/', ' ', $tester->getDisplay()));
         self::assertStringContainsString('The update scripts of 26.12.0 are pending', $tester->getDisplay(), 'A refusal does not hide the migrations it could read');
         self::assertStringContainsString('Centreon\Migrations\Configuration\Version1', $tester->getDisplay());
+    }
+
+    public function testStatusRendersARefusedSetWithoutMigrationYet(): void
+    {
+        $queryBus = new class () implements QueryBus {
+            /**
+             * @return list<MigrationSetStatus>
+             */
+            public function ask(object $query): array
+            {
+                return [MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Configuration), [], [], 'The update scripts of 26.12.0 are pending')];
+            }
+        };
+        $tester = $this->tester(new StatusConsoleCommand($queryBus), 'centreon:migrations:status');
+
+        self::assertSame(Command::FAILURE, $tester->execute([]));
+        self::assertStringContainsString('Last executed', $tester->getDisplay(), 'A refused set still shows what it read');
     }
 
     public function testGenerateWritesALoadableMigrationOfTheRequestedKind(): void
