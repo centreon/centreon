@@ -48,6 +48,13 @@ interface ServiceRepository
     public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool;
 
     /**
+     * Whether a service linked directly to this host bears exactly this name, byte for byte (case, accents and
+     * trailing spaces count), as the legacy deployment compares it, whatever the actor may see. Services reaching
+     * the host only through a host group are not considered.
+     */
+    public function isExactNameUsedOnHost(ServiceName $name, HostId $hostId): bool;
+
+    /**
      * Services directly attached to this host (`host_service_relation.host_host_id`) that have
      * exactly one relation row in total — mirrors legacy `findServiceIdsExclusivelyLinkedToHostId()`:
      * a service also reachable through a hostgroup or another host is left alone, only one that

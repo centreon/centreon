@@ -93,6 +93,17 @@ final class FakeServiceRepository implements ServiceRepository
         return false;
     }
 
+    /**
+     * Byte-exact, over every service it holds, the ones added since included.
+     */
+    public function isExactNameUsedOnHost(ServiceName $name, HostId $hostId): bool
+    {
+        return array_any(
+            $this->services,
+            static fn (Service $service): bool => $service->hostId->value === $hostId->value && $service->name->value === $name->value,
+        );
+    }
+
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection
     {
         $services = array_values(array_filter(

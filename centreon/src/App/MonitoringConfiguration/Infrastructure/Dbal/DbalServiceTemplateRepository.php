@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateName;
@@ -61,6 +63,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   check_command_id: int|string|null,
  *   event_handler_command_id: int|string|null,
  * }
+ * @phpstan-type DeployableRowTypeAlias array{service_id: int|string, service_description: string, service_alias: string|null}
  * @phpstan-type InheritedValuesTypeAlias array{icon_id: int|null, normal_check_interval: int|null, retry_check_interval: int|null}
  */
 final readonly class DbalServiceTemplateRepository extends DbalRepository implements ServiceTemplateRepository
@@ -278,6 +281,167 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
             )),
             ServiceTemplate::class,
         );
+    }
+
+    /**
+     * One query fetches every host template relation reachable from the host, enabled or not (as legacy
+     * deployment); the depth-first walk is done in PHP. UNION dedupes the reached ids, and the walk stops on an id
+     * already visited, the host included, so a loop in the data ends both.
+     */
+    public function findDeployableOnHost(HostId $hostId): Collection
+    {
+        $sql = <<<'SQL'
+            WITH RECURSIVE chain (id) AS (
+                SELECT :hostId
+                UNION
+                SELECT htr.host_tpl_id
+                FROM host_template_relation htr
+                INNER JOIN chain c ON c.id = htr.host_host_id
+            )
+            SELECT htr.host_host_id, htr.host_tpl_id
+            FROM host_template_relation htr
+            INNER JOIN chain c ON c.id = htr.host_host_id
+            ORDER BY htr.host_host_id, htr.`order`, htr.host_tpl_id
+            SQL;
+
+        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string}> $relations */
+        $relations = $this->connection->executeQuery(
+            $sql,
+            ['hostId' => $hostId->value],
+            ['hostId' => ParameterType::INTEGER],
+        )->fetchAllAssociative();
+
+        /** @var array<int, list<int>> $parentIdsById */
+        $parentIdsById = [];
+        foreach ($relations as $relation) {
+            $parentIdsById[(int) $relation['host_host_id']][] = (int) $relation['host_tpl_id'];
+        }
+
+        $hostTemplateIds = [];
+        $visited = [$hostId->value => true];
+        foreach ($parentIdsById[$hostId->value] ?? [] as $directTemplateId) {
+            $this->walkHostTemplateChain($directTemplateId, $parentIdsById, $visited, $hostTemplateIds);
+        }
+
+        $rowsByHostTemplate = $this->findRowsLinkedToHostTemplates($hostTemplateIds);
+
+        $rows = [];
+        foreach ($hostTemplateIds as $hostTemplateId) {
+            foreach ($rowsByHostTemplate[$hostTemplateId] ?? [] as $row) {
+                $rows[(int) $row['service_id']] ??= $row;
+            }
+        }
+
+        $groupIdsByTemplate = $this->findServiceGroupIdsByTemplate(array_keys($rows));
+
+        return new Collection(
+            array_values(array_map(
+                static fn (array $row): ServiceTemplate => new ServiceTemplate(
+                    new ServiceTemplateId((int) $row['service_id']),
+                    new ServiceTemplateName($row['service_description']),
+                    alias: $row['service_alias'],
+                    serviceGroupIds: new Collection(
+                        array_map(
+                            static fn (int $groupId): ServiceGroupId => new ServiceGroupId($groupId),
+                            $groupIdsByTemplate[(int) $row['service_id']] ?? [],
+                        ),
+                        ServiceGroupId::class,
+                    ),
+                ),
+                $rows,
+            )),
+            ServiceTemplate::class,
+        );
+    }
+
+    /**
+     * @param array<int, list<int>> $parentIdsById
+     * @param array<int, true> $visited
+     * @param list<int> $line
+     */
+    private function walkHostTemplateChain(int $id, array $parentIdsById, array &$visited, array &$line): void
+    {
+        if (isset($visited[$id])) {
+            return;
+        }
+        $visited[$id] = true;
+        $line[] = $id;
+
+        foreach ($parentIdsById[$id] ?? [] as $parentId) {
+            $this->walkHostTemplateChain($parentId, $parentIdsById, $visited, $line);
+        }
+    }
+
+    /**
+     * @param list<int> $hostTemplateIds
+     *
+     * @return array<int, list<DeployableRowTypeAlias>> the service templates of each host template, by ascending id
+     */
+    private function findRowsLinkedToHostTemplates(array $hostTemplateIds): array
+    {
+        if ($hostTemplateIds === []) {
+            return [];
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hsr.host_host_id', 's.service_id', 's.service_description', 's.service_alias')
+            ->from('host_service_relation', 'hsr')
+            ->innerJoin('hsr', self::TABLE_NAME, 's', "s.service_id = hsr.service_service_id AND s.service_register = '0'")
+            ->innerJoin('hsr', 'host', 'h', "h.host_id = hsr.host_host_id AND h.host_register = '0'")
+            ->where($qb->expr()->in('hsr.host_host_id', $qb->createNamedParameter($hostTemplateIds, ArrayParameterType::INTEGER)))
+            // A nameless template is not a valid state: this only guards against the nullable schema column,
+            // so one malformed row cannot fail the whole deployment.
+            ->andWhere("s.service_description IS NOT NULL AND s.service_description != ''")
+            ->orderBy('hsr.host_host_id')
+            ->addOrderBy('s.service_id');
+
+        /** @var list<array{host_host_id: int|string, service_id: int|string, service_description: string, service_alias: string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $byHostTemplate = [];
+        foreach ($rows as $row) {
+            $byHostTemplate[(int) $row['host_host_id']][] = [
+                'service_id' => $row['service_id'],
+                'service_description' => $row['service_description'],
+                'service_alias' => $row['service_alias'],
+            ];
+        }
+
+        return $byHostTemplate;
+    }
+
+    /**
+     * Every row of the templates counts, whatever host, host template or host group it names; a row without a group
+     * is skipped.
+     *
+     * @param list<int> $templateIds
+     *
+     * @return array<int, list<int>> distinct group ids by template id
+     */
+    private function findServiceGroupIdsByTemplate(array $templateIds): array
+    {
+        if ($templateIds === []) {
+            return [];
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('sgr.service_service_id', 'sgr.servicegroup_sg_id')
+            ->distinct()
+            ->from('servicegroup_relation', 'sgr')
+            ->where($qb->expr()->in('sgr.service_service_id', $qb->createNamedParameter($templateIds, ArrayParameterType::INTEGER)))
+            ->andWhere('sgr.servicegroup_sg_id IS NOT NULL')
+            ->orderBy('sgr.service_service_id')
+            ->addOrderBy('sgr.servicegroup_sg_id');
+
+        /** @var list<array{service_service_id: int|string, servicegroup_sg_id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $byTemplate = [];
+        foreach ($rows as $row) {
+            $byTemplate[(int) $row['service_service_id']][] = (int) $row['servicegroup_sg_id'];
+        }
+
+        return $byTemplate;
     }
 
     /**

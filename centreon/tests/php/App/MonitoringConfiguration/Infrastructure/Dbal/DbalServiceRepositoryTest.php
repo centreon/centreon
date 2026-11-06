@@ -1529,6 +1529,152 @@ final class DbalServiceRepositoryTest extends KernelTestCase
     }
 
     /**
+     * Byte for byte, as the legacy deployment compares: case, accents and trailing spaces count.
+     */
+    public function testIsExactNameUsedOnHostIsByteExact(): void
+    {
+        $hostId = new HostId($this->insertListedHost('h1'));
+        $this->insertListedService('Ping', $hostId->value);
+        $this->insertListedService('Température', $hostId->value);
+        $this->insertListedService('Disk ', $hostId->value);
+
+        self::assertTrue($this->repository->isExactNameUsedOnHost(new ServiceName('Ping'), $hostId));
+        self::assertTrue($this->repository->isExactNameUsedOnHost(new ServiceName('Température'), $hostId));
+        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('ping'), $hostId));
+        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('PING'), $hostId));
+        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('Temperature'), $hostId));
+        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('Disk'), $hostId));
+    }
+
+    public function testIsExactNameUsedOnHostIgnoresOtherHostsAndHostGroupLinks(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $this->insertListedService('on-other-host', $this->insertListedHost('h2'));
+        $hostGroupId = $this->insertHostGroup();
+        $this->connection->insert('hostgroup_relation', ['hostgroup_hg_id' => $hostGroupId, 'host_host_id' => $hostId]);
+        $this->linkServiceToHostGroup($this->insertListedService('from-group', null), $hostGroupId);
+
+        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('on-other-host'), new HostId($hostId)));
+        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('from-group'), new HostId($hostId)));
+    }
+
+    /**
+     * A deployment checks each name after the services it created before, on the same connection.
+     */
+    public function testIsExactNameUsedOnHostSeesAServiceAddedInTheSameTransaction(): void
+    {
+        $hostId = new HostId($this->insertListedHost('h1'));
+
+        $this->repository->add(new Service(id: null, name: new ServiceName('ping'), hostId: $hostId, hostActivated: true, hostPollerId: null));
+
+        self::assertTrue($this->repository->isExactNameUsedOnHost(new ServiceName('ping'), $hostId));
+    }
+
+    public function testIsExactNameUsedOnHostIgnoresTemplates(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $this->linkServiceToHost($this->createServiceTemplate('a-template'), $hostId);
+
+        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('a-template'), new HostId($hostId)));
+    }
+
+    /**
+     * A service as the deployment builds it (template, default notifications block, the template's groups) is stored
+     * with the columns legacy deployment writes, but for the empty argument lists, stored NULL instead of ''.
+     */
+    public function testADeployedServiceStoresTheLegacyDeployColumns(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $templateId = $this->createServiceTemplate($this->token . '-template');
+        $firstGroupId = $this->insertServiceGroup();
+        $secondGroupId = $this->insertServiceGroup();
+        $service = new Service(
+            id: null,
+            name: new ServiceName('ping'),
+            hostId: new HostId($hostId),
+            hostActivated: true,
+            hostPollerId: null,
+            activated: true,
+            templateId: new ServiceTemplateId($templateId),
+            notifications: new ServiceNotifications(
+                TriStateEnum::UseDefault,
+                new Collection([], NotificationContactId::class),
+                new Collection([], ContactGroupId::class),
+            ),
+            serviceGroupIds: new Collection([new ServiceGroupId($firstGroupId), new ServiceGroupId($secondGroupId)], ServiceGroupId::class),
+        );
+
+        $this->repository->add($service);
+
+        $serviceId = $service->id()->value;
+        self::assertSame(
+            [
+                'service_description' => 'ping',
+                'service_register' => '1',
+                'service_activate' => '1',
+                'service_template_model_stm_id' => (string) $templateId,
+                'command_command_id' => null,
+                'command_command_id_arg' => null,
+                'timeperiod_tp_id' => null,
+                'service_max_check_attempts' => null,
+                'service_normal_check_interval' => null,
+                'service_retry_check_interval' => null,
+                'service_active_checks_enabled' => '2',
+                'service_passive_checks_enabled' => '2',
+                'service_is_volatile' => '2',
+                'service_notifications_enabled' => '2',
+                'service_notification_options' => null,
+                'service_notification_interval' => null,
+                'timeperiod_tp_id2' => null,
+                'service_first_notification_delay' => null,
+                'service_recovery_notification_delay' => null,
+                'contact_additive_inheritance' => '0',
+                'cg_additive_inheritance' => '0',
+                'service_use_only_contacts_from_host' => '0',
+                'service_check_freshness' => '2',
+                'service_freshness_threshold' => null,
+                'service_flap_detection_enabled' => '2',
+                'service_low_flap_threshold' => null,
+                'service_high_flap_threshold' => null,
+                'service_event_handler_enabled' => '2',
+                'command_command_id2' => null,
+                'command_command_id_arg2' => null,
+                'service_obsess_over_service' => '2',
+                'service_retain_status_information' => '2',
+                'service_retain_nonstatus_information' => '2',
+                'service_acknowledgement_timeout' => null,
+                'service_stalking_options' => null,
+                'service_comment' => null,
+                'geo_coords' => null,
+            ],
+            $this->serviceColumns($serviceId),
+        );
+        self::assertSame(
+            [['esi_notes' => null, 'esi_notes_url' => null, 'esi_action_url' => null, 'esi_icon_image' => null, 'esi_icon_image_alt' => null, 'graph_id' => null]],
+            $this->rows(
+                'SELECT esi_notes, esi_notes_url, esi_action_url, esi_icon_image, esi_icon_image_alt, graph_id
+                    FROM extended_service_information WHERE service_service_id = ?',
+                $serviceId,
+            ),
+        );
+        self::assertSame(
+            [['host_host_id' => (string) $hostId, 'hostgroup_hg_id' => null]],
+            $this->rows('SELECT host_host_id, hostgroup_hg_id FROM host_service_relation WHERE service_service_id = ?', $serviceId),
+        );
+        self::assertSame(
+            [
+                ['host_host_id' => (string) $hostId, 'hostgroup_hg_id' => null, 'servicegroup_sg_id' => (string) $firstGroupId],
+                ['host_host_id' => (string) $hostId, 'hostgroup_hg_id' => null, 'servicegroup_sg_id' => (string) $secondGroupId],
+            ],
+            $this->rows(
+                'SELECT host_host_id, hostgroup_hg_id, servicegroup_sg_id FROM servicegroup_relation
+                    WHERE service_service_id = ? ORDER BY servicegroup_sg_id',
+                $serviceId,
+            ),
+        );
+    }
+
+    /**
      * @return array<string, ?string> the form columns of the service, as strings
      */
     private function serviceColumns(int $serviceId): array
