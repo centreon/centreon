@@ -49,6 +49,7 @@ export type BlockId =
   | 'flapping'
   | 'freshness'
   | 'groups'
+  | 'linkedServiceTemplates'
   | 'macros'
   | 'notesAndIcons'
   | 'notificationDelays'
