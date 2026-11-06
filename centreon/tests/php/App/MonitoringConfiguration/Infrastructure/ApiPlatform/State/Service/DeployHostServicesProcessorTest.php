@@ -23,8 +23,32 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service;
 
+use App\MonitoringConfiguration\Application\Command\DeployHostServicesFromTemplatesCommandHandler;
+use App\MonitoringConfiguration\Application\Service\HostServicesDeployer;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Repository\TrapRepository;
+use App\MonitoringConfiguration\Domain\Service\InheritedServiceMacrosResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\DeployHostServicesProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceMacroTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceResourceBuilder;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceResourceTransformer;
+use App\Security\Domain\Service\AccessScopeResolver;
+use App\Shared\Application\Command\CommandBus;
+use App\Shared\Domain\Event\EventBus;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
 
 /**
@@ -34,6 +58,21 @@ use Tests\App\Shared\ApiTestCase;
 final class DeployHostServicesProcessorTest extends ApiTestCase
 {
     private const READ_ONLY = 2;
+
+    // The log details of a service's notifications block.
+    private const NOTIFICATION_LOG_FIELDS = [
+        'service_notifications_enabled',
+        'service_use_only_contacts_from_host',
+        'contact_additive_inheritance',
+        'cg_additive_inheritance',
+        'service_cs',
+        'service_cgs',
+        'service_notification_interval',
+        'timeperiod_tp_id2',
+        'service_notification_options',
+        'service_first_notification_delay',
+        'service_recovery_notification_delay',
+    ];
 
     private Connection $connection;
 
@@ -137,6 +176,39 @@ final class DeployHostServicesProcessorTest extends ApiTestCase
         self::assertTrue(is_numeric($changedFlag) && (int) $changedFlag === 1, "The deployer's group is flagged for the ACL recomputation.");
     }
 
+    /**
+     * On a Cloud platform the services get no notifications block: none in the 201 items, none in their log lines; the
+     * items are the Cloud form of a Get.
+     */
+    public function testOnACloudPlatformTheServicesHaveNoNotifications(): void
+    {
+        $this->forceCloudPlatform();
+        $hostId = $this->insertHost();
+        $hostTemplateId = $this->insertHostTemplate('template');
+        $this->linkHostTemplate($hostId, $hostTemplateId);
+        $this->insertServiceTemplate('ping', $hostTemplateId);
+        $this->login();
+
+        $body = $this->request('POST', $this->endpoint($hostId), ['headers' => ['accept' => 'application/json']])->toArray();
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertCount(1, $body);
+        \assert(is_array($body[0]) && is_int($body[0]['id']));
+        self::assertSame($this->tag . '-ping', $body[0]['name']);
+        self::assertArrayNotHasKey('notifications', $body[0]);
+        // Left out by the response builder on a Cloud platform, as by a Get.
+        self::assertArrayNotHasKey('traps', $body[0]);
+        $loggedFields = $this->strings($this->realTimeConnection->fetchFirstColumn(
+            "SELECT lam.field_name
+             FROM log_action_modification lam
+             INNER JOIN log_action la ON la.action_log_id = lam.action_log_id
+             WHERE la.object_type = 'service' AND la.object_id = ? AND la.action_type = 'a'",
+            [$body[0]['id']],
+        ));
+        self::assertContains('service_description', $loggedFields, 'The creation is logged with its details.');
+        self::assertSame([], array_values(array_intersect($loggedFields, self::NOTIFICATION_LOG_FIELDS)));
+    }
+
     public function testNothingToDeployAnswersNoContent(): void
     {
         $hostId = $this->insertHost();
@@ -225,6 +297,70 @@ final class DeployHostServicesProcessorTest extends ApiTestCase
         yield '19 digits, beyond the integer range' => ['9999999999999999999'];
 
         yield '20 digits' => ['100000000000000000000'];
+    }
+
+    /**
+     * The deployer and the response builder read IS_CLOUD_PLATFORM, which is fixed for the whole kernel: the handler
+     * and the processor are replaced by instances built for a Cloud platform, on their real dependencies. Must run
+     * before the request is made.
+     */
+    private function forceCloudPlatform(): void
+    {
+        $container = self::getContainer();
+
+        $container->set(
+            DeployHostServicesFromTemplatesCommandHandler::class,
+            new DeployHostServicesFromTemplatesCommandHandler(
+                new HostServicesDeployer(
+                    $this->service(HostRepository::class),
+                    $this->service(ServiceTemplateRepository::class),
+                    $this->service(ServiceRepository::class),
+                    isCloudPlatform: true,
+                ),
+                $this->service(EventBus::class),
+            ),
+        );
+        $container->set(
+            DeployHostServicesProcessor::class,
+            new DeployHostServicesProcessor(
+                $this->service(CommandBus::class),
+                $this->service(Security::class),
+                new ServiceResourceBuilder(
+                    $this->service(ServiceResourceTransformer::class),
+                    $this->service(ServiceNotificationsTransformer::class),
+                    $this->service(HostRepository::class),
+                    $this->service(ServiceTemplateRepository::class),
+                    $this->service(CommandRepository::class),
+                    $this->service(TimePeriodRepository::class),
+                    $this->service(MediaRepository::class),
+                    $this->service(MediaUrlGenerator::class),
+                    $this->service(ServiceGroupRepository::class),
+                    $this->service(ServiceCategoryRepository::class),
+                    $this->service(ServiceSeverityRepository::class),
+                    $this->service(GraphTemplateRepository::class),
+                    $this->service(TrapRepository::class),
+                    $this->service(AccessScopeResolver::class),
+                    $this->service(ServiceMacroTransformer::class),
+                    $this->service(InheritedServiceMacrosResolver::class),
+                    isCloudPlatform: true,
+                ),
+            ),
+        );
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $id
+     *
+     * @return T
+     */
+    private function service(string $id): object
+    {
+        $service = self::getContainer()->get($id);
+        \assert($service instanceof $id);
+
+        return $service;
     }
 
     private function endpoint(int $hostId): string
