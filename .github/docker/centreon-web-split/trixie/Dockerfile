@@ -971,3 +971,68 @@ LABEL org.opencontainers.image.title="Centreon web (cron)" \
 # of /etc/cron.d's per-line user column, not something a non-root PID 1
 # could do itself.
 ENTRYPOINT ["/usr/local/lib/centreon-cron/container.sh"]
+
+#############################################
+# Stage (final): rrdcached — TCP write-cache sidecar for centreon-broker's
+# RRD output (MON-213837). Reached over TCP 42217: in compose it is its own
+# `rrdcached` service (broker's rrd output gets that name through its
+# `host` key, MON-213839); in the chart it is a sidecar of the broker pod
+# (127.0.0.1), exposed to fpm by a Service for the graphs. Enabled by
+# default (RRDCACHED_PORT=42217). The image only needs the binary plus the
+# UID/GID of centreon-broker's own image (902), since it writes into the
+# RRD tree broker owns (/var/lib/centreon/{metrics,status}), shared via
+# volume. Built here rather than taken from a third-party image: there is
+# no official rrdcached image, and this one runs non-root from PID 1.
+#############################################
+FROM debian:trixie-slim AS rrdcached
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    bash -e <<'EOF'
+apt-get update
+apt-get install -y --no-install-recommends rrdcached
+rm -rf /var/lib/apt/lists/*
+EOF
+
+# Same fixed UID/GID as centreon-broker's own image (902) — rrdcached must
+# write into the same RRD tree broker owns, as the same user, not just read
+# it.
+RUN groupadd -g 902 centreon-broker && \
+    useradd -u 902 -g centreon-broker -M -r -l -d /var/lib/centreon-broker -s /usr/sbin/nologin centreon-broker
+
+RUN mkdir -p /var/lib/rrdcached/journal && \
+    chown -R centreon-broker:centreon-broker /var/lib/rrdcached
+
+ARG BUILD_DATE
+ARG BUILD_VERSION=unknown
+ARG GIT_REVISION=unknown
+
+LABEL org.opencontainers.image.title="Centreon web (rrdcached)" \
+      org.opencontainers.image.description="TCP write-cache sidecar for centreon-broker's RRD output" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.version="${BUILD_VERSION}" \
+      org.opencontainers.image.revision="${GIT_REVISION}" \
+      org.opencontainers.image.source="https://github.com/centreon/centreon" \
+      org.opencontainers.image.licenses="Apache-2.0" \
+      org.opencontainers.image.vendor="Centreon" \
+      org.centreon.base-image="debian:trixie-slim" \
+      org.centreon.release-stage="alpha"
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+    CMD ["bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/42217 && echo PING >&3 && read -t 2 r <&3 && [[ \"$r\" == *PONG* ]]"]
+
+USER 902:902
+
+# ENTRYPOINT fixed to the binary only, every flag in CMD: a compose/k8s
+# override replaces the args wholesale (e.g. a different -w/-z flush
+# timing) without having to repeat the binary name.
+#
+# -p is a correction to the original contract, found by actually running
+# this: -g ("do not fork and run in the foreground") does NOT, by itself,
+# skip pidfile handling in this rrdcached version (1.7.2) — it still tries
+# to create/open its compiled-in default '/var/run/rrdcached.pid', which a
+# non-root UID (902) can't write to ("Permission denied", then "daemonize
+# failed, exiting", confirmed reproduced before this flag was added).
+# Pointed at the journal dir, already owned by this image's own user.
+ENTRYPOINT ["rrdcached"]
+CMD ["-g", "-l", "0.0.0.0:42217", "-b", "/var/lib/centreon", "-B", "-j", "/var/lib/rrdcached/journal", "-F", "-w", "300", "-z", "60", "-f", "3600", "-p", "/var/lib/rrdcached/journal/rrdcached.pid"]

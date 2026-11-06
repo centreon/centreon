@@ -71,6 +71,10 @@ case "$ROLE" in
     check "application tree present" 'test -d /usr/share/centreon/cron'
     check "entrypoint present" 'test -x /usr/local/lib/centreon-cron/container.sh'
     ;;
+  rrdcached)
+    check "rrdcached binary present" 'command -v rrdcached'
+    check_as 902 "runs as the broker UID (902)" 'test "$(id -u)" = 902'
+    ;;
   *)
     echo "::error::unknown ROLE '${ROLE}'"
     exit 1
