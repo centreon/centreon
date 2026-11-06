@@ -53,38 +53,21 @@ use App\Shared\Infrastructure\TransformerInterface;
 /**
  * A blank text is no value and an unknown SNMP version reads as none.
  *
- * @phpstan-import-type RowTypeAlias from DbalHostTemplateRepository
  * @phpstan-import-type FindOneRowTypeAlias from DbalHostTemplateRepository
  *
- * @implements TransformerInterface<RowTypeAlias|FindOneRowTypeAlias, HostTemplate>
+ * @implements TransformerInterface<FindOneRowTypeAlias, HostTemplate>
  */
 final readonly class HostTemplateTransformer implements TransformerInterface
 {
     use TriStateColumnTrait;
 
     /**
-     * A listing row (RowTypeAlias) leaves everything but the name, alias, lock, icon and parents at
-     * the aggregate's defaults.
-     *
-     * @param RowTypeAlias|FindOneRowTypeAlias $from
+     * @param FindOneRowTypeAlias $from
      */
     public function transform(mixed $from): HostTemplate
     {
         $alias = $this->nullIfBlank($from['host_alias']);
-        $parentTemplateIds = new Collection($this->ids($from['parent_template_ids'], HostTemplateId::class), HostTemplateId::class);
         $iconId = $from['icon_id'] !== null ? new MediaId((int) $from['icon_id']) : null;
-
-        if (! array_key_exists('snmp_version', $from)) {
-            return new HostTemplate(
-                id: new HostTemplateId($from['host_id']),
-                name: new HostTemplateName($from['host_name']),
-                alias: $alias !== null ? new HostAlias($alias) : null,
-                isLocked: (bool) (int) ($from['host_locked'] ?? 0),
-                parentTemplateIds: $parentTemplateIds,
-                extendedInformations: $iconId instanceof MediaId ? new ExtendedInformations(iconId: $iconId) : null,
-            );
-        }
-
         $snmpCommunity = $this->nullIfBlank($from['snmp_community']);
         $snmpVersion = $this->nullIfBlank($from['snmp_version']);
 
@@ -99,7 +82,7 @@ final readonly class HostTemplateTransformer implements TransformerInterface
             serviceTemplateCheckCommandIds: new Collection($this->ids($from['service_template_check_command_ids'], CommandId::class), CommandId::class),
             alias: $alias !== null ? new HostAlias($alias) : null,
             isLocked: (bool) (int) ($from['host_locked'] ?? 0),
-            parentTemplateIds: $parentTemplateIds,
+            parentTemplateIds: new Collection($this->ids($from['parent_template_ids'], HostTemplateId::class), HostTemplateId::class),
             snmpCommunity: $snmpCommunity !== null ? new SnmpCommunity($snmpCommunity) : null,
             snmpVersion: $snmpVersion !== null ? SnmpVersionEnum::tryFrom($snmpVersion) : null,
             // host_location defaults to 0, not NULL: 0 means no timezone too.
@@ -167,8 +150,7 @@ final readonly class HostTemplateTransformer implements TransformerInterface
     }
 
     /**
-     * The engine's comma-separated letters, in the enum's order; an unknown letter is skipped, and
-     * "n" next to real options is dropped.
+     * In enum order; unknown letters skipped, "n" dropped next to real options.
      *
      * @return list<NotificationOptionEnum>
      */

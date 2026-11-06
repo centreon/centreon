@@ -48,6 +48,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateListingTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
@@ -77,6 +78,7 @@ final class DbalHostTemplateRepositoryAddTest extends KernelTestCase
         $this->repository = new DbalHostTemplateRepository(
             $this->connection,
             new HostTemplateTransformer(),
+            new HostTemplateListingTransformer(),
             new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
             new DbalModuleRepository($this->connection),
         );

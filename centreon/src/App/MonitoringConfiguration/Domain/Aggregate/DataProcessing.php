@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\NoValue;
 use Webmozart\Assert\Assert;
 
@@ -56,7 +57,7 @@ final readonly class DataProcessing
         public ?int $lowFlapThreshold = null,
         public ?int $highFlapThreshold = null,
         public ?CommandId $eventHandlerCommandId = null,
-        public array $eventHandlerArgs = [],
+        #[Sensitive] public array $eventHandlerArgs = [],
     ) {
         if ($acknowledgmentTimeout !== null) {
             Assert::greaterThanEq($acknowledgmentTimeout, 1, 'DataProcessing::acknowledgmentTimeout expected to be >= 1, got %s.');

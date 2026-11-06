@@ -74,8 +74,7 @@ use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Resolves the ids the template carries into the `{id, name}` objects of the detail. The categories,
- * the severity, the contacts and the contact groups out of the actor's scope are left out.
+ * Resolves ids to {id, name}, leaving out categories, severity, contacts and groups outside the actor's scope.
  */
 final readonly class HostTemplateResourceBuilder
 {
@@ -258,7 +257,7 @@ final readonly class HostTemplateResourceBuilder
         }
 
         return new HostNotificationsOutput(
-            enabled: $notifications->enabled->value,
+            enabled: $notifications->enabled,
             contacts: $contacts,
             contactGroups: $contactGroups,
             options: array_map(NotificationOptionEnumResolver::toString(...), $notifications->options),
