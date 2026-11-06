@@ -46,12 +46,35 @@ services:
       RUN_INSTALL: "true"
       MYSQL_HOST: db
       CENTREON_INTERNAL_API_BASE_URL: "http://httpd:80"
+      # Read by generate-broker-configuration.php to poll gorgone's own
+      # connection-status API (GET /internal/constatus, confirmed reachable
+      # here over plain HTTP, no auth) before attempting config delivery —
+      # a latency optimization over blind-retrying, not a correctness
+      # requirement (that script's own fallback, and this script's outer
+      # retry-forever loop, both still hold if gorgone's API is unreachable
+      # for any reason).
+      GORGONE_API_BASE_URL: "http://gorgone-central:8085"
       CENTREON_DATASET: "${CENTREON_DATASET:-0}"
       # Opt-in overrides, both unset/off by default — same fixture-default
       # behavior as before (admin / Centreon!2021, no forced password
-      # change) unless explicitly set. See 12-install.sh for the full story.
+      # change) unless explicitly set. See 12-install.sh for the full
+      # story, including why centreon-gorgone needed its own dedicated
+      # credential rather than reusing whatever admin's password happens
+      # to be.
       ADMIN_PASSWORD: "${ADMIN_PASSWORD:-}"
       ADMIN_PASSWORD_EXPIRED: "${ADMIN_PASSWORD_EXPIRED:-false}"
+      GORGONE_API_USERNAME: centreon-gorgone
+      GORGONE_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
+      # centreonGraph{,Ng,Status}.class.php's remote rrdcached host (C7) —
+      # deliberately NOT set here: nothing in this stack runs rrdcached
+      # (centreon-broker's RRD output writes RRD files itself,
+      # rrd_cached_option stays 'disable' per 12-install.sh's broker
+      # adaptation), so pointing this at a service with nothing listening
+      # would just replace today's fast local fallback with a slow timeout.
+      # getenv() unset/empty falls back to 127.0.0.1, confirmed with
+      # gorgone-api — set to "host:port" of a real rrdcached only once one
+      # is actually added to this stack.
+      # CENTREON_RRDCACHED_HOST: ""
       # Resolved into centreon.ini at container start (01-config.sh) — the
       # image itself defaults to UTC (Dockerfile), this dev stack keeps the
       # value it always had rather than silently changing behavior.
@@ -126,6 +149,7 @@ services:
     environment:
       PHP_FPM_UPSTREAM: "fpm:9000"
       HTTPD_SERVER_NAME: "${HTTPD_SERVER_NAME:-localhost:18080}"
+      GORGONE_WSS_UPSTREAM: "${GORGONE_WSS_UPSTREAM:-gorgone-central:8087}"
     volumes:
       # See the matching comment on fpm's own mount of this volume — fpm
       # writes, httpd only serves it back statically, :ro here on purpose.
@@ -135,6 +159,244 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
+
+  # Pilier 2 (config-delivery, pullwss variant) — central orchestrator
+  # gorgone. Native TYPE=central support: container.d/10-create-config.sh
+  # writes config.d/{30-centreon,31-centreon-api,40-gorgoned}.yaml at startup
+  # from env vars, and the image's own default CMD
+  # (`gorgoned --config=/etc/centreon-gorgone/config.yaml`) picks them up
+  # through the same `!include config.d/*.yaml` path TYPE=poller already
+  # uses — no `command:` override needed here any more than for the poller
+  # service below, and no bind-mounted static YAML either. Deliberate
+  # deviations from a real central's own config.d, documented in that
+  # script: gorgonecore.id 1000 not 1 (avoids an id/self-collision), proxy.
+  # httpserver binds 0.0.0.0 not localhost (separate containers), tpapi
+  # collapsed to one file/base_url (nothing is 127.0.0.1-reachable between
+  # containers, so the real file's external-vs-local split doesn't apply).
+  gorgone-central:
+    image: "${GORGONE_IMAGE:-docker.centreon.com/centreon/centreon-gorgone-trixie:develop}"
+    pull_policy: always
+    env_file:
+      - ../.env
+    depends_on:
+      db:
+        condition: service_healthy
+      # Not required for the websocket/REMOTECOPY mechanism itself (that
+      # worked fine without this), but register_nodes_from_db()/the nodes
+      # module query nagios_server — starting before fpm's RUN_INSTALL has
+      # populated the schema means self-registration has to rely on retries
+      # instead of just working on the first pass.
+      fpm:
+        condition: service_healthy
+    environment:
+      TYPE: central
+      MYSQL_HOST: db
+      # Confirmed live: every GORGONE__ segment must be uppercase —
+      # load_env_config lowercases the env var name to match it, then
+      # re-fetches the value via $ENV{uc(...)}, which silently returns undef
+      # (discarding the override) for any name that wasn't already all-
+      # uppercase, while still logging success. All 6 needed, not just the
+      # DSN: config.d/30-centreon.yaml ships REPLACE_ME/centreon/centreon as
+      # literal placeholders, and gorgone's own load_env_config substitutes
+      # them at load time from these exact GORGONE__ vars — db_realtime
+      # needs its own DSN/username/password too, not just
+      # db_configuration's.
+      GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__DSN: "mysql:host=db;dbname=centreon"
+      GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__USERNAME: centreon
+      GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__PASSWORD: centreon
+      GORGONE__CENTREON__DATABASE__DB_REALTIME__DSN: "mysql:host=db;dbname=centreon_storage"
+      GORGONE__CENTREON__DATABASE__DB_REALTIME__USERNAME: centreon
+      GORGONE__CENTREON__DATABASE__DB_REALTIME__PASSWORD: centreon
+      # New, for 10-create-config.sh's own tpapi block (not the GORGONE__
+      # override mechanism — this script writes them directly into the
+      # config.d file it generates). Pointed at the dedicated
+      # centreon-gorgone system contact (see 12-install.sh) rather than
+      # admin, so gorgone's own REST calls to Centreon don't silently depend
+      # on the admin account's password never changing.
+      CENTREON_API_BASE_URL: "http://httpd/centreon/api/latest/"
+      CENTREON_API_USERNAME: centreon-gorgone
+      CENTREON_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
+      # MON-213814 (G8): the reverse pair — gorgone's own inbound API auth,
+      # which is what fpm's own GORGONE_API_USERNAME/GORGONE_API_PASSWORD
+      # (above, on the fpm service) authenticate against when calling INTO
+      # gorgone. Same credential, same value, opposite direction from
+      # CENTREON_API_USERNAME/PASSWORD just above (gorgone calling OUT to
+      # Centreon's web API) — two distinct env var pairs the image's own
+      # 10-create-config.sh now requires separately (:?-guarded, fails fast
+      # if either is unset), not one derived from the other. Without this,
+      # gorgone-central never starts at all (its own nodes module never
+      # loads nagios_server, so pullwss rejects every poller connection with
+      # "please registernodes" — confirmed testing the full C12 stack).
+      GORGONE_API_USERNAME: centreon-gorgone
+      GORGONE_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
+    volumes:
+      # Same named volumes as fpm — REMOTECOPY reads source files off its own
+      # disk, never from the triggering request, so this has to be the exact
+      # same filesystem fpm wrote to, not a copy.
+      - centreon-cache:/var/cache/centreon
+      - centreon-varlib:/var/lib/centreon
+
+  # Central's own engine acting as a poller for config-delivery purposes (the
+  # existing, unmodified TYPE=poller image/config, reused as-is).
+  gorgone-central-poller:
+    image: "${GORGONE_IMAGE:-docker.centreon.com/centreon/centreon-gorgone-trixie:develop}"
+    pull_policy: always
+    environment:
+      TYPE: poller
+      # Same pair as fpm's engine-context.json (not independent
+      # placeholders) — centengine has to decrypt the same data web
+      # encrypts.
+      APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
+      SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
+      GORGONE_UID: "1"                 # must match the Central nagios_server.id
+      CENTRAL_HOST: httpd
+      CENTRAL_PORT: "80"                # httpd's internal port, not the mapped host port
+      # Native token auto-fetch: gorgone-central-poller logs in to the
+      # Centreon API itself at startup and fetches the real "poller-default"
+      # token value, no manually-pasted GORGONE_TOKEN that goes stale after
+      # every fresh install. PULLWSS_TOKEN_NAME is the opt-in gate (unset =
+      # old static GORGONE_TOKEN behavior) — reserved for this service
+      # specifically, deliberately NOT a general poller template: a real
+      # remote poller already gets a static token the normal way (Add
+      # Poller UI) and handing it Centreon admin-API credentials on top
+      # would be a real privilege increase for no benefit.
+      PULLWSS_TOKEN_NAME: poller-default
+      CENTREON_API_BASE_URL: "http://httpd/centreon/api/latest/"
+      CENTREON_API_USERNAME: admin
+      CENTREON_API_PASSWORD: "Centreon!2021"
+      # Default 30 retries x 2s per phase (login, then fetch) is ~2min
+      # total, which can plausibly lose a race against a genuinely fresh
+      # install's full schema setup (depends_on below only waits for httpd
+      # to start, not for fpm's RUN_INSTALL to finish) — bumped for
+      # headroom; `restart: unless-stopped` below is the real safety net
+      # regardless.
+      PULLWSS_TOKEN_FETCH_RETRIES: "90"
+      # Every GORGONE__ segment must be uppercase (see gorgone-central's own
+      # comment above) — this dev stack has no TLS on httpd (port 80 only).
+      GORGONE__GORGONE__MODULES__PULLWSS__SSL: "false"
+    restart: unless-stopped
+    depends_on:
+      httpd:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q \":$$(printf '%04X' $${CENTRAL_PORT:-443}) 01\" /proc/net/tcp /proc/net/tcp6 2>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30m
+      retries: 3
+    volumes:
+      - poller-engine:/etc/centreon-engine
+      - poller-broker:/etc/centreon-broker
+      # Command pipe dir, shared with centengine — same 3-volume pairing
+      # (engine/broker/centcmd) install-poller's own generated compose uses
+      # between its gorgone and centengine services.
+      - poller-centcmd:/var/lib/centreon-engine/rw
+      # "Generate Configuration Files" REMOTECOPYs centreon_vmware.json here
+      # on every run regardless of whether a VMware poller is actually
+      # configured (centreon-vmware's own feature config). Without this
+      # volume, that delivery lands in the container's own ephemeral
+      # filesystem and vanishes on recreate.
+      - poller-etc:/etc/centreon
+
+  # Real monitoring engine for Central-as-a-poller, matching centreon/
+  # install-poller's own generated docker-compose.yaml service definition
+  # almost verbatim — same image family, same volumes, same healthcheck.
+  # Needed for the COMMAND/reload path (gorgone's systemctl shim targets a
+  # hostname literally called "centengine" over gRPC) — does NOT fix
+  # "Generate Configuration Files"' local centengine -v shell-out in
+  # php-fpm, that's a separate, still-unaddressed local shell-out.
+  centengine:
+    image: "${ENGINE_IMAGE:-docker.centreon.com/centreon/centreon-engine-trixie:develop}"
+    pull_policy: always
+    hostname: centengine
+    restart: unless-stopped
+    environment:
+      NAME: gorgone-central-poller
+      TZ: UTC
+      DEBUG: "false"
+      APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
+      SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
+      ENGINE_PORT: "5669"
+    volumes:
+      - poller-engine:/etc/centreon-engine
+      - poller-broker:/etc/centreon-broker
+      - poller-centcmd:/var/lib/centreon-engine/rw
+      - poller-centlog:/var/log/centreon-engine
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q \":$$(printf '%04X' $${ENGINE_PORT:-443}) 01\" /proc/net/tcp /proc/net/tcp6 2>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      start_period: 5m
+      retries: 3
+    depends_on:
+      gorgone-central-poller:
+        condition: service_healthy
+      centreon-broker:
+        condition: service_started
+
+  # central-broker-master: the global BBDO dispatcher centengine's cbmod
+  # streams events to. Once "Generate Configuration Files" + gorgone
+  # REMOTECOPY actually ran for real, central-broker.json is no longer the
+  # image's bare default. RRD role (central-rrd-master) not run separately
+  # — merged into this same process via config (12-install.sh's broker
+  # adaptation block), not two containers.
+  #
+  # Pinned to an image bundling a fingerprint guard (refuses to start on
+  # the package-default config) and an HTTP reload/restart shim as PID 1 —
+  # not yet wired up here (its HTTP endpoints aren't consumed by anything
+  # in this stack yet).
+  #
+  # No seeding step for the `poller-broker` volume: a genuinely empty
+  # volume at first boot is the correct, already-handled state on that
+  # image — real content arrives via gorgone REMOTECOPY, triggered
+  # automatically by 13-generate-broker-config_background.sh instead of a
+  # manual UI click.
+  #
+  # The two custom RRD directories (fresh named volumes, no image-provided
+  # ownership) are chowned by fpm's own container.d/03-rrd-volumes.sh
+  # instead of a dedicated init container here — fpm already runs an early
+  # root-level startup phase and already bakes in centreon-broker's exact
+  # UID/GID (cross-container volume consistency), so reusing it avoids
+  # pulling the (large) broker image just for one mkdir+chown. This service
+  # needs no entrypoint/command/user override at all as a result, pure
+  # image defaults throughout.
+  centreon-broker:
+    image: "${BROKER_IMAGE:-docker.centreon.com/centreon/centreon-broker-trixie:develop}"
+    pull_policy: always
+    hostname: centreon-broker
+    restart: unless-stopped
+    environment:
+      # Same pair as everywhere else — db_password in central-broker.json is
+      # "encrypt::...", decryptable only via an AES key built from this
+      # exact app_secret+salt. Deliberately NOT the shared poller-engine
+      # named volume (keep engine and broker from sharing that volume) —
+      # this container's own container.sh writes its own private copy from
+      # these env vars instead.
+      APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
+      SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
+    volumes:
+      - poller-broker:/etc/centreon-broker
+      - centreon-status:/var/lib/centreon/status
+      - centreon-metrics:/var/lib/centreon/metrics
+    depends_on:
+      db:
+        condition: service_healthy
+      # Not service_healthy: that requires RUN_INSTALL to fully finish
+      # (minutes), but 03-rrd-volumes.sh runs within the first second of
+      # fpm's own startup, long before that — service_started is enough to
+      # avoid making this a false hard dependency on the whole install.
+      fpm:
+        condition: service_started
+    ports:
+      - "5669:5669"
+      # api_control.py's HTTP reload/restart/health shim (uvicorn): POST
+      # /reload (SIGHUP, in-place config+AES-key refresh), POST /restart
+      # (SIGTERM then exits the wrapper itself so `restart: unless-stopped`
+      # relaunches the container), GET /health. Not consumed by anything in
+      # this stack yet (still manual `docker compose restart centreon-broker`
+      # after a config change) — exposed so it's reachable for that
+      # follow-up without another compose edit.
+      - "8080:8080"
 
   # Scheduled jobs a real RPM/DEB install gets via /etc/cron.d/{centreon,
   # centstorage} (CentACL, downtime start/stop, token/storage purge,
@@ -181,3 +443,8 @@ volumes:
   centreon-metrics:
   centreon-media:
   centreon-sessions:
+  poller-etc:
+  poller-engine:
+  poller-broker:
+  poller-centcmd:
+  poller-centlog:
