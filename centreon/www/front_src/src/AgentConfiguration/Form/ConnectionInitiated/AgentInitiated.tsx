@@ -214,7 +214,7 @@ const AgentInitiated = (): React.ReactElement => {
       <Box>
         <Title label={labelCMAauthenticationToken} />
         <MultiConnectedAutocompleteField
-          ChipProps={{
+          chipProps={{
             color: 'primary',
             onDelete: deleteToken as React.EventHandler<React.SyntheticEvent>
           }}
