@@ -9,8 +9,11 @@ A new term, or a change to a definition, goes through a pull request on this pag
 1. [Domain building blocks](#1-domain-building-blocks)
 2. [Messaging](#2-messaging)
 3. [Ports and adapters](#3-ports-and-adapters)
-4. [Common misreadings](#4-common-misreadings)
-5. [Not defined yet](#5-not-defined-yet)
+4. [Security](#4-security)
+5. [Code scopes](#5-code-scopes)
+6. [Testing](#6-testing)
+7. [Common misreadings](#7-common-misreadings)
+8. [Not defined yet](#8-not-defined-yet)
 
 ---
 
@@ -34,7 +37,7 @@ Not a class. It is the set of entities, value objects and collections that form 
 
 ### Aggregate root
 
-The single entity that is the aggregate's entry point, one per aggregate. Changes inside the aggregate go through it, as set by [ADR-0012](adr/0012-change-aggregate-internals-through-the-root.md).
+The single entity that is the aggregate's entry point, one per aggregate. Changes inside the aggregate go through it, as set by [ADR-0012](adr/0012-apip-change-aggregate-internals-through-the-root.md).
 
 ### Read model
 
@@ -44,7 +47,7 @@ A behaviourless data structure built for one use, possibly crossing several aggr
 
 A read model dedicated to API Platform.
 
-The placement and shape of a class follow from its definition: a `final readonly`, self-validating class compared by value is a value object; an identified, mutable class with business methods is an entity. Where each one lives is set by [ADR-0002](adr/0002-name-domain-folder-model.md), and how aggregate properties are mutated by [ADR-0009](adr/0009-aggregates-readonly-by-default.md).
+The placement and shape of a class follow from its definition: a `final readonly`, self-validating class compared by value is a value object; an identified, mutable class with business methods is an entity. Where each one lives is set by [ADR-0002](adr/0002-apip-name-domain-folder-model.md), and how aggregate properties are mutated by [ADR-0009](adr/0009-apip-aggregates-readonly-by-default.md).
 
 ---
 
@@ -70,7 +73,7 @@ A message signalling that something happened, **named in the past tense** (`Host
 
 The channel that routes a message to its handlers and hosts generic behaviour through middleware (transaction, logging). **One bus per message type**: command, query, event. The bus configuration enforces the handler count and chooses the transport, synchronous or asynchronous. A second handler on a command or a query is a configuration error, not a design option.
 
-What a message may carry is set by [ADR-0013](adr/0013-messages-carry-serializable-values-only.md), and how many aggregates a command may change by [ADR-0014](adr/0014-one-aggregate-per-command.md).
+What a message may carry is set by [ADR-0013](adr/0013-apip-messages-carry-serializable-values-only.md), and how many aggregates a command may change by [ADR-0014](adr/0014-apip-one-aggregate-per-command.md).
 
 ---
 
@@ -86,9 +89,65 @@ A class implementing one or more ports, usually in the infrastructure layer. It 
 
 When a port has several adapters, the chosen one is wired explicitly in the Symfony container, which fails to compile otherwise. Test adapters rely on the same mechanism. One adapter implementing several ports is allowed, for example a repository implementing a read and a write interface, but naming gets harder: one port per adapter is preferred when practical.
 
+### Adaptation layer
+
+The `src/Adaptation` namespace, a set of interfaces and their implementations that wrap two technical concerns for code outside `src/App`: logging (`Adaptation\Log`) and the database connection (`Adaptation\Database`). `src/App` uses Doctrine DBAL and an injected PSR-3 logger, and reaches `Adaptation` only through an `Infrastructure/Legacy/` adapter ([ADR-0005](adr/0005-apip-isolate-legacy-in-infrastructure-legacy.md)), apart from deptrac's `AdaptationLog` allowance (`deptrac_bc.yaml` for `MonitoringConfiguration`, `deptrac_hexa.yaml` for every `Infrastructure` layer, since [#11313](https://github.com/centreon/centreon/pull/11313)), a historical exception, not a pattern to follow. New code outside `src/App` reaches the database through it, as set by [ADR-0027](adr/0027-core-reach-the-database-from-src-core-through-connection-interface.md) and [ADR-0028](adr/0028-legacy-reach-the-database-from-legacy-code-through-connection-interface.md), and all new or touched logging outside `src/App` goes through it too, as set by [ADR-0016](adr/0016-core-log-src-core-through-adaptation-logger.md) and [ADR-0017](adr/0017-legacy-log-legacy-code-through-adaptation-logger.md).
+
 ---
 
-## 4. Common misreadings
+## 4. Security
+
+### Secret
+
+A value that grants access or that the platform hides elsewhere: a password, a token, an API or private key, a session ID or autologin key, an LDAP bind password, an OAuth client secret, an SNMP community or SNMPv3 passphrase, a password macro's value, a URL that embeds credentials. A vault path is not a secret.
+
+### Keyword net
+
+The name-based masking of the logging pipeline: a field whose name contains a keyword of `SensitiveKeywordDenylist` (`password`, `token`, `secret`, …) is logged as `***`. It masks message payloads and the context of a direct log call, but misses a secret carried by an unlisted name.
+
+How a secret is kept out of the logs is set by [ADR-0026](adr/0026-apip-mark-every-secret-sensitive.md).
+
+---
+
+## 5. Code scopes
+
+### Scope
+
+The part of the codebase a rule applies to. It takes one of three values:
+
+- **APIP:** the code under `src/App`, including a module's (such as `centreon-bam/src/App`), and its kernel configuration, `config.new`. `src/App/Kernel.php` is the exception: it is the kernel of `config/`.
+- **Core:** the code under `src/Core`, including a module's.
+- **Legacy:** everything else: `src/Centreon*`, `src/Adaptation`, `www/`, `config/` with its kernel `src/App/Kernel.php`, which build the `src/Core` and legacy services, and the modules' other code. `src/Adaptation` is the most recent legacy code: it holds what `src/Core` and the rest of legacy share, so it is removed last.
+
+Every [ADR](adr/index.md) states its scope, so the records of a scope can be dropped together once its code is gone. A record from before ADR-0016 may list several scopes, such as `APIP/Core/Legacy`.
+
+### Bounded context
+
+A business area of `src/App` with its own folder (`src/App/<Context>`, such as `MonitoringConfiguration` or `Upgrade`), its own model and its own language. A bounded context does not use another one's classes. `Shared` is not a bounded context: every context may use it. `src/Core` is split into contexts the same way (`src/Core/<Context>`), without this isolation rule.
+
+### Touched code
+
+The code a pull request adds or changes: a new file, class, method or function, or an existing line it modifies. Unless a record says otherwise, a rule applies to touched code, and the rest of the existing code follows it when it is next touched.
+
+---
+
+## 6. Testing
+
+### Building block
+
+One of the kinds of class `src/App` is built from: value object, entity, aggregate root, enum, criteria, transformer, input or output DTO, service, factory, handler, processor, provider, repository, security voter, constraint validator. Which ones get their own unit test, and how the others are tested, is set by [ADR-0018](adr/0018-apip-unit-test-every-building-block.md).
+
+### Platform
+
+The deployment a Centreon instance runs on: **Cloud** or **on-premise**. The code reads it from the `IS_CLOUD_PLATFORM` environment variable, and some endpoints behave differently on each.
+
+### Test double
+
+An object that replaces a dependency in a test. A **fake** is a hand-written class that implements the dependency's interface with working, in-memory behaviour; the test asserts the resulting state. A **mock** is generated by PHPUnit's `createMock()` and asserts the calls made. Which one a test uses is set per scope by [ADR-0036](adr/0036-apip-use-hand-written-fakes-in-src-app-tests.md), [ADR-0037](adr/0037-core-use-fakes-in-src-core-tests-and-mocks-only-as-a-last-resort.md) and [ADR-0038](adr/0038-legacy-use-fakes-in-legacy-tests-and-mocks-only-as-a-last-resort.md).
+
+---
+
+## 7. Common misreadings
 
 The sessions that produced these definitions corrected the following readings:
 
@@ -103,6 +162,6 @@ The sessions that produced these definitions corrected the following readings:
 
 ---
 
-## 5. Not defined yet
+## 8. Not defined yet
 
-Bounded context, DDD, hexagonal architecture.
+DDD, hexagonal architecture.
