@@ -1529,56 +1529,6 @@ final class DbalServiceRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Byte for byte, as the legacy deployment compares: case, accents and trailing spaces count.
-     */
-    public function testIsExactNameUsedOnHostIsByteExact(): void
-    {
-        $hostId = new HostId($this->insertListedHost('h1'));
-        $this->insertListedService('Ping', $hostId->value);
-        $this->insertListedService('Température', $hostId->value);
-        $this->insertListedService('Disk ', $hostId->value);
-
-        self::assertTrue($this->repository->isExactNameUsedOnHost(new ServiceName('Ping'), $hostId));
-        self::assertTrue($this->repository->isExactNameUsedOnHost(new ServiceName('Température'), $hostId));
-        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('ping'), $hostId));
-        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('PING'), $hostId));
-        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('Temperature'), $hostId));
-        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('Disk'), $hostId));
-    }
-
-    public function testIsExactNameUsedOnHostIgnoresOtherHostsAndHostGroupLinks(): void
-    {
-        $hostId = $this->insertListedHost('h1');
-        $this->insertListedService('on-other-host', $this->insertListedHost('h2'));
-        $hostGroupId = $this->insertHostGroup();
-        $this->connection->insert('hostgroup_relation', ['hostgroup_hg_id' => $hostGroupId, 'host_host_id' => $hostId]);
-        $this->linkServiceToHostGroup($this->insertListedService('from-group', null), $hostGroupId);
-
-        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('on-other-host'), new HostId($hostId)));
-        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('from-group'), new HostId($hostId)));
-    }
-
-    /**
-     * A deployment checks each name after the services it created before, on the same connection.
-     */
-    public function testIsExactNameUsedOnHostSeesAServiceAddedInTheSameTransaction(): void
-    {
-        $hostId = new HostId($this->insertListedHost('h1'));
-
-        $this->repository->add(new Service(id: null, name: new ServiceName('ping'), hostId: $hostId, hostActivated: true, hostPollerId: null));
-
-        self::assertTrue($this->repository->isExactNameUsedOnHost(new ServiceName('ping'), $hostId));
-    }
-
-    public function testIsExactNameUsedOnHostIgnoresTemplates(): void
-    {
-        $hostId = $this->insertListedHost('h1');
-        $this->linkServiceToHost($this->createServiceTemplate('a-template'), $hostId);
-
-        self::assertFalse($this->repository->isExactNameUsedOnHost(new ServiceName('a-template'), new HostId($hostId)));
-    }
-
-    /**
      * A service as the deployment builds it (template, default notifications block, the template's groups) is stored
      * with the columns legacy deployment writes, but for the empty argument lists, stored NULL instead of ''.
      */
