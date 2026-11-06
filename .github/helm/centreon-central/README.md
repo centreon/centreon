@@ -560,26 +560,30 @@ the configuration:
 Measured on k3d (one node, 7.6 GB VM), passive hosts with 5 services each,
 one poller:
 
-| Hosts / services | Generation | PHP peak (one worker) | fpm pod | Generated files | gorgone-central peak | Suggested `fpm.phpMemoryLimit` / fpm limit / gorgone-central limit |
+| Hosts / services | Generation | PHP peak (one worker) | fpm pod | Generated files | gorgone-central peak | Suggested `fpm.phpMemoryLimit` / fpm limit / gorgone-central limit / `configurationExport.generationTimeoutSeconds` |
 |---|---|---|---|---|---|---|
-| 1k / 5k | 2-3 s | 94 MB | ~150Mi | 1.5 MB | ~250Mi | default / 512Mi / 512Mi |
-| 5k / 25k | 14-24 s | 221 MB | ~290Mi | 7.4 MB | 429Mi | default / 1Gi / 1Gi |
-| 10k / 50k | 37-47 s | 375 MB | ~690Mi | 14.7 MB | OOMKilled at 512Mi | 512M / 1Gi / 1Gi (`values-prod.yaml`) |
-| 30k / 150k | 272 s | 991 MB | ~1.8Gi | 44 MB | 810Mi | 1536M / 3Gi / 1Gi (2Gi for headroom) |
+| 1k / 5k | 2-3 s | 94 MB | ~150Mi | 1.5 MB | ~250Mi | default / 512Mi / 512Mi / default (60) |
+| 5k / 25k | 14-24 s | 221 MB | ~290Mi | 7.4 MB | 429Mi | default / 1Gi / 1Gi / default (60) |
+| 10k / 50k | 37-47 s | 375 MB | ~690Mi | 14.7 MB | OOMKilled at 512Mi | 512M / 1Gi / 1Gi (`values-prod.yaml`) / 120 |
+| 30k / 150k | 272 s (550 s on a loaded node) | 991 MB | ~1.8Gi | 44 MB | 810Mi | 1536M / 3Gi / 1Gi (2Gi for headroom) / 600 |
 
-Memory alone does not make 30k hosts exportable today:
+Memory alone is not enough for large configurations:
 
-- the REST `generate-and-reload` (and the config-delivery Job, which uses it)
-  gives up on the generation after 60 s: from ~10-15k hosts, use the
+- the generation must also fit in `configurationExport.generationTimeoutSeconds`
+  (60 s by default: the REST `generate-and-reload` and the config-delivery
+  Job give up after it). PHP's `max_execution_time` and httpd's
+  `ProxyTimeout` are derived from it (see "Differences from the compose
+  stack"); with the default they stay at 300 s, which also bounds the
   "Export configuration" menu;
-- httpd's `ProxyTimeout` (300 s) and PHP's `max_execution_time` (300 s) cut a
-  longer generation (504);
+- an ingress in front of httpd has its own read timeout for external REST
+  callers: `values-prod.yaml` raises ingress-nginx's to 3600 s, set the
+  equivalent for another controller;
 - several pollers are exported serially (5 pollers: ~2 min on 5k hosts), and
   the export failed at 10 pollers (gorgone-central stopped collecting the
   pollers' results in time).
 
-Configurable generation timeouts are planned (MON-214473). Not measured:
-150k hosts, and 30k hosts with a tuned MariaDB (the test machine saturated).
+Not measured: 150k hosts, and 30k hosts with a tuned MariaDB (the test
+machine saturated).
 The packaged MariaDB settings (`centreon-database.cnf`, 1G buffer pool) did
 not speed up the generation up to 10k hosts: it is mostly PHP plus one query
 per host and per relation.
