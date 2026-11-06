@@ -15,13 +15,19 @@
 # from the Host header the browser actually sent.
 services:
   db:
-    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:11.8}"
+    image: "${MYSQL_IMAGE:-mariadb:11.8}"
     env_file:
       - ../.env
     environment:
-      MARIADB_EXTRA_FLAGS: "--skip-ssl --skip-name-resolve"
+      MARIADB_AUTO_UPGRADE: "1"
+    command: ["--skip-ssl", "--skip-name-resolve"]
     healthcheck:
-      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/3306 && sleep 3 && </dev/tcp/127.0.0.1/3306'"]
+      # Bare TCP check logs "Aborted connection ... user: 'unauthenticated'" at
+      # every probe with the official image — use a real login instead. The
+      # 11.x client requires TLS by default even though the server runs
+      # --skip-ssl, so --skip-ssl is needed here too. Over TCP on purpose: a
+      # bitnami-initialised datadir only has root@'%'.
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MARIADB_ROOT_PASSWORD\" mariadb-admin --skip-ssl -h 127.0.0.1 -uroot ping --silent"]
       interval: 5s
       timeout: 15s
       retries: 20
