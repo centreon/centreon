@@ -163,4 +163,25 @@ final class HostMacroTest extends TestCase
         self::assertSame(3, $macro->id?->value);
         self::assertTrue($macro->isDirect());
     }
+
+    public function testACopyWithoutIdentityKeepsTheNameValueAndPasswordFlag(): void
+    {
+        $copy = (new HostMacro(new HostMacroName('foo'), 'bar', isPassword: true, id: new HostMacroId(3), parent: HostMacroParentEnum::Template))
+            ->copyWithoutIdentity();
+
+        self::assertSame('FOO', $copy->name->value);
+        self::assertSame('bar', $copy->value);
+        self::assertTrue($copy->isPassword);
+        self::assertNull($copy->id);
+        self::assertTrue($copy->isDirect());
+    }
+
+    public function testACopyWithoutIdentityTakesTheGivenValue(): void
+    {
+        $copy = (new HostMacro(new HostMacroName('foo'), 'secret::old', isPassword: true, id: new HostMacroId(3)))
+            ->copyWithoutIdentity('secret::new');
+
+        self::assertSame('secret::new', $copy->value);
+        self::assertNull($copy->id);
+    }
 }
