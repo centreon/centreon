@@ -35,8 +35,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Webmozart\Assert\Assert;
 
 /**
- * The full detail of one host template, active or not. Templates are not ACL-scoped: the page
- * permission alone gates access.
+ * Templates are not ACL-scoped, active or not: the page permission alone gates access.
  *
  * @implements ProviderInterface<HostTemplateResource>
  */

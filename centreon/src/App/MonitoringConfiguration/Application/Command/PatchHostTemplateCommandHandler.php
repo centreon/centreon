@@ -23,41 +23,32 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Application\Service\HostTemplateAdditiveInheritanceModeApplier;
-use App\MonitoringConfiguration\Application\Service\HostTemplateMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostTemplateMacrosUpdater;
-use App\MonitoringConfiguration\Application\Service\HostTemplateReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostTemplateRelationsUpdater;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptionsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessingChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformationsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
-use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateVaultPurgeRequested;
+use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
-use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\NoValue;
 use App\Shared\Domain\Vault\VaultCredentials;
@@ -71,12 +62,12 @@ final readonly class PatchHostTemplateCommandHandler
 {
     public function __construct(
         private HostTemplateRepository $repository,
-        private HostTemplateReferencesChecker $references,
+        private HostReferencesChecker $references,
         private HostTemplateRelationsUpdater $relations,
         private HostTemplateMacrosUpdater $macros,
-        private HostTemplateMacroSecretsSynchronizer $macroSecrets,
+        private HostMacroSecretsSynchronizer $macroSecrets,
         private CommandRepository $commandRepository,
-        private HostTemplateAdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
+        private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private AccessScopeResolver $accessScopes,
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
@@ -100,16 +91,33 @@ final readonly class PatchHostTemplateCommandHandler
         // The lock is refused before this handler checks any reference.
         $template->assertUnlocked();
 
-        $change = $command->change;
-        $this->assertReferencesExist($change, $command->actor);
+        $this->assertReferencesExist($command);
         $relations = $this->relations->resolve($template, $command);
-        $change = $this->keepTheSeverityOutOfScope($template, $change, $command->actor);
-        $this->assertNameIsAvailable($template, $change);
-        $change = $this->applyTheMonitoringAgentRule($change);
-        $change = $this->applyTheOptions($template, $change, $command->notificationOptions);
-        $change = $this->applyTheInheritanceMode($template, $change);
+        $this->assertNameIsAvailable($template, $command);
+        $this->assertArgumentsHaveACheckCommand($template, $command);
 
-        $changed = $template->withChange($change)->withRelations($relations);
+        $changed = $template->with(
+            name: $command->name,
+            alias: $command->alias,
+            snmpVersion: $command->snmpVersion,
+            timezoneId: $command->timezoneId,
+            severityId: $this->severityToApply($template, $command),
+            checkOptions: $command->checkOptions instanceof NoValue
+                ? new NoValue()
+                : $command->checkOptions->applyTo($template->checkOptions),
+            extendedInformations: $command->extendedInformations instanceof NoValue
+                ? new NoValue()
+                : $command->extendedInformations->applyTo($template->extendedInformations),
+            schedulingOptions: $command->schedulingOptions instanceof NoValue
+                ? new NoValue()
+                : $command->schedulingOptions->applyTo($template->schedulingOptions),
+            dataProcessing: $this->dataProcessing($template, $command),
+            // With the platform option disabled, the additive inheritance flags the template already has are
+            // reset along with any notification change.
+            notifications: $command->notifications instanceof NoValue
+                ? new NoValue()
+                : $this->additiveInheritanceModeApplier->apply($command->notifications->applyTo($template->notifications)),
+        )->withRelations($relations);
         if ($command->macros instanceof HostTemplateMacroChanges) {
             $changed = $changed->withMacros($this->macros->resolve($changed, $command->macros));
         }
@@ -118,7 +126,7 @@ final readonly class PatchHostTemplateCommandHandler
         $vaultUuid = $previousVaultUuid;
         try {
             ['community' => $snmpCommunity, 'secretRewritten' => $secretRewritten] = $this->moveTheCommunityToTheVault($template, $command->snmpCommunity);
-            $changed = $changed->withChange(new HostTemplateChange(snmpCommunity: $snmpCommunity));
+            $changed = $changed->with(snmpCommunity: $snmpCommunity);
             if ($snmpCommunity instanceof SnmpCommunity && $this->vault->isEnabled() && $this->vault->isVaultPath($snmpCommunity->value)) {
                 $vaultUuid = $this->vault->extractUuid($snmpCommunity->value);
             }
@@ -166,122 +174,100 @@ final readonly class PatchHostTemplateCommandHandler
     }
 
     /**
-     * The options follow the list rules: replaced, added to or removed from.
-     *
-     * @param NoValue|ListChange<NotificationOptionEnum> $options
-     */
-    private function applyTheOptions(HostTemplate $template, HostTemplateChange $change, NoValue|ListChange $options): HostTemplateChange
-    {
-        if ($options instanceof NoValue) {
-            return $change;
-        }
-
-        $notifications = $change->notifications instanceof HostTemplateNotificationsChange
-            ? $change->notifications
-            : new HostTemplateNotificationsChange();
-
-        return $change->withNotifications($notifications->withOptions(
-            $options->applyTo(($template->notifications ?? new HostTemplateNotifications())->options),
-        ));
-    }
-
-    /**
      * The input ran the same rules earlier: this is the authoritative check, against what exists now.
      * The check command is checked when the Centreon Monitoring Agent rule loads it.
      */
-    private function assertReferencesExist(HostTemplateChange $change, ActingUser $actor): void
+    private function assertReferencesExist(PatchHostTemplateCommand $command): void
     {
-        if ($change->severityId instanceof HostSeverityId) {
-            $this->references->assertSeverityAccessible($change->severityId, $actor);
+        if ($command->severityId instanceof HostSeverityId) {
+            $this->references->assertSeverityAccessible($command->severityId, $command->actor);
         }
 
-        if ($change->timezoneId instanceof TimezoneId) {
-            $this->references->assertTimezoneExists($change->timezoneId);
+        if ($command->timezoneId instanceof TimezoneId) {
+            $this->references->assertTimezoneExists($command->timezoneId);
         }
 
-        if ($change->extendedInformations instanceof HostTemplateExtendedInformationsChange && $change->extendedInformations->iconId instanceof MediaId) {
-            $this->references->assertMediaExists($change->extendedInformations->iconId);
+        if ($command->extendedInformations instanceof ExtendedInformationsChanges && $command->extendedInformations->iconId instanceof MediaId) {
+            $this->references->assertMediaExists($command->extendedInformations->iconId);
         }
 
-        if ($change->schedulingOptions instanceof HostTemplateSchedulingOptionsChange && $change->schedulingOptions->checkTimeperiodId instanceof TimePeriodId) {
-            $this->references->assertTimePeriodExists($change->schedulingOptions->checkTimeperiodId);
+        if ($command->schedulingOptions instanceof SchedulingOptionsChanges && $command->schedulingOptions->checkTimeperiodId instanceof TimePeriodId) {
+            $this->references->assertTimePeriodExists($command->schedulingOptions->checkTimeperiodId);
         }
 
-        if ($change->notifications instanceof HostTemplateNotificationsChange && $change->notifications->periodId instanceof TimePeriodId) {
-            $this->references->assertTimePeriodExists($change->notifications->periodId);
+        if ($command->notifications instanceof NotificationsChanges && $command->notifications->periodId instanceof TimePeriodId) {
+            $this->references->assertTimePeriodExists($command->notifications->periodId);
         }
 
-        if ($change->dataProcessing instanceof HostTemplateDataProcessingChange && $change->dataProcessing->eventHandlerCommandId instanceof CommandId) {
-            $this->references->assertCommandExists($change->dataProcessing->eventHandlerCommandId);
+        if ($command->dataProcessing instanceof DataProcessingChanges && $command->dataProcessing->eventHandlerCommandId instanceof CommandId) {
+            $this->references->assertCommandExists($command->dataProcessing->eventHandlerCommandId);
         }
     }
 
     /**
      * Clearing the severity keeps one the actor cannot see: they could not have chosen to remove it.
      */
-    private function keepTheSeverityOutOfScope(HostTemplate $template, HostTemplateChange $change, ActingUser $actor): HostTemplateChange
+    private function severityToApply(HostTemplate $template, PatchHostTemplateCommand $command): NoValue|HostSeverityId|null
     {
         if (
-            $change->severityId === null
+            $command->severityId === null
             && $template->severityId instanceof HostSeverityId
-            && ! $this->accessScopes->hostSeverities($actor)->allows($template->severityId)
+            && ! $this->accessScopes->hostSeverities($command->actor)->allows($template->severityId)
         ) {
-            return $change->withSeverityId(new NoValue());
+            return new NoValue();
         }
 
-        return $change;
+        return $command->severityId;
     }
 
-    private function assertNameIsAvailable(HostTemplate $template, HostTemplateChange $change): void
+    private function assertNameIsAvailable(HostTemplate $template, PatchHostTemplateCommand $command): void
     {
         if (
-            $change->name instanceof HostTemplateName
-            && $change->name->value !== $template->name->value
-            && $this->repository->isNameUsedByHostOrTemplate($change->name, $template->id())
+            $command->name instanceof HostTemplateName
+            && $command->name->value !== $template->name->value
+            && $this->repository->isNameUsedByHostOrTemplate($command->name, $template->id())
         ) {
-            throw HostTemplateAlreadyExistsException::forName($change->name->value);
+            throw HostTemplateAlreadyExistsException::forName($command->name->value);
         }
     }
 
     /**
-     * Throws CommandNotFoundException when the check command given does not exist.
+     * Arguments sent on their own apply to the command the template already has.
      */
-    private function applyTheMonitoringAgentRule(HostTemplateChange $change): HostTemplateChange
+    private function assertArgumentsHaveACheckCommand(HostTemplate $template, PatchHostTemplateCommand $command): void
     {
-        if (! $change->checkOptions instanceof HostTemplateCheckOptionsChange || ! $change->checkOptions->checkCommandId instanceof CommandId) {
-            return $change;
+        if (! $command->checkOptions instanceof CheckOptionsChanges || ! is_array($command->checkOptions->args) || $command->checkOptions->args === []) {
+            return;
         }
 
-        if (! $this->commandRepository->getById($change->checkOptions->checkCommandId)->isCentreonMonitoringAgent()) {
-            return $change;
+        $commandId = $command->checkOptions->checkCommandId instanceof NoValue
+            ? $template->checkOptions->checkCommandId
+            : $command->checkOptions->checkCommandId;
+
+        if (! $commandId instanceof CommandId) {
+            throw new CheckArgumentsRequireACommandException();
         }
-
-        $dataProcessing = $change->dataProcessing instanceof HostTemplateDataProcessingChange
-            ? $change->dataProcessing
-            : new HostTemplateDataProcessingChange();
-
-        return $change->withDataProcessing($dataProcessing->withCentreonMonitoringAgentFreshness());
     }
 
     /**
-     * With the platform option disabled, the additive inheritance flags the template already has are
-     * reset along with any notification change.
+     * A template checked by a Centreon Monitoring Agent pushes its results: freshness is always checked,
+     * with a fixed threshold. Throws CommandNotFoundException when the check command given does not exist.
      */
-    private function applyTheInheritanceMode(HostTemplate $template, HostTemplateChange $change): HostTemplateChange
+    private function dataProcessing(HostTemplate $template, PatchHostTemplateCommand $command): NoValue|DataProcessing
     {
-        $notifications = $change->notifications;
-        if (! $notifications instanceof HostTemplateNotificationsChange) {
-            return $change;
+        $dataProcessing = $command->dataProcessing instanceof NoValue
+            ? $template->dataProcessing
+            : $command->dataProcessing->applyTo($template->dataProcessing);
+
+        if (
+            $command->checkOptions instanceof CheckOptionsChanges
+            && $command->checkOptions->checkCommandId instanceof CommandId
+            && $this->commandRepository->getById($command->checkOptions->checkCommandId)->isCentreonMonitoringAgent()
+        ) {
+            return $dataProcessing->withCentreonMonitoringAgentFreshness();
         }
 
-        $applied = $this->additiveInheritanceModeApplier->apply($notifications->applyTo($template->notifications));
-        if (! $applied instanceof HostTemplateNotifications) {
-            return $change;
-        }
-
-        return $change->withNotifications(
-            $notifications->withAdditiveInheritance($applied->contactAdditiveInheritance, $applied->contactGroupAdditiveInheritance),
-        );
+        return $command->dataProcessing instanceof NoValue ? new NoValue() : $dataProcessing;
     }
 
     /**
@@ -326,15 +312,15 @@ final readonly class PatchHostTemplateCommandHandler
     {
         try {
             $macros = $this->macroSecrets->synchronize(
-                array_values($changed->checkOptions->macros->toArray()),
-                array_values($template->checkOptions->macros->toArray()),
+                $changed->checkOptions->macros,
+                $template->checkOptions->macros,
                 $vaultUuid,
             );
         } catch (\Throwable $exception) {
             throw VaultWriteFailedException::forHostTemplate($template->id(), $exception);
         }
 
-        return $changed->withMacros(new Collection($macros, HostTemplateMacro::class));
+        return $changed->withMacros($macros);
     }
 
     /**
@@ -344,7 +330,7 @@ final readonly class PatchHostTemplateCommandHandler
     {
         return $this->vault->isEnabled()
             && $command->macros instanceof HostTemplateMacroChanges
-            && array_any($command->macros->changes, static fn (HostTemplateMacroChange $change): bool => $change->isPassword && $change->value !== null);
+            && array_any($command->macros->changes, static fn (HostMacroChange $change): bool => $change->isPassword && $change->value !== null);
     }
 
     /**

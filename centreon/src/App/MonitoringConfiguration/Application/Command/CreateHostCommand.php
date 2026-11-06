@@ -81,6 +81,7 @@ final readonly class CreateHostCommand
         public ?ExtendedInformations $extendedInformations = null,
         public SchedulingOptions $schedulingOptions = new SchedulingOptions(),
         public ?CommandId $checkCommandId = null,
+        #[Sensitive]
         public array $checkCommandArgs = [],
         public ?Notifications $notifications = null,
         // Masked in logs: a change may carry a password macro's plaintext.

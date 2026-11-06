@@ -26,18 +26,16 @@ namespace App\MonitoringConfiguration\Application\Service;
 use App\MonitoringConfiguration\Application\Command\HostTemplateMacroChanges;
 use App\MonitoringConfiguration\Application\Command\MacroChangeModeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\InheritedHostMacros;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroValueIsAVaultReferenceException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroNotFoundException;
-use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroValueIsAVaultReferenceException;
-use App\MonitoringConfiguration\Domain\Service\HostTemplateMacroChangesResolver;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
 
 /**
@@ -49,46 +47,50 @@ final readonly class HostTemplateMacrosUpdater
 {
     public function __construct(
         private InheritedHostMacrosResolver $inheritedMacrosResolver,
-        private HostTemplateMacroChangesResolver $changesResolver,
+        private HostMacroChangesResolver $changesResolver,
         private VaultInterface $vault,
     ) {
     }
 
     /**
      * @throws HostTemplateMacroNotFoundException when a change refers to a macro the template neither owns nor inherits
-     * @throws HostTemplateMacroValueIsAVaultReferenceException
+     * @throws HostMacroValueIsAVaultReferenceException
      *
-     * @return Collection<HostTemplateMacro> the macros the template must own, passwords as submitted
+     * @return list<HostMacro> the macros the template must own, passwords as submitted
      */
-    public function resolve(HostTemplate $template, HostTemplateMacroChanges $changes): Collection
+    public function resolve(HostTemplate $template, HostTemplateMacroChanges $changes): array
     {
-        $current = array_values($template->checkOptions->macros->toArray());
+        $current = $template->checkOptions->macros;
 
         if ($changes->mode === MacroChangeModeEnum::Remove) {
-            return new Collection($this->remove($current, $changes->removedIds), HostTemplateMacro::class);
+            return $this->remove($current, $changes->removedIds);
         }
 
         $this->assertNoVaultReference($changes->changes);
 
         $inherited = $this->inheritedMacrosResolver->resolve($template->parentTemplateIds, $template->checkOptions->checkCommandId);
-        $resolved = $this->changesResolver->resolve($changes->changes, $current, $inherited);
-
-        if ($changes->mode === MacroChangeModeEnum::Replace) {
-            return new Collection($resolved, HostTemplateMacro::class);
+        try {
+            $resolved = $this->changesResolver->resolve($changes->changes, $current, $inherited);
+        } catch (HostMacroNotFoundException $exception) {
+            throw new HostTemplateMacroNotFoundException($exception->ids, $exception);
         }
 
-        return new Collection($this->mergeWithUntouched($current, $changes->changes, $resolved, $inherited), HostTemplateMacro::class);
+        if ($changes->mode === MacroChangeModeEnum::Replace) {
+            return $resolved;
+        }
+
+        return $this->mergeWithUntouched($current, $changes->changes, $resolved, $inherited);
     }
 
     /**
-     * @param list<HostTemplateMacro> $current
+     * @param list<HostMacro> $current
      * @param list<HostMacroId> $ids
      *
-     * @return list<HostTemplateMacro>
+     * @return list<HostMacro>
      */
     private function remove(array $current, array $ids): array
     {
-        $ownIds = array_map(static fn (HostTemplateMacro $macro): int => (int) $macro->id?->value, $current);
+        $ownIds = array_map(static fn (HostMacro $macro): int => (int) $macro->id?->value, $current);
         $removedIds = array_map(static fn (HostMacroId $id): int => $id->value, $ids);
         $unknownIds = array_values(array_unique(array_diff($removedIds, $ownIds)));
         if ($unknownIds !== []) {
@@ -97,12 +99,12 @@ final readonly class HostTemplateMacrosUpdater
 
         return array_values(array_filter(
             $current,
-            static fn (HostTemplateMacro $macro): bool => ! in_array($macro->id?->value, $removedIds, true),
+            static fn (HostMacro $macro): bool => ! in_array($macro->id?->value, $removedIds, true),
         ));
     }
 
     /**
-     * @param list<HostTemplateMacroChange> $changes
+     * @param list<HostMacroChange> $changes
      */
     private function assertNoVaultReference(array $changes): void
     {
@@ -114,7 +116,7 @@ final readonly class HostTemplateMacrosUpdater
         }
 
         if ($references !== []) {
-            throw new HostTemplateMacroValueIsAVaultReferenceException($references);
+            throw new HostMacroValueIsAVaultReferenceException($references);
         }
     }
 
@@ -122,39 +124,39 @@ final readonly class HostTemplateMacrosUpdater
      * The macros a write did not point at are kept; the ones it wrote follow. A write pointing at an
      * inherited macro replaces the macro the template owns under that inherited macro's name.
      *
-     * @param list<HostTemplateMacro> $current
-     * @param list<HostTemplateMacroChange> $changes
-     * @param list<HostTemplateMacro> $resolved
+     * @param list<HostMacro> $current
+     * @param list<HostMacroChange> $changes
+     * @param list<HostMacro> $resolved
      *
-     * @return list<HostTemplateMacro>
+     * @return list<HostMacro>
      */
     private function mergeWithUntouched(array $current, array $changes, array $resolved, InheritedHostMacros $inherited): array
     {
-        $ownIds = array_map(static fn (HostTemplateMacro $macro): int => (int) $macro->id?->value, $current);
+        $ownIds = array_map(static fn (HostMacro $macro): int => (int) $macro->id?->value, $current);
         $pointedAtIds = [];
         $overriddenNames = [];
         foreach ($changes as $change) {
-            if ($change->id === null) {
+            if (! $change->id instanceof HostMacroId) {
                 continue;
             }
             if ($change->parent instanceof HostMacroParentEnum) {
                 $source = $change->parent === HostMacroParentEnum::Command
-                    ? $inherited->findByName(new HostMacroName($change->name->value))
-                    : $inherited->findBySource($change->parent, new HostMacroId($change->id));
+                    ? $inherited->findByName($change->name)
+                    : $inherited->findBySource($change->parent, $change->id);
                 if ($source instanceof HostMacro) {
                     $overriddenNames[] = $source->name->value;
                 }
 
                 continue;
             }
-            if (in_array($change->id, $ownIds, true)) {
-                $pointedAtIds[] = $change->id;
+            if (in_array($change->id->value, $ownIds, true)) {
+                $pointedAtIds[] = $change->id->value;
             }
         }
 
         $kept = array_filter(
             $current,
-            static fn (HostTemplateMacro $macro): bool => ! in_array($macro->id?->value, $pointedAtIds, true)
+            static fn (HostMacro $macro): bool => ! in_array($macro->id?->value, $pointedAtIds, true)
                 && ! in_array($macro->name->value, $overriddenNames, true),
         );
 

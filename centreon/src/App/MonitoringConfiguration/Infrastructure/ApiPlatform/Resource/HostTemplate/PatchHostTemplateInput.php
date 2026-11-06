@@ -144,7 +144,7 @@ final readonly class PatchHostTemplateInput
 
         #[NotNullWhenProvided]
         #[Assert\Valid]
-        public ?PatchHostTemplateExtendedInformationsInput $extendedInformations = null,
+        public ?CreateHostTemplateExtendedInformationsInput $extendedInformations = null,
 
         #[NotNullWhenProvided]
         #[Assert\Valid]

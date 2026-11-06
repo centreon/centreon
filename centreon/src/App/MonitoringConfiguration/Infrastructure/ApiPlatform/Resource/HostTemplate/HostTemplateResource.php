@@ -35,6 +35,14 @@ use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCheckOptionsOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSchedulingOptionsOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSeverityOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimezoneOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\CreateHostTemplateProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\DeleteHostTemplateProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\DuplicateHostTemplateProcessor;
@@ -249,28 +257,28 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Pa
 )]
 final class HostTemplateResource
 {
-    public ?HostTemplateTimezoneOutput $timezone = null;
+    public ?HostTimezoneOutput $timezone = null;
 
-    public ?HostTemplateSeverityOutput $severity = null;
+    public ?HostSeverityOutput $severity = null;
 
-    /** @var list<HostTemplateCategoryOutput> */
+    /** @var list<HostCategoryOutput> */
     public array $categories = [];
 
-    /** @var list<HostTemplateParentOutput> the parent templates, in inheritance order */
+    /** @var list<HostTemplateOutput> in relation order */
     public array $templates = [];
 
     /** @var list<HostTemplateLinkedServiceTemplateOutput> */
     public array $linkedServiceTemplates = [];
 
-    public HostTemplateCheckOptionsOutput $checkOptions;
+    public HostCheckOptionsOutput $checkOptions;
 
     public ?HostTemplateExtendedInformationsOutput $extendedInformations = null;
 
-    public HostTemplateSchedulingOptionsOutput $schedulingOptions;
+    public HostSchedulingOptionsOutput $schedulingOptions;
 
-    public HostTemplateDataProcessingOutput $dataProcessing;
+    public DataProcessingOutput $dataProcessing;
 
-    public ?HostTemplateNotificationsOutput $notifications = null;
+    public ?HostNotificationsOutput $notifications = null;
 
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]

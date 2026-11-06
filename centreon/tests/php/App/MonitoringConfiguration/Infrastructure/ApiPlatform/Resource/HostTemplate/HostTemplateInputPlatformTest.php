@@ -28,7 +28,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateSchedulingOptionsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateExtendedInformationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateNotificationsInput;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -94,11 +93,6 @@ final class HostTemplateInputPlatformTest extends TestCase
         yield 'notifications of a change' => [
             new PatchHostTemplateInput(notifications: new PatchHostTemplateNotificationsInput()),
             ['notifications'],
-        ];
-
-        yield 'extended informations of a change' => [
-            new PatchHostTemplateExtendedInformationsInput(altIcon: 'icon', comment: 'comment'),
-            ['altIcon', 'comment'],
         ];
 
         yield 'scheduling options' => [

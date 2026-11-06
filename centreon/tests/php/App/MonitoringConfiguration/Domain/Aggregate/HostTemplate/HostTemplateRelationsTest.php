@@ -23,25 +23,23 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateRelationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Exception\DuplicateHostTemplateMacroNameException;
-use App\MonitoringConfiguration\Domain\Exception\HostTemplateExclusiveNotificationOptionException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
 
@@ -86,14 +84,14 @@ final class HostTemplateRelationsTest extends TestCase
 
         $this->expectException(HostTemplateLockedException::class);
 
-        $template->withMacros(new Collection([], HostTemplateMacro::class));
+        $template->withMacros([]);
     }
 
     public function testTwoMacrosOfOneNameAreRefused(): void
     {
         $this->expectException(DuplicateHostTemplateMacroNameException::class);
 
-        $this->template()->withMacros(new Collection([$this->macro('PORT', '1'), $this->macro('PORT', '2')], HostTemplateMacro::class));
+        $this->template()->withMacros([$this->macro('PORT', '1'), $this->macro('PORT', '2')]);
     }
 
     public function testTheParentsAndTheLinkedServiceTemplatesCompareInOrderTheCategoriesAsASet(): void
@@ -126,23 +124,19 @@ final class HostTemplateRelationsTest extends TestCase
     {
         $template = $this->template();
 
-        self::assertTrue($template->withMacros(new Collection([$this->macro('B', '2'), $this->macro('A', '1')], HostTemplateMacro::class))->hasSameMacrosAs($template));
-        self::assertFalse($template->withMacros(new Collection([$this->macro('A', '1'), $this->macro('B', '3')], HostTemplateMacro::class))->hasSameMacrosAs($template));
-        self::assertFalse($template->withMacros(new Collection([$this->macro('A', '1'), $this->macro('B', '2', true)], HostTemplateMacro::class))->hasSameMacrosAs($template));
-        self::assertFalse($template->withMacros(new Collection([$this->macro('A', '1')], HostTemplateMacro::class))->hasSameMacrosAs($template));
-        self::assertTrue($template->withMacros(new Collection([$this->macro('A', '1'), $this->macro('B', '2')], HostTemplateMacro::class))->hasSameLoggedConfigurationAs($template));
+        self::assertTrue($template->withMacros([$this->macro('B', '2'), $this->macro('A', '1')])->hasSameMacrosAs($template));
+        self::assertFalse($template->withMacros([$this->macro('A', '1'), $this->macro('B', '3')])->hasSameMacrosAs($template));
+        self::assertFalse($template->withMacros([$this->macro('A', '1'), $this->macro('B', '2', true)])->hasSameMacrosAs($template));
+        self::assertFalse($template->withMacros([$this->macro('A', '1')])->hasSameMacrosAs($template));
+        self::assertTrue($template->withMacros([$this->macro('A', '1'), $this->macro('B', '2')])->hasSameLoggedConfigurationAs($template));
     }
 
     public function testTheOptionsCompareAsASetAndAreLogged(): void
     {
         $template = $this->template();
 
-        $reordered = $template->withChange(new HostTemplateChange(notifications: new HostTemplateNotificationsChange(
-            options: [NotificationOptionEnum::Recovery, NotificationOptionEnum::Down],
-        )));
-        $changed = $template->withChange(new HostTemplateChange(notifications: new HostTemplateNotificationsChange(
-            options: [NotificationOptionEnum::Down],
-        )));
+        $reordered = $template->with(notifications: $template->notifications?->with(options: [NotificationOptionEnum::Recovery, NotificationOptionEnum::Down]));
+        $changed = $template->with(notifications: $template->notifications?->with(options: [NotificationOptionEnum::Down]));
 
         self::assertTrue($reordered->hasSameConfigurationAs($template));
         self::assertFalse($changed->hasSameLoggedConfigurationAs($template));
@@ -150,18 +144,17 @@ final class HostTemplateRelationsTest extends TestCase
 
     public function testNoneCannotEndUpWithAnotherOption(): void
     {
-        $this->expectException(HostTemplateExclusiveNotificationOptionException::class);
+        $template = $this->template();
 
-        $this->template()->withChange(new HostTemplateChange(notifications: new HostTemplateNotificationsChange(
-            options: [NotificationOptionEnum::Down, NotificationOptionEnum::None],
-        )));
+        $this->expectException(\InvalidArgumentException::class);
+
+        $template->with(notifications: $template->notifications?->with(options: [NotificationOptionEnum::Down, NotificationOptionEnum::None]));
     }
 
     public function testNoneAloneIsAccepted(): void
     {
-        $changed = $this->template()->withChange(new HostTemplateChange(notifications: new HostTemplateNotificationsChange(
-            options: [NotificationOptionEnum::None],
-        )));
+        $template = $this->template();
+        $changed = $template->with(notifications: $template->notifications?->with(options: [NotificationOptionEnum::None]));
 
         self::assertSame([NotificationOptionEnum::None], $changed->notifications?->options);
     }
@@ -171,9 +164,10 @@ final class HostTemplateRelationsTest extends TestCase
         return new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('tpl'),
-            new HostTemplateCheckOptions(macros: new Collection([$this->macro('A', '1'), $this->macro('B', '2')], HostTemplateMacro::class)),
+            new CheckOptions(null, macros: [$this->macro('A', '1'), $this->macro('B', '2')]),
             parentTemplateIds: new Collection([new HostTemplateId(1), new HostTemplateId(2)], HostTemplateId::class),
-            notifications: new HostTemplateNotifications(
+            notifications: new Notifications(
+                enabled: TriStateEnum::UseDefault,
                 contactIds: new Collection([new NotificationContactId(30)], NotificationContactId::class),
                 contactGroupIds: new Collection([new ContactGroupId(40)], ContactGroupId::class),
                 options: [NotificationOptionEnum::Down, NotificationOptionEnum::Recovery],
@@ -184,9 +178,9 @@ final class HostTemplateRelationsTest extends TestCase
         );
     }
 
-    private function macro(string $name, string $value, bool $isPassword = false): HostTemplateMacro
+    private function macro(string $name, string $value, bool $isPassword = false): HostMacro
     {
-        return new HostTemplateMacro(new HostMacroName($name), $value, $isPassword, new HostMacroId(ord($name)));
+        return new HostMacro(new HostMacroName($name), $value, $isPassword, new HostMacroId(ord($name)));
     }
 
     /**

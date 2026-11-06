@@ -23,22 +23,22 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateListingTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
-use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
@@ -61,6 +61,7 @@ final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
         $this->repository = new DbalHostTemplateRepository(
             $this->connection,
             new HostTemplateTransformer(),
+            new HostTemplateListingTransformer(),
             new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
             new DbalModuleRepository($this->connection),
         );
@@ -82,7 +83,7 @@ final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
         self::assertTrue($template->isLocked);
         self::assertSame('public', $template->snmpCommunity?->value);
         self::assertSame([$parentA, $parentB], array_map(static fn (HostTemplateId $parent): int => $parent->value, $template->parentTemplateIds->toArray()));
-        self::assertSame(['USER'], array_map(static fn (HostTemplateMacro $macro): string => $macro->name->value, $template->checkOptions->macros->toArray()));
+        self::assertSame(['USER'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $template->checkOptions->macros));
     }
 
     public function testFindOneIgnoresAHostAndAnUnknownId(): void
@@ -136,7 +137,7 @@ final class DbalHostTemplateRepositoryActionsTest extends KernelTestCase
         $copy = new HostTemplate(
             null,
             new HostTemplateName($this->uniqueName()),
-            new HostTemplateCheckOptions(macros: new Collection([new HostTemplateMacro(new HostMacroName('PWD'), 'secret::vault::monitoring/hosts/copy::_HOSTPWD', isPassword: true)], HostTemplateMacro::class)),
+            new CheckOptions(null, macros: [new HostMacro(new HostMacroName('PWD'), 'secret::vault::monitoring/hosts/copy::_HOSTPWD', isPassword: true)]),
             snmpCommunity: new SnmpCommunity('copy-community'),
         );
         $this->repository->addCopyOf($copy, new HostTemplateId($sourceId));

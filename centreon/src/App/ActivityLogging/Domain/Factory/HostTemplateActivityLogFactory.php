@@ -31,13 +31,13 @@ use App\ActivityLogging\Domain\Aggregate\TargetId;
 use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
@@ -97,7 +97,7 @@ final readonly class HostTemplateActivityLogFactory implements ActivityLogFactor
     /**
      * @return array<string, string>
      */
-    private function extendedInformationDetails(?HostTemplateExtendedInformations $informations): array
+    private function extendedInformationDetails(?ExtendedInformations $informations): array
     {
         return [
             'ehi_notes_url' => $informations->noteUrl ?? '',
@@ -112,7 +112,7 @@ final readonly class HostTemplateActivityLogFactory implements ActivityLogFactor
     /**
      * @return array<string, string>
      */
-    private function schedulingDetails(HostTemplateSchedulingOptions $options): array
+    private function schedulingDetails(SchedulingOptions $options): array
     {
         return [
             'timeperiod_tp_id' => (string) $options->checkTimeperiodId?->value,
@@ -127,7 +127,7 @@ final readonly class HostTemplateActivityLogFactory implements ActivityLogFactor
     /**
      * @return array<string, string>
      */
-    private function dataProcessingDetails(HostTemplateDataProcessing $dataProcessing): array
+    private function dataProcessingDetails(DataProcessing $dataProcessing): array
     {
         return [
             'host_check_freshness' => $this->triState($dataProcessing->checkFreshness),
@@ -145,9 +145,9 @@ final readonly class HostTemplateActivityLogFactory implements ActivityLogFactor
     /**
      * @return array<string, string>
      */
-    private function notificationDetails(?HostTemplateNotifications $notifications): array
+    private function notificationDetails(?Notifications $notifications): array
     {
-        if (! $notifications instanceof HostTemplateNotifications) {
+        if (! $notifications instanceof Notifications) {
             return [];
         }
 

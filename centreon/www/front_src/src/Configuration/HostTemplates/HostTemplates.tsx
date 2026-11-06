@@ -1,18 +1,22 @@
-import { userPermissionsAtom } from '@centreon/ui-context';
+import {
+  isAdditiveInheritanceEnabledAtom,
+  platformFeaturesAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
-import { type JSX, useMemo } from 'react';
+import { type ReactElement, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { object } from 'yup';
 
 import ConfigurationBase from '../ConfigurationBase';
-import { type Actions, type ResourceRow, ResourceType } from '../models';
+import { type Actions, ResourceType } from '../models';
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
   selectedColumnIdsAtom
 } from './atoms';
 import useColumns from './Columns/useColumns';
+import { getDefaultValues, useFormInputs, useValidationSchema } from './Form';
 import type { Filters } from './models';
 import {
   labelCreateHostTemplate,
@@ -24,34 +28,44 @@ import {
   columnsAtomKey,
   defaultSelectedColumnIds,
   filtersAtomKey,
-  filtersInitialValues
+  filtersInitialValues,
+  isUnlocked
 } from './utils';
 
-// TODO: fill in once the host template form lands.
-const form = {
-  defaultValues: {},
-  groups: [],
-  inputs: [],
-  validationSchema: object()
-};
-
-// A locked template cannot be selected, duplicated or deleted.
-const isUnlocked = (row?: ResourceRow): boolean => !row?.isLocked;
-
-const HostTemplates = (): JSX.Element => {
+const HostTemplates = (): ReactElement => {
   const { t } = useTranslation();
 
   const userPermissions = useAtomValue(userPermissionsAtom);
+  // Read once and handed to every hook: the fields and the rules that guard
+  // them have to agree on the platform.
+  const isCloudPlatform = !!useAtomValue(platformFeaturesAtom)?.isCloudPlatform;
+  const isAdditiveInheritanceEnabled = useAtomValue(
+    isAdditiveInheritanceEnabledAtom
+  );
   const canEdit = !!userPermissions?.configuration_host_template_write;
 
   const { columns } = useColumns();
-  const { api, filtersConfiguration } = useHostTemplates();
+  const { api, filtersConfiguration } = useHostTemplates({
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform
+  });
+  const { groups, inputs } = useFormInputs({
+    canEdit,
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform
+  });
+  const { validationSchema } = useValidationSchema({ isCloudPlatform });
+  const defaultValues = useMemo(
+    () => getDefaultValues({ isCloudPlatform }),
+    [isCloudPlatform]
+  );
 
   const actions: Actions = useMemo(
     () => ({
       delete: (row) => canEdit && isUnlocked(row),
       duplicate: (row) => canEdit && isUnlocked(row),
       edit: canEdit,
+      editable: isUnlocked,
       massive: canEdit && { delete: true, duplicate: true },
       selectable: isUnlocked,
       viewDetails: true
@@ -71,7 +85,7 @@ const HostTemplates = (): JSX.Element => {
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
       filtersPanelWidth="full"
-      form={form}
+      form={{ defaultValues, groups, inputs, validationSchema }}
       formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{

@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateListingTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Service\AccessScopeResolver;
@@ -66,6 +67,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->repository = new DbalHostTemplateRepository(
             $this->connection,
             new HostTemplateTransformer(),
+            new HostTemplateListingTransformer(),
             new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
             new DbalModuleRepository($this->connection),
         );
@@ -678,7 +680,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $line = $this->inheritanceLine($templateId);
 
         self::assertSame([$templateId], array_keys($line));
-        $macros = $line[$templateId]->checkOptions->macros->toArray();
+        $macros = $line[$templateId]->checkOptions->macros;
         self::assertCount(2, $macros);
         // With their own ids.
         self::assertSame($passwordId, $macros[0]->id?->value);
@@ -816,7 +818,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
         $this->insertMacro($templateId, 'NOT_A_HOST_MACRO', 'x', isPassword: false, order: 0);
 
-        self::assertSame([], $this->inheritanceLine($templateId)[$templateId]->checkOptions->macros->toArray());
+        self::assertSame([], $this->inheritanceLine($templateId)[$templateId]->checkOptions->macros);
     }
 
     public function testFindInheritanceLineReturnsAnEmptyCollectionForNoIds(): void

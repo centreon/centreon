@@ -60,6 +60,11 @@ final class HostMacroNameTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         // '$_HOST' + name + '$' must stay within 255 characters.
-        new HostMacroName(str_repeat('A', 250));
+        new HostMacroName(str_repeat('A', 249));
+    }
+
+    public function testItAcceptsTheLongestNameTheStorageHolds(): void
+    {
+        self::assertSame('$_HOST' . str_repeat('N', 248) . '$', new HostMacroName(str_repeat('n', 248))->toStorageName());
     }
 }

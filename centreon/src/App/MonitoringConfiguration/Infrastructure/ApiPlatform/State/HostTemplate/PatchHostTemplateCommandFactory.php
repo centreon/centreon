@@ -23,26 +23,25 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
+use App\MonitoringConfiguration\Application\Command\CheckOptionsChanges;
+use App\MonitoringConfiguration\Application\Command\DataProcessingChanges;
+use App\MonitoringConfiguration\Application\Command\ExtendedInformationsChanges;
 use App\MonitoringConfiguration\Application\Command\HostTemplateMacroChanges;
 use App\MonitoringConfiguration\Application\Command\ListChange;
+use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostTemplateCommand;
+use App\MonitoringConfiguration\Application\Command\SchedulingOptionsChanges;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptionsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessingChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
@@ -51,10 +50,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateDataProcessingInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateExtendedInformationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateSchedulingOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateMacroInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateCheckOptionsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateExtendedInformationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateNotificationsInput;
 use App\Security\Domain\Aggregate\ActingUser;
@@ -73,33 +72,31 @@ final readonly class PatchHostTemplateCommandFactory
         return new PatchHostTemplateCommand(
             id: $id,
             actor: $actor,
-            change: new HostTemplateChange(
-                name: $this->provided($payload, 'name', fn (): HostTemplateName => HostTemplateName::fromUserInput($this->required($input->name))),
-                alias: $this->provided($payload, 'alias', fn (): HostAlias => new HostAlias($this->required($input->alias))),
-                snmpVersion: $this->provided($payload, 'snmp_version', static fn (): ?SnmpVersionEnum => $input->snmpVersion),
-                timezoneId: $this->provided($payload, 'timezone_id', static fn (): ?TimezoneId => $input->timezoneId !== null ? new TimezoneId($input->timezoneId) : null),
-                severityId: $this->provided($payload, 'severity_id', static fn (): ?HostSeverityId => $input->severityId !== null ? new HostSeverityId($input->severityId) : null),
-                checkOptions: $this->provided($payload, 'check_options', fn (): HostTemplateCheckOptionsChange => $this->checkOptions(
-                    $this->required($input->checkOptions),
-                    $payload->section('check_options'),
-                )),
-                extendedInformations: $this->provided($payload, 'extended_informations', fn (): HostTemplateExtendedInformationsChange => $this->extendedInformations(
-                    $this->required($input->extendedInformations),
-                    $payload->section('extended_informations'),
-                )),
-                schedulingOptions: $this->provided($payload, 'scheduling_options', fn (): HostTemplateSchedulingOptionsChange => $this->schedulingOptions(
-                    $this->required($input->schedulingOptions),
-                    $payload->section('scheduling_options'),
-                )),
-                dataProcessing: $this->provided($payload, 'data_processing', fn (): HostTemplateDataProcessingChange => $this->dataProcessing(
-                    $this->required($input->dataProcessing),
-                    $payload->section('data_processing'),
-                )),
-                notifications: $this->provided($payload, 'notifications', fn (): HostTemplateNotificationsChange => $this->notifications(
-                    $this->required($input->notifications),
-                    $payload->section('notifications'),
-                )),
-            ),
+            name: $this->provided($payload, 'name', fn (): HostTemplateName => HostTemplateName::fromUserInput($this->required($input->name))),
+            alias: $this->provided($payload, 'alias', fn (): HostAlias => new HostAlias($this->required($input->alias))),
+            snmpVersion: $this->provided($payload, 'snmp_version', static fn (): ?SnmpVersionEnum => $input->snmpVersion),
+            timezoneId: $this->provided($payload, 'timezone_id', static fn (): ?TimezoneId => $input->timezoneId !== null ? new TimezoneId($input->timezoneId) : null),
+            severityId: $this->provided($payload, 'severity_id', static fn (): ?HostSeverityId => $input->severityId !== null ? new HostSeverityId($input->severityId) : null),
+            checkOptions: $this->provided($payload, 'check_options', fn (): CheckOptionsChanges => $this->checkOptions(
+                $this->required($input->checkOptions),
+                $payload->section('check_options'),
+            )),
+            extendedInformations: $this->provided($payload, 'extended_informations', fn (): ExtendedInformationsChanges => $this->extendedInformations(
+                $this->required($input->extendedInformations),
+                $payload->section('extended_informations'),
+            )),
+            schedulingOptions: $this->provided($payload, 'scheduling_options', fn (): SchedulingOptionsChanges => $this->schedulingOptions(
+                $this->required($input->schedulingOptions),
+                $payload->section('scheduling_options'),
+            )),
+            dataProcessing: $this->provided($payload, 'data_processing', fn (): DataProcessingChanges => $this->dataProcessing(
+                $this->required($input->dataProcessing),
+                $payload->section('data_processing'),
+            )),
+            notifications: $this->provided($payload, 'notifications', fn (): NotificationsChanges => $this->notifications(
+                $this->required($input->notifications),
+                $payload->section('notifications'),
+            )),
             snmpCommunity: $this->provided($payload, 'snmp_community', fn (): ?string => $this->trimmedOrNull($input->snmpCommunity)),
             templateIds: $this->listChange($payload, 'template_ids', $input->templateIds, $input->templateIdsToAdd, $input->templateIdsToRemove, static fn (int $id): HostTemplateId => new HostTemplateId($id)),
             categoryIds: $this->listChange($payload, 'category_ids', $input->categoryIds, $input->categoryIdsToAdd, $input->categoryIdsToRemove, static fn (int $id): HostCategoryId => new HostCategoryId($id)),
@@ -116,9 +113,6 @@ final readonly class PatchHostTemplateCommandFactory
                 : new NoValue(),
             contactGroupIds: $input->notifications instanceof PatchHostTemplateNotificationsInput
                 ? $this->listChange($payload->section('notifications'), 'contact_groups', $input->notifications->contactGroups, $input->notifications->contactGroupsToAdd, $input->notifications->contactGroupsToRemove, static fn (int $id): ContactGroupId => new ContactGroupId($id))
-                : new NoValue(),
-            notificationOptions: $input->notifications instanceof PatchHostTemplateNotificationsInput
-                ? $this->listChange($payload->section('notifications'), 'options', $input->notifications->options, $input->notifications->optionsToAdd, $input->notifications->optionsToRemove, NotificationOptionEnumResolver::toDomain(...))
                 : new NoValue(),
             macros: $this->macroChanges($payload->section('check_options'), $input->checkOptions),
         );
@@ -138,13 +132,13 @@ final readonly class PatchHostTemplateCommandFactory
         };
     }
 
-    private function toMacroChange(HostTemplateMacroInput $input): HostTemplateMacroChange
+    private function toMacroChange(HostTemplateMacroInput $input): HostMacroChange
     {
-        return new HostTemplateMacroChange(
+        return new HostMacroChange(
             name: new HostMacroName($input->name),
             value: $input->value,
             isPassword: $input->isPassword,
-            id: $input->id,
+            id: $input->id !== null ? new HostMacroId($input->id) : null,
             parent: $input->parent !== null ? HostMacroParentEnum::from($input->parent) : null,
         );
     }
@@ -173,17 +167,17 @@ final readonly class PatchHostTemplateCommandFactory
         };
     }
 
-    private function checkOptions(PatchHostTemplateCheckOptionsInput $data, RequestPayload $sent): HostTemplateCheckOptionsChange
+    private function checkOptions(PatchHostTemplateCheckOptionsInput $data, RequestPayload $sent): CheckOptionsChanges
     {
-        return new HostTemplateCheckOptionsChange(
+        return new CheckOptionsChanges(
             checkCommandId: $this->provided($sent, 'command_id', static fn (): ?CommandId => $data->commandId !== null ? new CommandId($data->commandId) : null),
             args: $this->provided($sent, 'args', static fn (): array => array_values($data->args)),
         );
     }
 
-    private function extendedInformations(PatchHostTemplateExtendedInformationsInput $data, RequestPayload $sent): HostTemplateExtendedInformationsChange
+    private function extendedInformations(CreateHostTemplateExtendedInformationsInput $data, RequestPayload $sent): ExtendedInformationsChanges
     {
-        return new HostTemplateExtendedInformationsChange(
+        return new ExtendedInformationsChanges(
             noteUrl: $this->provided($sent, 'note_url', fn (): ?string => $this->trimmedOrNull($data->noteUrl)),
             note: $this->provided($sent, 'note', fn (): ?string => $this->trimmedOrNull($data->note)),
             actionUrl: $this->provided($sent, 'action_url', fn (): ?string => $this->trimmedOrNull($data->actionUrl)),
@@ -200,9 +194,9 @@ final readonly class PatchHostTemplateCommandFactory
         return $trimmed === '' ? null : $trimmed;
     }
 
-    private function schedulingOptions(CreateHostTemplateSchedulingOptionsInput $data, RequestPayload $sent): HostTemplateSchedulingOptionsChange
+    private function schedulingOptions(CreateHostTemplateSchedulingOptionsInput $data, RequestPayload $sent): SchedulingOptionsChanges
     {
-        return new HostTemplateSchedulingOptionsChange(
+        return new SchedulingOptionsChanges(
             checkTimeperiodId: $this->provided($sent, 'check_timeperiod_id', static fn (): ?TimePeriodId => $data->checkTimeperiodId !== null ? new TimePeriodId($data->checkTimeperiodId) : null),
             maxCheckAttempts: $this->provided($sent, 'max_check_attempts', static fn (): ?int => $data->maxCheckAttempts),
             normalCheckInterval: $this->provided($sent, 'normal_check_interval', static fn (): ?int => $data->normalCheckInterval),
@@ -212,9 +206,9 @@ final readonly class PatchHostTemplateCommandFactory
         );
     }
 
-    private function dataProcessing(CreateHostTemplateDataProcessingInput $data, RequestPayload $sent): HostTemplateDataProcessingChange
+    private function dataProcessing(CreateHostTemplateDataProcessingInput $data, RequestPayload $sent): DataProcessingChanges
     {
-        return new HostTemplateDataProcessingChange(
+        return new DataProcessingChanges(
             checkFreshness: $this->provided($sent, 'check_freshness', static fn (): TriStateEnum => $data->checkFreshness ?? TriStateEnum::UseDefault),
             flapDetectionEnabled: $this->provided($sent, 'flap_detection_enabled', static fn (): TriStateEnum => $data->flapDetectionEnabled ?? TriStateEnum::UseDefault),
             eventHandlerEnabled: $this->provided($sent, 'event_handler_enabled', static fn (): TriStateEnum => $data->eventHandlerEnabled ?? TriStateEnum::UseDefault),
@@ -227,9 +221,10 @@ final readonly class PatchHostTemplateCommandFactory
         );
     }
 
-    private function notifications(PatchHostTemplateNotificationsInput $data, RequestPayload $sent): HostTemplateNotificationsChange
+    private function notifications(PatchHostTemplateNotificationsInput $data, RequestPayload $sent): NotificationsChanges
     {
-        return new HostTemplateNotificationsChange(
+        return new NotificationsChanges(
+            options: $this->listChange($sent, 'options', $data->options, $data->optionsToAdd, $data->optionsToRemove, NotificationOptionEnumResolver::toDomain(...)),
             enabled: $this->provided($sent, 'enabled', static fn (): TriStateEnum => $data->enabled !== null ? TriStateEnum::from($data->enabled) : TriStateEnum::UseDefault),
             interval: $this->provided($sent, 'interval', static fn (): ?int => $data->interval),
             periodId: $this->provided($sent, 'timeperiod_id', static fn (): ?TimePeriodId => $data->timeperiodId !== null ? new TimePeriodId($data->timeperiodId) : null),

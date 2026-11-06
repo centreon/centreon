@@ -25,28 +25,27 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\HostTemplateMacroChanges;
 use App\MonitoringConfiguration\Application\Command\ListChange;
+use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostTemplateCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostTemplateCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotificationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateRelationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateServicesCleanupRequested;
@@ -54,9 +53,9 @@ use App\MonitoringConfiguration\Domain\Event\HostTemplateUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostTemplateInheritanceException;
 use App\MonitoringConfiguration\Domain\Exception\DuplicateHostTemplateMacroNameException;
-use App\MonitoringConfiguration\Domain\Exception\HostTemplateExclusiveNotificationOptionException;
+use App\MonitoringConfiguration\Domain\Exception\ExclusiveNotificationOptionException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroValueIsAVaultReferenceException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroNotFoundException;
-use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroValueIsAVaultReferenceException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\LinkedServiceTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
@@ -368,11 +367,10 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->addTemplate(7);
 
         $template = ($this->handler)($this->command(
-            change: new HostTemplateChange(notifications: new HostTemplateNotificationsChange()),
             notificationOptions: $this->addedOptions(NotificationOptionEnum::Down),
         ));
 
-        self::assertSame([NotificationOptionEnum::Recovery, NotificationOptionEnum::Down], $template->notifications?->options);
+        self::assertSame([NotificationOptionEnum::Down, NotificationOptionEnum::Recovery], $template->notifications?->options);
         self::assertSame([], $this->repository->replacedRelationIds);
         self::assertTrue($this->onlyUpdate()->loggable);
     }
@@ -382,7 +380,6 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->addTemplate(7, options: [NotificationOptionEnum::Down, NotificationOptionEnum::Recovery]);
 
         ($this->handler)($this->command(
-            change: new HostTemplateChange(notifications: new HostTemplateNotificationsChange()),
             notificationOptions: $this->replacedOptions(NotificationOptionEnum::Recovery, NotificationOptionEnum::Down),
         ));
 
@@ -393,10 +390,9 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
     {
         $this->addTemplate(7);
 
-        $this->expectException(HostTemplateExclusiveNotificationOptionException::class);
+        $this->expectException(ExclusiveNotificationOptionException::class);
 
         ($this->handler)($this->command(
-            change: new HostTemplateChange(notifications: new HostTemplateNotificationsChange()),
             notificationOptions: $this->addedOptions(NotificationOptionEnum::None),
         ));
     }
@@ -406,7 +402,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->addTemplate(7, macros: [$this->macro(70, 'PORT', '80')]);
 
         $template = ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-            new HostTemplateMacroChange(new HostMacroName('timeout'), '10', false),
+            new HostMacroChange(new HostMacroName('timeout'), '10', false),
         ])));
 
         self::assertSame(['PORT', 'TIMEOUT'], $this->macroNames($template));
@@ -420,11 +416,11 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->addTemplate(7, macros: [$this->macro(70, 'PORT', '80')]);
 
         $template = ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-            new HostTemplateMacroChange(new HostMacroName('port'), '443', false, 70),
+            new HostMacroChange(new HostMacroName('port'), '443', false, new HostMacroId(70)),
         ])));
 
-        $macro = $template->checkOptions->macros->toArray()[0] ?? null;
-        self::assertInstanceOf(HostTemplateMacro::class, $macro);
+        $macro = $template->checkOptions->macros[0] ?? null;
+        self::assertInstanceOf(HostMacro::class, $macro);
         self::assertSame([70, '443'], [$macro->id?->value, $macro->value]);
     }
 
@@ -433,7 +429,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->addTemplate(7, macros: [$this->macro(70, 'PORT', '80'), $this->macro(71, 'TIMEOUT', '10')]);
 
         $template = ($this->handler)($this->command(macros: HostTemplateMacroChanges::replace([
-            new HostTemplateMacroChange(new HostMacroName('port'), '80', false, 70),
+            new HostMacroChange(new HostMacroName('port'), '80', false, new HostMacroId(70)),
         ])));
 
         self::assertSame(['PORT'], $this->macroNames($template));
@@ -468,7 +464,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->expectException(DuplicateHostTemplateMacroNameException::class);
 
         ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-            new HostTemplateMacroChange(new HostMacroName('port'), '10', false, 71),
+            new HostMacroChange(new HostMacroName('port'), '10', false, new HostMacroId(71)),
         ])));
     }
 
@@ -476,10 +472,10 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
     {
         $this->addTemplate(7);
 
-        $this->expectException(HostTemplateMacroValueIsAVaultReferenceException::class);
+        $this->expectException(HostMacroValueIsAVaultReferenceException::class);
 
         ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-            new HostTemplateMacroChange(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/x::_HOSTPWD', true),
+            new HostMacroChange(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/x::_HOSTPWD', true),
         ])));
     }
 
@@ -489,12 +485,12 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->addTemplate(7, snmpCommunity: self::VAULTED_COMMUNITY);
 
         $template = ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-            new HostTemplateMacroChange(new HostMacroName('pwd'), 's3cr3t', true),
+            new HostMacroChange(new HostMacroName('pwd'), 's3cr3t', true),
         ])));
 
         self::assertSame(['secret::vault::monitoring/hosts/tpl-uuid::_HOSTPWD'], array_map(
-            static fn (HostTemplateMacro $macro): string => $macro->value,
-            array_values($template->checkOptions->macros->toArray()),
+            static fn (HostMacro $macro): string => $macro->value,
+            $template->checkOptions->macros,
         ));
         self::assertSame('tpl-uuid', $this->vault->writeManyCalls[0]['uuid'] ?? null);
     }
@@ -504,10 +500,10 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->vault->vaultEnabled = true;
         $stored = 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTPWD';
         $this->vault->writtenPaths['_HOSTPWD'] = $stored;
-        $this->addTemplate(7, snmpCommunity: self::VAULTED_COMMUNITY, macros: [new HostTemplateMacro(new HostMacroName('PWD'), $stored, true, new HostMacroId(70))]);
+        $this->addTemplate(7, snmpCommunity: self::VAULTED_COMMUNITY, macros: [new HostMacro(new HostMacroName('PWD'), $stored, true, new HostMacroId(70))]);
 
         ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-            new HostTemplateMacroChange(new HostMacroName('pwd'), 'rotated', true, 70),
+            new HostMacroChange(new HostMacroName('pwd'), 'rotated', true, new HostMacroId(70)),
         ])));
 
         self::assertSame([7], $this->repository->updatedIds);
@@ -522,7 +518,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
 
         try {
             ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-                new HostTemplateMacroChange(new HostMacroName('pwd'), 's3cr3t', true),
+                new HostMacroChange(new HostMacroName('pwd'), 's3cr3t', true),
             ])));
             self::fail('The save failure must reach the caller.');
         } catch (\RuntimeException $exception) {
@@ -542,9 +538,8 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
             ($this->handler)(new PatchHostTemplateCommand(
                 new HostTemplateId(7),
                 TestActingUsers::unrestricted(5),
-                new HostTemplateChange(),
-                'new-community',
-                macros: HostTemplateMacroChanges::upsert([new HostTemplateMacroChange(new HostMacroName('pwd'), 's3cr3t', true)]),
+                snmpCommunity: 'new-community',
+                macros: HostTemplateMacroChanges::upsert([new HostMacroChange(new HostMacroName('pwd'), 's3cr3t', true)]),
             ));
             self::fail('A vault failure must stop the update.');
         } catch (VaultWriteFailedException) {
@@ -562,7 +557,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
 
         try {
             ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-                new HostTemplateMacroChange(new HostMacroName('pwd'), 's3cr3t', true),
+                new HostMacroChange(new HostMacroName('pwd'), 's3cr3t', true),
             ])));
             self::fail('The save failure must reach the caller.');
         } catch (\RuntimeException) {
@@ -577,20 +572,20 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->vault->vaultEnabled = true;
         $parentSecret = 'secret::vault::monitoring/hosts/parent-uuid::_HOSTPWD';
         $this->vault->resolved[$parentSecret] = 'parent-secret';
-        $this->addTemplate(1, macros: [new HostTemplateMacro(new HostMacroName('PWD'), $parentSecret, true, new HostMacroId(10))]);
+        $this->addTemplate(1, macros: [new HostMacro(new HostMacroName('PWD'), $parentSecret, true, new HostMacroId(10))]);
         $this->addTemplate(7, parentIds: [1]);
 
         $template = ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-            new HostTemplateMacroChange(new HostMacroName('pwd_copy'), null, true, 10, \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
-            new HostTemplateMacroChange(new HostMacroName('other'), 'x', true),
+            new HostMacroChange(new HostMacroName('pwd_copy'), null, true, new HostMacroId(10), \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
+            new HostMacroChange(new HostMacroName('other'), 'x', true),
         ])));
 
         self::assertNotContains('parent-uuid', array_column($this->vault->writeManyCalls, 'uuid'));
         self::assertSame(
             ['PWD_COPY' => 'secret::vault::monitoring/hosts/new-uuid::_HOSTPWD_COPY', 'OTHER' => 'secret::vault::monitoring/hosts/new-uuid::_HOSTOTHER'],
             array_combine(
-                array_map(static fn (HostTemplateMacro $macro): string => $macro->name->value, array_values($template->checkOptions->macros->toArray())),
-                array_map(static fn (HostTemplateMacro $macro): string => $macro->value, array_values($template->checkOptions->macros->toArray())),
+                array_map(static fn (HostMacro $macro): string => $macro->name->value, $template->checkOptions->macros),
+                array_map(static fn (HostMacro $macro): string => $macro->value, $template->checkOptions->macros),
             ),
         );
     }
@@ -602,12 +597,12 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
 
         $parentSecret = 'secret::vault::monitoring/hosts/parent-uuid::_HOSTPWD';
         $this->vault->resolved[$parentSecret] = 'parent-secret';
-        $this->addTemplate(1, macros: [new HostTemplateMacro(new HostMacroName('PWD'), $parentSecret, true, new HostMacroId(10))]);
+        $this->addTemplate(1, macros: [new HostMacro(new HostMacroName('PWD'), $parentSecret, true, new HostMacroId(10))]);
         $this->addTemplate(7, parentIds: [1]);
 
         try {
             ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-                new HostTemplateMacroChange(new HostMacroName('pwd_copy'), null, true, 10, \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
+                new HostMacroChange(new HostMacroName('pwd_copy'), null, true, new HostMacroId(10), \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
             ])));
             self::fail('A vault failure must stop the update.');
         } catch (VaultWriteFailedException) {
@@ -620,12 +615,12 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
     {
         $this->repository->updateThrows = new \RuntimeException('The save failed.');
         $parentSecret = 'secret::vault::monitoring/hosts/parent-uuid::_HOSTPWD';
-        $this->addTemplate(1, macros: [new HostTemplateMacro(new HostMacroName('PWD'), $parentSecret, true, new HostMacroId(10))]);
+        $this->addTemplate(1, macros: [new HostMacro(new HostMacroName('PWD'), $parentSecret, true, new HostMacroId(10))]);
         $this->addTemplate(7, parentIds: [1]);
 
         try {
             ($this->handler)($this->command(macros: HostTemplateMacroChanges::upsert([
-                new HostTemplateMacroChange(new HostMacroName('pwd_copy'), null, true, 10, \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
+                new HostMacroChange(new HostMacroName('pwd_copy'), null, true, new HostMacroId(10), \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
             ])));
             self::fail('The save failure must reach the caller.');
         } catch (\RuntimeException $exception) {
@@ -638,9 +633,9 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
     public function testClearingTheCommunityKeepsTheEntryAPasswordMacroStillUses(): void
     {
         $this->vault->vaultEnabled = true;
-        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostMacroName('PWD'), 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTPWD', true, new HostMacroId(70))], snmpCommunity: self::VAULTED_COMMUNITY);
+        $this->addTemplate(7, macros: [new HostMacro(new HostMacroName('PWD'), 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTPWD', true, new HostMacroId(70))], snmpCommunity: self::VAULTED_COMMUNITY);
 
-        ($this->handler)(new PatchHostTemplateCommand(new HostTemplateId(7), TestActingUsers::unrestricted(5), new HostTemplateChange(), null));
+        ($this->handler)(new PatchHostTemplateCommand(new HostTemplateId(7), TestActingUsers::unrestricted(5), snmpCommunity: null));
 
         self::assertSame(['_HOSTSNMPCOMMUNITY'], $this->vault->writeManyCalls[0]['deletes']);
         self::assertSame([], $this->eventBus->getDispatchedEvents(HostTemplateVaultPurgeRequested::class));
@@ -649,7 +644,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
     public function testRemovingTheLastVaultedPasswordClearsItsKeyAndPurgesTheEntry(): void
     {
         $this->vault->vaultEnabled = true;
-        $this->addTemplate(7, macros: [new HostTemplateMacro(new HostMacroName('PWD'), 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTPWD', true, new HostMacroId(70))]);
+        $this->addTemplate(7, macros: [new HostMacro(new HostMacroName('PWD'), 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTPWD', true, new HostMacroId(70))]);
 
         ($this->handler)($this->command(macros: HostTemplateMacroChanges::remove([new HostMacroId(70)])));
 
@@ -690,7 +685,6 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
      * @param ListChange<NotificationOptionEnum>|null $notificationOptions
      */
     private function command(
-        HostTemplateChange $change = new HostTemplateChange(),
         ?ListChange $templateIds = null,
         ?ListChange $categoryIds = null,
         ?ListChange $linkedServiceTemplateIds = null,
@@ -705,13 +699,12 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         return new PatchHostTemplateCommand(
             new HostTemplateId(7),
             $restricted ? TestActingUsers::restricted(5) : TestActingUsers::unrestricted(5),
-            $change,
+            notifications: $notificationOptions instanceof ListChange ? new NotificationsChanges(options: $notificationOptions) : $noValue,
             templateIds: $templateIds ?? $noValue,
             categoryIds: $categoryIds ?? $noValue,
             linkedServiceTemplateIds: $linkedServiceTemplateIds ?? $noValue,
             contactIds: $contactIds ?? $noValue,
             contactGroupIds: $contactGroupIds ?? $noValue,
-            notificationOptions: $notificationOptions ?? $noValue,
             macros: $macros ?? $noValue,
         );
     }
@@ -720,7 +713,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
      * @param list<int> $parentIds
      * @param list<int> $categoryIds
      * @param list<int> $linkedServiceTemplateIds
-     * @param list<HostTemplateMacro> $macros
+     * @param list<HostMacro> $macros
      * @param list<NotificationOptionEnum> $options
      */
     private function addTemplate(
@@ -735,10 +728,10 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->repository->hostTemplates[$id] = new HostTemplate(
             new HostTemplateId($id),
             new HostTemplateName('tpl-' . $id),
-            new HostTemplateCheckOptions(macros: new Collection($macros, HostTemplateMacro::class)),
+            new CheckOptions(null, macros: $macros),
             parentTemplateIds: new Collection(array_map(static fn (int $parentId): HostTemplateId => new HostTemplateId($parentId), $parentIds), HostTemplateId::class),
             snmpCommunity: $snmpCommunity !== null ? new SnmpCommunity($snmpCommunity) : null,
-            notifications: new HostTemplateNotifications(options: $options),
+            notifications: Notifications::default()->with(options: $options),
             categoryIds: new Collection(array_map(static fn (int $categoryId): HostCategoryId => new HostCategoryId($categoryId), $categoryIds), HostCategoryId::class),
             linkedServiceTemplateIds: new Collection(array_map(static fn (int $serviceTemplateId): ServiceTemplateId => new ServiceTemplateId($serviceTemplateId), $linkedServiceTemplateIds), ServiceTemplateId::class),
         );
@@ -749,9 +742,9 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->hostCategoryRepository->hostCategories[$id] = new HostCategory(new HostCategoryId($id), new HostCategoryName('category-' . $id));
     }
 
-    private function macro(int $id, string $name, string $value): HostTemplateMacro
+    private function macro(int $id, string $name, string $value): HostMacro
     {
-        return new HostTemplateMacro(new HostMacroName($name), $value, false, new HostMacroId($id));
+        return new HostMacro(new HostMacroName($name), $value, false, new HostMacroId($id));
     }
 
     /**
@@ -759,7 +752,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
      */
     private function macroNames(HostTemplate $template): array
     {
-        return array_values(array_map(static fn (HostTemplateMacro $macro): string => $macro->name->value, $template->checkOptions->macros->toArray()));
+        return array_map(static fn (HostMacro $macro): string => $macro->name->value, $template->checkOptions->macros);
     }
 
     /**

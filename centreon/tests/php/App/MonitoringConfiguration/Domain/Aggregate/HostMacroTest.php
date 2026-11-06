@@ -50,6 +50,18 @@ final class HostMacroTest extends TestCase
         new HostMacro(new HostMacroName('big'), str_repeat('a', 4097), isPassword: false);
     }
 
+    public function testItAcceptsAValueExactly4096Long(): void
+    {
+        self::assertSame(4096, mb_strlen(new HostMacro(new HostMacroName('big'), str_repeat('a', 4096), isPassword: false)->value));
+    }
+
+    public function testItRejectsAZeroId(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new HostMacroId(0);
+    }
+
     public function testAMacroWithAParentIsInherited(): void
     {
         $macro = new HostMacro(new HostMacroName('foo'), '', isPassword: false, parent: HostMacroParentEnum::Command);
@@ -150,5 +162,26 @@ final class HostMacroTest extends TestCase
         self::assertTrue($macro->isPassword);
         self::assertSame(3, $macro->id?->value);
         self::assertTrue($macro->isDirect());
+    }
+
+    public function testACopyWithoutIdentityKeepsTheNameValueAndPasswordFlag(): void
+    {
+        $copy = (new HostMacro(new HostMacroName('foo'), 'bar', isPassword: true, id: new HostMacroId(3), parent: HostMacroParentEnum::Template))
+            ->copyWithoutIdentity();
+
+        self::assertSame('FOO', $copy->name->value);
+        self::assertSame('bar', $copy->value);
+        self::assertTrue($copy->isPassword);
+        self::assertNull($copy->id);
+        self::assertTrue($copy->isDirect());
+    }
+
+    public function testACopyWithoutIdentityTakesTheGivenValue(): void
+    {
+        $copy = (new HostMacro(new HostMacroName('foo'), 'secret::old', isPassword: true, id: new HostMacroId(3)))
+            ->copyWithoutIdentity('secret::new');
+
+        self::assertSame('secret::new', $copy->value);
+        self::assertNull($copy->id);
     }
 }

@@ -479,7 +479,7 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         self::assertSame(['1', '1', '0'], [$this->pollerUpdated($directPollerId), $this->pollerUpdated($indirectPollerId), $this->pollerUpdated($disabledPollerId)]);
     }
 
-    public function testRemovingTheCommandKeepsTheArguments(): void
+    public function testRemovingTheCommandWhileSendingArgumentsIsRefused(): void
     {
         $commandId = $this->insertRow('command', ['command_name' => "check-{$this->tag}", 'command_line' => '$USER1$/check', 'command_type' => 2]);
         $id = $this->insertTemplate('arguments', ['command_command_id' => $commandId, 'command_command_id_arg1' => '!-w!80']);
@@ -487,14 +487,13 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
 
         $this->patch($id, ['check_options' => ['command_id' => null, 'args' => ['-w', '80']]]);
 
-        self::assertResponseStatusCodeSame(204);
-        self::assertSame(
-            ['command_command_id' => null, 'command_command_id_arg1' => '!-w!80'],
-            $this->connection->fetchAssociative('SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?', [$id]),
-        );
+        self::assertResponseStatusCodeSame(422);
+        $row = $this->connection->fetchAssociative('SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?', [$id]);
+        self::assertIsArray($row);
+        self::assertSame([$commandId, '!-w!80'], [$this->asInt($row['command_command_id']), $row['command_command_id_arg1']]);
     }
 
-    public function testRemovingOnlyTheCommandKeepsTheStoredArguments(): void
+    public function testRemovingOnlyTheCommandClearsTheStoredArguments(): void
     {
         $commandId = $this->insertRow('command', ['command_name' => "check-{$this->tag}", 'command_line' => '$USER1$/check', 'command_type' => 2]);
         $id = $this->insertTemplate('command-only', ['command_command_id' => $commandId, 'command_command_id_arg1' => '!-w!80']);
@@ -504,20 +503,20 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(204);
         self::assertSame(
-            ['command_command_id' => null, 'command_command_id_arg1' => '!-w!80'],
+            ['command_command_id' => null, 'command_command_id_arg1' => null],
             $this->connection->fetchAssociative('SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?', [$id]),
         );
     }
 
-    public function testArgumentsAreAcceptedWithoutACommand(): void
+    public function testArgumentsWithoutACommandAreRefused(): void
     {
         $id = $this->insertTemplate('arguments-alone');
         $this->login();
 
         $this->patch($id, ['check_options' => ['args' => ['-w', '80']]]);
 
-        self::assertResponseStatusCodeSame(204);
-        self::assertSame('!-w!80', $this->connection->fetchOne('SELECT command_command_id_arg1 FROM host WHERE host_id = ?', [$id]));
+        self::assertResponseStatusCodeSame(422);
+        self::assertNull($this->connection->fetchOne('SELECT command_command_id_arg1 FROM host WHERE host_id = ?', [$id]));
     }
 
     /**
@@ -608,17 +607,6 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(204);
         self::assertSame(2147483647, $this->asInt($this->connection->fetchOne('SELECT host_check_interval FROM host WHERE host_id = ?', [$id])));
-    }
-
-    public function testAnUntouchedOutOfBoundsValueSurvivesASaveOfAnotherKey(): void
-    {
-        $id = $this->insertTemplate('stored-out-of-bounds', ['host_max_check_attempts' => 0]);
-        $this->login();
-
-        $this->patch($id, ['alias' => 'New alias']);
-
-        self::assertResponseStatusCodeSame(204);
-        self::assertSame(0, $this->asInt($this->connection->fetchOne('SELECT host_max_check_attempts FROM host WHERE host_id = ?', [$id])));
     }
 
     public function testTheSnmpCommunityIsKeptClearedOrReplaced(): void

@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 
 /**
  * How a partial update changes the template's own macros: it replaces them all, writes some of them,
@@ -33,7 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroC
 final readonly class HostTemplateMacroChanges
 {
     /**
-     * @param list<HostTemplateMacroChange> $changes
+     * @param list<HostMacroChange> $changes
      * @param list<HostMacroId> $removedIds
      */
     private function __construct(
@@ -44,7 +44,7 @@ final readonly class HostTemplateMacroChanges
     }
 
     /**
-     * @param list<HostTemplateMacroChange> $changes
+     * @param list<HostMacroChange> $changes
      */
     public static function replace(array $changes): self
     {
@@ -52,7 +52,7 @@ final readonly class HostTemplateMacroChanges
     }
 
     /**
-     * @param list<HostTemplateMacroChange> $changes
+     * @param list<HostMacroChange> $changes
      */
     public static function upsert(array $changes): self
     {

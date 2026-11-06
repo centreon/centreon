@@ -25,16 +25,17 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateRelationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateListingTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
@@ -62,6 +63,7 @@ final class DbalHostTemplateRepositoryRelationsTest extends KernelTestCase
         $this->repository = new DbalHostTemplateRepository(
             $this->connection,
             new HostTemplateTransformer(),
+            new HostTemplateListingTransformer(),
             new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
             new DbalModuleRepository($this->connection),
         );
@@ -125,10 +127,10 @@ final class DbalHostTemplateRepositoryRelationsTest extends KernelTestCase
         $removed = $this->insertMacro($id, '$_HOSTOLD$', 'x');
         $foreign = $this->insertMacro($otherId, '$_HOSTFOREIGN$', 'y');
 
-        $this->repository->replaceMacros($this->findOne($id)->withMacros(new Collection([
-            new HostTemplateMacro(new HostMacroName('PORT'), '443', false, new HostMacroId($kept)),
-            new HostTemplateMacro(new HostMacroName('NEW'), 's', true, new HostMacroId($foreign)),
-        ], HostTemplateMacro::class)));
+        $this->repository->replaceMacros($this->findOne($id)->withMacros([
+            new HostMacro(new HostMacroName('PORT'), '443', false, new HostMacroId($kept)),
+            new HostMacro(new HostMacroName('NEW'), 's', true, new HostMacroId($foreign)),
+        ]));
 
         $rows = $this->connection->fetchAllAssociative('SELECT host_macro_id, host_macro_name, host_macro_value, is_password FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id', [$id]);
         self::assertCount(2, $rows);

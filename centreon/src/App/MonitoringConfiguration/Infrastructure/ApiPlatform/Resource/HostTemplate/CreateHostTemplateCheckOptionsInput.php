@@ -25,13 +25,14 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTe
 
 use App\MonitoringConfiguration\Infrastructure\Validator\CheckCommandType;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 final readonly class CreateHostTemplateCheckOptionsInput
 {
     /**
-     * @param list<string> $args accepted without a command
+     * @param list<string> $args require a check command
      * @param list<HostTemplateMacroInput> $macros
      */
     public function __construct(
@@ -40,11 +41,22 @@ final readonly class CreateHostTemplateCheckOptionsInput
 
         #[Assert\All([new Assert\Type('string')])]
         #[ValidCommandArguments('check command')]
+        #[Sensitive]
         public array $args = [],
 
         #[Assert\Valid]
         public array $macros = [],
     ) {
+    }
+
+    #[Assert\Callback]
+    public function validateArgumentsRequireACommand(ExecutionContextInterface $context): void
+    {
+        if ($this->commandId === null && $this->args !== []) {
+            $context->buildViolation('Check command arguments require a check command to be set.')
+                ->atPath('args')
+                ->addViolation();
+        }
     }
 
     #[Assert\Callback]

@@ -30,9 +30,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateRelationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Exception\ContactGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
@@ -72,7 +72,7 @@ final readonly class HostTemplateRelationsUpdater
 
     public function resolve(HostTemplate $template, PatchHostTemplateCommand $command): HostTemplateRelationsChange
     {
-        $notifications = $template->notifications ?? new HostTemplateNotifications();
+        $notifications = $template->notifications ?? Notifications::default();
 
         $parentIds = $this->resolveList(
             $command->templateIds,

@@ -24,16 +24,14 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateDataProcessing;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformations;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
@@ -51,20 +49,20 @@ use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateCategoryOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateCheckCommandOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateCheckOptionsOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateDataProcessingOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateEventHandlerCommandOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCheckCommandOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCheckOptionsOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostEventHandlerCommandOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSchedulingOptionsOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSeverityOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimezoneOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateExtendedInformationsOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateIconOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateLinkedServiceTemplateOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateNotificationsOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateParentOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateResource;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateSchedulingOptionsOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateSeverityOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateTimezoneOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\NotificationContact\NotificationContactResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
@@ -76,8 +74,7 @@ use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Resolves the ids the template carries into the `{id, name}` objects of the detail. The categories,
- * the severity, the contacts and the contact groups out of the actor's scope are left out.
+ * Resolves ids to {id, name}, leaving out categories, severity, contacts and groups outside the actor's scope.
  */
 final readonly class HostTemplateResourceBuilder
 {
@@ -113,7 +110,7 @@ final readonly class HostTemplateResourceBuilder
         $parentNames = $this->hostTemplateRepository->findNamesByIds($template->parentTemplateIds)->toArray();
         foreach ($template->parentTemplateIds as $parentId) {
             if (isset($parentNames[$parentId->value])) {
-                $resource->templates[] = new HostTemplateParentOutput($parentId->value, $parentNames[$parentId->value]->value);
+                $resource->templates[] = new HostTemplateOutput($parentId->value, $parentNames[$parentId->value]->value);
             }
         }
 
@@ -121,14 +118,14 @@ final readonly class HostTemplateResourceBuilder
         $categoryNames = $this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray();
         foreach ($categoryIds as $categoryId) {
             if (isset($categoryNames[$categoryId->value])) {
-                $resource->categories[] = new HostTemplateCategoryOutput($categoryId->value, $categoryNames[$categoryId->value]->value);
+                $resource->categories[] = new HostCategoryOutput($categoryId->value, $categoryNames[$categoryId->value]->value);
             }
         }
 
         if ($template->severityId instanceof HostSeverityId && $this->accessScopes->hostSeverities($actor)->allows($template->severityId)) {
             $severityName = $this->hostSeverityRepository->findNameById($template->severityId);
             $resource->severity = $severityName instanceof HostSeverityName
-                ? new HostTemplateSeverityOutput($template->severityId->value, $severityName->value)
+                ? new HostSeverityOutput($template->severityId->value, $severityName->value)
                 : null;
         }
 
@@ -145,13 +142,13 @@ final readonly class HostTemplateResourceBuilder
         if ($template->timezoneId instanceof TimezoneId) {
             $timezoneName = $this->timezoneRepository->findNameById($template->timezoneId);
             $resource->timezone = $timezoneName instanceof TimezoneName
-                ? new HostTemplateTimezoneOutput($template->timezoneId->value, $timezoneName->value)
+                ? new HostTimezoneOutput($template->timezoneId->value, $timezoneName->value)
                 : null;
         }
 
         $resource->checkOptions = $this->buildCheckOptions($template);
         $resource->extendedInformations = $this->buildExtendedInformations($template->extendedInformations);
-        $resource->schedulingOptions = new HostTemplateSchedulingOptionsOutput(
+        $resource->schedulingOptions = new HostSchedulingOptionsOutput(
             checkPeriod: $this->resolveTimePeriod($template->schedulingOptions->checkTimeperiodId),
             maxCheckAttempts: $template->schedulingOptions->maxCheckAttempts,
             normalCheckInterval: $template->schedulingOptions->normalCheckInterval,
@@ -169,30 +166,27 @@ final readonly class HostTemplateResourceBuilder
     /**
      * The command macros of its own linked service templates are inherited by its descendants only.
      */
-    private function buildCheckOptions(HostTemplate $template): HostTemplateCheckOptionsOutput
+    private function buildCheckOptions(HostTemplate $template): HostCheckOptionsOutput
     {
         $command = null;
         if ($template->checkOptions->checkCommandId instanceof CommandId) {
             $checkCommand = $this->commandRepository->getById($template->checkOptions->checkCommandId);
-            $command = new HostTemplateCheckCommandOutput($checkCommand->id()->value, $checkCommand->name->value);
+            $command = new HostCheckCommandOutput($checkCommand->id()->value, $checkCommand->name->value);
         }
 
-        $ownMacros = array_values(array_map(
-            static fn (HostTemplateMacro $macro): HostMacro => $macro->toHostMacro(),
-            $template->checkOptions->macros->toArray(),
-        ));
+        $ownMacros = $template->checkOptions->macros;
         $inherited = $this->inheritedHostMacrosResolver->resolve($template->parentTemplateIds, $template->checkOptions->checkCommandId);
 
-        return new HostTemplateCheckOptionsOutput(
+        return new HostCheckOptionsOutput(
             $command,
             $template->checkOptions->args,
             array_map($this->macroTransformer->transform(...), [...$ownMacros, ...$inherited->notOverriddenBy($ownMacros)]),
         );
     }
 
-    private function buildExtendedInformations(?HostTemplateExtendedInformations $informations): ?HostTemplateExtendedInformationsOutput
+    private function buildExtendedInformations(?ExtendedInformations $informations): ?HostTemplateExtendedInformationsOutput
     {
-        if (! $informations instanceof HostTemplateExtendedInformations) {
+        if (! $informations instanceof ExtendedInformations) {
             return null;
         }
 
@@ -200,7 +194,7 @@ final readonly class HostTemplateResourceBuilder
         if ($informations->noteUrl === null
             && $informations->note === null
             && $informations->actionUrl === null
-            && ! $icon instanceof HostTemplateIconOutput
+            && ! $icon instanceof HostIconOutput
             && $informations->altIcon === null
             && $informations->comment === null
         ) {
@@ -217,15 +211,15 @@ final readonly class HostTemplateResourceBuilder
         );
     }
 
-    private function buildDataProcessing(HostTemplateDataProcessing $dataProcessing): HostTemplateDataProcessingOutput
+    private function buildDataProcessing(DataProcessing $dataProcessing): DataProcessingOutput
     {
         $eventHandler = null;
         if ($dataProcessing->eventHandlerCommandId instanceof CommandId) {
             $command = $this->commandRepository->getById($dataProcessing->eventHandlerCommandId);
-            $eventHandler = new HostTemplateEventHandlerCommandOutput($command->id()->value, $command->name->value);
+            $eventHandler = new HostEventHandlerCommandOutput($command->id()->value, $command->name->value);
         }
 
-        return new HostTemplateDataProcessingOutput(
+        return new DataProcessingOutput(
             checkFreshness: $dataProcessing->checkFreshness,
             freshnessThreshold: $dataProcessing->freshnessThreshold,
             eventHandlerEnabled: $dataProcessing->eventHandlerEnabled,
@@ -238,9 +232,9 @@ final readonly class HostTemplateResourceBuilder
         );
     }
 
-    private function buildNotifications(?HostTemplateNotifications $notifications, ActingUser $actor): ?HostTemplateNotificationsOutput
+    private function buildNotifications(?Notifications $notifications, ActingUser $actor): ?HostNotificationsOutput
     {
-        if (! $notifications instanceof HostTemplateNotifications) {
+        if (! $notifications instanceof Notifications) {
             return null;
         }
 
@@ -262,8 +256,8 @@ final readonly class HostTemplateResourceBuilder
             }
         }
 
-        return new HostTemplateNotificationsOutput(
-            enabled: $notifications->enabled->value,
+        return new HostNotificationsOutput(
+            enabled: $notifications->enabled,
             contacts: $contacts,
             contactGroups: $contactGroups,
             options: array_map(NotificationOptionEnumResolver::toString(...), $notifications->options),
@@ -287,7 +281,7 @@ final readonly class HostTemplateResourceBuilder
         return $name instanceof TimePeriodName ? new TimePeriodResource($periodId->value, $name->value) : null;
     }
 
-    private function resolveIcon(?MediaId $iconId): ?HostTemplateIconOutput
+    private function resolveIcon(?MediaId $iconId): ?HostIconOutput
     {
         if (! $iconId instanceof MediaId) {
             return null;
@@ -296,7 +290,7 @@ final readonly class HostTemplateResourceBuilder
         $icon = $this->mediaRepository->findByIds(new Collection([$iconId], MediaId::class))->toArray()[$iconId->value] ?? null;
 
         return $icon instanceof Media
-            ? new HostTemplateIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
+            ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
             : null;
     }
 }

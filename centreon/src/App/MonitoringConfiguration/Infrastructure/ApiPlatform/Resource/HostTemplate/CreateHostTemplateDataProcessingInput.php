@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidEventHandlerCommand;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -60,13 +61,13 @@ final readonly class CreateHostTemplateDataProcessingInput
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\IsNull(message: 'low_flap_threshold is not available on a Cloud platform.'),
         ])]
-        #[Assert\Range(min: 0, max: HostTemplate::MAX_FLAP_THRESHOLD)]
+        #[Assert\Range(min: 0, max: 100)]
         public ?int $lowFlapThreshold = null,
 
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\IsNull(message: 'high_flap_threshold is not available on a Cloud platform.'),
         ])]
-        #[Assert\Range(min: 0, max: HostTemplate::MAX_FLAP_THRESHOLD)]
+        #[Assert\Range(min: 0, max: 100)]
         public ?int $highFlapThreshold = null,
 
         #[WhenPlatform(forCloud: true, constraints: [
@@ -74,6 +75,7 @@ final readonly class CreateHostTemplateDataProcessingInput
         ])]
         #[Assert\All([new Assert\Type('string')])]
         #[ValidCommandArguments('event handler')]
+        #[Sensitive]
         public array $eventHandlerArgs = [],
     ) {
     }

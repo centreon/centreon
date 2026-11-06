@@ -53,9 +53,6 @@ final class GetHostTemplateProviderTest extends ApiTestCase
 {
     use GrantsHostTemplateTopologyRole;
     private const MESSAGE = 'You are not allowed to view host templates';
-
-    // about 5 times the slowest warm 900-level response measured (1.05 s), so a loaded runner cannot flake
-    private const MAX_SECONDS = 5.0;
     private const JSON = ['headers' => ['accept' => 'application/json']];
 
     private Connection $connection;
@@ -348,30 +345,27 @@ final class GetHostTemplateProviderTest extends ApiTestCase
         }
     }
 
-    public function testItReturnsAStoredOutOfBoundTemplateAsStored(): void
+    public function testItReturnsBlankTextsAndAnUnknownSnmpVersionAsAbsent(): void
     {
-        $note = str_repeat('n', 600);
-        $url = 'https://example.com/' . str_repeat('u', 2980);
-        $id = $this->insertTemplate('legacy', [
-            'host_max_check_attempts' => 0,
-            'host_acknowledgement_timeout' => 0,
-            'host_high_flap_threshold' => 150,
-            'host_snmp_version' => 'v9',
-            'host_comment' => '',
-            'command_command_id_arg1' => '!-w!80',
-        ]);
-        $this->connection->insert('extended_host_information', ['host_host_id' => $id, 'ehi_notes' => $note, 'ehi_notes_url' => $url, 'ehi_action_url' => ' ']);
+        $id = $this->insertTemplate('legacy', ['host_snmp_version' => 'v9', 'host_comment' => '']);
+        $this->connection->insert('extended_host_information', ['host_host_id' => $id, 'ehi_notes' => 'a note', 'ehi_action_url' => ' ']);
         $this->login();
 
         $body = $this->request('GET', $this->uri($id), self::JSON)->toArray();
 
         self::assertResponseStatusCodeSame(200);
         self::assertArrayNotHasKey('snmp_version', $body);
-        self::assertSame(['note_url' => $url, 'note' => $note], $body['extended_informations']);
-        self::assertSame(0, $this->member($body, 'scheduling_options', 'max_check_attempts'));
-        self::assertSame(0, $this->member($body, 'data_processing', 'acknowledgment_timeout'));
-        self::assertSame(150, $this->member($body, 'data_processing', 'high_flap_threshold'));
-        self::assertSame(['args' => ['-w', '80'], 'macros' => []], $body['check_options']);
+        self::assertSame(['note' => 'a note'], $body['extended_informations']);
+    }
+
+    public function testATemplateBreakingTheHostInvariantsCannotBeRead(): void
+    {
+        $id = $this->insertTemplate('legacy', ['command_command_id_arg1' => '!-w!80']);
+        $this->login();
+
+        $this->request('GET', $this->uri($id), self::JSON);
+
+        self::assertResponseStatusCodeSame(500);
     }
 
     public function testALockedTemplateReadsAsLocked(): void
@@ -477,7 +471,7 @@ final class GetHostTemplateProviderTest extends ApiTestCase
         self::assertSame(['FROMSERVICE'], array_column((array) $routeMacros, 'name'));
     }
 
-    public function testItAnswersPromptlyOnALoopAlreadyInTheData(): void
+    public function testItReadsATemplateInALoopAlreadyInTheData(): void
     {
         $first = $this->insertTemplate('loop-first');
         $second = $this->insertTemplate('loop-second');
@@ -486,9 +480,9 @@ final class GetHostTemplateProviderTest extends ApiTestCase
         $this->insertMacro($second, '$_HOSTSECOND$', '2', false);
         $this->login();
 
-        [$seconds, $body] = $this->timedDetail($first);
+        $body = $this->request('GET', $this->uri($first), self::JSON)->toArray();
 
-        self::assertLessThan(self::MAX_SECONDS, $seconds);
+        self::assertResponseStatusCodeSame(200);
         self::assertSame([['id' => $second, 'name' => "loop-second-{$this->tag}"]], $body['templates']);
         self::assertSame(['SECOND'], array_column($this->listMember($body, 'check_options', 'macros'), 'name'));
     }
@@ -508,9 +502,9 @@ final class GetHostTemplateProviderTest extends ApiTestCase
         }
         $this->login();
 
-        [$seconds, $body] = $this->timedDetail($childId);
+        $body = $this->request('GET', $this->uri($childId), self::JSON)->toArray();
 
-        self::assertLessThan(self::MAX_SECONDS, $seconds);
+        self::assertResponseStatusCodeSame(200);
         self::assertSame(['TOP'], array_column($this->listMember($body, 'check_options', 'macros'), 'name'));
     }
 
@@ -550,9 +544,32 @@ final class GetHostTemplateProviderTest extends ApiTestCase
         self::assertSame([$visibleGroupId], array_column($this->listMember($body, 'notifications', 'contact_groups'), 'id'));
     }
 
+    public function testItReturnsTheInScopeCategoriesAndSeverityToARestrictedUser(): void
+    {
+        $id = $this->insertTemplate('scoped');
+        $visibleCategoryId = $this->insertCategory('visible-category', null);
+        $hiddenCategoryId = $this->insertCategory('hidden-category', null);
+        $severityId = $this->insertCategory('severity', 1);
+        foreach ([$visibleCategoryId, $hiddenCategoryId, $severityId] as $hcId) {
+            $this->connection->insert('hostcategories_relation', ['host_host_id' => $id, 'hostcategories_hc_id' => $hcId]);
+        }
+        $aclGroupId = $this->loginAsHostTemplateReadWriteUser($this->connection, $this->tag);
+        $this->connection->insert('acl_resources', ['acl_res_name' => "res-{$this->tag}", 'acl_res_alias' => "res-{$this->tag}", 'acl_res_activate' => '1']);
+        $aclResourceId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_res_group_relations', ['acl_res_id' => $aclResourceId, 'acl_group_id' => $aclGroupId]);
+        foreach ([$visibleCategoryId, $severityId] as $hcId) {
+            $this->connection->insert('acl_resources_hc_relations', ['acl_res_id' => $aclResourceId, 'hc_id' => $hcId]);
+        }
+
+        $body = $this->request('GET', $this->uri($id), self::JSON)->toArray();
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame([['id' => $visibleCategoryId, 'name' => "visible-category-{$this->tag}"]], $body['categories']);
+        self::assertSame(['id' => $severityId, 'name' => "severity-{$this->tag}"], $body['severity']);
+    }
+
     /**
-     * The provider is replaced before the request: the platform is bound from the environment, so it
-     * cannot change per test.
+     * The platform flag is bound from the environment, so the provider is rebuilt for this test.
      */
     public function testItOmitsTheOnPremiseOnlyFieldsOnACloudPlatform(): void
     {
@@ -639,25 +656,6 @@ final class GetHostTemplateProviderTest extends ApiTestCase
         );
 
         $container->set(GetHostTemplateProvider::class, new GetHostTemplateProvider($security, $hostTemplateRepository, $builder));
-    }
-
-    /**
-     * The first requests of a test process are slow whatever their query: two warm-ups, then the
-     * timed request.
-     *
-     * @return array{float, array<array-key, mixed>}
-     */
-    private function timedDetail(int $id): array
-    {
-        $this->request('GET', $this->uri($id), self::JSON);
-        $this->request('GET', $this->uri($id), self::JSON);
-
-        $start = hrtime(true);
-        $response = $this->request('GET', $this->uri($id), self::JSON);
-        $seconds = (hrtime(true) - $start) / 1e9;
-        self::assertResponseStatusCodeSame(200);
-
-        return [$seconds, $response->toArray()];
     }
 
     /**

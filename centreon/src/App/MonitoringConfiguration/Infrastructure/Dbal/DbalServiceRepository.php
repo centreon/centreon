@@ -25,10 +25,12 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
@@ -56,6 +58,8 @@ use Webmozart\Assert\Assert;
  *   icon_id: int|string|null,
  *   normal_check_interval: int|string|null,
  *   retry_check_interval: int|string|null,
+ *   host_activate: string|null,
+ *   host_poller_id: int|string|null,
  * }
  * @phpstan-type ListedRowTypeAlias array{
  *   service_id: int|string,
@@ -66,6 +70,8 @@ use Webmozart\Assert\Assert;
  *   normal_check_interval: int|string|null,
  *   retry_check_interval: int|string|null,
  *   host_id: int|string,
+ *   host_activate: string|null,
+ *   host_poller_id: int|string|null,
  * }
  */
 final readonly class DbalServiceRepository extends DbalRepository implements ServiceRepository
@@ -83,6 +89,14 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         's.service_normal_check_interval AS normal_check_interval',
         's.service_retry_check_interval AS retry_check_interval',
         '(SELECT MIN(esi.esi_icon_image) FROM extended_service_information esi WHERE esi.service_service_id = s.service_id) AS icon_id',
+    ];
+
+    /**
+     * Host state read with the service, so the poller to flag survives the service row deletion.
+     */
+    private const HOST_STATE_COLUMNS = [
+        'h.host_activate',
+        '(SELECT MIN(nsr.nagios_server_id) FROM ns_host_relation nsr WHERE nsr.host_host_id = h.host_id) AS host_poller_id',
     ];
 
     /**
@@ -138,7 +152,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select(...self::OWN_COLUMNS)
+        $qb->select(...[...self::OWN_COLUMNS, ...self::HOST_STATE_COLUMNS])
             ->from(self::TABLE_NAME, 's')
             ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
             ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
@@ -159,9 +173,10 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         }
 
         $qb = $this->connection->createQueryBuilder();
-        $qb->select(...self::OWN_COLUMNS)
+        $qb->select(...[...self::OWN_COLUMNS, ...self::HOST_STATE_COLUMNS])
             ->from(self::TABLE_NAME, 's')
             ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
+            ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
             ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
             ->andWhere("s.service_register = '1'")
             ->andWhere($qb->expr()->in('s.service_template_model_stm_id', $qb->createNamedParameter($serviceTemplateIds, ArrayParameterType::INTEGER)));
@@ -171,6 +186,44 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         return $this->hydrate($hostId, $rows);
+    }
+
+    /**
+     * Same pairs as {@see findAll()}; the pair with the lowest host id is read.
+     */
+    public function findOne(ServiceId $id, ActingUser $actor): ?Service
+    {
+        $scope = $this->accessScopes->serviceAccessGroups($actor);
+        if ($scope->allowsNothing()) {
+            return null;
+        }
+
+        $qb = $this->createPairsQuery($scope);
+        $qb->select(...[...self::OWN_COLUMNS, 'h.host_id', ...self::HOST_STATE_COLUMNS])
+            ->andWhere($qb->expr()->eq('s.service_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->orderBy('h.host_id', 'ASC')
+            ->setMaxResults(1);
+
+        /** @var ListedRowTypeAlias|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->transformer->transform([...$row, 'macros' => $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? []]);
+    }
+
+    public function updateActivationStatus(ServiceId $id, bool $activated): void
+    {
+        // service_register = '1' mirrors findOne so a template is never toggled; contract on the interface.
+        $this->connection->createQueryBuilder()
+            ->update(self::TABLE_NAME)
+            ->set('service_activate', ':activated')
+            ->where('service_id = :id')
+            ->andWhere("service_register = '1'")
+            ->setParameter('activated', $activated ? '1' : '0')
+            ->setParameter('id', $id->value, ParameterType::INTEGER)
+            ->executeStatement();
     }
 
     public function remove(Service $service): void
@@ -255,7 +308,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
      */
     private function selectAndSort(QueryBuilder $qb, ServiceCriteria $criteria): void
     {
-        $qb->select(...[...self::OWN_COLUMNS, 'h.host_id']);
+        $qb->select(...[...self::OWN_COLUMNS, 'h.host_id', ...self::HOST_STATE_COLUMNS]);
 
         $mapping = $criteria->getFieldMapping();
         $sorted = false;

@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTe
 use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Infrastructure\Validator\CheckCommandType;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Infrastructure\Validator\Constraints\ExclusiveKeys;
 use App\Shared\Infrastructure\Validator\Constraints\IdList;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -37,8 +38,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 final readonly class PatchHostTemplateCheckOptionsInput
 {
     /**
-     * @param ?int $commandId null removes the command and keeps the arguments
-     * @param list<string> $args an empty list clears them; accepted without a command
+     * @param ?int $commandId null removes the command and its arguments
+     * @param list<string> $args an empty list clears them; they require a check command
      * @param list<HostTemplateMacroInput> $macros the template's own macros: the ones left out are removed
      * @param list<HostTemplateMacroInput> $macrosToUpsert written, the other ones kept
      * @param list<int> $macrosToRemove ids of the template's own macros
@@ -49,6 +50,7 @@ final readonly class PatchHostTemplateCheckOptionsInput
 
         #[Assert\All([new Assert\Type('string')])]
         #[ValidCommandArguments('check command')]
+        #[Sensitive]
         public array $args = [],
 
         #[ApiProperty(description: 'Replaces the macros: the template\'s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.')]

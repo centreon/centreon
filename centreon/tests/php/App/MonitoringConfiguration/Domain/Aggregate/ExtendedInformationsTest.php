@@ -123,6 +123,11 @@ final class ExtendedInformationsTest extends TestCase
         new ExtendedInformations(altIcon: str_repeat('a', 201));
     }
 
+    public function testItAcceptsAnAltIconExactly200CharactersLong(): void
+    {
+        self::assertSame(200, mb_strlen((string) new ExtendedInformations(altIcon: str_repeat('a', 200))->altIcon));
+    }
+
     public function testWithKeepsEveryValueWhenNothingIsProvided(): void
     {
         $original = new ExtendedInformations('https://a.example', 'note', 'https://b.example', new MediaId(2), 'icon', 'comment', new GeoCoordinates('48.85', '2.35'));

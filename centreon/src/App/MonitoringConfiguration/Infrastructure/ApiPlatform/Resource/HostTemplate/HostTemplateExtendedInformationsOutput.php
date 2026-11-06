@@ -23,13 +23,15 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
 
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
+
 final readonly class HostTemplateExtendedInformationsOutput
 {
     public function __construct(
         public ?string $noteUrl,
         public ?string $note,
         public ?string $actionUrl,
-        public ?HostTemplateIconOutput $icon,
+        public ?HostIconOutput $icon,
         public ?string $altIcon,
         public ?string $comment,
     ) {

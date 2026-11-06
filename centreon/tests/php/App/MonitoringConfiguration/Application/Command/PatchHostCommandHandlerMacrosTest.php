@@ -53,9 +53,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
@@ -588,7 +586,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         $this->templateRepository->hostTemplates[1] = new HostTemplate(
             new HostTemplateId(1),
             new HostTemplateName('template-1'),
-            new HostTemplateCheckOptions(macros: new Collection([$this->templateMacro('PORT', '80', false, 500)], HostTemplateMacro::class)),
+            new CheckOptions(null, macros: [$this->templateMacro('PORT', '80', false, 500)]),
         );
         $this->repository->seed(new Host(
             id: null,
@@ -721,10 +719,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             $this->templateRepository->hostTemplates[$templateId] = new HostTemplate(
                 new HostTemplateId($templateId),
                 new HostTemplateName('template-' . $templateId),
-                new HostTemplateCheckOptions(macros: new Collection(
-                    array_map(fn (array $macro): HostTemplateMacro => $this->templateMacro($macro[0], $macro[1], $macro[2], $macro[3]), $macros),
-                    HostTemplateMacro::class,
-                )),
+                new CheckOptions(null, macros: array_map(fn (array $macro): HostMacro => $this->templateMacro($macro[0], $macro[1], $macro[2], $macro[3]), $macros)),
             );
         }
 
@@ -994,9 +989,9 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         return new HostMacro(new HostMacroName($name), $value, $isPassword, $id === null ? null : new HostMacroId($id));
     }
 
-    private function templateMacro(string $name, string $value, bool $isPassword, int $id): HostTemplateMacro
+    private function templateMacro(string $name, string $value, bool $isPassword, int $id): HostMacro
     {
-        return new HostTemplateMacro(new HostMacroName($name), $value, $isPassword, new HostMacroId($id));
+        return new HostMacro(new HostMacroName($name), $value, $isPassword, new HostMacroId($id));
     }
 
     private function macroNamed(Host $host, string $name): HostMacro
