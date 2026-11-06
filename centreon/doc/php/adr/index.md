@@ -51,9 +51,3 @@ Decisions taken by the PHP team on the backend architecture, by topic. The terms
 |---|---|---|
 | [0010](0010-parameterize-repository-queries.md) | Build repository SQL with the `QueryBuilder` and bound parameters, never string concatenation | Accepted |
 | [0015](0015-scope-resource-access-with-acting-user-and-access-scope.md) | Scope resource access with an acting user and an access scope | Accepted |
-
-## Upgrade
-
-| ADR | Decision | Status |
-|---|---|---|
-| [0035](0035-write-database-changes-as-doctrine-migrations.md) | Write database changes as Doctrine migrations that the engine checks and logs | Proposed |

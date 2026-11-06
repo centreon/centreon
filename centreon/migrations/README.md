@@ -17,9 +17,8 @@ A module ships migrations only if its name is made of lowercase letters and digi
 separated by single dashes, at most 36 characters (`centreon-open-tickets`): it names its metadata table and its
 namespace.
 
-A platform upgrade (wizard, `POST /api/latest/platform/updates`) runs: the legacy scripts, `realtime`, `configuration`,
-then records `centreon.version` (`config.new/packages/centreon.yaml`), then upgrades the modules (their legacy
-scripts, then their set), and clears the cache once. A module upgrade from the Extension Manager runs the module set.
+`centreon:migrations:migrate` without a set runs `realtime`, then `configuration`, then records `centreon.version`
+(`config.new/packages/centreon.yaml`).
 
 The recorded version never moves backwards, and is left to the legacy scripts while `Update-next.php` exists
 (development builds): recording the coming release would skip that script once renamed to it.
@@ -55,13 +54,6 @@ Rules:
   A fix shipped on a maintained branch is forward-ported with the **same class name**.
 - A fix shipped both as a legacy script (maintained branch) and as a migration runs twice on a platform upgraded
   through that branch: the migration must be idempotent.
-- A fresh install creates the current schema with `www/install/*.sql`, then runs every core migration: the core
-  install SQL is frozen for what a migration changes. Never add the same change to both.
-- Once a module ships migrations, its `install.sql` is frozen: new changes come as migrations, which run after it at
-  install. Its `uninstall.sql` must still drop everything the module owns, migrations included: an uninstallation
-  does not revert them.
-- A module version that failed resumes after its last successful `upgrade.sql` query. If that `upgrade.sql` is fixed
-  in between, it restarts from its first query: a fixed `upgrade.sql` must be idempotent.
 
 Logging (`/var/log/centreon/prod.upgrade.log`, as the legacy scripts):
 
@@ -78,12 +70,11 @@ bin/console.new centreon:migrations:migrate [--set=realtime|configuration | --mo
 bin/console.new centreon:migrations:rollback <version|prev|first> (--set=realtime|configuration | --module=<name>)
 ```
 
-- The core sets refuse to run while legacy `Update-*.php` scripts are pending: update the platform first (upgrade
-  wizard or API), which runs both in order.
+- The core sets refuse to run while legacy `Update-*.php` scripts are pending: update the platform first, with the
+  upgrade wizard or the API.
 - A module set only runs once its module is installed, and `status` only lists installed modules.
 - A failing migration stops the run: a `DmlMigration` leaves nothing behind, the migrations executed before it stay
-  applied, and the next run resumes there. A module left with pending migrations is reported as outdated, even at its
-  installed version.
+  applied, and the next run resumes there.
 - A rollback is explicit and per set: it reverts the migrations executed after the given version (as `status -v` lists
   it, or its timestamp), after listing them for confirmation. It changes neither `informations.version`, nor
   `mod_release`, nor the code. The legacy scripts stay irreversible.
@@ -93,9 +84,6 @@ bin/console.new centreon:migrations:rollback <version|prev|first> (--set=realtim
 
 - A module set targets the `centreon` database only: a module owning tables in `centreon_storage` cannot change
   them through migrations yet.
-- Migrations run behind web requests (wizard, Extension Manager): a long change on a large table can hit the web
-  server timeout. Keep them short, or run them with the console.
-- A module set only takes its own lock, as the platform update runs it while holding the update one: do not migrate
-  a module (console or Extension Manager) while the platform is being updated.
+- A module set only takes its own lock: do not migrate a module while the platform is being updated.
 - A migration statement holds no semicolon outside its literals and comments: a trigger, procedure, function or event
   with a `BEGIN ... END` body cannot be created through a migration yet.

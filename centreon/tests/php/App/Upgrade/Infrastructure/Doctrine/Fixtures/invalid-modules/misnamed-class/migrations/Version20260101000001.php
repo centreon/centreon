@@ -26,7 +26,7 @@ namespace MisnamedClass\Migrations;
 use App\Upgrade\Infrastructure\Doctrine\DmlMigration;
 use Doctrine\DBAL\Schema\Schema;
 
-// Not named after its file, which the Extension Manager reads the version from.
+// Not named after its file.
 final class Version20260101000002 extends DmlMigration
 {
     public function up(Schema $schema): void

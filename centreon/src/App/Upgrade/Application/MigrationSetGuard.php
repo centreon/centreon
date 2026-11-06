@@ -27,8 +27,7 @@ use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 
 /**
- * Checked before migrating or rolling back a set. A module set has its own lock: the platform update holds the update
- * one while it upgrades the modules.
+ * Checked before migrating or rolling back a set: a module set takes its own lock, the core sets the update one.
  */
 final readonly class MigrationSetGuard
 {

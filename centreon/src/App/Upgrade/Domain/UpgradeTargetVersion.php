@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\Upgrade\Domain;
 
 /**
- * Shared by the platform update and the upgrade wizard, which announces it.
+ * The version a platform is recorded at once its core migration sets ran.
  */
 final class UpgradeTargetVersion
 {

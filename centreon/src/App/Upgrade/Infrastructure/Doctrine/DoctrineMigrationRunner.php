@@ -238,9 +238,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     }
 
     /**
-     * Doctrine silently ignores a class out of the namespace of the set, and would run a migration with no base class
-     * checks: the module would stay outdated, or bypass them. The Extension Manager also tells the pending migrations
-     * of a module from their file names (see ModuleSource): each one is named after its file.
+     * Refuses what Doctrine would skip or run unchecked: a class out of the set namespace or not named after its file.
      *
      * @throws \RuntimeException
      */

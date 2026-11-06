@@ -274,7 +274,6 @@ final class DoctrineMigrationRunnerTest extends TestCase
 
     public function testRefusesAMigrationNotNamedAfterItsFile(): void
     {
-        // The Extension Manager tells the pending migrations from their file names.
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('must declare the "MisnamedClass\Migrations\Version20260101000001" migration');
 

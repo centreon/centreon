@@ -38,7 +38,7 @@ final class Version20260101000001 extends DmlMigration
     }
 }
 
-// Run by Doctrine, but the Extension Manager only knows the file name.
+// A second migration in the file of another one.
 final class Version20260101000002 extends DmlMigration
 {
     public function up(Schema $schema): void

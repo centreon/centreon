@@ -93,7 +93,7 @@ final class MigrateCommandHandlerTest extends TestCase
 
     public function testMigratesAModuleSetUnderItsOwnLockWhileThePlatformUpdateHoldsTheUpdateLock(): void
     {
-        // The platform update holds the update lock while it upgrades the modules, which migrate their own set.
+        // As during a platform update.
         $this->locker->lockAvailable = false;
 
         ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
