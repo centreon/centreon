@@ -25,7 +25,9 @@ import {
   getServiceTemplateMacrosEndpoint,
   serviceFormCommandsEndpoint,
   serviceFormHostsEndpoint,
+  serviceFormServiceGroupsEndpoint,
   serviceFormTimePeriodsEndpoint,
+  serviceFormTrapsEndpoint,
   servicesListEndpoint,
   serviceTemplatesEndpoint
 } from '../api/endpoints';
@@ -35,9 +37,11 @@ import {
   getServiceFormCommandsResponse,
   getServiceFormHostsResponse,
   getServiceFormTimePeriodsResponse,
+  getServiceGroupsResponse,
   getServiceResponse,
   getServiceTemplateMacrosResponse,
-  getServiceTemplatesResponse
+  getServiceTemplatesResponse,
+  getTrapsResponse
 } from './utils';
 
 interface Props {
@@ -129,6 +133,20 @@ const initialize = ({
     method: Method.GET,
     path: `**${getServiceTemplateMacrosEndpoint({ id: 30 })}`,
     response: getServiceTemplateMacrosResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormServiceGroups',
+    method: Method.GET,
+    path: `**${serviceFormServiceGroupsEndpoint}?**`,
+    response: getServiceGroupsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormTraps',
+    method: Method.GET,
+    path: `**${serviceFormTrapsEndpoint}?**`,
+    response: getTrapsResponse()
   });
 
   interceptAPIRequest({

@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next';
 import {
   schedulingColumns,
   stackedColumns,
+  twoColumnsFromNarrow,
   twoColumnsFromWide
 } from '../../ResourceForm/grid';
 import {
@@ -15,6 +16,7 @@ import {
 import {
   labelGeneralInformation,
   labelMonitoringEngineSchedulingOptions,
+  labelRelations,
   labelSchedulingOptions,
   labelServiceMonitoringProperties
 } from '../translatedLabels';
@@ -41,6 +43,25 @@ export const layout: Array<LayoutSection> = [
           'macros'
         ],
         name: 'check-command-layout'
+      }
+    ]
+  },
+  {
+    label: labelRelations,
+    nodes: [
+      {
+        // The service groups and traps in the left column. The right one
+        // stays empty until what classifies the service is placed there.
+        className: twoColumnsFromNarrow,
+        columnSeparator: true,
+        columns: [
+          {
+            className: stackedColumns,
+            columns: ['groups', 'snmpTraps'],
+            name: 'relations-groups'
+          }
+        ],
+        name: 'relations-layout'
       }
     ]
   },

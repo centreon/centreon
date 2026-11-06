@@ -1,5 +1,6 @@
 import Form from './Services.Form';
 import CheckOptions from './Services.Form.CheckOptions';
+import Relations from './Services.Form.Relations';
 import TemplateAndScheduling from './Services.Form.TemplateAndScheduling';
 
 // Apart from the listing specs so the two run in parallel. Each section adds
@@ -12,4 +13,5 @@ describe('Services configuration: ', () => {
   describe('Form: ', Form);
   describe('Form: ', TemplateAndScheduling);
   describe('Service monitoring properties: ', CheckOptions);
+  describe('Form: ', Relations);
 });
