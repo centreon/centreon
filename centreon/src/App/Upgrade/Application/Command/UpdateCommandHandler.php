@@ -28,7 +28,7 @@ use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
 use App\Upgrade\Application\UpdateLocker;
-use App\Upgrade\Application\UpgradeLogger;
+use App\Upgrade\Application\UpgradeLoggerInterface;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
@@ -46,7 +46,7 @@ final readonly class UpdateCommandHandler
         private WidgetRepository $widgetRepository,
         private EngineContextWriter $engineContextWriter,
         private CacheClearer $cacheClearer,
-        private UpgradeLogger $logger,
+        private UpgradeLoggerInterface $logger,
     ) {
     }
 

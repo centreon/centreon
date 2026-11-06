@@ -70,6 +70,16 @@ final class MonologAdapterTest extends TestCase
         );
     }
 
+    public function testStampsTheUidProcessorTheSymfonyLoggersShare(): void
+    {
+        $adapter = MonologAdapter::create(LogChannelEnum::UPGRADE);
+
+        $logger = (new \ReflectionProperty($adapter, 'logger'))->getValue($adapter);
+        self::assertInstanceOf(Logger::class, $logger);
+
+        self::assertContains(MonologAdapter::uidProcessor(), $logger->getProcessors());
+    }
+
     public function testModuleChannelWritesToItsHistoricalFileWithPlatformProcessors(): void
     {
         // A module channel must write to its literal historical file name (no

@@ -33,6 +33,8 @@ class FakeUpdateRepository implements UpdateRepository
 
     public bool $installDirectoryPresent = true;
 
+    public bool $failOnVersionUpdate = false;
+
     /** @var string[] versions whose version row was recorded */
     public array $updatesRun = [];
 
@@ -62,7 +64,12 @@ class FakeUpdateRepository implements UpdateRepository
 
     public function updateVersionInformation(string $version): void
     {
+        if ($this->failOnVersionUpdate) {
+            throw new \RuntimeException('informations is locked');
+        }
+
         $this->updatesRun[] = $version;
+        $this->currentVersion = $version;
     }
 
     public function installDirectoryExists(): bool

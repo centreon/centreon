@@ -1,0 +1,3 @@
+parameters:
+    # Target platform version, recorded once the Centreon Web migration sets ran.
+    centreon.version: '26.12.0'

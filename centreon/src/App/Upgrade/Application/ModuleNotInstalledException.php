@@ -23,19 +23,13 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application;
 
-interface UpgradeLogger
+/**
+ * Module migrations only run once the module is installed.
+ */
+final class ModuleNotInstalledException extends \RuntimeException
 {
-    public function start(string $fromVersion, string $toVersion): void;
-
-    public function success(string $fromVersion, string $toVersion, int $durationMs): void;
-
-    public function failure(?string $fromVersion, ?string $toVersion, string $message, ?\Throwable $exception = null): void;
-
-    public function error(string $version, string $message, ?\Throwable $exception = null): void;
-
-    public function step(string $version, string $stepName, string $message): void;
-
-    public function stepCompleted(string $version, string $stepName, int $durationMs, string $message): void;
-
-    public function stepFailure(string $version, string $stepName, string $message, ?\Throwable $exception = null): void;
+    public function __construct(string $module)
+    {
+        parent::__construct(sprintf('The module "%s" is not installed, or does not exist: its migrations can only be run, rolled back or listed once it is installed.', $module));
+    }
 }

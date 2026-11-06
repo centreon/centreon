@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Double;
 
-use App\Upgrade\Application\UpgradeLogger;
+use App\Upgrade\Application\UpgradeLoggerInterface;
 
-final class FakeUpgradeLogger implements UpgradeLogger
+final class FakeUpgradeLogger implements UpgradeLoggerInterface
 {
     /**
      * @var list<array{
-     *     method: 'start'|'success'|'failure'|'error'|'step'|'stepCompleted'|'stepFailure',
+     *     method: 'start'|'success'|'failure'|'info'|'error'|'step'|'stepCompleted'|'stepFailure',
      *     fromVersion?: ?string,
      *     toVersion?: ?string,
      *     durationMs?: int,
@@ -65,6 +65,11 @@ final class FakeUpgradeLogger implements UpgradeLogger
             'message' => $message,
             'exception' => $exception,
         ];
+    }
+
+    public function info(string $version, string $message): void
+    {
+        $this->calls[] = ['method' => 'info', 'version' => $version, 'message' => $message];
     }
 
     public function error(string $version, string $message, ?\Throwable $exception = null): void
