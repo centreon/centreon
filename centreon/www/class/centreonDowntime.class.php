@@ -61,7 +61,7 @@ class CentreonDowntime
     /** @var array|null */
     protected ?array $downtimes = null;
 
-    /** @var array<string, array<int|string, mixed>> ACL resources cache, see getAllowedResources() */
+    /** @var array<string, array<int|string, mixed>> ACL resources cache, keyed by ACL object, type and host */
     private array $allowedResources = [];
 
     /**
@@ -353,12 +353,15 @@ class CentreonDowntime
                         SQL;
                     break;
                 case 'services':
+                    // A service on a disabled host counts as disabled
                     $query = <<<'SQL'
                         SELECT CONCAT(dsr.host_host_id, CONCAT('-', dsr.service_service_id)) AS resource_id,
-                            s.service_activate AS activated
+                            IF(s.service_activate = '1' AND h.host_activate = '1', '1', '0') AS activated
                         FROM downtime_service_relation dsr
                         INNER JOIN service s
                             ON dsr.service_service_id = s.service_id
+                        INNER JOIN host h
+                            ON dsr.host_host_id = h.host_id
                         WHERE
                             dt_id = :downtimeId;
                         SQL;
@@ -398,7 +401,7 @@ class CentreonDowntime
     /**
      * Returns the downtime ids the user is allowed to manage.
      *
-     * A downtime is allowed when every enabled host, host group and service group it targets
+     * A downtime is allowed when every enabled host, host group, service and service group it targets
      * is part of the user's ACL. Disabled resources outside the ACL do not block it.
      *
      * @param list<int|string> $downtimeIds
@@ -418,7 +421,7 @@ class CentreonDowntime
     }
 
     /**
-     * Tells whether the user is allowed to manage the downtime.
+     * Same rule as filterIdsAllowedForUser(), for a single downtime.
      *
      * @param int $downtimeId
      * @param CentreonACL $userAcl
@@ -428,11 +431,14 @@ class CentreonDowntime
      */
     public function isAllowedForUser(int $downtimeId, CentreonACL $userAcl): bool
     {
-        $relations = $this->getRelations($downtimeId);
-
-        foreach (['hosts', 'hostgroups', 'servicegroups'] as $resourceType) {
-            if (! $this->areResourcesAllowed($userAcl, $relations[$resourceType], $resourceType)) {
-                return false;
+        foreach ($this->getRelations($downtimeId) as $resourceType => $resources) {
+            foreach ($resources as $resource) {
+                if ($resource['activated'] !== '1') {
+                    continue;
+                }
+                if (! $this->isResourceAllowed($userAcl, $resourceType, (string) $resource['id'])) {
+                    return false;
+                }
             }
         }
 
@@ -1458,52 +1464,45 @@ class CentreonDowntime
     }
 
     /**
-     * Checks that every enabled resource of the given type is part of the user's ACL.
-     *
      * @param CentreonACL $userAcl
-     * @param array<array{id: int|string, activated: string}> $resources
-     * @param string $resourceType 'hosts', 'hostgroups' or 'servicegroups'
+     * @param string $resourceType a getRelations() key: 'hosts', 'hostgroups', 'services' or 'servicegroups'
+     * @param string $resourceId a getRelations() id, '<hostId>-<serviceId>' for services
      *
      * @return bool
      */
-    private function areResourcesAllowed(CentreonACL $userAcl, array $resources, string $resourceType): bool
+    private function isResourceAllowed(CentreonACL $userAcl, string $resourceType, string $resourceId): bool
     {
-        if ($resources === []) {
-            return true;
+        if ($resourceType !== 'services') {
+            return array_key_exists($resourceId, $this->getAllowedResources($userAcl, $resourceType));
         }
 
-        $allowedResources = $this->getAllowedResources($userAcl, $resourceType);
+        [$hostId, $serviceId] = explode('-', $resourceId, 2);
 
-        foreach ($resources as $resource) {
-            // A disabled resource outside the ACL does not block the downtime
-            if (
-                $resource['activated'] === '1'
-                && ! array_key_exists($resource['id'], $allowedResources)
-            ) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_key_exists(
+            $serviceId,
+            $this->getAllowedResources($userAcl, $resourceType, (int) $hostId)
+        );
     }
 
     /**
-     * Returns the resources of the given type the user has access to, indexed by id.
-     * Results are cached per ACL instance to avoid repeating queries on mass actions.
+     * Returns the resources the user has access to, indexed by id (services: those of $hostId).
+     * Cached for the lifetime of this object to avoid repeating queries on mass actions.
      *
      * @param CentreonACL $userAcl
-     * @param string $resourceType 'hosts', 'hostgroups' or 'servicegroups'
+     * @param string $resourceType 'hosts', 'hostgroups', 'services' or 'servicegroups'
+     * @param int|null $hostId the services' host, only for 'services'
      *
      * @return array<int|string, mixed>
      */
-    private function getAllowedResources(CentreonACL $userAcl, string $resourceType): array
+    private function getAllowedResources(CentreonACL $userAcl, string $resourceType, ?int $hostId = null): array
     {
-        $cacheKey = spl_object_id($userAcl) . '_' . $resourceType;
+        $cacheKey = spl_object_id($userAcl) . '_' . $resourceType . '_' . $hostId;
 
         return $this->allowedResources[$cacheKey] ??= match ($resourceType) {
             'hosts' => $userAcl->getHostAclConf(null, 'broker'),
             'hostgroups' => $userAcl->getHostGroupAclConf(null, 'broker'),
+            'services' => $userAcl->getHostServiceAclConf($hostId, 'broker'),
             'servicegroups' => $userAcl->getServiceGroupAclConf(null, 'broker'),
-        };
+        } ?? [];
     }
 }

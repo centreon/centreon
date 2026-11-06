@@ -34,6 +34,9 @@ class CentreonDowntimeAclTest extends TestCase
     private const ALLOWED_HOST_ID = 1;
     private const FORBIDDEN_HOST_ID = 2;
     private const ALLOWED_HOST_GROUP_ID = 10;
+    private const FORBIDDEN_HOST_GROUP_ID = 20;
+    private const ALLOWED_SERVICE_ID = 100;
+    private const FORBIDDEN_SERVICE_ID = 200;
     private const FORBIDDEN_SERVICE_GROUP_ID = 30;
 
     private CentreonDowntime&MockObject $downtime;
@@ -51,6 +54,12 @@ class CentreonDowntimeAclTest extends TestCase
         $this->userAcl->method('getHostAclConf')->willReturn([self::ALLOWED_HOST_ID => 'host-a']);
         $this->userAcl->method('getHostGroupAclConf')->willReturn([self::ALLOWED_HOST_GROUP_ID => 'hg-a']);
         $this->userAcl->method('getServiceGroupAclConf')->willReturn([]);
+        // Services are looked up per host: only service ALLOWED_SERVICE_ID of host ALLOWED_HOST_ID is allowed
+        $this->userAcl->method('getHostServiceAclConf')->willReturnCallback(
+            static fn (int $hostId): array => $hostId === self::ALLOWED_HOST_ID
+                ? [self::ALLOWED_SERVICE_ID => 'service-a']
+                : []
+        );
     }
 
     public function testDowntimeOnAllowedResourcesIsAllowed(): void
@@ -85,6 +94,61 @@ class CentreonDowntimeAclTest extends TestCase
         $this->assertFalse($this->downtime->isAllowedForUser(1, $this->userAcl));
     }
 
+    public function testDowntimeWithAnEnabledHostGroupOutsideTheAclIsRefused(): void
+    {
+        $this->givenRelations([
+            1 => $this->relations(hostgroups: [$this->resource(self::FORBIDDEN_HOST_GROUP_ID)]),
+        ]);
+
+        $this->assertFalse($this->downtime->isAllowedForUser(1, $this->userAcl));
+    }
+
+    public function testDowntimeOnAnAllowedServiceIsAllowed(): void
+    {
+        $this->givenRelations([
+            1 => $this->relations(services: [$this->service(self::ALLOWED_HOST_ID, self::ALLOWED_SERVICE_ID)]),
+        ]);
+
+        $this->assertTrue($this->downtime->isAllowedForUser(1, $this->userAcl));
+    }
+
+    public function testDowntimeWithAnEnabledServiceOutsideTheAclIsRefused(): void
+    {
+        $this->givenRelations([
+            1 => $this->relations(services: [
+                $this->service(self::ALLOWED_HOST_ID, self::ALLOWED_SERVICE_ID),
+                $this->service(self::ALLOWED_HOST_ID, self::FORBIDDEN_SERVICE_ID),
+            ]),
+        ]);
+
+        $this->assertFalse($this->downtime->isAllowedForUser(1, $this->userAcl));
+    }
+
+    public function testServiceAllowedOnAnotherHostIsRefused(): void
+    {
+        $this->givenRelations([
+            1 => $this->relations(services: [$this->service(self::FORBIDDEN_HOST_ID, self::ALLOWED_SERVICE_ID)]),
+        ]);
+
+        $this->assertFalse($this->downtime->isAllowedForUser(1, $this->userAcl));
+    }
+
+    public function testDisabledServiceOutsideTheAclDoesNotBlockTheDowntime(): void
+    {
+        $this->givenRelations([
+            1 => $this->relations(services: [$this->service(self::FORBIDDEN_HOST_ID, self::FORBIDDEN_SERVICE_ID, false)]),
+        ]);
+
+        $this->assertTrue($this->downtime->isAllowedForUser(1, $this->userAcl));
+    }
+
+    public function testDowntimeWithoutRelationsIsAllowed(): void
+    {
+        $this->givenRelations([1 => $this->relations()]);
+
+        $this->assertTrue($this->downtime->isAllowedForUser(1, $this->userAcl));
+    }
+
     public function testDisabledResourceOutsideTheAclDoesNotBlockTheDowntime(): void
     {
         $this->givenRelations([
@@ -115,10 +179,18 @@ class CentreonDowntimeAclTest extends TestCase
         $userAcl->expects($this->once())
             ->method('getHostAclConf')
             ->willReturn([self::ALLOWED_HOST_ID => 'host-a']);
-        $this->givenRelations([
-            1 => $this->relations(hosts: [$this->resource(self::ALLOWED_HOST_ID)]),
-            2 => $this->relations(hosts: [$this->resource(self::ALLOWED_HOST_ID)]),
-        ]);
+        $userAcl->expects($this->once())
+            ->method('getHostGroupAclConf')
+            ->willReturn([self::ALLOWED_HOST_GROUP_ID => 'hg-a']);
+        $userAcl->expects($this->once())
+            ->method('getHostServiceAclConf')
+            ->willReturn([self::ALLOWED_SERVICE_ID => 'service-a']);
+        $relations = $this->relations(
+            hosts: [$this->resource(self::ALLOWED_HOST_ID)],
+            hostgroups: [$this->resource(self::ALLOWED_HOST_GROUP_ID)],
+            services: [$this->service(self::ALLOWED_HOST_ID, self::ALLOWED_SERVICE_ID)],
+        );
+        $this->givenRelations([1 => $relations, 2 => $relations]);
 
         $this->assertSame([1, 2], $this->downtime->filterIdsAllowedForUser([1, 2], $userAcl));
     }
@@ -136,15 +208,20 @@ class CentreonDowntimeAclTest extends TestCase
      * @param list<array{id: string, activated: string}> $hosts
      * @param list<array{id: string, activated: string}> $hostgroups
      * @param list<array{id: string, activated: string}> $servicegroups
+     * @param list<array{id: string, activated: string}> $services
      *
      * @return array<string, list<array{id: string, activated: string}>>
      */
-    private function relations(array $hosts = [], array $hostgroups = [], array $servicegroups = []): array
-    {
+    private function relations(
+        array $hosts = [],
+        array $hostgroups = [],
+        array $servicegroups = [],
+        array $services = [],
+    ): array {
         return [
             'hosts' => $hosts,
             'hostgroups' => $hostgroups,
-            'services' => [],
+            'services' => $services,
             'servicegroups' => $servicegroups,
         ];
     }
@@ -157,5 +234,15 @@ class CentreonDowntimeAclTest extends TestCase
     private function resource(int $id, bool $activated = true): array
     {
         return ['id' => (string) $id, 'activated' => $activated ? '1' : '0'];
+    }
+
+    /**
+     * Services are identified by '<hostId>-<serviceId>' in CentreonDowntime::getRelations()
+     *
+     * @return array{id: string, activated: string}
+     */
+    private function service(int $hostId, int $serviceId, bool $activated = true): array
+    {
+        return ['id' => $hostId . '-' . $serviceId, 'activated' => $activated ? '1' : '0'];
     }
 }

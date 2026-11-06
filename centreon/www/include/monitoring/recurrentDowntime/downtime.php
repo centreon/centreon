@@ -31,6 +31,8 @@ $downtime_id = filter_var(
 $cG = $_GET['select'] ?? null;
 $cP = $_POST['select'] ?? null;
 $select = $cG ?: $cP;
+// The listing always sends select[<dt_id>]=1
+$select = is_array($select) ? $select : [];
 
 $cG = $_GET['dupNbr'] ?? null;
 $cP = $_POST['dupNbr'] ?? null;
@@ -54,7 +56,7 @@ $aclRefusedMessage = null;
 
 /**
  * Keeps only the selected downtimes the user is allowed to manage.
- * Sets $aclRefusedMessage when at least one downtime is refused, it is displayed by listDowntime.php.
+ * Sets $aclRefusedMessage, shown by listDowntime.php, when at least one downtime is refused.
  *
  * @param array<int|string, mixed> $selectedDowntimes downtime ids as keys
  * @return array<int|string, mixed>
@@ -119,7 +121,7 @@ if (isset($_GET['period_form']) || isset($_GET['period']) && $o == '') {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->multiEnable($filterAllowedDowntimes($select ?? []));
+                $downtime->multiEnable($filterAllowedDowntimes($select));
             } else {
                 unvalidFormMessage();
             }
@@ -141,7 +143,7 @@ if (isset($_GET['period_form']) || isset($_GET['period']) && $o == '') {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->multiDisable($filterAllowedDowntimes($select ?? []));
+                $downtime->multiDisable($filterAllowedDowntimes($select));
             } else {
                 unvalidFormMessage();
             }
@@ -151,7 +153,7 @@ if (isset($_GET['period_form']) || isset($_GET['period']) && $o == '') {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->duplicate($filterAllowedDowntimes($select ?? []), $dupNbr);
+                $downtime->duplicate($filterAllowedDowntimes($select), $dupNbr);
             } else {
                 unvalidFormMessage();
             }
@@ -161,7 +163,7 @@ if (isset($_GET['period_form']) || isset($_GET['period']) && $o == '') {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->multiDelete(array_keys($filterAllowedDowntimes($select ?? [])));
+                $downtime->multiDelete(array_keys($filterAllowedDowntimes($select)));
             } else {
                 unvalidFormMessage();
             }
