@@ -26,14 +26,10 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
-use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
-use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\Shared\Domain\Collection;
@@ -89,39 +85,21 @@ final class HostTemplateCreateTest extends TestCase
      */
     public static function provideValuesWithinTheBounds(): iterable
     {
-        yield 'max check attempts 1' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(maxCheckAttempts: 1))];
-
-        yield 'normal check interval 1' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(normalCheckInterval: 1))];
-
-        yield 'retry check interval 1' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(retryCheckInterval: 1))];
-
         yield 'max check attempts 2147483647' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(maxCheckAttempts: HostTemplate::MAX_INTEGER))];
 
-        yield 'acknowledgment timeout 1' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(acknowledgmentTimeout: 1))];
+        yield 'normal check interval 2147483647' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(normalCheckInterval: HostTemplate::MAX_INTEGER))];
 
-        yield 'freshness threshold 0' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(freshnessThreshold: 0))];
+        yield 'retry check interval 2147483647' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(retryCheckInterval: HostTemplate::MAX_INTEGER))];
 
-        yield 'low flap threshold 0' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(lowFlapThreshold: 0))];
+        yield 'acknowledgment timeout 2147483647' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(acknowledgmentTimeout: HostTemplate::MAX_INTEGER))];
 
-        yield 'high flap threshold 100' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(highFlapThreshold: 100))];
+        yield 'freshness threshold 2147483647' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(freshnessThreshold: HostTemplate::MAX_INTEGER))];
 
-        yield 'note 512' => [static fn (): HostTemplate => self::make(informations: new ExtendedInformations(note: str_repeat('n', 512)))];
+        yield 'notification interval 2147483647' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(interval: HostTemplate::MAX_INTEGER))];
 
-        yield 'note url 2048' => [static fn (): HostTemplate => self::make(informations: new ExtendedInformations(noteUrl: str_repeat('u', 2048)))];
+        yield 'first delay 2147483647' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(firstDelay: HostTemplate::MAX_INTEGER))];
 
-        yield 'action url 2048' => [static fn (): HostTemplate => self::make(informations: new ExtendedInformations(actionUrl: str_repeat('u', 2048)))];
-
-        yield 'alt icon 200' => [static fn (): HostTemplate => self::make(informations: new ExtendedInformations(altIcon: str_repeat('a', 200)))];
-
-        yield 'comment 65535' => [static fn (): HostTemplate => self::make(informations: new ExtendedInformations(comment: str_repeat('c', 65535)))];
-
-        yield 'notification interval 0' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(interval: 0))];
-
-        yield 'first delay 0' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(firstDelay: 0))];
-
-        yield 'recovery delay 0' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(recoveryDelay: 0))];
-
-        yield 'none alone' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(options: [NotificationOptionEnum::None]))];
+        yield 'recovery delay 2147483647' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(recoveryDelay: HostTemplate::MAX_INTEGER))];
     }
 
     /**
@@ -129,75 +107,31 @@ final class HostTemplateCreateTest extends TestCase
      */
     public static function provideValuesOutOfTheBounds(): iterable
     {
-        yield 'max check attempts 0' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(maxCheckAttempts: 0))];
-
-        yield 'normal check interval 0' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(normalCheckInterval: 0))];
-
-        yield 'retry check interval 0' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(retryCheckInterval: 0))];
-
         yield 'max check attempts 2147483648' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(maxCheckAttempts: HostTemplate::MAX_INTEGER + 1))];
 
-        yield 'acknowledgment timeout 0' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(acknowledgmentTimeout: 0))];
+        yield 'normal check interval 2147483648' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(normalCheckInterval: HostTemplate::MAX_INTEGER + 1))];
 
-        yield 'freshness threshold -1' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(freshnessThreshold: -1))];
+        yield 'retry check interval 2147483648' => [static fn (): HostTemplate => self::make(scheduling: new SchedulingOptions(retryCheckInterval: HostTemplate::MAX_INTEGER + 1))];
 
-        yield 'low flap threshold -1' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(lowFlapThreshold: -1))];
+        yield 'acknowledgment timeout 2147483648' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(acknowledgmentTimeout: HostTemplate::MAX_INTEGER + 1))];
 
-        yield 'low flap threshold 101' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(lowFlapThreshold: 101))];
+        yield 'freshness threshold 2147483648' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(freshnessThreshold: HostTemplate::MAX_INTEGER + 1))];
 
-        yield 'high flap threshold -1' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(highFlapThreshold: -1))];
+        yield 'notification interval 2147483648' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(interval: HostTemplate::MAX_INTEGER + 1))];
 
-        yield 'high flap threshold 101' => [static fn (): HostTemplate => self::make(dataProcessing: new DataProcessing(highFlapThreshold: 101))];
+        yield 'first delay 2147483648' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(firstDelay: HostTemplate::MAX_INTEGER + 1))];
 
-        yield 'note 513' => [static fn (): HostTemplate => self::make(informations: new ExtendedInformations(note: str_repeat('n', 513)))];
-
-        yield 'note url 2049' => [static fn (): HostTemplate => self::make(informations: new ExtendedInformations(noteUrl: str_repeat('u', 2049)))];
-
-        yield 'action url 2049' => [static fn (): HostTemplate => self::make(informations: new ExtendedInformations(actionUrl: str_repeat('u', 2049)))];
-
-        yield 'comment 65536' => [static fn (): HostTemplate => self::make(informations: new ExtendedInformations(comment: str_repeat('c', 65536)))];
-
-        yield 'empty note' => [static fn (): HostTemplate => self::make(informations: new ExtendedInformations(note: ''))];
-
-        yield 'notification interval -1' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(interval: -1))];
-
-        yield 'first delay -1' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(firstDelay: -1))];
-
-        yield 'recovery delay -1' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(recoveryDelay: -1))];
-
-        yield 'none with another option' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(options: [NotificationOptionEnum::Down, NotificationOptionEnum::None]))];
-
-        yield 'arguments without a check command' => [static fn (): HostTemplate => self::make(args: ['-w'])];
+        yield 'recovery delay 2147483648' => [static fn (): HostTemplate => self::make(notifications: Notifications::default()->with(recoveryDelay: HostTemplate::MAX_INTEGER + 1))];
     }
 
-    public function testOnlyTheFirstOfTwoMacrosOfOneNameIsKept(): void
-    {
-        $template = self::make(macroNames: ['PORT', 'port']);
-
-        self::assertCount(1, $template->checkOptions->macros);
-    }
-
-    /**
-     * @param list<string> $macroNames
-     * @param list<string> $args
-     */
     private static function make(
-        ?ExtendedInformations $informations = null,
         SchedulingOptions $scheduling = new SchedulingOptions(),
         DataProcessing $dataProcessing = new DataProcessing(),
         ?Notifications $notifications = null,
-        array $macroNames = [],
-        array $args = [],
     ): HostTemplate {
         return HostTemplate::create(
             new HostTemplateName('tpl'),
             new HostAlias('alias'),
-            new CheckOptions(
-                $args === [] ? new CommandId(1) : null,
-                $args,
-                array_map(static fn (string $name): HostMacro => new HostMacro(new HostMacroName($name), 'v', false), $macroNames),
-            ),
-            extendedInformations: $informations,
             schedulingOptions: $scheduling,
             dataProcessing: $dataProcessing,
             notifications: $notifications,

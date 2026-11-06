@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingMedia;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -34,19 +33,19 @@ final readonly class CreateHostTemplateExtendedInformationsInput
     public function __construct(
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
-            new Assert\Length(max: HostTemplate::MAX_URL_LENGTH, normalizer: 'trim'),
+            new Assert\Length(max: ExtendedInformations::MAX_NOTE_URL_LENGTH, normalizer: 'trim'),
         ])]
         public ?string $noteUrl = null,
 
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
-            new Assert\Length(max: HostTemplate::MAX_NOTE_LENGTH, normalizer: 'trim'),
+            new Assert\Length(max: ExtendedInformations::MAX_NOTE_LENGTH, normalizer: 'trim'),
         ])]
         public ?string $note = null,
 
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
-            new Assert\Length(max: HostTemplate::MAX_URL_LENGTH, normalizer: 'trim'),
+            new Assert\Length(max: ExtendedInformations::MAX_ACTION_URL_LENGTH, normalizer: 'trim'),
         ])]
         public ?string $actionUrl = null,
 
@@ -64,7 +63,7 @@ final readonly class CreateHostTemplateExtendedInformationsInput
 
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
-            new Assert\Length(max: HostTemplate::MAX_COMMENT_LENGTH, normalizer: 'trim'),
+            new Assert\Length(max: ExtendedInformations::MAX_COMMENT_LENGTH, normalizer: 'trim'),
         ])]
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Blank(message: 'This field is not available on a Cloud platform.'),

@@ -34,7 +34,7 @@ final class HostMacroNotFoundException extends AggregateNotFoundException
     /**
      * @param list<int> $ids
      */
-    public function __construct(array $ids)
+    public function __construct(public readonly array $ids)
     {
         parent::__construct(['checkOptions' => $ids], 'One or more macros do not exist on this host.');
     }

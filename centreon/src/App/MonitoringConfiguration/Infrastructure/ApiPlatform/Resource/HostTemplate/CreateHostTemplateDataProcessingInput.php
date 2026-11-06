@@ -60,13 +60,13 @@ final readonly class CreateHostTemplateDataProcessingInput
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\IsNull(message: 'low_flap_threshold is not available on a Cloud platform.'),
         ])]
-        #[Assert\Range(min: 0, max: HostTemplate::MAX_FLAP_THRESHOLD)]
+        #[Assert\Range(min: 0, max: 100)]
         public ?int $lowFlapThreshold = null,
 
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\IsNull(message: 'high_flap_threshold is not available on a Cloud platform.'),
         ])]
-        #[Assert\Range(min: 0, max: HostTemplate::MAX_FLAP_THRESHOLD)]
+        #[Assert\Range(min: 0, max: 100)]
         public ?int $highFlapThreshold = null,
 
         #[WhenPlatform(forCloud: true, constraints: [

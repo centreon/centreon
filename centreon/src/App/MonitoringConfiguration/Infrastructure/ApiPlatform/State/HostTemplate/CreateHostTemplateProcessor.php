@@ -32,12 +32,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
@@ -105,7 +106,7 @@ final readonly class CreateHostTemplateProcessor implements ProcessorInterface
             checkCommandArgs: array_values($checkOptions->args),
             macroChanges: new Collection(
                 array_values(array_map($this->toMacroChange(...), $checkOptions->macros)),
-                HostTemplateMacroChange::class,
+                HostMacroChange::class,
             ),
             extendedInformations: $this->buildExtendedInformations($data->extendedInformations),
             schedulingOptions: new SchedulingOptions(
@@ -132,13 +133,13 @@ final readonly class CreateHostTemplateProcessor implements ProcessorInterface
         return $this->resourceBuilder->build($created, $actor);
     }
 
-    private function toMacroChange(HostTemplateMacroInput $input): HostTemplateMacroChange
+    private function toMacroChange(HostTemplateMacroInput $input): HostMacroChange
     {
-        return new HostTemplateMacroChange(
+        return new HostMacroChange(
             name: new HostMacroName($input->name),
             value: $input->value,
             isPassword: $input->isPassword,
-            id: $input->id,
+            id: $input->id !== null ? new HostMacroId($input->id) : null,
             parent: $input->parent !== null ? HostMacroParentEnum::from($input->parent) : null,
         );
     }

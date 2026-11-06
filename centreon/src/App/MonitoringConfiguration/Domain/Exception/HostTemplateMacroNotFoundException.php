@@ -33,8 +33,8 @@ final class HostTemplateMacroNotFoundException extends AggregateNotFoundExceptio
     /**
      * @param list<int> $ids
      */
-    public function __construct(array $ids)
+    public function __construct(array $ids, ?\Throwable $previous = null)
     {
-        parent::__construct(['checkOptions' => $ids], 'One or more macros do not exist on this host template.');
+        parent::__construct(['checkOptions' => $ids], 'One or more macros do not exist on this host template.', previous: $previous);
     }
 }
