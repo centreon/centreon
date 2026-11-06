@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 
 /**
  * A secret could not be written to the vault before saving: nothing was persisted.
@@ -48,12 +49,14 @@ final class VaultWriteFailedException extends \RuntimeException
     }
 
     /**
-     * A service being created: it has no id yet.
+     * @param ?ServiceId $serviceId the service being updated, null for a service being created (it has no id yet)
      */
-    public static function forService(\Throwable $previous): self
+    public static function forService(?ServiceId $serviceId, \Throwable $previous): self
     {
         return new self(
-            'The service was not created: its credentials could not be written to the vault.',
+            $serviceId instanceof ServiceId
+                ? sprintf('Service %d was not updated: its credentials could not be written to the vault.', $serviceId->value)
+                : 'The service was not created: its credentials could not be written to the vault.',
             previous: $previous,
         );
     }

@@ -30,6 +30,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\CreateServiceProcessor;
@@ -37,6 +38,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\DeleteS
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\GetServiceProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ListServicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchServiceProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PutServiceProcessor;
 
 #[ApiResource(
     shortName: 'Service',
@@ -153,6 +155,36 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchSe
                 is_granted("' . ServicePermissionEnum::CanRead->value . '") or
                 is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to view services',
+        ),
+        new Put(
+            uriTemplate: '/configuration/services/{id}',
+            // Positive integers only, as on the item IRI: a non-numeric or zero id is a 404, not a 500.
+            requirements: ['id' => '[1-9]\d*'],
+            // Write-only replace: no item provider, the handler loads the service itself and answers 404 when it
+            // is missing or outside the actor's scope; the processor answers the updated form.
+            read: false,
+            processor: PutServiceProcessor::class,
+            input: UpdateServiceInput::class,
+            openapi: new Model\Operation(
+                summary: 'Update a service',
+                description: 'Replaces the whole form of a service linked directly to one host, and answers it as a Get '
+                    . 'does. A field left out takes its default; `activated` is required. Service groups, categories, '
+                    . 'contacts and contact groups the user cannot see stay linked, and so does a severity they cannot '
+                    . 'see when none is given. Own macros are sent back with their id to keep them, inherited ones with '
+                    . 'their id and parent only to override them; a password macro sent without value keeps its stored '
+                    . 'one. Password macros are written to the vault, when one is configured, before the service is '
+                    . 'saved. On a Cloud platform, the stored notification settings are kept.',
+                responses: [
+                    403 => new Model\Response('You are not allowed to update services'),
+                    404 => new Model\Response('Service not found, or a nested reference (command, time period, icon, '
+                        . 'contact, contact group) that no longer exists'),
+                    409 => new Model\Response('The name is already used by another service on the host'),
+                    422 => new Model\Response('Invalid input'),
+                    502 => new Model\Response('The vault could not be reached'),
+                ],
+            ),
+            security: "is_granted('" . ServicePermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to update services',
         ),
         new Delete(
             uriTemplate: '/configuration/services/{id}',

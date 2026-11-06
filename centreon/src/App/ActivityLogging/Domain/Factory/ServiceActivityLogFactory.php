@@ -58,8 +58,8 @@ final readonly class ServiceActivityLogFactory implements ActivityLogFactoryInte
         );
 
         $details = match ($action) {
-            ActionEnum::Add => $this->details($aggregate),
-            ActionEnum::Update, ActionEnum::MassChange, ActionEnum::Delete, ActionEnum::Enable, ActionEnum::Disable => [
+            ActionEnum::Add, ActionEnum::Update => $this->details($aggregate),
+            ActionEnum::MassChange, ActionEnum::Delete, ActionEnum::Enable, ActionEnum::Disable => [
                 'service_name' => $aggregate->name->value,
                 'host_id' => (string) $aggregate->hostId->value,
             ],
@@ -76,7 +76,7 @@ final readonly class ServiceActivityLogFactory implements ActivityLogFactoryInte
     }
 
     /**
-     * Every field of the form of a created service, and its host, keyed by legacy column name and valued in the
+     * Every field of the form of a created or updated service, and its host, keyed by legacy column name and valued in the
      * legacy storage format, like {@see HostActivityLogFactory}: an unset value is an empty string, a tri-state
      * is 0, 1 or 2, options are the engine letters, arguments are bang-joined and encoded. Service groups,
      * categories, severity, traps and macros are not part of the log, so no macro password can appear in it.

@@ -183,6 +183,25 @@ final readonly class ServiceNotifications
     }
 
     /**
+     * The contacts and the contact groups are compared as sets: they are relations of the service, whose order
+     * means nothing.
+     */
+    public function equals(self $other): bool
+    {
+        return $this->enabled === $other->enabled
+            && $this->options === $other->options
+            && $this->interval === $other->interval
+            && $this->periodId?->value === $other->periodId?->value
+            && $this->firstDelay === $other->firstDelay
+            && $this->recoveryDelay === $other->recoveryDelay
+            && $this->contactAdditiveInheritance === $other->contactAdditiveInheritance
+            && $this->contactGroupAdditiveInheritance === $other->contactGroupAdditiveInheritance
+            && $this->useOnlyContactsFromHost === $other->useOnlyContactsFromHost
+            && $this->sortedIdValues($this->contactIds) === $this->sortedIdValues($other->contactIds)
+            && $this->sortedIdValues($this->contactGroupIds) === $this->sortedIdValues($other->contactGroupIds);
+    }
+
+    /**
      * @template T of AggregateRootId
      *
      * @param Collection<T> $ids
@@ -198,5 +217,20 @@ final readonly class ServiceNotifications
         }
 
         return new Collection(array_values($uniqueIds), $className);
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     *
+     * @return list<int>
+     */
+    private function sortedIdValues(Collection $ids): array
+    {
+        $values = array_values(array_map(static fn (AggregateRootId $id): int => $id->value, $ids->toArray()));
+        sort($values);
+
+        return $values;
     }
 }

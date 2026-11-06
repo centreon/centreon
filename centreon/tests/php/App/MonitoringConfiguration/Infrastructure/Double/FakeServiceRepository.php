@@ -28,9 +28,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
@@ -65,6 +67,27 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var array<int, list<ServiceMacro>> service id => own macros as read back after insertion */
     public array $storedMacros = [];
 
+    /**
+     * @var array<int, list<int>> service id => every levelled category it is linked to, as {@see findSeverityIds()}
+     *                            reads them, whatever the actor may see; unset, the stored service's severity
+     */
+    public array $storedSeverityIds = [];
+
+    /** @var list<Service> */
+    public array $updatedServices = [];
+
+    /** @var list<Service> */
+    public array $relationsReplacedServices = [];
+
+    /** Thrown by update(), to stand for a failure after the vault was written. */
+    public ?\Throwable $updateThrows = null;
+
+    /**
+     * When set, {@see findOne()} reads the severity as the real repository does: the lowest stored one (see
+     * {@see $storedSeverityIds}) the actor may see, none when they may see none.
+     */
+    public ?AccessScopeResolver $accessScopes = null;
+
     public function add(Service $service): void
     {
         do {
@@ -76,6 +99,44 @@ final class FakeServiceRepository implements ServiceRepository
         $reflection->setValue($service, new ServiceId($id));
 
         $this->services[$id] = $service;
+    }
+
+    public function update(Service $service): void
+    {
+        if ($this->updateThrows instanceof \Throwable) {
+            throw $this->updateThrows;
+        }
+
+        if (! isset($this->services[$service->id()->value])) {
+            return;
+        }
+
+        $this->updatedServices[] = $service;
+        $this->services[$service->id()->value] = $service;
+    }
+
+    public function replaceRelationsAndMacros(Service $service): void
+    {
+        if (! isset($this->services[$service->id()->value])) {
+            return;
+        }
+
+        $this->relationsReplacedServices[] = $service;
+        $this->services[$service->id()->value] = $service;
+    }
+
+    public function findSeverityIds(ServiceId $id): Collection
+    {
+        if (isset($this->storedSeverityIds[$id->value])) {
+            return new Collection(
+                array_map(static fn (int $value): ServiceSeverityId => new ServiceSeverityId($value), $this->storedSeverityIds[$id->value]),
+                ServiceSeverityId::class,
+            );
+        }
+
+        $severityId = ($this->services[$id->value] ?? null)?->severityId;
+
+        return new Collection($severityId instanceof ServiceSeverityId ? [$severityId] : [], ServiceSeverityId::class);
     }
 
     public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool
@@ -158,7 +219,19 @@ final class FakeServiceRepository implements ServiceRepository
             return null;
         }
 
-        return $service;
+        if (! $this->accessScopes instanceof AccessScopeResolver) {
+            return $service;
+        }
+
+        $scope = $this->accessScopes->serviceSeverities($actor);
+        $visible = array_values(array_filter(
+            $this->findSeverityIds($id)->toArray(),
+            static fn (ServiceSeverityId $severityId): bool => $scope->allows($severityId),
+        ));
+        usort($visible, static fn (ServiceSeverityId $left, ServiceSeverityId $right): int => $left->value <=> $right->value);
+        $severityId = $visible[0] ?? null;
+
+        return $severityId?->value === $service->severityId?->value ? $service : $service->with(severityId: $severityId);
     }
 
     /**

@@ -112,4 +112,21 @@ final readonly class ServiceDataProcessing
             stalkingOptions: $this->stalkingOptions,
         );
     }
+
+    public function equals(self $other): bool
+    {
+        return $this->checkFreshness === $other->checkFreshness
+            && $this->flapDetectionEnabled === $other->flapDetectionEnabled
+            && $this->eventHandlerEnabled === $other->eventHandlerEnabled
+            && $this->obsessOverService === $other->obsessOverService
+            && $this->retainStatusInformation === $other->retainStatusInformation
+            && $this->retainNonStatusInformation === $other->retainNonStatusInformation
+            && $this->acknowledgmentTimeout === $other->acknowledgmentTimeout
+            && $this->freshnessThreshold === $other->freshnessThreshold
+            && $this->lowFlapThreshold === $other->lowFlapThreshold
+            && $this->highFlapThreshold === $other->highFlapThreshold
+            && $this->eventHandlerCommandId?->value === $other->eventHandlerCommandId?->value
+            && $this->eventHandlerArgs === $other->eventHandlerArgs
+            && $this->stalkingOptions === $other->stalkingOptions;
+    }
 }

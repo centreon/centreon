@@ -130,29 +130,11 @@ final readonly class CreateServiceProcessor implements ProcessorInterface
             return $service;
         }
 
-        return new Service(
-            id: $service->id(),
-            name: $service->name,
-            hostId: $service->hostId,
-            hostActivated: $service->hostActivated,
-            hostPollerId: $service->hostPollerId,
-            activated: $service->activated,
-            templateId: $service->templateId,
-            checkOptions: new ServiceCheckOptions(
-                $service->checkOptions->checkCommandId,
-                $service->checkOptions->args,
-                array_values($this->serviceRepository->findMacros($service->id())->toArray()),
-            ),
-            schedulingOptions: $service->schedulingOptions,
-            notifications: $service->notifications,
-            dataProcessing: $service->dataProcessing,
-            extendedInformations: $service->extendedInformations,
-            graphTemplateId: $service->graphTemplateId,
-            severityId: $service->severityId,
-            serviceGroupIds: $service->serviceGroupIds,
-            categoryIds: $service->categoryIds,
-            trapIds: $service->trapIds,
-        );
+        return $service->with(checkOptions: new ServiceCheckOptions(
+            $service->checkOptions->checkCommandId,
+            $service->checkOptions->args,
+            array_values($this->serviceRepository->findMacros($service->id())->toArray()),
+        ));
     }
 
     private function schedulingOptions(?ServiceMonitoringEngineInput $input): ServiceSchedulingOptions

@@ -223,4 +223,56 @@ final class ServiceExtendedInformationsTest extends TestCase
     {
         self::assertSame($expected, (new ServiceExtendedInformations(...$fields))->exceedsFormBounds());
     }
+
+    public function testEqualsHoldsForTheSameValues(): void
+    {
+        self::assertTrue(self::informations()->equals(self::informations()));
+    }
+
+    #[DataProvider('fieldChangeProvider')]
+    public function testEqualsDetectsAChangeOfEachField(ServiceExtendedInformations $changed): void
+    {
+        self::assertFalse(self::informations()->equals($changed));
+    }
+
+    /**
+     * @return iterable<string, array{ServiceExtendedInformations}>
+     */
+    public static function fieldChangeProvider(): iterable
+    {
+        yield 'note URL' => [self::informations(noteUrl: 'https://example.com/other')];
+
+        yield 'note' => [self::informations(note: 'another note')];
+
+        yield 'action URL' => [self::informations(actionUrl: null)];
+
+        yield 'icon' => [self::informations(iconId: new MediaId(9))];
+
+        yield 'no icon' => [self::informations(iconId: null)];
+
+        yield 'alternative text' => [self::informations(altIcon: 'other')];
+
+        yield 'comment' => [self::informations(comment: 'another comment')];
+
+        yield 'latitude' => [self::informations(geoCoordinates: new GeoCoordinates('48.86', '2.35'))];
+
+        yield 'longitude' => [self::informations(geoCoordinates: new GeoCoordinates('48.85', '2.36'))];
+
+        yield 'no coordinates' => [self::informations(geoCoordinates: null)];
+    }
+
+    /**
+     * Every field set by default.
+     */
+    private static function informations(
+        ?string $noteUrl = 'https://example.com/notes',
+        ?string $note = 'a note',
+        ?string $actionUrl = 'https://example.com/action',
+        ?MediaId $iconId = new MediaId(8),
+        ?string $altIcon = 'alt text',
+        ?string $comment = 'a comment',
+        ?GeoCoordinates $geoCoordinates = new GeoCoordinates('48.85', '2.35'),
+    ): ServiceExtendedInformations {
+        return new ServiceExtendedInformations($noteUrl, $note, $actionUrl, $iconId, $altIcon, $comment, $geoCoordinates);
+    }
 }
