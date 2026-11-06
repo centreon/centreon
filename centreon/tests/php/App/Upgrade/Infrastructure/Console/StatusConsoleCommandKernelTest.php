@@ -53,6 +53,6 @@ final class StatusConsoleCommandKernelTest extends KernelTestCase
 
         self::assertStringContainsString('"realtime" migration set', $tester->getDisplay());
         self::assertStringContainsString('"configuration" migration set', $tester->getDisplay());
-        self::assertSame(MigrationSet::webSets(), $runner->statusRequests);
+        self::assertEquals(MigrationSet::webSets(), $runner->statusRequests);
     }
 }
