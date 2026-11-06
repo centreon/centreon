@@ -43,6 +43,39 @@ $downtime = new CentreonDowntime($pearDB);
 
 require_once './include/common/common-Func.php';
 
+// ACL restrictions only apply to non-admin users ($userAcl stays null for admins)
+$userAcl = null;
+if ($centreon->user->admin !== '1') {
+    require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';
+    $userAcl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
+}
+
+$aclRefusedMessage = null;
+
+/**
+ * Keeps only the selected downtimes the user is allowed to manage.
+ * Sets $aclRefusedMessage when at least one downtime is refused, it is displayed by listDowntime.php.
+ *
+ * @param array<int|string, mixed> $selectedDowntimes downtime ids as keys
+ * @return array<int|string, mixed>
+ */
+$filterAllowedDowntimes = static function (array $selectedDowntimes) use ($downtime, $userAcl, &$aclRefusedMessage): array {
+    if ($userAcl === null || $selectedDowntimes === []) {
+        return $selectedDowntimes;
+    }
+
+    $allowedIds = $downtime->filterIdsAllowedForUser(array_keys($selectedDowntimes), $userAcl);
+    $allowedDowntimes = array_intersect_key($selectedDowntimes, array_flip($allowedIds));
+
+    if (count($allowedDowntimes) !== count($selectedDowntimes)) {
+        $aclRefusedMessage = _(
+            "Some recurrent downtimes were not processed because you don't have access to all of their resources"
+        );
+    }
+
+    return $allowedDowntimes;
+};
+
 if (isset($_POST['o1'], $_POST['o2'])) {
     if ($_POST['o1'] != '') {
         $o = $_POST['o1'];
@@ -74,7 +107,7 @@ if (isset($_GET['period_form']) || isset($_GET['period']) && $o == '') {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                if ($downtime_id) {
+                if ($downtime_id && $filterAllowedDowntimes([$downtime_id => 1]) !== []) {
                     $downtime->enable($downtime_id);
                 }
             } else {
@@ -86,7 +119,7 @@ if (isset($_GET['period_form']) || isset($_GET['period']) && $o == '') {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->multiEnable($select ?? []);
+                $downtime->multiEnable($filterAllowedDowntimes($select ?? []));
             } else {
                 unvalidFormMessage();
             }
@@ -96,7 +129,7 @@ if (isset($_GET['period_form']) || isset($_GET['period']) && $o == '') {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                if ($downtime_id) {
+                if ($downtime_id && $filterAllowedDowntimes([$downtime_id => 1]) !== []) {
                     $downtime->disable($downtime_id);
                 }
             } else {
@@ -108,7 +141,7 @@ if (isset($_GET['period_form']) || isset($_GET['period']) && $o == '') {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->multiDisable($select ?? []);
+                $downtime->multiDisable($filterAllowedDowntimes($select ?? []));
             } else {
                 unvalidFormMessage();
             }
@@ -118,7 +151,7 @@ if (isset($_GET['period_form']) || isset($_GET['period']) && $o == '') {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->duplicate($select ?? [], $dupNbr);
+                $downtime->duplicate($filterAllowedDowntimes($select ?? []), $dupNbr);
             } else {
                 unvalidFormMessage();
             }
@@ -128,7 +161,7 @@ if (isset($_GET['period_form']) || isset($_GET['period']) && $o == '') {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                $downtime->multiDelete(isset($select) ? array_keys($select) : []);
+                $downtime->multiDelete(array_keys($filterAllowedDowntimes($select ?? [])));
             } else {
                 unvalidFormMessage();
             }
