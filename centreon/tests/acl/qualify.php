@@ -38,7 +38,8 @@ declare(strict_types=1);
  *      its fingerprint and no row written;
  *   C. small change: hosts added to and removed from a host group; the rows must equal those of a full recompute
  *      on an empty table, and only the changed rows be written;
- *   D. rows deleted outside the cron, fingerprints kept: every row must be written again;
+ *   D. rows deleted outside the cron, fingerprints kept, then a service row written back for a group by a module ACL
+ *      extension (BAM, Anomaly Detection) before the run: every row must be written again, the extension row deleted;
  *   E. a row inserted outside the cron, the fingerprint of its group removed as the other writers of centreon_acl do:
  *      that group only is written again, the row deleted;
  *   F. a disabled access group: its rows and its fingerprint must go, the groups of centreon_acl being listed through
@@ -436,6 +437,21 @@ function insertRowOutsideCron(PDO $storage, int $groupId): void
         (int) $hostId,
     ));
     $storage->exec('DELETE FROM centreon_acl_checksum WHERE group_id = ' . $groupId);
+}
+
+/**
+ * Writes back, outside the cron, a service row for a group, as the module ACL extensions (BAM, Anomaly Detection) do
+ * on each run: a service row only, never the row of its host. Its host is unknown to the configuration, so the cron
+ * deletes the row when it writes the group again.
+ */
+function insertExtensionRow(PDO $configuration, PDO $storage, int $groupId): void
+{
+    $hostId = (int) $configuration->query('SELECT MAX(host_id) + 1 FROM host')->fetchColumn();
+    $storage->exec(sprintf(
+        'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (%d, %d, 1)',
+        $groupId,
+        $hostId,
+    ));
 }
 
 /**
@@ -1189,11 +1205,14 @@ function scenarios(PDO $configuration, PDO $storage, string $size, ?array $basel
 
     fwrite(STDERR, "Scenario D: rows deleted outside the cron\n");
     // A support procedure empties centreon_acl before "Reload ACL": the fingerprints stay, every row must come back.
+    // A cron run in between lets the module ACL extensions write their service rows back: a group holding only such a
+    // row must not be taken for a group that still has its rows.
     $storage->exec('DELETE FROM centreon_acl WHERE group_id >= ' . B);
+    insertExtensionRow($configuration, $storage, FIRST_DATASET_GROUP_ID);
     flagDataset($configuration);
     $metrics = runEngine($configuration);
     $comparison = compare($storage, $afterChangePath);
-    $problems = checkStats($metrics['stats'], ['inserted' => $comparison['expected'], 'deleted' => 0]);
+    $problems = checkStats($metrics['stats'], ['inserted' => $comparison['expected'], 'deleted' => 1]);
     $results[] = ['D. Rows deleted outside the cron', $metrics, $comparison, $problems, 'same as before the deletion'];
 
     fwrite(STDERR, "Scenario E: a row inserted outside the cron\n");
