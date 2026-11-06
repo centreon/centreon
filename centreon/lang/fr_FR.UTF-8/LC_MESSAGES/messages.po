@@ -192,6 +192,10 @@ msgstr "<br><b>Centreon : </b>Une commande de redémarrage a été envoyée vers
 msgid "<br><b>Centreon : </b>All configuration will be send to "
 msgstr "<br><b>Centreon : </b>Toute la configuration sera envoyée vers "
 
+#: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
+msgid "<br><b>Centreon : </b>All configuration has been sent to "
+msgstr "<br><b>Centreon : </b>Toute la configuration a été envoyée vers "
+
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid ""
 "<br><i><b><font color=\"#B22222\">Notes </font>:</b></i><br>- Do not mix "
@@ -1215,6 +1219,22 @@ msgstr "Profiter davantage de Centreon"
 #: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
 msgid "Gorgone rejected the command (HTTP %d): %s"
 msgstr "Gorgone a rejeté la commande (HTTP %d) : %s"
+
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid "Gorgone could not deliver the command: %s"
+msgstr "Gorgone n'a pas pu transmettre la commande : %s"
+
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid "Gorgone did not confirm the delivery within %d seconds (token %s)"
+msgstr "Gorgone n'a pas confirmé la transmission sous %d secondes (jeton %s)"
+
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid ""
+"Gorgone node %d is not connected: nothing has been sent, retry once the "
+"poller is connected"
+msgstr ""
+"Le nœud Gorgone %d n'est pas connecté : rien n'a été envoyé, réessayez une "
+"fois le collecteur connecté"
 
 #: centreon/www/install/front_translate.php
 msgid "Host monitoring properties"
