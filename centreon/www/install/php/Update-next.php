@@ -107,11 +107,28 @@ $updateCentreonMonitoringAgentFreshnessThreshold = function () use ($pearDB, &$e
     LoggerUpgrade::create()->info($version, "Updated the freshness threshold of {$updatedServices} service(s) and service template(s)");
 };
 
+$createAclFingerprintTable = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to create the centreon_acl_checksum table';
+    LoggerUpgrade::create()->info($version, 'Creating the centreon_acl_checksum table');
+
+    // Fingerprint of the centreon_acl rows of each access group: centAcl.php skips the groups whose rows did not change.
+    $pearDBO->executeStatement(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `centreon_acl_checksum` (
+                `group_id` int(11) NOT NULL,
+                `checksum` char(32) NOT NULL,
+                PRIMARY KEY (`group_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+            SQL
+    );
+};
+
 try {
     LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
+    $createAclFingerprintTable();
 
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here

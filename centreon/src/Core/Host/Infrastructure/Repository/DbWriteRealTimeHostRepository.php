@@ -25,11 +25,14 @@ namespace Core\Host\Infrastructure\Repository;
 
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\AclFingerprintInvalidationTrait;
 use Core\Host\Application\Repository\WriteRealTimeHostRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DbWriteRealTimeHostRepository extends AbstractRepositoryRDB implements WriteRealTimeHostRepositoryInterface
 {
+    use AclFingerprintInvalidationTrait;
+
     /**
      * @param DatabaseConnection $db
      */
@@ -64,5 +67,7 @@ class DbWriteRealTimeHostRepository extends AbstractRepositoryRDB implements Wri
         }
         $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
         $statement->execute();
+
+        $this->invalidateAclFingerprints(array_values($accessGroupIds));
     }
 }
