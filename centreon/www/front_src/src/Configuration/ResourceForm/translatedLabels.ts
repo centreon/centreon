@@ -80,6 +80,9 @@ export const labelAltIcon = 'Alt icon';
 export const labelGeographicCoordinates = 'Geographic coordinates';
 export const labelComments = 'Comments';
 
+// A severity option, as the legacy select shows it.
+export const labelSeverityWithLevel = '{{name}} ({{level}})';
+
 // Mass change
 export const labelUpdateMode = 'Update mode';
 export const labelIncremental = 'Incremental';
