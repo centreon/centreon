@@ -49,7 +49,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceTemplate
         // service template one.
         new Get(
             uriTemplate: '/configuration/services/service_templates/{id}/macros',
-            requirements: ['id' => '\d+'],
+            // Positive integers only: `/0` is a 404, not a failed id assertion.
+            requirements: ['id' => '[1-9]\d*'],
             openapi: false,
             security: 'is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access service templates',

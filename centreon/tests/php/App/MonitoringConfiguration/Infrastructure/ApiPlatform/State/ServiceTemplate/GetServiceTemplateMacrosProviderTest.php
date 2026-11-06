@@ -131,6 +131,14 @@ final class GetServiceTemplateMacrosProviderTest extends ApiTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
+    public function testItReturnsNotFoundForAZeroId(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT . '/0/macros');
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testItReturnsNotFoundForARegularService(): void
     {
         $serviceId = $this->insertService("svc-{$this->tag}", register: '1');
