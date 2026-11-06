@@ -25679,3 +25679,23 @@ msgstr "Vous êtes sur le point de dupliquer le modèle d'hôte <strong>{{ name 
 
 msgid "You are about to duplicate <strong>{{ count }} host templates.</strong>"
 msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} modèles d'hôtes.</strong>"
+
+#: centreon/www/install/front_translate.php
+msgid "Add a host template"
+msgstr "Ajouter un modèle d'hôte"
+
+#: centreon/www/install/front_translate.php
+msgid "Modify a host template"
+msgstr "Modifier un modèle d'hôte"
+
+#: centreon/www/install/front_translate.php
+msgid "View a host template"
+msgstr "Voir un modèle d'hôte"
+
+#: centreon/www/install/front_translate.php
+msgid "Host template created"
+msgstr "Modèle d'hôte créé"
+
+#: centreon/www/install/front_translate.php
+msgid "Host template updated"
+msgstr "Modèle d'hôte mis à jour"

@@ -4,13 +4,13 @@ import { Form, Group, InputProps } from '@centreon/ui';
 import { FormActions, FormActionsProps } from '@centreon/ui/components';
 
 import { FormikHelpers, useFormikContext } from 'formik';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useEffect, useRef } from 'react';
+import { type ReactElement, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ObjectSchema } from 'yup';
 
-import { formActionsAtom, isFormDirtyAtom } from '../atoms';
+import { configurationAtom, formActionsAtom, isFormDirtyAtom } from '../atoms';
 import { CloseModalConfirmation } from '../Dialogs';
 import type { FormMode } from '../models';
 import { labelCancel, labelSave } from '../translatedLabels';
@@ -121,9 +121,14 @@ const ResourceForm = ({
   isLoading,
   hasWriteAccess,
   areActionsInHeader = false
-}: ResourceFormProps): JSX.Element => {
+}: ResourceFormProps): ReactElement => {
+  const editable = useAtomValue(configurationAtom)?.actions?.editable;
+
+  const isRefused =
+    equals(mode, 'edit') && editable !== undefined && !editable(initialValues);
+
   const getButtons = (): typeof Box => {
-    if (!hasWriteAccess) {
+    if (!hasWriteAccess || isRefused) {
       return Box;
     }
 
