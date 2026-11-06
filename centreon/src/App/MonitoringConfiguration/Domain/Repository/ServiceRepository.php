@@ -57,6 +57,24 @@ interface ServiceRepository
     public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection;
 
     /**
+     * The ids of the services of this host that come from one of the given service templates, the ones a host
+     * gets from its host templates. Like {@see findExclusivelyLinkedToHostId()}, a service also reachable through
+     * another host or a hostgroup is left out, and so is never deleted from under them. Nothing is hydrated, so
+     * one service with malformed stored data cannot fail the whole listing.
+     *
+     * @param list<int> $serviceTemplateIds
+     *
+     * @return Collection<ServiceId>
+     */
+    public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection;
+
+    /**
+     * The real service directly linked to that host, hydrated as {@see findOne()}, not scoped by any actor.
+     * Null when it is not a real service directly linked to that host.
+     */
+    public function findOneOnHost(ServiceId $id, HostId $hostId): ?Service;
+
+    /**
      * Also removes the dependencies left without a parent service by this deletion.
      */
     public function remove(Service $service): void;

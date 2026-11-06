@@ -245,6 +245,105 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertCount(0, $this->repository->findFromServiceTemplates(new HostId($hostId), []));
     }
 
+    public function testFindIdsFromServiceTemplatesLeavesServicesSharedWithAHostOrAHostGroupOut(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $otherHostId = $this->createHost('server-02', $pollerId);
+        $templateId = $this->createServiceTemplate('ping-template');
+        $otherTemplateId = $this->createServiceTemplate('disk-template');
+        $fromTemplate = $this->createService('ping', $hostId);
+        $fromOtherTemplate = $this->createService('disk', $hostId);
+        $ofOtherHost = $this->createService('ping', $otherHostId);
+        $sharedWithAHost = $this->createService('shared-with-a-host', $hostId);
+        $this->linkServiceToHost($sharedWithAHost, $otherHostId);
+        $sharedWithAHostGroup = $this->createService('shared-with-a-host-group', $hostId);
+        $this->linkServiceToHostGroup($sharedWithAHostGroup, $this->insertHostGroup());
+        $this->setServiceTemplate($fromTemplate, $templateId);
+        $this->setServiceTemplate($fromOtherTemplate, $otherTemplateId);
+        foreach ([$ofOtherHost, $sharedWithAHost, $sharedWithAHostGroup] as $serviceId) {
+            $this->setServiceTemplate($serviceId, $templateId);
+        }
+
+        $ids = $this->repository->findIdsFromServiceTemplates(new HostId($hostId), [$templateId]);
+
+        self::assertSame([$fromTemplate], array_map(static fn (ServiceId $id): int => $id->value, $ids->toArray()));
+    }
+
+    public function testFindIdsFromServiceTemplatesReturnsNothingWithoutTemplates(): void
+    {
+        $hostId = $this->createHost('server-01', $this->createPoller('Central'));
+        $this->createService('ping', $hostId);
+
+        self::assertCount(0, $this->repository->findIdsFromServiceTemplates(new HostId($hostId), []));
+    }
+
+    public function testFindOneOnHostIgnoresTheActorScope(): void
+    {
+        $this->givenTheRestrictedActorBelongsTo(11);
+        $hostId = $this->insertListedHost('h1');
+        $serviceId = $this->insertListedService('ping', $hostId);
+
+        $service = $this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId));
+
+        self::assertNull($this->findOneRestricted($serviceId));
+        self::assertInstanceOf(Service::class, $service);
+        self::assertSame($serviceId, $service->id()->value);
+        self::assertSame($hostId, $service->hostId->value);
+        self::assertSame('ping', $service->name->value);
+    }
+
+    public function testFindOneOnHostHydratesTheServiceAsFindOneDoes(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $serviceId = $this->insertListedService('ping', $hostId);
+        $this->connection->update('service', [
+            'command_command_id' => $this->insertCommand('check'),
+            'service_max_check_attempts' => 3,
+            'service_comment' => 'a comment',
+        ], ['service_id' => $serviceId]);
+        $this->connection->insert('extended_service_information', ['service_service_id' => $serviceId, 'esi_notes' => 'a note']);
+        $this->connection->insert('contact_service_relation', ['service_service_id' => $serviceId, 'contact_id' => $this->insertContact()]);
+        $this->createMacro($serviceId, 'TOKEN', 'secret-value', isPassword: true);
+
+        $onHost = $this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId));
+
+        self::assertInstanceOf(Service::class, $onHost);
+        self::assertSame(3, $onHost->schedulingOptions->maxCheckAttempts);
+        self::assertEquals($this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted()), $onHost);
+    }
+
+    public function testFindOneOnHostIsNullForAServiceOfAnotherHost(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $otherHostId = $this->insertListedHost('h2');
+        $serviceId = $this->insertListedService('ping', $otherHostId);
+
+        self::assertNull($this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId)));
+    }
+
+    public function testFindOneOnHostFindsAServiceAlsoLinkedToAHostGroup(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $serviceId = $this->insertListedService('ping', $hostId);
+        $this->linkServiceToHostGroup($serviceId, $this->insertHostGroup());
+
+        self::assertNotNull($this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId)));
+    }
+
+    public function testFindOneOnHostIgnoresWhatIsNotARealServiceOnARealHost(): void
+    {
+        $hostTemplateId = $this->insertListedHost('host-template', register: '0');
+        $onAHostTemplate = $this->insertListedService('on-a-host-template', $hostTemplateId);
+        $hostId = $this->insertListedHost('h1');
+        $serviceTemplateId = $this->insertListedServiceTemplate('service-template');
+        $this->linkServiceToHost($serviceTemplateId, $hostId);
+
+        self::assertNull($this->repository->findOneOnHost(new ServiceId($onAHostTemplate), new HostId($hostTemplateId)));
+        self::assertNull($this->repository->findOneOnHost(new ServiceId($serviceTemplateId), new HostId($hostId)));
+        self::assertNull($this->repository->findOneOnHost(new ServiceId($serviceTemplateId + 1000000), new HostId($hostId)));
+    }
+
     public function testFindAllUnrestrictedActorSeesAll(): void
     {
         $hostId = $this->insertListedHost('h1');
@@ -589,8 +688,10 @@ final class DbalServiceRepositoryTest extends KernelTestCase
 
         $exclusive = $this->repository->findExclusivelyLinkedToHostId(new HostId($hostId))->toArray();
         $fromTemplates = $this->repository->findFromServiceTemplates(new HostId($hostId), [$templateId])->toArray();
+        $onHost = $this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId));
+        self::assertInstanceOf(Service::class, $onHost);
 
-        foreach ([$exclusive, $fromTemplates] as $services) {
+        foreach ([$exclusive, $fromTemplates, [$onHost]] as $services) {
             self::assertCount(1, $services);
             self::assertFalse($services[0]->activated);
             self::assertSame($templateId, $services[0]->templateId?->value);
@@ -742,8 +843,10 @@ final class DbalServiceRepositoryTest extends KernelTestCase
 
         $exclusive = $this->repository->findExclusivelyLinkedToHostId(new HostId($hostId))->toArray();
         $fromTemplates = $this->repository->findFromServiceTemplates(new HostId($hostId), [$templateId])->toArray();
+        $onHost = $this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId));
+        self::assertInstanceOf(Service::class, $onHost);
 
-        foreach ([$exclusive, $fromTemplates] as $services) {
+        foreach ([$exclusive, $fromTemplates, [$onHost]] as $services) {
             self::assertCount(1, $services);
             self::assertFalse($services[0]->hostActivated);
             self::assertSame($pollerId, $services[0]->hostPollerId?->value);
