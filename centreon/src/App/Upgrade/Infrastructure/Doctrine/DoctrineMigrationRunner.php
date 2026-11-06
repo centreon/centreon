@@ -187,7 +187,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     }
 
     /**
-     * @throws \RuntimeException when the directory of a core set is missing
+     * @throws \RuntimeException when the directory of a Centreon Web set is missing
      */
     private function hasDirectory(MigrationSet $set, string $directory): bool
     {

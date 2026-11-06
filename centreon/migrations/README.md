@@ -70,7 +70,7 @@ bin/console.new centreon:migrations:migrate [--set=realtime|configuration | --mo
 bin/console.new centreon:migrations:rollback <version|prev|first> (--set=realtime|configuration | --module=<name>)
 ```
 
-- The core sets refuse to run while legacy `Update-*.php` scripts are pending: update the platform first, with the
+- The Centreon Web sets refuse to run while legacy `Update-*.php` scripts are pending: update the platform first, with the
   upgrade wizard or the API.
 - A module set only runs once its module is installed, and `status` only lists installed modules.
 - A failing migration stops the run: a `DmlMigration` leaves nothing behind, the migrations executed before it stay

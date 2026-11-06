@@ -24,25 +24,19 @@ declare(strict_types=1);
 namespace Tests\App\Upgrade\Domain;
 
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\WebMigrationSetEnum;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class MigrationSetTest extends TestCase
 {
-    public function testTheCoreSetsRunRealtimeFirst(): void
+    public function testTheWebSetsRunRealtimeFirst(): void
     {
         self::assertSame(
-            [MigrationSet::REALTIME, MigrationSet::CONFIGURATION],
-            array_map(static fn (MigrationSet $set): string => $set->name, MigrationSet::coreSets()),
+            ['realtime', 'configuration'],
+            array_map(static fn (MigrationSet $set): string => $set->name, MigrationSet::webSets()),
         );
-        self::assertFalse(MigrationSet::core(MigrationSet::CONFIGURATION)->isModule());
-    }
-
-    public function testRejectsAnUnknownCoreSet(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        MigrationSet::core('module:centreon-open-tickets');
+        self::assertFalse(MigrationSet::web(WebMigrationSetEnum::Configuration)->isModule());
     }
 
     public function testAModuleSetIsNamedAfterItsModule(): void
@@ -88,9 +82,9 @@ final class MigrationSetTest extends TestCase
         self::assertSame(63, mb_strlen(MigrationSet::module(str_repeat('a', 35))->table()), 'PostgreSQL identifiers are limited to 63 characters');
     }
 
-    public function testTheCoreSetsShareOneMetadataTable(): void
+    public function testTheWebSetsShareOneMetadataTable(): void
     {
-        self::assertSame(['doctrine_migration_versions', 'doctrine_migration_versions'], array_map(static fn (MigrationSet $set): string => $set->table(), MigrationSet::coreSets()));
+        self::assertSame(['doctrine_migration_versions', 'doctrine_migration_versions'], array_map(static fn (MigrationSet $set): string => $set->table(), MigrationSet::webSets()));
     }
 
     public function testTheRefusalOfAModuleNameStatesTheWholeRule(): void
@@ -104,7 +98,7 @@ final class MigrationSetTest extends TestCase
     public function testIsLabelledAfterWhatPeopleChooseItWith(): void
     {
         // --set=realtime, --module=centreon-open-tickets.
-        self::assertSame('"realtime" migration set', MigrationSet::core(MigrationSet::REALTIME)->label());
+        self::assertSame('"realtime" migration set', MigrationSet::web(WebMigrationSetEnum::Realtime)->label());
         self::assertSame('"centreon-open-tickets" module migration set', MigrationSet::module('centreon-open-tickets')->label());
     }
 

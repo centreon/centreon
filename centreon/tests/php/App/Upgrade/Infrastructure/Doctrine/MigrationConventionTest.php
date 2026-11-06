@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Upgrade\Infrastructure\Doctrine;
 
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\WebMigrationSetEnum;
 use App\Upgrade\Infrastructure\Doctrine\DdlMigration;
 use App\Upgrade\Infrastructure\Doctrine\DmlMigration;
 use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
@@ -41,10 +42,10 @@ final class MigrationConventionTest extends TestCase
     public static function provideMigrationFiles(): iterable
     {
         $root = dirname(__DIR__, 7);
-        $core = new MigrationSetRegistry($root . '/centreon', '/nonexistent');
+        $web = new MigrationSetRegistry($root . '/centreon', '/nonexistent');
 
         foreach (glob($root . '/centreon/migrations/*/Version*.php') ?: [] as $file) {
-            yield mb_substr($file, mb_strlen($root) + 1) => [$file, $core->configuration(MigrationSet::core(basename(dirname($file))))->namespace];
+            yield mb_substr($file, mb_strlen($root) + 1) => [$file, $web->configuration(MigrationSet::web(WebMigrationSetEnum::from(basename(dirname($file)))))->namespace];
         }
 
         // Also keeps the data set from being empty while no migration is shipped.

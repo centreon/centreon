@@ -30,7 +30,7 @@ use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'centreon:migrations:migrate', description: 'Run the pending migrations of the core sets, or of a single set')]
+#[AsCommand(name: 'centreon:migrations:migrate', description: 'Run the pending migrations of the Centreon Web sets, or of a single set')]
 final readonly class MigrateConsoleCommand
 {
     public function __construct(
@@ -40,7 +40,7 @@ final readonly class MigrateConsoleCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Option(description: MigrationSetOption::SET_DESCRIPTION . ', all core sets when omitted')]
+        #[Option(description: MigrationSetOption::SET_DESCRIPTION . ', all Centreon Web sets when omitted')]
         ?string $set = null,
         #[Option(description: MigrationSetOption::MODULE_DESCRIPTION)]
         ?string $module = null,

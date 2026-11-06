@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\Upgrade\Domain;
 
 /**
- * The version a platform is recorded at once its core migration sets ran.
+ * The version a platform is recorded at once its Centreon Web migration sets ran.
  */
 final class UpgradeTargetVersion
 {

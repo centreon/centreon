@@ -48,7 +48,7 @@ final readonly class MigrateCommandHandler
     /**
      * @throws ModuleNotInstalledException
      * @throws \RuntimeException when another update, or another migration of the same module set, is in progress, or
-     *                           when legacy update scripts must run before the core sets
+     *                           when legacy update scripts must run before the Centreon Web sets
      *
      * @return list<string> the executed versions
      */
@@ -61,7 +61,7 @@ final readonly class MigrateCommandHandler
         } catch (\Throwable $exception) {
             $this->upgradeLogger->error(
                 $this->platformVersion,
-                sprintf('Migration of the %s failed: %s', $set?->label() ?? 'core migration sets', $exception->getMessage()),
+                sprintf('Migration of the %s failed: %s', $set?->label() ?? 'Centreon Web migration sets', $exception->getMessage()),
                 $exception,
             );
 
@@ -70,7 +70,7 @@ final readonly class MigrateCommandHandler
     }
 
     /**
-     * @param MigrationSet|null $set null for all the core sets, then record the target version
+     * @param MigrationSet|null $set null for all the Centreon Web sets, then record the target version
      *
      * @return list<string>
      */
@@ -83,8 +83,8 @@ final readonly class MigrateCommandHandler
         }
 
         $executed = [];
-        foreach (MigrationSet::coreSets() as $coreSet) {
-            $executed = [...$executed, ...$this->migrateSet($coreSet)];
+        foreach (MigrationSet::webSets() as $webSet) {
+            $executed = [...$executed, ...$this->migrateSet($webSet)];
         }
 
         $this->targetVersionRecorder->record($legacyVersion);

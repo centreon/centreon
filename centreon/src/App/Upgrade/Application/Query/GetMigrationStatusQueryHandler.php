@@ -83,7 +83,7 @@ final readonly class GetMigrationStatusQueryHandler
     }
 
     /**
-     * @param string|null $legacyRefusal why migrate refuses the core sets
+     * @param string|null $legacyRefusal why migrate refuses the Centreon Web sets
      */
     private function status(MigrationSet $set, ?string $legacyRefusal): MigrationSetStatus
     {
@@ -95,7 +95,7 @@ final readonly class GetMigrationStatusQueryHandler
     }
 
     /**
-     * Why migrate() refuses the core sets, null when it does not.
+     * Why migrate() refuses the Centreon Web sets, null when it does not.
      */
     private function legacyRefusal(): ?string
     {

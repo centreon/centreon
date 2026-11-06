@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Doctrine;
 
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\WebMigrationSetEnum;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class MigrationSetRegistry
@@ -38,34 +39,38 @@ final readonly class MigrationSetRegistry
 
     public function configuration(MigrationSet $set): MigrationSetConfiguration
     {
-        return match (true) {
-            $set->module !== null => new MigrationSetConfiguration(
+        if ($set->module !== null) {
+            return new MigrationSetConfiguration(
                 'default',
                 str_replace('-', '', ucwords($set->module, '-')) . '\Migrations',
                 $this->modulesDir . '/' . $set->module . '/migrations',
                 $set->table(),
-            ),
-            $set->name === MigrationSet::REALTIME => new MigrationSetConfiguration(
+            );
+        }
+
+        return match ($set->webSet) {
+            WebMigrationSetEnum::Realtime => new MigrationSetConfiguration(
                 'realtime',
                 'Centreon\Migrations\Realtime',
                 $this->projectDir . '/migrations/realtime',
                 $set->table(),
             ),
-            default => new MigrationSetConfiguration(
+            WebMigrationSetEnum::Configuration => new MigrationSetConfiguration(
                 'default',
                 'Centreon\Migrations\Configuration',
                 $this->projectDir . '/migrations/configuration',
                 $set->table(),
             ),
+            null => throw new \LogicException(sprintf('The %s is neither a module nor a Centreon Web set.', $set->label())),
         };
     }
 
     /**
-     * @return list<MigrationSet> the core sets in execution order, then every module shipping migrations
+     * @return list<MigrationSet> the Centreon Web sets in execution order, then every module shipping migrations
      */
     public function all(): array
     {
-        $sets = MigrationSet::coreSets();
+        $sets = MigrationSet::webSets();
 
         foreach (glob($this->modulesDir . '/*/migrations', \GLOB_ONLYDIR) ?: [] as $directory) {
             $module = basename(dirname($directory));

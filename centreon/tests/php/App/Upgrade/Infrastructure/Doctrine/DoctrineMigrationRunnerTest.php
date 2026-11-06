@@ -25,6 +25,7 @@ namespace Tests\App\Upgrade\Infrastructure\Doctrine;
 
 use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\WebMigrationSetEnum;
 use App\Upgrade\Infrastructure\Doctrine\DoctrineMigrationRunner;
 use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
 use Doctrine\DBAL\Connection;
@@ -247,9 +248,9 @@ final class DoctrineMigrationRunnerTest extends TestCase
         self::assertSame([], $this->connection->createSchemaManager()->listTableNames());
     }
 
-    public function testACoreSetWithoutMigrationDirectoryFails(): void
+    public function testAWebSetWithoutMigrationDirectoryFails(): void
     {
-        $realtime = MigrationSet::core(MigrationSet::REALTIME);
+        $realtime = MigrationSet::web(WebMigrationSetEnum::Realtime);
         $message = 'The "realtime" migration set cannot run: "/nonexistent/migrations/realtime" does not exist.';
 
         foreach (['migrate', 'status'] as $method) {

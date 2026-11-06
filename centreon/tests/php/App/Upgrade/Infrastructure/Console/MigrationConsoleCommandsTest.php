@@ -30,6 +30,7 @@ use App\Upgrade\Application\Command\RollbackMigrationCommand;
 use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Application\Query\GetMigrationStatusQuery;
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\WebMigrationSetEnum;
 use App\Upgrade\Infrastructure\Console\GenerateConsoleCommand;
 use App\Upgrade\Infrastructure\Console\MigrateConsoleCommand;
 use App\Upgrade\Infrastructure\Console\RollbackConsoleCommand;
@@ -82,7 +83,7 @@ final class MigrationConsoleCommandsTest extends TestCase
 
         self::assertSame(Command::SUCCESS, $tester->execute(['--module' => 'centreon-open-tickets']));
         self::assertSame(Command::SUCCESS, $tester->execute(['--set' => 'configuration']));
-        self::assertEquals([new MigrateCommand(MigrationSet::module('centreon-open-tickets')), new MigrateCommand(MigrationSet::core('configuration'))], $bus->dispatched);
+        self::assertEquals([new MigrateCommand(MigrationSet::module('centreon-open-tickets')), new MigrateCommand(MigrationSet::web(WebMigrationSetEnum::Configuration))], $bus->dispatched);
         self::assertStringContainsString('No migration to execute.', $tester->getDisplay());
     }
 
@@ -100,10 +101,10 @@ final class MigrationConsoleCommandsTest extends TestCase
         }
     }
 
-    public function testRejectsAnUnknownCoreSet(): void
+    public function testRejectsAnUnknownWebSet(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unknown core migration set "module:centreon-open-tickets", expected one of: "realtime", "configuration".');
+        $this->expectExceptionMessage('Unknown Centreon Web migration set "module:centreon-open-tickets", expected one of: "realtime", "configuration".');
 
         $this->tester(new MigrateConsoleCommand($this->commandBus([])), 'centreon:migrations:migrate')->execute(['--set' => 'module:centreon-open-tickets']);
     }
@@ -115,8 +116,8 @@ final class MigrationConsoleCommandsTest extends TestCase
 
         self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'prev', '--set' => 'configuration'], ['interactive' => false]));
         self::assertEquals([
-            new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev', dryRun: true),
-            new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev', expected: ['Centreon\Migrations\Configuration\Version2']),
+            new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev', dryRun: true),
+            new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev', expected: ['Centreon\Migrations\Configuration\Version2']),
         ], $bus->dispatched);
         self::assertStringContainsString('1 migration(s) reverted.', $tester->getDisplay());
     }
@@ -130,12 +131,12 @@ final class MigrationConsoleCommandsTest extends TestCase
         self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'first', '--set' => 'configuration']));
         self::assertStringContainsString('Centreon\Migrations\Configuration\Version2', $tester->getDisplay());
         self::assertStringContainsString('Revert these 1 migration(s) of the "configuration" migration set?', $tester->getDisplay());
-        self::assertEquals([new RollbackMigrationCommand(MigrationSet::core('configuration'), 'first', dryRun: true)], $bus->dispatched, 'A declined rollback reverts nothing');
+        self::assertEquals([new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'first', dryRun: true)], $bus->dispatched, 'A declined rollback reverts nothing');
         self::assertStringContainsString('Rollback cancelled.', $tester->getDisplay());
 
         $tester->setInputs(['yes']);
         self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'first', '--set' => 'configuration']));
-        self::assertEquals(new RollbackMigrationCommand(MigrationSet::core('configuration'), 'first', expected: ['Centreon\Migrations\Configuration\Version2']), $bus->dispatched[array_key_last($bus->dispatched)]);
+        self::assertEquals(new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'first', expected: ['Centreon\Migrations\Configuration\Version2']), $bus->dispatched[array_key_last($bus->dispatched)]);
     }
 
     public function testRollbackRequiresASet(): void
@@ -153,7 +154,7 @@ final class MigrationConsoleCommandsTest extends TestCase
 
         self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'prev', '--set' => 'configuration']));
         self::assertStringContainsString('No migration to revert.', $tester->getDisplay());
-        self::assertEquals([new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev', dryRun: true)], $bus->dispatched);
+        self::assertEquals([new RollbackMigrationCommand(MigrationSet::web(WebMigrationSetEnum::Configuration), 'prev', dryRun: true)], $bus->dispatched);
     }
 
     public function testRollbackRefusesAnUnknownTargetBeforeAsking(): void
@@ -202,8 +203,8 @@ final class MigrationConsoleCommandsTest extends TestCase
                 $this->dispatched[] = $query;
 
                 return [
-                    new MigrationSetStatus(MigrationSet::core('realtime'), ['Centreon\Migrations\Realtime\Version1'], []),
-                    new MigrationSetStatus(MigrationSet::core('configuration'), [], ['Centreon\Migrations\Configuration\Version1']),
+                    new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Realtime), ['Centreon\Migrations\Realtime\Version1'], []),
+                    new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['Centreon\Migrations\Configuration\Version1']),
                 ];
             }
         };
@@ -224,7 +225,7 @@ final class MigrationConsoleCommandsTest extends TestCase
              */
             public function ask(object $query): array
             {
-                return [new MigrationSetStatus(MigrationSet::core('configuration'), ['Centreon\Migrations\Configuration\Version1', 'Centreon\Migrations\Configuration\Version2'], [])];
+                return [new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Configuration), ['Centreon\Migrations\Configuration\Version1', 'Centreon\Migrations\Configuration\Version2'], [])];
             }
         };
         $tester = $this->tester(new StatusConsoleCommand($queryBus), 'centreon:migrations:status');
@@ -245,8 +246,8 @@ final class MigrationConsoleCommandsTest extends TestCase
             public function ask(object $query): array
             {
                 return [
-                    new MigrationSetStatus(MigrationSet::core('realtime'), [], [], 'The "realtime" migration set has executed migrations that are not available anymore'),
-                    new MigrationSetStatus(MigrationSet::core('configuration'), [], ['Centreon\Migrations\Configuration\Version1'], 'The update scripts of 26.12.0 are pending'),
+                    new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Realtime), [], [], 'The "realtime" migration set has executed migrations that are not available anymore'),
+                    new MigrationSetStatus(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['Centreon\Migrations\Configuration\Version1'], 'The update scripts of 26.12.0 are pending'),
                 ];
             }
         };

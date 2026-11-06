@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Upgrade\Infrastructure\Doctrine;
 
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\WebMigrationSetEnum;
 use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -53,15 +54,15 @@ final class MigrationSetRegistryTest extends TestCase
         (new Filesystem())->remove($this->modulesDir);
     }
 
-    public function testCoreSets(): void
+    public function testWebSets(): void
     {
-        $realtime = $this->registry->configuration(MigrationSet::core(MigrationSet::REALTIME));
+        $realtime = $this->registry->configuration(MigrationSet::web(WebMigrationSetEnum::Realtime));
         self::assertSame('realtime', $realtime->connection);
         self::assertSame('Centreon\Migrations\Realtime', $realtime->namespace);
         self::assertSame('/usr/share/centreon/migrations/realtime', $realtime->directory);
         self::assertSame('doctrine_migration_versions', $realtime->table);
 
-        $configuration = $this->registry->configuration(MigrationSet::core(MigrationSet::CONFIGURATION));
+        $configuration = $this->registry->configuration(MigrationSet::web(WebMigrationSetEnum::Configuration));
         self::assertSame('default', $configuration->connection);
         self::assertSame('Centreon\Migrations\Configuration', $configuration->namespace);
         self::assertSame('/usr/share/centreon/migrations/configuration', $configuration->directory);
@@ -72,7 +73,7 @@ final class MigrationSetRegistryTest extends TestCase
     {
         $registry = new MigrationSetRegistry(dirname(__DIR__, 6), '/nonexistent');
 
-        foreach (MigrationSet::coreSets() as $set) {
+        foreach (MigrationSet::webSets() as $set) {
             self::assertDirectoryExists($registry->configuration($set)->directory);
         }
     }
@@ -87,7 +88,7 @@ final class MigrationSetRegistryTest extends TestCase
         self::assertSame('doctrine_migration_versions_centreon_open_tickets', $set->table);
     }
 
-    public function testAllListsTheCoreSetsFirstThenTheModulesShippingMigrations(): void
+    public function testAllListsTheWebSetsFirstThenTheModulesShippingMigrations(): void
     {
         self::assertSame(
             ['realtime', 'configuration', 'module:centreon-open-tickets'],

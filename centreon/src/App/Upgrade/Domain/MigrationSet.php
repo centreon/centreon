@@ -23,16 +23,12 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Domain;
 
-use Webmozart\Assert\Assert;
-
 /**
- * A set of migrations versioned on its own: a core database, or a module.
+ * A set of migrations versioned on its own: a Centreon Web database, or a module.
  */
 final readonly class MigrationSet
 {
-    public const string REALTIME = 'realtime';
-    public const string CONFIGURATION = 'configuration';
-    public const string CORE_TABLE = 'doctrine_migration_versions';
+    public const string WEB_TABLE = 'doctrine_migration_versions';
 
     // A module name maps to a single metadata table, and to a PHP namespace.
     public const string MODULE_NAME_RULE = 'lowercase letters and digits, starting with a letter, in words separated by single dashes, '
@@ -44,26 +40,22 @@ final readonly class MigrationSet
 
     private function __construct(
         public string $name,
+        public ?WebMigrationSetEnum $webSet = null,
         public ?string $module = null,
     ) {
     }
 
-    /**
-     * @throws \InvalidArgumentException
-     */
-    public static function core(string $name): self
+    public static function web(WebMigrationSetEnum $webSet): self
     {
-        Assert::oneOf($name, [self::REALTIME, self::CONFIGURATION], 'Unknown core migration set %s, expected one of: %2$s.');
-
-        return new self($name);
+        return new self($webSet->value, $webSet);
     }
 
     /**
      * @return list<self> in execution order
      */
-    public static function coreSets(): array
+    public static function webSets(): array
     {
-        return [new self(self::REALTIME), new self(self::CONFIGURATION)];
+        return array_map(self::web(...), WebMigrationSetEnum::cases());
     }
 
     /**
@@ -75,7 +67,7 @@ final readonly class MigrationSet
             throw new \InvalidArgumentException(sprintf('Unsupported module name "%s": %s.', $module, self::MODULE_NAME_RULE));
         }
 
-        return new self('module:' . $module, $module);
+        return new self('module:' . $module, module: $module);
     }
 
     public static function isModuleName(string $module): bool
@@ -84,11 +76,11 @@ final readonly class MigrationSet
     }
 
     /**
-     * The core sets share one metadata table, each module has its own.
+     * The Centreon Web sets share one metadata table, each module has its own.
      */
     public function table(): string
     {
-        return $this->module === null ? self::CORE_TABLE : self::CORE_TABLE . '_' . str_replace('-', '_', $this->module);
+        return $this->module === null ? self::WEB_TABLE : self::WEB_TABLE . '_' . str_replace('-', '_', $this->module);
     }
 
     /**

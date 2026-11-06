@@ -29,7 +29,7 @@ use App\Upgrade\Domain\UpgradeTargetVersion;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * The version the platform reaches once its legacy scripts and its core migration sets ran.
+ * The version the platform reaches once its legacy scripts and its Centreon Web migration sets ran.
  */
 final readonly class TargetVersionRecorder
 {
@@ -43,7 +43,7 @@ final readonly class TargetVersionRecorder
     }
 
     /**
-     * The core migrations expect the schema of the legacy scripts, and recording the platform version would skip them.
+     * The Centreon Web migrations expect the schema of the legacy scripts, and recording the platform version would skip them.
      *
      * @throws \RuntimeException when the platform version cannot be read, or legacy scripts are pending
      *
@@ -81,7 +81,7 @@ final readonly class TargetVersionRecorder
     }
 
     /**
-     * Once the core migration sets ran.
+     * Once the Centreon Web migration sets ran.
      *
      * @param string $legacyVersion the version reached by the legacy scripts, which recorded it
      */

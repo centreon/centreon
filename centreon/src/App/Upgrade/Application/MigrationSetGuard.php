@@ -27,7 +27,7 @@ use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 
 /**
- * Checked before migrating or rolling back a set: a module set takes its own lock, the core sets the update one.
+ * Checked before migrating or rolling back a set: a module set takes its own lock, the Centreon Web sets the update one.
  */
 final readonly class MigrationSetGuard
 {
@@ -41,7 +41,7 @@ final readonly class MigrationSetGuard
     /**
      * @template T
      *
-     * @param MigrationSet|null $set null for all the core sets
+     * @param MigrationSet|null $set null for all the Centreon Web sets
      * @param callable(): T $callback
      *
      * @throws ModuleNotInstalledException

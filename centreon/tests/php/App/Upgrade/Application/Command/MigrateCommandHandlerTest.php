@@ -28,6 +28,7 @@ use App\Upgrade\Application\Command\MigrateCommandHandler;
 use App\Upgrade\Application\MigrationSetGuard;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\WebMigrationSetEnum;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationSetLocker;
@@ -72,7 +73,7 @@ final class MigrateCommandHandlerTest extends TestCase
         );
     }
 
-    public function testMigratesTheCoreSetsInOrderThenRecordsTheTargetVersion(): void
+    public function testMigratesTheWebSetsInOrderThenRecordsTheTargetVersion(): void
     {
         $executed = ($this->handler)(new MigrateCommand());
 
@@ -143,9 +144,9 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertSame(['module:centreon-open-tickets'], $this->migrationSetLocker->released);
     }
 
-    public function testMigratesASingleCoreSetUnderTheUpdateLockWithoutTouchingThePlatformVersion(): void
+    public function testMigratesASingleWebSetUnderTheUpdateLockWithoutTouchingThePlatformVersion(): void
     {
-        self::assertSame(['configuration\Version1'], ($this->handler)(new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION))));
+        self::assertSame(['configuration\Version1'], ($this->handler)(new MigrateCommand(MigrationSet::web(WebMigrationSetEnum::Configuration))));
 
         self::assertSame(['migrate:configuration'], $this->migrationRunner->journal->getArrayCopy());
         self::assertSame([], $this->updateRepository->updatesRun);
@@ -154,7 +155,7 @@ final class MigrateCommandHandlerTest extends TestCase
 
     public function testStopsAtTheFirstFailureAndReleasesTheLock(): void
     {
-        $this->migrationRunner->failingSets = [MigrationSet::REALTIME];
+        $this->migrationRunner->failingSets = [WebMigrationSetEnum::Realtime->value];
 
         try {
             ($this->handler)(new MigrateCommand());
@@ -168,14 +169,14 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertTrue($this->locker->unlockCalled);
     }
 
-    public function testRefusesTheCoreSetsWhileLegacyUpdateScriptsArePending(): void
+    public function testRefusesTheWebSetsWhileLegacyUpdateScriptsArePending(): void
     {
         $this->scriptFinder->availableUpdates = ['26.04.0', '26.10.0'];
 
-        foreach ([new MigrateCommand(), new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION))] as $command) {
+        foreach ([new MigrateCommand(), new MigrateCommand(MigrationSet::web(WebMigrationSetEnum::Configuration))] as $command) {
             try {
                 ($this->handler)($command);
-                self::fail('The core sets must wait for the legacy update scripts');
+                self::fail('The Centreon Web sets must wait for the legacy update scripts');
             } catch (\RuntimeException $exception) {
                 self::assertSame('The update scripts of 26.04.0, 26.10.0 are pending: update the platform first, with the upgrade wizard or the API.', $exception->getMessage());
             }
@@ -186,7 +187,7 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertTrue($this->locker->unlockCalled);
     }
 
-    public function testTheCoreSetsFailClearlyWhenThePlatformVersionCannotBeRead(): void
+    public function testTheWebSetsFailClearlyWhenThePlatformVersionCannotBeRead(): void
     {
         // Every legacy script would otherwise be listed as pending.
         $this->updateRepository->currentVersion = null;
@@ -212,14 +213,14 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertSame(['migrate:module:centreon-open-tickets'], $this->migrationRunner->journal->getArrayCopy());
     }
 
-    public function testTheCoreSetsFailWhenAnUpdateIsAlreadyInProgress(): void
+    public function testTheWebSetsFailWhenAnUpdateIsAlreadyInProgress(): void
     {
         $this->locker->lockAvailable = false;
 
-        foreach ([new MigrateCommand(), new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION))] as $command) {
+        foreach ([new MigrateCommand(), new MigrateCommand(MigrationSet::web(WebMigrationSetEnum::Configuration))] as $command) {
             try {
                 ($this->handler)($command);
-                self::fail('A core set requires the update lock');
+                self::fail('A Centreon Web set requires the update lock');
             } catch (\RuntimeException $exception) {
                 self::assertSame('An update is already in progress', $exception->getMessage());
             }
@@ -246,7 +247,7 @@ final class MigrateCommandHandlerTest extends TestCase
 
     public function testLogsTheFailedStepThenTheFailure(): void
     {
-        $this->migrationRunner->failingSets = [MigrationSet::REALTIME];
+        $this->migrationRunner->failingSets = [WebMigrationSetEnum::Realtime->value];
 
         try {
             ($this->handler)(new MigrateCommand());
@@ -263,7 +264,7 @@ final class MigrateCommandHandlerTest extends TestCase
 
         try {
             ($this->handler)(new MigrateCommand());
-            self::fail('The core sets must wait for the legacy update scripts');
+            self::fail('The Centreon Web sets must wait for the legacy update scripts');
         } catch (\RuntimeException) {
             self::assertSame(['error'], array_column($this->logger->calls, 'method'));
         }

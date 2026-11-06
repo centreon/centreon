@@ -32,7 +32,7 @@ use App\Upgrade\Domain\MigrationSet;
 final readonly class MigrateCommand implements NonTransactionalCommand
 {
     /**
-     * @param MigrationSet|null $set null for the core sets, also recording the platform version
+     * @param MigrationSet|null $set null for the Centreon Web sets, also recording the platform version
      */
     public function __construct(
         public ?MigrationSet $set = null,

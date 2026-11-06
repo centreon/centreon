@@ -57,7 +57,7 @@ interface MigrationRunner
     public function status(MigrationSet $set): MigrationSetStatus;
 
     /**
-     * @return list<MigrationSet> the core sets in execution order, then every module shipping migrations
+     * @return list<MigrationSet> the Centreon Web sets in execution order, then every module shipping migrations
      */
     public function sets(): array;
 }
