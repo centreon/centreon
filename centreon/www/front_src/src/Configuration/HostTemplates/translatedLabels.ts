@@ -9,3 +9,7 @@ export const labelLockedElements = 'Locked elements';
 export const labelWelcomeToHostTemplates =
   'Welcome to the Host templates interface!';
 export const labelCreateHostTemplate = 'Create a host template';
+
+// Form sections and blocks
+export const labelGeneralInformation = 'General information';
+export const labelHostBasicInformation = 'Host basic information';
