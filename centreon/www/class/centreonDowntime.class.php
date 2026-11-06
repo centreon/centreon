@@ -353,10 +353,12 @@ class CentreonDowntime
                         SQL;
                     break;
                 case 'services':
-                    // A service on a disabled host counts as disabled
+                    // A service on a disabled host counts as disabled.
+                    // Meta services hang on the _Module_Meta host and are named meta_<meta_id>.
                     $query = <<<'SQL'
                         SELECT CONCAT(dsr.host_host_id, CONCAT('-', dsr.service_service_id)) AS resource_id,
-                            IF(s.service_activate = '1' AND h.host_activate = '1', '1', '0') AS activated
+                            IF(s.service_activate = '1' AND h.host_activate = '1', '1', '0') AS activated,
+                            IF(h.host_register = '2', SUBSTRING(s.service_description, 6), NULL) AS meta_id
                         FROM downtime_service_relation dsr
                         INNER JOIN service s
                             ON dsr.service_service_id = s.service_id
@@ -386,10 +388,14 @@ class CentreonDowntime
             $statement->execute();
 
             foreach ($statement as $record) {
-                $relations[$resourceType][] = [
+                $relation = [
                     'id' => $record['resource_id'],
                     'activated' => $record['activated'],
                 ];
+                if (isset($record['meta_id'])) {
+                    $relation['meta_id'] = $record['meta_id'];
+                }
+                $relations[$resourceType][] = $relation;
             }
 
             $statement->closeCursor();
@@ -436,7 +442,7 @@ class CentreonDowntime
                 if ($resource['activated'] !== '1') {
                     continue;
                 }
-                if (! $this->isResourceAllowed($userAcl, $resourceType, (string) $resource['id'])) {
+                if (! $this->isResourceAllowed($userAcl, $resourceType, $resource)) {
                     return false;
                 }
             }
@@ -1466,14 +1472,21 @@ class CentreonDowntime
     /**
      * @param CentreonACL $userAcl
      * @param string $resourceType a getRelations() key: 'hosts', 'hostgroups', 'services' or 'servicegroups'
-     * @param string $resourceId a getRelations() id, '<hostId>-<serviceId>' for services
+     * @param array{id: int|string, activated: string, meta_id?: string} $resource a getRelations() record,
+     *                                                                             whose id is '<hostId>-<serviceId>' for services
      *
      * @return bool
      */
-    private function isResourceAllowed(CentreonACL $userAcl, string $resourceType, string $resourceId): bool
+    private function isResourceAllowed(CentreonACL $userAcl, string $resourceType, array $resource): bool
     {
+        $resourceId = (string) $resource['id'];
+
         if ($resourceType !== 'services') {
             return array_key_exists($resourceId, $this->getAllowedResources($userAcl, $resourceType));
+        }
+
+        if (isset($resource['meta_id'])) {
+            return array_key_exists($resource['meta_id'], $userAcl->getMetaServices());
         }
 
         [$hostId, $serviceId] = explode('-', $resourceId, 2);
