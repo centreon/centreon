@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Infrastructure\Validator\CheckCommandType;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Infrastructure\Validator\Constraints\ExclusiveKeys;
 use App\Shared\Infrastructure\Validator\Constraints\IdList;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -60,6 +61,7 @@ final readonly class PatchHostCheckOptionsInput
 
         #[Assert\All([new Assert\Type('string')])]
         #[ValidCommandArguments('check command')]
+        #[Sensitive]
         public array $args = [],
 
         #[ApiProperty(description: 'Replaces the custom macros: the host\'s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.')]
