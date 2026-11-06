@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
+namespace App\MonitoringConfiguration\Domain\Aggregate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\Shared\Domain\NoValue;
@@ -30,7 +30,7 @@ use Webmozart\Assert\Assert;
 /**
  * Groups the host's "Extended Informations" fields (legacy `extended_host_information` table,
  * plus `host.geo_coords`/`host.host_comment`) behind a single VO instead of a growing list of
- * scalar properties directly on {@see Host}.
+ * scalar properties directly on {@see Host\Host}.
  *
  * `altIcon` and `comment` are on-prem only (legacy builds them for Cloud too but never renders
  * them there — see MON-208990/MON-208474).

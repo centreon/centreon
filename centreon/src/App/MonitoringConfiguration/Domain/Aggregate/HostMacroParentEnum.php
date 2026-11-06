@@ -21,28 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
-
-use App\Shared\Domain\Logging\Attribute\Sensitive;
-use Webmozart\Assert\Assert;
+namespace App\MonitoringConfiguration\Domain\Aggregate;
 
 /**
- * Holds either a plaintext secret or, once vaulted, the `secret::` reference that replaced it.
+ * Where an inherited macro comes from. Only the origin type is exposed, never which template.
+ * A direct macro (owned by the host itself) has no parent.
  */
-final readonly class SnmpCommunity
+enum HostMacroParentEnum: string
 {
-    public const MIN_LENGTH = 1;
-    public const MAX_LENGTH = 255;
-
-    #[Sensitive]
-    public string $value;
-
-    public function __construct(string $value)
-    {
-        $value = trim($value);
-        // The column's width: the caller builds this from whatever will land there, plaintext
-        // or `secret::` reference.
-        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
-        $this->value = $value;
-    }
+    case Template = 'template';
+    case Command = 'command';
 }

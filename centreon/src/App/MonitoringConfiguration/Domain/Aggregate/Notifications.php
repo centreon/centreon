@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
+namespace App\MonitoringConfiguration\Domain\Aggregate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
@@ -34,7 +34,7 @@ use Webmozart\Assert\Assert;
 
 /**
  * Groups the host's "Notification" tab behind a single VO instead of a growing list of scalar
- * properties directly on {@see Host}: the six `host_notification*` columns of the `host` table,
+ * properties directly on {@see Host\Host}: the six `host_notification*` columns of the `host` table,
  * the two additive-inheritance flags, and the `contact_host_relation` /
  * `contactgroup_host_relation` links.
  *
