@@ -45,11 +45,18 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
       return [];
     }
 
-    const filterName = configuration?.filtersConfiguration?.find((filter) =>
+    const filter = configuration?.filtersConfiguration?.find((filter) =>
       equals(filter.fieldType, FieldType.Checkbox)
-    )?.fieldName as string;
+    );
+    const filterName = filter?.fieldName as string;
 
     const filterValue = filters?.[filterName];
+
+    if (filter?.uncheckedQueryParameter) {
+      return filterValue
+        ? []
+        : [{ name: filter.uncheckedQueryParameter, value: true }];
+    }
 
     return filterValue
       ? [

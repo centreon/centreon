@@ -2,6 +2,7 @@ import { waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { labelEnableDisable } from '../../ConfigurationBase/translatedLabels';
 import {
   labelHost,
   labelName,
@@ -33,6 +34,20 @@ export default () => {
           expect(screen.getAllByText(label)[0]).toBeVisible();
         }
       );
+    });
+
+    it('does not sort on the enable/disable column', async () => {
+      await initializeListing();
+
+      expect(screen.getAllByText(labelEnableDisable)[0]).toBeVisible();
+
+      // A sortable header is a sort button labelled after its column.
+      expect(
+        screen.getByRole('button', { name: `Column ${labelHost}` })
+      ).toBeVisible();
+      expect(
+        screen.queryByRole('button', { name: `Column ${labelEnableDisable}` })
+      ).toBeNull();
     });
 
     it('shows the host on every row, even when consecutive rows share it', async () => {

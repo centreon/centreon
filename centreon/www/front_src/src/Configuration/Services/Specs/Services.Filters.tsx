@@ -78,7 +78,7 @@ export default () => {
       const { request } = await waitForRequest('@getAllServices');
 
       expect(request.url.searchParams.get('name[lk]')).toBe('cpu');
-      expect(request.url.searchParams.get('host.name[lk]')).toBeNull();
+      expect(request.url.searchParams.get('host_name[lk]')).toBeNull();
     });
 
     it('searches on the service name and the host name separately', async () => {
@@ -92,7 +92,7 @@ export default () => {
       const { request } = await waitForRequest('@getAllServices');
 
       expect(request.url.searchParams.get('name[lk]')).toBe('cpu');
-      expect(request.url.searchParams.get('host.name[lk]')).toBe('host A');
+      expect(request.url.searchParams.get('host_name[lk]')).toBe('host A');
     });
 
     it('sends the service template id as a query parameter', async () => {
@@ -147,7 +147,7 @@ export default () => {
 
       const { request: initial } = await waitForRequest('@getAllServices');
 
-      expect(initial.url.searchParams.get('include_disabled_hosts')).toBeNull();
+      expect(initial.url.searchParams.get('host_activated')).toBe('true');
 
       await openAdvancedFilters();
 
@@ -157,9 +157,7 @@ export default () => {
 
       const { request } = await waitForRequest('@getAllServices');
 
-      expect(request.url.searchParams.get('include_disabled_hosts')).toBe(
-        'true'
-      );
+      expect(request.url.searchParams.get('host_activated')).toBeNull();
     });
 
     it('drops every filter with the clear action', async () => {
@@ -176,7 +174,7 @@ export default () => {
       const { request } = await waitForRequest('@getAllServices');
 
       // An empty text filter is left out of the query altogether.
-      expect(request.url.searchParams.get('host.name[lk]')).toBeNull();
+      expect(request.url.searchParams.get('host_name[lk]')).toBeNull();
     });
 
     it('keeps the filters in local storage so they survive navigation', async () => {
@@ -193,7 +191,7 @@ export default () => {
           window.localStorage.getItem('filters_services') as string
         );
 
-        expect(stored['host.name']).toBe('host A');
+        expect(stored.host_name).toBe('host A');
       });
     });
   });
