@@ -126,6 +126,19 @@ class LegacyCommandSenderTest extends TestCase
         }
     }
 
+    public function testUntrackedFinalResultIsAccepted(): void
+    {
+        // gorgone does not follow SENDEXPORTFILE: immediate final result with tracked = 0
+        $sender = $this->createSender([
+            'internal/constatus' => ['data' => ['2' => ['ping_ok' => 3, 'last_ping_recv' => 1700000000]]],
+            'log/' . self::TOKEN => ['data' => [
+                ['code' => 2, 'data' => '{"message":"done","legacycmd_final":1,"tracked":0,"results":[]}'],
+            ]],
+        ]);
+
+        $this->assertSame(self::TOKEN, $sender->sendCommand('SENDEXPORTFILE', 2, '12'));
+    }
+
     public function testExternalCommandIsNotTracked(): void
     {
         $sender = $this->createSender([]);
