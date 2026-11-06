@@ -2,8 +2,11 @@
 # real deployment.
 # The image tags follow the PoC stack branches that build them (this PR only
 # touches the chart, so nothing is built at its own tag): web-split from the
-# base PR (C12d, MON-214157), collect from the top of the collect stack (G9,
-# MON-213839, with the TCP RRD output fix rrdcached needs). Move them along
+# base PR (C12d, MON-214157), collect from G10
+# (MON-214281-gorgone-pullwss-retry-backoff, on top of G9's TCP RRD output fix
+# rrdcached needs: pullwss retry backoff, centengine and the broker wait for
+# their delivered config), trapd from C15 (MON-214281: centreontrapd waits
+# for its trap database). Move them along
 # with the stack; back to develop once it is merged.
 # APP_SECRET and SALT have no default: placeholders, only to render the Secret.
 secrets:
@@ -25,20 +28,20 @@ images:
     tag: MON-214157-central-compose-db-tls
   gorgone:
     repository: docker.centreon.com/centreon/centreon-gorgone-trixie
-    tag: MON-213839-broker-rrd-tcp-logger
+    tag: MON-214281-gorgone-pullwss-retry-backoff
   engine:
     repository: docker.centreon.com/centreon/centreon-engine-trixie
-    tag: MON-213839-broker-rrd-tcp-logger
+    tag: MON-214281-gorgone-pullwss-retry-backoff
   broker:
     repository: docker.centreon.com/centreon/centreon-broker-trixie
-    tag: MON-213839-broker-rrd-tcp-logger
+    tag: MON-214281-gorgone-pullwss-retry-backoff
   # One merged image for both trap containers (centreon/centreon#12403).
   snmptrapd:
     repository: docker.centreon.com/centreon/centreon-trapd-trixie
-    tag: develop
+    tag: MON-214281-central-stack-clean-cold-start-ordering
   centreontrapd:
     repository: docker.centreon.com/centreon/centreon-trapd-trixie
-    tag: develop
+    tag: MON-214281-central-stack-clean-cold-start-ordering
 
 # Render the optional parts too (rrdcached is on by default).
 centralPoller:

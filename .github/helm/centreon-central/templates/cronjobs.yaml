@@ -48,22 +48,10 @@ spec:
           {{- include "centreon-central.podScheduling" $ | nindent 10 }}
           restartPolicy: Never
           initContainers:
-            # The jobs connect to the database once, right at start. With
-            # NetworkPolicies the CNI only allows a new pod's IP a moment
-            # after it starts (first connection refused on k3s): wait until
-            # the database answers instead of failing the run.
-            - name: wait-db
-              image: {{ include "centreon-central.image" $.Values.images.cron }}
-              imagePullPolicy: {{ $.Values.images.cron.pullPolicy }}
-              command: ["/bin/bash", "-c"]
-              args:
-                - |
-                  for i in $(seq 1 60); do
-                    timeout 2 bash -c '</dev/tcp/{{ include "centreon-central.dbHost" $ }}/{{ $.Values.database.port | default 3306 }}' 2>/dev/null && exit 0
-                    sleep 1
-                  done
-                  echo "database {{ include "centreon-central.dbHost" $ }} not reachable after 60 s" >&2
-                  exit 1
+            # Wait for this release's install marker, read as "centreon":
+            # no run before the install Job's GRANTs or during a schema
+            # upgrade (also absorbs the NetworkPolicy delay of a new pod).
+            {{- include "centreon-central.waitInstallAs" (dict "ctx" $ "user" "centreon" "passwordKey" "MYSQL_PASSWORD") | nindent 12 }}
             {{- with include "centreon-central.vaultInit" $ }}{{ . | nindent 12 }}{{ end }}
           containers:
             - name: {{ $name }}
