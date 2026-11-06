@@ -381,7 +381,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
             self::assertSame('The migration "NoBaseClass\Migrations\Version20260101000001" must extend DdlMigration or DmlMigration.', $exception->getMessage());
         }
 
-        self::assertSame([], $this->connection->fetchFirstColumn('SELECT version FROM doctrine_migration_versions_no_base_class'), 'Nothing ran');
+        self::assertFalse($this->connection->createSchemaManager()->tablesExist([MigrationSet::module('no-base-class')->table()]), 'Nothing ran, not even the metadata table creation');
     }
 
     public function testAMigrationChangingTheSchemaObjectFailsWithoutRunningAnything(): void

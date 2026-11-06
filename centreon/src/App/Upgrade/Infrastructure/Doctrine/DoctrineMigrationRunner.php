@@ -339,8 +339,8 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             ), 0, $exception);
         }
 
-        // Doctrine records nothing for a skipped migration, yet runs the next ones.
-        $skipped = array_diff(array_map(static fn (MigrationPlan $item): string => (string) $item->getVersion(), $plan->getItems()), $done);
+        // Doctrine records nothing for a skipped migration, yet reports it and runs the next ones.
+        $skipped = $this->leftAsTheyWere($factory, $plan);
         if ($skipped !== []) {
             throw new \RuntimeException(sprintf('The %s skipped %s: a migration must run or fail, never skip.', $set->label(), implode(', ', $skipped)));
         }
@@ -354,18 +354,24 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     private function failedVersion(DependencyFactory $factory, MigrationPlanList $plan): ?string
     {
         try {
-            $executed = $factory->getMetadataStorage()->getExecutedMigrations();
+            return $this->leftAsTheyWere($factory, $plan)[0] ?? null;
         } catch (\Throwable) {
             // The database may be what failed: the error of the migration matters more.
             return null;
         }
+    }
 
-        foreach ($plan->getItems() as $item) {
-            if ($executed->hasMigration($item->getVersion()) === ($plan->getDirection() === Direction::DOWN)) {
-                return (string) $item->getVersion();
-            }
-        }
+    /**
+     * @return list<string> the versions of the plan left as they were: an upgrade records a migration once it ran, a
+     *                      rollback once reverted
+     */
+    private function leftAsTheyWere(DependencyFactory $factory, MigrationPlanList $plan): array
+    {
+        $executed = $factory->getMetadataStorage()->getExecutedMigrations();
 
-        return null;
+        return array_values(array_map(
+            static fn (MigrationPlan $item): string => (string) $item->getVersion(),
+            array_filter($plan->getItems(), static fn (MigrationPlan $item): bool => $executed->hasMigration($item->getVersion()) === ($plan->getDirection() === Direction::DOWN)),
+        ));
     }
 }
