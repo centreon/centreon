@@ -219,8 +219,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
     }
 
     /**
-     * "0<id>" names an existing template once the leading zero is dropped: only the id requirement
-     * keeps it unrouted.
+     * "0<id>" would name an existing template: only the id requirement keeps it unrouted.
      */
     #[DataProvider('provideInvalidIds')]
     public function testAnInvalidIdIsNotRouted(string $invalidId): void

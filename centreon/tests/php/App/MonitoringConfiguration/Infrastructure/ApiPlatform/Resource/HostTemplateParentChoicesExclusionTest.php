@@ -32,9 +32,7 @@ use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
 /**
- * GET /configuration/host_templates/host_templates?exclude_template_id={id}: the edited template and
- * every template inheriting from it, directly or not, are not offered as its parent. The inheritance
- * walk itself (inactive templates, loops, depth) is pinned by DbalHostTemplateRepositoryDescendantsTest.
+ * exclude_template_id leaves out the edited template and all its descendants; the walk is tested in the Dbal test.
  */
 final class HostTemplateParentChoicesExclusionTest extends ApiTestCase
 {

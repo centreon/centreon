@@ -29,8 +29,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\GrantsHostTempl
 use Tests\App\Shared\ApiTestCase;
 
 /**
- * Wiring of the host template form's inherited macros route. The macro resolution itself is pinned
- * by State/HostTemplate/GetHostTemplateMacrosProviderTest and is not repeated here.
+ * Wiring of the host template form's inherited macros route; macro resolution is tested in the provider test.
  */
 final class HostTemplateFormMacrosWiringTest extends ApiTestCase
 {
@@ -67,6 +66,10 @@ final class HostTemplateFormMacrosWiringTest extends ApiTestCase
         $username = bin2hex(random_bytes(8));
         $this->grantHostTemplateTopologyRole($this->connection, $this->createNonAdminContact($this->connection, $username), self::ACL_ACCESS_READ_ONLY, $this->tag);
         $this->login($username);
+
+        // guard: the user does hold host template read-only
+        $this->request('GET', '/api/configuration/host_templates');
+        self::assertResponseIsSuccessful();
 
         $response = $this->request('GET', $this->uri((string) $templateId));
 

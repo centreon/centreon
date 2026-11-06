@@ -30,9 +30,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\GrantsHostTempl
 use Tests\App\Shared\ApiTestCase;
 
 /**
- * Wiring of the host template form selectors (/configuration/host_templates/<list>): the gate and
- * one end-to-end listing per selector. Each provider's behavior (filters, sort, scoping, license) is
- * pinned by its own tests under State/ and is not repeated here.
+ * Wiring of the host template form selectors; each provider's behavior is tested under State/.
  */
 final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
 {
@@ -123,8 +121,7 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
     }
 
     /**
-     * The form must work with host template read-write alone. Row-level ACL scoping of contacts, contact
-     * groups and host categories still applies, so the fixture is granted to the user.
+     * Host template read-write alone is enough; row-level ACL still applies, so the fixture is granted.
      */
     #[DataProvider('provideSelectors')]
     public function testEachSelectorListsForAHostTemplateReadWriteUserWithoutHostAccess(string $selector): void
@@ -156,6 +153,10 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
         $username = bin2hex(random_bytes(8));
         $this->grantHostTemplateTopologyRole($this->connection, $this->createNonAdminContact($this->connection, $username), self::ACL_ACCESS_READ_ONLY, $this->tag);
         $this->login($username);
+
+        // guard: the user does hold host template read-only
+        $this->request('GET', '/api/configuration/host_templates');
+        self::assertResponseIsSuccessful();
 
         $response = $this->request('GET', self::SELECTORS[$selector]['uri']);
 

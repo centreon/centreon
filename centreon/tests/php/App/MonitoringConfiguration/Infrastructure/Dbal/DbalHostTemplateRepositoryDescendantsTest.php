@@ -36,8 +36,7 @@ use Symfony\Component\Uid\Uuid;
 use Tests\App\MonitoringConfiguration\Infrastructure\InsertsHostTemplateInheritance;
 
 /**
- * findDescendantIds(): the inheritance shapes, the loops already in the data, and a chain as deep as
- * the database server allows.
+ * findDescendantIds(): inheritance shapes, loops already in the data, the deepest chain the server allows.
  */
 final class DbalHostTemplateRepositoryDescendantsTest extends KernelTestCase
 {
