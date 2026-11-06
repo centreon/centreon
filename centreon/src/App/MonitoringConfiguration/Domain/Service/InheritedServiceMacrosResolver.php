@@ -58,6 +58,18 @@ final readonly class InheritedServiceMacrosResolver
             ? array_values($this->serviceTemplateRepository->findInheritanceLine($templateId)->toArray())
             : [];
 
+        return $this->resolveLine($inheritanceLine, $checkCommandId);
+    }
+
+    /**
+     * Same resolution, from an inheritance line the caller already loaded
+     * ({@see ServiceTemplateRepository::findInheritanceLine()}), so it is not fetched twice.
+     *
+     * @param list<ServiceTemplate> $inheritanceLine the template chain, nearest to the service first
+     * @param ?CommandId $checkCommandId the service's own check command
+     */
+    public function resolveLine(array $inheritanceLine, ?CommandId $checkCommandId): InheritedServiceMacros
+    {
         $checkCommandId ??= array_find(
             $inheritanceLine,
             static fn (ServiceTemplate $template): bool => $template->checkCommandId instanceof CommandId,

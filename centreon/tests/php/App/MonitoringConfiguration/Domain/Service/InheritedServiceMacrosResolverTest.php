@@ -144,6 +144,24 @@ final class InheritedServiceMacrosResolverTest extends TestCase
     }
 
     /**
+     * From a line the caller already loaded: the first template of the line is resolved too, and its check
+     * command falls back to the first ancestor's.
+     */
+    public function testItResolvesAnAlreadyLoadedLine(): void
+    {
+        $this->addCommand(7, '$USER1$/check -a $_SERVICESHARED$ -b $_SERVICEFROMANCESTOR$');
+        $this->addTemplate(1, parentId: 2, macros: [$this->macro(10, 'shared', 'from-nearest')]);
+        $this->addTemplate(2, checkCommandId: 7, macros: [$this->macro(20, 'shared', 'from-parent')]);
+        /** @var list<ServiceTemplate> $line */
+        $line = array_values($this->templates->findInheritanceLine(new ServiceTemplateId(1))->toArray());
+
+        self::assertSame(
+            [['SHARED', 'from-nearest', 'template'], ['FROMANCESTOR', '', 'command']],
+            $this->describe($this->resolver->resolveLine($line, null)),
+        );
+    }
+
+    /**
      * @param list<ServiceMacro> $macros
      */
     private function addTemplate(int $id, ?int $parentId = null, ?int $checkCommandId = null, array $macros = []): void

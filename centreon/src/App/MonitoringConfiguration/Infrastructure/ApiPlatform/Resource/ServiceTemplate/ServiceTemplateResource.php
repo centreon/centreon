@@ -25,9 +25,11 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Servic
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
 use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceTemplate\GetServiceTemplateMacrosProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceTemplate\ListServiceTemplatesChoicesProvider;
 
 #[ApiResource(
@@ -41,6 +43,19 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceTemplate
             itemUriTemplate: '/configuration/service_templates/{id}',
             output: ServiceTemplateChoicesOutput::class,
             provider: ListServiceTemplatesChoicesProvider::class,
+        ),
+        // A service template's own and inherited macros, read to prefill a service before it is created.
+        // Same family as the service template choices list above, so it takes the same right, not a
+        // service template one.
+        new Get(
+            uriTemplate: '/configuration/services/service_templates/{id}/macros',
+            // Positive integers only: `/0` is a 404, not a failed id assertion.
+            requirements: ['id' => '[1-9]\d*'],
+            openapi: false,
+            security: 'is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access service templates',
+            output: ServiceTemplateMacrosOutput::class,
+            provider: GetServiceTemplateMacrosProvider::class,
         ),
         // temporary, to make itemUriTemplate work
         new NotExposed(uriTemplate: '/configuration/service_templates/{id}'),
