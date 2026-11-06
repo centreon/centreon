@@ -174,7 +174,7 @@ export default () => {
 
       await save();
 
-      expect(await getRequestBody('@createService')).toEqual({
+      expect(await getRequestBody('@createService')).toMatchObject({
         host_id: 11,
         name: 'cpu load'
       });
@@ -194,8 +194,9 @@ export default () => {
       const { request } = await waitForRequest('@updateService0');
 
       expect(request.method).toBe('PUT');
-      // The whole service is replaced, its activation included.
-      expect(request.body).toEqual({
+      // The whole service is replaced, its activation included; the other
+      // sections' keys are their own specs'.
+      expect(request.body).toMatchObject({
         activated: true,
         host_id: 10,
         name: 'cpu load'
@@ -223,7 +224,7 @@ export default () => {
 
       await save();
 
-      expect(await getRequestBody('@updateService0')).toEqual({
+      expect(await getRequestBody('@updateService0')).toMatchObject({
         activated: false,
         host_id: 10,
         name: 'cpu load'

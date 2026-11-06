@@ -23,6 +23,7 @@ import {
   getDuplicateServiceEndpoint,
   getServiceEndpoint,
   serviceFormHostsEndpoint,
+  serviceFormTimePeriodsEndpoint,
   servicesListEndpoint,
   serviceTemplatesEndpoint
 } from '../api/endpoints';
@@ -30,6 +31,7 @@ import {
   emptyListingResponse,
   getListingResponse,
   getServiceFormHostsResponse,
+  getServiceFormTimePeriodsResponse,
   getServiceResponse,
   getServiceTemplatesResponse
 } from './utils';
@@ -104,17 +106,26 @@ const initialize = ({
   });
 
   interceptAPIRequest({
+    alias: 'getServiceFormTimePeriods',
+    method: Method.GET,
+    path: `**${serviceFormTimePeriodsEndpoint}?**`,
+    response: getServiceFormTimePeriodsResponse()
+  });
+
+  interceptAPIRequest({
     alias: 'createService',
     method: Method.POST,
     path: `**${servicesListEndpoint}`,
     response: { id: 12, name: 'new service' }
   });
 
-  interceptAPIRequest({
-    alias: 'updateService0',
-    method: Method.PUT,
-    path: `**${getServiceEndpoint({ id: 0 })}`,
-    response: {}
+  [0, 1].forEach((id) => {
+    interceptAPIRequest({
+      alias: `updateService${id}`,
+      method: Method.PUT,
+      path: `**${getServiceEndpoint({ id })}`,
+      response: {}
+    });
   });
 
   // Enable and disable are a partial update of the service, one request each.

@@ -25608,6 +25608,10 @@ msgstr "Créer un modèle d'hôte"
 msgid "Welcome to the Host templates interface!"
 msgstr "Bienvenue dans l'interface des modèles d'hôtes !"
 
+#: centreon/www/install/front_translate.php
+msgid "Service monitoring properties"
+msgstr "Propriétés de supervision du service"
+
 msgid "Delete host template"
 msgstr "Supprimer le modèle d'hôte"
 
