@@ -91,7 +91,7 @@ When a port has several adapters, the chosen one is wired explicitly in the Symf
 
 ### Adaptation layer
 
-The `src/Adaptation` namespace, a set of interfaces and their implementations that wrap two technical concerns for code outside `src/App`: logging (`Adaptation\Log`) and the database connection (`Adaptation\Database`). `src/App` uses Doctrine DBAL and an injected PSR-3 logger, and reaches `Adaptation` only through an `Infrastructure/Legacy/` adapter ([ADR-0005](adr/0005-apip-isolate-legacy-in-infrastructure-legacy.md)), apart from deptrac's `AdaptationLog` allowance (`deptrac_bc.yaml` for `MonitoringConfiguration`, `deptrac_hexa.yaml` for every `Infrastructure` layer, since [#11313](https://github.com/centreon/centreon/pull/11313)), a historical exception, not a pattern to follow. New code outside `src/App` reaches the database through it, as set by [ADR-0027](adr/0027-core-reach-the-database-from-src-core-through-connection-interface.md) and [ADR-0028](adr/0028-legacy-reach-the-database-from-legacy-code-through-connection-interface.md), and all new or touched logging outside `src/App` goes through it too, as set by [ADR-0016](adr/0016-core-log-src-core-through-adaptation-logger.md) and [ADR-0017](adr/0017-legacy-log-legacy-code-through-adaptation-logger.md).
+The `src/Adaptation` namespace: the logging (`Adaptation\Log`) and database (`Adaptation\Database`) wrappers used by code outside `src/App`. `src/App` reaches it only through an `Infrastructure/Legacy/` adapter ([ADR-0005](adr/0005-apip-isolate-legacy-in-infrastructure-legacy.md)); deptrac's `AdaptationLog` allowance ([#11313](https://github.com/centreon/centreon/pull/11313)) is a historical exception. Its use is set by [ADR-0016](adr/0016-core-log-src-core-through-adaptation-logger.md), [ADR-0017](adr/0017-legacy-log-legacy-code-through-adaptation-logger.md), [ADR-0027](adr/0027-core-reach-the-database-from-src-core-through-connection-interface.md) and [ADR-0028](adr/0028-legacy-reach-the-database-from-legacy-code-through-connection-interface.md).
 
 ---
 
@@ -99,7 +99,7 @@ The `src/Adaptation` namespace, a set of interfaces and their implementations th
 
 ### Secret
 
-A value that grants access or that the platform hides elsewhere: a password, a token, an API or private key, a session ID or autologin key, an LDAP bind password, an OAuth client secret, an SNMP community or SNMPv3 passphrase, a password macro's value, a URL that embeds credentials. A vault path is not a secret.
+A value that grants access: a password, a token, a key, a client secret, a session ID, an SNMP community or passphrase, a password macro's value, or a URL that embeds credentials. A vault path is not a secret.
 
 ### Keyword net
 
@@ -113,13 +113,13 @@ How a secret is kept out of the logs is set by [ADR-0026](adr/0026-apip-mark-eve
 
 ### Scope
 
-The part of the codebase a rule applies to. It takes one of three values:
+The part of the codebase a rule applies to:
 
-- **APIP:** the code under `src/App`, including a module's (such as `centreon-bam/src/App`), and its kernel configuration, `config.new`. `src/App/Kernel.php` is the exception: it is the kernel of `config/`.
-- **Core:** the code under `src/Core`, including a module's.
-- **Legacy:** everything else: `src/Centreon*`, `src/Adaptation`, `www/`, `config/` with its kernel `src/App/Kernel.php`, which build the `src/Core` and legacy services, and the modules' other code. `src/Adaptation` is the most recent legacy code: it holds what `src/Core` and the rest of legacy share, so it is removed last.
+- **APIP:** `src/App`, modules included (such as `centreon-bam/src/App`), and `config.new`, except `src/App/Kernel.php`.
+- **Core:** `src/Core`, modules included.
+- **Legacy:** everything else, including `config/` with its kernel `src/App/Kernel.php`, and `src/Adaptation`, shared with `src/Core` and removed last.
 
-Every [ADR](adr/index.md) states its scope, so the records of a scope can be dropped together once its code is gone. A record from before ADR-0016 may list several scopes, such as `APIP/Core/Legacy`.
+Every [ADR](adr/index.md) states its scope, so a scope's records can be dropped with its code. A record before ADR-0016 may list several scopes.
 
 ### Bounded context
 
