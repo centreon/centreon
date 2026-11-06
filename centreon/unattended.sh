@@ -35,7 +35,7 @@ trap 'on_error "$?" "${LINENO}" "${BASH_COMMAND}"' ERR
 OPTIONS="hsDt:v:r:l:p:d:V:-:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([24.10]=1 [25.10]=1 [26.07]=1 [26.10]=1)
+declare -A SUPPORTED_VERSION=([24.10]=1 [25.10]=1 [26.10]=1)
 declare -A SUPPORTED_REPOSITORY=([testing-hotfix]=1 [testing-release]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 declare -A SUPPORTED_TLS=([enabled]=1 [disabled]=1)
@@ -48,9 +48,10 @@ default_ip=$(hostname -I | awk '{print $1}') || true
 
 passwords_file=/etc/centreon/generated.tobesecured         #File where the generated passwords will be temporaly saved
 tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as the /etc/centreon does not exist yet
+failed_services=()                                         #Filled by display_services_recap, fails the run when not empty
 
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
-version=${ENV_CENTREON_VERSION:-"25.10"}        #Default version to be installed
+version=${ENV_CENTREON_VERSION:-"26.10"}        #Default version to be installed
 repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to be used
 dbms=${ENV_CENTREON_DBMS:-"MariaDB"}            #Default database system to be used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
@@ -121,7 +122,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10|25.10|26.07|26.10> (default: 25.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [--tls <enabled|disabled> (default: disabled)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-D (enable debug mode: shell xtrace + DEBUG log level)] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10|25.10|26.10> (default: 26.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [--tls <enabled|disabled> (default: disabled)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-D (enable debug mode: shell xtrace + DEBUG log level)] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -130,6 +131,12 @@ function usage() {
 	echo " $script_short_name install -r unstable,testing == install the central to the $version from the unstable & testing repository"
 	echo
 	echo " $script_short_name install -V vault-example.com;8200;my_storage;my-role-id;my-secret-id == configuring a vault to store your application and database credentials"
+	echo
+	echo "Exit codes:"
+	echo
+	echo " 0 == success, every required service is running"
+	echo " 1 (or the failing command's code) == the run was aborted"
+	echo " 2 == the run completed but some required services are not running (see the platform healthcheck)"
 	exit 1
 }
 #======== end of function usage()
@@ -558,7 +565,7 @@ function install_mariadb_repo_setup() {
 #
 function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
-	if (( $(version_int) >= $(version_int 26.07) )); then
+	if (( $(version_int) >= $(version_int 26.10) )); then
 		detected_mariadb_version="11.8"
 	else
 		detected_mariadb_version="10.11"
@@ -566,7 +573,7 @@ function set_mariadb_repos() {
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		install_mariadb_repo_setup --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale || error_and_exit "Could not install the $dbms repository"
-	elif (( $(version_int) >= $(version_int 26.07) )); then
+	elif (( $(version_int) >= $(version_int 26.10) )); then
 		# el9 has no 11.8 dnf module stream and el10 dropped dnf modularity, so MariaDB 11.8
 		# is installed from the MariaDB official repository for both.
 		install_mariadb_repo_setup --os-type=rhel --os-version="$detected_os_major" --mariadb-server-version="mariadb-$detected_mariadb_version" --skip-maxscale || error_and_exit "Could not install the $dbms repository"
@@ -586,8 +593,8 @@ function set_mariadb_repos() {
 #
 function setup_mysql() {
 	log "INFO" "Install MySQL repository"
-	# Centreon 26.07+ ships with MySQL 8.4 (LTS); earlier versions use MySQL 8.0.
-	if (( $(version_int) >= $(version_int 26.07) )); then
+	# Centreon 26.10+ ships with MySQL 8.4 (LTS); earlier versions use MySQL 8.0.
+	if (( $(version_int) >= $(version_int 26.10) )); then
 		detected_mysql_version="8.4"
 	else
 		detected_mysql_version="8.0"
@@ -659,7 +666,7 @@ function set_required_prerequisite() {
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
-			if (( $(version_int) >= $(version_int 26.07) )); then
+			if (( $(version_int) >= $(version_int 26.10) )); then
 				error_and_exit "Centreon $version is not supported on Red-Hat compatible v8 (el8). Please use el9, el10 or Debian 13. See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			fi
 			set_release_repo_file
@@ -735,7 +742,7 @@ function set_required_prerequisite() {
 			esac
 
 			if [ "$topology" == "central" ]; then
-				if (( $(version_int) >= $(version_int 26.07) )); then
+				if (( $(version_int) >= $(version_int 26.10) )); then
 					# PHP 8.4 is not available in the el9 OS repositories, so it is
 					# provided by the remi repository.
 					log "INFO" "Installing PHP 8.4 from the remi repository and enable it"
@@ -754,8 +761,8 @@ function set_required_prerequisite() {
 
 		10*)
 			log "INFO" "Setting specific part for v10 ($detected_os_version)"
-			if (( $(version_int) < $(version_int 26.07) )); then
-				error_and_exit "Centreon $version is not supported on Red-Hat compatible v10 (el10). Only Centreon >= 26.07 is compatible. You chose $version"
+			if (( $(version_int) < $(version_int 26.10) )); then
+				error_and_exit "Centreon $version is not supported on Red-Hat compatible v10 (el10). Only Centreon >= 26.10 is compatible. You chose $version"
 			fi
 			set_release_repo_file
 			PHP_SERVICE_UNIT="php-fpm"
@@ -818,8 +825,8 @@ function set_required_prerequisite() {
 		PKG_MGR="apt -qq"
 		case "$detected_os_version" in
 		13)
-			if (( $(version_int) < $(version_int 26.07) )); then
-				error_and_exit "For Debian $detected_os_version, only Centreon >= 26.07 is compatible. You chose $version"
+			if (( $(version_int) < $(version_int 26.10) )); then
+				error_and_exit "For Debian $detected_os_version, only Centreon >= 26.10 is compatible. You chose $version"
 			fi
 			# On Debian 13 (trixie), PHP 8.4 is provided by the official OS repositories.
 			PHP_SERVICE_UNIT="php8.4-fpm"
@@ -1417,13 +1424,28 @@ function enable_new_services() {
 			# so the final health recap can report it (see display_services_recap).
 			systemctl enable "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon || log "WARN" "Some services could not be enabled (see recap below)"
 			systemctl restart "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd || log "WARN" "Some services could not be restarted (see recap below)"
-			systemctl start centreontrapd || log "WARN" "centreontrapd could not be started (see recap below)"
+			# gorgoned is started by its package %post; start it explicitly too since the
+			# recap requires it on central (no-op when already running).
+			systemctl start centreontrapd gorgoned || log "WARN" "centreontrapd/gorgoned could not be started (see recap below)"
+			# centreon-engine-daemon's %post restarts centengine mid-transaction, before
+			# centreon-broker-core has laid down /usr/share/centreon/lib/centreon-broker, so on
+			# EL the engine is left failed. Restart it now that every package is installed.
+			# dpkg unpacks every package before configuring any, so Debian is not affected.
+			if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+				systemctl restart cbd centengine || log "WARN" "cbd/centengine could not be restarted (see recap below)"
+			fi
 			;;
 
 		poller)
 			log "DEBUG" "On poller..."
 			systemctl enable centreon centengine centreontrapd snmpd snmptrapd gorgoned || log "WARN" "Some services could not be enabled"
-			systemctl start centreontrapd snmptrapd || log "WARN" "Some services could not be started"
+			# gorgoned is started by its package %post; start it explicitly too since the
+			# recap requires it (a poller without gorgone cannot be registered).
+			systemctl start centreontrapd snmptrapd gorgoned || log "WARN" "Some services could not be started (see recap below)"
+			# Same mid-transaction restart issue as on central (see above).
+			if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+				systemctl restart centengine || log "WARN" "centengine could not be restarted (see recap below)"
+			fi
 			;;
 		esac
 	else
@@ -1766,7 +1788,7 @@ function install_central() {
 	' 2>/dev/null) || true
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		# Determine the PHP version Centreon expects for this release...
-		if (( $(version_int) >= $(version_int 26.07) )); then
+		if (( $(version_int) >= $(version_int 26.10) )); then
 			expected_php_version="8.4"
 		elif (( $(version_int) >= $(version_int 24.10) )); then
 			expected_php_version="8.2"
@@ -1891,11 +1913,12 @@ function test_password_policy() {
 # Print a final platform healthcheck just before the credentials are displayed.
 # Topology-aware (only the services relevant to the installed role are checked) and
 # rendered in the same banner style as the run summary, recorded in the log file and
-# mirrored to the console. Purely informational: it tolerates inactive units (guarded
-# systemctl calls) so it never aborts the script.
+# mirrored to the console. It tolerates inactive units (guarded systemctl calls) so it
+# never aborts the script itself; units still inactive after a short wait are collected in
+# failed_services and the script exits 2 after the credentials are displayed.
 #
 function display_services_recap() {
-	local entry name unit topos active enabled state db_unit
+	local entry name unit topos required_topos active enabled state db_unit
 
 	if [ "${has_systemd:-0}" -ne 1 ]; then
 		log "WARN" "Systemd is not available: cannot report platform healthcheck"
@@ -1909,38 +1932,67 @@ function display_services_recap() {
 		db_unit="${mysql_service_name:-mysqld}"
 	fi
 
-	# label | systemd unit | topologies the check applies to (space-separated)
+	# label | systemd unit | topologies the check applies to | topologies where inactive = failure (default: same as previous)
+	# Topology lists are space-separated; outside the 4th field ("-" = none) an inactive unit is reported as [INFO].
 	# http and php units differ per distro (httpd/php-fpm on EL, apache2/php8.x-fpm on
 	# Debian); they are resolved via the variables set in set_required_prerequisite.
 	# Topologies mirror what enable_new_services actually starts: centengine runs on
 	# central AND pollers; cbd is central-only (pollers do not ship/enable a cbd unit).
+	# Before 26.10 the packaged centengine.cfg has no broker_module_cfg_file and the engine
+	# refuses to start until a first configuration export: report it without failing the run.
+	local centengine_required_topos="-"
+	if (( $(version_int) >= $(version_int 26.10) )); then
+		centengine_required_topos="central poller"
+	fi
+	local centengine_hint=""
 	local -a recap_services=(
 		"database|${db_unit}|central"
 		"httpd|${HTTP_SERVICE_UNIT:-httpd}|central"
 		"php-fpm|${PHP_SERVICE_UNIT:-php-fpm}|central"
-		"centengine|centengine|central poller"
+		"centengine|centengine|central poller|${centengine_required_topos}"
 		"gorgone|gorgoned|central poller"
 		"cbd|cbd|central"
 		"centreontrapd|centreontrapd|central poller"
 		"snmptrapd|snmptrapd|central poller"
-		"snmpd|snmpd|central poller"
+		"snmpd|snmpd|central poller|central"
 	)
+
+	# Units restarted just before may still be activating, or start and die a few seconds
+	# later: let them settle, then give the inactive ones until a shared deadline to come
+	# up (bounds the total wait even when several units are down).
+	sleep "$default_timeout_in_sec"
+	local deadline=$((SECONDS + 30))
 
 	local -a results=()
 	for entry in "${recap_services[@]}"; do
-		IFS='|' read -r name unit topos <<<"$entry"
+		IFS='|' read -r name unit topos required_topos <<<"$entry"
+		required_topos=${required_topos:-$topos}
 		# Skip services that do not apply to the installed topology.
 		[[ " $topos " == *" $topology "* ]] || continue
 		active=$(systemctl is-active "$unit" 2>/dev/null || true)
+		# Only wait for units whose inactivity would fail the run.
+		while [ "$active" != "active" ] && [[ " $required_topos " == *" $topology "* ]] && [ "$SECONDS" -lt "$deadline" ]; do
+			sleep 1
+			active=$(systemctl is-active "$unit" 2>/dev/null || true)
+		done
 		enabled=$(systemctl is-enabled "$unit" 2>/dev/null || true)
 		if [ "$active" == "active" ]; then
 			state="[OK]    "
-		else
+		elif [[ " $required_topos " == *" $topology "* ]]; then
 			state="[FAILED]"
+			failed_services+=("$name")
+		else
+			state="[INFO]  "
+			if [ "$name" == "centengine" ]; then
+				centengine_hint="  centengine starts once a first configuration has been exported to this $topology (Configuration > Pollers > Export configuration on the central)"
+			fi
 		fi
 		results+=("$(printf '  %s %-14s (%-13s) active=%-10s enabled=%s' \
 			"$state" "$name" "$unit" "${active:-unknown}" "${enabled:-unknown}")")
 	done
+	if [ -n "$centengine_hint" ]; then
+		results+=("$centengine_hint")
+	fi
 
 	# Record in the log file.
 	log "INFO" "============== Centreon platform healthcheck ([$topology]) =============="
@@ -2219,6 +2271,16 @@ if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ] && [ "$operation" 
 fi
 if [ -e $tmp_passwords_file ] && [ "$operation" = "update" ]; then
 	rm -f $tmp_passwords_file
+fi
+
+# A service left down must fail the run (non-zero exit) so CI and callers notice it;
+# this is checked only now so the credentials above are still shown.
+if [ ${#failed_services[@]} -gt 0 ]; then
+	log "ERROR" "Some services are not running: ${failed_services[*]}"
+	if [ -n "${LOG_FILE:-}" ]; then
+		echo "unattended.sh FAILED: services not running: ${failed_services[*]} - see ${LOG_FILE}" >&3
+	fi
+	exit 2
 fi
 
 # Final notice on the console (the rest of the run is in the log file).
