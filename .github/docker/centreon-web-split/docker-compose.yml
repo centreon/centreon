@@ -20,14 +20,16 @@ services:
       - ../.env
     environment:
       MARIADB_AUTO_UPGRADE: "1"
-    command: ["--skip-ssl", "--skip-name-resolve"]
+    # MON-214282: MYSQL_PORT (default unchanged, 3306) picks this server's own
+    # listening port, same variable every DB client below reads.
+    command: ["--port=${MYSQL_PORT:-3306}", "--skip-ssl", "--skip-name-resolve"]
     healthcheck:
       # Bare TCP check logs "Aborted connection ... user: 'unauthenticated'" at
       # every probe with the official image — use a real login instead. The
       # 11.x client requires TLS by default even though the server runs
       # --skip-ssl, so --skip-ssl is needed here too. Over TCP on purpose: a
       # bitnami-initialised datadir only has root@'%'.
-      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MARIADB_ROOT_PASSWORD\" mariadb-admin --skip-ssl -h 127.0.0.1 -uroot ping --silent"]
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MARIADB_ROOT_PASSWORD\" mariadb-admin --skip-ssl -h 127.0.0.1 -P${MYSQL_PORT:-3306} -uroot ping --silent"]
       interval: 5s
       timeout: 15s
       retries: 20
@@ -67,6 +69,7 @@ services:
     environment:
       RUN_INSTALL: "true"
       MYSQL_HOST: db
+      MYSQL_PORT: "${MYSQL_PORT:-3306}"
       CENTREON_INTERNAL_API_BASE_URL: "http://httpd:80"
       # Read by generate-broker-configuration.php to poll gorgone's own
       # connection-status API (GET /internal/constatus, confirmed reachable
@@ -201,6 +204,7 @@ services:
       # doesn't need to: it never touches .rrd files.
       RRD_VOLUMES_CHOWN: "false"
       MYSQL_HOST: db
+      MYSQL_PORT: "${MYSQL_PORT:-3306}"
       CENTREON_INTERNAL_API_BASE_URL: "http://httpd:80"
       CENTREON_API_USERNAME: centreon-gorgone
       CENTREON_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
@@ -286,6 +290,7 @@ services:
     environment:
       TYPE: central
       MYSQL_HOST: db
+      MYSQL_PORT: "${MYSQL_PORT:-3306}"
       # Confirmed live: every GORGONE__ segment must be uppercase —
       # load_env_config lowercases the env var name to match it, then
       # re-fetches the value via $ENV{uc(...)}, which silently returns undef
@@ -296,10 +301,10 @@ services:
       # them at load time from these exact GORGONE__ vars — db_realtime
       # needs its own DSN/username/password too, not just
       # db_configuration's.
-      GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__DSN: "mysql:host=db;dbname=centreon"
+      GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__DSN: "mysql:host=db;port=${MYSQL_PORT:-3306};dbname=centreon"
       GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__USERNAME: centreon
       GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__PASSWORD: centreon
-      GORGONE__CENTREON__DATABASE__DB_REALTIME__DSN: "mysql:host=db;dbname=centreon_storage"
+      GORGONE__CENTREON__DATABASE__DB_REALTIME__DSN: "mysql:host=db;port=${MYSQL_PORT:-3306};dbname=centreon_storage"
       GORGONE__CENTREON__DATABASE__DB_REALTIME__USERNAME: centreon
       GORGONE__CENTREON__DATABASE__DB_REALTIME__PASSWORD: centreon
       # New, for 10-create-config.sh's own tpapi block (not the GORGONE__
@@ -564,6 +569,7 @@ services:
         condition: service_healthy
     environment:
       MYSQL_HOST: db
+      MYSQL_PORT: "${MYSQL_PORT:-3306}"
       # Must match fpm's own PHP_TIMEZONE exactly (same expression/default):
       # centreon-partitioning.php reads partition boundaries fpm created
       # using fpm's timezone — a mismatch (e.g. this left at the image's UTC
