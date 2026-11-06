@@ -66,6 +66,7 @@ final readonly class CreateHostTemplateCommand
         public Collection $categoryIds = new Collection([], HostCategoryId::class),
         public Collection $linkedServiceTemplateIds = new Collection([], ServiceTemplateId::class),
         public ?CommandId $checkCommandId = null,
+        #[Sensitive]
         public array $checkCommandArgs = [],
         // A change may carry a password macro's plaintext.
         #[Sensitive]
