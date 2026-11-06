@@ -30,14 +30,11 @@ require_once __DIR__ . '/webService.class.php';
  */
 class CentreonSubmitResults extends CentreonWebService
 {
-    /** @var string The path to the centcore pipe file */
-    protected $centcoreFile;
+    /** @var list<string> Commands waiting to be sent to Gorgone */
+    protected $commands = [];
 
     /** @var bool If the file pipe is open */
     protected $pipeOpened = false;
-
-    /** @var mixed The file descriptor of the centcore pipe */
-    protected $fh;
 
     /** @var CentreonDB The database connection to centreon_storage (realtime database) */
     protected $pearDBC;
@@ -63,11 +60,6 @@ class CentreonSubmitResults extends CentreonWebService
     public function __construct()
     {
         parent::__construct();
-        if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            $this->centcoreFile = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
-        } else {
-            $this->centcoreFile = _CENTREON_VARLIB_ . '/centcore.cmd';
-        }
         $this->pearDBC = new CentreonDB('centstorage');
         $this->getPollers();
     }
@@ -237,33 +229,36 @@ class CentreonSubmitResults extends CentreonWebService
     }
 
     /**
-     * Open the centcore pipe file
+     * Start buffering the commands sent to Gorgone
      *
-     * @throws RestBadRequestException
      * @return void
      */
     private function openPipe(): void
     {
-        if ($this->fh = @fopen($this->centcoreFile, 'a+')) {
-            $this->pipeOpened = true;
-        } else {
-            throw new RestBadRequestException("Can't open centcore pipe");
-        }
+        $this->commands = [];
+        $this->pipeOpened = true;
     }
 
     /**
-     * Close the centcore pipe file
+     * Send the buffered commands to Gorgone
      *
+     * @throws RestBadRequestException
      * @return void
      */
     private function closePipe(): void
     {
-        fclose($this->fh);
         $this->pipeOpened = false;
+        try {
+            Centreon\Infrastructure\Gorgone\LegacyCommandSender::create()->sendLines($this->commands);
+        } catch (Centreon\Infrastructure\Gorgone\LegacyCommandException $e) {
+            throw new RestBadRequestException("Can't send results to Gorgone: " . $e->getMessage());
+        } finally {
+            $this->commands = [];
+        }
     }
 
     /**
-     * Write into the centcore pipe filr
+     * Buffer a command for Gorgone
      *
      * @param $string
      *
@@ -276,14 +271,14 @@ class CentreonSubmitResults extends CentreonWebService
         }
 
         if ($string != '') {
-            fwrite($this->fh, $string . "\n");
+            $this->commands[] = $string;
         }
 
         return true;
     }
 
     /**
-     * Send the data to CentCore
+     * Send the data to Gorgone
      *
      * @param array $data
      *

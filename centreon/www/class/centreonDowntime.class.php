@@ -52,9 +52,6 @@ class CentreonDowntime
     /** @var array */
     protected array $remoteCommands = [];
 
-    /** @var string */
-    protected string $remoteCmdDir = '';
-
     /** @var array|null */
     protected ?array $periods = null;
 
@@ -65,14 +62,10 @@ class CentreonDowntime
      * CentreonDowntime constructor
      *
      * @param CentreonDB $pearDB The connection to database centreon
-     * @param string|null $varlib Centreon dynamic dir
      */
-    public function __construct(CentreonDB $pearDB, ?string $varlib = null)
+    public function __construct(CentreonDB $pearDB)
     {
         $this->db = $pearDB;
-        if (! is_null($varlib)) {
-            $this->remoteCmdDir = $varlib . '/centcore';
-        }
     }
 
     /**

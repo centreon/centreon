@@ -284,8 +284,10 @@ services:
 
     # Engine
     Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface:
-        class: Centreon\Infrastructure\Engine\EngineRepositoryFile
-        arguments: ['%centreon_var_lib%/centcore']
+        class: Centreon\Infrastructure\Engine\EngineRepositoryGorgone
+
+    Centreon\Infrastructure\Gorgone\LegacyCommandSender:
+        public: true
 
     Centreon\Domain\Engine\Interfaces\EngineServiceInterface:
         class: Centreon\Domain\Engine\EngineService
