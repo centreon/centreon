@@ -5,7 +5,12 @@ import { JsonDecoder } from 'ts.data.json';
 import { optionalNamedEntityDecoder } from '../api/decoders';
 import { argumentsToText, textToArguments } from '../commandArguments';
 import { getBlock } from '../grid';
-import type { FieldBlock, NamedEntity, ResourceOptions } from '../models';
+import type {
+  FieldBlock,
+  FormValues,
+  NamedEntity,
+  ResourceOptions
+} from '../models';
 import { buildSelector } from '../selector';
 import { labelArguments, labelCheckCommand } from '../translatedLabels';
 
@@ -34,11 +39,14 @@ const checkCommandDecoder = JsonDecoder.object<CheckCommandValues>(
 // The command and its arguments, which wait for it.
 export const getCheckCommandBlock = ({
   endpoint,
+  hasInheritedCommand = () => false,
   resource: { baseEndpoint, idPrefix },
   title
 }: {
   // The command selector, offering the active check commands.
   endpoint: string;
+  // A command the resource runs without one of its own: arguments go with it.
+  hasInheritedCommand?: (values: FormValues) => boolean;
   resource: ResourceOptions;
   // Untranslated, above the command.
   title: string;
@@ -73,8 +81,9 @@ export const getCheckCommandBlock = ({
         {
           dataTestId: `${idPrefix}-check-options-args`,
           fieldName: 'checkOptions.args',
-          // Arguments without a command are refused.
-          getDisabled: (values) => !values.checkOptions?.command,
+          // Arguments without a command, own or inherited, are refused.
+          getDisabled: (values) =>
+            !values.checkOptions?.command && !hasInheritedCommand(values),
           label: t(labelArguments),
           text: { placeholder: '!arg1!arg2' },
           type: InputType.Text
@@ -93,7 +102,10 @@ export const getCheckCommandBlock = ({
     return {
       check_options: {
         // Left over from a command since removed, they would be refused.
-        args: checkOptions.command ? textToArguments(checkOptions.args) : [],
+        args:
+          checkOptions.command || hasInheritedCommand(values)
+            ? textToArguments(checkOptions.args)
+            : [],
         command_id: checkOptions.command?.id ?? null
       }
     };

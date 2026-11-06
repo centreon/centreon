@@ -1,6 +1,9 @@
 import type { TFunction } from 'i18next';
 
-import { labelGeneralInformation } from '../translatedLabels';
+import {
+  labelGeneralInformation,
+  labelHostMonitoringProperties
+} from '../translatedLabels';
 import { getPlacedBlockIds, placeBlocks } from './layout';
 import {
   getAvailableSections,
@@ -52,12 +55,25 @@ describe('layout', () => {
     }
   );
 
-  it('opens on the general information', () => {
+  it('shows the sections in the order of the design', () => {
     expect(getSectionLabels({ isCloudPlatform: false, t })).toEqual([
-      labelGeneralInformation
+      labelGeneralInformation,
+      labelHostMonitoringProperties
     ]);
     expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
-      labelGeneralInformation
+      labelGeneralInformation,
+      labelHostMonitoringProperties
     ]);
+  });
+
+  it('shows the SNMP fields right after the check command', () => {
+    const [, monitoringProperties] = placeBlocks({
+      blocks: getBlocks({ isCloudPlatform: false, t }),
+      t
+    });
+
+    expect(
+      monitoringProperties.inputs.map(({ fieldName }) => fieldName)
+    ).toEqual(['check-snmp-layout', 'templates-layout']);
   });
 });
