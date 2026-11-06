@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Security\Domain\Aggregate\ActingUser;
@@ -54,6 +55,12 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var list<array{id: int, activated: bool}> */
     public array $activationUpdates = [];
 
+    /**
+     * When true, {@see isNameUsedOnHost()} reports every name as taken, letting a test exercise a name taken
+     * between the input validation and the write.
+     */
+    public bool $forceNameUsed = false;
+
     public function add(Service $service): void
     {
         do {
@@ -65,6 +72,25 @@ final class FakeServiceRepository implements ServiceRepository
         $reflection->setValue($service, new ServiceId($id));
 
         $this->services[$id] = $service;
+    }
+
+    public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool
+    {
+        if ($this->forceNameUsed) {
+            return true;
+        }
+
+        foreach ($this->services as $id => $service) {
+            if (
+                $id !== $excludingServiceId?->value
+                && $service->hostId->value === $hostId->value
+                && strcasecmp($service->name->value, $name->value) === 0
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection

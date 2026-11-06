@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceStalkingOptionEnum;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ServiceDataProcessingTest extends TestCase
@@ -159,5 +160,61 @@ final class ServiceDataProcessingTest extends TestCase
             ],
             $dataProcessing->stalkingOptions,
         );
+    }
+
+    /**
+     * A service checked by a Centreon Monitoring Agent pushes its results: freshness is always checked, with a
+     * fixed threshold of 500 seconds, and every other field is kept.
+     */
+    public function testACentreonMonitoringAgentServiceAlwaysChecksFreshnessWithAFixedThreshold(): void
+    {
+        $fields = [
+            'flapDetectionEnabled' => TriStateEnum::False,
+            'eventHandlerEnabled' => TriStateEnum::True,
+            'obsessOverService' => TriStateEnum::False,
+            'retainStatusInformation' => TriStateEnum::True,
+            'retainNonStatusInformation' => TriStateEnum::False,
+            'acknowledgmentTimeout' => 5,
+            'lowFlapThreshold' => 10,
+            'highFlapThreshold' => 90,
+            'eventHandlerCommandId' => new CommandId(42),
+            'eventHandlerArgs' => ['warn'],
+            'stalkingOptions' => [ServiceStalkingOptionEnum::Ok],
+        ];
+        $original = new ServiceDataProcessing(...[...$fields, 'checkFreshness' => TriStateEnum::False, 'freshnessThreshold' => 30]);
+
+        $changed = $original->withCentreonMonitoringAgentFreshness();
+
+        self::assertEquals(
+            new ServiceDataProcessing(...[...$fields, 'checkFreshness' => TriStateEnum::True, 'freshnessThreshold' => 500]),
+            $changed,
+        );
+    }
+
+    /**
+     * A list of empty event handler arguments only is no argument at all, as legacy stores it. A list mixing
+     * empty and filled arguments is kept as it is: event handler arguments have no all-or-none rule.
+     *
+     * @param list<string> $args
+     * @param list<string> $expected
+     */
+    #[DataProvider('eventHandlerArgumentListProvider')]
+    public function testAnAllEmptyEventHandlerArgumentListIsNoArgument(array $args, array $expected): void
+    {
+        self::assertSame($expected, (new ServiceDataProcessing(eventHandlerArgs: $args))->eventHandlerArgs);
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, list<string>}>
+     */
+    public static function eventHandlerArgumentListProvider(): iterable
+    {
+        yield 'no argument' => [[], []];
+
+        yield 'one empty argument' => [[''], []];
+
+        yield 'two empty arguments' => [['', ''], []];
+
+        yield 'an empty and a filled argument' => [['', 'warn'], ['', 'warn']];
     }
 }

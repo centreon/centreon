@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroParentEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ServiceCheckOptionsTest extends TestCase
@@ -105,5 +106,60 @@ final class ServiceCheckOptionsTest extends TestCase
         new ServiceCheckOptions(null, [], [
             new ServiceMacro(new ServiceMacroName('token'), 'v', isPassword: false, id: new ServiceMacroId(9), parent: ServiceMacroParentEnum::Template),
         ]);
+    }
+
+    /**
+     * A list of empty arguments only is no argument at all, as legacy stores it: written NULL, read back empty.
+     * A list mixing empty and filled arguments is kept as it is.
+     *
+     * @param list<string> $args
+     * @param list<string> $expected
+     */
+    #[DataProvider('argumentListProvider')]
+    public function testAnAllEmptyArgumentListIsNoArgument(array $args, array $expected): void
+    {
+        self::assertSame($expected, (new ServiceCheckOptions(new CommandId(4), $args))->args);
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, list<string>}>
+     */
+    public static function argumentListProvider(): iterable
+    {
+        yield 'no argument' => [[], []];
+
+        yield 'one empty argument' => [[''], []];
+
+        yield 'two empty arguments' => [['', ''], []];
+
+        yield 'an empty and a filled argument' => [['', 'warn'], ['', 'warn']];
+    }
+
+    /**
+     * Either every argument is filled or none is: a list mixing both is refused on write. A list of empty
+     * arguments only is no argument at all.
+     *
+     * @param list<string> $args
+     */
+    #[DataProvider('partlyFilledProvider')]
+    public function testItTellsAPartlyFilledArgumentList(array $args, bool $expected): void
+    {
+        self::assertSame($expected, (new ServiceCheckOptions(new CommandId(4), $args))->hasPartlyFilledArguments());
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, bool}>
+     */
+    public static function partlyFilledProvider(): iterable
+    {
+        yield 'no argument' => [[], false];
+
+        yield 'every argument filled' => [['80', 'warn'], false];
+
+        yield 'every argument empty' => [['', ''], false];
+
+        yield 'a filled then an empty argument' => [['80', ''], true];
+
+        yield 'an empty argument between filled ones' => [['80', '', 'crit'], true];
     }
 }

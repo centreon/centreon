@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CommandArguments;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use Webmozart\Assert\Assert;
 
@@ -36,6 +37,9 @@ use Webmozart\Assert\Assert;
  */
 final readonly class ServiceDataProcessing
 {
+    /** Seconds a Centreon Monitoring Agent service may stay silent, the same as for a host. */
+    public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
+
     /** @var list<string> */
     public array $eventHandlerArgs;
 
@@ -43,7 +47,7 @@ final readonly class ServiceDataProcessing
     public array $stalkingOptions;
 
     /**
-     * @param array<int, string> $eventHandlerArgs ordered event handler arguments
+     * @param array<int, string> $eventHandlerArgs ordered event handler arguments, empty when they are all empty
      * @param list<ServiceStalkingOptionEnum> $stalkingOptions duplicates are collapsed
      */
     public function __construct(
@@ -70,7 +74,10 @@ final readonly class ServiceDataProcessing
             Assert::range($highFlapThreshold, 0, 100, 'ServiceDataProcessing::highFlapThreshold expected to be between 0 and 100, got %s.');
         }
         CommandArguments::assertValid($eventHandlerArgs, 'ServiceDataProcessing::eventHandlerArgs');
-        $this->eventHandlerArgs = array_values($eventHandlerArgs);
+        // Only empty arguments is no argument at all, as legacy stores it: written NULL, read back empty.
+        $this->eventHandlerArgs = array_all($eventHandlerArgs, static fn (string $arg): bool => $arg === '')
+            ? []
+            : array_values($eventHandlerArgs);
 
         // Normalised to the enum's own declaration order, the order legacy always writes (o,w,u,c).
         $requested = [];
@@ -81,5 +88,28 @@ final readonly class ServiceDataProcessing
             ServiceStalkingOptionEnum::cases(),
             static fn (ServiceStalkingOptionEnum $option): bool => isset($requested[$option->name]),
         ));
+    }
+
+    /**
+     * A service checked by a Centreon Monitoring Agent pushes its results: freshness is always checked, with a
+     * fixed threshold, whatever was asked. Applied on write only: a read returns what is stored.
+     */
+    public function withCentreonMonitoringAgentFreshness(): self
+    {
+        return new self(
+            checkFreshness: TriStateEnum::True,
+            flapDetectionEnabled: $this->flapDetectionEnabled,
+            eventHandlerEnabled: $this->eventHandlerEnabled,
+            obsessOverService: $this->obsessOverService,
+            retainStatusInformation: $this->retainStatusInformation,
+            retainNonStatusInformation: $this->retainNonStatusInformation,
+            acknowledgmentTimeout: $this->acknowledgmentTimeout,
+            freshnessThreshold: self::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD,
+            lowFlapThreshold: $this->lowFlapThreshold,
+            highFlapThreshold: $this->highFlapThreshold,
+            eventHandlerCommandId: $this->eventHandlerCommandId,
+            eventHandlerArgs: $this->eventHandlerArgs,
+            stalkingOptions: $this->stalkingOptions,
+        );
     }
 }

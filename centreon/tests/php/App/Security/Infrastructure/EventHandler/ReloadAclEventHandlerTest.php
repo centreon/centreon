@@ -43,6 +43,7 @@ use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Event\HostDeleted;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
+use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceDisabled;
 use App\MonitoringConfiguration\Domain\Event\ServiceEnabled;
@@ -237,6 +238,41 @@ final class ReloadAclEventHandlerTest extends TestCase
         self::assertSame([], $resourceAccessRepository->grantedAccess);
         self::assertSame([], $accessGroupRepository->flaggedGroupIds);
         self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    /**
+     * A non-admin creator sees the service they created at once: it is granted to their groups.
+     */
+    public function testItGrantsACreatedService(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $service = $this->createService();
+        $handler(new ServiceCreated($service, 7));
+
+        self::assertCount(1, $resourceAccessRepository->grantedAccess);
+        self::assertSame($service, $resourceAccessRepository->grantedAccess[0]['resource']);
+        self::assertSame([10, 20], $resourceAccessRepository->grantedAccess[0]['accessGroupIds']);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesWithoutGrantingWhenAnAdminCreatesAService(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $handler(new ServiceCreated($this->createService(), 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
     }
 
     public function testItFlagsOnlyTheDeletersGroupsWhenAServiceIsDeletedByANonAdmin(): void

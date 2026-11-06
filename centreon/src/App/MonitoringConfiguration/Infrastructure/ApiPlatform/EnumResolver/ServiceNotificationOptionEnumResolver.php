@@ -62,4 +62,21 @@ final readonly class ServiceNotificationOptionEnumResolver
             ServiceNotificationOptionEnum::None => self::NONE_VALUE,
         };
     }
+
+    /**
+     * @throws \ValueError for a string the API does not accept, which the input validation refuses first
+     */
+    public static function toDomain(string $option): ServiceNotificationOptionEnum
+    {
+        return match ($option) {
+            self::WARNING_VALUE => ServiceNotificationOptionEnum::Warning,
+            self::UNKNOWN_VALUE => ServiceNotificationOptionEnum::Unknown,
+            self::CRITICAL_VALUE => ServiceNotificationOptionEnum::Critical,
+            self::RECOVERY_VALUE => ServiceNotificationOptionEnum::Recovery,
+            self::FLAPPING_VALUE => ServiceNotificationOptionEnum::Flapping,
+            self::DOWNTIME_SCHEDULED_VALUE => ServiceNotificationOptionEnum::DowntimeScheduled,
+            self::NONE_VALUE => ServiceNotificationOptionEnum::None,
+            default => throw new \ValueError(sprintf('"%s" is not a valid notification option.', $option)),
+        };
+    }
 }

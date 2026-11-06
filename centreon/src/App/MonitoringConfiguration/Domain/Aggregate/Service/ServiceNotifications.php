@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
@@ -119,6 +120,65 @@ final readonly class ServiceNotifications
             contactAdditiveInheritance: $this->contactAdditiveInheritance,
             contactGroupAdditiveInheritance: $this->contactGroupAdditiveInheritance,
             useOnlyContactsFromHost: $this->useOnlyContactsFromHost,
+        );
+    }
+
+    /**
+     * Both additive-inheritance flags forced off, every other field untouched — for a platform whose
+     * `inheritance_mode` option does not enable them. Lives here rather than in the caller so adding a field to
+     * this value object cannot silently reset it to its default.
+     */
+    public function withoutAdditiveInheritance(): self
+    {
+        return new self(
+            enabled: $this->enabled,
+            contactIds: $this->contactIds,
+            contactGroupIds: $this->contactGroupIds,
+            options: $this->options,
+            interval: $this->interval,
+            periodId: $this->periodId,
+            firstDelay: $this->firstDelay,
+            recoveryDelay: $this->recoveryDelay,
+            contactAdditiveInheritance: false,
+            contactGroupAdditiveInheritance: false,
+            useOnlyContactsFromHost: $this->useOnlyContactsFromHost,
+        );
+    }
+
+    /**
+     * The service notifies the contacts of its host only: its own contacts and contact groups are cleared, and
+     * both additive-inheritance flags forced off. Only the ones the given scopes allow are cleared: those an
+     * actor whose access is restricted cannot see stay linked. Every other field is kept.
+     *
+     * @param AccessScope<NotificationContactId> $contactScope the contacts the actor can see
+     * @param AccessScope<ContactGroupId> $contactGroupScope the contact groups the actor can see
+     */
+    public function withHostContactsOnly(AccessScope $contactScope, AccessScope $contactGroupScope): self
+    {
+        return new self(
+            enabled: $this->enabled,
+            contactIds: new Collection(
+                array_values(array_filter(
+                    $this->contactIds->toArray(),
+                    static fn (NotificationContactId $id): bool => ! $contactScope->allows($id),
+                )),
+                NotificationContactId::class,
+            ),
+            contactGroupIds: new Collection(
+                array_values(array_filter(
+                    $this->contactGroupIds->toArray(),
+                    static fn (ContactGroupId $id): bool => ! $contactGroupScope->allows($id),
+                )),
+                ContactGroupId::class,
+            ),
+            options: $this->options,
+            interval: $this->interval,
+            periodId: $this->periodId,
+            firstDelay: $this->firstDelay,
+            recoveryDelay: $this->recoveryDelay,
+            contactAdditiveInheritance: false,
+            contactGroupAdditiveInheritance: false,
+            useOnlyContactsFromHost: true,
         );
     }
 

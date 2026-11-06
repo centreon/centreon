@@ -66,4 +66,17 @@ final class ServiceNotificationOptionEnumResolverTest extends TestCase
             ServiceNotificationOptionEnumResolver::API_VALUES,
         );
     }
+
+    #[DataProvider('optionProvider')]
+    public function testItMapsEachApiStringBackToItsOption(ServiceNotificationOptionEnum $option, string $apiValue): void
+    {
+        self::assertSame($option, ServiceNotificationOptionEnumResolver::toDomain($apiValue));
+    }
+
+    public function testItRejectsAnUnknownApiString(): void
+    {
+        $this->expectException(\ValueError::class);
+
+        ServiceNotificationOptionEnumResolver::toDomain('down');
+    }
 }

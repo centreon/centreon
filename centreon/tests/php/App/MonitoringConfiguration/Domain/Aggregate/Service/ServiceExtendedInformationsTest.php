@@ -183,4 +183,44 @@ final class ServiceExtendedInformationsTest extends TestCase
 
         new ServiceExtendedInformations(altIcon: str_repeat('a', 201));
     }
+
+    /**
+     * The form bounds (note 512 characters, note URL and action URL 2048 each) are write rules on top of the
+     * storage bounds: measured in characters, both sides of each bound.
+     *
+     * @return iterable<string, array{array<string, string>, list<string>}>
+     */
+    public static function formBoundsProvider(): iterable
+    {
+        yield 'nothing set' => [[], []];
+
+        yield 'note at its form bound' => [['note' => str_repeat('é', 512)], []];
+
+        yield 'note above its form bound' => [['note' => str_repeat('n', 513)], ['note']];
+
+        yield 'note url at its form bound' => [['noteUrl' => str_repeat('é', 2048)], []];
+
+        yield 'note url above its form bound' => [['noteUrl' => str_repeat('u', 2049)], ['noteUrl']];
+
+        yield 'action url at its form bound' => [['actionUrl' => str_repeat('é', 2048)], []];
+
+        yield 'action url above its form bound' => [['actionUrl' => str_repeat('a', 2049)], ['actionUrl']];
+
+        yield 'every text above its form bound' => [
+            ['noteUrl' => str_repeat('u', 2049), 'note' => str_repeat('n', 513), 'actionUrl' => str_repeat('a', 2049)],
+            ['noteUrl', 'note', 'actionUrl'],
+        ];
+
+        yield 'comment and alt icon filling their column' => [['comment' => str_repeat('c', 65535), 'altIcon' => str_repeat('i', 200)], []];
+    }
+
+    /**
+     * @param array<string, string> $fields
+     * @param list<string> $expected
+     */
+    #[DataProvider('formBoundsProvider')]
+    public function testExceedsFormBounds(array $fields, array $expected): void
+    {
+        self::assertSame($expected, (new ServiceExtendedInformations(...$fields))->exceedsFormBounds());
+    }
 }
