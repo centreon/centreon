@@ -246,12 +246,10 @@ function centAclWriteGroupRows(
         centAclInsertRows($storageDb, $groupId, $diff['insert']);
         if ($fingerprint !== null) {
             $storageDb->executeStatement(
-                'REPLACE INTO ' . CENTACL_FINGERPRINT_TABLE . ' (group_id, `checksum`, row_count)
-                VALUES (:groupId, :fingerprint, :rowCount)',
+                'REPLACE INTO ' . CENTACL_FINGERPRINT_TABLE . ' (group_id, `checksum`) VALUES (:groupId, :fingerprint)',
                 QueryParameters::create([
                     QueryParameter::int('groupId', $groupId),
                     QueryParameter::string('fingerprint', $fingerprint),
-                    QueryParameter::int('rowCount', count($rows)),
                 ])
             );
         }
