@@ -40,6 +40,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * directory. Commands targeting any other poller are written into the centcore directory (or centcore.cmd)
  * as before: Gorgone shares the filesystem of the web server on those platforms.
  *
+ * Delivery commands (configuration files, trap database, export files, engine reload/restart) sent through
+ * the API are not fire-and-forget: the target node must be connected to Gorgone before anything is sent,
+ * then the final result logged by legacycmd under the request token is awaited. A failure, or no result
+ * within the timeout, raises a LegacyCommandException instead of reporting a delivery that never happened.
+ *
  * @package Centreon\Infrastructure\Gorgone
  */
 class LegacyCommandSender
@@ -61,10 +66,33 @@ class LegacyCommandSender
     /** Same parsing as gorgone::modules::centreon::legacycmd::class::handle_file */
     private const LINE_PATTERN = '/^(.*?):([^:]*)(?::(.*))?$/s';
 
+    /** Commands delivering something to a poller: their final result is awaited */
+    private const TRACKED_COMMANDS = [
+        'SENDCFGFILE',
+        'SENDEXPORTFILE',
+        'SYNCTRAP',
+        'RELOAD',
+        'RESTART',
+        'ENGINERELOAD',
+        'ENGINERESTART',
+    ];
+
+    /**
+     * Default upper bound, in seconds, to wait for the final result of a delivery. It must stay under the
+     * 60 seconds HTTP timeout (curl.timeout) of each internal call made by the REST configuration export.
+     */
+    private const DEFAULT_RESULT_TIMEOUT = 50;
+    private const RESULT_TIMEOUT_ENV = 'CENTREON_GORGONE_RESULT_TIMEOUT';
+    private const RESULT_POLL_INTERVAL_US = 500000;
+
+    /** Same values as gorgone::standard::constants */
+    private const GORGONE_ACTION_FINISH_KO = 1;
+    private const GORGONE_ACTION_FINISH_OK = 2;
+
     private HttpClientInterface $client;
 
-    /** @var array<int, bool> */
-    private array $isContainerizedByPollerId = [];
+    /** @var array<int, array{containerized: bool, local: bool}> */
+    private array $pollersById = [];
 
     public function __construct(
         private readonly ConfigurationLoaderApiInterface $configuration,
@@ -90,19 +118,7 @@ class LegacyCommandSender
      */
     public function isContainerized(int|string $pollerId): bool
     {
-        if (! is_numeric($pollerId)) {
-            return false;
-        }
-        $pollerId = (int) $pollerId;
-        if (! isset($this->isContainerizedByPollerId[$pollerId])) {
-            $pollerType = $this->connection->fetchOne(
-                'SELECT poller_type FROM nagios_server WHERE id = :pollerId',
-                QueryParameters::create([QueryParameter::int('pollerId', $pollerId)])
-            );
-            $this->isContainerizedByPollerId[$pollerId] = $pollerType === self::POLLER_TYPE_DOCKER;
-        }
-
-        return $this->isContainerizedByPollerId[$pollerId];
+        return is_numeric($pollerId) && $this->getPoller((int) $pollerId)['containerized'];
     }
 
     /**
@@ -215,6 +231,25 @@ class LegacyCommandSender
     }
 
     /**
+     * @return array{containerized: bool, local: bool}
+     */
+    private function getPoller(int $pollerId): array
+    {
+        if (! isset($this->pollersById[$pollerId])) {
+            $poller = $this->connection->fetchAssociative(
+                'SELECT poller_type, localhost FROM nagios_server WHERE id = :pollerId',
+                QueryParameters::create([QueryParameter::int('pollerId', $pollerId)])
+            );
+            $this->pollersById[$pollerId] = [
+                'containerized' => is_array($poller) && $poller['poller_type'] === self::POLLER_TYPE_DOCKER,
+                'local' => is_array($poller) && (string) $poller['localhost'] === '1',
+            ];
+        }
+
+        return $this->pollersById[$pollerId];
+    }
+
+    /**
      * The export directory contains sub-directories (media...): names are paths relative to the directory.
      *
      * @throws LegacyCommandException
@@ -263,8 +298,109 @@ class LegacyCommandSender
         if ($centcoreLines !== []) {
             $this->writeCentcoreLines($centcoreLines, $centcoreFileSuffix);
         }
+        if ($apiCommands === []) {
+            return null;
+        }
 
-        return $apiCommands === [] ? null : $this->sendToApi($apiCommands);
+        $trackedPollerIds = [];
+        foreach ($apiCommands as $command) {
+            if (in_array($command['command'], self::TRACKED_COMMANDS, true)) {
+                $trackedPollerIds[(int) $command['target']] = true;
+            }
+        }
+        foreach (array_keys($trackedPollerIds) as $pollerId) {
+            $this->assertNodeConnected($pollerId);
+        }
+
+        $token = $this->sendToApi($apiCommands);
+        if ($trackedPollerIds !== []) {
+            $this->waitForFinalResult($token);
+        }
+
+        return $token;
+    }
+
+    /**
+     * Same rule as the config-delivery script of the container images: at least one ping answered.
+     *
+     * @throws LegacyCommandException
+     */
+    private function assertNodeConnected(int $pollerId): void
+    {
+        // The central's own engine is driven by its local Gorgone, it is not a proxied node
+        if ($this->getPoller($pollerId)['local']) {
+            return;
+        }
+
+        [, $response] = $this->callApi('GET', 'internal/constatus');
+        $node = is_array($response) && is_array($response['data'] ?? null)
+            ? ($response['data'][(string) $pollerId] ?? null)
+            : null;
+        if (
+            ! is_array($node)
+            || ((int) ($node['ping_ok'] ?? 0) <= 0 && (int) ($node['last_ping_recv'] ?? 0) <= 0)
+        ) {
+            throw new LegacyCommandException(sprintf(
+                _('Gorgone node %d is not connected: nothing has been sent, retry once the poller is connected'),
+                $pollerId
+            ));
+        }
+    }
+
+    /**
+     * Wait for the final result logged by legacycmd under the request token (legacycmd_final = 1).
+     * Any failure logged under that token, by legacycmd or by one of its sub-actions, is reported at once.
+     *
+     * @throws LegacyCommandException
+     */
+    private function waitForFinalResult(string $token): void
+    {
+        $timeout = $this->getResultTimeout();
+        $deadline = microtime(true) + $timeout;
+        while (true) {
+            [, $response] = $this->callApi('GET', 'log/' . rawurlencode($token));
+            $entries = is_array($response) && is_array($response['data'] ?? null) ? $response['data'] : [];
+            foreach ($entries as $entry) {
+                if (! is_array($entry)) {
+                    continue;
+                }
+                $data = $entry['data'] ?? null;
+                if (is_string($data)) {
+                    $data = json_decode($data, true);
+                }
+                $code = (int) ($entry['code'] ?? -1);
+                if ($code === self::GORGONE_ACTION_FINISH_KO) {
+                    throw new LegacyCommandException(sprintf(
+                        _('Gorgone could not deliver the command: %s'),
+                        is_array($data) && is_scalar($data['message'] ?? null) ? (string) $data['message'] : $token
+                    ));
+                }
+                if (
+                    $code === self::GORGONE_ACTION_FINISH_OK
+                    && is_array($data)
+                    && (int) ($data['legacycmd_final'] ?? 0) === 1
+                ) {
+                    return;
+                }
+            }
+            if (microtime(true) >= $deadline) {
+                throw new LegacyCommandException(sprintf(
+                    _('Gorgone did not confirm the delivery within %d seconds (token %s)'),
+                    $timeout,
+                    $token
+                ));
+            }
+            usleep(self::RESULT_POLL_INTERVAL_US);
+        }
+    }
+
+    private function getResultTimeout(): int
+    {
+        $timeout = getenv(self::RESULT_TIMEOUT_ENV);
+
+        return is_string($timeout) && ctype_digit($timeout) && (int) $timeout > 0
+            ? (int) $timeout
+            : self::DEFAULT_RESULT_TIMEOUT;
     }
 
     /**
@@ -292,13 +428,35 @@ class LegacyCommandSender
      */
     private function sendToApi(array $commands): string
     {
+        [$statusCode, $jsonResponse, $content] = $this->callApi('POST', self::URI, $commands);
+        if ($statusCode !== 200 || ! is_array($jsonResponse) || ! isset($jsonResponse['token'])) {
+            throw new LegacyCommandException(sprintf(
+                _('Gorgone rejected the command (HTTP %d): %s'),
+                $statusCode,
+                is_array($jsonResponse) && isset($jsonResponse['message']) ? $jsonResponse['message'] : $content
+            ));
+        }
+
+        return (string) $jsonResponse['token'];
+    }
+
+    /**
+     * @param list<array<string, mixed>>|null $json
+     *
+     * @throws LegacyCommandException
+     * @return array{int, mixed, string} HTTP status code, decoded JSON body, raw body
+     */
+    private function callApi(string $method, string $path, ?array $json = null): array
+    {
         $isCertificateShouldBeVerify = $this->configuration->isSecureConnectionSelfSigned() === false;
         $options = [
-            'json' => $commands,
             'timeout' => max($this->configuration->getCommandTimeout(), self::MIN_TIMEOUT),
             'verify_peer' => $isCertificateShouldBeVerify,
             'verify_host' => $isCertificateShouldBeVerify,
         ];
+        if ($json !== null) {
+            $options['json'] = $json;
+        }
         if ($this->configuration->getApiUsername() !== null) {
             $options['auth_basic'] = $this->configuration->getApiUsername() . ':'
                 . $this->configuration->getApiPassword();
@@ -308,11 +466,11 @@ class LegacyCommandSender
             $this->configuration->isApiConnectionSecure() ? 'https' : 'http',
             $this->configuration->getApiIpAddress(),
             $this->configuration->getApiPort(),
-            self::URI
+            $path
         );
 
         try {
-            $response = $this->client->request('POST', $uri, $options);
+            $response = $this->client->request($method, $uri, $options);
             $statusCode = $response->getStatusCode();
             $content = $response->getContent(false);
         } catch (\Throwable $ex) {
@@ -323,16 +481,7 @@ class LegacyCommandSender
             );
         }
 
-        $jsonResponse = json_decode($content, true);
-        if ($statusCode !== 200 || ! is_array($jsonResponse) || ! isset($jsonResponse['token'])) {
-            throw new LegacyCommandException(sprintf(
-                _('Gorgone rejected the command (HTTP %d): %s'),
-                $statusCode,
-                is_array($jsonResponse) && isset($jsonResponse['message']) ? $jsonResponse['message'] : $content
-            ));
-        }
-
-        return (string) $jsonResponse['token'];
+        return [$statusCode, json_decode($content, true), $content];
     }
 
     /**

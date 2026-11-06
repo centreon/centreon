@@ -243,14 +243,15 @@ try {
             $listBrokerFile = glob($centreonBrokerPath . $host['id'] . '/*.{xml,json,cfg,sql}', GLOB_BRACE);
             $listVmWareFile = glob($vmWareConfigPath . $host['id'] . '/*.json', GLOB_BRACE);
             if ($legacyCommandSender->isContainerized((int) $host['id'])) {
-                // Configuration files are embedded in the request: Gorgone does not share the cache directory
+                // Configuration files are embedded in the request: Gorgone does not share the cache directory.
+                // The call returns once Gorgone has confirmed the delivery, and throws otherwise.
                 $legacyCommandSender->sendConfigurationFiles((int) $host['id']);
                 $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], false);
                 if (! isset($msg_restart[$host['id']])) {
                     $msg_restart[$host['id']] = '';
                 }
-                $msg_restart[$host['id']] .= _('<br><b>Centreon : </b>All configuration will be send to '
-                    . $host['name'] . ' by Gorgone in several minutes.');
+                $msg_restart[$host['id']] .= _('<br><b>Centreon : </b>All configuration has been sent to '
+                    . $host['name'] . ' by Gorgone.');
             } elseif (isset($host['localhost']) && $host['localhost'] == 1) {
                 // Check if monitoring engine's configuration directory existss
                 $dbResult = $pearDB->query("
