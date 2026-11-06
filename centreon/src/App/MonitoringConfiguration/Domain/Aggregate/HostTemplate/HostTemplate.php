@@ -135,80 +135,60 @@ final class HostTemplate extends AggregateRoot
     }
 
     /**
-     * The template once the write is applied. Only the values the change provides are checked against
-     * the write bounds: a stored value out of them that the change leaves alone stays.
+     * A copy of this template with the provided properties replaced: NoValue keeps the current one, null
+     * clears an optional one.
      *
      * @throws HostTemplateLockedException
-     * @throws \InvalidArgumentException when a provided value is out of the write bounds
+     * @throws \InvalidArgumentException when a number does not fit its column
      */
-    public function withChange(HostTemplateChange $change): self
-    {
+    public function with(
+        NoValue|HostTemplateName $name = new NoValue(),
+        NoValue|HostAlias $alias = new NoValue(),
+        NoValue|SnmpVersionEnum|null $snmpVersion = new NoValue(),
+        NoValue|SnmpCommunity|null $snmpCommunity = new NoValue(),
+        NoValue|TimezoneId|null $timezoneId = new NoValue(),
+        NoValue|HostSeverityId|null $severityId = new NoValue(),
+        NoValue|CheckOptions $checkOptions = new NoValue(),
+        NoValue|ExtendedInformations|null $extendedInformations = new NoValue(),
+        NoValue|SchedulingOptions $schedulingOptions = new NoValue(),
+        NoValue|DataProcessing $dataProcessing = new NoValue(),
+        NoValue|Notifications|null $notifications = new NoValue(),
+    ): self {
         $this->assertUnlocked();
 
-        if ($change->extendedInformations instanceof HostTemplateExtendedInformationsChange) {
-            $informations = $change->extendedInformations;
-            foreach ([
-                [$informations->noteUrl, ExtendedInformations::MAX_NOTE_URL_LENGTH],
-                [$informations->note, ExtendedInformations::MAX_NOTE_LENGTH],
-                [$informations->actionUrl, ExtendedInformations::MAX_ACTION_URL_LENGTH],
-                [$informations->altIcon, ExtendedInformations::MAX_ALT_ICON_LENGTH],
-                [$informations->comment, ExtendedInformations::MAX_COMMENT_LENGTH],
-            ] as [$text, $maxLength]) {
-                if (is_string($text)) {
-                    Assert::lengthBetween(trim($text), 1, $maxLength);
-                }
-            }
+        if ($schedulingOptions instanceof SchedulingOptions) {
+            self::assertSchedulingOptionsBounds($schedulingOptions);
         }
-        if ($change->schedulingOptions instanceof HostTemplateSchedulingOptionsChange) {
-            foreach ([$change->schedulingOptions->maxCheckAttempts, $change->schedulingOptions->normalCheckInterval, $change->schedulingOptions->retryCheckInterval] as $value) {
-                $this->assertProvidedRange($value, 1, self::MAX_INTEGER);
-            }
+        if ($dataProcessing instanceof DataProcessing) {
+            self::assertDataProcessingBounds($dataProcessing);
         }
-        if ($change->dataProcessing instanceof HostTemplateDataProcessingChange) {
-            $this->assertProvidedRange($change->dataProcessing->acknowledgmentTimeout, 1, self::MAX_INTEGER);
-            $this->assertProvidedRange($change->dataProcessing->freshnessThreshold, 0, self::MAX_INTEGER);
-            $this->assertProvidedRange($change->dataProcessing->lowFlapThreshold, 0, 100);
-            $this->assertProvidedRange($change->dataProcessing->highFlapThreshold, 0, 100);
-        }
-        if ($change->notifications instanceof HostTemplateNotificationsChange) {
-            foreach ([$change->notifications->interval, $change->notifications->firstDelay, $change->notifications->recoveryDelay] as $value) {
-                $this->assertProvidedRange($value, 0, self::MAX_INTEGER);
-            }
+        if ($notifications instanceof Notifications) {
+            self::assertNotificationsBounds($notifications);
         }
 
         return new self(
             id: $this->id(),
-            name: NoValue::resolve($change->name, $this->name),
-            checkOptions: $change->checkOptions instanceof HostTemplateCheckOptionsChange
-                ? $change->checkOptions->applyTo($this->checkOptions)
-                : $this->checkOptions,
+            name: NoValue::resolve($name, $this->name),
+            checkOptions: NoValue::resolve($checkOptions, $this->checkOptions),
             serviceTemplateCheckCommandIds: $this->serviceTemplateCheckCommandIds,
-            alias: NoValue::resolve($change->alias, $this->alias),
+            alias: NoValue::resolve($alias, $this->alias),
             isLocked: $this->isLocked,
             parentTemplateIds: $this->parentTemplateIds,
-            snmpCommunity: NoValue::resolve($change->snmpCommunity, $this->snmpCommunity),
-            snmpVersion: NoValue::resolve($change->snmpVersion, $this->snmpVersion),
-            timezoneId: NoValue::resolve($change->timezoneId, $this->timezoneId),
-            severityId: NoValue::resolve($change->severityId, $this->severityId),
-            extendedInformations: $change->extendedInformations instanceof HostTemplateExtendedInformationsChange
-                ? $change->extendedInformations->applyTo($this->extendedInformations)
-                : $this->extendedInformations,
-            schedulingOptions: $change->schedulingOptions instanceof HostTemplateSchedulingOptionsChange
-                ? $change->schedulingOptions->applyTo($this->schedulingOptions)
-                : $this->schedulingOptions,
-            dataProcessing: $change->dataProcessing instanceof HostTemplateDataProcessingChange
-                ? $change->dataProcessing->applyTo($this->dataProcessing)
-                : $this->dataProcessing,
-            notifications: $change->notifications instanceof HostTemplateNotificationsChange
-                ? $change->notifications->applyTo($this->notifications)
-                : $this->notifications,
+            snmpCommunity: NoValue::resolve($snmpCommunity, $this->snmpCommunity),
+            snmpVersion: NoValue::resolve($snmpVersion, $this->snmpVersion),
+            timezoneId: NoValue::resolve($timezoneId, $this->timezoneId),
+            severityId: NoValue::resolve($severityId, $this->severityId),
+            extendedInformations: NoValue::resolve($extendedInformations, $this->extendedInformations),
+            schedulingOptions: NoValue::resolve($schedulingOptions, $this->schedulingOptions),
+            dataProcessing: NoValue::resolve($dataProcessing, $this->dataProcessing),
+            notifications: NoValue::resolve($notifications, $this->notifications),
             categoryIds: $this->categoryIds,
             linkedServiceTemplateIds: $this->linkedServiceTemplateIds,
         );
     }
 
     /**
-     * Every field but the relations and the macros; contacts and contact groups count through the notifications.
+     * Every field but the relations; contacts and contact groups count through the notifications.
      */
     public function hasSameConfigurationAs(self $other): bool
     {
@@ -218,8 +198,7 @@ final class HostTemplate extends AggregateRoot
             && $this->snmpCommunity?->value === $other->snmpCommunity?->value
             && $this->timezoneId?->value === $other->timezoneId?->value
             && $this->severityId?->value === $other->severityId?->value
-            && $this->checkOptions->checkCommandId?->value === $other->checkOptions->checkCommandId?->value
-            && $this->checkOptions->args === $other->checkOptions->args
+            && $this->checkOptions->equals($other->checkOptions)
             && $this->schedulingOptions->equals($other->schedulingOptions)
             && $this->dataProcessing->equals($other->dataProcessing)
             && ($this->extendedInformations ?? new ExtendedInformations())->equals($other->extendedInformations ?? new ExtendedInformations())
@@ -308,13 +287,6 @@ final class HostTemplate extends AggregateRoot
             static fn (HostMacro $macro): HostMacro => $macro->inheritedFrom(HostMacroParentEnum::Template),
             $this->checkOptions->macros,
         );
-    }
-
-    private function assertProvidedRange(NoValue|int|null $value, int $min, int $max): void
-    {
-        if (is_int($value)) {
-            Assert::range($value, $min, $max);
-        }
     }
 
     private static function assertSchedulingOptionsBounds(SchedulingOptions $options): void

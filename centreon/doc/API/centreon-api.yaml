@@ -14813,7 +14813,7 @@ components:
         extended_informations:
           anyOf:
             -
-              $ref: '#/components/schemas/PatchHostTemplateExtendedInformationsInput'
+              $ref: '#/components/schemas/CreateHostTemplateExtendedInformationsInput'
             -
               type: 'null'
         scheduling_options:
@@ -14850,41 +14850,6 @@ components:
           type: array
           items:
             type: string
-    PatchHostTemplateExtendedInformationsInput:
-      type: object
-      additionalProperties: false
-      properties:
-        note_url:
-          maxLength: 2048
-          type:
-            - string
-            - 'null'
-        note:
-          maxLength: 512
-          type:
-            - string
-            - 'null'
-        action_url:
-          maxLength: 2048
-          type:
-            - string
-            - 'null'
-        icon_id:
-          minimum: 0
-          exclusiveMinimum: 0
-          type:
-            - integer
-            - 'null'
-        alt_icon:
-          maxLength: 200
-          type:
-            - string
-            - 'null'
-        comment:
-          maxLength: 65535
-          type:
-            - string
-            - 'null'
     PatchHostTemplateNotificationsInput:
       type: object
       additionalProperties: false

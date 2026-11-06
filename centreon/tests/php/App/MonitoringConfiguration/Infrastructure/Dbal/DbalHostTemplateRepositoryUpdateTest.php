@@ -23,14 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateExtendedInformationsChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateSchedulingOptionsChange;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateListingTransformer;
@@ -72,12 +70,12 @@ final class DbalHostTemplateRepositoryUpdateTest extends KernelTestCase
         $template = $this->findOne($id);
         $name = $this->uniqueName();
 
-        $template = $template->withChange(new HostTemplateChange(
+        $template = $template->with(
             name: new HostTemplateName($name),
             alias: new HostAlias('New alias'),
-            extendedInformations: new HostTemplateExtendedInformationsChange(note: ' a note ', comment: 'A comment'),
-            schedulingOptions: new HostTemplateSchedulingOptionsChange(maxCheckAttempts: 4),
-        ));
+            extendedInformations: new ExtendedInformations(note: ' a note ', comment: 'A comment'),
+            schedulingOptions: $template->schedulingOptions->with(maxCheckAttempts: 4),
+        );
         $this->repository->update($template);
 
         $row = $this->connection->fetchAssociative('SELECT host_name, host_alias, host_activate, host_register, host_comment, host_max_check_attempts FROM host WHERE host_id = ?', [$id]);
@@ -94,7 +92,7 @@ final class DbalHostTemplateRepositoryUpdateTest extends KernelTestCase
         $this->insert('extended_host_information', ['host_host_id' => $id, 'ehi_notes' => 'old']);
         $template = $this->findOne($id);
 
-        $template = $template->withChange(new HostTemplateChange(extendedInformations: new HostTemplateExtendedInformationsChange(note: 'new')));
+        $template = $template->with(extendedInformations: ($template->extendedInformations ?? new ExtendedInformations())->with(note: 'new'));
 
         $this->repository->update($template);
 
@@ -112,7 +110,7 @@ final class DbalHostTemplateRepositoryUpdateTest extends KernelTestCase
         }
         $template = $this->findOne($id);
 
-        $template = $template->withChange(new HostTemplateChange(severityId: new HostSeverityId($newSeverityId)));
+        $template = $template->with(severityId: new HostSeverityId($newSeverityId));
 
         $this->repository->update($template);
 

@@ -23,25 +23,39 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateChange;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\NoValue;
 
+/**
+ * NoValue keeps the current value, null clears a clearable one.
+ */
 final readonly class PatchHostTemplateCommand
 {
     /**
-     * @param HostTemplateChange $change what the write changes, the SNMP community aside
-     * @param NoValue|string|null $snmpCommunity left out keeps it, null clears it, a string replaces it;
-     *                                           plaintext until the handler vaults it
+     * @param NoValue|string|null $snmpCommunity a string replaces it; plaintext until the handler vaults it
      */
     public function __construct(
         public HostTemplateId $id,
         public ActingUser $actor,
-        public HostTemplateChange $change,
+        public NoValue|HostTemplateName $name = new NoValue(),
+        public NoValue|HostAlias $alias = new NoValue(),
+        public NoValue|SnmpVersionEnum|null $snmpVersion = new NoValue(),
         #[Sensitive]
         public NoValue|string|null $snmpCommunity = new NoValue(),
+        public NoValue|TimezoneId|null $timezoneId = new NoValue(),
+        public NoValue|HostSeverityId|null $severityId = new NoValue(),
+        public NoValue|CheckOptionsChanges $checkOptions = new NoValue(),
+        public NoValue|ExtendedInformationsChanges $extendedInformations = new NoValue(),
+        public NoValue|SchedulingOptionsChanges $schedulingOptions = new NoValue(),
+        public NoValue|DataProcessingChanges $dataProcessing = new NoValue(),
+        public NoValue|NotificationsChanges $notifications = new NoValue(),
     ) {
     }
 }
