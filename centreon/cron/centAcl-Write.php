@@ -209,8 +209,9 @@ function centAclWriteGroupRows(
         );
         // The rights of the group did not change since its rows were written: nothing to read or write. Rows deleted
         // outside the cron keep the fingerprint (a support procedure empties the table before "Reload ACL"), so a
-        // group that must have rows is only skipped while it still has some.
-        if ($storedFingerprint === $fingerprint && ($rows === [] || centAclGroupHasRows($storageDb, $groupId))) {
+        // group that must have rows is only skipped while it still has a host row: the module ACL extensions (BAM,
+        // Anomaly Detection) write service rows back for the group, never host rows.
+        if ($storedFingerprint === $fingerprint && ($rows === [] || centAclGroupHasHostRow($storageDb, $groupId))) {
             $stats['skipped']++;
 
             return;
@@ -268,10 +269,13 @@ function centAclWriteGroupRows(
     $stats['deleted'] += count($diff['delete']);
 }
 
-function centAclGroupHasRows(ConnectionInterface $storageDb, int $groupId): bool
+/**
+ * The computed rows of a group always hold the row of each host they grant a service of.
+ */
+function centAclGroupHasHostRow(ConnectionInterface $storageDb, int $groupId): bool
 {
     return $storageDb->fetchOne(
-        'SELECT 1 FROM centreon_acl WHERE group_id = :groupId LIMIT 1',
+        'SELECT 1 FROM centreon_acl WHERE group_id = :groupId AND service_id IS NULL LIMIT 1',
         QueryParameters::create([QueryParameter::int('groupId', $groupId)])
     ) !== false;
 }
