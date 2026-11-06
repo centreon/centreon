@@ -30,6 +30,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
@@ -55,18 +56,31 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
         // Same family as the host template choices list above, so it takes the same right, not a
         // host template one.
         new Get(
-            uriTemplate: '/configuration/hosts/host_templates/{id}',
-            requirements: ['id' => '\d+'],
+            uriTemplate: '/configuration/hosts/host_templates/{id}/macros',
+            requirements: ['id' => '[1-9]\d*'],
             output: HostTemplateMacrosOutput::class,
             provider: GetHostTemplateMacrosProvider::class,
-            openapi: new Model\Operation(
-                summary: "Get a host template's own and inherited macros, to prefill a new host",
-                responses: [
-                    403 => new Model\Response('You are not allowed to access host templates'),
-                    404 => new Model\Response('Host template not found'),
-                ],
-            ),
+            openapi: false,
             security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host templates',
+        ),
+        new GetCollection(
+            uriTemplate: '/configuration/host_templates/host_templates',
+            openapi: false,
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host templates',
+            itemUriTemplate: '/configuration/host_templates/{id}',
+            output: HostTemplateChoicesOutput::class,
+            provider: ListHostTemplatesChoicesProvider::class,
+            parameters: ['exclude_template_id' => new QueryParameter(schema: ['type' => 'integer', 'minimum' => 1], castToNativeType: true)],
+        ),
+        new Get(
+            uriTemplate: '/configuration/host_templates/host_templates/{id}/macros',
+            requirements: ['id' => '[1-9]\d*'],
+            output: HostTemplateMacrosOutput::class,
+            provider: GetHostTemplateMacrosProvider::class,
+            openapi: false,
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access host templates',
         ),
         new GetCollection(
@@ -164,7 +178,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             securityMessage: 'You are not allowed to delete host templates',
         ),
         // temporary, to make itemUriTemplate work
-        new NotExposed(uriTemplate: '/configuration/host_templates/{id}'),
+        new NotExposed(uriTemplate: '/configuration/host_templates/{id}', requirements: ['id' => '[1-9]\d*']),
     ],
 )]
 final class HostTemplateResource

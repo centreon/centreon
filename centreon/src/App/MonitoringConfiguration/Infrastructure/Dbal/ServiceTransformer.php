@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
@@ -40,6 +41,8 @@ use App\Shared\Infrastructure\TransformerInterface;
  *   service_id: int|string,
  *   service_description: string,
  *   host_id: int|string,
+ *   host_activate: string|null,
+ *   host_poller_id: int|string|null,
  *   service_activate: string,
  *   template_id: int|string|null,
  *   icon_id: int|string|null,
@@ -58,6 +61,8 @@ final readonly class ServiceTransformer implements TransformerInterface
             id: new ServiceId((int) $from['service_id']),
             name: new ServiceName($from['service_description']),
             hostId: new HostId((int) $from['host_id']),
+            hostActivated: $from['host_activate'] === '1',
+            hostPollerId: $from['host_poller_id'] !== null ? new PollerId((int) $from['host_poller_id']) : null,
             macros: array_map($this->createMacro(...), $from['macros']),
             activated: $from['service_activate'] === '1',
             templateId: $from['template_id'] !== null ? new ServiceTemplateId((int) $from['template_id']) : null,

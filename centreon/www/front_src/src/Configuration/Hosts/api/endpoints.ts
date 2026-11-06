@@ -35,7 +35,7 @@ export const hostFormHostTemplatesEndpoint =
 
 // One template's macros, its own and those it inherits.
 export const getHostTemplateMacrosEndpoint = ({ id }: { id: number }): string =>
-  `${hostFormHostTemplatesEndpoint}/${id}`;
+  `${hostFormHostTemplatesEndpoint}/${id}/macros`;
 
 export const timezonesEndpoint = '/configuration/timezones';
 
