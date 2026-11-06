@@ -310,9 +310,17 @@ if (isset($preferences['display_severities'])
     && isset($preferences['criticality_filter'])
     && $preferences['criticality_filter'] != ''
 ) {
-    $tab = explode(',', $preferences['criticality_filter']);
+    $names = array_map('trim', explode(',', $preferences['criticality_filter']));
+    // The legacy form stores names HTML-encoded while the API stores them as typed: match both.
+    $names = array_unique([
+        ...$names,
+        ...array_map(
+            static fn (string $name): string => htmlspecialchars($name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            $names
+        ),
+    ]);
     [$bindValues, $bindQuery] = createMultipleBindQuery(
-        list: array_map('trim', $tab),
+        list: $names,
         prefix: ':criticality_',
         bindType: PDO::PARAM_STR
     );
@@ -328,7 +336,8 @@ if (isset($preferences['display_severities'])
         }
         $idC .= $d1['sc_id'];
     }
-    $query .= ' AND cv2.`value` IN (' . $idC . ') ';
+    // No severity matches the filter: list nothing instead of building an invalid "IN ()".
+    $query .= $idC !== '' ? ' AND cv2.`value` IN (' . $idC . ') ' : ' AND 1 = 0 ';
 }
 if (! $centreon->user->admin) {
     $pearDB = $db;
