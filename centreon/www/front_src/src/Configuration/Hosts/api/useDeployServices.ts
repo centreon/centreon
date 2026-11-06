@@ -9,7 +9,7 @@ import {
   labelServiceDeploymentFailed,
   labelServicesDeployed
 } from '../translatedLabels';
-import { getDeployServicesEndpoint } from './endpoints';
+import { getDeployServicesEndpoint, hostsBaseEndpoint } from './endpoints';
 
 interface UseDeployServicesState {
   deployServices: (rows: Array<ResourceRow>) => void;
@@ -24,10 +24,11 @@ const useDeployServices = (): UseDeployServicesState => {
     object,
     { id: number | string }
   >({
+    baseEndpoint: hostsBaseEndpoint,
     getEndpoint: ({ id }) => getDeployServicesEndpoint({ id }),
     // Every failure this endpoint can return, so the agreed message is the only
     // one shown rather than stacking on the API's own.
-    httpCodesBypassErrorSnackbar: [403, 404, 500],
+    httpCodesBypassErrorSnackbar: [403, 404, 422, 500],
     method: Method.POST
   });
 
