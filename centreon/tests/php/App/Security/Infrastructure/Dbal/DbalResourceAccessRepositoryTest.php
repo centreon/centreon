@@ -1203,7 +1203,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     private function insertAclFingerprints(array $groupIds): void
     {
         foreach ($groupIds as $groupId) {
-            $this->realTimeConnection->insert('centreon_acl_checksum', ['group_id' => $groupId, 'checksum' => str_repeat('0', 32), 'row_count' => 1]);
+            $this->realTimeConnection->insert('centreon_acl_checksum', ['group_id' => $groupId, 'checksum' => str_repeat('0', 32)]);
         }
     }
 

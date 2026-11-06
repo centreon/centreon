@@ -31,7 +31,6 @@ UNLOCK TABLES;
 CREATE TABLE `centreon_acl_checksum` (
   `group_id` int(11) NOT NULL,
   `checksum` char(32) NOT NULL,
-  `row_count` int(10) unsigned NOT NULL,
   PRIMARY KEY (`group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
