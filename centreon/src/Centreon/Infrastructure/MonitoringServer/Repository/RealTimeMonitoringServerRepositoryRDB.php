@@ -29,7 +29,6 @@ use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\MonitoringServer\Interfaces\RealTimeMonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServer;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\MonitoringServer\Repository\Model\RealTimeMonitoringServerFactoryRdb;
@@ -53,9 +52,6 @@ class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implem
     {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
     }
 
     /**

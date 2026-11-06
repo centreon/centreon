@@ -72,7 +72,7 @@ parameters:
 			path: src/Core/Broker/Infrastructure/Repository/FileBrokerRepository.php
 
 		-
-			message: '#^Method Core\\Common\\Infrastructure\\Repository\\AbstractRepositoryRDB@anonymous/centreon/src/Core/Command/Infrastructure/Repository/DbReadCommandRepository\.php\:307\:\:count\(\) should return int\<0, max\> but returns int\.$#'
+			message: '#^Method Core\\Common\\Infrastructure\\Repository\\AbstractRepositoryRDB@anonymous/centreon/src/Core/Command/Infrastructure/Repository/DbReadCommandRepository\.php\:305\:\:count\(\) should return int\<0, max\> but returns int\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Core/Command/Infrastructure/Repository/DbReadCommandRepository.php

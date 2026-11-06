@@ -28,7 +28,6 @@ use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;
@@ -63,9 +62,6 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
     ) {
         parent::__construct($connection);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
 
         $this->sqlRequestTranslator->setConcordanceArray([
             'id' => 'contact_id',

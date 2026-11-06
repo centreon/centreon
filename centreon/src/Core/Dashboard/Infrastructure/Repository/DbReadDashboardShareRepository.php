@@ -29,7 +29,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -68,7 +67,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         Dashboard $dashboard,
         RequestParametersInterface $requestParameters,
     ): array {
-        $requestParameters->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([
             'id' => 'c.contact_id',
@@ -144,7 +142,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         Dashboard $dashboard,
         RequestParametersInterface $requestParameters,
     ): array {
-        $requestParameters->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([
             'id' => 'cg.cg_id',
@@ -441,7 +438,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         RequestParametersInterface $requestParameters,
     ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
             'name' => 'c.contact_name',
         ]);
@@ -592,7 +588,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     {
         try {
             $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
             $sqlTranslator->setConcordanceArray([
                 'name' => 'cg.cg_name',
             ]);
@@ -643,7 +638,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     public function findContactGroupsWithAccessRightByRequestParameters(RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
             'name' => 'cg.cg_name',
         ]);
@@ -780,9 +774,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             );
 
             $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
-                RequestParameters::CONCORDANCE_MODE_STRICT
-            );
 
             $sqlTranslator->setConcordanceArray([
                 'name' => 'c.contact_name',
@@ -869,9 +860,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         array $contactGroupIds = [],
     ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
-            RequestParameters::CONCORDANCE_MODE_STRICT
-        );
         $sqlTranslator->setConcordanceArray([
             'name' => 'c.contact_name',
         ]);
@@ -980,9 +968,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     ): array {
         try {
             $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
-                RequestParameters::CONCORDANCE_MODE_STRICT
-            );
             $sqlTranslator->setConcordanceArray([
                 'name' => 'cg.cg_name',
             ]);
@@ -1039,9 +1024,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     ): array {
         try {
             $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
-                RequestParameters::CONCORDANCE_MODE_STRICT
-            );
             $sqlTranslator->setConcordanceArray([
                 'name' => 'cg.cg_name',
             ]);
@@ -1130,9 +1112,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         int $contactId,
     ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
-            RequestParameters::CONCORDANCE_MODE_STRICT
-        );
         $sqlTranslator->setConcordanceArray([
             'name' => 'cg.cg_name',
         ]);

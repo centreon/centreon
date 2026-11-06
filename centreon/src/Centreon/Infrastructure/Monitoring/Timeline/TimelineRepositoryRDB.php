@@ -31,7 +31,6 @@ use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineRepositoryInterface;
 use Centreon\Domain\Monitoring\Timeline\TimelineContact;
 use Centreon\Domain\Monitoring\Timeline\TimelineEvent;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
@@ -68,11 +67,6 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
     public function setSqlRequestTranslator(SqlRequestParametersTranslator $sqlRequestTranslator): void
     {
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(
-                RequestParameters::CONCORDANCE_MODE_STRICT
-            );
     }
 
     /**

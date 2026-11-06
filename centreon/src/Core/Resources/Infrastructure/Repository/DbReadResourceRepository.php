@@ -139,7 +139,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT)
             ->setConcordanceErrorMode(RequestParameters::CONCORDANCE_ERRMODE_SILENT);
 
         if ($resourceTypes instanceof \Countable && count($resourceTypes) === 0) {

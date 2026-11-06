@@ -25,7 +25,6 @@ namespace Core\Command\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
@@ -249,7 +248,6 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
         }
 
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
             'id' => 'command_id',
             'name' => 'command_name',

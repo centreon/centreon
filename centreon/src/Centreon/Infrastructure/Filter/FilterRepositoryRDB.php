@@ -27,7 +27,6 @@ use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\Filter\Filter;
 use Centreon\Domain\Filter\FilterCriteria;
 use Centreon\Domain\Filter\Interfaces\FilterRepositoryInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -55,11 +54,6 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
     public function setSqlRequestTranslator(SqlRequestParametersTranslator $sqlRequestTranslator): void
     {
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(
-                RequestParameters::CONCORDANCE_MODE_STRICT
-            );
     }
 
     /**

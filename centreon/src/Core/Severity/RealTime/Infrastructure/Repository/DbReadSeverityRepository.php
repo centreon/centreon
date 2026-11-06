@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Severity\RealTime\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -61,9 +60,6 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
     {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $this->sqlRequestTranslator->setConcordanceArray([
             'id' => 's.id',
             'name' => 's.name',
