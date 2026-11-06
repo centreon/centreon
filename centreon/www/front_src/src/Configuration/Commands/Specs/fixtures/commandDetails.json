@@ -1,0 +1,20 @@
+{
+  "@context": "/centreon/api/latest/contexts/Command",
+  "@id": "/centreon/api/latest/configuration/commands/7",
+  "@type": "Command",
+  "command_line": "$USER1$/check_centreon_snmp_process -H $HOSTADDRESS$ -v $_HOSTSNMPVERSION$ -C $_HOSTSNMPCOMMUNITY$ -n -p $ARG1$ -w $ARG2$ -c $ARG3$",
+  "comment": "some comment",
+  "connector": {
+    "@id": "/centreon/api/latest/.well-known/genid/7b9eb72f31977bee3cf4",
+    "@type": "ConnectorDto",
+    "id": 4,
+    "name": "Telegraf"
+  },
+  "id": 7,
+  "is_activated": true,
+  "is_from_monitoring_connector": false,
+  "is_locked": false,
+  "is_shell_enabled": true,
+  "name": "check_host_alive",
+  "type": "Notification"
+}
