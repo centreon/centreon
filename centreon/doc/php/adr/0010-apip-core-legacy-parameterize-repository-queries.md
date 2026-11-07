@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-06-17
+- **Scope:** APIP/Core/Legacy
 
 ## Context
 
