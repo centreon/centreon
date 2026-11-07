@@ -46,11 +46,16 @@ updateEngineBrokerConfigurationRights() {
 
 updateSnmpConfiguration() {
   echo "Updating snmpd configuration to allow OIDs from .1.3.6.1 ..."
+  # el grants views with access lines, debian with rocommunity lines (first match wins)
   sed -i \
     -e "/^view.*\.1\.3\.6\.1\.2\.1\.1$/i\
 view centreon included .1.3.6.1" \
     -e "/^access.*$/i\
 access notConfigGroup \"\" any noauth exact centreon none none" \
+    -e "/^rocommunity\s.*-V systemonly$/i\
+rocommunity public default -V centreon" \
+    -e "/^rocommunity6\s.*-V systemonly$/i\
+rocommunity6 public default -V centreon" \
     /etc/snmp/snmpd.conf
 }
 
