@@ -203,48 +203,6 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         ));
     }
 
-    public function testFindFromServiceTemplatesReturnsTheServicesOfTheHostBuiltFromThoseTemplates(): void
-    {
-        $pollerId = $this->createPoller('Central');
-        $hostId = $this->createHost('server-01', $pollerId);
-        $otherHostId = $this->createHost('server-02', $pollerId);
-        $templateId = $this->createServiceTemplate('ping-template');
-        $otherTemplateId = $this->createServiceTemplate('disk-template');
-        $fromTemplate = $this->createService('ping', $hostId);
-        $fromOtherTemplate = $this->createService('disk', $hostId);
-        $ofOtherHost = $this->createService('ping', $otherHostId);
-        $this->setServiceTemplate($fromTemplate, $templateId);
-        $this->setServiceTemplate($fromOtherTemplate, $otherTemplateId);
-        $this->setServiceTemplate($ofOtherHost, $templateId);
-
-        $services = $this->repository->findFromServiceTemplates(new HostId($hostId), [$templateId]);
-
-        self::assertCount(1, $services);
-        self::assertSame($fromTemplate, $services->toArray()[0]->id()->value);
-        self::assertSame($hostId, $services->toArray()[0]->hostId->value);
-    }
-
-    public function testFindFromServiceTemplatesLeavesAServiceSharedWithAnotherHost(): void
-    {
-        $pollerId = $this->createPoller('Central');
-        $hostId = $this->createHost('server-01', $pollerId);
-        $otherHostId = $this->createHost('server-02', $pollerId);
-        $templateId = $this->createServiceTemplate('ping-template');
-        $sharedId = $this->createService('shared', $hostId);
-        $this->setServiceTemplate($sharedId, $templateId);
-        $this->linkServiceToHost($sharedId, $otherHostId);
-
-        self::assertCount(0, $this->repository->findFromServiceTemplates(new HostId($hostId), [$templateId]));
-    }
-
-    public function testFindFromServiceTemplatesReturnsNothingWithoutTemplates(): void
-    {
-        $hostId = $this->createHost('server-01', $this->createPoller('Central'));
-        $this->createService('ping', $hostId);
-
-        self::assertCount(0, $this->repository->findFromServiceTemplates(new HostId($hostId), []));
-    }
-
     public function testFindIdsFromServiceTemplatesLeavesServicesSharedWithAHostOrAHostGroupOut(): void
     {
         $pollerId = $this->createPoller('Central');
@@ -687,11 +645,10 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $this->linkServiceToHost($serviceId, $hostId);
 
         $exclusive = $this->repository->findExclusivelyLinkedToHostId(new HostId($hostId))->toArray();
-        $fromTemplates = $this->repository->findFromServiceTemplates(new HostId($hostId), [$templateId])->toArray();
         $onHost = $this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId));
         self::assertInstanceOf(Service::class, $onHost);
 
-        foreach ([$exclusive, $fromTemplates, [$onHost]] as $services) {
+        foreach ([$exclusive, [$onHost]] as $services) {
             self::assertCount(1, $services);
             self::assertFalse($services[0]->activated);
             self::assertSame($templateId, $services[0]->templateId?->value);
@@ -842,11 +799,10 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $this->setServiceTemplate($serviceId, $templateId);
 
         $exclusive = $this->repository->findExclusivelyLinkedToHostId(new HostId($hostId))->toArray();
-        $fromTemplates = $this->repository->findFromServiceTemplates(new HostId($hostId), [$templateId])->toArray();
         $onHost = $this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId));
         self::assertInstanceOf(Service::class, $onHost);
 
-        foreach ([$exclusive, $fromTemplates, [$onHost]] as $services) {
+        foreach ([$exclusive, [$onHost]] as $services) {
             self::assertCount(1, $services);
             self::assertFalse($services[0]->hostActivated);
             self::assertSame($pollerId, $services[0]->hostPollerId?->value);

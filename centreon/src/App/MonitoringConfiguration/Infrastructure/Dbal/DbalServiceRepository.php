@@ -214,28 +214,6 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         return $this->hydrate($hostId, $rows);
     }
 
-    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
-    {
-        if ($serviceTemplateIds === []) {
-            return new Collection([], Service::class);
-        }
-
-        $qb = $this->connection->createQueryBuilder();
-        $qb->select(...[...self::OWN_COLUMNS, ...self::HOST_STATE_COLUMNS])
-            ->from(self::TABLE_NAME, 's')
-            ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
-            ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
-            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
-            ->andWhere("s.service_register = '1'")
-            ->andWhere($qb->expr()->in('s.service_template_model_stm_id', $qb->createNamedParameter($serviceTemplateIds, ArrayParameterType::INTEGER)));
-        $this->keepOnlyServicesWithASingleRelation($qb);
-
-        /** @var list<OwnRowTypeAlias> $rows */
-        $rows = $qb->executeQuery()->fetchAllAssociative();
-
-        return $this->hydrate($hostId, $rows);
-    }
-
     public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
     {
         if ($serviceTemplateIds === []) {

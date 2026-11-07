@@ -77,30 +77,22 @@ final class FakeServiceRepository implements ServiceRepository
         return new Collection($services, Service::class);
     }
 
-    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
-    {
-        $services = array_values(array_filter(
-            $this->services,
-            fn (Service $service): bool => $service->hostId->value === $hostId->value
-                && in_array($this->serviceTemplateIdOf[$service->id()->value] ?? null, $serviceTemplateIds, true),
-        ));
-
-        return new Collection($services, Service::class);
-    }
-
     /**
-     * Same selection as {@see findFromServiceTemplates()}; whether a service is shared is SQL, pinned by the
-     * integration tests of the real repository.
+     * Whether a service is shared is SQL, pinned by the integration tests of the real repository.
      */
     public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
     {
-        return new Collection(
-            array_map(
-                static fn (Service $service): ServiceId => $service->id(),
-                $this->findFromServiceTemplates($hostId, $serviceTemplateIds)->toArray(),
-            ),
-            ServiceId::class,
-        );
+        $ids = [];
+        foreach ($this->services as $id => $service) {
+            if (
+                $service->hostId->value === $hostId->value
+                && in_array($this->serviceTemplateIdOf[$id] ?? null, $serviceTemplateIds, true)
+            ) {
+                $ids[] = new ServiceId($id);
+            }
+        }
+
+        return new Collection($ids, ServiceId::class);
     }
 
     public function findOneOnHost(ServiceId $id, HostId $hostId): ?Service
