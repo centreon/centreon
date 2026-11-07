@@ -1711,6 +1711,24 @@ function play_update() {
 }
 #========= end of function play_update()
 
+#========= begin of function install_poller_recommended_plugins()
+# install the plugins centreon-poller recommends to monitor this server: --no-install-recommends
+# skips them on Debian, while dnf installs them as weak dependencies
+#
+function install_poller_recommended_plugins() {
+	local plugins
+	plugins=$(apt-cache show --no-all-versions centreon-poller | sed -n 's/^Recommends: //p' | tr ',' '\n' | awk '$1 ~ /^centreon-plugin-/ {print $1}' | sort -u) ||
+		error_and_exit "Could not read the plugins recommended by centreon-poller"
+	if [[ -z "$plugins" ]]; then
+		log "WARN" "centreon-poller recommends no plugin, skipping"
+		return
+	fi
+
+	log "INFO" "Installing the plugins recommended by centreon-poller: $(echo $plugins)"
+	$PKG_MGR install -y --no-install-recommends $plugins || error_and_exit "Could not install the plugins recommended by centreon-poller"
+}
+#========= end of function install_poller_recommended_plugins()
+
 #========= begin of function install_central()
 # install the Centreon Central
 #
@@ -1738,6 +1756,7 @@ function install_central() {
 		if [ "$_install_rc" -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
 		fi
+		install_poller_recommended_plugins
 	else
 		# For MySQL, disable weak deps so dnf doesn't pull the distro mariadb server (only a Recommends)
 		# alongside Oracle MySQL; centreon-web's "(mariadb or mysql)" is already satisfied by Oracle's mysql
@@ -1816,6 +1835,7 @@ function install_poller() {
 		if [ "$_install_rc" -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
 		fi
+		install_poller_recommended_plugins
 	else
 		if ! { $PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon-poller-centreon-engine --enablerepo=$CENTREON_REPO; }; then
 			error_and_exit "Could not install Centreon (package centreon)"
