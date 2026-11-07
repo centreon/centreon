@@ -17,6 +17,19 @@ EOF
   fi
 }
 
+startSnmptrapdAsRoot() {
+  # deb only: snmptrapd runs as Debian-snmp, which cannot "su -l centreon" in the traphandle,
+  # and is socket-activated, so it only starts on the first trap (el runs it as root at boot)
+  mkdir -p /etc/systemd/system/snmptrapd.service.d
+  cat <<EOF > /etc/systemd/system/snmptrapd.service.d/centreon.conf
+[Service]
+User=root
+EOF
+  systemctl daemon-reload ||:
+  systemctl add-wants multi-user.target snmptrapd.service ||:
+  systemctl restart snmptrapd.service ||:
+}
+
 startCentreonTrap() {
   systemctl daemon-reload ||:
   systemctl unmask centreontrapd.service ||:
@@ -37,6 +50,9 @@ fi
 case "$action" in
   "1" | "install")
     updateConfiguration
+    if [ "$1" = "configure" ]; then
+      startSnmptrapdAsRoot
+    fi
     startCentreonTrap
     ;;
   "2" | "upgrade")
