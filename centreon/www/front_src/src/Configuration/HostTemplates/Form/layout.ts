@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 
 import {
+  schedulingColumns,
   stackedColumns,
   twoColumns,
   twoColumnsFromNarrow,
@@ -15,8 +16,11 @@ import {
 } from '../../ResourceForm/layout';
 import {
   labelGeneralInformation,
+  labelHostDetails,
   labelHostMonitoringProperties,
-  labelRelations
+  labelMonitoringEngineSchedulingOptions,
+  labelRelations,
+  labelSchedulingOptions
 } from '../translatedLabels';
 import { type BlockId, type Blocks, hostTemplateResource } from './sections';
 
@@ -62,6 +66,38 @@ export const layout: Array<LayoutSection> = [
           }
         ],
         name: 'relations-layout'
+      }
+    ]
+  },
+  {
+    label: labelMonitoringEngineSchedulingOptions,
+    nodes: [
+      {
+        className: twoColumnsFromNarrow,
+        columnSeparator: true,
+        columns: [
+          {
+            className: twoColumnsFromWide,
+            columns: [
+              'notesAndIcons',
+              {
+                className: stackedColumns,
+                columns: ['actionUrl', 'timezone'],
+                name: 'host-details-right'
+              }
+            ],
+            name: 'host-details',
+            title: labelHostDetails
+          },
+          {
+            className: schedulingColumns,
+            columnSeparator: true,
+            columns: ['checkPeriodAndIntervals', 'activeAndPassiveChecks'],
+            name: 'scheduling-options',
+            title: labelSchedulingOptions
+          }
+        ],
+        name: 'monitoring-layout'
       }
     ]
   }

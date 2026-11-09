@@ -37,6 +37,7 @@ export interface ResourceOptions {
 // stay together. Where each piece is shown is the page's `layout.ts` alone.
 export type BlockId =
   | 'acknowledgmentTimeout'
+  | 'actionUrl'
   | 'actionUrlAndGeoCoordinates'
   | 'activeAndPassiveChecks'
   | 'basicInformation'

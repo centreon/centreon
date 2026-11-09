@@ -315,6 +315,50 @@ export const getActionUrlAndGeoCoordinatesBlock = ({
   }
 });
 
+type ActionUrlValues = Pick<ActionUrlAndGeoCoordinatesValues, 'actionUrl'>;
+
+const defaultActionUrl: ActionUrlValues = { actionUrl: '' };
+
+// A link to act on the resource, for a form that places nothing on a map.
+export const getActionUrlBlock = ({
+  resource: { idPrefix }
+}: {
+  resource: ResourceOptions;
+}): FieldBlock<ExtendedInfosDetail<ActionUrlValues>> => ({
+  defaultValues: { extendedInfos: defaultActionUrl },
+  detailDecoders: getExtendedInfosDecoder<ActionUrlValues>({
+    decoders: { actionUrl: optionalStringDecoder },
+    defaultValues: defaultActionUrl,
+    keyMap: { actionUrl: 'action_url' }
+  }),
+  detailKeyMap,
+  getInputs: ({ t }) => ({
+    actionUrl: getBlock({
+      columns: [
+        getTextInput({
+          fieldName: 'actionUrl',
+          idPrefix,
+          label: t(labelActionUrl)
+        })
+      ],
+      idPrefix,
+      name: 'extended-infos-details-right'
+    })
+  }),
+  getSchema: ({ t }) => ({
+    extendedInfos: object({
+      actionUrl: getMaxLengthSchema({ label: labelActionUrl, max: 2048, t })
+    })
+  }),
+  toPayload: (values) => ({
+    extended_informations: {
+      action_url: toApiText(
+        getExtendedInfos(values, defaultActionUrl).actionUrl
+      )
+    }
+  })
+});
+
 const defaultComment = { comment: '' };
 
 // A free comment on the resource. Refused on cloud.

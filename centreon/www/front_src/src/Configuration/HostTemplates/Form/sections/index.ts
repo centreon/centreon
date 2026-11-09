@@ -3,9 +3,18 @@ import {
   getInputBlocks
 } from '../../../ResourceForm/blocks';
 import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
+import {
+  getActionUrlBlock,
+  getNotesAndIconsBlock
+} from '../../../ResourceForm/fieldBlocks/extendedInfos';
 import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
+import {
+  getActiveAndPassiveChecksBlock,
+  getCheckPeriodAndIntervalsBlock
+} from '../../../ResourceForm/fieldBlocks/scheduling';
 import { getSeverityBlock } from '../../../ResourceForm/fieldBlocks/severity';
 import { getSnmpBlock } from '../../../ResourceForm/fieldBlocks/snmp';
+import { getTimezoneBlock } from '../../../ResourceForm/fieldBlocks/timezone';
 import type {
   Blocks,
   DetailOfBlocks,
@@ -17,8 +26,11 @@ import {
   hostTemplateFormCommandsEndpoint,
   hostTemplateFormHostCategoriesEndpoint,
   hostTemplateFormHostSeveritiesEndpoint,
+  hostTemplateFormMediasEndpoint,
   hostTemplateFormServiceTemplatesEndpoint,
-  hostTemplatesBaseEndpoint
+  hostTemplateFormTimePeriodsEndpoint,
+  hostTemplatesBaseEndpoint,
+  timezonesEndpoint
 } from '../../api/endpoints';
 import {
   labelHostCategories,
@@ -76,7 +88,18 @@ export const blocks = [
     name: 'linked-service-templates',
     payloadKey: 'linked_service_template_ids',
     resource
-  })
+  }),
+  getNotesAndIconsBlock({
+    mediasEndpoint: hostTemplateFormMediasEndpoint,
+    resource
+  }),
+  getActionUrlBlock({ resource }),
+  getTimezoneBlock({ endpoint: timezonesEndpoint, resource }),
+  getCheckPeriodAndIntervalsBlock({
+    resource,
+    timePeriodsEndpoint: hostTemplateFormTimePeriodsEndpoint
+  }),
+  getActiveAndPassiveChecksBlock({ resource })
 ] as const;
 
 // Each available block, as a section of the data.
