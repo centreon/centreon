@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingMedia;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidGeoCoordinates;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
