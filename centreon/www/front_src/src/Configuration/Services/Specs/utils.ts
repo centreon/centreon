@@ -64,11 +64,73 @@ export const getServiceTemplatesResponse = () => ({
 });
 
 // The detail of each listed service, as the API Platform detail route answers:
-// the host as an object where the create takes its id.
+// the host as an object where the create takes its id, `monitoring_engine`
+// always there, and unset values left out.
 const serviceDetails: Record<number, Record<string, unknown>> = {
-  0: { activated: true, host: { id: 10, name: 'host A' }, name: 'cpu' },
-  1: { activated: false, host: { id: 11, name: 'host B' }, name: 'memory' },
-  2: { activated: true, host: { id: 10, name: 'host A' }, name: 'disk' }
+  0: {
+    activated: true,
+    host: { id: 10, name: 'host A' },
+    // The template and the scheduling options.
+    monitoring_engine: {
+      active_check_enabled: 'false',
+      check_period: { id: 21, name: 'workhours' },
+      is_volatile: 'true',
+      max_check_attempts: 3,
+      normal_check_interval: 5,
+      passive_check_enabled: 'use_default'
+    },
+    name: 'cpu',
+    template: { id: 30, name: 'generic-active-service' }
+  },
+  // No template, and the scheduling on its defaults.
+  1: {
+    activated: false,
+    host: { id: 11, name: 'host B' },
+    monitoring_engine: {
+      active_check_enabled: 'use_default',
+      is_volatile: 'use_default',
+      passive_check_enabled: 'use_default'
+    },
+    name: 'memory'
+  },
+  // A cloud service always has a template, and no check switches.
+  2: {
+    activated: true,
+    host: { id: 10, name: 'host A' },
+    monitoring_engine: {},
+    name: 'disk',
+    template: { id: 31, name: 'generic-passive-service' }
+  }
+};
+
+// Service 0 has its own command, arguments and macros: its own, a stored
+// password (no value sent back) and one inherited from its template. Service 1
+// has only a command, which a service without a template needs to be saved;
+// service 2 none: the key is left out.
+export const getServiceCheckOptionsResponse = (id: number) => {
+  if (id === 0) {
+    return {
+      check_options: {
+        args: ['80', '90'],
+        command: { id: 9, name: 'check-centreon-cpu' },
+        macros: [
+          { id: 1, is_password: false, name: 'WARNING', value: '80' },
+          { id: 2, is_password: true, name: 'API_TOKEN' },
+          {
+            id: 11,
+            is_password: false,
+            name: 'TIMEOUT',
+            parent: 'template',
+            value: '10'
+          }
+        ]
+      }
+    };
+  }
+
+  return id === 1
+    ? { check_options: { command: { id: 8, name: 'check-centreon-ping' } } }
+    : {};
 };
 
 export const getServiceResponse = (id: number) => ({
@@ -76,7 +138,8 @@ export const getServiceResponse = (id: number) => ({
   '@id': `/centreon/api/configuration/services/${id}`,
   '@type': 'Service',
   id,
-  ...serviceDetails[id]
+  ...serviceDetails[id],
+  ...getServiceCheckOptionsResponse(id)
 });
 
 export const getServiceFormHostsResponse = () => ({
@@ -88,4 +151,34 @@ export const getServiceFormHostsResponse = () => ({
     { id: 11, name: 'host B' }
   ],
   totalItems: 2
+});
+
+export const getServiceFormTimePeriodsResponse = () => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': '/centreon/api/configuration/services/timeperiods',
+  '@type': 'Collection',
+  member: [
+    { id: 20, name: '24x7' },
+    { id: 21, name: 'workhours' }
+  ],
+  totalItems: 2
+});
+
+export const getServiceFormCommandsResponse = () => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': '/centreon/api/configuration/services/commands',
+  '@type': 'Collection',
+  member: [
+    { id: 8, name: 'check-centreon-ping' },
+    { id: 9, name: 'check-centreon-cpu' }
+  ],
+  totalItems: 2
+});
+
+// One service template's macros, its own then those it inherits, for when the
+// template field (F03) can pick one.
+export const getServiceTemplateMacrosResponse = () => ({
+  id: 30,
+  macros: [{ id: 31, is_password: false, name: 'TIMEOUT', value: '10' }],
+  name: 'generic-active-service'
 });
