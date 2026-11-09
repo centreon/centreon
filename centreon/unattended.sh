@@ -1944,14 +1944,23 @@ function display_services_recap() {
 	if (( $(version_int) >= $(version_int 26.10) )); then
 		centengine_required_topos="central poller"
 	fi
-	local centengine_hint=""
+	# On a central installed without -s the web wizard has not run yet: gorgoned (which
+	# includes /etc/centreon/config.d/*.yaml) and cbd lack the configuration it writes, so
+	# report them without failing the run. Updates keep them required.
+	local gorgone_required_topos="central poller"
+	local cbd_required_topos="central"
+	if [ "$operation" == "install" ] && [ "$wizard_autoplay" != "true" ]; then
+		gorgone_required_topos="poller"
+		cbd_required_topos="-"
+	fi
+	local centengine_hint="" wizard_hint=""
 	local -a recap_services=(
 		"database|${db_unit}|central"
 		"httpd|${HTTP_SERVICE_UNIT:-httpd}|central"
 		"php-fpm|${PHP_SERVICE_UNIT:-php-fpm}|central"
 		"centengine|centengine|central poller|${centengine_required_topos}"
-		"gorgone|gorgoned|central poller"
-		"cbd|cbd|central"
+		"gorgone|gorgoned|central poller|${gorgone_required_topos}"
+		"cbd|cbd|central|${cbd_required_topos}"
 		"centreontrapd|centreontrapd|central poller"
 		"snmptrapd|snmptrapd|central poller"
 		"snmpd|snmpd|central poller|central"
@@ -1983,13 +1992,21 @@ function display_services_recap() {
 			failed_services+=("$name")
 		else
 			state="[INFO]  "
-			if [ "$name" == "centengine" ]; then
+			case "$name" in
+			centengine)
 				centengine_hint="  centengine starts once a first configuration has been exported to this $topology (Configuration > Pollers > Export configuration on the central)"
-			fi
+				;;
+			gorgone | cbd)
+				wizard_hint="  gorgoned and cbd start once the web installation wizard has been completed"
+				;;
+			esac
 		fi
 		results+=("$(printf '  %s %-14s (%-13s) active=%-10s enabled=%s' \
 			"$state" "$name" "$unit" "${active:-unknown}" "${enabled:-unknown}")")
 	done
+	if [ -n "$wizard_hint" ]; then
+		results+=("$wizard_hint")
+	fi
 	if [ -n "$centengine_hint" ]; then
 		results+=("$centengine_hint")
 	fi
