@@ -39,9 +39,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
+use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceSeverityRepository;
@@ -49,7 +51,10 @@ use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TrapRepository;
 use App\MonitoringConfiguration\Domain\Service\InheritedServiceMacrosResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\ServiceNotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\ServiceStalkingOptionEnumResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\NotificationContact\NotificationContactResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceAdvancedOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceCategoryOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceCheckCommandOutput;
@@ -90,17 +95,16 @@ final readonly class ServiceResourceBuilder
 {
     /**
      * @param TransformerInterface<Service, ServiceResource> $transformer
-     * @param TransformerInterface<?ServiceNotifications, ?ServiceNotificationsOutput> $notificationsTransformer
      */
     public function __construct(
         #[Autowire(service: ServiceResourceTransformer::class)]
         private TransformerInterface $transformer,
-        #[Autowire(service: ServiceNotificationsTransformer::class)]
-        private TransformerInterface $notificationsTransformer,
         private HostRepository $hostRepository,
         private ServiceTemplateRepository $serviceTemplateRepository,
         private CommandRepository $commandRepository,
         private TimePeriodRepository $timePeriodRepository,
+        private NotificationContactRepository $contactRepository,
+        private ContactGroupRepository $contactGroupRepository,
         private MediaRepository $mediaRepository,
         private MediaUrlGenerator $mediaUrlGenerator,
         private ServiceGroupRepository $serviceGroupRepository,
@@ -128,7 +132,7 @@ final readonly class ServiceResourceBuilder
         $resource->monitoringEngine = $this->buildMonitoringEngine($service);
         $resource->notifications = $this->isCloudPlatform
             ? null
-            : $this->notificationsTransformer->transform($this->scopeNotifications($service->notifications, $actor));
+            : $this->buildNotifications($this->scopeNotifications($service->notifications, $actor));
         $resource->advanced = $this->buildAdvanced($service->dataProcessing, $service->extendedInformations);
 
         $groupIds = $this->accessScopes->serviceGroups($actor)->filter($service->serviceGroupIds);
@@ -242,6 +246,43 @@ final readonly class ServiceResourceBuilder
             eventHandler: $eventHandler,
             eventHandlerArgs: $this->isCloudPlatform ? [] : $dataProcessing->eventHandlerArgs,
             comment: $extended?->comment,
+        );
+    }
+
+    private function buildNotifications(?ServiceNotifications $notifications): ?ServiceNotificationsOutput
+    {
+        if (! $notifications instanceof ServiceNotifications) {
+            return null;
+        }
+
+        $contactNames = $this->contactRepository->findNamesByIds($notifications->contactIds)->toArray();
+        $contacts = [];
+        foreach ($notifications->contactIds as $contactId) {
+            if (isset($contactNames[$contactId->value])) {
+                $contacts[] = new NotificationContactResource($contactId->value, $contactNames[$contactId->value]->value);
+            }
+        }
+
+        $contactGroupNames = $this->contactGroupRepository->findNamesByIds($notifications->contactGroupIds)->toArray();
+        $contactGroups = [];
+        foreach ($notifications->contactGroupIds as $contactGroupId) {
+            if (isset($contactGroupNames[$contactGroupId->value])) {
+                $contactGroups[] = new ContactGroupResource($contactGroupId->value, $contactGroupNames[$contactGroupId->value]->value);
+            }
+        }
+
+        return new ServiceNotificationsOutput(
+            enabled: $notifications->enabled->value,
+            useOnlyContactsFromHost: $notifications->useOnlyContactsFromHost,
+            contactAdditiveInheritance: $notifications->contactAdditiveInheritance,
+            contactGroupAdditiveInheritance: $notifications->contactGroupAdditiveInheritance,
+            contacts: $contacts,
+            contactGroups: $contactGroups,
+            interval: $notifications->interval,
+            timeperiod: $this->resolveTimePeriod($notifications->periodId),
+            options: array_map(ServiceNotificationOptionEnumResolver::toString(...), $notifications->options),
+            firstDelay: $notifications->firstDelay,
+            recoveryDelay: $notifications->recoveryDelay,
         );
     }
 
