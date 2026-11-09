@@ -142,6 +142,8 @@ class LegacyCommandSenderTest extends TestCase
                 'GET internal/constatus',
                 'POST centreon/legacycmd/command',
                 'GET log/token-2',
+                // a poller sent later is checked against a fresh connection status
+                'GET internal/constatus',
                 'POST centreon/legacycmd/command',
                 'GET log/token-3',
             ],

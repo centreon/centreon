@@ -111,7 +111,7 @@ class LegacyCommandSender
     private ?array $deferredTokens = null;
 
     /**
-     * Inside deliverToPollers(): connection status of the Gorgone nodes, read once for every poller.
+     * Inside deliverToPollers(): connection status of the Gorgone nodes, read once for the pollers sent together.
      *
      * @var array<mixed>|null
      */
@@ -177,8 +177,9 @@ class LegacyCommandSender
         /** @var array<string, array{pollerId: int, deadline: float}> $pending by token */
         $pending = [];
         try {
-            $this->nodeStatuses = null;
             while ($deliveries !== [] || $pending !== []) {
+                // read once for the pollers sent in this round, not reused by the later rounds
+                $this->nodeStatuses = null;
                 while ($deliveries !== [] && $this->countPollers($pending) < $concurrency) {
                     $pollerId = (int) array_key_first($deliveries);
                     $deliver = $deliveries[$pollerId];
