@@ -1428,13 +1428,6 @@ function enable_new_services() {
 			# gorgoned is started by its package %post; start it explicitly too since the
 			# recap requires it on central (no-op when already running).
 			systemctl start centreontrapd gorgoned || log "WARN" "centreontrapd/gorgoned could not be started (see recap below)"
-			# centreon-engine-daemon's %post restarts centengine mid-transaction, before
-			# centreon-broker-core has laid down /usr/share/centreon/lib/centreon-broker, so on
-			# EL the engine is left failed. Restart it now that every package is installed.
-			# dpkg unpacks every package before configuring any, so Debian is not affected.
-			if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-				systemctl restart cbd centengine || log "WARN" "cbd/centengine could not be restarted (see recap below)"
-			fi
 			;;
 
 		poller)
@@ -1443,10 +1436,6 @@ function enable_new_services() {
 			# gorgoned is started by its package %post; start it explicitly too since the
 			# recap requires it (a poller without gorgone cannot be registered).
 			systemctl start centreontrapd snmptrapd gorgoned || log "WARN" "Some services could not be started (see recap below)"
-			# Same mid-transaction restart issue as on central (see above).
-			if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-				systemctl restart centengine || log "WARN" "centengine could not be restarted (see recap below)"
-			fi
 			;;
 		esac
 	else
@@ -1858,7 +1847,7 @@ function update_centreon_packages() {
 		if ! { $PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO; }; then
 			error_and_exit "Could not update Centreon"
 		fi
-		# Same mid-transaction restart issue as on install (see enable_new_services): restart
+		# Same mid-transaction restart issue as on install (see update_after_installation): restart
 		# centengine only if the update left it down, so a running engine is not interrupted.
 		if [ "${has_systemd:-0}" -eq 1 ] && ! systemctl is-active --quiet centengine; then
 			systemctl restart centengine || log "WARN" "centengine could not be restarted (see recap below)"
@@ -1901,6 +1890,19 @@ function update_after_installation() {
 		set_runtime_selinux_mode $selinux_mode
 
 		set_selinux_config $selinux_mode
+
+		# centreon-engine-daemon's %post restarts centengine mid-transaction, before
+		# centreon-broker-core has laid down /usr/share/centreon/lib/centreon-broker, so on
+		# EL the engine is left failed. Restart it now that every package is installed, and
+		# only after the SELinux step so cbd/centengine run in their confined domain.
+		# dpkg unpacks every package before configuring any, so Debian is not affected.
+		if [ "${has_systemd:-0}" -eq 1 ]; then
+			if [ "$topology" == "central" ]; then
+				systemctl restart cbd centengine || log "WARN" "cbd/centengine could not be restarted (see recap below)"
+			else
+				systemctl restart centengine || log "WARN" "centengine could not be restarted (see recap below)"
+			fi
+		fi
 	fi
 }
 #========= end of function update_after_installation()
