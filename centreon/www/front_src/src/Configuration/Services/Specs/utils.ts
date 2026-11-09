@@ -133,13 +133,26 @@ export const getServiceCheckOptionsResponse = (id: number) => {
     : {};
 };
 
+// Relations: the service groups are always sent, the traps on-premise only.
+// Service 1's detail leaves the traps out.
+const getRelationsResponse = (id: number) => ({
+  service_groups: id === 0 ? [{ id: 1, name: 'Web services' }] : [],
+  ...(id !== 1 && {
+    traps:
+      id === 0
+        ? [{ id: 21, name: 'linkDown', vendor: { id: 3, name: 'Generic' } }]
+        : []
+  })
+});
+
 export const getServiceResponse = (id: number) => ({
   '@context': '/centreon/api/contexts/Service',
   '@id': `/centreon/api/configuration/services/${id}`,
   '@type': 'Service',
   id,
   ...serviceDetails[id],
-  ...getServiceCheckOptionsResponse(id)
+  ...getServiceCheckOptionsResponse(id),
+  ...getRelationsResponse(id)
 });
 
 export const getServiceFormHostsResponse = () => ({
@@ -182,3 +195,24 @@ export const getServiceTemplateMacrosResponse = () => ({
   macros: [{ id: 31, is_password: false, name: 'TIMEOUT', value: '10' }],
   name: 'generic-active-service'
 });
+
+const toCollection = (path: string, member: Array<object>) => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': `/centreon/api/configuration/services/${path}`,
+  '@type': 'Collection',
+  member,
+  totalItems: member.length
+});
+
+export const getServiceGroupsResponse = () =>
+  toCollection('service_groups', [
+    { id: 1, name: 'Web services' },
+    { id: 2, name: 'Database services' }
+  ]);
+
+// The vendor apart, as `TrapChoicesOutput` sends it.
+export const getTrapsResponse = () =>
+  toCollection('traps', [
+    { id: 21, name: 'linkDown', vendor: { id: 3, name: 'Generic' } },
+    { id: 22, name: 'linkUp', vendor: { id: 3, name: 'Generic' } }
+  ]);
