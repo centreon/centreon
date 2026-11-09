@@ -16,7 +16,7 @@ describe('Services configuration: ', () => {
   describe('Form: ', Form);
   describe('Form: ', TemplateAndScheduling);
   describe('Service monitoring properties: ', CheckOptions);
-  describe('Form: ', Relations);
+  describe('Relations: ', Relations);
   describe('Form extended info: ', ExtendedInfo);
   describe('Notifications: ', Notifications);
   describe('Form: ', DataProcessing);
