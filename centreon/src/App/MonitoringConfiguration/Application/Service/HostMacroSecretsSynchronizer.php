@@ -106,10 +106,7 @@ final readonly class HostMacroSecretsSynchronizer
                 : $macro->value;
         }
 
-        // A renamed macro keeps its reference, so its key may be the name another macro now
-        // claims: that one would overwrite the secret the renamed macro still points to. Move the
-        // renamed macro under its own name instead. Moving it claims a new key, which may in turn be
-        // the one another renamed macro points to (chained renames): repeat until no key is claimed.
+        // A renamed password whose key another macro claims moves under its own name; repeat for chained renames.
         $claimedKeys = [];
         foreach (array_keys($toWrite) as $index) {
             $claimedKeys[$this->keyFor($macros[$index])] = true;
