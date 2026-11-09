@@ -7,6 +7,12 @@ import {
   getActionUrlBlock,
   getNotesAndIconsBlock
 } from '../../../ResourceForm/fieldBlocks/extendedInfos';
+import {
+  getNotificationDelaysBlock,
+  getNotificationRecipientsBlock,
+  getNotifyOnBlock,
+  type NotificationOptions
+} from '../../../ResourceForm/fieldBlocks/notifications';
 import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
 import {
   getActiveAndPassiveChecksBlock,
@@ -22,8 +28,11 @@ import type {
   ResourceOptions,
   SectionContext
 } from '../../../ResourceForm/models';
+import { labelNone } from '../../../ResourceForm/translatedLabels';
 import {
   hostTemplateFormCommandsEndpoint,
+  hostTemplateFormContactGroupsEndpoint,
+  hostTemplateFormContactsEndpoint,
   hostTemplateFormHostCategoriesEndpoint,
   hostTemplateFormHostSeveritiesEndpoint,
   hostTemplateFormMediasEndpoint,
@@ -33,10 +42,15 @@ import {
   timezonesEndpoint
 } from '../../api/endpoints';
 import {
+  labelDown,
+  labelDowntimeScheduled,
+  labelFlapping,
   labelHostCategories,
   labelHostCheckOptions,
   labelHostSeverity,
-  labelLinkedServiceTemplates
+  labelLinkedServiceTemplates,
+  labelRecovery,
+  labelUnreachable
 } from '../../translatedLabels';
 import { getHostTemplateIdentityBlock } from '../blocks/hostTemplateIdentity';
 import { getLockedBlock } from '../blocks/locked';
@@ -49,6 +63,15 @@ export const hostTemplateResource: ResourceOptions = {
 };
 
 const resource = hostTemplateResource;
+
+const hostTemplateNotificationOptions: NotificationOptions = [
+  [labelDown, 'down'],
+  [labelUnreachable, 'unreachable'],
+  [labelRecovery, 'recovery'],
+  [labelFlapping, 'flapping'],
+  [labelDowntimeScheduled, 'downtime_scheduled'],
+  [labelNone, 'none']
+];
 
 // The blocks of fields the host template form edits. The sections it shows
 // them in, and their order, are `../layout.ts`'s.
@@ -99,7 +122,17 @@ export const blocks = [
     resource,
     timePeriodsEndpoint: hostTemplateFormTimePeriodsEndpoint
   }),
-  getActiveAndPassiveChecksBlock({ resource })
+  getActiveAndPassiveChecksBlock({ resource }),
+  getNotificationRecipientsBlock({
+    contactGroupsEndpoint: hostTemplateFormContactGroupsEndpoint,
+    contactsEndpoint: hostTemplateFormContactsEndpoint,
+    resource
+  }),
+  getNotifyOnBlock({ options: hostTemplateNotificationOptions, resource }),
+  getNotificationDelaysBlock({
+    resource,
+    timePeriodsEndpoint: hostTemplateFormTimePeriodsEndpoint
+  })
 ] as const;
 
 // Each available block, as a section of the data.
