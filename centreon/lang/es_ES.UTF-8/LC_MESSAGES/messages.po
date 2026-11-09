@@ -25705,6 +25705,14 @@ msgid "{{count}} sec"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Arguments must not contain #BR#, #T# or #R#"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Service monitoring properties"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Delete host template"
 msgstr ""
 
@@ -25766,4 +25774,24 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "You are about to duplicate <strong>{{ count }} host templates.</strong>"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Add a host template"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Modify a host template"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "View a host template"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Host template created"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Host template updated"
 msgstr ""

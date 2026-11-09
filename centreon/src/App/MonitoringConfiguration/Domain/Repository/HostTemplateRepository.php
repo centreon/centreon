@@ -121,6 +121,14 @@ interface HostTemplateRepository
     public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection;
 
     /**
+     * The host templates inheriting from the given one, directly or through other templates, active
+     * or not. The given id is part of the result only when an inheritance loop runs through it.
+     *
+     * @return Collection<HostTemplateId>
+     */
+    public function findDescendantIds(HostTemplateId $id): Collection;
+
+    /**
      * Null when the id is unknown or is a host; never ACL-filtered.
      */
     public function findOne(HostTemplateId $id): ?HostTemplate;

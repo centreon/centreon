@@ -4,6 +4,7 @@ import type { TFunction } from 'i18next';
 import { chain } from 'ramda';
 
 import type { PlacedSection } from './layout';
+import type { FormValues } from './models';
 
 export interface FormInputs {
   groups: Array<Group>;
@@ -11,17 +12,22 @@ export interface FormInputs {
 }
 
 // Applied to every input, grid columns included, so none is left editable
-// without write access. The input's own rule, such as a field that waits for
-// another one, is kept.
+// without write access or on a resource `editable` refuses. The input's own
+// rule, such as a field that waits for another one, is kept.
 export const disableWithoutWriteAccess =
-  (canEdit: boolean) =>
+  (canEdit: boolean, editable?: (values: FormValues) => boolean) =>
   <Input extends Omit<InputProps, 'group'>>(input: Input): Input => ({
     ...input,
-    getDisabled: (values) => !canEdit || !!input.getDisabled?.(values),
+    getDisabled: (values) =>
+      !canEdit ||
+      !(editable?.(values) ?? true) ||
+      !!input.getDisabled?.(values),
     ...(input.grid && {
       grid: {
         ...input.grid,
-        columns: input.grid.columns.map(disableWithoutWriteAccess(canEdit))
+        columns: input.grid.columns.map(
+          disableWithoutWriteAccess(canEdit, editable)
+        )
       }
     })
   });
@@ -29,10 +35,12 @@ export const disableWithoutWriteAccess =
 // The groups and inputs of the form from its placed sections.
 export const getFormInputs = ({
   canEdit,
+  editable,
   placedSections,
   t
 }: {
   canEdit: boolean;
+  editable?: (values: FormValues) => boolean;
   placedSections: Array<PlacedSection>;
   t: TFunction;
 }): FormInputs => {
@@ -51,6 +59,6 @@ export const getFormInputs = ({
 
   return {
     groups,
-    inputs: inputs.map(disableWithoutWriteAccess(canEdit))
+    inputs: inputs.map(disableWithoutWriteAccess(canEdit, editable))
   };
 };
