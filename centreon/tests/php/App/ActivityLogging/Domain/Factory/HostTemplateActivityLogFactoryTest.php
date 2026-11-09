@@ -109,8 +109,6 @@ final class HostTemplateActivityLogFactoryTest extends TestCase
                 'host_recovery_notification_delay' => '',
                 'contact_additive_inheritance' => '1',
                 'cg_additive_inheritance' => '0',
-                'host_cs' => '20,21',
-                'host_cgs' => '22',
             ],
             $log->details,
         );

@@ -120,7 +120,7 @@ final readonly class CreateHostTemplateProcessor implements ProcessorInterface
                 passiveCheckEnabled: $data->schedulingOptions->passiveCheckEnabled ?? TriStateEnum::UseDefault,
             ),
             dataProcessing: $this->buildDataProcessing($data->dataProcessing ?? new CreateHostTemplateDataProcessingInput()),
-            // Built even when absent, on premise: the columns are written either way.
+            // Built even when absent on premise, so the activity log records the default notification fields.
             notifications: $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications ?? new CreateHostTemplateNotificationsInput()),
         );
 
