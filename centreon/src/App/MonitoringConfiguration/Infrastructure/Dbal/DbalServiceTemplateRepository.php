@@ -40,12 +40,26 @@ use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
+ * @phpstan-import-type MacroRowTypeAlias from ServiceTransformer
+ *
  * @phpstan-type RowTypeAlias = array{
- *   service_id: int,
+ *   service_id: int|string,
  *   service_description: string,
+ *   parent_id?: int|string|null,
+ *   check_command_id?: int|string|null,
+ *   event_handler_command_id?: int|string|null,
+ *   macros?: list<MacroRowTypeAlias>,
+ * }
+ * @phpstan-type LineRowTypeAlias = array{
+ *   service_id: int|string,
+ *   service_description: string,
+ *   parent_id: int|string|null,
+ *   check_command_id: int|string|null,
+ *   event_handler_command_id: int|string|null,
  * }
  * @phpstan-type InheritedValuesTypeAlias array{icon_id: int|null, normal_check_interval: int|null, retry_check_interval: int|null}
  */
@@ -206,6 +220,65 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
     }
 
     /**
+     * One recursive query, walked in PHP; a loop ends both. Disabled templates are kept, as in legacy.
+     */
+    public function findInheritanceLine(ServiceTemplateId $templateId): Collection
+    {
+        $sql = <<<'SQL'
+            WITH RECURSIVE chain (id) AS (
+                SELECT service_id
+                FROM service
+                WHERE service_id = :id AND service_register = '0'
+                UNION
+                SELECT p.service_id
+                FROM service s
+                INNER JOIN chain c ON c.id = s.service_id
+                INNER JOIN service p ON p.service_id = s.service_template_model_stm_id AND p.service_register = '0'
+            )
+            SELECT
+                t.service_id,
+                t.service_description,
+                t.service_template_model_stm_id AS parent_id,
+                t.command_command_id AS check_command_id,
+                t.command_command_id2 AS event_handler_command_id
+            FROM service t
+            INNER JOIN chain c ON c.id = t.service_id
+            SQL;
+
+        /** @var list<LineRowTypeAlias> $rows */
+        $rows = $this->connection->executeQuery(
+            $sql,
+            ['id' => $templateId->value],
+            ['id' => ParameterType::INTEGER],
+        )->fetchAllAssociative();
+
+        $levels = [];
+        foreach ($rows as $row) {
+            $levels[(int) $row['service_id']] = $row;
+        }
+
+        $line = [];
+        $currentId = $templateId->value;
+        while ($currentId !== null && isset($levels[$currentId]) && ! isset($line[$currentId])) {
+            $line[$currentId] = $levels[$currentId];
+            $currentId = $levels[$currentId]['parent_id'] !== null ? (int) $levels[$currentId]['parent_id'] : null;
+        }
+
+        $macrosByOwner = $this->findMacroRowsByOwner(array_keys($line));
+
+        return new Collection(
+            array_values(array_map(
+                fn (array $row): ServiceTemplate => $this->transformer->transform([
+                    ...$row,
+                    'macros' => $macrosByOwner[(int) $row['service_id']] ?? [],
+                ]),
+                $line,
+            )),
+            ServiceTemplate::class,
+        );
+    }
+
+    /**
      * @param array<RowTypeAlias> $rows
      *
      * @return Collection<ServiceTemplate>
@@ -219,6 +292,46 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
             ),
             ServiceTemplate::class
         );
+    }
+
+    /**
+     * The custom macros the given templates own, grouped by template, in insertion order. A row not in the
+     * engine form `$_SERVICE<NAME>$` is not a service macro and is left out.
+     *
+     * @param list<int> $ownerIds
+     *
+     * @return array<int, list<MacroRowTypeAlias>>
+     */
+    private function findMacroRowsByOwner(array $ownerIds): array
+    {
+        if ($ownerIds === []) {
+            return [];
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('svc_macro_id AS id', 'svc_svc_id', 'svc_macro_name AS name', 'svc_macro_value AS value', 'is_password', 'description')
+            ->from('on_demand_macro_service')
+            ->where($qb->expr()->in('svc_svc_id', $qb->createNamedParameter($ownerIds, ArrayParameterType::INTEGER)))
+            ->orderBy('svc_macro_id');
+
+        /** @var list<array{id: int|string, svc_svc_id: int|string, name: string, value: string, is_password: int|string|null, description: string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $byOwner = [];
+        foreach ($rows as $row) {
+            if (preg_match('/^\$_SERVICE.+\$$/', $row['name']) !== 1) {
+                continue;
+            }
+            $byOwner[(int) $row['svc_svc_id']][] = [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'value' => $row['value'],
+                'is_password' => $row['is_password'],
+                'description' => $row['description'],
+            ];
+        }
+
+        return $byOwner;
     }
 
     /**

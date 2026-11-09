@@ -23,18 +23,32 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Service;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
-use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
+use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
 
@@ -47,21 +61,39 @@ final class ServiceTest extends TestCase
         self::assertSame(42, $service->id()->value);
         self::assertSame('web-check', $service->name->value);
         self::assertSame(1, $service->hostId->value);
-        self::assertSame([], $service->macros);
+        self::assertSame([], $service->checkOptions->macros);
     }
 
-    public function testItHasNoOwnTemplateIconNorIntervalsAndIsEnabledByDefault(): void
+    public function testItHasNoOwnValueByDefaultAndIsEnabled(): void
     {
         $service = $this->service();
 
         self::assertTrue($service->activated);
         self::assertNull($service->templateId);
-        self::assertNull($service->iconId);
-        self::assertEquals(new ServiceCheckIntervals(), $service->checkIntervals);
+        self::assertEquals(new ServiceCheckOptions(null), $service->checkOptions);
+        self::assertEquals(new ServiceSchedulingOptions(), $service->schedulingOptions);
+        self::assertNull($service->notifications);
+        self::assertEquals(new ServiceDataProcessing(), $service->dataProcessing);
+        self::assertNull($service->extendedInformations);
+        self::assertNull($service->graphTemplateId);
+        self::assertNull($service->severityId);
+        self::assertSame([], $service->serviceGroupIds->toArray());
+        self::assertSame([], $service->categoryIds->toArray());
+        self::assertSame([], $service->trapIds->toArray());
     }
 
-    public function testItHoldsItsOwnTemplateIconAndIntervals(): void
+    public function testItHoldsItsWholeConfiguration(): void
     {
+        $checkOptions = new ServiceCheckOptions(new CommandId(2), ['80']);
+        $schedulingOptions = new ServiceSchedulingOptions(normalCheckInterval: 5, retryCheckInterval: 1);
+        $notifications = new ServiceNotifications(
+            TriStateEnum::True,
+            new Collection([], NotificationContactId::class),
+            new Collection([], ContactGroupId::class),
+        );
+        $dataProcessing = new ServiceDataProcessing(obsessOverService: TriStateEnum::False);
+        $extendedInformations = new ServiceExtendedInformations(iconId: new MediaId(8));
+
         $service = new Service(
             id: new ServiceId(42),
             name: new ServiceName('web-check'),
@@ -70,15 +102,30 @@ final class ServiceTest extends TestCase
             hostPollerId: new PollerId(3),
             activated: false,
             templateId: new ServiceTemplateId(7),
-            iconId: new MediaId(8),
-            checkIntervals: new ServiceCheckIntervals(normal: 5, retry: 1),
+            checkOptions: $checkOptions,
+            schedulingOptions: $schedulingOptions,
+            notifications: $notifications,
+            dataProcessing: $dataProcessing,
+            extendedInformations: $extendedInformations,
+            graphTemplateId: new GraphTemplateId(4),
+            severityId: new ServiceSeverityId(6),
+            serviceGroupIds: new Collection([new ServiceGroupId(10)], ServiceGroupId::class),
+            categoryIds: new Collection([new ServiceCategoryId(11)], ServiceCategoryId::class),
+            trapIds: new Collection([new TrapId(12)], TrapId::class),
         );
 
         self::assertFalse($service->activated);
         self::assertSame(7, $service->templateId?->value);
-        self::assertSame(8, $service->iconId?->value);
-        self::assertSame(5, $service->checkIntervals->normal);
-        self::assertSame(1, $service->checkIntervals->retry);
+        self::assertSame($checkOptions, $service->checkOptions);
+        self::assertSame($schedulingOptions, $service->schedulingOptions);
+        self::assertSame($notifications, $service->notifications);
+        self::assertSame($dataProcessing, $service->dataProcessing);
+        self::assertSame($extendedInformations, $service->extendedInformations);
+        self::assertSame(4, $service->graphTemplateId?->value);
+        self::assertSame(6, $service->severityId?->value);
+        self::assertEquals([new ServiceGroupId(10)], $service->serviceGroupIds->toArray());
+        self::assertEquals([new ServiceCategoryId(11)], $service->categoryIds->toArray());
+        self::assertEquals([new TrapId(12)], $service->trapIds->toArray());
     }
 
     public function testDisableThenEnable(): void
@@ -174,7 +221,7 @@ final class ServiceTest extends TestCase
             hostId: new HostId($hostId),
             hostActivated: $hostActivated,
             hostPollerId: $hostPollerId !== null ? new PollerId($hostPollerId) : null,
-            macros: $macros,
+            checkOptions: new ServiceCheckOptions(null, [], $macros),
         );
     }
 }

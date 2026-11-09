@@ -26,6 +26,9 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
+/**
+ * A `$_SERVICE<NAME>$` macro, own (`parent` null) or inherited; value as stored (`secret::` ref when vaulted).
+ */
 final readonly class ServiceMacro
 {
     public const MAX_VALUE_LENGTH = 4096;
@@ -34,12 +37,16 @@ final readonly class ServiceMacro
     /**
      * @param bool $isPassword when true the value is a secret, eligible for the vault and never
      *                         echoed back in a response
+     * @param ?ServiceMacroId $id null until persisted; its table is given by $parent
+     * @param ?ServiceMacroParentEnum $parent null for an own macro, otherwise where it is inherited from
      */
     public function __construct(
         public ServiceMacroName $name,
         #[Sensitive] public string $value,
         public bool $isPassword,
         public ?string $description = null,
+        public ?ServiceMacroId $id = null,
+        public ?ServiceMacroParentEnum $parent = null,
     ) {
         Assert::maxLength($value, self::MAX_VALUE_LENGTH);
         if ($description !== null) {
@@ -52,5 +59,18 @@ final readonly class ServiceMacro
                 'The macro description is too long.',
             );
         }
+    }
+
+    public function isInherited(): bool
+    {
+        return $this->parent instanceof ServiceMacroParentEnum;
+    }
+
+    /**
+     * The same macro tagged as inherited from $parent; its id is kept.
+     */
+    public function inheritedFrom(ServiceMacroParentEnum $parent): self
+    {
+        return new self($this->name, $this->value, $this->isPassword, $this->description, $this->id, $parent);
     }
 }

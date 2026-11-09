@@ -25,14 +25,21 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
-use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceStalkingOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalServiceRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\ServiceTransformer;
 use App\Security\Domain\Aggregate\AccessGroupId;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Domain\Repository\SortDirectionEnum;
@@ -101,7 +108,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $service = $services->toArray()[0];
         self::assertSame('ping', $service->name->value);
         self::assertSame($hostId, $service->hostId->value);
-        self::assertSame([], $service->macros);
+        self::assertSame([], $service->checkOptions->macros);
     }
 
     public function testFindExclusivelyLinkedToHostIdExcludesAServiceSharedWithAnotherHost(): void
@@ -124,7 +131,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
 
         $services = $this->repository->findExclusivelyLinkedToHostId(new HostId($hostId));
 
-        $macros = $services->toArray()[0]->macros;
+        $macros = $services->toArray()[0]->checkOptions->macros;
         self::assertCount(1, $macros);
         self::assertSame('TOKEN', $macros[0]->name->value);
         self::assertSame('secret-value', $macros[0]->value);
@@ -552,8 +559,9 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertSame($hostId, $service->hostId->value);
         self::assertFalse($service->activated);
         self::assertSame($templateId, $service->templateId?->value);
-        self::assertSame($iconId, $service->iconId?->value, "Its own icon as stored, folder or not: resolving it is the caller's.");
-        self::assertEquals(new ServiceCheckIntervals(normal: 5, retry: 1), $service->checkIntervals, "Its own values only, not the template's.");
+        self::assertSame($iconId, $service->extendedInformations?->iconId?->value, "Its own icon as stored, folder or not: resolving it is the caller's.");
+        self::assertSame(5, $service->schedulingOptions->normalCheckInterval, "Its own values only, not the template's.");
+        self::assertSame(1, $service->schedulingOptions->retryCheckInterval, "Its own values only, not the template's.");
     }
 
     public function testFindAllLeavesUnsetWhatTheServiceDoesNotHaveItself(): void
@@ -566,8 +574,9 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $service = $this->onlyItem($this->findAll($this->unrestricted()));
 
         self::assertTrue($service->activated);
-        self::assertNull($service->iconId);
-        self::assertEquals(new ServiceCheckIntervals(), $service->checkIntervals);
+        self::assertNull($service->extendedInformations?->iconId);
+        self::assertNull($service->schedulingOptions->normalCheckInterval);
+        self::assertNull($service->schedulingOptions->retryCheckInterval);
     }
 
     public function testExistingFindersHydrateTheServicesOwnFields(): void
@@ -585,8 +594,9 @@ final class DbalServiceRepositoryTest extends KernelTestCase
             self::assertCount(1, $services);
             self::assertFalse($services[0]->activated);
             self::assertSame($templateId, $services[0]->templateId?->value);
-            self::assertSame($iconId, $services[0]->iconId?->value);
-            self::assertEquals(new ServiceCheckIntervals(normal: null, retry: 4), $services[0]->checkIntervals);
+            self::assertSame($iconId, $services[0]->extendedInformations?->iconId?->value);
+            self::assertNull($services[0]->schedulingOptions->normalCheckInterval);
+            self::assertSame(4, $services[0]->schedulingOptions->retryCheckInterval);
         }
     }
 
@@ -603,9 +613,9 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertSame($serviceId, $service->id()->value);
         self::assertSame('ping', $service->name->value);
         self::assertSame($hostId, $service->hostId->value);
-        self::assertCount(1, $service->macros);
-        self::assertSame('TOKEN', $service->macros[0]->name->value);
-        self::assertTrue($service->macros[0]->isPassword);
+        self::assertCount(1, $service->checkOptions->macros);
+        self::assertSame('TOKEN', $service->checkOptions->macros[0]->name->value);
+        self::assertTrue($service->checkOptions->macros[0]->isPassword);
     }
 
     public function testFindOneFindsForARestrictedActorOnlyAPairGrantedToItsActiveGroups(): void
@@ -738,6 +748,318 @@ final class DbalServiceRepositoryTest extends KernelTestCase
             self::assertFalse($services[0]->hostActivated);
             self::assertSame($pollerId, $services[0]->hostPollerId?->value);
         }
+    }
+
+    public function testFindOneHydratesTheWholeForm(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $templateId = $this->insertListedServiceTemplate('generic');
+        $checkCommandId = $this->insertCommand('check');
+        $eventHandlerId = $this->insertCommand('handler');
+        $checkPeriodId = $this->insertTimePeriod('check');
+        $notificationPeriodId = $this->insertTimePeriod('notification');
+        $iconId = $this->insertImage(inFolder: true);
+        $graphTemplateId = $this->insertGraphTemplate();
+        $serviceId = $this->insertListedService('ping', $hostId, activated: '0', templateId: $templateId);
+        $this->connection->update('service', [
+            'command_command_id' => $checkCommandId,
+            'command_command_id_arg' => '!80!line#BR#two',
+            'timeperiod_tp_id' => $checkPeriodId,
+            'command_command_id2' => $eventHandlerId,
+            'command_command_id_arg2' => '!handler-arg',
+            'timeperiod_tp_id2' => $notificationPeriodId,
+            'service_is_volatile' => '1',
+            'service_max_check_attempts' => 3,
+            'service_normal_check_interval' => 5,
+            'service_retry_check_interval' => 1,
+            'service_active_checks_enabled' => '0',
+            'service_passive_checks_enabled' => '1',
+            'service_obsess_over_service' => '0',
+            'service_check_freshness' => '1',
+            'service_freshness_threshold' => 60,
+            'service_event_handler_enabled' => '1',
+            'service_low_flap_threshold' => 10,
+            'service_high_flap_threshold' => 90,
+            'service_flap_detection_enabled' => '0',
+            'service_retain_status_information' => '1',
+            'service_retain_nonstatus_information' => '0',
+            'service_notification_interval' => 30,
+            'service_notification_options' => 'r,c,w',
+            'service_notifications_enabled' => '1',
+            'service_first_notification_delay' => 2,
+            'service_recovery_notification_delay' => 4,
+            'contact_additive_inheritance' => 1,
+            'cg_additive_inheritance' => 1,
+            'service_use_only_contacts_from_host' => '1',
+            'service_acknowledgement_timeout' => 15,
+            'service_stalking_options' => 'c,o',
+            'service_comment' => 'a comment',
+            'geo_coords' => '48.85,2.35',
+        ], ['service_id' => $serviceId]);
+        $this->connection->insert('extended_service_information', [
+            'service_service_id' => $serviceId,
+            'esi_notes' => 'a note',
+            'esi_notes_url' => 'https://example.com/notes',
+            'esi_action_url' => 'https://example.com/action',
+            'esi_icon_image' => $iconId,
+            'esi_icon_image_alt' => 'alt text',
+            'graph_id' => $graphTemplateId,
+        ]);
+        $contactId = $this->insertContact();
+        $contactGroupId = $this->insertContactGroup();
+        $this->connection->insert('contact_service_relation', ['service_service_id' => $serviceId, 'contact_id' => $contactId]);
+        $this->connection->insert('contactgroup_service_relation', ['service_service_id' => $serviceId, 'contactgroup_cg_id' => $contactGroupId]);
+
+        $serviceGroupId = $this->insertServiceGroup();
+        $this->connection->insert('servicegroup_relation', ['service_service_id' => $serviceId, 'host_host_id' => $hostId, 'servicegroup_sg_id' => $serviceGroupId]);
+        $categoryId = $this->insertServiceCategory(level: null);
+        $severityId = $this->insertServiceCategory(level: 2);
+        $this->linkToServiceCategory($serviceId, $categoryId);
+        $this->linkToServiceCategory($serviceId, $severityId);
+        $trapId = $this->insertTrap();
+        $this->connection->insert('traps_service_relation', ['service_id' => $serviceId, 'traps_id' => $trapId]);
+        $this->createMacro($serviceId, 'TOKEN', 'secret-value', isPassword: true, description: 'API token');
+        $macroId = (int) $this->connection->lastInsertId();
+
+        $service = $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted());
+
+        self::assertInstanceOf(Service::class, $service);
+        self::assertSame('ping', $service->name->value);
+        self::assertSame($hostId, $service->hostId->value);
+        self::assertFalse($service->activated);
+        self::assertSame($templateId, $service->templateId?->value);
+
+        self::assertSame($checkCommandId, $service->checkOptions->checkCommandId?->value);
+        self::assertSame(['80', "line\ntwo"], $service->checkOptions->args);
+        self::assertCount(1, $service->checkOptions->macros);
+        $macro = $service->checkOptions->macros[0];
+        self::assertSame([$macroId, 'TOKEN', 'secret-value', true, 'API token', null], [$macro->id?->value, $macro->name->value, $macro->value, $macro->isPassword, $macro->description, $macro->parent]);
+
+        $scheduling = $service->schedulingOptions;
+        self::assertSame($checkPeriodId, $scheduling->checkTimeperiodId?->value);
+        self::assertSame([3, 5, 1], [$scheduling->maxCheckAttempts, $scheduling->normalCheckInterval, $scheduling->retryCheckInterval]);
+        self::assertSame([TriStateEnum::False, TriStateEnum::True, TriStateEnum::True], [$scheduling->activeCheckEnabled, $scheduling->passiveCheckEnabled, $scheduling->isVolatile]);
+
+        $notifications = $service->notifications;
+        self::assertInstanceOf(ServiceNotifications::class, $notifications);
+        self::assertSame(TriStateEnum::True, $notifications->enabled);
+        self::assertSame([$contactId], $this->idValues($notifications->contactIds));
+        self::assertSame([$contactGroupId], $this->idValues($notifications->contactGroupIds));
+        self::assertSame(
+            [ServiceNotificationOptionEnum::Warning, ServiceNotificationOptionEnum::Critical, ServiceNotificationOptionEnum::Recovery],
+            $notifications->options,
+        );
+        self::assertSame([30, $notificationPeriodId, 2, 4], [$notifications->interval, $notifications->periodId?->value, $notifications->firstDelay, $notifications->recoveryDelay]);
+        self::assertTrue($notifications->contactAdditiveInheritance);
+        self::assertTrue($notifications->contactGroupAdditiveInheritance);
+        self::assertTrue($notifications->useOnlyContactsFromHost);
+
+        $dataProcessing = $service->dataProcessing;
+        self::assertSame(
+            [TriStateEnum::True, TriStateEnum::False, TriStateEnum::True, TriStateEnum::False, TriStateEnum::True, TriStateEnum::False],
+            [
+                $dataProcessing->checkFreshness,
+                $dataProcessing->flapDetectionEnabled,
+                $dataProcessing->eventHandlerEnabled,
+                $dataProcessing->obsessOverService,
+                $dataProcessing->retainStatusInformation,
+                $dataProcessing->retainNonStatusInformation,
+            ],
+        );
+        self::assertSame([15, 60, 10, 90], [$dataProcessing->acknowledgmentTimeout, $dataProcessing->freshnessThreshold, $dataProcessing->lowFlapThreshold, $dataProcessing->highFlapThreshold]);
+        self::assertSame($eventHandlerId, $dataProcessing->eventHandlerCommandId?->value);
+        self::assertSame(['handler-arg'], $dataProcessing->eventHandlerArgs);
+        self::assertSame([ServiceStalkingOptionEnum::Ok, ServiceStalkingOptionEnum::Critical], $dataProcessing->stalkingOptions);
+
+        $extended = $service->extendedInformations;
+        self::assertSame(
+            ['https://example.com/notes', 'a note', 'https://example.com/action', $iconId, 'alt text', 'a comment', '48.85,2.35'],
+            [$extended?->noteUrl, $extended?->note, $extended?->actionUrl, $extended?->iconId?->value, $extended?->altIcon, $extended?->comment, (string) $extended?->geoCoordinates],
+        );
+        self::assertSame($graphTemplateId, $service->graphTemplateId?->value);
+        self::assertSame($severityId, $service->severityId?->value);
+        self::assertSame([$serviceGroupId], $this->idValues($service->serviceGroupIds));
+        self::assertSame([$categoryId], $this->idValues($service->categoryIds));
+        self::assertSame([$trapId], $this->idValues($service->trapIds));
+    }
+
+    public function testFindOneReadsTheDefaultsOfAServiceWithoutOwnValues(): void
+    {
+        $serviceId = $this->insertListedService('ping', $this->insertListedHost('h1'));
+
+        $service = $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted());
+
+        self::assertInstanceOf(Service::class, $service);
+        self::assertNull($service->checkOptions->checkCommandId);
+        self::assertSame([], $service->checkOptions->args);
+        self::assertEquals(new ServiceDataProcessing(), $service->dataProcessing);
+        self::assertInstanceOf(ServiceNotifications::class, $service->notifications);
+        self::assertSame(TriStateEnum::UseDefault, $service->notifications->enabled);
+        self::assertSame([], $service->notifications->options);
+        self::assertFalse($service->notifications->useOnlyContactsFromHost);
+        self::assertNull($service->extendedInformations?->note);
+        self::assertNull($service->graphTemplateId);
+        self::assertNull($service->severityId);
+        self::assertSame([], $service->serviceGroupIds->toArray());
+        self::assertSame([], $service->categoryIds->toArray());
+        self::assertSame([], $service->trapIds->toArray());
+    }
+
+    public function testFindOneReadSets(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $otherHostId = $this->insertListedHost('h2');
+        $hostGroupId = $this->insertHostGroup();
+        $serviceId = $this->insertListedService('ping', $hostId);
+
+        // Service groups: the rows of the service on its current host only, never a host group's.
+        $onItsHost = $this->insertServiceGroup();
+        $onAnotherHost = $this->insertServiceGroup();
+        $throughAHostGroup = $this->insertServiceGroup();
+        $this->connection->insert('servicegroup_relation', ['service_service_id' => $serviceId, 'host_host_id' => $hostId, 'servicegroup_sg_id' => $onItsHost]);
+        $this->connection->insert('servicegroup_relation', ['service_service_id' => $serviceId, 'host_host_id' => $otherHostId, 'servicegroup_sg_id' => $onAnotherHost]);
+        // A row of a host group is left out even when it also names the service's host.
+        $this->connection->insert('servicegroup_relation', ['service_service_id' => $serviceId, 'host_host_id' => $hostId, 'hostgroup_hg_id' => $hostGroupId, 'servicegroup_sg_id' => $throughAHostGroup]);
+
+        // Categories are the levelless rows; the severity is the levelled row with the lowest id.
+        $category = $this->insertServiceCategory(level: null);
+        $lowestSeverity = $this->insertServiceCategory(level: 3);
+        $higherSeverity = $this->insertServiceCategory(level: 1);
+        foreach ([$higherSeverity, $category, $lowestSeverity] as $categoryId) {
+            $this->linkToServiceCategory($serviceId, $categoryId);
+        }
+
+        // Extended information: the row with the lowest id.
+        $this->connection->insert('extended_service_information', ['service_service_id' => $serviceId, 'esi_notes' => 'first', 'graph_id' => $firstGraph = $this->insertGraphTemplate()]);
+        $this->connection->insert('extended_service_information', ['service_service_id' => $serviceId, 'esi_notes' => 'second', 'graph_id' => $this->insertGraphTemplate()]);
+
+        $service = $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted());
+
+        self::assertInstanceOf(Service::class, $service);
+        self::assertSame([$onItsHost], $this->idValues($service->serviceGroupIds));
+        self::assertSame([$category], $this->idValues($service->categoryIds));
+        self::assertSame($lowestSeverity, $service->severityId?->value);
+        self::assertSame('first', $service->extendedInformations?->note);
+        self::assertSame($firstGraph, $service->graphTemplateId?->value);
+    }
+
+    public function testFindOneReadsTheStoredSeverityWhateverTheActorMaySee(): void
+    {
+        $this->givenTheRestrictedActorBelongsTo(11);
+        $hostId = $this->insertListedHost('h1');
+        $serviceId = $this->insertListedService('ping', $hostId);
+        $this->grant(11, $hostId, $serviceId);
+        $hidden = $this->insertServiceCategory(level: 1);
+        $visible = $this->insertServiceCategory(level: 1);
+        $this->linkToServiceCategory($serviceId, $hidden);
+        $this->linkToServiceCategory($serviceId, $visible);
+
+        // The severity is hidden on output only (see ServiceResourceBuilder), as for hosts.
+        $this->resourceAccess->serviceSeverityScope = AccessScope::restrictedTo(ServiceSeverityId::class, [new ServiceSeverityId($visible)]);
+        self::assertSame($hidden, $this->findOneRestricted($serviceId)?->severityId?->value);
+        self::assertSame($hidden, $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted())?->severityId?->value);
+    }
+
+    public function testFindOneListsADuplicatedCategoryOrTrapLinkOnce(): void
+    {
+        $serviceId = $this->insertListedService('ping', $this->insertListedHost('h1'));
+        $categoryId = $this->insertServiceCategory(level: null);
+        $trapId = $this->insertTrap();
+        // The relation tables carry no unique key: legacy can leave the same link twice.
+        $this->linkToServiceCategory($serviceId, $categoryId);
+        $this->linkToServiceCategory($serviceId, $categoryId);
+        $this->connection->insert('traps_service_relation', ['service_id' => $serviceId, 'traps_id' => $trapId]);
+        $this->connection->insert('traps_service_relation', ['service_id' => $serviceId, 'traps_id' => $trapId]);
+
+        $service = $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted());
+
+        self::assertInstanceOf(Service::class, $service);
+        self::assertSame([$categoryId], $this->idValues($service->categoryIds));
+        self::assertSame([$trapId], $this->idValues($service->trapIds));
+    }
+
+    public function testFindOneReadsEveryRelationIdBeyondTheGroupConcatLimit(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $serviceId = $this->insertListedService('ping', $hostId);
+        $linkedIds = static function (callable $link): array {
+            $ids = [];
+            while (mb_strlen(implode(',', $ids)) <= 1024) {
+                $ids[] = $link();
+            }
+
+            return $ids;
+        };
+
+        $contactIds = $linkedIds(function () use ($serviceId): int {
+            $id = $this->insertContact();
+            $this->connection->insert('contact_service_relation', ['service_service_id' => $serviceId, 'contact_id' => $id]);
+
+            return $id;
+        });
+        $contactGroupIds = $linkedIds(function () use ($serviceId): int {
+            $id = $this->insertContactGroup();
+            $this->connection->insert('contactgroup_service_relation', ['service_service_id' => $serviceId, 'contactgroup_cg_id' => $id]);
+
+            return $id;
+        });
+        $serviceGroupIds = $linkedIds(function () use ($serviceId, $hostId): int {
+            $id = $this->insertServiceGroup();
+            $this->connection->insert('servicegroup_relation', ['service_service_id' => $serviceId, 'host_host_id' => $hostId, 'servicegroup_sg_id' => $id]);
+
+            return $id;
+        });
+        $categoryIds = $linkedIds(function () use ($serviceId): int {
+            $id = $this->insertServiceCategory(level: null);
+            $this->linkToServiceCategory($serviceId, $id);
+
+            return $id;
+        });
+        $trapIds = $linkedIds(function () use ($serviceId): int {
+            $id = $this->insertTrap();
+            $this->connection->insert('traps_service_relation', ['service_id' => $serviceId, 'traps_id' => $id]);
+
+            return $id;
+        });
+
+        $service = $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted());
+
+        self::assertInstanceOf(Service::class, $service);
+        self::assertInstanceOf(ServiceNotifications::class, $service->notifications);
+        $sorted = function (Collection $ids): array {
+            $values = $this->idValues($ids);
+            sort($values);
+
+            return $values;
+        };
+        self::assertSame($contactIds, $sorted($service->notifications->contactIds));
+        self::assertSame($contactGroupIds, $sorted($service->notifications->contactGroupIds));
+        self::assertSame($serviceGroupIds, $sorted($service->serviceGroupIds));
+        self::assertSame($categoryIds, $sorted($service->categoryIds));
+        self::assertSame($trapIds, $sorted($service->trapIds));
+    }
+
+    public function testTheListingReadsTheIconOfTheFirstExtendedInformationRowAsTheGetDoes(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $firstIcon = $this->insertImage(inFolder: true);
+        $secondIcon = $this->insertImage(inFolder: true);
+        $withIconFirst = $this->insertListedService('icon-first', $hostId);
+        $this->connection->insert('extended_service_information', ['service_service_id' => $withIconFirst, 'esi_icon_image' => $secondIcon]);
+        $this->connection->insert('extended_service_information', ['service_service_id' => $withIconFirst, 'esi_icon_image' => $firstIcon]);
+
+        $withoutIconFirst = $this->insertListedService('no-icon-first', $hostId);
+        $this->connection->insert('extended_service_information', ['service_service_id' => $withoutIconFirst, 'esi_notes' => 'no icon']);
+        $this->connection->insert('extended_service_information', ['service_service_id' => $withoutIconFirst, 'esi_icon_image' => $firstIcon]);
+
+        $listed = [];
+        foreach ($this->items($this->findAll($this->unrestricted())) as $service) {
+            $listed[$service->id()->value] = $service->extendedInformations?->iconId?->value;
+        }
+
+        self::assertSame($secondIcon, $listed[$withIconFirst]);
+        self::assertNull($listed[$withoutIconFirst]);
+        self::assertSame($secondIcon, $this->repository->findOne(new ServiceId($withIconFirst), TestActingUsers::unrestricted())?->extendedInformations?->iconId?->value);
     }
 
     public function testUpdateActivationStatusPersistsTheFlag(): void
@@ -1058,5 +1380,90 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         }
 
         return $imageId;
+    }
+
+    /**
+     * @param Collection<covariant AggregateRootId> $ids
+     *
+     * @return list<int>
+     */
+    private function idValues(Collection $ids): array
+    {
+        return array_values(array_map(static fn (AggregateRootId $id): int => $id->value, $ids->toArray()));
+    }
+
+    private function insertCommand(string $name): int
+    {
+        $this->connection->insert('command', ['command_name' => $this->token . '-' . $name, 'command_line' => '$USER1$/check', 'command_type' => 2]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertTimePeriod(string $name): int
+    {
+        $this->connection->insert('timeperiod', ['tp_name' => $this->token . '-' . $name, 'tp_alias' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertGraphTemplate(): int
+    {
+        $this->connection->insert('giv_graphs_template', ['name' => $this->token . '-' . bin2hex(random_bytes(4))]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertContact(): int
+    {
+        $name = $this->token . '-contact';
+        $this->connection->insert('contact', [
+            'contact_name' => $name,
+            'contact_alias' => $name,
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+            'contact_email' => $name . '@email.com',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertContactGroup(): int
+    {
+        $this->connection->insert('contactgroup', ['cg_name' => $this->token . '-cg', 'cg_alias' => $this->token . '-cg', 'cg_activate' => '1']);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertServiceGroup(): int
+    {
+        $this->connection->insert('servicegroup', ['sg_name' => $this->token . '-' . bin2hex(random_bytes(4)), 'sg_activate' => '1']);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertServiceCategory(?int $level): int
+    {
+        $name = $this->token . '-' . bin2hex(random_bytes(4));
+        $this->connection->insert('service_categories', ['sc_name' => $name, 'sc_description' => $name, 'level' => $level, 'sc_activate' => '1']);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkToServiceCategory(int $serviceId, int $categoryId): void
+    {
+        $this->connection->insert('service_categories_relation', ['service_service_id' => $serviceId, 'sc_id' => $categoryId]);
+    }
+
+    private function insertTrap(): int
+    {
+        $this->connection->insert('traps_vendor', ['name' => $this->token, 'alias' => $this->token]);
+        $this->connection->insert('traps', [
+            'traps_name' => $this->token . '-trap',
+            'traps_oid' => '.1.3.6.1.4.1.' . random_int(1, PHP_INT_MAX),
+            'manufacturer_id' => (int) $this->connection->lastInsertId(),
+        ]);
+
+        return (int) $this->connection->lastInsertId();
     }
 }

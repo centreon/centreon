@@ -23,17 +23,51 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroParentEnum;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Collection;
+use Webmozart\Assert\Assert;
 
 /**
  * @extends AggregateRoot<ServiceTemplateId>
  */
 final class ServiceTemplate extends AggregateRoot
 {
+    /** @var Collection<ServiceMacro> */
+    public readonly Collection $macros;
+
+    /**
+     * @param ?ServiceTemplateId $parentId the template it inherits from (`service_template_model_stm_id`)
+     * @param ?Collection<ServiceMacro> $macros its own custom macros, in insertion order
+     */
     public function __construct(
         ?ServiceTemplateId $id,
         public readonly ServiceTemplateName $name,
+        public readonly ?ServiceTemplateId $parentId = null,
+        public readonly ?CommandId $checkCommandId = null,
+        public readonly ?CommandId $eventHandlerCommandId = null,
+        ?Collection $macros = null,
     ) {
         parent::__construct($id);
+        $this->macros = $macros ?? new Collection([], ServiceMacro::class);
+    }
+
+    /**
+     * The template's own macros, as a service inheriting from it sees them.
+     *
+     * @return list<ServiceMacro>
+     */
+    public function macrosAsInherited(): array
+    {
+        return array_values(array_map(
+            static function (ServiceMacro $macro): ServiceMacro {
+                Assert::false($macro->isInherited(), 'A service template only owns its own macros.');
+
+                return $macro->inheritedFrom(ServiceMacroParentEnum::Template);
+            },
+            $this->macros->toArray(),
+        ));
     }
 }
