@@ -183,6 +183,23 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
         self::assertSame([], $this->names($result));
     }
 
+    public function testFindNameByIdResolvesASeverityDisabledOrNot(): void
+    {
+        $severityId = $this->insertSeverity("sev-{$this->tag}", activate: '0');
+
+        self::assertSame("sev-{$this->tag}", $this->repository->findNameById(new ServiceSeverityId($severityId))?->value);
+    }
+
+    public function testFindNameByIdIgnoresACategoryAnUnknownAndANamelessId(): void
+    {
+        $categoryId = $this->insertCategory("cat-{$this->tag}");
+        $namelessId = $this->insertSeverity(null);
+
+        self::assertNull($this->repository->findNameById(new ServiceSeverityId($categoryId)));
+        self::assertNull($this->repository->findNameById(new ServiceSeverityId($namelessId)));
+        self::assertNull($this->repository->findNameById(new ServiceSeverityId($namelessId + 1000000)));
+    }
+
     /**
      * @param \IteratorAggregate<int, ServiceSeverity>&\Countable $result
      *

@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalServiceCategoryRepositor
 use App\MonitoringConfiguration\Infrastructure\Dbal\ServiceCategoryTransformer;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -215,6 +216,32 @@ final class DbalServiceCategoryRepositoryTest extends KernelTestCase
         self::assertSame([], $this->names($result));
     }
 
+    public function testFindNamesByIdsResolvesCategoriesDisabledOnesIncluded(): void
+    {
+        $categoryId = $this->insertCategory("names-{$this->tag}");
+        $disabledId = $this->insertCategory("disabled-{$this->tag}", activate: '0');
+
+        $names = $this->findNamesByIds($categoryId, $disabledId);
+
+        // Indexed by id, in no particular order: the query has no ORDER BY.
+        self::assertCount(2, $names);
+        self::assertSame("names-{$this->tag}", $names[$categoryId]);
+        self::assertSame("disabled-{$this->tag}", $names[$disabledId]);
+    }
+
+    public function testFindNamesByIdsIgnoresSeveritiesUnknownAndNamelessIds(): void
+    {
+        $severityId = $this->insertSeverity("sev-{$this->tag}");
+        $namelessId = $this->insertCategory(null);
+
+        self::assertSame([], $this->findNamesByIds($severityId, $namelessId, $namelessId + 1000000));
+    }
+
+    public function testFindNamesByIdsWithoutIdsIsEmpty(): void
+    {
+        self::assertCount(0, $this->repository->findNamesByIds(new Collection([], ServiceCategoryId::class)));
+    }
+
     /**
      * @param \IteratorAggregate<int, ServiceCategory>&\Countable $result
      *
@@ -264,5 +291,18 @@ final class DbalServiceCategoryRepositoryTest extends KernelTestCase
         ]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @return array<string> indexed by id
+     */
+    private function findNamesByIds(int ...$ids): array
+    {
+        $names = $this->repository->findNamesByIds(new Collection(
+            array_map(static fn (int $id): ServiceCategoryId => new ServiceCategoryId($id), $ids),
+            ServiceCategoryId::class,
+        ));
+
+        return array_map(static fn (ServiceCategoryName $name): string => $name->value, $names->toArray());
     }
 }

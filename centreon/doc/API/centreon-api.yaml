@@ -6867,6 +6867,37 @@ paths:
             schema:
               $ref: '#/components/schemas/Service.PatchServiceInput.jsonMergePatch'
         required: true
+    get:
+      operationId: api_configurationservices_id_get
+      tags:
+        - Service
+      responses:
+        '403':
+          description: 'You are not allowed to view services'
+        '404':
+          description: 'Service not found'
+        '200':
+          description: 'Service resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Service.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+      summary: 'Get a service'
+      description: "Every field of the service form, as stored on the service itself: nothing inherited from its templates is resolved, except the macros, which are the effective ones (its own, then those it inherits, each with the id and parent to send back to override it). A password macro's value is never returned. Services linked to host groups are not found."
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Service identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
 components:
   securitySchemes:
     Token:
@@ -14058,8 +14089,56 @@ components:
     Service:
       type: object
       properties:
+        host:
+          $ref: '#/components/schemas/ServiceHostOutput'
+        template:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceTemplateOutput'
+            -
+              type: 'null'
+        check_options:
+          $ref: '#/components/schemas/ServiceCheckOptionsOutput'
+        monitoring_engine:
+          $ref: '#/components/schemas/ServiceMonitoringEngineOutput'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceNotificationsOutput'
+            -
+              type: 'null'
+        advanced:
+          $ref: '#/components/schemas/ServiceAdvancedOutput'
+        service_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceGroupOutput'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceCategoryOutput'
+        severity:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceSeverityOutput'
+            -
+              type: 'null'
+        graph_template:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceGraphTemplateOutput'
+            -
+              type: 'null'
+        traps:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceTrapOutput'
         id:
           type: integer
+        name:
+          type: string
+        activated:
+          type: boolean
     Service.jsonld:
       allOf:
         -
@@ -14067,8 +14146,56 @@ components:
         -
           type: object
           properties:
+            host:
+              $ref: '#/components/schemas/ServiceHostOutput.jsonld'
+            template:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/ServiceTemplateOutput.jsonld'
+                -
+                  type: 'null'
+            check_options:
+              $ref: '#/components/schemas/ServiceCheckOptionsOutput.jsonld'
+            monitoring_engine:
+              $ref: '#/components/schemas/ServiceMonitoringEngineOutput.jsonld'
+            notifications:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/ServiceNotificationsOutput.jsonld'
+                -
+                  type: 'null'
+            advanced:
+              $ref: '#/components/schemas/ServiceAdvancedOutput.jsonld'
+            service_groups:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceGroupOutput.jsonld'
+            categories:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceCategoryOutput.jsonld'
+            severity:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/ServiceSeverityOutput.jsonld'
+                -
+                  type: 'null'
+            graph_template:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/ServiceGraphTemplateOutput.jsonld'
+                -
+                  type: 'null'
+            traps:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceTrapOutput.jsonld'
             id:
               type: integer
+            name:
+              type: string
+            activated:
+              type: boolean
     Service.PatchServiceInput.jsonMergePatch:
       type: object
       properties:
@@ -14077,6 +14204,682 @@ components:
           type:
             - boolean
             - 'null'
+    ServiceAdvancedOutput:
+      type: object
+      properties:
+        obsess_over_service:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        acknowledgment_timeout:
+          type:
+            - integer
+            - 'null'
+        check_freshness:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        freshness_threshold:
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        retain_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        retain_non_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        stalking_options:
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        event_handler_enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        event_handler:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceEventHandlerCommandOutput'
+            -
+              type: 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+        comment:
+          type:
+            - string
+            - 'null'
+    ServiceAdvancedOutput.jsonld:
+      type: object
+      properties:
+        obsess_over_service:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        acknowledgment_timeout:
+          type:
+            - integer
+            - 'null'
+        check_freshness:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        freshness_threshold:
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        retain_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        retain_non_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        stalking_options:
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        event_handler_enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        event_handler:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceEventHandlerCommandOutput.jsonld'
+            -
+              type: 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+        comment:
+          type:
+            - string
+            - 'null'
+    ServiceCategoryOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceCategoryOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceCheckCommandOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceCheckCommandOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceCheckOptionsOutput:
+      type: object
+      properties:
+        command:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceCheckCommandOutput'
+            -
+              type: 'null'
+        args:
+          description: 'ordered check-command arguments'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceMacroOutput'
+    ServiceCheckOptionsOutput.jsonld:
+      type: object
+      properties:
+        command:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceCheckCommandOutput.jsonld'
+            -
+              type: 'null'
+        args:
+          description: 'ordered check-command arguments'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceMacroOutput.jsonld'
+    ServiceEventHandlerCommandOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceEventHandlerCommandOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceGraphTemplateOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceGraphTemplateOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceGroupOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceGroupOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceHostOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceHostOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceIconOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+    ServiceIconOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+    ServiceMacroOutput:
+      type: object
+      properties:
+        id:
+          description: 'null for a command macro with no `on_demand_macro_command` row'
+          type:
+            - integer
+            - 'null'
+        name:
+          description: 'the short macro name (upper-cased), without the $_SERVICE…$ wrapper'
+          type: string
+        value:
+          description: 'null (omitted) for a password macro'
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        parent:
+          description: '"template" or "command" for an inherited macro, null for the service''s own one'
+          type:
+            - string
+            - 'null'
+    ServiceMacroOutput.jsonld:
+      type: object
+      properties:
+        id:
+          description: 'null for a command macro with no `on_demand_macro_command` row'
+          type:
+            - integer
+            - 'null'
+        name:
+          description: 'the short macro name (upper-cased), without the $_SERVICE…$ wrapper'
+          type: string
+        value:
+          description: 'null (omitted) for a password macro'
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        parent:
+          description: '"template" or "command" for an inherited macro, null for the service''s own one'
+          type:
+            - string
+            - 'null'
+    ServiceMonitoringEngineOutput:
+      type: object
+      properties:
+        check_period:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod'
+            -
+              type: 'null'
+        max_check_attempts:
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        is_volatile:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        note_url:
+          type:
+            - string
+            - 'null'
+        note:
+          type:
+            - string
+            - 'null'
+        action_url:
+          type:
+            - string
+            - 'null'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceIconOutput'
+            -
+              type: 'null'
+        alt_icon:
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    ServiceMonitoringEngineOutput.jsonld:
+      type: object
+      properties:
+        check_period:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod.jsonld'
+            -
+              type: 'null'
+        max_check_attempts:
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        is_volatile:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        note_url:
+          type:
+            - string
+            - 'null'
+        note:
+          type:
+            - string
+            - 'null'
+        action_url:
+          type:
+            - string
+            - 'null'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceIconOutput.jsonld'
+            -
+              type: 'null'
+        alt_icon:
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    ServiceNotificationsOutput:
+      type: object
+      properties:
+        enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        use_only_contacts_from_host:
+          type: boolean
+        contact_additive_inheritance:
+          type: boolean
+        contact_group_additive_inheritance:
+          type: boolean
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationContact'
+        contact_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactGroup'
+        interval:
+          type:
+            - integer
+            - 'null'
+        timeperiod:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod'
+            -
+              type: 'null'
+        options:
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        first_delay:
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          type:
+            - integer
+            - 'null'
+    ServiceNotificationsOutput.jsonld:
+      type: object
+      properties:
+        enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        use_only_contacts_from_host:
+          type: boolean
+        contact_additive_inheritance:
+          type: boolean
+        contact_group_additive_inheritance:
+          type: boolean
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationContact.jsonld'
+        contact_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactGroup.jsonld'
+        interval:
+          type:
+            - integer
+            - 'null'
+        timeperiod:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod.jsonld'
+            -
+              type: 'null'
+        options:
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        first_delay:
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          type:
+            - integer
+            - 'null'
+    ServiceSeverityOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceSeverityOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceTemplateOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceTemplateOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceTrapOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        vendor:
+          description: 'a plain array, so the vendor is `{id, name}` in every format'
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+    ServiceTrapOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        vendor:
+          description: 'a plain array, so the vendor is `{id, name}` in every format'
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
     HostTemplate:
       type: object
       properties:
