@@ -88,8 +88,7 @@ final class UniqueServiceNameOnHostValidatorTest extends ConstraintValidatorTest
     }
 
     /**
-     * The name is only checked once the host is valid: an unknown or inaccessible host is reported on its own
-     * field, and a restricted actor cannot learn a name exists on a host they cannot use.
+     * A restricted actor cannot learn that a name exists on a host they cannot use.
      */
     public function testItChecksNothingWhileTheHostIsNotValid(): void
     {

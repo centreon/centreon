@@ -39,10 +39,7 @@ use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 
 final class FakeHostRepository implements HostRepository
 {
-    /**
-     * @var array<int, HostState> states of hosts known by {@see findState()} only, indexed by host id: a host
-     *                            whose whole aggregate could not be loaded
-     */
+    /** @var array<int, HostState> by host id, hosts only {@see findState()} knows: their aggregate cannot load */
     public array $states = [];
 
     /** @var array<int, Host> */
@@ -142,9 +139,6 @@ final class FakeHostRepository implements HostRepository
         return $host;
     }
 
-    /**
-     * The state of {@see $states} first, then the one of a host of {@see $hosts}; scoped like {@see findOne()}.
-     */
     public function findState(HostId $id, ActingUser $actor): ?HostState
     {
         if (! $this->accessScopes->hosts($actor, new Collection([$id], HostId::class))->allows($id)) {

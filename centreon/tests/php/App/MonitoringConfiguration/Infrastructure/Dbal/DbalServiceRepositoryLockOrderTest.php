@@ -38,9 +38,8 @@ use Doctrine\DBAL\Result;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The poller lock only prevents the deadlock when it is taken before the service row is written. Nothing else
- * would turn red if it moved after the insert, and a deadlock needs two connections, which the integration
- * suite does not give: the order of the statements is pinned here instead.
+ * The poller lock must come before the service insert. A deadlock needs two connections, which the integration
+ * suite lacks, so the statement order is pinned here.
  */
 final class DbalServiceRepositoryLockOrderTest extends TestCase
 {
@@ -54,9 +53,6 @@ final class DbalServiceRepositoryLockOrderTest extends TestCase
         self::assertSame('INSERT INTO service', $statements[1]);
     }
 
-    /**
-     * A host without poller has no poller to flag: there is nothing to lock.
-     */
     public function testAddLocksNothingForAHostWithoutPoller(): void
     {
         self::assertSame(['INSERT INTO service'], $this->statementsUntilTheServiceInsert(null));

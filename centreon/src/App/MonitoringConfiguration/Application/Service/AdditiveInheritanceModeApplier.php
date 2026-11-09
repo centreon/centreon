@@ -60,9 +60,6 @@ final readonly class AdditiveInheritanceModeApplier
         return $notifications->withoutAdditiveInheritance();
     }
 
-    /**
-     * The same rule for the notifications of a service.
-     */
     public function applyToService(?ServiceNotifications $notifications): ?ServiceNotifications
     {
         if (! $notifications instanceof ServiceNotifications) {

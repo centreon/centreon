@@ -49,9 +49,8 @@ interface HostRepository
     public function findOne(HostId $id, ActingUser $actor): ?Host;
 
     /**
-     * The activation and the poller of a real host (never a host template), without loading the rest of it: a
-     * write on a resource of the host needs no more, and the host's other stored data cannot make it fail.
-     * Scoped like {@see findOne()}: null for a host outside the actor's ACL scope, as for one that does not exist.
+     * Never a host template; null outside the actor's ACL scope, as for a missing host. Nothing else of the host
+     * is read, so its other stored data cannot make it fail.
      */
     public function findState(HostId $id, ActingUser $actor): ?HostState;
 

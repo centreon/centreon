@@ -25,16 +25,8 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\Shared\Domain\Exception\AggregateConflictException;
 
-/**
- * A service needs a check command, set on it or provided by its service template chain. Reported against
- * `serviceTemplateId` when the template chain provides none, against `checkOptions` when there is no template.
- */
 final class ServiceCheckCommandMissingException extends AggregateConflictException
 {
-    /**
-     * @param ?int $templateId the service template whose chain provides no check command, null when the service
-     *                         has no template
-     */
     public function __construct(?int $templateId)
     {
         if ($templateId === null) {

@@ -55,10 +55,7 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var list<array{id: int, activated: bool}> */
     public array $activationUpdates = [];
 
-    /**
-     * When true, {@see isNameUsedOnHost()} reports every name as taken, letting a test exercise a name taken
-     * between the input validation and the write.
-     */
+    /** Every name taken, as by a concurrent write after the input validation. */
     public bool $forceNameUsed = false;
 
     public function add(Service $service): void

@@ -77,9 +77,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTrapRepository;
 use Tests\App\Shared\Double\CommandBusSpy;
 
 /**
- * What the processor sends to the create handler: the payload mapped to the domain, the name collapsed as it will
- * be stored, the repeated ids merged, the defaults of what is absent. The HTTP wiring is pinned by
- * {@see CreateServiceProcessorTest}, the rules of the payload by the input validation test.
+ * The command the processor builds; the HTTP wiring is pinned by {@see CreateServiceProcessorTest}.
  */
 final class CreateServiceProcessorLogicTest extends TestCase
 {
@@ -226,8 +224,7 @@ final class CreateServiceProcessorLogicTest extends TestCase
     }
 
     /**
-     * On-premise, the notification settings are always written: without block, the default ones, so the
-     * creation's log line and the response report them.
+     * On-premise, no block still gives the default settings, so the log line and the response report them.
      */
     public function testWithoutAnyOptionalBlockItSendsTheDefaults(): void
     {

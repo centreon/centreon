@@ -37,7 +37,7 @@ use Webmozart\Assert\Assert;
  */
 final readonly class ServiceDataProcessing
 {
-    /** Seconds a Centreon Monitoring Agent service may stay silent, the same as for a host. */
+    /** Seconds a Centreon Monitoring Agent service may stay silent. */
     public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
 
     /** @var list<string> */
@@ -71,7 +71,7 @@ final readonly class ServiceDataProcessing
         Assert::nullOrRange($lowFlapThreshold, 0, 100, 'ServiceDataProcessing::lowFlapThreshold expected to be between 0 and 100, got %s.');
         Assert::nullOrRange($highFlapThreshold, 0, 100, 'ServiceDataProcessing::highFlapThreshold expected to be between 0 and 100, got %s.');
         CommandArguments::assertValid($eventHandlerArgs, 'ServiceDataProcessing::eventHandlerArgs');
-        // Only empty arguments is no argument at all, as legacy stores it: written NULL, read back empty.
+        // All empty is no argument, as legacy stores it: written NULL, read back empty.
         $this->eventHandlerArgs = array_all($eventHandlerArgs, static fn (string $arg): bool => $arg === '')
             ? []
             : array_values($eventHandlerArgs);
@@ -88,8 +88,8 @@ final readonly class ServiceDataProcessing
     }
 
     /**
-     * A service checked by a Centreon Monitoring Agent pushes its results: freshness is always checked, with a
-     * fixed threshold, whatever was asked. Applied on write only: a read returns what is stored.
+     * A Centreon Monitoring Agent pushes its results, so freshness is forced on with a fixed threshold. Write side
+     * only: a read returns what is stored.
      */
     public function withCentreonMonitoringAgentFreshness(): self
     {

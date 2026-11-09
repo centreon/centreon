@@ -76,13 +76,9 @@ final readonly class ServiceActivityLogFactory implements ActivityLogFactoryInte
     }
 
     /**
-     * Every field of the form of a created service, and its host, keyed by legacy column name and valued in the
-     * legacy storage format, like {@see HostActivityLogFactory}: an unset value is an empty string, a tri-state
-     * is 0, 1 or 2, options are the engine letters, arguments are bang-joined and encoded. Service groups,
-     * categories, severity, traps and macros are not part of the log, so no macro password can appear in it.
-     *
-     * The storage formats are spelled out here rather than reused from the write side, which lives in
-     * Infrastructure: a change to one of them has to be made in both places.
+     * The form and the host, by legacy column and in legacy storage format, like {@see HostActivityLogFactory}.
+     * Service groups, categories, severity, traps and macros are left out, so no macro password is logged.
+     * The formats copy the Infrastructure write side's: change both together.
      *
      * @return array<string, string>
      */
@@ -122,7 +118,7 @@ final readonly class ServiceActivityLogFactory implements ActivityLogFactoryInte
     }
 
     /**
-     * No key at all without notifications block (Cloud), as for hosts.
+     * No key without a notifications block (Cloud), as for hosts.
      *
      * @return array<string, string>
      */
@@ -218,7 +214,7 @@ final readonly class ServiceActivityLogFactory implements ActivityLogFactoryInte
     }
 
     /**
-     * Bang-prefixed and bang-joined, with the line breaks and tabs encoded, like legacy stores them.
+     * As legacy stores them.
      *
      * @param list<string> $arguments
      */

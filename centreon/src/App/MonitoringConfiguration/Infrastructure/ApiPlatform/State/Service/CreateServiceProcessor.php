@@ -61,7 +61,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
 /**
- * Maps the create payload to the create command and answers the form of the created service, as a Get does.
+ * Answers the created service's form, as a Get does.
  *
  * @implements ProcessorInterface<CreateServiceInput, ServiceResource>
  */
@@ -85,7 +85,7 @@ final readonly class CreateServiceProcessor implements ProcessorInterface
 
         $checkOptions = $data->checkOptions;
         $command = new CreateServiceCommand(
-            // Stored as it is compared and measured by the input: trimmed, inner runs of spaces collapsed.
+            // Stored as the input compared and measured it.
             name: new ServiceName(CreateServiceInput::normalizeName($data->name)),
             hostId: new HostId($data->hostId),
             actor: $actor,
@@ -93,8 +93,7 @@ final readonly class CreateServiceProcessor implements ProcessorInterface
             checkCommandId: $checkOptions?->commandId !== null ? new CommandId($checkOptions->commandId) : null,
             checkCommandArgs: array_values($checkOptions->args ?? []),
             schedulingOptions: $this->schedulingOptions($data->monitoringEngine),
-            // On-premise the notification settings are always written, the default ones without block, so the
-            // response and the creation's log line report them; a Cloud platform has none.
+            // Defaults without a block, so the response and the log line report them; none on Cloud.
             notifications: $this->isCloudPlatform ? null : $this->notifications($data->notifications ?? new ServiceNotificationsInput()),
             dataProcessing: $this->dataProcessing($data->advanced ?? new ServiceAdvancedInput()),
             extendedInformations: $this->extendedInformations($data->monitoringEngine, $data->advanced),
@@ -126,7 +125,6 @@ final readonly class CreateServiceProcessor implements ProcessorInterface
 
     private function notifications(ServiceNotificationsInput $input): ServiceNotifications
     {
-        // A repeated contact or contact group is merged by the value object.
         return new ServiceNotifications(
             enabled: TriStateEnum::from($input->enabled),
             contactIds: $this->ids($input->contacts, NotificationContactId::class),
@@ -161,9 +159,6 @@ final readonly class CreateServiceProcessor implements ProcessorInterface
         );
     }
 
-    /**
-     * The notes, URLs, icon and coordinates of the monitoring engine section, and the comment of the advanced one.
-     */
     private function extendedInformations(?ServiceMonitoringEngineInput $engine, ?ServiceAdvancedInput $advanced): ServiceExtendedInformations
     {
         return new ServiceExtendedInformations(

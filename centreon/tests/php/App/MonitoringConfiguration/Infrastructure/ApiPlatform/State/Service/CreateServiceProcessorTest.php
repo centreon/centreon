@@ -29,9 +29,8 @@ use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMo
 use Tests\App\Shared\ApiTestCase;
 
 /**
- * The HTTP wiring of the service creation: route, access gate, payload deserialization, the validation pipeline
- * and its error body, the 201 body and the side effects end to end. Each rule of the payload is pinned by the
- * input validation test, each rule of the creation by the handler's test.
+ * The HTTP wiring of the service creation, end to end; the payload rules are pinned by the input validation test,
+ * the creation rules by the handler's.
  */
 final class CreateServiceProcessorTest extends ApiTestCase
 {
@@ -173,9 +172,8 @@ final class CreateServiceProcessorTest extends ApiTestCase
     }
 
     /**
-     * The creator's group is granted the new service in the real-time ACL cache within the request, so they see it at
-     * once. A GET is not replayed here: the test transactions keep the grant, written on the real-time connection,
-     * out of sight of the configuration connection that scopes the read.
+     * No GET replay: the test transactions hide the grant, written on the real-time connection, from the
+     * configuration connection that scopes the read.
      */
     public function testANonAdminCreatorSeesTheServiceAtOnce(): void
     {

@@ -26,15 +26,10 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
 use App\Shared\Domain\Exception\AggregateConflictException;
 
-/**
- * A note, note URL or action URL longer than the form allows is written. Such a text stored by legacy is still
- * read and returned (the value object only bounds it by its column), but a write must bring it within the form
- * bounds. Reported against `monitoringEngine`, the field of the input these texts are given in.
- */
 final class ServiceExtendedInformationsTooLongException extends AggregateConflictException
 {
     /**
-     * @param list<string> $fields the fields above their form bound
+     * @param list<string> $fields
      */
     public function __construct(array $fields)
     {

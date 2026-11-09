@@ -30,12 +30,8 @@ use App\Shared\Infrastructure\Dbal\TriStateColumnTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * Write-side counterpart of {@see ServiceTransformer} for the notification settings: turns a
- * {@see ServiceNotifications} value object into the `service` table's own storage formats, which the domain
- * knows nothing about.
- *
- * A null block transforms to exactly what legacy writes for a form carrying no notification field: the default
- * tri-state, false flags, and NULL everywhere else.
+ * Write-side counterpart of {@see ServiceTransformer} for the notification settings. A null block gives what
+ * legacy writes for a form without any notification field.
  *
  * @phpstan-type ServiceNotificationColumnsTypeAlias = array{
  *   notificationsEnabled: string,
@@ -71,8 +67,7 @@ final readonly class ServiceNotificationColumnsTransformer implements Transforme
     }
 
     /**
-     * The engine's own comma-separated single-letter format. An empty list writes NULL, as legacy does, distinct
-     * from the "none" option, which stores a real 'n' meaning "notify on nothing".
+     * An empty list writes NULL, as legacy does, unlike the "none" option, stored as 'n' (notify on nothing).
      *
      * @param list<ServiceNotificationOptionEnum> $options
      */

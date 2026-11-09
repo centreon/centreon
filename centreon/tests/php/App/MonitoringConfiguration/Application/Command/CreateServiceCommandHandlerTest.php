@@ -167,8 +167,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     private EventBusSpy $eventBus;
 
     /**
-     * Boots the real container and swaps only the repositories and the event bus for fakes, so the handler is
-     * built by Symfony's DI exactly as it is in production.
+     * The real container with fake repositories and event bus, so the DI wiring is exercised too.
      */
     protected function setUp(): void
     {
@@ -230,8 +229,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * The service is built with the state of its host as stored: the poller of the host is the one locked before
-     * the write and flagged after it, and only while the host is enabled.
+     * The poller is flagged only while the host is enabled.
      */
     public function testItBuildsTheServiceWithThePollerAndTheStateOfItsHost(): void
     {
@@ -247,8 +245,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * Only the activation and the poller of the host are read: a host whose whole aggregate could not be loaded
-     * (legacy data the host form would refuse) still takes services.
+     * A host whose whole aggregate cannot load (legacy data the host form refuses) still takes services.
      */
     public function testItCreatesAServiceOnAHostItOnlyReadsTheStateOf(): void
     {
@@ -309,9 +306,8 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * Every reference re-checked by the handler is refused with the criterion named after the input field, so
-     * that a reference gone after the input validation answers the same 422 on that field; a nested reference
-     * (time period, icon, command) answers 404. Nothing is written.
+     * Named after its input field, a reference gone since the input validation answers the same 422; a nested
+     * one (time period, icon, command) answers 404. Nothing is written.
      *
      * @param \Closure(self): CreateServiceCommand $command
      * @param class-string<AggregateNotFoundException|AggregateConflictException> $exceptionClass
@@ -432,8 +428,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * For an actor whose access is restricted, a reference outside their scope is refused as if it did not
-     * exist.
+     * Refused as if it did not exist.
      *
      * @param \Closure(self): CreateServiceCommand $command
      * @param class-string<AggregateNotFoundException> $exceptionClass
@@ -515,8 +510,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * The references are checked before the name: a restricted actor cannot learn that a name exists on a host
-     * they cannot use.
+     * A restricted actor cannot learn that a name exists on a host they cannot use.
      */
     public function testARestrictedActorGetsHostNotFoundRatherThanADuplicateName(): void
     {
@@ -537,9 +531,6 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->command(templateId: 999));
     }
 
-    /**
-     * Every reference is checked before the name, the contacts included.
-     */
     public function testAContactIsCheckedBeforeTheName(): void
     {
         $this->serviceRepository->forceNameUsed = true;
@@ -549,9 +540,6 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->command(notifications: $this->notifications(contactIds: [999])));
     }
 
-    /**
-     * The rules depending on the template chain come before the name too.
-     */
     public function testTheCheckCommandIsCheckedBeforeTheName(): void
     {
         $this->serviceRepository->forceNameUsed = true;
@@ -596,8 +584,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * The name is checked after every other rule, as the authority over the input check: a name taken in
-     * between answers 409.
+     * A name taken since the input validation answers 409.
      */
     public function testItRefusesANameAlreadyUsedOnTheHost(): void
     {
@@ -694,8 +681,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * Either every check-command argument is filled or none is, checked again here as the authority. It comes
-     * before the name, as the other rules on the payload.
+     * Checked before the name, as the other payload rules.
      */
     public function testItRefusesAPartlyFilledArgumentList(): void
     {
@@ -727,8 +713,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * A service checked by a Centreon Monitoring Agent command set on it always checks its freshness, with a
-     * fixed threshold; a CMA command inherited from the template does not trigger it.
+     * Only a Centreon Monitoring Agent command set on the service forces the freshness, not an inherited one.
      */
     public function testACentreonMonitoringAgentCheckCommandForcesTheFreshness(): void
     {
@@ -744,9 +729,8 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * A service notifying the contacts of its host only has no contact of its own: the contacts the actor
-     * submitted, all within their scope, are cleared, and both additive-inheritance flags are switched off.
-     * Hidden contacts cannot be submitted (they are refused above): they only matter on an update.
+     * The submitted contacts, all in the actor's scope since others are refused, are cleared, and both
+     * additive-inheritance flags go off.
      */
     public function testUsingOnlyTheContactsOfTheHostClearsTheSubmittedContacts(): void
     {

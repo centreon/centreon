@@ -98,9 +98,8 @@ final class ReferenceExceptionCriteriaTest extends TestCase
     }
 
     /**
-     * The service exceptions name their criterion after the PHP property of the service create input, so that
-     * the listener turns a reference that vanished after the input validation into the same 422 on that field;
-     * their message is the one the 422 shows.
+     * Named after a create input property, a reference gone since the input validation gets the same 422 on that
+     * field, with this message.
      *
      * @param array<string, mixed> $expected
      */
@@ -121,8 +120,7 @@ final class ReferenceExceptionCriteriaTest extends TestCase
     }
 
     /**
-     * The counterpart for the service: a reference nested in a sub-object of the input (a contact, a contact
-     * group, a time period, an icon, a command) names no top-level property, and keeps answering 404.
+     * A reference nested in a sub-object of the input keeps answering 404.
      */
     public function testTheNestedReferencesOfAServiceNameNoInputField(): void
     {

@@ -93,9 +93,8 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodReposi
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTrapRepository;
 
 /**
- * Every rule of the create payload, at the level of the input DTO: validated with its attribute constraints and
- * the reference validators backed by fakes. The paths are the PHP property paths; the HTTP layer renders them in
- * snake_case (pinned once, by the processor's HTTP test).
+ * The create payload's rules on the input DTO, with fake-backed reference validators. Paths are PHP property
+ * paths; the processor's HTTP test pins their snake_case rendering.
  *
  * The references that exist: host 10 (service "disk usage" on it), template 30 (with a check command), check
  * command 5, event handler 6, time period 40, media 50, graph template 60, severity 70, service group 80,

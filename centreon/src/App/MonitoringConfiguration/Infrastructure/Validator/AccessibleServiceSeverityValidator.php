@@ -34,9 +34,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Early duplicate of the create handler's own severity check, which stays the authority: the severity exists (a
- * category with a level) and is in the actor's scope. An unknown severity and one the actor cannot see get the same
- * answer.
+ * Early duplicate of the create handler's own severity check (a category with a level), which stays the authority.
+ * An unknown severity and a hidden one get the same answer.
  *
  * Always declared after Assert\Positive inside an Assert\Sequentially: ServiceSeverityId asserts a positive int.
  */

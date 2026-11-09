@@ -32,8 +32,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
  * Early duplicate of the create handler's own trap check, which stays the authority, through the same finder: a
- * trap without vendor or name, which the trap selector never offers, is refused as one that does not exist. Never
- * scoped by ACL.
+ * trap without vendor or name, never offered by the selector, is unknown. Never scoped by ACL.
  *
  * Always declared after Assert\All([Type, Positive]) inside an Assert\Sequentially: TrapId asserts a positive int.
  */

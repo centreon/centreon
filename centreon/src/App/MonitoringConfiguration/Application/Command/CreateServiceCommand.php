@@ -42,10 +42,8 @@ use App\Shared\Domain\Collection;
 final readonly class CreateServiceCommand
 {
     /**
-     * @param ActingUser $actor the acting user: the action-log actor, whose ACL scope also bounds the host,
-     *                          service-group, category, severity and contact checks
-     * @param list<string> $checkCommandArgs ordered check-command arguments; they require a check command, set
-     *                                       here or provided by the service template chain
+     * @param ActingUser $actor the creator; their scope bounds the host, service groups, categories, severity and contacts
+     * @param list<string> $checkCommandArgs need a check command, set here or inherited from the template chain
      * @param Collection<ServiceGroupId> $serviceGroupIds
      * @param Collection<ServiceCategoryId> $categoryIds
      * @param Collection<TrapId> $trapIds

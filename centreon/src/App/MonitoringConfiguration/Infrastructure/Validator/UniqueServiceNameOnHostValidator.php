@@ -36,12 +36,9 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * The name of a created service must be free on its host, compared as it will be stored. The create handler checks
- * it again, as the authority, against a name taken in between (409).
- *
- * A class constraint, since it needs the host too, and it only runs once the host is valid: an invalid host is
- * reported on its own field, and an actor whose access is restricted cannot learn that a name exists on a host
- * they cannot use. A name the other rules refuse is left to them.
+ * The name must be free on its host, compared as stored; the create handler re-checks it against a race (409).
+ * Skipped for an invalid host, so a restricted actor cannot probe names on a host they cannot use, and for a name
+ * the other rules refuse.
  */
 final class UniqueServiceNameOnHostValidator extends ConstraintValidator
 {

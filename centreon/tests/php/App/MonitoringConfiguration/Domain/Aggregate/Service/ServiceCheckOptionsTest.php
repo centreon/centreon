@@ -107,8 +107,7 @@ final class ServiceCheckOptionsTest extends TestCase
     }
 
     /**
-     * A list of empty arguments only is no argument at all, as legacy stores it: written NULL, read back empty.
-     * A list mixing empty and filled arguments is kept as it is.
+     * All-empty arguments are no argument, as legacy stores them; a mixed list is kept as is.
      *
      * @param list<string> $args
      * @param list<string> $expected
@@ -134,8 +133,7 @@ final class ServiceCheckOptionsTest extends TestCase
     }
 
     /**
-     * Either every argument is filled or none is: a list mixing both is refused on write. A list of empty
-     * arguments only is no argument at all.
+     * A list mixing filled and empty arguments is refused on write.
      *
      * @param list<string> $args
      */

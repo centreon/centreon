@@ -162,8 +162,7 @@ final class ServiceDataProcessingTest extends TestCase
     }
 
     /**
-     * A service checked by a Centreon Monitoring Agent pushes its results: freshness is always checked, with a
-     * fixed threshold of 500 seconds, and every other field is kept.
+     * Freshness forced on with a 500-second threshold; every other field is kept.
      */
     public function testACentreonMonitoringAgentServiceAlwaysChecksFreshnessWithAFixedThreshold(): void
     {
@@ -191,8 +190,7 @@ final class ServiceDataProcessingTest extends TestCase
     }
 
     /**
-     * A list of empty event handler arguments only is no argument at all, as legacy stores it. A list mixing
-     * empty and filled arguments is kept as it is: event handler arguments have no all-or-none rule.
+     * All-empty arguments are no argument, as legacy stores them; a mixed list is kept, with no all-or-none rule.
      *
      * @param list<string> $args
      * @param list<string> $expected

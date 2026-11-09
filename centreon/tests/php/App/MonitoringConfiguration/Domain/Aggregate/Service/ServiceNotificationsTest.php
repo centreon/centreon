@@ -237,8 +237,7 @@ final class ServiceNotificationsTest extends TestCase
     }
 
     /**
-     * A restricted actor clears only the contacts and contact groups they can see: the hidden ones stay linked.
-     * Both additive-inheritance flags are switched off whatever they were, and every other field is kept.
+     * Both additive-inheritance flags go off whatever they were; every other field is kept.
      */
     public function testWithHostContactsOnlyClearsTheVisibleContactsAndKeepsTheHiddenOnes(): void
     {
@@ -258,9 +257,6 @@ final class ServiceNotificationsTest extends TestCase
         );
     }
 
-    /**
-     * On create every submitted contact is visible to its author: they are all cleared.
-     */
     public function testWithHostContactsOnlyClearsEveryContactForAnUnrestrictedScope(): void
     {
         $cleared = $this->createFilledNotifications(useOnlyContactsFromHost: true)->withHostContactsOnly(

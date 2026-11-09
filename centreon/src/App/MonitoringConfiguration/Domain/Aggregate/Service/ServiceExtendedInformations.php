@@ -77,10 +77,10 @@ final readonly class ServiceExtendedInformations
     }
 
     /**
-     * The texts longer than the form allows, which a create or an update must refuse even though they fit their
-     * column. The alternative text of the icon and the comment have no form bound below their column's.
+     * The fields over their form bound, which a write refuses though they fit their column. The alternative text
+     * of the icon and the comment have none.
      *
-     * @return list<string> the names of the fields above their form bound
+     * @return list<string>
      */
     public function exceedsFormBounds(): array
     {

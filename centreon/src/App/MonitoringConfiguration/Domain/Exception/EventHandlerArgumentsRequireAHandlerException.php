@@ -25,11 +25,6 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\Shared\Domain\Exception\AggregateConflictException;
 
-/**
- * Event handler arguments are appended to the event handler, set on the service or provided by its service
- * template chain: without any handler they cannot stand alone. Reported against `advanced`, the field of the
- * input the arguments are given in.
- */
 final class EventHandlerArgumentsRequireAHandlerException extends AggregateConflictException
 {
     public function __construct()

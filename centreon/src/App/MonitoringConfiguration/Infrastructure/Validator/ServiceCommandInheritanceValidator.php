@@ -33,12 +33,9 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * The rules a service's commands follow through its template chain, checked again by the create handler as the
- * authority: a check command, set on the service or provided by its template chain; check command arguments only
- * with such a command; event handler arguments only with an event handler set on the service or provided by its
- * template chain. A list of empty arguments only is no argument.
- *
- * A template that is not a service template is reported by its own constraint: no rule of its chain is checked.
+ * A check command, and an event handler for event handler arguments, set on the service or inherited from its
+ * template chain; the create handler re-checks both as the authority. An unknown template is left to its own
+ * constraint.
  */
 final class ServiceCommandInheritanceValidator extends ConstraintValidator
 {

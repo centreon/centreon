@@ -119,9 +119,8 @@ final readonly class ServiceNotifications
     }
 
     /**
-     * Both additive-inheritance flags forced off, every other field untouched — for a platform whose
-     * `inheritance_mode` option does not enable them. Lives here rather than in the caller so adding a field to
-     * this value object cannot silently reset it to its default.
+     * For a platform whose `inheritance_mode` disables additive inheritance. Kept here so that a new field of this
+     * value object cannot be reset to its default by a caller.
      */
     public function withoutAdditiveInheritance(): self
     {
@@ -141,12 +140,11 @@ final readonly class ServiceNotifications
     }
 
     /**
-     * The service notifies the contacts of its host only: its own contacts and contact groups are cleared, and
-     * both additive-inheritance flags forced off. Only the ones the given scopes allow are cleared: those an
-     * actor whose access is restricted cannot see stay linked. Every other field is kept.
+     * Clears the contacts and contact groups the scopes allow, and forces additive inheritance off; the hidden ones
+     * stay linked.
      *
-     * @param AccessScope<NotificationContactId> $contactScope the contacts the actor can see
-     * @param AccessScope<ContactGroupId> $contactGroupScope the contact groups the actor can see
+     * @param AccessScope<NotificationContactId> $contactScope
+     * @param AccessScope<ContactGroupId> $contactGroupScope
      */
     public function withHostContactsOnly(AccessScope $contactScope, AccessScope $contactGroupScope): self
     {

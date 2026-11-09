@@ -193,8 +193,7 @@ final class ServiceExtendedInformationsTest extends TestCase
     }
 
     /**
-     * The form bounds (note 512 characters, note URL and action URL 2048 each) are write rules on top of the
-     * storage bounds: measured in characters, both sides of each bound.
+     * Both sides of each form bound, in characters.
      *
      * @return iterable<string, array{array<string, string>, list<string>}>
      */

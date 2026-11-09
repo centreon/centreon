@@ -95,8 +95,8 @@ final class ServiceActivityLogFactoryTest extends TestCase
     }
 
     /**
-     * A creation logs every field of the form, keyed by legacy column name and valued in the legacy storage
-     * format, plus the host. Service groups, categories, severity, traps and macros are not logged.
+     * The form and the host, in legacy columns and formats; service groups, categories, severity, traps and
+     * macros are not logged.
      */
     public function testAddDetails(): void
     {

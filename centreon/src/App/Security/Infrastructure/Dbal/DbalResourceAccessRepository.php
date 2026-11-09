@@ -67,8 +67,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      */
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void
     {
-        // A host is granted alone, a service on its host. Any other ACL-scoped aggregate must be mapped here
-        // before something creates one through an event (see AclScopedInterface).
+        // Any other ACL-scoped aggregate must be mapped here before an event creates one (see AclScopedInterface).
         [$hostId, $serviceId] = match (true) {
             $resource instanceof Host => [$resource->id()->value, null],
             $resource instanceof Service => [$resource->hostId->value, $resource->id()->value],

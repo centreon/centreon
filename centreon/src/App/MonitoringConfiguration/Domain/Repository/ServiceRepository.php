@@ -33,17 +33,11 @@ use App\Shared\Domain\Collection;
 
 interface ServiceRepository
 {
-    /**
-     * Writes a real service linked directly to its host, with its whole form and its relations, and sets its id.
-     */
     public function add(Service $service): void;
 
     /**
-     * Whether a service linked directly to this host already has this name, as legacy compares it: whatever the
-     * actor may see, whether that service is enabled or also linked to a host group, case-insensitive. A service
-     * reaching the host only through one of its host groups is not considered.
-     *
-     * @param ?ServiceId $excludingServiceId leaves a service out of the lookup, so that a service can keep its name
+     * Compared as legacy does: case-insensitive, whatever the actor's scope or the service's activation. A service
+     * reaching the host only through a host group is not counted.
      */
     public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool;
 

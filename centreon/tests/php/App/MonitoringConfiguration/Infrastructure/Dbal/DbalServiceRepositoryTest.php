@@ -1129,10 +1129,8 @@ final class DbalServiceRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Every row of the service is written in the legacy storage formats (tri-states, option letters, encoded
-     * arguments, `$_SERVICE<NAME>$` macros): one `host_service_relation` row, exactly one
-     * `extended_service_information` row, the service groups on the host, the categories and the severity in the
-     * same table. The service then reads back as it was written.
+     * Every row in the legacy storage formats, exactly one `extended_service_information` row, and the service
+     * reads back as written.
      */
     public function testAddPersistsTheWholeForm(): void
     {
@@ -1408,8 +1406,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Each tri-state and each flag reaches its own column: over the three cases every column gets a sequence of
-     * values no other column gets, so two columns bound to each other's value turn this red.
+     * Over the three cases each column gets a sequence of values no other gets, so a swapped binding turns red.
      *
      * @param array<string, TriStateEnum> $triStates
      * @param array<string, bool> $flags

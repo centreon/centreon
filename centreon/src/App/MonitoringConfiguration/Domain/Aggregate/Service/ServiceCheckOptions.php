@@ -59,14 +59,13 @@ final readonly class ServiceCheckOptions
             'A service only owns its own macros.',
         );
 
-        // Only empty arguments is no argument at all, as legacy stores it: written NULL, read back empty.
+        // All empty is no argument, as legacy stores it: written NULL, read back empty.
         $this->args = array_all($args, static fn (string $arg): bool => $arg === '') ? [] : array_values($args);
         $this->macros = array_values($macros);
     }
 
     /**
-     * Whether some arguments are filled and others are empty, which a write refuses: either every argument is
-     * filled or none is. Not an invariant of this object, which also holds the arguments a legacy row stores.
+     * Refused on write, but not an invariant: a legacy row may store such arguments.
      */
     public function hasPartlyFilledArguments(): bool
     {

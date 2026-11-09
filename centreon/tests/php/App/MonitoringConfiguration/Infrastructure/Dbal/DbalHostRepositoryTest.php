@@ -1663,8 +1663,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Only what a write on the host needs is read: stored data the host form would refuse (a legacy note longer
-     * than its bound, invalid coordinates) does not prevent it, while it does prevent loading the whole host.
+     * Stored data the host form refuses (a too-long legacy note, invalid coordinates) breaks findOne(), not this.
      */
     public function testFindStateReadsAHostWhoseOtherDataTheHostFormWouldRefuse(): void
     {

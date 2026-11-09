@@ -82,16 +82,10 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 
 /**
- * Creates a real service directly linked to one host. Every reference and form rule the input validates is checked
- * again here, as the authority (the state may change between the validation and the write); the Cloud platform
- * rules stay the input's, as for hosts. The order is: the references,
- * then the rules depending on several of them (license of the template, check command and event handler of the
- * template chain), then the form bounds, then the name. References come before the name so that an actor whose
- * access is restricted cannot learn that a name exists on a host they cannot use.
- *
- * A reference that no longer exists is reported with the input field as criterion, so the client gets the same
- * answer as from the input validation; a nested reference (time period, icon, command, contact, contact group)
- * answers not found, as on hosts.
+ * Re-checks, as the authority, every reference and form rule of the input except the Cloud ones. The name comes
+ * last, so a restricted actor cannot learn that a name exists on a host they cannot use. A top-level reference gone
+ * since the input validation names its input field; a nested one (time period, icon, command, contact, contact
+ * group) answers not found.
  */
 #[AsCommandHandler]
 final readonly class CreateServiceCommandHandler
@@ -139,9 +133,7 @@ final readonly class CreateServiceCommandHandler
      */
     public function __invoke(CreateServiceCommand $command): Service
     {
-        // Within the actor's host scope, and only its activation and poller: the service is written after that
-        // poller is locked, and the poller is flagged only while the host is enabled. The rest of the host is not
-        // loaded, so none of its other stored data can make the creation fail.
+        // Not the whole host: its other stored data must not make the creation fail.
         $host = $this->hostRepository->findState($command->hostId, $command->actor);
         if (! $host instanceof HostState) {
             throw new HostNotFoundException([$command->hostId->value], 'hostId');
@@ -189,8 +181,7 @@ final readonly class CreateServiceCommandHandler
             notifications: $this->additiveInheritanceModeApplier->applyToService(
                 $this->withHostContactsOnlyIfAsked($command->notifications, $command->actor),
             ),
-            // A Centreon Monitoring Agent command set on the service pushes its results: its freshness is always
-            // checked. One inherited from the template does not count, as legacy.
+            // Only a Centreon Monitoring Agent command set on the service forces the freshness, as legacy.
             dataProcessing: $checkCommand?->isCentreonMonitoringAgent() === true
                 ? $command->dataProcessing->withCentreonMonitoringAgentFreshness()
                 : $command->dataProcessing,
@@ -326,8 +317,7 @@ final readonly class CreateServiceCommandHandler
     }
 
     /**
-     * The submitted contacts and contact groups, before any clearing: each must exist and be in the actor's scope.
-     * Imported LDAP groups are contact groups like the others.
+     * On the submitted contacts, before any clearing; imported LDAP groups are contact groups like the others.
      */
     private function assertContactsExist(?ServiceNotifications $notifications, ActingUser $actor): void
     {
@@ -378,9 +368,7 @@ final readonly class CreateServiceCommandHandler
     }
 
     /**
-     * A service needs a check command, set on it or provided by its template chain; its event handler arguments
-     * need an event handler, set on it or provided by its template chain. The first value found walking up the
-     * chain wins.
+     * A check command, and an event handler for event handler arguments, set on the service or inherited.
      */
     private function assertCommandsAreProvided(CreateServiceCommand $command, ServiceCheckOptions $checkOptions): void
     {
@@ -412,8 +400,7 @@ final readonly class CreateServiceCommandHandler
     }
 
     /**
-     * A service notifying the contacts of its host only has no contact of its own: the ones the actor can see
-     * are cleared, those they cannot see stay linked.
+     * Clears every submitted contact and contact group: assertContactsExist() keeps them all in the actor's scope.
      */
     private function withHostContactsOnlyIfAsked(?ServiceNotifications $notifications, ActingUser $actor): ?ServiceNotifications
     {

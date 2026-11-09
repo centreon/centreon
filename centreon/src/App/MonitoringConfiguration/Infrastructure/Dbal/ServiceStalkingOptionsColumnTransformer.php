@@ -27,8 +27,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceStalkingOptionEn
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * Write-side counterpart of {@see ServiceTransformer} for the stalking options: the engine's comma-separated
- * letters `o`, `w`, `u`, `c` of `service_stalking_options`. An empty list writes NULL, as legacy does.
+ * Write-side counterpart of {@see ServiceTransformer} for the stalking options. An empty list writes NULL, as
+ * legacy does.
  *
  * @implements TransformerInterface<list<ServiceStalkingOptionEnum>, ?string>
  */

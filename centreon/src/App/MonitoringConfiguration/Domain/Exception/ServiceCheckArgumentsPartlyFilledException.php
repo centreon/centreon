@@ -25,10 +25,6 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\Shared\Domain\Exception\AggregateConflictException;
 
-/**
- * Check command arguments are written either all filled or all empty. Reported against `checkOptions`, the field of
- * the input the arguments are given in.
- */
 final class ServiceCheckArgumentsPartlyFilledException extends AggregateConflictException
 {
     public function __construct()

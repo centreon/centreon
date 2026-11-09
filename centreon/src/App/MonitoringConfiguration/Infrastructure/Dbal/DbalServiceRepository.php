@@ -250,8 +250,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             ->setParameter('serviceId', $serviceId, ParameterType::INTEGER)
             ->executeStatement();
 
-        // Every service row has exactly one companion row here, even when its extended information was left
-        // empty: legacy always inserts it, and the readers take the one with the lowest id.
+        // Always one row, even empty, as legacy: the readers take the one with the lowest id.
         $extendedInformations = $service->extendedInformations;
         $this->connection->createQueryBuilder()
             ->insert('extended_service_information')
@@ -281,8 +280,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     }
 
     /**
-     * No unique index backs `service_description` on a host: legacy has the same gap, this check is the only
-     * safeguard against a duplicate name.
+     * No unique index backs the name on a host, in legacy either: this check is the only guard.
      */
     public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool
     {
@@ -440,13 +438,9 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     }
 
     /**
-     * Takes the exclusive lock of the poller row of the service's host, before any row of the service is written.
-     *
-     * Writing a service takes a shared lock on its host row, through the foreign keys of `host_service_relation`
-     * and `servicegroup_relation`. The host's poller is flagged for a configuration reload later in the same
-     * transaction, which needs the poller row exclusively. A concurrent write of that host locks the poller row
-     * first, then the host row ({@see DbalHostRepository}): without this lock, each would hold what the other
-     * waits for, a deadlock. Locking the poller first makes the second write wait for the first instead.
+     * The service rows share-lock the host row through foreign keys, and the later reload flag needs the poller row
+     * exclusively, while a host write locks the poller then the host ({@see DbalHostRepository}). Locking the
+     * poller first here too turns that deadlock into a wait.
      */
     private function lockPoller(int $pollerId): void
     {
@@ -458,8 +452,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     }
 
     /**
-     * The relations of a service, all keyed on its id: its contacts and contact groups, its service groups on its
-     * host, its categories and its severity (one table, told apart by `service_categories.level`), its traps.
+     * Categories and severity share one table, told apart by `service_categories.level`.
      */
     private function insertRelations(int $serviceId, int $hostId, Service $service): void
     {
@@ -541,9 +534,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     }
 
     /**
-     * Binds every parameter of {@see self::SERVICE_COLUMN_PARAMETERS} in the legacy storage formats: tri-states
-     * as '0', '1', '2', arguments encoded; the notification settings and the stalking options through their
-     * transformers, which own those formats.
+     * Must bind every parameter of {@see self::SERVICE_COLUMN_PARAMETERS}, in the legacy storage formats.
      */
     private function bindServiceParameters(QueryBuilder $qb, Service $service): void
     {

@@ -38,8 +38,6 @@ final readonly class ServiceTemplateLicenseGuard
     }
 
     /**
-     * @param ?ServiceTemplateId $templateId the template the service is given, null for none
-     *
      * @throws UnlicensedServiceTemplatesException
      */
     public function assertLicensed(?ServiceTemplateId $templateId): void

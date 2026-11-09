@@ -34,8 +34,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Early duplicate of the create handler's own service group check, which stays the authority: each id exists and is
- * in the actor's scope. An unknown id and one the actor cannot see get the same answer.
+ * Early duplicate of the create handler's own service group check, which stays the authority. An unknown id and a
+ * hidden one get the same answer.
  *
  * Always declared after Assert\All([Type, Positive]) inside an Assert\Sequentially: ServiceGroupId asserts a positive
  * int.
