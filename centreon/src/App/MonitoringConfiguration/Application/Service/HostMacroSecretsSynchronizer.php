@@ -81,8 +81,6 @@ final readonly class HostMacroSecretsSynchronizer
 
         /** @var array<int, string> $toWrite plaintext indexed by position in $macros */
         $toWrite = [];
-        /** @var array<string, true> $keptKeys keys of the host's entry still referenced as is */
-        $keptKeys = [];
         /** @var array<string, int> $firstIndexByName */
         $firstIndexByName = [];
         foreach ($macros as $index => $macro) {
@@ -91,17 +89,15 @@ final readonly class HostMacroSecretsSynchronizer
                 continue;
             }
             $firstIndexByName[$macro->name->value] = $index;
-            // An empty password is stored as is, nothing vaulted.
             if (! $macro->isPassword) {
                 continue;
             }
+            // An empty password is stored as is, nothing vaulted.
             if ($macro->value === '') {
                 continue;
             }
 
             if ($this->isInHostEntry($macro->value, $hostVaultUuid)) {
-                $keptKeys[$this->keyOf($macro->value)] = true;
-
                 continue;
             }
 
