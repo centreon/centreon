@@ -1,6 +1,11 @@
 import type { TFunction } from 'i18next';
 
-import { schedulingColumns } from '../../ResourceForm/grid';
+import {
+  schedulingColumns,
+  stackedColumns,
+  twoColumnsFromNarrow,
+  twoColumnsFromWide
+} from '../../ResourceForm/grid';
 import {
   getPlacedBlockIds as getLayoutBlockIds,
   type LayoutNode,
@@ -11,6 +16,7 @@ import {
 import {
   labelGeneralInformation,
   labelMonitoringEngineSchedulingOptions,
+  labelRelations,
   labelSchedulingOptions,
   labelServiceMonitoringProperties
 } from '../translatedLabels';
@@ -20,7 +26,45 @@ import { type BlockId, type Blocks, serviceResource } from './sections';
 // block is placed exactly once (`layout.test.ts`).
 export const layout: Array<LayoutSection> = [
   { label: labelGeneralInformation, nodes: ['basicInformation'] },
-  { label: labelServiceMonitoringProperties, nodes: ['templates'] },
+  {
+    label: labelServiceMonitoringProperties,
+    nodes: [
+      {
+        // The command on the left, over the template; the macros on the
+        // right.
+        className: twoColumnsFromWide,
+        columnSeparator: true,
+        columns: [
+          {
+            className: stackedColumns,
+            columns: ['checkCommand', 'templates'],
+            name: 'check-command-template'
+          },
+          'macros'
+        ],
+        name: 'check-command-layout'
+      }
+    ]
+  },
+  {
+    label: labelRelations,
+    nodes: [
+      {
+        // The service groups and traps in the left column. The right one
+        // stays empty until what classifies the service is placed there.
+        className: twoColumnsFromNarrow,
+        columnSeparator: true,
+        columns: [
+          {
+            className: stackedColumns,
+            columns: ['groups', 'snmpTraps'],
+            name: 'relations-groups'
+          }
+        ],
+        name: 'relations-layout'
+      }
+    ]
+  },
   {
     label: labelMonitoringEngineSchedulingOptions,
     nodes: [

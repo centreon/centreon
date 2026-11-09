@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next';
 import {
   labelGeneralInformation,
   labelMonitoringEngineSchedulingOptions,
+  labelRelations,
   labelServiceMonitoringProperties
 } from '../translatedLabels';
 import { getPlacedBlockIds, layout, placeBlocks } from './layout';
@@ -70,13 +71,60 @@ describe('layout', () => {
     }
   );
 
-  it('opens on the general information', () => {
-    expect(getSectionLabels({ isCloudPlatform: false, t })[0]).toBe(
-      labelGeneralInformation
+  it('opens on the general information, then the check command', () => {
+    expect(getSectionLabels({ isCloudPlatform: false, t }).slice(0, 2)).toEqual(
+      [labelGeneralInformation, labelServiceMonitoringProperties]
     );
-    expect(getSectionLabels({ isCloudPlatform: true, t })[0]).toBe(
-      labelGeneralInformation
+    expect(getSectionLabels({ isCloudPlatform: true, t }).slice(0, 2)).toEqual([
+      labelGeneralInformation,
+      labelServiceMonitoringProperties
+    ]);
+  });
+
+  it('places the macros next to the check command', () => {
+    const [, checkCommandSection] = placeBlocks({
+      blocks: getBlocks({ isCloudPlatform: false, t }),
+      t
+    });
+
+    const [left, macros] = checkCommandSection?.inputs[0]?.grid?.columns ?? [];
+
+    // The command over the template on the left, the macros on the right.
+    expect(left?.grid?.columns.map(({ fieldName }) => fieldName)).toEqual([
+      'check-options',
+      'template'
+    ]);
+    expect(macros?.fieldName).toBe('checkOptions.macros');
+  });
+
+  it('keeps the check command but not the macros in a mass change', () => {
+    const blocks = getBlocks({
+      isCloudPlatform: false,
+      isMassChange: true,
+      t
+    });
+
+    expect(blocks.checkCommand).toBeDefined();
+    expect(blocks.macros).toBeUndefined();
+  });
+
+  it('shows the relations after the check command', () => {
+    const labels = getSectionLabels({ isCloudPlatform: false, t });
+
+    expect(labels.indexOf(labelRelations)).toBe(
+      labels.indexOf(labelServiceMonitoringProperties) + 1
     );
+  });
+
+  it('keeps the service groups on cloud and the traps on-premise only', () => {
+    expect(Object.keys(getBlocks({ isCloudPlatform: false, t }))).toEqual(
+      expect.arrayContaining(['groups', 'snmpTraps'])
+    );
+
+    const cloudBlocks = Object.keys(getBlocks({ isCloudPlatform: true, t }));
+
+    expect(cloudBlocks).toContain('groups');
+    expect(cloudBlocks).not.toContain('snmpTraps');
   });
 
   it('has no general information in a mass change', () => {

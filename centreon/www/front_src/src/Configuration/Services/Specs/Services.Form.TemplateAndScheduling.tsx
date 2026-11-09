@@ -332,6 +332,11 @@ export default () => {
 
       await userEvent.type(await getInput('service-form-name'), 'cpu');
       await pickOption('service-form-host', 'host A');
+      // Without a template, the service needs a check command of its own.
+      await pickOption(
+        'service-form-check-options-command',
+        'check-centreon-ping'
+      );
 
       await save();
 

@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
 
