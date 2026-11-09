@@ -106,6 +106,14 @@ final class ServiceExtendedInformationsTest extends TestCase
         new ServiceExtendedInformations(...[$field => '   ']);
     }
 
+    #[DataProvider('textFieldProvider')]
+    public function testItAcceptsAZeroText(string $field): void
+    {
+        $informations = new ServiceExtendedInformations(...[$field => '0']);
+
+        self::assertSame('0', $informations->{$field});
+    }
+
     /**
      * The form bound of a note (512 characters) is a write rule: a longer note stored by legacy is still a
      * valid value, read and returned as it is.

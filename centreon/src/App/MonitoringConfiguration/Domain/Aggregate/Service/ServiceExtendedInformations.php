@@ -78,7 +78,7 @@ final readonly class ServiceExtendedInformations
         }
 
         $value = trim($value);
-        Assert::notEmpty($value, 'ServiceExtendedInformations::' . $field . ' must not be blank.');
+        Assert::stringNotEmpty($value, 'ServiceExtendedInformations::' . $field . ' must not be blank.');
         // Byte length ('8bit'): the TEXT column is bounded in bytes, so a multibyte text is measured in the
         // bytes it occupies.
         Assert::lessThanEq(
