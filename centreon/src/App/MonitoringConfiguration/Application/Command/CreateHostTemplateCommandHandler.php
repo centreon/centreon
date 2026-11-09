@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
@@ -118,14 +119,14 @@ final readonly class CreateHostTemplateCommandHandler
         // A failure after the first vault write purges the entry minted here.
         $mintedVaultUuid = null;
         try {
+            $snmpCommunity = $this->vaultOrPlaintext($command->name, $command->snmpCommunity);
+            $mintedVaultUuid = $this->vaultUuidOf($snmpCommunity);
             try {
-                $snmpCommunity = $this->vaultOrPlaintext($command->snmpCommunity);
-                $mintedVaultUuid = $this->vaultUuidOf($snmpCommunity);
                 $macros = $this->macroSecretsSynchronizer->synchronize($macros, [], $mintedVaultUuid);
-                $mintedVaultUuid ??= $this->vaultUuidOfMacros($macros);
             } catch (\Throwable $exception) {
                 throw VaultWriteFailedException::forNewHostTemplate($command->name, $exception);
             }
+            $mintedVaultUuid ??= $this->vaultUuidOfMacros($macros);
 
             $template = HostTemplate::create(
                 name: $command->name,
@@ -198,10 +199,9 @@ final readonly class CreateHostTemplateCommandHandler
     }
 
     /**
-     * With a vault, the column holds the `secret::` reference, so the community's length bound
-     * measures that.
+     * With a vault, the length bound applies to the stored `secret::` reference.
      */
-    private function vaultOrPlaintext(?string $snmpCommunity): ?SnmpCommunity
+    private function vaultOrPlaintext(HostTemplateName $name, ?string $snmpCommunity): ?SnmpCommunity
     {
         if ($snmpCommunity === null) {
             return null;
@@ -211,11 +211,17 @@ final readonly class CreateHostTemplateCommandHandler
             return new SnmpCommunity($snmpCommunity);
         }
 
-        return new SnmpCommunity($this->vault->write(
-            VaultPathEnum::MonitoringHosts->value,
-            VaultKeyEnum::HostSnmpCommunity->value,
-            $snmpCommunity,
-        ));
+        try {
+            $reference = $this->vault->write(
+                VaultPathEnum::MonitoringHosts->value,
+                VaultKeyEnum::HostSnmpCommunity->value,
+                $snmpCommunity,
+            );
+        } catch (\Throwable $exception) {
+            throw VaultWriteFailedException::forNewHostTemplate($name, $exception);
+        }
+
+        return new SnmpCommunity($reference);
     }
 
     private function vaultUuidOf(?SnmpCommunity $snmpCommunity): ?string
