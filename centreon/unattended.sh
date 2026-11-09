@@ -1857,6 +1857,11 @@ function update_centreon_packages() {
 		if ! { $PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO; }; then
 			error_and_exit "Could not update Centreon"
 		fi
+		# Same mid-transaction restart issue as on install (see enable_new_services): restart
+		# centengine only if the update left it down, so a running engine is not interrupted.
+		if [ "${has_systemd:-0}" -eq 1 ] && ! systemctl is-active --quiet centengine; then
+			systemctl restart centengine || log "WARN" "centengine could not be restarted (see recap below)"
+		fi
 	fi
 }
 #========= end of function update_centreon_packages()
