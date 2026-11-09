@@ -108,8 +108,7 @@ final class ServiceNotificationsTest extends TestCase
     }
 
     /**
-     * Legacy stores the options in the order w,u,c,r,f,s whatever was ticked: the column must not get an order
-     * legacy cannot write.
+     * Normalised to the only order legacy writes.
      */
     public function testItNormalisesTheOptionOrder(): void
     {

@@ -240,8 +240,7 @@ final class ServiceResourceBuilderTest extends TestCase
     }
 
     /**
-     * The template reference has no foreign key: a template deleted since is left out, not answered as an error.
-     * So is any other reference whose name no longer resolves.
+     * A reference whose name no longer resolves (e.g. a deleted template) is left out.
      */
     public function testADanglingReferenceIsLeftOut(): void
     {

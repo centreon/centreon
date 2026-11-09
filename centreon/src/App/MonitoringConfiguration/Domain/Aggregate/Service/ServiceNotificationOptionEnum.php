@@ -26,12 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 /**
  * The service state transitions that trigger a notification.
  *
- * Deliberately not backed: neither the API contract strings nor the engine's single-letter storage format
- * (`w`, `u`, `c`, `r`, `f`, `s`, `n`) belong to the domain; the storage mapping lives in the infrastructure
- * ({@see \App\MonitoringConfiguration\Infrastructure\Dbal\ServiceTransformer} for the read).
- *
- * {@see self::None} is exclusive: it means "notify on nothing" and cannot be combined with any other case
- * (enforced by {@see ServiceNotifications}).
+ * Not backed: storage letters and API strings belong to the infrastructure. {@see self::None} is exclusive.
  */
 enum ServiceNotificationOptionEnum
 {

@@ -29,12 +29,8 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 /**
- * The service's own check command, its arguments and its own custom macros.
- *
- * Unlike the host's, arguments do not require a check command here: a service may pass its own arguments to
- * the check command of its template chain, which only the template chain can tell; that rule is the write
- * path's. Two own macros of the same name are kept as they are: duplicates are refused on write, never
- * silently dropped.
+ * The service's own check command, arguments and custom macros. Arguments may target the template chain's
+ * command, and same-name own macros are kept as read.
  */
 final readonly class ServiceCheckOptions
 {
@@ -46,7 +42,6 @@ final readonly class ServiceCheckOptions
     public array $macros;
 
     /**
-     * @param ?CommandId $checkCommandId the service's own check command, null when none is set
      * @param array<int, string> $args ordered check-command arguments, reindexed to a list; the bang-joined
      *                                 storage form belongs to the persistence layer
      * @param array<int, ServiceMacro> $macros the service's own custom macros ($_SERVICE<NAME>$); inherited

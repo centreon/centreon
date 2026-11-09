@@ -33,16 +33,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 /**
  * The macros a service inherits, one per name, each tagged with its origin type.
  *
- * Resolution follows legacy: walking the template chain nearest-to-service first, the closest template
- * definition wins over any farther ancestor; the service macros of the check command are the lowest priority and
- * only fill names no template defines, the first command declaring a name winning.
+ * Nearest template wins; check-command macros only fill names no template defines.
  */
 final readonly class InheritedServiceMacros
 {
     /**
-     * The check command's macros a service never inherits: the SNMP community and version, which legacy never
-     * offers as macros to inherit from a command, of either type (they are host settings). A template macro of
-     * the same name is a custom macro and is inherited.
+     * Host settings legacy never offers as command macros; a template macro of the same name is still inherited.
      */
     private const NOT_INHERITED_COMMAND_MACROS = ['SNMPCOMMUNITY', 'SNMPVERSION'];
 

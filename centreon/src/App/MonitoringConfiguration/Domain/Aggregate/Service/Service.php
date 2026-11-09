@@ -39,12 +39,8 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
 
 /**
- * A real service directly linked to its one host: its own configuration (what it inherits from its templates is
- * not part of it), its relations by id, and the state of its host as loaded with it (activation, poller), which
- * decides the poller to flag when the service changes.
- *
- * A listing reads only part of it (activation, template, own check intervals, own icon); the other fields then
- * keep their defaults.
+ * A real service on its one host: own configuration, relations by id, and its host's state as loaded. A listing
+ * hydrates only part of it.
  *
  * @extends AggregateRoot<ServiceId>
  */

@@ -121,12 +121,8 @@ final readonly class ServiceTransformer implements TransformerInterface
     use TriStateColumnTrait;
 
     /**
-     * A listing row (and the rows of the host flows) carries only the service's identity, activation, template,
-     * own icon and own check intervals; every other key exists only on findOne()'s row, so each is read
-     * defensively and the aggregate's defaults apply when absent (no notifications block, empty relations).
-     *
-     * Tolerant read: a stored number outside the bounds the service accepts today reads as unset, so a legacy
-     * value never makes a whole read fail; texts are kept as stored.
+     * Listing rows carry a subset of keys; absent ones keep the aggregate's defaults.
+     * Out-of-bound stored numbers and blank texts read as unset.
      */
     public function transform(mixed $from): Service
     {
@@ -184,8 +180,7 @@ final readonly class ServiceTransformer implements TransformerInterface
     }
 
     /**
-     * Only present on findOne()'s row: a listing row reads with no notifications block. Kept platform-agnostic:
-     * the Cloud-vs-on-premise decision lives in the API layer.
+     * Absent from a listing row.
      *
      * @param RowTypeAlias $from
      */
@@ -254,8 +249,7 @@ final readonly class ServiceTransformer implements TransformerInterface
     }
 
     /**
-     * The engine's comma-separated letters `w`, `u`, `c`, `r`, `f`, `s`, `n`; an unknown letter is ignored. Legacy
-     * (mass change, CLAPI) can store "n" next to real options: the real options win.
+     * Letters w,u,c,r,f,s,n; unknown ones are ignored, and "n" next to real options is dropped.
      *
      * @return list<ServiceNotificationOptionEnum>
      */

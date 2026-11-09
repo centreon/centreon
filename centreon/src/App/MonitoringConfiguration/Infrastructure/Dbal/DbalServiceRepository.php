@@ -298,11 +298,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     }
 
     /**
-     * Every form column of the service and its relations: the extended information of its
-     * `extended_service_information` row with the lowest id, its service groups on this host only (not the rows of
-     * a host group), its levelless categories, and as severity the levelled category with the lowest id. The
-     * severity is the stored one, whatever the actor may see: it is hidden from a restricted actor on output only,
-     * as for hosts.
+     * Form columns and relations of the service on this host; the severity is not ACL-filtered here.
      *
      * @return ?FormRowTypeAlias null when the service no longer exists
      */
@@ -360,12 +356,12 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             '(SELECT GROUP_CONCAT(cgsr.contactgroup_cg_id)
                 FROM contactgroup_service_relation cgsr
                 WHERE cgsr.service_service_id = s.service_id) AS notification_contact_group_ids',
+            // No unique key on relation tables: DISTINCT reads a duplicated link once.
             '(SELECT GROUP_CONCAT(DISTINCT sgr.servicegroup_sg_id)
                 FROM servicegroup_relation sgr
                 WHERE sgr.service_service_id = s.service_id
                     AND sgr.host_host_id = ' . $qb->createNamedParameter($hostId, ParameterType::INTEGER) . '
                     AND sgr.hostgroup_hg_id IS NULL) AS service_group_ids',
-            // The relation tables carry no unique key: a duplicated legacy link is read once.
             '(SELECT GROUP_CONCAT(DISTINCT scr.sc_id)
                 FROM service_categories_relation scr
                 INNER JOIN service_categories sc ON sc.sc_id = scr.sc_id

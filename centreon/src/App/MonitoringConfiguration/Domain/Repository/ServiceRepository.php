@@ -77,12 +77,8 @@ interface ServiceRepository
      * to a real host, with no host group link, and for an actor whose access is restricted, granted to one of
      * their active Access Groups by the real-time ACL cache. Null otherwise.
      *
-     * Hydrated with every own column, its own macros (ids included), its notifications with their contacts and
-     * contact groups, its traps, its service groups on its host (rows of a host group excluded), its levelless
-     * categories, its extended information and graph template from its `extended_service_information` row with
-     * the lowest id, and as severity the levelled category with the lowest id, whatever the actor may see.
-     * No relation is filtered by the actor's scope: that is the caller's.
-     * Stored numbers outside their bounds read as unset.
+     * Hydrates every own column and relation, unfiltered by the actor's scope; out-of-bound stored numbers read
+     * as unset.
      */
     public function findOne(ServiceId $id, ActingUser $actor): ?Service;
 

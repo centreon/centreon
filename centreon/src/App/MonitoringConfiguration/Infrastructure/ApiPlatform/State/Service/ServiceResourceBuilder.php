@@ -79,17 +79,8 @@ use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Builds the ServiceResource of a service, resolving the ids the aggregate carries into the named `{id, name}`
- * outputs the contract exposes.
- *
- * - Own values only: nothing inherited from the templates is resolved, except the macros, which are the
- *   effective ones (its own, then those it inherits, each with the id and parent to send back).
- * - A reference whose name no longer resolves (a template deleted since: that link has no foreign key) is left out.
- * - A restricted actor's view is narrowed to what they may access: service groups, categories, contacts and
- *   contact groups and the severity. The host, the template, the
- *   commands, the time periods, the icon, the graph template and the traps are not ACL-scoped.
- * - On a Cloud platform, the on-premise-only fields are left out, as for hosts.
- * - Password macro values are never part of the output.
+ * Resolves the aggregate's ids into `{id, name}` outputs: own values and effective macros, ACL-scoped relations
+ * filtered, on-premise-only fields dropped on Cloud. An unresolved reference is left out, except the host.
  */
 final readonly class ServiceResourceBuilder
 {
@@ -153,8 +144,7 @@ final readonly class ServiceResourceBuilder
             }
         }
 
-        // Severity is ACL-scoped too: an out-of-scope severity is hidden (left null) from a restricted actor rather
-        // than surfaced, as for hosts.
+        // Hidden when out of the actor's scope.
         $resource->severity = null;
         if ($service->severityId instanceof ServiceSeverityId && $this->accessScopes->serviceSeverities($actor)->allows($service->severityId)) {
             $severityName = $this->serviceSeverityRepository->findNameById($service->severityId);
@@ -163,7 +153,6 @@ final readonly class ServiceResourceBuilder
                 : null;
         }
 
-        // Graph template and traps are on-premise only.
         $resource->graphTemplate = $this->isCloudPlatform ? null : $this->buildGraphTemplate($service->graphTemplateId);
         $resource->traps = $this->isCloudPlatform ? null : $this->buildTraps($service);
 

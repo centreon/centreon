@@ -32,8 +32,7 @@ use Webmozart\Assert\Assert;
 /**
  * The service's freshness, flap detection, event handler, obsession, retention and stalking directives.
  *
- * Platform availability is a contract concern enforced at the API boundary, not here: this VO stays
- * platform-agnostic. The three-state directives default to {@see TriStateEnum::UseDefault} (inherit), never null.
+ * The three-state directives default to {@see TriStateEnum::UseDefault}, never null.
  */
 final readonly class ServiceDataProcessing
 {

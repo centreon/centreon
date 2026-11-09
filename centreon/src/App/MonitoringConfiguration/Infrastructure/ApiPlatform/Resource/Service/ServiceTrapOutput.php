@@ -31,8 +31,7 @@ use ApiPlatform\Metadata\ApiProperty;
 final readonly class ServiceTrapOutput
 {
     /**
-     * @param array{id: int, name: string} $vendor a plain array, as in the trap selector, so the vendor is exactly
-     *                                             `{id, name}` whatever the format
+     * @param array{id: int, name: string} $vendor a plain array, so the vendor is `{id, name}` in every format
      */
     public function __construct(
         public int $id,

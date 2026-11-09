@@ -29,9 +29,7 @@ use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
- * The `advanced` sub-object of a service: freshness, flap detection, event handler, obsession, retention and
- * stalking directives, and its comment. On a Cloud platform the on-premise-only members are left null, and so out
- * of the payload, and the event handler arguments are an empty list.
+ * The `advanced` sub-object; on Cloud, on-premise-only members are null (omitted) and event handler args empty.
  */
 final readonly class ServiceAdvancedOutput
 {

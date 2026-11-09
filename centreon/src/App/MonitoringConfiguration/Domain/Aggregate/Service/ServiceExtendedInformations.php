@@ -28,11 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use Webmozart\Assert\Assert;
 
 /**
- * The service's notes, URLs, icon, comment and geographic coordinates (legacy `extended_service_information`
- * table, plus `service.service_comment` / `service.geo_coords`).
- *
- * Its invariant is the storage bound of each column, not the form's bounds: a longer text stored by legacy is a
- * valid value, read and returned as it is. The form bounds are write rules, checked on create and update.
+ * The service's notes, URLs, icon, comment and coordinates, bounded by column size, not by the form.
  */
 final readonly class ServiceExtendedInformations
 {
@@ -79,8 +75,7 @@ final readonly class ServiceExtendedInformations
 
         $value = trim($value);
         Assert::stringNotEmpty($value, 'ServiceExtendedInformations::' . $field . ' must not be blank.');
-        // Byte length ('8bit'): the TEXT column is bounded in bytes, so a multibyte text is measured in the
-        // bytes it occupies.
+        // TEXT is bounded in bytes.
         Assert::lessThanEq(
             mb_strlen($value, '8bit'),
             self::MAX_TEXT_BYTES,

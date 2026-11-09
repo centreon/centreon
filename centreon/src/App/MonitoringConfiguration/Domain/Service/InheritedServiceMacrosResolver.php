@@ -47,10 +47,6 @@ final readonly class InheritedServiceMacrosResolver
     ) {
     }
 
-    /**
-     * @param ?ServiceTemplateId $templateId the service's template
-     * @param ?CommandId $checkCommandId the service's own check command
-     */
     public function resolve(?ServiceTemplateId $templateId, ?CommandId $checkCommandId): InheritedServiceMacros
     {
         /** @var list<ServiceTemplate> $inheritanceLine */

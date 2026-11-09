@@ -137,8 +137,7 @@ final class ServiceDataProcessingTest extends TestCase
     }
 
     /**
-     * Legacy stores the options in this order whatever was ticked: the column must not get an order legacy
-     * cannot write.
+     * Normalised to the only order legacy writes.
      */
     public function testItCollapsesDuplicatedStalkingOptionsAndNormalisesTheirOrder(): void
     {

@@ -31,7 +31,6 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
 final readonly class ServiceCheckOptionsOutput
 {
     /**
-     * @param ?ServiceCheckCommandOutput $command the service's own check command, null when none is set
      * @param list<string> $args ordered check-command arguments
      * @param list<ServiceMacroOutput> $macros every macro the service effectively has: its own, then the ones it
      *                                         inherits
