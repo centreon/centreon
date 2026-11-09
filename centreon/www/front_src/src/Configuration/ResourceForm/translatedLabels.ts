@@ -11,6 +11,7 @@ export const labelCommand = 'Command';
 export const labelFreshnessCheck = 'Freshness check';
 export const labelDataProcessing = 'Data processing';
 export const labelFlapDetection = 'Flap detection';
+export const labelCustomMacros = 'Custom macros';
 
 // Templates
 export const labelSelectATemplate = 'Select a template';
