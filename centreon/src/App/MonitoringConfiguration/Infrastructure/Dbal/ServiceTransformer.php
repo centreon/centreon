@@ -99,8 +99,8 @@ use App\Shared\Infrastructure\TransformerInterface;
  *   contact_additive_inheritance?: int|string|null,
  *   cg_additive_inheritance?: int|string|null,
  *   use_only_contacts_from_host?: string|null,
- *   notification_contact_ids?: string|null,
- *   notification_contact_group_ids?: string|null,
+ *   notification_contact_ids?: list<int|string>,
+ *   notification_contact_group_ids?: list<int|string>,
  *   note?: string|null,
  *   note_url?: string|null,
  *   action_url?: string|null,
@@ -109,9 +109,9 @@ use App\Shared\Infrastructure\TransformerInterface;
  *   geo_coords?: string|null,
  *   graph_template_id?: int|string|null,
  *   severity_id?: int|string|null,
- *   service_group_ids?: string|null,
- *   category_ids?: string|null,
- *   trap_ids?: string|null,
+ *   service_group_ids?: list<int|string>,
+ *   category_ids?: list<int|string>,
+ *   trap_ids?: list<int|string>,
  * }
  *
  * @implements TransformerInterface<RowTypeAlias, Service>
@@ -153,9 +153,9 @@ final readonly class ServiceTransformer implements TransformerInterface
             extendedInformations: $this->buildExtendedInformations($from),
             graphTemplateId: $this->id($from['graph_template_id'] ?? null, GraphTemplateId::class),
             severityId: $this->id($from['severity_id'] ?? null, ServiceSeverityId::class),
-            serviceGroupIds: $this->idList($from['service_group_ids'] ?? null, ServiceGroupId::class),
-            categoryIds: $this->idList($from['category_ids'] ?? null, ServiceCategoryId::class),
-            trapIds: $this->idList($from['trap_ids'] ?? null, TrapId::class),
+            serviceGroupIds: $this->idList($from['service_group_ids'] ?? [], ServiceGroupId::class),
+            categoryIds: $this->idList($from['category_ids'] ?? [], ServiceCategoryId::class),
+            trapIds: $this->idList($from['trap_ids'] ?? [], TrapId::class),
         );
     }
 
@@ -192,8 +192,8 @@ final readonly class ServiceTransformer implements TransformerInterface
 
         return new ServiceNotifications(
             enabled: $this->columnToTriState($from['notifications_enabled']),
-            contactIds: $this->idList($from['notification_contact_ids'] ?? null, NotificationContactId::class),
-            contactGroupIds: $this->idList($from['notification_contact_group_ids'] ?? null, ContactGroupId::class),
+            contactIds: $this->idList($from['notification_contact_ids'] ?? [], NotificationContactId::class),
+            contactGroupIds: $this->idList($from['notification_contact_group_ids'] ?? [], ContactGroupId::class),
             options: $this->notificationOptions($from['notification_options'] ?? null),
             interval: $this->atLeast($from['notification_interval'] ?? null, 0),
             periodId: $this->id($from['notification_period_id'] ?? null, TimePeriodId::class),
@@ -334,16 +334,13 @@ final readonly class ServiceTransformer implements TransformerInterface
     /**
      * @template T of AggregateRootId
      *
+     * @param list<int|string> $ids
      * @param class-string<T> $class
      *
      * @return Collection<T>
      */
-    private function idList(?string $commaSeparated, string $class): Collection
+    private function idList(array $ids, string $class): Collection
     {
-        $ids = $commaSeparated === null || $commaSeparated === ''
-            ? []
-            : array_map(static fn (string $id): object => new $class((int) $id), explode(',', $commaSeparated));
-
-        return new Collection($ids, $class);
+        return new Collection(array_map(static fn (int|string $id): object => new $class((int) $id), $ids), $class);
     }
 }
