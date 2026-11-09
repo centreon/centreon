@@ -23,10 +23,19 @@ declare(strict_types=1);
 
 namespace App\Security\Domain\Aggregate;
 
-final readonly class UserId
+/**
+ * Stringable so that the logs show the user id itself: nested in an {@see ActingUser}, its `value` would
+ * otherwise fall past the depth the log sanitizer keeps.
+ */
+final readonly class UserId implements \Stringable
 {
     public function __construct(
         public int $value,
     ) {
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->value;
     }
 }

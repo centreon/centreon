@@ -19,6 +19,7 @@ import {
   configurationAtom,
   formActionsAtom,
   formStateAtom,
+  isMassChangeConfirmationDialogOpenAtom,
   isResetConfirmationDialogOpenAtom
 } from '../atoms';
 import useActions from '../Listing/Columns/Actions/useActions';
@@ -34,10 +35,16 @@ import {
 } from '../translatedLabels';
 import { panelDataTestIds } from './dataTestIds';
 
-const EnableAction = ({ row }: { row: ResourceRow }): ReactElement => {
+const EnableAction = ({
+  onChanged,
+  row
+}: {
+  onChanged: (isActivated: boolean) => void;
+  row: ResourceRow;
+}): ReactElement => {
   const { t } = useTranslation();
 
-  const { isMutating, change, checked } = useStatus({ row });
+  const { isMutating, change, checked } = useStatus({ onChanged, row });
 
   return (
     <Tooltip title={checked ? t(labelEnabled) : t(labelDisabled)}>
@@ -65,11 +72,17 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
   const configuration = useAtomValue(configurationAtom);
   const { id, mode, resource: openedResource } = useAtomValue(formStateAtom);
   const formActions = useAtomValue(formActionsAtom);
+  const setFormState = useSetAtom(formStateAtom);
   const setIsResetConfirmationDialogOpen = useSetAtom(
     isResetConfirmationDialogOpenAtom
   );
 
+  const setIsMassChangeConfirmationDialogOpen = useSetAtom(
+    isMassChangeConfirmationDialogOpenAtom
+  );
+
   const isEditMode = equals(mode, 'edit');
+  const isMassChangeMode = equals(mode, 'massChange');
 
   // Never merged: `useFetchQuery` keeps the last payload it loaded, so a detail
   // response can still describe the previously opened resource, and an action
@@ -80,7 +93,9 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
 
   const row = { ...resource, id } as ResourceRow;
 
-  const title = (resource?.name as string) || fallbackTitle;
+  const title = isMassChangeMode
+    ? fallbackTitle
+    : (resource?.name as string) || fallbackTitle;
 
   // A resource with no icon, or a module whose resources have none, simply
   // shows its name.
@@ -117,7 +132,20 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
         {title}
       </Typography>
       <Box className="ml-auto flex items-center gap-1">
-        {canEnableDisable && <EnableAction row={row} />}
+        {canEnableDisable && (
+          <EnableAction
+            // Kept on the opened resource, which a save sends back, while the
+            // same one is still open: the request can answer after another.
+            onChanged={(isActivated) =>
+              setFormState((current) =>
+                equals(current.id, id)
+                  ? { ...current, resource: { ...resource, isActivated } }
+                  : current
+              )
+            }
+            row={row}
+          />
+        )}
         {isEditMode && formActions && (
           <IconButton
             ariaLabel={t(labelReset)}
@@ -144,7 +172,12 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
             ariaLabel={t(labelSave)}
             dataTestid={panelDataTestIds.save}
             disabled={!formActions.canSubmit}
-            onClick={formActions.submit}
+            // A mass change confirms the count first.
+            onClick={
+              isMassChangeMode
+                ? () => setIsMassChangeConfirmationDialogOpen(true)
+                : formActions.submit
+            }
             title={t(labelSave)}
           >
             <SaveIcon color={formActions.canSubmit ? 'primary' : 'disabled'} />

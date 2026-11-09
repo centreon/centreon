@@ -65,9 +65,11 @@ class DbWriteHostGroupRepository extends AbstractRepositoryRDB implements WriteD
 
         $bindValues = [];
         $subValues = [];
-        foreach ($resourceIds as $index => $hostgroupId) {
+        $index = 0;
+        foreach ($resourceIds as $hostgroupId) {
             $bindValues[":hostgroup_id_{$index}"] = $hostgroupId;
             $subValues[] = "(:hostgroup_id_{$index}, :datasetId)";
+            $index++;
         }
 
         $subQueries = implode(', ', $subValues);

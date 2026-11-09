@@ -591,8 +591,10 @@ $selectClause .= implode(', ', $selectFields);
 $fromClause = 'FROM logs';
 
 $joinClauses = [];
+$selectedInstanceCondition = '';
 if ($engine == 'true' && ! empty($openid)) {
-    $pollerIds = array_filter(explode(',', $openid), 'is_numeric');
+    // Only positive integers are kept: the '-1' default of the id parameter is not a poller
+    $pollerIds = array_filter(explode(',', $openid), 'ctype_digit');
     if ($pollerIds !== []) {
         [$bindValues, $bindQuery] = createMultipleBindQuery($pollerIds, ':pollerIds_', PDO::PARAM_INT);
         $joinClauses[] = "
@@ -600,16 +602,32 @@ if ($engine == 'true' && ! empty($openid)) {
         AND i.instance_id IN ({$bindQuery})
         ";
         $queryValues = array_merge($queryValues, $bindValues);
-    }
-    if ($str_unitH != '') {
-        $str_unitH = "(logs.host_id IN ({$str_unitH}) AND (logs.service_id IS NULL OR logs.service_id = 0))";
-        if (isset($search_host) && $search_host != '') {
-            $host_search_sql = " AND logs.host_name LIKE '%" . $pearDBO->escapeString($search_host) . "%' ";
-        }
+        // Instance names are not unique: the ACL check must target the instance row selected here
+        $selectedInstanceCondition = 'AND acl_i.instance_id = i.instance_id';
     }
 }
 
-if (! $is_admin) {
+if (! $is_admin && $engine == 'true') {
+    // Engine messages have no host_id, so the host-based centreon_acl join would hide them: keep engine
+    // messages only, whatever the requested filters, and restrict them to the pollers allowed by the ACL
+    // (see CentreonACL::getPollerRuntimeIds()). Users without access to the System Logs page get nothing.
+    $whereClauses[] = 'logs.msg_type IN (4, 5)';
+    $aclPollerIds = $access->page('20302') === CentreonACL::ACL_ACCESS_NONE
+        ? []
+        : $access->getPollerRuntimeIds();
+    if ($aclPollerIds === []) {
+        $whereClauses[] = '0 = 1';
+    } else {
+        [$bindValues, $bindQuery] = createMultipleBindQuery($aclPollerIds, ':aclPollerIds_', PDO::PARAM_INT);
+        $whereClauses[] = "EXISTS (
+            SELECT 1 FROM instances acl_i
+            WHERE acl_i.name = logs.instance_name
+            AND acl_i.instance_id IN ({$bindQuery})
+            {$selectedInstanceCondition}
+        )";
+        $queryValues = array_merge($queryValues, $bindValues);
+    }
+} elseif (! $is_admin) {
     $joinClauses[] = '
         INNER JOIN centreon_acl acl ON (
             logs.host_id = acl.host_id

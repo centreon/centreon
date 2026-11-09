@@ -9,12 +9,6 @@ interface StyleProps {
 
 export const useStyles = makeStyles<StyleProps>()(
   (theme, { isExtraFieldHidden }) => ({
-    additionalLabel: {
-      color: theme.palette.primary.main,
-      fontSize: theme.typography.subtitle1.fontSize,
-      fontWeight: theme.typography.fontWeightMedium,
-      marginBottom: theme.spacing(0.5)
-    },
     channels: {
       paddingBottom: theme.spacing(1),
       paddingTop: theme.spacing(3)
@@ -53,9 +47,6 @@ export const useStyles = makeStyles<StyleProps>()(
     },
     timeperiodTooltip: {
       fontSize: theme.spacing(2.75)
-    },
-    titleGroup: {
-      fontWeight: theme.typography.fontWeightBold
     }
   })
 );

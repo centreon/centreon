@@ -61,7 +61,7 @@ interface PollerRepository
     /**
      * @return \IteratorAggregate<int, Poller>&\Countable
      */
-    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(PollerCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
      * @throws PollerNotFoundException
@@ -72,11 +72,17 @@ interface PollerRepository
      * Raises `nagios_server.updated` on the poller referenced by the given poller-scoped
      * resource, so its configuration is regenerated — anything that changes what a poller
      * monitors (adding a host, for instance) must call this, or the monitoring engine keeps
-     * running on stale configuration.
+     * running on stale configuration. A resource with no poller to flag (a service whose host
+     * is disabled or has no poller) flags nothing.
      *
      * @param AggregateRoot<AggregateRootId>&PollerScopedInterface $resource
      */
     public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void;
+
+    /**
+     * Same flag, for a poller that is no longer the one a resource references (a host moved away).
+     */
+    public function flagIdAsChanged(PollerId $pollerId): void;
 
     public function withCmaCertificates(): self;
 }

@@ -60,9 +60,9 @@ final readonly class ListMediasChoicesProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
-        // No viewer scoping: the legacy host form's icon picker (return_image_list(1)) ignores the
+        // No actor scoping: the legacy host form's icon picker (return_image_list(1)) ignores the
         // image-folder ACL, unlike the generic /configuration/medias endpoint.
-        $criteria = new MediaCriteria();
+        $criteria = MediaCriteria::unscoped();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {

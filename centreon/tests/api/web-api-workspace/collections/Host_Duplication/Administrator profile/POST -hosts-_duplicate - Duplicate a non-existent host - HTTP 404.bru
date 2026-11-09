@@ -1,0 +1,20 @@
+meta {
+  name: POST /configuration/hosts/{hostId}/_duplicate - Duplicate a non-existent host - HTTP 404
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{baseUriCentreonApiWeb}}/configuration/hosts/2147483647/_duplicate
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 404
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

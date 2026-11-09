@@ -40,11 +40,13 @@ use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessiblePoller;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessiblePollerValidator;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -92,11 +94,11 @@ final class AccessiblePollerValidatorTest extends ConstraintValidatorTestCase
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCannotReferenceAPollerOutsideTheirScope(): void
+    public function testARestrictedActorCannotReferenceAPollerOutsideTheirScope(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->pollerRepository->method('get')->willReturn($this->createPoller());
-        $this->resourceAccessRepository->method('hasAccessToPoller')->willReturn(false);
+        $this->resourceAccessRepository->method('findPollerAccessScope')->willReturn(AccessScope::restrictedTo(PollerId::class, []));
 
         $constraint = new AccessiblePoller();
         $this->validator->validate(1, $constraint);
@@ -104,11 +106,11 @@ final class AccessiblePollerValidatorTest extends ConstraintValidatorTestCase
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCanReferenceAnAccessiblePoller(): void
+    public function testARestrictedActorCanReferenceAnAccessiblePoller(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->pollerRepository->method('get')->willReturn($this->createPoller());
-        $this->resourceAccessRepository->method('hasAccessToPoller')->willReturn(true);
+        $this->resourceAccessRepository->method('findPollerAccessScope')->willReturn(AccessScope::restrictedTo(PollerId::class, [new PollerId(1)]));
 
         $this->validator->validate(1, new AccessiblePoller());
 
@@ -117,7 +119,7 @@ final class AccessiblePollerValidatorTest extends ConstraintValidatorTestCase
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new AccessiblePollerValidator($this->security, $this->pollerRepository, $this->resourceAccessRepository);
+        return new AccessiblePollerValidator($this->security, $this->pollerRepository, new AccessScopeResolver($this->resourceAccessRepository));
     }
 
     private function createCredentialUser(bool $isAdmin): CredentialUser

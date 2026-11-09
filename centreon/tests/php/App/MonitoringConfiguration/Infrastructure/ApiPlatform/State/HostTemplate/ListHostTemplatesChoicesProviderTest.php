@@ -25,16 +25,18 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Uid\Uuid;
+use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
 final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
 {
+    use InsertsMonitoringConnectorTemplates;
     private const BASE_ENDPOINT = '/api/configuration/hosts/host_templates';
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_HOSTS_R[W]
     // (Configuration > Hosts > Hosts), bridged to HostPermissionEnum via
-    // DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const HOST_TOPOLOGY_PAGES = [6, 601, 60101];
 
     // CentreonACL access rights, see Centreon\Domain\Repository\TopologyRepository
@@ -54,6 +56,12 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
         $this->connection = $connection;
 
         $this->tag = Uuid::v4()->toRfc4122();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->dropMonitoringConnectorTables($this->connection);
+        parent::tearDown();
     }
 
     public function testItRequiresAuthentication(): void
@@ -109,13 +117,25 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
     }
 
     /**
-     * Legacy's host-form "extend template" select (CentreonHost::getLimitedList()) excludes
-     * locked (paid plugin-pack) templates.
+     * Legacy's host-form "extend template" select (CentreonHost::getLimitedList()) excludes the
+     * templates coming from Monitoring Connectors once the license host limit is reached.
      */
-    public function testItExcludesLockedTemplates(): void
+    public function testItExcludesTheTemplatesTheLicenseNoLongerAllows(): void
     {
-        $unlockedName = "unlocked-{$this->tag}";
-        $this->insertHostTemplate($unlockedName);
+        $allowedName = "allowed-{$this->tag}";
+        $this->insertHostTemplate($allowedName);
+        $unlicensedId = $this->insertHostTemplate("unlicensed-{$this->tag}");
+        $this->insertMonitoringConnectorTemplates($this->connection, $unlicensedId);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
+        self::assertResponseIsSuccessful();
+        self::assertSame([$allowedName], array_column((array) $response->toArray()['member'], 'name'));
+    }
+
+    public function testItListsALockedTemplateWhileTheLicenseAllowsIt(): void
+    {
         $lockedName = "locked-{$this->tag}";
         $this->insertHostTemplate($lockedName, locked: true);
 
@@ -123,13 +143,13 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
 
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
         self::assertResponseIsSuccessful();
-        self::assertSame([$unlockedName], array_column((array) $response->toArray()['member'], 'name'));
+        self::assertSame([$lockedName], array_column((array) $response->toArray()['member'], 'name'));
     }
 
     /**
      * Legacy's host-form "extend template" select (CentreonHost::getList()) is not host-category
-     * severity-scoped, unlike the generic /configuration/host_templates endpoint: a viewer
-     * restricted to some severities must still see every (unlocked) template.
+     * severity-scoped, unlike the generic /configuration/host_templates endpoint: an actor
+     * restricted to some severities must still see every template.
      */
     public function testItIgnoresHostCategoryAclRestrictionsForARestrictedUser(): void
     {
@@ -159,6 +179,8 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
     {
         $this->insertHostTemplate("match-{$this->tag}");
         $this->insertHostTemplate("other-{$this->tag}");
+        // unlike the /configuration/host_templates listing, the search does not look at the alias
+        $this->insertHostTemplate("aliased-{$this->tag}", alias: "match-{$this->tag}-alias");
 
         $this->login();
 
@@ -169,9 +191,10 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
 
     public function testItPaginatesHostTemplates(): void
     {
+        // inserted out of name order on purpose: the choices keep the id order
+        $this->insertHostTemplate("pg-{$this->tag}-C");
         $this->insertHostTemplate("pg-{$this->tag}-A");
         $this->insertHostTemplate("pg-{$this->tag}-B");
-        $this->insertHostTemplate("pg-{$this->tag}-C");
 
         $this->login();
 
@@ -179,7 +202,7 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
             'query' => ['name' => ['lk' => "pg-{$this->tag}-"], 'page' => '1', 'itemsPerPage' => '2'],
         ]);
         self::assertResponseIsSuccessful();
-        self::assertCount(2, (array) $response->toArray()['member']);
+        self::assertSame(["pg-{$this->tag}-C", "pg-{$this->tag}-A"], array_column((array) $response->toArray()['member'], 'name'));
         self::assertEquals(3, $response->toArray()['totalItems']);
     }
 
@@ -199,10 +222,11 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
         self::assertResponseStatusCodeSame(400);
     }
 
-    private function insertHostTemplate(string $name, bool $locked = false): int
+    private function insertHostTemplate(string $name, bool $locked = false, ?string $alias = null): int
     {
         $this->connection->insert('host', [
             'host_name' => $name,
+            'host_alias' => $alias,
             'host_register' => '0',
             'host_activate' => '1',
             'host_locked' => $locked ? '1' : '0',

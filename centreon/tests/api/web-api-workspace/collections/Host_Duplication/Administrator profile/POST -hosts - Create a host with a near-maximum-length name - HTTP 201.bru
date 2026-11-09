@@ -1,0 +1,40 @@
+meta {
+  name: POST /configuration/hosts - Create a host with a near-maximum-length name - HTTP 201
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{LongHostName}}",
+    "alias": "Leaves no room for a _<n> suffix",
+    "address": "127.0.0.1",
+    "monitoring_server_id": 1,
+    "normal_check_interval": 3,
+    "max_check_attempts": 1,
+    "templates": [{{HostTemplate1Id}}]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("A host whose name is one short of the 200-char limit is created.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("id").that.is.a("number");
+    bru.setEnvVar("LongHostId", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

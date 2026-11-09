@@ -28,11 +28,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostGroups;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostGroupsValidator;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -91,15 +93,13 @@ final class AccessibleHostGroupsValidatorTest extends ConstraintValidatorTestCas
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCannotReferenceAGroupOutsideTheirScope(): void
+    public function testARestrictedActorCannotReferenceAGroupOutsideTheirScope(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostGroupRepository->method('findNamesByIds')->willReturn(
             new Collection([5 => new HostGroupName('Linux servers')], HostGroupName::class),
         );
-        $this->resourceAccessRepository->method('findAccessibleHostGroupIds')->willReturn(
-            new Collection([new HostGroupId(9)], HostGroupId::class),
-        );
+        $this->resourceAccessRepository->method('findHostGroupAccessScope')->willReturn(AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(9)]));
 
         $constraint = new AccessibleHostGroups();
         $this->validator->validate([5], $constraint);
@@ -107,28 +107,26 @@ final class AccessibleHostGroupsValidatorTest extends ConstraintValidatorTestCas
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCanReferenceAnAccessibleGroup(): void
+    public function testARestrictedActorCanReferenceAnAccessibleGroup(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostGroupRepository->method('findNamesByIds')->willReturn(
             new Collection([5 => new HostGroupName('Linux servers')], HostGroupName::class),
         );
-        $this->resourceAccessRepository->method('findAccessibleHostGroupIds')->willReturn(
-            new Collection([new HostGroupId(5)], HostGroupId::class),
-        );
+        $this->resourceAccessRepository->method('findHostGroupAccessScope')->willReturn(AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(5)]));
 
         $this->validator->validate([5], new AccessibleHostGroups());
 
         $this->assertNoViolation();
     }
 
-    public function testARestrictedViewerWithNoAclRestrictionCanReferenceAnyExistingGroup(): void
+    public function testARestrictedActorWithNoAclRestrictionCanReferenceAnyExistingGroup(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostGroupRepository->method('findNamesByIds')->willReturn(
             new Collection([5 => new HostGroupName('Linux servers')], HostGroupName::class),
         );
-        $this->resourceAccessRepository->method('findAccessibleHostGroupIds')->willReturn(null);
+        $this->resourceAccessRepository->method('findHostGroupAccessScope')->willReturn(AccessScope::unrestricted(HostGroupId::class));
 
         $this->validator->validate([5], new AccessibleHostGroups());
 
@@ -137,7 +135,7 @@ final class AccessibleHostGroupsValidatorTest extends ConstraintValidatorTestCas
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new AccessibleHostGroupsValidator($this->security, $this->hostGroupRepository, $this->resourceAccessRepository);
+        return new AccessibleHostGroupsValidator($this->security, $this->hostGroupRepository, new AccessScopeResolver($this->resourceAccessRepository));
     }
 
     private function createCredentialUser(bool $isAdmin): CredentialUser

@@ -23,8 +23,6 @@ on:
   pull_request:
     paths:
       - ".github/workflows/web.yml"
-      - ".github/docker/centreon-snmptrapd/**"
-      - ".github/docker/centreon-centreontrapd/**"
       - ".github/docker/centreon-trapd/**"
       - ".github/scripts/centreon-trapd-docker-boot-test.sh"
       - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
@@ -41,8 +39,6 @@ on:
       - "release-[2-9][0-9].[0-9][0-9]-next"
       - "hotfix-[2-9][0-9].[0-9][0-9]-next"
     paths:
-      - ".github/docker/centreon-snmptrapd/**"
-      - ".github/docker/centreon-centreontrapd/**"
       - ".github/docker/centreon-trapd/**"
       - ".github/scripts/centreon-trapd-docker-boot-test.sh"
       - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
@@ -60,6 +56,9 @@ env:
 
 jobs:
   dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   dispatch-to-maintenance-branches:
@@ -68,9 +67,14 @@ jobs:
       github.event_name == 'schedule' &&
       github.ref_name == 'develop'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Select maintenance branch and run nightly workflow on it
         uses: ./.github/actions/dispatch-to-maintenance-branch
@@ -79,6 +83,9 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-environment:
+    permissions:
+      contents: read
+      pull-requests: write
     needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
     with:
@@ -87,6 +94,8 @@ jobs:
       labels: ${{ inputs.labels || '' }}
 
   changes:
+    permissions:
+      contents: read
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
@@ -135,6 +144,8 @@ jobs:
         "centreon/www/front_src/**"
         "!centreon/**/cypress/**"
         "!centreon/**/*.cypress.*"
+        "!centreon/**/*.browser.test.*"
+        "!centreon/**/__snapshots__/**"
         "!centreon/**/__mocks__/**"
       backend_test_paths: |
         "centreon/.php-cs-fixer*"
@@ -148,8 +159,13 @@ jobs:
         "centreon/cypress.config.ts"
         "centreon/**/cypress/**"
         "centreon/**/*.cypress.*"
+        "centreon/rstest.config.ts"
+        "centreon/tsconfig.rstest.json"
+        "centreon/test-setup/**"
+        "centreon/public/**"
+        "centreon/**/*.browser.test.*"
+        "centreon/**/__snapshots__/**"
         "centreon/**/__mocks__/**"
-        "centreon/lighthouse/**"
       api_test_paths: |
         "centreon/tests/api/**"
       e2e_test_paths: |
@@ -163,21 +179,12 @@ jobs:
       translation_paths: |
         "centreon/lang/**"
       trapd_paths: |
-        ".github/docker/centreon-snmptrapd/**"
-        ".github/docker/centreon-centreontrapd/**"
         ".github/docker/centreon-trapd/**"
         ".github/scripts/centreon-trapd-docker-boot-test.sh"
         ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
         ".github/scripts/lib/centreon-trapd-common.sh"
         "centreon/snmptrapd/**"
         "centreon/bin/centreontrapd*"
-        "centreon/packaging/centreon-trap.yaml"
-        "centreon/packaging/scripts/centreon-trap-postinstall.sh"
-        "centreon/packaging/scripts/centreon-trap-preremove.sh"
-        "centreon/tmpl/install/systemd/centreontrapd.rpm.systemd"
-        "centreon/tmpl/install/systemd/centreontrapd.deb.systemd"
-        "centreon/tmpl/install/systemd/centreontrapd.sysconfig"
-        "centreon/logrotate/centreontrapd"
         ".version"
         ".version.centreon-web"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
@@ -186,6 +193,8 @@ jobs:
 
   check-version-consistency:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -200,6 +209,8 @@ jobs:
       update_file: centreon/www/install/php/Update-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}.php
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Check ${{ env.version_file }}
         uses: ./.github/actions/check-version-consistency
@@ -290,8 +301,12 @@ jobs:
       )
     # needed to deliver sources
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/frontend-build
         with:
@@ -318,8 +333,12 @@ jobs:
       )
     # needed to deliver sources
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -345,8 +364,6 @@ jobs:
 
   translation-build:
     needs: [get-environment, changes]
-    permissions:
-      contents: read
     if: |
       (
         needs.changes.outputs.trigger_packaging == 'true' &&
@@ -360,6 +377,9 @@ jobs:
       )
     # needed to deliver sources
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
     container:
       image: ghcr.io/centreon/delivery-tooling/translation:${{ needs.get-environment.outputs.major_version }}
 
@@ -403,6 +423,9 @@ jobs:
 
   frontend-web-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -410,6 +433,8 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -421,6 +446,8 @@ jobs:
 
   frontend-type-check:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -428,6 +455,8 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/frontend-type-check
         with:
@@ -436,6 +465,9 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -444,6 +476,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
@@ -479,6 +513,11 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+      actions: write  # Required by regroup-artifacts in called workflow
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -497,9 +536,13 @@ jobs:
       specs_path: www/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      with_rstest: true
 
   backend-unit-test:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
@@ -508,6 +551,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -549,6 +594,8 @@ jobs:
 
   backend-integration-test:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment, changes, backend-unit-test]
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
@@ -570,6 +617,8 @@ jobs:
           MYSQL_ROOT_PASSWORD: password
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -633,6 +682,8 @@ jobs:
 
   backend-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
@@ -641,6 +692,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -685,31 +738,28 @@ jobs:
           version: 10
           run_install: false
 
-      # Temporarily disabled: doc/API/centreon-api.yaml already drifts from a clean regeneration
-      # on develop (pre-existing, unrelated to any specific PR) — commented out, not deleted,
-      # pending a fix. Re-enable once the drift is resolved.
-      # - name: Install Redocly CLI
-      #   run: |
-      #     pnpm install \
-      #       --frozen-lockfile \
-      #       --config.trustPolicy=no-downgrade \
-      #       --config.minimumReleaseAge=2880 \
-      #       --config.blockExoticSubdeps=true
-      #   working-directory: centreon/doc/API
-      #   shell: bash
+      - name: Install Redocly CLI
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
+        working-directory: centreon/doc/API
+        shell: bash
 
-      # - name: 📖 Check the OpenAPI documentation is up to date
-      #   # Regenerate the spec from the API Platform resources and fail if the committed file drifted.
-      #   run: |
-      #     set -e
-      #     php bin/console.new app:open-api:merge --override
-      #     git diff --exit-code doc/API/centreon-api.yaml \
-      #       || { echo "::error::doc/API/centreon-api.yaml is out of date — run 'bin/console.new app:open-api:merge --override' and commit the result."; exit 1; }
-      #   working-directory: centreon
+      - name: 📖 Check the OpenAPI documentation is up to date
+        # Regenerate the spec from the API Platform resources and fail if the committed file drifted.
+        run: |
+          set -e
+          php bin/console.new app:open-api:merge --override
+          git diff --exit-code doc/API/centreon-api.yaml \
+            || { echo "::error::doc/API/centreon-api.yaml is out of date — run 'bin/console.new app:open-api:merge --override' and commit the result."; exit 1; }
+        working-directory: centreon
 
-      # - name: 🔍 Validate the OpenAPI documentation
-      #   run: pnpm exec redocly lint centreon-api.yaml centreon-cloud-api.yaml
-      #   working-directory: centreon/doc/API
+      - name: 🔍 Validate the OpenAPI documentation
+        run: pnpm exec redocly lint centreon-api.yaml centreon-cloud-api.yaml
+        working-directory: centreon/doc/API
 
       - name: Get changed PHP files
         id: changed-php
@@ -823,6 +873,8 @@ jobs:
 
   gherkin-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment, changes]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
@@ -830,6 +882,8 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/gherkin-lint
         with:
@@ -837,6 +891,9 @@ jobs:
 
   e2e-lint:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      checks: write
     needs: [get-environment, changes]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
@@ -844,6 +901,8 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -886,12 +945,17 @@ jobs:
 
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
     container:
       image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.operating_system }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Restore translation from cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -1034,6 +1098,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Generate information according to matrix os
         id: matrix_include
@@ -1171,11 +1237,14 @@ jobs:
           OPERATING_SYSTEM: ${{ matrix.operating_system }}
           IMAGE_VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          curl \
-            -X DELETE \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token $GH_TOKEN" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/caches?key=docker-image-$project-slim-$OPERATING_SYSTEM-$IMAGE_VERSION"
+          # Delete by id: the delete-by-key endpoint also removes the keys of the branches whose name starts with this one.
+          CACHE_KEY="docker-image-$project-slim-$OPERATING_SYSTEM-$IMAGE_VERSION"
+          gh api --method GET "repos/$GITHUB_REPOSITORY/actions/caches" -f key="$CACHE_KEY" -f ref="$GITHUB_REF" \
+            --jq ".actions_caches[] | select(.key == \"$CACHE_KEY\") | .id" |
+            while read -r CACHE_ID; do
+              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/caches/$CACHE_ID"
+              echo "Deleted cache $CACHE_ID ($CACHE_KEY on $GITHUB_REF)."
+            done
         shell: bash
 
       - name: Store slim image in cache
@@ -1185,6 +1254,8 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
 
   xray-prepare-test-plan:
+    permissions:
+      contents: read
     name: xray-prepare-test-plan
     needs: [get-environment, changes]
     if: |
@@ -1205,6 +1276,8 @@ jobs:
       XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
 
   bruno-api-test:
+    permissions:
+      contents: read
     needs: [get-environment, changes, xray-prepare-test-plan, dockerize]
     if: |
       needs.changes.outputs.trigger_api_testing == 'true' &&
@@ -1241,7 +1314,44 @@ jobs:
       jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
+  resolve-bruno-debug-analysis-actor:
+    needs: [bruno-api-test]
+    if: |
+      !cancelled() &&
+      needs.bruno-api-test.result == 'failure'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      secret_actor: ${{ steps.sanitize.outputs.secret_actor }}
+    steps:
+      - name: Sanitize triggering actor login for secret name lookup
+        id: sanitize
+        env:
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: echo "secret_actor=${TRIGGERING_ACTOR//-/_}" >> "$GITHUB_OUTPUT"
+
+  bruno-api-test-debug-analysis:
+    needs: [resolve-bruno-debug-analysis-actor, bruno-api-test]
+    if: |
+      !cancelled() &&
+      needs.bruno-api-test.result == 'failure'
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    uses: ./.github/workflows/bruno-api-debug-analysis.yml
+    with:
+      triggering_actor: ${{ github.triggering_actor }}
+    secrets:
+      claude_code_oauth_token: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', needs.resolve-bruno-debug-analysis-actor.outputs.secret_actor)] }}
+
   e2e-test:
+    permissions:
+      contents: read
+      packages: read
+      checks: write
+      actions: write  # Required by regroup-artifacts in called workflow
     needs:
       [
         get-environment,
@@ -1296,170 +1406,103 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
       github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  # performances-test:
-  #   runs-on: ubuntu-24.04
-  #   needs: [get-environment, changes, dockerize]
-  #   if: |
-  #     needs.changes.outputs.trigger_e2e_testing == 'true' &&
-  #     needs.get-environment.outputs.skip_workflow == 'false' &&
-  #     ! cancelled() &&
-  #     ! contains(needs.*.result, 'failure') &&
-  #     ! contains(needs.*.result, 'cancelled') &&
-  #     needs.get-environment.outputs.stability != 'stable'
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).main }}
-  #   name: performances-test ${{ matrix.operating_system }}
-  #   steps:
-  #     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-  #     - name: Login to registry
-  #       uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
-  #       with:
-  #         registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-  #         username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-  #         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-
-  #     - name: Run Lighthouse
-  #       uses: ./.github/actions/lighthouse-performance-testing
-  #       with:
-  #         path: "centreon/lighthouse"
-  #         image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.operating_system }}
-  #         image_version: ${{ github.head_ref || github.ref_name }}
-  #         database_image: bitnamilegacy/mariadb:10.11
-  #         image_lighthouse_version: ${{ needs.get-environment.outputs.major_version }}
-  #         module: centreon
-  #         dependencies_lock_file: centreon/pnpm-lock.yaml
-
-  #     - name: Publish report to S3
-  #       if: ${{ github.event_name == 'push' }}
-  #       uses: ./.github/actions/lighthouse-to-s3
-  #       with:
-  #         report_path: centreon/lighthouse/report/lighthouseci-index.html
-  #         report_target: s3://centreon-lighthouse-report/
-  #         access_key_id: ${{ secrets.LIGHTHOUSE_ID }}
-  #         secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
-
-  #     - name: Publish report
-  #       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-  #       with:
-  #         name: lighthouse-report
-  #         path: centreon/lighthouse/report/lighthouseci-index.html
-  #         retention-days: 1
-
-  # The centreon-snmptrapd / centreon-centreontrapd product images (MON-207531):
-  # folded into this workflow, rather than kept in a standalone docker-trapd.yml,
-  # so they inherit the same trigger paths. Not gated on e2e-test: that suite
-  # only exercises centreon-web, not these images — see dockerize-trapd-image
-  # below for the actual validation gate (docker-boot-test/
-  # docker-config-wiring-test).
-  package-centreon-trap:
-    needs: [get-environment, changes]
+  # Sync the Gherkin of the tagged Xray Tests from the scenarios, once per nightly run
+  # (not per OS/database leg), after the e2e results are imported. Best effort.
+  xray-sync-gherkin:
+    needs: [get-environment, xray-prepare-test-plan, e2e-test]
     if: |
-      needs.changes.outputs.trigger_trapd == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false'
+      ! cancelled() &&
+      github.ref_name == 'develop' &&
+      needs.get-environment.outputs.is_nightly == 'true' &&
+      needs.xray-prepare-test-plan.outputs.jira_test_plan_key != '' &&
+      needs.e2e-test.result != 'skipped'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      packages: read
-    strategy:
-      fail-fast: false
-      matrix:
-        distrib: [trixie]
-    container:
-      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.distrib }}
-    name: package centreon-trap ${{ matrix.distrib }}
-
+    continue-on-error: true
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          sparse-checkout: |
+            .github/actions
+            centreon/tests/e2e/features
 
-      - name: Package centreon-trap
-        uses: ./.github/actions/package-nfpm
+      - name: Authenticate with Xray API
+        id: generate-xray-token
+        uses: ./.github/actions/xray-api-auth
         with:
-          nfpm_file_pattern: "centreon/packaging/centreon-trap.yaml"
-          module_name: "centreon"
-          distrib: ${{ matrix.distrib }}
-          package_extension: deb
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          release: ${{ needs.get-environment.outputs.release }}
-          arch: all
-          commit_hash: ${{ github.sha }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}-trap
-          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
-          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
-          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
-          php_version: ${{ needs.get-environment.outputs.php_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
+          client_id: ${{ secrets.XRAY_CLIENT_ID }}
+          client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
 
-  package-perl-libs:
-    needs: [get-environment, changes]
+      - name: Sync Xray Gherkin definitions
+        uses: ./.github/actions/xray-sync-gherkin
+        with:
+          features_dir: centreon/tests/e2e/features
+          xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
+
+      # Dry run only: the tags it would inject are never committed from CI, so a real
+      # run would create the same Tests again every night.
+      - name: Detect scenarios without Xray Test
+        id: detect-untagged
+        if: ${{ !cancelled() }}
+        uses: ./.github/actions/xray-provision-tests
+        with:
+          features_dir: centreon/tests/e2e/features
+          dry_run: "true"
+
+  resolve-e2e-debug-analysis-actor:
+    needs: [e2e-test]
     if: |
-      needs.changes.outputs.trigger_trapd == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false'
+      !cancelled() &&
+      needs.e2e-test.result == 'failure'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      packages: read
-    strategy:
-      fail-fast: false
-      matrix:
-        distrib: [trixie]
-    container:
-      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.distrib }}
-    name: package centreon-perl-libs ${{ matrix.distrib }}
-
+    outputs:
+      secret_actor: ${{ steps.sanitize.outputs.secret_actor }}
     steps:
-      - name: Checkout sources (centreon/centreon for actions)
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+      - name: Sanitize triggering actor login for secret name lookup
+        id: sanitize
+        env:
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: echo "secret_actor=${TRIGGERING_ACTOR//-/_}" >> "$GITHUB_OUTPUT"
 
-      - name: Checkout centreon-collect (for perl-libs packaging)
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: centreon/centreon-collect
-          ref: ${{ needs.get-environment.outputs.linked_dev_branch || github.ref_name }}
-          path: centreon-collect
-          persist-credentials: false
+  e2e-test-debug-analysis:
+    needs: [get-environment, resolve-e2e-debug-analysis-actor, e2e-test]
+    if: |
+      !cancelled() &&
+      needs.e2e-test.result == 'failure'
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    uses: ./.github/workflows/cypress-e2e-debug-analysis.yml
+    with:
+      name: e2e
+      os_and_database_matrix: ${{ needs.get-environment.outputs.os_and_database_matrix }}
+      triggering_actor: ${{ github.triggering_actor }}
+    secrets:
+      claude_code_oauth_token: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', needs.resolve-e2e-debug-analysis-actor.outputs.secret_actor)] }}
 
-      - name: Set PERL_VENDORLIB for deb
-        run: echo "PERL_VENDORLIB=/usr/share/perl5" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Package centreon-perl-libs
-        uses: ./.github/actions/package-nfpm
-        with:
-          nfpm_file_pattern: "centreon-collect/perl-libs/packaging/centreon-perl-libs.yaml centreon-collect/perl-libs/packaging/centreon-perl-libs-common.yaml"
-          module_name: "centreon-collect"
-          distrib: ${{ matrix.distrib }}
-          package_extension: deb
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          release: ${{ needs.get-environment.outputs.release }}
-          arch: all
-          commit_hash: ${{ github.sha }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}-perl
-          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
-          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
-          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
-          php_version: ${{ needs.get-environment.outputs.php_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-
+  # The centreon-trapd product image (MON-207531, merged snmptrapd +
+  # centreontrapd in MON-213783): folded into this workflow, rather than kept
+  # in a standalone docker-trapd.yml, so it inherits the same trigger paths.
+  # Package-less: built straight from this repo (centreon/bin/centreontrapd*)
+  # and centreon-collect's perl-libs, no .deb. Not gated on e2e-test: that
+  # suite only exercises centreon-web, not this image — see docker-boot-test/
+  # docker-config-wiring-test below for the actual validation gate.
   dockerize-trapd-image:
     # Named "dockerize-trapd-image" (not "dockerize") to avoid colliding with the
     # internal centreon-web-testing-* dependency image job above. Not gated on
     # e2e-test: that suite only exercises centreon-web (image_name: centreon-web),
-    # never centreon-snmptrapd/centreon-centreontrapd, so waiting on it here would
+    # never centreon-trapd, so waiting on it here would
     # just serialize this job behind an unrelated test run for no validation
     # value. This job alone doesn't guarantee the resulting image is validated:
     # docker-boot-test/docker-config-wiring-test below are what actually gate
     # version_tag and promote-docker-tag/promote-docker-to-ghcr.
-    needs: [get-environment, changes, package-centreon-trap, package-perl-libs]
+    needs: [get-environment, changes]
     # stability != 'stable' matches the dockerize job's own gate above, so this
     # runs on canary/feature branches the same way centreon-web images do,
     # instead of the narrower testing/unstable-only allowlist this job used to have.
@@ -1478,7 +1521,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [centreon-snmptrapd, centreon-centreontrapd]
+        component: [centreon-trapd]
         operating_system: [trixie]
     name: dockerize ${{ matrix.component }}-${{ matrix.operating_system }}
     # Matrix job outputs come from the last completed matrix leg. Safe here
@@ -1509,26 +1552,17 @@ jobs:
         with:
           distrib: ${{ matrix.operating_system }}
 
-      - name: Restore centreon-trap package
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Checkout centreon-collect (perl-libs build context)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          path: ./*.${{ steps.parse-distrib.outputs.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.parse-distrib.outputs.package_extension }}-${{ matrix.operating_system }}-trap
-          fail-on-cache-miss: true
+          repository: centreon/centreon-collect
+          ref: ${{ needs.get-environment.outputs.linked_dev_branch || github.ref_name }}
+          path: centreon-collect
+          persist-credentials: false
 
-      - name: Restore centreon-perl-libs packages
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ./*.${{ steps.parse-distrib.outputs.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.parse-distrib.outputs.package_extension }}-${{ matrix.operating_system }}-perl
-          fail-on-cache-miss: true
-
-      - name: Prepare packages-centreon directory
-        env:
-          PACKAGE_EXTENSION: ${{ steps.parse-distrib.outputs.package_extension }}
-        run: |
-          mkdir -p packages-centreon
-          mv *."$PACKAGE_EXTENSION" packages-centreon/
+      - name: Get centreon-collect revision
+        id: collect-revision
+        run: echo "sha=$(git -C centreon-collect rev-parse HEAD)" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Set up QEMU
@@ -1590,13 +1624,17 @@ jobs:
         with:
           context: .
           file: .github/docker/${{ matrix.component }}/${{ matrix.operating_system }}/Dockerfile
+          # Perl modules (centreon::script, centreon::trapd, centreon::common)
+          # come from the centreon-collect checkout above, same branch.
+          build-contexts: |
+            perl-libs=centreon-collect/perl-libs/lib
           platforms: linux/amd64,linux/arm64
           pull: true
           push: ${{ github.event.pull_request.head.repo.fork != true }}
           build-args: |
             BUILD_DATE=${{ steps.build-date.outputs.date }}
             BUILD_VERSION=${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}-${{ needs.get-environment.outputs.release }}
-            PACKAGE_SOURCES=centreon-trap-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} + centreon-perl-libs-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+            PACKAGE_SOURCES=centreon@${{ github.event.pull_request.head.sha || github.sha }} + centreon-collect@${{ steps.collect-revision.outputs.sha }}
             GIT_REVISION=${{ github.event.pull_request.head.sha || github.sha }}
           # Disabled: BuildKit's own attestation manifests would make this
           # digest diverge from the ghcr.io one docker-push-to-ghcr.sh
@@ -1643,10 +1681,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [centreon-snmptrapd, centreon-centreontrapd]
+        component: [centreon-trapd]
+        role: [snmptrapd, centreontrapd]
         operating_system: [trixie]
         platform: [linux/amd64, linux/arm64]
-    name: docker boot test ${{ matrix.component }}-${{ matrix.operating_system }} (${{ matrix.platform }})
+    name: docker boot test ${{ matrix.component }}-${{ matrix.operating_system }} ${{ matrix.role }} (${{ matrix.platform }})
     permissions:
       contents: read
     env:
@@ -1687,7 +1726,7 @@ jobs:
         env:
           IMAGE: ${{ env.TRAPD_IMAGE }}
           PLATFORM: ${{ matrix.platform }}
-          COMPONENT: ${{ matrix.component }}
+          ROLE: ${{ matrix.role }}
           SUMMARY_FRAGMENT_FILE: /tmp/summary-fragment.md
         run: ./.github/scripts/centreon-trapd-docker-boot-test.sh
         shell: bash
@@ -1696,7 +1735,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: test-summary-fragment-${{ matrix.component }}-${{ matrix.operating_system }}-${{ steps.platform-name.outputs.dashed }}
+          name: test-summary-fragment-${{ matrix.component }}-${{ matrix.operating_system }}-${{ matrix.role }}-${{ steps.platform-name.outputs.dashed }}
           path: /tmp/summary-fragment.md
           retention-days: 1
           if-no-files-found: ignore
@@ -1705,7 +1744,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ matrix.component }}-boot-test-${{ matrix.operating_system }}-${{ steps.platform-name.outputs.dashed }}
+          name: ${{ matrix.component }}-boot-test-${{ matrix.operating_system }}-${{ matrix.role }}-${{ steps.platform-name.outputs.dashed }}
           path: /tmp/centreon-trapd-boot-test.log
           retention-days: 1
 
@@ -1724,8 +1763,7 @@ jobs:
     permissions:
       contents: read
     env:
-      CENTREONTRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-centreontrapd-${{ matrix.operating_system }}:${{ needs.dockerize-trapd-image.outputs.image_tag }}
-      SNMPTRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-snmptrapd-${{ matrix.operating_system }}:${{ needs.dockerize-trapd-image.outputs.image_tag }}
+      TRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-trapd-${{ matrix.operating_system }}:${{ needs.dockerize-trapd-image.outputs.image_tag }}
 
     steps:
       - name: Checkout sources
@@ -1745,10 +1783,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends snmp sqlite3
         shell: bash
 
-      - name: Pull images
-        run: |
-          docker pull --platform linux/amd64 "$CENTREONTRAPD_IMAGE"
-          docker pull --platform linux/amd64 "$SNMPTRAPD_IMAGE"
+      - name: Pull image
+        run: docker pull --platform linux/amd64 "$TRAPD_IMAGE"
         shell: bash
 
       - name: Run config/wiring test scenarios
@@ -1771,7 +1807,7 @@ jobs:
         run: docker compose -f .github/docker/centreon-trapd/docker-compose.config-wiring-test.yml -p centreon-trapd-config-wiring-test logs
 
   docker-test-summary:
-    # Combines the docker-boot-test matrix (4 legs) and docker-config-wiring-test
+    # Combines the docker-boot-test matrix (4 legs: 2 roles x 2 platforms) and docker-config-wiring-test
     # into ONE Step Summary block. GitHub renders one Step Summary block per job
     # unconditionally, so merging what several jobs write is only possible from
     # a downstream job that collects their output - not by changing what each
@@ -1828,7 +1864,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [centreon-snmptrapd, centreon-centreontrapd]
+        component: [centreon-trapd]
         operating_system: [trixie]
     name: docker trivy cves ${{ matrix.component }}-${{ matrix.operating_system }}
     permissions:
@@ -1981,7 +2017,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [centreon-snmptrapd, centreon-centreontrapd]
+        component: [centreon-trapd]
         operating_system: [trixie]
     name: promote ${{ matrix.component }}-${{ matrix.operating_system }} validated tag
     steps:
@@ -2009,6 +2045,8 @@ jobs:
 
   deliver-sources:
     runs-on: centreon-ubuntu-26.04-slim
+    permissions:
+      contents: read
     needs: [get-environment, e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -2023,6 +2061,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -2043,6 +2083,8 @@ jobs:
 
   build-openapi-documentation:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment]
     outputs:
       doc_version: ${{ steps.build-openapi-documentation.outputs.doc_version }}
@@ -2054,6 +2096,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/build-openapi-documentation
         id: build-openapi-documentation
@@ -2062,20 +2106,99 @@ jobs:
 
   publish-openapi-documentation:
     runs-on: documentation
+    permissions:
+      contents: read
     needs: [get-environment, build-openapi-documentation]
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/publish-openapi-documentation
         with:
           doc_version: ${{ needs.build-openapi-documentation.outputs.doc_version }}
           module_name: centreon-web
+          set_as_default: auto
           cloudfront_role_doc_production: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}
 
-  deliver:
+  set-skip-label:
+    permissions:
+      contents: read
+      pull-requests: write
+    needs: [get-environment, deliver-pulp, promote-pulp]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    uses: ./.github/workflows/set-pull-request-skip-label.yml
+
+  clear-branch-cache:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
+    needs: [get-environment, deliver-pulp]
+    env:
+      GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
+    if: |
+      needs.get-environment.outputs.is_nightly == 'true' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: List and delete cache
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          mapfile -t cache_keys < <(gh cache list --ref "refs/heads/$REF_NAME" --json key -q '.[] | .key')
+          echo $cache_keys
+          while read row; do
+            gh cache delete $row
+            echo "Cache $row was deleted."
+          done <<< "$cache_keys"
+        shell: bash
+
+  create-jira-nightly-ticket:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    needs: [
+      get-environment,
+      deliver-pulp
+    ]
+    # Disabled unless the NIGHTLY_JIRA_TICKETS_ENABLED organization variable is set to 'true'
+    if: |
+      vars.NIGHTLY_JIRA_TICKETS_ENABLED == 'true' &&
+      needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
+      startsWith(github.ref_name, 'dev') &&
+      github.event.pull_request.head.repo.fork != true
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Create Jira ticket based on nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_reason_for_creation: "Nightly"
+
+  deliver-pulp:
+    runs-on: centreon-ubuntu-26.04-small
     needs:
       [
         changes,
@@ -2093,154 +2216,7 @@ jobs:
       needs.changes.outputs.trigger_delivery == 'true' &&
       github.event.pull_request.head.repo.fork != true
     strategy:
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
-    name: deliver ${{ matrix.distrib }}
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Deliver RPM package on Artifactory
-        if: matrix.package_extension == 'rpm'
-        uses: ./.github/actions/rpm-delivery
-        with:
-          module_name: web
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-environment.outputs.major_version }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
-          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
-      - name: Deliver DEB package on Artifactory
-        if: matrix.package_extension == 'deb'
-        uses: ./.github/actions/deb-delivery
-        with:
-          module_name: web
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-environment.outputs.major_version }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-
-  promote:
-    needs: [get-environment, deliver]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
-    name: promote ${{ matrix.distrib }}
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Promote ${{ matrix.distrib }} to stable on Artifactory
-        uses: ./.github/actions/promote-to-stable
-        with:
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module_name: web
-          distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          github_ref_name: ${{ github.ref_name }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-
-  set-skip-label:
-    needs: [get-environment, deliver, promote]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
-    uses: ./.github/workflows/set-pull-request-skip-label.yml
-
-  clear-branch-cache:
-    runs-on: ubuntu-24.04
-    needs: [get-environment, deliver]
-    env:
-      GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
-    if: |
-      needs.get-environment.outputs.is_nightly == 'true' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: List and delete cache
-        env:
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-          mapfile -t cache_keys < <(gh cache list --ref "refs/heads/$REF_NAME" --json key -q '.[] | .key')
-          echo $cache_keys
-          while read row; do
-            gh cache delete $row
-            echo "Cache $row was deleted."
-          done <<< "$cache_keys"
-        shell: bash
-
-  create-jira-nightly-ticket:
-    runs-on: ubuntu-24.04
-    needs: [
-      get-environment,
-      deliver
-    ]
-    if: |
-      needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
-      startsWith(github.ref_name, 'dev') &&
-      github.event.pull_request.head.repo.fork != true
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Create Jira ticket based on nightly build failure
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_reason_for_creation: "Nightly"
-
-  deliver-pulp:
-    runs-on: centreon-ubuntu-26.04-small
-    needs:
-      [
-        changes,
-        get-environment,
-        e2e-test
-      ]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      github.event.pull_request.head.repo.fork != true
-    strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: deliver ${{ matrix.distrib }} (pulp)
@@ -2250,6 +2226,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Deliver packages on Pulp
         id: deliver_pulp
@@ -2266,6 +2244,7 @@ jobs:
           pulp_url: ${{ vars.PULP_API_URL }}
           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   promote-pulp:
     needs: [get-environment, deliver-pulp]
@@ -2278,6 +2257,7 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     runs-on: centreon-ubuntu-26.04-small
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: promote ${{ matrix.distrib }} (pulp)
@@ -2287,6 +2267,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Promote ${{ matrix.distrib }} to stable on Pulp
         id: promote_pulp
@@ -2320,7 +2302,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [centreon-snmptrapd, centreon-centreontrapd]
+        component: [centreon-trapd]
         operating_system: [trixie]
     name: promote ${{ matrix.component }}-${{ matrix.operating_system }} to ghcr.io stable
     steps:
@@ -2353,8 +2335,7 @@ jobs:
         # version_tag from dockerize-trapd-image (only ever applied by
         # promote-docker-tag, once docker-boot-test/docker-config-wiring-test
         # have passed) or if the ghcr.io push itself fails — continue-on-error
-        # swallows that into a warning below, mirroring how
-        # promote-to-stable-pulp is called. Deliberately no fallback to the
+        # swallows that into a warning below. Deliberately no fallback to the
         # legacy release_type-based tag: that tag is written at build time,
         # before container e2e tests run, so it's never a validated candidate.
         continue-on-error: true
@@ -2389,4 +2370,80 @@ jobs:
         if: failure() && steps.attest-ghcr.outcome == 'failure'
         run: |
           echo "::error::SBOM attestation failed for ${{ matrix.component }}-${{ matrix.operating_system }}. The image WAS published to ghcr.io but is unattested. To fix: check the 'Attest SBOM on ghcr.io' step logs above for the actual cause (registry auth, Sigstore/Fulcio outage); re-running this job is safe, it only re-attests the already-published digest."
+        shell: bash
+
+  promote-docker-to-pulp:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.stability == 'stable' &&
+      github.event_name != 'workflow_dispatch' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.is_cloud == 'false'
+    runs-on: centreon-ubuntu-26.04-small
+    continue-on-error: true
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [centreon-trapd]
+        operating_system: [trixie]
+    name: promote ${{ matrix.component }}-${{ matrix.operating_system }} to Pulp
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Login to Harbor registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - uses: imjasonh/setup-crane@feee3b6bb0d4c68370f256a4502498c9227e5c6b # v0.7
+        with:
+          version: v0.22.1
+
+      - name: Resolve Pulp registry host
+        id: pulp-registry
+        env:
+          PULP_API_URL: ${{ vars.PULP_API_URL }}
+        run: |
+          host="${PULP_API_URL#*://}"
+          echo "host=${host%%/*}" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Promote to Pulp
+        id: promote-pulp
+        continue-on-error: true
+        uses: ./.github/actions/promote-docker-image
+        with:
+          source_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}
+          source_tag: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+          dest_image: ${{ steps.pulp-registry.outputs.host }}/default/centreon/${{ matrix.component }}
+          dest_tags: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} ${{ needs.get-environment.outputs.major_version }}
+          pulp_oidc_audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+
+      - name: Attest SBOM
+        id: attest-sbom
+        if: steps.promote-pulp.outcome == 'success'
+        continue-on-error: true
+        uses: ./.github/actions/attest-image-sbom
+        with:
+          subject_name: ghcr.io/centreon/${{ matrix.component }}
+          digest: ${{ steps.promote-pulp.outputs.digest }}
+          scan_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}
+          amd64_digest: ${{ steps.promote-pulp.outputs.amd64_digest }}
+          arm64_digest: ${{ steps.promote-pulp.outputs.arm64_digest }}
+
+      - name: Warn if Pulp delivery failed
+        if: steps.promote-pulp.outcome == 'failure' || steps.attest-sbom.outcome == 'failure'
+        run: |
+          echo "::warning::Pulp delivery of ${{ matrix.component }}-${{ matrix.operating_system }} failed (promote: ${{ steps.promote-pulp.outcome }}, SBOM attestation: ${{ steps.attest-sbom.outcome }}). ghcr.io delivery is unaffected."
         shell: bash

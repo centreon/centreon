@@ -23,12 +23,14 @@ Feature: HostTemplateBasicsOperations
     Then the deleted host template is not visible anymore on the host template page
 
   # Cloud: identical
+  @MON-213718
   Scenario: Duplicating a host template does not multiply its service templates
     Given a host template with shared service templates is configured
     When the user duplicates that host template and its copy
     Then each copy carries exactly the service templates of its source
 
   # Cloud: identical
+  @MON-213719
   Scenario: A duplication whose generated name is already taken creates nothing
     Given a host template with shared service templates is configured
     And a host template already carries the name the copy would take

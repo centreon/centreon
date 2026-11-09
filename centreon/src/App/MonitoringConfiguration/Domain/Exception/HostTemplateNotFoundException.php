@@ -29,9 +29,10 @@ final class HostTemplateNotFoundException extends AggregateNotFoundException
 {
     /**
      * @param list<int> $ids
+     * @param string $criterion the input field the ids were looked up by
      */
-    public function __construct(array $ids)
+    public function __construct(array $ids, string $criterion = 'templateIds')
     {
-        parent::__construct(['templateIds' => $ids], 'One or more host templates do not exist.');
+        parent::__construct([$criterion => $ids], 'One or more host templates do not exist.');
     }
 }

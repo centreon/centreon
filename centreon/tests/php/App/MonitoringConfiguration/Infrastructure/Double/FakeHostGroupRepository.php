@@ -46,7 +46,7 @@ final class FakeHostGroupRepository implements HostGroupRepository
         return new Collection($names, HostGroupName::class);
     }
 
-    public function findAll(?HostGroupCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostGroupCriteria $criteria): \IteratorAggregate&\Countable
     {
         return new Collection(array_values($this->hostGroups), HostGroup::class);
     }

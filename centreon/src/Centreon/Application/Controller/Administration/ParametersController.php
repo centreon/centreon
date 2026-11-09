@@ -49,6 +49,10 @@ class ParametersController extends AbstractController
     private const RESOURCE_STATUS_SEARCH_MODE = 'resource_status_search_mode';
     private const INHERITANCE_MODE = 'inheritance_mode';
     private const ADDITIVE_INHERITANCE_MODE = 1;
+    private const INTERVAL_LENGTH = 'interval_length';
+    private const DEFAULT_INTERVAL_LENGTH = 60;
+    private const LIMIT_PER_PAGE = 'maxViewConfiguration';
+    private const DEFAULT_LIMIT_PER_PAGE = 30;
 
     /**
      * Needed to make response "more readable"
@@ -66,6 +70,8 @@ class ParametersController extends AbstractController
         self::DEFAULT_DOWNTIME_WITH_SERVICES => 'monitoring_default_downtime_with_services',
         self::RESOURCE_STATUS_SEARCH_MODE => 'is_resource_status_full_search_enabled',
         self::INHERITANCE_MODE => 'is_additive_inheritance_enabled',
+        self::INTERVAL_LENGTH => 'monitoring_interval_length',
+        self::LIMIT_PER_PAGE => 'default_limit_per_page',
     ];
 
     public function __construct(
@@ -95,6 +101,8 @@ class ParametersController extends AbstractController
         $isDowntimeWithServices = true;
         $isResourceStatusFullSearchEnabled = true;
         $isAdditiveInheritanceEnabled = false;
+        $intervalLength = self::DEFAULT_INTERVAL_LENGTH;
+        $limitPerPage = self::DEFAULT_LIMIT_PER_PAGE;
 
         $options = $this->optionService->findSelectedOptions([
             self::DEFAULT_REFRESH_INTERVAL,
@@ -110,6 +118,8 @@ class ParametersController extends AbstractController
             self::DEFAULT_DOWNTIME_WITH_SERVICES,
             self::RESOURCE_STATUS_SEARCH_MODE,
             self::INHERITANCE_MODE,
+            self::INTERVAL_LENGTH,
+            self::LIMIT_PER_PAGE,
         ]);
 
         foreach ($options as $option) {
@@ -153,6 +163,24 @@ class ParametersController extends AbstractController
                 case self::INHERITANCE_MODE:
                     $isAdditiveInheritanceEnabled = (int) $option->getValue() === self::ADDITIVE_INHERITANCE_MODE;
                     break;
+                case self::INTERVAL_LENGTH:
+                    // The legacy form stores the 'NULL' string when the field is left empty
+                    $storedIntervalLength = (int) $option->getValue();
+                    $intervalLength = $storedIntervalLength > 0
+                        ? $storedIntervalLength
+                        : self::DEFAULT_INTERVAL_LENGTH;
+                    break;
+                case self::LIMIT_PER_PAGE:
+                    // A cast would read "10abc" as 10: the whole value has to be a positive integer
+                    $storedLimitPerPage = filter_var(
+                        $option->getValue(),
+                        FILTER_VALIDATE_INT,
+                        ['options' => ['min_range' => 1]],
+                    );
+                    $limitPerPage = $storedLimitPerPage !== false
+                        ? $storedLimitPerPage
+                        : self::DEFAULT_LIMIT_PER_PAGE;
+                    break;
                 default:
                     break;
             }
@@ -177,6 +205,8 @@ class ParametersController extends AbstractController
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_DOWNTIME_WITH_SERVICES]] = $isDowntimeWithServices;
         $parameters[self::KEY_NAME_CONCORDANCE[self::RESOURCE_STATUS_SEARCH_MODE]] = $isResourceStatusFullSearchEnabled;
         $parameters[self::KEY_NAME_CONCORDANCE[self::INHERITANCE_MODE]] = $isAdditiveInheritanceEnabled;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::INTERVAL_LENGTH]] = $intervalLength;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::LIMIT_PER_PAGE]] = $limitPerPage;
 
         return $this->view($parameters);
     }

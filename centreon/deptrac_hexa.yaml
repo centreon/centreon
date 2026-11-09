@@ -4,6 +4,7 @@ parameters:
         - ./src/App/MonitoringConfiguration
         - ./src/App/Security
         - ./src/App/Shared
+        - ./src/App/Upgrade
 
     layers:
         - name: Domain
@@ -43,8 +44,12 @@ parameters:
         - name: Legacy
           collectors:
               - { type: classNameRegex, value: '#^App\\Kernel$#' }
-              - { type: classNameRegex, value: '#^Adaptation\\$#' }
+              - { type: classNameRegex, value: '#^Adaptation\\(?!Log\\)#' } # Adaptation\Log has its own AdaptationLog layer
               - { type: classNameRegex, value: '#^Centreon*\\#' }
+              - { type: classNameRegex, value: '#^CentreonDB#' } # legacy global classes
+              - { type: classNameRegex, value: '#^Centreon$#' }
+              - { type: classNameRegex, value: '#^CentreonUser$#' }
+              - { type: classNameRegex, value: '#^CentreonLogAction$#' }
               - { type: classNameRegex, value: '#^Core\\#' }
               - { type: classNameRegex, value: '#^EventSubscriber\\#' }
               - { type: classNameRegex, value: '#^Security\\#' }
@@ -70,7 +75,13 @@ parameters:
             - Centreon\Domain\Contact\Contact
             - Centreon\Domain\Contact\Interfaces\ContactInterface
             - Centreon\Domain\Contact\Interfaces\ContactServiceInterface
+            - Core\Host\Application\HostTemplateServicesCleaner
             - Core\Service\Application\UseCase\DeployServices\DeployServices
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCloner:
+            - Centreon
+            - CentreonDBInstance
+            - CentreonUser
+            - CentreonLogAction
         App\MonitoringConfiguration\Infrastructure\Legacy\CapturingDeployServicesPresenter:
             - Core\Application\Common\UseCase\AbstractResponse
             - Core\Application\Common\UseCase\ResponseStatusInterface
@@ -86,3 +97,6 @@ parameters:
             - Centreon\Domain\Gorgone\Command\NodesSync
             - Centreon\Domain\Gorgone\GorgoneException
             - Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface
+        App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory:
+            - CentreonDB
+            - Adaptation\Database\Connection\Model\ConnectionConfig

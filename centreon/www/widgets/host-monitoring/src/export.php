@@ -382,7 +382,7 @@ try {
                         data
                     FROM comments
                     WHERE host_id = :hostId
-                        AND service_id IS NULL
+                        AND service_id = 0
                     ORDER BY entry_time DESC
                     LIMIT 1
                     SQL

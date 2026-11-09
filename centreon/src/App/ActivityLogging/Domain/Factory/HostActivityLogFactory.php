@@ -31,13 +31,13 @@ use App\ActivityLogging\Domain\Aggregate\TargetId;
 use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
@@ -183,7 +183,7 @@ final readonly class HostActivityLogFactory implements ActivityLogFactoryInterfa
      *
      * The two format mappings are spelled out here rather than reused from the write side
      * (Shared\Infrastructure\Dbal\TriStateColumnTrait for the tri-state,
-     * MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer for the options):
+     * MonitoringConfiguration\Infrastructure\Dbal\NotificationsTransformer for the options):
      * this factory lives in Domain and cannot depend on Infrastructure code. Any change to a storage format has to be made in both places — the same constraint
      * `host_activate` above is already under.
      *

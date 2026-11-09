@@ -30,7 +30,7 @@ use Webmozart\Assert\Assert;
 final class ContactGroupCriteria implements PaginableCriteria
 {
     use PaginableCriteriaTrait;
-    use ViewerScopedCriteriaTrait;
+    use ActorScopedCriteriaTrait;
     public const OPERATOR_LIKE = 'lk';
     public const ALLOWED_OPERATORS = [self::OPERATOR_LIKE];
 

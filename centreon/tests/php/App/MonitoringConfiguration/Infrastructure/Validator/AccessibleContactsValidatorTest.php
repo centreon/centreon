@@ -28,11 +28,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContacts;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContactsValidator;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -75,7 +77,7 @@ final class AccessibleContactsValidatorTest extends ConstraintValidatorTestCase
             new Collection([5 => new NotificationContactName('on-call')], NotificationContactName::class),
         );
         // an admin is never scoped, so the ACL lookup must not even be attempted
-        $this->resourceAccessRepository->expects(self::never())->method('findAccessibleContactIds');
+        $this->resourceAccessRepository->expects(self::never())->method('findContactAccessScope');
 
         $this->validator->validate([5], new AccessibleContacts());
 
@@ -94,19 +96,17 @@ final class AccessibleContactsValidatorTest extends ConstraintValidatorTestCase
     }
 
     /**
-     * The whole point of the scoping: an existing contact the viewer cannot reach must be
+     * The whole point of the scoping: an existing contact the actor cannot reach must be
      * rejected with the very same message as a missing one, so a restricted user cannot tell
      * the two apart and enumerate contacts they have no business seeing.
      */
-    public function testARestrictedViewerCannotReferenceAContactOutsideTheirScope(): void
+    public function testARestrictedActorCannotReferenceAContactOutsideTheirScope(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->contactRepository->method('findNamesByIds')->willReturn(
             new Collection([5 => new NotificationContactName('on-call')], NotificationContactName::class),
         );
-        $this->resourceAccessRepository->method('findAccessibleContactIds')->willReturn(
-            new Collection([new NotificationContactId(9)], NotificationContactId::class),
-        );
+        $this->resourceAccessRepository->method('findContactAccessScope')->willReturn(AccessScope::restrictedTo(NotificationContactId::class, [new NotificationContactId(9)]));
 
         $constraint = new AccessibleContacts();
         $this->validator->validate([5], $constraint);
@@ -114,15 +114,13 @@ final class AccessibleContactsValidatorTest extends ConstraintValidatorTestCase
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCanReferenceAnAccessibleContact(): void
+    public function testARestrictedActorCanReferenceAnAccessibleContact(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->contactRepository->method('findNamesByIds')->willReturn(
             new Collection([5 => new NotificationContactName('on-call')], NotificationContactName::class),
         );
-        $this->resourceAccessRepository->method('findAccessibleContactIds')->willReturn(
-            new Collection([new NotificationContactId(5)], NotificationContactId::class),
-        );
+        $this->resourceAccessRepository->method('findContactAccessScope')->willReturn(AccessScope::restrictedTo(NotificationContactId::class, [new NotificationContactId(5)]));
 
         $this->validator->validate([5], new AccessibleContacts());
 
@@ -131,17 +129,15 @@ final class AccessibleContactsValidatorTest extends ConstraintValidatorTestCase
 
     /**
      * Contacts have no "unrestricted" case to fall back on (see ResourceAccessRepository): an
-     * empty accessible set means the viewer reaches nothing, never everything.
+     * empty accessible set means the actor reaches nothing, never everything.
      */
-    public function testARestrictedViewerWithNoAccessibleContactIsRejected(): void
+    public function testARestrictedActorWithNoAccessibleContactIsRejected(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->contactRepository->method('findNamesByIds')->willReturn(
             new Collection([5 => new NotificationContactName('on-call')], NotificationContactName::class),
         );
-        $this->resourceAccessRepository->method('findAccessibleContactIds')->willReturn(
-            new Collection([], NotificationContactId::class),
-        );
+        $this->resourceAccessRepository->method('findContactAccessScope')->willReturn(AccessScope::restrictedTo(NotificationContactId::class, []));
 
         $constraint = new AccessibleContacts();
         $this->validator->validate([5], $constraint);
@@ -166,7 +162,7 @@ final class AccessibleContactsValidatorTest extends ConstraintValidatorTestCase
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerReachingOnlyPartOfTheContactsIsRejected(): void
+    public function testARestrictedActorReachingOnlyPartOfTheContactsIsRejected(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->contactRepository->method('findNamesByIds')->willReturn(
@@ -175,9 +171,7 @@ final class AccessibleContactsValidatorTest extends ConstraintValidatorTestCase
                 NotificationContactName::class,
             ),
         );
-        $this->resourceAccessRepository->method('findAccessibleContactIds')->willReturn(
-            new Collection([new NotificationContactId(5)], NotificationContactId::class),
-        );
+        $this->resourceAccessRepository->method('findContactAccessScope')->willReturn(AccessScope::restrictedTo(NotificationContactId::class, [new NotificationContactId(5)]));
 
         $constraint = new AccessibleContacts();
         $this->validator->validate([5, 9], $constraint);
@@ -187,7 +181,7 @@ final class AccessibleContactsValidatorTest extends ConstraintValidatorTestCase
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new AccessibleContactsValidator($this->security, $this->contactRepository, $this->resourceAccessRepository);
+        return new AccessibleContactsValidator($this->security, $this->contactRepository, new AccessScopeResolver($this->resourceAccessRepository));
     }
 
     private function createCredentialUser(bool $isAdmin): CredentialUser

@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\DeleteHostCommand;
 use App\MonitoringConfiguration\Application\Command\DeleteHostCommandHandler;
+use App\MonitoringConfiguration\Application\EventHandler\FlagPollerChangedEventHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
@@ -41,10 +42,13 @@ use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
 
 final class DeleteHostCommandHandlerTest extends TestCase
@@ -62,6 +66,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
         $this->hostRepository = new FakeHostRepository();
         $this->serviceRepository = new FakeServiceRepository();
         $this->eventBus = new EventBusSpy();
+
         $this->handler = new DeleteHostCommandHandler(
             $this->hostRepository,
             $this->serviceRepository,
@@ -73,7 +78,33 @@ final class DeleteHostCommandHandlerTest extends TestCase
     {
         $this->expectException(HostNotFoundException::class);
 
-        ($this->handler)(new DeleteHostCommand(new HostId(999), deletedBy: 1));
+        ($this->handler)(new DeleteHostCommand(new HostId(999), actor: TestActingUsers::unrestricted(1)));
+    }
+
+    public function testItThrowsWhenTheHostIsOutsideTheRestrictedDeleterScope(): void
+    {
+        $host = $this->host();
+        $this->hostRepository->add($host);
+        $this->hostRepository->resourceAccess->accessibleHostIds = new Collection([], HostId::class);
+
+        $this->expectException(HostNotFoundException::class);
+
+        try {
+            ($this->handler)(new DeleteHostCommand($host->id(), actor: TestActingUsers::restricted(7)));
+        } finally {
+            self::assertNotNull($this->hostRepository->findOne($host->id(), TestActingUsers::unrestricted()));
+        }
+    }
+
+    public function testAnUnrestrictedDeleterIsNotScopedByAcl(): void
+    {
+        $host = $this->host();
+        $this->hostRepository->add($host);
+        $this->hostRepository->resourceAccess->accessibleHostIds = new Collection([], HostId::class);
+
+        ($this->handler)(new DeleteHostCommand($host->id(), actor: TestActingUsers::unrestricted(1)));
+
+        self::assertNull($this->hostRepository->findOne($host->id(), TestActingUsers::unrestricted()));
     }
 
     public function testItDeletesTheHostAndRequestsItsVaultPurge(): void
@@ -81,9 +112,9 @@ final class DeleteHostCommandHandlerTest extends TestCase
         $host = $this->host();
         $this->hostRepository->add($host);
 
-        ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: 1));
+        ($this->handler)(new DeleteHostCommand($host->id(), actor: TestActingUsers::unrestricted(1)));
 
-        self::assertNull($this->hostRepository->findOne($host->id()));
+        self::assertNull($this->hostRepository->findOne($host->id(), TestActingUsers::unrestricted()));
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostDeleted::class));
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostVaultPurgeRequested::class));
         self::assertFalse($this->eventBus->shouldHaveDispatched(ServiceVaultPurgeRequested::class));
@@ -98,7 +129,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
         ]);
         $this->serviceRepository->add($service);
 
-        ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: 1));
+        ($this->handler)(new DeleteHostCommand($host->id(), actor: TestActingUsers::unrestricted(1)));
 
         self::assertCount(0, $this->serviceRepository->findExclusivelyLinkedToHostId($host->id()));
         self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceDeleted::class, times: 1));
@@ -113,11 +144,59 @@ final class DeleteHostCommandHandlerTest extends TestCase
         $unrelatedService = $this->service($otherHostId);
         $this->serviceRepository->add($unrelatedService);
 
-        ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: 1));
+        ($this->handler)(new DeleteHostCommand($host->id(), actor: TestActingUsers::unrestricted(1)));
 
         self::assertCount(1, $this->serviceRepository->findExclusivelyLinkedToHostId($otherHostId));
         self::assertFalse($this->eventBus->shouldHaveDispatched(ServiceDeleted::class));
         self::assertFalse($this->eventBus->shouldHaveDispatched(ServiceVaultPurgeRequested::class));
+    }
+
+    public function testDeletingAnEnabledHostAlsoFlagsAclAndThePollerForEachCascadedService(): void
+    {
+        $host = $this->host();
+        $this->hostRepository->add($host);
+        $service = $this->service($host->id(), hostActivated: true);
+        $this->serviceRepository->add($service);
+
+        ($this->handler)(new DeleteHostCommand($host->id(), actor: TestActingUsers::unrestricted(1)));
+
+        // The cascaded service also flags ACL once more and names its enabled host's poller.
+        $deleted = $this->eventBus->getDispatchedEvents(ServiceDeleted::class);
+        self::assertCount(1, $deleted);
+        self::assertInstanceOf(AclScopedInterface::class, $deleted[0]->aggregate);
+        self::assertSame([$service, $host], $this->resourcesWhosePollerIsFlagged());
+    }
+
+    public function testDeletingADisabledHostFlagsNoPollerForItsCascadedServices(): void
+    {
+        $host = $this->host();
+        $this->hostRepository->add($host);
+        $this->serviceRepository->add($this->service($host->id(), hostActivated: false));
+
+        ($this->handler)(new DeleteHostCommand($host->id(), actor: TestActingUsers::unrestricted(1)));
+
+        self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceDeleted::class, times: 1));
+        self::assertSame([$host], $this->resourcesWhosePollerIsFlagged());
+    }
+
+    /**
+     * Runs the fired deletion events through the poller handler, services first, then
+     * the host's.
+     *
+     * @return list<object>
+     */
+    private function resourcesWhosePollerIsFlagged(): array
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+        foreach ([
+            ...$this->eventBus->getDispatchedEvents(ServiceDeleted::class),
+            ...$this->eventBus->getDispatchedEvents(HostDeleted::class),
+        ] as $event) {
+            $handler($event);
+        }
+
+        return $pollerRepository->flaggedResources;
     }
 
     private function host(): Host
@@ -137,12 +216,14 @@ final class DeleteHostCommandHandlerTest extends TestCase
     /**
      * @param list<ServiceMacro> $macros
      */
-    private function service(HostId $hostId, array $macros = []): Service
+    private function service(HostId $hostId, array $macros = [], bool $hostActivated = true): Service
     {
         return new Service(
             id: null,
             name: new ServiceName('web-check'),
             hostId: $hostId,
+            hostActivated: $hostActivated,
+            hostPollerId: new PollerId(1),
             macros: $macros,
         );
     }

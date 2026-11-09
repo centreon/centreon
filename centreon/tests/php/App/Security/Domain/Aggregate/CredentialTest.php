@@ -159,6 +159,22 @@ final class CredentialTest extends TestCase
         self::assertFalse($credential->isPermissionGranted(new Permission('can_read_host_groups')));
     }
 
+    public function testTheActingUserOfARestrictedUserIsScoped(): void
+    {
+        $actingUser = $this->createCredential()->actingUser();
+
+        self::assertSame(1, $actingUser->userId->value);
+        self::assertFalse($actingUser->hasUnrestrictedResourceAccess());
+    }
+
+    public function testTheActingUserOfAnAdminEscapesResourceScoping(): void
+    {
+        $credential = $this->createCredential();
+        $credential->assignRole(new Role('ROLE_CLOUD_ADMIN'));
+
+        self::assertTrue($credential->actingUser()->hasUnrestrictedResourceAccess());
+    }
+
     private function createCredential(): Credential
     {
         return new Credential(new CredentialIdentifier('user'), new UserId(1), active: true);

@@ -91,6 +91,11 @@ final readonly class Credential
         return $this->roles->contains(new Role('ROLE_CLOUD_ADMIN'));
     }
 
+    public function actingUser(): ActingUser
+    {
+        return new ActingUser($this->userId, $this->hasUnrestrictedResourceAccess());
+    }
+
     /**
      * Whether the user escapes ACL resource scoping, i.e. sees every resource on the platform.
      */

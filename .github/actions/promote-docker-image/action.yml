@@ -1,0 +1,60 @@
+name: "promote docker image"
+description: >
+  Copy a validated Harbor candidate to a delivery registry without
+  rebuilding nor rewriting its index (crane copy), so the digest-keyed build
+  provenance and SBOM attestations hold on the destination. Fails hard if the
+  candidate is missing, on any push error or digest mismatch — callers wrap
+  it with continue-on-error. Needs crane on PATH, Harbor credentials, and
+  destination credentials unless pulp_oidc_audience is set.
+inputs:
+  source_image:
+    description: "Source image ref on Harbor, no tag"
+    required: true
+  source_tag:
+    description: >
+      Deterministic version_tag candidate (e.g. 26.10.5), only ever written
+      after the image's own container e2e tests passed.
+    required: true
+  dest_image:
+    description: "Destination image ref, no tag (e.g. registry-dev.int.centreon.com/default/centreon/centreon-gorgone)"
+    required: true
+  dest_tags:
+    description: "Space-separated list of tags to create"
+    required: true
+  pulp_oidc_audience:
+    description: >
+      Pulp destination only: OIDC audience of the Pulp instance, the job then
+      needs 'id-token: write' and authenticates through workload identity.
+    required: false
+    default: ""
+
+outputs:
+  digest:
+    description: "Promoted index digest (identical to the Harbor candidate one)"
+    value: ${{ steps.promote.outputs.digest }}
+  amd64_digest:
+    description: "amd64 platform manifest digest, for SBOM scanning"
+    value: ${{ steps.candidate.outputs.amd64_digest }}
+  arm64_digest:
+    description: "arm64 platform manifest digest, for SBOM scanning"
+    value: ${{ steps.candidate.outputs.arm64_digest }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Resolve Harbor candidate
+      id: candidate
+      uses: ./.github/actions/resolve-docker-candidate
+      with:
+        image: ${{ inputs.source_image }}
+        tag: ${{ inputs.source_tag }}
+
+    - name: Promote image
+      id: promote
+      shell: bash
+      env:
+        SOURCE_REF: ${{ steps.candidate.outputs.ref }}
+        DEST_IMAGE: ${{ inputs.dest_image }}
+        DEST_TAGS: ${{ inputs.dest_tags }}
+        PULP_OIDC_AUDIENCE: ${{ inputs.pulp_oidc_audience }}
+      run: bash "$GITHUB_WORKSPACE/.github/scripts/docker-promote.sh"

@@ -24,19 +24,29 @@ declare(strict_types=1);
 namespace App\Security\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\Security\Domain\Aggregate\AccessGroupId;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 
+/**
+ * The resource access rules of a user, from their Access Groups. The `find*AccessScope()` lookups ignore
+ * whether the user escapes resource scoping (a super admin or a Cloud admin): ask
+ * {@see \App\Security\Domain\Service\AccessScopeResolver} what an acting user may access.
+ */
 interface ResourceAccessRepository
 {
     public function hasAccessToAllPollers(UserId $userId): bool;
@@ -60,71 +70,132 @@ interface ResourceAccessRepository
      */
     public function flagAllResourcesAsChanged(): void;
 
+    /**
+     * Copies a host's ACL scope onto a freshly duplicated host, so the copy is visible to exactly the
+     * same Access Groups as its source without waiting for the `centAcl` cron:
+     *  - the configuration relations `acl_resources_host_relations` and `acl_resources_hostex_relations`
+     *    (mirroring legacy centreonACL::duplicateHostAcl), and
+     *  - the real-time `centreon_acl` rows scoping the host per group.
+     *
+     * Only host-level rows are copied here: the copy has no services yet (they are duplicated after the
+     * commit). The service-level `centreon_acl` rows are written later by
+     * {@see self::duplicateHostServiceAccess()}, once the copy's services exist.
+     */
+    public function duplicateHostAccess(HostId $sourceHostId, HostId $newHostId): void;
+
+    /**
+     * Completes {@see self::duplicateHostAccess()} once the copy's services have been duplicated: for
+     * every service now linked to the copy and every Access Group that already sees the source host,
+     * writes the real-time `centreon_acl` service row, so a non-admin sees the copy's services without
+     * waiting for the `centAcl` cron (mirrors legacy updateACL('DUP') over the duplicated services).
+     */
+    public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void;
+
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
 
     /**
-     * Returns the levelless host categories the user is restricted to.
+     * The levelless host categories the user may access, mirroring the legacy host-category ACL
+     * (DbReadHostCategoryRepository::findAllByAccessGroupIds guarded by hasRestrictedAccessToHostCategories):
+     *  - unrestricted, when their accessible ACL resources carry no host-category relation;
+     *  - restricted to nothing, when they have no accessible ACL resource or are granted only severities;
+     *  - restricted to the granted categories otherwise.
      *
-     * Three states, mirroring the legacy host-category ACL (DbReadHostCategoryRepository::
-     * findAllByAccessGroupIds guarded by hasRestrictedAccessToHostCategories):
-     *  - null                   → no restriction applies; the user sees every category
-     *  - an empty Collection    → the user is restricted but grants no accessible regular category
-     *                             (e.g. only severities, or no accessible ACL resource): sees nothing
-     *  - a non-empty Collection → the user is restricted to exactly these categories
-     *
-     * @return Collection<HostCategoryId>|null
+     * @return AccessScope<HostCategoryId>
      */
-    public function findAccessibleHostCategoryIds(UserId $userId): ?Collection;
+    public function findHostCategoryAccessScope(UserId $userId): AccessScope;
 
     /**
-     * Returns the host severities (host categories carrying a level) the user is restricted to.
+     * The host severities (host categories carrying a level) the user may access, mirroring the legacy
+     * host-template ACL (DbReadHostTemplateRepository::findByRequestParametersAndAccessGroups):
+     *  - unrestricted, when their accessible ACL resources carry no host-category relation;
+     *  - restricted to nothing, when they have no accessible ACL resource or are granted no severity;
+     *  - restricted to the granted severities otherwise.
      *
-     * Three states, mirroring the legacy host-template ACL (DbReadHostTemplateRepository::
-     * findByRequestParametersAndAccessGroups):
-     *  - null                   → no restriction applies; the user sees host templates of any severity
-     *  - an empty Collection    → the user is restricted but grants no accessible severity: sees nothing
-     *  - a non-empty Collection → the user is restricted to exactly these severities
+     * @return AccessScope<HostSeverityId>
+     */
+    public function findHostSeverityAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * @return AccessScope<PollerId>
+     */
+    public function findPollerAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * @return AccessScope<HostGroupId>
+     */
+    public function findHostGroupAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * Service groups granted by the user's active ACL resources (disabled service groups included):
+     * unrestricted when one of them grants all service groups.
      *
-     * @return Collection<HostSeverityId>|null
+     * @return AccessScope<ServiceGroupId>
      */
-    public function findAccessibleHostSeverityIds(UserId $userId): ?Collection;
+    public function findServiceGroupAccessScope(UserId $userId): AccessScope;
 
     /**
-     * @return Collection<PollerId>|null null means no restriction applies (the user can access
-     *                                   all pollers); an empty Collection means the user can access none
+     * @return AccessScope<MediaDirectoryId>
      */
-    public function findAccessiblePollerIds(UserId $userId): ?Collection;
+    public function findImageFolderAccessScope(UserId $userId): AccessScope;
 
     /**
-     * @return Collection<HostGroupId>|null null means no restriction applies (the user can access
-     *                                      all host groups); an empty Collection means the user can access none
-     */
-    public function findAccessibleHostGroupIds(UserId $userId): ?Collection;
-
-    /**
-     * @return Collection<MediaDirectoryId>|null null means no restriction applies (the user can
-     *                                           access all image folders); an empty Collection means
-     *                                           the user can access none
-     */
-    public function findAccessibleImageFolderIds(UserId $userId): ?Collection;
-
-    /**
-     * Contacts are not ACL *resources*: unlike pollers or host groups, they carry no
-     * `acl_resources_*` relation and no "all contacts" flag. Their visibility comes from Access
-     * Group membership instead — a restricted user sees the contacts attached to one of their
-     * Access Groups, directly or through a contact group. There is therefore no "no restriction
-     * applies" case to signal, and this returns a plain Collection rather than a nullable one.
+     * Contacts are not ACL *resources*: they carry no `acl_resources_*` relation and no "all
+     * contacts" flag. A user sees the contacts attached to one of their Access Groups, directly or
+     * through a contact group, so the scope is always restricted.
      *
-     * @return Collection<NotificationContactId> empty means the user can access no contact at all
+     * @return AccessScope<NotificationContactId>
      */
-    public function findAccessibleContactIds(UserId $userId): Collection;
+    public function findContactAccessScope(UserId $userId): AccessScope;
 
     /**
-     * Same Access-Group-membership model as {@see self::findAccessibleContactIds()}: a restricted
-     * user sees the contact groups attached to one of their Access Groups, plus the ones they are
-     * themselves a member of.
+     * Levelless service categories granted by the user's active ACL resources (disabled categories
+     * included):
+     *  - no accessible ACL resource → restricted to nothing
+     *  - accessible resources, none carrying a service-category relation of any level → unrestricted
+     *  - otherwise → restricted to the granted levelless categories (none when only severities are
+     *    granted)
      *
-     * @return Collection<ContactGroupId> empty means the user can access no contact group at all
+     * @return AccessScope<ServiceCategoryId>
      */
-    public function findAccessibleContactGroupIds(UserId $userId): Collection;
+    public function findServiceCategoryAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * Service severities (service categories carrying a level) granted by the user's active ACL
+     * resources (disabled severities included):
+     *  - no accessible ACL resource → restricted to nothing
+     *  - accessible resources, none carrying a service-category relation of any level → unrestricted
+     *  - otherwise → restricted to the granted severities (none when only levelless categories are
+     *    granted)
+     *
+     * @return AccessScope<ServiceSeverityId>
+     */
+    public function findServiceSeverityAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * Same Access-Group-membership model as {@see self::findContactAccessScope()}, plus the contact
+     * groups the user is a member of.
+     *
+     * @return AccessScope<ContactGroupId>
+     */
+    public function findContactGroupAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * Hosts follow the real-time ACL cache (`centreon_acl`), which already resolves every
+     * resource-scoping rule per Access Group, so the scope is always restricted.
+     *
+     * @param ?Collection<HostId> $among when given, only these hosts are looked up, instead of every host the user can see:
+     *                                   the scope is then partial, and only answers for them
+     *
+     * @return AccessScope<HostId>
+     */
+    public function findHostAccessScope(UserId $userId, ?Collection $among = null): AccessScope;
+
+    /**
+     * Services follow the real-time ACL cache (`centreon_acl`) too, but are far too many to load as a list of
+     * ids: the scope is the user's active Access Groups, for a query to join the cache on. It is always
+     * restricted, and allows nothing for a user belonging to no active group.
+     *
+     * @return AccessScope<AccessGroupId>
+     */
+    public function findServiceAccessGroupScope(UserId $userId): AccessScope;
 }

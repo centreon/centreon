@@ -28,12 +28,14 @@ Feature: Service downtime start and stop
   # The fixed lifecycle (above) is covered; the flexible variant is parked until
   # a non-disruptive way to force a HARD state is found (follow-up ticket).
   @ignore
+  @MON-201254
   Scenario: a flexible downtime becomes active when the service goes critical
     Given a flexible downtime is scheduled on the service for the next minutes
     When the service becomes critical within the downtime window
     Then the service downtime is active
 
   @ignore
+  @MON-201253
   Scenario: a flexible downtime ends after its duration has elapsed
     Given a flexible downtime is scheduled on the service for the next minutes
     And the service becomes critical within the downtime window

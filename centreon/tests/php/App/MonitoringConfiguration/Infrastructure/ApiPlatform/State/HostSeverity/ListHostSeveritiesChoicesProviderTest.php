@@ -34,7 +34,7 @@ final class ListHostSeveritiesChoicesProviderTest extends ApiTestCase
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_HOSTS_R[W]
     // (Configuration > Hosts > Hosts), bridged to HostPermissionEnum via
-    // DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const HOST_TOPOLOGY_PAGES = [6, 601, 60101];
 
     // CentreonACL access rights, see Centreon\Domain\Repository\TopologyRepository
@@ -123,7 +123,7 @@ final class ListHostSeveritiesChoicesProviderTest extends ApiTestCase
 
     /**
      * Legacy's severity picker on the host form (CentreonCriticality::getList()) ignores ACL
-     * visibility: unlike the generic /configuration/host_severities endpoint, a viewer restricted
+     * visibility: unlike the generic /configuration/host_severities endpoint, an actor restricted
      * to some categories must still see every severity through this host-scoped selector.
      */
     public function testItIgnoresHostCategoryAclRestrictionsForARestrictedUser(): void

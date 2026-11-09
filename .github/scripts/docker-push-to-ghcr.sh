@@ -25,7 +25,7 @@
 # (attest-ghcr-image). Digest resolution below is best-effort and non-fatal.
 #
 # Expected env vars:
-#   GHCR_IMAGE   destination image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-snmptrapd)
+#   GHCR_IMAGE   destination image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-trapd)
 #   HARBOR_IMAGE source image ref on Harbor, no tag
 #   HARBOR_TAG   source tag on Harbor to promote (e.g. release-26.10-next)
 #   GHCR_TAGS    space-separated list of tags to create on ghcr.io (e.g. "26.10.5 26.10")

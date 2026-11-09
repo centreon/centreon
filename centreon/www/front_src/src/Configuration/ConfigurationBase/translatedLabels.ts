@@ -82,3 +82,24 @@ export const labelSave = 'Save';
 export const labelClose = 'Close';
 export const labelReset = 'Reset';
 export const labelDoYouWantToResetTheForm = 'Do you want to reset the form?';
+export const labelMassChange = 'Mass Change';
+export const labelApply = 'Apply';
+export const labelApplyChangesTo = (type: string) =>
+  `The changes will be applied to {{count}} ${type}.`;
+export const labelFailedToUpdateResources = (type: string) =>
+  `Failed to update the ${type}`;
+// Followed by the names of the rows that failed.
+export const labelFailedToUpdateSomeResources = 'An error occurred';
+
+// Custom macros
+export const labelAddNewEntry = 'Add new entry';
+export const labelValue = 'Value';
+export const labelPassword = 'Password';
+export const labelRevertToPreviousPassword = 'Revert to previous password';
+export const labelTemplateInheritance = 'Template inheritance';
+export const labelCommandInheritance = 'Command inheritance';
+export const labelRequired = 'Required';
+export const labelAlreadyExists = 'Already exists';
+export const labelReservedMacroName = 'You cannot override reserved macros';
+export const labelMustBeAtMostCharacters =
+  '{{label}} can be at most {{max}} characters';

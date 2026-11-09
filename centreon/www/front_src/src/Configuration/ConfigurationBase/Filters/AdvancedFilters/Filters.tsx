@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 
 import { Button } from '@centreon/ui/components';
 
+import clsx from 'clsx';
 import { PrimitiveAtom, useAtom } from 'jotai';
 import { equals } from 'ramda';
 import { JSX } from 'react';
@@ -12,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { FieldType } from '../../../models';
 import useLoadData from '../../Listing/useLoadData';
 import { labelClear, labelSearch } from '../../translatedLabels';
-import { useFilterStyles } from '../Filters.styles';
+import { defaultFiltersPanelWidth } from '../Filters.styles';
 import {
   Checkbox,
   Checkboxes,
@@ -50,10 +51,25 @@ const Filters = <TFilters,>({
     setFilters
   });
 
-  const { classes } = useFilterStyles({ filtersPanelWidth });
+  const isFullWidth = equals(filtersPanelWidth, 'full');
 
   return (
-    <div className={classes.additionalFilters} data-testid="advanced-filters">
+    <div
+      // A `full` panel hangs flush from the field and fills its popper.
+      className={clsx(
+        'flex flex-col gap-3 bg-background-paper p-4',
+        !isFullWidth && 'mt-2 w-(--filters-panel-width)'
+      )}
+      data-testid="advanced-filters"
+      // A width is in MUI spacing units, twice the Tailwind `--spacing`.
+      style={
+        isFullWidth
+          ? undefined
+          : {
+              '--filters-panel-width': `calc(var(--spacing) * ${2 * (filtersPanelWidth ?? defaultFiltersPanelWidth)})`
+            }
+      }
+    >
       {filtersConfiguration?.map((filter) => {
         if (equals(filter.fieldType, FieldType.Text))
           return (
@@ -139,7 +155,7 @@ const Filters = <TFilters,>({
         return <Box key={filter.name} />;
       })}
 
-      <div className={classes.additionalFiltersButtons}>
+      <div className="mt-4 flex justify-between">
         <Button
           data-testid={labelClear}
           disabled={isClearDisabled}

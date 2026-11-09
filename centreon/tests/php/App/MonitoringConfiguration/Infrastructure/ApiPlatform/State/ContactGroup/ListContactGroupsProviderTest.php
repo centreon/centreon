@@ -35,7 +35,7 @@ final class ListContactGroupsProviderTest extends ApiTestCase
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_R
     // (Configuration > Users > Contact Groups), bridged to ContactGroupPermissionEnum::CanRead
-    // via DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    // via CredentialTransformer::LEGACY_PERMISSION_MAP.
     private const CONTACT_GROUP_READ_TOPOLOGY_PAGES = [6, 603, 60302];
 
     private Connection $connection;
@@ -144,8 +144,8 @@ final class ListContactGroupsProviderTest extends ApiTestCase
     public function testItScopesRowsForANonAdminWithPermission(): void
     {
         // The security-critical wire: a non-admin *with* the read permission must be ACL-scoped by
-        // the provider (withViewerId). A regression dropping that scoping would leak every group.
-        $username = "viewer_{$this->tag}";
+        // the provider (ContactGroupCriteria::forActor()). A regression dropping that scoping would leak every group.
+        $username = "actor_{$this->tag}";
         $contactId = $this->createNonAdminContact($username);
         $aclGroupId = $this->grantContactGroupReadTopologyRole($contactId);
 

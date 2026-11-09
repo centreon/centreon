@@ -46,20 +46,20 @@ final readonly class DeleteHostCommandHandler
 
     public function __invoke(DeleteHostCommand $command): void
     {
-        $host = $this->hostRepository->findOne($command->id, $command->viewerId);
+        $host = $this->hostRepository->findOne($command->id, $command->actor);
         if (! $host instanceof Host) {
             throw new HostNotFoundException([$command->id->value], 'id');
         }
 
         foreach ($this->serviceRepository->findExclusivelyLinkedToHostId($command->id) as $service) {
             $this->serviceRepository->remove($service);
-            $this->eventBus->fire(new ServiceDeleted($service, $command->deletedBy));
+            $this->eventBus->fire(new ServiceDeleted($service, $command->actor->userId->value));
             $this->eventBus->fire(new ServiceVaultPurgeRequested($service));
         }
 
         $this->hostRepository->remove($host);
 
-        $this->eventBus->fire(new HostDeleted($host, $command->deletedBy));
+        $this->eventBus->fire(new HostDeleted($host, $command->actor->userId->value));
         $this->eventBus->fire(new HostVaultPurgeRequested($host));
     }
 }

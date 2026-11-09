@@ -24,11 +24,17 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\Shared\Domain\Aggregate\AclScopedInterface;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
 
@@ -42,6 +48,79 @@ final class ServiceTest extends TestCase
         self::assertSame('web-check', $service->name->value);
         self::assertSame(1, $service->hostId->value);
         self::assertSame([], $service->macros);
+    }
+
+    public function testItHasNoOwnTemplateIconNorIntervalsAndIsEnabledByDefault(): void
+    {
+        $service = $this->service();
+
+        self::assertTrue($service->activated);
+        self::assertNull($service->templateId);
+        self::assertNull($service->iconId);
+        self::assertEquals(new ServiceCheckIntervals(), $service->checkIntervals);
+    }
+
+    public function testItHoldsItsOwnTemplateIconAndIntervals(): void
+    {
+        $service = new Service(
+            id: new ServiceId(42),
+            name: new ServiceName('web-check'),
+            hostId: new HostId(1),
+            hostActivated: true,
+            hostPollerId: new PollerId(3),
+            activated: false,
+            templateId: new ServiceTemplateId(7),
+            iconId: new MediaId(8),
+            checkIntervals: new ServiceCheckIntervals(normal: 5, retry: 1),
+        );
+
+        self::assertFalse($service->activated);
+        self::assertSame(7, $service->templateId?->value);
+        self::assertSame(8, $service->iconId?->value);
+        self::assertSame(5, $service->checkIntervals->normal);
+        self::assertSame(1, $service->checkIntervals->retry);
+    }
+
+    public function testDisableThenEnable(): void
+    {
+        $service = $this->service();
+
+        $service->disable();
+        self::assertFalse($service->activated);
+
+        $service->enable();
+        self::assertTrue($service->activated);
+    }
+
+    public function testItIsAclAndPollerScoped(): void
+    {
+        // The markers route every Service event through the generic ACL and poller handlers.
+        $interfaces = class_implements(Service::class);
+
+        self::assertIsArray($interfaces);
+        self::assertArrayHasKey(AclScopedInterface::class, $interfaces);
+        self::assertArrayHasKey(PollerScopedInterface::class, $interfaces);
+    }
+
+    public function testThePollerToFlagIsTheOneOfItsEnabledHost(): void
+    {
+        $service = $this->service(hostActivated: true, hostPollerId: 3);
+
+        self::assertSame(3, $service->pollerToFlag()?->value);
+    }
+
+    public function testNoPollerIsFlaggedForAServiceOfADisabledHost(): void
+    {
+        $service = $this->service(hostActivated: false, hostPollerId: 3);
+
+        self::assertNull($service->pollerToFlag());
+    }
+
+    public function testNoPollerIsFlaggedForAServiceWhoseHostHasNoPoller(): void
+    {
+        $service = $this->service(hostActivated: true, hostPollerId: null);
+
+        self::assertNull($service->pollerToFlag());
     }
 
     public function testGetVaultUuidReturnsNullWhenNothingIsVaulted(): void
@@ -82,12 +161,19 @@ final class ServiceTest extends TestCase
     /**
      * @param list<ServiceMacro> $macros
      */
-    private function service(?int $id = null, int $hostId = 1, array $macros = []): Service
-    {
+    private function service(
+        ?int $id = null,
+        int $hostId = 1,
+        array $macros = [],
+        bool $hostActivated = true,
+        ?int $hostPollerId = 1,
+    ): Service {
         return new Service(
             id: $id !== null ? new ServiceId($id) : null,
             name: new ServiceName('web-check'),
             hostId: new HostId($hostId),
+            hostActivated: $hostActivated,
+            hostPollerId: $hostPollerId !== null ? new PollerId($hostPollerId) : null,
             macros: $macros,
         );
     }

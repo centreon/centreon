@@ -23,18 +23,44 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\PaginableCriteria;
 use App\Shared\Domain\Repository\PaginableCriteriaTrait;
+use App\Shared\Domain\Repository\SortableCriteria;
+use App\Shared\Domain\Repository\SortableCriteriaTrait;
 use Webmozart\Assert\Assert;
 
-final class HostTemplateCriteria implements PaginableCriteria
+final class HostTemplateCriteria implements PaginableCriteria, SortableCriteria
 {
     use PaginableCriteriaTrait;
-    use ViewerScopedCriteriaTrait;
+    use SortableCriteriaTrait;
+    use ActorScopedCriteriaTrait;
+
+    private ?HostTemplateId $id = null;
 
     private ?string $name = null;
 
-    private bool $excludeLocked = false;
+    private ?string $nameOrAlias = null;
+
+    // kept by default: the host form's template choices include the locked templates
+    private bool $lockedExcluded = false;
+
+    /** @var list<int> */
+    private array $excludedIds = [];
+
+    public function withId(HostTemplateId $id): self
+    {
+        $new = clone $this;
+        $new->id = $id;
+
+        return $new;
+    }
+
+    public function getId(): ?HostTemplateId
+    {
+        return $this->id;
+    }
 
     public function withName(string $name): self
     {
@@ -52,16 +78,67 @@ final class HostTemplateCriteria implements PaginableCriteria
         return $this->name;
     }
 
-    public function withExcludeLocked(bool $exclude): self
+    /**
+     * Matches templates whose name or alias contains the given value.
+     */
+    public function withNameOrAlias(string $value): self
     {
+        // notEmpty() relies on empty(), which would wrongly reject a legitimate value of "0"
+        Assert::stringNotEmpty($value);
+
         $new = clone $this;
-        $new->excludeLocked = $exclude;
+        $new->nameOrAlias = $value;
 
         return $new;
     }
 
-    public function excludeLocked(): bool
+    public function getNameOrAlias(): ?string
     {
-        return $this->excludeLocked;
+        return $this->nameOrAlias;
+    }
+
+    public function withoutLocked(): self
+    {
+        $new = clone $this;
+        $new->lockedExcluded = true;
+
+        return $new;
+    }
+
+    public function isLockedExcluded(): bool
+    {
+        return $this->lockedExcluded;
+    }
+
+    /**
+     * @param Collection<HostTemplateId> $ids
+     */
+    public function withExcludedIds(Collection $ids): self
+    {
+        $new = clone $this;
+        $new->excludedIds = array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $ids->toArray()));
+
+        return $new;
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getExcludedIds(): array
+    {
+        return $this->excludedIds;
+    }
+
+    /**
+     * Sortable fields exposed by the API, mapped to their `host` table column.
+     *
+     * @return array<string, string>
+     */
+    public function getFieldMapping(): array
+    {
+        return [
+            'name' => 'host_name',
+            'alias' => 'host_alias',
+        ];
     }
 }

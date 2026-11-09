@@ -1,0 +1,80 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
+
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProviderInterface;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateMacrosOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
+use App\Shared\Domain\Collection;
+use Webmozart\Assert\Assert;
+
+/**
+ * A host template's own macros, then the inherited ones it does not override; not ACL- or license-scoped.
+ *
+ * @implements ProviderInterface<HostTemplateMacrosOutput>
+ */
+final readonly class GetHostTemplateMacrosProvider implements ProviderInterface
+{
+    public function __construct(
+        private HostTemplateRepository $repository,
+        private InheritedHostMacrosResolver $inheritedHostMacrosResolver,
+        private HostMacroTransformer $macroTransformer,
+    ) {
+    }
+
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): HostTemplateMacrosOutput
+    {
+        Assert::integer($uriVariables['id']);
+        $templateId = new HostTemplateId($uriVariables['id']);
+
+        // The line starts with the template itself (when active), followed by its ancestors.
+        /** @var list<HostTemplate> $inheritanceLine */
+        $inheritanceLine = array_values(
+            $this->repository->findInheritanceLine(new Collection([$templateId], HostTemplateId::class))->toArray(),
+        );
+        $template = $inheritanceLine[0] ?? null;
+        if (! $template instanceof HostTemplate || $template->id()->value !== $templateId->value) {
+            throw new HostTemplateNotFoundException([$templateId->value], 'id');
+        }
+
+        $ownMacros = $template->checkOptions->macros;
+        // The template's own check command falls back to the first ancestor's, as for a host.
+        $inherited = $this->inheritedHostMacrosResolver->resolveLine($inheritanceLine, null);
+
+        return new HostTemplateMacrosOutput(
+            id: $templateId->value,
+            name: $template->name->value,
+            macros: array_map(
+                $this->macroTransformer->transform(...),
+                [...$ownMacros, ...$inherited->notOverriddenBy($ownMacros)],
+            ),
+        );
+    }
+}

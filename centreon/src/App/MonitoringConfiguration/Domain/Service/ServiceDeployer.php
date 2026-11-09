@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Collection;
 
 interface ServiceDeployer
 {
@@ -32,4 +34,20 @@ interface ServiceDeployer
      * @throws \Throwable
      */
     public function deployFromTemplates(HostId $hostId, UserId $requestedBy): void;
+
+    /**
+     * Deletes the services the host got from the templates in $previousTemplateIds that are no
+     * longer in $templateIds, unless one of the remaining templates still provides them.
+     *
+     * @param Collection<HostTemplateId> $previousTemplateIds
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @throws \Throwable
+     */
+    public function removeFromRemovedTemplates(
+        HostId $hostId,
+        Collection $previousTemplateIds,
+        Collection $templateIds,
+        UserId $requestedBy,
+    ): void;
 }

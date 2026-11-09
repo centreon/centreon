@@ -27,10 +27,13 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
+use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateChoicesOutput;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -52,6 +55,7 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
         private TransformerInterface $transformer,
         private HostTemplateRepository $repository,
         private Pagination $pagination,
+        private UnlicensedHostTemplates $unlicensedHostTemplates,
     ) {
     }
 
@@ -60,11 +64,9 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
-        // No viewer scoping: the legacy host form's "extend template" select (CentreonHost::getList())
-        // is not host-category severity-scoped, unlike the generic /configuration/host_templates
-        // endpoint. Locked (paid plugin-pack) templates are excluded instead, matching
-        // CentreonHost::getLimitedList().
-        $criteria = new HostTemplateCriteria();
+        // Unscoped, locked included, id order, like CentreonHost::getList(); Monitoring Connector
+        // templates excluded once the license host limit is reached (CentreonHost::getLimitedList()).
+        $criteria = HostTemplateCriteria::unscoped();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -78,7 +80,15 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-        $criteria = $criteria->withExcludeLocked(true);
+
+        $excludedIds = $this->unlicensedHostTemplates->findIds()->toArray();
+        $templateId = $operation->getParameters()?->get('exclude_template_id')?->getValue(null);
+        if (is_int($templateId)) {
+            // the template itself and its descendants: picking any of them as its parent makes a loop
+            $templateId = new HostTemplateId($templateId);
+            array_push($excludedIds, $templateId, ...$this->repository->findDescendantIds($templateId)->toArray());
+        }
+        $criteria = $criteria->withExcludedIds(new Collection($excludedIds, HostTemplateId::class));
 
         $hostTemplates = $this->repository->findAll($criteria);
         $resources = [];

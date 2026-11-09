@@ -66,9 +66,9 @@ final readonly class ListHostCategoriesChoicesProvider implements ProviderInterf
     {
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
-        $hasUnrestrictedResourceAccess = $credentialUser->credential->hasUnrestrictedResourceAccess();
 
-        $criteria = new HostCategoryCriteria();
+        // Unrestricted users see every host category; others are scoped to their accessible categories.
+        $criteria = HostCategoryCriteria::forActor($credentialUser->credential->actingUser());
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -82,11 +82,6 @@ final readonly class ListHostCategoriesChoicesProvider implements ProviderInterf
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-
-        // Unrestricted users see every host category; others are scoped to their accessible categories.
-        $criteria = $hasUnrestrictedResourceAccess
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
 
         $hostCategories = $this->repository->findAll($criteria);
         $resources = [];

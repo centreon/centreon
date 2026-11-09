@@ -38,6 +38,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -328,7 +329,7 @@ final class PartialUpdateService
                 }
                 if ($command->isCentreonMonitoringAgentCommand()) {
                     $service->setCheckFreshness(YesNoDefaultConverter::fromInt(1));
-                    $service->setFreshnessThreshold(120);
+                    $service->setFreshnessThreshold(Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD);
                 }
             }
             $service->setCommandId($dto->commandId);

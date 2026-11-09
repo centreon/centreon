@@ -146,6 +146,8 @@ export interface UserPermissions {
   poller_statistics: boolean;
   configuration_host_group_write: boolean;
   configuration_host_write: boolean;
+  configuration_host_template_write: boolean;
+  configuration_service_write: boolean;
   see_check_commands: boolean;
   manage_check_commands: boolean;
   see_notification_commands: boolean;
@@ -154,4 +156,5 @@ export interface UserPermissions {
   manage_discovery_commands: boolean;
   see_miscellaneous_commands: boolean;
   manage_miscellaneous_commands: boolean;
+  create_edit_poller_cfg: boolean;
 }

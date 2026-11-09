@@ -25,6 +25,9 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
 
 interface ServiceRepository
@@ -35,15 +38,51 @@ interface ServiceRepository
      * a service also reachable through a hostgroup or another host is left alone, only one that
      * would be orphaned by deleting this host is cascade-deleted with it.
      *
-     * Returns hydrated `Service` aggregates, not just ids: the caller needs the name (activity log)
-     * and macros (vault purge) for each one.
+     * Returns hydrated `Service` aggregates: name (activity log), macros (vault purge), host state (poller flag).
      *
      * @return Collection<Service>
      */
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection;
 
     /**
+     * The services of this host that come from one of the given service templates, the ones a host
+     * gets from its host templates. Like {@see findExclusivelyLinkedToHostId()}, a service also
+     * reachable through another host or a hostgroup is left out, and so is never deleted from under
+     * them. Hydrated like {@see findExclusivelyLinkedToHostId()}.
+     *
+     * @param list<int> $serviceTemplateIds
+     *
+     * @return Collection<Service>
+     */
+    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection;
+
+    /**
      * Also removes the dependencies left without a parent service by this deletion.
      */
     public function remove(Service $service): void;
+
+    /**
+     * The real services, each with the real host it is directly linked to, the services having no host group
+     * link at all. For an actor whose access is restricted, only the (host, service) pairs the real-time ACL
+     * cache grants to one of their active Access Groups; a pair granted by several groups is listed and counted
+     * once. Each service carries its own values only, not what it inherits from its templates, and comes without
+     * its macros, which a listing does not show.
+     *
+     * @return \IteratorAggregate<int, Service>&\Countable
+     */
+    public function findAll(ServiceCriteria $criteria): \IteratorAggregate&\Countable;
+
+    /**
+     * The service, with its macros, if {@see findAll()} lists it for this actor: a real service directly linked
+     * to a real host, with no host group link, and for an actor whose access is restricted, granted to one of
+     * their active Access Groups by the real-time ACL cache. Null otherwise.
+     */
+    public function findOne(ServiceId $id, ActingUser $actor): ?Service;
+
+    /**
+     * Bounded UPDATE of the activation flag; never touches a service template, nor the links of the service.
+     * Precondition: the caller confirmed the service exists (typically {@see findOne()} in the same transaction)
+     * — it does not assert a matched row, so it is a silent no-op on an unknown or template id.
+     */
+    public function updateActivationStatus(ServiceId $id, bool $activated): void;
 }
