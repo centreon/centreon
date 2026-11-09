@@ -12,6 +12,10 @@ export const labelFreshnessCheck = 'Freshness check';
 export const labelDataProcessing = 'Data processing';
 export const labelFlapDetection = 'Flap detection';
 
+// Templates
+export const labelSelectATemplate = 'Select a template';
+export const labelEditTemplate = 'Modify';
+
 // Form validation
 export const labelRequired = 'Required';
 export const labelMustBePositiveIntegerOrZero =
