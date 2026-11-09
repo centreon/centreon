@@ -6533,6 +6533,101 @@ paths:
             type: string
           style: simple
           explode: false
+  '/api/configuration/host_templates/{id}':
+    delete:
+      operationId: api_configurationhost_templates_id_delete
+      tags:
+        - HostTemplate
+      responses:
+        '400':
+          description: 'The host template is locked'
+        '403':
+          description: 'You are not allowed to delete host templates'
+        '404':
+          description: 'Host template not found'
+        '502':
+          description: 'The host template was deleted but its vault entry could not be purged'
+        '204':
+          description: 'HostTemplate resource deleted'
+      summary: 'Delete a host template'
+      description: 'Delete a host template'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+  '/api/configuration/host_templates/{id}/_duplicate':
+    post:
+      operationId: api_configurationhost_templates_id_duplicate_post
+      tags:
+        - HostTemplate
+      responses:
+        '204':
+          description: 'Host template duplicated'
+          links: {}
+        '400':
+          description: 'The host template is locked, or the body is not a JSON object'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '403':
+          description: 'You are not allowed to duplicate host templates'
+        '404':
+          description: 'Host template not found'
+        '409':
+          description: 'A host or host template already uses this name'
+        '422':
+          description: 'Invalid name, or the generated name would exceed the maximum length'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+      summary: 'Duplicate a host template'
+      description: 'Duplicates a single host template. The copy takes the given name, or, when none is given, the source name with the first free "_<n>" suffix.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'Optional: without a body, or without a name, the copy is named "<source name>_<n>".'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.DuplicateHostTemplateInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.DuplicateHostTemplateInput'
+        required: false
 components:
   securitySchemes:
     Token:
@@ -13639,3 +13734,11 @@ components:
         contact_group_additive_inheritance:
           description: "Ignored unless the platform's inheritance mode enables additive inheritance."
           type: boolean
+    HostTemplate.DuplicateHostTemplateInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: 'The name of the copy, its spaces turned into underscores. Left out, the copy is named "<source name>_<n>".'
