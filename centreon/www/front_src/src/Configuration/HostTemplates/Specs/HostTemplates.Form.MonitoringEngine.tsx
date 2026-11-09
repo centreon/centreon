@@ -181,6 +181,7 @@ export default () => {
       expect(body.extended_informations).toEqual({
         action_url: 'https://example.com/act',
         alt_icon: 'Router',
+        comment: null,
         icon_id: 13,
         note: 'Routers',
         note_url: null

@@ -17,6 +17,7 @@ export const labelRelations = 'Relations';
 export const labelMonitoringEngineSchedulingOptions =
   'Monitoring engine / Scheduling options';
 export const labelNotifications = 'Notifications';
+export const labelAdvanced = 'Advanced';
 export const labelHostBasicInformation = 'Host basic information';
 export const labelHostCheckOptions = 'Host check options';
 export const labelCustomMacros = 'Custom macros';
