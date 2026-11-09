@@ -72,17 +72,18 @@ final class LegacyHttpExceptionListenerTest extends TestCase
     public function testExceptionWithoutHttpStatusIsAnsweredAsAServerError(): void
     {
         $logger = new RecordingLogger();
-        $event = $this->createExceptionEvent(new \RuntimeException('Something went wrong'));
+        // An internal error code outside the HTTP range cannot be a status.
+        $event = $this->createExceptionEvent(new \RuntimeException('Something went wrong', 10));
 
         (new LegacyHttpExceptionListener([], $logger))($event);
 
         $response = $event->getResponse();
         self::assertNotNull($response);
         self::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
-        // The body carries the exception code, not the resolved status: an
-        // exception carrying none answers a 500 whose payload code stays 0.
+        // The payload code mirrors the resolved status, so the internal
+        // exception code never reaches the client.
         self::assertSame(
-            ['code' => 0, 'message' => 'Something went wrong'],
+            ['code' => Response::HTTP_INTERNAL_SERVER_ERROR, 'message' => 'Something went wrong'],
             json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR)
         );
         self::assertCount(1, $logger->records());
@@ -101,11 +102,10 @@ final class LegacyHttpExceptionListenerTest extends TestCase
         $response = $event->getResponse();
         self::assertNotNull($response);
         self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-        // Status mapped to 404 while the payload code stays 0: the mapping
-        // alone cannot fix the body, which is why the thrown exception has to
-        // carry the status as its code too.
+        // The mapped status is enough to fill the payload code: the thrown
+        // exception does not have to carry it as its own code.
         self::assertSame(
-            ['code' => 0, 'message' => 'Nothing here'],
+            ['code' => Response::HTTP_NOT_FOUND, 'message' => 'Nothing here'],
             json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR)
         );
         self::assertCount(1, $logger->records());
