@@ -8,6 +8,7 @@ import {
 } from '../../../ResourceForm/blocks';
 import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
 import { getMacrosBlock } from '../../../ResourceForm/fieldBlocks/macros';
+import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
 import {
   getActiveAndPassiveChecksBlock,
   getCheckPeriodAndIntervalsBlock
@@ -23,11 +24,15 @@ import { labelRequired } from '../../../ResourceForm/translatedLabels';
 import {
   serviceFormCommandsEndpoint,
   serviceFormHostsEndpoint,
+  serviceFormServiceGroupsEndpoint,
   serviceFormTimePeriodsEndpoint,
+  serviceFormTrapsEndpoint,
   servicesBaseEndpoint,
   serviceTemplatesEndpoint
 } from '../../api/endpoints';
+import { labelServiceGroups } from '../../translatedLabels';
 import { getServiceIdentityBlock } from '../blocks/serviceIdentity';
+import { getSnmpTrapsBlock } from '../blocks/snmpTraps';
 import { getTemplateBlock } from '../blocks/template';
 import { hasServiceTemplate } from '../inheritance';
 import ServiceMacros from '../ServiceMacros';
@@ -95,7 +100,19 @@ export const blocks = [
     apiGroup: monitoringEngineGroup,
     resource,
     withVolatile: true
-  })
+  }),
+  // Unlike the host groups of a host, optional on a cloud platform too.
+  getRelationListBlock({
+    decoderNames: ['Service group', 'Service groups'],
+    detailKey: 'service_groups',
+    endpoint: serviceFormServiceGroupsEndpoint,
+    id: 'groups',
+    label: labelServiceGroups,
+    name: 'service-groups',
+    payloadKey: 'service_group_ids',
+    resource
+  }),
+  getSnmpTrapsBlock({ endpoint: serviceFormTrapsEndpoint, resource })
 ] as const;
 
 // Each available block, as a section of the data.

@@ -23,6 +23,11 @@ export const labelServiceMonitoringProperties = 'Service monitoring properties';
 export const labelMonitoringEngineSchedulingOptions =
   'Monitoring engine / Scheduling options';
 export const labelSchedulingOptions = 'Scheduling options';
+export const labelRelations = 'Relations';
+
+// Relations. The legacy service form's msgids, so every locale has them.
+export const labelServiceGroups = 'Service groups';
+export const labelServiceTraps = 'Service Trap Relation';
 
 // Form validation
 export const labelNameContainsForbiddenCharacters = 'Unauthorized value';

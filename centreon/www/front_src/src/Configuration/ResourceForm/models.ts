@@ -58,6 +58,7 @@ export type BlockId =
   | 'poller'
   | 'severity'
   | 'snmp'
+  | 'snmpTraps'
   | 'templates'
   | 'timezone';
 
