@@ -573,7 +573,7 @@ function set_mariadb_repos() {
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		install_mariadb_repo_setup --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale || error_and_exit "Could not install the $dbms repository"
-	elif (( $(version_int) >= $(version_int 26.10) )); then
+	elif (( $(version_int) >= $(version_int 26.07) )); then
 		# el9 has no 11.8 dnf module stream and el10 dropped dnf modularity, so MariaDB 11.8
 		# is installed from the MariaDB official repository for both.
 		install_mariadb_repo_setup --os-type=rhel --os-version="$detected_os_major" --mariadb-server-version="mariadb-$detected_mariadb_version" --skip-maxscale || error_and_exit "Could not install the $dbms repository"
@@ -825,8 +825,8 @@ function set_required_prerequisite() {
 		PKG_MGR="apt -qq"
 		case "$detected_os_version" in
 		13)
-			if (( $(version_int) < $(version_int 26.10) )); then
-				error_and_exit "For Debian $detected_os_version, only Centreon >= 26.10 is compatible. You chose $version"
+			if (( $(version_int) < $(version_int 26.07) )); then
+				error_and_exit "For Debian $detected_os_version, only Centreon >= 26.07 is compatible. You chose $version"
 			fi
 			# On Debian 13 (trixie), PHP 8.4 is provided by the official OS repositories.
 			PHP_SERVICE_UNIT="php8.4-fpm"
