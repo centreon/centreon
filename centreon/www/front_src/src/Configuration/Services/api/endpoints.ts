@@ -17,6 +17,21 @@ export const serviceTemplatesEndpoint =
 // the host one.
 export const serviceFormHostsEndpoint = '/configuration/services/hosts';
 
+// The form's check period selector, granted by the service write right too.
+export const serviceFormTimePeriodsEndpoint =
+  '/configuration/services/timeperiods';
+// The form's check command selector, granted by the service write right.
+export const serviceFormCommandsEndpoint = '/configuration/services/commands';
+
+// Placeholder until the backend exposes it, on the model of the hosts'
+// `/configuration/hosts/host_templates/{id}`: one service template's macros,
+// its own and those it inherits.
+export const getServiceTemplateMacrosEndpoint = ({
+  id
+}: {
+  id: number;
+}): string => `${serviceTemplatesEndpoint}/${id}`;
+
 export const getServiceEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/services/${id}`;
 
