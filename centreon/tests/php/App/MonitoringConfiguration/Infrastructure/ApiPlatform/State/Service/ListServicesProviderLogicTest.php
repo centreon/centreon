@@ -26,7 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Ser
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;

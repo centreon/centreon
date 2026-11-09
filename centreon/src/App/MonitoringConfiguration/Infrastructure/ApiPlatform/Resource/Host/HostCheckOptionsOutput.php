@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 final readonly class HostCheckOptionsOutput
 {
     /**
@@ -32,7 +34,7 @@ final readonly class HostCheckOptionsOutput
      */
     public function __construct(
         public ?HostCheckCommandOutput $command,
-        public array $args,
+        #[Sensitive] public array $args,
         public array $macros,
     ) {
     }

@@ -24,16 +24,16 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\CommandArguments;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\CommandArguments;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 /**
  * The service's freshness, flap detection, event handler, obsession, retention and stalking directives.
  *
- * Platform availability is a contract concern enforced at the API boundary, not here: this VO stays
- * platform-agnostic. The three-state directives default to {@see TriStateEnum::UseDefault} (inherit), never null.
+ * The three-state directives default to {@see TriStateEnum::UseDefault}, never null.
  */
 final readonly class ServiceDataProcessing
 {
@@ -41,6 +41,7 @@ final readonly class ServiceDataProcessing
     public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
 
     /** @var list<string> */
+    #[Sensitive]
     public array $eventHandlerArgs;
 
     /** @var list<ServiceStalkingOptionEnum> */
@@ -67,12 +68,8 @@ final readonly class ServiceDataProcessing
     ) {
         Assert::nullOrGreaterThanEq($acknowledgmentTimeout, 1, 'ServiceDataProcessing::acknowledgmentTimeout expected to be >= 1, got %s.');
         Assert::nullOrGreaterThanEq($freshnessThreshold, 0, 'ServiceDataProcessing::freshnessThreshold expected to be >= 0, got %s.');
-        if ($lowFlapThreshold !== null) {
-            Assert::range($lowFlapThreshold, 0, 100, 'ServiceDataProcessing::lowFlapThreshold expected to be between 0 and 100, got %s.');
-        }
-        if ($highFlapThreshold !== null) {
-            Assert::range($highFlapThreshold, 0, 100, 'ServiceDataProcessing::highFlapThreshold expected to be between 0 and 100, got %s.');
-        }
+        Assert::nullOrRange($lowFlapThreshold, 0, 100, 'ServiceDataProcessing::lowFlapThreshold expected to be between 0 and 100, got %s.');
+        Assert::nullOrRange($highFlapThreshold, 0, 100, 'ServiceDataProcessing::highFlapThreshold expected to be between 0 and 100, got %s.');
         CommandArguments::assertValid($eventHandlerArgs, 'ServiceDataProcessing::eventHandlerArgs');
         // Only empty arguments is no argument at all, as legacy stores it: written NULL, read back empty.
         $this->eventHandlerArgs = array_all($eventHandlerArgs, static fn (string $arg): bool => $arg === '')

@@ -37,7 +37,7 @@ class Command
 
     /**
      * Seconds a Centreon Monitoring Agent object may stay silent before its result is considered stale.
-     * Keep in sync with {@see \App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD}.
+     * Keep in sync with {@see \App\MonitoringConfiguration\Domain\Aggregate\DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD}.
      */
     public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = 500;
 

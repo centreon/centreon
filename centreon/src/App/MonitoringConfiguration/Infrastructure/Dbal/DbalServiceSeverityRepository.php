@@ -129,7 +129,7 @@ final readonly class DbalServiceSeverityRepository extends DbalRepository implem
             ->andWhere($qb->expr()->eq('sc.sc_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
             ->setMaxResults(1);
 
-        // `sc_name` is nullable; a nameless row reads as "not found", as in the sibling repositories.
+        // A null or empty `sc_name` reads as not found.
         /** @var false|string|null $name */
         $name = $qb->executeQuery()->fetchOne();
 

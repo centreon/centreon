@@ -23,20 +23,21 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 /**
  * The `check_options` sub-object of a service.
  */
 final readonly class ServiceCheckOptionsOutput
 {
     /**
-     * @param ?ServiceCheckCommandOutput $command the service's own check command, null when none is set
      * @param list<string> $args ordered check-command arguments
      * @param list<ServiceMacroOutput> $macros every macro the service effectively has: its own, then the ones it
      *                                         inherits
      */
     public function __construct(
         public ?ServiceCheckCommandOutput $command,
-        public array $args,
+        #[Sensitive] public array $args,
         public array $macros,
     ) {
     }

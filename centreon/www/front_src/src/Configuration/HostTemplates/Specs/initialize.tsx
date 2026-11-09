@@ -1,6 +1,8 @@
-import { SnackbarProvider } from '@centreon/ui';
+import { Form, SnackbarProvider } from '@centreon/ui';
 import {
   defaultLimitPerPageAtom,
+  type PlatformFeatures,
+  platformFeaturesAtom,
   type UserPermissions,
   userPermissionsAtom
 } from '@centreon/ui-context';
@@ -15,8 +17,10 @@ import { render } from '@test-setup/render';
 import type { RenderResult } from '@testing-library/react';
 import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
+import type { ReactElement } from 'react';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
+import { object } from 'yup';
 
 import HostTemplates from '..';
 import {
@@ -24,11 +28,17 @@ import {
   getHostTemplateEndpoint,
   hostTemplatesListEndpoint
 } from '../api/endpoints';
-import { emptyListingResponse, getListingResponse } from './utils';
+import { getDefaultValues, useFormInputs } from '../Form';
+import {
+  emptyListingResponse,
+  getHostTemplateResponse,
+  getListingResponse
+} from './utils';
 
 interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
+  isCloudPlatform?: boolean;
   search?: string;
 }
 
@@ -47,6 +57,7 @@ export const getHeaderLabels = (): Array<string | null> =>
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
+  isCloudPlatform = false,
   search = ''
 }: Props = {}): InitializeResult => {
   i18next.use(initReactI18next).init({
@@ -64,6 +75,7 @@ const initialize = ({
     configuration_host_template_write: hasWriteAccess
   } as UserPermissions);
   store.set(defaultLimitPerPageAtom, 10);
+  store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
 
   interceptAPIRequest({
     alias: 'getAllHostTemplates',
@@ -86,6 +98,30 @@ const initialize = ({
       path: `**${getDuplicateHostTemplateEndpoint({ id })}`,
       response: {}
     });
+    interceptAPIRequest({
+      alias: `updateHostTemplate${id}`,
+      method: Method.PATCH,
+      path: `**${getHostTemplateEndpoint({ id })}`,
+      // No body, as the server answers a partial update.
+      statusCode: 204
+    });
+  });
+
+  // Every template the listing names opens the form: its rows and their parents.
+  [1, 2, 3, 4].forEach((id) => {
+    interceptAPIRequest({
+      alias: `getHostTemplate${id}`,
+      method: Method.GET,
+      path: `**${getHostTemplateEndpoint({ id })}`,
+      response: getHostTemplateResponse(id)
+    });
+  });
+
+  interceptAPIRequest({
+    alias: 'createHostTemplate',
+    method: Method.POST,
+    path: `**${hostTemplatesListEndpoint}`,
+    response: { id: 4, name: 'new-template' }
   });
 
   const queryErrors: InitializeResult['queryErrors'] = [];
@@ -115,6 +151,67 @@ const initialize = ({
   );
 
   return { ...renderResult, queryErrors, store };
+};
+
+interface FormLayoutProps {
+  isCloudPlatform?: boolean;
+}
+
+const FormLayout = ({
+  isCloudPlatform = false
+}: FormLayoutProps): ReactElement => {
+  const { groups, inputs } = useFormInputs({
+    canEdit: true,
+    isAdditiveInheritanceEnabled: false,
+    isCloudPlatform
+  });
+
+  return (
+    <Form
+      areGroupsOpen
+      groups={groups}
+      initialValues={getDefaultValues({ isCloudPlatform })}
+      inputs={inputs}
+      isCollapsible
+      submit={() => undefined}
+      validationSchema={object()}
+    />
+  );
+};
+
+// The narrowest and widest panel (`ConfigurationBase/Panel`), the widest one
+// wider than the page can open it.
+const panelWidthClassNames = {
+  narrow: 'w-[720px]',
+  wide: 'w-[1400px]'
+};
+
+// The form alone, laid out against a panel of the given width.
+export const initializeFormLayout = ({
+  width,
+  ...props
+}: FormLayoutProps & {
+  width: keyof typeof panelWidthClassNames;
+}): RenderResult => {
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    resources: {}
+  });
+
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { gcTime: 0, retry: false } }
+  });
+
+  return render(
+    <SnackbarProvider>
+      <QueryClientProvider client={queryClient}>
+        {/* The panel content's own classes (`ConfigurationBase/Panel`). */}
+        <div className={`@container px-5 ${panelWidthClassNames[width]}`}>
+          <FormLayout {...props} />
+        </div>
+      </QueryClientProvider>
+    </SnackbarProvider>
+  );
 };
 
 export default initialize;

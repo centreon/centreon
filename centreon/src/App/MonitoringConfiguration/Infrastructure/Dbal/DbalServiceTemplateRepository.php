@@ -220,9 +220,7 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
     }
 
     /**
-     * One query fetches every template reachable from the given one through service templates only; the chain is
-     * walked in PHP. UNION dedupes the reached ids, and the walk stops on an id already seen, so a template loop in
-     * the data ends both. Disabled templates are kept: legacy inherits from them too.
+     * One recursive query, walked in PHP; a loop ends both. Disabled templates are kept, as in legacy.
      */
     public function findInheritanceLine(ServiceTemplateId $templateId): Collection
     {

@@ -27,11 +27,7 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 /**
- * A service custom macro (`$_SERVICE<NAME>$`), either owned by the service or template it is read from
- * (`parent` null) or inherited from a template or the check command (`parent` set, read-only).
- *
- * Values are always held in their raw stored form: the literal value, or the `secret::` reference of a vaulted
- * password.
+ * A `$_SERVICE<NAME>$` macro, own (`parent` null) or inherited; value as stored (`secret::` ref when vaulted).
  */
 final readonly class ServiceMacro
 {
@@ -71,8 +67,7 @@ final readonly class ServiceMacro
     }
 
     /**
-     * The same macro seen from a service inheriting it: it keeps its id, which together with $parent lets a
-     * client address it on write.
+     * The same macro tagged as inherited from $parent; its id is kept.
      */
     public function inheritedFrom(ServiceMacroParentEnum $parent): self
     {

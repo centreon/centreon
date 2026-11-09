@@ -23,8 +23,30 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service;
 
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
+use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Repository\TrapRepository;
+use App\MonitoringConfiguration\Domain\Service\InheritedServiceMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\GetServiceProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceMacroTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceResourceBuilder;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceResourceTransformer;
+use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use Doctrine\DBAL\Connection;
+use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
 
 /**
@@ -237,6 +259,79 @@ final class GetServiceProviderTest extends ApiTestCase
         self::assertSame(['args' => [], 'macros' => []], $body['check_options']);
     }
 
+    public function testItOmitsTheOnPremiseOnlyFieldsOnACloudPlatform(): void
+    {
+        $hostId = $this->insertHost('central');
+        $eventHandlerId = $this->insertCommand('handler');
+        $timePeriodId = $this->insertTimePeriod('24x7');
+        $contactId = $this->insertContact();
+        $this->connection->insert('giv_graphs_template', ['name' => $this->tag . '-graph']);
+        $graphTemplateId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('traps_vendor', ['name' => $this->tag . '-vendor', 'alias' => $this->tag]);
+        $vendorId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('traps', ['traps_name' => $this->tag . '-trap', 'traps_oid' => '.1.3.6.1.4.1.' . random_int(1, PHP_INT_MAX), 'manufacturer_id' => $vendorId]);
+        $trapId = (int) $this->connection->lastInsertId();
+
+        $serviceId = $this->insertService('ping');
+        $this->linkServiceToHost($serviceId, $hostId);
+        $this->connection->update('service', [
+            'timeperiod_tp_id' => $timePeriodId,
+            'service_max_check_attempts' => 3,
+            'service_active_checks_enabled' => '1',
+            'service_passive_checks_enabled' => '0',
+            'service_is_volatile' => '1',
+            'service_check_freshness' => '1',
+            'service_freshness_threshold' => 120,
+            'service_flap_detection_enabled' => '1',
+            'service_low_flap_threshold' => 10,
+            'service_high_flap_threshold' => 60,
+            'service_obsess_over_service' => '1',
+            'service_retain_status_information' => '1',
+            'service_retain_nonstatus_information' => '1',
+            'service_stalking_options' => 'o,c',
+            'service_acknowledgement_timeout' => 15,
+            'service_event_handler_enabled' => '1',
+            'command_command_id2' => $eventHandlerId,
+            'command_command_id_arg2' => '!arg',
+            'service_notifications_enabled' => '1',
+            'service_notification_options' => 'w,c',
+            'service_notification_interval' => 30,
+        ], ['service_id' => $serviceId]);
+        $this->connection->insert('extended_service_information', ['service_service_id' => $serviceId, 'graph_id' => $graphTemplateId]);
+        $this->connection->insert('contact_service_relation', ['service_service_id' => $serviceId, 'contact_id' => $contactId]);
+        $this->connection->insert('traps_service_relation', ['service_id' => $serviceId, 'traps_id' => $trapId]);
+
+        $this->login();
+        $this->forcePlatform(isCloudPlatform: true);
+        $body = $this->request('GET', self::BASE_ENDPOINT . '/' . $serviceId, ['headers' => ['accept' => 'application/json']])->toArray();
+
+        self::assertResponseStatusCodeSame(200);
+        $named = static fn (int $id, string $name): array => ['id' => $id, 'name' => $name];
+        self::assertSame(
+            $this->sortedKeys([
+                'id' => $serviceId,
+                'name' => 'ping',
+                'activated' => true,
+                'host' => $named($hostId, $this->tag . '-central'),
+                'check_options' => ['args' => [], 'macros' => []],
+                'monitoring_engine' => [
+                    'check_period' => $named($timePeriodId, $this->tag . '-24x7'),
+                    'max_check_attempts' => 3,
+                ],
+                'advanced' => [
+                    'check_freshness' => 'true',
+                    'freshness_threshold' => 120,
+                    'event_handler_enabled' => 'true',
+                    'event_handler' => $named($eventHandlerId, $this->tag . '-handler'),
+                    'event_handler_args' => [],
+                ],
+                'service_groups' => [],
+                'categories' => [],
+            ]),
+            $this->sortedKeys($body),
+        );
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
@@ -331,6 +426,67 @@ final class GetServiceProviderTest extends ApiTestCase
         }
 
         return array_map(fn (mixed $item): mixed => is_array($item) ? $this->sortedKeys($item) : $item, $value);
+    }
+
+    private function forcePlatform(bool $isCloudPlatform): void
+    {
+        $container = self::getContainer();
+
+        /** @var Security $security */
+        $security = $container->get(Security::class);
+        /** @var ServiceRepository $serviceRepository */
+        $serviceRepository = $container->get(ServiceRepository::class);
+        /** @var HostRepository $hostRepository */
+        $hostRepository = $container->get(HostRepository::class);
+        /** @var ServiceTemplateRepository $serviceTemplateRepository */
+        $serviceTemplateRepository = $container->get(ServiceTemplateRepository::class);
+        /** @var CommandRepository $commandRepository */
+        $commandRepository = $container->get(CommandRepository::class);
+        /** @var TimePeriodRepository $timePeriodRepository */
+        $timePeriodRepository = $container->get(TimePeriodRepository::class);
+        /** @var NotificationContactRepository $contactRepository */
+        $contactRepository = $container->get(NotificationContactRepository::class);
+        /** @var ContactGroupRepository $contactGroupRepository */
+        $contactGroupRepository = $container->get(ContactGroupRepository::class);
+        /** @var MediaRepository $mediaRepository */
+        $mediaRepository = $container->get(MediaRepository::class);
+        /** @var MediaUrlGenerator $mediaUrlGenerator */
+        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
+        /** @var ServiceGroupRepository $serviceGroupRepository */
+        $serviceGroupRepository = $container->get(ServiceGroupRepository::class);
+        /** @var ServiceCategoryRepository $serviceCategoryRepository */
+        $serviceCategoryRepository = $container->get(ServiceCategoryRepository::class);
+        /** @var ServiceSeverityRepository $serviceSeverityRepository */
+        $serviceSeverityRepository = $container->get(ServiceSeverityRepository::class);
+        /** @var GraphTemplateRepository $graphTemplateRepository */
+        $graphTemplateRepository = $container->get(GraphTemplateRepository::class);
+        /** @var TrapRepository $trapRepository */
+        $trapRepository = $container->get(TrapRepository::class);
+        /** @var ResourceAccessRepository $resourceAccessRepository */
+        $resourceAccessRepository = $container->get(ResourceAccessRepository::class);
+
+        $resourceBuilder = new ServiceResourceBuilder(
+            new ServiceResourceTransformer(),
+            $hostRepository,
+            $serviceTemplateRepository,
+            $commandRepository,
+            $timePeriodRepository,
+            $contactRepository,
+            $contactGroupRepository,
+            $mediaRepository,
+            $mediaUrlGenerator,
+            $serviceGroupRepository,
+            $serviceCategoryRepository,
+            $serviceSeverityRepository,
+            $graphTemplateRepository,
+            $trapRepository,
+            new AccessScopeResolver($resourceAccessRepository),
+            new ServiceMacroTransformer(),
+            new InheritedServiceMacrosResolver($serviceTemplateRepository, $commandRepository),
+            $isCloudPlatform,
+        );
+
+        $container->set(GetServiceProvider::class, new GetServiceProvider($security, $serviceRepository, $resourceBuilder));
     }
 
     /**

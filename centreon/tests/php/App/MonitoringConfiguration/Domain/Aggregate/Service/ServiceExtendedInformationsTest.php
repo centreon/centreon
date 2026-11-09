@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Service;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
+use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -104,6 +104,14 @@ final class ServiceExtendedInformationsTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         new ServiceExtendedInformations(...[$field => '   ']);
+    }
+
+    #[DataProvider('textFieldProvider')]
+    public function testItAcceptsAZeroText(string $field): void
+    {
+        $informations = new ServiceExtendedInformations(...[$field => '0']);
+
+        self::assertSame('0', $informations->{$field});
     }
 
     /**

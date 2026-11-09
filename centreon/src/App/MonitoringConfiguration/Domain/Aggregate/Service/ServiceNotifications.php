@@ -33,12 +33,7 @@ use App\Shared\Domain\Collection;
 use Webmozart\Assert\Assert;
 
 /**
- * Groups the service's notification settings: the `service_notification*` columns of the `service` table, the
- * two additive-inheritance flags, the "use only the contacts of the host" flag, and the
- * `contact_service_relation` / `contactgroup_service_relation` links.
- *
- * On-prem only — the Cloud platform handles notifications through a different model, so the API rejects this
- * whole block there.
+ * The service's notification settings and its contact / contact group links.
  */
 final readonly class ServiceNotifications
 {

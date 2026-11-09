@@ -44,8 +44,7 @@ final class ServiceCheckOptionsTest extends TestCase
     }
 
     /**
-     * A service may run the check command of its template chain with its own arguments: whether a command is
-     * set directly or inherited is only known with the template chain, so it is not this object's rule.
+     * Arguments without a command: the command may come from the template chain.
      */
     public function testItAcceptsArgumentsWithoutADirectCheckCommand(): void
     {
@@ -86,8 +85,7 @@ final class ServiceCheckOptionsTest extends TestCase
     }
 
     /**
-     * Unlike the host, two stored macros of the same name are read as they are: duplicates are refused on
-     * write, never silently dropped.
+     * Same-name stored macros are kept as read.
      */
     public function testItKeepsTwoMacrosWithTheSameName(): void
     {

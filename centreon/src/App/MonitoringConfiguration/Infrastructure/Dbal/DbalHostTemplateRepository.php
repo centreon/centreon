@@ -23,11 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
@@ -66,8 +67,54 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   host_locked: int|string|null,
  *   icon_id: int|string|null,
  *   parent_template_ids: list<int>,
- *   snmp_community?: ?string,
- *   macros?: list<HostMacro>,
+ * }
+ * @phpstan-type FindOneRowTypeAlias = array{
+ *   host_id: int,
+ *   host_name: string,
+ *   host_alias: ?string,
+ *   host_locked: int|string|null,
+ *   icon_id: int|string|null,
+ *   parent_template_ids: list<int>,
+ *   snmp_community: ?string,
+ *   snmp_version: ?string,
+ *   timezone_id: int|string|null,
+ *   comment: ?string,
+ *   note_url: ?string,
+ *   note: ?string,
+ *   action_url: ?string,
+ *   alt_icon: ?string,
+ *   check_timeperiod_id: int|string|null,
+ *   max_check_attempts: int|string|null,
+ *   normal_check_interval: int|string|null,
+ *   retry_check_interval: int|string|null,
+ *   active_check_enabled: ?string,
+ *   passive_check_enabled: ?string,
+ *   acknowledgement_timeout: int|string|null,
+ *   check_freshness: ?string,
+ *   freshness_threshold: int|string|null,
+ *   flap_detection_enabled: ?string,
+ *   low_flap_threshold: int|string|null,
+ *   high_flap_threshold: int|string|null,
+ *   event_handler_enabled: ?string,
+ *   event_handler_command_id: int|string|null,
+ *   event_handler_args: ?string,
+ *   check_command_id: int|string|null,
+ *   check_command_args: ?string,
+ *   notifications_enabled: ?string,
+ *   notification_options: ?string,
+ *   notification_interval: int|string|null,
+ *   notification_period_id: int|string|null,
+ *   first_notification_delay: int|string|null,
+ *   recovery_notification_delay: int|string|null,
+ *   contact_additive_inheritance: int|string|null,
+ *   cg_additive_inheritance: int|string|null,
+ *   macros: list<HostMacro>,
+ *   category_ids: list<int>,
+ *   severity_id: ?int,
+ *   contact_ids: list<int>,
+ *   contact_group_ids: list<int>,
+ *   linked_service_template_ids: list<int>,
+ *   service_template_check_command_ids: list<int>,
  * }
  */
 final readonly class DbalHostTemplateRepository extends DbalRepository implements HostTemplateRepository
@@ -83,7 +130,8 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     private const PLUGIN_PACK_MANAGER_MODULE = 'centreon-pp-manager';
 
     /**
-     * @param TransformerInterface<RowTypeAlias, HostTemplate> $transformer
+     * @param TransformerInterface<FindOneRowTypeAlias, HostTemplate> $transformer
+     * @param TransformerInterface<RowTypeAlias, HostTemplate> $listingTransformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
@@ -91,6 +139,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
         #[Autowire(service: HostTemplateTransformer::class)]
         private TransformerInterface $transformer,
+
+        #[Autowire(service: HostTemplateListingTransformer::class)]
+        private TransformerInterface $listingTransformer,
 
         private AccessScopeResolver $accessScopes,
 
@@ -281,6 +332,33 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         );
     }
 
+    public function findDescendantIds(HostTemplateId $id): Collection
+    {
+        // UNION (not UNION ALL) stops the recursion on a template loop already in the data.
+        $sql = <<<'SQL'
+            WITH RECURSIVE descendants (id) AS (
+                SELECT htr.host_host_id
+                FROM host_template_relation htr
+                INNER JOIN host h ON h.host_id = htr.host_host_id AND h.host_register = '0'
+                WHERE htr.host_tpl_id = :id
+                UNION
+                SELECT htr.host_host_id
+                FROM host_template_relation htr
+                INNER JOIN descendants d ON d.id = htr.host_tpl_id
+                INNER JOIN host h ON h.host_id = htr.host_host_id AND h.host_register = '0'
+            )
+            SELECT id FROM descendants ORDER BY id
+            SQL;
+
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->executeQuery($sql, ['id' => $id->value], ['id' => ParameterType::INTEGER])->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $descendantId): HostTemplateId => new HostTemplateId((int) $descendantId), $ids),
+            HostTemplateId::class,
+        );
+    }
+
     public function findOne(HostTemplateId $id): ?HostTemplate
     {
         $qb = $this->connection->createQueryBuilder();
@@ -290,23 +368,65 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             'h.host_alias',
             'h.host_locked',
             'h.host_snmp_community AS snmp_community',
+            'h.host_snmp_version AS snmp_version',
+            'h.host_location AS timezone_id',
+            'h.host_comment AS comment',
+            'ehi.ehi_notes_url AS note_url',
+            'ehi.ehi_notes AS note',
+            'ehi.ehi_action_url AS action_url',
             'ehi.ehi_icon_image AS icon_id',
+            'ehi.ehi_icon_image_alt AS alt_icon',
+            'h.timeperiod_tp_id AS check_timeperiod_id',
+            'h.host_max_check_attempts AS max_check_attempts',
+            'h.host_check_interval AS normal_check_interval',
+            'h.host_retry_check_interval AS retry_check_interval',
+            'h.host_active_checks_enabled AS active_check_enabled',
+            'h.host_passive_checks_enabled AS passive_check_enabled',
+            'h.host_acknowledgement_timeout AS acknowledgement_timeout',
+            'h.host_check_freshness AS check_freshness',
+            'h.host_freshness_threshold AS freshness_threshold',
+            'h.host_flap_detection_enabled AS flap_detection_enabled',
+            'h.host_low_flap_threshold AS low_flap_threshold',
+            'h.host_high_flap_threshold AS high_flap_threshold',
+            'h.host_event_handler_enabled AS event_handler_enabled',
+            'h.command_command_id2 AS event_handler_command_id',
+            'h.command_command_id_arg2 AS event_handler_args',
+            'h.command_command_id AS check_command_id',
+            'h.command_command_id_arg1 AS check_command_args',
+            'h.host_notifications_enabled AS notifications_enabled',
+            'h.host_notification_options AS notification_options',
+            'h.host_notification_interval AS notification_interval',
+            'h.timeperiod_tp_id2 AS notification_period_id',
+            'h.host_first_notification_delay AS first_notification_delay',
+            'h.host_recovery_notification_delay AS recovery_notification_delay',
+            'h.contact_additive_inheritance',
+            'h.cg_additive_inheritance',
         )
             ->from(self::TABLE_NAME, 'h')
             ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
             ->where($qb->expr()->eq('h.host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
             ->andWhere('h.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER));
 
-        /** @var array{host_id: int, host_name: string, host_alias: ?string, host_locked: int|string|null, snmp_community: ?string, icon_id: int|string|null}|false $row */
         $row = $qb->executeQuery()->fetchAssociative();
         if ($row === false) {
             return null;
         }
 
-        return $this->transformer->transform($row + [
+        [$categoryIds, $severityId] = $this->findCategoryAndSeverityIds($id->value);
+
+        /** @var FindOneRowTypeAlias $fullRow */
+        $fullRow = $row + [
             'parent_template_ids' => $this->findParentTemplateIdValues([$id->value])[$id->value] ?? [],
             'macros' => $this->findMacrosByOwner([$id->value])[$id->value] ?? [],
-        ]);
+            'category_ids' => $categoryIds,
+            'severity_id' => $severityId,
+            'contact_ids' => $this->findRelatedIds('contact_host_relation', 'contact_id', $id->value),
+            'contact_group_ids' => $this->findRelatedIds('contactgroup_host_relation', 'contactgroup_cg_id', $id->value),
+            'linked_service_template_ids' => $this->findLinkedServiceTemplateIds($id->value),
+            'service_template_check_command_ids' => $this->findServiceTemplateCheckCommandIds([$id->value])[$id->value] ?? [],
+        ];
+
+        return $this->transformer->transform($fullRow);
     }
 
     public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool
@@ -362,7 +482,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         );
 
         // Re-minted secrets replace the copied vault references.
-        foreach ($copy->macros as $macro) {
+        foreach ($copy->checkOptions->macros as $macro) {
             if (! $macro->isPassword) {
                 continue;
             }
@@ -487,8 +607,10 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
                 static fn (int $id): HostTemplate => new HostTemplate(
                     new HostTemplateId($id),
                     new HostTemplateName($templates[$id]['name']),
-                    new Collection($macrosByOwner[$id] ?? [], HostMacro::class),
-                    $templates[$id]['command_id'] !== null ? new CommandId($templates[$id]['command_id']) : null,
+                    new CheckOptions(
+                        $templates[$id]['command_id'] !== null ? new CommandId($templates[$id]['command_id']) : null,
+                        macros: $macrosByOwner[$id] ?? [],
+                    ),
                     new Collection(
                         array_map(static fn (int $commandId): CommandId => new CommandId($commandId), $serviceTemplateCommandIds[$id] ?? []),
                         CommandId::class,
@@ -839,13 +961,84 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
         return new Collection(
             array_map(
-                fn (array $row): HostTemplate => $this->transformer->transform(
+                fn (array $row): HostTemplate => $this->listingTransformer->transform(
                     $row + ['parent_template_ids' => $parentIdsById[$row['host_id']] ?? []]
                 ),
                 $rows
             ),
             HostTemplate::class
         );
+    }
+
+    /**
+     * The levelless categories, in id order, and the severity: the lowest level, then the lowest id.
+     *
+     * @return array{list<int>, ?int}
+     */
+    private function findCategoryAndSeverityIds(int $templateId): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hcr.hostcategories_hc_id AS id', 'hc.level')
+            ->from('hostcategories_relation', 'hcr')
+            ->innerJoin('hcr', 'hostcategories', 'hc', 'hc.hc_id = hcr.hostcategories_hc_id')
+            ->where($qb->expr()->eq('hcr.host_host_id', $qb->createNamedParameter($templateId, ParameterType::INTEGER)))
+            ->orderBy('hc.level')
+            ->addOrderBy('hcr.hostcategories_hc_id');
+
+        /** @var list<array{id: int|string, level: int|string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $categoryIds = [];
+        $severityId = null;
+        foreach ($rows as $row) {
+            if ($row['level'] === null) {
+                $categoryIds[(int) $row['id']] = (int) $row['id'];
+            } else {
+                $severityId ??= (int) $row['id'];
+            }
+        }
+
+        return [array_values($categoryIds), $severityId];
+    }
+
+    /**
+     * @param non-empty-string $table a relation table keyed by `host_host_id`
+     * @param non-empty-string $column the related id column
+     *
+     * @return list<int> in id order, each once
+     */
+    private function findRelatedIds(string $table, string $column, int $templateId): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT ' . $column)
+            ->from($table)
+            ->where($qb->expr()->eq('host_host_id', $qb->createNamedParameter($templateId, ParameterType::INTEGER)))
+            ->orderBy($column);
+
+        /** @var list<int|string> $ids */
+        $ids = $qb->executeQuery()->fetchFirstColumn();
+
+        return array_map(intval(...), $ids);
+    }
+
+    /**
+     * The service templates linked to the template, in relation order, each once at its first position.
+     *
+     * @return list<int>
+     */
+    private function findLinkedServiceTemplateIds(int $templateId): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hsr.service_service_id')
+            ->from('host_service_relation', 'hsr')
+            ->innerJoin('hsr', 'service', 's', "s.service_id = hsr.service_service_id AND s.service_register = '0'")
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($templateId, ParameterType::INTEGER)))
+            ->orderBy('hsr.hsr_id');
+
+        /** @var list<int|string> $ids */
+        $ids = $qb->executeQuery()->fetchFirstColumn();
+
+        return array_values(array_unique(array_map(intval(...), $ids)));
     }
 
     /**
@@ -864,6 +1057,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         $qb = $this->connection->createQueryBuilder();
         $qb->select('htr.host_host_id', 'htr.host_tpl_id')
             ->from('host_template_relation', 'htr')
+            ->innerJoin('htr', self::TABLE_NAME, 'p', 'p.host_id = htr.host_tpl_id AND p.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
             ->where($qb->expr()->in('htr.host_host_id', $qb->createNamedParameter($templateIds, ArrayParameterType::INTEGER)))
             ->orderBy('htr.host_host_id')
             ->addOrderBy('htr.`order`')

@@ -29,11 +29,9 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Servic
 final readonly class ServiceMacroOutput
 {
     /**
-     * @param ?int $id the macro's id in the table its parent points to; null only for a command macro the
-     *                 command never recorded
+     * @param ?int $id null for a command macro with no `on_demand_macro_command` row
      * @param string $name the short macro name (upper-cased), without the $_SERVICE…$ wrapper
-     * @param ?string $value always null for a password macro, whose secret is never echoed back; the null is
-     *                       then dropped from the payload
+     * @param ?string $value null (omitted) for a password macro
      * @param ?string $parent "template" or "command" for an inherited macro, null for the service's own one
      */
     public function __construct(

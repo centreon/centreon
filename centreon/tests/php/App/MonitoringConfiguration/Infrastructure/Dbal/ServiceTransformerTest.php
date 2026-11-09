@@ -235,15 +235,15 @@ final class ServiceTransformerTest extends TestCase
         self::assertSame([[], []], [$service->checkOptions->args, $service->dataProcessing->eventHandlerArgs]);
     }
 
-    public function testRelationListsAreSplit(): void
+    public function testRelationIdListsAreHydrated(): void
     {
         $service = (new ServiceTransformer())->transform([
             ...$this->formRow(),
-            'service_group_ids' => '3,4',
-            'category_ids' => '5',
-            'trap_ids' => '6,7',
-            'notification_contact_ids' => '8',
-            'notification_contact_group_ids' => '9,10',
+            'service_group_ids' => ['3', '4'],
+            'category_ids' => [5],
+            'trap_ids' => ['6', '7'],
+            'notification_contact_ids' => ['8'],
+            'notification_contact_group_ids' => [9, 10],
         ]);
 
         self::assertSame([3, 4], $this->idValues($service->serviceGroupIds));
@@ -325,8 +325,8 @@ final class ServiceTransformerTest extends TestCase
             'contact_additive_inheritance' => '0',
             'cg_additive_inheritance' => '0',
             'use_only_contacts_from_host' => '0',
-            'notification_contact_ids' => null,
-            'notification_contact_group_ids' => null,
+            'notification_contact_ids' => [],
+            'notification_contact_group_ids' => [],
             'note' => null,
             'note_url' => null,
             'action_url' => null,
@@ -335,9 +335,9 @@ final class ServiceTransformerTest extends TestCase
             'geo_coords' => null,
             'graph_template_id' => null,
             'severity_id' => null,
-            'service_group_ids' => null,
-            'category_ids' => null,
-            'trap_ids' => null,
+            'service_group_ids' => [],
+            'category_ids' => [],
+            'trap_ids' => [],
         ];
     }
 }

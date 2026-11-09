@@ -27,6 +27,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
+use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceTemplate\ListServiceTemplatesChoicesProvider;
 
@@ -37,6 +38,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceTemplate
             uriTemplate: '/configuration/services/service_templates',
             openapi: false,
             security: 'is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access service templates',
+            itemUriTemplate: '/configuration/service_templates/{id}',
+            output: ServiceTemplateChoicesOutput::class,
+            provider: ListServiceTemplatesChoicesProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/configuration/host_templates/service_templates',
+            openapi: false,
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access service templates',
             itemUriTemplate: '/configuration/service_templates/{id}',
             output: ServiceTemplateChoicesOutput::class,

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
+use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
@@ -110,11 +110,13 @@ use Webmozart\Assert\Assert;
  *   alt_icon: string|null,
  *   graph_template_id: int|string|null,
  *   severity_id: int|string|null,
- *   notification_contact_ids: string|null,
- *   notification_contact_group_ids: string|null,
- *   service_group_ids: string|null,
- *   category_ids: string|null,
- *   trap_ids: string|null,
+ * }
+ * @phpstan-type RelationIdsTypeAlias array{
+ *   notification_contact_ids: list<int>,
+ *   notification_contact_group_ids: list<int>,
+ *   service_group_ids: list<int>,
+ *   category_ids: list<int>,
+ *   trap_ids: list<int>,
  * }
  * @phpstan-type ListedRowTypeAlias array{
  *   service_id: int|string,
@@ -396,7 +398,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             return null;
         }
 
-        $formRow = $this->findFormRow($id->value, (int) $row['host_id']);
+        $formRow = $this->findFormRow($id->value);
         if ($formRow === null) {
             // Deleted between the two reads: not found, like a service that never existed.
             return null;
@@ -405,6 +407,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         return $this->transformer->transform([
             ...$row,
             ...$formRow,
+            ...$this->findRelationIds($id->value, (int) $row['host_id']),
             'macros' => $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? [],
         ]);
     }
@@ -589,15 +592,11 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     }
 
     /**
-     * Every form column of the service and its relations: the extended information of its
-     * `extended_service_information` row with the lowest id, its service groups on this host only (not the rows of
-     * a host group), its levelless categories, and as severity the levelled category with the lowest id. The
-     * severity is the stored one, whatever the actor may see: it is hidden from a restricted actor on output only,
-     * as for hosts.
+     * Form columns and relations of the service on this host; the severity is not ACL-filtered here.
      *
      * @return ?FormRowTypeAlias null when the service no longer exists
      */
-    private function findFormRow(int $serviceId, int $hostId): ?array
+    private function findFormRow(int $serviceId): ?array
     {
         $qb = $this->connection->createQueryBuilder();
 
@@ -645,25 +644,6 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             'esi.esi_icon_image_alt AS alt_icon',
             'esi.graph_id AS graph_template_id',
             $severity . ' AS severity_id',
-            '(SELECT GROUP_CONCAT(csr.contact_id)
-                FROM contact_service_relation csr
-                WHERE csr.service_service_id = s.service_id) AS notification_contact_ids',
-            '(SELECT GROUP_CONCAT(cgsr.contactgroup_cg_id)
-                FROM contactgroup_service_relation cgsr
-                WHERE cgsr.service_service_id = s.service_id) AS notification_contact_group_ids',
-            '(SELECT GROUP_CONCAT(DISTINCT sgr.servicegroup_sg_id)
-                FROM servicegroup_relation sgr
-                WHERE sgr.service_service_id = s.service_id
-                    AND sgr.host_host_id = ' . $qb->createNamedParameter($hostId, ParameterType::INTEGER) . '
-                    AND sgr.hostgroup_hg_id IS NULL) AS service_group_ids',
-            // The relation tables carry no unique key: a duplicated legacy link is read once.
-            '(SELECT GROUP_CONCAT(DISTINCT scr.sc_id)
-                FROM service_categories_relation scr
-                INNER JOIN service_categories sc ON sc.sc_id = scr.sc_id
-                WHERE scr.service_service_id = s.service_id AND sc.level IS NULL) AS category_ids',
-            '(SELECT GROUP_CONCAT(DISTINCT tsr.traps_id)
-                FROM traps_service_relation tsr
-                WHERE tsr.service_id = s.service_id) AS trap_ids',
         )
             ->from(self::TABLE_NAME, 's')
             ->leftJoin(
@@ -678,6 +658,64 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         $row = $qb->executeQuery()->fetchAssociative();
 
         return $row !== false ? $row : null;
+    }
+
+    /**
+     * @return RelationIdsTypeAlias
+     */
+    private function findRelationIds(int $serviceId, int $hostId): array
+    {
+        $contacts = $this->connection->createQueryBuilder();
+        $contacts->select('csr.contact_id')
+            ->from('contact_service_relation', 'csr')
+            ->where($contacts->expr()->eq('csr.service_service_id', $contacts->createNamedParameter($serviceId, ParameterType::INTEGER)));
+
+        $contactGroups = $this->connection->createQueryBuilder();
+        $contactGroups->select('cgsr.contactgroup_cg_id')
+            ->from('contactgroup_service_relation', 'cgsr')
+            ->where($contactGroups->expr()->eq('cgsr.service_service_id', $contactGroups->createNamedParameter($serviceId, ParameterType::INTEGER)));
+
+        // No unique key on relation tables: DISTINCT reads a duplicated link once.
+        $serviceGroups = $this->connection->createQueryBuilder();
+        $serviceGroups->select('sgr.servicegroup_sg_id')
+            ->distinct()
+            ->from('servicegroup_relation', 'sgr')
+            ->where($serviceGroups->expr()->eq('sgr.service_service_id', $serviceGroups->createNamedParameter($serviceId, ParameterType::INTEGER)))
+            ->andWhere($serviceGroups->expr()->eq('sgr.host_host_id', $serviceGroups->createNamedParameter($hostId, ParameterType::INTEGER)))
+            ->andWhere('sgr.hostgroup_hg_id IS NULL');
+
+        $categories = $this->connection->createQueryBuilder();
+        $categories->select('scr.sc_id')
+            ->distinct()
+            ->from('service_categories_relation', 'scr')
+            ->innerJoin('scr', 'service_categories', 'sc', 'sc.sc_id = scr.sc_id')
+            ->where($categories->expr()->eq('scr.service_service_id', $categories->createNamedParameter($serviceId, ParameterType::INTEGER)))
+            ->andWhere('sc.level IS NULL');
+
+        $traps = $this->connection->createQueryBuilder();
+        $traps->select('tsr.traps_id')
+            ->distinct()
+            ->from('traps_service_relation', 'tsr')
+            ->where($traps->expr()->eq('tsr.service_id', $traps->createNamedParameter($serviceId, ParameterType::INTEGER)));
+
+        return [
+            'notification_contact_ids' => $this->fetchIds($contacts),
+            'notification_contact_group_ids' => $this->fetchIds($contactGroups),
+            'service_group_ids' => $this->fetchIds($serviceGroups),
+            'category_ids' => $this->fetchIds($categories),
+            'trap_ids' => $this->fetchIds($traps),
+        ];
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function fetchIds(QueryBuilder $qb): array
+    {
+        /** @var list<int|string> $ids */
+        $ids = $qb->executeQuery()->fetchFirstColumn();
+
+        return array_map(intval(...), $ids);
     }
 
     /**

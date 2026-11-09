@@ -40,8 +40,6 @@ final class ServiceTemplate extends AggregateRoot
 
     /**
      * @param ?ServiceTemplateId $parentId the template it inherits from (`service_template_model_stm_id`)
-     * @param ?CommandId $checkCommandId its own check command
-     * @param ?CommandId $eventHandlerCommandId its own event handler
      * @param ?Collection<ServiceMacro> $macros its own custom macros, in insertion order
      */
     public function __construct(
@@ -65,7 +63,6 @@ final class ServiceTemplate extends AggregateRoot
     {
         return array_values(array_map(
             static function (ServiceMacro $macro): ServiceMacro {
-                // A template only owns its own macros: what it inherits itself is resolved along the chain.
                 Assert::false($macro->isInherited(), 'A service template only owns its own macros.');
 
                 return $macro->inheritedFrom(ServiceMacroParentEnum::Template);

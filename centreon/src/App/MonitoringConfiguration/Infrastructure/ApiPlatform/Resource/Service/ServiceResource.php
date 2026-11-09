@@ -131,8 +131,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchSe
         ),
         new Get(
             uriTemplate: '/configuration/services/{id}',
-            // Positive integers only, so the selector routes under /configuration/services (hosts, commands, ...)
-            // keep matching their own operations, and `/0` is a 404 too.
+            // Positive integers only: keeps the /configuration/services/<selector> routes matching; `/0` is a 404.
             requirements: ['id' => '[1-9]\d*'],
             provider: GetServiceProvider::class,
             openapi: new Model\Operation(

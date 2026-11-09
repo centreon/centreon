@@ -26,8 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 /**
  * The service states the engine stalks (logs every output change of).
  *
- * Deliberately not backed: the engine's single-letter storage format (`o`, `w`, `u`, `c`) and the API words
- * belong to the infrastructure.
+ * Not backed: storage letters and API words belong to the infrastructure.
  */
 enum ServiceStalkingOptionEnum
 {

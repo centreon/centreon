@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
@@ -39,9 +39,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
+use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceSeverityRepository;
@@ -49,7 +51,10 @@ use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TrapRepository;
 use App\MonitoringConfiguration\Domain\Service\InheritedServiceMacrosResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\ServiceNotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\ServiceStalkingOptionEnumResolver;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\NotificationContact\NotificationContactResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceAdvancedOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceCategoryOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceCheckCommandOutput;
@@ -74,33 +79,23 @@ use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Builds the ServiceResource of a service, resolving the ids the aggregate carries into the named `{id, name}`
- * outputs the contract exposes.
- *
- * - Own values only: nothing inherited from the templates is resolved, except the macros, which are the
- *   effective ones (its own, then those it inherits, each with the id and parent to send back).
- * - A reference whose name no longer resolves (a template deleted since: that link has no foreign key) is left out.
- * - A restricted actor's view is narrowed to what they may access: service groups, categories, contacts and
- *   contact groups and the severity. The host, the template, the
- *   commands, the time periods, the icon, the graph template and the traps are not ACL-scoped.
- * - On a Cloud platform, the on-premise-only fields are left out, as for hosts.
- * - Password macro values are never part of the output.
+ * Resolves the aggregate's ids into `{id, name}` outputs: own values and effective macros, ACL-scoped relations
+ * filtered, on-premise-only fields dropped on Cloud. An unresolved reference is left out, except the host.
  */
 final readonly class ServiceResourceBuilder
 {
     /**
      * @param TransformerInterface<Service, ServiceResource> $transformer
-     * @param TransformerInterface<?ServiceNotifications, ?ServiceNotificationsOutput> $notificationsTransformer
      */
     public function __construct(
         #[Autowire(service: ServiceResourceTransformer::class)]
         private TransformerInterface $transformer,
-        #[Autowire(service: ServiceNotificationsTransformer::class)]
-        private TransformerInterface $notificationsTransformer,
         private HostRepository $hostRepository,
         private ServiceTemplateRepository $serviceTemplateRepository,
         private CommandRepository $commandRepository,
         private TimePeriodRepository $timePeriodRepository,
+        private NotificationContactRepository $contactRepository,
+        private ContactGroupRepository $contactGroupRepository,
         private MediaRepository $mediaRepository,
         private MediaUrlGenerator $mediaUrlGenerator,
         private ServiceGroupRepository $serviceGroupRepository,
@@ -128,7 +123,7 @@ final readonly class ServiceResourceBuilder
         $resource->monitoringEngine = $this->buildMonitoringEngine($service);
         $resource->notifications = $this->isCloudPlatform
             ? null
-            : $this->notificationsTransformer->transform($this->scopeNotifications($service->notifications, $actor));
+            : $this->buildNotifications($this->scopeNotifications($service->notifications, $actor));
         $resource->advanced = $this->buildAdvanced($service->dataProcessing, $service->extendedInformations);
 
         $groupIds = $this->accessScopes->serviceGroups($actor)->filter($service->serviceGroupIds);
@@ -149,8 +144,7 @@ final readonly class ServiceResourceBuilder
             }
         }
 
-        // Severity is ACL-scoped too: an out-of-scope severity is hidden (left null) from a restricted actor rather
-        // than surfaced, as for hosts.
+        // Hidden when out of the actor's scope.
         $resource->severity = null;
         if ($service->severityId instanceof ServiceSeverityId && $this->accessScopes->serviceSeverities($actor)->allows($service->severityId)) {
             $severityName = $this->serviceSeverityRepository->findNameById($service->severityId);
@@ -159,7 +153,6 @@ final readonly class ServiceResourceBuilder
                 : null;
         }
 
-        // Graph template and traps are on-premise only.
         $resource->graphTemplate = $this->isCloudPlatform ? null : $this->buildGraphTemplate($service->graphTemplateId);
         $resource->traps = $this->isCloudPlatform ? null : $this->buildTraps($service);
 
@@ -242,6 +235,43 @@ final readonly class ServiceResourceBuilder
             eventHandler: $eventHandler,
             eventHandlerArgs: $this->isCloudPlatform ? [] : $dataProcessing->eventHandlerArgs,
             comment: $extended?->comment,
+        );
+    }
+
+    private function buildNotifications(?ServiceNotifications $notifications): ?ServiceNotificationsOutput
+    {
+        if (! $notifications instanceof ServiceNotifications) {
+            return null;
+        }
+
+        $contactNames = $this->contactRepository->findNamesByIds($notifications->contactIds)->toArray();
+        $contacts = [];
+        foreach ($notifications->contactIds as $contactId) {
+            if (isset($contactNames[$contactId->value])) {
+                $contacts[] = new NotificationContactResource($contactId->value, $contactNames[$contactId->value]->value);
+            }
+        }
+
+        $contactGroupNames = $this->contactGroupRepository->findNamesByIds($notifications->contactGroupIds)->toArray();
+        $contactGroups = [];
+        foreach ($notifications->contactGroupIds as $contactGroupId) {
+            if (isset($contactGroupNames[$contactGroupId->value])) {
+                $contactGroups[] = new ContactGroupResource($contactGroupId->value, $contactGroupNames[$contactGroupId->value]->value);
+            }
+        }
+
+        return new ServiceNotificationsOutput(
+            enabled: $notifications->enabled->value,
+            useOnlyContactsFromHost: $notifications->useOnlyContactsFromHost,
+            contactAdditiveInheritance: $notifications->contactAdditiveInheritance,
+            contactGroupAdditiveInheritance: $notifications->contactGroupAdditiveInheritance,
+            contacts: $contacts,
+            contactGroups: $contactGroups,
+            interval: $notifications->interval,
+            timeperiod: $this->resolveTimePeriod($notifications->periodId),
+            options: array_map(ServiceNotificationOptionEnumResolver::toString(...), $notifications->options),
+            firstDelay: $notifications->firstDelay,
+            recoveryDelay: $notifications->recoveryDelay,
         );
     }
 

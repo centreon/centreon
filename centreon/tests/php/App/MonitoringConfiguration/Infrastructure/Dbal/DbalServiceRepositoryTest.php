@@ -25,8 +25,8 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
@@ -997,6 +997,67 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertInstanceOf(Service::class, $service);
         self::assertSame([$categoryId], $this->idValues($service->categoryIds));
         self::assertSame([$trapId], $this->idValues($service->trapIds));
+    }
+
+    public function testFindOneReadsEveryRelationIdBeyondTheGroupConcatLimit(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $serviceId = $this->insertListedService('ping', $hostId);
+        $linkedIds = static function (callable $link): array {
+            $ids = [];
+            while (mb_strlen(implode(',', $ids)) <= 1024) {
+                $ids[] = $link();
+            }
+
+            return $ids;
+        };
+
+        $contactIds = $linkedIds(function () use ($serviceId): int {
+            $id = $this->insertContact();
+            $this->connection->insert('contact_service_relation', ['service_service_id' => $serviceId, 'contact_id' => $id]);
+
+            return $id;
+        });
+        $contactGroupIds = $linkedIds(function () use ($serviceId): int {
+            $id = $this->insertContactGroup();
+            $this->connection->insert('contactgroup_service_relation', ['service_service_id' => $serviceId, 'contactgroup_cg_id' => $id]);
+
+            return $id;
+        });
+        $serviceGroupIds = $linkedIds(function () use ($serviceId, $hostId): int {
+            $id = $this->insertServiceGroup();
+            $this->connection->insert('servicegroup_relation', ['service_service_id' => $serviceId, 'host_host_id' => $hostId, 'servicegroup_sg_id' => $id]);
+
+            return $id;
+        });
+        $categoryIds = $linkedIds(function () use ($serviceId): int {
+            $id = $this->insertServiceCategory(level: null);
+            $this->linkToServiceCategory($serviceId, $id);
+
+            return $id;
+        });
+        $trapIds = $linkedIds(function () use ($serviceId): int {
+            $id = $this->insertTrap();
+            $this->connection->insert('traps_service_relation', ['service_id' => $serviceId, 'traps_id' => $id]);
+
+            return $id;
+        });
+
+        $service = $this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted());
+
+        self::assertInstanceOf(Service::class, $service);
+        self::assertInstanceOf(ServiceNotifications::class, $service->notifications);
+        $sorted = function (Collection $ids): array {
+            $values = $this->idValues($ids);
+            sort($values);
+
+            return $values;
+        };
+        self::assertSame($contactIds, $sorted($service->notifications->contactIds));
+        self::assertSame($contactGroupIds, $sorted($service->notifications->contactGroupIds));
+        self::assertSame($serviceGroupIds, $sorted($service->serviceGroupIds));
+        self::assertSame($categoryIds, $sorted($service->categoryIds));
+        self::assertSame($trapIds, $sorted($service->trapIds));
     }
 
     public function testTheListingReadsTheIconOfTheFirstExtendedInformationRowAsTheGetDoes(): void

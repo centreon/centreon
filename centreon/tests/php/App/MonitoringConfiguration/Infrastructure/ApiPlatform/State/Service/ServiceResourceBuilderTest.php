@@ -30,8 +30,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
+use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
@@ -75,7 +75,6 @@ use App\MonitoringConfiguration\Domain\Service\InheritedServiceMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceMacroOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceMacroTransformer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceNotificationsTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceResourceBuilder;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceResourceTransformer;
 use App\Security\Domain\Aggregate\AccessScope;
@@ -228,6 +227,7 @@ final class ServiceResourceBuilderTest extends TestCase
         self::assertNull($resource->monitoringEngine->checkPeriod);
         self::assertNull($resource->monitoringEngine->maxCheckAttempts);
         self::assertNull($resource->monitoringEngine->icon);
+        self::assertNull($resource->notifications);
         self::assertSame(TriStateEnum::UseDefault, $resource->monitoringEngine->isVolatile);
         self::assertSame(TriStateEnum::UseDefault, $resource->advanced->checkFreshness);
         self::assertSame([], $resource->advanced->stalkingOptions);
@@ -240,13 +240,18 @@ final class ServiceResourceBuilderTest extends TestCase
     }
 
     /**
-     * The template reference has no foreign key: a template deleted since is left out, not answered as an error.
-     * So is any other reference whose name no longer resolves.
+     * A reference whose name no longer resolves (e.g. a deleted template) is left out.
      */
     public function testADanglingReferenceIsLeftOut(): void
     {
         $service = $this->service(
             templateId: 404,
+            notifications: new ServiceNotifications(
+                enabled: TriStateEnum::True,
+                contactIds: new Collection([new NotificationContactId(411)], NotificationContactId::class),
+                contactGroupIds: new Collection([new ContactGroupId(412)], ContactGroupId::class),
+                periodId: new TimePeriodId(413),
+            ),
             extendedInformations: new ServiceExtendedInformations(iconId: new MediaId(405)),
             serviceGroupIds: [406],
             categoryIds: [407],
@@ -259,6 +264,10 @@ final class ServiceResourceBuilderTest extends TestCase
 
         self::assertNull($resource->template);
         self::assertNull($resource->monitoringEngine->icon);
+        self::assertNotNull($resource->notifications);
+        self::assertSame([], $resource->notifications->contacts);
+        self::assertSame([], $resource->notifications->contactGroups);
+        self::assertNull($resource->notifications->timeperiod);
         self::assertSame([], $resource->serviceGroups);
         self::assertSame([], $resource->categories);
         self::assertNull($resource->severity);
@@ -404,11 +413,12 @@ final class ServiceResourceBuilderTest extends TestCase
     {
         return new ServiceResourceBuilder(
             transformer: new ServiceResourceTransformer(),
-            notificationsTransformer: new ServiceNotificationsTransformer($this->contacts, $this->contactGroups, $this->timePeriods),
             hostRepository: $this->hosts,
             serviceTemplateRepository: $this->templates,
             commandRepository: $this->commands,
             timePeriodRepository: $this->timePeriods,
+            contactRepository: $this->contacts,
+            contactGroupRepository: $this->contactGroups,
             mediaRepository: $this->media,
             mediaUrlGenerator: new MediaUrlGenerator('/img/media/', $this->requestStack()),
             serviceGroupRepository: $this->serviceGroups,

@@ -35,8 +35,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Webmozart\Assert\Assert;
 
 /**
- * Returns the whole form of one service, built by ServiceResourceBuilder. A service the actor cannot see
- * (outside their access, linked to a host group, a template) answers like a missing one: no existence leak.
+ * Returns the whole form of one service; one out of the actor's reach answers like a missing one.
  *
  * @implements ProviderInterface<ServiceResource>
  */

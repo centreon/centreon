@@ -28,9 +28,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\T
 use App\Shared\Domain\Aggregate\TriStateEnum;
 
 /**
- * The `monitoring_engine` sub-object of a service: its scheduling options and its notes, URLs, icon and
- * coordinates. On a Cloud platform the on-premise-only members (active and passive checks, volatility) are left
- * null, and so out of the payload.
+ * The `monitoring_engine` sub-object; on Cloud, active/passive checks and volatility are omitted.
  */
 final readonly class ServiceMonitoringEngineOutput
 {

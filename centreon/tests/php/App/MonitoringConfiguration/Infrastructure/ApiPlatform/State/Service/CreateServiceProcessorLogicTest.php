@@ -47,7 +47,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\Serv
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\CreateServiceProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceMacroTransformer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceNotificationsTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceResourceBuilder;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceResourceTransformer;
 use App\Security\Domain\Aggregate\Credential;
@@ -301,11 +300,12 @@ final class CreateServiceProcessorLogicTest extends TestCase
 
         $builder = new ServiceResourceBuilder(
             transformer: new ServiceResourceTransformer(),
-            notificationsTransformer: new ServiceNotificationsTransformer(new FakeNotificationContactRepository(), new FakeContactGroupRepository(), $timePeriods),
             hostRepository: $hosts,
             serviceTemplateRepository: $templates,
             commandRepository: $commands,
             timePeriodRepository: $timePeriods,
+            contactRepository: new FakeNotificationContactRepository(),
+            contactGroupRepository: new FakeContactGroupRepository(),
             mediaRepository: new FakeMediaRepository(),
             mediaUrlGenerator: new MediaUrlGenerator('/img/media/', $requestStack),
             serviceGroupRepository: new FakeServiceGroupRepository(),
