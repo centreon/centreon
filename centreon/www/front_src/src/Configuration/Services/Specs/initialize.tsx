@@ -177,8 +177,9 @@ const initialize = ({
     );
   });
 
-  // Every write names one service, so each row has its own intercept.
-  [0, 2].forEach((id) => {
+  // Every write names one service, so each row has its own intercept. 5 is
+  // the service of the shared listing.
+  [0, 2, 5].forEach((id) => {
     interceptAPIRequest({
       alias: `deleteService${id}`,
       method: Method.DELETE,
