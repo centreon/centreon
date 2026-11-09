@@ -14526,9 +14526,7 @@ components:
       type: object
       properties:
         id:
-          description: |-
-            the macro's id in the table its parent points to; null only for a command macro the
-            command never recorded
+          description: 'null for a command macro with no `on_demand_macro_command` row'
           type:
             - integer
             - 'null'
@@ -14536,9 +14534,7 @@ components:
           description: 'the short macro name (upper-cased), without the $_SERVICE…$ wrapper'
           type: string
         value:
-          description: |-
-            always null for a password macro, whose secret is never echoed back; the null is
-            then dropped from the payload
+          description: 'null (omitted) for a password macro'
           type:
             - string
             - 'null'
@@ -14553,9 +14549,7 @@ components:
       type: object
       properties:
         id:
-          description: |-
-            the macro's id in the table its parent points to; null only for a command macro the
-            command never recorded
+          description: 'null for a command macro with no `on_demand_macro_command` row'
           type:
             - integer
             - 'null'
@@ -14563,9 +14557,7 @@ components:
           description: 'the short macro name (upper-cased), without the $_SERVICE…$ wrapper'
           type: string
         value:
-          description: |-
-            always null for a password macro, whose secret is never echoed back; the null is
-            then dropped from the payload
+          description: 'null (omitted) for a password macro'
           type:
             - string
             - 'null'
@@ -14866,9 +14858,7 @@ components:
         name:
           type: string
         vendor:
-          description: |-
-            a plain array, as in the trap selector, so the vendor is exactly
-            `{id, name}` whatever the format
+          description: 'a plain array, so the vendor is `{id, name}` in every format'
           type: object
           properties:
             id:
@@ -14883,9 +14873,7 @@ components:
         name:
           type: string
         vendor:
-          description: |-
-            a plain array, as in the trap selector, so the vendor is exactly
-            `{id, name}` whatever the format
+          description: 'a plain array, so the vendor is `{id, name}` in every format'
           type: object
           properties:
             id:
