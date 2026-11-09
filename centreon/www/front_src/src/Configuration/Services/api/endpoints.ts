@@ -20,6 +20,7 @@ export const serviceFormHostsEndpoint = '/configuration/services/hosts';
 // The form's check period selector, granted by the service write right too.
 export const serviceFormTimePeriodsEndpoint =
   '/configuration/services/timeperiods';
+
 // The form's check command selector, granted by the service write right.
 export const serviceFormCommandsEndpoint = '/configuration/services/commands';
 
@@ -31,6 +32,13 @@ export const getServiceTemplateMacrosEndpoint = ({
 }: {
   id: number;
 }): string => `${serviceTemplatesEndpoint}/${id}`;
+
+// The service groups the user may see, as the host groups of a host.
+export const serviceFormServiceGroupsEndpoint =
+  '/configuration/services/service_groups';
+
+// On-premise only: a cloud platform has no SNMP trap.
+export const serviceFormTrapsEndpoint = '/configuration/services/traps';
 
 export const getServiceEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/services/${id}`;

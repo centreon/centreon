@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next';
 import {
   labelGeneralInformation,
   labelMonitoringEngineSchedulingOptions,
+  labelRelations,
   labelServiceMonitoringProperties
 } from '../translatedLabels';
 import { getPlacedBlockIds, layout, placeBlocks } from './layout';
@@ -105,6 +106,25 @@ describe('layout', () => {
 
     expect(blocks.checkCommand).toBeDefined();
     expect(blocks.macros).toBeUndefined();
+  });
+
+  it('shows the relations after the check command', () => {
+    const labels = getSectionLabels({ isCloudPlatform: false, t });
+
+    expect(labels.indexOf(labelRelations)).toBe(
+      labels.indexOf(labelServiceMonitoringProperties) + 1
+    );
+  });
+
+  it('keeps the service groups on cloud and the traps on-premise only', () => {
+    expect(Object.keys(getBlocks({ isCloudPlatform: false, t }))).toEqual(
+      expect.arrayContaining(['groups', 'snmpTraps'])
+    );
+
+    const cloudBlocks = Object.keys(getBlocks({ isCloudPlatform: true, t }));
+
+    expect(cloudBlocks).toContain('groups');
+    expect(cloudBlocks).not.toContain('snmpTraps');
   });
 
   it('has no general information in a mass change', () => {
