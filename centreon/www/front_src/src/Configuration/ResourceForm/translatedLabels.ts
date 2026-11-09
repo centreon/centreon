@@ -25,6 +25,10 @@ export const labelMustBeIntegerOfAtLeastOne =
 export const labelMustBeAtMostCharacters =
   '{{label}} can be at most {{max}} characters';
 export const labelInvalidGeographicCoordinates = 'geo coords are not valid';
+export const labelFillAllArgumentsOrNone =
+  'You must either fill all the arguments or leave them all empty';
+export const labelArgumentsForbiddenTokens =
+  'Arguments must not contain #BR#, #T# or #R#';
 
 export const labelSnmpCommunity = 'SNMP community';
 export const labelSnmpVersion = 'Version';
@@ -36,6 +40,7 @@ export const labelNormalCheckInterval = 'Check interval';
 export const labelRetryCheckInterval = 'Retry interval';
 export const labelActiveChecksEnabled = 'Enable active checks';
 export const labelPassiveChecksEnabled = 'Enable passive checks';
+export const labelIsVolatile = 'Is Volatile';
 
 // Yes / No / third state fields: the design words the third state per field.
 export const labelYes = 'Yes';
