@@ -24,9 +24,9 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Application\Service;
 
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeVault;
