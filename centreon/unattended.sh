@@ -9,7 +9,8 @@ set -o errtrace
 
 #========= begin of function on_error()
 # ERR trap handler: report any *unanticipated* command failure with a timestamp,
-# exit code, line number and the failing command, then exit with that code.
+# exit code, line number and the failing command, then exit 1. Always 1, not the failing
+# command's code, so an aborted run can never be mistaken for exit 2 (services down).
 # Commands that may carry secrets are redacted so nothing sensitive reaches the
 # persistent log file or the console error line (this does NOT touch the intended
 # credential channels: /etc/centreon/generated.tobesecured and the fd-3 recap).
@@ -26,7 +27,7 @@ function on_error() {
 	if [ -n "${LOG_FILE:-}" ]; then
 		printf 'unattended.sh FAILED (exit %s at line %s) - see %s\n' "${code}" "${line}" "${LOG_FILE}" >&3
 	fi
-	exit "${code}"
+	exit 1
 }
 #========= end of function on_error()
 trap 'on_error "$?" "${LINENO}" "${BASH_COMMAND}"' ERR
@@ -48,9 +49,10 @@ default_ip=$(hostname -I | awk '{print $1}') || true
 
 passwords_file=/etc/centreon/generated.tobesecured         #File where the generated passwords will be temporaly saved
 tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as the /etc/centreon does not exist yet
+failed_services=()                                         #Filled by display_services_recap, fails the run when not empty
 
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
-version=${ENV_CENTREON_VERSION:-"25.10"}        #Default version to be installed
+version=${ENV_CENTREON_VERSION:-"24.10"}        #Default version to be installed
 repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to be used
 dbms=${ENV_CENTREON_DBMS:-"MariaDB"}            #Default database system to be used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
@@ -121,7 +123,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10|25.10|26.07|26.10> (default: 25.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [--tls <enabled|disabled> (default: disabled)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-D (enable debug mode: shell xtrace + DEBUG log level)] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10|25.10|26.07|26.10> (default: 26.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [--tls <enabled|disabled> (default: disabled)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-D (enable debug mode: shell xtrace + DEBUG log level)] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -130,6 +132,12 @@ function usage() {
 	echo " $script_short_name install -r unstable,testing == install the central to the $version from the unstable & testing repository"
 	echo
 	echo " $script_short_name install -V vault-example.com;8200;my_storage;my-role-id;my-secret-id == configuring a vault to store your application and database credentials"
+	echo
+	echo "Exit codes:"
+	echo
+	echo " 0 == success, every required service is running"
+	echo " 1 == the run was aborted (see the error and the log file)"
+	echo " 2 == the run completed but some required services are not running (see the platform healthcheck)"
 	exit 1
 }
 #======== end of function usage()
@@ -755,7 +763,7 @@ function set_required_prerequisite() {
 		10*)
 			log "INFO" "Setting specific part for v10 ($detected_os_version)"
 			if (( $(version_int) < $(version_int 26.07) )); then
-				error_and_exit "Centreon $version is not supported on Red-Hat compatible v10 (el10). Only Centreon >= 26.07 is compatible. You chose $version"
+				error_and_exit "Centreon $version is not supported on Red-Hat compatible v10 (el10). Only Centreon >= 26.10 is compatible. You chose $version"
 			fi
 			set_release_repo_file
 			PHP_SERVICE_UNIT="php-fpm"
@@ -1417,13 +1425,17 @@ function enable_new_services() {
 			# so the final health recap can report it (see display_services_recap).
 			systemctl enable "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon || log "WARN" "Some services could not be enabled (see recap below)"
 			systemctl restart "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd || log "WARN" "Some services could not be restarted (see recap below)"
-			systemctl start centreontrapd || log "WARN" "centreontrapd could not be started (see recap below)"
+			# gorgoned is started by its package %post; start it explicitly too since the
+			# recap requires it on central (no-op when already running).
+			systemctl start centreontrapd gorgoned || log "WARN" "centreontrapd/gorgoned could not be started (see recap below)"
 			;;
 
 		poller)
 			log "DEBUG" "On poller..."
 			systemctl enable centreon centengine centreontrapd snmpd snmptrapd gorgoned || log "WARN" "Some services could not be enabled"
-			systemctl start centreontrapd snmptrapd || log "WARN" "Some services could not be started"
+			# gorgoned is started by its package %post; start it explicitly too since the
+			# recap requires it (a poller without gorgone cannot be registered).
+			systemctl start centreontrapd snmptrapd gorgoned || log "WARN" "Some services could not be started (see recap below)"
 			;;
 		esac
 	else
@@ -1855,6 +1867,11 @@ function update_centreon_packages() {
 		if ! { $PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO; }; then
 			error_and_exit "Could not update Centreon"
 		fi
+		# Same mid-transaction restart issue as on install (see update_after_installation): restart
+		# centengine only if the update left it down, so a running engine is not interrupted.
+		if [ "${has_systemd:-0}" -eq 1 ] && ! systemctl is-active --quiet centengine; then
+			systemctl restart centengine || log "WARN" "centengine could not be restarted (see recap below)"
+		fi
 	fi
 }
 #========= end of function update_centreon_packages()
@@ -1893,6 +1910,19 @@ function update_after_installation() {
 		set_runtime_selinux_mode $selinux_mode
 
 		set_selinux_config $selinux_mode
+
+		# centreon-engine-daemon's %post restarts centengine mid-transaction, before
+		# centreon-broker-core has laid down /usr/share/centreon/lib/centreon-broker, so on
+		# EL the engine is left failed. Restart it now that every package is installed, and
+		# only after the SELinux step so cbd/centengine run in their confined domain.
+		# dpkg unpacks every package before configuring any, so Debian is not affected.
+		if [ "${has_systemd:-0}" -eq 1 ]; then
+			if [ "$topology" == "central" ]; then
+				systemctl restart cbd centengine || log "WARN" "cbd/centengine could not be restarted (see recap below)"
+			else
+				systemctl restart centengine || log "WARN" "centengine could not be restarted (see recap below)"
+			fi
+		fi
 	fi
 }
 #========= end of function update_after_installation()
@@ -1911,11 +1941,12 @@ function test_password_policy() {
 # Print a final platform healthcheck just before the credentials are displayed.
 # Topology-aware (only the services relevant to the installed role are checked) and
 # rendered in the same banner style as the run summary, recorded in the log file and
-# mirrored to the console. Purely informational: it tolerates inactive units (guarded
-# systemctl calls) so it never aborts the script.
+# mirrored to the console. It tolerates inactive units (guarded systemctl calls) so it
+# never aborts the script itself; units still inactive after a short wait are collected in
+# failed_services and the script exits 2 after the credentials are displayed.
 #
 function display_services_recap() {
-	local entry name unit topos active enabled state db_unit
+	local entry name unit topos required_topos active enabled state db_unit
 
 	if [ "${has_systemd:-0}" -ne 1 ]; then
 		log "WARN" "Systemd is not available: cannot report platform healthcheck"
@@ -1929,38 +1960,85 @@ function display_services_recap() {
 		db_unit="${mysql_service_name:-mysqld}"
 	fi
 
-	# label | systemd unit | topologies the check applies to (space-separated)
+	# label | systemd unit | topologies the check applies to | topologies where inactive = failure (default: same as previous)
+	# Topology lists are space-separated; outside the 4th field ("-" = none) an inactive unit is reported as [INFO].
 	# http and php units differ per distro (httpd/php-fpm on EL, apache2/php8.x-fpm on
 	# Debian); they are resolved via the variables set in set_required_prerequisite.
 	# Topologies mirror what enable_new_services actually starts: centengine runs on
 	# central AND pollers; cbd is central-only (pollers do not ship/enable a cbd unit).
+	# Before 26.10 the packaged centengine.cfg has no broker_module_cfg_file and the engine
+	# refuses to start until a first configuration export: report it without failing the run.
+	local centengine_required_topos="-"
+	if (( $(version_int) >= $(version_int 26.10) )); then
+		centengine_required_topos="central poller"
+	fi
+	# On a central installed without -s the web wizard has not run yet: gorgoned (which
+	# includes /etc/centreon/config.d/*.yaml) and cbd lack the configuration it writes, so
+	# report them without failing the run. Updates keep them required.
+	local gorgone_required_topos="central poller"
+	local cbd_required_topos="central"
+	if [ "$operation" == "install" ] && [ "$wizard_autoplay" != "true" ]; then
+		gorgone_required_topos="poller"
+		cbd_required_topos="-"
+	fi
+	local centengine_hint="" wizard_hint=""
 	local -a recap_services=(
 		"database|${db_unit}|central"
 		"httpd|${HTTP_SERVICE_UNIT:-httpd}|central"
 		"php-fpm|${PHP_SERVICE_UNIT:-php-fpm}|central"
-		"centengine|centengine|central poller"
-		"gorgone|gorgoned|central poller"
-		"cbd|cbd|central"
+		"centengine|centengine|central poller|${centengine_required_topos}"
+		"gorgone|gorgoned|central poller|${gorgone_required_topos}"
+		"cbd|cbd|central|${cbd_required_topos}"
 		"centreontrapd|centreontrapd|central poller"
 		"snmptrapd|snmptrapd|central poller"
-		"snmpd|snmpd|central poller"
+		"snmpd|snmpd|central poller|central"
 	)
+
+	# Units restarted just before may still be activating, or start and die a few seconds
+	# later: let them settle, then give the inactive ones until a shared deadline to come
+	# up (bounds the total wait even when several units are down).
+	recap_settle_delay_in_sec=3 # Wait before the final healthcheck (catches units that start then crash)
+	sleep "$recap_settle_delay_in_sec"
+	local deadline=$((SECONDS + 30))
 
 	local -a results=()
 	for entry in "${recap_services[@]}"; do
-		IFS='|' read -r name unit topos <<<"$entry"
+		IFS='|' read -r name unit topos required_topos <<<"$entry"
+		required_topos=${required_topos:-$topos}
 		# Skip services that do not apply to the installed topology.
 		[[ " $topos " == *" $topology "* ]] || continue
 		active=$(systemctl is-active "$unit" 2>/dev/null || true)
+		# Only wait for units whose inactivity would fail the run.
+		while [ "$active" != "active" ] && [[ " $required_topos " == *" $topology "* ]] && [ "$SECONDS" -lt "$deadline" ]; do
+			sleep 1
+			active=$(systemctl is-active "$unit" 2>/dev/null || true)
+		done
 		enabled=$(systemctl is-enabled "$unit" 2>/dev/null || true)
 		if [ "$active" == "active" ]; then
 			state="[OK]    "
-		else
+		elif [[ " $required_topos " == *" $topology "* ]]; then
 			state="[FAILED]"
+			failed_services+=("$name")
+		else
+			state="[INFO]  "
+			case "$name" in
+			centengine)
+				centengine_hint="  centengine starts once a first configuration has been exported to this $topology (Configuration > Pollers > Export configuration on the central)"
+				;;
+			gorgone | cbd)
+				wizard_hint="  gorgoned and cbd start once the web installation wizard has been completed"
+				;;
+			esac
 		fi
 		results+=("$(printf '  %s %-14s (%-13s) active=%-10s enabled=%s' \
 			"$state" "$name" "$unit" "${active:-unknown}" "${enabled:-unknown}")")
 	done
+	if [ -n "$wizard_hint" ]; then
+		results+=("$wizard_hint")
+	fi
+	if [ -n "$centengine_hint" ]; then
+		results+=("$centengine_hint")
+	fi
 
 	# Record in the log file.
 	log "INFO" "============== Centreon platform healthcheck ([$topology]) =============="
@@ -2239,6 +2317,16 @@ if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ] && [ "$operation" 
 fi
 if [ -e $tmp_passwords_file ] && [ "$operation" = "update" ]; then
 	rm -f $tmp_passwords_file
+fi
+
+# A service left down must fail the run (non-zero exit) so CI and callers notice it;
+# this is checked only now so the credentials above are still shown.
+if [ ${#failed_services[@]} -gt 0 ]; then
+	log "ERROR" "Some services are not running: ${failed_services[*]}"
+	if [ -n "${LOG_FILE:-}" ]; then
+		echo "unattended.sh FAILED: services not running: ${failed_services[*]} - see ${LOG_FILE}" >&3
+	fi
+	exit 2
 fi
 
 # Final notice on the console (the rest of the run is in the log file).
