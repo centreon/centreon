@@ -180,7 +180,7 @@ export default () => {
 
       await save();
 
-      // The template and scheduling options are the other sections' specs.
+      // The other sections send their own keys, which their specs check.
       expect(await getRequestBody('@createService')).toMatchObject({
         check_options: { args: [], command_id: 8, macros: [] },
         host_id: 11,
