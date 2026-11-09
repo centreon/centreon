@@ -47,12 +47,12 @@ export const getParentTemplatesEndpoint =
       apiFormat: 'JSON-LD',
       baseEndpoint: hostTemplateFormHostTemplatesEndpoint,
       customQueryParameters: [
-        ...(search
+        ...(searchedValue
           ? [
               {
                 name: 'name[lk]',
                 // The autocomplete wraps the typed text in `%`.
-                value: searchedValue?.slice(1, -1) ?? ''
+                value: searchedValue.slice(1, -1)
               }
             ]
           : []),
