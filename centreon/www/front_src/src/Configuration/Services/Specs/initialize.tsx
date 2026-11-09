@@ -22,6 +22,8 @@ import Services from '..';
 import {
   getDuplicateServiceEndpoint,
   getServiceEndpoint,
+  getServiceTemplateMacrosEndpoint,
+  serviceFormCommandsEndpoint,
   serviceFormHostsEndpoint,
   serviceFormTimePeriodsEndpoint,
   servicesListEndpoint,
@@ -30,9 +32,11 @@ import {
 import {
   emptyListingResponse,
   getListingResponse,
+  getServiceFormCommandsResponse,
   getServiceFormHostsResponse,
   getServiceFormTimePeriodsResponse,
   getServiceResponse,
+  getServiceTemplateMacrosResponse,
   getServiceTemplatesResponse
 } from './utils';
 
@@ -110,6 +114,21 @@ const initialize = ({
     method: Method.GET,
     path: `**${serviceFormTimePeriodsEndpoint}?**`,
     response: getServiceFormTimePeriodsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormCommands',
+    method: Method.GET,
+    path: `**${serviceFormCommandsEndpoint}?**`,
+    response: getServiceFormCommandsResponse()
+  });
+
+  // For when the template field (F03) can pick template 30.
+  interceptAPIRequest({
+    alias: 'getTemplateMacros30',
+    method: Method.GET,
+    path: `**${getServiceTemplateMacrosEndpoint({ id: 30 })}`,
+    response: getServiceTemplateMacrosResponse()
   });
 
   interceptAPIRequest({
