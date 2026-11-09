@@ -1969,7 +1969,8 @@ function display_services_recap() {
 	# Units restarted just before may still be activating, or start and die a few seconds
 	# later: let them settle, then give the inactive ones until a shared deadline to come
 	# up (bounds the total wait even when several units are down).
-	sleep "$default_timeout_in_sec"
+	recap_settle_delay_in_sec=3 # Wait before the final healthcheck (catches units that start then crash)
+	sleep "$recap_settle_delay_in_sec"
 	local deadline=$((SECONDS + 30))
 
 	local -a results=()
