@@ -9,7 +9,8 @@ set -o errtrace
 
 #========= begin of function on_error()
 # ERR trap handler: report any *unanticipated* command failure with a timestamp,
-# exit code, line number and the failing command, then exit with that code.
+# exit code, line number and the failing command, then exit 1. Always 1, not the failing
+# command's code, so an aborted run can never be mistaken for exit 2 (services down).
 # Commands that may carry secrets are redacted so nothing sensitive reaches the
 # persistent log file or the console error line (this does NOT touch the intended
 # credential channels: /etc/centreon/generated.tobesecured and the fd-3 recap).
@@ -26,7 +27,7 @@ function on_error() {
 	if [ -n "${LOG_FILE:-}" ]; then
 		printf 'unattended.sh FAILED (exit %s at line %s) - see %s\n' "${code}" "${line}" "${LOG_FILE}" >&3
 	fi
-	exit "${code}"
+	exit 1
 }
 #========= end of function on_error()
 trap 'on_error "$?" "${LINENO}" "${BASH_COMMAND}"' ERR
@@ -135,7 +136,7 @@ function usage() {
 	echo "Exit codes:"
 	echo
 	echo " 0 == success, every required service is running"
-	echo " 1 (or the failing command's code) == the run was aborted"
+	echo " 1 == the run was aborted (see the error and the log file)"
 	echo " 2 == the run completed but some required services are not running (see the platform healthcheck)"
 	exit 1
 }
