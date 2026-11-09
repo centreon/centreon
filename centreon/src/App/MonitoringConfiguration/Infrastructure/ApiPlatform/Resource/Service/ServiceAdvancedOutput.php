@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Servic
 use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\ServiceStalkingOptionEnumResolver;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
  * The `advanced` sub-object of a service: freshness, flap detection, event handler, obsession, retention and
@@ -52,7 +53,7 @@ final readonly class ServiceAdvancedOutput
         public ?array $stalkingOptions,
         public TriStateEnum $eventHandlerEnabled,
         public ?ServiceEventHandlerCommandOutput $eventHandler,
-        public array $eventHandlerArgs,
+        #[Sensitive] public array $eventHandlerArgs,
         public ?string $comment,
     ) {
     }

@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\CommandArguments;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 /**
@@ -38,6 +39,7 @@ use Webmozart\Assert\Assert;
 final readonly class ServiceCheckOptions
 {
     /** @var list<string> */
+    #[Sensitive]
     public array $args;
 
     /** @var list<ServiceMacro> */
