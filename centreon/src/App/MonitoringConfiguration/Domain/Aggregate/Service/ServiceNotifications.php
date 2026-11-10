@@ -119,8 +119,7 @@ final readonly class ServiceNotifications
     }
 
     /**
-     * For a platform whose `inheritance_mode` disables additive inheritance. Kept here so that a new field of this
-     * value object cannot be reset to its default by a caller.
+     * Additive inheritance off, for a platform whose inheritance_mode disables it.
      */
     public function withoutAdditiveInheritance(): self
     {

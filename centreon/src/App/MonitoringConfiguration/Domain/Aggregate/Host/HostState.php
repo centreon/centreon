@@ -26,8 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 
 /**
- * What a write on a host's resource needs of the host: the poller to lock before the write and to flag after it,
- * only while the host is enabled.
+ * The host's poller: locked before any write on its resources, flagged after it only while the host is enabled.
  */
 final readonly class HostState
 {

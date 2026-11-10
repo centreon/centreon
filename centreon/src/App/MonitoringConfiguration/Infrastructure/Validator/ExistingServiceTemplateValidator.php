@@ -31,9 +31,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Early duplicate of the create handler's own service template check, which stays the authority. Never scoped by ACL.
- *
- * Always declared after Assert\Positive inside an Assert\Sequentially: ServiceTemplateId asserts a positive int.
+ * Early mirror of the handler's check. Not ACL-scoped. Needs a prior Assert\Positive.
  */
 final class ExistingServiceTemplateValidator extends ConstraintValidator
 {

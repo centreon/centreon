@@ -842,9 +842,7 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * Every reference a service can point to, each existing with one id: template 30 (with the check command), a
-     * second check command 22 of another type, event handler 21, time periods 40 and 41, icon 50, graph template
-     * 60, severities 70 and 71, service groups 80 and 81, categories 90 and 91, trap 100, and a second host 12.
+     * Seeds every reference a service can point to, plus a non-check command (22) and a second host (12).
      */
     private function seedEveryReference(): void
     {

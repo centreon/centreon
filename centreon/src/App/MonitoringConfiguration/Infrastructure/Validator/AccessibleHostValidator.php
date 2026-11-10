@@ -33,10 +33,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Early duplicate of the create handler's own host check, which stays the authority: a real host in the actor's
- * scope. An unknown host and a hidden one get the same answer.
- *
- * Always declared after Assert\Positive inside an Assert\Sequentially: HostId asserts a positive int.
+ * Early mirror of the handler's check; unknown and hidden ids answer alike. Needs a prior Assert\Positive.
  */
 final class AccessibleHostValidator extends ConstraintValidator
 {

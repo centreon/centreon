@@ -34,11 +34,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Early duplicate of the create handler's own service group check, which stays the authority. An unknown id and a
- * hidden one get the same answer.
- *
- * Always declared after Assert\All([Type, Positive]) inside an Assert\Sequentially: ServiceGroupId asserts a positive
- * int.
+ * Early mirror of the handler's check; unknown and hidden ids answer alike. Needs a prior Assert\Positive.
  */
 final class AccessibleServiceGroupsValidator extends ConstraintValidator
 {

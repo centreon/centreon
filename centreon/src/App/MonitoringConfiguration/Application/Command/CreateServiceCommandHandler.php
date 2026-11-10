@@ -133,7 +133,6 @@ final readonly class CreateServiceCommandHandler
      */
     public function __invoke(CreateServiceCommand $command): Service
     {
-        // Not the whole host: its other stored data must not make the creation fail.
         $host = $this->hostRepository->findState($command->hostId, $command->actor);
         if (! $host instanceof HostState) {
             throw new HostNotFoundException([$command->hostId->value], 'hostId');
