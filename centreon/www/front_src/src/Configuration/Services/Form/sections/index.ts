@@ -7,12 +7,18 @@ import {
   getInputBlocks
 } from '../../../ResourceForm/blocks';
 import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
+import {
+  getActionUrlAndGeoCoordinatesBlock,
+  getCommentBlock,
+  getNotesAndIconsBlock
+} from '../../../ResourceForm/fieldBlocks/extendedInfos';
 import { getMacrosBlock } from '../../../ResourceForm/fieldBlocks/macros';
 import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
 import {
   getActiveAndPassiveChecksBlock,
   getCheckPeriodAndIntervalsBlock
 } from '../../../ResourceForm/fieldBlocks/scheduling';
+import { getSeverityBlock } from '../../../ResourceForm/fieldBlocks/severity';
 import type {
   Blocks,
   DetailOfBlocks,
@@ -23,14 +29,23 @@ import type {
 import { labelRequired } from '../../../ResourceForm/translatedLabels';
 import {
   serviceFormCommandsEndpoint,
+  serviceFormGraphTemplatesEndpoint,
   serviceFormHostsEndpoint,
+  serviceFormMediasEndpoint,
+  serviceFormServiceCategoriesEndpoint,
   serviceFormServiceGroupsEndpoint,
+  serviceFormServiceSeveritiesEndpoint,
   serviceFormTimePeriodsEndpoint,
   serviceFormTrapsEndpoint,
   servicesBaseEndpoint,
   serviceTemplatesEndpoint
 } from '../../api/endpoints';
-import { labelServiceGroups } from '../../translatedLabels';
+import {
+  labelServiceCategories,
+  labelServiceGroups,
+  labelServiceSeverity
+} from '../../translatedLabels';
+import { getGraphTemplateBlock } from '../blocks/graphTemplate';
 import { getServiceIdentityBlock } from '../blocks/serviceIdentity';
 import { getSnmpTrapsBlock } from '../blocks/snmpTraps';
 import { getTemplateBlock } from '../blocks/template';
@@ -44,8 +59,11 @@ export const serviceResource: ResourceOptions = {
 
 const resource = serviceResource;
 
-// Where the services API keeps what the host API calls its scheduling options.
+// Where the services API keeps what the host API calls its scheduling options
+// and most of its extended informations.
 const monitoringEngineGroup = 'monitoring_engine';
+// And where it keeps the comment, with the data processing.
+const advancedGroup = 'advanced';
 
 // A value, unless the row is still what the service inherits (not sent) or a
 // stored password left as is (sent as null, the server keeps it).
@@ -91,16 +109,6 @@ export const blocks = [
     reservedNames: ['$_SERVICECRITICALITY_LEVEL$', '$_SERVICECRITICALITY_ID$'],
     resource
   }),
-  getCheckPeriodAndIntervalsBlock({
-    apiGroup: monitoringEngineGroup,
-    resource,
-    timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
-  }),
-  getActiveAndPassiveChecksBlock({
-    apiGroup: monitoringEngineGroup,
-    resource,
-    withVolatile: true
-  }),
   // Unlike the host groups of a host, optional on a cloud platform too.
   getRelationListBlock({
     decoderNames: ['Service group', 'Service groups'],
@@ -112,7 +120,50 @@ export const blocks = [
     payloadKey: 'service_group_ids',
     resource
   }),
-  getSnmpTrapsBlock({ endpoint: serviceFormTrapsEndpoint, resource })
+  getSnmpTrapsBlock({ endpoint: serviceFormTrapsEndpoint, resource }),
+  // The user's visible categories only: the server keeps the others. A
+  // detail without them opens on none, as the previous service form did.
+  getRelationListBlock({
+    decoderNames: ['Category', 'Categories'],
+    endpoint: serviceFormServiceCategoriesEndpoint,
+    id: 'categories',
+    label: labelServiceCategories,
+    name: 'categories',
+    payloadKey: 'category_ids',
+    resource,
+    withOptionalDetailKey: true
+  }),
+  getSeverityBlock({
+    endpoint: serviceFormServiceSeveritiesEndpoint,
+    label: labelServiceSeverity,
+    resource,
+    // As the legacy service form shows a severity.
+    withLevel: true
+  }),
+  getGraphTemplateBlock({
+    endpoint: serviceFormGraphTemplatesEndpoint,
+    resource
+  }),
+  getNotesAndIconsBlock({
+    apiGroup: monitoringEngineGroup,
+    mediasEndpoint: serviceFormMediasEndpoint,
+    resource
+  }),
+  getActionUrlAndGeoCoordinatesBlock({
+    apiGroup: monitoringEngineGroup,
+    resource
+  }),
+  getCheckPeriodAndIntervalsBlock({
+    apiGroup: monitoringEngineGroup,
+    resource,
+    timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
+  }),
+  getActiveAndPassiveChecksBlock({
+    apiGroup: monitoringEngineGroup,
+    resource,
+    withVolatile: true
+  }),
+  getCommentBlock({ apiGroup: advancedGroup, resource })
 ] as const;
 
 // Each available block, as a section of the data.

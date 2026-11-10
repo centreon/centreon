@@ -24,8 +24,12 @@ import {
   getServiceEndpoint,
   getServiceTemplateMacrosEndpoint,
   serviceFormCommandsEndpoint,
+  serviceFormGraphTemplatesEndpoint,
   serviceFormHostsEndpoint,
+  serviceFormMediasEndpoint,
+  serviceFormServiceCategoriesEndpoint,
   serviceFormServiceGroupsEndpoint,
+  serviceFormServiceSeveritiesEndpoint,
   serviceFormTimePeriodsEndpoint,
   serviceFormTrapsEndpoint,
   servicesListEndpoint,
@@ -33,12 +37,16 @@ import {
 } from '../api/endpoints';
 import {
   emptyListingResponse,
+  getGraphTemplatesResponse,
   getListingResponse,
+  getServiceCategoriesResponse,
   getServiceFormCommandsResponse,
   getServiceFormHostsResponse,
   getServiceFormTimePeriodsResponse,
   getServiceGroupsResponse,
+  getServiceMediasResponse,
   getServiceResponse,
+  getServiceSeveritiesResponse,
   getServiceTemplateMacrosResponse,
   getServiceTemplatesResponse,
   getTrapsResponse
@@ -111,6 +119,37 @@ const initialize = ({
     method: Method.GET,
     path: `**${serviceFormHostsEndpoint}?**`,
     response: getServiceFormHostsResponse()
+  });
+
+  // The extended info selectors.
+  [
+    {
+      alias: 'getFormGraphTemplates',
+      path: serviceFormGraphTemplatesEndpoint,
+      response: getGraphTemplatesResponse()
+    },
+    {
+      alias: 'getFormServiceCategories',
+      path: serviceFormServiceCategoriesEndpoint,
+      response: getServiceCategoriesResponse()
+    },
+    {
+      alias: 'getFormServiceSeverities',
+      path: serviceFormServiceSeveritiesEndpoint,
+      response: getServiceSeveritiesResponse()
+    },
+    {
+      alias: 'getFormMedias',
+      path: serviceFormMediasEndpoint,
+      response: getServiceMediasResponse()
+    }
+  ].forEach(({ alias, path, response }) => {
+    interceptAPIRequest({
+      alias,
+      method: Method.GET,
+      path: `**${path}?**`,
+      response
+    });
   });
 
   interceptAPIRequest({

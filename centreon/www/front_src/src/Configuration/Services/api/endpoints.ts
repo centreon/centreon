@@ -40,6 +40,16 @@ export const serviceFormServiceGroupsEndpoint =
 // On-premise only: a cloud platform has no SNMP trap.
 export const serviceFormTrapsEndpoint = '/configuration/services/traps';
 
+// The form's other selectors, each granted by the service write right too.
+// The graph templates exist on-premise only.
+export const serviceFormGraphTemplatesEndpoint =
+  '/configuration/services/graph_templates';
+export const serviceFormMediasEndpoint = '/configuration/services/medias';
+export const serviceFormServiceCategoriesEndpoint =
+  '/configuration/services/service_categories';
+export const serviceFormServiceSeveritiesEndpoint =
+  '/configuration/services/service_severities';
+
 export const getServiceEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/services/${id}`;
 

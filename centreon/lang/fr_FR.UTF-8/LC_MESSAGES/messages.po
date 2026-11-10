@@ -25616,6 +25616,10 @@ msgstr "Les arguments ne doivent pas contenir #BR#, #T# ou #R#"
 msgid "Service monitoring properties"
 msgstr "Propriétés de supervision du service"
 
+#: centreon/www/install/front_translate.php
+msgid "{{name}} ({{level}})"
+msgstr "{{name}} ({{level}})"
+
 msgid "Delete host template"
 msgstr "Supprimer le modèle d'hôte"
 
