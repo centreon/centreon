@@ -158,6 +158,8 @@ $log_error = function ($errno, $errstr, $errfile, $errline) {
     return true;
 };
 
+/** @var list<int> $deliveredPollers set when some containerized pollers are not delivered: all the others */
+$deliveredPollers = [];
 try {
     $ret = [];
     $ret['host'] = $pollers;
@@ -400,6 +402,9 @@ try {
             $vmwareConfigurationService->restartIfConfigurationChanged($pollerId, false);
         }
         if ($failures !== []) {
+            // MON-214616: the pollers delivered (the others, containerized or not) can still be reloaded
+            $deliveredPollers = array_values(array_diff(array_map('intval', array_keys($tab_server)), array_keys($failures)));
+
             throw LegacyCommandSender::combineFailures($failures, $containerizedPollers, count($containerizedPollers));
         }
     }
@@ -415,6 +420,9 @@ try {
     if ($e instanceof LegacyCommandException && GorgoneDeliveryException::isKnownReason($e->getCode())) {
         // Lets the REST export answer with a status matching the reason (see MonitoringServerController)
         $xml->writeElement('errorcode', (string) $e->getCode());
+        if ($deliveredPollers !== []) {
+            $xml->writeElement('delivered', implode(',', $deliveredPollers));
+        }
     } elseif ($e instanceof IncompleteGenerationException) {
         $xml->writeElement('errorcode', (string) IncompleteGenerationException::REASON);
     }

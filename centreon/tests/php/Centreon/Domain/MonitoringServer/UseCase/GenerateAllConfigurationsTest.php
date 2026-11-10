@@ -25,12 +25,16 @@ namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
+use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
+use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
+use Centreon\Domain\MonitoringServer\Exception\PartialDeliveryException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\MonitoringServer\UseCase\GenerateAllConfigurations;
 use Centreon\Domain\Repository\RepositoryException;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -141,6 +145,10 @@ class GenerateAllConfigurationsTest extends TestCase
             ->method('generateConfiguration')
             ->willThrowException($repositoryException);
 
+        $this->monitoringServerConfigurationRepository
+            ->expects($this->never())
+            ->method('moveExportFilesOfAll');
+
         $useCase = new GenerateAllConfigurations(
             $this->monitoringServerRepository,
             $this->monitoringServerConfigurationRepository,
@@ -182,8 +190,8 @@ class GenerateAllConfigurationsTest extends TestCase
 
         $this->monitoringServerConfigurationRepository
             ->expects($this->once())
-            ->method('moveExportFiles')
-            ->with($monitoringServer->getId());
+            ->method('moveExportFilesOfAll')
+            ->with([$monitoringServer->getId()]);
 
         $useCase = new GenerateAllConfigurations(
             $this->monitoringServerRepository,
@@ -221,8 +229,8 @@ class GenerateAllConfigurationsTest extends TestCase
 
         $this->monitoringServerConfigurationRepository
             ->expects($this->once())
-            ->method('moveExportFiles')
-            ->with($monitoringServer->getId());
+            ->method('moveExportFilesOfAll')
+            ->with([$monitoringServer->getId()]);
 
         $useCase = new GenerateAllConfigurations(
             $this->monitoringServerRepository,
@@ -232,5 +240,115 @@ class GenerateAllConfigurationsTest extends TestCase
         );
 
         $useCase->execute();
+    }
+
+    public function testEveryConfigurationIsGeneratedBeforeAllAreMovedAtOnce(): void
+    {
+        $this->contact->method('isAdmin')->willReturn(true);
+        $this->monitoringServerRepository
+            ->method('findServersWithoutRequestParameters')
+            ->willReturn([
+                (new MonitoringServer())->setId(3),
+                (new MonitoringServer())->setId(2)->setActivate(false),
+                (new MonitoringServer())->setId(1),
+            ]);
+
+        $calls = [];
+        $this->monitoringServerConfigurationRepository
+            ->method('generateConfiguration')
+            ->willReturnCallback(function (int $id) use (&$calls): void {
+                $calls[] = 'generate ' . $id;
+            });
+        $this->monitoringServerConfigurationRepository
+            ->expects($this->once())
+            ->method('moveExportFilesOfAll')
+            ->willReturnCallback(function (array $ids) use (&$calls): void {
+                $calls[] = 'move ' . implode(',', $ids);
+            });
+
+        $this->createUseCase()->execute();
+
+        // the disabled monitoring server is neither generated nor moved
+        $this->assertSame(['generate 3', 'generate 1', 'move 3,1'], $calls);
+    }
+
+    public function testGenerationFailureMovesNothing(): void
+    {
+        $this->contact->method('isAdmin')->willReturn(true);
+        $this->monitoringServerRepository
+            ->method('findServersWithoutRequestParameters')
+            ->willReturn([(new MonitoringServer())->setId(3), (new MonitoringServer())->setId(2)]);
+        $this->monitoringServerConfigurationRepository
+            ->method('generateConfiguration')
+            ->willReturnCallback(function (int $id): void {
+                if ($id === 2) {
+                    throw new RepositoryException('generation failed');
+                }
+            });
+        $this->monitoringServerConfigurationRepository->expects($this->never())->method('moveExportFilesOfAll');
+
+        $this->expectException(ConfigurationMonitoringServerException::class);
+        $this->expectExceptionMessage('Generation error on monitoring server #2: generation failed');
+        $this->createUseCase()->execute();
+    }
+
+    #[DataProvider('provideMoveErrorsKeptAsIs')]
+    public function testMoveErrorIsKeptAsIs(\Exception $error): void
+    {
+        $this->contact->method('isAdmin')->willReturn(true);
+        $this->monitoringServerRepository
+            ->method('findServersWithoutRequestParameters')
+            ->willReturn([(new MonitoringServer())->setId(1)]);
+        $this->monitoringServerConfigurationRepository->method('moveExportFilesOfAll')->willThrowException($error);
+
+        try {
+            $this->createUseCase()->execute();
+            $this->fail('the move error is expected');
+        } catch (\Exception $ex) {
+            $this->assertSame($error, $ex);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{\Exception}>
+     */
+    public static function provideMoveErrorsKeptAsIs(): iterable
+    {
+        yield 'some monitoring servers delivered (their ids are kept for the reload)' => [
+            new PartialDeliveryException('1 of 2 not delivered', GorgoneDeliveryException::DELIVERY_FAILED, [1]),
+        ];
+
+        yield 'not delivered' => [
+            new GorgoneDeliveryException('node 1 not connected', GorgoneDeliveryException::NODE_NOT_CONNECTED),
+        ];
+
+        yield 'last generation incomplete' => [
+            new IncompleteGenerationException('incomplete', IncompleteGenerationException::REASON),
+        ];
+    }
+
+    public function testMoveFailureIsNotAGenerationError(): void
+    {
+        $this->contact->method('isAdmin')->willReturn(true);
+        $this->monitoringServerRepository
+            ->method('findServersWithoutRequestParameters')
+            ->willReturn([(new MonitoringServer())->setId(1)]);
+        $this->monitoringServerConfigurationRepository
+            ->method('moveExportFilesOfAll')
+            ->willThrowException(new RepositoryException('Could not write into centcore.cmd'));
+
+        $this->expectException(ConfigurationMonitoringServerException::class);
+        $this->expectExceptionMessage('Error on the monitoring servers: Could not write into centcore.cmd');
+        $this->createUseCase()->execute();
+    }
+
+    private function createUseCase(): GenerateAllConfigurations
+    {
+        return new GenerateAllConfigurations(
+            $this->monitoringServerRepository,
+            $this->monitoringServerConfigurationRepository,
+            $this->readAccessGroupRepository,
+            $this->contact
+        );
     }
 }

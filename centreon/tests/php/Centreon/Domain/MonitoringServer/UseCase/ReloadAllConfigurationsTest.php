@@ -25,12 +25,15 @@ namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
+use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
+use Centreon\Domain\MonitoringServer\Exception\PartialDeliveryException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\MonitoringServer\UseCase\ReloadAllConfigurations;
 use Centreon\Domain\Repository\RepositoryException;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -141,7 +144,7 @@ class ReloadAllConfigurationsTest extends TestCase
 
         $this->monitoringServerConfigurationRepository
             ->expects($this->once())
-            ->method('reloadConfiguration')
+            ->method('reloadConfigurationOfAll')
             ->willThrowException($repositoryException);
 
         $useCase = new ReloadAllConfigurations(
@@ -152,10 +155,7 @@ class ReloadAllConfigurationsTest extends TestCase
         );
         $this->expectException(ConfigurationMonitoringServerException::class);
         $this->expectExceptionMessage(
-            ConfigurationMonitoringServerException::errorOnReload(
-                $monitoringServers[0]->getId(),
-                $repositoryException->getMessage()
-            )->getMessage()
+            ConfigurationMonitoringServerException::errorOfAll($repositoryException->getMessage())->getMessage()
         );
         $useCase->execute();
     }
@@ -181,8 +181,8 @@ class ReloadAllConfigurationsTest extends TestCase
 
         $this->monitoringServerConfigurationRepository
             ->expects($this->once())
-            ->method('reloadConfiguration')
-            ->with($monitoringServer->getId());
+            ->method('reloadConfigurationOfAll')
+            ->with([$monitoringServer->getId()]);
 
         $useCase = new ReloadAllConfigurations(
             $this->monitoringServerRepository,
@@ -214,8 +214,8 @@ class ReloadAllConfigurationsTest extends TestCase
 
         $this->monitoringServerConfigurationRepository
             ->expects($this->once())
-            ->method('reloadConfiguration')
-            ->with($monitoringServer->getId());
+            ->method('reloadConfigurationOfAll')
+            ->with([$monitoringServer->getId()]);
 
         $useCase = new ReloadAllConfigurations(
             $this->monitoringServerRepository,
@@ -224,5 +224,88 @@ class ReloadAllConfigurationsTest extends TestCase
             $this->contact
         );
         $useCase->execute();
+    }
+
+    public function testEveryMonitoringServerIsReloadedAtOnce(): void
+    {
+        $this->contact->method('isAdmin')->willReturn(true);
+        $this->monitoringServerRepository
+            ->method('findServersWithoutRequestParameters')
+            ->willReturn([(new MonitoringServer())->setId(3), (new MonitoringServer())->setId(1)]);
+        $this->monitoringServerConfigurationRepository
+            ->expects($this->once())
+            ->method('reloadConfigurationOfAll')
+            ->with([3, 1]);
+
+        $this->createUseCase()->execute();
+    }
+
+    public function testDeliveredMonitoringServersAreReloadedBeforeTheDeliveryErrorIsThrown(): void
+    {
+        $partialDelivery = new PartialDeliveryException(
+            '1 of 3 monitoring servers have not been delivered, the others have: Poller-3: not connected',
+            GorgoneDeliveryException::NODE_NOT_CONNECTED,
+            [2, 1]
+        );
+        $this->monitoringServerRepository->expects($this->never())->method('findServersWithoutRequestParameters');
+        $this->monitoringServerConfigurationRepository
+            ->expects($this->once())
+            ->method('reloadConfigurationOfAll')
+            ->with([2, 1]);
+
+        try {
+            $this->createUseCase()->executeAfterPartialDelivery($partialDelivery);
+        } catch (PartialDeliveryException $ex) {
+            $this->assertSame($partialDelivery, $ex);
+        }
+    }
+
+    #[DataProvider('provideReloadFailuresAfterPartialDelivery')]
+    public function testReloadFailureAfterPartialDeliveryNamesBoth(
+        int $deliveryReason,
+        int $reloadReason,
+        int $expectedReason,
+    ): void {
+        $partialDelivery = new PartialDeliveryException('Poller-3 not delivered.', $deliveryReason, [2, 1]);
+        $this->monitoringServerConfigurationRepository
+            ->method('reloadConfigurationOfAll')
+            ->willThrowException(new GorgoneDeliveryException('Poller-2 not reloaded.', $reloadReason));
+
+        try {
+            $this->createUseCase()->executeAfterPartialDelivery($partialDelivery);
+        } catch (GorgoneDeliveryException $ex) {
+            $this->assertNotInstanceOf(PartialDeliveryException::class, $ex);
+            $this->assertSame('Poller-3 not delivered. Poller-2 not reloaded.', $ex->getMessage());
+            $this->assertSame($expectedReason, $ex->getCode());
+            $this->assertSame($partialDelivery, $ex->getPrevious());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{int, int, int}>
+     */
+    public static function provideReloadFailuresAfterPartialDelivery(): iterable
+    {
+        yield 'timeouts only (504)' => [
+            GorgoneDeliveryException::RESULT_TIMEOUT,
+            GorgoneDeliveryException::RESULT_TIMEOUT,
+            GorgoneDeliveryException::RESULT_TIMEOUT,
+        ];
+
+        yield 'different reasons (409)' => [
+            GorgoneDeliveryException::RESULT_TIMEOUT,
+            GorgoneDeliveryException::NODE_NOT_CONNECTED,
+            GorgoneDeliveryException::DELIVERY_FAILED,
+        ];
+    }
+
+    private function createUseCase(): ReloadAllConfigurations
+    {
+        return new ReloadAllConfigurations(
+            $this->monitoringServerRepository,
+            $this->monitoringServerConfigurationRepository,
+            $this->readAccessGroupRepository,
+            $this->contact
+        );
     }
 }

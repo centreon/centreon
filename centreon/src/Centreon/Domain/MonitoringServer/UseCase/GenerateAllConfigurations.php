@@ -30,6 +30,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
+use Centreon\Domain\MonitoringServer\Exception\PartialDeliveryException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -61,6 +62,9 @@ class GenerateAllConfigurations
     /**
      * @throws ConfigurationMonitoringServerException
      * @throws TimeoutException
+     * @throws PartialDeliveryException some monitoring servers have not been delivered, the others have
+     * @throws GorgoneDeliveryException
+     * @throws IncompleteGenerationException
      */
     public function execute(): void
     {
@@ -90,6 +94,9 @@ class GenerateAllConfigurations
             throw ConfigurationMonitoringServerException::errorRetrievingMonitoringServers($ex);
         }
 
+        // MON-214616: every configuration is generated first, then all of them are moved at once, so that a
+        // monitoring server which is not delivered does not stop the others. A generation failure moves nothing.
+        $generatedMonitoringServerIds = [];
         $lastMonitoringServerId = 0;
         try {
             foreach ($monitoringServers as $monitoringServer) {
@@ -104,18 +111,26 @@ class GenerateAllConfigurations
                 }
                 $this->info('Generate configuration files for monitoring server #' . $lastMonitoringServerId);
                 $this->configurationRepository->generateConfiguration($lastMonitoringServerId);
-                $this->info('Move configuration files for monitoring server #' . $lastMonitoringServerId);
-                $this->configurationRepository->moveExportFiles($lastMonitoringServerId);
+                $generatedMonitoringServerIds[] = $lastMonitoringServerId;
             }
         } catch (TimeoutException $ex) {
             throw ConfigurationMonitoringServerException::timeout($lastMonitoringServerId, $ex->getMessage());
-        } catch (GorgoneDeliveryException|IncompleteGenerationException $ex) {
-            throw $ex;
         } catch (\Exception $ex) {
             throw ConfigurationMonitoringServerException::errorOnGeneration(
                 $lastMonitoringServerId,
                 $ex->getMessage()
             );
+        }
+
+        try {
+            $this->info('Move configuration files for monitoring servers #' . implode(', #', $generatedMonitoringServerIds));
+            $this->configurationRepository->moveExportFilesOfAll($generatedMonitoringServerIds);
+        } catch (TimeoutException $ex) {
+            throw ConfigurationMonitoringServerException::timeoutOfAll($ex->getMessage());
+        } catch (GorgoneDeliveryException|IncompleteGenerationException $ex) {
+            throw $ex;
+        } catch (\Exception $ex) {
+            throw ConfigurationMonitoringServerException::errorOfAll($ex->getMessage());
         }
     }
 }

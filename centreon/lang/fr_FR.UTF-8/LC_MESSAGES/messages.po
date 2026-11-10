@@ -1256,6 +1256,14 @@ msgstr ""
 "%d serveurs de supervision sur %d n'ont pas été livrés, les autres l'ont "
 "été : %s"
 
+#: centreon/src/Centreon/Domain/MonitoringServer/Exception/ConfigurationMonitoringServerException.php
+msgid "Error on the monitoring servers: %s"
+msgstr "Erreur sur les serveurs de supervision : %s"
+
+#: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
+msgid "The monitoring servers which have not been delivered have been skipped."
+msgstr "Les serveurs de supervision qui n'ont pas été livrés ont été ignorés."
+
 #: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
 msgid "Gorgone could not deliver the command: %s"
 msgstr "Gorgone n'a pas pu transmettre la commande : %s"

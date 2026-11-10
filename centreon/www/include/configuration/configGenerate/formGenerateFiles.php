@@ -142,6 +142,9 @@ $tpl->display('formGenerateFiles.ihtml');
     msgTab['abort'] = "<?php echo addslashes(_('Aborted.')); ?>";
     msgTab['noPoller'] = "<?php echo addslashes(_('No poller selected')); ?>";
     msgTab['postcmd'] = "<?php echo addslashes(_('Executing command')); ?>";
+    msgTab['partial'] = "<?php echo addslashes(
+        _('The monitoring servers which have not been delivered have been skipped.')
+    ); ?>";
 
     jQuery(function () {
 
@@ -307,6 +310,15 @@ $tpl->display('formGenerateFiles.ihtml');
                 displayDetails(data);
                 displayPhpErrorMsg('move', data);
                 if (isError(data) == "1") {
+                    // MON-214616: the pollers delivered are still restarted when others have not been delivered.
+                    // Nothing else is run after it (post command).
+                    var delivered = data.find("delivered").text();
+                    if (delivered !== "" && steps[0] === "restartPollers") {
+                        steps = new Array();
+                        updateProgress();
+                        restartPollers(delivered);
+                        return null;
+                    }
                     abortProgress();
                     return null;
                 }
@@ -318,15 +330,17 @@ $tpl->display('formGenerateFiles.ihtml');
 
     /**
      * Restart Pollers
+     *
+     * @param {string} [deliveredPollers] only these pollers, the others have not been delivered
      */
-    function restartPollers() {
+    function restartPollers(deliveredPollers) {
         $('#consoleContent').append(msgTab['restart'] + "... ");
         jQuery.ajax({
             url: './include/configuration/configGenerate/xml/restartPollers.php',
             type: 'POST',
             dataType: "xml",
             data: {
-                poller: selectedPoller,
+                poller: deliveredPollers || selectedPoller,
                 mode: restartMode
             },
             success: function (data) {
@@ -339,6 +353,9 @@ $tpl->display('formGenerateFiles.ihtml');
                     return null;
                 }
                 updateProgress();
+                if (deliveredPollers) {
+                    $('#consoleContent').append(msgTab['partial'] + "<br/>");
+                }
                 nextStep();
             },
             error: function (jqXHR) {
