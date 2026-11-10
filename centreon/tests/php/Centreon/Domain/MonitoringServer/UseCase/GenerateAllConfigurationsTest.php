@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 
+use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
@@ -156,12 +158,17 @@ class GenerateAllConfigurationsTest extends TestCase
             $this->contact
         );
 
-        $this->expectException(ConfigurationMonitoringServerException::class);
-        $this->expectExceptionMessage(ConfigurationMonitoringServerException::errorOnGeneration(
-            $monitoringServers[0]->getId(),
-            $repositoryException->getMessage()
-        )->getMessage());
-        $useCase->execute();
+        try {
+            $useCase->execute();
+            $this->fail('A PartialDeliveryException was expected');
+        } catch (PartialDeliveryException $ex) {
+            $this->assertSame(
+                '1 of 1 monitoring servers have not been generated, the others have: #1: Test exception message',
+                $ex->getMessage()
+            );
+            $this->assertSame(GorgoneDeliveryException::DELIVERY_FAILED, $ex->getCode());
+            $this->assertSame([], $ex->getDeliveredMonitoringServerIds());
+        }
     }
 
     public function testSuccess(): void
@@ -272,23 +279,129 @@ class GenerateAllConfigurationsTest extends TestCase
         $this->assertSame(['generate 3', 'generate 1', 'move 3,1'], $calls);
     }
 
-    public function testGenerationFailureMovesNothing(): void
+    public function testGenerationFailureDoesNotStopTheOthers(): void
     {
-        $this->contact->method('isAdmin')->willReturn(true);
-        $this->monitoringServerRepository
-            ->method('findServersWithoutRequestParameters')
-            ->willReturn([(new MonitoringServer())->setId(3), (new MonitoringServer())->setId(2)]);
+        $this->givenMonitoringServers(4, 3, 2, 1);
         $this->monitoringServerConfigurationRepository
             ->method('generateConfiguration')
             ->willReturnCallback(function (int $id): void {
+                match ($id) {
+                    4 => throw new RepositoryException('generation failed'),
+                    2 => throw new RepositoryException('Could not write the engine configuration'),
+                    default => null,
+                };
+            });
+        $this->monitoringServerConfigurationRepository
+            ->expects($this->once())
+            ->method('moveExportFilesOfAll')
+            ->with([3, 1]);
+
+        try {
+            $this->createUseCase()->execute();
+            $this->fail('A PartialDeliveryException was expected');
+        } catch (PartialDeliveryException $ex) {
+            $this->assertSame(
+                '2 of 4 monitoring servers have not been generated, the others have: '
+                    . 'Poller-4: generation failed | Poller-2: Could not write the engine configuration',
+                $ex->getMessage()
+            );
+            // a generation failure is refused as an incomplete generation would be: 409
+            $this->assertSame(GorgoneDeliveryException::DELIVERY_FAILED, $ex->getCode());
+            $this->assertSame([3, 1], $ex->getDeliveredMonitoringServerIds());
+        }
+    }
+
+    public function testNoOtherGenerationIsStartedAfterAGenerationTimeout(): void
+    {
+        $this->givenMonitoringServers(3, 2, 1);
+        $this->monitoringServerConfigurationRepository
+            ->expects($this->exactly(2))
+            ->method('generateConfiguration')
+            ->willReturnCallback(function (int $id): void {
                 if ($id === 2) {
-                    throw new RepositoryException('generation failed');
+                    throw new TimeoutException('did not finish within 60 seconds');
                 }
             });
+        $this->monitoringServerConfigurationRepository
+            ->expects($this->once())
+            ->method('moveExportFilesOfAll')
+            ->with([3]);
+
+        try {
+            $this->createUseCase()->execute();
+            $this->fail('A PartialDeliveryException was expected');
+        } catch (PartialDeliveryException $ex) {
+            $this->assertSame(
+                '2 of 3 monitoring servers have not been generated, the others have: '
+                    . 'Poller-2: did not finish within 60 seconds | Poller-1: not generated, the generation of a '
+                    . 'previous monitoring server did not finish in time',
+                $ex->getMessage()
+            );
+            $this->assertSame([3], $ex->getDeliveredMonitoringServerIds());
+        }
+    }
+
+    public function testGenerationAndDeliveryFailuresAreNamedTogether(): void
+    {
+        $this->givenMonitoringServers(3, 2, 1);
+        $this->monitoringServerConfigurationRepository
+            ->method('generateConfiguration')
+            ->willReturnCallback(function (int $id): void {
+                if ($id === 3) {
+                    throw new RepositoryException('');
+                }
+            });
+        $deliveryError = new PartialDeliveryException(
+            '1 of 2 monitoring servers have not been delivered, the others have: Poller-2: timeout',
+            GorgoneDeliveryException::RESULT_TIMEOUT,
+            [1]
+        );
+        $this->monitoringServerConfigurationRepository
+            ->method('moveExportFilesOfAll')
+            ->with([2, 1])
+            ->willThrowException($deliveryError);
+
+        try {
+            $this->createUseCase()->execute();
+            $this->fail('A PartialDeliveryException was expected');
+        } catch (PartialDeliveryException $ex) {
+            $this->assertSame(
+                '1 of 3 monitoring servers have not been generated, the others have: '
+                    . 'Poller-3: the monitoring engine reported errors in its configuration '
+                    . '1 of 2 monitoring servers have not been delivered, the others have: Poller-2: timeout',
+                $ex->getMessage()
+            );
+            // not only delivery timeouts: 409
+            $this->assertSame(GorgoneDeliveryException::DELIVERY_FAILED, $ex->getCode());
+            $this->assertSame([1], $ex->getDeliveredMonitoringServerIds());
+            $this->assertSame($deliveryError, $ex->getPrevious());
+        }
+    }
+
+    public function testNothingIsMovedWhenNothingIsGenerated(): void
+    {
+        $this->givenMonitoringServers(2, 1);
+        $this->monitoringServerConfigurationRepository
+            ->method('generateConfiguration')
+            ->willThrowException(new RepositoryException('generation failed'));
+        $this->monitoringServerConfigurationRepository->expects($this->never())->method('moveExportFilesOfAll');
+
+        $this->expectException(PartialDeliveryException::class);
+        $this->expectExceptionMessage('2 of 2 monitoring servers have not been generated');
+        $this->createUseCase()->execute();
+    }
+
+    public function testAuthenticationFailureStopsTheGeneration(): void
+    {
+        $this->givenMonitoringServers(2, 1);
+        $this->monitoringServerConfigurationRepository
+            ->expects($this->once())
+            ->method('generateConfiguration')
+            ->willThrowException(AuthenticationException::authenticationTokenExpired());
         $this->monitoringServerConfigurationRepository->expects($this->never())->method('moveExportFilesOfAll');
 
         $this->expectException(ConfigurationMonitoringServerException::class);
-        $this->expectExceptionMessage('Generation error on monitoring server #2: generation failed');
+        $this->expectExceptionMessage('Generation error on monitoring server #2');
         $this->createUseCase()->execute();
     }
 
@@ -340,6 +453,17 @@ class GenerateAllConfigurationsTest extends TestCase
         $this->expectException(ConfigurationMonitoringServerException::class);
         $this->expectExceptionMessage('Error on the monitoring servers: Could not write into centcore.cmd');
         $this->createUseCase()->execute();
+    }
+
+    private function givenMonitoringServers(int ...$ids): void
+    {
+        $this->contact->method('isAdmin')->willReturn(true);
+        $this->monitoringServerRepository
+            ->method('findServersWithoutRequestParameters')
+            ->willReturn(array_map(
+                static fn (int $id): MonitoringServer => (new MonitoringServer())->setId($id)->setName('Poller-' . $id),
+                $ids
+            ));
     }
 
     private function createUseCase(): GenerateAllConfigurations

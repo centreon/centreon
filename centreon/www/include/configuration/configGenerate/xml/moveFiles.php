@@ -190,12 +190,40 @@ try {
         }
     }
 
-    // MON-214474: nothing is moved, nor exported to a Remote Server, when the last configuration generation
-    // of a selected poller did not complete: its files would be those of an older generation, or a mix.
+    // MON-214474: a poller whose last configuration generation did not complete is neither moved nor exported to
+    // a Remote Server: its files would be those of an older generation, or a mix. MON-214616: the other pollers
+    // are, nothing is moved only when none of them is complete.
     $generationStatus = ConfigurationGenerationStatus::create();
+    /** @var array<int, string> $pollerNames selected pollers, by id */
+    $pollerNames = array_column($tab_server, 'name', 'id');
+    /** @var array<int, LegacyCommandException> $failures pollers not moved, by id */
+    $failures = [];
+    $incompleteGeneration = null;
     foreach ($tab_server as $host) {
         if (in_array($host['id'], $pollers)) {
-            $generationStatus->assertCompleted((int) $host['id'], $host['name']);
+            try {
+                $generationStatus->assertCompleted((int) $host['id'], $host['name']);
+            } catch (IncompleteGenerationException $ex) {
+                $incompleteGeneration ??= $ex;
+                $failures[(int) $host['id']] = new LegacyCommandException(
+                    $ex->getMessage(),
+                    GorgoneDeliveryException::DELIVERY_FAILED,
+                    $ex
+                );
+                unset($tab_server[$host['id']]);
+            }
+        }
+    }
+    if ($incompleteGeneration !== null) {
+        if ($tab_server === []) {
+            throw $incompleteGeneration;
+        }
+        $pollers = array_values(array_diff($pollers, array_map('strval', array_keys($failures))));
+        $pollerParams = [];
+        foreach ($pollers as $index => $pollerId) {
+            if (is_numeric($pollerId)) {
+                $pollerParams[':poller_' . $index] = $pollerId;
+            }
         }
     }
 
@@ -250,6 +278,17 @@ try {
             ];
 
             $exportParams['pollers'] = ! empty($linkedResults) ? array_column($linkedResults, 'id') : [$remote['id']];
+            // MON-214616: never the pollers whose last generation did not complete
+            if (isset($failures[(int) $remote['id']])) {
+                continue;
+            }
+            $exportParams['pollers'] = array_values(array_filter(
+                $exportParams['pollers'],
+                static fn ($pollerId): bool => ! isset($failures[(int) $pollerId])
+            ));
+            if ($exportParams['pollers'] === []) {
+                continue;
+            }
 
             $dependencyInjector['centreon.taskservice']->addTask(Task::TYPE_EXPORT, ['params' => $exportParams]);
         }
@@ -396,17 +435,17 @@ try {
         foreach (array_keys($containerizedPollers) as $pollerId) {
             $deliveries[$pollerId] = static fn () => $legacyCommandSender->sendConfigurationFiles($pollerId);
         }
-        $failures = $legacyCommandSender->deliverToPollers($deliveries);
+        $failures += $legacyCommandSender->deliverToPollers($deliveries);
         // VMware is restarted once its configuration has been delivered
         foreach (array_keys(array_diff_key($containerizedPollers, $failures)) as $pollerId) {
             $vmwareConfigurationService->restartIfConfigurationChanged($pollerId, false);
         }
-        if ($failures !== []) {
-            // MON-214616: the pollers delivered (the others, containerized or not) can still be reloaded
-            $deliveredPollers = array_values(array_diff(array_map('intval', array_keys($tab_server)), array_keys($failures)));
+    }
+    if ($failures !== []) {
+        // MON-214616: the pollers delivered (the others, containerized or not) can still be reloaded
+        $deliveredPollers = array_values(array_diff(array_map('intval', array_keys($tab_server)), array_keys($failures)));
 
-            throw LegacyCommandSender::combineFailures($failures, $containerizedPollers, count($containerizedPollers));
-        }
+        throw LegacyCommandSender::combineFailures($failures, $pollerNames, count($pollerNames));
     }
 
     $xml->startElement('response');

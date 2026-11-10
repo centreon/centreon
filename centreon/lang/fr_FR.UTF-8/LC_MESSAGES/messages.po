@@ -1261,8 +1261,25 @@ msgid "Error on the monitoring servers: %s"
 msgstr "Erreur sur les serveurs de supervision : %s"
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
-msgid "The monitoring servers which have not been delivered have been skipped."
-msgstr "Les serveurs de supervision qui n'ont pas été livrés ont été ignorés."
+msgid "The monitoring servers in error have been skipped by the following steps."
+msgstr "Les serveurs de supervision en erreur ont été ignorés par les étapes suivantes."
+
+#: centreon/www/include/configuration/configGenerate/xml/generateFiles.php
+#: centreon/src/Centreon/Domain/MonitoringServer/UseCase/GenerateAllConfigurations.php
+msgid "%d of %d monitoring servers have not been generated, the others have: %s"
+msgstr ""
+"%d serveurs de supervision sur %d n'ont pas été générés, les autres l'ont "
+"été : %s"
+
+#: centreon/www/include/configuration/configGenerate/xml/generateFiles.php
+msgid "the monitoring engine reported errors in its configuration"
+msgstr "le moteur de supervision a signalé des erreurs dans sa configuration"
+
+#: centreon/src/Centreon/Domain/MonitoringServer/UseCase/GenerateAllConfigurations.php
+msgid "not generated, the generation of a previous monitoring server did not finish in time"
+msgstr ""
+"non généré, la génération d'un serveur de supervision précédent ne s'est pas "
+"terminée à temps"
 
 #: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
 msgid "Gorgone could not deliver the command: %s"

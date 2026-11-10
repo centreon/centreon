@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\MonitoringServer\UseCase;
 
+use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Exception\TimeoutException;
@@ -94,43 +95,101 @@ class GenerateAllConfigurations
             throw ConfigurationMonitoringServerException::errorRetrievingMonitoringServers($ex);
         }
 
-        // MON-214616: every configuration is generated first, then all of them are moved at once, so that a
-        // monitoring server which is not delivered does not stop the others. A generation failure moves nothing.
+        // MON-214616: every configuration is generated first, then all of them are moved at once. A monitoring
+        // server which is not generated, or not delivered, does not stop the others: the error names each of them.
+        /** @var array<int, string> $monitoringServerNames */
+        $monitoringServerNames = [];
+        /** @var array<int, string> $generationFailures reason, by monitoring server id */
+        $generationFailures = [];
         $generatedMonitoringServerIds = [];
-        $lastMonitoringServerId = 0;
-        try {
-            foreach ($monitoringServers as $monitoringServer) {
-                $lastMonitoringServerId = $monitoringServer->getId();
-                if ($lastMonitoringServerId === null) {
-                    $this->error('Monitoring server id from repository is null');
-                    continue;
-                }
-                if ($monitoringServer->isActivate() === false) {
-                    $this->info('Monitoring server #' . $lastMonitoringServerId . ' is disabled');
-                    continue;
-                }
-                $this->info('Generate configuration files for monitoring server #' . $lastMonitoringServerId);
-                $this->configurationRepository->generateConfiguration($lastMonitoringServerId);
-                $generatedMonitoringServerIds[] = $lastMonitoringServerId;
+        $generationStillRunning = false;
+        foreach ($monitoringServers as $monitoringServer) {
+            $monitoringServerId = $monitoringServer->getId();
+            if ($monitoringServerId === null) {
+                $this->error('Monitoring server id from repository is null');
+                continue;
             }
-        } catch (TimeoutException $ex) {
-            throw ConfigurationMonitoringServerException::timeout($lastMonitoringServerId, $ex->getMessage());
-        } catch (\Exception $ex) {
-            throw ConfigurationMonitoringServerException::errorOnGeneration(
-                $lastMonitoringServerId,
-                $ex->getMessage()
-            );
+            if ($monitoringServer->isActivate() === false) {
+                $this->info('Monitoring server #' . $monitoringServerId . ' is disabled');
+                continue;
+            }
+            $monitoringServerNames[$monitoringServerId] = $monitoringServer->getName() ?? '#' . $monitoringServerId;
+            if ($generationStillRunning) {
+                // never two generations at once: the one which timed out may still be running
+                $generationFailures[$monitoringServerId]
+                    = _('not generated, the generation of a previous monitoring server did not finish in time');
+                continue;
+            }
+            try {
+                $this->info('Generate configuration files for monitoring server #' . $monitoringServerId);
+                $this->configurationRepository->generateConfiguration($monitoringServerId);
+                $generatedMonitoringServerIds[] = $monitoringServerId;
+            } catch (TimeoutException $ex) {
+                $this->error('Generation timeout on monitoring server #' . $monitoringServerId . ': ' . $ex->getMessage());
+                $generationFailures[$monitoringServerId] = $ex->getMessage();
+                $generationStillRunning = true;
+            } catch (AuthenticationException $ex) {
+                // nothing can be generated
+                throw ConfigurationMonitoringServerException::errorOnGeneration($monitoringServerId, $ex->getMessage());
+            } catch (\Exception $ex) {
+                $this->error('Generation error on monitoring server #' . $monitoringServerId . ': ' . $ex->getMessage());
+                $generationFailures[$monitoringServerId] = $ex->getMessage() !== ''
+                    ? $ex->getMessage()
+                    : _('the monitoring engine reported errors in its configuration');
+            }
         }
 
+        $generationError = $generationFailures === [] ? null : sprintf(
+            _('%d of %d monitoring servers have not been generated, the others have: %s'),
+            count($generationFailures),
+            count($monitoringServerNames),
+            implode(' | ', array_map(
+                static fn (int $id, string $reason): string => $monitoringServerNames[$id] . ': ' . $reason,
+                array_keys($generationFailures),
+                $generationFailures
+            ))
+        );
+
+        $delivered = $generatedMonitoringServerIds;
+        $deliveryError = null;
         try {
-            $this->info('Move configuration files for monitoring servers #' . implode(', #', $generatedMonitoringServerIds));
-            $this->configurationRepository->moveExportFilesOfAll($generatedMonitoringServerIds);
-        } catch (TimeoutException $ex) {
-            throw ConfigurationMonitoringServerException::timeoutOfAll($ex->getMessage());
+            if ($generatedMonitoringServerIds !== []) {
+                $this->info(
+                    'Move configuration files for monitoring servers #' . implode(', #', $generatedMonitoringServerIds)
+                );
+                $this->configurationRepository->moveExportFilesOfAll($generatedMonitoringServerIds);
+            }
+        } catch (PartialDeliveryException $ex) {
+            $delivered = $ex->getDeliveredMonitoringServerIds();
+            $deliveryError = $ex;
         } catch (GorgoneDeliveryException|IncompleteGenerationException $ex) {
-            throw $ex;
+            $delivered = [];
+            $deliveryError = $ex;
+        } catch (TimeoutException $ex) {
+            throw ConfigurationMonitoringServerException::timeoutOfAll(self::join($generationError, $ex->getMessage()));
         } catch (\Exception $ex) {
-            throw ConfigurationMonitoringServerException::errorOfAll($ex->getMessage());
+            throw ConfigurationMonitoringServerException::errorOfAll(self::join($generationError, $ex->getMessage()));
         }
+
+        if ($generationError === null) {
+            if ($deliveryError !== null) {
+                throw $deliveryError;
+            }
+
+            return;
+        }
+
+        // Not generated: refused as an incomplete generation would be (409), the others can still be reloaded.
+        throw new PartialDeliveryException(
+            self::join($generationError, $deliveryError?->getMessage()),
+            GorgoneDeliveryException::DELIVERY_FAILED,
+            $delivered,
+            $deliveryError
+        );
+    }
+
+    private static function join(?string $first, ?string $second): string
+    {
+        return implode(' ', array_filter([$first, $second], static fn (?string $message): bool => $message !== null));
     }
 }

@@ -141,6 +141,9 @@ class ReloadAllConfigurations
      */
     private function reload(array $monitoringServerIds): void
     {
+        if ($monitoringServerIds === []) {
+            return;
+        }
         try {
             $this->info('Reload configuration for monitoring servers #' . implode(', #', $monitoringServerIds));
             $this->configurationRepository->reloadConfigurationOfAll($monitoringServerIds);

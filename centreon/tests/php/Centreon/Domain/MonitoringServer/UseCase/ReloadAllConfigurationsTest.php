@@ -260,6 +260,19 @@ class ReloadAllConfigurationsTest extends TestCase
         }
     }
 
+    public function testNothingIsReloadedWhenNothingHasBeenDelivered(): void
+    {
+        $partialDelivery = new PartialDeliveryException(
+            '2 of 2 monitoring servers have not been generated',
+            GorgoneDeliveryException::DELIVERY_FAILED,
+            []
+        );
+        $this->monitoringServerConfigurationRepository->expects($this->never())->method('reloadConfigurationOfAll');
+
+        $this->expectExceptionObject($partialDelivery);
+        $this->createUseCase()->executeAfterPartialDelivery($partialDelivery);
+    }
+
     #[DataProvider('provideReloadFailuresAfterPartialDelivery')]
     public function testReloadFailureAfterPartialDeliveryNamesBoth(
         int $deliveryReason,

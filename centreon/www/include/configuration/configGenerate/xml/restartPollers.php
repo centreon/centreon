@@ -205,11 +205,27 @@ try {
         }
     }
 
-    // MON-214474: no poller is reloaded nor restarted when the last configuration generation of one of them
-    // did not complete (the files moved before it would be those of an older generation, or a mix).
+    // MON-214474: a poller whose last configuration generation did not complete is neither reloaded nor restarted
+    // (the files moved before it would be those of an older generation, or a mix). MON-214616: the other pollers
+    // are, nothing is done only when none of them is complete.
     $generationStatus = ConfigurationGenerationStatus::create();
+    /** @var array<int, LegacyCommandException> $failures pollers not reloaded nor restarted, by id */
+    $failures = [];
+    $incompleteGeneration = null;
     foreach ($poller ?? [] as $host) {
-        $generationStatus->assertCompleted((int) $host['id'], $host['name']);
+        try {
+            $generationStatus->assertCompleted((int) $host['id'], $host['name']);
+        } catch (IncompleteGenerationException $ex) {
+            $incompleteGeneration ??= $ex;
+            $failures[(int) $host['id']] = new LegacyCommandException(
+                $ex->getMessage(),
+                GorgoneDeliveryException::DELIVERY_FAILED,
+                $ex
+            );
+        }
+    }
+    if ($incompleteGeneration !== null && count($failures) === count($poller ?? [])) {
+        throw $incompleteGeneration;
     }
 
     // Restart broker
@@ -228,12 +244,12 @@ try {
     // MON-214479: every poller is reloaded (or restarted) at once, not one after the other. A poller which is not
     // reached (not connected, failure, no confirmation in time) does not stop the others.
     $deliveries = [];
-    foreach ($poller ?? [] as $host) {
+    foreach (array_diff_key($poller ?? [], $failures) as $host) {
         $deliveries[(int) $host['id']] = $engineCommand === null
             ? static fn () => null
             : static fn () => $legacyCommandSender->sendCommand($engineCommand, (int) $host['id']);
     }
-    $failures = $legacyCommandSender->deliverToPollers($deliveries);
+    $failures += $legacyCommandSender->deliverToPollers($deliveries);
 
     foreach ($poller ?? [] as $host) {
         if (isset($failures[(int) $host['id']])) {
