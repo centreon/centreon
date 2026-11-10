@@ -99,9 +99,7 @@ const getMacroDecoder = (defaultParent: MacroParent | null) =>
 // The macros in a resource's detail, `check_options.macros` on a host.
 export const macroDecoder = getMacroDecoder(null);
 
-// A template's detail, as `GET /configuration/hosts/host_templates/{id}`: the
-// template's own macros, then those it inherits, which all reach the resource
-// as inherited.
+// A template's macros, its own included, all reach the resource as inherited.
 export const templateMacrosDecoder = JsonDecoder.object(
   {
     macros: JsonDecoder.optional(

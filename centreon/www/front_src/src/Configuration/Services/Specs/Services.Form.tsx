@@ -10,6 +10,7 @@ import initialize from './initialize';
 
 interface RequestBody {
   activated?: boolean;
+  check_options?: unknown;
   host_id?: number | null;
   name?: string;
 }
@@ -171,10 +172,17 @@ export default () => {
         '  cpu   load '
       );
       await pickOption('service-form-host', 'host B');
+      // Required without a template.
+      await pickOption(
+        'service-form-check-options-command',
+        'check-centreon-ping'
+      );
 
       await save();
 
-      expect(await getRequestBody('@createService')).toEqual({
+      // The other sections send their own keys, which their specs check.
+      expect(await getRequestBody('@createService')).toMatchObject({
+        check_options: { args: [], command_id: 8, macros: [] },
         host_id: 11,
         name: 'cpu load'
       });
@@ -195,8 +203,28 @@ export default () => {
 
       expect(request.method).toBe('PUT');
       // The whole service is replaced, its activation included.
-      expect(request.body).toEqual({
+      expect(request.body).toMatchObject({
         activated: true,
+        check_options: {
+          args: ['80', '90'],
+          command_id: 9,
+          macros: [
+            {
+              id: 1,
+              is_password: false,
+              name: 'WARNING',
+              parent: null,
+              value: '80'
+            },
+            {
+              id: 2,
+              is_password: true,
+              name: 'API_TOKEN',
+              parent: null,
+              value: null
+            }
+          ]
+        },
         host_id: 10,
         name: 'cpu load'
       });
@@ -223,7 +251,7 @@ export default () => {
 
       await save();
 
-      expect(await getRequestBody('@updateService0')).toEqual({
+      expect(await getRequestBody('@updateService0')).toMatchObject({
         activated: false,
         host_id: 10,
         name: 'cpu load'

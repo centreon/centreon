@@ -1,10 +1,15 @@
+import { unsavedChangesTranslatedLabels } from '@centreon/ui';
+
 import { rs } from '@rstest/core';
 import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
-import { labelAddNewEntry } from '../../ConfigurationBase/translatedLabels';
+import {
+  labelAddNewEntry,
+  labelClose
+} from '../../ConfigurationBase/translatedLabels';
 import { labelCreateServicesLinkedToTemplates } from '../../Hosts/translatedLabels';
 import initialize from './initialize';
 
@@ -106,6 +111,22 @@ const openTemplate = async (id: number): Promise<void> => {
   initialize({ search: `?mode=edit&id=${id}` });
 
   await waitForRequest(`@getHostTemplate${id}`);
+};
+
+const { labelDiscard } = unsavedChangesTranslatedLabels;
+
+// Template 1 with an unsaved alias, the confirmation open on its first parent.
+const editParentOfChangedTemplate = async (): Promise<HTMLElement> => {
+  await openTemplate(1);
+
+  const alias = await getInput(`${prefix}-alias`);
+
+  await waitFor(() => expect(alias).toHaveValue('Generic active host'));
+  await userEvent.type(alias, ' changed');
+
+  await userEvent.click(screen.getAllByTestId(`${templatesTestId}-edit`)[0]);
+
+  return screen.findByRole('dialog');
 };
 
 export default () => {
@@ -292,6 +313,51 @@ export default () => {
       expect(await screen.findByRole('dialog')).toBeVisible();
       expect(getRequestCalls('getHostTemplate2')).toHaveLength(0);
       expect(window.location.search).toBe('?mode=edit&id=1');
+    });
+
+    it('opens the parent once the unsaved changes are discarded', async () => {
+      const dialog = await editParentOfChangedTemplate();
+
+      await userEvent.click(
+        within(dialog).getByRole('button', { name: labelDiscard })
+      );
+
+      await waitForRequest('@getHostTemplate2');
+      await waitFor(() =>
+        expect(screen.getByTestId(panelDataTestIds.header)).toHaveTextContent(
+          /^generic-active-host$/
+        )
+      );
+      expect(window.location.search).toBe('?id=2&mode=edit');
+    });
+
+    it('stays on the template when the confirmation is dismissed, and only closes on a later discard', async () => {
+      await editParentOfChangedTemplate();
+
+      await userEvent.keyboard('{Escape}');
+
+      await waitFor(() =>
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      );
+      expect(await getInput(`${prefix}-alias`)).toHaveValue(
+        'Generic active host changed'
+      );
+      expect(window.location.search).toBe('?mode=edit&id=1');
+
+      await userEvent.click(screen.getByRole('button', { name: labelClose }));
+      await userEvent.click(
+        within(await screen.findByRole('dialog')).getByRole('button', {
+          name: labelDiscard
+        })
+      );
+
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId(panelDataTestIds.header)
+        ).not.toBeInTheDocument()
+      );
+      expect(getRequestCalls('getHostTemplate2')).toHaveLength(0);
+      expect(window.location.search).toBe('');
     });
 
     it('opens a template with its parents read-only for a user who may only look at templates', async () => {

@@ -24,9 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use ApiPlatform\Metadata\ApiProperty;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContactGroups;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContacts;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExclusiveNotificationOption;
@@ -60,7 +59,7 @@ final readonly class CreateHostNotificationsInput
 
         #[ApiProperty(
             description: 'State transitions triggering a notification. "none" is exclusive.',
-            openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => NotificationOptionEnumResolver::API_VALUES]],
+            openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => [NotificationOptionEnum::Down->value, NotificationOptionEnum::Unreachable->value, NotificationOptionEnum::Recovery->value, NotificationOptionEnum::Flapping->value, NotificationOptionEnum::DowntimeScheduled->value, NotificationOptionEnum::None->value]]],
         )]
         #[Assert\Sequentially([
             new Assert\All([new Assert\Choice(callback: [self::class, 'apiOptions'])]),
@@ -95,6 +94,6 @@ final readonly class CreateHostNotificationsInput
      */
     public static function apiOptions(): array
     {
-        return array_map(NotificationOptionEnumResolver::toString(...), NotificationOptionEnum::cases());
+        return array_map(static fn (NotificationOptionEnum $option): string => $option->value, NotificationOptionEnum::cases());
     }
 }

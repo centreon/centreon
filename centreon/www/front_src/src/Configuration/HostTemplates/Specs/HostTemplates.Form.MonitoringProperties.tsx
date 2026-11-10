@@ -35,13 +35,11 @@ const getAddMacroButton = async (): Promise<HTMLElement> =>
     name: labelAddNewEntry
   });
 
-const getPopper = (): HTMLElement =>
-  document.querySelector('.MuiAutocomplete-popper') as HTMLElement;
-
-// Scoped to the popper: the listing behind the panel shows the same names.
+// Scoped to the options: the listing behind the panel shows the same names.
 const pickOption = async (option: string): Promise<void> => {
-  await waitFor(() => expect(getPopper()).not.toBeNull());
-  await userEvent.click(await within(getPopper()).findByText(option));
+  const listbox = await screen.findByRole('listbox');
+
+  await userEvent.click(await within(listbox).findByText(option));
 };
 
 const save = async (): Promise<void> => {

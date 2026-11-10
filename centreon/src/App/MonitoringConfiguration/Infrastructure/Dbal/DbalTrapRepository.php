@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\Trap;
+use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TrapCriteria;
 use App\MonitoringConfiguration\Domain\Repository\TrapRepository;
 use App\Shared\Domain\Collection;
@@ -32,6 +33,7 @@ use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -102,6 +104,33 @@ final readonly class DbalTrapRepository extends DbalRepository implements TrapRe
             currentPage: $pagination->page,
             itemsPerPage: $pagination->itemsPerPage,
         );
+    }
+
+    public function findByIds(Collection $ids): Collection
+    {
+        $idValues = array_values(array_map(static fn (TrapId $id): int => $id->value, $ids->toArray()));
+        if ($idValues === []) {
+            return new Collection([], Trap::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('t.traps_id', 't.traps_name', 'v.id AS vendor_id', 'v.name AS vendor_name')
+            ->from(self::TABLE_NAME, 't')
+            // as in findAll(): a trap always carries its vendor, and both names are required
+            ->innerJoin('t', self::VENDOR_TABLE_NAME, 'v', 'v.id = t.manufacturer_id')
+            ->where("t.traps_name IS NOT NULL AND t.traps_name != ''")
+            ->andWhere("v.name IS NOT NULL AND v.name != ''")
+            ->andWhere($qb->expr()->in('t.traps_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var array<RowTypeAlias> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $traps = [];
+        foreach ($rows as $row) {
+            $traps[(int) $row['traps_id']] = $this->transformer->transform($row);
+        }
+
+        return new Collection($traps, Trap::class);
     }
 
     /**

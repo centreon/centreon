@@ -23,19 +23,20 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Service;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
@@ -175,8 +176,10 @@ final class InheritedHostMacrosResolverTest extends TestCase
         $this->templates->hostTemplates[$id] = new HostTemplate(
             new HostTemplateId($id),
             new HostTemplateName('tpl-' . $id),
-            new Collection($macros, HostMacro::class),
-            $checkCommandId !== null ? new CommandId($checkCommandId) : null,
+            new CheckOptions(
+                $checkCommandId !== null ? new CommandId($checkCommandId) : null,
+                macros: $macros,
+            ),
             new Collection(array_map(static fn (int $commandId): CommandId => new CommandId($commandId), $serviceTemplateCheckCommandIds), CommandId::class),
         );
     }

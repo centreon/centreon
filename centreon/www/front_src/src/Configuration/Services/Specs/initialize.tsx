@@ -22,16 +22,26 @@ import Services from '..';
 import {
   getDuplicateServiceEndpoint,
   getServiceEndpoint,
+  getServiceTemplateMacrosEndpoint,
+  serviceFormCommandsEndpoint,
   serviceFormHostsEndpoint,
+  serviceFormServiceGroupsEndpoint,
+  serviceFormTimePeriodsEndpoint,
+  serviceFormTrapsEndpoint,
   servicesListEndpoint,
   serviceTemplatesEndpoint
 } from '../api/endpoints';
 import {
   emptyListingResponse,
   getListingResponse,
+  getServiceFormCommandsResponse,
   getServiceFormHostsResponse,
+  getServiceFormTimePeriodsResponse,
+  getServiceGroupsResponse,
   getServiceResponse,
-  getServiceTemplatesResponse
+  getServiceTemplateMacrosResponse,
+  getServiceTemplatesResponse,
+  getTrapsResponse
 } from './utils';
 
 interface Props {
@@ -104,17 +114,55 @@ const initialize = ({
   });
 
   interceptAPIRequest({
+    alias: 'getServiceFormTimePeriods',
+    method: Method.GET,
+    path: `**${serviceFormTimePeriodsEndpoint}?**`,
+    response: getServiceFormTimePeriodsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormCommands',
+    method: Method.GET,
+    path: `**${serviceFormCommandsEndpoint}?**`,
+    response: getServiceFormCommandsResponse()
+  });
+
+  // For when the template field (F03) can pick template 30.
+  interceptAPIRequest({
+    alias: 'getTemplateMacros30',
+    method: Method.GET,
+    path: `**${getServiceTemplateMacrosEndpoint({ id: 30 })}`,
+    response: getServiceTemplateMacrosResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormServiceGroups',
+    method: Method.GET,
+    path: `**${serviceFormServiceGroupsEndpoint}?**`,
+    response: getServiceGroupsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormTraps',
+    method: Method.GET,
+    path: `**${serviceFormTrapsEndpoint}?**`,
+    response: getTrapsResponse()
+  });
+
+  interceptAPIRequest({
     alias: 'createService',
     method: Method.POST,
     path: `**${servicesListEndpoint}`,
     response: { id: 12, name: 'new service' }
   });
 
-  interceptAPIRequest({
-    alias: 'updateService0',
-    method: Method.PUT,
-    path: `**${getServiceEndpoint({ id: 0 })}`,
-    response: {}
+  [0, 1].forEach((id) => {
+    interceptAPIRequest({
+      alias: `updateService${id}`,
+      method: Method.PUT,
+      path: `**${getServiceEndpoint({ id })}`,
+      response: {}
+    });
   });
 
   // Enable and disable are a partial update of the service, one request each.

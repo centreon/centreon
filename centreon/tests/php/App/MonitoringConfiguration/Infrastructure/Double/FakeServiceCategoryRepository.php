@@ -42,6 +42,9 @@ final class FakeServiceCategoryRepository implements ServiceCategoryRepository
     /** @var \IteratorAggregate<int, ServiceCategory>&\Countable what findAll() returns */
     public \IteratorAggregate&\Countable $result;
 
+    /** @var array<int, string> names indexed by service category id, what findNamesByIds() knows */
+    public array $names = [];
+
     public function __construct()
     {
         $this->result = new Collection([], ServiceCategory::class);
@@ -76,5 +79,17 @@ final class FakeServiceCategoryRepository implements ServiceCategoryRepository
         $this->receivedCriteria = $criteria;
 
         return $this->result;
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $names = [];
+        foreach ($ids as $id) {
+            if (isset($this->names[$id->value])) {
+                $names[$id->value] = new ServiceCategoryName($this->names[$id->value]);
+            }
+        }
+
+        return new Collection($names, ServiceCategoryName::class);
     }
 }

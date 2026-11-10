@@ -16,7 +16,6 @@ export const labelHostMonitoringProperties = 'Host monitoring properties';
 export const labelRelations = 'Relations';
 export const labelHostBasicInformation = 'Host basic information';
 export const labelHostCheckOptions = 'Host check options';
-export const labelCustomMacros = 'Custom macros';
 
 // Relations
 export const labelHostCategories = 'Host categories';
