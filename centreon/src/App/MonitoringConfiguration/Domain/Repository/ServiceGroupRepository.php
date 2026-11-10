@@ -24,7 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceGroupCriteria;
+use App\Shared\Domain\Collection;
 
 interface ServiceGroupRepository
 {
@@ -35,4 +38,14 @@ interface ServiceGroupRepository
      * @return \IteratorAggregate<int, ServiceGroup>&\Countable
      */
     public function findAll(ServiceGroupCriteria $criteria): \IteratorAggregate&\Countable;
+
+    /**
+     * Every requested id's name, disabled groups included, whatever the actor's scope. An id absent from the
+     * result does not exist, or has no name.
+     *
+     * @param Collection<ServiceGroupId> $ids
+     *
+     * @return Collection<ServiceGroupName> indexed by service group id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
 }

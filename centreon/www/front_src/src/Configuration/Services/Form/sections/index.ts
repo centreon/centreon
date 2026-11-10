@@ -1,4 +1,8 @@
 import {
+  isUnchangedInherited,
+  type MacroRow
+} from '../../../ConfigurationBase/Form/Macros';
+import {
   getAvailableBlocks,
   getInputBlocks
 } from '../../../ResourceForm/blocks';
@@ -15,6 +19,7 @@ import {
   getCommentBlock,
   getNotesAndIconsBlock
 } from '../../../ResourceForm/fieldBlocks/extendedInfos';
+import { getMacrosBlock } from '../../../ResourceForm/fieldBlocks/macros';
 import {
   getNotificationDelaysBlock,
   getNotificationRecipientsBlock,
@@ -38,6 +43,7 @@ import type {
 import {
   labelCritical,
   labelNone,
+  labelRequired,
   labelUnknown,
   labelWarning
 } from '../../../ResourceForm/translatedLabels';
@@ -66,11 +72,11 @@ import {
   labelServiceSeverity
 } from '../../translatedLabels';
 import { getGraphTemplateBlock } from '../blocks/graphTemplate';
-import { getMacrosBlock } from '../blocks/macros';
 import { getServiceIdentityBlock } from '../blocks/serviceIdentity';
 import { getSnmpTrapsBlock } from '../blocks/snmpTraps';
 import { getTemplateBlock } from '../blocks/template';
 import { hasServiceTemplate } from '../inheritance';
+import ServiceMacros from '../ServiceMacros';
 
 export const serviceResource: ResourceOptions = {
   baseEndpoint: servicesBaseEndpoint,
@@ -110,6 +116,13 @@ export const hasCentreonMonitoringAgentCommand = (
     } | null
   )?.command?.isCentreonMonitoringAgent === true;
 
+// A value, unless the row is still what the service inherits (not sent) or a
+// stored password left as is (sent as null, the server keeps it).
+const isMissingValue = (macro: MacroRow): boolean =>
+  !isUnchangedInherited(macro) &&
+  !(macro.hasStoredPassword && !macro.isErased) &&
+  (macro.value ?? '') === '';
+
 // The blocks of fields the service form edits. The sections it shows them in,
 // and their order, are `../layout.ts`'s.
 export const blocks = [
@@ -127,7 +140,26 @@ export const blocks = [
     validateArguments: true
   }),
   getTemplateBlock({ resource, serviceTemplatesEndpoint }),
-  getMacrosBlock({ resource }),
+  getMacrosBlock({
+    Component: ServiceMacros,
+    getSchema: (schema, { t }) =>
+      schema.test('values-required', function checkValuesRequired(macros) {
+        const index = ((macros ?? []) as Array<MacroRow>).findIndex(
+          isMissingValue
+        );
+
+        return (
+          index === -1 ||
+          this.createError({
+            message: t(labelRequired),
+            path: `${this.path}[${index}].value`
+          })
+        );
+      }),
+    prefix: '$_SERVICE',
+    reservedNames: ['$_SERVICECRITICALITY_LEVEL$', '$_SERVICECRITICALITY_ID$'],
+    resource
+  }),
   // Unlike the host groups of a host, optional on a cloud platform too.
   getRelationListBlock({
     decoderNames: ['Service group', 'Service groups'],

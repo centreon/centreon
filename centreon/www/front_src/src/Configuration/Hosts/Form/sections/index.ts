@@ -16,6 +16,7 @@ import {
   getCommentBlock,
   getNotesAndIconsBlock
 } from '../../../ResourceForm/fieldBlocks/extendedInfos';
+import { getMacrosBlock } from '../../../ResourceForm/fieldBlocks/macros';
 import {
   getNotificationDelaysBlock,
   getNotificationRecipientsBlock,
@@ -67,8 +68,8 @@ import {
   labelUnreachable
 } from '../../translatedLabels';
 import { getHostIdentityBlock } from '../blocks/hostIdentity';
-import { getMacrosBlock } from '../blocks/macros';
 import { getTemplatesBlock } from '../blocks/templates';
+import HostMacros from '../HostMacros';
 
 export const hostResource: ResourceOptions = {
   baseEndpoint: hostsBaseEndpoint,
@@ -95,7 +96,7 @@ export const blocks = [
     resource,
     title: labelHostCheckOptions
   }),
-  getMacrosBlock({ resource }),
+  getMacrosBlock({ Component: HostMacros, prefix: '$_HOST', resource }),
   getSnmpBlock({ resource }),
   getTemplatesBlock({ resource }),
   getTimezoneBlock({ endpoint: timezonesEndpoint, resource }),
