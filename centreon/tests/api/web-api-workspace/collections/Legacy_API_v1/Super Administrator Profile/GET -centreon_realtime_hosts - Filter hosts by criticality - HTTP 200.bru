@@ -1,0 +1,41 @@
+meta {
+  name: GET centreon_realtime_hosts - Filter hosts by criticality - HTTP 200
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUriCentreonApiWeb}}/index.php?object=centreon_realtime_hosts&action=list&fields=id,name,criticality&criticality={{CriticalityLevel}}
+  body: none
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Only hosts carrying the requested criticality are returned", function () {
+    const body = res.getBody();
+    const level = String(bru.getEnvVar("CriticalityLevel"));
+    expect(body).to.be.an("array").that.is.not.empty;
+    const others = body.filter((row) => String(row.criticality) !== level);
+    expect(others, `hosts with another criticality: ${JSON.stringify(others)}`).to.be.empty;
+  });
+
+  test("The host created with this criticality is in the filtered list", function () {
+    const body = res.getBody();
+    const host = body.find((row) => String(row.id) === String(bru.getEnvVar("CriticalityHostId")));
+    expect(host, `host not found in filtered list: ${JSON.stringify(body)}`).to.not.be.undefined;
+    expect(host.name).to.eql(bru.getEnvVar("CriticalityHostName"));
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
