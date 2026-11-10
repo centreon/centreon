@@ -36,7 +36,7 @@ trap 'on_error "$?" "${LINENO}" "${BASH_COMMAND}"' ERR
 OPTIONS="hsDt:v:r:l:p:d:V:-:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([24.10]=1 [25.10]=1 [26.07]=1 [26.10]=1)
+declare -A SUPPORTED_VERSION=([24.10]=1 [25.10]=1 [26.10]=1)
 declare -A SUPPORTED_REPOSITORY=([testing-hotfix]=1 [testing-release]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 declare -A SUPPORTED_TLS=([enabled]=1 [disabled]=1)
@@ -60,9 +60,9 @@ runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}      #Default log level to be used
 selinux_mode=${ENV_SELINUX_MODE:-"permissive"}  #Default SELinux mode to be used
 wizard_autoplay=${ENV_WIZARD_AUTOPLAY:-"false"} #Default the install wizard is not run auto
 central_ip=${ENV_CENTRAL_IP:-$default_ip}       #Default central ip is the first of hostname -I
-tls=${ENV_DB_TLS:-"disabled"}                   # default DB TLS mode
+tls=${ENV_DB_TLS:-"disabled"}                   #Default DB TLS mode
 debug_mode=${ENV_DEBUG_MODE:-"false"}           #Default debug mode (set -x xtrace) is disabled
-LOG_FILE=""                                      #Path of the log file (set up in main, see ENV_LOG_FILE)
+LOG_FILE=""                                     #Path of the log file (set up in main, see ENV_LOG_FILE)
 
 function genpasswd() {
 	local _pwd
@@ -123,7 +123,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10|25.10|26.07|26.10> (default: 26.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [--tls <enabled|disabled> (default: disabled)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-D (enable debug mode: shell xtrace + DEBUG log level)] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10|25.10|26.10> (default: 25.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [--tls <enabled|disabled> (default: disabled)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-D (enable debug mode: shell xtrace + DEBUG log level)] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -566,7 +566,7 @@ function install_mariadb_repo_setup() {
 #
 function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
-	if (( $(version_int) >= $(version_int 26.07) )); then
+	if (( $(version_int) >= $(version_int 26.10) )); then
 		detected_mariadb_version="11.8"
 	else
 		detected_mariadb_version="10.11"
@@ -574,7 +574,7 @@ function set_mariadb_repos() {
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		install_mariadb_repo_setup --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale || error_and_exit "Could not install the $dbms repository"
-	elif (( $(version_int) >= $(version_int 26.07) )); then
+	elif (( $(version_int) >= $(version_int 26.10) )); then
 		# el9 has no 11.8 dnf module stream and el10 dropped dnf modularity, so MariaDB 11.8
 		# is installed from the MariaDB official repository for both.
 		install_mariadb_repo_setup --os-type=rhel --os-version="$detected_os_major" --mariadb-server-version="mariadb-$detected_mariadb_version" --skip-maxscale || error_and_exit "Could not install the $dbms repository"
@@ -594,8 +594,8 @@ function set_mariadb_repos() {
 #
 function setup_mysql() {
 	log "INFO" "Install MySQL repository"
-	# Centreon 26.07+ ships with MySQL 8.4 (LTS); earlier versions use MySQL 8.0.
-	if (( $(version_int) >= $(version_int 26.07) )); then
+	# Centreon 26.10+ ships with MySQL 8.4 (LTS); earlier versions use MySQL 8.0.
+	if (( $(version_int) >= $(version_int 26.10) )); then
 		detected_mysql_version="8.4"
 	else
 		detected_mysql_version="8.0"
@@ -667,7 +667,7 @@ function set_required_prerequisite() {
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
-			if (( $(version_int) >= $(version_int 26.07) )); then
+			if (( $(version_int) >= $(version_int 26.10) )); then
 				error_and_exit "Centreon $version is not supported on Red-Hat compatible v8 (el8). Please use el9, el10 or Debian 13. See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			fi
 			set_release_repo_file
@@ -743,7 +743,7 @@ function set_required_prerequisite() {
 			esac
 
 			if [ "$topology" == "central" ]; then
-				if (( $(version_int) >= $(version_int 26.07) )); then
+				if (( $(version_int) >= $(version_int 26.10) )); then
 					# PHP 8.4 is not available in the el9 OS repositories, so it is
 					# provided by the remi repository.
 					log "INFO" "Installing PHP 8.4 from the remi repository and enable it"
@@ -762,7 +762,7 @@ function set_required_prerequisite() {
 
 		10*)
 			log "INFO" "Setting specific part for v10 ($detected_os_version)"
-			if (( $(version_int) < $(version_int 26.07) )); then
+			if (( $(version_int) < $(version_int 26.10) )); then
 				error_and_exit "Centreon $version is not supported on Red-Hat compatible v10 (el10). Only Centreon >= 26.10 is compatible. You chose $version"
 			fi
 			set_release_repo_file
@@ -826,8 +826,8 @@ function set_required_prerequisite() {
 		PKG_MGR="apt -qq"
 		case "$detected_os_version" in
 		13)
-			if (( $(version_int) < $(version_int 26.07) )); then
-				error_and_exit "For Debian $detected_os_version, only Centreon >= 26.07 is compatible. You chose $version"
+			if (( $(version_int) < $(version_int 26.10) )); then
+				error_and_exit "For Debian $detected_os_version, only Centreon >= 26.10 is compatible. You chose $version"
 			fi
 			# On Debian 13 (trixie), PHP 8.4 is provided by the official OS repositories.
 			PHP_SERVICE_UNIT="php8.4-fpm"
@@ -1797,7 +1797,7 @@ function install_central() {
 	' 2>/dev/null) || true
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		# Determine the PHP version Centreon expects for this release...
-		if (( $(version_int) >= $(version_int 26.07) )); then
+		if (( $(version_int) >= $(version_int 26.10) )); then
 			expected_php_version="8.4"
 		elif (( $(version_int) >= $(version_int 24.10) )); then
 			expected_php_version="8.2"
