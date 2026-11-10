@@ -20,11 +20,20 @@ EOF
 startSnmptrapdAsRoot() {
   # deb only: snmptrapd runs as Debian-snmp, which cannot "su -l centreon" in the traphandle,
   # and is socket-activated, so it only starts on the first trap (el runs it as root at boot)
+  local dropin=/etc/systemd/system/snmptrapd.service.d/centreon.conf
+  local wants=/etc/systemd/system/multi-user.target.wants/snmptrapd.service
+  local marker="# centreon-trap: added the multi-user.target wants link"
+  # the marker tells postremove the wants link is ours; one made by an admin is left alone
+  local ours=""
+  if grep -qxF "$marker" "$dropin" 2>/dev/null || { [ ! -e "$wants" ] && [ ! -L "$wants" ]; }; then
+    ours=1
+  fi
   mkdir -p /etc/systemd/system/snmptrapd.service.d
-  cat <<EOF > /etc/systemd/system/snmptrapd.service.d/centreon.conf
+  cat <<EOF > "$dropin"
 [Service]
 User=root
 EOF
+  [ -n "$ours" ] && echo "$marker" >> "$dropin"
   systemctl daemon-reload ||:
   systemctl add-wants multi-user.target snmptrapd.service ||:
   systemctl restart snmptrapd.service ||:
