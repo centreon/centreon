@@ -54,18 +54,6 @@ class Host extends AbstractHost
     /** @var string */
     protected string $object_name = 'host';
 
-    /** @var null|PDOStatement */
-    protected $stmt_hg = null;
-
-    /** @var null|PDOStatement */
-    protected $stmt_parent = null;
-
-    /** @var null|PDOStatement */
-    protected $stmt_service = null;
-
-    /** @var null|PDOStatement */
-    protected $stmt_service_sg = null;
-
     /** @var array */
     protected $generated_parentship = [];
 
@@ -104,8 +92,13 @@ class Host extends AbstractHost
      * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      * @return void
      */
-    public function processingFromHost(&$host, $generateConfigurationFile = true, array $hostTemplateMacros = []): void
-    {
+    public function processingFromHost(
+        &$host,
+        $generateConfigurationFile = true,
+        array $hostTemplateMacros = [],
+        array $hostGroupIds = [],
+        array $parentHostIds = [],
+    ): void {
         $this->getImages($host);
         $this->getHostTimezone($host);
         $this->getHostTemplates($host, $generateConfigurationFile, $hostTemplateMacros);
@@ -113,14 +106,14 @@ class Host extends AbstractHost
         $this->getHostPeriods($host);
         $this->getContactGroups($host);
         $this->getContacts($host);
-        $this->getHostGroups($host);
+        $this->getHostGroups($host, $hostGroupIds);
 
         // Set HostCategories
         $hostCategory = HostCategory::getInstance($this->dependencyInjector);
         $this->insertHostInHostCategoryMembers($hostCategory, $host);
         $host['category_tags'] = $hostCategory->getIdsByHostId($host['host_id']);
 
-        $this->getParents($host);
+        $host['parents'] = $this->getParents($parentHostIds);
 
         $this->manageNotificationInheritance($host, $generateConfigurationFile);
 
@@ -136,13 +129,27 @@ class Host extends AbstractHost
      * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      * @return void
      */
-    public function generateFromHostId(&$host, array $hostMacros, array $hostTemplateMacros, array $serviceMacros, $serviceTemplateMacros): void
-    {
-        $this->processingFromHost($host, hostTemplateMacros: $hostTemplateMacros);
+    public function generateFromHostId(
+        &$host,
+        array $hostMacros,
+        array $hostTemplateMacros,
+        array $serviceMacros,
+        $serviceTemplateMacros,
+        array $hostGroupIds = [],
+        array $parentHostIds = [],
+        array $serviceIdsDirect = [],
+        array $serviceIdsByHg = [],
+    ): void {
+        $this->processingFromHost(
+            $host,
+            hostTemplateMacros: $hostTemplateMacros,
+            hostGroupIds: $hostGroupIds,
+            parentHostIds: $parentHostIds
+        );
         $this->formatMacros($host, $hostMacros);
         $this->getSeverity($host['host_id']);
-        $this->getServices($host, $serviceMacros, $serviceTemplateMacros);
-        $this->getServicesByHg($host, $serviceMacros, $serviceTemplateMacros);
+        $this->getServices($host, $serviceMacros, $serviceTemplateMacros, $serviceIdsDirect);
+        $this->getServicesByHg($host, $serviceMacros, $serviceTemplateMacros, $serviceIdsByHg);
         $this->generateObjectInFile($host, $host['host_id']);
         $this->addGeneratedHost($host['host_id']);
     }
@@ -206,6 +213,10 @@ class Host extends AbstractHost
         $serviceIdsByHostDirect = $readServiceRepository->findServiceIdsLinkedToHostIds($allHostIds);
         $serviceIdsByHostHg = $readServiceRepository->findServiceIdsLinkedToHostsThroughHostGroups($allHostIds);
 
+        // 4bis. Batch-load hostgroup and monitoring-parent relations (2 queries, MON-214625)
+        $hostGroupIdsByHostId = $readHostRepository->findHostGroupIdsByHostIds($allHostIds);
+        $parentHostIdsByHostId = $readHostRepository->findParentHostIdsByHostIds($allHostIds);
+
         // 5. Merge and deduplicate service IDs per host, collect all unique service IDs
         $serviceIdsByHost = [];
         $allUniqueServiceIds = [];
@@ -259,7 +270,17 @@ class Host extends AbstractHost
                 $isPollerEncryptionReady
             );
 
-            $this->generateFromHostId($host, $hostMacros, $hostTemplateMacros, $serviceMacros, $serviceTemplateMacros);
+            $this->generateFromHostId(
+                $host,
+                $hostMacros,
+                $hostTemplateMacros,
+                $serviceMacros,
+                $serviceTemplateMacros,
+                $hostGroupIdsByHostId[$host_id] ?? [],
+                $parentHostIdsByHostId[$host_id] ?? [],
+                $serviceIdsByHostDirect[$host_id] ?? [],
+                $serviceIdsByHostHg[$host_id] ?? []
+            );
         }
 
         if ($localhost == 1) {
@@ -579,25 +600,16 @@ class Host extends AbstractHost
 
     /**
      * @param $host
+     * @param int[] $hostGroupIds Pre-loaded for all hosts of the poller (MON-214625)
      *
-     * @throws PDOException
      * @return void
      */
-    private function getHostGroups(&$host): void
+    private function getHostGroups(&$host, array $hostGroupIds = []): void
     {
         $host['group_tags'] ??= [];
 
         if (! isset($host['hg'])) {
-            if (is_null($this->stmt_hg)) {
-                $this->stmt_hg = $this->backend_instance->db->prepare(
-                    "SELECT hostgroup_hg_id
-                    FROM hostgroup_relation hgr, hostgroup hg
-                    WHERE host_host_id = :host_id AND hg.hg_id = hgr.hostgroup_hg_id AND hg.hg_activate = '1'"
-                );
-            }
-            $this->stmt_hg->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-            $this->stmt_hg->execute();
-            $host['hg'] = $this->stmt_hg->fetchAll(PDO::FETCH_COLUMN);
+            $host['hg'] = $hostGroupIds;
         }
 
         $hostgroup = Hostgroup::getInstance($this->dependencyInjector);
@@ -608,51 +620,34 @@ class Host extends AbstractHost
     }
 
     /**
-     * @param $host
+     * Resolve the monitoring parent host names of a host from a pre-loaded parent id list.
      *
-     * @throws PDOException
-     * @return void
+     * @param int[] $parentHostIds Pre-loaded for all hosts of the poller (MON-214625)
+     *
+     * @return string[]
      */
-    private function getParents(&$host): void
+    private function getParents(array $parentHostIds = []): array
     {
-        if (is_null($this->stmt_parent)) {
-            $this->stmt_parent = $this->backend_instance->db->prepare('SELECT
-                    host_parent_hp_id
-                FROM host_hostparent_relation
-                WHERE host_host_id = :host_id
-                ');
-        }
-        $this->stmt_parent->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-        $this->stmt_parent->execute();
-        $result = $this->stmt_parent->fetchAll(PDO::FETCH_COLUMN);
-
-        $host['parents'] = [];
-        foreach ($result as $parent_id) {
+        $parents = [];
+        foreach ($parentHostIds as $parent_id) {
             if (isset($this->hosts[$parent_id])) {
-                $host['parents'][] = $this->hosts[$parent_id]['host_name'];
+                $parents[] = $this->hosts[$parent_id]['host_name'];
             }
         }
+
+        return $parents;
     }
 
     /**
      * @param $host
      * @param Macro[] $serviceMacros
+     * @param int[] $serviceIds Pre-loaded for all hosts of the poller (MON-214625)
      *
-     * @throws PDOException
      * @return void
      */
-    private function getServices(&$host, array $serviceMacros, array $serviceTemplateMacros): void
+    private function getServices(&$host, array $serviceMacros, array $serviceTemplateMacros, array $serviceIds = []): void
     {
-        if (is_null($this->stmt_service)) {
-            $this->stmt_service = $this->backend_instance->db->prepare('SELECT
-                    service_service_id
-                FROM host_service_relation
-                WHERE host_host_id = :host_id AND service_service_id IS NOT NULL
-                ');
-        }
-        $this->stmt_service->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-        $this->stmt_service->execute();
-        $host['services_cache'] = $this->stmt_service->fetchAll(PDO::FETCH_COLUMN);
+        $host['services_cache'] = $serviceIds;
 
         $service = Service::getInstance($this->dependencyInjector);
         foreach ($host['services_cache'] as $service_id) {
@@ -668,24 +663,16 @@ class Host extends AbstractHost
 
     /**
      * @param $host
+     * @param int[] $serviceIdsByHg Pre-loaded for all hosts of the poller (MON-214625)
      *
-     * @throws PDOException
      * @return int|void
      */
-    private function getServicesByHg(&$host, array $serviceMacros, array $serviceTemplateMacros)
+    private function getServicesByHg(&$host, array $serviceMacros, array $serviceTemplateMacros, array $serviceIdsByHg = [])
     {
         if (count($host['hg']) == 0) {
             return 1;
         }
-        if (is_null($this->stmt_service_sg)) {
-            $query = 'SELECT service_service_id FROM host_service_relation '
-                . 'JOIN hostgroup_relation ON (hostgroup_relation.hostgroup_hg_id = '
-                . 'host_service_relation.hostgroup_hg_id) WHERE hostgroup_relation.host_host_id = :host_id';
-            $this->stmt_service_sg = $this->backend_instance->db->prepare($query);
-        }
-        $this->stmt_service_sg->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-        $this->stmt_service_sg->execute();
-        $host['services_hg_cache'] = $this->stmt_service_sg->fetchAll(PDO::FETCH_COLUMN);
+        $host['services_hg_cache'] = $serviceIdsByHg;
 
         $service = Service::getInstance($this->dependencyInjector);
         foreach ($host['services_hg_cache'] as $service_id) {
