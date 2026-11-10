@@ -97,6 +97,16 @@ final class UniqueServiceNameOnHostValidatorTest extends ConstraintValidatorTest
         $this->assertNoViolation();
     }
 
+    public function testItChecksNothingOnAHostOutsideTheActorsScope(): void
+    {
+        $this->hostRepository->states[12] = new HostState(true, new PollerId(1));
+        $this->serviceRepository->add(new Service(id: null, name: new ServiceName('disk usage'), hostId: new HostId(12), hostActivated: true, hostPollerId: null));
+
+        $this->validator->validate($this->input('disk usage', 12), new UniqueServiceNameOnHost());
+
+        $this->assertNoViolation();
+    }
+
     public function testItChecksNothingForANameTheOtherRulesRefuse(): void
     {
         $this->serviceRepository->forceNameUsed = true;

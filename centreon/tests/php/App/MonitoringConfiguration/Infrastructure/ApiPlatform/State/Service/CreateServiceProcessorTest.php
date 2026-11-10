@@ -179,14 +179,7 @@ final class CreateServiceProcessorTest extends ApiTestCase
     {
         $hostId = $this->insertHost($this->insertPoller());
         $templateId = $this->insertServiceTemplate('generic', $this->insertCommand('check', type: 2));
-        $username = 'service-writer-' . $this->tag;
-        $this->createApiUser($this->connection, $username, admin: false);
-        $contactId = $this->connection->fetchOne('SELECT contact_id FROM contact WHERE contact_alias = :alias', ['alias' => $username]);
-        \assert(is_numeric($contactId));
-        $aclGroupId = $this->grantServicesByHostTopologyRole((int) $contactId, self::READ_WRITE);
-        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => $hostId, 'service_id' => null]);
-        $this->connection->update('acl_groups', ['acl_group_changed' => 0], ['acl_group_id' => $aclGroupId]);
-        $this->login($username);
+        $aclGroupId = $this->loginAsRestrictedWriterOf($hostId);
 
         $body = $this->request('POST', self::ENDPOINT, [
             'headers' => ['accept' => 'application/json'],
@@ -209,6 +202,58 @@ final class CreateServiceProcessorTest extends ApiTestCase
     }
 
     /**
+     * A host outside the creator's scope answers like a missing one, and the names of its services stay hidden.
+     */
+    public function testARestrictedCreatorCannotProbeAHostOutsideItsScope(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $this->connection->insert('service', ['service_description' => 'ping', 'service_register' => '1']);
+        $this->connection->insert('host_service_relation', ['host_host_id' => $hostId, 'service_service_id' => (int) $this->connection->lastInsertId()]);
+
+        $templateId = $this->insertServiceTemplate('generic', $this->insertCommand('check', type: 2));
+        $this->loginAsRestrictedWriterOf(null);
+
+        $this->request('POST', self::ENDPOINT, ['json' => ['name' => 'ping', 'host_id' => $hostId, 'service_template_id' => $templateId]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonEquals(['code' => 422, 'message' => "[host_id] This host does not exist or is not accessible.\n"]);
+    }
+
+    public function testARestrictedCreatorCannotReferenceAServiceGroupOrAContactOutsideItsScope(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $templateId = $this->insertServiceTemplate('generic', $this->insertCommand('check', type: 2));
+        $this->connection->insert('servicegroup', ['sg_name' => $this->tag . '-sg', 'sg_activate' => '1']);
+        $serviceGroupId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('contact', [
+            'contact_name' => $this->tag . '-outsider',
+            'contact_alias' => $this->tag . '-outsider',
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+        ]);
+        $contactId = (int) $this->connection->lastInsertId();
+        $this->loginAsRestrictedWriterOf($hostId);
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'ping',
+                'host_id' => $hostId,
+                'service_template_id' => $templateId,
+                'service_group_ids' => [$serviceGroupId],
+                'notifications' => ['contacts' => [$contactId]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonEquals([
+            'code' => 422,
+            'message' => "[service_group_ids] One or more service groups do not exist or are not accessible.\n"
+                . "[notifications.contacts] One or more contacts do not exist or are not accessible.\n",
+        ]);
+    }
+
+    /**
      * The license check is the handler's: its refusal reaches the client as a 422 on the template.
      */
     public function testItRejectsAnUnlicensedConnectorTemplate(): void
@@ -226,6 +271,27 @@ final class CreateServiceProcessorTest extends ApiTestCase
             'message' => "[service_template_id] The license host limit is reached: service templates coming from Monitoring Connectors cannot be used.\n",
         ]);
         self::assertFalse($this->connection->fetchOne("SELECT 1 FROM service WHERE service_template_model_stm_id = ? AND service_register = '1'", [$templateId]));
+    }
+
+    /**
+     * A non-admin user allowed to create services, who sees the given host only (none when null).
+     *
+     * @return int the access group of the user
+     */
+    private function loginAsRestrictedWriterOf(?int $hostId): int
+    {
+        $username = 'service-writer-' . $this->tag;
+        $this->createApiUser($this->connection, $username, admin: false);
+        $contactId = $this->connection->fetchOne('SELECT contact_id FROM contact WHERE contact_alias = :alias', ['alias' => $username]);
+        \assert(is_numeric($contactId));
+        $aclGroupId = $this->grantServicesByHostTopologyRole((int) $contactId, self::READ_WRITE);
+        if ($hostId !== null) {
+            $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => $hostId, 'service_id' => null]);
+        }
+        $this->connection->update('acl_groups', ['acl_group_changed' => 0], ['acl_group_id' => $aclGroupId]);
+        $this->login($username);
+
+        return $aclGroupId;
     }
 
     /**
