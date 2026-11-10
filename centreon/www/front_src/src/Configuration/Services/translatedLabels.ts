@@ -26,7 +26,6 @@ export const labelMonitoringEngineSchedulingOptions =
 export const labelMonitoringEngine = 'Monitoring engine';
 export const labelSchedulingOptions = 'Scheduling options';
 export const labelAdvanced = 'Advanced';
-export const labelCustomMacros = 'Custom macros';
 
 // Relations. The legacy service form's msgids, so every locale has them.
 export const labelServiceGroups = 'Service groups';

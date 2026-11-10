@@ -2,6 +2,9 @@ import {
   getAvailableBlocks,
   getInputBlocks
 } from '../../../ResourceForm/blocks';
+import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
+import { getMacrosBlock } from '../../../ResourceForm/fieldBlocks/macros';
+import { getSnmpBlock } from '../../../ResourceForm/fieldBlocks/snmp';
 import type {
   Blocks,
   DetailOfBlocks,
@@ -9,9 +12,15 @@ import type {
   ResourceOptions,
   SectionContext
 } from '../../../ResourceForm/models';
-import { hostTemplatesBaseEndpoint } from '../../api/endpoints';
+import {
+  hostTemplateFormCommandsEndpoint,
+  hostTemplatesBaseEndpoint
+} from '../../api/endpoints';
+import { labelHostCheckOptions } from '../../translatedLabels';
 import { getHostTemplateIdentityBlock } from '../blocks/hostTemplateIdentity';
 import { getLockedBlock } from '../blocks/locked';
+import { getTemplatesBlock } from '../blocks/templates';
+import HostTemplateMacros from '../HostTemplateMacros';
 
 export const hostTemplateResource: ResourceOptions = {
   baseEndpoint: hostTemplatesBaseEndpoint,
@@ -24,7 +33,17 @@ const resource = hostTemplateResource;
 // them in, and their order, are `../layout.ts`'s.
 export const blocks = [
   getHostTemplateIdentityBlock({ resource }),
-  getLockedBlock()
+  getLockedBlock(),
+  getCheckCommandBlock({
+    endpoint: hostTemplateFormCommandsEndpoint,
+    // A template's arguments may apply to the command its parents set.
+    hasInheritedCommand: () => true,
+    resource,
+    title: labelHostCheckOptions
+  }),
+  getMacrosBlock({ Component: HostTemplateMacros, prefix: '$_HOST', resource }),
+  getSnmpBlock({ resource }),
+  getTemplatesBlock({ resource })
 ] as const;
 
 // Each available block, as a section of the data.

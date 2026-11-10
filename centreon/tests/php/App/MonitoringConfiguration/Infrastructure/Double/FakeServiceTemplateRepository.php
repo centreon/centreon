@@ -53,6 +53,9 @@ final class FakeServiceTemplateRepository implements ServiceTemplateRepository
     /** @var array<int, ServiceCheckIntervals> inherited check intervals indexed by service id */
     public array $inheritedCheckIntervals = [];
 
+    /** @var array<int, ServiceTemplate> templates indexed by id, which findInheritanceLine() chains through their parent */
+    public array $templates = [];
+
     /** @var array<string, list<list<int>>> the ids each lookup was called with, one list per call, by method */
     public array $receivedIds = [];
 
@@ -100,6 +103,21 @@ final class FakeServiceTemplateRepository implements ServiceTemplateRepository
         $ids = $this->record(__FUNCTION__, $serviceIds);
 
         return new Collection(array_intersect_key($this->inheritedCheckIntervals, array_flip($ids)), ServiceCheckIntervals::class);
+    }
+
+    /**
+     * Follows {@see $templates} through their parent, stopping at an unknown id or a loop.
+     */
+    public function findInheritanceLine(ServiceTemplateId $templateId): Collection
+    {
+        $line = [];
+        $currentId = $templateId;
+        while ($currentId instanceof ServiceTemplateId && isset($this->templates[$currentId->value]) && ! isset($line[$currentId->value])) {
+            $line[$currentId->value] = $this->templates[$currentId->value];
+            $currentId = $line[$currentId->value]->parentId;
+        }
+
+        return new Collection(array_values($line), ServiceTemplate::class);
     }
 
     /**

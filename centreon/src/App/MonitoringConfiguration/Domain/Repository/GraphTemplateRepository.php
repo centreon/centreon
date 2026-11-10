@@ -24,7 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GraphTemplateCriteria;
+use App\Shared\Domain\Collection;
 
 interface GraphTemplateRepository
 {
@@ -34,4 +37,13 @@ interface GraphTemplateRepository
      * @return \IteratorAggregate<int, GraphTemplate>&\Countable
      */
     public function findAll(?GraphTemplateCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * An id absent from the result does not exist, or has no name.
+     *
+     * @param Collection<GraphTemplateId> $ids
+     *
+     * @return Collection<GraphTemplateName> indexed by graph template id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
 }

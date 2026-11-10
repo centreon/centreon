@@ -26,6 +26,8 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateName;
@@ -306,6 +308,85 @@ final class DbalServiceTemplateRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testFindInheritanceLineWalksUpTheChainNearestFirstWithWhatEachLevelGives(): void
+    {
+        $checkCommandId = $this->insertCommand('check');
+        $eventHandlerId = $this->insertCommand('handler');
+        $root = $this->insertTemplateLevel('root', checkCommandId: $checkCommandId);
+        $middle = $this->insertTemplateLevel('middle', parentId: $root, eventHandlerId: $eventHandlerId);
+        $nearest = $this->insertTemplateLevel('nearest', parentId: $middle);
+        $passwordMacroId = $this->insertMacro($middle, '$_SERVICETOKEN$', 'secret', isPassword: true);
+        $plainMacroId = $this->insertMacro($middle, '$_SERVICEPORT$', '443', isPassword: false);
+
+        $line = $this->repository->findInheritanceLine(new ServiceTemplateId($nearest))->toArray();
+
+        self::assertSame([$nearest, $middle, $root], array_map(static fn (ServiceTemplate $template): int => $template->id()->value, $line));
+        [$nearestTemplate, $middleTemplate, $rootTemplate] = $line;
+        self::assertSame("nearest-{$this->tag}", $nearestTemplate->name->value);
+        self::assertSame($middle, $nearestTemplate->parentId?->value);
+        self::assertSame($root, $middleTemplate->parentId?->value);
+        self::assertNull($rootTemplate->parentId);
+        self::assertSame($checkCommandId, $rootTemplate->checkCommandId?->value);
+        self::assertNull($middleTemplate->checkCommandId);
+        self::assertSame($eventHandlerId, $middleTemplate->eventHandlerCommandId?->value);
+        self::assertNull($rootTemplate->eventHandlerCommandId);
+        self::assertSame([], $nearestTemplate->macrosAsInherited());
+        self::assertSame(
+            [[$passwordMacroId, 'TOKEN', 'secret', true], [$plainMacroId, 'PORT', '443', false]],
+            array_map(
+                static fn (ServiceMacro $macro): array => [$macro->id?->value, $macro->name->value, $macro->value, $macro->isPassword],
+                $middleTemplate->macrosAsInherited(),
+            ),
+        );
+        self::assertSame(ServiceMacroParentEnum::Template, $middleTemplate->macrosAsInherited()[0]->parent);
+    }
+
+    public function testFindInheritanceLineKeepsDisabledTemplates(): void
+    {
+        $root = $this->insertTemplateLevel('root', activate: '0');
+        $nearest = $this->insertTemplateLevel('nearest', parentId: $root);
+
+        self::assertSame([$nearest, $root], $this->lineIds($nearest));
+    }
+
+    public function testFindInheritanceLineStopsOnALoop(): void
+    {
+        $first = $this->insertTemplateLevel('first');
+        $second = $this->insertTemplateLevel('second', parentId: $first);
+        $this->connection->update('service', ['service_template_model_stm_id' => $second], ['service_id' => $first]);
+
+        self::assertSame([$second, $first], $this->lineIds($second));
+    }
+
+    public function testFindInheritanceLineStopsAtAParentThatIsNotAServiceTemplate(): void
+    {
+        $realService = $this->insertChainLevel('real-service', register: '1');
+        $dangling = $this->insertTemplateLevel('dangling', parentId: $realService + 1000000);
+        $onAService = $this->insertTemplateLevel('on-a-service', parentId: $realService);
+
+        self::assertSame([$dangling], $this->lineIds($dangling));
+        self::assertSame([$onAService], $this->lineIds($onAService));
+    }
+
+    public function testFindInheritanceLineIsEmptyForAnIdThatIsNotAServiceTemplate(): void
+    {
+        $realService = $this->insertChainLevel('real-service', register: '1');
+
+        self::assertSame([], $this->lineIds($realService));
+        self::assertSame([], $this->lineIds($realService + 1000000));
+    }
+
+    public function testFindInheritanceLineIgnoresAMacroRowNotInTheServiceMacroForm(): void
+    {
+        $template = $this->insertTemplateLevel('template');
+        $this->insertMacro($template, 'NOT_A_MACRO', 'v', isPassword: false);
+        $this->insertMacro($template, '$_SERVICEKEPT$', 'v', isPassword: false);
+
+        $line = $this->repository->findInheritanceLine(new ServiceTemplateId($template))->toArray();
+
+        self::assertSame(['KEPT'], array_map(static fn (ServiceMacro $macro): string => $macro->name->value, $line[0]->macrosAsInherited()));
+    }
+
     /**
      * The plugin pack manager tables belong to its module, absent from the test database: they are
      * created as temporary tables, which neither commit the test's transaction nor outlive it.
@@ -466,5 +547,58 @@ final class DbalServiceTemplateRepositoryTest extends KernelTestCase
         }
 
         return $imageId;
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function lineIds(int $templateId): array
+    {
+        return array_values(array_map(
+            static fn (ServiceTemplate $template): int => $template->id()->value,
+            $this->repository->findInheritanceLine(new ServiceTemplateId($templateId))->toArray(),
+        ));
+    }
+
+    private function insertTemplateLevel(
+        string $name,
+        ?int $parentId = null,
+        ?int $checkCommandId = null,
+        ?int $eventHandlerId = null,
+        string $activate = '1',
+    ): int {
+        $this->connection->insert('service', [
+            'service_description' => "{$name}-{$this->tag}",
+            'service_register' => '0',
+            'service_activate' => $activate,
+            'service_template_model_stm_id' => $parentId,
+            'command_command_id' => $checkCommandId,
+            'command_command_id2' => $eventHandlerId,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertCommand(string $name): int
+    {
+        $this->connection->insert('command', [
+            'command_name' => "{$name}-{$this->tag}",
+            'command_line' => '$USER1$/check',
+            'command_type' => 2,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertMacro(int $serviceId, string $name, string $value, bool $isPassword): int
+    {
+        $this->connection->insert('on_demand_macro_service', [
+            'svc_macro_name' => $name,
+            'svc_macro_value' => $value,
+            'is_password' => $isPassword ? 1 : 0,
+            'svc_svc_id' => $serviceId,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
     }
 }
