@@ -1,0 +1,85 @@
+name: resolve-release-bundle-tags
+description: "Resolve, for each repository of the release bundle, the newest tag at or below the requested bundle tag"
+
+inputs:
+  release_bundle_tag:
+    description: "Requested release bundle tag (release-<cloud|onprem>-<YYYYMMNN>-<major>)"
+    required: true
+  github_token:
+    description: "Token able to list the tags of centreon, centreon-collect and centreon-modules"
+    required: true
+
+outputs:
+  centreon_tag:
+    description: "Tag to use on centreon/centreon"
+    value: ${{ steps.resolve.outputs.centreon_tag }}
+  centreon_collect_tag:
+    description: "Tag to use on centreon/centreon-collect"
+    value: ${{ steps.resolve.outputs.centreon_collect_tag }}
+  centreon_modules_tag:
+    description: "Tag to use on centreon/centreon-modules"
+    value: ${{ steps.resolve.outputs.centreon_modules_tag }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Resolve the tag of each repository
+      id: resolve
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+        RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
+      run: |
+        if ! [[ "$RELEASE_BUNDLE_TAG" =~ ^release-(cloud|onprem)-([0-9]{8})-([0-9]{2}\.[0-9]{2})$ ]]; then
+          echo "::error::Release bundle tag '$RELEASE_BUNDLE_TAG' does not match release-<cloud|onprem>-<YYYYMMNN>-<major>."
+          exit 1
+        fi
+        type="${BASH_REMATCH[1]}"
+        major="${BASH_REMATCH[3]}"
+        pattern="^release-${type}-[0-9]{8}-${major//./\\.}\$"
+
+        {
+          echo "### Tags used for release bundle \`$RELEASE_BUNDLE_TAG\`"
+          echo
+          echo "| Repository | Tag | Note |"
+          echo "|---|---|---|"
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        requested_found=false
+        failed=false
+        for repo in centreon centreon-collect centreon-modules; do
+          if ! tags=$(gh api "repos/centreon/$repo/git/matching-refs/tags/release-$type-" --paginate -q '.[].ref | ltrimstr("refs/tags/")'); then
+            echo "::error::Could not list the tags of repository centreon/$repo."
+            exit 1
+          fi
+
+          # Same type and major, at or below the requested tag: the fixed-width
+          # YYYYMMNN part makes the lexical order the release order.
+          resolved=$({ grep -E "$pattern" <<< "$tags" || true; } | awk -v max="$RELEASE_BUNDLE_TAG" '$0 <= max' | LC_ALL=C sort | tail -n 1)
+
+          if [[ -z "$resolved" ]]; then
+            echo "::error::No release-$type-*-$major tag at or below $RELEASE_BUNDLE_TAG on repository centreon/$repo."
+            echo "| centreon/$repo | none | :x: no tag at or below the bundle |" >> "$GITHUB_STEP_SUMMARY"
+            failed=true
+            continue
+          fi
+
+          if [[ "$resolved" == "$RELEASE_BUNDLE_TAG" ]]; then
+            requested_found=true
+            note="bundle tag"
+          else
+            note=":warning: older tag, bundle tag not present on this repository"
+            echo "::notice::centreon/$repo uses $resolved: $RELEASE_BUNDLE_TAG does not exist on this repository."
+          fi
+          echo "centreon/$repo: $resolved"
+          echo "| centreon/$repo | \`$resolved\` | $note |" >> "$GITHUB_STEP_SUMMARY"
+          echo "${repo//-/_}_tag=$resolved" >> "$GITHUB_OUTPUT"
+        done
+
+        if [[ "$failed" == "true" ]]; then
+          exit 1
+        fi
+        if [[ "$requested_found" == "false" ]]; then
+          echo "::error::Release bundle tag $RELEASE_BUNDLE_TAG does not exist on any of centreon, centreon-collect and centreon-modules."
+          exit 1
+        fi
