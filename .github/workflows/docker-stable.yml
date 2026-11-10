@@ -39,6 +39,8 @@ jobs:
       edition: ${{ steps.check_promoted_packages.outputs.edition }}
       linked_dev_branch: ${{ steps.check_promoted_packages.outputs.linked_dev_branch }}
       php_version: ${{ steps.check_promoted_packages.outputs.php_version }}
+      centreon_tag: ${{ steps.resolve_tags.outputs.centreon_tag }}
+      centreon_collect_tag: ${{ steps.resolve_tags.outputs.centreon_collect_tag }}
     runs-on: ubuntu-24.04
     env:
       RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
@@ -51,36 +53,27 @@ jobs:
       - name: Verify that the workflow is run in a develop context
         uses: ./.github/actions/verify-run-in-develop-context
 
-      - name: Check if ${{ env.RELEASE_BUNDLE_TAG }} exists on standard repositories
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          for repo in "centreon" "centreon-collect"; do
-            if [[ -z $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[].name") ]]; then
-              echo "::error::Release bundle tag $RELEASE_BUNDLE_TAG could not be found on repository $repo."
-              echo "Command: gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[].name'"
-              echo "Command output: $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[].name")"
-              exit 1
-            else
-              echo "Release bundle $RELEASE_BUNDLE_TAG was found on repository $repo."
-              echo "Information fetched on the tag: $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[]")"
-            fi
-          done
+      - name: Resolve the tag of each repository for bundle ${{ env.RELEASE_BUNDLE_TAG }}
+        id: resolve_tags
+        uses: ./.github/actions/resolve-release-bundle-tags
+        with:
+          release_bundle_tag: ${{ inputs.release_bundle_tag }}
+          # centreon-modules is private: github.token cannot list its tags
+          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-      - name: Checkout major version on bundle tag
+      - name: Checkout major version on tag ${{ steps.resolve_tags.outputs.centreon_tag }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ inputs.release_bundle_tag }}
-          path: centreon-${{ inputs.release_bundle_tag }}
+          ref: ${{ steps.resolve_tags.outputs.centreon_tag }}
+          path: centreon-tag
           sparse-checkout: .version
 
       - name: Get parameters from tag
         shell: bash
         id: check_promoted_packages
         run: |
-          source "centreon-$RELEASE_BUNDLE_TAG/.version"
+          source "centreon-tag/.version"
           major_version=${MAJOR}
           if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
             is_cloud=true
@@ -165,11 +158,11 @@ jobs:
             .github/docker/centreon-web/scripts/
             .github/docker/centreon-web/sql/
 
-      - name: Checkout entrypoint, configuration and SQL files on tag ${{ inputs.release_bundle_tag }}
+      - name: Checkout entrypoint, configuration and SQL files on tag ${{ needs.check-inputs.outputs.centreon_tag }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ inputs.release_bundle_tag }}
+          ref: ${{ needs.check-inputs.outputs.centreon_tag }}
           path: ./from-tag/
           sparse-checkout: |
             .github/docker/centreon-web/${{ matrix.distrib }}/entrypoint/
@@ -177,7 +170,7 @@ jobs:
             .github/docker/centreon-web/sql/
           sparse-checkout-cone-mode: false
 
-      - name: Override entrypoint, configuration and SQL with the ones from tag ${{ inputs.release_bundle_tag }}
+      - name: Override entrypoint, configuration and SQL with the ones from tag ${{ needs.check-inputs.outputs.centreon_tag }}
         shell: bash
         env:
           DISTRIB: ${{ matrix.distrib }}
@@ -192,25 +185,25 @@ jobs:
             cp -r "./from-tag/${rel}" "$rel"
           done
 
-      - name: Checkout version files on tag ${{ inputs.release_bundle_tag }}
+      - name: Checkout version files on tag ${{ needs.check-inputs.outputs.centreon_tag }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ inputs.release_bundle_tag }}
-          path: ./${{ inputs.release_bundle_tag }}/
+          ref: ${{ needs.check-inputs.outputs.centreon_tag }}
+          path: ./versions/
           sparse-checkout: |
             .version.centreon-awie
             .version.centreon-dsm
             .version.centreon-open-tickets
             .version.centreon-web
 
-      - name: Checkout collect .version files on bundle tag ${{ inputs.release_bundle_tag }}
+      - name: Checkout collect .version files on tag ${{ needs.check-inputs.outputs.centreon_collect_tag }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           repository: centreon/centreon-collect
-          ref: ${{ inputs.release_bundle_tag }}
-          path: ./centreon-collect-${{ inputs.release_bundle_tag }}/
+          ref: ${{ needs.check-inputs.outputs.centreon_collect_tag }}
+          path: ./centreon-collect-versions/
           sparse-checkout: |
             .version.centreon-collect
             .version.centreon-common
@@ -220,13 +213,11 @@ jobs:
       - name: Export minor versions
         id: export-minor-versions
         shell: bash
-        env:
-          RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
         run: |
-          mv "./centreon-collect-$RELEASE_BUNDLE_TAG/.version."* "./$RELEASE_BUNDLE_TAG/"
+          mv ./centreon-collect-versions/.version.* ./versions/
 
           for package in "collect" "gorgone" "common" "awie" "dsm" "open-tickets" "web"; do
-            source "$RELEASE_BUNDLE_TAG/.version.centreon-${package}"
+            source "versions/.version.centreon-${package}"
             package="${package//-/_}"
             echo "${package}_minor_version: $MINOR"
             echo "${package}_minor_version=$MINOR" >> $GITHUB_OUTPUT
