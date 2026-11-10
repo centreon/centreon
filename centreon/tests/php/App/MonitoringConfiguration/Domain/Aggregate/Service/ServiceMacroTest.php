@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroParentEnum;
 use PHPUnit\Framework\TestCase;
 
 final class ServiceMacroTest extends TestCase
@@ -37,6 +39,45 @@ final class ServiceMacroTest extends TestCase
         self::assertSame('value', $macro->value);
         self::assertFalse($macro->isPassword);
         self::assertSame('API token', $macro->description);
+        self::assertNull($macro->id);
+        self::assertNull($macro->parent);
+        self::assertFalse($macro->isInherited());
+    }
+
+    public function testItHoldsItsIdAndItsParent(): void
+    {
+        $macro = new ServiceMacro(
+            new ServiceMacroName('token'),
+            'value',
+            isPassword: false,
+            id: new ServiceMacroId(9),
+            parent: ServiceMacroParentEnum::Command,
+        );
+
+        self::assertSame(9, $macro->id?->value);
+        self::assertSame(ServiceMacroParentEnum::Command, $macro->parent);
+        self::assertTrue($macro->isInherited());
+    }
+
+    public function testItRejectsANonPositiveId(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new ServiceMacroId(0);
+    }
+
+    public function testInheritedFromKeepsTheMacroAndTagsTheParent(): void
+    {
+        $macro = new ServiceMacro(new ServiceMacroName('token'), 'v', isPassword: true, description: 'API token', id: new ServiceMacroId(4));
+
+        $inherited = $macro->inheritedFrom(ServiceMacroParentEnum::Template);
+
+        self::assertSame(ServiceMacroParentEnum::Template, $inherited->parent);
+        self::assertSame(4, $inherited->id?->value);
+        self::assertSame('TOKEN', $inherited->name->value);
+        self::assertSame('v', $inherited->value);
+        self::assertTrue($inherited->isPassword);
+        self::assertSame('API token', $inherited->description);
     }
 
     public function testItRejectsAValueLongerThan4096(): void
