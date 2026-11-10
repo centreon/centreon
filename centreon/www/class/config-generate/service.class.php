@@ -20,6 +20,7 @@
  */
 
 require_once __DIR__ . '/abstract/service.class.php';
+require_once __DIR__ . '/GenerationProfiler.php';
 
 /**
  * Class
@@ -132,8 +133,14 @@ class Service extends AbstractService
         $this->service_cache[$serviceId]['contacts'] = '';
         $this->service_cache[$serviceId]['contact_groups'] = '';
 
+        $m = GenerationProfiler::mark();
         $this->getImages($this->service_cache[$serviceId]);
+        GenerationProfiler::record('Service::getImages', $m);
+
+        $m = GenerationProfiler::mark();
         $this->formatMacros($this->service_cache[$serviceId], $serviceMacros);
+        GenerationProfiler::record('Service::formatMacros', $m);
+
         $this->service_cache[$serviceId]['macros']['_SERVICE_ID'] = $serviceId;
         // useful for servicegroup on servicetemplate
         $service_template = ServiceTemplate::getInstance($this->dependencyInjector);
@@ -142,36 +149,63 @@ class Service extends AbstractService
         $service_template->current_host_name = $hostName;
         $service_template->current_service_id = $serviceId;
         $service_template->current_service_description = $this->service_cache[$serviceId]['service_description'];
+        $m = GenerationProfiler::mark();
         $this->getServiceTemplates($this->service_cache[$serviceId], $serviceTemplateMacros);
+        GenerationProfiler::record('Service::getServiceTemplates', $m);
 
+        $m = GenerationProfiler::mark();
         $this->getServiceCommands($this->service_cache[$serviceId]);
+        GenerationProfiler::record('Service::getServiceCommands', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getServicePeriods($this->service_cache[$serviceId]);
+        GenerationProfiler::record('Service::getServicePeriods', $m);
 
+        $m = GenerationProfiler::mark();
         $this->getContactGroups($this->service_cache[$serviceId]);
-        $this->getContacts($this->service_cache[$serviceId]);
+        GenerationProfiler::record('Service::getContactGroups', $m);
 
+        $m = GenerationProfiler::mark();
+        $this->getContacts($this->service_cache[$serviceId]);
+        GenerationProfiler::record('Service::getContacts', $m);
+
+        $m = GenerationProfiler::mark();
         $this->manageNotificationInheritance($this->service_cache[$serviceId]);
+        GenerationProfiler::record('Service::manageNotificationInheritance', $m);
 
         if (is_null($this->service_cache[$serviceId]['notifications_enabled'])
             || (int) $this->service_cache[$serviceId]['notifications_enabled'] !== 0) {
+            $m = GenerationProfiler::mark();
             $this->getContactsFromHost(
                 $hostId,
                 $serviceId,
                 $this->service_cache[$serviceId]['service_use_only_contacts_from_host'] == '1'
             );
+            GenerationProfiler::record('Service::getContactsFromHost', $m);
         }
 
         // Set ServiceCategories
+        $m = GenerationProfiler::mark();
         $serviceCategory = ServiceCategory::getInstance($this->dependencyInjector);
         $this->insertServiceInServiceCategoryMembers($serviceCategory, $serviceId);
         $this->service_cache[$serviceId]['category_tags'] = $serviceCategory->getIdsByServiceId($serviceId);
+        GenerationProfiler::record('Service::insertServiceInServiceCategoryMembers+getIdsByServiceId', $m);
 
+        $m = GenerationProfiler::mark();
         $this->getSeverity($hostId, $serviceId);
+        GenerationProfiler::record('Service::getSeverity', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getServiceGroups($serviceId, $hostId, $hostName);
+        GenerationProfiler::record('Service::getServiceGroups', $m);
+
+        $m = GenerationProfiler::mark();
         $this->generateObjectInFile(
             $this->service_cache[$serviceId] + ['host_name' => $hostName],
             $hostId . '.' . $serviceId
         );
+        GenerationProfiler::record('Service::generateObjectInFile', $m);
+
         $this->addGeneratedServices($hostId, $serviceId);
         $this->clean($this->service_cache[$serviceId]);
 

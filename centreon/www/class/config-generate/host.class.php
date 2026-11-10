@@ -30,6 +30,7 @@ use Core\Service\Domain\Model\ServiceInheritance;
 
 require_once __DIR__ . '/abstract/host.class.php';
 require_once __DIR__ . '/abstract/service.class.php';
+require_once __DIR__ . '/GenerationProfiler.php';
 
 /**
  * Class
@@ -83,6 +84,16 @@ class Host extends AbstractHost
     }
 
     /**
+     * DO NOT MERGE — profiling helper (MON-214480).
+     *
+     * @return int
+     */
+    public function getHostCount(): int
+    {
+        return is_array($this->hosts) ? count($this->hosts) : 0;
+    }
+
+    /**
      * @param $host_id
      * @param $attr
      *
@@ -106,24 +117,52 @@ class Host extends AbstractHost
      */
     public function processingFromHost(&$host, $generateConfigurationFile = true, array $hostTemplateMacros = []): void
     {
+        $m = GenerationProfiler::mark();
         $this->getImages($host);
+        GenerationProfiler::record('Host::getImages', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getHostTimezone($host);
+        GenerationProfiler::record('Host::getHostTimezone', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getHostTemplates($host, $generateConfigurationFile, $hostTemplateMacros);
+        GenerationProfiler::record('Host::getHostTemplates', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getHostCommands($host);
+        GenerationProfiler::record('Host::getHostCommands', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getHostPeriods($host);
+        GenerationProfiler::record('Host::getHostPeriods', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getContactGroups($host);
+        GenerationProfiler::record('Host::getContactGroups', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getContacts($host);
+        GenerationProfiler::record('Host::getContacts', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getHostGroups($host);
+        GenerationProfiler::record('Host::getHostGroups', $m);
 
         // Set HostCategories
+        $m = GenerationProfiler::mark();
         $hostCategory = HostCategory::getInstance($this->dependencyInjector);
         $this->insertHostInHostCategoryMembers($hostCategory, $host);
         $host['category_tags'] = $hostCategory->getIdsByHostId($host['host_id']);
+        GenerationProfiler::record('Host::insertHostInHostCategoryMembers+getIdsByHostId', $m);
 
+        $m = GenerationProfiler::mark();
         $this->getParents($host);
+        GenerationProfiler::record('Host::getParents', $m);
 
+        $m = GenerationProfiler::mark();
         $this->manageNotificationInheritance($host, $generateConfigurationFile);
-
+        GenerationProfiler::record('Host::manageNotificationInheritance', $m);
     }
 
     /**
@@ -139,11 +178,27 @@ class Host extends AbstractHost
     public function generateFromHostId(&$host, array $hostMacros, array $hostTemplateMacros, array $serviceMacros, $serviceTemplateMacros): void
     {
         $this->processingFromHost($host, hostTemplateMacros: $hostTemplateMacros);
+
+        $m = GenerationProfiler::mark();
         $this->formatMacros($host, $hostMacros);
+        GenerationProfiler::record('Host::formatMacros', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getSeverity($host['host_id']);
+        GenerationProfiler::record('Host::getSeverity', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getServices($host, $serviceMacros, $serviceTemplateMacros);
+        GenerationProfiler::record('Host::getServices (+ Service::generateFromServiceId)', $m);
+
+        $m = GenerationProfiler::mark();
         $this->getServicesByHg($host, $serviceMacros, $serviceTemplateMacros);
+        GenerationProfiler::record('Host::getServicesByHg (+ Service::generateFromServiceId)', $m);
+
+        $m = GenerationProfiler::mark();
         $this->generateObjectInFile($host, $host['host_id']);
+        GenerationProfiler::record('Host::generateObjectInFile', $m);
+
         $this->addGeneratedHost($host['host_id']);
     }
 
@@ -171,6 +226,7 @@ class Host extends AbstractHost
         $isPollerEncryptionReady = $readMonitoringServerRepository->isEncryptionReady($pollerId);
 
         // ---- Batch pre-loading phase (reduces N*M queries to 6 constant queries) ----
+        $mBatchPreload = GenerationProfiler::mark();
         $allHostIds = array_keys($this->hosts);
 
         /** @var ReadHostRepositoryInterface $readHostRepository */
@@ -239,8 +295,10 @@ class Host extends AbstractHost
         $serviceMacrosByOwnerId = $allServiceAndTemplateIds !== []
             ? $this->indexMacrosByOwnerId($readServiceMacroRepository->findByServiceIds(...$allServiceAndTemplateIds))
             : [];
+        GenerationProfiler::record('Host::batchPreload', $mBatchPreload);
 
         // ---- Per-host loop (uses only pre-loaded data, no additional queries) ----
+        $mPerHostLoop = GenerationProfiler::mark();
         foreach ($this->hosts as $host_id => &$host) {
             $this->hosts_by_name[$host['host_name']] = $host_id;
             $host['host_id'] = $host_id;
@@ -261,7 +319,9 @@ class Host extends AbstractHost
 
             $this->generateFromHostId($host, $hostMacros, $hostTemplateMacros, $serviceMacros, $serviceTemplateMacros);
         }
+        GenerationProfiler::record('Host::perHostLoop (total)', $mPerHostLoop);
 
+        $mTailObjects = GenerationProfiler::mark();
         if ($localhost == 1) {
             MetaService::getInstance($this->dependencyInjector)->generateObjects();
         }
@@ -273,6 +333,7 @@ class Host extends AbstractHost
         Severity::getInstance($this->dependencyInjector)->generateObjects();
         HostCategory::getInstance($this->dependencyInjector)->generateObjects();
         ServiceCategory::getInstance($this->dependencyInjector)->generateObjects();
+        GenerationProfiler::record('Host::tailGenerateObjects', $mTailObjects);
     }
 
     /**

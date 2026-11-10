@@ -40,6 +40,7 @@ if ($configFile !== false) {
 
 require_once __DIR__ . '/abstract/object.class.php';
 require_once __DIR__ . '/abstract/objectJSON.class.php';
+require_once __DIR__ . '/GenerationProfiler.php';
 require_once __DIR__ . '/backend.class.php';
 require_once __DIR__ . '/broker.class.php';
 require_once __DIR__ . '/command.class.php';
@@ -503,6 +504,8 @@ class Generate
      */
     private function configPoller($username = 'unknown'): void
     {
+        GenerationProfiler::startRun((int) $this->current_poller['id']);
+
         // Until markCompleted() below, moving these files or restarting this poller is refused (MON-214474):
         // a generation dying on the way (memory, timeout) must not let an older or half-written one be deployed.
         $generationStatus = new ConfigurationGenerationStatus($this->backend_instance->generate_path);
@@ -512,39 +515,67 @@ class Generate
         $this->backend_instance->initPath($this->current_poller['id']);
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
+        $m = GenerationProfiler::mark();
         (new AgentConfiguration(
             $this->backend_instance,
             $this->readAgentConfigurationRepository,
             $this->readTokenRepository,
             $this->readHostRepository
         ))->generateFromPollerId($this->current_poller['id']);
+        GenerationProfiler::record('AgentConfiguration::generateFromPollerId', $m);
 
+        $m = GenerationProfiler::mark();
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
+        GenerationProfiler::record('Vault::generateFromPoller', $m);
+
+        $m = GenerationProfiler::mark();
         Host::getInstance($this->dependencyInjector)->generateFromPollerId(
             $this->current_poller['id'],
             $this->current_poller['localhost']
         );
-        $this->generateModuleObjects(self::GENERATION_FOR_ENGINE);
+        GenerationProfiler::record('Host::generateFromPollerId (total)', $m);
 
+        $m = GenerationProfiler::mark();
+        $this->generateModuleObjects(self::GENERATION_FOR_ENGINE);
+        GenerationProfiler::record('generateModuleObjects(ENGINE)', $m);
+
+        $m = GenerationProfiler::mark();
         Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
+        GenerationProfiler::record('Engine::generateFromPoller', $m);
         $this->backend_instance->movePath($this->current_poller['id']);
 
         $this->backend_instance->initPath($this->current_poller['id'], 2);
+        $m = GenerationProfiler::mark();
         $this->generateModuleObjects(self::GENERATION_FOR_BROKER);
+        GenerationProfiler::record('generateModuleObjects(BROKER)', $m);
+
+        $m = GenerationProfiler::mark();
         Broker::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
+        GenerationProfiler::record('Broker::generateFromPoller', $m);
         $this->backend_instance->movePath($this->current_poller['id']);
+
+        // Measure only — out of scope for any change (MON-214480).
+        $m = GenerationProfiler::mark();
         $this->generateIndexData($this->current_poller['localhost'] === '1');
+        GenerationProfiler::record('generateIndexData (measure only)', $m);
+
+        $m = GenerationProfiler::mark();
         $this->generateModulesIndexData($this->current_poller['localhost'] === '1');
+        GenerationProfiler::record('generateModulesIndexData (measure only)', $m);
 
         $this->backend_instance->initPath($this->current_poller['id'], 3);
+        $m = GenerationProfiler::mark();
         (new AdditionalConnectorVmWareV6(
             $this->dependencyInjector,
             $this->backend_instance,
             $this->readAdditionalConnectorRepository,
             $this->readMonitoringServerRepository
         ))->generateFromPollerId($this->current_poller['id']);
+        GenerationProfiler::record('AdditionalConnectorVmWareV6::generateFromPollerId', $m);
         $this->backend_instance->movePath($this->current_poller['id']);
 
         $generationStatus->markCompleted((int) $this->current_poller['id']);
+
+        GenerationProfiler::dumpRun(Host::getInstance($this->dependencyInjector)->getHostCount());
     }
 }
