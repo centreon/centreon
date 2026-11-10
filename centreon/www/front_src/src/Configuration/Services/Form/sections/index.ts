@@ -82,8 +82,7 @@ const monitoringEngineGroup = 'monitoring_engine';
 // And where it keeps the comment, with the data processing.
 const advancedGroup = 'advanced';
 
-// Legacy `w,u,c,r,f,s,n`, spelled as the Hosts API spells its own options
-// (placeholder values until the service API is there).
+// Legacy `w,u,c,r,f,s,n`, as the services API spells them.
 const serviceNotificationOptions: NotificationOptions = [
   [labelWarning, 'warning'],
   [labelUnknown, 'unknown'],

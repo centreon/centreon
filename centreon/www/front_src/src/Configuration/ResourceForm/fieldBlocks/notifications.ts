@@ -219,8 +219,7 @@ export const getNotificationRecipientsBlock = ({
         contactAdditiveInheritance: 'contact_additive_inheritance',
         contactGroupAdditiveInheritance: 'contact_group_additive_inheritance',
         contactGroups: 'contact_groups',
-        // Placeholder key, after the legacy column
-        // `service_use_only_contacts_from_host`.
+        // The legacy `service_use_only_contacts_from_host`.
         ...(withUseOnlyContactsFromHost && {
           useOnlyContactsFromHost: 'use_only_contacts_from_host'
         })
