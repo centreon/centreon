@@ -259,12 +259,10 @@ try {
             if (! isset($msg_restart[$host['id']])) {
                 $msg_restart[$host['id']] = '';
             }
-            $msg_restart[$host['id']] .= _(
-                ((int) $ret['restart_mode'] === 1
-                    ? '<br><b>Centreon : </b>A reload signal has been sent to '
-                    : '<br><b>Centreon : </b>A restart signal has been sent to ')
-                . htmlspecialchars(string: $host['name'], encoding: 'UTF-8') . "\n"
-            );
+            $msg_restart[$host['id']] .= ((int) $ret['restart_mode'] === 1
+                ? _('<br><b>Centreon : </b>A reload signal has been sent to ')
+                : _('<br><b>Centreon : </b>A restart signal has been sent to '))
+                . htmlspecialchars(string: $host['name'], encoding: 'UTF-8') . "\n";
         }
         $pearDB->query("UPDATE `nagios_server` SET `last_restart` = '"
             . time() . "', `updated` = '0' WHERE `id` = '" . (int) $host['id'] . "'");
