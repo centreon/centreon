@@ -5,7 +5,7 @@ description: >-
   images (docker-web-split) plus gorgone, centengine and centreon-broker.
   Kubernetes port of .github/docker/centreon-web-split/docker-compose.yml.
 type: application
-version: 26.17.2
+version: 26.17.3
 appVersion: "26.12.0"
 kubeVersion: ">=1.29.0-0"
 keywords:

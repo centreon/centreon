@@ -440,15 +440,18 @@ cronJobs:
       schedule: "* * * * *"
       user: www-data
       command: php -q /usr/share/centreon/cron/centAcl.php
-      # Scheduled every minute: a hung run must not eat into the next slot.
-      activeDeadlineSeconds: 45
+      # Scheduled every minute, but a big platform (10k+ hosts, many ACLs) can
+      # legitimately take several minutes to compute: with concurrencyPolicy
+      # Forbid, a long run just makes the next few schedules a no-op, which is
+      # fine — only a truly stuck run (the goal here) must be bounded.
+      activeDeadlineSeconds: 900
     # Starts / stops recurrent downtimes.
     downtime-manager:
       enabled: true
       schedule: "*/5 * * * *"
       user: www-data
       command: php -q /usr/share/centreon/cron/downtimeManager.php
-      activeDeadlineSeconds: 240
+      activeDeadlineSeconds: 600
     event-report-builder:
       enabled: true
       schedule: "0 3 * * *"
@@ -467,7 +470,7 @@ cronJobs:
       schedule: "*/5 * * * *"
       user: centreon
       command: php -q /usr/share/centreon/cron/centKnowledgeSynchronizer.php
-      activeDeadlineSeconds: 240
+      activeDeadlineSeconds: 600
     # Telemetry to statistics.centreon.com. A central ALWAYS sends the base
     # payload (UUID, versions, platform, auth options); options.send_statistics
     # only adds module statistics. Disabled here so dev/test/CI clusters don't
@@ -490,7 +493,7 @@ cronJobs:
       schedule: "* * * * *"
       user: www-data
       command: /usr/share/centreon/cron/outdated-token-removal.php
-      activeDeadlineSeconds: 45
+      activeDeadlineSeconds: 300
     # Purge and partitioning can legitimately outlast their own period on a
     # big database (see concurrencyPolicy above): generous but still bounded,
     # well under the next day's run.
