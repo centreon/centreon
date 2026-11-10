@@ -1243,12 +1243,12 @@ msgstr ""
 #: centreon/src/Centreon/Infrastructure/MonitoringServer/ConfigurationGenerationStatus.php
 msgid ""
 "The last configuration generation of the monitoring server \"%s\" did not "
-"complete (started %s): it failed or is still running. Nothing has been moved "
+"complete (started %s): it failed or is still running. It has not been moved "
 "nor restarted, generate its configuration again"
 msgstr ""
 "La dernière génération de la configuration du serveur de supervision \"%s\" "
 "ne s'est pas terminée (démarrée %s) : elle a échoué ou est encore en cours. "
-"Rien n'a été déplacé ni redémarré, générez à nouveau sa configuration"
+"Il n'a été ni déplacé ni redémarré, générez à nouveau sa configuration"
 
 #: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
 msgid "%d of %d monitoring servers have not been delivered, the others have: %s"
