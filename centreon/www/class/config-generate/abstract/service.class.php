@@ -126,6 +126,15 @@ abstract class AbstractService extends AbstractObject
      */
     public function getString($service_id, $attr)
     {
+        // MON-214629: service_description is the only attribute read once a
+        // service's own batch is done (Dependency/Escalation/generateIndexData,
+        // all run after every batch) — resolve it from the map built
+        // incrementally as each service is generated (serviceDescriptionsById),
+        // which (unlike service_cache) is never cleared between batches.
+        if ($attr === 'service_description' && isset($this->serviceDescriptionsById[$service_id])) {
+            return $this->serviceDescriptionsById[$service_id];
+        }
+
         return $this->service_cache[$service_id][$attr] ?? null;
     }
 

@@ -447,10 +447,11 @@ valkey:6379
 {{/* fpm's session handler (image contract: the entrypoint URL-encodes the
      password into the save path). */}}
 {{/*
-Configuration export timeouts (MON-214473), all derived from
-configurationExport.generationTimeoutSeconds: fpm runs the generation within
-it and PHP must not stop it first; httpd must outlast the whole REST
+Configuration export env (MON-214473, MON-214629), all derived from
+configurationExport.*: fpm runs the generation within generationTimeoutSeconds
+and PHP must not stop it first; httpd must outlast the whole REST
 generate-and-reload (generation + two gorgone deliveries of up to 60 s each).
+hostBatchSize bounds the generation's peak memory regardless of poller size.
 */}}
 {{- define "centreon-central.generationTimeout" -}}
 {{- int .Values.configurationExport.generationTimeoutSeconds -}}
@@ -460,6 +461,7 @@ generate-and-reload (generation + two gorgone deliveries of up to 60 s each).
 {{- $generation := include "centreon-central.generationTimeout" . | int -}}
 - { name: CENTREON_CONFIGURATION_GENERATION_TIMEOUT, value: {{ $generation | quote }} }
 - { name: PHP_MAX_EXECUTION_TIME, value: {{ max 300 (add $generation 60) | quote }} }
+- { name: CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE, value: {{ int .Values.configurationExport.hostBatchSize | quote }} }
 {{- end }}
 
 {{- define "centreon-central.httpdProxyTimeout" -}}

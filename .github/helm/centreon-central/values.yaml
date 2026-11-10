@@ -375,6 +375,11 @@ configurationExport:
   # below 300), httpd ProxyTimeout (at least this + 240 s for the REST
   # generate-and-reload, never below 300) and the config-delivery client.
   generationTimeoutSeconds: 60
+  # Hosts processed per batch during generation (MON-214629): bounds PHP's
+  # peak memory to roughly this size regardless of how many hosts the poller
+  # has, instead of loading every host of the poller at once. 2000 keeps a
+  # 10k-host poller under the packaged PHP_MEMORY_LIMIT default (256M).
+  hostBatchSize: 2000
 
 # One-shot Job after each install/upgrade (fpm image, no php-fpm): resyncs
 # gorgone-central's node list, waits for the Central poller to connect, runs

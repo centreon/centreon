@@ -118,6 +118,9 @@ services:
       # PHP's own limit, which must stay above it.
       CENTREON_CONFIGURATION_GENERATION_TIMEOUT: "${CENTREON_CONFIGURATION_GENERATION_TIMEOUT:-}"
       PHP_MAX_EXECUTION_TIME: "${PHP_MAX_EXECUTION_TIME:-300}"
+      # MON-214629: hosts processed per batch during generation (empty = the
+      # code's own default, 2000).
+      CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE: "${CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE:-}"
       # MON-214095: PHP sessions in Valkey instead of the (now removed)
       # centreon-sessions volume — fpm replicas no longer need shared RWX
       # storage for session state. PHP_SESSION_SAVE_PATH carries no

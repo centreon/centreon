@@ -119,24 +119,61 @@ it('splits service macros between direct and template macros for each service', 
 });
 
 it('resolves monitoring parent names from a pre-loaded parent id list (MON-214625)', function (): void {
-    (new ReflectionProperty(Host::class, 'hosts'))->setValue($this->host, [
-        1 => ['host_name' => 'parent-1'],
-        2 => ['host_name' => 'parent-2'],
+    (new ReflectionProperty(Host::class, 'hostNamesById'))->setValue($this->host, [
+        1 => 'parent-1',
+        2 => 'parent-2',
     ]);
 
     expect(($this->callPrivate)('getParents', [1, 2]))->toBe(['parent-1', 'parent-2']);
 });
 
 it('ignores a pre-loaded parent id unknown to this poller', function (): void {
-    (new ReflectionProperty(Host::class, 'hosts'))->setValue($this->host, [
-        1 => ['host_name' => 'parent-1'],
+    (new ReflectionProperty(Host::class, 'hostNamesById'))->setValue($this->host, [
+        1 => 'parent-1',
     ]);
 
     expect(($this->callPrivate)('getParents', [1, 999]))->toBe(['parent-1']);
 });
 
 it('resolves to no parent when the pre-loaded list is empty', function (): void {
-    (new ReflectionProperty(Host::class, 'hosts'))->setValue($this->host, []);
+    (new ReflectionProperty(Host::class, 'hostNamesById'))->setValue($this->host, []);
 
     expect(($this->callPrivate)('getParents', []))->toBe([]);
 });
+
+it('resolves a parent name from another batch via the poller-wide name index (MON-214629)', function (): void {
+    // Simulates a parent that lives in a batch other than the one currently
+    // being processed: $hosts (the current batch's full rows) does not
+    // contain it, only the poller-wide hostNamesById does.
+    (new ReflectionProperty(Host::class, 'hosts'))->setValue($this->host, [
+        2 => ['host_name' => 'current-batch-host'],
+    ]);
+    (new ReflectionProperty(Host::class, 'hostNamesById'))->setValue($this->host, [
+        1 => 'other-batch-parent',
+        2 => 'current-batch-host',
+    ]);
+
+    expect(($this->callPrivate)('getParents', [1]))->toBe(['other-batch-parent']);
+});
+
+afterEach(function (): void {
+    putenv('CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE');
+});
+
+it('defaults the host batch size to 2000 when the env var is unset (MON-214629)', function (): void {
+    putenv('CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE');
+
+    expect(($this->callPrivate)('getHostBatchSize'))->toBe(2000);
+});
+
+it('reads the host batch size from the env var when it is a valid positive integer', function (): void {
+    putenv('CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE=500');
+
+    expect(($this->callPrivate)('getHostBatchSize'))->toBe(500);
+});
+
+it('falls back to the default host batch size on an empty, zero or non-numeric env var', function (string $value): void {
+    putenv("CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE={$value}");
+
+    expect(($this->callPrivate)('getHostBatchSize'))->toBe(2000);
+})->with(['', '0', '-5', 'abc']);

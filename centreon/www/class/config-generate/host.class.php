@@ -48,6 +48,19 @@ class Host extends AbstractHost
     /** @var array|null */
     protected $hosts = null;
 
+    /**
+     * host_id => host_name for every host of the poller, built once upfront
+     * (MON-214629): the only host attribute read once a host's own batch is
+     * done (getParents() for a parent in another batch, and the tail steps
+     * Dependency/Escalation/generateIndexData) is its name.
+     *
+     * @var array<int, string>|null
+     */
+    protected $hostNamesById = null;
+
+    /** Default number of hosts processed per batch (MON-214629). */
+    private const DEFAULT_HOST_BATCH_SIZE = 2000;
+
     /** @var string */
     protected $generate_filename = 'hosts.cfg';
 
@@ -166,19 +179,26 @@ class Host extends AbstractHost
      */
     public function generateFromPollerId($pollerId, $localhost = 0): void
     {
-        if (is_null($this->hosts)) {
-            $this->getHosts($pollerId);
+        // ---- Poller-wide host name index (MON-214629) ----
+        // Built once upfront, never freed: the only host data needed once a
+        // host's own batch is done (getParents() across batches, and the tail
+        // steps Dependency/Escalation/generateIndexData, all run after every
+        // batch) is a host's name. Keeping just id=>name resident (instead of
+        // every host's full row) is what lets the per-batch data below be
+        // freed between batches without losing that lookup.
+        if (is_null($this->hostNamesById)) {
+            $this->hostNamesById = $this->getHostNames($pollerId);
+            foreach ($this->hostNamesById as $hostId => $hostName) {
+                $this->hosts_by_name[$hostName] = $hostId;
+            }
         }
+        $allHostIds = array_keys($this->hostNamesById);
 
         Service::getInstance($this->dependencyInjector)->set_poller($pollerId);
 
         /** @var ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository */
         $readMonitoringServerRepository = $this->kernel->getContainer()->get(ReadMonitoringServerRepositoryInterface::class);
-
         $isPollerEncryptionReady = $readMonitoringServerRepository->isEncryptionReady($pollerId);
-
-        // ---- Batch pre-loading phase (reduces N*M queries to 6 constant queries) ----
-        $allHostIds = array_keys($this->hosts);
 
         /** @var ReadHostRepositoryInterface $readHostRepository */
         $readHostRepository = $this->kernel->getContainer()->get(ReadHostRepositoryInterface::class);
@@ -189,13 +209,63 @@ class Host extends AbstractHost
         /** @var ReadServiceMacroRepositoryInterface $readServiceMacroRepository */
         $readServiceMacroRepository = $this->kernel->getContainer()->get(ReadServiceMacroRepositoryInterface::class);
 
+        foreach (array_chunk($allHostIds, $this->getHostBatchSize()) as $batchHostIds) {
+            $this->generateHostsBatch(
+                $batchHostIds,
+                $readHostRepository,
+                $readHostMacroRepository,
+                $readServiceRepository,
+                $readServiceMacroRepository,
+                $isPollerEncryptionReady
+            );
+        }
+
+        if ($localhost == 1) {
+            MetaService::getInstance($this->dependencyInjector)->generateObjects();
+        }
+
+        Hostgroup::getInstance($this->dependencyInjector)->generateObjects();
+        Servicegroup::getInstance($this->dependencyInjector)->generateObjects();
+        Escalation::getInstance($this->dependencyInjector)->generateObjects();
+        Dependency::getInstance($this->dependencyInjector)->generateObjects();
+        Severity::getInstance($this->dependencyInjector)->generateObjects();
+        HostCategory::getInstance($this->dependencyInjector)->generateObjects();
+        ServiceCategory::getInstance($this->dependencyInjector)->generateObjects();
+    }
+
+    /**
+     * Generate one batch of hosts (MON-214629): load their full rows and
+     * relations, generate them, then free that data before the next batch.
+     * Objects shared across hosts (templates, commands, periods, contacts...)
+     * keep their current single-load, unbatched behaviour — only the data
+     * that scales with the number of hosts of the poller is batched here.
+     *
+     * @param int[] $batchHostIds
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @return void
+     */
+    private function generateHostsBatch(
+        array $batchHostIds,
+        ReadHostRepositoryInterface $readHostRepository,
+        ReadHostMacroRepositoryInterface $readHostMacroRepository,
+        ReadServiceRepositoryInterface $readServiceRepository,
+        ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
+        bool $isPollerEncryptionReady,
+    ): void {
+        $this->getHostsBatch($batchHostIds);
+        Service::getInstance($this->dependencyInjector)->prepareForNextHostBatch($batchHostIds);
+
         // 1. Batch-load host template parents (1 query)
-        $allHostParents = $readHostRepository->findParentsByHostIds($allHostIds);
+        $allHostParents = $readHostRepository->findParentsByHostIds($batchHostIds);
 
         // 2. Compute host inheritance lines, collect all host+template IDs
         $hostInheritanceLines = [];
         $allHostAndTemplateIds = [];
-        foreach ($allHostIds as $hostId) {
+        foreach ($batchHostIds as $hostId) {
             $parents = $allHostParents[$hostId] ?? [];
             $inheritanceLine = InheritanceManager::findInheritanceLine($hostId, $parents);
             $hostInheritanceLines[$hostId] = $inheritanceLine;
@@ -210,17 +280,17 @@ class Host extends AbstractHost
         );
 
         // 4. Batch-load service IDs per host (2 queries)
-        $serviceIdsByHostDirect = $readServiceRepository->findServiceIdsLinkedToHostIds($allHostIds);
-        $serviceIdsByHostHg = $readServiceRepository->findServiceIdsLinkedToHostsThroughHostGroups($allHostIds);
+        $serviceIdsByHostDirect = $readServiceRepository->findServiceIdsLinkedToHostIds($batchHostIds);
+        $serviceIdsByHostHg = $readServiceRepository->findServiceIdsLinkedToHostsThroughHostGroups($batchHostIds);
 
         // 4bis. Batch-load hostgroup and monitoring-parent relations (2 queries, MON-214625)
-        $hostGroupIdsByHostId = $readHostRepository->findHostGroupIdsByHostIds($allHostIds);
-        $parentHostIdsByHostId = $readHostRepository->findParentHostIdsByHostIds($allHostIds);
+        $hostGroupIdsByHostId = $readHostRepository->findHostGroupIdsByHostIds($batchHostIds);
+        $parentHostIdsByHostId = $readHostRepository->findParentHostIdsByHostIds($batchHostIds);
 
         // 5. Merge and deduplicate service IDs per host, collect all unique service IDs
         $serviceIdsByHost = [];
         $allUniqueServiceIds = [];
-        foreach ($allHostIds as $hostId) {
+        foreach ($batchHostIds as $hostId) {
             $direct = $serviceIdsByHostDirect[$hostId] ?? [];
             $hg = $serviceIdsByHostHg[$hostId] ?? [];
             $merged = array_values(array_unique(array_merge($direct, $hg)));
@@ -253,7 +323,6 @@ class Host extends AbstractHost
 
         // ---- Per-host loop (uses only pre-loaded data, no additional queries) ----
         foreach ($this->hosts as $host_id => &$host) {
-            $this->hosts_by_name[$host['host_name']] = $host_id;
             $host['host_id'] = $host_id;
 
             [$hostMacros, $hostTemplateMacros] = $this->resolveHostMacrosFromCache(
@@ -283,17 +352,9 @@ class Host extends AbstractHost
             );
         }
 
-        if ($localhost == 1) {
-            MetaService::getInstance($this->dependencyInjector)->generateObjects();
-        }
-
-        Hostgroup::getInstance($this->dependencyInjector)->generateObjects();
-        Servicegroup::getInstance($this->dependencyInjector)->generateObjects();
-        Escalation::getInstance($this->dependencyInjector)->generateObjects();
-        Dependency::getInstance($this->dependencyInjector)->generateObjects();
-        Severity::getInstance($this->dependencyInjector)->generateObjects();
-        HostCategory::getInstance($this->dependencyInjector)->generateObjects();
-        ServiceCategory::getInstance($this->dependencyInjector)->generateObjects();
+        // Free this batch's full rows and working state: only hostNamesById
+        // (built once upfront, never freed) is needed past this point.
+        $this->hosts = null;
     }
 
     /**
@@ -375,6 +436,7 @@ class Host extends AbstractHost
     {
         $this->hosts_by_name = [];
         $this->hosts = null;
+        $this->hostNamesById = null;
         $this->generated_parentship = [];
         $this->generatedHosts = [];
         parent::reset();
@@ -578,24 +640,88 @@ class Host extends AbstractHost
     }
 
     /**
+     * Light upfront pass (MON-214629): host_id => host_name for every host of
+     * the poller, in the same order/filter as the per-batch full-row query
+     * below. Cheap enough to keep resident for the whole run (see
+     * $hostNamesById), unlike the full rows.
+     *
      * @param $poller_id
+     *
+     * @throws PDOException
+     * @return array<int, string>
+     */
+    private function getHostNames($poller_id): array
+    {
+        // We use host_register = 1 because we don't want _Module_* hosts
+        $stmt = $this->backend_instance->db->prepare('SELECT
+              host.host_id, host.host_name
+            FROM ns_host_relation, host
+            WHERE ns_host_relation.nagios_server_id = :server_id
+                AND ns_host_relation.host_host_id = host.host_id
+                AND host.host_activate = \'1\' AND host.host_register = \'1\'');
+        $stmt->bindParam(':server_id', $poller_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $names = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            /** @var array{host_id: int, host_name: string} $row */
+            $names[(int) $row['host_id']] = $row['host_name'];
+        }
+
+        return $names;
+    }
+
+    /**
+     * Full rows of one batch of hosts (MON-214629): same columns and filter
+     * as before, restricted to this batch's ids instead of the whole poller.
+     *
+     * @param int[] $hostIds
      *
      * @throws PDOException
      * @return void
      */
-    private function getHosts($poller_id): void
+    private function getHostsBatch(array $hostIds): void
     {
-        // We use host_register = 1 because we don't want _Module_* hosts
+        if ($hostIds === []) {
+            $this->hosts = [];
+
+            return;
+        }
+
+        $placeholders = [];
+        foreach ($hostIds as $index => $hostId) {
+            $placeholders[':host_' . $index] = $hostId;
+        }
+
         $stmt = $this->backend_instance->db->prepare("SELECT
               {$this->attributes_select}
-            FROM ns_host_relation, host
+            FROM host
                 LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
-            WHERE ns_host_relation.nagios_server_id = :server_id
-                AND ns_host_relation.host_host_id = host.host_id
+            WHERE host.host_id IN (" . implode(',', array_keys($placeholders)) . ")
                 AND host.host_activate = '1' AND host.host_register = '1'");
-        $stmt->bindParam(':server_id', $poller_id, PDO::PARAM_INT);
+        foreach ($placeholders as $placeholder => $hostId) {
+            $stmt->bindValue($placeholder, $hostId, PDO::PARAM_INT);
+        }
         $stmt->execute();
         $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Number of hosts processed per batch (MON-214629), overridable with
+     * CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE (chart:
+     * configurationExport.hostBatchSize). Falls back to the default on an
+     * unset, empty or invalid value.
+     *
+     * @return int
+     */
+    private function getHostBatchSize(): int
+    {
+        $value = getenv('CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE');
+        if ($value === false || ! ctype_digit($value) || (int) $value <= 0) {
+            return self::DEFAULT_HOST_BATCH_SIZE;
+        }
+
+        return (int) $value;
     }
 
     /**
@@ -621,6 +747,8 @@ class Host extends AbstractHost
 
     /**
      * Resolve the monitoring parent host names of a host from a pre-loaded parent id list.
+     * Reads the poller-wide name index (MON-214629), not the current batch's
+     * rows: a parent can live in a batch other than the host's own.
      *
      * @param int[] $parentHostIds Pre-loaded for all hosts of the poller (MON-214625)
      *
@@ -630,8 +758,8 @@ class Host extends AbstractHost
     {
         $parents = [];
         foreach ($parentHostIds as $parent_id) {
-            if (isset($this->hosts[$parent_id])) {
-                $parents[] = $this->hosts[$parent_id]['host_name'];
+            if (isset($this->hostNamesById[$parent_id])) {
+                $parents[] = $this->hostNamesById[$parent_id];
             }
         }
 
