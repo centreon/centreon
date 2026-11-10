@@ -10,6 +10,7 @@ import type {
   NamedEntity,
   ResourceOptions
 } from '../../../ResourceForm/models';
+import type { TemplateRow } from '../../../ResourceForm/OrderedTemplates';
 import { toIds } from '../../../ResourceForm/selector';
 import { withUpdateMode } from '../../../ResourceForm/updateMode';
 import {
@@ -17,7 +18,7 @@ import {
   labelTemplateReplacementDeletesServices,
   labelTemplates
 } from '../../translatedLabels';
-import Templates, { type TemplateRow } from '../Templates';
+import Templates from '../Templates';
 
 interface TemplatesDetail {
   createServicesLinkedToTemplates: boolean;

@@ -1,8 +1,13 @@
 import {
+  isUnchangedInherited,
+  type MacroRow
+} from '../../../ConfigurationBase/Form/Macros';
+import {
   getAvailableBlocks,
   getInputBlocks
 } from '../../../ResourceForm/blocks';
 import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
+import { getMacrosBlock } from '../../../ResourceForm/fieldBlocks/macros';
 import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
 import {
   getActiveAndPassiveChecksBlock,
@@ -15,6 +20,7 @@ import type {
   ResourceOptions,
   SectionContext
 } from '../../../ResourceForm/models';
+import { labelRequired } from '../../../ResourceForm/translatedLabels';
 import {
   serviceFormCommandsEndpoint,
   serviceFormHostsEndpoint,
@@ -25,11 +31,11 @@ import {
   serviceTemplatesEndpoint
 } from '../../api/endpoints';
 import { labelServiceGroups } from '../../translatedLabels';
-import { getMacrosBlock } from '../blocks/macros';
 import { getServiceIdentityBlock } from '../blocks/serviceIdentity';
 import { getSnmpTrapsBlock } from '../blocks/snmpTraps';
 import { getTemplateBlock } from '../blocks/template';
 import { hasServiceTemplate } from '../inheritance';
+import ServiceMacros from '../ServiceMacros';
 
 export const serviceResource: ResourceOptions = {
   baseEndpoint: servicesBaseEndpoint,
@@ -40,6 +46,13 @@ const resource = serviceResource;
 
 // Where the services API keeps what the host API calls its scheduling options.
 const monitoringEngineGroup = 'monitoring_engine';
+
+// A value, unless the row is still what the service inherits (not sent) or a
+// stored password left as is (sent as null, the server keeps it).
+const isMissingValue = (macro: MacroRow): boolean =>
+  !isUnchangedInherited(macro) &&
+  !(macro.hasStoredPassword && !macro.isErased) &&
+  (macro.value ?? '') === '';
 
 // The blocks of fields the service form edits. The sections it shows them in,
 // and their order, are `../layout.ts`'s.
@@ -58,7 +71,26 @@ export const blocks = [
     validateArguments: true
   }),
   getTemplateBlock({ resource, serviceTemplatesEndpoint }),
-  getMacrosBlock({ resource }),
+  getMacrosBlock({
+    Component: ServiceMacros,
+    getSchema: (schema, { t }) =>
+      schema.test('values-required', function checkValuesRequired(macros) {
+        const index = ((macros ?? []) as Array<MacroRow>).findIndex(
+          isMissingValue
+        );
+
+        return (
+          index === -1 ||
+          this.createError({
+            message: t(labelRequired),
+            path: `${this.path}[${index}].value`
+          })
+        );
+      }),
+    prefix: '$_SERVICE',
+    reservedNames: ['$_SERVICECRITICALITY_LEVEL$', '$_SERVICECRITICALITY_ID$'],
+    resource
+  }),
   getCheckPeriodAndIntervalsBlock({
     apiGroup: monitoringEngineGroup,
     resource,
