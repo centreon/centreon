@@ -107,7 +107,7 @@ class ConfigurationGenerationStatus
 
         throw new IncompleteGenerationException(
             sprintf(
-                _('The last configuration generation of the monitoring server "%s" did not complete (started %s): it failed or is still running. Nothing has been moved nor restarted, generate its configuration again'),
+                _('The last configuration generation of the monitoring server "%s" did not complete (started %s): it failed or is still running. It has not been moved nor restarted, generate its configuration again'),
                 $monitoringServerName,
                 $startedBy !== '' ? $startedBy : '?',
             ),
