@@ -125,6 +125,11 @@ runs:
         export NFPM_RPM_PASSPHRASE="$RPM_GPG_SIGNING_PASSPHRASE"
 
         REPO_ROOT=$(pwd)
+        if [[ -z "$INPUT_COMMIT_HASH" ]]; then
+          echo "::error::commit_hash input is empty"
+          exit 1
+        fi
+
         for FILE in $INPUT_NFPM_FILE_PATTERN; do
           DIRNAME=$(dirname $FILE)
           BASENAME=$(basename $FILE)
@@ -152,6 +157,10 @@ runs:
               PACKAGE_NAME=$(grep '^name:' "$BASENAME" | head -1 | sed 's/^name: *//;s/"//g' | xargs)
               awk -v pkg="$PACKAGE_NAME" 'BEGIN{in_contents=0;injected=0} /^contents:/{in_contents=1} in_contents && /^[a-z]/ && !/^contents:/ && !injected{print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"; injected=1; in_contents=0} {print} END{if(!injected){if(!in_contents){print "contents:"} print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"}}' "$BASENAME" > "${BASENAME}.tmp" && mv "${BASENAME}.tmp" "$BASENAME"
             fi
+          fi
+          if grep -nE '@[A-Z][A-Z0-9_]*@' $BASENAME; then
+            echo "::error file=$FILE::unsubstituted placeholder(s) in rendered nfpm config"
+            exit 1
           fi
           nfpm package --config $BASENAME --packager "$INPUT_PACKAGE_EXTENSION"
           cd -
