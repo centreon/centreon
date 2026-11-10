@@ -409,6 +409,17 @@ cronJobs:
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 3
   resources: {}
+  # Fallback for a job that doesn't set its own below (MON-214629): a run
+  # that never progresses — e.g. the wait-install init container looping
+  # forever because the install Job's marker never appears after a crash —
+  # otherwise hangs its Job indefinitely, and with concurrencyPolicy Forbid
+  # that blocks every later scheduled run too (observed: cron-token-removal
+  # and cron-centacl stuck, no run for 4h30). Kubernetes' activeDeadlineSeconds
+  # kills the whole pod, init containers included, once it elapses, so this
+  # bounds wait-install's own wait too — it keeps no separate timeout of its
+  # own, since it's shared with fpm's and config-delivery's init containers,
+  # which must be allowed to wait indefinitely during a slow install/upgrade.
+  activeDeadlineSeconds: 1800
   jobs:
     # ACL computation for non-admin users.
     centacl:
@@ -416,12 +427,15 @@ cronJobs:
       schedule: "* * * * *"
       user: www-data
       command: php -q /usr/share/centreon/cron/centAcl.php
+      # Scheduled every minute: a hung run must not eat into the next slot.
+      activeDeadlineSeconds: 45
     # Starts / stops recurrent downtimes.
     downtime-manager:
       enabled: true
       schedule: "*/5 * * * *"
       user: www-data
       command: php -q /usr/share/centreon/cron/downtimeManager.php
+      activeDeadlineSeconds: 240
     event-report-builder:
       enabled: true
       schedule: "0 3 * * *"
@@ -440,6 +454,7 @@ cronJobs:
       schedule: "*/5 * * * *"
       user: centreon
       command: php -q /usr/share/centreon/cron/centKnowledgeSynchronizer.php
+      activeDeadlineSeconds: 240
     # Telemetry to statistics.centreon.com. A central ALWAYS sends the base
     # payload (UUID, versions, platform, auth options); options.send_statistics
     # only adds module statistics. Disabled here so dev/test/CI clusters don't
@@ -452,6 +467,7 @@ cronJobs:
       # Mounts the licence volume read-only (it reports whether a valid
       # licence exists). With a ReadWriteOnce class, pins the pod to fpm's node.
       licenses: true
+      activeDeadlineSeconds: 300
     # No centreon-backup.pl job: the cron image has no MariaDB client, and a
     # backup written into the pod's ephemeral filesystem is lost when the Job
     # ends. Back up the database and the volumes instead (managed DB backups,
@@ -461,16 +477,22 @@ cronJobs:
       schedule: "* * * * *"
       user: www-data
       command: /usr/share/centreon/cron/outdated-token-removal.php
+      activeDeadlineSeconds: 45
+    # Purge and partitioning can legitimately outlast their own period on a
+    # big database (see concurrencyPolicy above): generous but still bounded,
+    # well under the next day's run.
     storage-purge:
       enabled: true
       schedule: "0 2 * * *"
       user: centreon
       command: php /usr/share/centreon/cron/centstorage_purge.php
+      activeDeadlineSeconds: 7200
     partitioning:
       enabled: true
       schedule: "0 4 * * *"
       user: centreon
       command: php /usr/share/centreon/cron/centreon-partitioning.php
+      activeDeadlineSeconds: 7200
 
 # ---------------------------------------------------------------------------
 # centreon-broker: central-broker-master (RRD output merged in), singleton

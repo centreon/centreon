@@ -36,7 +36,7 @@ spec:
     spec:
       # A failed run is retried at the next schedule, as cron does.
       backoffLimit: 0
-      {{- with $job.activeDeadlineSeconds }}
+      {{- with ($job.activeDeadlineSeconds | default $.Values.cronJobs.activeDeadlineSeconds) }}
       activeDeadlineSeconds: {{ . }}
       {{- end }}
       template:
