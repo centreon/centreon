@@ -1,0 +1,68 @@
+meta {
+  name: GET centreon_realtime_hosts - List hosts with criticality - HTTP 200
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUriCentreonApiWeb}}/index.php?object=centreon_realtime_hosts&action=list&fields=id,name,criticality&search={{CriticalityHostName}}
+  body: none
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  // The host reaches the real-time database asynchronously after the reload.
+  // Poll until it is listed with its criticality, then hand the last response
+  // to the tests.
+  const hostName = bru.getEnvVar("CriticalityHostName");
+  const level = String(bru.getEnvVar("CriticalityLevel"));
+  const isReady = (rows) =>
+    Array.isArray(rows) && rows.some((host) => host.name === hostName && String(host.criticality) === level);
+  const timeoutMs = parseInt(bru.getEnvVar("monitoringWaitMs")) || 60000;
+  const url = bru.interpolate(
+    "{{baseUriCentreonApiWeb}}/index.php?object=centreon_realtime_hosts&action=list&fields=id,name,criticality&search={{CriticalityHostName}}"
+  );
+  const start = Date.now();
+  let body = res.getBody();
+  while (!isReady(body) && Date.now() - start < timeoutMs) {
+    await bru.sleep(1000);
+    try {
+      const response = await bru.sendRequest({
+        method: "GET",
+        url,
+        headers: { "centreon-auth-token": bru.interpolate("{{authToken}}") },
+        timeout: 10000
+      });
+      body = response.data;
+    } catch (error) {
+      throw new Error(`Polling ${url} failed after ${Date.now() - start} ms: ${error.message}`);
+    }
+  }
+  res.setBody(body);
+}
+
+tests {
+  test("The host is listed with the criticality level of its severity", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("array");
+    const hostName = bru.getEnvVar("CriticalityHostName");
+    const host = body.find((row) => row.name === hostName);
+    expect(host, `${hostName} not found in real-time hosts: ${JSON.stringify(body)}`).to.not.be.undefined;
+    bru.setEnvVar("CriticalityHostId", host.id);
+    expect(host).to.have.all.keys("id", "name", "criticality");
+    expect(String(host.criticality)).to.eql(String(bru.getEnvVar("CriticalityLevel")));
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
