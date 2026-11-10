@@ -2,6 +2,7 @@ import { type MockInstance, rs } from '@rstest/core';
 import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { pick } from 'ramda';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
@@ -84,6 +85,10 @@ const getChoiceRouteCalls = (
   fetchSpy.mock.calls
     .map(([input]) => (input instanceof Request ? input.url : String(input)))
     .filter((url) => /\/configuration\/host_templates\/[a-z_]/.test(url));
+
+// The keys this section sends; the other sections' are theirs to assert.
+const getIdentity = (body: unknown): Record<string, unknown> =>
+  pick(['alias', 'name'], body as Record<string, unknown>);
 
 const getWriteRequestCount = (): number =>
   [
@@ -315,7 +320,7 @@ export default () => {
       const { request } = await waitForRequest('@createHostTemplate');
 
       expect(request.method).toBe('POST');
-      expect(request.body).toEqual({
+      expect(getIdentity(request.body)).toEqual({
         alias: 'My generic host',
         name: 'my_generic__host'
       });
@@ -338,7 +343,7 @@ export default () => {
       const { request } = await waitForRequest('@updateHostTemplate1');
 
       expect(request.method).toBe('PATCH');
-      expect(request.body).toEqual({
+      expect(getIdentity(request.body)).toEqual({
         alias: 'Generic host',
         name: 'generic-active-host-custom'
       });
@@ -409,7 +414,10 @@ export default () => {
 
       const { request } = await waitForRequest('@createHostTemplate');
 
-      expect(request.body).toEqual({ alias: 'CPU', name: '_Module_cpu|load' });
+      expect(getIdentity(request.body)).toEqual({
+        alias: 'CPU',
+        name: '_Module_cpu|load'
+      });
     });
   });
 
