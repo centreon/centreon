@@ -38,6 +38,15 @@ abstract class AbstractService extends AbstractObject
     /** @var array */
     protected $service_cache;
 
+    /**
+     * service_id => service_description for every service generated so far
+     * (MON-214629), only ever populated by Service, but declared here since
+     * getString() (below) reads it.
+     *
+     * @var array<int, string>
+     */
+    protected $serviceDescriptionsById = [];
+
     // no flap_detection_options attribute
     /** @var string */
     protected $attributes_select = '

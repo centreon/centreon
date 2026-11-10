@@ -41,17 +41,6 @@ class Service extends AbstractService
     /** @var array */
     protected $generated_services = []; // for index_data build and escalation
 
-    /**
-     * service_id => service_description, built incrementally as each service
-     * is generated (MON-214629): the only service attribute read once a
-     * service's own batch is done (getString(), see abstract/service.class.php).
-     * Unlike service_cache, never cleared between batches — only at the
-     * poller-level reset().
-     *
-     * @var array<int, string>
-     */
-    protected array $serviceDescriptionsById = [];
-
     /** @var string */
     protected $generate_filename = 'services.cfg';
 

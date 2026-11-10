@@ -43,6 +43,15 @@ abstract class AbstractHost extends AbstractObject
     /** @var array */
     protected $hosts;
 
+    /**
+     * host_id => host_name for every host of the poller (MON-214629), only
+     * ever populated by Host, but declared here since getString() (below)
+     * reads it.
+     *
+     * @var array<int, string>|null
+     */
+    protected $hostNamesById;
+
     /** @var string */
     protected $attributes_select = '
         host_id,

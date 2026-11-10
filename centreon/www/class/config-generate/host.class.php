@@ -48,16 +48,6 @@ class Host extends AbstractHost
     /** @var array|null */
     protected $hosts = null;
 
-    /**
-     * host_id => host_name for every host of the poller, built once upfront
-     * (MON-214629): the only host attribute read once a host's own batch is
-     * done (getParents() for a parent in another batch, and the tail steps
-     * Dependency/Escalation/generateIndexData) is its name.
-     *
-     * @var array<int, string>|null
-     */
-    protected $hostNamesById = null;
-
     /** Default number of hosts processed per batch (MON-214629). */
     private const DEFAULT_HOST_BATCH_SIZE = 2000;
 
