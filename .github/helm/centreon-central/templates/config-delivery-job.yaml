@@ -29,9 +29,9 @@ spec:
 {{- $traps := or .Values.centralPoller.traps.enabled (gt (len $trapUids) 0) }}
 # The container retries internally; this only bounds the whole thing. Never
 # below a few attempts of its generate-and-reload call (generation timeout +
-# 150 s each, see generate-broker-configuration.php).
+# 2 gorgone delivery rounds + margin each, see generate-broker-configuration.php).
 backoffLimit: 3
-activeDeadlineSeconds: {{ max (int .Values.configDelivery.timeoutSeconds) (mul 3 (add (include "centreon-central.generationTimeout" . | int) 165)) }}
+activeDeadlineSeconds: {{ max (int .Values.configDelivery.timeoutSeconds) (mul 3 (add (include "centreon-central.generationTimeout" . | int) (add (mul 2 (include "centreon-central.resultTimeout" . | int)) 65))) }}
 template:
   metadata:
     labels:

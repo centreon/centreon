@@ -371,15 +371,28 @@ configurationExport:
   # Timeout of the REST export's generation step (internal call to
   # generateFiles.php). 60 s covers a few thousand hosts; raise it for large
   # inventories (MON-213806 scale tests: ~10k hosts already take longer).
-  # Derived from it: php max_execution_time (at least this + 60 s, never
-  # below 300), httpd ProxyTimeout (at least this + 240 s for the REST
-  # generate-and-reload, never below 300) and the config-delivery client.
+  # Derived from it, together with resultTimeoutSeconds below: php
+  # max_execution_time, httpd ProxyTimeout (never below 300) and the
+  # config-delivery client — see the exportTimeoutEnv / httpdProxyTimeout
+  # helper comments for the exact formulas.
   generationTimeoutSeconds: 60
   # Hosts processed per batch during generation (MON-214629): bounds PHP's
   # peak memory to roughly this size regardless of how many hosts the poller
   # has, instead of loading every host of the poller at once. 2000 keeps a
   # 10k-host poller under the packaged PHP_MEMORY_LIMIT default (256M).
   hostBatchSize: 2000
+  # How long (seconds) the REST generate-and-reload call waits for gorgone to
+  # confirm delivery to one poller (LegacyCommandSender, MON-214293). Same
+  # default as the code's own fallback (50) when unset/invalid.
+  resultTimeoutSeconds: 50
+  # Pollers delivered to at once by one generate-and-reload call
+  # (LegacyCommandSender::deliverToPollers, MON-214479). A fleet bigger than
+  # this needs more than one round — each round waits up to
+  # resultTimeoutSeconds — so the derived timeouts below assume at most 2
+  # rounds (pollers <~ 2x this); raise generationTimeoutSeconds/
+  # resultTimeoutSeconds together for a bigger fleet, same as for a bigger
+  # host count. Same default as the code's own fallback (10).
+  deliveryConcurrency: 10
 
 # One-shot Job after each install/upgrade (fpm image, no php-fpm): resyncs
 # gorgone-central's node list, waits for the Central poller to connect, runs

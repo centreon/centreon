@@ -121,6 +121,12 @@ services:
       # MON-214629: hosts processed per batch during generation (empty = the
       # code's own default, 2000).
       CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE: "${CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE:-}"
+      # MON-214293: how long (s) a generate-and-reload call waits for gorgone
+      # to confirm delivery to one poller (empty = the code's own default, 50).
+      CENTREON_GORGONE_RESULT_TIMEOUT: "${CENTREON_GORGONE_RESULT_TIMEOUT:-}"
+      # MON-214479: pollers delivered to at once by one generate-and-reload
+      # call (empty = the code's own default, 10).
+      CENTREON_GORGONE_DELIVERY_CONCURRENCY: "${CENTREON_GORGONE_DELIVERY_CONCURRENCY:-}"
       # MON-214095: PHP sessions in Valkey instead of the (now removed)
       # centreon-sessions volume — fpm replicas no longer need shared RWX
       # storage for session state. PHP_SESSION_SAVE_PATH carries no
