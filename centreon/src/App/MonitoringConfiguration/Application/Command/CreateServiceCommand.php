@@ -38,6 +38,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 final readonly class CreateServiceCommand
 {
@@ -54,6 +55,7 @@ final readonly class CreateServiceCommand
         public ActingUser $actor,
         public ?ServiceTemplateId $templateId = null,
         public ?CommandId $checkCommandId = null,
+        #[Sensitive]
         public array $checkCommandArgs = [],
         public ServiceSchedulingOptions $schedulingOptions = new ServiceSchedulingOptions(),
         public ?ServiceNotifications $notifications = null,
