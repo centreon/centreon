@@ -695,6 +695,41 @@ Then(
   }
 );
 
+Then('every database migration should be executed', () => {
+  const webUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
+    ? 'apache'
+    : 'www-data';
+
+  // Exits with an error when a set is refused or a legacy update script is still pending.
+  cy.execInContainer({
+    command: `su ${webUser} -s /bin/bash -c "/usr/share/centreon/bin/console.new centreon:migrations:status"`,
+    name: 'web'
+  }).then(({ output }) => {
+    const pending = [...output.matchAll(/Pending\s+(\S+)/g)].map(
+      ([, value]) => value
+    );
+    expect(pending).to.deep.equal(['-', '-']);
+  });
+
+  [
+    { database: 'centreon_storage', set: 'realtime' },
+    { database: 'centreon', set: 'configuration' }
+  ].forEach(({ database, set }) => {
+    cy.execInContainer({
+      command: `find /usr/share/centreon/migrations/${set} -name 'Version*.php' | wc -l`,
+      name: 'web'
+    }).then(({ output }) => {
+      // The table is created by the wizard: a missing one means the migrations never ran.
+      cy.requestOnDatabase({
+        database,
+        query: 'SELECT COUNT(*) AS executed FROM doctrine_migration_versions'
+      }).then(([rows]) => {
+        expect(Number(rows[0].executed)).to.equal(Number(output.trim()));
+      });
+    });
+  });
+});
+
 Then('legacy services grid page should still work', () => {
   cy.visit(PAGES.configuration.servicesGridLegacy).wait('@getTimeZone');
 

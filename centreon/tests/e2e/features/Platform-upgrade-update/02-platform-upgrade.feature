@@ -9,6 +9,7 @@ Feature: Upgrade platform from major version A to major version B
     When administrator updates packages to current version
     And administrator runs the update procedure
     Then monitoring should be up and running after update procedure is complete to current version
+    And every database migration should be executed
     And legacy services grid page should still work
 
     When administrator exports Poller configuration
