@@ -42,14 +42,14 @@ class Host extends AbstractHost
     public const CLOSE_NOTIFICATION = 2;
     public const CUMULATIVE_NOTIFICATION = 3;
 
+    /** Default number of hosts processed per batch (MON-214629). */
+    private const DEFAULT_HOST_BATCH_SIZE = 2000;
+
     /** @var array */
     protected $hosts_by_name = [];
 
     /** @var array|null */
     protected $hosts = null;
-
-    /** Default number of hosts processed per batch (MON-214629). */
-    private const DEFAULT_HOST_BATCH_SIZE = 2000;
 
     /** @var string */
     protected $generate_filename = 'hosts.cfg';
@@ -224,130 +224,6 @@ class Host extends AbstractHost
     }
 
     /**
-     * Generate one batch of hosts (MON-214629): load their full rows and
-     * relations, generate them, then free that data before the next batch.
-     * Objects shared across hosts (templates, commands, periods, contacts...)
-     * keep their current single-load, unbatched behaviour — only the data
-     * that scales with the number of hosts of the poller is batched here.
-     *
-     * @param int[] $batchHostIds
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-     * @return void
-     */
-    private function generateHostsBatch(
-        array $batchHostIds,
-        ReadHostRepositoryInterface $readHostRepository,
-        ReadHostMacroRepositoryInterface $readHostMacroRepository,
-        ReadServiceRepositoryInterface $readServiceRepository,
-        ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
-        bool $isPollerEncryptionReady,
-    ): void {
-        $this->getHostsBatch($batchHostIds);
-        Service::getInstance($this->dependencyInjector)->prepareForNextHostBatch($batchHostIds);
-
-        // 1. Batch-load host template parents (1 query)
-        $allHostParents = $readHostRepository->findParentsByHostIds($batchHostIds);
-
-        // 2. Compute host inheritance lines, collect all host+template IDs
-        $hostInheritanceLines = [];
-        $allHostAndTemplateIds = [];
-        foreach ($batchHostIds as $hostId) {
-            $parents = $allHostParents[$hostId] ?? [];
-            $inheritanceLine = InheritanceManager::findInheritanceLine($hostId, $parents);
-            $hostInheritanceLines[$hostId] = $inheritanceLine;
-            $allHostAndTemplateIds[] = $hostId;
-            array_push($allHostAndTemplateIds, ...$inheritanceLine);
-        }
-        $allHostAndTemplateIds = array_values(array_unique($allHostAndTemplateIds));
-
-        // 3. Batch-load all host macros (1 query)
-        $hostMacrosByOwnerId = $this->indexMacrosByOwnerId(
-            $readHostMacroRepository->findByHostIds($allHostAndTemplateIds)
-        );
-
-        // 4. Batch-load service IDs per host (2 queries)
-        $serviceIdsByHostDirect = $readServiceRepository->findServiceIdsLinkedToHostIds($batchHostIds);
-        $serviceIdsByHostHg = $readServiceRepository->findServiceIdsLinkedToHostsThroughHostGroups($batchHostIds);
-
-        // 4bis. Batch-load hostgroup and monitoring-parent relations (2 queries, MON-214625)
-        $hostGroupIdsByHostId = $readHostRepository->findHostGroupIdsByHostIds($batchHostIds);
-        $parentHostIdsByHostId = $readHostRepository->findParentHostIdsByHostIds($batchHostIds);
-
-        // 5. Merge and deduplicate service IDs per host, collect all unique service IDs
-        $serviceIdsByHost = [];
-        $allUniqueServiceIds = [];
-        foreach ($batchHostIds as $hostId) {
-            $direct = $serviceIdsByHostDirect[$hostId] ?? [];
-            $hg = $serviceIdsByHostHg[$hostId] ?? [];
-            $merged = array_values(array_unique(array_merge($direct, $hg)));
-            $serviceIdsByHost[$hostId] = $merged;
-            foreach ($merged as $sid) {
-                $allUniqueServiceIds[$sid] = true;
-            }
-        }
-        $allUniqueServiceIds = array_keys($allUniqueServiceIds);
-
-        // 6. Batch-load service template parents (1 query)
-        $allServiceParents = $readServiceRepository->findParentsByServiceIds($allUniqueServiceIds);
-
-        // 7. Compute service inheritance lines, collect all service+template IDs
-        $serviceInheritanceLines = [];
-        $allServiceAndTemplateIds = [];
-        foreach ($allUniqueServiceIds as $serviceId) {
-            $parents = $allServiceParents[$serviceId] ?? [];
-            $inheritanceLine = ServiceInheritance::createInheritanceLine($serviceId, $parents);
-            $serviceInheritanceLines[$serviceId] = $inheritanceLine;
-            $allServiceAndTemplateIds[] = $serviceId;
-            array_push($allServiceAndTemplateIds, ...$inheritanceLine);
-        }
-        $allServiceAndTemplateIds = array_values(array_unique($allServiceAndTemplateIds));
-
-        // 8. Batch-load all service macros (1 query)
-        $serviceMacrosByOwnerId = $allServiceAndTemplateIds !== []
-            ? $this->indexMacrosByOwnerId($readServiceMacroRepository->findByServiceIds(...$allServiceAndTemplateIds))
-            : [];
-
-        // ---- Per-host loop (uses only pre-loaded data, no additional queries) ----
-        foreach ($this->hosts as $host_id => &$host) {
-            $host['host_id'] = $host_id;
-
-            [$hostMacros, $hostTemplateMacros] = $this->resolveHostMacrosFromCache(
-                $host_id,
-                $hostInheritanceLines[$host_id] ?? [],
-                $hostMacrosByOwnerId,
-                $isPollerEncryptionReady
-            );
-
-            [$serviceMacros, $serviceTemplateMacros] = $this->resolveServiceMacrosFromCache(
-                $serviceIdsByHost[$host_id] ?? [],
-                $serviceInheritanceLines,
-                $serviceMacrosByOwnerId,
-                $isPollerEncryptionReady
-            );
-
-            $this->generateFromHostId(
-                $host,
-                $hostMacros,
-                $hostTemplateMacros,
-                $serviceMacros,
-                $serviceTemplateMacros,
-                $hostGroupIdsByHostId[$host_id] ?? [],
-                $parentHostIdsByHostId[$host_id] ?? [],
-                $serviceIdsByHostDirect[$host_id] ?? [],
-                $serviceIdsByHostHg[$host_id] ?? []
-            );
-        }
-
-        // Free this batch's full rows and working state: only hostNamesById
-        // (built once upfront, never freed) is needed past this point.
-        $this->hosts = null;
-    }
-
-    /**
      * @param $host_name
      *
      * @return mixed|null
@@ -498,6 +374,130 @@ class Host extends AbstractHost
 
         // For applied on services without severity
         $this->hosts[$host_id_arg]['severity_id_for_services'] = $severity_instance->getHostSeverityById($severity_id);
+    }
+
+    /**
+     * Generate one batch of hosts (MON-214629): load their full rows and
+     * relations, generate them, then free that data before the next batch.
+     * Objects shared across hosts (templates, commands, periods, contacts...)
+     * keep their current single-load, unbatched behaviour — only the data
+     * that scales with the number of hosts of the poller is batched here.
+     *
+     * @param int[] $batchHostIds
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @return void
+     */
+    private function generateHostsBatch(
+        array $batchHostIds,
+        ReadHostRepositoryInterface $readHostRepository,
+        ReadHostMacroRepositoryInterface $readHostMacroRepository,
+        ReadServiceRepositoryInterface $readServiceRepository,
+        ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
+        bool $isPollerEncryptionReady,
+    ): void {
+        $this->getHostsBatch($batchHostIds);
+        Service::getInstance($this->dependencyInjector)->prepareForNextHostBatch($batchHostIds);
+
+        // 1. Batch-load host template parents (1 query)
+        $allHostParents = $readHostRepository->findParentsByHostIds($batchHostIds);
+
+        // 2. Compute host inheritance lines, collect all host+template IDs
+        $hostInheritanceLines = [];
+        $allHostAndTemplateIds = [];
+        foreach ($batchHostIds as $hostId) {
+            $parents = $allHostParents[$hostId] ?? [];
+            $inheritanceLine = InheritanceManager::findInheritanceLine($hostId, $parents);
+            $hostInheritanceLines[$hostId] = $inheritanceLine;
+            $allHostAndTemplateIds[] = $hostId;
+            array_push($allHostAndTemplateIds, ...$inheritanceLine);
+        }
+        $allHostAndTemplateIds = array_values(array_unique($allHostAndTemplateIds));
+
+        // 3. Batch-load all host macros (1 query)
+        $hostMacrosByOwnerId = $this->indexMacrosByOwnerId(
+            $readHostMacroRepository->findByHostIds($allHostAndTemplateIds)
+        );
+
+        // 4. Batch-load service IDs per host (2 queries)
+        $serviceIdsByHostDirect = $readServiceRepository->findServiceIdsLinkedToHostIds($batchHostIds);
+        $serviceIdsByHostHg = $readServiceRepository->findServiceIdsLinkedToHostsThroughHostGroups($batchHostIds);
+
+        // 4bis. Batch-load hostgroup and monitoring-parent relations (2 queries, MON-214625)
+        $hostGroupIdsByHostId = $readHostRepository->findHostGroupIdsByHostIds($batchHostIds);
+        $parentHostIdsByHostId = $readHostRepository->findParentHostIdsByHostIds($batchHostIds);
+
+        // 5. Merge and deduplicate service IDs per host, collect all unique service IDs
+        $serviceIdsByHost = [];
+        $allUniqueServiceIds = [];
+        foreach ($batchHostIds as $hostId) {
+            $direct = $serviceIdsByHostDirect[$hostId] ?? [];
+            $hg = $serviceIdsByHostHg[$hostId] ?? [];
+            $merged = array_values(array_unique(array_merge($direct, $hg)));
+            $serviceIdsByHost[$hostId] = $merged;
+            foreach ($merged as $sid) {
+                $allUniqueServiceIds[$sid] = true;
+            }
+        }
+        $allUniqueServiceIds = array_keys($allUniqueServiceIds);
+
+        // 6. Batch-load service template parents (1 query)
+        $allServiceParents = $readServiceRepository->findParentsByServiceIds($allUniqueServiceIds);
+
+        // 7. Compute service inheritance lines, collect all service+template IDs
+        $serviceInheritanceLines = [];
+        $allServiceAndTemplateIds = [];
+        foreach ($allUniqueServiceIds as $serviceId) {
+            $parents = $allServiceParents[$serviceId] ?? [];
+            $inheritanceLine = ServiceInheritance::createInheritanceLine($serviceId, $parents);
+            $serviceInheritanceLines[$serviceId] = $inheritanceLine;
+            $allServiceAndTemplateIds[] = $serviceId;
+            array_push($allServiceAndTemplateIds, ...$inheritanceLine);
+        }
+        $allServiceAndTemplateIds = array_values(array_unique($allServiceAndTemplateIds));
+
+        // 8. Batch-load all service macros (1 query)
+        $serviceMacrosByOwnerId = $allServiceAndTemplateIds !== []
+            ? $this->indexMacrosByOwnerId($readServiceMacroRepository->findByServiceIds(...$allServiceAndTemplateIds))
+            : [];
+
+        // ---- Per-host loop (uses only pre-loaded data, no additional queries) ----
+        foreach ($this->hosts as $host_id => &$host) {
+            $host['host_id'] = $host_id;
+
+            [$hostMacros, $hostTemplateMacros] = $this->resolveHostMacrosFromCache(
+                $host_id,
+                $hostInheritanceLines[$host_id] ?? [],
+                $hostMacrosByOwnerId,
+                $isPollerEncryptionReady
+            );
+
+            [$serviceMacros, $serviceTemplateMacros] = $this->resolveServiceMacrosFromCache(
+                $serviceIdsByHost[$host_id] ?? [],
+                $serviceInheritanceLines,
+                $serviceMacrosByOwnerId,
+                $isPollerEncryptionReady
+            );
+
+            $this->generateFromHostId(
+                $host,
+                $hostMacros,
+                $hostTemplateMacros,
+                $serviceMacros,
+                $serviceTemplateMacros,
+                $hostGroupIdsByHostId[$host_id] ?? [],
+                $parentHostIdsByHostId[$host_id] ?? [],
+                $serviceIdsByHostDirect[$host_id] ?? [],
+                $serviceIdsByHostHg[$host_id] ?? []
+            );
+        }
+
+        // Free this batch's full rows and working state: only hostNamesById
+        // (built once upfront, never freed) is needed past this point.
+        $this->hosts = null;
     }
 
     /**
