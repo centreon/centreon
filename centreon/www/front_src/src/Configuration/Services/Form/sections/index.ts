@@ -195,8 +195,7 @@ export const blocks = [
     contactGroupsEndpoint: serviceFormContactGroupsEndpoint,
     contactsEndpoint: serviceFormContactsEndpoint,
     resource,
-    // The service detail route is a placeholder: unlike the hosts one, it is
-    // not known to send every key, so a missing one keeps its default.
+    // A key the detail leaves out keeps its default.
     withOptionalDetailKeys: true,
     withUseOnlyContactsFromHost: true
   }),
