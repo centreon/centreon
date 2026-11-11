@@ -28,9 +28,25 @@ rebuildSymfonyCache() {
   su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear -q" 2> /dev/null || :
 }
 
+setCentreontrapdCentralMode() {
+  # DEB only: centreon-web's postinstall runs before dpkg moves centreon-poller's
+  # conffiles in place, so its sed to central mode finds no file
+  if [ "$1" = "rpm" ] || [ ! -f /etc/centreon/centreontrapd.pm ]; then
+    return
+  fi
+
+  echo "Updating centreontrapd configuration to central mode ..."
+  sed -i -e 's/mode => 1/mode => 0/g' /etc/centreon/centreontrapd.pm
+}
+
 package_type="rpm"
 if  [ "$1" = "configure" ]; then
   package_type="deb"
 fi
 
 rebuildSymfonyCache "$package_type"
+
+# deb passes $1=configure $2=<previous version> on upgrade
+if [ "$1" = "configure" ] && [ -z "$2" ]; then
+  setCentreontrapdCentralMode "$package_type"
+fi
