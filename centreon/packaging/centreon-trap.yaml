@@ -70,6 +70,7 @@ contents:
 scripts:
   postinstall: ./scripts/centreon-trap-postinstall.sh
   preremove: ./scripts/centreon-trap-preremove.sh
+  postremove: ./scripts/centreon-trap-postremove.sh
 
 overrides:
   rpm:
