@@ -30,12 +30,20 @@ updateEngineBrokerConfigurationRights() {
 
 updateSnmpConfiguration() {
   echo "Updating snmpd configuration to allow OIDs from .1.3.6.1 ..."
-  sed -i \
-    -e "/^view.*\.1\.3\.6\.1\.2\.1\.1$/i\
-view centreon included .1.3.6.1" \
-    -e "/^access.*$/i\
-access notConfigGroup \"\" any noauth exact centreon none none" \
-    /etc/snmp/snmpd.conf
+  # el grants views with access lines, debian with rocommunity lines (first match wins);
+  # each grep keeps a reinstall over a kept snmpd.conf from adding the line twice;
+  # debian grants loopback only, so an opened agentaddress does not expose .1.3.6.1 to public
+  local conf=/etc/snmp/snmpd.conf
+  grep -q '^view centreon ' "$conf" || sed -i "/^view.*\.1\.3\.6\.1\.2\.1\.1$/i\
+view centreon included .1.3.6.1" "$conf"
+  grep -q '^access .* centreon ' "$conf" || sed -i "/^access.*$/i\
+access notConfigGroup \"\" any noauth exact centreon none none" "$conf"
+  grep -q '^rocommunity .*-V centreon$' "$conf" || sed -i "/^rocommunity\s.*-V systemonly$/i\
+rocommunity public 127.0.0.1 -V centreon" "$conf"
+  grep -q '^rocommunity6 .*-V centreon$' "$conf" || sed -i "/^rocommunity6\s.*-V systemonly$/i\
+rocommunity6 public ::1 -V centreon" "$conf"
+  # debian starts snmpd before this runs: reload the view without starting a stopped el snmpd
+  systemctl try-restart snmpd.service ||:
 }
 
 package_type="rpm"
