@@ -105,9 +105,14 @@ $storage_type = [0 => 'RRDTool', 2 => 'RRDTool & MySQL'];
 $yesOrNo = [null => 'No', 0 => 'No', 1 => 'Yes', 2 => 'Rebuilding'];
 $rrd_dst = [0 => 'GAUGE', 1 => 'COUNTER', 2 => 'DERIVE', 3 => 'ABSOLUTE'];
 
-$query = 'SELECT * FROM metrics WHERE to_delete = 0 AND index_id = :indexId ORDER BY metric_name';
+include_once './include/common/checkPagination.php';
+
+$query = 'SELECT * FROM metrics WHERE to_delete = 0 AND index_id = :indexId '
+    . 'ORDER BY metric_name LIMIT :offset, :limit';
 $stmt2 = $pearDBO->prepare($query);
 $stmt2->bindParam(':indexId', $indexId, PDO::PARAM_INT);
+$stmt2->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
+$stmt2->bindValue(':limit', $limit, PDO::PARAM_INT);
 $stmt2->execute();
 unset($data);
 for ($im = 0; $metrics = $stmt2->fetch(PDO::FETCH_ASSOC); $im++) {
@@ -137,8 +142,6 @@ for ($im = 0; $metrics = $stmt2->fetch(PDO::FETCH_ASSOC); $im++) {
     $data[$im] = $metric;
     unset($metric);
 }
-
-include_once './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
