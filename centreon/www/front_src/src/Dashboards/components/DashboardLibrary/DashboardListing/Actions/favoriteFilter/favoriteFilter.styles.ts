@@ -2,12 +2,13 @@ import { makeStyles } from 'tss-react/mui';
 
 const useFavoriteFilterStyles = makeStyles()((theme) => ({
   container: {
-    display: 'flex',
-    flex: 1,
-    justifyContent: 'center'
+    border: `1px solid ${theme.palette.divider}`
   },
-  label: {
-    paddingLeft: theme.spacing(0.25)
+  containerActive: {
+    borderColor: theme.palette.error.main
+  },
+  iconActive: {
+    color: theme.palette.error.main
   }
 }));
 
