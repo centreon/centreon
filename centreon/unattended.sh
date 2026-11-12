@@ -2255,6 +2255,9 @@ install)
 	fi
 
 	if [ "$topology" == "central" ] && [ "$wizard_autoplay" == "true" ]; then
+		# Services started during the package install never read the conf.pm and gorgone
+		# files the wizard wrote; restart the centreon target (cbd, centengine, gorgoned, centreontrapd).
+		restart_centreon_process
 		if [[ "$tls" == "enabled" ]]; then
 			log "INFO" "Log in to Centreon web interface via the URL: https://$central_ip/centreon"
 		else
