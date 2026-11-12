@@ -351,7 +351,16 @@ Then('the password macro should still be highlighted in orange', () => {
 
 Then('the export configuration is done with success', () => {
   cy.exportConfig();
-  cy.wait('@exportConf').its('response.statusCode').should('eq', 204);
+  // The export request can be sent twice: wait for one that answered 204
+  cy.waitUntil(
+    () =>
+      cy
+        .get<Array<{ response?: { statusCode: number } }>>('@exportConf.all')
+        .then((calls) =>
+          calls.some((call) => call.response?.statusCode === 204)
+        ),
+    { interval: 1000, timeout: 60000 }
+  );
 });
 
 Given(
