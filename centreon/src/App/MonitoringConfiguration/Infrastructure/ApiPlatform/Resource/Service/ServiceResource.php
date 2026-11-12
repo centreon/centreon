@@ -206,12 +206,25 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PutServ
             input: PatchServiceInput::class,
             output: false,
             openapi: new Model\Operation(
-                description: 'Enables or disables a service.',
+                summary: 'Partially update a service',
+                description: 'Partially updates a service linked directly to one host: a key left out is left untouched, a '
+                    . 'key sent as null clears the value when it can be cleared. The service groups, categories, traps, '
+                    . 'contacts, contact groups, notification options and stalking options each have three keys, of '
+                    . 'which only one can be sent: the list is replaced, added to ("_to_add") or removed from '
+                    . '("_to_remove"); service groups, categories, contacts and contact groups the user cannot see stay '
+                    . 'linked. The custom macros (in "check_options") also have three keys, of which only one can be '
+                    . 'sent: "macros" replaces them, "macros_to_upsert" writes the macros given and keeps the other ones, '
+                    . 'and "macros_to_remove" removes macros by id. Password macros are written to the vault, when one '
+                    . 'is configured, before the service is saved. A service linked to several hosts keeps only the one '
+                    . 'it is read with.',
                 responses: [
                     204 => new Model\Response('Service updated (or left as it was when nothing changed)'),
                     403 => new Model\Response('You are not allowed to update services'),
-                    404 => new Model\Response('Service not found'),
+                    404 => new Model\Response('Service not found, or a nested reference (command, time period, icon, '
+                        . 'contact, contact group) that no longer exists'),
+                    409 => new Model\Response('The name is already used by another service on the host'),
                     422 => new Model\Response('Invalid input'),
+                    502 => new Model\Response('The vault could not be reached'),
                 ],
             ),
             security: "is_granted('" . ServicePermissionEnum::CanReadAndWrite->value . "')",
