@@ -826,6 +826,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // the column collation ignores case: "PPM" must not be taken for the "ppm" system folder
         $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'PPM']);
         $this->connection->insert('view_img_dir', ['dir_id' => 304, 'dir_name' => 'Dashboards']);
+
         $userId = new UserId($this->createContact('user-no-acl-system-case-media'));
 
         self::assertSame([], $this->fixtureImageFolderIds($this->repository->findImageFolderAccessScope($userId)));
@@ -835,6 +836,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     {
         $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'centreon-map']);
         $this->connection->insert('view_img_dir', ['dir_id' => 304, 'dir_name' => 'ppm']);
+
         $contactId = $this->createContact('user-granted-and-system-media');
         // granting a system folder explicitly must not duplicate it in the scope
         $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301, 303], allImageFolders: false);
