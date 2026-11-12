@@ -23,30 +23,77 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
+use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
+use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Aggregate\VaultScopedInterface;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
 
 /**
- * Deliberately minimal: only what the DeleteHost cascade needs (identify the service, know its
- * host, log its deletion, purge its vault entry). Not the full ~40-field service configuration
- * model — that belongs to a future dedicated Service CRUD migration, not this one.
+ * A real service on its one host: own configuration, relations by id, and its host's state as loaded. A listing
+ * hydrates only part of it.
  *
  * @extends AggregateRoot<ServiceId>
  */
-final class Service extends AggregateRoot implements VaultScopedInterface
+final class Service extends AggregateRoot implements AclScopedInterface, PollerScopedInterface, VaultScopedInterface
 {
     /**
-     * @param list<ServiceMacro> $macros the service's own custom macros ($_SERVICE<NAME>$)
+     * @param bool $hostActivated whether its host is enabled, as loaded with the service
+     * @param ?PollerId $hostPollerId the poller of its host, as loaded with the service, null when the host has none
+     * @param Collection<ServiceGroupId> $serviceGroupIds the groups it belongs to on its host
+     * @param Collection<ServiceCategoryId> $categoryIds levelless categories; the levelled one is $severityId
+     * @param Collection<TrapId> $trapIds
      */
     public function __construct(
         ?ServiceId $id,
         public readonly ServiceName $name,
         public readonly HostId $hostId,
-        public readonly array $macros = [],
+        public readonly bool $hostActivated,
+        public readonly ?PollerId $hostPollerId,
+        // Mutable (the other fields are readonly) so enable()/disable() can toggle it.
+        public bool $activated = true,
+        public readonly ?ServiceTemplateId $templateId = null,
+        public readonly ServiceCheckOptions $checkOptions = new ServiceCheckOptions(null),
+        public readonly ServiceSchedulingOptions $schedulingOptions = new ServiceSchedulingOptions(),
+        public readonly ?ServiceNotifications $notifications = null,
+        public readonly ServiceDataProcessing $dataProcessing = new ServiceDataProcessing(),
+        public readonly ?ServiceExtendedInformations $extendedInformations = null,
+        public readonly ?GraphTemplateId $graphTemplateId = null,
+        public readonly ?ServiceSeverityId $severityId = null,
+        public readonly Collection $serviceGroupIds = new Collection([], ServiceGroupId::class),
+        public readonly Collection $categoryIds = new Collection([], ServiceCategoryId::class),
+        public readonly Collection $trapIds = new Collection([], TrapId::class),
     ) {
         parent::__construct($id);
+    }
+
+    /**
+     * The poller whose configuration must be regenerated when this service changes: the one of its host, and
+     * only while that host is enabled (a disabled host is not monitored, so its poller has nothing to reload).
+     * Read from the host state loaded with the service, so it is still known once the service row is deleted.
+     */
+    public function pollerToFlag(): ?PollerId
+    {
+        return $this->hostActivated ? $this->hostPollerId : null;
+    }
+
+    public function enable(): void
+    {
+        $this->activated = true;
+    }
+
+    public function disable(): void
+    {
+        $this->activated = false;
     }
 
     /**
@@ -58,7 +105,7 @@ final class Service extends AggregateRoot implements VaultScopedInterface
      */
     public function getVaultUuid(VaultInterface $vault): ?string
     {
-        foreach ($this->macros as $macro) {
+        foreach ($this->checkOptions->macros as $macro) {
             if ($macro->isPassword && $vault->isVaultPath($macro->value)) {
                 return $vault->extractUuid($macro->value);
             }

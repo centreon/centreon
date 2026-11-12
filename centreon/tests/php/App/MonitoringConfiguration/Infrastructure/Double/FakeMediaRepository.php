@@ -34,6 +34,12 @@ final class FakeMediaRepository implements MediaRepository
     /** @var list<int> ids of the media that exist */
     public array $existingIds = [];
 
+    /** @var array<int, Media> the media {@see findByIds()} returns, indexed by id */
+    public array $media = [];
+
+    /** @var list<list<int>> the ids asked to {@see findByIds()}, one list per call */
+    public array $receivedIds = [];
+
     public function existsOne(MediaId $id): bool
     {
         return in_array($id->value, $this->existingIds, true);
@@ -46,6 +52,9 @@ final class FakeMediaRepository implements MediaRepository
 
     public function findByIds(Collection $ids): Collection
     {
-        return new Collection([], Media::class);
+        $idValues = array_values(array_map(static fn (MediaId $id): int => $id->value, $ids->toArray()));
+        $this->receivedIds[] = $idValues;
+
+        return new Collection(array_intersect_key($this->media, array_flip($idValues)), Media::class);
     }
 }

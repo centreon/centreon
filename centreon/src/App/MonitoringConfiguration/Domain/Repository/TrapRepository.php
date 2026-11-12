@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\Trap;
+use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TrapCriteria;
+use App\Shared\Domain\Collection;
 
 interface TrapRepository
 {
@@ -34,4 +36,14 @@ interface TrapRepository
      * @return \IteratorAggregate<int, Trap>&\Countable
      */
     public function findAll(?TrapCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * The requested traps with their vendor. Like {@see findAll()}, a trap without a vendor or a name is
+     * absent, as is an id that does not exist.
+     *
+     * @param Collection<TrapId> $ids
+     *
+     * @return Collection<Trap> indexed by trap id
+     */
+    public function findByIds(Collection $ids): Collection;
 }

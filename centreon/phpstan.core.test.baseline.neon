@@ -2427,13 +2427,13 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 2
+			count: 3
 			path: tests/php/Core/Security/Token/Application/UseCase/GetToken/GetTokenTest.php
 
 		-
 			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 4
+			count: 11
 			path: tests/php/Core/Security/Token/Application/UseCase/GetToken/GetTokenTest.php
 
 		-

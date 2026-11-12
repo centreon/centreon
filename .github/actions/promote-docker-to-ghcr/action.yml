@@ -7,7 +7,7 @@ description: >
   promote-to-stable-pulp.
 inputs:
   ghcr_image:
-    description: "Destination image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-snmptrapd)"
+    description: "Destination image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-trapd)"
     required: true
   harbor_image:
     description: "Source image ref on Harbor, no tag"

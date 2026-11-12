@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Application\Command\ListChange;
 use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
+use App\MonitoringConfiguration\Application\EventHandler\FlagPollerChangedEventHandler;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
@@ -40,12 +41,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
@@ -57,6 +55,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
@@ -193,7 +193,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
         foreach ([1, 2, 3] as $id) {
             $this->hostGroupRepository->hostGroups[$id] = new HostGroup(new HostGroupId($id), new HostGroupName('group-' . $id));
-            $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('template-' . $id), new Collection([], HostMacro::class));
+            $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('template-' . $id));
             $this->hostCategoryRepository->hostCategories[$id] = new HostCategory(new HostCategoryId($id), new HostCategoryName('category-' . $id));
             $this->contactRepository->names[$id] = new NotificationContactName('contact-' . $id);
             $this->contactGroupRepository->names[$id] = new ContactGroupName('contact-group-' . $id);
@@ -652,6 +652,24 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceVaultPurgeRequested::class, 1));
     }
 
+    public function testACleanedUpServiceAlsoFlagsAclAndThePollerOfItsEnabledHost(): void
+    {
+        $this->seedHost(templateIds: [1]);
+        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10]];
+        $service = $this->seedService('ping', serviceTemplateId: 10);
+
+        ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
+
+        // The removed service also flags ACL once more and its enabled host's poller.
+        $deleted = $this->eventBus->getDispatchedEvents(ServiceDeleted::class);
+        self::assertCount(1, $deleted);
+        self::assertSame($service, $deleted[0]->aggregate);
+
+        $pollerRepository = new FakePollerRepository();
+        (new FlagPollerChangedEventHandler($pollerRepository))($deleted[0]);
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+    }
+
     public function testAServiceAKeptTemplateAlsoProvidesIsKept(): void
     {
         $this->seedHost(templateIds: [1, 2]);
@@ -892,7 +910,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
     private function seedService(string $name, int $serviceTemplateId): Service
     {
-        $service = new Service(null, new ServiceName($name), new HostId(self::HOST_ID));
+        $service = new Service(null, new ServiceName($name), new HostId(self::HOST_ID), hostActivated: true, hostPollerId: new PollerId(1));
         $this->serviceRepository->add($service);
         $this->serviceRepository->serviceTemplateIdOf[$service->id()->value] = $serviceTemplateId;
 

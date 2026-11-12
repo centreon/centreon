@@ -26,9 +26,14 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
+use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 
 final class FakeServiceRepository implements ServiceRepository
 {
@@ -37,6 +42,21 @@ final class FakeServiceRepository implements ServiceRepository
 
     /** @var array<int, int> the service template of a service, indexed by service id */
     public array $serviceTemplateIdOf = [];
+
+    /** @var list<Service> what {@see findAll()} returns, one per listed (host, service) pair */
+    public array $listed = [];
+
+    /** @var list<ServiceCriteria> */
+    public array $requestedCriteria = [];
+
+    /** @var list<int> ids of stored services that {@see findOne()} hides from an actor whose access is restricted */
+    public array $outOfRestrictedScopeIds = [];
+
+    /** @var list<array{id: int, activated: bool}> */
+    public array $activationUpdates = [];
+
+    /** Every name taken, as by a concurrent write after the input validation. */
+    public bool $forceNameUsed = false;
 
     public function add(Service $service): void
     {
@@ -49,6 +69,25 @@ final class FakeServiceRepository implements ServiceRepository
         $reflection->setValue($service, new ServiceId($id));
 
         $this->services[$id] = $service;
+    }
+
+    public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool
+    {
+        if ($this->forceNameUsed) {
+            return true;
+        }
+
+        foreach ($this->services as $id => $service) {
+            if (
+                $id !== $excludingServiceId?->value
+                && $service->hostId->value === $hostId->value
+                && strcasecmp($service->name->value, $name->value) === 0
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection
@@ -75,5 +114,52 @@ final class FakeServiceRepository implements ServiceRepository
     public function remove(Service $service): void
     {
         unset($this->services[$service->id()->value]);
+    }
+
+    /**
+     * Returns {@see $listed} as it is: filtering, sorting and scoping are SQL, pinned by the integration tests
+     * of the real repository. Records the criteria it is asked with, so a caller's mapping can be checked.
+     */
+    public function findAll(ServiceCriteria $criteria): \IteratorAggregate&\Countable
+    {
+        $this->requestedCriteria[] = $criteria;
+
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof Pagination) {
+            return new Collection($this->listed, Service::class);
+        }
+
+        return new InMemoryPaginator(
+            new Collection(array_slice($this->listed, $pagination->getOffset(), $pagination->itemsPerPage), Service::class),
+            count($this->listed),
+            $pagination->page,
+            $pagination->itemsPerPage,
+        );
+    }
+
+    /**
+     * Service found unless listed in {@see $outOfRestrictedScopeIds} for a restricted actor; real visibility is SQL.
+     */
+    public function findOne(ServiceId $id, ActingUser $actor): ?Service
+    {
+        $service = $this->services[$id->value] ?? null;
+        if ($service === null) {
+            return null;
+        }
+
+        if (! $actor->hasUnrestrictedResourceAccess() && in_array($id->value, $this->outOfRestrictedScopeIds, true)) {
+            return null;
+        }
+
+        return $service;
+    }
+
+    /**
+     * Only records the write: the stored aggregate is the caller's, which changes it itself, so a caller that
+     * forgets to do so is caught.
+     */
+    public function updateActivationStatus(ServiceId $id, bool $activated): void
+    {
+        $this->activationUpdates[] = ['id' => $id->value, 'activated' => $activated];
     }
 }

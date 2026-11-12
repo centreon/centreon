@@ -57,9 +57,8 @@ To start Storybook server, run:
 
 # Tests architecture
 
-There are two kinds of tests in Centreon UI.
+Centreon UI tests are component tests:
 - Jest + RTL and Cypress: Component testing. We want to migrate from Jest to Cypress
-- Chromatic: Chromatic is a tool that snapshots our stories and better handle snapshots changes using a review process
 
 
 ### Run Jest tests

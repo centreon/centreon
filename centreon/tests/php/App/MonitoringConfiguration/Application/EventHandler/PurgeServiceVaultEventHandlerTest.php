@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Application\EventHandler;
 use App\MonitoringConfiguration\Application\EventHandler\PurgeServiceVaultEventHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
@@ -88,7 +89,9 @@ final class PurgeServiceVaultEventHandlerTest extends TestCase
             id: new ServiceId(1),
             name: new ServiceName('ping'),
             hostId: new HostId(1),
-            macros: $macros,
+            hostActivated: true,
+            hostPollerId: null,
+            checkOptions: new ServiceCheckOptions(null, [], $macros),
         );
     }
 }

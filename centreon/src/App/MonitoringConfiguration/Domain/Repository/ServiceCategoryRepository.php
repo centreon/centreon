@@ -24,8 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
+use App\Shared\Domain\Collection;
 
 interface ServiceCategoryRepository
 {
@@ -40,4 +42,14 @@ interface ServiceCategoryRepository
      * @return \IteratorAggregate<int, ServiceCategory>&\Countable
      */
     public function findAll(ServiceCategoryCriteria $criteria): \IteratorAggregate&\Countable;
+
+    /**
+     * Never returns a severity, though both share the `service_categories` table. Disabled categories included,
+     * whatever the actor's scope; an id absent from the result does not exist, or has no name.
+     *
+     * @param Collection<ServiceCategoryId> $ids
+     *
+     * @return Collection<ServiceCategoryName> indexed by id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
 }

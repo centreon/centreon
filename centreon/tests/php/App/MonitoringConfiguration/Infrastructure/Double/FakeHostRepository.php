@@ -25,8 +25,10 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\ActingUser;
@@ -37,6 +39,9 @@ use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 
 final class FakeHostRepository implements HostRepository
 {
+    /** @var array<int, HostState> by host id, hosts only {@see findState()} knows: their aggregate cannot load */
+    public array $states = [];
+
     /** @var array<int, Host> */
     public array $hosts = [];
 
@@ -60,6 +65,12 @@ final class FakeHostRepository implements HostRepository
 
     /** @var list<Host> */
     public array $macrosReplacedHosts = [];
+
+    /** @var list<list<int>> the host ids asked to {@see findNamesByIds()}, one list per call */
+    public array $receivedNameHostIds = [];
+
+    /** @var list<list<int>> the host ids asked to {@see findIconIdsByIds()}, one list per call */
+    public array $receivedIconHostIds = [];
 
     private readonly AccessScopeResolver $accessScopes;
 
@@ -126,6 +137,21 @@ final class FakeHostRepository implements HostRepository
         }
 
         return $host;
+    }
+
+    public function findState(HostId $id, ActingUser $actor): ?HostState
+    {
+        if (! $this->accessScopes->hosts($actor, new Collection([$id], HostId::class))->allows($id)) {
+            return null;
+        }
+
+        if (isset($this->states[$id->value])) {
+            return $this->states[$id->value];
+        }
+
+        $host = $this->hosts[$id->value] ?? null;
+
+        return $host instanceof Host ? new HostState($host->activated, $host->pollerId) : null;
     }
 
     public function findMacros(HostId $id): Collection
@@ -222,6 +248,7 @@ final class FakeHostRepository implements HostRepository
 
     public function findNamesByIds(Collection $ids): Collection
     {
+        $this->receivedNameHostIds[] = array_values(array_map(static fn (HostId $id): int => $id->value, $ids->toArray()));
         $names = [];
         foreach ($ids as $id) {
             if (isset($this->hosts[$id->value])) {
@@ -230,6 +257,20 @@ final class FakeHostRepository implements HostRepository
         }
 
         return new Collection($names, HostName::class);
+    }
+
+    public function findIconIdsByIds(Collection $ids): Collection
+    {
+        $this->receivedIconHostIds[] = array_values(array_map(static fn (HostId $id): int => $id->value, $ids->toArray()));
+        $iconIds = [];
+        foreach ($ids as $id) {
+            $iconId = ($this->hosts[$id->value] ?? null)?->extendedInformations?->iconId;
+            if ($iconId !== null) {
+                $iconIds[$id->value] = $iconId;
+            }
+        }
+
+        return new Collection($iconIds, MediaId::class);
     }
 
     public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection

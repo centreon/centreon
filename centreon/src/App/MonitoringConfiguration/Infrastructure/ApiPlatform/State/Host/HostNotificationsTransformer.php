@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\NotificationContact\NotificationContactResource;
@@ -59,10 +59,10 @@ final readonly class HostNotificationsTransformer implements TransformerInterfac
         }
 
         return new HostNotificationsOutput(
-            enabled: $from->enabled->value,
+            enabled: $from->enabled,
             contacts: $this->resolveContacts($from),
             contactGroups: $this->resolveNotificationContactGroups($from),
-            options: array_map(NotificationOptionEnumResolver::toString(...), $from->options),
+            options: array_map(static fn (NotificationOptionEnum $option): string => $option->value, $from->options),
             interval: $from->interval,
             timeperiod: $this->resolveTimePeriod($from->periodId),
             firstDelay: $from->firstDelay,

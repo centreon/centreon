@@ -30,6 +30,7 @@ use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostCategoryPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostCategory\ListHostCategoriesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostCategory\ListHostCategoriesProvider;
 
@@ -40,6 +41,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostCategory\Li
             uriTemplate: '/configuration/hosts/host_categories',
             openapi: false,
             security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host categories',
+            itemUriTemplate: '/configuration/host_categories/{id}',
+            output: HostCategoryChoicesOutput::class,
+            provider: ListHostCategoriesChoicesProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/configuration/host_templates/host_categories',
+            openapi: false,
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access host categories',
             itemUriTemplate: '/configuration/host_categories/{id}',
             output: HostCategoryChoicesOutput::class,

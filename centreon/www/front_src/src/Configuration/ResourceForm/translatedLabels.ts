@@ -11,6 +11,11 @@ export const labelCommand = 'Command';
 export const labelFreshnessCheck = 'Freshness check';
 export const labelDataProcessing = 'Data processing';
 export const labelFlapDetection = 'Flap detection';
+export const labelCustomMacros = 'Custom macros';
+
+// Templates
+export const labelSelectATemplate = 'Select a template';
+export const labelEditTemplate = 'Modify';
 
 // Form validation
 export const labelRequired = 'Required';
@@ -21,6 +26,10 @@ export const labelMustBeIntegerOfAtLeastOne =
 export const labelMustBeAtMostCharacters =
   '{{label}} can be at most {{max}} characters';
 export const labelInvalidGeographicCoordinates = 'geo coords are not valid';
+export const labelFillAllArgumentsOrNone =
+  'You must either fill all the arguments or leave them all empty';
+export const labelArgumentsForbiddenTokens =
+  'Arguments must not contain #BR#, #T# or #R#';
 
 export const labelSnmpCommunity = 'SNMP community';
 export const labelSnmpVersion = 'Version';
@@ -32,6 +41,7 @@ export const labelNormalCheckInterval = 'Check interval';
 export const labelRetryCheckInterval = 'Retry interval';
 export const labelActiveChecksEnabled = 'Enable active checks';
 export const labelPassiveChecksEnabled = 'Enable passive checks';
+export const labelIsVolatile = 'Is Volatile';
 
 // Yes / No / third state fields: the design words the third state per field.
 export const labelYes = 'Yes';
@@ -43,6 +53,9 @@ export const labelNotificationEnabled = 'Enable notifications';
 export const labelContactAdditiveInheritance = 'Add to inherited contacts';
 export const labelContactGroupAdditiveInheritance =
   'Add to inherited contact groups';
+// Only a service may notify its host's recipients instead of its own.
+export const labelInheritContactsFromHost =
+  'Inherit only contacts/contacts group from host';
 export const labelLinkedContacts = 'Linked contacts';
 export const labelLinkedContactGroups = 'Linked contact groups';
 export const labelNotificationInterval = 'Notify again every';
@@ -63,6 +76,20 @@ export const labelEventHandlerEnabled = 'Enable event handler';
 // Legacy's label for the arguments of the check command and the event handler.
 export const labelArgs = 'Args';
 export const labelSeconds = 'seconds';
+export const labelEventHandlerArgumentsNeedAnEventHandler =
+  'No event handler selected';
+export const labelForbiddenEventHandlerArguments =
+  'The following arguments are not valid: {{arguments}}';
+// The on-premise directives of a service (legacy msgids).
+export const labelMiscellaneous = 'Miscellaneous';
+export const labelObsessOverService = 'Obsess Over Service';
+export const labelRetainStatusInformation = 'Retain Status Information';
+export const labelRetainNonStatusInformation = 'Retain Non Status Information';
+export const labelStalkingOptions = 'Stalking Options';
+export const labelOk = 'Ok';
+export const labelWarning = 'Warning';
+export const labelUnknown = 'Unknown';
+export const labelCritical = 'Critical';
 // The unit of the delays the engine counts in intervals of one minute.
 export const labelTimesSixtySeconds = '* 60 seconds';
 
@@ -74,6 +101,9 @@ export const labelIcon = 'Icon';
 export const labelAltIcon = 'Alt icon';
 export const labelGeographicCoordinates = 'Geographic coordinates';
 export const labelComments = 'Comments';
+
+// A severity option, as the legacy select shows it.
+export const labelSeverityWithLevel = '{{name}} ({{level}})';
 
 // Mass change
 export const labelUpdateMode = 'Update mode';

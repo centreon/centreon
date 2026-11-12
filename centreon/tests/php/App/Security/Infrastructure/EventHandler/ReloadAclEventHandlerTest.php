@@ -35,11 +35,18 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Event\HostDeleted;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
+use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
+use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
+use App\MonitoringConfiguration\Domain\Event\ServiceDisabled;
+use App\MonitoringConfiguration\Domain\Event\ServiceEnabled;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
@@ -231,6 +238,111 @@ final class ReloadAclEventHandlerTest extends TestCase
         self::assertSame([], $resourceAccessRepository->grantedAccess);
         self::assertSame([], $accessGroupRepository->flaggedGroupIds);
         self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    /**
+     * A non-admin creator sees the service they created at once: it is granted to their groups.
+     */
+    public function testItGrantsACreatedService(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $service = $this->createService();
+        $handler(new ServiceCreated($service, 7));
+
+        self::assertCount(1, $resourceAccessRepository->grantedAccess);
+        self::assertSame($service, $resourceAccessRepository->grantedAccess[0]['resource']);
+        self::assertSame([10, 20], $resourceAccessRepository->grantedAccess[0]['accessGroupIds']);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesWithoutGrantingWhenAnAdminCreatesAService(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $handler(new ServiceCreated($this->createService(), 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItFlagsOnlyTheDeletersGroupsWhenAServiceIsDeletedByANonAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $handler(new ServiceDeleted($this->createService(), 7));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesWhenAServiceIsDeletedByAnAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $handler(new ServiceDeleted($this->createService(), 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItFlagsOnlyTheActorsGroupsWhenAServiceIsEnabledByANonAdmin(): void
+    {
+        // Enabling or disabling a service is an update: caught through the AggregateUpdated supertype.
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $handler(new ServiceEnabled($this->createService(), 7));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesWhenAServiceIsDisabledByAnAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $handler(new ServiceDisabled($this->createService(), 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    private function createService(): Service
+    {
+        return new Service(
+            id: new ServiceId(1),
+            name: new ServiceName('ping'),
+            hostId: new HostId(1),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        );
     }
 
     private function createHandler(

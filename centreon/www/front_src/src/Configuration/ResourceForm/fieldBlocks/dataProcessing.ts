@@ -1,13 +1,19 @@
 import { InputType, type SelectEntry } from '@centreon/ui';
 
+import type { TFunction } from 'i18next';
 import { createElement } from 'react';
 import { JsonDecoder } from 'ts.data.json';
-import { object } from 'yup';
+import { type ObjectShape, object, string } from 'yup';
 
 import { optionalNamedEntityDecoder } from '../api/decoders';
 import { argumentsToText, textToArguments } from '../commandArguments';
-import { getBlock } from '../grid';
-import type { FieldBlock, NamedEntity, ResourceOptions } from '../models';
+import { fourColumnsFromNarrow, getBlock, threeColumnsFromWide } from '../grid';
+import type {
+  FieldBlock,
+  FormValues,
+  NamedEntity,
+  ResourceOptions
+} from '../models';
 import {
   getIntegerSchema,
   type OptionalNumber,
@@ -21,20 +27,31 @@ import {
   labelArguments,
   labelAutoRemediation,
   labelCommand,
+  labelCritical,
   labelDataProcessing,
   labelEnableFreshnessCheck,
   labelEventHandler,
+  labelEventHandlerArgumentsNeedAnEventHandler,
   labelEventHandlerEnabled,
   labelFlapDetection,
   labelFlapDetectionEnabled,
+  labelForbiddenEventHandlerArguments,
   labelFreshnessCheck,
   labelFreshnessThreshold,
   labelHighFlapThreshold,
   labelLowFlapThreshold,
+  labelMiscellaneous,
   labelMustBeIntegerOfAtLeastOne,
   labelMustBePositiveIntegerOrZero,
+  labelObsessOverService,
+  labelOk,
+  labelRetainNonStatusInformation,
+  labelRetainStatusInformation,
   labelSeconds,
-  labelTimesSixtySeconds
+  labelStalkingOptions,
+  labelTimesSixtySeconds,
+  labelUnknown,
+  labelWarning
 } from '../translatedLabels';
 import {
   defaultTriState,
@@ -43,8 +60,9 @@ import {
   triStateOptions
 } from '../triState';
 
-// The four blocks fill the form's `dataProcessing` and the API's
-// `data_processing`.
+// The blocks fill the form's `dataProcessing`, and a group of the API:
+// `data_processing` for a host, the `apiGroup` a resource names otherwise.
+const defaultApiGroup = 'data_processing';
 interface DataProcessingDetail<Values> {
   dataProcessing: Values;
 }
@@ -66,7 +84,7 @@ const getDataProcessingDecoder = <Values>({
     ).map((value) => value ?? defaultValues)
   }) as JsonDecoder.DecoderObject<DataProcessingDetail<Values>>;
 
-const detailKeyMap = { dataProcessing: 'data_processing' } as const;
+const getDetailKeyMap = (apiGroup: string) => ({ dataProcessing: apiGroup });
 
 const getDataProcessing = <Values>(
   values: Record<string, unknown>,
@@ -80,33 +98,42 @@ const getInputIds = (idPrefix: string, fieldName: string) => ({
 
 const getTriStateInput = ({
   fieldName,
+  getDisabled,
   idPrefix,
+  isLabelShown = false,
   label
 }: {
   fieldName: string;
+  getDisabled?: (values: FormValues) => boolean;
   idPrefix: string;
+  // Hidden when the block title already names the field.
+  isLabelShown?: boolean;
   label: string;
 }) => ({
   ...getInputIds(idPrefix, fieldName),
+  ...(getDisabled && { getDisabled }),
   label,
-  segmentedButtons: { hideLabel: true, options: triStateOptions },
+  segmentedButtons: { hideLabel: !isLabelShown, options: triStateOptions },
   type: InputType.SegmentedButtons
 });
 
 const getNumberInput = ({
   fieldName,
+  getDisabled,
   idPrefix,
   label,
   min,
   unit
 }: {
   fieldName: string;
+  getDisabled?: (values: FormValues) => boolean;
   idPrefix: string;
   label: string;
   min: number;
   unit?: string;
 }) => ({
   ...getInputIds(idPrefix, fieldName),
+  ...(getDisabled && { getDisabled }),
   label,
   text: {
     ...(unit && { endAdornment: createElement('span', null, unit) }),
@@ -129,14 +156,49 @@ const defaultEventHandler: EventHandlerValues = {
   eventHandlerEnabled: defaultTriState
 };
 
+// What the engine reads as a line break, a tab or a carriage return.
+const forbiddenArgumentTokens = ['#BR#', '#T#', '#R#'];
+
+// Arguments wait for an event handler, and none may hold what the engine would
+// read as a line break, a tab or a carriage return. `!` cannot end up inside
+// one: it is the separator.
+const getEventHandlerArgumentsSchema = (t: TFunction) =>
+  string()
+    .test(
+      'needs-an-event-handler',
+      t(labelEventHandlerArgumentsNeedAnEventHandler),
+      (value, { parent }) =>
+        !value || !!(parent as EventHandlerValues).eventHandler
+    )
+    .test('has-no-forbidden-token', (value, { createError }) => {
+      const invalidArguments = textToArguments(value ?? '').filter((argument) =>
+        forbiddenArgumentTokens.some((token) => argument.includes(token))
+      );
+
+      return (
+        invalidArguments.length === 0 ||
+        createError({
+          message: t(labelForbiddenEventHandlerArguments, {
+            arguments: invalidArguments.join(', ')
+          })
+        })
+      );
+    });
+
 // The command the engine runs on a state change. Its arguments are refused on
 // cloud.
 export const getEventHandlerBlock = ({
+  apiGroup = defaultApiGroup,
   commandsEndpoint,
-  resource: { baseEndpoint, idPrefix }
+  resource: { baseEndpoint, idPrefix },
+  withArgumentsRules = false
 }: {
+  apiGroup?: string;
   commandsEndpoint: string;
   resource: ResourceOptions;
+  // Checks the arguments as `getEventHandlerArgumentsSchema` says, where the
+  // API refuses them otherwise.
+  withArgumentsRules?: boolean;
 }): FieldBlock<DataProcessingDetail<EventHandlerValues>> => ({
   defaultValues: { dataProcessing: defaultEventHandler },
   detailDecoders: getDataProcessingDecoder<EventHandlerValues>({
@@ -154,7 +216,7 @@ export const getEventHandlerBlock = ({
       eventHandlerEnabled: 'event_handler_enabled'
     }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ isCloudPlatform, t }) => ({
     eventHandler: getBlock({
       columns: [
@@ -194,12 +256,19 @@ export const getEventHandlerBlock = ({
       title: t(labelAutoRemediation)
     })
   }),
-  getSchema: () => ({}),
+  getSchema: ({ isCloudPlatform, t }): ObjectShape =>
+    withArgumentsRules && !isCloudPlatform
+      ? {
+          dataProcessing: object({
+            eventHandlerArgs: getEventHandlerArgumentsSchema(t)
+          })
+        }
+      : {},
   toPayload: (values, { isCloudPlatform }) => {
     const dataProcessing = getDataProcessing(values, defaultEventHandler);
 
     return {
-      data_processing: {
+      [apiGroup]: {
         event_handler_command_id: dataProcessing.eventHandler?.id ?? null,
         event_handler_enabled: dataProcessing.eventHandlerEnabled,
         ...(!isCloudPlatform && {
@@ -220,10 +289,21 @@ const defaultFreshness: FreshnessValues = {
   freshnessThreshold: ''
 };
 
+// The threshold of a forced freshness check
+// (`DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD`).
+const forcedFreshnessThreshold = 500;
+
 // Whether the engine checks the results are recent enough, and how recent.
 export const getFreshnessBlock = ({
+  apiGroup = defaultApiGroup,
+  isForced,
   resource: { idPrefix }
 }: {
+  apiGroup?: string;
+  // When it holds, as for a Centreon Monitoring Agent check command, the
+  // check is on with a 500 s threshold whatever the fields say: they are
+  // disabled and the payload sends those values.
+  isForced?: (values: FormValues) => boolean;
   resource: ResourceOptions;
 }): FieldBlock<DataProcessingDetail<FreshnessValues>> => ({
   defaultValues: { dataProcessing: defaultFreshness },
@@ -238,18 +318,20 @@ export const getFreshnessBlock = ({
       freshnessThreshold: 'freshness_threshold'
     }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ t }) => ({
     freshness: getBlock({
       columns: [
         getTriStateInput({
           fieldName: 'checkFreshness',
+          getDisabled: isForced,
           idPrefix,
           label: t(labelEnableFreshnessCheck)
         }),
         // 0 leaves the threshold to the engine.
         getNumberInput({
           fieldName: 'freshnessThreshold',
+          getDisabled: isForced,
           idPrefix,
           label: t(labelFreshnessThreshold),
           min: 0,
@@ -270,10 +352,19 @@ export const getFreshnessBlock = ({
     })
   }),
   toPayload: (values) => {
+    if (isForced?.(values)) {
+      return {
+        [apiGroup]: {
+          check_freshness: 'true',
+          freshness_threshold: forcedFreshnessThreshold
+        }
+      };
+    }
+
     const dataProcessing = getDataProcessing(values, defaultFreshness);
 
     return {
-      data_processing: {
+      [apiGroup]: {
         check_freshness: dataProcessing.checkFreshness,
         freshness_threshold: toApiNumber(dataProcessing.freshnessThreshold)
       }
@@ -291,8 +382,10 @@ const defaultAcknowledgmentTimeout: AcknowledgmentTimeoutValues = {
 
 // How long an acknowledgement lasts. Refused on cloud.
 export const getAcknowledgmentTimeoutBlock = ({
+  apiGroup = defaultApiGroup,
   resource: { idPrefix }
 }: {
+  apiGroup?: string;
   resource: ResourceOptions;
 }): FieldBlock<DataProcessingDetail<AcknowledgmentTimeoutValues>> => ({
   defaultValues: { dataProcessing: defaultAcknowledgmentTimeout },
@@ -302,7 +395,7 @@ export const getAcknowledgmentTimeoutBlock = ({
     // The API spells it without the legacy `e`.
     keyMap: { acknowledgmentTimeout: 'acknowledgment_timeout' }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ isCloudPlatform, t }) =>
     isCloudPlatform
       ? {}
@@ -334,7 +427,7 @@ export const getAcknowledgmentTimeoutBlock = ({
     isCloudPlatform
       ? {}
       : {
-          data_processing: {
+          [apiGroup]: {
             acknowledgment_timeout: toApiNumber(
               getDataProcessing(values, defaultAcknowledgmentTimeout)
                 .acknowledgmentTimeout
@@ -358,8 +451,14 @@ const defaultFlapping: FlappingValues = {
 // Whether the engine detects a flapping state, and between which thresholds.
 // Refused on cloud.
 export const getFlappingBlock = ({
+  apiGroup = defaultApiGroup,
+  maxThreshold,
   resource: { idPrefix }
 }: {
+  apiGroup?: string;
+  // The highest threshold the form takes, and the untranslated message for
+  // one out of 0–max. Without it the server alone enforces a cap.
+  maxThreshold?: { max: number; message: string };
   resource: ResourceOptions;
 }): FieldBlock<DataProcessingDetail<FlappingValues>> => ({
   defaultValues: { dataProcessing: defaultFlapping },
@@ -376,7 +475,7 @@ export const getFlappingBlock = ({
       lowFlapThreshold: 'low_flap_threshold'
     }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ isCloudPlatform, t }) =>
     isCloudPlatform
       ? {}
@@ -409,12 +508,17 @@ export const getFlappingBlock = ({
           })
         },
   getSchema: ({ t }) => {
-    // No translated message for 0–100: the server enforces the cap.
+    // No cross-check between the two thresholds, as legacy.
     const positiveOrZero = () =>
-      getIntegerSchema({
-        message: t(labelMustBePositiveIntegerOrZero),
-        min: 0
-      });
+      maxThreshold
+        ? getIntegerSchema({
+            message: t(maxThreshold.message),
+            min: 0
+          }).max(maxThreshold.max, t(maxThreshold.message))
+        : getIntegerSchema({
+            message: t(labelMustBePositiveIntegerOrZero),
+            min: 0
+          });
 
     return {
       dataProcessing: object({
@@ -431,10 +535,148 @@ export const getFlappingBlock = ({
     const dataProcessing = getDataProcessing(values, defaultFlapping);
 
     return {
-      data_processing: {
+      [apiGroup]: {
         flap_detection_enabled: dataProcessing.flapDetectionEnabled,
         high_flap_threshold: toApiNumber(dataProcessing.highFlapThreshold),
         low_flap_threshold: toApiNumber(dataProcessing.lowFlapThreshold)
+      }
+    };
+  }
+});
+
+// In the order the API normalizes them, spelled as it does.
+const stalkingOptions = [
+  { label: labelOk, option: 'ok' },
+  { label: labelWarning, option: 'warning' },
+  { label: labelUnknown, option: 'unknown' },
+  { label: labelCritical, option: 'critical' }
+] as const;
+
+type StalkingOption = (typeof stalkingOptions)[number]['option'];
+
+// One checkbox input each, as `@centreon/ui` stores them: `CheckboxGroup`
+// empties its field once disabled, so read-only would show none checked.
+type StalkingOptionsValues = Record<StalkingOption, { checked: boolean }>;
+
+const toStalkingOptionsValues = (
+  options: Array<string>
+): StalkingOptionsValues =>
+  Object.fromEntries(
+    stalkingOptions.map(({ option }) => [
+      option,
+      { checked: options.includes(option) }
+    ])
+  ) as StalkingOptionsValues;
+
+interface ObsessRetainAndStalkingValues {
+  obsessOverService: TriState;
+  retainNonStatusInformation: TriState;
+  retainStatusInformation: TriState;
+  stalkingOptions: StalkingOptionsValues;
+}
+
+const defaultObsessRetainAndStalking: ObsessRetainAndStalkingValues = {
+  obsessOverService: defaultTriState,
+  retainNonStatusInformation: defaultTriState,
+  retainStatusInformation: defaultTriState,
+  stalkingOptions: toStalkingOptionsValues([])
+};
+
+// Whether the engine runs the OCSP command after each check, keeps the state
+// and the other information over a restart, and which states log every change
+// of the plugin output. On-premise only.
+export const getObsessRetainAndStalkingBlock = ({
+  apiGroup = defaultApiGroup,
+  resource: { idPrefix }
+}: {
+  apiGroup?: string;
+  resource: ResourceOptions;
+}): FieldBlock<DataProcessingDetail<ObsessRetainAndStalkingValues>> => ({
+  defaultValues: { dataProcessing: defaultObsessRetainAndStalking },
+  detailDecoders: getDataProcessingDecoder<ObsessRetainAndStalkingValues>({
+    decoders: {
+      obsessOverService: optionalTriStateDecoder,
+      retainNonStatusInformation: optionalTriStateDecoder,
+      retainStatusInformation: optionalTriStateDecoder,
+      stalkingOptions: JsonDecoder.optional(
+        JsonDecoder.nullable(
+          JsonDecoder.array(JsonDecoder.string, 'Stalking options')
+        )
+      ).map((value) => toStalkingOptionsValues(value ?? []))
+    },
+    defaultValues: defaultObsessRetainAndStalking,
+    keyMap: {
+      obsessOverService: 'obsess_over_service',
+      retainNonStatusInformation: 'retain_non_status_information',
+      retainStatusInformation: 'retain_status_information',
+      stalkingOptions: 'stalking_options'
+    }
+  }),
+  detailKeyMap: getDetailKeyMap(apiGroup),
+  getInputs: ({ t }) => ({
+    obsessRetainAndStalking: getBlock({
+      columns: [
+        getBlock({
+          className: threeColumnsFromWide,
+          columns: [
+            getTriStateInput({
+              fieldName: 'obsessOverService',
+              idPrefix,
+              isLabelShown: true,
+              label: t(labelObsessOverService)
+            }),
+            getTriStateInput({
+              fieldName: 'retainStatusInformation',
+              idPrefix,
+              isLabelShown: true,
+              label: t(labelRetainStatusInformation)
+            }),
+            getTriStateInput({
+              fieldName: 'retainNonStatusInformation',
+              idPrefix,
+              isLabelShown: true,
+              label: t(labelRetainNonStatusInformation)
+            })
+          ],
+          idPrefix,
+          name: 'data-processing-obsess-and-retain'
+        }),
+        getBlock({
+          className: fourColumnsFromNarrow,
+          columns: stalkingOptions.map(({ label, option }) => ({
+            dataTestId: `${idPrefix}-data-processing-stalkingOptions-${option}`,
+            fieldName: `dataProcessing.stalkingOptions.${option}`,
+            label: t(label),
+            type: InputType.Checkbox
+          })),
+          idPrefix,
+          name: 'data-processing-stalking-options',
+          title: t(labelStalkingOptions)
+        })
+      ],
+      idPrefix,
+      name: 'data-processing-obsess-retain-and-stalking',
+      title: t(labelMiscellaneous)
+    })
+  }),
+  getSchema: () => ({}),
+  isAvailable: ({ isCloudPlatform }) => !isCloudPlatform,
+  toPayload: (values) => {
+    const dataProcessing = getDataProcessing(
+      values,
+      defaultObsessRetainAndStalking
+    );
+
+    return {
+      [apiGroup]: {
+        obsess_over_service: dataProcessing.obsessOverService,
+        retain_non_status_information:
+          dataProcessing.retainNonStatusInformation,
+        retain_status_information: dataProcessing.retainStatusInformation,
+        // Deduplicated and in the API order by construction.
+        stalking_options: stalkingOptions
+          .map(({ option }) => option)
+          .filter((option) => dataProcessing.stalkingOptions?.[option]?.checked)
       }
     };
   }

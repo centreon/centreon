@@ -30,10 +30,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
+use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
@@ -86,6 +90,47 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame(10, (int) $rows[0]['group_id']);
         self::assertNull($rows[0]['service_id']);
         self::assertSame(20, (int) $rows[1]['group_id']);
+    }
+
+    /**
+     * A service is granted on its host: one (group, host, service) row per given group.
+     */
+    public function testGrantResourceAccessForAService(): void
+    {
+        $service = new Service(
+            id: new ServiceId(9002),
+            name: new ServiceName('ping'),
+            hostId: new HostId(9001),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        );
+
+        $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9002],
+        );
+
+        self::assertSame(
+            [[10, 9001, 9002], [20, 9001, 9002]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    /**
+     * An ACL-scoped aggregate with no mapping is refused rather than granted with rows of the wrong shape.
+     */
+    public function testGrantResourceAccessRefusesAnAggregateWithoutMapping(): void
+    {
+        $resource = new class (new HostId(9001)) extends AggregateRoot implements AclScopedInterface {
+        };
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('No ACL grant mapping for aggregate');
+
+        $this->repository->grantResourceAccess($resource, new Collection([new AccessGroupId(10)], AccessGroupId::class));
     }
 
     public function testFlagAllResourcesAsChangedFlagsEveryAclResource(): void
@@ -1098,6 +1143,21 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testTheServiceScopeIsRestrictedToTheUsersActiveAccessGroups(): void
+    {
+        // Which groups are active, directly or through a contact group, is pinned by DbalAccessGroupRepositoryTest:
+        // this only proves the scope is built from them.
+        $actorId = $this->createContact('actor-services-' . uniqid());
+        $groupId = $this->createAccessGroupForContact($actorId);
+        $this->createAccessGroupForContact($actorId, activated: '0');
+        $this->createAccessGroupForContact($this->createContact('other-services-' . uniqid()));
+
+        $scope = $this->repository->findServiceAccessGroupScope(new UserId($actorId));
+
+        self::assertFalse($scope->isUnrestricted());
+        self::assertSame([$groupId], $scope->allowedIdValues());
+    }
+
     /**
      * @param list<int|string> $params
      */
@@ -1109,13 +1169,13 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         return (int) $count;
     }
 
-    private function createAccessGroupForContact(int $contactId): int
+    private function createAccessGroupForContact(int $contactId, string $activated = '1'): int
     {
         $name = 'contact-acl-group-' . $contactId . '-' . random_int(1, PHP_INT_MAX);
         $this->connection->insert('acl_groups', [
             'acl_group_name' => $name,
             'acl_group_alias' => $name,
-            'acl_group_activate' => '1',
+            'acl_group_activate' => $activated,
         ]);
         $aclGroupId = (int) $this->connection->lastInsertId();
 

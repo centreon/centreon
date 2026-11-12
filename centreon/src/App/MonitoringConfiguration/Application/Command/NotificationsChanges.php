@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Exception\ExclusiveNotificationOptionException;
 use App\Shared\Domain\Aggregate\TriStateEnum;

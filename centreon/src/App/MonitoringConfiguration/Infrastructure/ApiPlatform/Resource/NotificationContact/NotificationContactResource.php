@@ -29,6 +29,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\NotificationContactPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\NotificationContact\ListNotificationContactsChoicesProvider;
@@ -52,6 +53,15 @@ use App\Shared\Infrastructure\ApiPlatform\Routing\PlatformCondition;
             condition: PlatformCondition::ON_PREMISE_ONLY,
             openapi: false,
             security: 'is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access contacts',
+            itemUriTemplate: '/configuration/contacts/{id}',
+            output: NotificationContactChoicesOutput::class,
+            provider: ListNotificationContactsChoicesProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/configuration/host_templates/contacts',
+            openapi: false,
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access contacts',
             itemUriTemplate: '/configuration/contacts/{id}',
             output: NotificationContactChoicesOutput::class,

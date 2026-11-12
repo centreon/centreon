@@ -6,7 +6,7 @@ import { ResponseError, useBulkResponse } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
-import { map, pick } from 'ramda';
+import { map, pick, prop, uniqBy } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useDisable, useEnable } from '../../../api';
@@ -44,8 +44,11 @@ const useMassiveActions = (): UseMassiveActions => {
   const setResourcesToDuplicate = useSetAtom(resourcesToDuplicateAtom);
 
   const resourceType = configuration?.resourceType;
-  const selectedRowsIds = selectedRows?.map((row) => row.id);
-  const selectedRowsEntities = map(pick(['id', 'name']), selectedRows);
+  // Rows that share a resource, such as a service on several hosts, act on it
+  // once.
+  const selectedResources = uniqBy(prop('id'), selectedRows ?? []);
+  const selectedRowsIds = selectedResources.map((row) => row.id);
+  const selectedRowsEntities = map(pick(['id', 'name']), selectedResources);
 
   const count = selectedRowsIds.length;
 
@@ -69,7 +72,7 @@ const useMassiveActions = (): UseMassiveActions => {
 
       handleBulkResponse({
         data: results,
-        items: selectedRows,
+        items: selectedResources,
         labelFailed: t(labelFailedToEnableResources(labelResourceType)),
         labelSuccess: t(labelResourceEnabled(labelResourceType)),
         labelWarning: t(labelFailedToEnableSomeResources)
@@ -89,7 +92,7 @@ const useMassiveActions = (): UseMassiveActions => {
 
       handleBulkResponse({
         data: results,
-        items: selectedRows,
+        items: selectedResources,
         labelFailed: t(labelFailedToDisableResources(labelResourceType)),
         labelSuccess: t(labelResourceDisabled(labelResourceType)),
         labelWarning: t(labelFailedToDisableSomeResources)

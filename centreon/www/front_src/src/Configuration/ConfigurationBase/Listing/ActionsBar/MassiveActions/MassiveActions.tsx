@@ -11,12 +11,13 @@ import { useTranslation } from 'react-i18next';
 
 import { labelMoreActions } from '../../../translatedLabels';
 import { selectedRowsAtom } from '../../atoms';
+import { listingDataTestIds } from '../../dataTestIds';
 import { useActionsStyles } from '../Actions.styles';
 import MoreActions from './MoreActions';
 
 const MassiveActions = (): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useActionsStyles({});
+  const { classes } = useActionsStyles();
 
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
 
@@ -30,7 +31,7 @@ const MassiveActions = (): JSX.Element => {
     <div className={classes.actions}>
       <Button
         aria-label={t(labelMoreActions)}
-        data-testid={labelMoreActions}
+        data-testid={listingDataTestIds.moreActions}
         disabled={isEmpty(selectedRowsIds)}
         icon={<MoreIcon />}
         iconVariant="start"

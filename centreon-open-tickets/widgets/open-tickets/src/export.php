@@ -36,6 +36,7 @@ require_once $centreon_path . 'www/class/centreonService.class.php';
 require_once $centreon_path . 'www/class/centreonHostcategories.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 
 $smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
 require_once $smartyDir . 'libs/Smarty.class.php';
@@ -309,15 +310,25 @@ if (isset($preferences['display_severities'])
     && isset($preferences['criticality_filter'])
     && $preferences['criticality_filter'] != ''
 ) {
-    $tab = explode(',', $preferences['criticality_filter']);
-    $labels = '';
-    foreach ($tab as $p) {
-        if ($labels != '') {
-            $labels .= ',';
-        }
-        $labels .= "'" . trim($p) . "'";
+    $names = array_map('trim', explode(',', $preferences['criticality_filter']));
+    // The legacy form stores names HTML-encoded while the API stores them as typed: match both.
+    $names = array_unique([
+        ...$names,
+        ...array_map(
+            static fn (string $name): string => htmlspecialchars($name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            $names
+        ),
+    ]);
+    [$bindValues, $bindQuery] = createMultipleBindQuery(
+        list: $names,
+        prefix: ':criticality_',
+        bindType: PDO::PARAM_STR
+    );
+    $res = $db->prepare('SELECT sc_id FROM service_categories WHERE sc_name IN (' . $bindQuery . ')');
+    foreach ($bindValues as $key => [$value, $type]) {
+        $res->bindValue($key, $value, $type);
     }
-    $res = $db->query('SELECT sc_id FROM service_categories WHERE sc_name IN (' . $labels . ')');
+    $res->execute();
     $idC = '';
     while ($d1 = $res->fetch()) {
         if ($idC != '') {
@@ -325,7 +336,8 @@ if (isset($preferences['display_severities'])
         }
         $idC .= $d1['sc_id'];
     }
-    $query .= ' AND cv2.`value` IN (' . $idC . ') ';
+    // No severity matches the filter: list nothing instead of building an invalid "IN ()".
+    $query .= $idC !== '' ? ' AND cv2.`value` IN (' . $idC . ') ' : ' AND 1 = 0 ';
 }
 if (! $centreon->user->admin) {
     $pearDB = $db;

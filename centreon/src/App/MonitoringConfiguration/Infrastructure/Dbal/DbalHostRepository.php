@@ -23,14 +23,17 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
+use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
@@ -323,6 +326,34 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         return $this->transformer->transform($row);
     }
 
+    public function findState(HostId $id, ActingUser $actor): ?HostState
+    {
+        if (! $this->accessScopes->hosts($actor, new Collection([$id], HostId::class))->allows($id)) {
+            return null;
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(
+            'h.host_activate',
+            // A host has one poller; the lowest id is read should legacy data link it to several.
+            '(SELECT MIN(nsr.nagios_server_id) FROM ns_host_relation nsr WHERE nsr.host_host_id = h.host_id) AS poller_id',
+        )
+            ->from(self::TABLE_NAME, 'h')
+            ->where($qb->expr()->eq('h.host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->andWhere("h.host_register = '1'");
+
+        /** @var array{host_activate: string|null, poller_id: int|string|null}|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+        if ($row === false) {
+            return null;
+        }
+
+        return new HostState(
+            activated: $row['host_activate'] === '1',
+            pollerId: $row['poller_id'] !== null ? new PollerId((int) $row['poller_id']) : null,
+        );
+    }
+
     public function findMacros(HostId $id): Collection
     {
         return new Collection(
@@ -547,6 +578,31 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         }
 
         return new Collection($names, HostName::class);
+    }
+
+    public function findIconIdsByIds(Collection $ids): Collection
+    {
+        $idValues = array_values(array_map(static fn (HostId $id): int => $id->value, $ids->toArray()));
+        if ($idValues === []) {
+            return new Collection([], MediaId::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('ehi.host_host_id', 'ehi.ehi_icon_image')
+            ->from('extended_host_information', 'ehi')
+            ->innerJoin('ehi', self::TABLE_NAME, 'h', "h.host_id = ehi.host_host_id AND h.host_register = '1'")
+            ->where($qb->expr()->in('ehi.host_host_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)))
+            ->andWhere('ehi.ehi_icon_image IS NOT NULL');
+
+        /** @var list<array{host_host_id: int|string, ehi_icon_image: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $iconIds = [];
+        foreach ($rows as $row) {
+            $iconIds[(int) $row['host_host_id']] = new MediaId((int) $row['ehi_icon_image']);
+        }
+
+        return new Collection($iconIds, MediaId::class);
     }
 
     public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection

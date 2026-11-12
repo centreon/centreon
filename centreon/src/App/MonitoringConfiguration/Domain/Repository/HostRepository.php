@@ -25,8 +25,10 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
@@ -45,6 +47,12 @@ interface HostRepository
      * returns null, the same as a host that does not exist at all, so as not to leak existence.
      */
     public function findOne(HostId $id, ActingUser $actor): ?Host;
+
+    /**
+     * Never a host template; null outside the actor's ACL scope, as for a missing host. Nothing else of the host
+     * is read, so its other stored data cannot make it fail.
+     */
+    public function findState(HostId $id, ActingUser $actor): ?HostState;
 
     /**
      * The host's own (direct) macros as stored, with their ids, in storage order — the narrow read
@@ -129,6 +137,16 @@ interface HostRepository
      * @return Collection<HostName> indexed by id
      */
     public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * The hosts' own icons, not the ones inherited from their templates. Never a host template; not scoped by
+     * ACL. A host without its own icon is absent from the result.
+     *
+     * @param Collection<HostId> $ids
+     *
+     * @return Collection<MediaId> indexed by host id
+     */
+    public function findIconIdsByIds(Collection $ids): Collection;
 
     /**
      * Includes $ids themselves, minus any that is not a host.
