@@ -57,6 +57,25 @@ Deptrac checks both boundaries (`composer dep:new`):
   ([0005](../adr/0005-isolate-legacy-in-infrastructure-legacy.md)), voters
   ([0015](../adr/0015-scope-resource-access-with-acting-user-and-access-scope.md)).
 
+## Aggregates and repositories
+
+- An aggregate root's id is `null` until it is persisted: the DBAL repository
+  sets it after the insert (`DbalRepository::setId()`), and `id()` throws a
+  `MissingIdException` before that.
+- A repository is an interface in `Domain/Repository/<Aggregate>/`, a
+  `Dbal*Repository` implementation and its transformers in
+  `Infrastructure/Dbal/<Aggregate>/`. Generic behaviour every aggregate needs
+  goes in `App\Shared`, not in one context.
+
+## API Platform
+
+- Input and Output DTOs sit next to their resource in
+  `Infrastructure/ApiPlatform/Resource/<Aggregate>/` (`CreateHostInput`,
+  `…ChoicesOutput`).
+- Payload and response properties are snake_case: API Platform uses the
+  `camel_case_to_snake_case` name converter
+  (`config.new/packages/api_platform.yaml`).
+
 ## Request flow
 
 - **Write**: an API Platform processor dispatches a command on `command.bus`.
@@ -69,6 +88,17 @@ Deptrac checks both boundaries (`composer dep:new`):
 - **Read**: an API Platform provider reads through repositories.
 
 Bus configuration: `config.new/packages/messenger.yaml`.
+
+## Static analysis
+
+Custom PHPStan rules in `phpstan.new.neon`, run by `composer stan:new`:
+
+- command and event handlers, API Platform resources, processors,
+  transformers and voters are `final`;
+- command and event handlers expose only `__construct()` and `__invoke()`, and
+  a command handler never uses the command bus;
+- every command or event handler, processor and `DbalRepository` has a test;
+- enums are suffixed `Enum`.
 
 ## Tests
 
