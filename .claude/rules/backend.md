@@ -16,14 +16,7 @@ paths:
 
 # Backend (PHP)
 
-- The [ADR index](../../centreon/doc/php/adr/index.md) and the
-  [glossary](../../centreon/doc/php/glossary.md) are authoritative. For new
-  code, an ADR wins over the neighbouring code.
-- `src/App` is the target architecture; `src/Core` and legacy take fixes only.
-  Read the guide of the zone you touch:
-  [app](../../centreon/doc/php/architecture/app.md),
-  [core](../../centreon/doc/php/architecture/core.md),
-  [legacy](../../centreon/doc/php/architecture/legacy.md).
+Read the guide of the zone you touch, linked from the root `AGENTS.md`.
 
 ## Pitfalls
 

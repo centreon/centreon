@@ -35,4 +35,6 @@ predate this rule. Database access goes through `src/Adaptation` (see
 `composer core:check` runs Rector, PHP CS Fixer and PHPStan on `src/Core`.
 Tests: `composer test` (unit) and `composer test:core` (integration).
 
-TODO: list what the CI enforces only on `src/Core` (custom PHPStan rules).
+Custom PHPStan rules in `phpstan.core.neon` enforce the repository naming
+(`Read`/`Write` interfaces, storage prefix) and keep the Domain away from
+Application and Infrastructure; `composer stan:core` runs them.

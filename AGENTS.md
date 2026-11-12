@@ -46,9 +46,6 @@ the zone you work in:
   or the PR description).
 - Enable the repository git hooks once with `git config core.hooksPath .githooks`
   (secret scanning). Never bypass them.
-- Personal notes go in `CLAUDE.local.md`, personal Claude Code settings in
-  `.claude/settings.local.json`; both are git-ignored. `.claude/settings.json`
-  is the shared baseline.
 
 ## Working rules for agents
 

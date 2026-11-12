@@ -1,9 +1,8 @@
 # `src/App` architecture
 
 How the target architecture fits together. This is a guide, not a rule book:
-the rules are the [ADRs](../adr/index.md) and the terms are in the
-[glossary](../glossary.md). If this guide and an ADR disagree, the ADR wins and
-this guide is fixed.
+the rules are the ADRs linked below. If this guide and an ADR disagree, the ADR
+wins and this guide is fixed.
 
 ## Two kernels
 
