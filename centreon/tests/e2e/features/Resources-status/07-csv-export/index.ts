@@ -61,6 +61,24 @@ const UPDATED_COLUMNS = [
   'Check'
 ];
 
+// Rows are sorted by status, which the real Centreon-Server services can change
+const findExportedRow = (
+  rows: Array<Record<string, string>>,
+  expected: Record<string, string>
+): Record<string, string> => {
+  const row = rows.find(
+    (candidate) =>
+      candidate['Resource Name'] === expected['Resource Name'] &&
+      candidate['Parent Resource Name'] === expected['Parent Resource Name']
+  );
+  expect(
+    row,
+    `${expected['Parent Resource Name']} / ${expected['Resource Name']} in the export`
+  ).to.not.equal(undefined);
+
+  return row as Record<string, string>;
+};
+
 const downloadsFolder = Cypress.config('downloadsFolder');
 
 before(() => {
@@ -82,6 +100,7 @@ before(() => {
   cy.intercept(`${INTERCEPTORS.api.monitor_resources}*`).as(
     'monitoringEndpoint'
   );
+  cy.intercept(`${INTERCEPTORS.api.monitor_resources}/export*`).as('csvExport');
 
   cy.startContainers();
 
@@ -239,11 +258,8 @@ When('the admin user clicks the Export button', () => {
   cy.getByLabel({ label: 'exportCsvButton', tag: 'button' }).click();
   cy.wait('@getResourceCount');
   cy.getByLabel({ label: 'Export', tag: 'button' }).click();
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Export processing in progress')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
-  });
+  // The progress snackbar can vanish before it is seen: wait for the export itself
+  cy.wait('@csvExport').its('response.statusCode').should('eq', 200);
 });
 
 Then('a CSV file should be downloaded', () => {
@@ -280,14 +296,13 @@ Then(
         cy.log(
           `Formatted JSON from CSV:\n${JSON.stringify(rowObjects, null, 2)}`
         );
-        const firstTwoRows = rowObjects.slice(0, 2);
 
         cy.fixture('resources/csvFIleWithAllPagesAndColumns.json').then(
           (expectedData) => {
             const firstTwoExpected = expectedData.slice(0, 2);
 
-            firstTwoRows.forEach((actualRow, index) => {
-              const expectedRow = firstTwoExpected[index];
+            firstTwoExpected.forEach((expectedRow, index) => {
+              const actualRow = findExportedRow(rowObjects, expectedRow);
 
               COLUMNS_TO_COMPARE.forEach((key) => {
                 expect(
@@ -337,11 +352,8 @@ Then('the admin user exports only visible columns and pages', () => {
   cy.getByTestId({ testId: 'Current page only' }).click();
   cy.wait('@getResourceCount');
   cy.getByLabel({ label: 'Export', tag: 'button' }).click();
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Export processing in progress')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
-  });
+  // The progress snackbar can vanish before it is seen: wait for the export itself
+  cy.wait('@csvExport').its('response.statusCode').should('eq', 200);
 });
 
 Then(
@@ -366,13 +378,12 @@ Then(
         cy.log(
           `Formatted JSON from CSV:\n${JSON.stringify(rowObjects, null, 2)}`
         );
-        const firstTwoRows = rowObjects.slice(0, 2);
 
         cy.fixture('resources/csvFIleWithOnlyVisiblePagesAndColumns.json').then(
           (expectedData) => {
             const firstTwoExpected = expectedData.slice(0, 2);
-            firstTwoRows.forEach((actualRow, index) => {
-              const expectedRow = firstTwoExpected[index];
+            firstTwoExpected.forEach((expectedRow, index) => {
+              const actualRow = findExportedRow(rowObjects, expectedRow);
 
               UPDATED_COLUMNS.forEach((key) => {
                 if (key === 'Last Check') return;

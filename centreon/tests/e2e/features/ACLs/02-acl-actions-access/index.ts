@@ -191,6 +191,11 @@ Then(
       cy.getIframeBody().contains('td.ListColLeft > a', aclGroup).click();
 
       cy.wait('@getTimeZone');
+      // The listing may still be displayed: wait for the access group form
+      cy.waitForElementInIframe(
+        '#main-content',
+        'a:contains("Authorizations information")'
+      );
       cy.getIframeBody().contains('a', 'Authorizations information').click();
 
       cy.getIframeBody()
