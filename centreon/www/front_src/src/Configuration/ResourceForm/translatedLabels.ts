@@ -77,7 +77,7 @@ export const labelEventHandlerEnabled = 'Enable event handler';
 export const labelArgs = 'Args';
 export const labelSeconds = 'seconds';
 export const labelEventHandlerArgumentsNeedAnEventHandler =
-  'Arguments need an event handler';
+  'Select an event handler to use these arguments, or clear them';
 export const labelForbiddenEventHandlerArguments =
   'The following arguments are not valid: {{arguments}}';
 // The on-premise directives of a service (legacy msgids).
