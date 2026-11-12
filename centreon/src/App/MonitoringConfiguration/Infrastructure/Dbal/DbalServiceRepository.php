@@ -810,17 +810,6 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     }
 
     /**
-     * @return list<int> the ids the query selects, in its order
-     */
-    private function fetchIds(QueryBuilder $qb): array
-    {
-        /** @var list<int|string> $values */
-        $values = $qb->executeQuery()->fetchFirstColumn();
-
-        return array_map(intval(...), $values);
-    }
-
-    /**
      * A real service, never a template, which shares the `service` table.
      */
     private function isRegisteredService(int $serviceId): bool
