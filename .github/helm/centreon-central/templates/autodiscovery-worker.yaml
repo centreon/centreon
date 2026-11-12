@@ -54,6 +54,7 @@ spec:
             - { name: MYSQL_PORT, value: {{ include "centreon-central.dbPort" . | quote }} }
             - { name: MYSQL_DB_CONFIGURATION, value: {{ .Values.database.configurationDb | quote }} }
             - { name: MYSQL_DB_STORAGE, value: {{ .Values.database.storageDb | quote }} }
+            {{- include "centreon-central.dbAdminUserEnv" . | nindent 12 }}
             {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_ROOT_PASSWORD" "key" "MYSQL_ROOT_PASSWORD") | nindent 12 }}
             {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_PASSWORD" "key" "MYSQL_PASSWORD") | nindent 12 }}
             {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" "APP_SECRET") | nindent 12 }}

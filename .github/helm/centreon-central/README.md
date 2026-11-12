@@ -458,7 +458,8 @@ ArgoCD, so APP_SECRET/SALT would rotate on each sync). Use
 `secrets.existingSecret` with keys `APP_SECRET`, `SALT`,
 `MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, `GORGONE_API_PASSWORD` (the
 `centreon-gorgone` service account, set by the install Job), optionally
-`ADMIN_PASSWORD`, plus `VALKEY_PASSWORD` with Valkey and `VAULT_ROLE_ID` /
+`ADMIN_PASSWORD` and `MYSQL_ROOT_USER` (database admin name, default
+`root`: see "External database"), plus `VALKEY_PASSWORD` with Valkey and `VAULT_ROLE_ID` /
 `VAULT_SECRET_ID` with Vault; or set the `secrets.*` values.
 `secrets.appSecret` and `secrets.salt` have no default (the install fails
 without them): give each 64 random hex characters, and never change them
@@ -535,9 +536,33 @@ TLS with a `kubernetes.io/tls` Secret whose names include `db`, to test all
 this without RDS. Validated on k3d: every client works against the
 TLS-required server, and every client refuses it with a wrong CA.
 
-Not covered: RDS privileges. The install connects as `root` and runs
-`GRANT ALL ... WITH GRANT OPTION`, while the RDS master user is usually
-`admin` and may not hold those privileges.
+## External database (AWS RDS)
+
+`database.bundled: false` with `database.externalHost` (and `database.tls`,
+above). The install Job and the admin checks (fpm, autodiscovery worker and
+config-delivery waits) connect as the database admin:
+
+- its name: Secret key `MYSQL_ROOT_USER` (optional in an `existingSecret`,
+  absent = `root`), or `secrets.dbRootUser` when the chart creates the
+  Secret; its password: `MYSQL_ROOT_PASSWORD`. An RDS master user has any
+  name; the bundled MariaDB only has `root` (the chart refuses another name).
+- what it needs: create the two databases, `CREATE USER`, and grant the
+  privileges below `WITH GRANT OPTION`, plus `SELECT` on `mysql.user`
+  (`createDbUser.php`) and `RELOAD` (`FLUSH PRIVILEGES`). An RDS master user
+  has all of it; no `SUPER`, `FILE` or global `ALL`.
+
+The install creates `centreon`@`%` when missing and, with an external
+database, grants it on the two Centreon schemas only
+(`CENTREON_DB_GRANT_SCOPE=schemas`): `SELECT, INSERT, UPDATE, DELETE,
+CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES,
+EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT,
+TRIGGER` on `configurationDb` and `storageDb` (the database-level privileges
+of an RDS master user, a superset of what the web installer requires). The
+bundled MariaDB and the compose stack keep `ALL ON *.* WITH GRANT OPTION`.
+
+RDS parameter group: `require_secure_transport=ON` (TLS above) and
+`log_bin_trust_function_creators=1` (binary logging is on with backups; the
+install creates no stored routine today, but upgrades may).
 
 ## Sizing for large configurations
 
@@ -622,9 +647,9 @@ If the kubeconfig entry points at `host.docker.internal` and times out:
 
 ## Known gaps
 
-- Untested: RWX on a real multi-node cluster (only simulated on k3d),
-  managed DB (the install runs `GRANT ALL ... WITH GRANT OPTION` as root,
-  likely refused on RDS), remote pollers (`pollers:`), APP_SECRET/salt carried
+- Untested: RWX on a real multi-node cluster (only simulated on k3d), a
+  real AWS RDS instance (see "External database": validated against a
+  MariaDB 11.8 configured like one), remote pollers (`pollers:`), APP_SECRET/salt carried
   over from a VM, a migrated DB whose broker configs were renamed or have a
   different history than a fresh install.
 - PHP sessions are files on the shared volume by default; `valkey.enabled`

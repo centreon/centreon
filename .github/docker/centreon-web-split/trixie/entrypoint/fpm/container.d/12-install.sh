@@ -31,6 +31,11 @@ fi
 export MYSQL_PORT="${MYSQL_PORT:-3306}"
 
 export MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
+# Database admin account of every step below (mysql CLI, inline PHP, and the
+# install's PHP steps through database.json's root_user). "root" by default;
+# a managed database (AWS RDS) has its own master user, without SUPER. The
+# password is MYSQL_ROOT_PASSWORD whatever the name.
+export MYSQL_ROOT_USER="${MYSQL_ROOT_USER:-root}"
 # INSTALL_DB_STEPS=false: per-container steps only (config files, APP_SECRET,
 # cache, engine-context.json, removing www/install), no schema install,
 # upgrade, module registration or SQL patch. For N fpm replicas where a
@@ -69,7 +74,7 @@ fi
 # wait until the server answers; an "Access denied" also means it is up, and
 # the install then fails on the real query with a clear error.
 echo "Waiting for DB server to be ready..."
-until out=$(mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot -p"${MYSQL_ROOT_PASSWORD}" --connect-timeout=5 -e 'SELECT 1' 2>&1) \
+until out=$(mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" -p"${MYSQL_ROOT_PASSWORD}" --connect-timeout=5 -e 'SELECT 1' 2>&1) \
   || printf '%s' "$out" | grep -q 'Access denied'; do
   sleep 1
 done
@@ -88,6 +93,7 @@ sed -i "s/\"db_storage\": \"[^\"]*\"/\"db_storage\": \"${MYSQL_DB_STORAGE}\"/" /
 php -r '
   $f = $argv[1];
   $j = json_decode(file_get_contents($f), true);
+  $j["root_user"] = getenv("MYSQL_ROOT_USER");
   $j["root_password"] = getenv("MYSQL_ROOT_PASSWORD");
   if ((string) getenv("MYSQL_PASSWORD") !== "") {
     $j["db_password"] = $j["db_password_confirm"] = getenv("MYSQL_PASSWORD");
@@ -161,7 +167,7 @@ if [ "$INSTALL_DB_STEPS" != "true" ]; then
   echo "INSTALL_DB_STEPS=false — skipping database install/upgrade steps."
   ALREADY_INSTALLED="skip"
 else
-  ALREADY_INSTALLED=$(mysql -N -s -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot -e \
+  ALREADY_INSTALLED=$(mysql -N -s -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" -e \
     "SELECT count(*) from information_schema.tables WHERE table_schema='${MYSQL_DB_CONFIGURATION}' and table_name='nagios_server'")
 fi
 
@@ -203,7 +209,7 @@ else
 
   if [ "${ADMIN_PASSWORD_EXPIRED:-false}" = "true" ]; then
     echo "Marking admin's password as expired (forces a change on next login)..."
-    mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+    mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e "
       UPDATE contact_password SET creation_date = UNIX_TIMESTAMP(NOW()) - 15552000 - 86400
       WHERE contact_id = (SELECT contact_id FROM contact WHERE contact_alias = 'admin')"
   fi
@@ -256,10 +262,27 @@ CENTRAL_ID="${CENTRAL_POLLER_ID:-1}"
 DB_JSON=/usr/share/centreon/www/install/tmp/database.json
 DB_USER=$(php -r 'echo json_decode(file_get_contents($argv[1]), true)["db_user"];' "$DB_JSON")
 DB_PASSWORD=$(php -r 'echo json_decode(file_get_contents($argv[1]), true)["db_password"];' "$DB_JSON")
+#
+# CENTREON_DB_GRANT_SCOPE=schemas (the Helm chart with an external database):
+# privileges on the two Centreon schemas only. A managed database (AWS RDS)
+# refuses GRANT ALL ON *.*: its master user has no SUPER, FILE... The list
+# is the database-level privileges an RDS master user holds, a superset of
+# createDbUser.php's mandatory ones (EXECUTE and routines added). Default
+# (compose, bundled MariaDB): unchanged, global with GRANT OPTION.
 echo "Granting the Centreon DB user from any host..."
-mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot -e "
-  CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
-  GRANT ALL ON *.* TO '${DB_USER}'@'%' WITH GRANT OPTION"
+if [ "${CENTREON_DB_GRANT_SCOPE:-global}" = "schemas" ]; then
+  DB_PRIVILEGES="SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER,
+    CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE,
+    ALTER ROUTINE, EVENT, TRIGGER"
+  mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" -e "
+    CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
+    GRANT ${DB_PRIVILEGES} ON \`${MYSQL_DB_CONFIGURATION}\`.* TO '${DB_USER}'@'%';
+    GRANT ${DB_PRIVILEGES} ON \`${MYSQL_DB_STORAGE}\`.* TO '${DB_USER}'@'%'"
+else
+  mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" -e "
+    CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
+    GRANT ALL ON *.* TO '${DB_USER}'@'%' WITH GRANT OPTION"
+fi
 
 # Password of the centreon-gorgone service account (the user gorgone logs in
 # to the Centreon API with). The install derives it from gorgone's own
@@ -281,7 +304,7 @@ if [ -n "${GORGONE_API_PASSWORD:-}" ]; then
     }
     $pdo = new PDO(
       "mysql:host=" . getenv("MYSQL_HOST") . ";port=" . getenv("MYSQL_PORT") . ";dbname=" . getenv("MYSQL_DB_CONFIGURATION"),
-      "root", getenv("MYSQL_ROOT_PASSWORD"),
+      getenv("MYSQL_ROOT_USER"), getenv("MYSQL_ROOT_PASSWORD"),
       $options
     );
     $stmt = $pdo->prepare(
@@ -319,7 +342,7 @@ fi
 # after insertBaseConf.php on a fresh install: it does, this block runs after
 # the install branch.
 echo "Marking Central as a containerized poller (poller_type=docker, pullwss)..."
-mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e "
   UPDATE nagios_server
      SET localhost = '1', poller_type = 'docker',
          gorgone_communication_type = '4', gorgone_port = '8087'
@@ -329,7 +352,7 @@ mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e 
 # triggerGorgoneNodesSyncIfPullwss() (configServers/DB-Func.php) uses it to
 # tell gorgone-central to resync its nodes whenever a poller is saved.
 echo "Pointing gorgone_api_address at gorgone-central..."
-mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e \
+mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e \
   "UPDATE options SET value = 'gorgone-central' WHERE \`key\` = 'gorgone_api_address'"
 
 # Broker configs of Central:
@@ -345,7 +368,7 @@ mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e 
 #   UI-created RRD output (blockId is UI bookkeeping, excluded from the
 #   generated JSON).
 echo "Adapting Central's broker configuration (db_host/db_port, cbmod output, RRD merge)..."
-mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e "
   SET @master = (
     SELECT b.config_id FROM cfg_centreonbroker b
       JOIN cfg_centreonbroker_info i ON i.config_id = b.config_id
@@ -445,7 +468,7 @@ else
   RRD_CACHED_VALUE=""
   RRD_HOST_VALUE=""
 fi
-mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e "
   SET @master = (
     SELECT b.config_id FROM cfg_centreonbroker b
       JOIN cfg_centreonbroker_info i ON i.config_id = b.config_id
@@ -476,7 +499,7 @@ mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e 
 # in the UI is kept. Engine never rotates it: the generator does not write
 # max_log_file_size, which stays 0 (a rotation would rename /dev/stdout).
 echo "Sending Central's engine log to stdout..."
-mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e "
   UPDATE cfg_nagios SET log_file = '/dev/stdout'
    WHERE nagios_server_id = ${CENTRAL_ID}
      AND log_file = '/var/log/centreon-engine/centengine.log'"
@@ -500,7 +523,7 @@ chown www-data:www-data /etc/centreon-engine/engine-context.json
 
 if [ "$INSTALL_DB_STEPS" = "true" ]; then
   echo "Disabling statistics collection..."
-  mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -uroot "${MYSQL_DB_CONFIGURATION}" -e \
+  mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e \
     "DELETE FROM options WHERE \`key\` = 'send_statistics'; INSERT INTO options (\`key\`, \`value\`) VALUES ('send_statistics', '0')"
 fi
 
