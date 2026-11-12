@@ -65,6 +65,7 @@ interface Props {
   // inheritance of the notification recipients.
   isAdditiveInheritanceEnabled?: boolean;
   isCloudPlatform?: boolean;
+  listingResponse?: object;
   // Opens the page on a deep link, such as `?mode=edit&id=0`.
   searchParams?: string;
 }
@@ -75,6 +76,7 @@ const initialize = ({
   intervalLength = 60,
   isAdditiveInheritanceEnabled = false,
   isCloudPlatform = false,
+  listingResponse = getListingResponse(),
   searchParams = ''
 }: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
@@ -104,7 +106,7 @@ const initialize = ({
     alias: 'getAllServices',
     method: Method.GET,
     path: `**${servicesListEndpoint}?**`,
-    response: isEmpty ? emptyListingResponse : getListingResponse()
+    response: isEmpty ? emptyListingResponse : listingResponse
   });
 
   interceptAPIRequest({
@@ -239,8 +241,9 @@ const initialize = ({
     );
   });
 
-  // Every write names one service, so each row has its own intercept.
-  [0, 2].forEach((id) => {
+  // Every write names one service, so each row has its own intercept. 5 is
+  // the service of the shared listing.
+  [0, 2, 5].forEach((id) => {
     interceptAPIRequest({
       alias: `deleteService${id}`,
       method: Method.DELETE,

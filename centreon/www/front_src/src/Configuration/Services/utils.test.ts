@@ -1,4 +1,4 @@
-import { toDuration } from './utils';
+import { getServiceRowId, toDuration } from './utils';
 
 describe('toDuration', () => {
   it('returns null for an interval nothing sets', () => {
@@ -18,5 +18,16 @@ describe('toDuration', () => {
 
   it('shows a zero interval as zero minutes', () => {
     expect(toDuration(0, 60)).toEqual({ count: 0, unit: 'min' });
+  });
+});
+
+describe('getServiceRowId', () => {
+  it('tells apart the rows of a service linked to several hosts', () => {
+    const row = { host: { id: 10, name: 'host A' }, id: 5, name: 'ping' };
+
+    expect(getServiceRowId(row)).toBe('10_5');
+    expect(getServiceRowId({ ...row, host: { id: 11, name: 'host B' } })).toBe(
+      '11_5'
+    );
   });
 });

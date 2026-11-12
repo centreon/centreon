@@ -8,6 +8,7 @@ import {
   labelWelcomeToServices
 } from '../translatedLabels';
 import initialize from './initialize';
+import { getSharedServiceListingResponse } from './utils';
 
 export default () => {
   describe('Listing: ', () => {
@@ -42,6 +43,18 @@ export default () => {
       expect(await screen.findByText('cpu')).toBeVisible();
       expect(screen.getByText('memory')).toBeVisible();
       expect(screen.getByText('disk')).toBeVisible();
+    });
+
+    it('tells apart the rows of a service linked to several hosts', async () => {
+      initialize({ listingResponse: getSharedServiceListingResponse() });
+
+      await waitForRequest('@getAllServices');
+
+      // The listing hovers, selects and keys its rows by this id.
+      expect(
+        await screen.findByLabelText('Select row 10_5')
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText('Select row 11_5')).toBeInTheDocument();
     });
 
     it('displays the welcome page when no service exists', async () => {
