@@ -15,16 +15,12 @@ rewrite in an unrelated PR.
 ## Bridges
 
 - `src/Adaptation`: database and logging adapters used by legacy and
-  `src/Core` code.
-  New database calls go through
+  `src/Core` code. New database calls go through
   `Adaptation\Database\Connection\ConnectionInterface`, even when the injected
   instance is a `CentreonDB`; queries use the query builder and bound
-  parameters ([ADR-0010](../adr/0010-parameterize-repository-queries.md)).
-  Logging adapters are in `src/Adaptation/Log`.
-- From `src/App` to legacy: adapters in `Infrastructure/Legacy`
-  ([ADR-0005](../adr/0005-isolate-legacy-in-infrastructure-legacy.md)).
-- From legacy to Symfony services: a dedicated service locator
-  ([ADR-0006](../adr/0006-expose-symfony-services-to-legacy-via-service-locator.md)).
+  parameters. Logging adapters are in `src/Adaptation/Log`.
+- From `src/App` to legacy: adapters in `Infrastructure/Legacy`.
+- From legacy to Symfony services: a dedicated service locator.
 
 ## Quality
 

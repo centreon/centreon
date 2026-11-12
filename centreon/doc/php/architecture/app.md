@@ -1,13 +1,12 @@
 # `src/App` architecture
 
 How the target architecture fits together. This is a guide, not a rule book:
-the rules are the ADRs linked below. If this guide and an ADR disagree, the ADR
-wins and this guide is fixed.
+the rules are the ADRs. If this guide and an ADR disagree, the ADR wins and this
+guide is fixed.
 
 ## Two kernels
 
-`centreon/` runs two Symfony kernels side by side
-([ADR-0007](../adr/0007-serve-new-endpoints-under-api-only.md)):
+`centreon/` runs two Symfony kernels side by side:
 
 |            | New kernel                                 | Legacy kernel                                 |
 | ---------- | ------------------------------------------ | --------------------------------------------- |
@@ -36,26 +35,13 @@ Deptrac checks both boundaries (`composer dep:new`):
 
 ## Layers
 
-- **Domain**: aggregates, entities and value objects in `Domain/Model`
-  ([ADR-0002](../adr/0002-name-domain-folder-model.md),
-  [0009](../adr/0009-aggregates-readonly-by-default.md),
-  [0012](../adr/0012-change-aggregate-internals-through-the-root.md)),
+- **Domain**: aggregates, entities and value objects in `Domain/Model`,
   repository interfaces in `Domain/Repository`, events in `Domain/Event`.
-- **Application**: commands and their handlers, event handlers
-  ([0001](../adr/0001-validate-in-input-and-handler.md),
-  [0013](../adr/0013-messages-carry-serializable-values-only.md),
-  [0014](../adr/0014-one-aggregate-per-command.md)).
+- **Application**: commands and their handlers, event handlers.
 - **Infrastructure**: API Platform resources, state providers and processors in
-  `Infrastructure/ApiPlatform`
-  ([0008](../adr/0008-one-resource-per-path.md),
-  [0011](../adr/0011-keep-selector-endpoints-out-of-api-doc.md)), DBAL
-  repositories and transformers in `Infrastructure/Dbal`
-  ([0003](../adr/0003-name-transformers-after-their-output.md),
-  [0004](../adr/0004-transformers-are-dedicated-classes.md),
-  [0010](../adr/0010-parameterize-repository-queries.md)), adapters to legacy
-  code in `Infrastructure/Legacy`
-  ([0005](../adr/0005-isolate-legacy-in-infrastructure-legacy.md)), voters
-  ([0015](../adr/0015-scope-resource-access-with-acting-user-and-access-scope.md)).
+  `Infrastructure/ApiPlatform`, DBAL repositories and transformers in
+  `Infrastructure/Dbal`, adapters to legacy code in `Infrastructure/Legacy`,
+  voters.
 
 ## Aggregates and repositories
 
@@ -108,7 +94,8 @@ skips the `*/Infrastructure` folders, which need a database: run them with
 
 ## Known gaps
 
-- Some contexts still have a `Domain/Aggregate` folder that predates ADR-0002.
+- Some contexts still have a `Domain/Aggregate` folder that predates the ADR
+  naming it `Model`.
   New code goes in `Domain/Model`.
 - Do not bring `src/Core` patterns into `src/App`: no use case and presenter
   classes, no `Read*`/`Write*` repository interfaces in `Application/`.
