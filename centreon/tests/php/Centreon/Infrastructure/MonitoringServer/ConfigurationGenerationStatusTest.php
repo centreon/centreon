@@ -52,14 +52,6 @@ class ConfigurationGenerationStatusTest extends TestCase
         rmdir($this->generatePath);
     }
 
-    private function removeDirectory(string $path): void
-    {
-        foreach (glob($path . '/*') ?: [] as $child) {
-            is_dir($child) ? $this->removeDirectory($child) : unlink($child);
-        }
-        rmdir($path);
-    }
-
     public function testNeverGeneratedPollerIsAccepted(): void
     {
         // Pollers generated before this check existed keep the previous behaviour
@@ -134,5 +126,13 @@ class ConfigurationGenerationStatusTest extends TestCase
         $status->markStarted(1, 'admin');
 
         $this->assertFileExists($generatePath . '/1.generation-incomplete');
+    }
+
+    private function removeDirectory(string $path): void
+    {
+        foreach (glob($path . '/*') ?: [] as $child) {
+            is_dir($child) ? $this->removeDirectory($child) : unlink($child);
+        }
+        rmdir($path);
     }
 }
