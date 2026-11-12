@@ -60,6 +60,12 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var list<array{serviceId: int, hostId: int}> */
     public array $addedHostLinks = [];
 
+    /**
+     * @var list<int> ids of stored services {@see findExclusivelyLinkedToHostId()} still lists but
+     *                {@see findOneOnHost()} no longer finds, as when a service is deleted between the two reads
+     */
+    public array $goneBeforeLoadIds = [];
+
     /** @var list<int> ids of stored services that {@see findOne()} hides from an actor whose access is restricted */
     public array $outOfRestrictedScopeIds = [];
 
@@ -84,11 +90,18 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var list<Service> */
     public array $relationsReplacedServices = [];
 
+    /** Thrown by add(), to stand for a failure after the vault was written. */
+    public ?\Throwable $addThrows = null;
+
     /** Thrown by update(), to stand for a failure after the vault was written. */
     public ?\Throwable $updateThrows = null;
 
     public function add(Service $service): void
     {
+        if ($this->addThrows instanceof \Throwable) {
+            throw $this->addThrows;
+        }
+
         do {
             $id = mt_rand();
         } while (isset($this->services[$id]));
@@ -205,6 +218,9 @@ final class FakeServiceRepository implements ServiceRepository
     public function findOneOnHost(ServiceId $id, HostId $hostId): ?Service
     {
         $service = $this->services[$id->value] ?? null;
+        if (in_array($id->value, $this->goneBeforeLoadIds, true)) {
+            return null;
+        }
 
         return $service?->hostId->value === $hostId->value ? $service : null;
     }
