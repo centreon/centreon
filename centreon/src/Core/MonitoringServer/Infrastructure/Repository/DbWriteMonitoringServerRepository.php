@@ -40,7 +40,6 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
 
     /** MySQL deadlock (1213) and lock wait timeout (1205) errors, worth retrying. */
     private const RETRYABLE_LOCK_ERRORS = [1205, 1213];
-
     private const LOCK_RETRY_ATTEMPTS = 3;
 
     /**
