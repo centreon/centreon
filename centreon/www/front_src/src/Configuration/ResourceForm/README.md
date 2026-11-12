@@ -16,12 +16,15 @@ A `FieldBlock` (`models.ts`) owns a few fields end to end:
 - `getInputs(context)`: the inputs it hands over, keyed by a `BlockId`;
 - `getSchema(context)`: its validation rules;
 - `toPayload(values, context)`: its slice of the API payload;
-- optional `isAvailable(context)`: when false, the block is left out entirely
-  (cloud, mass change);
+- optional `isAvailable(context)`: when false, the block is left out of the
+  form (cloud, mass change), mass change defaults included. Its update mode
+  fields and its warning still count: `massChange.ts` reads them from every
+  block, available or not;
 - optional `massChange`: its update mode fields, defaults and warning.
 
 `blocks.ts` merges the blocks of a page: defaults, decoded detail and payloads
-are merged deeply, and schemas on the same key are concatenated. So several
+are merged deeply. Schemas on the same key are concatenated when both are
+object schemas; otherwise the last one replaces the other. So several
 blocks may share one object (`checkOptions`, `notifications`,
 `dataProcessing`…), but **two blocks never own the same field**: the last one
 would silently win.
