@@ -26,9 +26,9 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 use App\Shared\Domain\Exception\AggregateConflictException;
 
 /**
- * The notification options a partial update leaves a host with combine "none" with another option.
- * Reported against the notifications of the input, since the options come from the host as much as
- * from the request.
+ * The notification options a partial update leaves a host or a service with combine "none" with another
+ * option. Reported against the notifications of the input, since the options come from the stored ones as
+ * much as from the update.
  */
 final class ExclusiveNotificationOptionException extends AggregateConflictException
 {

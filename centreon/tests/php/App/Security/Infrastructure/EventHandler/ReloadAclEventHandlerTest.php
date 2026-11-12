@@ -340,6 +340,8 @@ final class ReloadAclEventHandlerTest extends TestCase
     /**
      * A non-admin who moves a service to another host keeps seeing it there at once: the service, on its new
      * host, is granted to their groups.
+     *
+     * @param \Closure(Service): (ServiceUpdated|ServiceMassChanged) $event
      */
     #[DataProvider('moveEvents')]
     public function testItGrantsAMovedService(\Closure $event): void
