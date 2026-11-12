@@ -966,6 +966,58 @@ final class CreateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
+     * Every read the creation needs is done before the vault write: a failure there leaves no secret behind.
+     */
+    public function testAFailedReadAfterTheRulesLeavesTheVaultUntouched(): void
+    {
+        $this->optionRepository->throws = true;
+
+        try {
+            ($this->handler)($this->command(
+                notifications: $this->notifications(additiveInheritance: true),
+                macroChanges: [new ServiceMacroChange(new ServiceMacroName('pwd'), 's3cr3t', isPassword: true)],
+            ));
+            self::fail('Expected the option read to fail');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('Unable to read the option', $exception->getMessage());
+        }
+
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame([], $this->serviceRepository->services);
+    }
+
+    /**
+     * An inherited password promoted with its value kept is copied under the service's own vault entry, never
+     * shared through the template's path, so editing or deleting the template cannot change the service's secret.
+     */
+    public function testAPromotedTemplatePasswordIsCopiedUnderTheServiceOwnVaultEntry(): void
+    {
+        $templateSecret = 'secret::vault::monitoring/services/tpl-uuid::_SERVICETPLPWD';
+        $this->vault->resolved[$templateSecret] = 'tpl-secret';
+        $this->serviceTemplateRepository->templates[30] = new ServiceTemplate(
+            new ServiceTemplateId(30),
+            new ServiceTemplateName('template-30'),
+            checkCommandId: new CommandId(self::CHECK_COMMAND_ID),
+            macros: new Collection([new ServiceMacro(new ServiceMacroName('tplpwd'), $templateSecret, isPassword: true, id: new ServiceMacroId(70))], ServiceMacro::class),
+        );
+        $this->serviceTemplateRepository->names[30] = 'template-30';
+
+        $service = ($this->handler)($this->command(templateId: 30, macroChanges: [
+            new ServiceMacroChange(new ServiceMacroName('mypwd'), null, isPassword: true, id: new ServiceMacroId(70), parent: ServiceMacroParentEnum::Template),
+        ]));
+
+        self::assertSame(
+            [['customPath' => 'monitoring/services', 'secrets' => ['_SERVICEMYPWD' => 'tpl-secret'], 'uuid' => null, 'deletes' => []]],
+            $this->vault->writeManyCalls,
+        );
+        self::assertSame(
+            [['MYPWD', 'secret::vault::monitoring/services/new-uuid::_SERVICEMYPWD', true]],
+            $this->describeMacros($service->checkOptions->macros),
+        );
+        self::assertNull($service->checkOptions->macros[0]->id);
+    }
+
+    /**
      * A vault failure is an upstream failure (HTTP 502): nothing is saved and no event fires.
      */
     public function testVaultFailureSavesNothing(): void

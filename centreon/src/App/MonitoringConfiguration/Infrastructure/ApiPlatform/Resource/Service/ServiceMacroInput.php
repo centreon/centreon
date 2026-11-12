@@ -40,12 +40,12 @@ final readonly class ServiceMacroInput
 {
     public function __construct(
         // The short name (e.g. "MYMACRO"); the domain wraps it to $_SERVICE<NAME>$. Its length is bounded so the
-        // wrapped form fits on_demand_macro_service.svc_macro_name, as ServiceMacroName's own limit. No character-set
-        // rule: legacy only upper-cases and stores the name. Only blankness, storage width and reserved names are
-        // enforced.
+        // wrapped form fits on_demand_macro_service.svc_macro_name, as ServiceMacroName's own limit, measured on the
+        // same upper-cased form (upper-casing can lengthen a name: "ß" becomes "SS"). No character-set rule: legacy
+        // only upper-cases and stores the name. Only blankness, storage width and reserved names are enforced.
         #[Assert\Sequentially([
             new Assert\NotBlank(normalizer: 'trim'),
-            new Assert\Length(max: ServiceMacroName::MAX_STORAGE_LENGTH - 10, normalizer: 'trim'),
+            new Assert\Length(max: ServiceMacroName::MAX_STORAGE_LENGTH - 10, normalizer: [self::class, 'normalizeName']),
             new ReservedMacroName(prefix: '$_SERVICE'),
         ])]
         public string $name,
@@ -71,6 +71,14 @@ final readonly class ServiceMacroInput
         #[Assert\Choice(callback: [self::class, 'parents'])]
         public ?string $parent = null,
     ) {
+    }
+
+    /**
+     * The form ServiceMacroName stores.
+     */
+    public static function normalizeName(string $name): string
+    {
+        return mb_strtoupper(trim($name));
     }
 
     /**

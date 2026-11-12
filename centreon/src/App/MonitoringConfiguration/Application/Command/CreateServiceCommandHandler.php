@@ -205,7 +205,11 @@ final readonly class CreateServiceCommandHandler
             [],
             $this->inheritedMacrosResolver->resolve($command->templateId, $command->checkCommandId),
         );
-        // The vault is written last, once every rule passed, and before the service is saved.
+        $notifications = $this->additiveInheritanceModeApplier->applyToService(
+            $this->withHostContactsOnlyIfAsked($command->notifications, $command->actor),
+        );
+        // The vault is written last, once every rule passed and every other read is done, right before the service
+        // is saved: nothing but the save itself can fail after it.
         $checkOptions = new ServiceCheckOptions($command->checkCommandId, $command->checkCommandArgs, $this->vaultPasswords($macros));
 
         $service = new Service(
@@ -218,9 +222,7 @@ final readonly class CreateServiceCommandHandler
             templateId: $command->templateId,
             checkOptions: $checkOptions,
             schedulingOptions: $command->schedulingOptions,
-            notifications: $this->additiveInheritanceModeApplier->applyToService(
-                $this->withHostContactsOnlyIfAsked($command->notifications, $command->actor),
-            ),
+            notifications: $notifications,
             // Only a Centreon Monitoring Agent command set on the service forces the freshness, as legacy.
             dataProcessing: $checkCommand?->isCentreonMonitoringAgent() === true
                 ? $command->dataProcessing->withCentreonMonitoringAgentFreshness()

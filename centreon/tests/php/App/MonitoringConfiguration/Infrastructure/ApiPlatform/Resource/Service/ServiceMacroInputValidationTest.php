@@ -71,6 +71,14 @@ final class ServiceMacroInputValidationTest extends TestCase
             ['name' => 'This value is too long. It should have 245 characters or less.'],
         ];
 
+        // "ß" upper-cases to "SS": the length is the one of the stored, upper-cased name.
+        yield 'name of 244 characters once upper-cased' => [new ServiceMacroInput(name: str_repeat('ß', 122), value: 'v'), []];
+
+        yield 'name of 246 characters once upper-cased' => [
+            new ServiceMacroInput(name: str_repeat('ß', 123), value: 'v'),
+            ['name' => 'This value is too long. It should have 245 characters or less.'],
+        ];
+
         yield 'reserved name, any case' => [
             new ServiceMacroInput(name: 'Criticality_Level', value: '1'),
             ['name' => 'This macro name is reserved and cannot be used.'],
