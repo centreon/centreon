@@ -204,24 +204,36 @@ final class ServiceActivityLogFactoryTest extends TestCase
     }
 
     /**
-     * The change line of an update carries the same detail as the creation: the whole form and the host.
+     * The line of an update or a mass change carries the same detail as the creation: the whole form and the host.
      */
-    public function testUpdateDetails(): void
+    #[DataProvider('changeActionProvider')]
+    public function testChangeDetails(ActionEnum $action): void
     {
         $factory = new ServiceActivityLogFactory();
         $service = $this->completeService();
 
-        $update = $factory->create(ActionEnum::Update, $service, new Actor(id: new ActorId(1)), new \DateTimeImmutable());
+        $change = $factory->create($action, $service, new Actor(id: new ActorId(1)), new \DateTimeImmutable());
 
         self::assertSame(
             $factory->create(ActionEnum::Add, $service, new Actor(id: new ActorId(1)), new \DateTimeImmutable())->details,
-            $update->details,
+            $change->details,
         );
-        self::assertCount(45, $update->details);
+        self::assertCount(45, $change->details);
     }
 
     /**
-     * Only a creation or an update logs the form: the other actions keep the name of the service and its host.
+     * @return iterable<string, array{ActionEnum}>
+     */
+    public static function changeActionProvider(): iterable
+    {
+        yield 'update' => [ActionEnum::Update];
+
+        yield 'mass change' => [ActionEnum::MassChange];
+    }
+
+    /**
+     * Only a creation, an update or a mass change logs the form: the other actions keep the name of the service and
+     * its host.
      */
     #[DataProvider('otherActionProvider')]
     public function testOtherActionsLogTheNameAndTheHostOnly(ActionEnum $action): void
@@ -241,8 +253,6 @@ final class ServiceActivityLogFactoryTest extends TestCase
         yield 'enable' => [ActionEnum::Enable];
 
         yield 'disable' => [ActionEnum::Disable];
-
-        yield 'mass change' => [ActionEnum::MassChange];
     }
 
     private function completeService(): Service

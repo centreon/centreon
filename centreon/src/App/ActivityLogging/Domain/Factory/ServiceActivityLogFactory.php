@@ -58,8 +58,8 @@ final readonly class ServiceActivityLogFactory implements ActivityLogFactoryInte
         );
 
         $details = match ($action) {
-            ActionEnum::Add, ActionEnum::Update => $this->details($aggregate),
-            ActionEnum::MassChange, ActionEnum::Delete, ActionEnum::Enable, ActionEnum::Disable => [
+            ActionEnum::Add, ActionEnum::Update, ActionEnum::MassChange => $this->details($aggregate),
+            ActionEnum::Delete, ActionEnum::Enable, ActionEnum::Disable => [
                 'service_name' => $aggregate->name->value,
                 'host_id' => (string) $aggregate->hostId->value,
             ],

@@ -61,6 +61,7 @@ use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceDisabled;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
@@ -244,6 +245,18 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
 
         $service = $this->createService(hostActivated: true);
         $handler(new ServiceUpdated($service, 1, previousPollerId: new PollerId(2), previousHostId: new HostId(9)));
+
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+        self::assertSame([2], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testServiceMassChangedFlagsThePreviousPoller(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $service = $this->createService(hostActivated: true);
+        $handler(new ServiceMassChanged($service, 1, previousPollerId: new PollerId(2), previousHostId: new HostId(9)));
 
         self::assertSame([$service], $pollerRepository->flaggedResources);
         self::assertSame([2], $pollerRepository->flaggedPollerIds);

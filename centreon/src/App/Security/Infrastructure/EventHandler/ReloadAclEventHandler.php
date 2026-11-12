@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Security\Infrastructure\EventHandler;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -92,7 +93,7 @@ final readonly class ReloadAclEventHandler
 
         if (
             $event instanceof AggregateCreated
-            || ($event instanceof ServiceUpdated && $event->previousHostId instanceof HostId)
+            || (($event instanceof ServiceUpdated || $event instanceof ServiceMassChanged) && $event->previousHostId instanceof HostId)
         ) {
             $this->resourceAccessRepository->grantResourceAccess($event->aggregate, $accessGroupIds);
         }

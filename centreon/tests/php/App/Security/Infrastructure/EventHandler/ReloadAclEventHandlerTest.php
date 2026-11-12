@@ -47,6 +47,7 @@ use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceDisabled;
 use App\MonitoringConfiguration\Domain\Event\ServiceEnabled;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
@@ -56,6 +57,7 @@ use App\Security\Infrastructure\EventHandler\ReloadAclEventHandler;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Security\Infrastructure\Double\FakeAccessGroupRepository;
@@ -339,7 +341,8 @@ final class ReloadAclEventHandlerTest extends TestCase
      * A non-admin who moves a service to another host keeps seeing it there at once: the service, on its new
      * host, is granted to their groups.
      */
-    public function testItGrantsAMovedService(): void
+    #[DataProvider('moveEvents')]
+    public function testItGrantsAMovedService(\Closure $event): void
     {
         $accessGroupRepository = new FakeAccessGroupRepository();
         $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
@@ -348,12 +351,22 @@ final class ReloadAclEventHandlerTest extends TestCase
         $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
 
         $service = $this->createService();
-        $handler(new ServiceUpdated($service, 7, previousHostId: new HostId(9)));
+        $handler($event($service));
 
         self::assertCount(1, $resourceAccessRepository->grantedAccess);
         self::assertSame($service, $resourceAccessRepository->grantedAccess[0]['resource']);
         self::assertSame([10, 20], $resourceAccessRepository->grantedAccess[0]['accessGroupIds']);
         self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    /**
+     * @return iterable<string, array{\Closure(Service): (ServiceUpdated|ServiceMassChanged)}>
+     */
+    public static function moveEvents(): iterable
+    {
+        yield 'full update' => [static fn (Service $service): ServiceUpdated => new ServiceUpdated($service, 7, previousHostId: new HostId(9))];
+
+        yield 'mass change' => [static fn (Service $service): ServiceMassChanged => new ServiceMassChanged($service, 7, previousHostId: new HostId(9))];
     }
 
     public function testItDoesNotGrantForAnAdminOrAnUnchangedHost(): void
@@ -365,12 +378,13 @@ final class ReloadAclEventHandlerTest extends TestCase
         $nonAdmin = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
         $nonAdmin(new ServiceUpdated($this->createService(), 7));
         $nonAdmin(new ServiceUpdated($this->createService(), 7, loggable: false));
+        $nonAdmin(new ServiceMassChanged($this->createService(), 7));
 
         $admin = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
         $admin(new ServiceUpdated($this->createService(), 1, previousHostId: new HostId(9)));
 
         self::assertSame([], $resourceAccessRepository->grantedAccess);
-        self::assertSame([10, 20, 10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertSame([10, 20, 10, 20, 10, 20], $accessGroupRepository->flaggedGroupIds);
         self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
     }
 
