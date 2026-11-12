@@ -2433,7 +2433,7 @@ parameters:
 		-
 			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 4
+			count: 11
 			path: tests/php/Core/Security/Token/Application/UseCase/GetToken/GetTokenTest.php
 
 		-
