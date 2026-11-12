@@ -45,8 +45,19 @@ class ConfigurationGenerationStatusTest extends TestCase
 
     protected function tearDown(): void
     {
-        array_map('unlink', glob($this->generatePath . '/*') ?: []);
+        // markStarted() may have created a missing-directory subpath (MON-214629): remove files before directories.
+        foreach (glob($this->generatePath . '/*') ?: [] as $path) {
+            is_dir($path) ? $this->removeDirectory($path) : unlink($path);
+        }
         rmdir($this->generatePath);
+    }
+
+    private function removeDirectory(string $path): void
+    {
+        foreach (glob($path . '/*') ?: [] as $child) {
+            is_dir($child) ? $this->removeDirectory($child) : unlink($child);
+        }
+        rmdir($path);
     }
 
     public function testNeverGeneratedPollerIsAccepted(): void
@@ -113,5 +124,15 @@ class ConfigurationGenerationStatusTest extends TestCase
         $status->markCompleted(1);
         $status->assertCompleted(1, 'Central');
         $this->addToAssertionCount(1);
+    }
+
+    public function testMarkStartedCreatesTheMarkerDirectoryWhenMissing(): void
+    {
+        $generatePath = $this->generatePath . '/missing-directory';
+        $status = new ConfigurationGenerationStatus($generatePath);
+
+        $status->markStarted(1, 'admin');
+
+        $this->assertFileExists($generatePath . '/1.generation-incomplete');
     }
 }
