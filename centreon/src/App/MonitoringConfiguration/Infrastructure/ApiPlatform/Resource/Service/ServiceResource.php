@@ -29,8 +29,10 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\CreateServiceProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\DeleteServiceProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\GetServiceProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ListServicesProvider;
@@ -107,6 +109,25 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchSe
             securityMessage: 'You are not allowed to list services',
             output: ServiceCollectionOutput::class,
             provider: ListServicesProvider::class,
+        ),
+        new Post(
+            uriTemplate: '/configuration/services',
+            openapi: new Model\Operation(
+                summary: 'Create a service',
+                description: 'Creates a service linked directly to one host, enabled, and answers its form as a Get '
+                    . 'does. Its own macros are not taken yet.',
+                responses: [
+                    403 => new Model\Response('You are not allowed to create services'),
+                    404 => new Model\Response('A nested reference (command, time period, icon, contact, contact group) '
+                        . 'no longer exists'),
+                    409 => new Model\Response('The name was taken on the host in the meantime'),
+                    422 => new Model\Response('Invalid input'),
+                ],
+            ),
+            security: "is_granted('" . ServicePermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to create services',
+            input: CreateServiceInput::class,
+            processor: CreateServiceProcessor::class,
         ),
         new Get(
             uriTemplate: '/configuration/services/{id}',

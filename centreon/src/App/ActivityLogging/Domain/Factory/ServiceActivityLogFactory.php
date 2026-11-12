@@ -30,8 +30,17 @@ use App\ActivityLogging\Domain\Aggregate\Target;
 use App\ActivityLogging\Domain\Aggregate\TargetId;
 use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceStalkingOptionEnum;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
@@ -48,10 +57,13 @@ final readonly class ServiceActivityLogFactory implements ActivityLogFactoryInte
             type: TargetTypeEnum::Service,
         );
 
-        $details = [
-            'service_name' => $aggregate->name->value,
-            'host_id' => (string) $aggregate->hostId->value,
-        ];
+        $details = match ($action) {
+            ActionEnum::Add => $this->details($aggregate),
+            ActionEnum::Update, ActionEnum::MassChange, ActionEnum::Delete, ActionEnum::Enable, ActionEnum::Disable => [
+                'service_name' => $aggregate->name->value,
+                'host_id' => (string) $aggregate->hostId->value,
+            ],
+        };
 
         return new ActivityLog(
             id: null,
@@ -61,5 +73,157 @@ final readonly class ServiceActivityLogFactory implements ActivityLogFactoryInte
             performedAt: $firedAt,
             details: $details,
         );
+    }
+
+    /**
+     * The form and the host, by legacy column and in legacy storage format, like {@see HostActivityLogFactory}.
+     * Service groups, categories, severity, traps and macros are left out, so no macro password is logged.
+     * The formats copy the Infrastructure write side's: change both together.
+     *
+     * @return array<string, string>
+     */
+    private function details(Service $service): array
+    {
+        return [
+            'service_description' => $service->name->value,
+            'service_activate' => $service->activated ? '1' : '0',
+            'service_template_model_stm_id' => (string) $service->templateId?->value,
+            'command_command_id' => (string) $service->checkOptions->checkCommandId?->value,
+            'command_command_id_arg' => $this->arguments($service->checkOptions->args),
+            ...$this->schedulingDetails($service->schedulingOptions),
+            ...$this->notificationDetails($service->notifications),
+            ...$this->dataProcessingDetails($service->dataProcessing),
+            ...$this->extendedInformationDetails($service->extendedInformations),
+            'graph_id' => (string) $service->graphTemplateId?->value,
+            'geo_coords' => (string) $service->extendedInformations?->geoCoordinates,
+            'service_comment' => $service->extendedInformations->comment ?? '',
+            'host_id' => (string) $service->hostId->value,
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function schedulingDetails(ServiceSchedulingOptions $options): array
+    {
+        return [
+            'timeperiod_tp_id' => (string) $options->checkTimeperiodId?->value,
+            'service_max_check_attempts' => (string) $options->maxCheckAttempts,
+            'service_normal_check_interval' => (string) $options->normalCheckInterval,
+            'service_retry_check_interval' => (string) $options->retryCheckInterval,
+            'service_active_checks_enabled' => $this->triState($options->activeCheckEnabled),
+            'service_passive_checks_enabled' => $this->triState($options->passiveCheckEnabled),
+            'service_is_volatile' => $this->triState($options->isVolatile),
+        ];
+    }
+
+    /**
+     * No key without a notifications block (Cloud), as for hosts.
+     *
+     * @return array<string, string>
+     */
+    private function notificationDetails(?ServiceNotifications $notifications): array
+    {
+        if (! $notifications instanceof ServiceNotifications) {
+            return [];
+        }
+
+        return [
+            'service_notifications_enabled' => $this->triState($notifications->enabled),
+            'service_use_only_contacts_from_host' => $notifications->useOnlyContactsFromHost ? '1' : '0',
+            'contact_additive_inheritance' => $notifications->contactAdditiveInheritance ? '1' : '0',
+            'cg_additive_inheritance' => $notifications->contactGroupAdditiveInheritance ? '1' : '0',
+            'service_cs' => implode(',', array_map(
+                static fn (NotificationContactId $id): int => $id->value,
+                $notifications->contactIds->toArray(),
+            )),
+            'service_cgs' => implode(',', array_map(
+                static fn (ContactGroupId $id): int => $id->value,
+                $notifications->contactGroupIds->toArray(),
+            )),
+            'service_notification_interval' => (string) $notifications->interval,
+            'timeperiod_tp_id2' => (string) $notifications->periodId?->value,
+            'service_notification_options' => implode(',', array_map(
+                static fn (ServiceNotificationOptionEnum $option): string => match ($option) {
+                    ServiceNotificationOptionEnum::Warning => 'w',
+                    ServiceNotificationOptionEnum::Unknown => 'u',
+                    ServiceNotificationOptionEnum::Critical => 'c',
+                    ServiceNotificationOptionEnum::Recovery => 'r',
+                    ServiceNotificationOptionEnum::Flapping => 'f',
+                    ServiceNotificationOptionEnum::DowntimeScheduled => 's',
+                    ServiceNotificationOptionEnum::None => 'n',
+                },
+                $notifications->options,
+            )),
+            'service_first_notification_delay' => (string) $notifications->firstDelay,
+            'service_recovery_notification_delay' => (string) $notifications->recoveryDelay,
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function dataProcessingDetails(ServiceDataProcessing $dataProcessing): array
+    {
+        return [
+            'service_obsess_over_service' => $this->triState($dataProcessing->obsessOverService),
+            'service_acknowledgement_timeout' => (string) $dataProcessing->acknowledgmentTimeout,
+            'service_check_freshness' => $this->triState($dataProcessing->checkFreshness),
+            'service_freshness_threshold' => (string) $dataProcessing->freshnessThreshold,
+            'service_flap_detection_enabled' => $this->triState($dataProcessing->flapDetectionEnabled),
+            'service_low_flap_threshold' => (string) $dataProcessing->lowFlapThreshold,
+            'service_high_flap_threshold' => (string) $dataProcessing->highFlapThreshold,
+            'service_retain_status_information' => $this->triState($dataProcessing->retainStatusInformation),
+            'service_retain_nonstatus_information' => $this->triState($dataProcessing->retainNonStatusInformation),
+            'service_stalking_options' => implode(',', array_map(
+                static fn (ServiceStalkingOptionEnum $option): string => match ($option) {
+                    ServiceStalkingOptionEnum::Ok => 'o',
+                    ServiceStalkingOptionEnum::Warning => 'w',
+                    ServiceStalkingOptionEnum::Unknown => 'u',
+                    ServiceStalkingOptionEnum::Critical => 'c',
+                },
+                $dataProcessing->stalkingOptions,
+            )),
+            'service_event_handler_enabled' => $this->triState($dataProcessing->eventHandlerEnabled),
+            'command_command_id2' => (string) $dataProcessing->eventHandlerCommandId?->value,
+            'command_command_id_arg2' => $this->arguments($dataProcessing->eventHandlerArgs),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function extendedInformationDetails(?ServiceExtendedInformations $informations): array
+    {
+        return [
+            'esi_notes_url' => $informations->noteUrl ?? '',
+            'esi_notes' => $informations->note ?? '',
+            'esi_action_url' => $informations->actionUrl ?? '',
+            'esi_icon_image' => (string) $informations?->iconId?->value,
+            'esi_icon_image_alt' => $informations->altIcon ?? '',
+        ];
+    }
+
+    private function triState(TriStateEnum $value): string
+    {
+        return match ($value) {
+            TriStateEnum::False => '0',
+            TriStateEnum::True => '1',
+            TriStateEnum::UseDefault => '2',
+        };
+    }
+
+    /**
+     * As legacy stores them.
+     *
+     * @param list<string> $arguments
+     */
+    private function arguments(array $arguments): string
+    {
+        if ($arguments === []) {
+            return '';
+        }
+
+        return '!' . implode('!', str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $arguments));
     }
 }

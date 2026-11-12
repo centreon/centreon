@@ -23,11 +23,29 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Exception;
 
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ContactGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\EventHandlerArgumentsRequireAHandlerException;
+use App\MonitoringConfiguration\Domain\Exception\GraphTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\MediaNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceCategoryNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceCheckArgumentsPartlyFilledException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceCheckCommandMissingException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceExtendedInformationsTooLongException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceSeverityNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceTemplateNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\TimePeriodNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\TrapNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesException;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\CreateServiceInput;
+use App\Shared\Domain\Exception\AggregateConflictException;
 use App\Shared\Domain\Exception\AggregateNotFoundException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -77,5 +95,123 @@ final class ReferenceExceptionCriteriaTest extends TestCase
 
         yield 'timezone' => [new TimezoneNotFoundException(5), ['timezoneId' => 5]];
 
+    }
+
+    /**
+     * Named after a create input property, a reference gone since the input validation gets the same 422 on that
+     * field, with this message.
+     *
+     * @param array<string, mixed> $expected
+     */
+    #[DataProvider('serviceCriteriaProvider')]
+    public function testTheServiceExceptionsNameTheCriterionAfterTheInputField(
+        AggregateNotFoundException|AggregateConflictException $exception,
+        array $expected,
+        string $message,
+    ): void {
+        self::assertSame($expected, $exception->criteria);
+        self::assertSame($message, $exception->getMessage());
+        foreach (array_keys($expected) as $criterion) {
+            self::assertTrue(
+                property_exists(CreateServiceInput::class, $criterion),
+                sprintf('"%s" must name a property of CreateServiceInput.', $criterion),
+            );
+        }
+    }
+
+    /**
+     * A reference nested in a sub-object of the input keeps answering 404.
+     */
+    public function testTheNestedReferencesOfAServiceNameNoInputField(): void
+    {
+        foreach ([
+            new NotificationContactNotFoundException([1]),
+            new ContactGroupNotFoundException([1]),
+            new TimePeriodNotFoundException(1),
+            new MediaNotFoundException(1),
+            new CommandNotFoundException(['id' => 1]),
+        ] as $exception) {
+            foreach (array_keys($exception->criteria) as $criterion) {
+                self::assertFalse(property_exists(CreateServiceInput::class, (string) $criterion), $exception::class);
+            }
+        }
+    }
+
+    /**
+     * @return iterable<string, array{AggregateNotFoundException|AggregateConflictException, array<string, mixed>, string}>
+     */
+    public static function serviceCriteriaProvider(): iterable
+    {
+        yield 'service template' => [
+            new ServiceTemplateNotFoundException(3),
+            ['serviceTemplateId' => 3],
+            'This service template does not exist.',
+        ];
+
+        yield 'service groups' => [
+            new ServiceGroupNotFoundException([4, 5]),
+            ['serviceGroupIds' => [4, 5]],
+            'One or more service groups do not exist or are not accessible.',
+        ];
+
+        yield 'service categories' => [
+            new ServiceCategoryNotFoundException([6]),
+            ['categoryIds' => [6]],
+            'One or more service categories do not exist or are not accessible.',
+        ];
+
+        yield 'service severity' => [
+            new ServiceSeverityNotFoundException(7),
+            ['severityId' => 7],
+            'This service severity does not exist or is not accessible.',
+        ];
+
+        yield 'traps' => [
+            new TrapNotFoundException([8, 9]),
+            ['trapIds' => [8, 9]],
+            'One or more traps do not exist.',
+        ];
+
+        yield 'graph template' => [
+            new GraphTemplateNotFoundException(10),
+            ['graphTemplateId' => 10],
+            'This graph template does not exist.',
+        ];
+
+        yield 'unlicensed service template' => [
+            new UnlicensedServiceTemplatesException(11),
+            ['serviceTemplateId' => 11],
+            'The license host limit is reached: service templates coming from Monitoring Connectors cannot be used.',
+        ];
+
+        yield 'no check command and no service template' => [
+            new ServiceCheckCommandMissingException(null),
+            ['checkOptions' => ['commandId']],
+            'A check command is required when no service template is set.',
+        ];
+
+        yield 'no check command from the service template' => [
+            new ServiceCheckCommandMissingException(12),
+            ['serviceTemplateId' => 12],
+            'The selected service template does not provide any check command.',
+        ];
+
+        yield 'check command arguments partly filled' => [
+            new ServiceCheckArgumentsPartlyFilledException(),
+            ['checkOptions' => ['args']],
+            'Either fill every argument or leave them all empty.',
+        ];
+
+        yield 'event handler arguments without a handler' => [
+            new EventHandlerArgumentsRequireAHandlerException(),
+            ['advanced' => ['eventHandlerArgs']],
+            'Event handler arguments require an event handler, set on the service or provided by its service template.',
+        ];
+
+        yield 'extended information above the form bounds' => [
+            new ServiceExtendedInformationsTooLongException(['note', 'actionUrl']),
+            ['monitoringEngine' => ['note', 'actionUrl']],
+            'The note cannot exceed 512 characters, the note URL and the action URL 2048 characters.',
+        ];
     }
 }

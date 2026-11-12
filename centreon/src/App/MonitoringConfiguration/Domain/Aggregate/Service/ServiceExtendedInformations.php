@@ -38,6 +38,15 @@ final readonly class ServiceExtendedInformations
     /** Characters of `esi_icon_image_alt` (varchar). */
     public const MAX_ALT_ICON_LENGTH = 200;
 
+    /** Form bound of a written note, in characters; see {@see self::exceedsFormBounds()}. */
+    public const MAX_NOTE_LENGTH = 512;
+
+    /** Form bound of a written note URL, in characters. */
+    public const MAX_NOTE_URL_LENGTH = 2048;
+
+    /** Form bound of a written action URL, in characters. */
+    public const MAX_ACTION_URL_LENGTH = 2048;
+
     public ?string $noteUrl;
 
     public ?string $note;
@@ -65,6 +74,30 @@ final readonly class ServiceExtendedInformations
         $altIcon = $altIcon !== null ? trim($altIcon) : null;
         Assert::nullOrLengthBetween($altIcon, 1, self::MAX_ALT_ICON_LENGTH, 'ServiceExtendedInformations::altIcon must be 1 to %3$s characters long.');
         $this->altIcon = $altIcon;
+    }
+
+    /**
+     * The fields over their form bound, which a write refuses though they fit their column. The alternative text
+     * of the icon and the comment have none.
+     *
+     * @return list<string>
+     */
+    public function exceedsFormBounds(): array
+    {
+        $bounds = [
+            'noteUrl' => [$this->noteUrl, self::MAX_NOTE_URL_LENGTH],
+            'note' => [$this->note, self::MAX_NOTE_LENGTH],
+            'actionUrl' => [$this->actionUrl, self::MAX_ACTION_URL_LENGTH],
+        ];
+
+        $fields = [];
+        foreach ($bounds as $field => [$value, $maxLength]) {
+            if ($value !== null && mb_strlen($value) > $maxLength) {
+                $fields[] = $field;
+            }
+        }
+
+        return $fields;
     }
 
     private function text(?string $value, string $field): ?string

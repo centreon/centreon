@@ -26,12 +26,21 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
 
 interface ServiceRepository
 {
+    public function add(Service $service): void;
+
+    /**
+     * Compared as legacy does: case-insensitive, whatever the actor's scope or the service's activation. A service
+     * reaching the host only through a host group is not counted.
+     */
+    public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool;
+
     /**
      * Services directly attached to this host (`host_service_relation.host_host_id`) that have
      * exactly one relation row in total — mirrors legacy `findServiceIdsExclusivelyLinkedToHostId()`:
