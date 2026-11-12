@@ -1681,7 +1681,8 @@ function install_central() {
 		if (( $(version_int) >= $(version_int 24.10) && $(version_int) <= $(version_int 24.12) )); then
 			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon || _install_rc=$?
 		else
-			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon || _install_rc=$?
+			# logrotate is only recommended (removable on its own), so ask for it by name
+			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon logrotate || _install_rc=$?
 		fi
 
 		if [ "$_install_rc" -ne 0 ]; then
@@ -1759,7 +1760,8 @@ function install_poller() {
 		if (( $(version_int) >= $(version_int 24.10) && $(version_int) <= $(version_int 24.12) )); then
 			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon-poller || _install_rc=$?
 		else
-			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon-poller || _install_rc=$?
+			# logrotate is only recommended (removable on its own), so ask for it by name
+			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon-poller logrotate || _install_rc=$?
 		fi
 
 		if [ "$_install_rc" -ne 0 ]; then
