@@ -592,6 +592,32 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         );
 });
 
+it('should write nothing and present an InvalidArgumentResponse when a parent template is not licensed', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->writeVaultRepository
+        ->method('isVaultConfigured')
+        ->willReturn(true);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertAreLicensedTemplates')
+        ->with($this->request->templates)
+        ->willThrowException(HostException::templatesNotLicensed($this->request->templates));
+
+    $this->writeVaultRepository->expects($this->never())->method('upsert');
+    $this->writeHostRepository->expects($this->never())->method('add');
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->and($this->presenter->response->getMessage())
+        ->toBe(HostException::templatesNotLicensed($this->request->templates)->getMessage());
+});
+
 it('should present an ErrorResponse if the newly created host cannot be retrieved', function (): void {
     $this->request->checkCommandId = null;
     $this->user

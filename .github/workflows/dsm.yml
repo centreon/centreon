@@ -119,7 +119,7 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
           php-version: 8.2
           coverage: none
@@ -283,55 +283,6 @@ jobs:
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
 
-  deliver:
-    needs: [get-environment, changes, package]
-    if: |
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.event.pull_request.head.repo.fork != true &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
-    runs-on: ubuntu-24.04
-
-    strategy:
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
-
-    name: deliver ${{ matrix.distrib }}
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-      - name: Deliver RPM package
-        if: matrix.package_extension == 'rpm'
-        uses: ./.github/actions/rpm-delivery
-        with:
-          module_name: dsm
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-environment.outputs.major_version }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
-          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
-      - name: Deliver DEB package
-        if: matrix.package_extension == 'deb'
-        uses: ./.github/actions/deb-delivery
-        with:
-          module_name: dsm
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-environment.outputs.major_version }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-
   deliver-pulp:
     needs: [get-environment, changes, package]
     if: |
@@ -345,6 +296,7 @@ jobs:
     runs-on: centreon-ubuntu-26.04-small
 
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
@@ -372,38 +324,6 @@ jobs:
           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
 
-  promote:
-    needs: [get-environment, deliver]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
-
-    name: promote ${{ matrix.distrib }}
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-      - name: Promote ${{ matrix.distrib }} to stable
-        uses: ./.github/actions/promote-to-stable
-        with:
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module_name: dsm
-          distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          github_ref_name: ${{ github.ref_name }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-
   promote-pulp:
     needs: [get-environment, deliver-pulp]
     if: |
@@ -415,6 +335,7 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     runs-on: centreon-ubuntu-26.04-small
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
@@ -441,7 +362,7 @@ jobs:
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
 
   set-skip-label:
-    needs: [get-environment, deliver, promote]
+    needs: [get-environment, deliver-pulp, promote-pulp]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&

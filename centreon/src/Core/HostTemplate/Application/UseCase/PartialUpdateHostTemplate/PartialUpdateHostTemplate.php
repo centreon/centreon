@@ -161,6 +161,7 @@ final class PartialUpdateHostTemplate
             $presenter->setResponseStatus(
                 match ($ex->getCode()) {
                     HostTemplateException::CODE_CONFLICT => new ConflictResponse($ex),
+                    HostTemplateException::CODE_INVALID_ARGUMENT => new InvalidArgumentResponse($ex),
                     default => new ErrorResponse($ex),
                 }
             );
@@ -186,6 +187,12 @@ final class PartialUpdateHostTemplate
 
             if ($this->writeVaultRepository->isVaultConfigured()) {
                 $this->retrieveHostUuidFromVault($hostTemplate);
+            }
+
+            $currentDirectParentIds = [];
+            if (! $request->templates instanceof NoValue) {
+                $currentDirectParentIds = $this->findDirectParentTemplateIds($hostTemplate);
+                $this->validation->assertAreLicensedTemplates(array_unique($request->templates), $currentDirectParentIds);
             }
 
             $this->updateHostTemplate($request, $hostTemplate);
@@ -582,6 +589,20 @@ final class PartialUpdateHostTemplate
             ]);
             $this->writeHostTemplateRepository->addParent($hostTemplateId, $templateId, $order);
         }
+    }
+
+    /**
+     * The current direct parent templates, read before they are replaced.
+     *
+     * @param HostTemplate $hostTemplate
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    private function findDirectParentTemplateIds(HostTemplate $hostTemplate): array
+    {
+        return array_map('intval', $this->readHostTemplateRepository->findByHostId($hostTemplate->getId()));
     }
 
     /**

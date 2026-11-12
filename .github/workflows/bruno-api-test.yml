@@ -285,6 +285,7 @@ jobs:
             ${{ inputs.working_directory }}/artifacts/${{ env.FEATURE }}/*.html
             ${{ inputs.working_directory }}/artifacts/${{ env.FEATURE }}/${{ env.FEATURE }}-merged.json
             ${{ inputs.working_directory }}/artifacts/${{ env.FEATURE }}/*-junit.xml
+          retention-days: 3
 
       - name: Generate GitHub Summary
         if: always()

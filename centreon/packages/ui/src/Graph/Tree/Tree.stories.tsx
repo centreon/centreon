@@ -156,8 +156,5 @@ export const treeWithZoom: Story = {
       getStrokeWidth: ({ target }) => (target.status === 'ok' ? 1 : 2)
     }
   },
-  render: TreeWithZoom,
-  parameters: {
-    chromatic: { disableSnapshot: true }
-  }
+  render: TreeWithZoom
 };
