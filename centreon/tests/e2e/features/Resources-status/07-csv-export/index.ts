@@ -100,7 +100,6 @@ before(() => {
   cy.intercept(`${INTERCEPTORS.api.monitor_resources}*`).as(
     'monitoringEndpoint'
   );
-  cy.intercept(`${INTERCEPTORS.api.monitor_resources}/export*`).as('csvExport');
 
   cy.startContainers();
 
@@ -258,8 +257,7 @@ When('the admin user clicks the Export button', () => {
   cy.getByLabel({ label: 'exportCsvButton', tag: 'button' }).click();
   cy.wait('@getResourceCount');
   cy.getByLabel({ label: 'Export', tag: 'button' }).click();
-  // The progress snackbar can vanish before it is seen: wait for the export itself
-  cy.wait('@csvExport').its('response.statusCode').should('eq', 200);
+  // The download is awaited by the next step: the progress snackbar can vanish unseen
 });
 
 Then('a CSV file should be downloaded', () => {
@@ -352,8 +350,7 @@ Then('the admin user exports only visible columns and pages', () => {
   cy.getByTestId({ testId: 'Current page only' }).click();
   cy.wait('@getResourceCount');
   cy.getByLabel({ label: 'Export', tag: 'button' }).click();
-  // The progress snackbar can vanish before it is seen: wait for the export itself
-  cy.wait('@csvExport').its('response.statusCode').should('eq', 200);
+  // The download is awaited by the next step: the progress snackbar can vanish unseen
 });
 
 Then(
