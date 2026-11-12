@@ -36,7 +36,7 @@ get_ip()
 
 mysql_connection_test()
 {
-        mysql -f -u "$DBROOTUSER" -h "$1" "-p$DBROOTPASSWORD" << EOF
+        mariadb -f -u "$DBROOTUSER" -h "$1" "-p$DBROOTPASSWORD" << EOF
 quit
 EOF
 	status=$?
