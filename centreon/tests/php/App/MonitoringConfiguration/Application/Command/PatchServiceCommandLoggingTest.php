@@ -57,6 +57,7 @@ final class PatchServiceCommandLoggingTest extends TestCase
         $sanitised = new PayloadSanitizer()->sanitize($payload, PatchServiceCommand::class);
 
         self::assertIsArray($sanitised);
+        self::assertSame('***', $sanitised['macros']);
         self::assertStringNotContainsString('top-secret', json_encode($sanitised, JSON_THROW_ON_ERROR));
         self::assertSame(['user_id' => '1', 'unrestricted_resource_access' => true], $sanitised['actor'], 'The acting user must stay readable in the logs.');
     }
