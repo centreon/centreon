@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
+use App\MonitoringConfiguration\Application\Service\UnlicensedServiceTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
@@ -64,6 +65,7 @@ final readonly class DuplicateHostCommandHandler
         private EventBus $eventBus,
         private LoggerInterface $logger,
         private HostTemplateLicenseGuard $templateLicenseGuard,
+        private UnlicensedServiceTemplates $unlicensedServiceTemplates,
     ) {
     }
 
@@ -79,6 +81,9 @@ final readonly class DuplicateHostCommandHandler
         // The copy is a new host: it can only be given the source's templates while the license allows
         // them. Checked before the vault is touched, like the name below.
         $this->templateLicenseGuard->assertLicensed($source->templateIds);
+        // The services are copied once the copy is committed, which then counts against the license host
+        // limit: read the service templates the license refuses now, as for the host templates above.
+        $unlicensedServiceTemplateIds = $this->unlicensedServiceTemplates->findIds();
 
         // Resolve the free name before touching the vault: a 409 (every suffix taken, or too long) must
         // not leave a freshly-minted vault entry behind.
@@ -135,12 +140,13 @@ final readonly class DuplicateHostCommandHandler
             throw $exception;
         }
 
-        // The aggregate does not model services; they are duplicated by a legacy step delivered after
-        // the commit (the copy must be visible to the legacy connection), like host creation deploys them.
+        // The aggregate does not model services; they are copied after the commit, in their own
+        // transaction, so a failure to copy them never rolls the host copy back.
         $this->eventBus->fire(new HostServicesDuplicationRequested(
             sourceHostId: $command->hostId,
             newHostId: $copy->id(),
             duplicatedBy: $command->actor->userId,
+            unlicensedServiceTemplateIds: $unlicensedServiceTemplateIds,
         ));
     }
 
