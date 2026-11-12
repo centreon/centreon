@@ -37,10 +37,9 @@ use Webmozart\Assert\Assert;
  * client refetches the listing. Designed to be called once per host — a multi-selection is duplicated
  * by calling this route per id rather than by sending a bulk payload.
  *
- * Best-effort on services: they are copied by a legacy step (see DuplicateHostServicesEventHandler).
- * That step needs a legacy session; a token-authenticated call carries none, so one is rebuilt from
- * the acting contact and the services are cloned either way. The response is 204 regardless, and a
- * clone failure is logged, not surfaced to the client.
+ * The services are copied after the host copy is committed, all or none (see
+ * DuplicateHostServicesEventHandler): the response is 204 regardless, and a failure to copy them is
+ * logged, not surfaced to the client.
  *
  * @implements ProcessorInterface<null, null>
  */
