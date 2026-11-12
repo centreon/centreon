@@ -220,6 +220,21 @@ final class ServiceTransformerTest extends TestCase
         );
     }
 
+    /**
+     * An argument list stored with empty arguments only reads as no argument, for the check command and for the
+     * event handler alike.
+     */
+    public function testAnAllEmptyStoredArgumentListReadsAsNoArgument(): void
+    {
+        $service = (new ServiceTransformer())->transform([
+            ...$this->formRow(),
+            'check_command_args' => '!!',
+            'event_handler_args' => '!!',
+        ]);
+
+        self::assertSame([[], []], [$service->checkOptions->args, $service->dataProcessing->eventHandlerArgs]);
+    }
+
     public function testRelationIdListsAreHydrated(): void
     {
         $service = (new ServiceTransformer())->transform([

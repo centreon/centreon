@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
@@ -1641,6 +1642,60 @@ final class DbalHostRepositoryTest extends KernelTestCase
 
         self::assertNotNull($host);
         self::assertSame($hostId, $host->id()->value);
+    }
+
+    public function testFindStateGivesTheActivationAndThePollerOfAHost(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $enabledHostId = $this->createHost('enabled-host', $pollerId);
+        $disabledHostId = $this->createHost('disabled-host', $pollerId, activated: false);
+
+        self::assertEquals(new HostState(true, new PollerId($pollerId)), $this->repository->findState(new HostId($enabledHostId), TestActingUsers::unrestricted()));
+        self::assertEquals(new HostState(false, new PollerId($pollerId)), $this->repository->findState(new HostId($disabledHostId), TestActingUsers::unrestricted()));
+    }
+
+    public function testFindStateGivesNoPollerToAHostWithoutOne(): void
+    {
+        $this->connection->insert('host', ['host_name' => 'no-poller', 'host_address' => '127.0.0.1', 'host_activate' => '1', 'host_register' => '1']);
+        $hostId = (int) $this->connection->lastInsertId();
+
+        self::assertEquals(new HostState(true, null), $this->repository->findState(new HostId($hostId), TestActingUsers::unrestricted()));
+    }
+
+    /**
+     * Stored data the host form refuses (a too-long legacy note, invalid coordinates) breaks findOne(), not this.
+     */
+    public function testFindStateReadsAHostWhoseOtherDataTheHostFormWouldRefuse(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('legacy-host', $pollerId);
+        $this->connection->update('host', ['geo_coords' => 'not-coordinates'], ['host_id' => $hostId]);
+        $this->connection->update('extended_host_information', ['ehi_notes' => str_repeat('n', 600)], ['host_host_id' => $hostId]);
+
+        self::assertEquals(new HostState(true, new PollerId($pollerId)), $this->repository->findState(new HostId($hostId), TestActingUsers::unrestricted()));
+        $this->expectException(\InvalidArgumentException::class);
+        $this->repository->findOne(new HostId($hostId), TestActingUsers::unrestricted());
+    }
+
+    public function testFindStateFindsNeitherAHostTemplateNorAnUnknownHost(): void
+    {
+        $templateId = $this->createHostTemplate('a-template');
+
+        self::assertNull($this->repository->findState(new HostId($templateId), TestActingUsers::unrestricted()));
+        self::assertNull($this->repository->findState(new HostId(999999), TestActingUsers::unrestricted()));
+    }
+
+    public function testFindStateFindsOnlyAHostInTheScopeOfARestrictedActor(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $accessibleHostId = $this->createHost('accessible-host', $pollerId);
+        $hiddenHostId = $this->createHost('hidden-host', $pollerId);
+        $actorId = 45;
+        $this->accessGroupRepository->groupIdsByUserId[$actorId] = [503];
+        $this->linkHostToAcl($accessibleHostId, 503);
+
+        self::assertEquals(new HostState(true, new PollerId($pollerId)), $this->repository->findState(new HostId($accessibleHostId), TestActingUsers::restricted($actorId)));
+        self::assertNull($this->repository->findState(new HostId($hiddenHostId), TestActingUsers::restricted($actorId)));
     }
 
     public function testRemoveDeletesTheHostRow(): void

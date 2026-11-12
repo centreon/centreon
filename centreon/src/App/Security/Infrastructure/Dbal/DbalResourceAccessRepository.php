@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
@@ -66,17 +67,17 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      */
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void
     {
-        // Only Host is mapped: Service is ACL-scoped too, but nothing creates one through an
-        // event yet — map it here before something does (see AclScopedInterface).
-        if (! $resource instanceof Host) {
-            throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class));
-        }
+        // Any other ACL-scoped aggregate must be mapped here before an event creates one (see AclScopedInterface).
+        [$hostId, $serviceId] = match (true) {
+            $resource instanceof Host => [$resource->id()->value, null],
+            $resource instanceof Service => [$resource->hostId->value, $resource->id()->value],
+            default => throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class)),
+        };
 
-        $hostId = $resource->id()->value;
         foreach ($accessGroupIds as $accessGroupId) {
             $this->realTimeConnection->executeStatement(
-                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, NULL)',
-                ['groupId' => $accessGroupId->value, 'hostId' => $hostId],
+                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)',
+                ['groupId' => $accessGroupId->value, 'hostId' => $hostId, 'serviceId' => $serviceId],
             );
         }
     }

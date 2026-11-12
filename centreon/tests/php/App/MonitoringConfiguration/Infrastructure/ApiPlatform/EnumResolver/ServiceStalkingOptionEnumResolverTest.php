@@ -60,4 +60,17 @@ final class ServiceStalkingOptionEnumResolverTest extends TestCase
             ServiceStalkingOptionEnumResolver::API_VALUES,
         );
     }
+
+    #[DataProvider('optionProvider')]
+    public function testItMapsEachApiStringBackToItsOption(ServiceStalkingOptionEnum $option, string $apiValue): void
+    {
+        self::assertSame($option, ServiceStalkingOptionEnumResolver::toDomain($apiValue));
+    }
+
+    public function testItRejectsAnUnknownApiString(): void
+    {
+        $this->expectException(\ValueError::class);
+
+        ServiceStalkingOptionEnumResolver::toDomain('down');
+    }
 }

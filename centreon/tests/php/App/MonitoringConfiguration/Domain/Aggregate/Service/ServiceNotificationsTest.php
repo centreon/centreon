@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -223,6 +224,68 @@ final class ServiceNotificationsTest extends TestCase
         self::assertTrue($scoped->contactAdditiveInheritance);
         self::assertTrue($scoped->contactGroupAdditiveInheritance);
         self::assertTrue($scoped->useOnlyContactsFromHost);
+    }
+
+    public function testWithoutAdditiveInheritanceKeepsEveryOtherField(): void
+    {
+        $notifications = $this->createFilledNotifications(useOnlyContactsFromHost: false);
+
+        self::assertEquals(
+            $this->createFilledNotifications(useOnlyContactsFromHost: false, additiveInheritance: false),
+            $notifications->withoutAdditiveInheritance(),
+        );
+    }
+
+    /**
+     * Both additive-inheritance flags go off whatever they were; every other field is kept.
+     */
+    public function testWithHostContactsOnlyClearsTheVisibleContactsAndKeepsTheHiddenOnes(): void
+    {
+        $notifications = $this->createFilledNotifications(useOnlyContactsFromHost: false);
+
+        $cleared = $notifications->withHostContactsOnly(
+            AccessScope::restrictedTo(NotificationContactId::class, [new NotificationContactId(3)]),
+            AccessScope::restrictedTo(ContactGroupId::class, [new ContactGroupId(7), new ContactGroupId(8)]),
+        );
+
+        self::assertSame([4], array_map(static fn (NotificationContactId $id): int => $id->value, $cleared->contactIds->toArray()));
+        self::assertSame([], $cleared->contactGroupIds->toArray());
+        self::assertEquals(
+            $this->createFilledNotifications(useOnlyContactsFromHost: true, additiveInheritance: false)
+                ->withContacts($cleared->contactIds, $cleared->contactGroupIds),
+            $cleared,
+        );
+    }
+
+    public function testWithHostContactsOnlyClearsEveryContactForAnUnrestrictedScope(): void
+    {
+        $cleared = $this->createFilledNotifications(useOnlyContactsFromHost: true)->withHostContactsOnly(
+            AccessScope::unrestricted(NotificationContactId::class),
+            AccessScope::unrestricted(ContactGroupId::class),
+        );
+
+        self::assertSame([], $cleared->contactIds->toArray());
+        self::assertSame([], $cleared->contactGroupIds->toArray());
+        self::assertFalse($cleared->contactAdditiveInheritance);
+        self::assertFalse($cleared->contactGroupAdditiveInheritance);
+        self::assertTrue($cleared->useOnlyContactsFromHost);
+    }
+
+    private function createFilledNotifications(bool $useOnlyContactsFromHost, bool $additiveInheritance = true): ServiceNotifications
+    {
+        return new ServiceNotifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([new NotificationContactId(3), new NotificationContactId(4)], NotificationContactId::class),
+            contactGroupIds: new Collection([new ContactGroupId(7), new ContactGroupId(8)], ContactGroupId::class),
+            options: [ServiceNotificationOptionEnum::Critical, ServiceNotificationOptionEnum::Recovery],
+            interval: 30,
+            periodId: new TimePeriodId(2),
+            firstDelay: 5,
+            recoveryDelay: 10,
+            contactAdditiveInheritance: $additiveInheritance,
+            contactGroupAdditiveInheritance: $additiveInheritance,
+            useOnlyContactsFromHost: $useOnlyContactsFromHost,
+        );
     }
 
     /**

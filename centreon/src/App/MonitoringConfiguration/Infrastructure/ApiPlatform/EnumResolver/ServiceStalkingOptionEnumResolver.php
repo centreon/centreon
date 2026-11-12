@@ -53,4 +53,18 @@ final readonly class ServiceStalkingOptionEnumResolver
             ServiceStalkingOptionEnum::Critical => self::CRITICAL_VALUE,
         };
     }
+
+    /**
+     * @throws \ValueError for a string the API does not accept, which the input validation refuses first
+     */
+    public static function toDomain(string $option): ServiceStalkingOptionEnum
+    {
+        return match ($option) {
+            self::OK_VALUE => ServiceStalkingOptionEnum::Ok,
+            self::WARNING_VALUE => ServiceStalkingOptionEnum::Warning,
+            self::UNKNOWN_VALUE => ServiceStalkingOptionEnum::Unknown,
+            self::CRITICAL_VALUE => ServiceStalkingOptionEnum::Critical,
+            default => throw new \ValueError(sprintf('"%s" is not a valid stalking option.', $option)),
+        };
+    }
 }
