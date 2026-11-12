@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Token\Application\UseCase\GetToken;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
@@ -136,4 +137,150 @@ it('should return created object on success (POLLER)', function (): void {
         ->toBe($this->tokenPoller)
         ->and($response->tokenString)
         ->toBe($this->tokenString);
+});
+
+it('should look the token up by the current user when no user ID is given', function (): void {
+    $this->user
+        ->method('getId')
+        ->willReturn($this->creator['id']);
+
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('findByNameAndUserId')
+        ->with($this->tokenName, $this->creator['id'])
+        ->willReturn($this->tokenCma);
+
+    $this->readTokenRepository
+        ->expects($this->never())
+        ->method('findByNames');
+
+    $response = ($this->useCase)($this->tokenName);
+
+    expect($response)->toBeInstanceOf(GetTokenResponse::class)
+        ->and($response->token)
+        ->toBe($this->tokenCma)
+        ->and($response->tokenString)
+        ->toBe($this->tokenString);
+});
+
+it('should return a NotFoundResponse when the token is not owned by a user without admin rights nor ROLE_MANAGE_TOKENS', function (): void {
+    $this->user
+        ->method('getId')
+        ->willReturn(99);
+
+    $this->adminResolver
+        ->method('isAdmin')
+        ->willReturn(false);
+
+    $this->user
+        ->method('hasRole')
+        ->with(Contact::ROLE_MANAGE_TOKENS)
+        ->willReturn(false);
+
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('findByNameAndUserId')
+        ->with($this->tokenName, 99)
+        ->willReturn(null);
+
+    $this->readTokenRepository
+        ->expects($this->never())
+        ->method('findByNames');
+
+    $response = ($this->useCase)($this->tokenName);
+
+    expect($response)->toBeInstanceOf(NotFoundResponse::class)
+        ->and($response->getMessage())
+        ->toBe((new NotFoundResponse('Token'))->getMessage());
+});
+
+it('should fall back to the lookup by name for an admin when the token is not owned', function (): void {
+    $this->user
+        ->method('getId')
+        ->willReturn(99);
+
+    $this->adminResolver
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('findByNameAndUserId')
+        ->with($this->tokenName, 99)
+        ->willReturn(null);
+
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('findByNames')
+        ->with([$this->tokenName])
+        ->willReturn([$this->tokenName => $this->tokenCma]);
+
+    $response = ($this->useCase)($this->tokenName);
+
+    expect($response)->toBeInstanceOf(GetTokenResponse::class)
+        ->and($response->token)
+        ->toBe($this->tokenCma)
+        ->and($response->tokenString)
+        ->toBe($this->tokenString);
+});
+
+it('should fall back to the lookup by name for a user with ROLE_MANAGE_TOKENS when the token is not owned', function (): void {
+    $this->user
+        ->method('getId')
+        ->willReturn(99);
+
+    $this->adminResolver
+        ->method('isAdmin')
+        ->willReturn(false);
+
+    $this->user
+        ->method('hasRole')
+        ->with(Contact::ROLE_MANAGE_TOKENS)
+        ->willReturn(true);
+
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('findByNameAndUserId')
+        ->with($this->tokenName, 99)
+        ->willReturn(null);
+
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('findByNames')
+        ->with([$this->tokenName])
+        ->willReturn([$this->tokenName => $this->tokenPoller]);
+
+    $response = ($this->useCase)($this->tokenName);
+
+    expect($response)->toBeInstanceOf(GetTokenResponse::class)
+        ->and($response->token)
+        ->toBe($this->tokenPoller)
+        ->and($response->tokenString)
+        ->toBe($this->tokenString);
+});
+
+it('should return a NotFoundResponse without fallback for an admin when a user ID is given', function (): void {
+    $this->adminResolver
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->user
+        ->method('hasRole')
+        ->willReturn(true);
+
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('findByNameAndUserId')
+        ->with($this->tokenName, $this->linkedUser['id'])
+        ->willReturn(null);
+
+    $this->readTokenRepository
+        ->expects($this->never())
+        ->method('findByNames');
+
+    $response = ($this->useCase)($this->tokenName, $this->linkedUser['id']);
+
+    expect($response)->toBeInstanceOf(NotFoundResponse::class)
+        ->and($response->getMessage())
+        ->toBe((new NotFoundResponse('Token'))->getMessage());
 });
