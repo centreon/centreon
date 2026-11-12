@@ -68,16 +68,27 @@ abstract class AbstractObjectJSON
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
         $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
-        $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
+
+        $engineContextPath = $this->backend_instance->getEngineContextFilePath();
+
         try {
             $this->getVaultConfigurationStatus();
+
+            if (! is_file($engineContextPath) || filesize($engineContextPath) === 0) {
+                file_put_contents($engineContextPath, json_encode([
+                    'app_secret' => $this->kernel->getContainer()->getParameter('kernel.secret'),
+                    'salt' => $this->engineContextEncryption->generateRandomString(),
+                ], JSON_THROW_ON_ERROR));
+            }
+
+            $engineContext = file_get_contents($engineContextPath);
             if ($engineContext === false || empty($engineContext)) {
                 CentreonLog::create()->error(
                     logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                    message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'"
+                    message: "Unable to parse content of '{$engineContextPath}'"
                 );
 
-                throw new RuntimeException('/etc/centreon/engine-context.json does not exists or is empty');
+                throw new RuntimeException("{$engineContextPath} does not exist or is empty");
             }
             $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
             $this->engineContextEncryption->setFirstKey($engineContext['app_secret']);
@@ -85,7 +96,7 @@ abstract class AbstractObjectJSON
         } catch (JsonException|RuntimeException $ex) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'",
+                message: "Unable to parse content of '{$engineContextPath}'",
                 exception: $ex
             );
 
