@@ -7,6 +7,8 @@ export const twoColumns = 'grid-cols-2 gap-x-8';
 export const twoColumnsFromNarrow = 'grid-cols-1 gap-x-8 @[600px]:grid-cols-2';
 export const twoColumnsFromWide = 'grid-cols-1 gap-x-8 @[1100px]:grid-cols-2';
 export const threeColumnsFromWide = 'grid-cols-1 gap-x-8 @[1100px]:grid-cols-3';
+// Short inputs such as checkboxes: two a row, four from 600px.
+export const fourColumnsFromNarrow = 'grid-cols-2 @[600px]:grid-cols-4';
 
 // The scheduling numbers next to the Yes / No / Inherit buttons. Each button is
 // 104px wide at least (312px for three), the numbers keep the design's 252px:

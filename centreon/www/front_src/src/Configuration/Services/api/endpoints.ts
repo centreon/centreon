@@ -17,11 +17,14 @@ export const serviceTemplatesEndpoint =
 // the host one.
 export const serviceFormHostsEndpoint = '/configuration/services/hosts';
 
-// The form's check period selector, granted by the service write right too.
+// The form's check period and notification period selector, granted by the
+// service write right too.
 export const serviceFormTimePeriodsEndpoint =
   '/configuration/services/timeperiods';
 
-// The form's check command selector, granted by the service write right.
+// The form's check command and event handler selector, granted by the service
+// write right. The check command asks for the active check commands only, the
+// event handler for every command, whatever its type.
 export const serviceFormCommandsEndpoint = '/configuration/services/commands';
 
 // Placeholder until the backend exposes it, on the model of the hosts'
@@ -39,6 +42,21 @@ export const serviceFormServiceGroupsEndpoint =
 
 // On-premise only: a cloud platform has no SNMP trap.
 export const serviceFormTrapsEndpoint = '/configuration/services/traps';
+
+// The form's other selectors, each granted by the service write right too.
+// The graph templates exist on-premise only.
+export const serviceFormGraphTemplatesEndpoint =
+  '/configuration/services/graph_templates';
+export const serviceFormMediasEndpoint = '/configuration/services/medias';
+export const serviceFormServiceCategoriesEndpoint =
+  '/configuration/services/service_categories';
+export const serviceFormServiceSeveritiesEndpoint =
+  '/configuration/services/service_severities';
+
+// The notification selectors, granted by the service write right as well.
+export const serviceFormContactsEndpoint = '/configuration/services/contacts';
+export const serviceFormContactGroupsEndpoint =
+  '/configuration/services/contact_groups';
 
 export const getServiceEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/services/${id}`;

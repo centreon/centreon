@@ -1,5 +1,8 @@
 import Form from './Services.Form';
 import CheckOptions from './Services.Form.CheckOptions';
+import DataProcessing from './Services.Form.DataProcessing';
+import ExtendedInfo from './Services.Form.ExtendedInfo';
+import Notifications from './Services.Form.Notifications';
 import Relations from './Services.Form.Relations';
 import TemplateAndScheduling from './Services.Form.TemplateAndScheduling';
 
@@ -14,4 +17,7 @@ describe('Services configuration: ', () => {
   describe('Form: ', TemplateAndScheduling);
   describe('Service monitoring properties: ', CheckOptions);
   describe('Relations: ', Relations);
+  describe('Form extended info: ', ExtendedInfo);
+  describe('Notifications: ', Notifications);
+  describe('Form: ', DataProcessing);
 });

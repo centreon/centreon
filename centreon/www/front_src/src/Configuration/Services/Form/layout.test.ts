@@ -1,6 +1,8 @@
 import type { TFunction } from 'i18next';
 
+import { labelNotifications } from '../../ResourceForm/translatedLabels';
 import {
+  labelAdvanced,
   labelGeneralInformation,
   labelMonitoringEngineSchedulingOptions,
   labelRelations,
@@ -81,6 +83,76 @@ describe('layout', () => {
     ]);
   });
 
+  it('shows the sections in the order of the design', () => {
+    expect(getSectionLabels({ isCloudPlatform: false, t })).toEqual([
+      labelGeneralInformation,
+      labelServiceMonitoringProperties,
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions,
+      labelNotifications,
+      labelAdvanced
+    ]);
+  });
+
+  it('shows the notifications on premise only', () => {
+    const labels = getSectionLabels({ isCloudPlatform: false, t });
+
+    expect(labels.indexOf(labelNotifications)).toBe(
+      labels.indexOf(labelMonitoringEngineSchedulingOptions) + 1
+    );
+    expect(getSectionLabels({ isCloudPlatform: true, t })).not.toContain(
+      labelNotifications
+    );
+    expect(
+      getSectionLabels({ isCloudPlatform: false, isMassChange: true, t })
+    ).toContain(labelNotifications);
+  });
+
+  it('keeps the advanced section but not the comment on a cloud platform, where it is refused', () => {
+    expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
+      labelGeneralInformation,
+      labelServiceMonitoringProperties,
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions,
+      labelAdvanced
+    ]);
+    expect(Object.keys(getBlocks({ isCloudPlatform: true, t }))).not.toContain(
+      'comment'
+    );
+  });
+
+  it.each(contexts)('ends on the advanced section (%s)', (_name, context) => {
+    const labels = getSectionLabels(context);
+
+    expect(labels[labels.length - 1]).toBe(labelAdvanced);
+  });
+
+  it.each([
+    [
+      'onPrem',
+      false,
+      [
+        'eventHandler',
+        'freshness',
+        'acknowledgmentTimeout',
+        'flapping',
+        'obsessRetainAndStalking',
+        // Full width, under the data processing blocks.
+        'comment'
+      ]
+    ],
+    ['cloud', true, ['eventHandler', 'freshness']]
+  ])(
+    'places the data processing blocks in the advanced section (%s)',
+    (_name, isCloudPlatform, expected) => {
+      const handedOver = getBlocks({ isCloudPlatform, t });
+
+      expect(
+        getSectionBlockIds(labelAdvanced).filter((id) => id in handedOver)
+      ).toEqual(expected);
+    }
+  );
+
   it('places the macros next to the check command', () => {
     const [, checkCommandSection] = placeBlocks({
       blocks: getBlocks({ isCloudPlatform: false, t }),
@@ -125,6 +197,15 @@ describe('layout', () => {
 
     expect(cloudBlocks).toContain('groups');
     expect(cloudBlocks).not.toContain('snmpTraps');
+  });
+
+  it('places the graph template on-premise only', () => {
+    expect(Object.keys(getBlocks({ isCloudPlatform: false, t }))).toContain(
+      'graphTemplate'
+    );
+    expect(Object.keys(getBlocks({ isCloudPlatform: true, t }))).not.toContain(
+      'graphTemplate'
+    );
   });
 
   it('has no general information in a mass change', () => {

@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriod;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TimePeriodCriteria;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\Shared\Domain\Collection;
@@ -34,6 +35,9 @@ final class FakeTimePeriodRepository implements TimePeriodRepository
     /** @var list<int> ids of the time periods that exist */
     public array $existingIds = [];
 
+    /** @var array<int, string> names indexed by time period id, what findNamesByIds() knows */
+    public array $names = [];
+
     public function existsOne(TimePeriodId $id): bool
     {
         return in_array($id->value, $this->existingIds, true);
@@ -41,7 +45,14 @@ final class FakeTimePeriodRepository implements TimePeriodRepository
 
     public function findNamesByIds(Collection $ids): Collection
     {
-        return new Collection([], \App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName::class);
+        $names = [];
+        foreach ($ids as $id) {
+            if (isset($this->names[$id->value])) {
+                $names[$id->value] = new TimePeriodName($this->names[$id->value]);
+            }
+        }
+
+        return new Collection($names, TimePeriodName::class);
     }
 
     public function findAll(?TimePeriodCriteria $criteria = null): \IteratorAggregate&\Countable

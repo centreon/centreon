@@ -24,9 +24,12 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GraphTemplateCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalGraphTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\GraphTemplateTransformer;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -104,6 +107,31 @@ final class DbalGraphTemplateRepositoryTest extends KernelTestCase
         self::assertSame(["pg-{$this->tag}-B"], $this->names($result));
     }
 
+    public function testFindNamesByIdsReturnsTheNamesIndexedById(): void
+    {
+        $firstId = $this->insertGraphTemplate("graph-a-{$this->tag}");
+        $secondId = $this->insertGraphTemplate("graph-b-{$this->tag}");
+
+        $names = $this->findNamesByIds($firstId, $secondId);
+
+        // Indexed by id, in no particular order: the query has no ORDER BY.
+        self::assertCount(2, $names);
+        self::assertSame("graph-a-{$this->tag}", $names[$firstId]);
+        self::assertSame("graph-b-{$this->tag}", $names[$secondId]);
+    }
+
+    public function testFindNamesByIdsLeavesOutAnUnknownOrNamelessTemplate(): void
+    {
+        $namelessId = $this->insertGraphTemplate(null);
+
+        self::assertSame([], $this->findNamesByIds($namelessId, $namelessId + 1000000));
+    }
+
+    public function testFindNamesByIdsWithoutIdsIsEmpty(): void
+    {
+        self::assertCount(0, $this->repository->findNamesByIds(new Collection([], GraphTemplateId::class)));
+    }
+
     /**
      * @param \IteratorAggregate<int, GraphTemplate>&\Countable $result
      *
@@ -135,5 +163,18 @@ final class DbalGraphTemplateRepositoryTest extends KernelTestCase
         $this->connection->insert('giv_graphs_template', ['name' => $name]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @return array<string> indexed by id
+     */
+    private function findNamesByIds(int ...$ids): array
+    {
+        $names = $this->repository->findNamesByIds(new Collection(
+            array_map(static fn (int $id): GraphTemplateId => new GraphTemplateId($id), $ids),
+            GraphTemplateId::class,
+        ));
+
+        return array_map(static fn (GraphTemplateName $name): string => $name->value, $names->toArray());
     }
 }

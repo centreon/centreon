@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GraphTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
 use App\Shared\Domain\Collection;
@@ -32,6 +34,7 @@ use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -94,6 +97,32 @@ final readonly class DbalGraphTemplateRepository extends DbalRepository implemen
             currentPage: $pagination->page,
             itemsPerPage: $pagination->itemsPerPage,
         );
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_values(array_map(static fn (GraphTemplateId $id): int => $id->value, $ids->toArray()));
+        if ($idValues === []) {
+            return new Collection([], GraphTemplateName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('g.graph_id', 'g.name')
+            ->from(self::TABLE_NAME, 'g')
+            ->where($qb->expr()->in('g.graph_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{graph_id: int|string, name: string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        // `name` is nullable; a nameless row reads as "not found".
+        $names = [];
+        foreach ($rows as $row) {
+            if (($name = (string) $row['name']) !== '') {
+                $names[(int) $row['graph_id']] = new GraphTemplateName($name);
+            }
+        }
+
+        return new Collection($names, GraphTemplateName::class);
     }
 
     /**

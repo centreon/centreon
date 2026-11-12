@@ -129,6 +129,8 @@ export interface ConfigurationBase<TFilters> {
   formPanelWidth?: number;
   // The column the listing opens sorted on, when it is not `name`.
   defaultSortField?: string;
+  // What tells two listing rows apart, when `id` alone does not.
+  getRowId?: (row: ResourceRow) => number | string;
 }
 
 export enum FieldType {
