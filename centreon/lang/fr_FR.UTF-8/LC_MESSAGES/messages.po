@@ -25621,8 +25621,8 @@ msgid "{{name}} ({{level}})"
 msgstr "{{name}} ({{level}})"
 
 #: centreon/www/install/front_translate.php
-msgid "Select an event handler to use these arguments, or clear them"
-msgstr "Sélectionnez un gestionnaire d’évènements pour utiliser ces arguments, ou supprimez-les"
+msgid "No event handler selected"
+msgstr "Aucun gestionnaire d’évènements sélectionné"
 
 #: centreon/www/install/front_translate.php
 msgid "Must be an integer between 0 and 100"
