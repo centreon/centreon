@@ -246,6 +246,35 @@ export default () => {
       });
     });
 
+    it('forces the freshness check of a Centreon Monitoring Agent command', async () => {
+      await openService({ alias: '@getService1', name: 'memory' });
+
+      await waitFor(() =>
+        expect(getTriStateButton('checkFreshness', 'true')).toBeDisabled()
+      );
+      expect(await getInput('freshnessThreshold')).toBeDisabled();
+
+      await userEvent.type(await getInput('acknowledgmentTimeout'), '5');
+      await save();
+
+      const body = await getRequestBody('@updateService1');
+
+      expect(body.advanced).toMatchObject({
+        acknowledgment_timeout: 5,
+        check_freshness: 'true',
+        freshness_threshold: 500
+      });
+    });
+
+    it('lets the freshness check of another command be set', async () => {
+      await openService();
+
+      await waitFor(() =>
+        expect(getTriStateButton('checkFreshness', 'true')).toBeEnabled()
+      );
+      expect(await getInput('freshnessThreshold')).toBeEnabled();
+    });
+
     it('refuses a flap threshold above 100', async () => {
       await openNewService();
 

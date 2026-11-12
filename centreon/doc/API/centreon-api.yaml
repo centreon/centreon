@@ -14405,6 +14405,8 @@ components:
           type: integer
         name:
           type: string
+        is_centreon_monitoring_agent:
+          type: boolean
     ServiceCheckCommandOutput.jsonld:
       type: object
       properties:
@@ -14412,6 +14414,8 @@ components:
           type: integer
         name:
           type: string
+        is_centreon_monitoring_agent:
+          type: boolean
     ServiceCheckOptionsOutput:
       type: object
       properties:

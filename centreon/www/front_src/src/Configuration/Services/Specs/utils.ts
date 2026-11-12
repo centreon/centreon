@@ -107,14 +107,19 @@ const serviceDetails: Record<number, Record<string, unknown>> = {
 
 // Service 0 has its own command, arguments and macros: its own, a stored
 // password (no value sent back) and one inherited from its template. Service 1
-// has only a command, which a service without a template needs to be saved;
-// service 2 none: the key is left out.
+// has only a command, which a service without a template needs to be saved: a
+// Centreon Monitoring Agent one, whose freshness check the server forces.
+// Service 2 none: the key is left out.
 export const getServiceCheckOptionsResponse = (id: number) => {
   if (id === 0) {
     return {
       check_options: {
         args: ['80', '90'],
-        command: { id: 9, name: 'check-centreon-cpu' },
+        command: {
+          id: 9,
+          is_centreon_monitoring_agent: false,
+          name: 'check-centreon-cpu'
+        },
         macros: [
           { id: 1, is_password: false, name: 'WARNING', value: '80' },
           { id: 2, is_password: true, name: 'API_TOKEN' },
@@ -131,7 +136,15 @@ export const getServiceCheckOptionsResponse = (id: number) => {
   }
 
   return id === 1
-    ? { check_options: { command: { id: 8, name: 'check-centreon-ping' } } }
+    ? {
+        check_options: {
+          command: {
+            id: 8,
+            is_centreon_monitoring_agent: true,
+            name: 'check-centreon-ping'
+          }
+        }
+      }
     : {};
 };
 

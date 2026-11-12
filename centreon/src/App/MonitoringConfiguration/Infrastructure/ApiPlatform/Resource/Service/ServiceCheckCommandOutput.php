@@ -24,13 +24,15 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service;
 
 /**
- * The check command of a service, as `{id, name}`.
+ * The check command of a service, as `{id, name, is_centreon_monitoring_agent}`: the server forces the
+ * freshness check of a Centreon Monitoring Agent command, and the form shows it as forced.
  */
 final readonly class ServiceCheckCommandOutput
 {
     public function __construct(
         public int $id,
         public string $name,
+        public bool $isCentreonMonitoringAgent,
     ) {
     }
 }

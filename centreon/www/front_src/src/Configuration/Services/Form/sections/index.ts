@@ -102,13 +102,8 @@ const serviceNotificationOptions: NotificationOptions = [
   [labelNone, 'none']
 ];
 
-// PLACEHOLDER: the flag is an assumption. The commands selector
-// (`CommandChoicesOutput`) only gives an id and a name so far, while the
-// backend tells such a command by its connector and name
-// (`Command::isCentreonMonitoringAgent()`).
-export const hasCentreonMonitoringAgentCommand = (
-  values: FormValues
-): boolean =>
+// As the service detail says (`Command::isCentreonMonitoringAgent()`).
+const hasCentreonMonitoringAgentCommand = (values: FormValues): boolean =>
   (
     values.checkOptions as {
       command?: { isCentreonMonitoringAgent?: boolean } | null;
