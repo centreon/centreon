@@ -177,7 +177,11 @@ final readonly class ServiceResourceBuilder
         $command = null;
         if ($service->checkOptions->checkCommandId instanceof CommandId) {
             $checkCommand = $this->commandRepository->getById($service->checkOptions->checkCommandId);
-            $command = new ServiceCheckCommandOutput($checkCommand->id()->value, $checkCommand->name->value);
+            $command = new ServiceCheckCommandOutput(
+                $checkCommand->id()->value,
+                $checkCommand->name->value,
+                $checkCommand->isCentreonMonitoringAgent(),
+            );
         }
 
         $macros = array_map(

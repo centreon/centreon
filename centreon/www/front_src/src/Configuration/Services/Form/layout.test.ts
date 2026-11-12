@@ -108,14 +108,50 @@ describe('layout', () => {
     ).toContain(labelNotifications);
   });
 
-  it('has no advanced section on a cloud platform, where the comment is refused', () => {
+  it('keeps the advanced section but not the comment on a cloud platform, where it is refused', () => {
     expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
       labelGeneralInformation,
       labelServiceMonitoringProperties,
       labelRelations,
-      labelMonitoringEngineSchedulingOptions
+      labelMonitoringEngineSchedulingOptions,
+      labelAdvanced
     ]);
+    expect(Object.keys(getBlocks({ isCloudPlatform: true, t }))).not.toContain(
+      'comment'
+    );
   });
+
+  it.each(contexts)('ends on the advanced section (%s)', (_name, context) => {
+    const labels = getSectionLabels(context);
+
+    expect(labels[labels.length - 1]).toBe(labelAdvanced);
+  });
+
+  it.each([
+    [
+      'onPrem',
+      false,
+      [
+        'eventHandler',
+        'freshness',
+        'acknowledgmentTimeout',
+        'flapping',
+        'obsessRetainAndStalking',
+        // Full width, under the data processing blocks.
+        'comment'
+      ]
+    ],
+    ['cloud', true, ['eventHandler', 'freshness']]
+  ])(
+    'places the data processing blocks in the advanced section (%s)',
+    (_name, isCloudPlatform, expected) => {
+      const handedOver = getBlocks({ isCloudPlatform, t });
+
+      expect(
+        getSectionBlockIds(labelAdvanced).filter((id) => id in handedOver)
+      ).toEqual(expected);
+    }
+  );
 
   it('places the macros next to the check command', () => {
     const [, checkCommandSection] = placeBlocks({
