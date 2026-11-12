@@ -1,5 +1,11 @@
-import { InputType, type SelectEntry } from '@centreon/ui';
+import {
+  type InputPropsWithoutGroup,
+  InputType,
+  type SelectEntry
+} from '@centreon/ui';
 
+import type { FormikValues } from 'formik';
+import { path } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 import { object } from 'yup';
 
@@ -26,6 +32,7 @@ import {
   labelContactGroupAdditiveInheritance,
   labelContactsToNotify,
   labelFirstNotificationDelay,
+  labelInheritContactsFromHost,
   labelLinkedContactGroups,
   labelLinkedContacts,
   labelMustBePositiveIntegerOrZero,
@@ -80,7 +87,8 @@ const getNotifications = <Values>(
   defaultValues: Values
 ): Values => (values.notifications ?? defaultValues) as Values;
 
-// A mass change holds `'true'` / `'false'`, or null until one is picked.
+// A switch in the form. A mass change holds `'true'` / `'false'`, or null
+// until one is picked.
 type AdditiveInheritance = boolean | 'true' | 'false' | null;
 
 interface RecipientsValues {
@@ -89,6 +97,8 @@ interface RecipientsValues {
   contactGroups: Array<NamedEntity>;
   contacts: Array<NamedEntity>;
   enabled: TriState;
+  // Only with `withUseOnlyContactsFromHost`: a switch, as the two above.
+  useOnlyContactsFromHost?: AdditiveInheritance;
 }
 
 const defaultRecipients: RecipientsValues = {
@@ -102,6 +112,17 @@ const defaultRecipients: RecipientsValues = {
 const optionalBooleanDecoder = JsonDecoder.optional(JsonDecoder.boolean).map(
   (value) => value ?? false
 );
+
+// With `withOptionalDetailKeys`, a key the detail leaves out decodes to its
+// default instead of failing.
+const orDefault = <T>(
+  decoder: JsonDecoder.Decoder<T>,
+  defaultValue: T,
+  isOptional: boolean
+): JsonDecoder.Decoder<T> =>
+  isOptional
+    ? JsonDecoder.optional(decoder).map((value) => value ?? defaultValue)
+    : decoder;
 
 const toApiBoolean = (value: AdditiveInheritance): boolean | null => {
   if (value === 'true' || value === 'false') {
@@ -118,186 +139,296 @@ const additiveInheritanceOptions = [
   { label: labelNo, value: 'false' }
 ];
 
-// Whether to notify, and whom.
+// A switch in the form, Yes / No in a mass change.
+const getSwitch = ({
+  isMassChange,
+  ...input
+}: Pick<
+  InputPropsWithoutGroup,
+  'change' | 'dataTestId' | 'fieldName' | 'getDisabled' | 'label'
+> & { isMassChange?: boolean }): InputPropsWithoutGroup =>
+  isMassChange
+    ? {
+        ...input,
+        change: undefined,
+        segmentedButtons: { options: additiveInheritanceOptions },
+        type: InputType.SegmentedButtons
+      }
+    : { ...input, type: InputType.Switch };
+
+const isUsingOnlyContactsFromHost = (values: FormikValues): boolean =>
+  !!toApiBoolean(
+    path<AdditiveInheritance>(
+      ['notifications', 'useOnlyContactsFromHost'],
+      values
+    ) ?? null
+  );
+
+// Whether to notify, and whom. With `withUseOnlyContactsFromHost` (a
+// service), the resource may notify its host's recipients instead of its own:
+// these are then emptied, disabled and sent empty, as legacy does. With
+// `withOptionalDetailKeys`, the detail may leave out the lists and `enabled`.
 export const getNotificationRecipientsBlock = ({
   contactGroupsEndpoint,
   contactsEndpoint,
-  resource: { baseEndpoint, idPrefix }
+  resource: { baseEndpoint, idPrefix },
+  withOptionalDetailKeys = false,
+  withUseOnlyContactsFromHost = false
 }: {
   contactGroupsEndpoint: string;
   contactsEndpoint: string;
   resource: ResourceOptions;
-}): FieldBlock<NotificationsDetail<RecipientsValues>> => ({
-  defaultValues: { notifications: defaultRecipients },
-  detailDecoders: getNotificationsDecoder<RecipientsValues>({
-    decoders: {
-      contactAdditiveInheritance: optionalBooleanDecoder,
-      contactGroupAdditiveInheritance: optionalBooleanDecoder,
-      contactGroups: namedEntitiesDecoder('Contact group', 'Contact groups'),
-      contacts: namedEntitiesDecoder('Contact', 'Contacts'),
-      enabled: triStateDecoder
-    },
-    defaultValues: defaultRecipients,
-    keyMap: {
-      contactAdditiveInheritance: 'contact_additive_inheritance',
-      contactGroupAdditiveInheritance: 'contact_group_additive_inheritance',
-      contactGroups: 'contact_groups'
-    }
-  }),
-  getInputs: ({ t, isAdditiveInheritanceEnabled, isMassChange }) => {
-    const contacts = {
-      connectedAutocomplete: buildSelector({
-        baseEndpoint,
-        chipColor: 'primary',
-        endpoint: contactsEndpoint,
-        queryKey: `${idPrefix}-contacts`
-      }),
-      dataTestId: `${idPrefix}-notifications-contacts`,
-      fieldName: 'notifications.contacts',
-      label: t(labelLinkedContacts),
-      type: InputType.MultiConnectedAutocomplete
-    };
+  withOptionalDetailKeys?: boolean;
+  withUseOnlyContactsFromHost?: boolean;
+}): FieldBlock<NotificationsDetail<RecipientsValues>> => {
+  const defaultValues: RecipientsValues = withUseOnlyContactsFromHost
+    ? { ...defaultRecipients, useOnlyContactsFromHost: false }
+    : defaultRecipients;
 
-    const contactGroups = {
-      connectedAutocomplete: buildSelector({
-        baseEndpoint,
-        chipColor: 'primary',
-        endpoint: contactGroupsEndpoint,
-        queryKey: `${idPrefix}-contact-groups`
-      }),
-      dataTestId: `${idPrefix}-notifications-contact-groups`,
-      fieldName: 'notifications.contactGroups',
-      label: t(labelLinkedContactGroups),
-      type: InputType.MultiConnectedAutocomplete
-    };
+  const getDisabled = withUseOnlyContactsFromHost
+    ? isUsingOnlyContactsFromHost
+    : undefined;
 
-    // Only the platform's vertical inheritance mode reads the additive
-    // toggles; legacy hides them otherwise, and the server drops them.
-    const withAdditiveToggle = (
-      selector: typeof contacts,
-      toggle: { dataTestId: string; fieldName: string; label: string }
-    ) =>
-      isAdditiveInheritanceEnabled
-        ? {
-            fieldName: `${selector.fieldName}-row`,
-            grid: {
-              alignItems: 'center',
-              className: 'grid-cols-[1fr_auto]',
-              columns: [
-                selector,
-                isMassChange
-                  ? {
-                      ...toggle,
-                      segmentedButtons: { options: additiveInheritanceOptions },
-                      type: InputType.SegmentedButtons
-                    }
-                  : { ...toggle, type: InputType.Switch }
-              ]
-            },
-            label: `${selector.dataTestId}-row`,
-            type: InputType.Grid
+  return {
+    defaultValues: { notifications: defaultValues },
+    detailDecoders: getNotificationsDecoder<RecipientsValues>({
+      decoders: {
+        contactAdditiveInheritance: optionalBooleanDecoder,
+        contactGroupAdditiveInheritance: optionalBooleanDecoder,
+        contactGroups: orDefault(
+          namedEntitiesDecoder('Contact group', 'Contact groups'),
+          [],
+          withOptionalDetailKeys
+        ),
+        contacts: orDefault(
+          namedEntitiesDecoder('Contact', 'Contacts'),
+          [],
+          withOptionalDetailKeys
+        ),
+        enabled: orDefault(
+          triStateDecoder,
+          defaultTriState,
+          withOptionalDetailKeys
+        ),
+        ...(withUseOnlyContactsFromHost && {
+          useOnlyContactsFromHost: optionalBooleanDecoder
+        })
+      } as JsonDecoder.DecoderObject<RecipientsValues>,
+      defaultValues,
+      keyMap: {
+        contactAdditiveInheritance: 'contact_additive_inheritance',
+        contactGroupAdditiveInheritance: 'contact_group_additive_inheritance',
+        contactGroups: 'contact_groups',
+        // The legacy `service_use_only_contacts_from_host`.
+        ...(withUseOnlyContactsFromHost && {
+          useOnlyContactsFromHost: 'use_only_contacts_from_host'
+        })
+      }
+    }),
+    getInputs: ({ t, isAdditiveInheritanceEnabled, isMassChange }) => {
+      // Yes empties the resource's own recipients, as legacy does. A mass
+      // change leaves them to the payload: emptying the lists there would only
+      // mean "add nothing".
+      const useOnlyContactsFromHost = getSwitch({
+        change: ({ setFieldValue, value }) => {
+          setFieldValue('notifications.useOnlyContactsFromHost', value);
+
+          if (!value) {
+            return;
           }
-        : selector;
 
-    return {
-      notificationRecipients: getBlock({
-        columns: [
-          {
-            additionalLabel: t(labelNotifications),
-            dataTestId: `${idPrefix}-notifications-enabled`,
-            fieldName: 'notifications.enabled',
-            label: t(labelNotificationEnabled),
-            segmentedButtons: { hideLabel: true, options: triStateOptions },
-            type: InputType.SegmentedButtons
-          },
-          {
-            // Over the whole row, its additive toggle included.
-            ...withAdditiveToggle(contacts, {
-              dataTestId: `${idPrefix}-notifications-contact-additive-inheritance`,
-              fieldName: 'notifications.contactAdditiveInheritance',
-              label: t(labelContactAdditiveInheritance)
+          setFieldValue('notifications.contacts', []);
+          setFieldValue('notifications.contactGroups', []);
+          setFieldValue('notifications.contactAdditiveInheritance', false);
+          setFieldValue('notifications.contactGroupAdditiveInheritance', false);
+        },
+        dataTestId: `${idPrefix}-notifications-use-only-contacts-from-host`,
+        fieldName: 'notifications.useOnlyContactsFromHost',
+        isMassChange,
+        label: t(labelInheritContactsFromHost)
+      });
+
+      const contacts = {
+        connectedAutocomplete: buildSelector({
+          baseEndpoint,
+          chipColor: 'primary',
+          endpoint: contactsEndpoint,
+          queryKey: `${idPrefix}-contacts`
+        }),
+        dataTestId: `${idPrefix}-notifications-contacts`,
+        fieldName: 'notifications.contacts',
+        getDisabled,
+        label: t(labelLinkedContacts),
+        type: InputType.MultiConnectedAutocomplete
+      };
+
+      const contactGroups = {
+        connectedAutocomplete: buildSelector({
+          baseEndpoint,
+          chipColor: 'primary',
+          endpoint: contactGroupsEndpoint,
+          queryKey: `${idPrefix}-contact-groups`
+        }),
+        dataTestId: `${idPrefix}-notifications-contact-groups`,
+        fieldName: 'notifications.contactGroups',
+        getDisabled,
+        label: t(labelLinkedContactGroups),
+        type: InputType.MultiConnectedAutocomplete
+      };
+
+      // Only the platform's vertical inheritance mode reads the additive
+      // toggles; legacy hides them otherwise, and the server drops them.
+      const withAdditiveToggle = (
+        selector: typeof contacts,
+        toggle: { dataTestId: string; fieldName: string; label: string }
+      ) =>
+        isAdditiveInheritanceEnabled
+          ? {
+              fieldName: `${selector.fieldName}-row`,
+              grid: {
+                alignItems: 'center',
+                className: 'grid-cols-[1fr_auto]',
+                columns: [
+                  selector,
+                  getSwitch({ ...toggle, getDisabled, isMassChange })
+                ]
+              },
+              label: `${selector.dataTestId}-row`,
+              type: InputType.Grid
+            }
+          : selector;
+
+      return {
+        notificationRecipients: getBlock({
+          columns: [
+            {
+              additionalLabel: t(labelNotifications),
+              dataTestId: `${idPrefix}-notifications-enabled`,
+              fieldName: 'notifications.enabled',
+              label: t(labelNotificationEnabled),
+              segmentedButtons: { hideLabel: true, options: triStateOptions },
+              type: InputType.SegmentedButtons
+            },
+            // The title goes over the first input of the recipients.
+            ...(withUseOnlyContactsFromHost
+              ? [
+                  {
+                    ...useOnlyContactsFromHost,
+                    additionalLabel: t(labelContactsToNotify)
+                  }
+                ]
+              : []),
+            {
+              // Over the whole row, its additive toggle included.
+              ...withAdditiveToggle(contacts, {
+                dataTestId: `${idPrefix}-notifications-contact-additive-inheritance`,
+                fieldName: 'notifications.contactAdditiveInheritance',
+                label: t(labelContactAdditiveInheritance)
+              }),
+              ...(!withUseOnlyContactsFromHost && {
+                additionalLabel: t(labelContactsToNotify)
+              })
+            },
+            withAdditiveToggle(contactGroups, {
+              dataTestId: `${idPrefix}-notifications-contact-group-additive-inheritance`,
+              fieldName: 'notifications.contactGroupAdditiveInheritance',
+              label: t(labelContactGroupAdditiveInheritance)
             }),
-            additionalLabel: t(labelContactsToNotify)
-          },
-          withAdditiveToggle(contactGroups, {
-            dataTestId: `${idPrefix}-notifications-contact-group-additive-inheritance`,
-            fieldName: 'notifications.contactGroupAdditiveInheritance',
-            label: t(labelContactGroupAdditiveInheritance)
-          }),
-          // One choice for contacts and contact groups, as legacy's
-          // `mc_mod_hcg`.
-          ...(isMassChange
-            ? [getUpdateModeInput({ field: 'contacts', idPrefix, t })]
-            : [])
-        ],
-        idPrefix,
-        name: 'notifications-recipients'
-      })
-    };
-  },
-  getSchema: () => ({}),
-  isAvailable,
-  massChange: {
-    // So are the additive inheritances, a switch having no "unchanged".
-    defaultValues: {
-      notifications: {
-        contactAdditiveInheritance: null,
-        contactGroupAdditiveInheritance: null
+            // One choice for contacts and contact groups, as legacy's
+            // `mc_mod_hcg`.
+            ...(isMassChange
+              ? [getUpdateModeInput({ field: 'contacts', idPrefix, t })]
+              : [])
+          ],
+          idPrefix,
+          name: 'notifications-recipients'
+        })
+      };
+    },
+    getSchema: () => ({}),
+    isAvailable,
+    massChange: {
+      // So are the additive inheritances, a switch having no "unchanged".
+      defaultValues: {
+        notifications: {
+          contactAdditiveInheritance: null,
+          contactGroupAdditiveInheritance: null,
+          ...(withUseOnlyContactsFromHost && { useOnlyContactsFromHost: null })
+        }
+      },
+      updateModeFields: {
+        contacts: [
+          ['notifications', 'contacts'],
+          ['notifications', 'contact_groups']
+        ]
       }
     },
-    updateModeFields: {
-      contacts: [
-        ['notifications', 'contacts'],
-        ['notifications', 'contact_groups']
-      ]
-    }
-  },
-  toPayload: (values, { isAdditiveInheritanceEnabled }) => {
-    const notifications = getNotifications(values, defaultRecipients);
+    toPayload: (values, { isAdditiveInheritanceEnabled }) => {
+      const notifications = getNotifications(values, defaultValues);
+      // The host's recipients replace the resource's own: none is sent, even
+      // when the detail came with some.
+      const useOnlyContactsFromHost = withUseOnlyContactsFromHost
+        ? toApiBoolean(notifications.useOnlyContactsFromHost ?? null)
+        : null;
 
-    return {
-      notifications: {
-        // Left to their server default where the form does not show them.
-        ...(isAdditiveInheritanceEnabled && {
-          contact_additive_inheritance: toApiBoolean(
-            notifications.contactAdditiveInheritance
-          ),
-          contact_group_additive_inheritance: toApiBoolean(
-            notifications.contactGroupAdditiveInheritance
-          )
-        }),
-        contact_groups: toIds(notifications.contactGroups),
-        contacts: toIds(notifications.contacts),
-        enabled: notifications.enabled
-      }
-    };
-  }
-});
+      return {
+        notifications: {
+          // Left to their server default where the form does not show them.
+          ...(isAdditiveInheritanceEnabled && {
+            contact_additive_inheritance: useOnlyContactsFromHost
+              ? false
+              : toApiBoolean(notifications.contactAdditiveInheritance),
+            contact_group_additive_inheritance: useOnlyContactsFromHost
+              ? false
+              : toApiBoolean(notifications.contactGroupAdditiveInheritance)
+          }),
+          contact_groups: useOnlyContactsFromHost
+            ? []
+            : toIds(notifications.contactGroups),
+          contacts: useOnlyContactsFromHost
+            ? []
+            : toIds(notifications.contacts),
+          enabled: notifications.enabled,
+          ...(withUseOnlyContactsFromHost && {
+            use_only_contacts_from_host: useOnlyContactsFromHost
+          })
+        }
+      };
+    }
+  };
+};
 
 // What a resource notifies on, as labels and as the API spells them. `None`
 // excludes the others.
 export type NotificationOptions = Array<[label: string, apiValue: string]>;
 
-// The events that trigger a notification: the resource's own set.
+// The events that trigger a notification: the resource's own set. With
+// `withOptionalDetailKeys`, the detail may leave them out.
 export const getNotifyOnBlock = ({
   options,
-  resource: { idPrefix }
+  resource: { idPrefix },
+  withOptionalDetailKeys = false
 }: {
   options: NotificationOptions;
   resource: ResourceOptions;
+  withOptionalDetailKeys?: boolean;
 }): FieldBlock<NotificationsDetail<{ options: Array<string> }>> => ({
   defaultValues: { notifications: { options: [] } },
   detailDecoders: getNotificationsDecoder<{ options: Array<string> }>({
     decoders: {
       // The labels of the checked options.
-      options: JsonDecoder.array(
-        JsonDecoder.oneOf(
-          options.map(([label, apiValue]) =>
-            JsonDecoder.isExactly(apiValue).map(() => label)
+      options: orDefault(
+        JsonDecoder.array(
+          JsonDecoder.oneOf(
+            options.map(([label, apiValue]) =>
+              JsonDecoder.isExactly(apiValue).map(() => label)
+            ),
+            'Notification option'
           ),
-          'Notification option'
+          'Notification options'
         ),
-        'Notification options'
+        [],
+        withOptionalDetailKeys
       )
     },
     defaultValues: { options: [] }

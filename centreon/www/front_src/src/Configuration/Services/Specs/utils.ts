@@ -172,6 +172,20 @@ const getExtendedInfoDetail = (id: number): Record<string, unknown> => {
     : { categories: [] };
 };
 
+// `recovery_delay` left out, as the API leaves unset values out.
+export const getServiceNotificationsResponse = () => ({
+  contact_additive_inheritance: true,
+  contact_group_additive_inheritance: false,
+  contact_groups: [{ id: 3, name: 'Supervisors' }],
+  contacts: [{ id: 1, name: 'admin' }],
+  enabled: 'false',
+  first_delay: 1,
+  interval: 3,
+  options: ['warning', 'critical', 'recovery'],
+  timeperiod: { id: 20, name: '24x7' },
+  use_only_contacts_from_host: false
+});
+
 export const getServiceResponse = (id: number) => ({
   '@context': '/centreon/api/contexts/Service',
   '@id': `/centreon/api/configuration/services/${id}`,
@@ -185,7 +199,11 @@ export const getServiceResponse = (id: number) => ({
   ].reduce(
     (detail, section) => mergeDeepRight(detail, section),
     serviceDetails[id] as Record<string, unknown>
-  )
+  ),
+  // Service 0 carries notification settings, service 1 none, service 2 only
+  // some of them.
+  ...(id === 0 && { notifications: getServiceNotificationsResponse() }),
+  ...(id === 2 && { notifications: { interval: 5 } })
 });
 
 const getSelectorResponse = (
@@ -263,3 +281,43 @@ export const getServiceMediasResponse = () =>
     { id: 12, name: 'cpu.png', url: iconUrl },
     { id: 13, name: 'disk.png', url: iconUrl }
   ]);
+
+// The notification selectors. The notification period shares the check
+// period's selector.
+export const getContactsResponse = () =>
+  getSelectorResponse('contacts', [
+    { id: 1, name: 'admin' },
+    { id: 2, name: 'guest' }
+  ]);
+
+export const getContactGroupsResponse = () =>
+  getSelectorResponse('contact_groups', [
+    { id: 3, name: 'Supervisors' },
+    { id: 4, name: 'Guests' }
+  ]);
+
+// What a form opened on service 0 sends, its notifications untouched.
+export const openedNotificationsPayload = {
+  contact_groups: [3],
+  contacts: [1],
+  enabled: 'false',
+  first_delay: 1,
+  interval: 3,
+  options: ['warning', 'critical', 'recovery'],
+  recovery_delay: null,
+  timeperiod_id: 20,
+  use_only_contacts_from_host: false
+};
+
+// What a form that never touched the notifications sends.
+export const untouchedNotificationsPayload = {
+  contact_groups: [],
+  contacts: [],
+  enabled: 'use_default',
+  first_delay: null,
+  interval: null,
+  options: [],
+  recovery_delay: null,
+  timeperiod_id: null,
+  use_only_contacts_from_host: false
+};
