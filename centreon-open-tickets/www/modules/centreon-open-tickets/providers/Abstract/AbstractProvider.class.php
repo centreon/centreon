@@ -304,6 +304,18 @@ abstract class AbstractProvider
     }
 
     /**
+     * Build the comment used when acknowledging problems after a ticket creation.
+     * Providers can override it to add extra information.
+     *
+     * @param int|string $ticketId
+     * @return string
+     */
+    public function getAckComment($ticketId): string
+    {
+        return 'open ticket: ' . $ticketId;
+    }
+
+    /**
      * @return 0|1
      */
     public function doAck()

@@ -982,7 +982,7 @@ class Automatic
                         $notify,
                         $persistent,
                         $contact['alias'],
-                        'open ticket: ' . $ticketId
+                        $providerClass->getAckComment($ticketId)
                     ),
                     $service['instance_id'],
                 ]
@@ -1057,7 +1057,7 @@ class Automatic
                         $notify,
                         $persistent,
                         $contact['alias'],
-                        'open ticket: ' . $ticketId
+                        $providerClass->getAckComment($ticketId)
                     ),
                     $host['instance_id'],
                 ]

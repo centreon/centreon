@@ -492,7 +492,7 @@ try {
                             $notify,
                             $persistent,
                             $contact_infos['alias'],
-                            'open ticket: ' . $resultat['result']['ticket_id']
+                            $centreon_provider->getAckComment($resultat['result']['ticket_id'])
                         ),
                         $value['instance_id'],
                     ]
@@ -553,7 +553,7 @@ try {
                             $notify,
                             $persistent,
                             $contact_infos['alias'],
-                            'open ticket: ' . $resultat['result']['ticket_id']
+                            $centreon_provider->getAckComment($resultat['result']['ticket_id'])
                         ),
                         $value['instance_id'],
                     ]

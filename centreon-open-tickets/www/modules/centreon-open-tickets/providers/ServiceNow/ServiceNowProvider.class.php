@@ -34,6 +34,9 @@
  */
 class ServiceNowProvider extends AbstractProvider
 {
+    /** @var string|null ServiceNow ticket number (INCxxxxxxx) of the last created ticket */
+    protected $ticketNumber = null;
+
     public const SERVICENOW_LIST_CATEGORY = 20;
     public const SERVICENOW_LIST_SUBCATEGORY = 21;
     public const SERVICENOW_LIST_IMPACT = 22;
@@ -335,6 +338,7 @@ class ServiceNowProvider extends AbstractProvider
             $data = $this->submitted_config;
             $data['ticket_arguments'] = $ticket_arguments;
             $resultInfo = $this->callServiceNow('createTicket', $data);
+            $this->ticketNumber = $resultInfo['ticketId'] ?? null;
         } catch (Exception $e) {
             $result['ticket_error_message'] = 'Error during create ServiceNow ticket';
         }
@@ -700,6 +704,22 @@ class ServiceNowProvider extends AbstractProvider
         }
 
         return $selected;
+    }
+
+    /**
+     * Add the ServiceNow ticket number (INCxxxxxxx) to the acknowledgement comment.
+     * The ticket id is the ServiceNow sys_id.
+     *
+     * @param int|string $ticketId
+     * @return string
+     */
+    public function getAckComment($ticketId): string
+    {
+        if ($this->ticketNumber === null) {
+            return parent::getAckComment($ticketId);
+        }
+
+        return 'open ticket: ' . $this->ticketNumber . ' (sys_id: ' . $ticketId . ')';
     }
 
     protected function createTicket($params, $accessToken)
