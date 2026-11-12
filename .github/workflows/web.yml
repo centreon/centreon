@@ -406,6 +406,7 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
         run: bash .github/scripts/translation/build-translations.sh
         shell: bash
 

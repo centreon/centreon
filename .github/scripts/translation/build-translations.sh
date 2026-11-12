@@ -10,6 +10,7 @@ set -euo pipefail
 #   HAS_UPDATE_TRANSLATIONS_LABEL - "true" or "false"
 #   JIRA_BASE_URL, JIRA_USER_EMAIL, JIRA_API_TOKEN, BRANCH_NAME, RUN_URL,
 #   HEAD_REF, PR_BODY, PR_URL     - see get-jira-key.sh
+#   GH_TOKEN                      - see create-translations-pr.sh
 #   GITHUB_WORKSPACE             - GitHub Actions workspace root
 #   GITHUB_OUTPUT                 - GitHub Actions step output file
 
@@ -46,16 +47,20 @@ if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]
       git add .
       # a Jira failure must not prevent the commit
       jira_key="$(bash ../.github/scripts/translation/get-jira-key.sh centreon || true)"
-      if [[ "$jira_key" =~ ^[A-Z][A-Z0-9_]+-[0-9]+$ ]]; then
+      jira_key_pattern='^[A-Z][A-Z0-9_]+-[0-9]+$'
+      if [[ "$jira_key" =~ $jira_key_pattern ]]; then
         git commit -m "chore(lang): update translations" -m "Refs: $jira_key"
       else
         git commit -m "chore(lang): update translations"
       fi
       if ! git push; then
-        echo "::warning::Failed to push translations commit (no push access, e.g. fork pull request). Git patch will be available as artifact."
-        cd ..
-        git diff HEAD~1 > translations.patch
-        TRANSLATIONS_PATCH_FILE="translations.patch"
+        # fall back to a pull request from a branch prefixed by the Jira key
+        if [[ ! "$jira_key" =~ $jira_key_pattern ]] || ! bash ../.github/scripts/translation/create-translations-pr.sh "$jira_key"; then
+          echo "::warning::Failed to push translations commit (no push access, e.g. fork pull request). Git patch will be available as artifact."
+          cd ..
+          git diff HEAD~1 > translations.patch
+          TRANSLATIONS_PATCH_FILE="translations.patch"
+        fi
       fi
     else
       echo "::notice::Last commit author is technique-ci. Skipping commit to avoid infinite loop."
