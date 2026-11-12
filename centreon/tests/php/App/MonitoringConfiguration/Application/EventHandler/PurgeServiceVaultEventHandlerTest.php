@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Application\EventHandler;
 use App\MonitoringConfiguration\Application\EventHandler\PurgeServiceVaultEventHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
@@ -90,7 +91,7 @@ final class PurgeServiceVaultEventHandlerTest extends TestCase
             hostId: new HostId(1),
             hostActivated: true,
             hostPollerId: null,
-            macros: $macros,
+            checkOptions: new ServiceCheckOptions(null, [], $macros),
         );
     }
 }

@@ -61,6 +61,53 @@ use Webmozart\Assert\Assert;
  *   host_activate: string|null,
  *   host_poller_id: int|string|null,
  * }
+ * @phpstan-type FormRowTypeAlias array{
+ *   check_command_id: int|string|null,
+ *   check_command_args: string|null,
+ *   check_timeperiod_id: int|string|null,
+ *   max_check_attempts: int|string|null,
+ *   active_check_enabled: string|null,
+ *   passive_check_enabled: string|null,
+ *   is_volatile: string|null,
+ *   acknowledgement_timeout: int|string|null,
+ *   check_freshness: string|null,
+ *   freshness_threshold: int|string|null,
+ *   flap_detection_enabled: string|null,
+ *   low_flap_threshold: int|string|null,
+ *   high_flap_threshold: int|string|null,
+ *   event_handler_enabled: string|null,
+ *   event_handler_command_id: int|string|null,
+ *   event_handler_args: string|null,
+ *   obsess_over_service: string|null,
+ *   retain_status_information: string|null,
+ *   retain_non_status_information: string|null,
+ *   stalking_options: string|null,
+ *   notifications_enabled: string|null,
+ *   notification_options: string|null,
+ *   notification_interval: int|string|null,
+ *   notification_period_id: int|string|null,
+ *   first_notification_delay: int|string|null,
+ *   recovery_notification_delay: int|string|null,
+ *   contact_additive_inheritance: int|string|null,
+ *   cg_additive_inheritance: int|string|null,
+ *   use_only_contacts_from_host: string|null,
+ *   comment: string|null,
+ *   geo_coords: string|null,
+ *   note: string|null,
+ *   note_url: string|null,
+ *   action_url: string|null,
+ *   icon_id: int|string|null,
+ *   alt_icon: string|null,
+ *   graph_template_id: int|string|null,
+ *   severity_id: int|string|null,
+ * }
+ * @phpstan-type RelationIdsTypeAlias array{
+ *   notification_contact_ids: list<int>,
+ *   notification_contact_group_ids: list<int>,
+ *   service_group_ids: list<int>,
+ *   category_ids: list<int>,
+ *   trap_ids: list<int>,
+ * }
  * @phpstan-type ListedRowTypeAlias array{
  *   service_id: int|string,
  *   service_description: string,
@@ -88,7 +135,8 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         's.service_template_model_stm_id AS template_id',
         's.service_normal_check_interval AS normal_check_interval',
         's.service_retry_check_interval AS retry_check_interval',
-        '(SELECT MIN(esi.esi_icon_image) FROM extended_service_information esi WHERE esi.service_service_id = s.service_id) AS icon_id',
+        // The icon of the service's first extended information row, the row a Get reads too.
+        '(SELECT esi.esi_icon_image FROM extended_service_information esi WHERE esi.service_service_id = s.service_id ORDER BY esi.esi_id LIMIT 1) AS icon_id',
     ];
 
     /**
@@ -189,7 +237,8 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     }
 
     /**
-     * Same pairs as {@see findAll()}; the pair with the lowest host id is read.
+     * Same pairs as {@see findAll()}; the pair with the lowest host id is read, then the whole form of the service
+     * on that host, then its macros.
      */
     public function findOne(ServiceId $id, ActingUser $actor): ?Service
     {
@@ -210,7 +259,31 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             return null;
         }
 
-        return $this->transformer->transform([...$row, 'macros' => $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? []]);
+        $formRow = $this->findFormRow($id->value);
+        if ($formRow === null) {
+            // Deleted between the two reads: not found, like a service that never existed.
+            return null;
+        }
+
+        return $this->transformer->transform([
+            ...$row,
+            ...$formRow,
+            ...$this->findRelationIds($id->value, (int) $row['host_id']),
+            'macros' => $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? [],
+        ]);
+    }
+
+    public function updateActivationStatus(ServiceId $id, bool $activated): void
+    {
+        // service_register = '1' mirrors findOne so a template is never toggled; contract on the interface.
+        $this->connection->createQueryBuilder()
+            ->update(self::TABLE_NAME)
+            ->set('service_activate', ':activated')
+            ->where('service_id = :id')
+            ->andWhere("service_register = '1'")
+            ->setParameter('activated', $activated ? '1' : '0')
+            ->setParameter('id', $id->value, ParameterType::INTEGER)
+            ->executeStatement();
     }
 
     public function remove(Service $service): void
@@ -225,6 +298,133 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             ->executeStatement();
 
         $this->deleteDependenciesWithoutMember('dependency_serviceParent_relation', $parentDependencyIds);
+    }
+
+    /**
+     * Form columns and relations of the service on this host; the severity is not ACL-filtered here.
+     *
+     * @return ?FormRowTypeAlias null when the service no longer exists
+     */
+    private function findFormRow(int $serviceId): ?array
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $severity = '(SELECT MIN(scr.sc_id)
+            FROM service_categories_relation scr
+            INNER JOIN service_categories sc ON sc.sc_id = scr.sc_id
+            WHERE scr.service_service_id = s.service_id AND sc.level IS NOT NULL)';
+
+        $qb->select(
+            's.command_command_id AS check_command_id',
+            's.command_command_id_arg AS check_command_args',
+            's.timeperiod_tp_id AS check_timeperiod_id',
+            's.service_max_check_attempts AS max_check_attempts',
+            's.service_active_checks_enabled AS active_check_enabled',
+            's.service_passive_checks_enabled AS passive_check_enabled',
+            's.service_is_volatile AS is_volatile',
+            's.service_acknowledgement_timeout AS acknowledgement_timeout',
+            's.service_check_freshness AS check_freshness',
+            's.service_freshness_threshold AS freshness_threshold',
+            's.service_flap_detection_enabled AS flap_detection_enabled',
+            's.service_low_flap_threshold AS low_flap_threshold',
+            's.service_high_flap_threshold AS high_flap_threshold',
+            's.service_event_handler_enabled AS event_handler_enabled',
+            's.command_command_id2 AS event_handler_command_id',
+            's.command_command_id_arg2 AS event_handler_args',
+            's.service_obsess_over_service AS obsess_over_service',
+            's.service_retain_status_information AS retain_status_information',
+            's.service_retain_nonstatus_information AS retain_non_status_information',
+            's.service_stalking_options AS stalking_options',
+            's.service_notifications_enabled AS notifications_enabled',
+            's.service_notification_options AS notification_options',
+            's.service_notification_interval AS notification_interval',
+            's.timeperiod_tp_id2 AS notification_period_id',
+            's.service_first_notification_delay AS first_notification_delay',
+            's.service_recovery_notification_delay AS recovery_notification_delay',
+            's.contact_additive_inheritance',
+            's.cg_additive_inheritance',
+            's.service_use_only_contacts_from_host AS use_only_contacts_from_host',
+            's.service_comment AS comment',
+            's.geo_coords',
+            'esi.esi_notes AS note',
+            'esi.esi_notes_url AS note_url',
+            'esi.esi_action_url AS action_url',
+            'esi.esi_icon_image AS icon_id',
+            'esi.esi_icon_image_alt AS alt_icon',
+            'esi.graph_id AS graph_template_id',
+            $severity . ' AS severity_id',
+        )
+            ->from(self::TABLE_NAME, 's')
+            ->leftJoin(
+                's',
+                'extended_service_information',
+                'esi',
+                'esi.esi_id = (SELECT MIN(esi_first.esi_id) FROM extended_service_information esi_first WHERE esi_first.service_service_id = s.service_id)',
+            )
+            ->where($qb->expr()->eq('s.service_id', $qb->createNamedParameter($serviceId, ParameterType::INTEGER)));
+
+        /** @var FormRowTypeAlias|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        return $row !== false ? $row : null;
+    }
+
+    /**
+     * @return RelationIdsTypeAlias
+     */
+    private function findRelationIds(int $serviceId, int $hostId): array
+    {
+        $contacts = $this->connection->createQueryBuilder();
+        $contacts->select('csr.contact_id')
+            ->from('contact_service_relation', 'csr')
+            ->where($contacts->expr()->eq('csr.service_service_id', $contacts->createNamedParameter($serviceId, ParameterType::INTEGER)));
+
+        $contactGroups = $this->connection->createQueryBuilder();
+        $contactGroups->select('cgsr.contactgroup_cg_id')
+            ->from('contactgroup_service_relation', 'cgsr')
+            ->where($contactGroups->expr()->eq('cgsr.service_service_id', $contactGroups->createNamedParameter($serviceId, ParameterType::INTEGER)));
+
+        // No unique key on relation tables: DISTINCT reads a duplicated link once.
+        $serviceGroups = $this->connection->createQueryBuilder();
+        $serviceGroups->select('sgr.servicegroup_sg_id')
+            ->distinct()
+            ->from('servicegroup_relation', 'sgr')
+            ->where($serviceGroups->expr()->eq('sgr.service_service_id', $serviceGroups->createNamedParameter($serviceId, ParameterType::INTEGER)))
+            ->andWhere($serviceGroups->expr()->eq('sgr.host_host_id', $serviceGroups->createNamedParameter($hostId, ParameterType::INTEGER)))
+            ->andWhere('sgr.hostgroup_hg_id IS NULL');
+
+        $categories = $this->connection->createQueryBuilder();
+        $categories->select('scr.sc_id')
+            ->distinct()
+            ->from('service_categories_relation', 'scr')
+            ->innerJoin('scr', 'service_categories', 'sc', 'sc.sc_id = scr.sc_id')
+            ->where($categories->expr()->eq('scr.service_service_id', $categories->createNamedParameter($serviceId, ParameterType::INTEGER)))
+            ->andWhere('sc.level IS NULL');
+
+        $traps = $this->connection->createQueryBuilder();
+        $traps->select('tsr.traps_id')
+            ->distinct()
+            ->from('traps_service_relation', 'tsr')
+            ->where($traps->expr()->eq('tsr.service_id', $traps->createNamedParameter($serviceId, ParameterType::INTEGER)));
+
+        return [
+            'notification_contact_ids' => $this->fetchIds($contacts),
+            'notification_contact_group_ids' => $this->fetchIds($contactGroups),
+            'service_group_ids' => $this->fetchIds($serviceGroups),
+            'category_ids' => $this->fetchIds($categories),
+            'trap_ids' => $this->fetchIds($traps),
+        ];
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function fetchIds(QueryBuilder $qb): array
+    {
+        /** @var list<int|string> $ids */
+        $ids = $qb->executeQuery()->fetchFirstColumn();
+
+        return array_map(intval(...), $ids);
     }
 
     /**
@@ -373,17 +573,19 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     private function findMacroRowsByServiceIds(array $serviceIds): array
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('svc_svc_id', 'svc_macro_name AS name', 'svc_macro_value AS value', 'is_password', 'description')
+        $qb->select('svc_macro_id AS id', 'svc_svc_id', 'svc_macro_name AS name', 'svc_macro_value AS value', 'is_password', 'description')
             ->from('on_demand_macro_service')
             ->where($qb->expr()->in('svc_svc_id', $qb->createNamedParameter($serviceIds, ArrayParameterType::INTEGER)))
-            ->orderBy('macro_order');
+            ->orderBy('macro_order')
+            ->addOrderBy('svc_macro_id');
 
-        /** @var list<array{svc_svc_id: int|string, name: string, value: string, is_password: string|int, description: string|null}> $rows */
+        /** @var list<array{id: int|string, svc_svc_id: int|string, name: string, value: string, is_password: string|int|null, description: string|null}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
         foreach ($rows as $row) {
             $grouped[(int) $row['svc_svc_id']][] = [
+                'id' => $row['id'],
                 'name' => $row['name'],
                 'value' => $row['value'],
                 'is_password' => $row['is_password'],

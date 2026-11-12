@@ -7,11 +7,17 @@ import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import { labelRequired } from '../../ResourceForm/translatedLabels';
 import { labelNameContainsForbiddenCharacters } from '../translatedLabels';
 import initialize from './initialize';
+import {
+  openedNotificationsPayload,
+  untouchedNotificationsPayload
+} from './utils';
 
 interface RequestBody {
   activated?: boolean;
+  check_options?: unknown;
   host_id?: number | null;
   name?: string;
+  notifications?: unknown;
 }
 
 const initializeListing = async (
@@ -171,13 +177,24 @@ export default () => {
         '  cpu   load '
       );
       await pickOption('service-form-host', 'host B');
+      // Required without a template.
+      await pickOption(
+        'service-form-check-options-command',
+        'check-centreon-ping'
+      );
 
       await save();
 
-      expect(await getRequestBody('@createService')).toEqual({
+      // The other sections' keys are their own specs'; the notifications
+      // here, as never touched.
+      const body = await getRequestBody('@createService');
+
+      expect(body).toMatchObject({
+        check_options: { args: [], command_id: 8, macros: [] },
         host_id: 11,
         name: 'cpu load'
       });
+      expect(body.notifications).toEqual(untouchedNotificationsPayload);
     });
 
     it('updates a service with the whole form', async () => {
@@ -194,12 +211,37 @@ export default () => {
       const { request } = await waitForRequest('@updateService0');
 
       expect(request.method).toBe('PUT');
-      // The whole service is replaced, its activation included.
-      expect(request.body).toEqual({
+      // The whole service is replaced, its activation included. The other
+      // sections' keys are their own specs'; the notifications here, as
+      // opened.
+      expect(request.body).toMatchObject({
         activated: true,
+        check_options: {
+          args: ['80', '90'],
+          command_id: 9,
+          macros: [
+            {
+              id: 1,
+              is_password: false,
+              name: 'WARNING',
+              parent: null,
+              value: '80'
+            },
+            {
+              id: 2,
+              is_password: true,
+              name: 'API_TOKEN',
+              parent: null,
+              value: null
+            }
+          ]
+        },
         host_id: 10,
         name: 'cpu load'
       });
+      expect((request.body as RequestBody).notifications).toEqual(
+        openedNotificationsPayload
+      );
     });
 
     it('keeps the activation the panel switch set when the service is saved', async () => {
@@ -223,7 +265,7 @@ export default () => {
 
       await save();
 
-      expect(await getRequestBody('@updateService0')).toEqual({
+      expect(await getRequestBody('@updateService0')).toMatchObject({
         activated: false,
         host_id: 10,
         name: 'cpu load'
@@ -297,6 +339,150 @@ export default () => {
       expect(
         await getFieldError(name, labelNameContainsForbiddenCharacters)
       ).toBeVisible();
+    });
+  });
+
+  // Every key of the body, so that a key a block should not send, or sends
+  // misnamed, fails here.
+  describe('Whole payload: ', () => {
+    it('creates a service from its required fields only, every other key on its default', async () => {
+      await initializeListing();
+      await openCreationForm();
+
+      await userEvent.type(await getInput('service-form-name'), 'cpu load');
+      await pickOption('service-form-host', 'host B');
+      // Brings the check command a service needs.
+      await pickOption('service-form-template', 'generic-active-service');
+
+      await save();
+
+      const { request } = await waitForRequest('@createService');
+
+      expect(request.method).toBe('POST');
+      expect(request.body).toEqual({
+        advanced: {
+          acknowledgment_timeout: null,
+          check_freshness: 'use_default',
+          comment: null,
+          event_handler_args: [],
+          event_handler_command_id: null,
+          event_handler_enabled: 'use_default',
+          flap_detection_enabled: 'use_default',
+          freshness_threshold: null,
+          high_flap_threshold: null,
+          low_flap_threshold: null,
+          obsess_over_service: 'use_default',
+          retain_non_status_information: 'use_default',
+          retain_status_information: 'use_default',
+          stalking_options: []
+        },
+        category_ids: [],
+        check_options: { args: [], command_id: null, macros: [] },
+        graph_template_id: null,
+        host_id: 11,
+        monitoring_engine: {
+          action_url: null,
+          active_check_enabled: 'use_default',
+          alt_icon: null,
+          check_timeperiod_id: null,
+          geo_coordinates: null,
+          icon_id: null,
+          is_volatile: 'use_default',
+          max_check_attempts: null,
+          normal_check_interval: null,
+          note: null,
+          note_url: null,
+          passive_check_enabled: 'use_default',
+          retry_check_interval: null
+        },
+        name: 'cpu load',
+        notifications: untouchedNotificationsPayload,
+        service_group_ids: [],
+        service_template_id: 30,
+        severity_id: null,
+        trap_ids: []
+      });
+    });
+
+    // The save button waits for a change: the name is the only one.
+    it('updates a service with every key as it opened, the renamed name aside', async () => {
+      await openService();
+
+      const name = await getInput('service-form-name');
+
+      await waitFor(() => expect(name).toHaveValue('cpu'));
+      await userEvent.clear(name);
+      await userEvent.type(name, 'cpu load');
+
+      await save();
+
+      const { request } = await waitForRequest('@updateService0');
+
+      expect(request.method).toBe('PUT');
+      expect(request.body).toEqual({
+        activated: true,
+        advanced: {
+          acknowledgment_timeout: 15,
+          check_freshness: 'true',
+          comment: 'Checked by the web team',
+          event_handler_args: ['80', 'graceful'],
+          event_handler_command_id: 7,
+          event_handler_enabled: 'false',
+          flap_detection_enabled: 'true',
+          freshness_threshold: 120,
+          high_flap_threshold: 50,
+          low_flap_threshold: null,
+          obsess_over_service: 'false',
+          retain_non_status_information: 'use_default',
+          retain_status_information: 'true',
+          stalking_options: ['warning', 'critical']
+        },
+        category_ids: [3],
+        // The macro inherited from the template is not the service's own.
+        check_options: {
+          args: ['80', '90'],
+          command_id: 9,
+          macros: [
+            {
+              id: 1,
+              is_password: false,
+              name: 'WARNING',
+              parent: null,
+              value: '80'
+            },
+            {
+              id: 2,
+              is_password: true,
+              name: 'API_TOKEN',
+              parent: null,
+              value: null
+            }
+          ]
+        },
+        graph_template_id: 7,
+        host_id: 10,
+        monitoring_engine: {
+          action_url: 'https://example.com/actions/cpu',
+          active_check_enabled: 'false',
+          alt_icon: null,
+          check_timeperiod_id: 21,
+          geo_coordinates: '48.8566,2.3522',
+          icon_id: 12,
+          is_volatile: 'true',
+          max_check_attempts: 3,
+          normal_check_interval: 5,
+          note: 'CPU load',
+          note_url: null,
+          passive_check_enabled: 'use_default',
+          retry_check_interval: null
+        },
+        name: 'cpu load',
+        notifications: openedNotificationsPayload,
+        service_group_ids: [1],
+        service_template_id: 30,
+        severity_id: 1,
+        trap_ids: [21]
+      });
     });
   });
 };

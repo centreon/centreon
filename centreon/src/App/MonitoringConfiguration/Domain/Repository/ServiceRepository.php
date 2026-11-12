@@ -73,9 +73,19 @@ interface ServiceRepository
     public function findAll(ServiceCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
-     * The service, with its macros, if {@see findAll()} lists it for this actor: a real service directly linked
+     * The service, wholly hydrated, if {@see findAll()} lists it for this actor: a real service directly linked
      * to a real host, with no host group link, and for an actor whose access is restricted, granted to one of
      * their active Access Groups by the real-time ACL cache. Null otherwise.
+     *
+     * Hydrates every own column and relation, unfiltered by the actor's scope; out-of-bound stored numbers read
+     * as unset.
      */
     public function findOne(ServiceId $id, ActingUser $actor): ?Service;
+
+    /**
+     * Bounded UPDATE of the activation flag; never touches a service template, nor the links of the service.
+     * Precondition: the caller confirmed the service exists (typically {@see findOne()} in the same transaction)
+     * — it does not assert a matched row, so it is a silent no-op on an unknown or template id.
+     */
+    public function updateActivationStatus(ServiceId $id, bool $activated): void;
 }

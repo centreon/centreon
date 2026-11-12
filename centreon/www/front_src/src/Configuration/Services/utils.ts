@@ -1,6 +1,7 @@
 import { centreonBaseURL } from '@centreon/ui';
 
-import type { Filters } from './models';
+import type { ResourceRow } from '../models';
+import type { Filters, ServiceListItem } from './models';
 
 export const defaultSelectedColumnIds = [
   'host',
@@ -25,6 +26,13 @@ export const columnsAtomKey = 'columns_services';
 
 // Sorted on the host, as in the legacy listing.
 export const defaultSortField = 'host_name';
+
+// A service linked to several hosts comes once per host, with the same id.
+export const getServiceRowId = (row: ResourceRow): string => {
+  const { host, id } = row as unknown as ServiceListItem;
+
+  return `${host.id}_${id}`;
+};
 
 // Both forms are still legacy pages.
 export const getHostConfigurationUrl = (id: number): string =>

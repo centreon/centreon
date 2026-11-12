@@ -26,7 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Ser
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
@@ -40,8 +40,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceCollectionOutput;
@@ -428,8 +430,8 @@ final class ListServicesProviderLogicTest extends TestCase
             hostActivated: true,
             hostPollerId: null,
             templateId: $templateId !== null ? new ServiceTemplateId($templateId) : null,
-            iconId: $iconId !== null ? new MediaId($iconId) : null,
-            checkIntervals: $intervals,
+            schedulingOptions: new ServiceSchedulingOptions(normalCheckInterval: $intervals->normal, retryCheckInterval: $intervals->retry),
+            extendedInformations: $iconId !== null ? new ServiceExtendedInformations(iconId: new MediaId($iconId)) : null,
         );
     }
 
