@@ -153,7 +153,7 @@ final class PatchServiceProcessorTest extends ApiTestCase
         $this->patch('999999999', ['activated' => false]);
 
         self::assertResponseStatusCodeSame(404);
-        self::assertJsonEquals(['code' => 0, 'message' => 'One or more services do not exist.']);
+        self::assertJsonEquals(['code' => 404, 'message' => 'One or more services do not exist.']);
     }
 
     public function testItLetsARestrictedActorDisableAServiceInItsScope(): void
