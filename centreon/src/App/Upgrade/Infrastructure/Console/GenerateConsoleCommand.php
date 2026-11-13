@@ -56,7 +56,7 @@ final readonly class GenerateConsoleCommand
             return Command::INVALID;
         }
 
-        $io->success(\sprintf('Generated "%s".', $this->generator->generate(MigrationSetOption::require($set, $module), $ddl)));
+        $io->success(sprintf('Generated "%s".', $this->generator->generate(MigrationSetOption::require($set, $module), $ddl)));
 
         return Command::SUCCESS;
     }
