@@ -162,9 +162,6 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
         ];
     }
 
-    /**
-     * The macros are resolved against the template the same update gives the service.
-     */
     public function testAMacroOfTheTemplateTheUpdateGivesIsOverridden(): void
     {
         $this->serviceTemplateRepository->templates[30] = new ServiceTemplate(
@@ -220,9 +217,6 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
         $this->massChange();
     }
 
-    /**
-     * An unreachable vault saves nothing and fires nothing.
-     */
     public function testAVaultFailureSavesNothing(): void
     {
         $this->vault->writeThrows = true;

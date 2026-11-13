@@ -395,9 +395,6 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
         self::assertSame('2', $this->text($this->column('service_max_check_attempts', $serviceId)));
     }
 
-    /**
-     * A Centreon Monitoring Agent check command imposes its freshness over the values sent with it.
-     */
     public function testACentreonMonitoringAgentCommandImposesTheFreshness(): void
     {
         $agentCommandId = $this->insertCommand(name: $this->uniqueName('Centreon-Monitoring-Agent'));

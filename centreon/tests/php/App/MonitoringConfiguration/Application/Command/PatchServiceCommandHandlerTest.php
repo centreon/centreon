@@ -528,9 +528,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         self::assertSame(['443'], $written->checkOptions->args);
     }
 
-    /**
-     * Arguments without a command of the service's own are passed to its template's command.
-     */
     public function testArgumentsWithoutAnOwnCommandAreAcceptedWhenTheTemplateProvidesOne(): void
     {
         $this->addTemplate(31, checkCommandId: self::CHECK_COMMAND_ID);
@@ -580,9 +577,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         ];
     }
 
-    /**
-     * A stored service already breaking the rule is not refused for an unrelated change.
-     */
     public function testAStoredServiceWithoutCheckCommandAcceptsAnUnrelatedChange(): void
     {
         $this->store(checkCommandId: null);
@@ -599,9 +593,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         $this->patch($this->command(checkOptions: new ServiceCheckOptionsChanges(args: ['80', ''])));
     }
 
-    /**
-     * Removing the event handler keeps its arguments: the template's handler then receives them.
-     */
     public function testRemovingTheEventHandlerKeepsItsArgumentsForTheTemplatesHandler(): void
     {
         $this->addCommand(21, CommandTypeEnum::Miscellaneous);
@@ -716,9 +707,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         self::assertFalse($notifications->contactGroupAdditiveInheritance);
     }
 
-    /**
-     * A contact added to a service already notifying the contacts of its host only is not kept.
-     */
     public function testAContactAddedToAServiceUsingTheHostContactsIsNotKept(): void
     {
         $this->store(notifications: $this->notifications(useOnlyContactsFromHost: true, contactIds: [], contactGroupIds: []));
@@ -758,9 +746,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         $this->patch($this->command(notifications: new ServiceNotificationsChanges(options: ListChange::add($none))));
     }
 
-    /**
-     * Null clears the severity, even one the actor cannot see.
-     */
     public function testNullClearsAHiddenSeverity(): void
     {
         $this->seedEveryReference();
