@@ -23,11 +23,16 @@ declare(strict_types=1);
 
 namespace Rollback\Migrations;
 
-use App\Upgrade\Infrastructure\Doctrine\DmlMigration;
+use App\Upgrade\Infrastructure\Migration\DmlMigration;
 use Doctrine\DBAL\Schema\Schema;
 
 final class Version20260101000002 extends DmlMigration
 {
+    public function getDescription(): string
+    {
+        return 'Fixture rollback Version20260101000002';
+    }
+
     public function up(Schema $schema): void
     {
         $this->addSql('INSERT INTO fx_rollback (id) VALUES (1)');

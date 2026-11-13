@@ -26,13 +26,14 @@ namespace Tests\App\Upgrade\Infrastructure;
 use App\Shared\Application\Command\CommandBus;
 use App\Upgrade\Application\Command\MigrateCommand;
 use App\Upgrade\Application\Command\RollbackMigrationCommand;
-use App\Upgrade\Application\MigrationRunner;
-use App\Upgrade\Application\MigrationSetStatus;
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Model\MigrationOutcome;
+use App\Upgrade\Domain\Model\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
+use App\Upgrade\Domain\Service\MigrationRunnerInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
+use Tests\App\Upgrade\Infrastructure\Double\TransactionObservingMigrationRunner;
 
 /**
  * A DDL migration would implicitly commit a transaction opened by the command bus.
@@ -43,47 +44,17 @@ final class MigrationCommandBusTest extends KernelTestCase
     {
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
-        $runner = new class ($connection) implements MigrationRunner {
-            /** @var list<int> */
-            public array $nestingLevels = [];
-
-            public function __construct(private readonly Connection $connection)
-            {
-            }
-
-            public function migrate(MigrationSet $set): array
-            {
-                $this->nestingLevels[] = $this->connection->getTransactionNestingLevel();
-
-                return [];
-            }
-
-            public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false, ?array $expected = null): array
-            {
-                $this->nestingLevels[] = $this->connection->getTransactionNestingLevel();
-
-                return [];
-            }
-
-            public function status(MigrationSet $set): MigrationSetStatus
-            {
-                return new MigrationSetStatus($set, [], []);
-            }
-
-            public function sets(): array
-            {
-                return [];
-            }
-        };
-        self::getContainer()->set(MigrationRunner::class, $runner);
+        $runner = new TransactionObservingMigrationRunner($connection);
+        self::getContainer()->set(MigrationRunnerInterface::class, $runner);
         self::getContainer()->set(ModuleRepository::class, new FakeModuleRepository(['centreon-bus-fixture']));
         /** @var CommandBus $commandBus */
         $commandBus = self::getContainer()->get(CommandBus::class);
         $nestingLevel = $connection->getTransactionNestingLevel();
 
-        $commandBus->execute(new MigrateCommand(MigrationSet::module('centreon-bus-fixture')));
-        $commandBus->execute(new RollbackMigrationCommand(MigrationSet::module('centreon-bus-fixture'), 'prev'));
+        $outcome = $commandBus->execute(new MigrateCommand(MigrationSet::module('centreon-bus-fixture')));
+        $commandBus->execute(new RollbackMigrationCommand(MigrationSet::module('centreon-bus-fixture'), 'prev', []));
 
         self::assertSame([$nestingLevel, $nestingLevel], $runner->nestingLevels);
+        self::assertInstanceOf(MigrationOutcome::class, $outcome, 'The bus hands the outcome back to the console');
     }
 }

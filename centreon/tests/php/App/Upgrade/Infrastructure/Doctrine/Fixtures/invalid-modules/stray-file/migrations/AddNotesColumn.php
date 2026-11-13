@@ -21,30 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Infrastructure\Lock;
+namespace StrayFile\Migrations;
 
-use App\Upgrade\Application\MigrationSetLocker;
-use App\Upgrade\Domain\MigrationSet;
-use Symfony\Component\Lock\LockFactory;
-use Symfony\Component\Lock\LockInterface;
+use App\Upgrade\Infrastructure\Migration\DmlMigration;
+use Doctrine\DBAL\Schema\Schema;
 
-final class SymfonyMigrationSetLocker implements MigrationSetLocker
+// Not named Version<timestamp>.php: Doctrine would never find it.
+final class AddNotesColumn extends DmlMigration
 {
-    /** @var array<string, LockInterface> */
-    private array $locks = [];
-
-    public function __construct(
-        private readonly LockFactory $lockFactory,
-    ) {
+    public function getDescription(): string
+    {
+        return 'Adds the notes';
     }
 
-    public function lock(MigrationSet $set): bool
+    public function up(Schema $schema): void
     {
-        return ($this->locks[$set->name] ??= $this->lockFactory->createLock('migrations-' . $set->name))->acquire();
+        $this->addSql('SELECT 1');
     }
 
-    public function unlock(MigrationSet $set): void
+    public function revert(Schema $schema): void
     {
-        ($this->locks[$set->name] ?? null)?->release();
     }
 }

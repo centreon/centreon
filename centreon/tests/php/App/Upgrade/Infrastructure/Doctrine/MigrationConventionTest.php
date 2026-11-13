@@ -23,12 +23,14 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Doctrine;
 
-use App\Upgrade\Domain\MigrationSet;
-use App\Upgrade\Infrastructure\Doctrine\DdlMigration;
-use App\Upgrade\Infrastructure\Doctrine\DmlMigration;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Domain\Model\WebMigrationSetEnum;
 use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
+use App\Upgrade\Infrastructure\Migration\DdlMigration;
+use App\Upgrade\Infrastructure\Migration\DmlMigration;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 /**
  * Doctrine silently ignores a migration declared outside the namespace of its set.
@@ -40,21 +42,21 @@ final class MigrationConventionTest extends TestCase
      */
     public static function provideMigrationFiles(): iterable
     {
-        $root = \dirname(__DIR__, 7);
-        $core = new MigrationSetRegistry($root . '/centreon', '/nonexistent');
+        $root = dirname(__DIR__, 7);
+        $web = new MigrationSetRegistry($root . '/centreon', '/nonexistent', new NullLogger());
 
         foreach (glob($root . '/centreon/migrations/*/Version*.php') ?: [] as $file) {
-            yield mb_substr($file, mb_strlen($root) + 1) => [$file, $core->configuration(MigrationSet::core(basename(\dirname($file))))->namespace];
+            yield mb_substr($file, mb_strlen($root) + 1) => [$file, $web->configuration(MigrationSet::web(WebMigrationSetEnum::from(basename(dirname($file)))))->namespace];
         }
 
-        // Also keeps the data set from being empty while no migration is shipped.
+        // The fixtures keep the data set non-empty when no module ships a migration.
         $moduleMigrations = [
             ...glob($root . '/centreon-*/www/modules/*/migrations/Version*.php') ?: [],
             ...glob(__DIR__ . '/Fixtures/modules/*/migrations/Version*.php') ?: [],
         ];
         foreach ($moduleMigrations as $file) {
-            $moduleDir = \dirname($file, 2);
-            $modules = new MigrationSetRegistry('/nonexistent', \dirname($moduleDir));
+            $moduleDir = dirname($file, 2);
+            $modules = new MigrationSetRegistry('/nonexistent', dirname($moduleDir), new NullLogger());
 
             yield mb_substr($file, mb_strlen($root) + 1) => [$file, $modules->configuration(MigrationSet::module(basename($moduleDir)))->namespace];
         }
@@ -72,7 +74,7 @@ final class MigrationConventionTest extends TestCase
 
         self::assertTrue(
             is_subclass_of($class, DdlMigration::class) || is_subclass_of($class, DmlMigration::class),
-            \sprintf('%s must extend %s or %s.', $class, DdlMigration::class, DmlMigration::class),
+            sprintf('%s must extend %s or %s.', $class, DdlMigration::class, DmlMigration::class),
         );
     }
 }

@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Lock;
 
-use App\Upgrade\Application\UpdateLocker;
+use App\Upgrade\Domain\Service\UpdateLockerInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 
-final class SymfonyUpdateLocker implements UpdateLocker
+final class SymfonyUpdateLocker implements UpdateLockerInterface
 {
     private const LOCK_NAME = 'update-centreon';
 

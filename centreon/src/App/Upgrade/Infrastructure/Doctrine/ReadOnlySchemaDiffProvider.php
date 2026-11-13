@@ -25,9 +25,10 @@ namespace App\Upgrade\Infrastructure\Doctrine;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\Provider\SchemaDiffProvider;
+use Webmozart\Assert\Assert;
 
 /**
- * Doctrine would run the SQL of the changes made to $schema, out of reach of the DdlMigration and DmlMigration checks.
+ * Refuses changes to $schema: Doctrine would run their SQL past the DdlMigration and DmlMigration checks.
  */
 final readonly class ReadOnlySchemaDiffProvider implements SchemaDiffProvider
 {
@@ -54,12 +55,11 @@ final readonly class ReadOnlySchemaDiffProvider implements SchemaDiffProvider
     public function getSqlDiffToMigrate(Schema $fromSchema, Schema $toSchema): array
     {
         $sql = $this->provider->getSqlDiffToMigrate($fromSchema, $toSchema);
-        if ($sql !== []) {
-            throw new \LogicException(\sprintf(
-                'A migration must only read $schema, and change it with addSql(): it would run "%s".',
-                implode('; ', $sql),
-            ));
-        }
+        // Webmozart formats the message again: a "%" of the SQL would break it.
+        Assert::isEmpty($sql, sprintf(
+            'A migration must only read $schema and change the database with addSql(): it would run "%s".',
+            str_replace('%', '%%', implode('; ', $sql)),
+        ));
 
         return [];
     }

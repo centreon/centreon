@@ -23,20 +23,20 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Lock;
 
-use App\Upgrade\Domain\MigrationSet;
-use App\Upgrade\Infrastructure\Lock\SymfonyMigrationSetLocker;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Infrastructure\Lock\MigrationSetLocker;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\Store\InMemoryStore;
 
-final class SymfonyMigrationSetLockerTest extends TestCase
+final class MigrationSetLockerTest extends TestCase
 {
     public function testASetCannotBeLockedTwiceButOtherSetsCan(): void
     {
         $factory = new LockFactory(new InMemoryStore());
-        // Two processes, each with its own locker.
-        $first = new SymfonyMigrationSetLocker($factory);
-        $second = new SymfonyMigrationSetLocker($factory);
+        // As two processes, each with its own locker.
+        $first = new MigrationSetLocker($factory);
+        $second = new MigrationSetLocker($factory);
 
         self::assertTrue($first->lock(MigrationSet::module('centreon-open-tickets')));
         self::assertFalse($second->lock(MigrationSet::module('centreon-open-tickets')));
@@ -48,7 +48,7 @@ final class SymfonyMigrationSetLockerTest extends TestCase
 
     public function testUnlockingASetThatWasNotLockedIsHarmless(): void
     {
-        (new SymfonyMigrationSetLocker(new LockFactory(new InMemoryStore())))->unlock(MigrationSet::module('centreon-open-tickets'));
+        (new MigrationSetLocker(new LockFactory(new InMemoryStore())))->unlock(MigrationSet::module('centreon-open-tickets'));
 
         $this->addToAssertionCount(1);
     }

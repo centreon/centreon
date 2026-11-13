@@ -23,11 +23,16 @@ declare(strict_types=1);
 
 namespace Rollback\Migrations;
 
-use App\Upgrade\Infrastructure\Doctrine\DdlMigration;
+use App\Upgrade\Infrastructure\Migration\DdlMigration;
 use Doctrine\DBAL\Schema\Schema;
 
 final class Version20260101000001 extends DdlMigration
 {
+    public function getDescription(): string
+    {
+        return 'Fixture rollback Version20260101000001';
+    }
+
     public function up(Schema $schema): void
     {
         $this->addSql('CREATE TABLE IF NOT EXISTS fx_rollback (id INT PRIMARY KEY)');

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\FileSystem;
 
-use App\Upgrade\Application\EngineContextWriter;
+use App\Upgrade\Domain\Service\EngineContextWriterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
@@ -37,7 +37,7 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * Format: {"app_secret":"<value>","salt":"<value>"}
  */
-final readonly class FileSystemEngineContextWriter implements EngineContextWriter
+final readonly class FileSystemEngineContextWriter implements EngineContextWriterInterface
 {
     public function __construct(
         #[Autowire(param: 'upgrade.engine_context_path')]

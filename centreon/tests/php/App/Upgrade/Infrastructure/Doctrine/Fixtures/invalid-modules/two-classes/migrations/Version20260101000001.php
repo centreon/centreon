@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace TwoClasses\Migrations;
 
-use App\Upgrade\Infrastructure\Doctrine\DmlMigration;
+use App\Upgrade\Infrastructure\Migration\DmlMigration;
 use Doctrine\DBAL\Schema\Schema;
 
 final class Version20260101000001 extends DmlMigration
@@ -38,7 +38,7 @@ final class Version20260101000001 extends DmlMigration
     }
 }
 
-// Run by Doctrine, but the Extension Manager only knows the file name.
+// A second migration in the file of another one.
 final class Version20260101000002 extends DmlMigration
 {
     public function up(Schema $schema): void
