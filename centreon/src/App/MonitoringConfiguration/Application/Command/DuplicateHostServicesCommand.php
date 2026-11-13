@@ -24,21 +24,25 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Application\Command\NonTransactionalCommand;
+use App\Shared\Domain\Collection;
 
 /**
- * Best-effort, non-atomic by design: re-linking shared services commits on the configuration
- * connection while cloning exclusive ones runs through the legacy CentreonDBInstance connection,
- * which no Doctrine transaction covers. Wrapping this in the command bus transaction would give
- * false atomicity — a rollback could not undo the legacy clone's writes — so it stays outside it.
+ * All or none: the services of the copy are written in this command's own transaction, after the host copy was
+ * committed, so a failure leaves the copy without any of the source's services.
  */
-final readonly class DuplicateHostServicesCommand implements NonTransactionalCommand
+final readonly class DuplicateHostServicesCommand
 {
+    /**
+     * @param Collection<ServiceTemplateId> $unlicensedServiceTemplateIds the service templates the license no longer
+     *                                                                    allows, as evaluated before the host copy existed
+     */
     public function __construct(
         public HostId $sourceHostId,
         public HostId $newHostId,
         public UserId $duplicatedBy,
+        public Collection $unlicensedServiceTemplateIds,
     ) {
     }
 }

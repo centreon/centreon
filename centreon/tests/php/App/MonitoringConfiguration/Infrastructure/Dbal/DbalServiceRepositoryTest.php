@@ -161,6 +161,175 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertSame('API token', $macros[0]->description);
     }
 
+    public function testFindOneOnHostIgnoresTheActorScope(): void
+    {
+        $this->givenTheRestrictedActorBelongsTo(11);
+        $hostId = $this->insertListedHost('h1');
+        $serviceId = $this->insertListedService('ping', $hostId);
+
+        $service = $this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId));
+
+        self::assertNull($this->findOneRestricted($serviceId));
+        self::assertInstanceOf(Service::class, $service);
+        self::assertSame($serviceId, $service->id()->value);
+        self::assertSame($hostId, $service->hostId->value);
+        self::assertSame('ping', $service->name->value);
+    }
+
+    public function testFindOneOnHostHydratesTheWholeForm(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $whole = $this->withWholeForm($this->storedService('ping', $hostId, [$this->insertServiceGroup()]));
+        $whole = $whole->with(
+            checkOptions: new ServiceCheckOptions(
+                $whole->checkOptions->checkCommandId,
+                $whole->checkOptions->args,
+                [new ServiceMacro(new ServiceMacroName('TOKEN'), 'secret-value', isPassword: true)],
+            ),
+            severityId: new ServiceSeverityId($this->insertServiceCategory(level: 2)),
+        );
+        $this->repository->update($whole);
+        $this->repository->replaceRelationsAndMacros($whole);
+
+        $serviceId = $whole->id()->value;
+
+        $onHost = $this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId));
+
+        self::assertInstanceOf(Service::class, $onHost);
+        self::assertTrue($onHost->hasSameConfigurationAs($whole));
+        self::assertTrue($onHost->hasSameRelationsAs($whole));
+        self::assertEquals($this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted()), $onHost);
+    }
+
+    public function testFindOneOnHostIsNullForAServiceOfAnotherHost(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $otherHostId = $this->insertListedHost('h2');
+        $serviceId = $this->insertListedService('ping', $otherHostId);
+
+        self::assertNull($this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId)));
+    }
+
+    public function testFindOneOnHostFindsAServiceAlsoLinkedToAHostGroup(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $serviceId = $this->insertListedService('ping', $hostId);
+        $this->linkServiceToHostGroup($serviceId, $this->insertHostGroup());
+
+        self::assertNotNull($this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId)));
+    }
+
+    public function testFindOneOnHostIgnoresWhatIsNotARealServiceOnARealHost(): void
+    {
+        $hostTemplateId = $this->insertListedHost('host-template', register: '0');
+        $onAHostTemplate = $this->insertListedService('on-a-host-template', $hostTemplateId);
+        $hostId = $this->insertListedHost('h1');
+        $serviceTemplateId = $this->insertListedServiceTemplate('service-template');
+        $this->linkServiceToHost($serviceTemplateId, $hostId);
+
+        self::assertNull($this->repository->findOneOnHost(new ServiceId($onAHostTemplate), new HostId($hostTemplateId)));
+        self::assertNull($this->repository->findOneOnHost(new ServiceId($serviceTemplateId), new HostId($hostId)));
+        self::assertNull($this->repository->findOneOnHost(new ServiceId($serviceTemplateId + 1000000), new HostId($hostId)));
+    }
+
+    public function testFindIdsSharedWithOthersCountsHostGroupLinks(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $otherHostId = $this->insertListedHost('h2');
+        $this->insertListedService('exclusive', $hostId);
+        $sharedWithAHost = $this->insertListedService('shared-with-a-host', $hostId);
+        $this->linkServiceToHost($sharedWithAHost, $otherHostId);
+        $sharedWithAHostGroup = $this->insertListedService('shared-with-a-host-group', $hostId);
+        $this->linkServiceToHostGroup($sharedWithAHostGroup, $this->insertHostGroup());
+        $ofTheOtherHostOnly = $this->insertListedService('of-the-other-host-only', $otherHostId);
+        $this->linkServiceToHostGroup($ofTheOtherHostOnly, $this->insertHostGroup());
+
+        self::assertSame(
+            [$sharedWithAHost, $sharedWithAHostGroup],
+            $this->idValues($this->repository->findIdsSharedWithOthers(new HostId($hostId))),
+        );
+    }
+
+    public function testAddHostLinkLinksTheServiceToTheHost(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $copyHostId = $this->insertListedHost('h1_1');
+        $serviceId = $this->insertListedService('shared', $hostId);
+
+        $this->repository->addHostLink(new ServiceId($serviceId), new HostId($copyHostId));
+
+        self::assertSame(
+            [
+                ['host_host_id' => (string) $hostId, 'hostgroup_hg_id' => null],
+                ['host_host_id' => (string) $copyHostId, 'hostgroup_hg_id' => null],
+            ],
+            $this->rows(
+                'SELECT host_host_id, hostgroup_hg_id FROM host_service_relation WHERE service_service_id = ? ORDER BY host_host_id',
+                $serviceId,
+            ),
+        );
+    }
+
+    /**
+     * A clone of a service read whole from its host: the columns the model does not carry, and the description and
+     * order of its macros, are not copied; it gets exactly one extended information row, the first one of the source.
+     */
+    public function testAddWritesTheUnmodelledColumnsAsDefaultsAndOneExtendedInformationRow(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $copyHostId = $this->insertListedHost('h1_1');
+        $sourceId = $this->insertListedService('ping', $hostId);
+        $this->connection->update('service', [
+            'service_alias' => 'an alias',
+            'display_name' => 'a display name',
+            'initial_state' => 'c',
+            'service_parallelize_check' => '1',
+            'service_process_perf_data' => '0',
+            'service_inherit_contacts_from_host' => '0',
+            'service_locked' => 1,
+        ], ['service_id' => $sourceId]);
+        $this->connection->insert('extended_service_information', ['service_service_id' => $sourceId, 'esi_notes' => 'first']);
+        $this->connection->insert('extended_service_information', ['service_service_id' => $sourceId, 'esi_notes' => 'second']);
+        $this->createMacro($sourceId, 'TOKEN', 'value', isPassword: false, description: 'a description');
+        $this->connection->update('on_demand_macro_service', ['macro_order' => 5], ['svc_svc_id' => $sourceId]);
+        $source = $this->repository->findOneOnHost(new ServiceId($sourceId), new HostId($hostId));
+        \assert($source instanceof Service);
+        $copy = $source->duplicate(
+            new HostId($copyHostId),
+            new ServiceCheckOptions(
+                $source->checkOptions->checkCommandId,
+                $source->checkOptions->args,
+                array_map(static fn (ServiceMacro $macro): ServiceMacro => $macro->copyWithoutIdentity(), $source->checkOptions->macros),
+            ),
+        );
+
+        $this->repository->add($copy);
+
+        $copyId = $copy->id()->value;
+        self::assertSame(
+            [[
+                'service_alias' => null,
+                'display_name' => null,
+                'initial_state' => null,
+                'service_parallelize_check' => '2',
+                'service_process_perf_data' => '2',
+                'service_inherit_contacts_from_host' => '1',
+                'service_locked' => '0',
+            ]],
+            $this->rows(
+                'SELECT service_alias, display_name, initial_state, service_parallelize_check, service_process_perf_data,
+                    service_inherit_contacts_from_host, service_locked
+                    FROM service WHERE service_id = ?',
+                $copyId,
+            ),
+        );
+        self::assertSame([['esi_notes' => 'first']], $this->rows('SELECT esi_notes FROM extended_service_information WHERE service_service_id = ?', $copyId));
+        self::assertSame(
+            [['svc_macro_name' => '$_SERVICETOKEN$', 'svc_macro_value' => 'value', 'description' => null, 'macro_order' => '0']],
+            $this->rows('SELECT svc_macro_name, svc_macro_value, description, macro_order FROM on_demand_macro_service WHERE svc_svc_id = ?', $copyId),
+        );
+    }
+
     public function testRemoveDeletesTheServiceRow(): void
     {
         $hostId = $this->createHost('server-01', $this->createPoller('Central'));
@@ -258,21 +427,6 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertCount(0, $this->repository->findIdsFromServiceTemplates(new HostId($hostId), []));
     }
 
-    public function testFindOneOnHostIgnoresTheActorScope(): void
-    {
-        $this->givenTheRestrictedActorBelongsTo(11);
-        $hostId = $this->insertListedHost('h1');
-        $serviceId = $this->insertListedService('ping', $hostId);
-
-        $service = $this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId));
-
-        self::assertNull($this->findOneRestricted($serviceId));
-        self::assertInstanceOf(Service::class, $service);
-        self::assertSame($serviceId, $service->id()->value);
-        self::assertSame($hostId, $service->hostId->value);
-        self::assertSame('ping', $service->name->value);
-    }
-
     public function testFindOneOnHostHydratesTheServiceAsFindOneDoes(): void
     {
         $hostId = $this->insertListedHost('h1');
@@ -291,37 +445,6 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertInstanceOf(Service::class, $onHost);
         self::assertSame(3, $onHost->schedulingOptions->maxCheckAttempts);
         self::assertEquals($this->repository->findOne(new ServiceId($serviceId), TestActingUsers::unrestricted()), $onHost);
-    }
-
-    public function testFindOneOnHostIsNullForAServiceOfAnotherHost(): void
-    {
-        $hostId = $this->insertListedHost('h1');
-        $otherHostId = $this->insertListedHost('h2');
-        $serviceId = $this->insertListedService('ping', $otherHostId);
-
-        self::assertNull($this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId)));
-    }
-
-    public function testFindOneOnHostFindsAServiceAlsoLinkedToAHostGroup(): void
-    {
-        $hostId = $this->insertListedHost('h1');
-        $serviceId = $this->insertListedService('ping', $hostId);
-        $this->linkServiceToHostGroup($serviceId, $this->insertHostGroup());
-
-        self::assertNotNull($this->repository->findOneOnHost(new ServiceId($serviceId), new HostId($hostId)));
-    }
-
-    public function testFindOneOnHostIgnoresWhatIsNotARealServiceOnARealHost(): void
-    {
-        $hostTemplateId = $this->insertListedHost('host-template', register: '0');
-        $onAHostTemplate = $this->insertListedService('on-a-host-template', $hostTemplateId);
-        $hostId = $this->insertListedHost('h1');
-        $serviceTemplateId = $this->insertListedServiceTemplate('service-template');
-        $this->linkServiceToHost($serviceTemplateId, $hostId);
-
-        self::assertNull($this->repository->findOneOnHost(new ServiceId($onAHostTemplate), new HostId($hostTemplateId)));
-        self::assertNull($this->repository->findOneOnHost(new ServiceId($serviceTemplateId), new HostId($hostId)));
-        self::assertNull($this->repository->findOneOnHost(new ServiceId($serviceTemplateId + 1000000), new HostId($hostId)));
     }
 
     public function testFindAllUnrestrictedActorSeesAll(): void

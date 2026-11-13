@@ -87,6 +87,19 @@ interface ServiceRepository
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection;
 
     /**
+     * The services directly attached to this host that have more than one relation row in total (another host or
+     * a hostgroup): the complement of {@see findExclusivelyLinkedToHostId()} among the host's services.
+     *
+     * @return Collection<ServiceId>
+     */
+    public function findIdsSharedWithOthers(HostId $hostId): Collection;
+
+    /**
+     * Links an existing service directly to this host as well, its other links being left as they are.
+     */
+    public function addHostLink(ServiceId $id, HostId $hostId): void;
+
+    /**
      * The ids of the services of this host that come from one of the given service templates, the ones a host
      * gets from its host templates. Like {@see findExclusivelyLinkedToHostId()}, a service also reachable through
      * another host or a hostgroup is left out, and so is never deleted from under them. Nothing is hydrated, so

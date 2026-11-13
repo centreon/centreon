@@ -164,6 +164,36 @@ final class Service extends AggregateRoot implements AclScopedInterface, PollerS
     }
 
     /**
+     * Builds a copy of this service attached to $hostId, with no id until it is persisted.
+     *
+     * Every other field is carried over verbatim, the state of its host included: the host copy has the source
+     * host's activation and poller. The check options are supplied by the caller, because re-minting a vaulted
+     * secret into the copy's own vault entry needs the vault (infrastructure), which the aggregate must not reach.
+     */
+    public function duplicate(HostId $hostId, ServiceCheckOptions $checkOptions): self
+    {
+        return new self(
+            id: null,
+            name: $this->name,
+            hostId: $hostId,
+            hostActivated: $this->hostActivated,
+            hostPollerId: $this->hostPollerId,
+            activated: $this->activated,
+            templateId: $this->templateId,
+            checkOptions: $checkOptions,
+            schedulingOptions: $this->schedulingOptions,
+            notifications: $this->notifications,
+            dataProcessing: $this->dataProcessing,
+            extendedInformations: $this->extendedInformations,
+            graphTemplateId: $this->graphTemplateId,
+            severityId: $this->severityId,
+            serviceGroupIds: $this->serviceGroupIds,
+            categoryIds: $this->categoryIds,
+            trapIds: $this->trapIds,
+        );
+    }
+
+    /**
      * Every field the activity log records, contacts and contact groups included (through
      * ServiceNotifications::equals()), the host among them: everything but the activation, the state of the host
      * as loaded, and the relations, which {@see hasSameRelationsAs()} compares.

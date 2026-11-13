@@ -21,23 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Infrastructure\Legacy\ServiceCloner;
-use App\Security\Domain\Aggregate\UserId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\Shared\Domain\Event\AggregateDuplicated;
 
-final class FakeServiceCloner implements ServiceCloner
+/**
+ * @extends AggregateDuplicated<Service>
+ */
+final readonly class ServiceDuplicated extends AggregateDuplicated
 {
-    /** @var list<array{serviceIds: list<int>, newHostId: int, duplicatedBy: int}> */
-    public array $cloneCalls = [];
-
-    public function cloneServices(array $serviceIds, HostId $newHostId, UserId $duplicatedBy): void
-    {
-        $this->cloneCalls[] = [
-            'serviceIds' => $serviceIds,
-            'newHostId' => $newHostId->value,
-            'duplicatedBy' => $duplicatedBy->value,
-        ];
-    }
 }
