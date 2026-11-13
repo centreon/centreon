@@ -80,7 +80,8 @@ interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
   isCloudPlatform?: boolean;
-  deployFails?: boolean;
+  // The status a failed deployment answers; it succeeds when left out.
+  deployFailsWith?: 404 | 422;
   isAdditiveInheritanceEnabled?: boolean;
   addressResolution?: keyof typeof addressResolutions;
   hasDefaultPoller?: boolean;
@@ -111,6 +112,23 @@ export const patchRefusedMessage = 'The host cannot be updated';
 // The hosts every PATCH was sent to, in order.
 export const patchedHostIds: Array<number> = [];
 
+// What the endpoint answers for each failure the listing handles.
+export const deployFailures = {
+  404: 'Host not found',
+  422: `The alias of service template #1 contains a forbidden character (~ ! $ % ^ & * " | ' < > ? , ( ) =), no service was deployed.`
+};
+
+// The created services, each as a Get answers it.
+const deployedServicesResponse = [
+  {
+    '@id': '/api/configuration/services/1',
+    '@type': 'Service',
+    activated: true,
+    id: 1,
+    name: 'Ping'
+  }
+];
+
 const addressResolutions = {
   refused: { response: refusedAddressResponse, statusCode: 422 },
   resolved: { response: resolvedAddressResponse, statusCode: 200 },
@@ -121,7 +139,7 @@ const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
   isCloudPlatform = false,
-  deployFails = false,
+  deployFailsWith,
   isAdditiveInheritanceEnabled = false,
   addressResolution = 'resolved',
   hasDefaultPoller = true,
@@ -401,8 +419,10 @@ const initialize = ({
     alias: 'deployServices',
     method: Method.POST,
     path: `**${getDeployServicesEndpoint({ id: 0 })}`,
-    response: deployFails ? { message: 'Host not found' } : {},
-    statusCode: deployFails ? 404 : 200
+    response: deployFailsWith
+      ? { code: 0, message: deployFailures[deployFailsWith] }
+      : deployedServicesResponse,
+    statusCode: deployFailsWith ?? 201
   });
 
   // A client of its own, so no cache leaks from one test to the next.

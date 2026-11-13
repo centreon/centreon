@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use ApiPlatform\Metadata\ApiProperty;
+use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\MiscOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
@@ -93,7 +94,7 @@ final readonly class PatchHostInput
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(min: HostName::MIN_LENGTH, max: HostName::MAX_LENGTH),
             new Assert\Regex(
-                pattern: '/(^_Module(?:_| ))|([~!$%^&*"|\'<>?,()=])/',
+                pattern: '/(^_Module(?:_| ))|([' . MiscOptions::DEFAULT_ILLEGAL_OBJECT_NAME_CHARS . '])/',
                 message: 'This value must not start with "_Module_" and must not contain any of the following characters: ~ ! $ % ^ & * " | \' < > ? , ( ) =',
                 match: false,
                 normalizer: 'trim',

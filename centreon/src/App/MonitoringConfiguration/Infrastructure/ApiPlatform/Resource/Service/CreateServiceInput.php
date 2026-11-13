@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service;
 
 use ApiPlatform\Metadata\ApiProperty;
+use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\MiscOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHost;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleServiceCategories;
@@ -46,7 +47,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ServiceCommandInheritance]
 final readonly class CreateServiceInput
 {
-    private const FORBIDDEN_CHARACTERS = '/[~!$%^&*"|\'<>?,()=]/';
+    private const FORBIDDEN_CHARACTERS = '/[' . MiscOptions::DEFAULT_ILLEGAL_OBJECT_NAME_CHARS . ']/';
 
     /**
      * @param list<int> $serviceGroupIds

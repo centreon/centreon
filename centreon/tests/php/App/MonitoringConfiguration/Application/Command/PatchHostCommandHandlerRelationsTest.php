@@ -27,7 +27,6 @@ use App\MonitoringConfiguration\Application\Command\ListChange;
 use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
-use App\MonitoringConfiguration\Application\EventHandler\FlagPollerChangedEventHandler;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
@@ -35,7 +34,6 @@ use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
 use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
-use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
@@ -62,6 +60,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
+use App\MonitoringConfiguration\Domain\Event\HostTemplateServicesCleanupRequested;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
@@ -176,7 +175,6 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                     $this->hostTemplateRepository,
                 )),
             ),
-            new HostTemplateServicesCleaner($this->hostTemplateRepository, $this->serviceRepository, $this->eventBus),
             new HostMacrosUpdater(
                 new InheritedHostMacrosResolver($this->hostTemplateRepository, $commandRepository),
                 new HostMacroChangesResolver(),
@@ -637,71 +635,56 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         self::assertSame([NotificationOptionEnum::Flapping], $this->optionsOf($removed));
     }
 
-    public function testRemovingATemplateDeletesTheServicesOnlyItProvides(): void
+    public function testRemovingATemplateRequestsTheCleanup(): void
+    {
+        $this->seedHost(templateIds: [1, 2]);
+
+        ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)]), actor: TestActingUsers::unrestricted(self::ACTOR_ID)));
+
+        $requests = $this->eventBus->getDispatchedEvents(HostTemplateServicesCleanupRequested::class);
+        self::assertCount(1, $requests);
+        self::assertSame(self::HOST_ID, $requests[0]->hostId->value);
+        self::assertSame([1, 2], $this->templateIdValues($requests[0]->previousTemplateIds));
+        self::assertSame([2], $this->templateIdValues($requests[0]->templateIds));
+        self::assertSame(self::ACTOR_ID, $requests[0]->requestedBy->value);
+    }
+
+    public function testAddingATemplateRequestsNoCleanup(): void
+    {
+        $this->seedHost(templateIds: [1]);
+
+        ($this->handler)($this->command(templateIds: ListChange::add([new HostTemplateId(2)])));
+
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostTemplateServicesCleanupRequested::class));
+    }
+
+    public function testTheCleanupIsRequestedBeforeTheDeployment(): void
+    {
+        $this->seedHost(templateIds: [1, 2]);
+
+        ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)]), deployServicesFromTemplates: true));
+
+        $requests = array_values(array_filter(
+            $this->eventBus->getDispatchedEventClasses(),
+            static fn (string $class): bool => in_array($class, [HostTemplateServicesCleanupRequested::class, HostServicesDeploymentRequested::class], true),
+        ));
+        self::assertSame([HostTemplateServicesCleanupRequested::class, HostServicesDeploymentRequested::class], $requests);
+    }
+
+    /**
+     * The services go after the commit, each on its own, so that no failing service can roll the PATCH back.
+     */
+    public function testThePatchDeletesNoServiceItself(): void
     {
         $this->seedHost(templateIds: [1, 2]);
         $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [20]];
-        $fromFirst = $this->seedService('ping', serviceTemplateId: 10);
-        $fromSecond = $this->seedService('disk', serviceTemplateId: 20);
-
-        ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
-
-        self::assertArrayNotHasKey($fromFirst->id()->value, $this->serviceRepository->services);
-        self::assertArrayHasKey($fromSecond->id()->value, $this->serviceRepository->services);
-        self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceDeleted::class, 1));
-        self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceVaultPurgeRequested::class, 1));
-    }
-
-    public function testACleanedUpServiceAlsoFlagsAclAndThePollerOfItsEnabledHost(): void
-    {
-        $this->seedHost(templateIds: [1]);
-        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10]];
-        $service = $this->seedService('ping', serviceTemplateId: 10);
-
-        ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
-
-        // The removed service also flags ACL once more and its enabled host's poller.
-        $deleted = $this->eventBus->getDispatchedEvents(ServiceDeleted::class);
-        self::assertCount(1, $deleted);
-        self::assertSame($service, $deleted[0]->aggregate);
-
-        $pollerRepository = new FakePollerRepository();
-        (new FlagPollerChangedEventHandler($pollerRepository))($deleted[0]);
-        self::assertSame([$service], $pollerRepository->flaggedResources);
-    }
-
-    public function testAServiceAKeptTemplateAlsoProvidesIsKept(): void
-    {
-        $this->seedHost(templateIds: [1, 2]);
-        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [10]];
         $service = $this->seedService('ping', serviceTemplateId: 10);
 
         ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
 
         self::assertArrayHasKey($service->id()->value, $this->serviceRepository->services);
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(ServiceDeleted::class));
-    }
-
-    public function testReplacingTheTemplatesCleansTheServicesOfTheOnesLeft(): void
-    {
-        $this->seedHost(templateIds: [1]);
-        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [20]];
-        $service = $this->seedService('ping', serviceTemplateId: 10);
-
-        ($this->handler)($this->command(templateIds: ListChange::replace([new HostTemplateId(2)])));
-
-        self::assertArrayNotHasKey($service->id()->value, $this->serviceRepository->services);
-    }
-
-    public function testAddingATemplateDeletesNothing(): void
-    {
-        $this->seedHost(templateIds: [1]);
-        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [20]];
-        $service = $this->seedService('ping', serviceTemplateId: 10);
-
-        ($this->handler)($this->command(templateIds: ListChange::add([new HostTemplateId(2)])));
-
-        self::assertArrayHasKey($service->id()->value, $this->serviceRepository->services);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(ServiceVaultPurgeRequested::class));
     }
 
     public function testTheServicesOfTheTemplatesCanBeCreatedOnceTheUpdateIsCommitted(): void
@@ -906,6 +889,16 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 options: $options,
             ),
         ), self::HOST_ID);
+    }
+
+    /**
+     * @param Collection<HostTemplateId> $ids
+     *
+     * @return list<int>
+     */
+    private function templateIdValues(Collection $ids): array
+    {
+        return array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $ids->toArray()));
     }
 
     private function seedService(string $name, int $serviceTemplateId): Service

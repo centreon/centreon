@@ -16,7 +16,7 @@ import {
   labelServiceDeploymentFailed,
   labelServicesDeployed
 } from '../translatedLabels';
-import initialize from './initialize';
+import initialize, { deployFailures } from './initialize';
 
 // By their own labels: the Enable/Disable switches are checkboxes too, so a
 // position among the checkboxes does not say which one is a row's.
@@ -161,31 +161,43 @@ export default () => {
       await waitFor(() => expect(deployServices).toBeVisible());
       await userEvent.click(deployServices);
 
-      await waitForRequest('@deployServices');
+      // Served by API Platform at `./api`, not by the legacy `./api/latest`.
+      const { request } = await waitForRequest('@deployServices');
+
+      expect(request.url.pathname).toContain(
+        '/api/configuration/hosts/0/services/deploy'
+      );
+      expect(request.url.pathname).not.toContain('/api/latest');
 
       expect(
         await screen.findByText(labelServicesDeployed)
       ).toBeInTheDocument();
     });
 
-    it('reports a failed deployment with the agreed message, once', async () => {
-      await initializeListing({ deployFails: true });
+    ([404, 422] as const).forEach((status) => {
+      it(`reports a failed deployment (${status}) with the agreed message, once`, async () => {
+        await initializeListing({ deployFailsWith: status });
 
-      await selectFirstRow();
+        await selectFirstRow();
 
-      const menu = await openMoreActions();
+        const menu = await openMoreActions();
 
-      await userEvent.click(within(menu).getByText(labelDeployServices));
+        await userEvent.click(within(menu).getByText(labelDeployServices));
 
-      await waitForRequest('@deployServices');
+        await waitForRequest('@deployServices');
 
-      expect(
-        await screen.findByText(labelServiceDeploymentFailed)
-      ).toBeInTheDocument();
+        expect(
+          await screen.findByText(labelServiceDeploymentFailed)
+        ).toBeInTheDocument();
 
-      // The API's own message is suppressed so the two do not stack.
-      expect(screen.queryByText('Host not found')).not.toBeInTheDocument();
-      expect(screen.queryByText(labelServicesDeployed)).not.toBeInTheDocument();
+        // The API's own message is suppressed so the two do not stack.
+        expect(
+          screen.queryByText(deployFailures[status])
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(labelServicesDeployed)
+        ).not.toBeInTheDocument();
+      });
     });
 
     it('offers every massive action the ticket lists', async () => {
