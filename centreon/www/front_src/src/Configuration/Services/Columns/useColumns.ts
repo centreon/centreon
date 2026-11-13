@@ -48,7 +48,7 @@ const useColumns = (): Props => {
       id: 'host',
       label: t(labelHost),
       sortable: true,
-      sortField: 'host.name',
+      sortField: 'host_name',
       type: ColumnType.component
     },
     {
