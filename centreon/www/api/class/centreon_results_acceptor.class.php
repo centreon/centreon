@@ -84,6 +84,15 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
 
         if (isset($this->arguments['results']) && is_array($this->arguments['results'])) {
             if ($this->arguments['results'] !== []) {
+                foreach ($this->arguments['results'] as $data) {
+                    if (! is_array($data)) {
+                        throw new RestBadRequestException('Bad arguments - Invalid result format');
+                    }
+                    $this->assertSingleLineValues(
+                        $data,
+                        ['host', 'service', 'status', 'updatetime', 'output', 'perfdata']
+                    );
+                }
                 if ($this->pipeOpened == 0) {
                     $this->openPipe();
                 }
@@ -143,8 +152,9 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
      */
     public function authorize($action, $user, $isInternal = false)
     {
+        // Same access rights whatever the entry point
         return (bool) (
-            parent::authorize($action, $user, $isInternal)
+            parent::authorize($action, $user, false)
             || ($user && $user->hasAccessRestApiConfiguration())
         );
     }
