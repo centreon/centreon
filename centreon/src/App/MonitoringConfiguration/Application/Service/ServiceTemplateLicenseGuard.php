@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesExcep
 
 /**
  * Once the license host limit is reached, a service can no longer be given a template coming from a paid
- * Monitoring Connector.
+ * Monitoring Connector. The template it already has is kept: it was given while the limit allowed it.
  */
 final readonly class ServiceTemplateLicenseGuard
 {
@@ -40,9 +40,9 @@ final readonly class ServiceTemplateLicenseGuard
     /**
      * @throws UnlicensedServiceTemplatesException
      */
-    public function assertLicensed(?ServiceTemplateId $templateId): void
+    public function assertLicensed(?ServiceTemplateId $templateId, ?ServiceTemplateId $currentTemplateId = null): void
     {
-        if (! $templateId instanceof ServiceTemplateId) {
+        if (! $templateId instanceof ServiceTemplateId || $templateId->value === $currentTemplateId?->value) {
             return;
         }
 

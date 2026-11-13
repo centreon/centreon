@@ -72,4 +72,35 @@ final readonly class ServiceCheckOptions
         return array_any($this->args, static fn (string $arg): bool => $arg === '')
             && array_any($this->args, static fn (string $arg): bool => $arg !== '');
     }
+
+    public function equals(self $other): bool
+    {
+        return $this->checkCommandId?->value === $other->checkCommandId?->value
+            && $this->args === $other->args
+            && $this->hasSameMacrosAs($other);
+    }
+
+    /**
+     * The macros compared as a set of (name, raw value, password flag), whatever their order, ids and
+     * descriptions: an own macro equivalent to the stored one is no change, whichever row holds it. Two stored
+     * macros of the same name (legacy data) each count.
+     */
+    private function hasSameMacrosAs(self $other): bool
+    {
+        return $this->macroKeys() === $other->macroKeys();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function macroKeys(): array
+    {
+        $keys = array_map(
+            static fn (ServiceMacro $macro): string => serialize([$macro->name->value, $macro->value, $macro->isPassword]),
+            $this->macros,
+        );
+        sort($keys);
+
+        return $keys;
+    }
 }

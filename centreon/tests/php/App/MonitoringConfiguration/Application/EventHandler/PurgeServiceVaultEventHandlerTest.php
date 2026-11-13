@@ -83,6 +83,15 @@ final class PurgeServiceVaultEventHandlerTest extends TestCase
         }
     }
 
+    public function testItPurgesAnEntryReleasedByASave(): void
+    {
+        $this->vault->extractedUuids['secret::vault::monitoring/services/uuid-1::_SERVICETOKEN'] = 'uuid-1';
+
+        ($this->handler)(new ServiceVaultPurgeRequested($this->service(vaulted: true), bestEffort: true));
+
+        self::assertSame([['customPath' => 'monitoring/services', 'uuid' => 'uuid-1']], $this->vault->deleteCalls);
+    }
+
     public function testABestEffortPurgeFailureIsLoggedAtErrorWithTheHostAndTheService(): void
     {
         $this->vault->extractedUuids['secret::vault::monitoring/services/uuid-1::_SERVICETOKEN'] = 'uuid-1';

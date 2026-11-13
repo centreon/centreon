@@ -76,4 +76,27 @@ final class ServiceTemplateLicenseGuardTest extends TestCase
             self::assertSame(['serviceTemplateId' => 3], $exception->criteria);
         }
     }
+
+    /**
+     * A service keeps the template it already has, even one it could no longer be given.
+     */
+    public function testKeptTemplateIsAccepted(): void
+    {
+        $this->serviceTemplateRepository->monitoringConnectorTemplateIds = [3];
+        $this->expectNotToPerformAssertions();
+
+        $this->guard->assertLicensed(new ServiceTemplateId(3), new ServiceTemplateId(3));
+    }
+
+    public function testAChangedTemplateIsChecked(): void
+    {
+        $this->serviceTemplateRepository->monitoringConnectorTemplateIds = [3];
+
+        try {
+            $this->guard->assertLicensed(new ServiceTemplateId(3), new ServiceTemplateId(2));
+            self::fail('A new template the license no longer allows must be rejected.');
+        } catch (UnlicensedServiceTemplatesException $exception) {
+            self::assertSame(['serviceTemplateId' => 3], $exception->criteria);
+        }
+    }
 }
