@@ -6882,7 +6882,9 @@ paths:
         '403':
           description: 'You are not allowed to update services'
         '404':
-          description: 'Service not found'
+          description: 'Service not found, or a nested reference (command, time period, icon, contact, contact group) that no longer exists'
+        '409':
+          description: 'The name is already used by another service on the host'
         '422':
           description: 'Invalid input'
           content:
@@ -6896,6 +6898,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
+        '502':
+          description: 'The vault could not be reached'
         '400':
           description: 'Invalid input'
           content:
@@ -6909,8 +6913,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           links: {}
-      summary: 'Updates the Service resource.'
-      description: 'Enables or disables a service.'
+      summary: 'Partially update a service'
+      description: 'Partially updates a service linked directly to one host: a key left out is left untouched, a key sent as null clears the value when it can be cleared. The service groups, categories, traps, contacts, contact groups, notification options and stalking options each have three keys, of which only one can be sent: the list is replaced, added to ("_to_add") or removed from ("_to_remove"); service groups, categories, contacts and contact groups the user cannot see stay linked. The custom macros (in "check_options") also have three keys, of which only one can be sent: "macros" replaces them, "macros_to_upsert" writes the macros given and keeps the other ones, and "macros_to_remove" removes macros by id. Password macros are written to the vault, when one is configured, before the service is saved. A saved update of a service linked to several hosts keeps only the host it is read with (the lowest id).'
       parameters:
         -
           name: id
@@ -14338,6 +14342,103 @@ components:
           type:
             - boolean
             - 'null'
+        name:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          maxLength: 200
+          description: 'Trimmed, and its inner runs of spaces collapsed into one, before it is stored. Unique on the host the service ends up on.'
+          type:
+            - string
+            - 'null'
+        host_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Moves the service to this host: its other host links, if any, are dropped.'
+          type:
+            - integer
+            - 'null'
+        service_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Null removes the template, except on a Cloud platform.'
+          type:
+            - integer
+            - 'null'
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        service_group_ids:
+          description: 'Replaces the service groups; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        service_group_ids_to_add:
+          type: array
+          items:
+            type: integer
+        service_group_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        category_ids:
+          description: 'Replaces the categories; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        category_ids_to_add:
+          type: array
+          items:
+            type: integer
+        category_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        trap_ids:
+          description: 'Replaces the traps; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent. Not available on a Cloud platform.'
+          type: array
+          items:
+            type: integer
+        trap_ids_to_add:
+          type: array
+          items:
+            type: integer
+        trap_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        graph_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Not available on a Cloud platform.'
+          type:
+            - integer
+            - 'null'
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchServiceCheckOptionsInput'
+            -
+              type: 'null'
+        monitoring_engine:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceMonitoringEngineInput'
+            -
+              type: 'null'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchServiceNotificationsInput'
+            -
+              type: 'null'
+        advanced:
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchServiceAdvancedInput'
+            -
+              type: 'null'
     ServiceAdvancedOutput:
       type: object
       properties:
@@ -15670,3 +15771,264 @@ components:
               $ref: '#/components/schemas/ServiceAdvancedInput'
             -
               type: 'null'
+    PatchServiceAdvancedInput:
+      type: object
+      properties:
+        obsess_over_service:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        acknowledgment_timeout:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        check_freshness:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        freshness_threshold:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        retain_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        retain_non_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        stalking_options:
+          description: 'Replaces the stalking options; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        stalking_options_to_add:
+          description: 'Added to the current stalking options.'
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        stalking_options_to_remove:
+          description: 'Removed from the current stalking options.'
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        event_handler_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        event_handler_command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Null removes the event handler of the service; its arguments are kept, and need one from the template chain.'
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+        comment:
+          maxLength: 65535
+          type:
+            - string
+            - 'null'
+    PatchServiceCheckOptionsInput:
+      type: object
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Null removes the check command of the service, and its arguments unless "args" is sent too.'
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'ordered check-command arguments, an empty list clears them'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceMacroInput'
+        macros_to_upsert:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceMacroInput'
+        macros_to_remove:
+          description: "The ids of the service's own macros to remove."
+          type: array
+          items:
+            type: integer
+    PatchServiceNotificationsInput:
+      type: object
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+          description: 'Whether notifications are enabled; "use_default" or null leaves the directive to the template chain.'
+          type:
+            - string
+            - 'null'
+        use_only_contacts_from_host:
+          description: 'When the service ends up with it on, it notifies the contacts of its host only: its own contacts and contact groups are cleared, contacts sent in the same request included, and both additive-inheritance flags switched off.'
+          type: boolean
+        contact_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contact_group_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contacts:
+          description: 'Replaces the contacts; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        contacts_to_add:
+          type: array
+          items:
+            type: integer
+        contacts_to_remove:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          description: 'Replaces the contact groups; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        contact_groups_to_add:
+          type: array
+          items:
+            type: integer
+        contact_groups_to_remove:
+          type: array
+          items:
+            type: integer
+        interval:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        options:
+          description: 'State transitions triggering a notification, an empty list clears them. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        options_to_add:
+          description: 'Added to the current options. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        options_to_remove:
+          description: 'Removed from the current options.'
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        first_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'

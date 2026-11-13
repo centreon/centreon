@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
@@ -61,6 +62,13 @@ interface ResourceAccessRepository
      * @param Collection<AccessGroupId> $accessGroupIds
      */
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void;
+
+    /**
+     * {@see grantResourceAccess()} for a service known by its ids, on the host given.
+     *
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void;
 
     /**
      * Flags every Access Group's resource scoping as changed, so the `centAcl` cron fully

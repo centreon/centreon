@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -124,13 +125,14 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
      */
     public function testGrantResourceAccessForAMovedService(): void
     {
-        $service = (new Service(
+        $service = new Service(
             id: new ServiceId(9003),
             name: new ServiceName('ping'),
             hostId: new HostId(9001),
             hostActivated: true,
             hostPollerId: new PollerId(1),
-        ))->with(hostId: new HostId(9004), hostPollerId: new PollerId(2));
+        );
+        $service->moveToHost(new HostId(9004), new HostState(true, new PollerId(2)));
 
         $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10)], AccessGroupId::class));
 
@@ -142,6 +144,22 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         self::assertSame(
             [[10, 9004, 9003]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    public function testGrantServiceAccessByIds(): void
+    {
+        $this->repository->grantServiceAccess(new HostId(9004), new ServiceId(9005), new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9005],
+        );
+
+        self::assertSame(
+            [[10, 9004, 9005], [20, 9004, 9005]],
             array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
         );
     }

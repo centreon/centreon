@@ -127,14 +127,14 @@ final readonly class PutServiceProcessor implements ProcessorInterface
 
         // The own macros are read back as stored, since a macro created by this update only gets its id on
         // insertion.
-        return $this->resourceBuilder->build(
-            $service->with(checkOptions: new ServiceCheckOptions(
-                $service->checkOptions->checkCommandId,
-                $service->checkOptions->args,
-                array_values($this->serviceRepository->findMacros($service->id())->toArray()),
-            )),
-            $actor,
-        );
+        $answered = clone $service;
+        $answered->changeCheckOptions(new ServiceCheckOptions(
+            $service->checkOptions->checkCommandId,
+            $service->checkOptions->args,
+            array_values($this->serviceRepository->findMacros($service->id())->toArray()),
+        ));
+
+        return $this->resourceBuilder->build($answered, $actor);
     }
 
     private function schedulingOptions(?ServiceMonitoringEngineInput $input): ServiceSchedulingOptions

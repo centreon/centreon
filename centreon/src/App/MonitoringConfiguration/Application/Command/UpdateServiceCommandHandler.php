@@ -118,8 +118,8 @@ use Psr\Log\LoggerInterface;
  * submitted macros against the ones the service already owns, reusing (or releasing) its vault entry, and firing
  * {@see ServiceUpdated} with the previous host and its poller when the service moved.
  *
- * The new service is built from the stored one through {@see Service::with()} and compared with it: an update that
- * changes nothing writes nothing and fires nothing.
+ * The new service is a copy of the stored one changed through its business methods, then compared with it: an update
+ * that changes nothing writes nothing and fires nothing.
  */
 #[AsCommandHandler]
 final readonly class UpdateServiceCommandHandler
@@ -270,28 +270,26 @@ final readonly class UpdateServiceCommandHandler
         [$macros, $passwordRewritten, $vaultWritten] = $this->vaultPasswords($existing, $resolvedMacros);
 
         try {
-            $service = $existing->with(
-                name: $command->name,
-                hostId: $command->hostId,
-                hostActivated: $host->activated,
-                hostPollerId: $host->pollerId,
-                activated: $command->activated,
-                templateId: $command->templateId,
-                checkOptions: new ServiceCheckOptions($command->checkCommandId, $command->checkCommandArgs, $macros),
-                schedulingOptions: $command->schedulingOptions,
-                notifications: $notifications,
-                // A Centreon Monitoring Agent command set on the service pushes its results: its freshness is
-                // always checked. One inherited from the template does not count, as legacy.
-                dataProcessing: $checkCommand?->isCentreonMonitoringAgent() === true
+            $service = clone $existing;
+            $service->rename($command->name);
+            $service->moveToHost($command->hostId, $host);
+            $command->activated ? $service->enable() : $service->disable();
+            $service->changeTemplate($command->templateId);
+            $service->changeCheckOptions(new ServiceCheckOptions($command->checkCommandId, $command->checkCommandArgs, $macros));
+            $service->changeSchedulingOptions($command->schedulingOptions);
+            if (! $notifications instanceof NoValue) {
+                $service->changeNotifications($notifications);
+            }
+            // A Centreon Monitoring Agent command set on the service pushes its results: its freshness is always
+            // checked. One inherited from the template does not count.
+            $service->changeDataProcessing(
+                $checkCommand?->isCentreonMonitoringAgent() === true
                     ? $command->dataProcessing->withCentreonMonitoringAgentFreshness()
                     : $command->dataProcessing,
-                extendedInformations: $command->extendedInformations,
-                graphTemplateId: $command->graphTemplateId,
-                severityId: $severityId,
-                serviceGroupIds: $serviceGroupIds,
-                categoryIds: $categoryIds,
-                trapIds: $command->trapIds,
             );
+            $service->changeExtendedInformations($command->extendedInformations);
+            $service->changeGraphTemplate($command->graphTemplateId);
+            $service->changeRelations($severityId, $serviceGroupIds, $categoryIds, $command->trapIds);
 
             return $this->save($command, $existing, $service, $passwordRewritten, $this->keepsTheStoredSeverities($storedSeverityIds, $severityId));
         } catch (\Throwable $exception) {
@@ -404,13 +402,12 @@ final readonly class UpdateServiceCommandHandler
      */
     private function hasLoggedChange(Service $before, Service $after): bool
     {
-        $comparable = $after->with(
-            checkOptions: new ServiceCheckOptions($after->checkOptions->checkCommandId, $after->checkOptions->args, $before->checkOptions->macros),
-            notifications: $after->notifications?->withContacts(
-                $before->notifications->contactIds ?? new Collection([], NotificationContactId::class),
-                $before->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class),
-            ),
-        );
+        $comparable = clone $after;
+        $comparable->changeCheckOptions(new ServiceCheckOptions($after->checkOptions->checkCommandId, $after->checkOptions->args, $before->checkOptions->macros));
+        $comparable->changeNotifications($after->notifications?->withContacts(
+            $before->notifications->contactIds ?? new Collection([], NotificationContactId::class),
+            $before->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class),
+        ));
 
         return ! $comparable->hasSameConfigurationAs($before);
     }

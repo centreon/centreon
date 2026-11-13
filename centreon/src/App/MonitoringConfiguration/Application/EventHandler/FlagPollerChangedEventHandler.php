@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Application\EventHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
@@ -42,7 +43,7 @@ use App\Shared\Domain\Event\AsEventHandler;
  * {@see PollerScopedInterface}): the owning poller's configuration just changed, so its
  * `nagios_server.updated` flag must be raised, or the monitoring engine keeps running on stale
  * configuration until something else touches it. Reacting to the {@see AggregateUpdated} supertype
- * also catches its enable/disable specializations.
+ * also catches its enable/disable specializations. A {@see ServiceMassChanged} names the pollers itself.
  */
 #[AsEventHandler]
 final readonly class FlagPollerChangedEventHandler
@@ -53,10 +54,20 @@ final readonly class FlagPollerChangedEventHandler
     }
 
     /**
-     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>> $event
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>>|ServiceMassChanged $event
      */
-    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
+    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated|ServiceMassChanged $event): void
     {
+        if ($event instanceof ServiceMassChanged) {
+            foreach ([$event->pollerId, $event->previousPollerId] as $pollerId) {
+                if ($pollerId instanceof PollerId) {
+                    $this->pollerRepository->flagIdAsChanged($pollerId);
+                }
+            }
+
+            return;
+        }
+
         if (! $event->aggregate instanceof PollerScopedInterface) {
             return;
         }

@@ -47,6 +47,7 @@ use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceDisabled;
 use App\MonitoringConfiguration\Domain\Event\ServiceEnabled;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
@@ -356,6 +357,23 @@ final class ReloadAclEventHandlerTest extends TestCase
         self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
     }
 
+    /**
+     * A mass change names the service and its new host by id: the pair is granted to the mover's groups.
+     */
+    public function testItGrantsAServiceMovedByAMassChange(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+        $handler(ServiceMassChanged::of($this->createService(), 7, previousHostId: new HostId(9)));
+
+        self::assertSame([['hostId' => 1, 'serviceId' => 1, 'accessGroupIds' => [10, 20]]], $resourceAccessRepository->grantedServiceAccess);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+    }
+
     public function testItDoesNotGrantForAnAdminOrAnUnchangedHost(): void
     {
         $accessGroupRepository = new FakeAccessGroupRepository();
@@ -365,12 +383,14 @@ final class ReloadAclEventHandlerTest extends TestCase
         $nonAdmin = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
         $nonAdmin(new ServiceUpdated($this->createService(), 7));
         $nonAdmin(new ServiceUpdated($this->createService(), 7, loggable: false));
+        $nonAdmin(ServiceMassChanged::of($this->createService(), 7));
 
         $admin = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
         $admin(new ServiceUpdated($this->createService(), 1, previousHostId: new HostId(9)));
 
         self::assertSame([], $resourceAccessRepository->grantedAccess);
-        self::assertSame([10, 20, 10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertSame([], $resourceAccessRepository->grantedServiceAccess);
+        self::assertSame([10, 20, 10, 20, 10, 20], $accessGroupRepository->flaggedGroupIds);
         self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
     }
 

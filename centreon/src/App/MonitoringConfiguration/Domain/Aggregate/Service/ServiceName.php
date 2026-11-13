@@ -31,6 +31,8 @@ final readonly class ServiceName
 
     // The size of the service_description column.
     public const MAX_LENGTH = 200;
+    public const FORBIDDEN_CHARACTERS = '/[~!$%^&*"|\'<>?,()=]/';
+    public const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
 
     public string $value;
 
@@ -39,5 +41,15 @@ final readonly class ServiceName
         $value = trim($value);
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
         $this->value = $value;
+    }
+
+    /**
+     * Whether the name holds a character a write refuses. Not an invariant: a name legacy stored with one is still
+     * read.
+     */
+    public function hasForbiddenCharacters(): bool
+    {
+        return preg_match(self::FORBIDDEN_CHARACTERS, $this->value) === 1
+            || preg_match(self::CONTROL_CHARACTERS, $this->value) === 1;
     }
 }
