@@ -26,9 +26,11 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Ser
 use App\MonitoringConfiguration\Application\Command\DeployHostServicesFromTemplatesCommandHandler;
 use App\MonitoringConfiguration\Application\Service\HostServicesDeployer;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
+use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
@@ -40,7 +42,6 @@ use App\MonitoringConfiguration\Domain\Service\InheritedServiceMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\DeployHostServicesProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceMacroTransformer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceNotificationsTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceResourceBuilder;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceResourceTransformer;
 use App\Security\Domain\Service\AccessScopeResolver;
@@ -327,11 +328,12 @@ final class DeployHostServicesProcessorTest extends ApiTestCase
                 $this->service(Security::class),
                 new ServiceResourceBuilder(
                     $this->service(ServiceResourceTransformer::class),
-                    $this->service(ServiceNotificationsTransformer::class),
                     $this->service(HostRepository::class),
                     $this->service(ServiceTemplateRepository::class),
                     $this->service(CommandRepository::class),
                     $this->service(TimePeriodRepository::class),
+                    $this->service(NotificationContactRepository::class),
+                    $this->service(ContactGroupRepository::class),
                     $this->service(MediaRepository::class),
                     $this->service(MediaUrlGenerator::class),
                     $this->service(ServiceGroupRepository::class),
