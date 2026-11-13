@@ -55,9 +55,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 ])]
 final readonly class PatchServiceInput
 {
-    private const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
-    private const FORBIDDEN_CHARACTERS = '/[~!$%^&*"|\'<>?,()=]/';
-
     /**
      * @param list<int> $serviceGroupIds replaces the service groups, an empty list removes them all
      * @param list<int> $serviceGroupIdsToAdd
@@ -79,12 +76,12 @@ final readonly class PatchServiceInput
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Regex(
-                pattern: self::FORBIDDEN_CHARACTERS,
+                pattern: ServiceName::FORBIDDEN_CHARACTERS,
                 message: 'This value must not contain any of the following characters: ~ ! $ % ^ & * " | \' < > ? , ( ) =',
                 match: false,
             ),
             // On the raw value, before the collapse would turn a tab or a line break into a space.
-            new Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false),
+            new Assert\Regex(pattern: ServiceName::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false),
             // Measured on what is stored.
             new Assert\Length(max: ServiceName::MAX_LENGTH, normalizer: [CreateServiceInput::class, 'normalizeName']),
         ])]

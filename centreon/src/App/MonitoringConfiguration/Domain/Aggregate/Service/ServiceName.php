@@ -31,6 +31,8 @@ final readonly class ServiceName
 
     // The size of the service_description column.
     public const MAX_LENGTH = 200;
+    public const FORBIDDEN_CHARACTERS = '/[~!$%^&*"|\'<>?,()=]/';
+    public const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
 
     public string $value;
 
@@ -47,6 +49,7 @@ final readonly class ServiceName
      */
     public function hasForbiddenCharacters(): bool
     {
-        return preg_match('/[~!$%^&*"|\'<>?,()=\x00-\x1F\x7F]/', $this->value) === 1;
+        return preg_match(self::FORBIDDEN_CHARACTERS, $this->value) === 1
+            || preg_match(self::CONTROL_CHARACTERS, $this->value) === 1;
     }
 }
