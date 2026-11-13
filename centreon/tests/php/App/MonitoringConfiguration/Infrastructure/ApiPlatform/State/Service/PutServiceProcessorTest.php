@@ -35,6 +35,7 @@ use Tests\App\Shared\ApiTestCase;
 final class PutServiceProcessorTest extends ApiTestCase
 {
     private const ENDPOINT = '/api/configuration/services/';
+    private const READ_WRITE = 1;
     private const READ_ONLY = 2;
 
     private Connection $connection;
@@ -200,13 +201,197 @@ final class PutServiceProcessorTest extends ApiTestCase
         self::assertJsonContains(['message' => 'You are not allowed to update services']);
     }
 
-    private function insertService(string $name, int $hostId, int $checkCommandId): int
+    /**
+     * A restricted actor sends back what they see of the service: the service groups, categories, contacts and the
+     * severity outside their scope stay linked, and the response does not show them.
+     */
+    public function testARestrictedActorRoundTripKeepsAndHidesOutOfScopeRelations(): void
+    {
+        $pollerId = $this->insertPoller();
+        $hostId = $this->insertHost($pollerId);
+        $checkCommandId = $this->insertCommand('check', type: 2);
+        $serviceId = $this->insertService('web check', $hostId, $checkCommandId);
+        $visibleGroupId = $this->insertServiceGroup('visible');
+        $hiddenGroupId = $this->insertServiceGroup('hidden');
+        $visibleCategoryId = $this->insertServiceCategory('visible');
+        $hiddenCategoryId = $this->insertServiceCategory('hidden');
+        $hiddenSeverityId = $this->insertServiceCategory('severity', level: 1);
+        $visibleContactId = $this->insertContact('visible');
+        $hiddenContactId = $this->insertContact('hidden');
+        foreach ([$visibleGroupId, $hiddenGroupId] as $groupId) {
+            $this->connection->insert('servicegroup_relation', ['host_host_id' => $hostId, 'service_service_id' => $serviceId, 'servicegroup_sg_id' => $groupId]);
+        }
+        foreach ([$visibleCategoryId, $hiddenCategoryId, $hiddenSeverityId] as $categoryId) {
+            $this->connection->insert('service_categories_relation', ['service_service_id' => $serviceId, 'sc_id' => $categoryId]);
+        }
+        foreach ([$visibleContactId, $hiddenContactId] as $contactId) {
+            $this->connection->insert('contact_service_relation', ['contact_id' => $contactId, 'service_service_id' => $serviceId]);
+        }
+        $aclGroupId = $this->loginRestrictedActor($pollerId, [$visibleGroupId], [$visibleCategoryId]);
+        $this->grantInRealTimeAcl($aclGroupId, $hostId, $serviceId);
+        $this->connection->insert('acl_group_contacts_relations', ['acl_group_id' => $aclGroupId, 'contact_contact_id' => $visibleContactId]);
+
+        $body = $this->request('PUT', self::ENDPOINT . $serviceId, [
+            'headers' => ['accept' => 'application/json'],
+            'json' => [
+                'name' => 'web check',
+                'host_id' => $hostId,
+                'activated' => true,
+                'check_options' => ['command_id' => $checkCommandId],
+                'service_group_ids' => [$visibleGroupId],
+                'category_ids' => [$visibleCategoryId],
+                'notifications' => ['contacts' => [$visibleContactId]],
+            ],
+        ])->toArray();
+
+        self::assertResponseStatusCodeSame(200);
+        \assert(is_array($body['service_groups']) && is_array($body['categories']) && is_array($body['notifications']));
+        \assert(is_array($body['notifications']['contacts']));
+        self::assertSame([$visibleGroupId], array_column($body['service_groups'], 'id'));
+        self::assertSame([$visibleCategoryId], array_column($body['categories'], 'id'));
+        self::assertNull($body['severity'] ?? null);
+        self::assertSame([$visibleContactId], array_column($body['notifications']['contacts'], 'id'));
+
+        self::assertEqualsCanonicalizing(
+            [$visibleGroupId, $hiddenGroupId],
+            $this->intColumn('SELECT servicegroup_sg_id FROM servicegroup_relation WHERE service_service_id = ?', $serviceId),
+        );
+        self::assertEqualsCanonicalizing(
+            [$visibleCategoryId, $hiddenCategoryId, $hiddenSeverityId],
+            $this->intColumn('SELECT sc_id FROM service_categories_relation WHERE service_service_id = ?', $serviceId),
+        );
+        self::assertEqualsCanonicalizing(
+            [$visibleContactId, $hiddenContactId],
+            $this->intColumn('SELECT contact_id FROM contact_service_relation WHERE service_service_id = ?', $serviceId),
+        );
+    }
+
+    /**
+     * Resending the service as it is stored changes nothing, so no activity log line is written.
+     */
+    public function testAnUnchangedUpdateWritesNoActivityLog(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $checkCommandId = $this->insertCommand('check', type: 2);
+        $serviceId = $this->insertService('web check', $hostId, $checkCommandId);
+        $this->login();
+        $payload = [
+            'name' => 'web check v2',
+            'host_id' => $hostId,
+            'activated' => true,
+            'check_options' => ['command_id' => $checkCommandId, 'args' => ['443']],
+            'monitoring_engine' => ['max_check_attempts' => 4],
+        ];
+        $this->request('PUT', self::ENDPOINT . $serviceId, ['json' => $payload]);
+        self::assertResponseStatusCodeSame(200);
+        $linesBefore = $this->logActionCount($serviceId);
+
+        $this->request('PUT', self::ENDPOINT . $serviceId, ['json' => $payload]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame($linesBefore, $this->logActionCount($serviceId));
+    }
+
+    /**
+     * Moving the service to a host on another poller flags both pollers for export.
+     */
+    public function testAHostMoveFlagsBothPollers(): void
+    {
+        $previousPollerId = $this->insertPoller();
+        $nextPollerId = $this->insertPoller('next');
+        $previousHostId = $this->insertHost($previousPollerId);
+        $nextHostId = $this->insertHost($nextPollerId, 'next');
+        $checkCommandId = $this->insertCommand('check', type: 2);
+        $serviceId = $this->insertService('web check', $previousHostId, $checkCommandId);
+        $this->connection->executeStatement("UPDATE nagios_server SET updated = '0' WHERE id IN (?, ?)", [$previousPollerId, $nextPollerId]);
+        $this->login();
+
+        $this->request('PUT', self::ENDPOINT . $serviceId, [
+            'json' => ['name' => 'web check', 'host_id' => $nextHostId, 'activated' => true, 'check_options' => ['command_id' => $checkCommandId]],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame(
+            [$nextHostId],
+            $this->intColumn('SELECT host_host_id FROM host_service_relation WHERE service_service_id = ?', $serviceId),
+        );
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$previousPollerId]));
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$nextPollerId]));
+    }
+
+    /**
+     * An own macro resent by its id is updated in place, one left out is deleted, a password macro resent without a
+     * value keeps the stored one, and an inherited macro resent with another value becomes an own macro.
+     */
+    public function testItReplacesTheOwnMacros(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $checkCommandId = $this->insertCommand('check', type: 2);
+        $templateId = $this->insertServiceTemplate('generic', $checkCommandId);
+        $inheritedId = $this->insertServiceMacro($templateId, 'URL', '/');
+        $serviceId = $this->insertService('web check', $hostId, $checkCommandId, $templateId);
+        $keptId = $this->insertServiceMacro($serviceId, 'PORT', '80');
+        $removedId = $this->insertServiceMacro($serviceId, 'STALE', 'x');
+        $passwordId = $this->insertServiceMacro($serviceId, 'TOKEN', 'secret', isPassword: true);
+        $this->login();
+
+        $this->request('PUT', self::ENDPOINT . $serviceId, [
+            'json' => [
+                'name' => 'web check',
+                'host_id' => $hostId,
+                'activated' => true,
+                'service_template_id' => $templateId,
+                'check_options' => ['macros' => [
+                    ['id' => $keptId, 'name' => 'port', 'value' => '8080', 'is_password' => false],
+                    ['id' => $passwordId, 'name' => 'token', 'value' => null, 'is_password' => true],
+                    ['id' => $inheritedId, 'parent' => 'template', 'name' => 'url', 'value' => '/health', 'is_password' => false],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        /** @var array<string, array{svc_macro_id: int|string, svc_macro_value: ?string}> $macros */
+        $macros = $this->connection->fetchAllAssociativeIndexed(
+            'SELECT svc_macro_name, svc_macro_id, svc_macro_value FROM on_demand_macro_service WHERE svc_svc_id = ?',
+            [$serviceId],
+        );
+        self::assertEqualsCanonicalizing(['$_SERVICEPORT$', '$_SERVICETOKEN$', '$_SERVICEURL$'], array_keys($macros));
+        self::assertSame([(string) $keptId, '8080'], [(string) $macros['$_SERVICEPORT$']['svc_macro_id'], $macros['$_SERVICEPORT$']['svc_macro_value']]);
+        self::assertSame([(string) $passwordId, 'secret'], [(string) $macros['$_SERVICETOKEN$']['svc_macro_id'], $macros['$_SERVICETOKEN$']['svc_macro_value']]);
+        self::assertSame('/health', $macros['$_SERVICEURL$']['svc_macro_value']);
+        self::assertFalse($this->connection->fetchOne('SELECT 1 FROM on_demand_macro_service WHERE svc_macro_id = ?', [$removedId]));
+        self::assertSame('/', $this->connection->fetchOne('SELECT svc_macro_value FROM on_demand_macro_service WHERE svc_macro_id = ?', [$inheritedId]));
+    }
+
+    /**
+     * An existing service outside a restricted actor's scope reads as not found, and is left untouched.
+     */
+    public function testAServiceOutsideTheRestrictedActorScopeIsNotFound(): void
+    {
+        $pollerId = $this->insertPoller();
+        $hostId = $this->insertHost($pollerId);
+        $checkCommandId = $this->insertCommand('check', type: 2);
+        $serviceId = $this->insertService('web check', $hostId, $checkCommandId);
+        $aclGroupId = $this->loginRestrictedActor($pollerId);
+        // The host is in the actor's scope, the service is not.
+        $this->grantInRealTimeAcl($aclGroupId, $hostId, null);
+
+        $this->request('PUT', self::ENDPOINT . $serviceId, [
+            'json' => ['name' => 'renamed', 'host_id' => $hostId, 'activated' => true, 'check_options' => ['command_id' => $checkCommandId]],
+        ]);
+
+        self::assertResponseStatusCodeSame(404);
+        self::assertSame('web check', $this->connection->fetchOne('SELECT service_description FROM service WHERE service_id = ?', [$serviceId]));
+    }
+
+    private function insertService(string $name, int $hostId, int $checkCommandId, ?int $templateId = null): int
     {
         $this->connection->insert('service', [
             'service_description' => $name,
             'service_register' => '1',
             'service_activate' => '1',
             'command_command_id' => $checkCommandId,
+            'service_template_model_stm_id' => $templateId,
         ]);
         $serviceId = (int) $this->connection->lastInsertId();
         $this->connection->insert('host_service_relation', ['host_host_id' => $hostId, 'service_service_id' => $serviceId]);
@@ -218,7 +403,7 @@ final class PutServiceProcessorTest extends ApiTestCase
     /**
      * "Configuration > Services > Services by host" with the given access right.
      */
-    private function grantServicesByHostTopologyRole(int $contactId, int $accessRight): void
+    private function grantServicesByHostTopologyRole(int $contactId, int $accessRight): int
     {
         $this->connection->insert('acl_groups', [
             'acl_group_name' => 'service-group-' . $this->tag,
@@ -245,19 +430,21 @@ final class PutServiceProcessorTest extends ApiTestCase
                 'access_right' => $accessRight,
             ]);
         }
+
+        return $groupId;
     }
 
-    private function insertPoller(): int
+    private function insertPoller(string $name = 'poller'): int
     {
-        $this->connection->insert('nagios_server', ['name' => 'poller-' . $this->tag, 'uid' => random_int(1, PHP_INT_MAX)]);
+        $this->connection->insert('nagios_server', ['name' => $name . '-' . $this->tag, 'uid' => random_int(1, PHP_INT_MAX)]);
 
         return (int) $this->connection->lastInsertId();
     }
 
-    private function insertHost(int $pollerId): int
+    private function insertHost(int $pollerId, string $name = 'host'): int
     {
         $this->connection->insert('host', [
-            'host_name' => $this->tag . '-host',
+            'host_name' => $this->tag . '-' . $name,
             'host_address' => '127.0.0.1',
             'host_activate' => '1',
             'host_register' => '1',
@@ -273,5 +460,139 @@ final class PutServiceProcessorTest extends ApiTestCase
         $this->connection->insert('command', ['command_name' => $this->tag . '-' . $name, 'command_line' => '$USER1$/check', 'command_type' => $type]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * A non-admin actor with write access to services, scoped to the poller and to the given service groups and
+     * categories, logged in.
+     *
+     * @param list<int> $serviceGroupIds
+     * @param list<int> $serviceCategoryIds
+     *
+     * @return int the actor's access group, to grant services to in centreon_acl
+     */
+    private function loginRestrictedActor(int $pollerId, array $serviceGroupIds = [], array $serviceCategoryIds = []): int
+    {
+        $username = 'service-editor-' . $this->tag;
+        $this->createApiUser($this->connection, $username, admin: false);
+        $contactId = $this->connection->fetchOne('SELECT contact_id FROM contact WHERE contact_alias = :alias', ['alias' => $username]);
+        \assert(is_numeric($contactId));
+        $aclGroupId = $this->grantServicesByHostTopologyRole((int) $contactId, self::READ_WRITE);
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'service-resource-' . $this->tag,
+            'acl_res_alias' => 'service-resource-' . $this->tag,
+            'acl_res_activate' => '1',
+            'all_hostgroups' => '0',
+            'all_servicegroups' => '0',
+        ]);
+        $aclResourceId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_res_group_relations', ['acl_res_id' => $aclResourceId, 'acl_group_id' => $aclGroupId]);
+        $this->connection->insert('acl_resources_poller_relations', ['acl_res_id' => $aclResourceId, 'poller_id' => $pollerId]);
+        foreach ($serviceGroupIds as $serviceGroupId) {
+            $this->connection->insert('acl_resources_sg_relations', ['acl_res_id' => $aclResourceId, 'sg_id' => $serviceGroupId]);
+        }
+        foreach ($serviceCategoryIds as $serviceCategoryId) {
+            $this->connection->insert('acl_resources_sc_relations', ['acl_res_id' => $aclResourceId, 'sc_id' => $serviceCategoryId]);
+        }
+
+        $this->login($username);
+
+        return $aclGroupId;
+    }
+
+    /**
+     * The host scope is read on the real-time connection, the service one cross-database through the main
+     * connection: each grant goes through the connection that reads it, inside its test transaction.
+     */
+    private function grantInRealTimeAcl(int $aclGroupId, int $hostId, ?int $serviceId): void
+    {
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => $hostId]);
+        if ($serviceId === null) {
+            return;
+        }
+
+        $database = $this->realTimeConnection->getDatabase();
+        \assert(is_string($database));
+        $this->connection->executeStatement(
+            sprintf('INSERT INTO %s.centreon_acl (group_id, host_id, service_id) VALUES (?, ?, ?)', $this->connection->quoteSingleIdentifier($database)),
+            [$aclGroupId, $hostId, $serviceId],
+        );
+    }
+
+    private function insertServiceGroup(string $name): int
+    {
+        $this->connection->insert('servicegroup', ['sg_name' => $this->tag . '-' . $name, 'sg_alias' => $name, 'sg_activate' => '1']);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertServiceCategory(string $name, ?int $level = null): int
+    {
+        $this->connection->insert('service_categories', [
+            'sc_name' => $this->tag . '-' . $name,
+            'sc_description' => $name,
+            'level' => $level,
+            'sc_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertContact(string $name): int
+    {
+        $name = $this->tag . '-' . $name;
+        $this->connection->insert('contact', [
+            'contact_name' => $name,
+            'contact_alias' => $name,
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+            'contact_email' => $name . '@example.com',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertServiceTemplate(string $name, int $checkCommandId): int
+    {
+        $this->connection->insert('service', [
+            'service_description' => $this->tag . '-' . $name,
+            'service_register' => '0',
+            'command_command_id' => $checkCommandId,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertServiceMacro(int $serviceId, string $name, string $value, bool $isPassword = false): int
+    {
+        $this->connection->insert('on_demand_macro_service', [
+            'svc_macro_name' => '$_SERVICE' . $name . '$',
+            'svc_macro_value' => $value,
+            'is_password' => $isPassword ? 1 : null,
+            'svc_svc_id' => $serviceId,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function intColumn(string $sql, int $parameter): array
+    {
+        /** @var list<int|string> $values */
+        $values = $this->connection->fetchFirstColumn($sql, [$parameter]);
+
+        return array_map(intval(...), $values);
+    }
+
+    private function logActionCount(int $serviceId): int
+    {
+        $count = $this->realTimeConnection->fetchOne("SELECT COUNT(*) FROM log_action WHERE object_type = 'service' AND object_id = ?", [$serviceId]);
+        \assert(is_numeric($count));
+
+        return (int) $count;
     }
 }
