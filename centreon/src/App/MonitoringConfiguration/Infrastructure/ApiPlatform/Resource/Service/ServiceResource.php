@@ -215,8 +215,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PutServ
                     . 'linked. The custom macros (in "check_options") also have three keys, of which only one can be '
                     . 'sent: "macros" replaces them, "macros_to_upsert" writes the macros given and keeps the other ones, '
                     . 'and "macros_to_remove" removes macros by id. Password macros are written to the vault, when one '
-                    . 'is configured, before the service is saved. A service linked to several hosts keeps only the one '
-                    . 'it is read with.',
+                    . 'is configured, before the service is saved. A saved update of a service linked to several hosts '
+                    . 'keeps only the host it is read with (the lowest id).',
                 responses: [
                     204 => new Model\Response('Service updated (or left as it was when nothing changed)'),
                     403 => new Model\Response('You are not allowed to update services'),
