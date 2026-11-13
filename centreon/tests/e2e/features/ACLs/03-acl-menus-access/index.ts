@@ -81,6 +81,11 @@ Then(
         .click();
 
       cy.wait('@getTimeZone');
+      // The listing may still be displayed: wait for the access group form
+      cy.waitForElementInIframe(
+        '#main-content',
+        'a:contains("Authorizations information")'
+      );
       cy.getIframeBody().contains('a', 'Authorizations information').click();
 
       cy.getIframeBody()
@@ -304,6 +309,11 @@ Then('the link with access groups is broken', () => {
     .click();
 
   cy.wait('@getTimeZone');
+  // The listing may still be displayed: wait for the access group form
+  cy.waitForElementInIframe(
+    '#main-content',
+    'a:contains("Authorizations information")'
+  );
   cy.getIframeBody().contains('a', 'Authorizations information').click();
 
   cy.getIframeBody()
