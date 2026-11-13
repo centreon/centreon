@@ -9,73 +9,87 @@ on:
     types:
       - closed
 
+# Feature repositories live in Pulp and are shared by every repository delivering the same
+# ticket (centreon, centreon-modules, centreon-collect). A product CI identity cannot delete
+# them: when the last open delivery-feature pull request of a ticket closes, this asks
+# centreon/delivery-tooling to (delete-feature-repositories dispatch, handled by its
+# delete-feature-repos.yml). Same workflow in the three repositories.
+
+permissions: {}
+
 jobs:
-  check-other-feature-prs:
+  request-feature-repositories-deletion:
     if: |
       startsWith(github.head_ref, 'MON-') &&
       github.event.pull_request.base.ref == 'develop' &&
       contains(github.event.pull_request.labels.*.name, 'delivery-feature')
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      pull-requests: read
-    env:
-      GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-      HEAD_REF: ${{ github.head_ref }}
-    outputs:
-      feature_prs_found: ${{ steps.check.outputs.feature_prs_found }}
     steps:
-      - name: Check if other feature branches/pull requests of the same ticket exist on other repositories
-        id: check
+      - name: Extract the feature ticket
+        id: ticket
         shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           set -euo pipefail
 
-          # Capture each lookup explicitly: under `set -e`/`pipefail` a transient
-          # `gh` failure (rate limit, 5xx, auth blip) aborts this job instead of
-          # being silently read as "no sibling PR". A failed check job leaves the
-          # deletion jobs skipped (their `needs` failed) — i.e. fail closed: never
-          # delete feature repositories on an uncertain sibling-PR lookup.
-          modules_prs=$(gh pr list --repo centreon/centreon-modules --head "$HEAD_REF" --label "delivery-feature" --state open --json number --jq '.[].number')
-          collect_prs=$(gh pr list --repo centreon/centreon-collect --head "$HEAD_REF" --label "delivery-feature" --state open --json number --jq '.[].number')
+          # same extraction as the feature delivery (ensure-feature-repository.sh)
+          feature_ticket=$(grep -oE 'MON-[0-9]+' <<< "${HEAD_REF}" | head -1 || true)
+          if [[ -z "${feature_ticket}" ]]; then
+            echo "::error::Cannot extract the feature ticket from branch name ${HEAD_REF}"
+            exit 1
+          fi
+          echo "feature_ticket=${feature_ticket}" >> "${GITHUB_OUTPUT}"
 
-          if [[ -n "$modules_prs" || -n "$collect_prs" ]]; then
-            echo "::notice::Other open delivery-feature pull request has been found on other repositories for this ticket: no feature repository deletion will be requested."
-            echo "feature_prs_found=true" >> "$GITHUB_OUTPUT"
+      - name: Check for other open delivery-feature pull requests of the same ticket
+        id: check
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          FEATURE_TICKET: ${{ steps.ticket.outputs.feature_ticket }}
+        run: |
+          set -euo pipefail
+
+          # Fail closed: a failed lookup (rate limit, 5xx, auth) fails this step, which skips
+          # the dispatch. The feature repositories are never deleted on an uncertain answer.
+          # This repository is checked too: another branch of the same ticket may be open here.
+          open_prs=()
+          for repository in centreon/centreon centreon/centreon-modules centreon/centreon-collect; do
+            prs=$(
+              gh pr list --repo "${repository}" --label delivery-feature --state open --limit 1000 \
+                --json number,headRefName \
+                | jq -r --arg ticket "${FEATURE_TICKET}" --arg repository "${repository}" \
+                    '.[] | select(first(.headRefName | scan("MON-[0-9]+")) == $ticket) | "\($repository)#\(.number)"'
+            )
+            if [[ -n "${prs}" ]]; then
+              mapfile -t found <<< "${prs}"
+              open_prs+=("${found[@]}")
+            fi
+          done
+
+          if [[ ${#open_prs[@]} -gt 0 ]]; then
+            echo "::notice::Open delivery-feature pull requests of ${FEATURE_TICKET} remain (${open_prs[*]}): the feature repositories are kept."
+            echo "other_prs_found=true" >> "${GITHUB_OUTPUT}"
           else
-            echo "::notice::No other open delivery-feature pull request has been found on other repositories for this ticket: a feature repository deletion will be requested."
-            echo "feature_prs_found=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No other open delivery-feature pull request of ${FEATURE_TICKET}: requesting the deletion of its feature repositories."
+            echo "other_prs_found=false" >> "${GITHUB_OUTPUT}"
           fi
 
-  delete-artifactory-feature-repositories:
-    needs: [check-other-feature-prs]
-    if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-    env:
-      HEAD_REF: ${{ github.head_ref }}
-    steps:
-      - name: Send repository dispatch to delete Artifactory feature repositories
+      - name: Request the feature repositories deletion
+        if: steps.check.outputs.other_prs_found == 'false'
         shell: bash
         env:
           CENTREON_TECHNIQUE_PAT: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          FEATURE_TICKET: ${{ steps.ticket.outputs.feature_ticket }}
         run: |
           set -euo pipefail
 
-          feature_ticket=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+' | head -1 || true)
-          if [[ -z "$feature_ticket" ]]; then
-            echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
-            exit 0
-          fi
-
-          echo "Sending repository dispatch to delete Artifactory feature repositories..."
-          curl --fail-with-body -X POST \
-            -H "Authorization: Bearer $CENTREON_TECHNIQUE_PAT" \
+          curl --fail-with-body -sS -X POST \
+            -H "Authorization: Bearer ${CENTREON_TECHNIQUE_PAT}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/centreon/delivery-tooling/dispatches \
             -d "$(jq -n \
-              --arg feature_ticket "$feature_ticket" \
+              --arg feature_ticket "${FEATURE_TICKET}" \
               '{
                 event_type: "delete-feature-repositories",
                 client_payload: {
@@ -83,54 +97,4 @@ jobs:
                 }
               }'
             )"
-
-  delete-pulp-feature-repositories:
-    needs: [check-other-feature-prs]
-    if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
-    # same runner as the deliver-pulp / promote-pulp jobs: the Pulp api must be
-    # reachable from here, and continue-on-error would mask a network failure
-    runs-on: centreon-ubuntu-26.04-small
-    # non-blocking during the Pulp migration, consistent with the deliver-pulp /
-    # promote-pulp jobs: a Pulp-side failure must not fail the PR-close workflow.
-    continue-on-error: true
-    permissions:
-      contents: read
-      id-token: write
-    env:
-      HEAD_REF: ${{ github.head_ref }}
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Setup pulp-cli
-        uses: ./.github/actions/setup-pulp-cli
-        with:
-          pulp_url: ${{ vars.PULP_API_URL }}
-          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
-
-      - name: Delete feature repositories
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          FEATURE_TICKET=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+' | head -1 || true)
-          if [[ -z "$FEATURE_TICKET" ]]; then
-            echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
-            exit 0
-          fi
-
-          for PLUGIN in rpm deb; do
-            mapfile -t DISTRIBUTIONS < <(pulp "$PLUGIN" distribution list --base-path-contains "feature/$FEATURE_TICKET/" --limit 1000 | jq -r '.[].name')
-            for NAME in "${DISTRIBUTIONS[@]}"; do
-              echo "[INFO] Deleting $PLUGIN distribution $NAME"
-              pulp "$PLUGIN" distribution destroy --name "$NAME"
-            done
-
-            mapfile -t REPOSITORIES < <(pulp "$PLUGIN" repository list --limit 1000 | jq -r --arg pattern "feature-$FEATURE_TICKET-" '.[] | select(.name | contains($pattern)) | .name')
-            for NAME in "${REPOSITORIES[@]}"; do
-              echo "[INFO] Deleting $PLUGIN repository $NAME"
-              pulp "$PLUGIN" repository destroy --name "$NAME"
-            done
-          done
+          echo "::notice::Deletion of the ${FEATURE_TICKET} feature repositories requested from centreon/delivery-tooling."
