@@ -25,7 +25,6 @@ namespace App\Shared\Infrastructure;
 
 use App\Shared\Domain\Exception\EngineSecretsUnavailableException;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final class FsEngineSecretsRepository implements EngineSecretsRepository
 {
@@ -33,8 +32,7 @@ final class FsEngineSecretsRepository implements EngineSecretsRepository
     private ?array $decoded = null;
 
     public function __construct(
-        #[Autowire(param: 'upgrade.engine_context_path')]
-        private readonly string $engineContextPath,
+        private readonly EngineContextFile $engineContextFile,
     ) {
     }
 
@@ -71,7 +69,7 @@ final class FsEngineSecretsRepository implements EngineSecretsRepository
             return $this->decoded;
         }
 
-        $content = @file_get_contents($this->engineContextPath);
+        $content = @file_get_contents($this->engineContextFile->getPath());
         if ($content === false) {
             throw new EngineSecretsUnavailableException('Engine context file is not available.');
         }

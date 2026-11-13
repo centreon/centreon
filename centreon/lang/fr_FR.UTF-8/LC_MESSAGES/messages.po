@@ -25731,3 +25731,7 @@ msgstr "Rechargement de Centreon Broker"
 #: centreon/src/Core/Gorgone/Application/Service/GorgoneCommandService.php
 msgid "The configuration could not be verified now: the poller will verify it when it is applied."
 msgstr "La configuration n'a pas pu être vérifiée pour le moment : le collecteur la vérifiera lors de son application."
+
+#: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
+msgid "Broker statistics are not available: no statistics file was found for this poller"
+msgstr "Les statistiques de Centreon Broker ne sont pas disponibles : aucun fichier de statistiques trouvé pour ce collecteur"

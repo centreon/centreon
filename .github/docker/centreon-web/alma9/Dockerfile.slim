@@ -1,0 +1,193 @@
+# Slim centreon-web test image for the containerised layout: centreon-web
+# (PHP-FPM, Apache and the PHP cron jobs) alone, talking to an external Gorgone
+# API (GORGONE_API_ADDRESS is required), with Engine, Broker and Gorgone in
+# their own containers and the database external.
+#
+# - app: the application as installed in the published monolith image, with
+#   the application sources of the checkout laid over it;
+# - rootfs: a root filesystem holding only the run time of centreon-web
+#   (no package manager, Python, Perl, systemd, SNMP, collect or Gorgone),
+#   into which the application trees of `app` are copied;
+# - final: that root filesystem as a single layer.
+#
+# Build context: the repository root.
+#   docker build -f .github/docker/centreon-web/alma9/Dockerfile.slim \
+#     -t centreon-web-slim-alma9:gorgone-poc .
+
+ARG WEB_IMAGE=docker.centreon.com/centreon/centreon-web-alma9:develop
+ARG BUILDER_IMAGE=almalinux:9
+
+FROM ${WEB_IMAGE} AS app
+
+# Application sources of the checkout over the installed ones, prepared as the
+# package build does (web.yml: configuration file from its template, macros
+# replaced). The installer and the frontend sources are left out: the image
+# keeps the packaged installer and the built frontend. Local artefacts that
+# git ignores (configuration files, Symfony reference) are not copied.
+RUN --mount=type=bind,src=centreon,dst=/tmp/centreon-src bash -e <<'EOF'
+mkdir /tmp/overlay
+tar -C /tmp/centreon-src \
+  --exclude=./www/install --exclude=./www/front_src --exclude=./www/widgets/src \
+  --exclude=./config/centreon.config.php --exclude=./config/centreon.conf.php \
+  --exclude=./config.new/reference.php --exclude='node_modules' \
+  -cf - ./src ./www ./config ./config.new \
+  | tar -C /tmp/overlay -xf - --no-same-owner
+cp /tmp/overlay/config/centreon.config.php.template /tmp/overlay/config/centreon.config.php
+cp /tmp/centreon-src/packaging/src/centreon-macroreplacement.txt /tmp/macros.sed
+echo 's#@WEB_USER@#apache#g' >> /tmp/macros.sed
+find /tmp/overlay -type f -print0 | xargs -0 sed -i -f /tmp/macros.sed
+tar -C /tmp/overlay -cf - . | tar -C /usr/share/centreon -xf - --no-overwrite-dir
+chown -R centreon:centreon /usr/share/centreon/src /usr/share/centreon/www
+rm -rf /tmp/overlay /tmp/macros.sed /usr/share/centreon/container.d
+EOF
+
+COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /usr/share/centreon
+COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint-slim /usr/share/centreon
+COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /usr/share/centreon/www/install/tmp
+COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
+
+RUN bash -e <<'EOF'
+
+# Startup scripts of services that are not in this image.
+#   16-tls-gorgone: patches the Perl Gorgone database DSN
+#   20-configuration_files: generates and moves the local poller configuration
+#   30-broker-engine: starts cbd and centengine
+#   61-snmpd: starts snmpd
+#   70-gorgone, 80-register_pollers: start and restart the local gorgoned
+#   75-broker-outputs: restarts the local cbd
+#   81-register_remote_server: remote server mode, needs the local gorgoned
+# 05-php, 06-apache and 62-crond come from entrypoint-slim: they start the
+# daemons directly (this image has no systemctl).
+cd /usr/share/centreon/container.d
+rm -f \
+  16-tls-gorgone.sh \
+  20-configuration_files.sh \
+  30-broker-engine_background.sh \
+  61-snmpd_background.sh \
+  70-gorgone_background.sh \
+  75-broker-outputs.sh \
+  80-register_pollers_background.sh \
+  81-register_remote_server_background.sh
+
+# Perl cron jobs (state events, availability reports, backup).
+sed -i -E '/eventReportBuilder|dashboardBuilder|centreon-backup\.pl/d' /etc/cron.d/centreon
+
+# Source maps of the frontend bundles.
+find /usr/share/centreon -name '*.map' -type f -delete
+
+EOF
+
+FROM ${BUILDER_IMAGE} AS rootfs
+
+ARG PHP_VERSION=8.4
+# Locales of the languages that CENTREON_LANG accepts (15-installation.sh).
+ARG LOCALES="en_US fr_FR de_DE es_ES pt_BR pt_PT"
+
+RUN --mount=type=bind,from=app,source=/,target=/app bash -e <<'EOF'
+
+dnf install -y dnf-plugins-core epel-release
+dnf config-manager --set-enabled crb
+dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
+# mariadb: only its mysql and mysqladmin clients are copied (the package needs Perl).
+dnf install -y glibc-locale-source mariadb
+
+ROOTFS_DNF="dnf -y --installroot=/rootfs --releasever=9 --setopt=reposdir=/etc/yum.repos.d \
+  --setopt=install_weak_deps=False --setopt=tsflags=nodocs"
+${ROOTFS_DNF} module enable "php:remi-${PHP_VERSION}"
+# - coreutils, findutils, gawk, grep, sed, util-linux-core, curl, jq: entrypoint
+#   scripts and healthcheck (su comes with util-linux, pulled in by pam)
+# - procps-ng: ps and pidof, used by cron/centAcl.php to detect a running instance
+# - sudo: entrypoint scripts (vault, openid, saml)
+# - libfaketime: end-to-end tests of recurrent downtimes
+# - mod_ssl, ca-certificates: HTTPS mode (04-tls.sh)
+# - rrdtool: graph rendering
+# - cronie: PHP cron jobs (ACL, downtimes, purge, partitioning, tokens)
+# - mariadb-common, libedit, ncurses-libs: configuration and libraries of the
+#   copied mysql clients
+${ROOTFS_DNF} install \
+  bash coreutils-single findutils gawk grep sed util-linux-core curl-minimal jq procps-ng sudo libfaketime \
+  ca-certificates glibc-minimal-langpack \
+  httpd mod_ssl \
+  php-fpm php-cli php-common php-pdo php-mysqlnd php-gd php-xml php-mbstring php-ldap php-intl \
+  php-curl php-zip php-process \
+  rrdtool cronie \
+  mariadb-common mariadb-connector-c-config libedit ncurses-libs
+
+# Users and groups of the monolith image, with the same ids: the copied files keep them.
+chroot /rootfs bash -e <<'USERS'
+groupadd -r -g 998 centreon
+groupadd -r -g 997 centreon-broker
+groupadd -r -g 996 centreon-engine
+groupadd -r -g 995 centreon-gorgone
+useradd -r -u 998 -g centreon -d /var/spool/centreon -s /bin/bash -M centreon
+useradd -r -u 997 -g centreon-broker -d /var/lib/centreon-broker -s /bin/bash -M centreon-broker
+useradd -r -u 996 -g centreon-engine -d /var/lib/centreon-engine -s /bin/bash -M centreon-engine
+useradd -r -u 995 -g centreon-gorgone -d /var/lib/centreon-gorgone -s /bin/bash -M centreon-gorgone
+usermod -a -G centreon,centreon-broker,centreon-engine,centreon-gorgone apache
+usermod -a -G apache,centreon-broker,centreon-engine,centreon-gorgone centreon
+usermod -a -G apache,centreon centreon-broker
+usermod -a -G centreon centreon-engine
+usermod -a -G apache,centreon centreon-gorgone
+USERS
+
+# Needed by the package scriptlets only (systemd units, user creation,
+# password quality dictionaries): removed without their dependants.
+rpm --root=/rootfs -e --nodeps --noscripts \
+  systemd systemd-pam dbus dbus-broker dbus-common shadow-utils cracklib-dicts
+
+for locale in ${LOCALES}; do
+  localedef --prefix=/rootfs -i "${locale}" -f UTF-8 "${locale}.UTF-8"
+done
+
+cp -a /usr/bin/mariadb /usr/bin/mariadb-admin /usr/bin/mysql /usr/bin/mysqladmin /rootfs/usr/bin/
+chroot /rootfs mysql --version
+chroot /rootfs mysqladmin --version
+
+# Application trees and configuration from the monolith image (numeric owners
+# kept), without the Broker modules and the Perl configuration files.
+tar -C /app --numeric-owner \
+  --exclude=usr/share/centreon/lib/centreon-broker \
+  --exclude=etc/centreon/conf.pm --exclude=etc/centreon/centreontrapd.pm \
+  -cf - \
+  etc/centreon \
+  etc/cron.d/centreon \
+  etc/cron.d/centstorage \
+  etc/httpd/conf.d/10-centreon.conf \
+  etc/php.d/20-timezone.ini \
+  etc/php.d/50-centreon.ini \
+  etc/php-fpm.d/centreon.conf \
+  etc/php-fpm.d/www.conf \
+  usr/local/src/sql \
+  usr/share/centreon \
+  var/cache/centreon \
+  var/lib/centreon \
+  var/log/centreon \
+  var/spool/centreon \
+  | tar -C /rootfs --numeric-owner -xpf -
+install -d -o 998 -g 998 -m 0775 /rootfs/run/centreon
+install -d -m 0700 /rootfs/var/spool/cron
+# The default HTTPS vhost of mod_ssl needs a certificate that systemd generates
+# on a host; 04-tls.sh writes its own ssl.conf in HTTPS mode.
+rm -f /rootfs/etc/httpd/conf.d/ssl.conf
+ln -s /usr/share/centreon/bin/centreon /rootfs/usr/bin/centreon
+
+# php-cgi comes with php-cli: PHP runs through PHP-FPM and the CLI only.
+rm -f /rootfs/usr/bin/php-cgi
+rm -rf /rootfs/var/cache/dnf /rootfs/var/lib/dnf /rootfs/var/log/dnf* /rootfs/var/log/hawkey.log \
+  /rootfs/tmp/*
+
+EOF
+
+FROM scratch
+
+COPY --from=rootfs /rootfs /
+
+ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PHP_VERSION="8.4"
+
+EXPOSE 80
+
+ENTRYPOINT ["/usr/share/centreon/container.sh"]
+
+ENV CENTREON_DATASET="1"
+ENV CENTREON_LANG="en_US"

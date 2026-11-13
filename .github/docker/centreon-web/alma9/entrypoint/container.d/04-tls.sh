@@ -115,7 +115,8 @@ case "$PLATFORM" in
   rhel)
     # The alma9/alma10 centreon-web images don't ship mod_ssl. Install on demand
     # so the SSLEngine directive in the template isn't an unknown command.
-    if ! rpm -q mod_ssl >/dev/null 2>&1; then
+    # Checked by file: the slim image (Dockerfile.slim) ships mod_ssl but no rpm command.
+    if [ ! -f /usr/lib64/httpd/modules/mod_ssl.so ]; then
       echo "[tls] installing mod_ssl (not present in image)"
       if command -v dnf >/dev/null 2>&1; then
         # mod_ssl comes from the OS repos; skip centreon ones (stable repo may 404 pre-release)
