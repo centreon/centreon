@@ -303,10 +303,18 @@ Then('the link with access groups is broken', () => {
     .click();
 
   cy.wait('@getTimeZone');
-  // The listing may still be displayed: wait for the access group form
-  cy.waitForElementInIframe(
-    '#main-content',
-    'a:contains("Authorizations information")'
+  // The listing may still be displayed: wait for the access group form in the current document
+  cy.waitUntil(
+    () =>
+      cy
+        .get('#main-content')
+        .its('0.contentDocument.body')
+        .then((body) =>
+          Cypress.$(body)
+            .find('a:contains("Authorizations information")')
+            .is(':visible')
+        ),
+    { interval: 1000, timeout: 30000 }
   );
   cy.getIframeBody().contains('a', 'Authorizations information').click();
 
