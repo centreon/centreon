@@ -492,21 +492,18 @@ CREATE TABLE `cfg_centreonbroker_log` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `cfg_centreonbroker_info` (
-  `config_id` int(11) NOT NULL,
-  `config_key` varchar(50) NOT NULL,
-  `config_value` varchar(255) NOT NULL,
-  `config_group` varchar(50) NOT NULL,
-  `config_group_id` int(11) DEFAULT NULL,
-  `grp_level` INT NOT NULL DEFAULT 0,
-  `subgrp_id` INT DEFAULT NULL,
-  `parent_grp_id` INT DEFAULT NULL,
-  `fieldIndex` INT DEFAULT NULL,
-  KEY `cfg_centreonbroker_info_idx01` (`config_id`),
-  KEY `cfg_centreonbroker_info_idx02` (`config_id`,`config_group`),
-  CONSTRAINT `cfg_centreonbroker_info_ibfk_01` FOREIGN KEY (`config_id`) REFERENCES `cfg_centreonbroker` (`config_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+CREATE TABLE `cfg_centreonbroker_input_output` (
+  `config_id` int(11) NOT NULL,
+  `tag` enum('input','output') NOT NULL,
+  `input_output_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `type_id` int(11) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `parameters` JSON NOT NULL,
+  PRIMARY KEY (`config_id`,`tag`,`input_output_id`),
+  CONSTRAINT `cfg_centreonbroker_input_output_ibfk_01` FOREIGN KEY (`config_id`) REFERENCES `cfg_centreonbroker` (`config_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cfg_nagios` (

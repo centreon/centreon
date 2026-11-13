@@ -64,7 +64,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
       su www-data -s /bin/bash -c "php partitionTables.php" > /dev/null
     fi
 
-    mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
+    mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "UPDATE cfg_centreonbroker_input_output SET parameters = JSON_SET(parameters, '\$.db_host', '${MYSQL_HOST}') WHERE JSON_CONTAINS_PATH(parameters, 'one', '\$.db_host')"
     mysql -h"${MYSQL_HOST}" -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
 
     if [ "${CENTREON_DATASET:-0}" = "1" ]; then

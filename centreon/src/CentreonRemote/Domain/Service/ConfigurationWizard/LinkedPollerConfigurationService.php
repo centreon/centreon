@@ -36,6 +36,7 @@ use CentreonRemote\Domain\Resources\RemoteConfig\InputFlowOnePeerRetention;
 use CentreonRemote\Domain\Service\TaskService;
 use CentreonRemote\Domain\Value\PollerServer;
 use CentreonRemote\Infrastructure\Service\PollerInteractionService;
+use Core\Broker\Infrastructure\Repository\BrokerInfoRowsConverter;
 
 class LinkedPollerConfigurationService
 {
@@ -227,38 +228,59 @@ class LinkedPollerConfigurationService
             $statement->execute();
             $configId = $statement->fetchColumn();
 
-            $statement = $this->db->prepare('SELECT MAX(`config_group_id`) AS config_group_id
-                FROM `cfg_centreonbroker_info`
+            // input and output ids are both taken into account, as when they were stored in the same column
+            $statement = $this->db->prepare('SELECT MAX(`input_output_id`) AS config_group_id
+                FROM `cfg_centreonbroker_input_output`
                 WHERE `config_id` = :id');
             $statement->bindParam(':id', $configId, \PDO::PARAM_INT);
             $statement->execute();
-            $configGRoupId = $statement->fetchColumn() + 1;
+            $configGRoupId = (int) $statement->fetchColumn() + 1;
 
             $defaultBrokerOutput = (new OutputForwardMaster())->getConfiguration();
             $defaultBrokerOutput[0]['config_value'] = 'forward-to-' . str_replace(' ', '-', $remote->getName());
 
+            $rows = [];
+            foreach ($defaultBrokerOutput as $item) {
+                if ($item['config_key'] == 'host') {
+                    $item['config_value'] = $remote->getIp();
+                }
+                $rows[] = [
+                    'config_key' => $item['config_key'],
+                    'config_value' => $item['config_value'],
+                    'config_group' => $item['config_group'],
+                    'config_group_id' => $configGRoupId,
+                ];
+            }
+
             $this->db->beginTransaction();
-            $statement = $this->db->prepare('INSERT INTO `cfg_centreonbroker_info` (
-                config_id, config_key, config_value, config_group, config_group_id, grp_level
+            $statement = $this->db->prepare('INSERT INTO `cfg_centreonbroker_input_output` (
+                config_id, tag, input_output_id, name, type_id, type, parameters
                 ) VALUES (
                 :config_id,
-                :config_key,
-                :config_value,
-                :config_group,
-                :config_group_id,
-                :grp_level
+                :tag,
+                :input_output_id,
+                :name,
+                :type_id,
+                :type,
+                :parameters
                 )');
             try {
-                foreach ($defaultBrokerOutput as $item) {
-                    $statement->bindParam(':config_id', $configId, \PDO::PARAM_INT);
-                    $statement->bindParam(':config_key', $item['config_key'], \PDO::PARAM_STR);
-                    if ($item['config_key'] == 'host') {
-                        $item['config_value'] = $remote->getIp();
-                    }
-                    $statement->bindParam(':config_value', $item['config_value'], \PDO::PARAM_STR);
-                    $statement->bindParam(':config_group', $item['config_group'], \PDO::PARAM_STR);
-                    $statement->bindParam(':config_group_id', $configGRoupId, \PDO::PARAM_INT);
-                    $statement->bindParam(':grp_level', $item['grp_level'], \PDO::PARAM_INT);
+                foreach (BrokerInfoRowsConverter::convert($rows) as $inputOutput) {
+                    $statement->bindValue(':config_id', $configId, \PDO::PARAM_INT);
+                    $statement->bindValue(':tag', $inputOutput->tag, \PDO::PARAM_STR);
+                    $statement->bindValue(':input_output_id', $inputOutput->id, \PDO::PARAM_INT);
+                    $statement->bindValue(':name', $inputOutput->name, \PDO::PARAM_STR);
+                    $statement->bindValue(
+                        ':type_id',
+                        $inputOutput->typeId,
+                        $inputOutput->typeId === null ? \PDO::PARAM_NULL : \PDO::PARAM_INT
+                    );
+                    $statement->bindValue(
+                        ':type',
+                        $inputOutput->type,
+                        $inputOutput->type === null ? \PDO::PARAM_NULL : \PDO::PARAM_STR
+                    );
+                    $statement->bindValue(':parameters', $inputOutput->encodeParameters(), \PDO::PARAM_STR);
                     $statement->execute();
                 }
                 $this->db->commit();
@@ -275,22 +297,21 @@ class LinkedPollerConfigurationService
             $statement->execute();
             $configId = $statement->fetchColumn();
 
-            // update output ip address to master remote server
-            $statement = $this->db->prepare("UPDATE `cfg_centreonbroker_info`
-                SET `config_value` = :config_value
+            // update output ip address to master remote server (outputs having a host parameter)
+            $statement = $this->db->prepare("UPDATE `cfg_centreonbroker_input_output`
+                SET `parameters` = JSON_SET(`parameters`, '$.host', :config_value)
                 WHERE `config_id` = :config_id
-                AND `config_key` = 'host'
-                AND `config_group` = 'output'");
+                AND `tag` = 'output'
+                AND JSON_CONTAINS_PATH(`parameters`, 'one', '$.host')");
             $statement->bindValue(':config_value', $remote->getIp(), \PDO::PARAM_STR);
             $statement->bindValue(':config_id', $configId, \PDO::PARAM_INT);
             $statement->execute();
 
             // update output name to master remote server
-            $statement = $this->db->prepare("UPDATE `cfg_centreonbroker_info`
-                SET `config_value` = :config_value
+            $statement = $this->db->prepare("UPDATE `cfg_centreonbroker_input_output`
+                SET `name` = :config_value
                 WHERE `config_id` = :config_id
-                AND `config_key` = 'name'
-                AND `config_group` = 'output'");
+                AND `tag` = 'output'");
             $statement->bindValue(
                 ':config_value',
                 'forward-to-' . str_replace(' ', '-', $remote->getName()),

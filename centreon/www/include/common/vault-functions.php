@@ -22,6 +22,7 @@
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
 use Centreon\Domain\Log\Logger as DeprecatedLogger;
+use Core\Broker\Infrastructure\Repository\StoredBrokerInputOutput;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
@@ -1876,19 +1877,32 @@ function retrieveMultipleBrokerConfigUuidsFromDatabase(array $brokerIds): array
     $bindString = implode(', ', array_keys($bindParams));
     $statement = $pearDB->prepare(
         <<<SQL
-            SELECT DISTINCT config_value
-            FROM cfg_centreonbroker_info
-            WHERE config_value LIKE :vaultPath
-                AND config_id IN ( {$bindString} );
+            SELECT tag, input_output_id, name, type_id, type, parameters
+            FROM cfg_centreonbroker_input_output
+            WHERE config_id IN ( {$bindString} );
             SQL
     );
     foreach ($bindParams as $token => $brokerId) {
         $statement->bindValue($token, $brokerId, PDO::PARAM_INT);
     }
-    $statement->bindValue(':vaultPath', VaultConfiguration::VAULT_PATH_PATTERN . '%', PDO::PARAM_STR);
     $statement->execute();
+
+    // Every value (any key, filters and grouped fields included) starting with the vault prefix, compared
+    // case-insensitively and kept once, like the former "SELECT DISTINCT ... LIKE 'secret::%'" did.
+    $vaultPaths = [];
+    while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
+        foreach (StoredBrokerInputOutput::fromRecord($record)->toLegacyRows() as $row) {
+            $value = $row['config_value'];
+            if (
+                strncasecmp($value, VaultConfiguration::VAULT_PATH_PATTERN, strlen(VaultConfiguration::VAULT_PATH_PATTERN)) === 0
+            ) {
+                $vaultPaths[mb_strtolower($value)] ??= $value;
+            }
+        }
+    }
+
     $uuids = [];
-    while ($result = $statement->fetchColumn()) {
+    foreach ($vaultPaths as $result) {
         $uuids[]
             = preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $result, $matches)
                 ? $matches[2]

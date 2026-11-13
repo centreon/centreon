@@ -21,6 +21,8 @@
 
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
+use Core\Broker\Infrastructure\Repository\BrokerInfoRowsConverter;
+use Core\Broker\Infrastructure\Repository\StoredBrokerInputOutput;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
@@ -889,29 +891,24 @@ class CentreonConfigCentreonBroker
      */
     public function getForms($config_id, $tag, $page, $tpl)
     {
-        $query = 'SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id, fieldIndex
-            FROM cfg_centreonbroker_info WHERE config_id = :configId
-            AND config_group = :configGroup
-            AND subgrp_id IS NULL
-            ORDER BY config_group_id';
         try {
-            $res = $this->db->prepare($query);
-            $res->bindValue(':configId', (int) $config_id, PDO::PARAM_INT);
-            $res->bindValue(':configGroup', $tag, PDO::PARAM_STR);
-            $res->execute();
-        } catch (PDOException $e) {
+            $flowRows = $this->findLegacyRows((int) $config_id, $tag);
+        } catch (PDOException|JsonException $e) {
             return [];
         }
         $formsInfos = [];
         $arrayMultipleValues = [];
         $isTypePassword = false;
-        while ($row = $res->fetch()) {
+        foreach ($flowRows as $row) {
+            if ($row['subgrp_id'] !== null) {
+                continue;
+            }
             $fieldname = $tag . '[' . $row['config_group_id'] . ']['
-                . $this->getConfigFieldName($config_id, $tag, $row) . ']';
+                . $this->getConfigFieldName($flowRows, $row) . ']';
             // Multi value for a multiselect
             if (isset($row['fieldIndex']) && ! is_null($row['fieldIndex']) && $row['fieldIndex'] != '') {
                 $fieldname = $tag . '[' . $row['config_group_id'] . ']['
-                    . $this->getConfigFieldName($config_id, $tag, $row) . '_#index#]';
+                    . $this->getConfigFieldName($flowRows, $row) . '_#index#]';
                 $suffix = preg_match('/__(.+)$/', $row['config_key'], $matches) ? $matches[1] : '';
                 $arrayMultipleValues[$fieldname]['suffix'] = $suffix;
                 $arrayMultipleValues[$fieldname]['values'][$row['fieldIndex']]
@@ -1018,21 +1015,16 @@ class CentreonConfigCentreonBroker
     public function getHelps($config_id, $tag)
     {
         $this->nbSubGroup = 1;
-        $query = "SELECT config_value, config_group_id
-            FROM cfg_centreonbroker_info
-            WHERE config_id = :configId AND config_group = :configGroup
-            AND config_key = 'blockId'
-            ORDER BY config_group_id";
         try {
-            $res = $this->db->prepare($query);
-            $res->bindValue(':configId', (int) $config_id, PDO::PARAM_INT);
-            $res->bindValue(':configGroup', $tag, PDO::PARAM_STR);
-            $res->execute();
-        } catch (PDOException $e) {
+            $blockIdRows = array_filter(
+                $this->findLegacyRows((int) $config_id, $tag),
+                static fn (array $row): bool => $row['config_key'] === 'blockId'
+            );
+        } catch (PDOException|JsonException $e) {
             return [];
         }
         $helps = [];
-        while ($row = $res->fetchRow()) {
+        foreach ($blockIdRows as $row) {
             [$tagId, $typeId] = explode('_', $row['config_value']);
             $pos = $row['config_group_id'];
             $fields = $this->getBlockInfos((int) $typeId);
@@ -1343,16 +1335,11 @@ class CentreonConfigCentreonBroker
             $oldVaultUuids = retrieveMultipleBrokerConfigUuidsFromDatabase([$configId]);
         }
 
-        $deleteQuery = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
-            . $configId
-            . ($keepLuaParameters ? ' AND config_key NOT LIKE "lua\_parameter\_%"' : '');
-        $rollbackDeleteQuery = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = ' . $configId;
-
         // The API re-inserts run on a separate DB connection, so we cannot use a transaction.
-        // Backup all rows and restore them on failure; rollback wipes the lua scope too in case
-        // partial lua rows were committed by the API.
+        // Backup all inputs/outputs and restore them on failure; rollback wipes the lua scope too in case
+        // partial lua parameters were committed by the API.
         $backup = $this->backupBrokerInfos($configId);
-        $this->db->query($deleteQuery);
+        $this->deleteBrokerInputOutputs($configId, $keepLuaParameters);
 
         [$groups_infos] = $this->getGroupsInfos($values);
 
@@ -1402,7 +1389,7 @@ class CentreonConfigCentreonBroker
                 ? retrieveMultipleBrokerConfigUuidsFromDatabase([$configId])
                 : [];
 
-            $this->db->query($rollbackDeleteQuery);
+            $this->deleteBrokerInputOutputs($configId);
             $this->restoreBrokerInfos($backup);
 
             // Drop only the new UUIDs — $oldVaultUuids are still referenced by the restored rows.
@@ -1495,27 +1482,22 @@ class CentreonConfigCentreonBroker
      * @param int $configGroupId
      *
      * @throws PDOException
+     * @throws JsonException
      * @return string|null
      */
     private function findOriginalValueWithFieldIndex(int $configId, string $configKey, int $fieldIndex, int $configGroupId): ?string
     {
-        $stmt = $this->db->prepare(
-            'SELECT config_value FROM cfg_centreonbroker_info
-            WHERE config_id = :configId
-            AND config_key = :configKey
-            AND fieldIndex = :fieldIndex
-            AND config_group_id = :configGroupId'
-        );
+        foreach ($this->findLegacyRowsOutputsFirst($configId) as $row) {
+            if (
+                $row['config_key'] === $configKey
+                && $row['fieldIndex'] === $fieldIndex
+                && $row['config_group_id'] === $configGroupId
+            ) {
+                return $row['config_value'];
+            }
+        }
 
-        $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
-        $stmt->bindValue(':configKey', $configKey, PDO::PARAM_STR);
-        $stmt->bindValue(':fieldIndex', $fieldIndex, PDO::PARAM_INT);
-        $stmt->bindValue(':configGroupId', $configGroupId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $row = $stmt->fetch();
-
-        return $row['config_value'] ?? null;
+        return null;
     }
 
     /**
@@ -1555,24 +1537,18 @@ class CentreonConfigCentreonBroker
      * @param string $configKey
      *
      * @throws PDOException
+     * @throws JsonException
      * @return string|null
      */
     private function findOriginalValueWithGroupId(int $configId, int $groupId, string $configKey): ?string
     {
-        $stmt = $this->db->prepare(
-            'SELECT config_value FROM cfg_centreonbroker_info
-            WHERE config_id = :configId
-            AND config_key = :configKey
-            AND config_group_id = :groupId'
-        );
-        $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
-        $stmt->bindValue(':configKey', $configKey, PDO::PARAM_STR);
-        $stmt->bindValue(':groupId', $groupId, PDO::PARAM_STR);
-        $stmt->execute();
+        foreach ($this->findLegacyRowsOutputsFirst($configId) as $row) {
+            if ($row['config_key'] === $configKey && $row['config_group_id'] === $groupId) {
+                return $row['config_value'];
+            }
+        }
 
-        $row = $stmt->fetch();
-
-        return $row['config_value'] ?? null;
+        return null;
     }
 
     /**
@@ -1809,43 +1785,27 @@ class CentreonConfigCentreonBroker
     /**
      * Get configuration fieldname for loading configuration from database
      *
-     * @param int $configId The configuration ID
-     * @param string $configGroup The configuration group (tag)
-     * @param array $info The information
+     * @param list<array<string,mixed>> $flowRows The rows of the inputs/outputs of the configuration group (tag)
+     * @param array<string,mixed> $info The information
      * @return string
      */
-    private function getConfigFieldName($configId, $configGroup, $info)
+    private function getConfigFieldName(array $flowRows, array $info)
     {
         $elemStr = $info['config_key'];
         if ($info['grp_level'] != 0) {
-            $error = false;
-            try {
-                $res = $this->db->prepare(
-                    'SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id
-                    FROM cfg_centreonbroker_info
-                    WHERE config_id = :configId
-                        AND config_group = :configGroup
-                        AND subgrp_id = :subgrpId
-                        AND grp_level = :grpLevel
-                        AND config_group_id = :configGroupId'
-                );
-                $res->bindValue(':configId', (int) $configId, PDO::PARAM_INT);
-                $res->bindValue(':configGroup', $configGroup, PDO::PARAM_STR);
-                $res->bindValue(':subgrpId', (int) $info['parent_grp_id'], PDO::PARAM_INT);
-                $res->bindValue(':grpLevel', (int) $info['grp_level'] - 1, PDO::PARAM_INT);
-                $res->bindValue(':configGroupId', (int) $info['config_group_id'], PDO::PARAM_INT);
-                $res->execute();
-            } catch (PDOException $e) {
-                $error = true;
-            }
-            if ($error || $res->rowCount() == 0) {
+            $parentRows = array_values(array_filter(
+                $flowRows,
+                static fn (array $row): bool => $row['subgrp_id'] !== null
+                    && (int) $row['subgrp_id'] === (int) $info['parent_grp_id']
+                    && (int) $row['grp_level'] === (int) $info['grp_level'] - 1
+                    && (int) $row['config_group_id'] === (int) $info['config_group_id']
+            ));
+            if ($parentRows === []) {
                 return $elemStr;
             }
-            $row = $res->fetchRow();
             $elemStr = $this->getConfigFieldName(
-                $configId,
-                $configGroup,
-                $row
+                $flowRows,
+                $parentRows[0]
             ) . '__' . $info['parent_grp_id'] . '__' . $elemStr;
         }
 
@@ -2011,19 +1971,22 @@ class CentreonConfigCentreonBroker
     }
 
     /**
-     * Fetch broker info records that are about to be deleted, so they can be restored
+     * Fetch broker input/output records that are about to be deleted, so they can be restored
      * if the subsequent re-insert API calls fail.
      *
      * @param int $configId
      *
-     * @return array<int,array<string,mixed>>
+     * @throws PDOException
+     *
+     * @return list<array{config_id: int|string, tag: string, input_output_id: int|string, name: string,
+     *     type_id: int|string|null, type: string|null, parameters: string}>
      */
     private function backupBrokerInfos(int $configId): array
     {
         $stmt = $this->db->prepare(
-            'SELECT config_id, config_key, config_value, config_group, config_group_id,'
-            . ' grp_level, subgrp_id, parent_grp_id, fieldIndex'
-            . ' FROM cfg_centreonbroker_info WHERE config_id = :configId'
+            'SELECT config_id, tag, input_output_id, name, type_id, type, parameters'
+            . ' FROM cfg_centreonbroker_input_output WHERE config_id = :configId'
+            . ' ORDER BY tag, input_output_id'
         );
         $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
         $stmt->execute();
@@ -2032,47 +1995,133 @@ class CentreonConfigCentreonBroker
     }
 
     /**
-     * Re-insert broker info records previously captured by {@see backupBrokerInfos}.
+     * Re-insert broker input/output records previously captured by {@see backupBrokerInfos}.
      *
-     * @param array<int,array<string,mixed>> $backup
+     * @param list<array{config_id: int|string, tag: string, input_output_id: int|string, name: string,
+     *     type_id: int|string|null, type: string|null, parameters: string}> $backup
+     *
+     * @throws PDOException
+     * @throws JsonException
      */
     private function restoreBrokerInfos(array $backup): void
     {
-        if ($backup === []) {
+        foreach ($backup as $record) {
+            $this->insertBrokerInputOutputs((int) $record['config_id'], [StoredBrokerInputOutput::fromRecord($record)]);
+        }
+    }
+
+    /**
+     * Delete the inputs/outputs of a broker configuration.
+     *
+     * @param int $configId
+     * @param bool $keepLuaParameters true to keep the "lua_parameter_*" parameters of each input/output, without
+     *                                its name, type and other parameters
+     *
+     * @throws PDOException
+     * @throws JsonException
+     */
+    private function deleteBrokerInputOutputs(int $configId, bool $keepLuaParameters = false): void
+    {
+        $keptInputOutputs = $keepLuaParameters
+            ? BrokerInfoRowsConverter::convert(array_filter(
+                $this->findLegacyRows($configId),
+                static fn (array $row): bool => str_starts_with($row['config_key'], 'lua_parameter_')
+            ))
+            : [];
+
+        $stmt = $this->db->prepare('DELETE FROM cfg_centreonbroker_input_output WHERE config_id = :configId');
+        $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $this->insertBrokerInputOutputs($configId, $keptInputOutputs);
+    }
+
+    /**
+     * @param int $configId
+     * @param list<StoredBrokerInputOutput> $inputOutputs
+     *
+     * @throws PDOException
+     * @throws JsonException
+     */
+    private function insertBrokerInputOutputs(int $configId, array $inputOutputs): void
+    {
+        if ($inputOutputs === []) {
             return;
         }
 
         $stmt = $this->db->prepare(
-            'INSERT INTO cfg_centreonbroker_info'
-            . ' (config_id, config_key, config_value, config_group, config_group_id,'
-            . ' grp_level, subgrp_id, parent_grp_id, fieldIndex)'
-            . ' VALUES (:config_id, :config_key, :config_value, :config_group, :config_group_id,'
-            . ' :grp_level, :subgrp_id, :parent_grp_id, :fieldIndex)'
+            'INSERT INTO cfg_centreonbroker_input_output'
+            . ' (config_id, tag, input_output_id, name, type_id, type, parameters)'
+            . ' VALUES (:configId, :tag, :inputOutputId, :name, :typeId, :type, :parameters)'
         );
-
-        foreach ($backup as $record) {
-            $stmt->bindValue(':config_id', (int) $record['config_id'], PDO::PARAM_INT);
-            $stmt->bindValue(':config_key', $record['config_key'], PDO::PARAM_STR);
-            $stmt->bindValue(':config_value', $record['config_value'], PDO::PARAM_STR);
-            $stmt->bindValue(':config_group', $record['config_group'], PDO::PARAM_STR);
-            $stmt->bindValue(':config_group_id', (int) $record['config_group_id'], PDO::PARAM_INT);
-            $stmt->bindValue(':grp_level', (int) $record['grp_level'], PDO::PARAM_INT);
+        foreach ($inputOutputs as $inputOutput) {
+            $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
+            $stmt->bindValue(':tag', $inputOutput->tag, PDO::PARAM_STR);
+            $stmt->bindValue(':inputOutputId', $inputOutput->id, PDO::PARAM_INT);
+            $stmt->bindValue(':name', $inputOutput->name, PDO::PARAM_STR);
             $stmt->bindValue(
-                ':subgrp_id',
-                $record['subgrp_id'] !== null ? (int) $record['subgrp_id'] : null,
-                $record['subgrp_id'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL
+                ':typeId',
+                $inputOutput->typeId,
+                $inputOutput->typeId !== null ? PDO::PARAM_INT : PDO::PARAM_NULL
             );
             $stmt->bindValue(
-                ':parent_grp_id',
-                $record['parent_grp_id'] !== null ? (int) $record['parent_grp_id'] : null,
-                $record['parent_grp_id'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL
+                ':type',
+                $inputOutput->type,
+                $inputOutput->type !== null ? PDO::PARAM_STR : PDO::PARAM_NULL
             );
-            $stmt->bindValue(
-                ':fieldIndex',
-                $record['fieldIndex'] !== null ? (int) $record['fieldIndex'] : null,
-                $record['fieldIndex'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL
-            );
+            $stmt->bindValue(':parameters', $inputOutput->encodeParameters(), PDO::PARAM_STR);
             $stmt->execute();
         }
+    }
+
+    /**
+     * Rows of the inputs/outputs of a broker configuration, in the format of the former cfg_centreonbroker_info
+     * table, ordered by tag and input/output id.
+     *
+     * @param int $configId
+     * @param string|null $tag "input" or "output", null for both
+     *
+     * @throws PDOException
+     * @throws JsonException
+     *
+     * @return list<array{config_group: 'input'|'output', config_group_id: int, config_key: string,
+     *     config_value: string, grp_level: int, subgrp_id: int|null, parent_grp_id: int|null, fieldIndex: int|null}>
+     */
+    private function findLegacyRows(int $configId, ?string $tag = null): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT tag, input_output_id, name, type_id, type, parameters'
+            . ' FROM cfg_centreonbroker_input_output WHERE config_id = :configId'
+            . ($tag !== null ? ' AND tag = :tag' : '')
+            . ' ORDER BY tag, input_output_id'
+        );
+        $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
+        if ($tag !== null) {
+            $stmt->bindValue(':tag', $tag, PDO::PARAM_STR);
+        }
+        $stmt->execute();
+
+        $rows = [];
+        while ($record = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $rows = [...$rows, ...StoredBrokerInputOutput::fromRecord($record)->toLegacyRows()];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Rows of the inputs/outputs of a broker configuration (see {@see findLegacyRows}), outputs first.
+     *
+     * @param int $configId
+     *
+     * @throws PDOException
+     * @throws JsonException
+     *
+     * @return list<array{config_group: 'input'|'output', config_group_id: int, config_key: string,
+     *     config_value: string, grp_level: int, subgrp_id: int|null, parent_grp_id: int|null, fieldIndex: int|null}>
+     */
+    private function findLegacyRowsOutputsFirst(int $configId): array
+    {
+        return [...$this->findLegacyRows($configId, 'output'), ...$this->findLegacyRows($configId, 'input')];
     }
 }

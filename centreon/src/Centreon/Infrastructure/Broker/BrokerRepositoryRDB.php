@@ -26,6 +26,7 @@ namespace Centreon\Infrastructure\Broker;
 use Centreon\Domain\Broker\BrokerConfiguration;
 use Centreon\Domain\Broker\Interfaces\BrokerRepositoryInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Broker\Infrastructure\Repository\StoredBrokerInputOutput;
 
 class BrokerRepositoryRDB implements BrokerRepositoryInterface
 {
@@ -44,6 +45,10 @@ class BrokerRepositoryRDB implements BrokerRepositoryInterface
     /**
      * Get Broker Configurations based on the configuration Key
      *
+     * Every input/output of the poller is expanded into its parameter rows (former cfg_centreonbroker_info
+     * encoding), so that the key matches the same values: "name", "type", "blockId", simple parameters,
+     * filter values ("category", "event", plus the empty "filters" parent) and grouped fields ("<group>__<field>").
+     *
      * @param int $monitoringServerId
      * @param string $configKey
      * @return BrokerConfiguration[]
@@ -51,25 +56,30 @@ class BrokerRepositoryRDB implements BrokerRepositoryInterface
     public function findByMonitoringServerAndParameterName(int $monitoringServerId, string $configKey): array
     {
         $statement = $this->db->prepare('
-            SELECT config_value, cfgbi.config_id AS id
-                FROM cfg_centreonbroker_info cfgbi
+            SELECT cfgbio.config_id AS id, cfgbio.tag, cfgbio.input_output_id, cfgbio.name,
+                cfgbio.type_id, cfgbio.type, cfgbio.parameters
+                FROM cfg_centreonbroker_input_output cfgbio
                 INNER JOIN cfg_centreonbroker AS cfgb
-                    ON cfgbi.config_id = cfgb.config_id
+                    ON cfgbio.config_id = cfgb.config_id
                 INNER JOIN nagios_server AS ns
                     ON cfgb.ns_nagios_server = ns.id
                     AND ns.id = :monitoringServerId
-                WHERE config_key = :configKey
+                ORDER BY cfgbio.config_id, cfgbio.tag, cfgbio.input_output_id
         ');
         $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
-        $statement->bindValue(':configKey', $configKey, \PDO::PARAM_STR);
         $statement->execute();
 
         $brokerConfigurations = [];
         while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $brokerConfigurations[] = (new BrokerConfiguration())
-                ->setId((int) $result['id'])
-                ->setConfigurationKey($configKey)
-                ->setConfigurationValue($result['config_value']);
+            foreach (StoredBrokerInputOutput::fromRecord($result)->toLegacyRows() as $row) {
+                if ($row['config_key'] !== $configKey) {
+                    continue;
+                }
+                $brokerConfigurations[] = (new BrokerConfiguration())
+                    ->setId((int) $result['id'])
+                    ->setConfigurationKey($configKey)
+                    ->setConfigurationValue($row['config_value']);
+            }
         }
 
         return $brokerConfigurations;

@@ -1,0 +1,112 @@
+{
+    "poller-module.json": {
+        "centreonBroker": {
+            "broker_id": "<broker-0>",
+            "broker_name": "poller-module",
+            "poller_id": 9101,
+            "uid": 100000000009101,
+            "poller_name": "broker-io-poller-9101",
+            "module_directory": "/usr/share/centreon/lib/centreon-broker",
+            "log_timestamp": false,
+            "log_thread_id": false,
+            "event_queue_max_size": 100000,
+            "command_file": "/var/lib/centreon-broker/command.sock",
+            "cache_directory": "/var/lib/centreon-broker",
+            "bbdo_version": "3.1.0",
+            "log": {
+                "directory": "/var/log/centreon-broker",
+                "filename": "poller-module.log",
+                "max_size": 0,
+                "loggers": {
+                    "core": "error",
+                    "config": "error",
+                    "sql": "error",
+                    "processing": "error",
+                    "perfdata": "error",
+                    "bbdo": "error",
+                    "tcp": "error",
+                    "tls": "error",
+                    "lua": "error",
+                    "bam": "error",
+                    "neb": "error",
+                    "rrd": "error",
+                    "grpc": "error",
+                    "influxdb": "error",
+                    "graphite": "error",
+                    "victoria_metrics": "error",
+                    "stats": "error"
+                }
+            },
+            "input": [
+                {
+                    "type": "ipv4",
+                    "name": "clapi-input",
+                    "port": "5669",
+                    "protocol": "bbdo"
+                }
+            ],
+            "output": [
+                {
+                    "protocol": "bbdo",
+                    "type": "ipv4",
+                    "compression": "no",
+                    "one_peer_retention_mode": "no",
+                    "negotiation": "yes",
+                    "tls": "no",
+                    "buffering_timeout": "0",
+                    "retry_interval": "15",
+                    "host": "10.0.0.1",
+                    "port": "5669",
+                    "name": "poller-module-output"
+                },
+                {
+                    "path": "/usr/share/centreon-broker/lua/clapi.lua",
+                    "lua_parameter__name": "clapi-param",
+                    "filters": {
+                        "category": [
+                            "neb",
+                            "neb",
+                            "storage"
+                        ]
+                    },
+                    "name": "clapi-lua",
+                    "type": "lua"
+                },
+                {
+                    "type": "ipv4",
+                    "filters": {
+                        "category": [
+                            "neb"
+                        ]
+                    },
+                    "compression": "no",
+                    "one_peer_retention_mode": "no",
+                    "negotiation": "yes",
+                    "tls": "no",
+                    "protocol": "bbdo",
+                    "buffering_timeout": "0",
+                    "retry_interval": "15",
+                    "host": "192.168.0.10",
+                    "port": "5669",
+                    "name": "forward-to-master"
+                }
+            ],
+            "stats": [
+                {
+                    "type": "stats",
+                    "name": "poller-module-stats",
+                    "json_fifo": "/var/lib/centreon-broker/poller-module-stats.json"
+                }
+            ],
+            "grpc": {
+                "port": "<51000 + broker-0>"
+            }
+        }
+    },
+    "watchdog.json": {
+        "centreonBroker": {
+            "log": "/var/log/centreon-broker/watchdog.log"
+        }
+    },
+    "php-warnings": []
+}

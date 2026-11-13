@@ -25,7 +25,10 @@ use ConfigGenerateRemote\Abstracts\AbstractObject;
 use PDO;
 
 /**
- * Class
+ * Exports the broker inputs/outputs (cfg_centreonbroker_input_output) of the exported broker configurations.
+ *
+ * Central and remote servers always run the same version, so the rows are shipped as stored,
+ * the `parameters` column being the raw JSON text.
  *
  * @class BrokerInfo
  * @package ConfigGenerateRemote\Relations
@@ -33,25 +36,23 @@ use PDO;
 class BrokerInfo extends AbstractObject
 {
     /** @var string */
-    protected $table = 'cfg_centreonbroker_info';
+    protected $table = 'cfg_centreonbroker_input_output';
 
     /** @var string */
-    protected $generateFilename = 'cfg_centreonbroker_info.infile';
+    protected $generateFilename = 'cfg_centreonbroker_input_output.infile';
 
-    /** @var null */
+    /** @var \PDOStatement|null */
     protected $stmtBrokerInfo = null;
 
     /** @var string[] */
     protected $attributesWrite = [
         'config_id',
-        'config_key',
-        'config_value',
-        'config_group',
-        'config_group_id',
-        'grp_level',
-        'subgrp_id',
-        'parent_grp_id',
-        'fieldIndex',
+        'tag',
+        'input_output_id',
+        'name',
+        'type_id',
+        'type',
+        'parameters',
     ];
 
     /** @var int */
@@ -60,7 +61,7 @@ class BrokerInfo extends AbstractObject
     /** @var int */
     private $doneCache = 0;
 
-    /** @var array */
+    /** @var array<int, list<array<string, mixed>>> */
     private $brokerInfoCache = [];
 
     /**
@@ -75,10 +76,10 @@ class BrokerInfo extends AbstractObject
     }
 
     /**
-     * Generate broker info configs
+     * Generate broker inputs/outputs of a broker configuration
      *
      * @param int $configId
-     * @param array $brokerInfoCache
+     * @param array<int, list<array<string, mixed>>> $brokerInfoCache
      *
      * @throws \Exception
      * @return void
@@ -91,7 +92,7 @@ class BrokerInfo extends AbstractObject
     }
 
     /**
-     * Get broker information config
+     * Get the broker inputs/outputs of a broker configuration and write them in the export file
      *
      * @param int $configId
      *
@@ -113,43 +114,62 @@ class BrokerInfo extends AbstractObject
         // We get unitary
         if (is_null($this->stmtBrokerInfo)) {
             $this->stmtBrokerInfo = $this->backendInstance->db->prepare(
-                'SELECT *
-                FROM cfg_centreonbroker_info
-                WHERE config_id = :config_id'
+                'SELECT config_id, tag, input_output_id, name, type_id, type, parameters
+                FROM cfg_centreonbroker_input_output
+                WHERE config_id = :config_id
+                ORDER BY tag, input_output_id'
             );
         }
 
         $this->stmtBrokerInfo->bindParam(':config_id', $configId, PDO::PARAM_INT);
         $this->stmtBrokerInfo->execute();
-        $brokerInfoCache = [$config_id => []];
-        foreach ($this->stmtBrokerInfo->fetchAll(PDO::FETCH_ASSOC) as &$value) {
-            $brokerInfoCache[$config_id] = $value;
-        }
+        $brokerInfoCache = [$configId => $this->stmtBrokerInfo->fetchAll(PDO::FETCH_ASSOC)];
 
         $this->generateObject($configId, $brokerInfoCache);
 
-        return $brokerInfoCache;
+        return $brokerInfoCache[$configId];
     }
 
     /**
-     * Build cache of broker info
+     * Write a row in the infile.
+     *
+     * Unlike the generic writer, NULL and empty strings are kept apart (empty strings are valid names, types and
+     * parameter values) and the escape character of the import (backslash) is escaped, so that the JSON text of
+     * `parameters` (which contains backslashes as soon as a value holds a quote, a backslash or a control
+     * character) is imported unchanged by LOAD DATA.
+     *
+     * @param array<string, mixed> $object
+     * @return void
+     */
+    protected function writeObject(array $object): void
+    {
+        $fields = [];
+        foreach ($this->attributesWrite as $attribute) {
+            $fields[] = isset($object[$attribute])
+                ? '"' . strtr((string) $object[$attribute], ['\\' => '\\\\', '"' => '\\"']) . '"'
+                : '\N';
+        }
+
+        fwrite($this->fp, implode($this->fieldSeparatorInfile, $fields) . $this->lineSeparatorInfile);
+    }
+
+    /**
+     * Build cache of broker inputs/outputs
      *
      * @return void
      */
     private function cacheBrokerInfo(): void
     {
         $stmt = $this->backendInstance->db->prepare(
-            'SELECT *
-             FROM cfg_centreonbroker_info'
+            'SELECT config_id, tag, input_output_id, name, type_id, type, parameters
+             FROM cfg_centreonbroker_input_output
+             ORDER BY config_id, tag, input_output_id'
         );
 
         $stmt->execute();
         $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($values as &$value) {
-            if (! isset($this->brokerInfoCache[$value['config_id']])) {
-                $this->brokerInfoCache[$value['config_id']] = [];
-            }
-            $this->brokerInfoCache[$value['config_id']][] = $value;
+        foreach ($values as $value) {
+            $this->brokerInfoCache[(int) $value['config_id']][] = $value;
         }
     }
 

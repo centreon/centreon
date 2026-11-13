@@ -193,12 +193,6 @@ parameters:
 			path: www/class/config-generate-remote/Generate.php
 
 		-
-			message: '#^Undefined variable\: \$config_id$#'
-			identifier: variable.undefined
-			count: 2
-			path: www/class/config-generate-remote/Relations/BrokerInfo.php
-
-		-
 			message: '#^Class ConfigGenerateRemote\\Relations\\TrapsGroupRelation referenced with incorrect case\: ConfigGenerateRemote\\Relations\\trapsGroupRelation\.$#'
 			identifier: class.nameCase
 			count: 1

@@ -29,7 +29,7 @@ use App\Shared\Domain\Collection;
 use Webmozart\Assert\Assert;
 
 /**
- * A centreon-broker configuration for a poller (`cfg_centreonbroker` + `cfg_centreonbroker_info`
+ * A centreon-broker configuration for a poller (`cfg_centreonbroker` + `cfg_centreonbroker_input_output`
  * + `cfg_centreonbroker_log`).
  *
  * Default construction (the `{slug}-module` config with its central-module output flow + loggers)
@@ -40,7 +40,7 @@ use Webmozart\Assert\Assert;
 final class BrokerConfiguration extends AggregateRoot
 {
     /**
-     * @param Collection<BrokerInputOutput> $flows the input/output flows (`cfg_centreonbroker_info`)
+     * @param Collection<BrokerInputOutput> $flows the input/output flows (`cfg_centreonbroker_input_output`)
      * @param Collection<BrokerLog> $logs the logger category/level rows (`cfg_centreonbroker_log`)
      */
     public function __construct(

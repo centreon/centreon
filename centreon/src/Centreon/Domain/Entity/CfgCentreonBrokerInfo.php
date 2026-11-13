@@ -22,11 +22,12 @@
 namespace Centreon\Domain\Entity;
 
 /**
- * Entity to manage broker configuration table : cfg_centreonbroker_info
+ * Entity describing one parameter of a broker input/output, in the former cfg_centreonbroker_info row encoding.
+ * Parameters are stored grouped by input/output in cfg_centreonbroker_input_output.
  */
 class CfgCentreonBrokerInfo
 {
-    public const TABLE = 'cfg_centreonbroker_info';
+    public const TABLE = 'cfg_centreonbroker_input_output';
 
     /** @var int the linked config id */
     private $configId;

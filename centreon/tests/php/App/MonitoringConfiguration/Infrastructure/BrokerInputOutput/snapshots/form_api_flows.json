@@ -1,0 +1,765 @@
+{
+    "input": {
+        "forms": [
+            {
+                "elements": {
+                    "input[1][authorization]": {
+                        "type": "password",
+                        "value": "grpc-token",
+                        "frozen": false
+                    },
+                    "input[1][certificate]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "input[1][compression]": {
+                        "type": "group",
+                        "value": {
+                            "compression": "no"
+                        },
+                        "frozen": false
+                    },
+                    "input[1][encryption]": {
+                        "type": "group",
+                        "value": {
+                            "encryption": "no"
+                        },
+                        "frozen": false
+                    },
+                    "input[1][filters__1__category]": {
+                        "type": "select",
+                        "value": [
+                            "dumper",
+                            "storage"
+                        ],
+                        "frozen": false
+                    },
+                    "input[1][host]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "input[1][name]": {
+                        "type": "text",
+                        "value": "bbdo-server-input",
+                        "frozen": false
+                    },
+                    "input[1][port]": {
+                        "type": "text",
+                        "value": "5669",
+                        "frozen": false
+                    },
+                    "input[1][private_key]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "input[1][retention]": {
+                        "type": "group",
+                        "value": {
+                            "retention": "no"
+                        },
+                        "frozen": false
+                    },
+                    "input[1][transport_protocol]": {
+                        "type": "group",
+                        "value": {
+                            "transport_protocol": "gRPC"
+                        },
+                        "frozen": false
+                    }
+                },
+                "hidden": {
+                    "input[1][blockId]": "2_35",
+                    "input[1][type]": "bbdo_server"
+                }
+            },
+            {
+                "elements": {
+                    "input[2][ca_certificate]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "input[2][filters__1__category]": {
+                        "type": "select",
+                        "value": [
+                            "neb"
+                        ],
+                        "frozen": false
+                    },
+                    "input[2][host]": {
+                        "type": "text",
+                        "value": "localhost",
+                        "frozen": false
+                    },
+                    "input[2][name]": {
+                        "type": "text",
+                        "value": "ipv4-input",
+                        "frozen": false
+                    },
+                    "input[2][negotiation]": {
+                        "type": "group",
+                        "value": {
+                            "negotiation": "no"
+                        },
+                        "frozen": false
+                    },
+                    "input[2][one_peer_retention_mode]": {
+                        "type": "group",
+                        "value": {
+                            "one_peer_retention_mode": "yes"
+                        },
+                        "frozen": false
+                    },
+                    "input[2][port]": {
+                        "type": "text",
+                        "value": "5670",
+                        "frozen": false
+                    },
+                    "input[2][private_key]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "input[2][protocol]": {
+                        "type": "select",
+                        "value": [
+                            "bbdo"
+                        ],
+                        "frozen": false
+                    },
+                    "input[2][public_cert]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "input[2][tls]": {
+                        "type": "group",
+                        "value": {
+                            "tls": "no"
+                        },
+                        "frozen": false
+                    },
+                    "input[2][tls_hostname]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    }
+                },
+                "hidden": {
+                    "input[2][blockId]": "2_3",
+                    "input[2][type]": "ipv4"
+                }
+            }
+        ],
+        "helps": [
+            [
+                {
+                    "name": "input[1][name]",
+                    "desc": "The name of block configuration"
+                },
+                {
+                    "name": "input[1][type]",
+                    "desc": "The type of block configuration"
+                },
+                {
+                    "name": "input[1][host]",
+                    "desc": "Fill in this field only if you want to specify the address on which Broker should listen"
+                },
+                {
+                    "name": "input[1][port]",
+                    "desc": "TCP port on which Broker should listen"
+                },
+                {
+                    "name": "input[1][transport_protocol]",
+                    "desc": "The transport protocol can be either TCP (binary flow over TCP) or gRPC (HTTP2)"
+                },
+                {
+                    "name": "input[1][authorization]",
+                    "desc": "Authorization token to be requested from the client (must be the same for both client and server)"
+                },
+                {
+                    "name": "input[1][encryption]",
+                    "desc": "Enable TLS 1.3 encryption"
+                },
+                {
+                    "name": "input[1][private_key]",
+                    "desc": "Full path to the file containing the private key in PEM format (required for encryption)"
+                },
+                {
+                    "name": "input[1][certificate]",
+                    "desc": "Full path to the file containing the certificate in PEM format (required for encryption)"
+                },
+                {
+                    "name": "input[1][compression]",
+                    "desc": "Enable data compression"
+                },
+                {
+                    "name": "input[1][retention]",
+                    "desc": "Enable data retention until the client is connected"
+                },
+                {
+                    "name": "input[1][filters__1__category]",
+                    "desc": "Broker event categories to filter. If none is selected, all categories of events will be processed"
+                }
+            ],
+            [
+                {
+                    "name": "input[2][name]",
+                    "desc": "The name of block configuration"
+                },
+                {
+                    "name": "input[2][type]",
+                    "desc": "The type of block configuration"
+                },
+                {
+                    "name": "input[2][port]",
+                    "desc": "Port to listen on (empty host) or to connect to (with host filled)."
+                },
+                {
+                    "name": "input[2][host]",
+                    "desc": "IP address or hostname of the host to connect to (leave blank for listening mode)."
+                },
+                {
+                    "name": "input[2][protocol]",
+                    "desc": "Serialization protocol."
+                },
+                {
+                    "name": "input[2][tls]",
+                    "desc": "Enable TLS encryption."
+                },
+                {
+                    "name": "input[2][private_key]",
+                    "desc": "Private key file path when TLS encryption is used."
+                },
+                {
+                    "name": "input[2][tls_hostname]",
+                    "desc": "Expected TLS certificate common name (CN) - leave blank if unsure."
+                },
+                {
+                    "name": "input[2][public_cert]",
+                    "desc": "Public certificate file path when TLS encryption is used."
+                },
+                {
+                    "name": "input[2][ca_certificate]",
+                    "desc": "Trusted CA's certificate."
+                },
+                {
+                    "name": "input[2][negotiation]",
+                    "desc": "Enable negotiation option (use only for version of Centren Broker >= 2.5)"
+                },
+                {
+                    "name": "input[2][one_peer_retention_mode]",
+                    "desc": "This allows the retention to work even if the socket is listening"
+                },
+                {
+                    "name": "input[2][filters__2__category]",
+                    "desc": "Category filter for flux in output"
+                }
+            ]
+        ]
+    },
+    "output": {
+        "forms": [
+            {
+                "elements": {
+                    "output[1][cleanup_check_interval]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "output[1][connections_count]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "output[1][db_host]": {
+                        "type": "text",
+                        "value": "localhost",
+                        "frozen": false
+                    },
+                    "output[1][db_name]": {
+                        "type": "text",
+                        "value": "centreon_storage",
+                        "frozen": false
+                    },
+                    "output[1][db_password]": {
+                        "type": "password",
+                        "value": "******",
+                        "frozen": false
+                    },
+                    "output[1][db_port]": {
+                        "type": "text",
+                        "value": "3306",
+                        "frozen": false
+                    },
+                    "output[1][db_type]": {
+                        "type": "text",
+                        "value": "mysql",
+                        "frozen": true
+                    },
+                    "output[1][db_user]": {
+                        "type": "text",
+                        "value": "centreon",
+                        "frozen": false
+                    },
+                    "output[1][filters__1__category]": {
+                        "type": "select",
+                        "value": null,
+                        "frozen": false
+                    },
+                    "output[1][insert_in_index_data]": {
+                        "type": "text",
+                        "value": "1",
+                        "frozen": true
+                    },
+                    "output[1][instance_timeout]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "output[1][interval]": {
+                        "type": "text",
+                        "value": "60",
+                        "frozen": true
+                    },
+                    "output[1][length]": {
+                        "type": "text",
+                        "value": 15552000,
+                        "frozen": true
+                    },
+                    "output[1][name]": {
+                        "type": "text",
+                        "value": "unified-sql",
+                        "frozen": false
+                    },
+                    "output[1][queries_per_transaction]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "output[1][read_timeout]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "output[1][rebuild_check_interval]": {
+                        "type": "text",
+                        "value": "",
+                        "frozen": false
+                    },
+                    "output[1][store_in_data_bin]": {
+                        "type": "group",
+                        "value": {
+                            "store_in_data_bin": "yes"
+                        },
+                        "frozen": false
+                    }
+                },
+                "hidden": {
+                    "output[1][blockId]": "1_34",
+                    "output[1][type]": "unified_sql"
+                }
+            },
+            {
+                "elements": {
+                    "output[2][filters__1__category]": {
+                        "type": "select",
+                        "value": [
+                            "dumper",
+                            "storage"
+                        ],
+                        "frozen": false
+                    },
+                    "output[2][lua_parameter__name_#index#]": {
+                        "type": "text",
+                        "value": null,
+                        "frozen": false
+                    },
+                    "output[2][lua_parameter__type_#index#]": {
+                        "type": "select",
+                        "value": [
+                            "string"
+                        ],
+                        "frozen": false
+                    },
+                    "output[2][lua_parameter__value_#index#]": {
+                        "type": "text",
+                        "value": null,
+                        "frozen": false
+                    },
+                    "output[2][name]": {
+                        "type": "text",
+                        "value": "stream-connector",
+                        "frozen": false
+                    },
+                    "output[2][path]": {
+                        "type": "text",
+                        "value": "/usr/share/centreon-broker/lua/connector.lua",
+                        "frozen": false
+                    }
+                },
+                "hidden": {
+                    "output[2][blockId]": "1_33",
+                    "output[2][type]": "lua"
+                }
+            },
+            {
+                "elements": {
+                    "output[3][cache]": {
+                        "type": "group",
+                        "value": {
+                            "cache": "no"
+                        },
+                        "frozen": false
+                    },
+                    "output[3][db_host]": {
+                        "type": "text",
+                        "value": "127.0.0.1",
+                        "frozen": false
+                    },
+                    "output[3][db_name]": {
+                        "type": "text",
+                        "value": "metrics",
+                        "frozen": false
+                    },
+                    "output[3][db_password]": {
+                        "type": "password",
+                        "value": "******",
+                        "frozen": false
+                    },
+                    "output[3][db_port]": {
+                        "type": "text",
+                        "value": "8086",
+                        "frozen": false
+                    },
+                    "output[3][db_user]": {
+                        "type": "text",
+                        "value": "influx-user",
+                        "frozen": false
+                    },
+                    "output[3][metrics_column__is_tag_#index#]": {
+                        "type": "group",
+                        "value": {
+                            "is_tag": "false"
+                        },
+                        "frozen": false
+                    },
+                    "output[3][metrics_column__name_#index#]": {
+                        "type": "text",
+                        "value": null,
+                        "frozen": false
+                    },
+                    "output[3][metrics_column__type_#index#]": {
+                        "type": "select",
+                        "value": [
+                            "string"
+                        ],
+                        "frozen": false
+                    },
+                    "output[3][metrics_column__value_#index#]": {
+                        "type": "text",
+                        "value": null,
+                        "frozen": false
+                    },
+                    "output[3][metrics_timeseries]": {
+                        "type": "text",
+                        "value": "$METRIC$",
+                        "frozen": false
+                    },
+                    "output[3][name]": {
+                        "type": "text",
+                        "value": "influxdb",
+                        "frozen": false
+                    },
+                    "output[3][status_column__is_tag_#index#]": {
+                        "type": "group",
+                        "value": {
+                            "is_tag": "false"
+                        },
+                        "frozen": false
+                    },
+                    "output[3][status_column__name_#index#]": {
+                        "type": "text",
+                        "value": null,
+                        "frozen": false
+                    },
+                    "output[3][status_column__type_#index#]": {
+                        "type": "select",
+                        "value": [
+                            "string"
+                        ],
+                        "frozen": false
+                    },
+                    "output[3][status_column__value_#index#]": {
+                        "type": "text",
+                        "value": null,
+                        "frozen": false
+                    },
+                    "output[3][status_timeseries]": {
+                        "type": "text",
+                        "value": "$INSTANCE$",
+                        "frozen": false
+                    }
+                },
+                "hidden": {
+                    "output[3][blockId]": "1_31",
+                    "output[3][type]": "influxdb"
+                }
+            }
+        ],
+        "helps": [
+            [
+                {
+                    "name": "output[1][name]",
+                    "desc": "The name of block configuration"
+                },
+                {
+                    "name": "output[1][type]",
+                    "desc": "The type of block configuration"
+                },
+                {
+                    "name": "output[1][interval]",
+                    "desc": "Interval length in seconds."
+                },
+                {
+                    "name": "output[1][length]",
+                    "desc": "RRD storage duration in seconds."
+                },
+                {
+                    "name": "output[1][db_host]",
+                    "desc": "IP address or hostname of the database server."
+                },
+                {
+                    "name": "output[1][db_port]",
+                    "desc": "Port on which the DB server listens"
+                },
+                {
+                    "name": "output[1][db_user]",
+                    "desc": "Database user."
+                },
+                {
+                    "name": "output[1][connections_count]",
+                    "desc": "1: all queries are sent through one connection\n 2: one connection for data_bin and logs, one for the rest\n 3: one connection for data_bin, one for logs, one for the rest"
+                },
+                {
+                    "name": "output[1][db_password]",
+                    "desc": "Password of database user."
+                },
+                {
+                    "name": "output[1][db_name]",
+                    "desc": "Database name."
+                },
+                {
+                    "name": "output[1][queries_per_transaction]",
+                    "desc": "The maximum queries per transaction before commit."
+                },
+                {
+                    "name": "output[1][read_timeout]",
+                    "desc": "The transaction timeout before running commit."
+                },
+                {
+                    "name": "output[1][rebuild_check_interval]",
+                    "desc": "The interval between check if some metrics must be rebuild. The default value is 300s"
+                },
+                {
+                    "name": "output[1][store_in_data_bin]",
+                    "desc": "It should be enabled to control whether or not Centreon Broker should insert performance data in the data_bin table."
+                },
+                {
+                    "name": "output[1][insert_in_index_data]",
+                    "desc": "Whether or not Broker should create entries in the index_data table. This process should be done by Centreon and this option should only be enabled by advanced users knowing what they're doing"
+                },
+                {
+                    "name": "output[1][filters__1__category]",
+                    "desc": "Category filter for flux in output"
+                },
+                {
+                    "name": "output[1][cleanup_check_interval]",
+                    "desc": "Interval in seconds before delete data from deleted pollers."
+                },
+                {
+                    "name": "output[1][instance_timeout]",
+                    "desc": "Interval in seconds before change status of resources from a disconnected poller"
+                },
+                {
+                    "name": "output[1][db_type]",
+                    "desc": "Target DBMS."
+                }
+            ],
+            [
+                {
+                    "name": "output[2][name]",
+                    "desc": "The name of block configuration"
+                },
+                {
+                    "name": "output[2][type]",
+                    "desc": "The type of block configuration"
+                },
+                {
+                    "name": "output[2][path]",
+                    "desc": "Path of the lua script."
+                },
+                {
+                    "name": "output[2][filters__2__category]",
+                    "desc": "Category filter for flux in output"
+                },
+                {
+                    "name": "output[2][lua_parameter__value]",
+                    "desc": "Value of the metric."
+                },
+                {
+                    "name": "output[2][lua_parameter__name]",
+                    "desc": "Name of the metric."
+                },
+                {
+                    "name": "output[2][lua_parameter__type]",
+                    "desc": "Type of the metric."
+                }
+            ],
+            [
+                {
+                    "name": "output[3][name]",
+                    "desc": "The name of block configuration"
+                },
+                {
+                    "name": "output[3][type]",
+                    "desc": "The type of block configuration"
+                },
+                {
+                    "name": "output[3][cache]",
+                    "desc": "Enable caching"
+                },
+                {
+                    "name": "output[3][db_host]",
+                    "desc": "IP address or hostname of the database server."
+                },
+                {
+                    "name": "output[3][db_port]",
+                    "desc": "Port on which the DB server listens"
+                },
+                {
+                    "name": "output[3][db_user]",
+                    "desc": "Database user."
+                },
+                {
+                    "name": "output[3][db_password]",
+                    "desc": "Password of database user."
+                },
+                {
+                    "name": "output[3][db_name]",
+                    "desc": "Database name."
+                },
+                {
+                    "name": "output[3][metrics_timeseries]",
+                    "desc": "How to name entries for metrics timeseries. This string supports macros such as $METRIC$, $HOST$, $SERVICE$ and $INSTANCE$"
+                },
+                {
+                    "name": "output[3][metrics_column__name]",
+                    "desc": "Name of the column (macros accepted)"
+                },
+                {
+                    "name": "output[3][metrics_column__value]",
+                    "desc": "Value of the column (macros accepted)"
+                },
+                {
+                    "name": "output[3][metrics_column__type]",
+                    "desc": "Type of the column"
+                },
+                {
+                    "name": "output[3][metrics_column__is_tag]",
+                    "desc": "Whether or not this column is a tag"
+                },
+                {
+                    "name": "output[3][status_timeseries]",
+                    "desc": "How to name entries for statuses timeseries. This string supports macros such as $METRIC$, $HOST$, $SERVICE$ and $INSTANCE$"
+                },
+                {
+                    "name": "output[3][status_column__name]",
+                    "desc": "Name of the column (macros accepted)"
+                },
+                {
+                    "name": "output[3][status_column__value]",
+                    "desc": "Value of the column (macros accepted)"
+                },
+                {
+                    "name": "output[3][status_column__type]",
+                    "desc": "Type of the column"
+                },
+                {
+                    "name": "output[3][status_column__is_tag]",
+                    "desc": "Whether or not this column is a tag"
+                }
+            ]
+        ]
+    },
+    "arrayMultiple": {
+        "lua_parameter___2": [
+            {
+                "output[2][lua_parameter__name_#index#]": "lua-param-1",
+                "output[2][lua_parameter__name_#index#][name]": "lua-param-1",
+                "output[2][lua_parameter__type_#index#]": "string",
+                "output[2][lua_parameter__type_#index#][type]": "string",
+                "output[2][lua_parameter__value_#index#]": "value-1",
+                "output[2][lua_parameter__value_#index#][value]": "value-1"
+            },
+            {
+                "output[2][lua_parameter__name_#index#]": "lua-param-3",
+                "output[2][lua_parameter__name_#index#][name]": "lua-param-3",
+                "output[2][lua_parameter__type_#index#]": "number",
+                "output[2][lua_parameter__type_#index#][type]": "number",
+                "output[2][lua_parameter__value_#index#]": "999",
+                "output[2][lua_parameter__value_#index#][value]": "999"
+            }
+        ],
+        "metrics_column___3": [
+            {
+                "output[3][metrics_column__is_tag_#index#]": "false",
+                "output[3][metrics_column__is_tag_#index#][is_tag]": "false",
+                "output[3][metrics_column__name_#index#]": "value",
+                "output[3][metrics_column__name_#index#][name]": "value",
+                "output[3][metrics_column__type_#index#]": "number",
+                "output[3][metrics_column__type_#index#][type]": "number",
+                "output[3][metrics_column__value_#index#]": "$VALUE$",
+                "output[3][metrics_column__value_#index#][value]": "$VALUE$"
+            }
+        ]
+    },
+    "javascript": {
+        "clone-count-lua_parameter___2": 2,
+        "clone-count-metrics_column___3": 1,
+        "clone-values-lua_parameter___2": [
+            {
+                "output[2][lua_parameter__name_#index#]": "lua-param-1",
+                "output[2][lua_parameter__name_#index#][name]": "lua-param-1",
+                "output[2][lua_parameter__type_#index#]": "string",
+                "output[2][lua_parameter__type_#index#][type]": "string",
+                "output[2][lua_parameter__value_#index#]": "value-1",
+                "output[2][lua_parameter__value_#index#][value]": "value-1"
+            },
+            {
+                "output[2][lua_parameter__name_#index#]": "lua-param-3",
+                "output[2][lua_parameter__name_#index#][name]": "lua-param-3",
+                "output[2][lua_parameter__type_#index#]": "number",
+                "output[2][lua_parameter__type_#index#][type]": "number",
+                "output[2][lua_parameter__value_#index#]": "999",
+                "output[2][lua_parameter__value_#index#][value]": "999"
+            }
+        ],
+        "clone-values-metrics_column___3": [
+            {
+                "output[3][metrics_column__is_tag_#index#]": "false",
+                "output[3][metrics_column__is_tag_#index#][is_tag]": "false",
+                "output[3][metrics_column__name_#index#]": "value",
+                "output[3][metrics_column__name_#index#][name]": "value",
+                "output[3][metrics_column__type_#index#]": "number",
+                "output[3][metrics_column__type_#index#][type]": "number",
+                "output[3][metrics_column__value_#index#]": "$VALUE$",
+                "output[3][metrics_column__value_#index#][value]": "$VALUE$"
+            }
+        ]
+    },
+    "php-warnings": []
+}

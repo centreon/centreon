@@ -334,9 +334,9 @@ INSERT INTO `contact` (`contact_name`, `contact_alias`, `contact_activate`, `con
 VALUES ('contact_template', 'contact_template', '1', 'local', 0);
 
 -- Reduce broker transaction timeout to 1s to increase monitoring performance on small container
-UPDATE cfg_centreonbroker_info SET config_value = '1' WHERE config_key = 'read_timeout';
-UPDATE cfg_centreonbroker_info SET config_value = '1' WHERE config_key = 'queries_per_transaction';
-UPDATE cfg_centreonbroker_info SET config_value = '5' WHERE config_key = 'retry_interval';
+UPDATE cfg_centreonbroker_input_output SET parameters = JSON_SET(parameters, '$.read_timeout', '1') WHERE JSON_CONTAINS_PATH(parameters, 'one', '$.read_timeout');
+UPDATE cfg_centreonbroker_input_output SET parameters = JSON_SET(parameters, '$.queries_per_transaction', '1') WHERE JSON_CONTAINS_PATH(parameters, 'one', '$.queries_per_transaction');
+UPDATE cfg_centreonbroker_input_output SET parameters = JSON_SET(parameters, '$.retry_interval', '5') WHERE JSON_CONTAINS_PATH(parameters, 'one', '$.retry_interval');
 
 -- Enable authentication debug
 UPDATE `options` SET `value` = '1' WHERE `key` = 'debug_auth';

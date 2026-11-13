@@ -1,0 +1,119 @@
+{
+    "poller-rrd.json": {
+        "centreonBroker": {
+            "broker_id": "<broker-0>",
+            "broker_name": "poller-rrd",
+            "poller_id": 9101,
+            "uid": 100000000009101,
+            "poller_name": "broker-io-poller-9101",
+            "module_directory": "/usr/share/centreon/lib/centreon-broker",
+            "log_timestamp": false,
+            "log_thread_id": false,
+            "event_queue_max_size": 100000,
+            "command_file": "/var/lib/centreon-broker/command.sock",
+            "cache_directory": "/var/lib/centreon-broker",
+            "bbdo_version": "3.1.0",
+            "log": {
+                "directory": "/var/log/centreon-broker",
+                "filename": "poller-rrd.log",
+                "max_size": 0,
+                "loggers": {
+                    "core": "error",
+                    "config": "error",
+                    "sql": "error",
+                    "processing": "error",
+                    "perfdata": "error",
+                    "bbdo": "error",
+                    "tcp": "error",
+                    "tls": "error",
+                    "lua": "error",
+                    "bam": "error",
+                    "neb": "error",
+                    "rrd": "error",
+                    "grpc": "error",
+                    "influxdb": "error",
+                    "graphite": "error",
+                    "victoria_metrics": "error",
+                    "stats": "error"
+                }
+            },
+            "input": [
+                {
+                    "one_peer_retention_mode": "no",
+                    "type": "ipv4",
+                    "negotiation": "yes",
+                    "protocol": "bbdo",
+                    "tls": "no",
+                    "port": "5670",
+                    "name": "rrd-input"
+                }
+            ],
+            "output": [
+                {
+                    "db_port": "3306",
+                    "filters": {
+                        "category": [
+                            "neb",
+                            "storage"
+                        ]
+                    },
+                    "connections_count": "2",
+                    "insert_in_index_data": "yes",
+                    "store_in_data_bin": "no",
+                    "rebuild_check_interval": "60",
+                    "read_timeout": "3600",
+                    "queries_per_transaction": "500",
+                    "interval": "120",
+                    "db_type": "mysql",
+                    "db_name": "centreon_storage",
+                    "db_password": "storage-secret",
+                    "db_user": "centreon",
+                    "db_host": "127.0.0.1",
+                    "name": "perfdata",
+                    "type": "storage",
+                    "length": "155520000"
+                },
+                {
+                    "filters": {
+                        "category": [
+                            "storage"
+                        ]
+                    },
+                    "write_status": "yes",
+                    "write_metrics": "yes",
+                    "insert_in_index_data": "1",
+                    "store_in_data_bin": "no",
+                    "port": "42217",
+                    "status_path": "@centreon_varlib@/status/",
+                    "metrics_path": "@centreon_varlib@/metrics/",
+                    "name": "rrd-tcp",
+                    "type": "rrd"
+                }
+            ],
+            "stats": [
+                {
+                    "type": "stats",
+                    "name": "poller-rrd-stats",
+                    "json_fifo": "/var/lib/centreon-broker/poller-rrd-stats.json"
+                }
+            ],
+            "grpc": {
+                "port": "<51000 + broker-0>"
+            }
+        }
+    },
+    "watchdog.json": {
+        "centreonBroker": {
+            "cbd": [
+                {
+                    "name": "poller-rrd",
+                    "configuration_file": "/etc/centreon-broker/poller-rrd.json",
+                    "run": true,
+                    "reload": true
+                }
+            ],
+            "log": "/var/log/centreon-broker/watchdog.log"
+        }
+    },
+    "php-warnings": []
+}

@@ -100,6 +100,7 @@ class PollerConnectionConfigurationService extends ServerConnectionConfiguration
          *  Add poller module output flow to send data to the central server.
          *  Do not handle vault credential storage, has there is no crednetials inserted for now.
          */
+        $rows = [];
         foreach ($configCentreonBrokerInfoData['central-module']['output'] as $row) {
             if ($row['config_key'] == 'host') {
                 $row['config_value'] = $outputHost;
@@ -107,8 +108,8 @@ class PollerConnectionConfigurationService extends ServerConnectionConfiguration
                 $row['config_value'] = $onePeerRetentionMode;
             }
 
-            $row['config_id'] = $moduleID;
-            $this->insertWithAdapter('cfg_centreonbroker_info', $row);
+            $rows[] = $row;
         }
+        $this->insertBrokerInputsOutputs($moduleID, $rows);
     }
 }
