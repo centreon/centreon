@@ -15664,6 +15664,7 @@ components:
       required:
         - name
         - host_id
+        - activated
       properties:
         name:
           pattern: '^(((?![\x00-\x1F\x7F]).)*)$'

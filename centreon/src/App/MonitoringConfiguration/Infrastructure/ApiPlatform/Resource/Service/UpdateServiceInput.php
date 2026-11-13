@@ -77,6 +77,7 @@ final readonly class UpdateServiceInput
         public int $hostId,
 
         #[ApiProperty(description: 'Required: send back the value read on Get to keep it.')]
+        #[Assert\NotNull]
         public bool $activated,
 
         #[ApiProperty(description: 'Mandatory on a Cloud platform, optional otherwise.')]
