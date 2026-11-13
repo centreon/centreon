@@ -48,6 +48,7 @@ final class VmwareConfigurationService
      *
      * @param int $pollerId
      * @param bool $isLocalhost true → systemctl restart locally, false → write VMWARERESTART to centcore pipe
+     *                          (ignored with the Gorgone API: every poller goes through it)
      *
      * @throws Exception when writing to the centcore pipe fails
      */
@@ -56,6 +57,8 @@ final class VmwareConfigurationService
         if (! $this->writeMonitoringServerRepository->resetVmwareConfigurationChange($pollerId)) {
             return;
         }
+
+        $isLocalhost = $isLocalhost && ! $this->gorgoneCommandService?->isEnabled();
 
         $succeeded = $isLocalhost
             ? $this->restartLocally()

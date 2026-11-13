@@ -28,15 +28,18 @@ use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Gorgone\Application\Exception\GorgoneCommandException;
 use Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterface;
+use Core\Gorgone\Application\Repository\ReadGorgoneJobRepositoryInterface;
 use Core\Gorgone\Application\Repository\WriteGorgoneJobRepositoryInterface;
+use Core\Gorgone\Domain\Model\JobOutcomes;
 use Core\Gorgone\Domain\Model\TarArchive;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 
 /**
  * Turns the commands Centreon used to write in the centcore files ("CMD:poller[:param]")
- * into calls to the Gorgone REST API.
+ * into calls to the Gorgone REST API, and tells how the submitted jobs ended.
  *
  * @phpstan-type _Command array{name: string, nodeId: int, param: string}
+ * @phpstan-type _Report array{messages: list<string>, failures: list<string>}
  */
 final class GorgoneCommandService
 {
@@ -46,6 +49,9 @@ final class GorgoneCommandService
     public const TARGET_BROKER = 'broker';
     public const TARGET_VMWARE = 'vmware';
     public const TARGET_CENTREONTRAPD = 'centreontrapd';
+
+    /** Longest time spent waiting for the outcome of jobs, whatever the Gorgone command timeout. */
+    public const MAX_WAIT_SECONDS = 30;
     private const COMMAND_EXTERNAL = 'EXTERNALCMD';
     private const COMMAND_SEND_CONFIGURATION = 'SENDCFGFILE';
     private const COMMAND_SYNC_TRAP = 'SYNCTRAP';
@@ -63,7 +69,22 @@ final class GorgoneCommandService
         'RESTARTCENTREONTRAPD' => ['centreontrapd', 'restart'],
         'VMWARERESTART' => ['vmware', 'restart'],
     ];
+
+    /**
+     * @var array<string, list<string>> configuration targets a service depends on: it is not started,
+     *                                  restarted nor reloaded on top of a failed push of one of them.
+     *                                  Not vmware for the engine: a poller without vmware refuses that push.
+     */
+    private const REQUIRED_CONFIGURATIONS = [
+        'engine' => [self::TARGET_ENGINE, self::TARGET_BROKER],
+        'broker' => [self::TARGET_BROKER],
+        'vmware' => [self::TARGET_VMWARE],
+        'centreontrapd' => [self::TARGET_CENTREONTRAPD],
+    ];
+    private const OPERATION_STOP = 'stop';
     private const OPTION_ILLEGAL_CHARACTERS = 'gorgone_illegal_characters';
+    private const OPTION_COMMAND_TIMEOUT = 'gorgone_cmd_timeout';
+    private const DEFAULT_COMMAND_TIMEOUT = 2;
 
     // The Gorgone API limits a job submission to 1 MiB.
     private const EXTERNAL_COMMANDS_MAX_COUNT = 200;
@@ -75,12 +96,26 @@ final class GorgoneCommandService
     /** @var list<string>|null */
     private ?array $illegalCharacters = null;
 
+    /** @var array<string, true> jobs of external commands: sent and forgotten, never waited for */
+    private array $unwaitedJobIds = [];
+
+    /**
+     * @param FeatureFlags $featureFlags
+     * @param ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository
+     * @param ReadGorgoneConfigurationRepositoryInterface $readConfigurationRepository
+     * @param WriteGorgoneJobRepositoryInterface $writeJobRepository
+     * @param ReadGorgoneJobRepositoryInterface $readJobRepository
+     * @param OptionServiceInterface $optionService
+     * @param (\Closure(): float)|null $clock current time in seconds, the system monotonic clock by default
+     */
     public function __construct(
         private readonly FeatureFlags $featureFlags,
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
         private readonly ReadGorgoneConfigurationRepositoryInterface $readConfigurationRepository,
         private readonly WriteGorgoneJobRepositoryInterface $writeJobRepository,
+        private readonly ReadGorgoneJobRepositoryInterface $readJobRepository,
         private readonly OptionServiceInterface $optionService,
+        private readonly ?\Closure $clock = null,
     ) {
     }
 
@@ -131,6 +166,92 @@ final class GorgoneCommandService
                 ? $ex
                 : new GorgoneCommandException($ex->getMessage(), previous: $ex);
         }
+    }
+
+    /**
+     * Wait for jobs to finish, for at most the Gorgone command timeout capped to MAX_WAIT_SECONDS
+     * for the whole set. A job still running when the time is up is reported as pending: it is
+     * not an error. The jobs of external commands are never waited for nor reported.
+     *
+     * @param list<string> $jobIds
+     *
+     * @throws GorgoneCommandException
+     *
+     * @return JobOutcomes
+     */
+    public function waitForJobs(array $jobIds): JobOutcomes
+    {
+        if (! $this->isEnabled()) {
+            throw GorgoneCommandException::featureDisabled(self::FEATURE_FLAG);
+        }
+
+        $jobIds = array_values(array_unique(array_filter(
+            $jobIds,
+            fn (string $jobId): bool => ! isset($this->unwaitedJobIds[$jobId])
+        )));
+
+        try {
+            $outcomes = [];
+            if ($jobIds !== []) {
+                $deadline = $this->now() + min($this->getCommandTimeout(), self::MAX_WAIT_SECONDS);
+                foreach ($jobIds as $jobId) {
+                    // Once the time is up, the state of the remaining jobs is read without waiting.
+                    $outcome = $this->readJobRepository->findOutcome(
+                        $jobId,
+                        max(0, (int) floor($deadline - $this->now()))
+                    );
+                    if ($outcome->isFailed()) {
+                        $this->error(
+                            'Gorgone job failed: ' . $outcome->getFailureMessage(),
+                            ['job' => $jobId, 'state' => $outcome->getState()]
+                        );
+                    }
+                    $outcomes[] = $outcome;
+                }
+            }
+
+            return new JobOutcomes($outcomes);
+        } catch (\Throwable $ex) {
+            $this->error(
+                'Unable to get the outcome of the Gorgone jobs: ' . $ex->getMessage(),
+                ['jobs' => $jobIds, 'exception' => $ex]
+            );
+
+            throw $ex instanceof GorgoneCommandException
+                ? $ex
+                : new GorgoneCommandException($ex->getMessage(), previous: $ex);
+        }
+    }
+
+    /**
+     * Wait for the jobs of several operations (see waitForJobs(): the time is shared by all of
+     * them) and describe the outcome of each one for the user, in plain text.
+     *
+     * @param array<string, list<string>> $jobIdsByLabel job ids by name of the operation (e.g. the poller name)
+     *
+     * @throws GorgoneCommandException
+     *
+     * @return _Report one message per operation, and those of the failed operations
+     */
+    public function reportOutcomes(array $jobIdsByLabel): array
+    {
+        $outcomes = $this->waitForJobs(array_merge(...array_values($jobIdsByLabel)));
+
+        $report = ['messages' => [], 'failures' => []];
+        foreach ($jobIdsByLabel as $label => $jobIds) {
+            $outcome = $outcomes->of($jobIds);
+            if ($outcome->isFailed()) {
+                $message = sprintf(_('%s: failed (%s).'), $label, $outcome->getFailureMessage());
+                $report['failures'][] = $message;
+            } elseif ($outcome->isPending()) {
+                $message = sprintf(_('%s: still in progress.'), $label);
+            } else {
+                $message = sprintf(_('%s: done.'), $label);
+            }
+            $report['messages'][] = $message;
+        }
+
+        return $report;
     }
 
     /**
@@ -217,7 +338,12 @@ final class GorgoneCommandService
                 );
             } else {
                 [$service, $operation] = self::SERVICE_CONTROLS[$command['name']];
-                $jobIds[] = $this->writeJobRepository->submitServiceControl($nodeId, $service, $operation);
+                $jobIds[] = $this->writeJobRepository->submitServiceControl(
+                    $nodeId,
+                    $service,
+                    $operation,
+                    $operation === self::OPERATION_STOP ? [] : self::REQUIRED_CONFIGURATIONS[$service]
+                );
             }
         }
 
@@ -249,7 +375,7 @@ final class GorgoneCommandService
                         || $batchSize + mb_strlen($command, '8bit') > self::EXTERNAL_COMMANDS_MAX_BYTES
                     )
                 ) {
-                    $jobIds[] = $this->writeJobRepository->submitEngineCommands($nodeId, $batch);
+                    $jobIds[] = $this->submitEngineCommands($nodeId, $batch);
                     $batch = [];
                     $batchSize = 0;
                 }
@@ -257,11 +383,27 @@ final class GorgoneCommandService
                 $batchSize += mb_strlen($command, '8bit');
             }
             if ($batch !== []) {
-                $jobIds[] = $this->writeJobRepository->submitEngineCommands($nodeId, $batch);
+                $jobIds[] = $this->submitEngineCommands($nodeId, $batch);
             }
         }
 
         return $jobIds;
+    }
+
+    /**
+     * @param int $nodeId
+     * @param list<string> $commands
+     *
+     * @throws GorgoneCommandException
+     *
+     * @return string job id
+     */
+    private function submitEngineCommands(int $nodeId, array $commands): string
+    {
+        $jobId = $this->writeJobRepository->submitEngineCommands($nodeId, $commands);
+        $this->unwaitedJobIds[$jobId] = true;
+
+        return $jobId;
     }
 
     /**
@@ -362,6 +504,29 @@ final class GorgoneCommandService
         }
 
         return $this->illegalCharacters;
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return int timeout of the Gorgone commands, in seconds
+     */
+    private function getCommandTimeout(): int
+    {
+        $timeout = self::DEFAULT_COMMAND_TIMEOUT;
+        foreach ($this->optionService->findSelectedOptions([self::OPTION_COMMAND_TIMEOUT]) as $option) {
+            $timeout = (int) $option->getValue();
+        }
+
+        return max(1, $timeout);
+    }
+
+    /**
+     * @return float current time in seconds, to measure durations
+     */
+    private function now(): float
+    {
+        return $this->clock !== null ? ($this->clock)() : hrtime(true) / 1e9;
     }
 
     /**

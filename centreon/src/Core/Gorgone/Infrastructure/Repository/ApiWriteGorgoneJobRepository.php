@@ -23,33 +23,30 @@ declare(strict_types=1);
 
 namespace Core\Gorgone\Infrastructure\Repository;
 
-use Centreon\Infrastructure\Gorgone\Interfaces\ConfigurationLoaderApiInterface;
 use Core\Gorgone\Application\Exception\GorgoneCommandException;
 use Core\Gorgone\Application\Repository\WriteGorgoneJobRepositoryInterface;
 use Core\Gorgone\Domain\Model\TarArchive;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Submits jobs to the native REST API ("/v1") of Gorgone.
+ *
+ * Each job is submitted with an id chosen here: Gorgone answers with the existing job when it
+ * gets the same id twice, which makes sending a request again safe.
  */
-final class ApiWriteGorgoneJobRepository implements WriteGorgoneJobRepositoryInterface
+final class ApiWriteGorgoneJobRepository extends AbstractApiGorgoneRepository implements WriteGorgoneJobRepositoryInterface
 {
-    public function __construct(
-        private readonly HttpClientInterface $httpClient,
-        private readonly ConfigurationLoaderApiInterface $configuration,
-    ) {
-    }
+    private const RETRIES = 1;
 
     /**
      * @inheritDoc
      */
     public function submitEngineCommands(int $nodeId, array $commands): string
     {
-        return $this->request(
+        return $this->submit(
             'POST',
             $nodeId,
             'jobs',
-            ['json' => ['engine_commands' => ['commands' => $commands]]],
+            ['json' => ['id' => self::createJobId(), 'engine_commands' => ['commands' => $commands]]],
             'engine commands'
         );
     }
@@ -57,15 +54,21 @@ final class ApiWriteGorgoneJobRepository implements WriteGorgoneJobRepositoryInt
     /**
      * @inheritDoc
      */
-    public function submitServiceControl(int $nodeId, string $service, string $operation): string
-    {
-        return $this->request(
-            'POST',
-            $nodeId,
-            'jobs',
-            ['json' => ['service_control' => ['service' => $service, 'operation' => $operation]]],
-            "{$operation} of {$service}"
-        );
+    public function submitServiceControl(
+        int $nodeId,
+        string $service,
+        string $operation,
+        array $requiresLatestConfig = [],
+    ): string {
+        $job = [
+            'id' => self::createJobId(),
+            'service_control' => ['service' => $service, 'operation' => $operation],
+        ];
+        if ($requiresLatestConfig !== []) {
+            $job['requires_latest_config'] = $requiresLatestConfig;
+        }
+
+        return $this->submit('POST', $nodeId, 'jobs', ['json' => $job], "{$operation} of {$service}");
     }
 
     /**
@@ -73,11 +76,15 @@ final class ApiWriteGorgoneJobRepository implements WriteGorgoneJobRepositoryInt
      */
     public function pushConfiguration(int $nodeId, string $target, TarArchive $archive): string
     {
-        return $this->request(
+        return $this->submit(
             'PUT',
             $nodeId,
             'config/' . rawurlencode($target),
-            ['headers' => ['Content-Type' => 'application/x-tar'], 'body' => $archive->toString()],
+            [
+                'query' => ['id' => self::createJobId()],
+                'headers' => ['Content-Type' => 'application/x-tar'],
+                'body' => $archive->toString(),
+            ],
             "{$target} configuration"
         );
     }
@@ -93,49 +100,17 @@ final class ApiWriteGorgoneJobRepository implements WriteGorgoneJobRepositoryInt
      *
      * @return string job id
      */
-    private function request(string $method, int $nodeId, string $path, array $options, string $description): string
+    private function submit(string $method, int $nodeId, string $path, array $options, string $description): string
     {
         $description = sprintf('%s for poller #%d', $description, $nodeId);
 
-        try {
-            $address = $this->configuration->getApiIpAddress();
-            if ($address === null || $address === '') {
-                throw GorgoneCommandException::missingApiAddress();
-            }
-
-            $isCertificateVerified = $this->configuration->isSecureConnectionSelfSigned() === false;
-            $options += [
-                'timeout' => $this->configuration->getCommandTimeout(),
-                'verify_peer' => $isCertificateVerified,
-                'verify_host' => $isCertificateVerified,
-            ];
-            $username = $this->configuration->getApiUsername();
-            if ($username !== null && $username !== '') {
-                $options['auth_basic'] = [$username, (string) $this->configuration->getApiPassword()];
-            }
-
-            $response = $this->httpClient->request(
-                $method,
-                sprintf(
-                    '%s://%s:%d/v1/nodes/%d/%s',
-                    $this->configuration->isApiConnectionSecure() ? 'https' : 'http',
-                    $address,
-                    $this->configuration->getApiPort() ?? 8085,
-                    $nodeId,
-                    $path
-                ),
-                $options
-            );
-            $statusCode = $response->getStatusCode();
-            $content = $response->getContent(false);
-        } catch (GorgoneCommandException $ex) {
-            throw $ex;
-        } catch (\Throwable $ex) {
-            throw GorgoneCommandException::requestFailed($description, $ex);
-        }
-
-        $body = json_decode($content, true);
-        $body = is_array($body) ? $body : [];
+        [$statusCode, $body] = $this->call(
+            $method,
+            sprintf('nodes/%d/%s', $nodeId, $path),
+            $options,
+            $description,
+            self::RETRIES
+        );
 
         if ($statusCode === 404) {
             throw GorgoneCommandException::unknownNode($nodeId);
@@ -143,14 +118,17 @@ final class ApiWriteGorgoneJobRepository implements WriteGorgoneJobRepositoryInt
 
         $jobId = $body['id'] ?? null;
         if ($statusCode < 200 || $statusCode >= 300 || ! is_scalar($jobId) || (string) $jobId === '') {
-            $detail = array_filter(
-                [$body['error'] ?? null, $body['message'] ?? null],
-                static fn (mixed $value): bool => is_string($value) && $value !== ''
-            );
-
-            throw GorgoneCommandException::unexpectedResponse($description, $statusCode, implode(': ', $detail));
+            throw self::createUnexpectedResponse($description, $statusCode, $body);
         }
 
         return (string) $jobId;
+    }
+
+    /**
+     * @return string 32 hexadecimal characters
+     */
+    private static function createJobId(): string
+    {
+        return bin2hex(random_bytes(16));
     }
 }

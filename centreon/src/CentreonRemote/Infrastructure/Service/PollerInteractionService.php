@@ -208,10 +208,11 @@ class PollerInteractionService
         }
 
         foreach ($tabServers as $poller) {
-            if (isset($poller['localhost']) && (int) $poller['localhost'] === 1) {
-                $this->restartEngine($poller['engine_restart_command']);
-            } elseif ($gorgoneCommandService->isEnabled()) {
+            if ($gorgoneCommandService->isEnabled()) {
+                // The central poller goes through the Gorgone API like the others.
                 $gorgoneCommandService->sendLegacyCommands('RESTART:' . (int) $poller['id']);
+            } elseif (isset($poller['localhost']) && (int) $poller['localhost'] === 1) {
+                $this->restartEngine($poller['engine_restart_command']);
             } else {
                 $written = file_put_contents(
                     $centCorePipe,

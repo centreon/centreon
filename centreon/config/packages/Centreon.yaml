@@ -321,6 +321,9 @@ services:
     Core\Gorgone\Application\Repository\WriteGorgoneJobRepositoryInterface:
         class: Core\Gorgone\Infrastructure\Repository\ApiWriteGorgoneJobRepository
 
+    Core\Gorgone\Application\Repository\ReadGorgoneJobRepositoryInterface:
+        class: Core\Gorgone\Infrastructure\Repository\ApiReadGorgoneJobRepository
+
     Core\Gorgone\Application\Repository\ReadGorgoneNodeRepositoryInterface:
         class: Core\Gorgone\Infrastructure\Repository\DbReadGorgoneNodeRepository
 

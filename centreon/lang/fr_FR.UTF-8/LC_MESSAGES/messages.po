@@ -25708,3 +25708,22 @@ msgstr "Impossible d'envoyer le redémarrage de centreon_vmware à Gorgone."
 #, php-format
 msgid "Error while sending the commands to Gorgone (%s)"
 msgstr "Erreur lors de l'envoi des commandes à Gorgone (%s)"
+
+#: centreon/src/Core/Gorgone/Application/Service/GorgoneCommandService.php
+#, php-format
+msgid "%s: done."
+msgstr "%s : terminé."
+
+#: centreon/src/Core/Gorgone/Application/Service/GorgoneCommandService.php
+#, php-format
+msgid "%s: failed (%s)."
+msgstr "%s : échec (%s)."
+
+#: centreon/src/Core/Gorgone/Application/Service/GorgoneCommandService.php
+#, php-format
+msgid "%s: still in progress."
+msgstr "%s : toujours en cours."
+
+#: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
+msgid "Centreon Broker reload"
+msgstr "Rechargement de Centreon Broker"

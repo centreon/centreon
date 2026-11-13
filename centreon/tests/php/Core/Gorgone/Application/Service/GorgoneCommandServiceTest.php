@@ -28,8 +28,10 @@ use Centreon\Domain\Option\Option;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Gorgone\Application\Exception\GorgoneCommandException;
 use Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterface;
+use Core\Gorgone\Application\Repository\ReadGorgoneJobRepositoryInterface;
 use Core\Gorgone\Application\Repository\WriteGorgoneJobRepositoryInterface;
 use Core\Gorgone\Application\Service\GorgoneCommandService;
+use Core\Gorgone\Domain\Model\JobOutcome;
 use Core\Gorgone\Domain\Model\TarArchive;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Psr\Log\LoggerInterface;
@@ -51,9 +53,19 @@ final class RecordingGorgoneJobRepository implements WriteGorgoneJobRepositoryIn
         return $this->record(['engine_commands', $nodeId, $commands]);
     }
 
-    public function submitServiceControl(int $nodeId, string $service, string $operation): string
-    {
-        return $this->record(['service_control', $nodeId, $service, $operation]);
+    public function submitServiceControl(
+        int $nodeId,
+        string $service,
+        string $operation,
+        array $requiresLatestConfig = [],
+    ): string {
+        return $this->record([
+            'service_control',
+            $nodeId,
+            $service,
+            $operation,
+            ...($requiresLatestConfig !== [] ? [$requiresLatestConfig] : []),
+        ]);
     }
 
     public function pushConfiguration(int $nodeId, string $target, TarArchive $archive): string
@@ -75,8 +87,44 @@ final class RecordingGorgoneJobRepository implements WriteGorgoneJobRepositoryIn
     }
 }
 
+/**
+ * Gives the state of the jobs and records the waits; a wait on a pending job lasts until its end.
+ */
+final class FakeGorgoneJobStateRepository implements ReadGorgoneJobRepositoryInterface
+{
+    /** @var array<string, array{string, string}> state and message by job id, succeeded by default */
+    public array $states = [];
+
+    /** @var list<array{string, int}> job id and wait of each call */
+    public array $waits = [];
+
+    public ?\Throwable $failure = null;
+
+    /** @var float current time, in seconds */
+    public float $now = 1000.0;
+
+    public function findOutcome(string $jobId, int $waitSeconds): JobOutcome
+    {
+        if ($this->failure !== null) {
+            throw $this->failure;
+        }
+        $this->waits[] = [$jobId, $waitSeconds];
+        $outcome = new JobOutcome($jobId, ...($this->states[$jobId] ?? [JobOutcome::STATE_SUCCEEDED, '']));
+        if ($outcome->isPending()) {
+            $this->now += $waitSeconds;
+        } else {
+            // A finished job is answered at once, here after half a second.
+            $this->now += 0.5;
+        }
+
+        return $outcome;
+    }
+}
+
 beforeEach(function (): void {
     $this->jobs = new RecordingGorgoneJobRepository();
+    $this->jobStates = new FakeGorgoneJobStateRepository();
+    $this->commandTimeout = '10';
 
     // Pollers 1, 2 and 5 exist; 5 is also known by its uid.
     $this->monitoringServers = $this->createMock(ReadMonitoringServerRepositoryInterface::class);
@@ -100,8 +148,14 @@ beforeEach(function (): void {
     );
 
     $this->optionService = $this->createMock(OptionServiceInterface::class);
-    $this->optionService->method('findSelectedOptions')->willReturn(
-        [(new Option())->setName('gorgone_illegal_characters')->setValue('`$')]
+    $this->optionService->method('findSelectedOptions')->willReturnCallback(
+        fn (array $names): array => array_values(array_filter(
+            [
+                (new Option())->setName('gorgone_illegal_characters')->setValue('`$'),
+                (new Option())->setName('gorgone_cmd_timeout')->setValue($this->commandTimeout),
+            ],
+            static fn (Option $option): bool => in_array($option->getName(), $names, true)
+        ))
     );
 
     $this->createService = fn (int $flag = 1): GorgoneCommandService => new GorgoneCommandService(
@@ -109,7 +163,9 @@ beforeEach(function (): void {
         $this->monitoringServers,
         $this->configuration,
         $this->jobs,
+        $this->jobStates,
         $this->optionService,
+        fn (): float => $this->jobStates->now,
     );
 });
 
@@ -147,23 +203,48 @@ it('should map a legacy command to a service control', function (
     string $command,
     string $service,
     string $operation,
+    array $requiresLatestConfig,
 ): void {
     $jobIds = ($this->createService)()->sendLegacyCommands($command . ":1\n");
 
-    expect($this->jobs->calls)->toBe([['service_control', 1, $service, $operation]])
-        ->and($jobIds)->toBe(['job-1']);
+    // A service is not started, restarted nor reloaded on top of a failed push of its configuration.
+    expect($this->jobs->calls)->toBe([
+        ['service_control', 1, $service, $operation, ...($requiresLatestConfig !== [] ? [$requiresLatestConfig] : [])],
+    ])->and($jobIds)->toBe(['job-1']);
 })->with([
-    ['RESTART', 'engine', 'restart'],
-    ['ENGINERESTART', 'engine', 'restart'],
-    ['RELOAD', 'engine', 'reload'],
-    ['ENGINERELOAD', 'engine', 'reload'],
-    ['START', 'engine', 'start'],
-    ['STOP', 'engine', 'stop'],
-    ['RELOADBROKER', 'broker', 'reload'],
-    ['RELOADCENTREONTRAPD', 'centreontrapd', 'reload'],
-    ['RESTARTCENTREONTRAPD', 'centreontrapd', 'restart'],
-    ['VMWARERESTART', 'vmware', 'restart'],
+    // Not vmware for the engine: a poller without vmware refuses that push and must still restart.
+    ['RESTART', 'engine', 'restart', ['engine', 'broker']],
+    ['ENGINERESTART', 'engine', 'restart', ['engine', 'broker']],
+    ['RELOAD', 'engine', 'reload', ['engine', 'broker']],
+    ['ENGINERELOAD', 'engine', 'reload', ['engine', 'broker']],
+    ['START', 'engine', 'start', ['engine', 'broker']],
+    ['STOP', 'engine', 'stop', []],
+    ['RELOADBROKER', 'broker', 'reload', ['broker']],
+    ['RELOADCENTREONTRAPD', 'centreontrapd', 'reload', ['centreontrapd']],
+    ['RESTARTCENTREONTRAPD', 'centreontrapd', 'restart', ['centreontrapd']],
+    ['VMWARERESTART', 'vmware', 'restart', ['vmware']],
 ]);
+
+it('should route the central poller like the other pollers', function (): void {
+    // The service never looks at nagios_server.localhost: poller 1 is the central one.
+    $this->files[1] = ['engine' => ['centengine.cfg' => 'engine'], 'broker' => ['central-broker.json' => '{}']];
+    $this->files[2] = ['engine' => ['centengine.cfg' => 'engine'], 'broker' => ['central-module.json' => '{}']];
+
+    ($this->createService)()->sendLegacyCommands(
+        ['SENDCFGFILE:1', 'RELOADBROKER:1', 'RESTART:1', 'SENDCFGFILE:2', 'RELOADBROKER:2', 'RESTART:2']
+    );
+
+    $callsOf = fn (int $nodeId): array => array_values(array_map(
+        static fn (array $call): array => array_merge(array_slice($call, 0, 1), array_slice($call, 2)),
+        array_filter($this->jobs->calls, static fn (array $call): bool => $call[1] === $nodeId)
+    ));
+    expect($callsOf(1))->toBe([
+        ['config', 'engine', ['centengine.cfg']],
+        ['config', 'broker', ['central-broker.json']],
+        ['service_control', 'broker', 'reload', ['broker']],
+        ['service_control', 'engine', 'restart', ['engine', 'broker']],
+    ])->and(array_column($callsOf(2), 0))->toBe(array_column($callsOf(1), 0));
+});
 
 it('should send the external commands of a poller in one call, in order', function (): void {
     $jobIds = ($this->createService)()->sendLegacyCommands(
@@ -191,7 +272,7 @@ it('should resolve the uid of a poller to its id', function (): void {
 
     expect($this->jobs->calls)->toBe([
         ['engine_commands', 5, ['[1700000000] ENABLE_NOTIFICATIONS', '[1700000001] DISABLE_NOTIFICATIONS']],
-        ['service_control', 5, 'engine', 'reload'],
+        ['service_control', 5, 'engine', 'reload', ['engine', 'broker']],
     ]);
 });
 
@@ -214,7 +295,7 @@ it('should keep the order between external commands and the other commands', fun
 
     expect($this->jobs->calls)->toBe([
         ['engine_commands', 1, ['[1700000000] FIRST']],
-        ['service_control', 1, 'engine', 'reload'],
+        ['service_control', 1, 'engine', 'reload', ['engine', 'broker']],
         ['engine_commands', 1, ['[1700000001] SECOND']],
     ]);
 });
@@ -329,5 +410,151 @@ it('should wrap the unexpected errors', function (): void {
     $this->jobs->failure = new \RuntimeException('connection refused');
 
     expect(fn () => ($this->createService)()->sendLegacyCommands('RESTART:1'))
+        ->toThrow(GorgoneCommandException::class, 'connection refused');
+});
+
+it('should report the jobs which succeeded', function (): void {
+    $outcomes = ($this->createService)()->waitForJobs(['job-1', 'job-2', 'job-1']);
+
+    expect($outcomes->isFailed())->toBeFalse()
+        ->and($outcomes->isPending())->toBeFalse()
+        ->and($outcomes->all())->toHaveCount(2)
+        ->and(array_column($this->jobStates->waits, 0))->toBe(['job-1', 'job-2']);
+});
+
+it('should report the message of a failed, expired or cancelled job', function (string $state, string $message, string $expected): void {
+    $this->jobStates->states['job-2'] = [$state, $message];
+    $logger = $this->createMock(LoggerInterface::class);
+    $logger->expects($this->once())->method('log')->with('error', $this->stringContains($expected));
+    $service = ($this->createService)();
+    $service->setLogger($logger);
+
+    $outcomes = $service->waitForJobs(['job-1', 'job-2', 'job-3']);
+
+    expect($outcomes->isFailed())->toBeTrue()
+        ->and($outcomes->isPending())->toBeFalse()
+        ->and($outcomes->getFailureMessage())->toBe($expected)
+        ->and($outcomes->of(['job-1', 'job-3'])->isFailed())->toBeFalse()
+        // The jobs after a failed one are still read.
+        ->and(array_column($this->jobStates->waits, 0))->toBe(['job-1', 'job-2', 'job-3']);
+})->with([
+    'failed' => ['failed', 'centengine: configuration check failed', 'centengine: configuration check failed'],
+    'failed by the latest configuration push' => ['failed', 'latest configuration push failed', 'latest configuration push failed'],
+    'expired without message' => ['expired', '', 'expired'],
+    'cancelled' => ['cancelled', '', 'cancelled'],
+]);
+
+it('should report a job still in progress when the time is up, without error', function (string $state): void {
+    $this->jobStates->states['job-1'] = [$state, 'accepted'];
+    $logger = $this->createMock(LoggerInterface::class);
+    $logger->expects($this->never())->method('log');
+    $service = ($this->createService)();
+    $service->setLogger($logger);
+
+    $outcomes = $service->waitForJobs(['job-1', 'job-2']);
+
+    expect($outcomes->isPending())->toBeTrue()
+        ->and($outcomes->isFailed())->toBeFalse()
+        ->and($outcomes->getFailureMessage())->toBe('')
+        ->and($outcomes->of(['job-2'])->isPending())->toBeFalse()
+        // The time was spent on the first job: the state of the second one is read without waiting.
+        ->and($this->jobStates->waits)->toBe([['job-1', 10], ['job-2', 0]])
+        ->and($this->jobStates->now)->toBeLessThanOrEqual(1000.0 + 10 + 0.5);
+})->with(['queued', 'dispatched', 'running']);
+
+it('should share the Gorgone command timeout between the jobs', function (): void {
+    ($this->createService)()->waitForJobs(['job-1', 'job-2', 'job-3']);
+
+    // Each finished job is answered in half a second.
+    expect($this->jobStates->waits)->toBe([['job-1', 10], ['job-2', 9], ['job-3', 9]]);
+});
+
+it('should never wait more than 30 seconds, whatever the Gorgone command timeout', function (): void {
+    $this->commandTimeout = '300';
+    $this->jobStates->states['job-1'] = ['running', ''];
+    $this->jobStates->states['job-2'] = ['running', ''];
+
+    $outcomes = ($this->createService)()->waitForJobs(['job-1', 'job-2', 'job-3']);
+
+    expect($this->jobStates->waits)->toBe([['job-1', 30], ['job-2', 0], ['job-3', 0]])
+        ->and($this->jobStates->now)->toBeLessThanOrEqual(1000.0 + GorgoneCommandService::MAX_WAIT_SECONDS + 1)
+        ->and($outcomes->isPending())->toBeTrue();
+});
+
+it('should wait at least one second when the Gorgone command timeout is not set', function (): void {
+    $this->commandTimeout = '0';
+
+    ($this->createService)()->waitForJobs(['job-1']);
+
+    expect($this->jobStates->waits)->toBe([['job-1', 1]]);
+});
+
+it('should never wait for the external commands', function (): void {
+    $service = ($this->createService)();
+    $jobIds = $service->sendLegacyCommands([
+        'EXTERNALCMD:1:[1700000000] ACKNOWLEDGE_HOST_PROBLEM;host;2;0;1;admin;comment',
+        'EXTERNALCMD:2:[1700000000] SCHEDULE_HOST_DOWNTIME;other;1;2;1;0;3600;admin;comment',
+        'RELOAD:1',
+        'EXTERNALCMD:1:[1700000001] SCHEDULE_FORCED_HOST_CHECK;host;1700000001',
+    ]);
+    // Even a failed one is neither read nor reported.
+    $this->jobStates->states['job-1'] = ['failed', 'unknown external command'];
+
+    $outcomes = $service->waitForJobs($jobIds);
+
+    expect($jobIds)->toBe(['job-1', 'job-2', 'job-3', 'job-4'])
+        ->and($this->jobStates->waits)->toBe([['job-3', 10]])
+        ->and($outcomes->isFailed())->toBeFalse()
+        ->and(array_map(static fn (JobOutcome $outcome): string => $outcome->getJobId(), $outcomes->all()))
+        ->toBe(['job-3']);
+});
+
+it('should call nothing when only external commands were sent', function (): void {
+    $this->optionService->expects($this->once())->method('findSelectedOptions');
+    $service = ($this->createService)();
+    $jobIds = $service->sendLegacyCommands('EXTERNALCMD:1:[1700000000] ENABLE_NOTIFICATIONS');
+
+    expect($service->waitForJobs($jobIds)->all())->toBe([])
+        ->and($this->jobStates->waits)->toBe([]);
+});
+
+it('should describe the outcome of each operation', function (): void {
+    $this->jobStates->states['job-2'] = ['failed', 'cannot write /etc/centreon-engine/hosts.cfg'];
+    $this->jobStates->states['job-4'] = ['running', ''];
+
+    $report = ($this->createService)()->reportOutcomes([
+        'Central' => ['job-1'],
+        'Poller-1' => ['job-2', 'job-3'],
+        'Poller-2' => ['job-4', 'job-5'],
+        'Poller-3' => [],
+    ]);
+
+    expect($report)->toBe([
+        'messages' => [
+            'Central: done.',
+            'Poller-1: failed (cannot write /etc/centreon-engine/hosts.cfg).',
+            'Poller-2: still in progress.',
+            'Poller-3: done.',
+        ],
+        'failures' => ['Poller-1: failed (cannot write /etc/centreon-engine/hosts.cfg).'],
+    ])->and(array_column($this->jobStates->waits, 0))->toBe(['job-1', 'job-2', 'job-3', 'job-4', 'job-5']);
+});
+
+it('should not wait when the feature flag is disabled', function (): void {
+    expect(fn () => ($this->createService)(0)->waitForJobs(['job-1']))
+        ->toThrow(GorgoneCommandException::class, 'gorgone_api_commands')
+        ->and($this->jobStates->waits)->toBe([]);
+});
+
+it('should log and propagate the errors met while reading the jobs', function (): void {
+    $this->jobStates->failure = new \RuntimeException('connection refused');
+    $logger = $this->createMock(LoggerInterface::class);
+    $logger->expects($this->once())
+        ->method('log')
+        ->with('error', $this->stringContains('connection refused'));
+    $service = ($this->createService)();
+    $service->setLogger($logger);
+
+    expect(fn () => $service->reportOutcomes(['Central' => ['job-1']]))
         ->toThrow(GorgoneCommandException::class, 'connection refused');
 });

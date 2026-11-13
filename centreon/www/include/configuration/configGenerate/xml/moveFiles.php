@@ -233,6 +233,14 @@ try {
         ->getContainer()
         ->get('legacy.service_locator')
         ->get('gorgone_command_service');
+    $isGorgoneApiEnabled = $gorgoneCommandService->isEnabled();
+    $gorgoneJobIds = [];
+    // The messages come from the pollers and the page inserts them as HTML; CentreonXML decodes the entities once
+    $escapeGorgoneMessage = static fn (string $message): string => htmlspecialchars(
+        htmlspecialchars($message, ENT_QUOTES, 'UTF-8'),
+        ENT_QUOTES,
+        'UTF-8'
+    );
 
     $tab_server = [];
     $tabs = $centreon->user->access->getPollerAclConf(['fields' => ['name', 'id', 'localhost'], 'order' => ['name'], 'conditions' => ['ns_activate' => '1'], 'keys' => ['id']]);
@@ -247,7 +255,8 @@ try {
         if (isset($pollers) && ($pollers == 0 || in_array($host['id'], $pollers))) {
             $listBrokerFile = glob($centreonBrokerPath . $host['id'] . '/*.{xml,json,cfg,sql}', GLOB_BRACE);
             $listVmWareFile = glob($vmWareConfigPath . $host['id'] . '/*.json', GLOB_BRACE);
-            if (isset($host['localhost']) && $host['localhost'] == 1) {
+            // With the Gorgone API, the central poller gets its files like the others: nothing is copied here
+            if (! $isGorgoneApiEnabled && isset($host['localhost']) && $host['localhost'] == 1) {
                 // Check if monitoring engine's configuration directory existss
                 $dbResult = $pearDB->query("
                     SELECT cfg_dir FROM cfg_nagios, nagios_server
@@ -355,8 +364,10 @@ try {
                 }
                 $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], true);
             } else {
-                if ($gorgoneCommandService->isEnabled()) {
-                    $gorgoneCommandService->sendLegacyCommands('SENDCFGFILE:' . (int) $host['id']);
+                if ($isGorgoneApiEnabled) {
+                    $gorgoneJobIds[$host['name']] = $gorgoneCommandService->sendLegacyCommands(
+                        'SENDCFGFILE:' . (int) $host['id']
+                    );
                 } else {
                     $written = file_put_contents(
                         $centcore_pipe,
@@ -376,6 +387,13 @@ try {
             }
         }
     }
+
+    // Outcome of the configuration pushes, per poller (a push still in progress is not an error)
+    $gorgoneReport = $isGorgoneApiEnabled ? $gorgoneCommandService->reportOutcomes($gorgoneJobIds) : null;
+    if ($gorgoneReport !== null && $gorgoneReport['failures'] !== []) {
+        throw new Exception($escapeGorgoneMessage(implode(' ', $gorgoneReport['failures'])));
+    }
+
     $xml->startElement('response');
     $xml->writeElement('status', $okMsg);
     $xml->writeElement('statuscode', STATUS_OK);
@@ -384,6 +402,9 @@ try {
     $xml->writeElement('status', $nokMsg);
     $xml->writeElement('statuscode', STATUS_NOK);
     $xml->writeElement('error', $e->getMessage());
+}
+if (isset($gorgoneReport)) {
+    $xml->writeElement('debug', implode('<br/>', array_map($escapeGorgoneMessage, $gorgoneReport['messages'])));
 }
 // Restore default error handler
 restore_error_handler();

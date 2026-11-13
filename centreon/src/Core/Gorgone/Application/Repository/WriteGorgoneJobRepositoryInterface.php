@@ -46,12 +46,20 @@ interface WriteGorgoneJobRepositoryInterface
      * @param int $nodeId
      * @param string $service
      * @param string $operation
+     * @param list<string> $requiresLatestConfig configuration targets the job depends on: it is held until
+     *                                           the latest push of each one to the node is finished, and
+     *                                           fails when one of those pushes failed
      *
      * @throws GorgoneCommandException
      *
      * @return string job id
      */
-    public function submitServiceControl(int $nodeId, string $service, string $operation): string;
+    public function submitServiceControl(
+        int $nodeId,
+        string $service,
+        string $operation,
+        array $requiresLatestConfig = [],
+    ): string;
 
     /**
      * Push the files of a configuration target to a node.

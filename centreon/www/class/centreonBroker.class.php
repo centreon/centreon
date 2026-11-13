@@ -43,10 +43,23 @@ class CentreonBroker
      * Reload centreon broker process
      *
      * @throws PDOException
-     * @return void
+     * @throws Core\Gorgone\Application\Exception\GorgoneCommandException
+     * @return list<string> ids of the Gorgone jobs (feature flag "gorgone_api_commands"), empty otherwise
      */
-    public function reload(): void
+    public function reload(): array
     {
+        // Feature flag "gorgone_api_commands": the reload goes to the Gorgone API, nothing is run locally
+        $gorgoneCommandService = App\Kernel::createForWeb()
+            ->getContainer()
+            ->get('legacy.service_locator')
+            ->get('gorgone_command_service');
+        if ($gorgoneCommandService->isEnabled()) {
+            $result = $this->db->query('SELECT id FROM nagios_server ORDER BY localhost DESC');
+            $row = $result->fetch();
+
+            return $row ? $gorgoneCommandService->sendLegacyCommands('RELOADBROKER:' . (int) $row['id']) : [];
+        }
+
         $command = $this->getReloadCommand();
         if (! empty($command)) {
             if (preg_match(Core\MonitoringServer\Model\MonitoringServer::VALID_COMMAND_RELOAD_REGEX, $command) !== 1) {
@@ -54,6 +67,8 @@ class CentreonBroker
             }
             shell_exec(escapeshellcmd("sudo -n -- {$command}"));
         }
+
+        return [];
     }
 
     /**
