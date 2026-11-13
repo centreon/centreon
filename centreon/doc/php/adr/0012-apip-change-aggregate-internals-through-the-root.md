@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-15
+- **Scope:** APIP
 
 ## Context
 
@@ -18,7 +19,7 @@ Make every root method leave the **whole aggregate consistent**: before and afte
 ## Consequences
 
 - Inner entities expose no public mutator that code outside the aggregate could use to bypass the root.
-- Each change is a named business operation on the root, consistent with [ADR-0009](0009-aggregates-readonly-by-default.md).
+- Each change is a named business operation on the root, consistent with [ADR-0009](0009-apip-aggregates-readonly-by-default.md).
 - Roots can grow methods that only delegate. That is the price of a single, enforceable entry point.
 - The terms used here are defined in the [glossary](../glossary.md#1-domain-building-blocks).
 

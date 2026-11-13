@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-07-22
+- **Scope:** APIP
 
 ## Context
 
@@ -15,7 +16,7 @@ Declare aggregate properties **`readonly`** by default, except the `AggregateRoo
 
 - Uncontrolled mutations are prevented. Every state change goes through a named business operation that can enforce its invariants.
 - A property that is not `readonly` is a signal: some use case mutates it.
-- Changes to an aggregate's inner entities and value objects also go through the aggregate root, as set by [ADR-0012](0012-change-aggregate-internals-through-the-root.md).
+- Changes to an aggregate's inner entities and value objects also go through the aggregate root.
 - The rule is not enforced by tooling.
 
 ## When to Amend
