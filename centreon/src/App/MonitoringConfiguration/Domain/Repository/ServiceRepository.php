@@ -61,8 +61,8 @@ interface ServiceRepository
 
     /**
      * The levelled categories (severities) the service is linked to, lowest id first, whatever the actor may see:
-     * {@see findOne()} reads only the one the actor may see, so a write preserving a severity hidden from the
-     * actor needs this unscoped read.
+     * {@see findOne()} reads only the lowest, so a write needs this read to resolve the extra ones legacy may have
+     * left, a service holding a single severity.
      *
      * @return Collection<ServiceSeverityId>
      */

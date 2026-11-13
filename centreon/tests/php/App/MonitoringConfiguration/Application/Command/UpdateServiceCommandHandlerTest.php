@@ -108,7 +108,6 @@ use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TrapRepository;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Repository\ResourceAccessRepository;
-use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -216,8 +215,6 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
         $this->eventBus = new EventBusSpy();
         $this->vault = new FakeVault();
         $this->logger = new LoggerSpy();
-        // The severity is read scoped to the actor, as the real repository reads it.
-        $this->serviceRepository->accessScopes = new AccessScopeResolver($this->resourceAccess);
 
         $container->set(ServiceRepository::class, $this->serviceRepository);
         $container->set(HostRepository::class, $this->hostRepository);
@@ -693,10 +690,10 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * No severity submitted: the hidden one with the lowest id is kept, the only one written back. The service
-     * as the actor loaded it shows no severity at all.
+     * No severity submitted: the main severity (the lowest, as read) is cleared when the actor can see it, and the
+     * extra ones go with it.
      */
-    public function testNoSeverityKeepsTheLowestHiddenOne(): void
+    public function testNoSeverityClearsAVisibleMainOneAndTheExtraOnes(): void
     {
         $this->seedEveryReference();
         $this->serviceRepository->storedSeverityIds[self::SERVICE_ID] = [70, 72, 71];
@@ -704,7 +701,24 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
 
         $service = ($this->handler)($this->command(actorId: self::RESTRICTED_USER_ID));
 
+        self::assertNull($service->severityId);
+        self::assertSame([$service], $this->serviceRepository->relationsReplacedServices);
+    }
+
+    /**
+     * No severity submitted: a main severity the actor cannot see is kept, as they have no right to remove it;
+     * the extra ones are dropped whatever the actor may see.
+     */
+    public function testNoSeverityKeepsAHiddenMainOneAndDropsTheExtraOnes(): void
+    {
+        $this->seedEveryReference();
+        $this->serviceRepository->storedSeverityIds[self::SERVICE_ID] = [72, 71];
+        $this->restrictTheActor();
+
+        $service = ($this->handler)($this->command(actorId: self::RESTRICTED_USER_ID));
+
         self::assertSame(71, $service->severityId?->value);
+        self::assertSame([$service], $this->serviceRepository->relationsReplacedServices);
     }
 
     /**
