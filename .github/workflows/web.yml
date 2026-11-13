@@ -398,6 +398,15 @@ jobs:
           STABILITY: ${{ needs.get-environment.outputs.stability }}
           EVENT_NAME: ${{ github.event_name }}
           HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          HEAD_REF: ${{ github.head_ref }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
         run: bash .github/scripts/translation/build-translations.sh
         shell: bash
 
