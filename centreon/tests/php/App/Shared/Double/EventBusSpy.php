@@ -64,6 +64,14 @@ final class EventBusSpy implements EventBus
     }
 
     /**
+     * @return list<class-string<EventInterface>> in firing order
+     */
+    public function getDispatchedEventClasses(): array
+    {
+        return array_map(static fn (EventInterface $event): string => $event::class, $this->events);
+    }
+
+    /**
      * @template T of EventInterface
      *
      * @param class-string<T> $eventClass

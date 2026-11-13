@@ -33,9 +33,15 @@ use App\Shared\Domain\Event\EventInterface;
  */
 final readonly class ServiceVaultPurgeRequested implements DeliveredAfterCommitInterface, EventInterface
 {
+    /**
+     * @param bool $bestEffort a failed purge is only logged instead of reported to the caller: set it when the
+     *                         service was removed as a side effect of a successful save, an orphan secret being
+     *                         harmless
+     */
     public function __construct(
         public Service $service,
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
+        public bool $bestEffort = false,
     ) {
     }
 
