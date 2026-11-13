@@ -247,12 +247,16 @@ When('the hard state has been reached', () => {
       }
     ]);
   } else {
-    checkServicesAreMonitored(
-      Array.from({ length: 1000 }, (_, i) => ({
-        name: `service_${i + 1}`,
-        status: 'ok',
-        statusType: 'hard'
-      }))
+    // One count query: a condition per service made the logged query exhaust the browser memory
+    cy.waitUntil(
+      () =>
+        cy
+          .requestOnDatabase({
+            database: 'centreon_storage',
+            query: `SELECT COUNT(resource_id) AS count_services FROM resources WHERE enabled = 1 AND type = 0 AND name REGEXP '^service_[0-9]+$' AND CAST(SUBSTRING(name, 9) AS UNSIGNED) BETWEEN 1 AND 1000 AND status = 0 AND status_confirmed = 1`
+          })
+          .then(([rows]) => rows[0].count_services >= 1000),
+      { interval: 5000, timeout: 600000 }
     );
   }
 });
