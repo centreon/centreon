@@ -28,12 +28,18 @@ use App\Shared\Domain\Event\EventInterface;
 
 final class EventBusSpy implements EventBus
 {
+    /** @var ?\Closure(EventInterface): void called on each fire, to observe the state at that moment */
+    public ?\Closure $onFire = null;
+
     /** @var list<EventInterface> */
     private array $events = [];
 
     public function fire(EventInterface $event): void
     {
         $this->events[] = $event;
+        if ($this->onFire instanceof \Closure) {
+            ($this->onFire)($event);
+        }
     }
 
     /**
