@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure;
 
-use App\Upgrade\Application\CacheClearer;
+use App\Upgrade\Domain\Service\CacheClearerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Process\Process;
 
-final readonly class SymfonyCacheClearer implements CacheClearer
+final readonly class SymfonyCacheClearer implements CacheClearerInterface
 {
     public function __construct(
         #[Autowire(param: 'kernel.project_dir')]

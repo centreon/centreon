@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Validator;
 
-use App\Upgrade\Application\DbmsVersionValidator as DbmsVersionValidatorPort;
+use App\Upgrade\Domain\Service\DbmsVersionValidatorInterface;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-final readonly class DbmsVersionValidator implements DbmsVersionValidatorPort
+final readonly class DbmsVersionValidator implements DbmsVersionValidatorInterface
 {
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]

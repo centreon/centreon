@@ -1,0 +1,3 @@
+parameters:
+    # Version of the installed code: see migrations/README.md for when it is recorded as the platform version.
+    centreon.version: '27.01.0'

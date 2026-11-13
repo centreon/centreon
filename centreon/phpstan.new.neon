@@ -23,6 +23,7 @@ parameters:
 
     paths:
         - config.new
+        - migrations
         - src/Adaptation
         - src/App
 

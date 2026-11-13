@@ -105,8 +105,6 @@ parameters:
             - Centreon\Domain\Gorgone\Command\NodesSync
             - Centreon\Domain\Gorgone\GorgoneException
             - Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface
-        App\Upgrade\Infrastructure\Legacy\LegacyUpgradeLoggerWrapper:
-            - Adaptation\Log\LoggerUpgrade
         App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory:
             - CentreonDB
             - Adaptation\Database\Connection\Model\ConnectionConfig
