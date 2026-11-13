@@ -66,7 +66,15 @@ final class DbalModuleRepository implements ModuleRepository
 
     public function isInstalled(string $module): bool
     {
-        return $this->configConnection->fetchOne('SELECT 1 FROM `modules_informations` WHERE `name` = ?', [$module]) !== false;
+        $queryBuilder = $this->configConnection->createQueryBuilder();
+
+        return $queryBuilder
+            ->select('1')
+            ->from('modules_informations')
+            ->where('name = ' . $queryBuilder->createNamedParameter($module))
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne() !== false;
     }
 
     private function upgradeModuleIfNeeded(string $moduleName): void

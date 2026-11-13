@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Doctrine;
 
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Model\MigrationSet;
 use Symfony\Component\Filesystem\Filesystem;
 
 final readonly class MigrationGenerator
@@ -54,7 +54,7 @@ final readonly class MigrationGenerator
 
         namespace {namespace};
 
-        use App\Upgrade\Infrastructure\Doctrine\{base};
+        use App\Upgrade\Infrastructure\Migration\{base};
         use Doctrine\DBAL\Schema\Schema;
 
         final class {class} extends {base}
@@ -92,22 +92,22 @@ final readonly class MigrationGenerator
      */
     public function generate(MigrationSet $set, bool $ddl, \DateTimeImmutable $now = new \DateTimeImmutable()): string
     {
-        $migrationSet = $this->registry->configuration($set);
+        $configuration = $this->registry->configuration($set);
         // A typo would otherwise create a module directory whose migrations never run.
-        $moduleDirectory = \dirname($migrationSet->directory);
-        if ($set->module !== null && ! $this->filesystem->exists($moduleDirectory)) {
-            throw new \RuntimeException(\sprintf('The module "%s" does not exist: "%s" is not a directory.', $set->module, $moduleDirectory));
+        $moduleDirectory = dirname($configuration->directory);
+        if ($set->module !== null && ! is_dir($moduleDirectory)) {
+            throw new \RuntimeException(sprintf('The module "%s" does not exist: "%s" is not a directory.', $set->module, $moduleDirectory));
         }
 
         $class = 'Version' . $now->setTimezone(new \DateTimeZone('UTC'))->format('YmdHis');
-        $path = $migrationSet->directory . '/' . $class . '.php';
+        $path = $configuration->directory . '/' . $class . '.php';
 
         if ($this->filesystem->exists($path)) {
-            throw new \RuntimeException(\sprintf('The migration "%s" already exists.', $path));
+            throw new \RuntimeException(sprintf('The migration "%s" already exists.', $path));
         }
 
         $this->filesystem->dumpFile($path, strtr(self::TEMPLATE, [
-            '{namespace}' => $migrationSet->namespace,
+            '{namespace}' => $configuration->namespace,
             '{class}' => $class,
             '{base}' => $ddl ? 'DdlMigration' : 'DmlMigration',
             '{hint}' => $ddl

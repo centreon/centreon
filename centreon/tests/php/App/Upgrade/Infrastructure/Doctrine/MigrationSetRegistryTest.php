@@ -23,10 +23,14 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Doctrine;
 
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Domain\Model\WebMigrationSetEnum;
 use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LogLevel;
+use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
+use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 
 final class MigrationSetRegistryTest extends TestCase
 {
@@ -45,7 +49,7 @@ final class MigrationSetRegistryTest extends TestCase
             $this->modulesDir . '/4centreon/migrations',
         ]);
 
-        $this->registry = new MigrationSetRegistry('/usr/share/centreon', $this->modulesDir);
+        $this->registry = new MigrationSetRegistry('/usr/share/centreon', $this->modulesDir, new NullLogger());
     }
 
     protected function tearDown(): void
@@ -53,36 +57,119 @@ final class MigrationSetRegistryTest extends TestCase
         (new Filesystem())->remove($this->modulesDir);
     }
 
-    public function testCoreSets(): void
+    public function testWebSets(): void
     {
-        $realtime = $this->registry->configuration(MigrationSet::core(MigrationSet::REALTIME));
+        $realtime = $this->registry->configuration(MigrationSet::web(WebMigrationSetEnum::Realtime));
         self::assertSame('realtime', $realtime->connection);
         self::assertSame('Centreon\Migrations\Realtime', $realtime->namespace);
         self::assertSame('/usr/share/centreon/migrations/realtime', $realtime->directory);
         self::assertSame('doctrine_migration_versions', $realtime->table);
 
-        $configuration = $this->registry->configuration(MigrationSet::core(MigrationSet::CONFIGURATION));
+        $configuration = $this->registry->configuration(MigrationSet::web(WebMigrationSetEnum::Configuration));
         self::assertSame('default', $configuration->connection);
         self::assertSame('Centreon\Migrations\Configuration', $configuration->namespace);
         self::assertSame('/usr/share/centreon/migrations/configuration', $configuration->directory);
         self::assertSame('doctrine_migration_versions', $configuration->table);
     }
 
-    public function testModuleSetsHaveTheirOwnNamespaceAndTable(): void
+    public function testTheWebMigrationDirectoriesAreShipped(): void
     {
-        $set = $this->registry->configuration(MigrationSet::module('centreon-open-tickets'));
+        $registry = new MigrationSetRegistry(dirname(__DIR__, 6), '/nonexistent', new NullLogger());
 
-        self::assertSame('default', $set->connection);
-        self::assertSame('CentreonOpenTickets\Migrations', $set->namespace);
-        self::assertSame($this->modulesDir . '/centreon-open-tickets/migrations', $set->directory);
-        self::assertSame('doctrine_migration_versions_centreon_open_tickets', $set->table);
+        foreach (MigrationSet::webSets() as $set) {
+            self::assertDirectoryExists($registry->configuration($set)->directory);
+        }
     }
 
-    public function testAllListsTheCoreSetsFirstThenTheModulesShippingMigrations(): void
+    public function testModuleSetsHaveTheirOwnNamespaceAndTable(): void
+    {
+        $configuration = $this->registry->configuration(MigrationSet::module('centreon-open-tickets'));
+
+        self::assertSame('default', $configuration->connection);
+        self::assertSame('CentreonOpenTickets\Migrations', $configuration->namespace);
+        self::assertSame($this->modulesDir . '/centreon-open-tickets/migrations', $configuration->directory);
+        self::assertSame('doctrine_migration_versions_centreon_open_tickets', $configuration->table);
+    }
+
+    public function testAllListsTheWebSetsFirstThenTheModulesShippingMigrations(): void
     {
         self::assertSame(
             ['realtime', 'configuration', 'module:centreon-open-tickets'],
             array_map(static fn (MigrationSet $set): string => $set->name, $this->registry->all()),
         );
+    }
+
+    public function testTheMetadataTableOfTheLongestModuleNameFitsAnIdentifier(): void
+    {
+        self::assertSame(63, mb_strlen($this->registry->configuration(MigrationSet::module(str_repeat('a', 35)))->table), 'PostgreSQL identifiers are limited to 63 characters');
+    }
+
+    public function testIgnoresTheModulesSharingANamespace(): void
+    {
+        (new Filesystem())->mkdir([
+            $this->modulesDir . '/centreon-foo/migrations',
+            $this->modulesDir . '/centreonfoo/migrations',
+            $this->modulesDir . '/centreon-a1/migrations',
+            $this->modulesDir . '/centreon-a-1/migrations',
+        ]);
+
+        self::assertSame(
+            ['realtime', 'configuration', 'module:centreon-open-tickets'],
+            array_map(static fn (MigrationSet $set): string => $set->name, $this->registry->all()),
+        );
+    }
+
+    public function testLogsTheModuleDirectoriesItIgnores(): void
+    {
+        $logger = new RecordingLogger();
+
+        (new MigrationSetRegistry('/usr/share/centreon', $this->modulesDir, $logger))->all();
+
+        $warnings = array_column(array_filter($logger->records(), static fn (array $record): bool => $record['level'] === LogLevel::WARNING), 'message');
+        self::assertCount(2, $warnings);
+        self::assertStringContainsString('4centreon/migrations', implode("\n", $warnings));
+    }
+
+    public function testReportsTheModuleDirectoriesItCannotRead(): void
+    {
+        if (posix_geteuid() === 0) {
+            self::markTestSkipped('root reads any directory');
+        }
+
+        $filesystem = new Filesystem();
+        $filesystem->chmod($this->modulesDir . '/centreon-open-tickets', 0o600);
+
+        try {
+            self::assertContains(
+                sprintf('Cannot read the module directory "%s/centreon-open-tickets": check its permissions.', $this->modulesDir),
+                $this->registry->ignored(),
+            );
+
+            $filesystem->chmod($this->modulesDir, 0o300);
+            self::assertSame([sprintf('Cannot list the modules of "%s": check its permissions.', $this->modulesDir)], $this->registry->ignored());
+        } finally {
+            $filesystem->chmod([$this->modulesDir, $this->modulesDir . '/centreon-open-tickets'], 0o755);
+        }
+    }
+
+    public function testReportsMigrationsThatAreNotADirectory(): void
+    {
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile($this->modulesDir . '/centreon-dsm/migrations', '');
+        $filesystem->symlink($this->modulesDir . '/missing', $this->modulesDir . '/centreon-awie/migrations');
+
+        $ignored = $this->registry->ignored();
+
+        self::assertContains(sprintf('Ignored the migrations of "%s/centreon-dsm/migrations": it is not a directory.', $this->modulesDir), $ignored);
+        self::assertContains(sprintf('Ignored the migrations of "%s/centreon-awie/migrations": it is not a directory.', $this->modulesDir), $ignored);
+        self::assertSame(['centreon-open-tickets'], array_values(array_filter(array_map(static fn (MigrationSet $set): ?string => $set->module, $this->registry->all()))));
+    }
+
+    public function testAMissingModulesDirectoryHasNoModule(): void
+    {
+        $registry = new MigrationSetRegistry('/usr/share/centreon', $this->modulesDir . '/missing', new NullLogger());
+
+        self::assertSame([], $registry->ignored());
+        self::assertEquals(MigrationSet::webSets(), $registry->all());
     }
 }

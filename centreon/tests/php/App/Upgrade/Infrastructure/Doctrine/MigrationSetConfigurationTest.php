@@ -29,25 +29,39 @@ use PHPUnit\Framework\TestCase;
 
 final class MigrationSetConfigurationTest extends TestCase
 {
+    public function testKeepsAValidDefinition(): void
+    {
+        $configuration = new MigrationSetConfiguration('realtime', 'Centreon\\Migrations\\Realtime', '/migrations/realtime', 'doctrine_migration_versions');
+
+        self::assertSame('realtime', $configuration->connection);
+        self::assertSame('Centreon\\Migrations\\Realtime', $configuration->namespace);
+        self::assertSame('/migrations/realtime', $configuration->directory);
+        self::assertSame('doctrine_migration_versions', $configuration->table);
+    }
+
     /**
-     * @return iterable<string, array{string, string}>
+     * @return iterable<string, array{string, string, string, string}>
      */
     public static function provideInvalidDefinitions(): iterable
     {
-        yield 'namespace with a leading backslash' => ['\Centreon\Migrations', 'doctrine_migration_versions'];
+        yield 'no connection' => ['', 'Centreon\Migrations', '/migrations', 'doctrine_migration_versions'];
 
-        yield 'namespace with a dash' => ['Centreon-Migrations', 'doctrine_migration_versions'];
+        yield 'namespace with a leading backslash' => ['default', '\Centreon\Migrations', '/migrations', 'doctrine_migration_versions'];
 
-        yield 'table with a dash' => ['Centreon\Migrations', 'doctrine-migration-versions'];
+        yield 'namespace with a dash' => ['default', 'Centreon-Migrations', '/migrations', 'doctrine_migration_versions'];
 
-        yield 'table with an injection' => ['Centreon\Migrations', 'versions; DROP TABLE host'];
+        yield 'no directory' => ['default', 'Centreon\Migrations', '', 'doctrine_migration_versions'];
+
+        yield 'table with a dash' => ['default', 'Centreon\Migrations', '/migrations', 'doctrine-migration-versions'];
+
+        yield 'table with an injection' => ['default', 'Centreon\Migrations', '/migrations', 'versions; DROP TABLE host'];
     }
 
     #[DataProvider('provideInvalidDefinitions')]
-    public function testRejectsInvalidDefinitions(string $namespace, string $table): void
+    public function testRejectsInvalidDefinitions(string $connection, string $namespace, string $directory, string $table): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        new MigrationSetConfiguration('default', $namespace, '/migrations', $table);
+        new MigrationSetConfiguration($connection, $namespace, $directory, $table);
     }
 }

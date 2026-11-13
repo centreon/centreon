@@ -23,11 +23,16 @@ declare(strict_types=1);
 
 namespace Atomicity\Migrations;
 
-use App\Upgrade\Infrastructure\Doctrine\DmlMigration;
+use App\Upgrade\Infrastructure\Migration\DmlMigration;
 use Doctrine\DBAL\Schema\Schema;
 
 final class Version20260101000002 extends DmlMigration
 {
+    public function getDescription(): string
+    {
+        return 'Fixture atomicity Version20260101000002';
+    }
+
     public function up(Schema $schema): void
     {
         $this->addSql('INSERT INTO fx_atomicity (id) VALUES (1)');

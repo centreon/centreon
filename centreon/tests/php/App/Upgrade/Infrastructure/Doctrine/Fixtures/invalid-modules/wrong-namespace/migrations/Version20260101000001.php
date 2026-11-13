@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace CentreonWrongNamespace\Migrations;
 
-use App\Upgrade\Infrastructure\Doctrine\DmlMigration;
+use App\Upgrade\Infrastructure\Migration\DmlMigration;
 use Doctrine\DBAL\Schema\Schema;
 
 final class Version20260101000001 extends DmlMigration

@@ -23,11 +23,16 @@ declare(strict_types=1);
 
 namespace SchemaGuard\Migrations;
 
-use App\Upgrade\Infrastructure\Doctrine\DdlMigration;
+use App\Upgrade\Infrastructure\Migration\DdlMigration;
 use Doctrine\DBAL\Schema\Schema;
 
 final class Version20260101000001 extends DdlMigration
 {
+    public function getDescription(): string
+    {
+        return 'Fixture schema-guard Version20260101000001';
+    }
+
     public function up(Schema $schema): void
     {
         // MySQL has no ADD COLUMN IF NOT EXISTS: the guard reads the schema of the whole database.

@@ -27,6 +27,7 @@ use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Infrastructure\Dbal\DbalModuleRepository;
 use App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -71,13 +72,23 @@ final class DbalModuleRepositoryTest extends TestCase
 
     public function testAModuleIsInstalledWhenItHasARowInModulesInformations(): void
     {
-        $this->configConnection->method('fetchOne')->willReturnMap([
-            ['SELECT 1 FROM `modules_informations` WHERE `name` = ?', ['centreon-open-tickets'], [], 1],
-            ['SELECT 1 FROM `modules_informations` WHERE `name` = ?', ['centreon-bam-server'], [], false],
-        ]);
+        $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+        $connection->executeStatement('CREATE TABLE modules_informations (name VARCHAR(255) NOT NULL)');
+        $connection->insert('modules_informations', ['name' => 'centreon-open-tickets']);
 
-        self::assertTrue($this->repository->isInstalled('centreon-open-tickets'));
-        self::assertFalse($this->repository->isInstalled('centreon-bam-server'));
+        $repository = new DbalModuleRepository(
+            $connection,
+            $this->modulesDir,
+            new LegacyConnectionFactory(
+                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon', 'centreon_storage'),
+                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon_storage', 'centreon_storage'),
+            ),
+            '/usr/share/centreon/',
+            new NullLogger(),
+        );
+
+        self::assertTrue($repository->isInstalled('centreon-open-tickets'));
+        self::assertFalse($repository->isInstalled('centreon-bam-server'));
     }
 
     public function testUpdateAllNoInstalledModules(): void
