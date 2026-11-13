@@ -285,7 +285,9 @@ Then(
         cy.get('div[class*="statusColumn"]:first')
           .invoke('text')
           .should((text) => {
-            expect(text.trim()).to.match(/Pending|O[Kk]|Unknown|Warning|Critical/);
+            expect(text.trim()).to.match(
+              /Pending|O[Kk]|Unknown|Warning|Critical/
+            );
           });
       }
     );
