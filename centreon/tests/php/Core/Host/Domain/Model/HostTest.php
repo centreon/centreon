@@ -315,6 +315,45 @@ foreach (
     );
 }
 
+// single-line fields
+foreach (
+    [
+        'name',
+        'alias',
+        'snmpCommunity',
+        'noteUrl',
+        'note',
+        'actionUrl',
+        'iconAlternative',
+    ] as $field
+) {
+    it(
+        "should throw an exception when host {$field} contains a line break",
+        fn () => ($this->createHost)([$field => "abc\ndef"])
+    )->throws(
+        \InvalidArgumentException::class,
+        "[Host::{$field}] The value must not contain control characters"
+    );
+
+    it(
+        "should throw an exception when host {$field} is set with a line break",
+        function () use ($field): void {
+            $host = ($this->createHost)();
+            $host->{'set' . $field}("abc\ndef");
+        }
+    )->throws(
+        \InvalidArgumentException::class,
+        "[Host::{$field}] The value must not contain control characters"
+    );
+}
+
+it('should set a comment spanning several lines', function (): void {
+    $host = ($this->createHost)();
+    $host->setComment("first line\nsecond line");
+
+    expect($host->getComment())->toBe("first line\nsecond line");
+});
+
 // too long fields
 foreach (
     [

@@ -117,3 +117,27 @@ it('splits service macros between direct and template macros for each service', 
             [...$serviceMacros, ...$templateMacros]
         ))->each->toBeFalse();
 });
+
+it('writes each attribute of a host on a single line', function (): void {
+    $file = fopen('php://memory', 'w+');
+    (new ReflectionProperty(AbstractObject::class, 'fp'))->setValue($this->host, $file);
+
+    ($this->callPrivate)('writeObject', [
+        'host_name' => 'my-host',
+        'alias' => "first line\r\nsecond line",
+        'notes' => "first line\nsecond line",
+        'macros' => ["_CUSTOM\nNAME" => "first line\rsecond line"],
+    ]);
+
+    rewind($file);
+    $written = (string) stream_get_contents($file);
+
+    expect($written)->toBe(
+        "\ndefine host {\n"
+        . sprintf("    %-30s %s \n", 'host_name', 'my-host')
+        . sprintf("    %-30s %s \n", 'alias', 'first line second line')
+        . sprintf("    %-30s %s \n", 'notes', 'first line second line')
+        . sprintf("    %-30s %s \n", '_CUSTOM NAME', 'first line second line')
+        . "}\n"
+    );
+});

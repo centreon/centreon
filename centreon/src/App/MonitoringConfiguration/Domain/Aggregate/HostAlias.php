@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate;
 
+use App\MonitoringConfiguration\Domain\Model\EngineConfigurationValue;
 use Webmozart\Assert\Assert;
 
 final readonly class HostAlias
@@ -36,6 +37,7 @@ final readonly class HostAlias
     {
         $value = trim($value);
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
+        Assert::notRegex($value, EngineConfigurationValue::CONTROL_CHARACTERS_PATTERN, '[HostAlias::value] The value must not contain control characters');
         $this->value = $value;
     }
 }

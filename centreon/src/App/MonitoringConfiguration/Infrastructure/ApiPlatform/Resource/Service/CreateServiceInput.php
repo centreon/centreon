@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleServiceSeveri
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingGraphTemplate;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingServiceTemplate;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTraps;
+use App\MonitoringConfiguration\Infrastructure\Validator\NoControlCharacters;
 use App\MonitoringConfiguration\Infrastructure\Validator\ServiceCommandInheritance;
 use App\MonitoringConfiguration\Infrastructure\Validator\UniqueServiceNameOnHost;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
@@ -45,7 +46,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ServiceCommandInheritance]
 final readonly class CreateServiceInput
 {
-    private const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
     private const FORBIDDEN_CHARACTERS = '/[~!$%^&*"|\'<>?,()=]/';
 
     /**
@@ -63,7 +63,7 @@ final readonly class CreateServiceInput
                 match: false,
             ),
             // On the raw value, before the collapse would turn a tab or a line break into a space.
-            new Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false),
+            new NoControlCharacters(),
             // Measured on what is stored.
             new Assert\Length(max: ServiceName::MAX_LENGTH, normalizer: [self::class, 'normalizeName']),
         ])]

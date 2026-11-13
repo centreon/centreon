@@ -67,4 +67,11 @@ final class SnmpCommunityTest extends TestCase
 
         self::assertSame($path, new SnmpCommunity($path)->value);
     }
+
+    public function testItRejectsACommunityWithALineBreak(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new SnmpCommunity("public\nother");
+    }
 }

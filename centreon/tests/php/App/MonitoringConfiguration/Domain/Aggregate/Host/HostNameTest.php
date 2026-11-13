@@ -62,4 +62,11 @@ final class HostNameTest extends TestCase
 
         new HostName(str_repeat('a', 201));
     }
+
+    public function testItRejectsANameWithALineBreak(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new HostName("my-host\nother");
+    }
 }

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Model\EngineConfigurationValue;
 use App\Shared\Domain\NoValue;
 use Webmozart\Assert\Assert;
 
@@ -69,20 +70,25 @@ final readonly class ExtendedInformations
     ) {
         $noteUrl = $noteUrl !== null ? trim($noteUrl) : null;
         Assert::nullOrLengthBetween($noteUrl, self::MIN_NOTE_URL_LENGTH, self::MAX_NOTE_URL_LENGTH);
+        Assert::nullOrNotRegex($noteUrl, EngineConfigurationValue::CONTROL_CHARACTERS_PATTERN, '[ExtendedInformations::noteUrl] The value must not contain control characters');
         $this->noteUrl = $noteUrl;
 
         $note = $note !== null ? trim($note) : null;
         Assert::nullOrLengthBetween($note, self::MIN_NOTE_LENGTH, self::MAX_NOTE_LENGTH);
+        Assert::nullOrNotRegex($note, EngineConfigurationValue::CONTROL_CHARACTERS_PATTERN, '[ExtendedInformations::note] The value must not contain control characters');
         $this->note = $note;
 
         $actionUrl = $actionUrl !== null ? trim($actionUrl) : null;
         Assert::nullOrLengthBetween($actionUrl, self::MIN_ACTION_URL_LENGTH, self::MAX_ACTION_URL_LENGTH);
+        Assert::nullOrNotRegex($actionUrl, EngineConfigurationValue::CONTROL_CHARACTERS_PATTERN, '[ExtendedInformations::actionUrl] The value must not contain control characters');
         $this->actionUrl = $actionUrl;
 
         $altIcon = $altIcon !== null ? trim($altIcon) : null;
         Assert::nullOrLengthBetween($altIcon, self::MIN_ALT_ICON_LENGTH, self::MAX_ALT_ICON_LENGTH);
+        Assert::nullOrNotRegex($altIcon, EngineConfigurationValue::CONTROL_CHARACTERS_PATTERN, '[ExtendedInformations::altIcon] The value must not contain control characters');
         $this->altIcon = $altIcon;
 
+        // Not written into the monitoring engine configuration: it may span several lines.
         $comment = $comment !== null ? trim($comment) : null;
         Assert::nullOrLengthBetween($comment, self::MIN_COMMENT_LENGTH, self::MAX_COMMENT_LENGTH);
         $this->comment = $comment;
