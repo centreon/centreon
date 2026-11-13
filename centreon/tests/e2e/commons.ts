@@ -167,6 +167,9 @@ const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
       return cy.wrap(null).then(() => checkHostsAreMonitored(hosts));
     }
 
+    // Reset for the next call: a failed check must not fail the following ones
+    hostsFoundStepCount = 0;
+
     throw new Error(
       `Hosts ${hosts
         .map(({ name }) => name)
@@ -250,6 +253,8 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
       return cy.wrap(null).then(() => checkServicesAreMonitored(services));
     }
 
+    servicesFoundStepCount = 0;
+
     throw new Error(
       `Services ${services
         .map(({ name }) => name)
@@ -302,6 +307,8 @@ const checkMetricsAreMonitored = (metrics: Array<MonitoredMetric>): void => {
       return cy.wrap(null).then(() => checkMetricsAreMonitored(metrics));
     }
 
+    metricsFoundStepCount = 0;
+
     throw new Error(
       `Metrics ${metrics
         .map(({ name }) => name)
@@ -340,6 +347,8 @@ const checkThatConfigurationIsExported = ({
         .then(() => applyConfigurationViaClapi())
         .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
     }
+
+    configurationExportedCheckStepCount = 0;
 
     throw new Error(
       `Configuration not exported after ${pollingCheckTimeout}ms`
