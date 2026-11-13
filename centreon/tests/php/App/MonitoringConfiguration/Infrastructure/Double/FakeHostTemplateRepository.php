@@ -83,6 +83,15 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var list<int> the ids saved by update(), in order */
     public array $updatedIds = [];
 
+    /** @var list<int> the ids whose relations replaceRelations() saved, in order */
+    public array $replacedRelationIds = [];
+
+    /** @var list<int> the ids whose macros replaceMacros() saved, in order */
+    public array $replacedMacroIds = [];
+
+    /** @var array<int, list<int>> the edges findTemplateParentIds() returns; derived from the stored templates when null */
+    public ?array $templateParentIds = null;
+
     public ?\Throwable $addThrows = null;
 
     public ?\Throwable $updateThrows = null;
@@ -214,6 +223,34 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
         $this->hostTemplates[$hostTemplate->id()->value] = $hostTemplate;
         $this->updatedIds[] = $hostTemplate->id()->value;
+    }
+
+    public function replaceRelations(HostTemplate $hostTemplate): void
+    {
+        $this->hostTemplates[$hostTemplate->id()->value] = $hostTemplate;
+        $this->replacedRelationIds[] = $hostTemplate->id()->value;
+    }
+
+    public function replaceMacros(HostTemplate $hostTemplate): void
+    {
+        $this->hostTemplates[$hostTemplate->id()->value] = $hostTemplate;
+        $this->replacedMacroIds[] = $hostTemplate->id()->value;
+    }
+
+    public function findTemplateParentIds(): array
+    {
+        if ($this->templateParentIds !== null) {
+            return $this->templateParentIds;
+        }
+
+        $parentIds = [];
+        foreach ($this->hostTemplates as $id => $template) {
+            foreach ($template->parentTemplateIds as $parentId) {
+                $parentIds[$id][] = $parentId->value;
+            }
+        }
+
+        return $parentIds;
     }
 
     public function add(HostTemplate $hostTemplate): void

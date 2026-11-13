@@ -25,11 +25,13 @@ namespace App\MonitoringConfiguration\Application\Service;
 
 use App\MonitoringConfiguration\Application\Command\MacroChangeModeEnum;
 use App\MonitoringConfiguration\Application\Command\MacroChanges;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Aggregate\StandardMacro\StandardMacro;
 use App\MonitoringConfiguration\Domain\Exception\DuplicateHostMacroNameException;
@@ -39,6 +41,7 @@ use App\MonitoringConfiguration\Domain\Exception\ReservedHostMacroNameException;
 use App\MonitoringConfiguration\Domain\Repository\StandardMacroRepository;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
 
 /**
@@ -67,23 +70,43 @@ final readonly class HostMacrosUpdater
      */
     public function applyTo(Host $host, MacroChanges $changes): array
     {
-        $current = array_values($host->checkOptions->macros);
+        $this->assertNamesAreNotReserved($changes->changes);
 
+        return $this->assertNamesAreUnique(
+            $this->resolve(array_values($host->checkOptions->macros), $host->templateIds, $host->checkOptions->checkCommandId, $changes),
+        );
+    }
+
+    /**
+     * The macros an owner must have once the changes are applied, against what it inherits from
+     * $templateIds and $checkCommandId. Shared by hosts and host templates: the reserved names and the
+     * uniqueness of the names are left to the caller.
+     *
+     * @param list<HostMacro> $current the owner's own macros
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @throws HostMacroNotFoundException when a change refers to a macro the owner neither owns nor inherits
+     * @throws HostMacroValueIsAVaultReferenceException
+     *
+     * @return list<HostMacro> passwords in the form they were submitted
+     */
+    public function resolve(array $current, Collection $templateIds, ?CommandId $checkCommandId, MacroChanges $changes): array
+    {
         if ($changes->mode === MacroChangeModeEnum::Remove) {
             return $this->remove($current, $changes->removedIds);
         }
 
-        $this->assertSubmittedMacrosAreAllowed($changes->changes);
+        $this->assertNoVaultReference($changes->changes);
 
-        $inherited = $this->inheritedMacrosResolver->resolve($host->templateIds, $host->checkOptions->checkCommandId);
+        $inherited = $this->inheritedMacrosResolver->resolve($templateIds, $checkCommandId);
 
         $resolved = $this->changesResolver->resolve($changes->changes, $current, $inherited);
 
         if ($changes->mode === MacroChangeModeEnum::Replace) {
-            return $this->assertNamesAreUnique($resolved);
+            return $resolved;
         }
 
-        return $this->assertNamesAreUnique($this->mergeWithUntouched($current, $changes->changes, $resolved, $inherited));
+        return $this->mergeWithUntouched($current, $changes->changes, $resolved, $inherited);
     }
 
     /**
@@ -132,23 +155,31 @@ final readonly class HostMacrosUpdater
     /**
      * @param list<HostMacroChange> $changes
      */
-    private function assertSubmittedMacrosAreAllowed(array $changes): void
+    private function assertNamesAreNotReserved(array $changes): void
     {
         $reservedNames = $this->reservedNames();
         $reserved = [];
-        $references = [];
         foreach ($changes as $change) {
             if (in_array($change->name->toStorageName(), $reservedNames, true)) {
                 $reserved[] = $change->name->value;
-            }
-
-            if ($change->value !== null && $this->vault->isVaultPath($change->value)) {
-                $references[] = $change->name->value;
             }
         }
 
         if ($reserved !== []) {
             throw new ReservedHostMacroNameException($reserved);
+        }
+    }
+
+    /**
+     * @param list<HostMacroChange> $changes
+     */
+    private function assertNoVaultReference(array $changes): void
+    {
+        $references = [];
+        foreach ($changes as $change) {
+            if ($change->value !== null && $this->vault->isVaultPath($change->value)) {
+                $references[] = $change->name->value;
+            }
         }
 
         if ($references !== []) {
