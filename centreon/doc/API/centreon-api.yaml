@@ -6260,6 +6260,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
+        '502':
+          description: 'The vault could not be reached'
         '200':
           description: 'Host resource updated'
           content:
