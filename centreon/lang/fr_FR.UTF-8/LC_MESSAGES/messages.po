@@ -25699,3 +25699,39 @@ msgstr "Modèle d'hôte créé"
 #: centreon/www/install/front_translate.php
 msgid "Host template updated"
 msgstr "Modèle d'hôte mis à jour"
+
+#: centreon/src/Centreon/Infrastructure/Service/VmwareConfigurationService.php
+msgid "Could not send the restart of centreon_vmware to Gorgone."
+msgstr "Impossible d'envoyer le redémarrage de centreon_vmware à Gorgone."
+
+#: centreon/src/Centreon/Infrastructure/Engine/EngineRepositoryFile.php
+#, php-format
+msgid "Error while sending the commands to Gorgone (%s)"
+msgstr "Erreur lors de l'envoi des commandes à Gorgone (%s)"
+
+#: centreon/src/Core/Gorgone/Application/Service/GorgoneCommandService.php
+#, php-format
+msgid "%s: done."
+msgstr "%s : terminé."
+
+#: centreon/src/Core/Gorgone/Application/Service/GorgoneCommandService.php
+#, php-format
+msgid "%s: failed (%s)."
+msgstr "%s : échec (%s)."
+
+#: centreon/src/Core/Gorgone/Application/Service/GorgoneCommandService.php
+#, php-format
+msgid "%s: still in progress."
+msgstr "%s : toujours en cours."
+
+#: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
+msgid "Centreon Broker reload"
+msgstr "Rechargement de Centreon Broker"
+
+#: centreon/src/Core/Gorgone/Application/Service/GorgoneCommandService.php
+msgid "The configuration could not be verified now: the poller will verify it when it is applied."
+msgstr "La configuration n'a pas pu être vérifiée pour le moment : le collecteur la vérifiera lors de son application."
+
+#: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
+msgid "Broker statistics are not available: no statistics file was found for this poller"
+msgstr "Les statistiques de Centreon Broker ne sont pas disponibles : aucun fichier de statistiques trouvé pour ce collecteur"

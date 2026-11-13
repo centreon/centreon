@@ -16,10 +16,12 @@ parameters:
     database_user: "%env(user)%"
     database_password: "%env(password)%"
     centreon_var_lib: "%env(_CENTREON_VARLIB_)%"
+    centreon_cache_dir: "%env(_CENTREON_CACHEDIR_)%"
     validation_path: "%env(_CENTREON_PATH_)%config/packages/validator"
     centreon_path: "%env(_CENTREON_PATH_)%"
     centreon_etc_path: "%env(_CENTREON_ETC_)%"
-    engine_context_path: "/etc/centreon-engine/engine-context.json"
+    # Empty: /etc/centreon-engine/engine-context.json, see App\Shared\Infrastructure\EngineContextFile
+    engine_context_path: "%env(ENGINE_CONTEXT_PATH)%"
     vault_conf_path: "%centreon_var_lib%/vault/vault.json"
     centreon_install_path: "%centreon_path%/www/install"
     translation_path: "%centreon_path%/www/locale"
@@ -33,6 +35,7 @@ parameters:
     env(IS_CLOUD_PLATFORM): false
     env(FILE_FEATURE_FLAGS): "%centreon_path%/config/features.json"
     env(CENTREON_INTERNAL_API_BASE_URL): ''
+    env(ENGINE_CONTEXT_PATH): ''
 
 
 services:
@@ -146,4 +149,5 @@ services:
       public: true
       arguments:
         - internal_api_client: '@Core\Common\Infrastructure\Api\InternalApiClient'
+          gorgone_command_service: '@Core\Gorgone\Application\Service\GorgoneCommandService'
       tags: [ 'container.service_locator' ]

@@ -30,12 +30,6 @@ function printDebug($xml, array $tabs): int
 {
     global $pearDB, $ret, $centreon, $nagiosCFGPath;
 
-    $DBRESULT_Servers = $pearDB->query(
-        "SELECT `nagios_bin` FROM `nagios_server`
-        WHERE `localhost` = '1' ORDER BY ns_activate DESC LIMIT 1"
-    );
-    $nagios_bin = $DBRESULT_Servers->fetch();
-    $DBRESULT_Servers->closeCursor();
     $msg_debug = [];
 
     $tab_server = [];
@@ -45,11 +39,48 @@ function printDebug($xml, array $tabs): int
         }
     }
 
-    foreach ($tab_server as $host) {
-        $stdout = shell_exec(
-            escapeshellarg($nagios_bin['nagios_bin']) . ' -v ' . $nagiosCFGPath
-            . escapeshellarg($host['id']) . '/centengine.DEBUG 2>&1'
+    // Feature flag "gorgone_api_commands": each poller verifies its configuration with its own engine,
+    // no engine binary is run here
+    $gorgoneCommandService = App\Kernel::createForWeb()
+        ->getContainer()
+        ->get('legacy.service_locator')
+        ->get('gorgone_command_service');
+    /** @var array<int, Core\Gorgone\Domain\Model\ConfigurationValidation>|null $validations */
+    $validations = null;
+    $nagios_bin = [];
+    if ($gorgoneCommandService->isEnabled()) {
+        $validations = $gorgoneCommandService->validateConfiguration(
+            array_map(intval(...), array_column($tab_server, 'id'))
         );
+    } else {
+        $DBRESULT_Servers = $pearDB->query(
+            "SELECT `nagios_bin` FROM `nagios_server`
+            WHERE `localhost` = '1' ORDER BY ns_activate DESC LIMIT 1"
+        );
+        $nagios_bin = $DBRESULT_Servers->fetch();
+        $DBRESULT_Servers->closeCursor();
+    }
+
+    foreach ($tab_server as $host) {
+        if ($validations !== null) {
+            $validation = $validations[(int) $host['id']];
+            if (! $validation->isVerified()) {
+                // Not verified yet (warning, the poller does it when it applies the configuration) or API error
+                $msg_debug[$host['id']] = ($validation->isError()
+                    ? "<font color='red'>Error</font> "
+                    : "<font color='orange'>Warning</font> ")
+                    . htmlspecialchars($validation->getMessage(), ENT_QUOTES, 'UTF-8') . '<br>';
+
+                continue;
+            }
+            // Output of "centengine -v" run by the poller, rendered as the one of a local run
+            $stdout = $validation->getOutput() !== '' ? $validation->getOutput() : $validation->getMessage();
+        } else {
+            $stdout = shell_exec(
+                escapeshellarg($nagios_bin['nagios_bin']) . ' -v ' . $nagiosCFGPath
+                . escapeshellarg($host['id']) . '/centengine.DEBUG 2>&1'
+            );
+        }
         $stdout = htmlspecialchars($stdout, ENT_QUOTES, 'UTF-8');
         $msg_debug[$host['id']] = str_replace("\n", '<br />', $stdout);
         $msg_debug[$host['id']] = str_replace(
@@ -110,6 +141,7 @@ function printDebug($xml, array $tabs): int
         $toggler = "<label id='togglerp_" . $pollerId . "'>[ + ]</label><label id='togglerm_" . $pollerId
             . "' style='display: none'>[ - ]</label>";
         $pollerNameColor = 'green';
+        $validation = $validations[(int) $pollerId] ?? null;
         if (preg_match_all("/Total (Errors|Warnings)\:[ ]+([0-9]+)/", $message, $globalMatches, PREG_SET_ORDER)) {
             foreach ($globalMatches as $matches) {
                 if ($matches[2] != '0') {
@@ -124,7 +156,21 @@ function printDebug($xml, array $tabs): int
                     }
                 }
             }
-        } else {
+        } elseif ($validation?->isUnverified()) {
+            // Not an error: the export goes on, the poller refuses an invalid configuration
+            $show = 'block';
+            $pollerNameColor = 'orange';
+            $toggler = "<label id='togglerp_" . $pollerId
+                . "' style='display: none'>[ + ]</label><label id='togglerm_" . $pollerId . "'>[ - ]</label>";
+        } elseif (! $validation?->isValid()) {
+            $show = 'block';
+            $pollerNameColor = 'red';
+            $toggler = "<label id='togglerp_" . $pollerId
+                . "' style='display: none'>[ + ]</label><label id='togglerm_" . $pollerId . "'>[ - ]</label>";
+            $returnCode = 1;
+        }
+        if ($validation?->isInvalid()) {
+            // The poller refused the configuration, whatever its output says
             $show = 'block';
             $pollerNameColor = 'red';
             $toggler = "<label id='togglerp_" . $pollerId

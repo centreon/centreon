@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Centreon\Infrastructure\Service;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Gorgone\Application\Exception\GorgoneCommandException;
+use Core\Gorgone\Application\Service\GorgoneCommandService;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Exception;
 use Symfony\Component\Process\Process;
@@ -35,15 +37,18 @@ final class VmwareConfigurationService
 
     public function __construct(
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
+        private readonly ?GorgoneCommandService $gorgoneCommandService = null,
     ) {
     }
 
     /**
-     * Restart centreon_vmware (locally via systemctl or on a remote poller via centcore pipe)
+     * Restart centreon_vmware (locally via systemctl or on a remote poller via centcore pipe,
+     * or the Gorgone API when the feature flag "gorgone_api_commands" is enabled)
      * if and only if the VMware configuration has changed since the last export.
      *
      * @param int $pollerId
      * @param bool $isLocalhost true → systemctl restart locally, false → write VMWARERESTART to centcore pipe
+     *                          (ignored with the Gorgone API: every poller goes through it)
      *
      * @throws Exception when writing to the centcore pipe fails
      */
@@ -52,6 +57,8 @@ final class VmwareConfigurationService
         if (! $this->writeMonitoringServerRepository->resetVmwareConfigurationChange($pollerId)) {
             return;
         }
+
+        $isLocalhost = $isLocalhost && ! $this->gorgoneCommandService?->isEnabled();
 
         $succeeded = $isLocalhost
             ? $this->restartLocally()
@@ -64,6 +71,10 @@ final class VmwareConfigurationService
         $this->writeMonitoringServerRepository->notifyVmwareConfigurationChange($pollerId);
 
         if (! $isLocalhost) {
+            if ($this->gorgoneCommandService?->isEnabled()) {
+                throw new Exception(_('Could not send the restart of centreon_vmware to Gorgone.'));
+            }
+
             throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
         }
     }
@@ -78,6 +89,17 @@ final class VmwareConfigurationService
 
     private function writeRestartCommandToCentcorePipe(int $pollerId): bool
     {
+        if ($this->gorgoneCommandService?->isEnabled()) {
+            try {
+                $this->gorgoneCommandService->sendLegacyCommands('VMWARERESTART:' . $pollerId);
+            } catch (GorgoneCommandException) {
+                // Already logged by the service.
+                return false;
+            }
+
+            return true;
+        }
+
         $pipePath = $this->getCentcorePipePath();
         $written = file_put_contents(
             $pipePath,

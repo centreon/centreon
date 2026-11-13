@@ -445,12 +445,23 @@ class CentreonDowntimeBroker extends CentreonDowntime
     /**
      * Send all commands
      *
+     * @throws Core\Gorgone\Application\Exception\GorgoneCommandException
      * @return void
      */
     public function sendCommands(): void
     {
         $remoteCommands = implode(PHP_EOL, $this->remoteCommands);
         if ($remoteCommands) {
+            // Feature flag "gorgone_api_commands": the commands go to the Gorgone API, no file is written
+            $gorgoneCommandService = App\Kernel::createForWeb()
+                ->getContainer()
+                ->get('legacy.service_locator')
+                ->get('gorgone_command_service');
+            if ($gorgoneCommandService->isEnabled()) {
+                $gorgoneCommandService->sendLegacyCommands($this->remoteCommands);
+
+                return;
+            }
             file_put_contents($this->remoteCmdDir . '/' . time() . '-downtimes', $remoteCommands, FILE_APPEND);
         }
     }

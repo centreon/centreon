@@ -25,6 +25,11 @@ services:
       MYSQL_DB_STORAGE: ${MYSQL_DB_STORAGE:-centreon_storage}
       DEBUG: ${DEBUG:-0}
       CENTREON_INTERNAL_API_BASE_URL: ${CENTREON_INTERNAL_API_BASE_URL:-127.0.0.1:80}
+      # External Gorgone API (empty: the local gorgoned is used). See README.md.
+      GORGONE_API_ADDRESS: ${GORGONE_API_ADDRESS:-}
+      GORGONE_API_PORT: ${GORGONE_API_PORT:-8085}
+      GORGONE_API_USERNAME: ${GORGONE_API_USERNAME:-}
+      GORGONE_API_PASSWORD: ${GORGONE_API_PASSWORD:-}
     healthcheck:
       test: ["CMD-SHELL", "[ -f /tmp/docker.ready ] && curl --fail http://localhost/centreon/api/latest/platform/versions"]
       interval: 1s

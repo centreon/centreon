@@ -207,14 +207,28 @@ try {
 
     // Restart broker
     $brk = new CentreonBroker($pearDB);
-    $brk->reload();
+    $brokerJobIds = $brk->reload();
     /**
      * @var EngineCommandGenerator $commandGenerator
      */
     $commandGenerator = $container->get(EngineCommandGenerator::class);
+    // Sends the commands to the Gorgone API when the feature flag "gorgone_api_commands" is enabled
+    $gorgoneCommandService = $container->get('legacy.service_locator')->get('gorgone_command_service');
+    $isGorgoneApiEnabled = $gorgoneCommandService->isEnabled();
+    $gorgoneJobIds = $brokerJobIds === [] ? [] : [_('Centreon Broker reload') => $brokerJobIds];
+    // The messages come from the pollers and the page inserts them as HTML; CentreonXML decodes the entities once
+    $escapeGorgoneMessage = static fn (string $message): string => htmlspecialchars(
+        htmlspecialchars($message, ENT_QUOTES, 'UTF-8'),
+        ENT_QUOTES,
+        'UTF-8'
+    );
     foreach ($poller as $host) {
         if ($ret['restart_mode'] == 1) {
-            if ($fh = @fopen($centcorePipe, 'a+')) {
+            if ($isGorgoneApiEnabled) {
+                $gorgoneJobIds[$host['name']] = $gorgoneCommandService->sendLegacyCommands(
+                    $commandGenerator->getEngineCommand('RELOAD') . ':' . $host['id']
+                );
+            } elseif ($fh = @fopen($centcorePipe, 'a+')) {
                 $reloadCommand = ($commandGenerator !== null)
                     ? $commandGenerator->getEngineCommand('RELOAD')
                     : 'RELOAD';
@@ -233,7 +247,11 @@ try {
                 . htmlspecialchars(string: $host['name'], encoding: 'UTF-8') . "\n"
             );
         } elseif ($ret['restart_mode'] == 2) {
-            if ($fh = @fopen($centcorePipe, 'a+')) {
+            if ($isGorgoneApiEnabled) {
+                $gorgoneJobIds[$host['name']] = $gorgoneCommandService->sendLegacyCommands(
+                    $commandGenerator->getEngineCommand('RESTART') . ':' . $host['id']
+                );
+            } elseif ($fh = @fopen($centcorePipe, 'a+')) {
                 $restartCommand = ($commandGenerator !== null)
                     ? $commandGenerator->getEngineCommand('RESTART')
                     : 'RESTART';
@@ -260,6 +278,12 @@ try {
         $msg_restart[$key] = str_replace("\n", '<br>', $str);
     }
 
+    // Outcome of the reloads or restarts, per poller (one still in progress is not an error)
+    $gorgoneReport = $isGorgoneApiEnabled ? $gorgoneCommandService->reportOutcomes($gorgoneJobIds) : null;
+    if ($gorgoneReport !== null && $gorgoneReport['failures'] !== []) {
+        throw new Exception($escapeGorgoneMessage(implode(' ', $gorgoneReport['failures'])));
+    }
+
     $xml->startElement('response');
     $xml->writeElement('status', $okMsg);
     $xml->writeElement('statuscode', STATUS_OK);
@@ -268,6 +292,9 @@ try {
     $xml->writeElement('status', $nokMsg);
     $xml->writeElement('statuscode', STATUS_NOK);
     $xml->writeElement('error', $e->getMessage());
+}
+if (isset($gorgoneReport)) {
+    $xml->writeElement('debug', implode('<br/>', array_map($escapeGorgoneMessage, $gorgoneReport['messages'])));
 }
 
 // Restore default error handler

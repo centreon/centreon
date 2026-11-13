@@ -25,6 +25,8 @@ namespace Centreon\Infrastructure\Engine;
 
 use Centreon\Domain\Engine\EngineException;
 use Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface;
+use Core\Gorgone\Application\Exception\GorgoneCommandException;
+use Core\Gorgone\Application\Service\GorgoneCommandService;
 
 final class EngineRepositoryFile implements EngineRepositoryInterface
 {
@@ -38,9 +40,12 @@ final class EngineRepositoryFile implements EngineRepositoryInterface
      * EngineRepositoryFile constructor.
      *
      * @param string $centCoreDirectory
+     * @param GorgoneCommandService|null $gorgoneCommandService
      */
-    public function __construct(string $centCoreDirectory)
-    {
+    public function __construct(
+        string $centCoreDirectory,
+        private readonly ?GorgoneCommandService $gorgoneCommandService = null,
+    ) {
         $this->centCoreDirectory = $centCoreDirectory;
         $this->centCoreFile
             = $centCoreDirectory
@@ -73,6 +78,20 @@ final class EngineRepositoryFile implements EngineRepositoryInterface
      */
     private function send(array $commandsAwaiting): int
     {
+        if ($this->gorgoneCommandService?->isEnabled()) {
+            try {
+                $this->gorgoneCommandService->sendLegacyCommands(array_values($commandsAwaiting));
+            } catch (GorgoneCommandException $ex) {
+                throw new EngineException(
+                    sprintf(_('Error while sending the commands to Gorgone (%s)'), $ex->getMessage()),
+                    0,
+                    $ex
+                );
+            }
+
+            return count($commandsAwaiting);
+        }
+
         $commandsToSend = '';
         foreach ($commandsAwaiting as $command) {
             $commandsToSend .= ! empty($commandsToSend) ? "\n" : '';

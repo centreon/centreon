@@ -94,7 +94,10 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
   cd - > /dev/null
 fi
 
-sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
+# The Perl Gorgone is absent from the slim image (Dockerfile.slim).
+if [[ -f /etc/sysconfig/gorgoned ]]; then
+  sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
+fi
 if [[ -f /etc/centreon-gorgone/config.d/40-gorgoned.yaml ]]; then
   if grep -Pzo '(?s)gorgonecore:.*?(?=\n\S|\Z)' /etc/centreon-gorgone/config.d/40-gorgoned.yaml | grep -q 'id:'; then
     sed -Ei '/^gorgonecore:/,/^[^[:space:]]/ s/^([[:space:]]*id:).*/\1 1/' /etc/centreon-gorgone/config.d/40-gorgoned.yaml
@@ -102,7 +105,9 @@ if [[ -f /etc/centreon-gorgone/config.d/40-gorgoned.yaml ]]; then
     sed -Ei '/^gorgonecore:/a\    id: 1' /etc/centreon-gorgone/config.d/40-gorgoned.yaml
   fi
 fi
-sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
+if [[ -f /etc/centreon-gorgone/config.d/50-centreon-audit.yaml ]]; then
+  sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
+fi
 
 
 setAdminLanguage() {
@@ -119,6 +124,12 @@ setAdminLanguage() {
 installLanguagePack() {
   if [ -z "${1:-}" ]; then
     echo "Language not set"
+    return
+  fi
+
+  # The slim image (Dockerfile.slim) ships the locales and has no dnf.
+  if locale -a 2>/dev/null | grep -qi "^$1_.*\.utf-\?8$"; then
+    echo "Locales for $1 already installed"
     return
   fi
 

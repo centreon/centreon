@@ -35,7 +35,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->set('upgrade.lib_dir', '%env(_CENTREON_VARLIB_)%')
         // _CENTREON_PATH_ is set with a trailing slash (e.g. /usr/share/centreon/)
         ->set('upgrade.install_dir', '%env(_CENTREON_PATH_)%www/install')
-        ->set('upgrade.engine_context_path', '/etc/centreon-engine/engine-context.json')
         ->set('upgrade.min_mariadb_version', '%env(_CENTREON_MARIA_DB_MIN_VERSION_)%')
         // TODO: replace with '%env(_CENTREON_MYSQL_MIN_VERSION_)%' once Delivery adds this env var.
         ->set('upgrade.min_mysql_version', '8.0')

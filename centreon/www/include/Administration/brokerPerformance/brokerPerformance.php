@@ -198,6 +198,7 @@ $form = new HTML_QuickFormCustom('form', 'post', '?p=' . $p);
 
 // Get Poller List
 $pollerList = [];
+$defaultPoller = null;
 $DBRESULT = $pearDB->query('SELECT * FROM `nagios_server` WHERE `ns_activate` = 1 ORDER BY `name`');
 while ($data = $DBRESULT->fetchRow()) {
     if ($data['localhost']) {
@@ -272,6 +273,17 @@ try {
             $perf_err[$row['config_name']] = _('Cannot open statistics file');
         } else {
             $perf_info[$row['config_name']] = parseStatsFile($statsfile);
+        }
+    }
+    // Feature flag "gorgone_api_commands": no local broker is expected, its statistics files may never be there
+    if ($perf_info === [] && $perf_err !== []) {
+        $isGorgoneApiEnabled = App\Kernel::createForWeb()
+            ->getContainer()
+            ->get('legacy.service_locator')
+            ->get('gorgone_command_service')
+            ->isEnabled();
+        if ($isGorgoneApiEnabled) {
+            $tpl->assign('msg_err', _('Broker statistics are not available: no statistics file was found for this poller'));
         }
     }
     $tpl->assign('perf_err', $perf_err);

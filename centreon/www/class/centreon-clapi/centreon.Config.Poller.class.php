@@ -27,6 +27,8 @@ use Centreon\Infrastructure\Service\VmwareConfigurationService;
 use CentreonDB;
 use CentreonRemote\ServiceProvider;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
+use Core\Gorgone\Application\Exception\GorgoneCommandException;
+use Core\Gorgone\Application\Service\GorgoneCommandService;
 use Exception;
 use Generate;
 use LogicException;
@@ -82,6 +84,9 @@ class CentreonConfigPoller
 
     /** @var ContainerInterface */
     private ContainerInterface $container;
+
+    /** @var list<string> Gorgone jobs submitted and not reported yet (feature flag "gorgone_api_commands") */
+    private array $gorgoneJobIds = [];
 
     /**
      * CentreonConfigPoller constructor
@@ -165,8 +170,14 @@ class CentreonConfigPoller
 
             return $return_code;
         }
-        $msg_restart = _("OK: A reload signal has been sent to '" . $host['name'] . "'");
-        echo $msg_restart . "\n";
+        if ($this->isGorgoneApiEnabled()) {
+            if ($this->reportGorgoneJobs($host['name']) === 1) {
+                return 1;
+            }
+        } else {
+            $msg_restart = _("OK: A reload signal has been sent to '" . $host['name'] . "'");
+            echo $msg_restart . "\n";
+        }
         $statement = $this->DB->prepare(
             "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
@@ -256,8 +267,14 @@ class CentreonConfigPoller
 
             return $return_code;
         }
-        $msg_restart = _("OK: A restart signal has been sent to '" . $host['name'] . "'");
-        echo $msg_restart . "\n";
+        if ($this->isGorgoneApiEnabled()) {
+            if ($this->reportGorgoneJobs($host['name']) === 1) {
+                return 1;
+            }
+        } else {
+            $msg_restart = _("OK: A restart signal has been sent to '" . $host['name'] . "'");
+            echo $msg_restart . "\n";
+        }
         $statement = $this->DB->prepare(
             "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
@@ -286,27 +303,54 @@ class CentreonConfigPoller
 
         $idPoller = $this->ensurePollerId($variables);
 
-        /**
-         * Get Nagios Bin
-         */
-        $DBRESULT_Servers = $this->DB->query(
-            "SELECT `nagios_bin` FROM `nagios_server` WHERE `localhost` = '1' ORDER BY `ns_activate` DESC LIMIT 1"
-        );
-        $nagios_bin = $DBRESULT_Servers->fetchRow();
-        $DBRESULT_Servers->closeCursor();
+        // Feature flag "gorgone_api_commands": the poller verifies the configuration with its own engine,
+        // no engine binary is run here
+        if ($this->isGorgoneApiEnabled()) {
+            try {
+                $validation = $this->getGorgoneCommandService()->validateConfiguration([(int) $idPoller])[(int) $idPoller];
+            } catch (GorgoneCommandException $ex) {
+                echo $ex->getMessage() . PHP_EOL;
 
-        // Launch test command
-        if (isset($nagios_bin['nagios_bin'])) {
-            exec(
-                escapeshellcmd(
-                    $nagios_bin['nagios_bin'] . ' -v '
-                    . $this->engineCachePath . '/' . $idPoller . '/centengine.DEBUG'
-                ),
-                $lines,
-                $return_code
-            );
+                return 1;
+            }
+            if ($validation->isError()) {
+                echo "Error: Centreon Poller {$variables} configuration cannot be verified. "
+                    . $validation->getMessage() . "\n";
+
+                return 1;
+            }
+            if ($validation->isUnverified()) {
+                // Not an error: the poller refuses an invalid configuration when it applies it
+                echo "Warning: Centreon Poller {$variables}. " . $validation->getMessage() . "\n";
+
+                return 0;
+            }
+            $output = $validation->getOutput() !== '' ? $validation->getOutput() : $validation->getMessage();
+            $lines = explode("\n", rtrim($output, "\n"));
+            $return_code = $validation->getExitCode();
         } else {
-            throw new CentreonClapiException("Can't find engine binary");
+            /**
+             * Get Nagios Bin
+             */
+            $DBRESULT_Servers = $this->DB->query(
+                "SELECT `nagios_bin` FROM `nagios_server` WHERE `localhost` = '1' ORDER BY `ns_activate` DESC LIMIT 1"
+            );
+            $nagios_bin = $DBRESULT_Servers->fetchRow();
+            $DBRESULT_Servers->closeCursor();
+
+            // Launch test command
+            if (isset($nagios_bin['nagios_bin'])) {
+                exec(
+                    escapeshellcmd(
+                        $nagios_bin['nagios_bin'] . ' -v '
+                        . $this->engineCachePath . '/' . $idPoller . '/centengine.DEBUG'
+                    ),
+                    $lines,
+                    $return_code
+                );
+            } else {
+                throw new CentreonClapiException("Can't find engine binary");
+            }
         }
 
         $msg_debug = '';
@@ -473,7 +517,8 @@ class CentreonConfigPoller
 
         // Move files
         $msg_copy = '';
-        if (isset($host['localhost']) && $host['localhost'] == 1) {
+        // With the Gorgone API, the central poller gets its files like the others: nothing is copied here
+        if (! $this->isGorgoneApiEnabled() && isset($host['localhost']) && $host['localhost'] == 1) {
             // Get Apache user name
             $apacheUser = $this->getApacheUser();
 
@@ -645,12 +690,18 @@ class CentreonConfigPoller
             $this->container->get(VmwareConfigurationService::class)
                 ->restartIfConfigurationChanged((int) $host['id'], false);
 
-            $msg_copy .= _(
-                "OK: All configuration will be send to '"
-                . $host['name'] . "' by centcore in several minutes."
-            );
+            if (! $this->isGorgoneApiEnabled()) {
+                $msg_copy .= _(
+                    "OK: All configuration will be send to '"
+                    . $host['name'] . "' by centcore in several minutes."
+                );
+            } elseif ($return === 0) {
+                $return = $this->reportGorgoneJobs($host['name']);
+            }
         }
-        echo $msg_copy . "\n";
+        if ($msg_copy !== '') {
+            echo $msg_copy . "\n";
+        }
 
         return $return;
     }
@@ -763,6 +814,23 @@ class CentreonConfigPoller
      */
     private function writeToCentcorePipe($cmd, $id): int
     {
+        // Feature flag "gorgone_api_commands": the command goes to the Gorgone API, no file is written
+        $gorgoneCommandService = $this->getGorgoneCommandService();
+        if ($gorgoneCommandService->isEnabled()) {
+            try {
+                array_push(
+                    $this->gorgoneJobIds,
+                    ...$gorgoneCommandService->sendLegacyCommands(sprintf('%s:%d', $cmd, $id))
+                );
+            } catch (GorgoneCommandException $ex) {
+                echo $ex->getMessage() . PHP_EOL;
+
+                return 1;
+            }
+
+            return 0;
+        }
+
         if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
             $pipe = _CENTREON_VARLIB_ . '/centcore/' . hrtime(true) . '-externalcommand.cmd';
         } else {
@@ -772,6 +840,49 @@ class CentreonConfigPoller
         $result = file_put_contents($pipe, $fullCommand, FILE_APPEND);
 
         return ($result !== false) ? 0 : 1;
+    }
+
+    /**
+     * @return GorgoneCommandService
+     */
+    private function getGorgoneCommandService(): GorgoneCommandService
+    {
+        return $this->container->get('legacy.service_locator')->get('gorgone_command_service');
+    }
+
+    /**
+     * Indicates whether the commands go to the Gorgone API (feature flag "gorgone_api_commands").
+     *
+     * @return bool
+     */
+    private function isGorgoneApiEnabled(): bool
+    {
+        return $this->getGorgoneCommandService()->isEnabled();
+    }
+
+    /**
+     * Wait for the Gorgone jobs submitted so far and print their outcome
+     * (a job still in progress is not an error).
+     *
+     * @param string $pollerName
+     *
+     * @return int 1 when a job failed or its outcome is unknown, 0 otherwise
+     */
+    private function reportGorgoneJobs(string $pollerName): int
+    {
+        $jobIds = $this->gorgoneJobIds;
+        $this->gorgoneJobIds = [];
+
+        try {
+            $report = $this->getGorgoneCommandService()->reportOutcomes([$pollerName => $jobIds]);
+        } catch (GorgoneCommandException $ex) {
+            echo $ex->getMessage() . PHP_EOL;
+
+            return 1;
+        }
+        echo implode(PHP_EOL, $report['messages']) . PHP_EOL;
+
+        return $report['failures'] === [] ? 0 : 1;
     }
 
     /**

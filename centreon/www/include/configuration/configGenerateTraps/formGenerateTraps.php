@@ -32,6 +32,37 @@ if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_t
 // Init Centcore Pipe
 $centcore_pipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
 
+// Sends the commands to the Gorgone API when the feature flag "gorgone_api_commands" is enabled
+$gorgoneCommandService = App\Kernel::createForWeb()
+    ->getContainer()
+    ->get('legacy.service_locator')
+    ->get('gorgone_command_service');
+$isGorgoneApiEnabled = $gorgoneCommandService->isEnabled();
+// Gorgone jobs by "<poller name> - <command>", to display their outcome
+$gorgoneJobIds = [];
+/**
+ * Send a centcore command to a poller, through the Gorgone API or the centcore file.
+ *
+ * @return string|null error to display, null on success
+ */
+$sendCentcoreCommand = static function (string $command, int $pollerId, string $pollerName) use ($gorgoneCommandService, $isGorgoneApiEnabled, &$gorgoneJobIds, $centcore_pipe): ?string {
+    if ($isGorgoneApiEnabled) {
+        try {
+            $gorgoneJobIds[$pollerName . ' - ' . $command] = $gorgoneCommandService->sendLegacyCommands(
+                $command . ':' . $pollerId
+            );
+        } catch (Core\Gorgone\Application\Exception\GorgoneCommandException $ex) {
+            return 'Error while sending ' . $command . ' to Gorgone: '
+                . htmlspecialchars($ex->getMessage(), ENT_QUOTES, 'UTF-8');
+        }
+
+        return null;
+    }
+    $return = file_put_contents($centcore_pipe, $command . ':' . $pollerId . "\n", FILE_APPEND | LOCK_EX);
+
+    return $return === false ? "Error while writing into {$centcore_pipe}" : null;
+};
+
 // Get Poller List
 $acl = $centreon->user->access;
 $tab_nagios_server = $acl->getPollerAclConf(['get_row'    => 'name', 'order'      => ['name'], 'keys'       => ['id'], 'conditions' => ['ns_activate' => 1]]);
@@ -143,30 +174,33 @@ if ($form->validate()) {
         if (isset($ret['apply']) && $ret['apply'] && $returnVal == 0) {
             $msg_generate .= sprintf('<strong>%s</strong><br/>', _('Centcore commands'));
             foreach ($tab_server as $host) {
-                $return = file_put_contents(
-                    $centcore_pipe,
-                    'SYNCTRAP:' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-                if ($return === false) {
-                    $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
-                } else {
+                $error = $sendCentcoreCommand('SYNCTRAP', (int) $host['id'], (string) $host['name']);
+                if ($error !== null) {
+                    $msg_generate .= $error . '<br/>';
+                } elseif (! $isGorgoneApiEnabled) {
                     $msg_generate .= "Poller (id:{$host['id']}): SYNCTRAP sent to centcore.cmd<br/>";
                 }
             }
         }
         if (isset($ret['signal']) && in_array($ret['signal'], ['RELOADCENTREONTRAPD', 'RESTARTCENTREONTRAPD'])) {
             foreach ($tab_server as $host) {
-                $return = file_put_contents(
-                    $centcore_pipe,
-                    $ret['signal'] . ':' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-                if ($return === false) {
-                    $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
-                } else {
+                $error = $sendCentcoreCommand($ret['signal'], (int) $host['id'], (string) $host['name']);
+                if ($error !== null) {
+                    $msg_generate .= $error . '<br/>';
+                } elseif (! $isGorgoneApiEnabled) {
                     $msg_generate .= "Poller (id:{$host['id']}): {$ret['signal']} sent to centcore.cmd<br/>";
                 }
+            }
+        }
+        // Outcome of the Gorgone jobs, per poller and command (a job still in progress is not an error)
+        if ($gorgoneJobIds !== []) {
+            try {
+                $gorgoneMessages = $gorgoneCommandService->reportOutcomes($gorgoneJobIds)['messages'];
+            } catch (Core\Gorgone\Application\Exception\GorgoneCommandException $ex) {
+                $gorgoneMessages = [$ex->getMessage()];
+            }
+            foreach ($gorgoneMessages as $gorgoneMessage) {
+                $msg_generate .= htmlspecialchars($gorgoneMessage, ENT_QUOTES, 'UTF-8') . '<br/>';
             }
         }
     }

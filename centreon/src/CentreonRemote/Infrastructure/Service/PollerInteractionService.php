@@ -28,6 +28,7 @@ use Centreon\ServiceProvider;
 use CentreonBroker;
 use CentreonContactgroup;
 use CentreonDB;
+use Core\Gorgone\Application\Service\GorgoneCommandService;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Exception;
 use Generate;
@@ -127,6 +128,7 @@ class PollerInteractionService
         $vmwareConfigurationService = Kernel::createForWeb()
             ->getContainer()
             ->get(VmwareConfigurationService::class);
+        $gorgoneCommandService = $this->getGorgoneCommandService();
 
         $tabServer = [];
         $tabs = $this->centreon->user->access->getPollerAclConf([
@@ -148,14 +150,18 @@ class PollerInteractionService
 
         foreach ($tabServer as $host) {
             if (in_array($host['id'], $pollerIDs)) {
-                $written = file_put_contents(
-                    $centCorePipe,
-                    'SENDCFGFILE:' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
+                if ($gorgoneCommandService->isEnabled()) {
+                    $gorgoneCommandService->sendLegacyCommands('SENDCFGFILE:' . (int) $host['id']);
+                } else {
+                    $written = file_put_contents(
+                        $centCorePipe,
+                        'SENDCFGFILE:' . (int) $host['id'] . "\n",
+                        FILE_APPEND | LOCK_EX
+                    );
 
-                if ($written === false) {
-                    throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
+                    if ($written === false) {
+                        throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
+                    }
                 }
 
                 $vmwareConfigurationService->restartIfConfigurationChanged(
@@ -188,6 +194,7 @@ class PollerInteractionService
 
         $broker = new CentreonBroker($this->db);
         $broker->reload();
+        $gorgoneCommandService = $this->getGorgoneCommandService();
 
         foreach ($tabs as $tab) {
             if (in_array($tab['id'], $pollerIDs)) {
@@ -201,7 +208,10 @@ class PollerInteractionService
         }
 
         foreach ($tabServers as $poller) {
-            if (isset($poller['localhost']) && (int) $poller['localhost'] === 1) {
+            if ($gorgoneCommandService->isEnabled()) {
+                // The central poller goes through the Gorgone API like the others.
+                $gorgoneCommandService->sendLegacyCommands('RESTART:' . (int) $poller['id']);
+            } elseif (isset($poller['localhost']) && (int) $poller['localhost'] === 1) {
                 $this->restartEngine($poller['engine_restart_command']);
             } else {
                 $written = file_put_contents(
@@ -231,6 +241,17 @@ class PollerInteractionService
                 }
             }
         }
+    }
+
+    /**
+     * Service sending the commands to the Gorgone API when the feature flag "gorgone_api_commands" is enabled.
+     */
+    private function getGorgoneCommandService(): GorgoneCommandService
+    {
+        return Kernel::createForWeb()
+            ->getContainer()
+            ->get('legacy.service_locator')
+            ->get('gorgone_command_service');
     }
 
     /**

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\FileSystem;
 
+use App\Shared\Infrastructure\EngineContextFile;
 use App\Upgrade\Application\EngineContextWriter;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -40,8 +41,7 @@ use Symfony\Component\Filesystem\Filesystem;
 final readonly class FileSystemEngineContextWriter implements EngineContextWriter
 {
     public function __construct(
-        #[Autowire(param: 'upgrade.engine_context_path')]
-        private string $engineContextPath,
+        private EngineContextFile $engineContextFile,
         #[Autowire(param: 'kernel.secret')]
         private string $appSecret,
         private Filesystem $filesystem,
@@ -58,7 +58,7 @@ final readonly class FileSystemEngineContextWriter implements EngineContextWrite
         }
 
         $this->logger->info('Writing engine context configuration', [
-            'path' => $this->engineContextPath,
+            'path' => $this->engineContextFile->getPath(),
         ]);
 
         $content = json_encode([
@@ -67,13 +67,13 @@ final readonly class FileSystemEngineContextWriter implements EngineContextWrite
         ], JSON_THROW_ON_ERROR);
 
         // Do not use Filesystem::dumpFile — it overrides the file permissions.
-        file_put_contents($this->engineContextPath, $content);
+        $this->engineContextFile->write($content);
     }
 
     private function hasContent(): bool
     {
         try {
-            return ! empty($this->filesystem->readFile($this->engineContextPath));
+            return ! empty($this->filesystem->readFile($this->engineContextFile->getPath()));
         } catch (\Throwable) {
             return false;
         }

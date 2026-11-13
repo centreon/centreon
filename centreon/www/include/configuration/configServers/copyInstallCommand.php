@@ -38,15 +38,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
 use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
+use App\Shared\Infrastructure\EngineContextFile;
 use App\Shared\Infrastructure\FsEngineSecretsRepository;
+use Core\Common\Infrastructure\FeatureFlags;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-
-// Keep in sync with engine_context_path (config/services.yaml) and
-// upgrade.engine_context_path (config.new/services/upgrade.php): this endpoint
-// deliberately does not boot the Symfony kernel, so it cannot read the parameter.
-const ENGINE_CONTEXT_PATH = '/etc/centreon-engine/engine-context.json';
 
 // Same reason, and same value as env(TRUSTED_PROXIES) in config/packages/framework.yaml:
 // keep both in sync, or the scheme this endpoint resolves drifts from the one the API
@@ -164,7 +161,24 @@ try {
         isRevoked: (bool) $tokenRow['is_revoked'],
     );
 
-    $engineSecrets = new FsEngineSecretsRepository(ENGINE_CONTEXT_PATH);
+    // This endpoint deliberately does not boot the Symfony kernel: EngineContextFile is fed with
+    // the same inputs as its service (config/packages/Centreon.yaml), so the path cannot drift.
+    $readEnv = static function (string $name): string {
+        $value = $_ENV[$name] ?? $_SERVER[$name] ?? getenv($name);
+
+        return is_string($value) ? $value : '';
+    };
+    $featureFlagsFile = $readEnv('FILE_FEATURE_FLAGS') ?: _CENTREON_PATH_ . 'config/features.json';
+    $engineSecrets = new FsEngineSecretsRepository(
+        new EngineContextFile(
+            configuredPath: $readEnv(EngineContextFile::ENV_PATH),
+            webConfigurationDirectory: _CENTREON_ETC_,
+            isLocalEngineOptional: (new FeatureFlags(
+                (bool) $isCloudPlatform,
+                (string) @file_get_contents($featureFlagsFile),
+            ))->isEnabled(EngineContextFile::FEATURE_FLAG),
+        ),
+    );
 
     // This endpoint does not boot the Symfony kernel, so the factory is built by hand
     // over the current request: the scheme and the base URI must be resolved the same way

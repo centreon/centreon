@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Engine\Infrastructure\Repository;
 
+use App\Shared\Infrastructure\EngineContextFile;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Engine\Application\Exception\EngineSecretsBadFormatException;
 use Core\Engine\Application\Exception\EngineSecretsDoesNotExistException;
@@ -39,7 +40,7 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
     private Filesystem $filesystem;
 
     public function __construct(
-        private string $engineContextPath,
+        private EngineContextFile $engineContextFile,
         private SerializerInterface $serializer,
     ) {
         $this->filesystem = new Filesystem();
@@ -48,7 +49,7 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
     public function getEngineSecrets(): EngineSecrets
     {
         try {
-            $engineContextContent = $this->filesystem->readFile($this->engineContextPath);
+            $engineContextContent = $this->filesystem->readFile($this->engineContextFile->getPath());
             $engineContext = json_decode($engineContextContent, true, flags: JSON_THROW_ON_ERROR);
 
             return new EngineSecrets(
@@ -68,36 +69,41 @@ final readonly class FsEngineRepository implements EngineRepositoryInterface
             if ($this->engineSecretsHasContent()) {
                 throw new RepositoryException(
                     'engine-context already has content, unable to write in the file',
-                    ['path' => $this->engineContextPath]
+                    ['path' => $this->engineContextFile->getPath()]
                 );
             }
             $engineContent = $this->serializer->serialize($engineSecrets, 'json');
             // Don't use the Filesystem::dumpFile method here because it will override the rights of the file.
-            file_put_contents($this->engineContextPath, $engineContent);
+            $this->engineContextFile->write($engineContent);
         } catch (IOException $ex) {
             throw new RepositoryException(
                 'Unable to write content of engine-context file. check that file exists',
                 [
-                    'path' => $this->engineContextPath,
+                    'path' => $this->engineContextFile->getPath(),
                     'exception' => $ex,
                 ]
             );
         } catch (ExceptionInterface $ex) {
             throw new RepositoryException(
                 'Unable to serialize content for engine-context file',
-                ['path' => $this->engineContextPath, 'exception' => $ex]
+                ['path' => $this->engineContextFile->getPath(), 'exception' => $ex]
             );
         }
     }
 
     public function engineSecretsHasContent(): bool
     {
+        // Without a local engine, no package provides the file: centreon-web creates it.
+        if ($this->engineContextFile->isCreatedOnDemand() && ! file_exists($this->engineContextFile->getPath())) {
+            return false;
+        }
+
         try {
-            return ! empty($this->filesystem->readFile($this->engineContextPath));
+            return ! empty($this->filesystem->readFile($this->engineContextFile->getPath()));
         } catch (IOException $ex) {
             throw new RepositoryException(
                 'Unable to get content of engine-context file. check that file exists',
-                ['path' => $this->engineContextPath, 'exception' => $ex]
+                ['path' => $this->engineContextFile->getPath(), 'exception' => $ex]
             );
         }
     }

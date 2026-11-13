@@ -36,6 +36,9 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
     /** @var string */
     protected $centcore_file;
 
+    /** @var string[]|null Commands to send to the Gorgone API (feature flag "gorgone_api_commands") */
+    protected $gorgoneCommands = null;
+
     /** @var */
     protected $pollers;
 
@@ -206,7 +209,10 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
      */
     private function openPipe(): void
     {
-        if ($this->fh = @fopen($this->centcore_file, 'a+')) {
+        if ($this->getGorgoneCommandService()->isEnabled()) {
+            $this->gorgoneCommands = [];
+            $this->pipeOpened = 1;
+        } elseif ($this->fh = @fopen($this->centcore_file, 'a+')) {
             $this->pipeOpened = 1;
         } else {
             throw new RestBadRequestException("Can't open centcore pipe");
@@ -218,8 +224,31 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
      */
     private function closePipe(): void
     {
-        fclose($this->fh);
         $this->pipeOpened = 0;
+        if ($this->gorgoneCommands !== null) {
+            $commands = $this->gorgoneCommands;
+            $this->gorgoneCommands = null;
+
+            try {
+                $this->getGorgoneCommandService()->sendLegacyCommands($commands);
+            } catch (Core\Gorgone\Application\Exception\GorgoneCommandException $ex) {
+                throw new RestException('Cannot send results to Gorgone: ' . $ex->getMessage());
+            }
+
+            return;
+        }
+        fclose($this->fh);
+    }
+
+    /**
+     * @return Core\Gorgone\Application\Service\GorgoneCommandService
+     */
+    private function getGorgoneCommandService()
+    {
+        return App\Kernel::createForWeb()
+            ->getContainer()
+            ->get('legacy.service_locator')
+            ->get('gorgone_command_service');
     }
 
     /**
@@ -235,7 +264,11 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         }
 
         if ($string != '') {
-            fwrite($this->fh, $string . "\n");
+            if ($this->gorgoneCommands !== null) {
+                $this->gorgoneCommands[] = $string;
+            } else {
+                fwrite($this->fh, $string . "\n");
+            }
         }
     }
 

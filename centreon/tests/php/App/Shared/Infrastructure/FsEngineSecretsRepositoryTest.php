@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Shared\Infrastructure;
 
 use App\Shared\Domain\Exception\EngineSecretsUnavailableException;
+use App\Shared\Infrastructure\EngineContextFile;
 use App\Shared\Infrastructure\FsEngineSecretsRepository;
 use PHPUnit\Framework\TestCase;
 
@@ -50,7 +51,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
             'salt' => 'my-salt',
         ]));
 
-        $repository = new FsEngineSecretsRepository($this->tempFile);
+        $repository = new FsEngineSecretsRepository(new EngineContextFile($this->tempFile, sys_get_temp_dir(), false));
 
         self::assertSame('my-app-secret', $repository->getAppSecret());
     }
@@ -62,7 +63,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
             'salt' => 'my-salt',
         ]));
 
-        $repository = new FsEngineSecretsRepository($this->tempFile);
+        $repository = new FsEngineSecretsRepository(new EngineContextFile($this->tempFile, sys_get_temp_dir(), false));
 
         self::assertSame('my-salt', $repository->getSalt());
     }
@@ -71,7 +72,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
     {
         file_put_contents($this->tempFile, 'not-valid-json');
 
-        $repository = new FsEngineSecretsRepository($this->tempFile);
+        $repository = new FsEngineSecretsRepository(new EngineContextFile($this->tempFile, sys_get_temp_dir(), false));
 
         $this->expectException(EngineSecretsUnavailableException::class);
         $repository->getAppSecret();
@@ -81,7 +82,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
     {
         file_put_contents($this->tempFile, json_encode(['salt' => 'my-salt']));
 
-        $repository = new FsEngineSecretsRepository($this->tempFile);
+        $repository = new FsEngineSecretsRepository(new EngineContextFile($this->tempFile, sys_get_temp_dir(), false));
 
         $this->expectException(EngineSecretsUnavailableException::class);
         $repository->getAppSecret();
@@ -91,7 +92,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
     {
         file_put_contents($this->tempFile, json_encode(['app_secret' => 'my-app-secret']));
 
-        $repository = new FsEngineSecretsRepository($this->tempFile);
+        $repository = new FsEngineSecretsRepository(new EngineContextFile($this->tempFile, sys_get_temp_dir(), false));
 
         $this->expectException(EngineSecretsUnavailableException::class);
         $repository->getSalt();
@@ -101,7 +102,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
     {
         file_put_contents($this->tempFile, json_encode(['app_secret' => 42, 'salt' => 'my-salt']));
 
-        $repository = new FsEngineSecretsRepository($this->tempFile);
+        $repository = new FsEngineSecretsRepository(new EngineContextFile($this->tempFile, sys_get_temp_dir(), false));
 
         $this->expectException(EngineSecretsUnavailableException::class);
         $repository->getAppSecret();
@@ -111,7 +112,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
     {
         file_put_contents($this->tempFile, json_encode(['my-app-secret', 'my-salt']));
 
-        $repository = new FsEngineSecretsRepository($this->tempFile);
+        $repository = new FsEngineSecretsRepository(new EngineContextFile($this->tempFile, sys_get_temp_dir(), false));
 
         $this->expectException(EngineSecretsUnavailableException::class);
         $repository->getAppSecret();
@@ -120,7 +121,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
     public function testThrowsWithoutLeakingPathWhenFileDoesNotExist(): void
     {
         $missingPath = $this->tempFile . '-does-not-exist';
-        $repository = new FsEngineSecretsRepository($missingPath);
+        $repository = new FsEngineSecretsRepository(new EngineContextFile($missingPath, sys_get_temp_dir(), false));
 
         try {
             $repository->getAppSecret();

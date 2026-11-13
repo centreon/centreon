@@ -22,6 +22,7 @@
 use App\Kernel;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
+use Core\Installation\Infrastructure\InstallationHelper;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Pimple\Container;
 use Security\Interfaces\EncryptionInterface;
@@ -68,16 +69,20 @@ abstract class AbstractObjectJSON
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
         $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
-        $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
+        $installationHelper = $this->kernel->getContainer()->get(InstallationHelper::class);
+        $engineContextPath = $installationHelper->getEngineContextPath();
         try {
+            // Without a local engine (feature flag "gorgone_api_commands"), centreon-web creates the file itself
+            $installationHelper->createEngineContextFileOnDemand();
+            $engineContext = @file_get_contents($engineContextPath);
             $this->getVaultConfigurationStatus();
             if ($engineContext === false || empty($engineContext)) {
                 CentreonLog::create()->error(
                     logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                    message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'"
+                    message: "Unable to parse content of '{$engineContextPath}'"
                 );
 
-                throw new RuntimeException('/etc/centreon/engine-context.json does not exists or is empty');
+                throw new RuntimeException($engineContextPath . ' does not exists or is empty');
             }
             $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
             $this->engineContextEncryption->setFirstKey($engineContext['app_secret']);
@@ -85,7 +90,7 @@ abstract class AbstractObjectJSON
         } catch (JsonException|RuntimeException $ex) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'",
+                message: "Unable to parse content of '{$engineContextPath}'",
                 exception: $ex
             );
 

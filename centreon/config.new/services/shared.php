@@ -21,14 +21,21 @@
 
 declare(strict_types=1);
 
+use App\Shared\Infrastructure\EngineContextFile;
 use App\Shared\Infrastructure\Legacy\LegacyValidationStatusListener;
+use Core\Common\Infrastructure\FeatureFlags;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
+use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->parameters()
-        ->set('shared.media_img_folder_path', '/img/media/');
+        ->set('shared.media_img_folder_path', '/img/media/')
+        // Same defaults as config/services.yaml: both kernels must resolve the same engine context path.
+        ->set('env(ENGINE_CONTEXT_PATH)', '')
+        ->set('env(FILE_FEATURE_FLAGS)', '%kernel.project_dir%/config/features.json')
+        ->set('shared.engine_context_path', '%env(ENGINE_CONTEXT_PATH)%');
 
     $services = $containerConfigurator->services();
 
@@ -44,6 +51,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             __DIR__ . '/../../src/App/Shared/Infrastructure/Symfony/Kernel.php',
             __DIR__ . '/../../src/App/Shared/Infrastructure/Logging/SanitizingProcessor.php',
         ]);
+
+    $services->set('shared.feature_flags', FeatureFlags::class)
+        ->args(['%env(bool:default::IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']);
+
+    $services->set(EngineContextFile::class)
+        ->arg('$configuredPath', '%shared.engine_context_path%')
+        ->arg('$webConfigurationDirectory', '%env(_CENTREON_ETC_)%')
+        ->arg('$isLocalEngineOptional', expr('service("shared.feature_flags").isEnabled("' . EngineContextFile::FEATURE_FLAG . '")'));
 
     // NameConverterInterface has no autowiring alias; bind the listener to the very
     // converter ApiPlatform is configured with (config.new/packages/api_platform.yaml)

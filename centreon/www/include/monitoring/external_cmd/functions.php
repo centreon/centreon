@@ -43,6 +43,22 @@ function write_command($cmd, $poller)
     }
     setlocale(LC_CTYPE, 'en_US.UTF-8');
 
+    // Feature flag "gorgone_api_commands": the command goes to the Gorgone API, no file is written
+    $gorgoneCommandService = App\Kernel::createForWeb()
+        ->getContainer()
+        ->get('legacy.service_locator')
+        ->get('gorgone_command_service');
+    if ($gorgoneCommandService->isEnabled()) {
+        try {
+            $gorgoneCommandService->sendLegacyCommands("EXTERNALCMD:{$poller}:[" . time() . ']' . $cmd);
+        } catch (Core\Gorgone\Application\Exception\GorgoneCommandException) {
+            // Same result as a failed passthru(); already logged by the service.
+            return false;
+        }
+
+        return null;
+    }
+
     $str = 'echo ' . escapeshellarg("EXTERNALCMD:{$poller}:[" . time() . ']' . $cmd) . ' >> ' . $destination;
 
     return passthru($str);

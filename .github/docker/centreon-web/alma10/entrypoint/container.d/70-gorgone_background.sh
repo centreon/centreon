@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# An external Gorgone API is used (see 73-gorgone-api.sh): the local gorgoned is not started.
+if [ -n "${GORGONE_API_ADDRESS:-}" ]; then
+  return 0
+fi
+
 # allow docker networks to use gorgone api
 sed -i '/127.0.0.1/a\          - 172.0.0.0\/8' /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 

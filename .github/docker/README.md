@@ -137,12 +137,37 @@ centreon-web image accepts the following environment variables:
   * `es_ES`
   * `pt_BR`
   * `pt_PT`
+* `GORGONE_API_ADDRESS`: address of an external Gorgone API, for instance `gorgone-server` running in another container. Unset (default value): the local Perl `gorgoned` is used and nothing changes. When set:
+  * the local `gorgoned` is not started, nor the loop that restarts it to register new pollers
+  * the `gorgone_api_*` options of Centreon point at that address
+  * the feature flag `gorgone_api_commands` is enabled: centreon-web sends its commands (external commands, configuration export, reload and restart of the pollers, SNMP traps database) through the Gorgone REST API and writes no file in `/var/lib/centreon/centcore*`, so no volume has to be shared with Gorgone
+* `GORGONE_API_PORT`: port of that API (default value: `8085`)
+* `GORGONE_API_USERNAME` / `GORGONE_API_PASSWORD`: credentials of that API (HTTP basic authentication), when it requires them
 
 Usage:
 
 ```bash
 CENTREON_DATASET=0 CENTREON_LANG=fr_FR docker compose -f .github/docker/docker-compose.yml up -d --wait
 ```
+
+```bash
+# centreon-web without its local gorgoned, calling a Gorgone API reachable as "gorgone" on the compose network
+GORGONE_API_ADDRESS=gorgone docker compose -f .github/docker/docker-compose.yml up -d --wait
+```
+
+> [!NOTE]
+> The remote-server import and export (`STARTWORKER` and `SENDEXPORTFILE` commands) are not available through the Gorgone API yet: they still go through the centcore files, so the `remote-server` profile needs the local `gorgoned`.
+
+### Slim centreon web image
+
+[`centreon-web/alma9/Dockerfile.slim`](centreon-web/alma9/Dockerfile.slim) builds centreon-web alone (PHP-FPM, Apache, crond) for a layout where Gorgone, Engine and Broker run in their own containers. It takes the application installed in the published `centreon-web-alma9` image (`WEB_IMAGE` build argument), lays the application sources of the checkout over it, and copies it into a root filesystem that holds only its run time: no package manager, Python, Perl, systemd, SNMP, Engine, Broker or Gorgone. The daemons are started directly by the entrypoint. The locales of the supported languages are built in (`LOCALES` build argument). It requires `GORGONE_API_ADDRESS`.
+
+```bash
+docker build -f .github/docker/centreon-web/alma9/Dockerfile.slim -t centreon-web-slim-alma9:local .
+WEB_IMAGE=centreon-web-slim-alma9:local GORGONE_API_ADDRESS=gorgone docker compose -f .github/docker/docker-compose.yml up -d --wait
+```
+
+Not available in this image: the local poller (configuration export and reload go through the Gorgone API), the remote-server profile, the Broker Graphite/InfluxDB outputs set up at startup, the MIB import (`centFillTrapDB`, Perl) and the Perl cron jobs (`eventReportBuilder`, `dashboardBuilder`: availability reports, `centreon-backup.pl`). Graphs need the RRD files of Broker on a volume shared at `/var/lib/centreon/metrics` and `/var/lib/centreon/status`. Nothing can be installed in a running container (no `dnf`).
 
 ## :gear: Additional services using profiles
 

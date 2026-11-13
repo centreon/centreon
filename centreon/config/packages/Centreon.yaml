@@ -146,8 +146,14 @@ services:
 
     Core\Engine\Application\Repository\EngineRepositoryInterface:
         class: Core\Engine\Infrastructure\Repository\FsEngineRepository
+        public: true
+
+    # Single decision of the engine context path; reached from the legacy configuration generation
+    App\Shared\Infrastructure\EngineContextFile:
         arguments:
-            $engineContextPath: '%engine_context_path%'
+            $configuredPath: '%engine_context_path%'
+            $webConfigurationDirectory: '%centreon_etc_path%'
+            $isLocalEngineOptional: '@=service("Core\\Common\\Infrastructure\\FeatureFlags").isEnabled("gorgone_api_commands")'
         public: true
 
     Core\Common\Application\Repository\WriteVaultRepositoryInterface:
@@ -316,6 +322,21 @@ services:
     Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface:
         class: Centreon\Domain\Gorgone\GorgoneService
         public: true
+
+    # Commands sent through the Gorgone REST API instead of the centcore files (feature flag gorgone_api_commands)
+    Core\Gorgone\Application\Repository\WriteGorgoneJobRepositoryInterface:
+        class: Core\Gorgone\Infrastructure\Repository\ApiWriteGorgoneJobRepository
+
+    Core\Gorgone\Application\Repository\ReadGorgoneJobRepositoryInterface:
+        class: Core\Gorgone\Infrastructure\Repository\ApiReadGorgoneJobRepository
+
+    Core\Gorgone\Application\Repository\ReadGorgoneNodeRepositoryInterface:
+        class: Core\Gorgone\Infrastructure\Repository\DbReadGorgoneNodeRepository
+
+    Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterface:
+        class: Core\Gorgone\Infrastructure\Repository\FsReadGorgoneConfigurationRepository
+        arguments:
+            $cacheDirectory: '%centreon_cache_dir%'
 
     # Information data used in the configuration
     Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationServiceInterface:

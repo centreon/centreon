@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Installation\Infrastructure;
 
+use App\Shared\Infrastructure\EngineContextFile;
 use Core\Engine\Application\Repository\EngineRepositoryInterface;
 use Core\Engine\Domain\Model\EngineKey;
 use Core\Engine\Domain\Model\EngineSecrets;
@@ -34,6 +35,7 @@ final readonly class InstallationHelper
         private EngineRepositoryInterface $engineRepository,
         private EncryptionInterface $encryption,
         private string $appSecret,
+        private EngineContextFile $engineContextFile,
     ) {
     }
 
@@ -48,6 +50,28 @@ final readonly class InstallationHelper
         );
 
         $this->engineRepository->writeEngineSecrets($engineSecrets);
+    }
+
+    /**
+     * Create the engine context file when centreon-web runs without a local engine
+     * and nothing has written it yet (same content as the installation step).
+     *
+     * @return bool true when the file has just been created
+     */
+    public function createEngineContextFileOnDemand(): bool
+    {
+        if (! $this->engineContextFile->isCreatedOnDemand() || $this->engineRepository->engineSecretsHasContent()) {
+            return false;
+        }
+
+        $this->writeEngineContextFile();
+
+        return true;
+    }
+
+    public function getEngineContextPath(): string
+    {
+        return $this->engineContextFile->getPath();
     }
 
     public function engineContextHasContent(): bool

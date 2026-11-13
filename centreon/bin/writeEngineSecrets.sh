@@ -27,7 +27,8 @@ API_URL="$1"
 USERNAME="$2"
 PASSWORD="$3"
 SECRETS_ENDPOINT="/api/latest/administration/engine/secrets"
-OUTPUT_FILE="/etc/centreon-engine/engine-context.json"
+# Poller side: the engine package provides the directory; ENGINE_CONTEXT_PATH overrides the path.
+OUTPUT_FILE="${ENGINE_CONTEXT_PATH:-/etc/centreon-engine/engine-context.json}"
 
 # Authenticate and get token
 TOKEN=$(curl -s $INSECURE_FLAG -X POST "$API_URL/api/latest/login" \
