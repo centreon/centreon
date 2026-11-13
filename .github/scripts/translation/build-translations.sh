@@ -66,7 +66,7 @@ if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]
       fi
       if ! git push; then
         # fall back to a pull request from a branch prefixed by the Jira key
-        if [[ -n "${HEAD_REF:-}" ]]; then
+        if [[ -n "$jira_key" && "${HEAD_REF:-} ${PR_BODY:-}" == *"$jira_key"* ]]; then
           # that pull request gets its own ticket, not the one of the current pull request
           jira_key="$(HEAD_REF="" PR_BODY="" bash ../.github/scripts/translation/get-jira-key.sh centreon || true)"
           if [[ "$jira_key" =~ $jira_key_pattern ]]; then
