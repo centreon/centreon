@@ -82,6 +82,16 @@ final class PatchServiceMacrosProcessorTest extends PatchServiceProcessorTestCas
         self::assertSame(['$_SERVICEPORT$' => '80', '$_SERVICEUSER$' => 'admin'], $this->macros());
     }
 
+    public function testItAcceptsAMacroValueOfTheLengthLimit(): void
+    {
+        $value = str_repeat('v', 4096);
+
+        $this->patch($this->serviceId, ['check_options' => ['macros_to_upsert' => [['name' => 'long', 'value' => $value]]]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame($value, $this->macros()['$_SERVICELONG$'] ?? null);
+    }
+
     /**
      * @param array<string, mixed> $checkOptions
      * @param non-empty-string $message
