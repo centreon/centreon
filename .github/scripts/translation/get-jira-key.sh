@@ -3,10 +3,8 @@ set -euo pipefail
 
 # Print the Jira key to reference in a translation commit pushed by technique-ci.
 #
-# The key comes, in this order, from:
-#   1. the pull request (branch name, then description) when it already references a ticket,
-#   2. an open ticket already created for the same project and branch,
-#   3. a new MON ticket.
+# The key is the one already referenced by the pull request (branch name, then description),
+# else the one of a new MON ticket: outside a pull request, every translation commit gets its own ticket.
 #
 # Never fails: prints nothing (and a warning on stderr) when no key can be resolved.
 #
@@ -60,7 +58,7 @@ jira_curl() {
 }
 
 main() {
-  local text key="" summary jql response payload
+  local text key="" summary response payload
 
   for text in "${HEAD_REF:-}" "${PR_BODY:-}"; do
     key="$(find_jira_key "$text")"
@@ -82,28 +80,6 @@ main() {
   fi
 
   summary="Update translations of ${PROJECT_NAME} on ${BRANCH_NAME}"
-  jql="project = \"${JIRA_PROJECT_KEY}\" AND summary ~ \"\\\"${summary}\\\"\" AND statusCategory != Done ORDER BY created DESC"
-
-  if response="$(jira_curl --get --url "${JIRA_BASE_URL}/rest/api/3/search/jql" \
-    --data-urlencode "jql=${jql}" --data-urlencode "fields=summary" --data-urlencode "maxResults=20")"; then
-    # the search is fuzzy: keep only the ticket whose summary is exactly the expected one
-    key="$(RESPONSE="$response" SUMMARY="$summary" php -r '
-      foreach (json_decode((string) getenv("RESPONSE"), true)["issues"] ?? [] as $issue) {
-        if (($issue["fields"]["summary"] ?? "") === getenv("SUMMARY")) {
-          echo $issue["key"];
-          break;
-        }
-      }
-    ')"
-    if [[ -n "$key" ]]; then
-      echo "Reusing open Jira ticket ${key}." >&2
-      echo "$key"
-      return 0
-    fi
-  else
-    warn "Failed to search for an existing Jira ticket. No Jira ticket will be referenced by the translation commit."
-    return 0
-  fi
 
   payload="$(
     SUMMARY="$summary" BRANCH_NAME="$BRANCH_NAME" RUN_URL="$RUN_URL" PR_URL="$PR_URL" \

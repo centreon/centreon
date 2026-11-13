@@ -10,7 +10,7 @@ set -euo pipefail
 #   HAS_UPDATE_TRANSLATIONS_LABEL - "true" or "false"
 #   JIRA_BASE_URL, JIRA_USER_EMAIL, JIRA_API_TOKEN, BRANCH_NAME, RUN_URL,
 #   HEAD_REF, PR_BODY, PR_URL     - see get-jira-key.sh
-#   GH_TOKEN                      - see create-translations-pr.sh
+#   GH_TOKEN                      - see find-translations-pr.sh and create-translations-pr.sh
 #   GITHUB_WORKSPACE             - GitHub Actions workspace root
 #   GITHUB_OUTPUT                 - GitHub Actions step output file
 
@@ -40,7 +40,18 @@ if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]
   # avoid to always update POT-Creation-Date field
   find -type f -regex '.+\.pot?' -exec sed -i -e 's/"POT-Creation-Date.*$/"POT-Creation-Date: 2025-01-01 00:00+0000\\n"/g' {} \;
   if [[ ( "$IS_NIGHTLY" == "false" && "$STABILITY" == "unstable" ) || ( "$EVENT_NAME" == 'pull_request' && "$HAS_UPDATE_TRANSLATIONS_LABEL" == "true" ) ]]; then
-    if [[ "$(git log -1 --pretty=format:'%an')" != "technique-ci" ]]; then
+    if [[ "$(git log -1 --pretty=format:'%an')" == "technique-ci" ]]; then
+      echo "::notice::Last commit author is technique-ci. Skipping commit to avoid infinite loop."
+      cd ..
+      git diff > translations.patch
+      TRANSLATIONS_PATCH_FILE="translations.patch"
+    elif open_pr_url="$(bash ../.github/scripts/translation/find-translations-pr.sh || true)" && [[ -n "$open_pr_url" ]]; then
+      # avoid a new ticket and pull request on every run while the previous ones are not merged
+      echo "::notice::A translation pull request is already open: ${open_pr_url}. Skipping commit."
+      cd ..
+      git diff > translations.patch
+      TRANSLATIONS_PATCH_FILE="translations.patch"
+    else
       git config user.name "technique-ci"
       git config user.email "technique+ci@centreon.com"
       git status
@@ -69,11 +80,6 @@ if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]
           TRANSLATIONS_PATCH_FILE="translations.patch"
         fi
       fi
-    else
-      echo "::notice::Last commit author is technique-ci. Skipping commit to avoid infinite loop."
-      cd ..
-      git diff > translations.patch
-      TRANSLATIONS_PATCH_FILE="translations.patch"
     fi
   else
     echo "::notice::Translations have been updated, but the workflow is a nightly run or does not have the update-translations label. Skipping commit. Git patch will be available as artifact."
