@@ -325,6 +325,14 @@ Given(
 
     submitCustomResultsViaClapi(serviceStatus);
 
+    // Engine ignores an acknowledgement sent before it processed the problem state
+    checkServicesAreMonitored([
+      {
+        name: serviceInAcknowledgementName,
+        output: serviceStatus.output
+      }
+    ]);
+
     cy.refreshListing();
 
     cy.contains(serviceInAcknowledgementName)
