@@ -73,4 +73,17 @@ interface WriteGorgoneJobRepositoryInterface
      * @return string job id
      */
     public function pushConfiguration(int $nodeId, string $target, TarArchive $archive): string;
+
+    /**
+     * Ask a node to verify the files of a configuration target, without applying them.
+     *
+     * @param int $nodeId
+     * @param string $target
+     * @param TarArchive $archive the archive a push of that target would send
+     *
+     * @throws GorgoneCommandException
+     *
+     * @return string job id
+     */
+    public function validateConfiguration(int $nodeId, string $target, TarArchive $archive): string;
 }

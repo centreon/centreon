@@ -90,6 +90,24 @@ final class ApiWriteGorgoneJobRepository extends AbstractApiGorgoneRepository im
     }
 
     /**
+     * @inheritDoc
+     */
+    public function validateConfiguration(int $nodeId, string $target, TarArchive $archive): string
+    {
+        return $this->submit(
+            'POST',
+            $nodeId,
+            'config/' . rawurlencode($target) . '/validation',
+            [
+                'query' => ['id' => self::createJobId()],
+                'headers' => ['Content-Type' => 'application/x-tar'],
+                'body' => $archive->toString(),
+            ],
+            "validation of the {$target} configuration"
+        );
+    }
+
+    /**
      * @param string $method
      * @param int $nodeId
      * @param string $path path under "/v1/nodes/<node id>/"

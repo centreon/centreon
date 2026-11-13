@@ -140,3 +140,40 @@ it('should fail when the API is unreachable, without asking again', function ():
         // A request which waits is not sent again: the time allowed would be exceeded.
         ->and($this->requests)->toHaveCount(1);
 });
+
+it('should read the output and the exit code of the command run by the job', function (): void {
+    $this->answer = [
+        json_encode([
+            'id' => 'job-42',
+            'state' => 'failed',
+            'events' => [
+                ['seq' => 0, 'code' => 0, 'data' => ['message' => 'accepted']],
+                ['seq' => 1, 'code' => 100, 'data' => ['stdout' => "Checking hosts...\nTotal Warnings: 1\nTotal Errors:   2\n", 'exit_code' => 2]],
+                ['seq' => 2, 'code' => 1, 'data' => ['message' => 'engine: configuration rejected, 2 error(s)']],
+            ],
+        ]),
+        200,
+    ];
+
+    $outcome = $this->repository->findOutcome('job-42', 1);
+
+    expect($outcome->getOutput())->toBe("Checking hosts...\nTotal Warnings: 1\nTotal Errors:   2\n")
+        ->and($outcome->getExitCode())->toBe(2)
+        ->and($outcome->getMessage())->toBe('engine: configuration rejected, 2 error(s)')
+        ->and($outcome->isFailed())->toBeTrue();
+});
+
+it('should have no output when the job reported none', function (mixed $events): void {
+    $this->answer = [json_encode(['id' => 'job-42', 'state' => 'queued', 'events' => $events]), 200];
+
+    $outcome = $this->repository->findOutcome('job-42', 1);
+
+    expect($outcome->getOutput())->toBeNull()
+        ->and($outcome->getExitCode())->toBeNull();
+})->with([
+    'no event' => [[]],
+    'no events field' => [null],
+    'other events only' => [[['seq' => 1, 'code' => 1, 'data' => ['message' => 'failed', 'exit_code' => 1, 'stdout' => 'x']]]],
+    'output event without data' => [[['seq' => 1, 'code' => 100]]],
+    'output event of unexpected types' => [[['seq' => 1, 'code' => 100, 'data' => ['stdout' => ['x'], 'exit_code' => '2']]]],
+]);

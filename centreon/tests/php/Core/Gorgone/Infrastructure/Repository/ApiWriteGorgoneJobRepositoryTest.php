@@ -82,10 +82,11 @@ beforeEach(function (): void {
         return null;
     };
 
-    // Id of the job in a request: in the body of a job submission, in the query of a configuration push.
+    // Id of the job in a request: in the body of a job submission, in the query of a configuration
+    // push or validation.
     $this->findJobId = function (int $index): ?string {
         $request = $this->requests[$index];
-        if ($request['method'] === 'PUT') {
+        if ($request['method'] === 'PUT' || str_contains($request['url'], '/validation')) {
             parse_str((string) parse_url($request['url'], PHP_URL_QUERY), $query);
 
             return $query['id'] ?? null;
@@ -157,6 +158,56 @@ it('should push a configuration as an uncompressed tar archive', function (): vo
         ->and(mb_substr($body, 512, 6, '8bit'))->toBe('engine')
         ->and(rtrim(mb_substr($body, 1024, 100, '8bit'), "\0"))->toBe('hosts.cfg');
 });
+
+it('should ask for the validation of a configuration with the archive of a push', function (): void {
+    $archive = new TarArchive(['centengine.DEBUG' => 'engine', 'hosts.cfg' => 'hosts']);
+    $this->answer = ['{"id": "job-43", "digest": "sha256:abc", "size": 3072}', 202];
+    $repository = ($this->createRepository)();
+
+    $jobId = $repository->validateConfiguration(7, 'engine', $archive);
+    $repository->pushConfiguration(7, 'engine', $archive);
+
+    $body = $this->requests[0]['options']['body'];
+    expect($jobId)->toBe('job-43')
+        ->and($this->requests[0]['method'])->toBe('POST')
+        ->and($this->requests[0]['url'])->toMatch(
+            '#^http://10\.0\.0\.5:8085/v1/nodes/7/config/engine/validation\?id=[0-9a-f]{32}$#'
+        )
+        ->and(($this->findHeader)('Content-Type'))->toBe('application/x-tar')
+        ->and($this->requests[0]['options']['timeout'])->toBe(5.0)
+        ->and(mb_strlen($body, '8bit'))->toBe(512 * 6)
+        ->and(rtrim(mb_substr($body, 0, 100, '8bit'), "\0"))->toBe('centengine.DEBUG')
+        // Same archive as the push, under an id of its own.
+        ->and($body)->toBe($this->requests[1]['options']['body'])
+        ->and(($this->findJobId)(0))->not->toBe(($this->findJobId)(1));
+});
+
+it('should send a validation again once, with the same id', function (\Throwable|array $firstAnswer): void {
+    $this->answers = [$firstAnswer];
+
+    $jobId = ($this->createRepository)()->validateConfiguration(1, 'engine', new TarArchive(['a.cfg' => 'a']));
+
+    expect($jobId)->toBe('job-42')
+        ->and($this->requests)->toHaveCount(2)
+        ->and(($this->findJobId)(0))->toMatch('/^[0-9a-f]{32}$/')
+        ->and($this->requests[1]['url'])->toBe($this->requests[0]['url'])
+        ->and($this->requests[1]['options']['body'])->toBe($this->requests[0]['options']['body']);
+})->with([
+    'connection error' => [new TransportException('Connection reset')],
+    'HTTP 502' => [['Bad Gateway', 502]],
+]);
+
+it('should fail with the error of the API when a validation is refused', function (int $statusCode, string $body, string $expected, int $requests): void {
+    $this->answer = [$body, $statusCode];
+
+    expect(fn () => ($this->createRepository)()->validateConfiguration(9, 'engine', new TarArchive(['a.cfg' => 'a'])))
+        ->toThrow(GorgoneCommandException::class, $expected)
+        ->and($this->requests)->toHaveCount($requests);
+})->with([
+    [400, '{"error": "bad_request", "message": "invalid bundle"}', 'HTTP 400 (validation of the engine configuration for poller #9): bad_request: invalid bundle', 1],
+    [404, '{"error": "not_found", "message": "unknown node"}', 'Poller #9 is not known by Gorgone', 1],
+    [500, '{"error": "internal", "message": "store unavailable"}', 'internal: store unavailable', 2],
+]);
 
 it('should give each job its own random id', function (): void {
     $repository = ($this->createRepository)();

@@ -32,6 +32,9 @@ use Core\Gorgone\Domain\Model\JobOutcome;
  */
 final class ApiReadGorgoneJobRepository extends AbstractApiGorgoneRepository implements ReadGorgoneJobRepositoryInterface
 {
+    /** Code of the event holding the output of the command run by a job. */
+    private const EVENT_CODE_OUTPUT = 100;
+
     /**
      * @inheritDoc
      */
@@ -55,7 +58,12 @@ final class ApiReadGorgoneJobRepository extends AbstractApiGorgoneRepository imp
         }
 
         try {
-            return new JobOutcome($jobId, $state, self::findLastMessage($body['events'] ?? null));
+            return new JobOutcome(
+                $jobId,
+                $state,
+                self::findLastMessage($body['events'] ?? null),
+                ...self::findOutput($body['events'] ?? null)
+            );
         } catch (\InvalidArgumentException $ex) {
             throw GorgoneCommandException::unexpectedResponse($description, $statusCode, $ex->getMessage());
         }
@@ -75,5 +83,34 @@ final class ApiReadGorgoneJobRepository extends AbstractApiGorgoneRepository imp
         $message = is_array($event) && is_array($event['data'] ?? null) ? ($event['data']['message'] ?? null) : null;
 
         return is_string($message) ? trim($message) : '';
+    }
+
+    /**
+     * @param mixed $events
+     *
+     * @return array{string|null, int|null} output and exit code of the command run by the job
+     */
+    private static function findOutput(mixed $events): array
+    {
+        $output = null;
+        $exitCode = null;
+        foreach (is_array($events) ? $events : [] as $event) {
+            if (
+                ! is_array($event)
+                || ! is_numeric($event['code'] ?? null)
+                || (int) $event['code'] !== self::EVENT_CODE_OUTPUT
+                || ! is_array($event['data'] ?? null)
+            ) {
+                continue;
+            }
+            if (is_string($event['data']['stdout'] ?? null)) {
+                $output = $event['data']['stdout'];
+            }
+            if (is_int($event['data']['exit_code'] ?? null)) {
+                $exitCode = $event['data']['exit_code'];
+            }
+        }
+
+        return [$output, $exitCode];
     }
 }

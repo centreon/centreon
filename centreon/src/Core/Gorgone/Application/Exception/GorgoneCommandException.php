@@ -25,6 +25,9 @@ namespace Core\Gorgone\Application\Exception;
 
 final class GorgoneCommandException extends \Exception
 {
+    /** Code of the errors met before any answer of the Gorgone API: the next call would fail the same way. */
+    public const CODE_UNREACHABLE = 1;
+
     public static function featureDisabled(string $featureFlag): self
     {
         return new self(sprintf(
@@ -77,14 +80,15 @@ final class GorgoneCommandException extends \Exception
 
     public static function missingApiAddress(): self
     {
-        return new self('The address of the Gorgone API is not configured');
+        return new self('The address of the Gorgone API is not configured', self::CODE_UNREACHABLE);
     }
 
     public static function requestFailed(string $description, \Throwable $previous): self
     {
         return new self(
             sprintf('Request to the Gorgone API failed (%s): %s', $description, $previous->getMessage()),
-            previous: $previous
+            self::CODE_UNREACHABLE,
+            $previous
         );
     }
 

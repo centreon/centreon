@@ -47,6 +47,8 @@ final class JobOutcome
      * @param string $jobId
      * @param string $state
      * @param string $message message of the last event of the job
+     * @param string|null $output output of the command run by the job, when it reported one
+     * @param int|null $exitCode exit code of that command
      *
      * @throws \InvalidArgumentException
      */
@@ -54,6 +56,8 @@ final class JobOutcome
         private readonly string $jobId,
         private readonly string $state,
         private readonly string $message = '',
+        private readonly ?string $output = null,
+        private readonly ?int $exitCode = null,
     ) {
         if (! in_array($state, [...self::PENDING_STATES, ...self::TERMINAL_STATES], true)) {
             throw new \InvalidArgumentException(sprintf('Unknown Gorgone job state "%s"', $state));
@@ -68,6 +72,21 @@ final class JobOutcome
     public function getState(): string
     {
         return $this->state;
+    }
+
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
+
+    public function getOutput(): ?string
+    {
+        return $this->output;
+    }
+
+    public function getExitCode(): ?int
+    {
+        return $this->exitCode;
     }
 
     public function isPending(): bool

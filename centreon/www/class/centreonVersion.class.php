@@ -65,10 +65,14 @@ class CentreonVersion
             $data['centreon-web'] = $row['value'];
         }
 
-        // Get version of the centreon-broker
-        $cmd = shell_exec('/usr/sbin/cbd -v');
+        // Get version of the centreon-broker; feature flag "gorgone_api_commands": no local broker is expected
+        $gorgoneCommandService = App\Kernel::createForWeb()
+            ->getContainer()
+            ->get('legacy.service_locator')
+            ->get('gorgone_command_service');
+        $cmd = $gorgoneCommandService->isEnabled() ? null : shell_exec('/usr/sbin/cbd -v');
 
-        if (preg_match('/^.*(\d+\.\d+\.\d+)$/m', $cmd, $matches)) {
+        if (is_string($cmd) && preg_match('/^.*(\d+\.\d+\.\d+)$/m', $cmd, $matches)) {
             $data['centreon-broker'] = $matches[1];
         }
 

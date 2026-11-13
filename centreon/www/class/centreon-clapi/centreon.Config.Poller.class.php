@@ -303,27 +303,54 @@ class CentreonConfigPoller
 
         $idPoller = $this->ensurePollerId($variables);
 
-        /**
-         * Get Nagios Bin
-         */
-        $DBRESULT_Servers = $this->DB->query(
-            "SELECT `nagios_bin` FROM `nagios_server` WHERE `localhost` = '1' ORDER BY `ns_activate` DESC LIMIT 1"
-        );
-        $nagios_bin = $DBRESULT_Servers->fetchRow();
-        $DBRESULT_Servers->closeCursor();
+        // Feature flag "gorgone_api_commands": the poller verifies the configuration with its own engine,
+        // no engine binary is run here
+        if ($this->isGorgoneApiEnabled()) {
+            try {
+                $validation = $this->getGorgoneCommandService()->validateConfiguration([(int) $idPoller])[(int) $idPoller];
+            } catch (GorgoneCommandException $ex) {
+                echo $ex->getMessage() . PHP_EOL;
 
-        // Launch test command
-        if (isset($nagios_bin['nagios_bin'])) {
-            exec(
-                escapeshellcmd(
-                    $nagios_bin['nagios_bin'] . ' -v '
-                    . $this->engineCachePath . '/' . $idPoller . '/centengine.DEBUG'
-                ),
-                $lines,
-                $return_code
-            );
+                return 1;
+            }
+            if ($validation->isError()) {
+                echo "Error: Centreon Poller {$variables} configuration cannot be verified. "
+                    . $validation->getMessage() . "\n";
+
+                return 1;
+            }
+            if ($validation->isUnverified()) {
+                // Not an error: the poller refuses an invalid configuration when it applies it
+                echo "Warning: Centreon Poller {$variables}. " . $validation->getMessage() . "\n";
+
+                return 0;
+            }
+            $output = $validation->getOutput() !== '' ? $validation->getOutput() : $validation->getMessage();
+            $lines = explode("\n", rtrim($output, "\n"));
+            $return_code = $validation->getExitCode();
         } else {
-            throw new CentreonClapiException("Can't find engine binary");
+            /**
+             * Get Nagios Bin
+             */
+            $DBRESULT_Servers = $this->DB->query(
+                "SELECT `nagios_bin` FROM `nagios_server` WHERE `localhost` = '1' ORDER BY `ns_activate` DESC LIMIT 1"
+            );
+            $nagios_bin = $DBRESULT_Servers->fetchRow();
+            $DBRESULT_Servers->closeCursor();
+
+            // Launch test command
+            if (isset($nagios_bin['nagios_bin'])) {
+                exec(
+                    escapeshellcmd(
+                        $nagios_bin['nagios_bin'] . ' -v '
+                        . $this->engineCachePath . '/' . $idPoller . '/centengine.DEBUG'
+                    ),
+                    $lines,
+                    $return_code
+                );
+            } else {
+                throw new CentreonClapiException("Can't find engine binary");
+            }
         }
 
         $msg_debug = '';

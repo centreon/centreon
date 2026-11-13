@@ -31,6 +31,7 @@ use Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterf
 use Core\Gorgone\Application\Repository\ReadGorgoneJobRepositoryInterface;
 use Core\Gorgone\Application\Repository\WriteGorgoneJobRepositoryInterface;
 use Core\Gorgone\Application\Service\GorgoneCommandService;
+use Core\Gorgone\Domain\Model\ConfigurationValidation;
 use Core\Gorgone\Domain\Model\JobOutcome;
 use Core\Gorgone\Domain\Model\TarArchive;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
@@ -47,6 +48,12 @@ final class RecordingGorgoneJobRepository implements WriteGorgoneJobRepositoryIn
     public array $calls = [];
 
     public ?\Throwable $failure = null;
+
+    /** @var array<int, \Throwable> failure by node id */
+    public array $nodeFailures = [];
+
+    /** @var int number of calls, failed ones included */
+    public int $attempts = 0;
 
     public function submitEngineCommands(int $nodeId, array $commands): string
     {
@@ -73,13 +80,22 @@ final class RecordingGorgoneJobRepository implements WriteGorgoneJobRepositoryIn
         return $this->record(['config', $nodeId, $target, $archive->getFileNames()]);
     }
 
+    public function validateConfiguration(int $nodeId, string $target, TarArchive $archive): string
+    {
+        return $this->record(['validation', $nodeId, $target, $archive->getFileNames()]);
+    }
+
     /**
      * @param array<int, mixed> $call
      */
     private function record(array $call): string
     {
+        $this->attempts++;
         if ($this->failure !== null) {
             throw $this->failure;
+        }
+        if (isset($this->nodeFailures[$call[1]])) {
+            throw $this->nodeFailures[$call[1]];
         }
         $this->calls[] = $call;
 
@@ -92,8 +108,13 @@ final class RecordingGorgoneJobRepository implements WriteGorgoneJobRepositoryIn
  */
 final class FakeGorgoneJobStateRepository implements ReadGorgoneJobRepositoryInterface
 {
-    /** @var array<string, array{string, string}> state and message by job id, succeeded by default */
+    /** @var array<string, array{0: string, 1: string, 2?: string|null, 3?: int|null}> state, message, output and exit code by job id, succeeded by default */
     public array $states = [];
+
+    /** @var list<int> number of jobs submitted when each wait started */
+    public array $submittedAtWaits = [];
+
+    public ?RecordingGorgoneJobRepository $jobs = null;
 
     /** @var list<array{string, int}> job id and wait of each call */
     public array $waits = [];
@@ -109,6 +130,7 @@ final class FakeGorgoneJobStateRepository implements ReadGorgoneJobRepositoryInt
             throw $this->failure;
         }
         $this->waits[] = [$jobId, $waitSeconds];
+        $this->submittedAtWaits[] = count($this->jobs->calls ?? []);
         $outcome = new JobOutcome($jobId, ...($this->states[$jobId] ?? [JobOutcome::STATE_SUCCEEDED, '']));
         if ($outcome->isPending()) {
             $this->now += $waitSeconds;
@@ -124,6 +146,7 @@ final class FakeGorgoneJobStateRepository implements ReadGorgoneJobRepositoryInt
 beforeEach(function (): void {
     $this->jobs = new RecordingGorgoneJobRepository();
     $this->jobStates = new FakeGorgoneJobStateRepository();
+    $this->jobStates->jobs = $this->jobs;
     $this->commandTimeout = '10';
 
     // Pollers 1, 2 and 5 exist; 5 is also known by its uid.
@@ -557,4 +580,198 @@ it('should log and propagate the errors met while reading the jobs', function ()
 
     expect(fn () => $service->reportOutcomes(['Central' => ['job-1']]))
         ->toThrow(GorgoneCommandException::class, 'connection refused');
+});
+
+const ENGINE_FILES = ['centengine.DEBUG' => 'cfg_file=hosts.cfg', 'hosts.cfg' => 'define host {}'];
+const CHECK_OK = "Checking hosts...\n\nTotal Warnings: 0\nTotal Errors:   0\n\nThings look okay\n";
+const CHECK_KO = "Error: Could not find any host matching 'srv'\n\nTotal Warnings: 1\nTotal Errors:   2\n";
+const UNVERIFIED_MESSAGE = 'The configuration could not be verified now: the poller will verify it when it is applied.';
+
+it('should ask the poller to validate the engine archive a push would send', function (): void {
+    $this->files = [1 => ['engine' => ENGINE_FILES, 'broker' => ['central-broker.json' => '{}']]];
+    $this->jobStates->states['job-1'] = ['succeeded', 'engine: configuration valid', CHECK_OK, 0];
+    $service = ($this->createService)();
+
+    $validations = $service->validateConfiguration([1]);
+    $service->sendLegacyCommands('SENDCFGFILE:1');
+
+    expect($this->jobs->calls[0])->toBe(['validation', 1, 'engine', ['centengine.DEBUG', 'hosts.cfg']])
+        // The configuration push sends the same engine files.
+        ->and($this->jobs->calls[1])->toBe(['config', 1, 'engine', ['centengine.DEBUG', 'hosts.cfg']])
+        ->and(array_keys($validations))->toBe([1])
+        ->and($validations[1]->getPollerId())->toBe(1)
+        ->and($validations[1]->getStatus())->toBe(ConfigurationValidation::STATUS_VALID)
+        ->and($validations[1]->isVerified())->toBeTrue()
+        ->and($validations[1]->getOutput())->toBe(CHECK_OK)
+        ->and($validations[1]->getExitCode())->toBe(0)
+        ->and($validations[1]->getMessage())->toBe('engine: configuration valid');
+});
+
+it('should report a configuration refused by the engine of the poller', function (
+    ?string $output,
+    ?int $exitCode,
+    string $expectedOutput,
+    int $expectedExitCode,
+): void {
+    $this->files = [1 => ['engine' => ENGINE_FILES], 2 => ['engine' => ENGINE_FILES]];
+    $this->jobStates->states['job-2'] = ['failed', 'engine: configuration rejected, 2 error(s)', $output, $exitCode];
+
+    $validations = ($this->createService)()->validateConfiguration([1, 2]);
+
+    expect($validations[1]->isValid())->toBeTrue()
+        ->and($validations[2]->getStatus())->toBe(ConfigurationValidation::STATUS_INVALID)
+        ->and($validations[2]->isVerified())->toBeTrue()
+        ->and($validations[2]->getOutput())->toBe($expectedOutput)
+        ->and($validations[2]->getExitCode())->toBe($expectedExitCode)
+        ->and($validations[2]->getMessage())->toBe('engine: configuration rejected, 2 error(s)');
+})->with([
+    'with the output of the checker' => [CHECK_KO, 2, CHECK_KO, 2],
+    'without output nor exit code' => [null, null, '', 1],
+    'with an exit code of 0' => [CHECK_KO, 0, CHECK_KO, 1],
+]);
+
+it('should not treat a poller which did not verify in time as an error', function (string $state): void {
+    $this->files = [1 => ['engine' => ENGINE_FILES], 2 => ['engine' => ENGINE_FILES]];
+    $this->jobStates->states['job-1'] = [$state, 'accepted'];
+    $logger = $this->createMock(LoggerInterface::class);
+    $logger->expects($this->never())->method('log');
+    $service = ($this->createService)();
+    $service->setLogger($logger);
+
+    $validations = $service->validateConfiguration([1, 2]);
+
+    expect($validations[1]->getStatus())->toBe(ConfigurationValidation::STATUS_UNVERIFIED)
+        ->and($validations[1]->isUnverified())->toBeTrue()
+        ->and($validations[1]->isVerified())->toBeFalse()
+        ->and($validations[1]->isError())->toBeFalse()
+        ->and($validations[1]->getMessage())->toBe(UNVERIFIED_MESSAGE)
+        ->and($validations[1]->getOutput())->toBe('')
+        ->and($validations[1]->getExitCode())->toBe(0)
+        // The other pollers are still read.
+        ->and($validations[2]->isValid())->toBeTrue();
+})->with([
+    'not connected' => ['queued'],
+    'sent' => ['dispatched'],
+    'still checking' => ['running'],
+    'never connected' => ['expired'],
+    'cancelled' => ['cancelled'],
+]);
+
+it('should ask every poller before waiting for the first answer', function (): void {
+    $this->files = [1 => ['engine' => ENGINE_FILES], 2 => ['engine' => ENGINE_FILES], 5 => ['engine' => ENGINE_FILES]];
+
+    $validations = ($this->createService)()->validateConfiguration([5, 1, 2, 5]);
+
+    expect(array_column($this->jobs->calls, 1))->toBe([5, 1, 2])
+        ->and($this->jobStates->submittedAtWaits)->toBe([3, 3, 3])
+        ->and(array_column($this->jobStates->waits, 0))->toBe(['job-1', 'job-2', 'job-3'])
+        // Results in the order of the request.
+        ->and(array_keys($validations))->toBe([5, 1, 2]);
+});
+
+it('should share the time allowed between the validations', function (): void {
+    $this->files = [1 => ['engine' => ENGINE_FILES], 2 => ['engine' => ENGINE_FILES], 5 => ['engine' => ENGINE_FILES]];
+
+    ($this->createService)()->validateConfiguration([1, 2, 5]);
+
+    // Each finished job is answered in half a second.
+    expect($this->jobStates->waits)->toBe([['job-1', 10], ['job-2', 9], ['job-3', 9]]);
+});
+
+it('should never wait more than 30 seconds for the validations', function (): void {
+    $this->commandTimeout = '300';
+    $this->files = [1 => ['engine' => ENGINE_FILES], 2 => ['engine' => ENGINE_FILES], 5 => ['engine' => ENGINE_FILES]];
+    $this->jobStates->states['job-1'] = ['queued', ''];
+    $this->jobStates->states['job-2'] = ['running', ''];
+    $this->jobStates->states['job-3'] = ['succeeded', 'engine: configuration valid', CHECK_OK, 0];
+
+    $validations = ($this->createService)()->validateConfiguration([1, 2, 5]);
+
+    expect($this->jobStates->waits)->toBe([['job-1', 30], ['job-2', 0], ['job-3', 0]])
+        ->and($this->jobStates->now)->toBeLessThanOrEqual(1000.0 + GorgoneCommandService::MAX_WAIT_SECONDS + 1)
+        ->and($validations[1]->isUnverified())->toBeTrue()
+        ->and($validations[2]->isUnverified())->toBeTrue()
+        // A job already finished is read even once the time is up.
+        ->and($validations[5]->isValid())->toBeTrue();
+});
+
+it('should report the error of the Gorgone API for the poller it concerns', function (): void {
+    $this->files = [1 => ['engine' => ENGINE_FILES], 2 => ['engine' => ENGINE_FILES], 5 => ['engine' => ENGINE_FILES]];
+    $this->jobs->nodeFailures[2] = GorgoneCommandException::unexpectedResponse('validation', 500, 'store unavailable');
+    $logger = $this->createMock(LoggerInterface::class);
+    $logger->expects($this->once())->method('log')->with('error', $this->stringContains('store unavailable'));
+    $service = ($this->createService)();
+    $service->setLogger($logger);
+
+    $validations = $service->validateConfiguration([1, 2, 5]);
+
+    expect($validations[2]->getStatus())->toBe(ConfigurationValidation::STATUS_ERROR)
+        ->and($validations[2]->isVerified())->toBeFalse()
+        ->and($validations[2]->getMessage())->toContain('HTTP 500', 'store unavailable')
+        ->and($validations[1]->isValid())->toBeTrue()
+        ->and($validations[5]->isValid())->toBeTrue()
+        ->and($this->jobs->attempts)->toBe(3)
+        ->and(array_keys($validations))->toBe([1, 2, 5]);
+});
+
+it('should report an unreachable Gorgone API for every poller, after one attempt', function (): void {
+    $this->files = [1 => ['engine' => ENGINE_FILES], 2 => ['engine' => ENGINE_FILES], 5 => ['engine' => ENGINE_FILES]];
+    $this->jobs->failure = GorgoneCommandException::requestFailed('validation', new \RuntimeException('connection refused'));
+
+    $validations = ($this->createService)()->validateConfiguration([1, 2, 5]);
+
+    expect(array_keys($validations))->toBe([1, 2, 5])
+        ->and($this->jobs->attempts)->toBe(1)
+        ->and($this->jobStates->waits)->toBe([]);
+    foreach ($validations as $validation) {
+        expect($validation->isError())->toBeTrue()
+            ->and($validation->getMessage())->toContain('connection refused');
+    }
+});
+
+it('should report a poller whose engine configuration is not generated, without any call for it', function (): void {
+    $this->files = [1 => ['engine' => ENGINE_FILES]];
+
+    $validations = ($this->createService)()->validateConfiguration([2, 1]);
+
+    expect($validations[2]->isError())->toBeTrue()
+        ->and($validations[2]->getMessage())->toContain('No "engine" configuration file found for poller #2')
+        ->and($validations[1]->isValid())->toBeTrue()
+        ->and($this->jobs->calls)->toBe([['validation', 1, 'engine', ['centengine.DEBUG', 'hosts.cfg']]]);
+});
+
+it('should report the error met while reading the validations for every poller asked', function (): void {
+    $this->files = [1 => ['engine' => ENGINE_FILES], 2 => ['engine' => ENGINE_FILES]];
+    $this->jobStates->failure = new \RuntimeException('connection refused');
+    $logger = $this->createMock(LoggerInterface::class);
+    $logger->expects($this->once())->method('log')->with('error', $this->stringContains('connection refused'));
+    $service = ($this->createService)();
+    $service->setLogger($logger);
+
+    $validations = $service->validateConfiguration([1, 2]);
+
+    expect($validations[1]->isError())->toBeTrue()
+        ->and($validations[2]->isError())->toBeTrue()
+        ->and($validations[2]->getMessage())->toBe('connection refused');
+});
+
+it('should validate nothing when the feature flag is disabled', function (int $flag): void {
+    $this->configuration->expects($this->never())->method('findFiles');
+    $this->optionService->expects($this->never())->method('findSelectedOptions');
+
+    expect(fn () => ($this->createService)($flag)->validateConfiguration([1]))
+        ->toThrow(GorgoneCommandException::class, 'gorgone_api_commands')
+        ->and($this->jobs->attempts)->toBe(0)
+        ->and($this->jobStates->waits)->toBe([]);
+})->with([
+    'disabled' => [0],
+    'cloud only' => [2],
+]);
+
+it('should call nothing when no poller is to validate', function (): void {
+    $this->optionService->expects($this->never())->method('findSelectedOptions');
+
+    expect(($this->createService)()->validateConfiguration([]))->toBe([])
+        ->and($this->jobs->attempts)->toBe(0)
+        ->and($this->jobStates->waits)->toBe([]);
 });

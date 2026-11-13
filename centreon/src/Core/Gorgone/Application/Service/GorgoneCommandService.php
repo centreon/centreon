@@ -30,13 +30,16 @@ use Core\Gorgone\Application\Exception\GorgoneCommandException;
 use Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterface;
 use Core\Gorgone\Application\Repository\ReadGorgoneJobRepositoryInterface;
 use Core\Gorgone\Application\Repository\WriteGorgoneJobRepositoryInterface;
+use Core\Gorgone\Domain\Model\ConfigurationValidation;
+use Core\Gorgone\Domain\Model\JobOutcome;
 use Core\Gorgone\Domain\Model\JobOutcomes;
 use Core\Gorgone\Domain\Model\TarArchive;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 
 /**
  * Turns the commands Centreon used to write in the centcore files ("CMD:poller[:param]")
- * into calls to the Gorgone REST API, and tells how the submitted jobs ended.
+ * into calls to the Gorgone REST API, and tells how the submitted jobs ended. Also asks the
+ * pollers to verify their engine configuration, which the central did with its own engine.
  *
  * @phpstan-type _Command array{name: string, nodeId: int, param: string}
  * @phpstan-type _Report array{messages: list<string>, failures: list<string>}
@@ -191,22 +194,13 @@ final class GorgoneCommandService
         )));
 
         try {
-            $outcomes = [];
-            if ($jobIds !== []) {
-                $deadline = $this->now() + min($this->getCommandTimeout(), self::MAX_WAIT_SECONDS);
-                foreach ($jobIds as $jobId) {
-                    // Once the time is up, the state of the remaining jobs is read without waiting.
-                    $outcome = $this->readJobRepository->findOutcome(
-                        $jobId,
-                        max(0, (int) floor($deadline - $this->now()))
+            $outcomes = $this->findOutcomes($jobIds);
+            foreach ($outcomes as $outcome) {
+                if ($outcome->isFailed()) {
+                    $this->error(
+                        'Gorgone job failed: ' . $outcome->getFailureMessage(),
+                        ['job' => $outcome->getJobId(), 'state' => $outcome->getState()]
                     );
-                    if ($outcome->isFailed()) {
-                        $this->error(
-                            'Gorgone job failed: ' . $outcome->getFailureMessage(),
-                            ['job' => $jobId, 'state' => $outcome->getState()]
-                        );
-                    }
-                    $outcomes[] = $outcome;
                 }
             }
 
@@ -252,6 +246,143 @@ final class GorgoneCommandService
         }
 
         return $report;
+    }
+
+    /**
+     * Ask each poller to verify its generated engine configuration with its own engine, and wait
+     * for the answers (see waitForJobs(): the time is shared by all the pollers). Every
+     * verification is requested before the first answer is waited for.
+     *
+     * A poller which does not answer in time is not an error: its Gorgone agent verifies every
+     * configuration before applying it, and refuses an invalid one.
+     *
+     * @param list<int> $pollerIds
+     *
+     * @throws GorgoneCommandException when the feature flag is disabled
+     *
+     * @return array<int, ConfigurationValidation> result by poller id
+     */
+    public function validateConfiguration(array $pollerIds): array
+    {
+        if (! $this->isEnabled()) {
+            throw GorgoneCommandException::featureDisabled(self::FEATURE_FLAG);
+        }
+
+        $pollerIds = array_values(array_unique($pollerIds));
+        $validations = [];
+        $jobIds = [];
+        $unreachable = null;
+        foreach ($pollerIds as $pollerId) {
+            try {
+                // Nothing more is sent to a Gorgone API which cannot be reached.
+                if ($unreachable !== null) {
+                    throw $unreachable;
+                }
+                $jobIds[$pollerId] = $this->writeJobRepository->validateConfiguration(
+                    $pollerId,
+                    self::TARGET_ENGINE,
+                    $this->buildArchive($pollerId, self::TARGET_ENGINE, true)
+                );
+            } catch (\Throwable $ex) {
+                if ($unreachable === null) {
+                    $this->error(
+                        'Unable to ask for the validation of the engine configuration: ' . $ex->getMessage(),
+                        ['poller' => $pollerId, 'exception' => $ex]
+                    );
+                }
+                if ($ex->getCode() === GorgoneCommandException::CODE_UNREACHABLE) {
+                    $unreachable = $ex;
+                }
+                $validations[$pollerId] = new ConfigurationValidation(
+                    $pollerId,
+                    ConfigurationValidation::STATUS_ERROR,
+                    message: $ex->getMessage()
+                );
+            }
+        }
+
+        try {
+            $outcomes = new JobOutcomes($this->findOutcomes(array_values($jobIds)));
+            foreach ($jobIds as $pollerId => $jobId) {
+                $validations[$pollerId] = self::createValidation($pollerId, $outcomes->of([$jobId])->all()[0]);
+            }
+        } catch (\Throwable $ex) {
+            $this->error(
+                'Unable to get the result of the validation of the engine configuration: ' . $ex->getMessage(),
+                ['jobs' => $jobIds, 'exception' => $ex]
+            );
+            foreach (array_keys($jobIds) as $pollerId) {
+                $validations[$pollerId] = new ConfigurationValidation(
+                    $pollerId,
+                    ConfigurationValidation::STATUS_ERROR,
+                    message: $ex->getMessage()
+                );
+            }
+        }
+
+        // Same order as the request.
+        $ordered = [];
+        foreach ($pollerIds as $pollerId) {
+            $ordered[$pollerId] = $validations[$pollerId];
+        }
+
+        return $ordered;
+    }
+
+    /**
+     * Read the outcome of jobs, waiting for at most the Gorgone command timeout capped to
+     * MAX_WAIT_SECONDS for the whole set.
+     *
+     * @param list<string> $jobIds
+     *
+     * @throws \Throwable
+     *
+     * @return list<JobOutcome>
+     */
+    private function findOutcomes(array $jobIds): array
+    {
+        $outcomes = [];
+        if ($jobIds !== []) {
+            $deadline = $this->now() + min($this->getCommandTimeout(), self::MAX_WAIT_SECONDS);
+            foreach ($jobIds as $jobId) {
+                // Once the time is up, the state of the remaining jobs is read without waiting.
+                $outcomes[] = $this->readJobRepository->findOutcome(
+                    $jobId,
+                    max(0, (int) floor($deadline - $this->now()))
+                );
+            }
+        }
+
+        return $outcomes;
+    }
+
+    /**
+     * @param int $pollerId
+     * @param JobOutcome $outcome outcome of the validation job
+     *
+     * @return ConfigurationValidation
+     */
+    private static function createValidation(int $pollerId, JobOutcome $outcome): ConfigurationValidation
+    {
+        $output = (string) $outcome->getOutput();
+        $hasCheckerAnswer = $outcome->getState() === JobOutcome::STATE_FAILED;
+
+        // Not connected (queued, expired), too slow or cancelled: the poller verifies it when it applies it.
+        if (! $outcome->isSucceeded() && ! $hasCheckerAnswer) {
+            return new ConfigurationValidation(
+                $pollerId,
+                ConfigurationValidation::STATUS_UNVERIFIED,
+                message: _('The configuration could not be verified now: the poller will verify it when it is applied.')
+            );
+        }
+
+        return new ConfigurationValidation(
+            $pollerId,
+            $outcome->isSucceeded() ? ConfigurationValidation::STATUS_VALID : ConfigurationValidation::STATUS_INVALID,
+            $output,
+            $outcome->isSucceeded() ? $outcome->getMessage() : $outcome->getFailureMessage(),
+            $outcome->getExitCode() ?? ($outcome->isSucceeded() ? 0 : 1)
+        );
     }
 
     /**

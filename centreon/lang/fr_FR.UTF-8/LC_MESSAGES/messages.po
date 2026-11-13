@@ -25727,3 +25727,7 @@ msgstr "%s : toujours en cours."
 #: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
 msgid "Centreon Broker reload"
 msgstr "Rechargement de Centreon Broker"
+
+#: centreon/src/Core/Gorgone/Application/Service/GorgoneCommandService.php
+msgid "The configuration could not be verified now: the poller will verify it when it is applied."
+msgstr "La configuration n'a pas pu être vérifiée pour le moment : le collecteur la vérifiera lors de son application."
