@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Domain\Exception;
 
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ContactGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\DuplicateServiceMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\EventHandlerArgumentsRequireAHandlerException;
 use App\MonitoringConfiguration\Domain\Exception\GraphTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
@@ -32,11 +33,16 @@ use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\MediaNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ReservedServiceMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckArgumentsPartlyFilledException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckCommandMissingException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceExtendedInformationsTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceMacroPasswordUnmaskedException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceMacroValueIsAVaultReferenceException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimePeriodNotFoundException;
@@ -206,6 +212,42 @@ final class ReferenceExceptionCriteriaTest extends TestCase
             new EventHandlerArgumentsRequireAHandlerException(),
             ['advanced' => ['eventHandlerArgs']],
             'Event handler arguments require an event handler, set on the service or provided by its service template.',
+        ];
+
+        yield 'two macros of the same name' => [
+            new DuplicateServiceMacroNameException(['TOKEN']),
+            ['checkOptions' => ['TOKEN']],
+            'A service cannot have two macros with the same name.',
+        ];
+
+        yield 'macro the service neither owns nor inherits' => [
+            new ServiceMacroNotFoundException([13, 14]),
+            ['checkOptions' => [13, 14]],
+            'One or more macros do not exist on this service.',
+        ];
+
+        yield 'password macro turned into a plain one' => [
+            new ServiceMacroPasswordUnmaskedException(['PWD']),
+            ['checkOptions' => ['PWD']],
+            'These macros are passwords and must stay so: is_password cannot be set to false.',
+        ];
+
+        yield 'stored value kept on a macro that is not a password' => [
+            new ServiceMacroValueRequiredException(['PLAIN']),
+            ['checkOptions' => ['PLAIN']],
+            'A value is required: these macros are not stored as passwords, so their value cannot be kept.',
+        ];
+
+        yield 'macro value that is a vault reference' => [
+            new ServiceMacroValueIsAVaultReferenceException(['PWD']),
+            ['checkOptions' => ['PWD']],
+            'A macro value cannot be a vault reference.',
+        ];
+
+        yield 'reserved macro name' => [
+            new ReservedServiceMacroNameException(['CRITICALITY_LEVEL']),
+            ['checkOptions' => ['CRITICALITY_LEVEL']],
+            'This macro name is reserved and cannot be used.',
         ];
 
         yield 'extended information above the form bounds' => [

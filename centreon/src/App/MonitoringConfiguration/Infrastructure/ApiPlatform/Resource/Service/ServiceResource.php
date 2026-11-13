@@ -115,13 +115,16 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\PatchSe
             openapi: new Model\Operation(
                 summary: 'Create a service',
                 description: 'Creates a service linked directly to one host, enabled, and answers its form as a Get '
-                    . 'does. Its own macros are not taken yet.',
+                    . 'does. Its own macros are taken from `check_options.macros`; an inherited macro is resent, with '
+                    . 'its id and parent, only to override it. Password macros are written to the vault, when one is '
+                    . 'configured, before the service is saved.',
                 responses: [
                     403 => new Model\Response('You are not allowed to create services'),
                     404 => new Model\Response('A nested reference (command, time period, icon, contact, contact group) '
                         . 'no longer exists'),
                     409 => new Model\Response('The name was taken on the host in the meantime'),
                     422 => new Model\Response('Invalid input'),
+                    502 => new Model\Response('The vault could not be reached'),
                 ],
             ),
             security: "is_granted('" . ServicePermissionEnum::CanReadAndWrite->value . "')",

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\ServiceMacroSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\ServiceTemplateLicenseGuard;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
@@ -34,6 +35,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
@@ -41,27 +44,35 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\StandardMacro\StandardMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
 use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ContactGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\DuplicateServiceMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\EventHandlerArgumentsRequireAHandlerException;
 use App\MonitoringConfiguration\Domain\Exception\GraphTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\MediaNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ReservedServiceMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckArgumentsPartlyFilledException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckCommandMissingException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceExtendedInformationsTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceMacroPasswordUnmaskedException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceMacroValueIsAVaultReferenceException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimePeriodNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TrapNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesException;
+use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
@@ -73,19 +84,25 @@ use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\StandardMacroRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TrapRepository;
+use App\MonitoringConfiguration\Domain\Service\InheritedServiceMacrosResolver;
+use App\MonitoringConfiguration\Domain\Service\ServiceMacroChangesResolver;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\VaultInterface;
 
 /**
- * Re-checks, as the authority, every reference and form rule of the input except the Cloud ones. The name comes
- * last, so a restricted actor cannot learn that a name exists on a host they cannot use. A top-level reference gone
- * since the input validation names its input field; a nested one (time period, icon, command, contact, contact
- * group) answers not found.
+ * Re-checks, as the authority, every reference and form rule of the input except the Cloud ones, then the own
+ * macros. The name comes after the references, so a restricted actor cannot learn that a name exists on a host they
+ * cannot use. Every rule is checked before the password macros are written to the vault, itself right before the
+ * service is saved: a refused request leaves no secret behind, and a vault failure saves nothing. A top-level
+ * reference gone since the input validation names its input field; a nested one (time period, icon, command,
+ * contact, contact group) answers not found.
  */
 #[AsCommandHandler]
 final readonly class CreateServiceCommandHandler
@@ -108,6 +125,11 @@ final readonly class CreateServiceCommandHandler
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private AccessScopeResolver $accessScopes,
         private EventBus $eventBus,
+        private StandardMacroRepository $standardMacroRepository,
+        private VaultInterface $vault,
+        private InheritedServiceMacrosResolver $inheritedMacrosResolver,
+        private ServiceMacroChangesResolver $macroChangesResolver,
+        private ServiceMacroSecretsSynchronizer $macroSecretsSynchronizer,
     ) {
     }
 
@@ -130,6 +152,13 @@ final readonly class CreateServiceCommandHandler
      * @throws EventHandlerArgumentsRequireAHandlerException
      * @throws ServiceExtendedInformationsTooLongException
      * @throws ServiceAlreadyExistsException
+     * @throws ReservedServiceMacroNameException
+     * @throws ServiceMacroValueIsAVaultReferenceException
+     * @throws DuplicateServiceMacroNameException
+     * @throws ServiceMacroNotFoundException
+     * @throws ServiceMacroPasswordUnmaskedException
+     * @throws ServiceMacroValueRequiredException
+     * @throws VaultWriteFailedException
      */
     public function __invoke(CreateServiceCommand $command): Service
     {
@@ -167,6 +196,22 @@ final readonly class CreateServiceCommandHandler
             throw new ServiceAlreadyExistsException(['name' => $command->name->value]);
         }
 
+        $macroChanges = array_values($command->macroChanges->toArray());
+        $this->assertSubmittedMacrosAreAllowed($macroChanges);
+        // What the service inherits from the submitted template and its effective check command: the one set on the
+        // service, else the first one of the template chain.
+        $macros = $this->macroChangesResolver->resolve(
+            $macroChanges,
+            [],
+            $this->inheritedMacrosResolver->resolve($command->templateId, $command->checkCommandId),
+        );
+        $notifications = $this->additiveInheritanceModeApplier->applyToService(
+            $this->withHostContactsOnlyIfAsked($command->notifications, $command->actor),
+        );
+        // The vault is written last, once every rule passed and every other read is done, right before the service
+        // is saved: nothing but the save itself can fail after it.
+        $checkOptions = new ServiceCheckOptions($command->checkCommandId, $command->checkCommandArgs, $this->vaultPasswords($macros));
+
         $service = new Service(
             id: null,
             name: $command->name,
@@ -177,9 +222,7 @@ final readonly class CreateServiceCommandHandler
             templateId: $command->templateId,
             checkOptions: $checkOptions,
             schedulingOptions: $command->schedulingOptions,
-            notifications: $this->additiveInheritanceModeApplier->applyToService(
-                $this->withHostContactsOnlyIfAsked($command->notifications, $command->actor),
-            ),
+            notifications: $notifications,
             // Only a Centreon Monitoring Agent command set on the service forces the freshness, as legacy.
             dataProcessing: $checkCommand?->isCentreonMonitoringAgent() === true
                 ? $command->dataProcessing->withCentreonMonitoringAgentFreshness()
@@ -197,6 +240,65 @@ final readonly class CreateServiceCommandHandler
         $this->eventBus->fire(new ServiceCreated($service, $command->actor->userId->value));
 
         return $service;
+    }
+
+    /**
+     * The rules the input checked on the submitted macros, checked again as the authority: a macro cannot be named
+     * like a reserved one, nor carry a vault reference as its value.
+     *
+     * @param list<ServiceMacroChange> $changes
+     *
+     * @throws ReservedServiceMacroNameException
+     * @throws ServiceMacroValueIsAVaultReferenceException
+     */
+    private function assertSubmittedMacrosAreAllowed(array $changes): void
+    {
+        if ($changes === []) {
+            return;
+        }
+
+        $reservedNames = array_map(
+            static fn (StandardMacro $macro): string => $macro->name->value,
+            iterator_to_array($this->standardMacroRepository->findAll(), false),
+        );
+        $reserved = [];
+        $references = [];
+        foreach ($changes as $change) {
+            if (in_array($change->name->toStorageName(), $reservedNames, true)) {
+                $reserved[] = $change->name->value;
+            }
+
+            if ($change->value !== null && $this->vault->isVaultPath($change->value)) {
+                $references[] = $change->name->value;
+            }
+        }
+
+        if ($reserved !== []) {
+            throw new ReservedServiceMacroNameException($reserved);
+        }
+
+        if ($references !== []) {
+            throw new ServiceMacroValueIsAVaultReferenceException($references);
+        }
+    }
+
+    /**
+     * A failure there means the service itself was not saved, reported as an upstream failure (HTTP 502) rather
+     * than an internal error.
+     *
+     * @param list<ServiceMacro> $macros
+     *
+     * @throws VaultWriteFailedException
+     *
+     * @return list<ServiceMacro>
+     */
+    private function vaultPasswords(array $macros): array
+    {
+        try {
+            return $this->macroSecretsSynchronizer->synchronize($macros);
+        } catch (\Throwable $exception) {
+            throw VaultWriteFailedException::forService($exception);
+        }
     }
 
     /**

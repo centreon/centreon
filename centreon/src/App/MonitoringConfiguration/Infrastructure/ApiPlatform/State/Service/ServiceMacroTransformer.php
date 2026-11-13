@@ -24,11 +24,17 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroParentEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceMacroInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceMacroOutput;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * The service macro wire object, read side.
+ * Owns the service macro wire object in both directions: the output of a stored or inherited macro, and the change
+ * a submitted macro asks for.
  *
  * @implements TransformerInterface<ServiceMacro, ServiceMacroOutput>
  */
@@ -43,6 +49,17 @@ final readonly class ServiceMacroTransformer implements TransformerInterface
             value: $from->isPassword ? null : $from->value,
             isPassword: $from->isPassword,
             parent: $from->parent?->value,
+        );
+    }
+
+    public function toChange(ServiceMacroInput $input): ServiceMacroChange
+    {
+        return new ServiceMacroChange(
+            name: new ServiceMacroName($input->name),
+            value: $input->value,
+            isPassword: $input->isPassword,
+            id: $input->id !== null ? new ServiceMacroId($input->id) : null,
+            parent: $input->parent !== null ? ServiceMacroParentEnum::from($input->parent) : null,
         );
     }
 }

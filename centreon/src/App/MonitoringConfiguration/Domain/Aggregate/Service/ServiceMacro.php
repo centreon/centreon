@@ -73,4 +73,36 @@ final readonly class ServiceMacro
     {
         return new self($this->name, $this->value, $this->isPassword, $this->description, $this->id, $parent);
     }
+
+    public function hasSameNameAs(self $other): bool
+    {
+        return $this->name->value === $other->name->value;
+    }
+
+    /**
+     * Whether both macros define the same thing: same name, same raw value, same password flag. Identity (id),
+     * origin (parent) and description are not compared: an own macro equivalent to the macro it shadows is
+     * redundant whatever row it lives in.
+     */
+    public function isEquivalentTo(self $other): bool
+    {
+        return $this->hasSameNameAs($other)
+            && $this->value === $other->value
+            && $this->isPassword === $other->isPassword;
+    }
+
+    public function isIdentifiedBy(?ServiceMacroParentEnum $parent, ServiceMacroId $id): bool
+    {
+        return $this->parent === $parent && $this->id?->value === $id->value;
+    }
+
+    public function rename(ServiceMacroName $name): self
+    {
+        return new self($name, $this->value, $this->isPassword, $this->description, $this->id, $this->parent);
+    }
+
+    public function withValue(string $value, bool $isPassword): self
+    {
+        return new self($this->name, $value, $isPassword, $this->description, $this->id, $this->parent);
+    }
 }
