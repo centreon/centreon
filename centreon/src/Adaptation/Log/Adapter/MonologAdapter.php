@@ -64,6 +64,14 @@ final class MonologAdapter implements LoggerInterface
     }
 
     /**
+     * The uid processor of the process, which the Symfony loggers share too: every line of a run carries one uid.
+     */
+    public static function uidProcessor(): UidProcessor
+    {
+        return self::$uidProcessor ??= new UidProcessor();
+    }
+
+    /**
      * Regenerates the shared UidProcessor uid.
      *
      * {@see self::$uidProcessor} is a process-lived static, which is correct under
@@ -164,7 +172,7 @@ final class MonologAdapter implements LoggerInterface
         $this->logger->pushProcessor(new SanitizingProcessor(new PayloadSanitizer()));
         $this->logger->pushProcessor(new ExceptionFormatterProcessor());
         $this->logger->pushProcessor(new WebProcessor());
-        $this->logger->pushProcessor(self::$uidProcessor ??= new UidProcessor());
+        $this->logger->pushProcessor(self::uidProcessor());
     }
 
     /**
