@@ -22,156 +22,59 @@ if (! isset($centreon)) {
     exit();
 }
 
-/**
- * Kick a logged user
- */
-const KICK_USER = 'k';
-
 $path = './include/options/session/';
 require_once './include/common/common-Func.php';
-require_once './class/centreonMsg.class.php';
-
-$action = HtmlSanitizer::createFromString($_GET['o'] ?? '')
-    ->removeTags()
-    ->sanitize()
-    ->getString();
-
-$selectedUserId = filter_var(
-    $_GET['user'] ?? null,
-    FILTER_VALIDATE_INT
-);
-
-$currentPage = filter_var(
-    $_GET['p'] ?? $_POST['p'] ?? 0,
-    FILTER_VALIDATE_INT
-);
-
-if ($selectedUserId) {
-    $msg = new CentreonMsg();
-    $msg->setTextStyle('bold');
-    $msg->setTimeOut('3');
-
-    switch ($action) {
-        // logout action
-        case KICK_USER:
-            // check if the user is allowed to kick this user
-            if ($centreon->user->admin == 0) {
-                $msg->setText(_('You are not allowed to disconnect this user'));
-                break;
-            }
-            $stmt = $pearDB->prepare('DELETE FROM session WHERE user_id = :userId');
-            $stmt->bindValue(':userId', $selectedUserId, PDO::PARAM_INT);
-            $stmt->execute();
-            $msg->setText(_('User disconnected'));
-            break;
-    }
-}
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-$session_data = [];
-$res = $pearDB->query(
-    'SELECT session.*, contact_name, contact_admin, contact_auth_type, `contact_ldap_last_sync`
-    FROM session, contact
-    WHERE contact_id = user_id ORDER BY contact_name, contact_admin'
-);
-for ($cpt = 0; $r = $res->fetch(); $cpt++) {
-    $session_data[$cpt] = [];
-    $session_data[$cpt]['class'] = $cpt % 2 ? 'list_one' : 'list_two';
-    $session_data[$cpt]['user_id'] = $r['user_id'];
-    $session_data[$cpt]['user_alias'] = $r['contact_name'];
-    $session_data[$cpt]['admin'] = $r['contact_admin'];
-    $session_data[$cpt]['ip_address'] = $r['ip_address'];
-    $session_data[$cpt]['last_reload'] = $r['last_reload'];
-    $session_data[$cpt]['ldapContact'] = $r['contact_auth_type'];
+// $centreon->user->admin is a string '1' or '0'
+$isAdmin = ($centreon->user->admin == 1);
 
-    $resCP = $pearDB->prepare(
-        'SELECT topology_name, topology_page, topology_url_opt FROM topology '
-        . 'WHERE topology_page = :topologyPage'
-    );
-    $resCP->bindValue(':topologyPage', $r['current_page'], PDO::PARAM_INT);
-    $resCP->execute();
-    $rCP = $resCP->fetch();
-
-    // getting the current users' position in the IHM
-    $session_data[$cpt]['current_page'] = $r['current_page'] . $rCP['topology_url_opt'];
-    $session_data[$cpt]['topology_name'] = $rCP['topology_name'] != '' ? _($rCP['topology_name']) : $rCP['topology_name'];
-
-    // $centreon->user->admin is a string '1' or '0'
-    if ($centreon->user->admin == 1) {
-        // adding the link to be able to kick the user
-        $session_data[$cpt]['actions']
-            = "<a href='./main.php?p=" . $p . '&o=k&user=' . $r['user_id'] . "'>"
-                . "<span title='" . _('Disconnect user') . "'>"
-                    . returnSvg('www/img/icons/delete.svg', 'var(--icons-fill-color)', 22, 22)
-                . '</span>'
-            . '</a>';
-
-        // checking if the user account is linked to an LDAP
-        if ($r['contact_auth_type'] === 'ldap') {
-            // adding the last synchronization time
-            if ($r['contact_ldap_last_sync'] > 0) {
-                $session_data[$cpt]['last_sync'] = (int) $r['contact_ldap_last_sync'];
-            } elseif ($r['contact_ldap_last_sync'] === 0 || $r['contact_ldap_last_sync'] === null) {
-                $session_data[$cpt]['last_sync'] = '-';
-            }
-            $session_data[$cpt]['synchronize']
-                = "<a href='#'>"
-                    . "<span onclick='submitSync(" . $currentPage . ', "' . $r['user_id'] . "\")' 
-                    title='" . _('Synchronize LDAP') . "'>"
-                        . returnSvg('www/img/icons/refresh.svg', 'var(--icons-fill-color)', 18, 18)
-                    . '</span>'
-                . '</a>';
-        } else {
-            // hiding the synchronization option and details
-            $session_data[$cpt]['last_sync'] = '';
-            $session_data[$cpt]['synchronize'] = '';
-        }
-        // adding the column titles
-        $tpl->assign('wi_last_sync', _('Last LDAP sync'));
-        $tpl->assign('wi_syncLdap', _('Refresh LDAP'));
-        $tpl->assign('wi_logoutUser', _('Logout user'));
-    }
+// Default rows-per-page (shared configuration option)
+$defaultLimit = 30;
+$optResult = $pearDB->query("SELECT `value` FROM `options` WHERE `key` = 'maxViewConfiguration'");
+if ($opt = $optResult->fetch()) {
+    $defaultLimit = (int) $opt['value'] ?: 30;
 }
 
-if (isset($msg)) {
-    $tpl->assign('msg', $msg);
-}
-
-$tpl->assign('session_data', $session_data);
+// Page identity
+$tpl->assign('pageId', $p);
 $tpl->assign('isAdmin', $centreon->user->admin);
+$tpl->assign('currentUserId', (int) $centreon->user->get_id());
+$tpl->assign('defaultLimit', $defaultLimit);
+
+// Page header
+$tpl->assign('pageTitle', _('Active Sessions'));
+$tpl->assign('pageSubtitle', _('Users currently connected to the platform.'));
+
+// Column titles (rendered in the table header)
 $tpl->assign('wi_user', _('Users'));
 $tpl->assign('wi_where', _('Position'));
 $tpl->assign('wi_last_req', _('Last request'));
 $tpl->assign('distant_location', _('IP Address'));
-$tpl->assign('adminIcon', returnSvg('www/img/icons/admin.svg', 'var(--icons-fill-color)', 17, 17));
-$tpl->assign('userIcon', returnSvg('www/img/icons/user.svg', 'var(--icons-fill-color)', 17, 17));
+if ($isAdmin) {
+    $tpl->assign('wi_last_sync', _('Last LDAP sync'));
+    $tpl->assign('wi_syncLdap', _('Refresh LDAP'));
+    $tpl->assign('wi_logoutUser', _('Logout user'));
+}
+
+// JS-safe strings (json_encode produces valid, escaped JS string literals)
+$jsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT;
+$tpl->assign('emptyMessageJs', json_encode(_('No active session'), $jsonFlags));
+$tpl->assign('wi_kickTitleJs', json_encode(_('Disconnect user'), $jsonFlags));
+$tpl->assign('wi_syncTitleJs', json_encode(_('Synchronize LDAP'), $jsonFlags));
+$tpl->assign('wi_syncConfirmJs', json_encode(
+    _('All this contact sessions will be closed. Are you sure you want to request a '
+        . 'synchronization at the next login of this Contact ?'),
+    $jsonFlags
+));
+$tpl->assign('wi_selfKickTitleJs', json_encode(_('You cannot disconnect your own session.'), $jsonFlags));
+
+// Icons (json-encoded for safe embedding in the JS column renderers)
+$tpl->assign('adminIconJs', json_encode(returnSvg('www/img/icons/admin.svg', 'var(--icons-fill-color)', 17, 17), $jsonFlags));
+$tpl->assign('userIconJs', json_encode(returnSvg('www/img/icons/user.svg', 'var(--icons-fill-color)', 17, 17), $jsonFlags));
+$tpl->assign('refreshIconJs', json_encode(returnSvg('www/img/icons/refresh.svg', 'var(--icons-fill-color)', 18, 18), $jsonFlags));
+$tpl->assign('logoutIconJs', json_encode(returnSvg('www/img/icons/logout.svg', 'var(--icons-fill-color)', 18, 18), $jsonFlags));
+
 $tpl->display('connected_user.ihtml');
-?>
-
-<script>
-    //formatting the tags containing a class isTimestamp
-    formatDateMoment();
-
-    // ask for confirmation when requesting to resynchronize contact data from the LDAP
-    function submitSync(p, contactId) {
-        // msg = localized message to be displayed in the confirmation popup
-        let msg = "<?= _('All this contact sessions will be closed. Are you sure you want to request a '
-            . 'synchronization at the next login of this Contact ?'); ?>";
-        // then executing the request and refreshing the page
-        if (confirm(msg)) {
-            $.ajax({
-                url: './api/internal.php?object=centreon_ldap_synchro&action=requestLdapSynchro',
-                type: 'POST',
-                async: false,
-                data: {contactId: contactId},
-                success: function(data) {
-                    if (data === true) {
-                        window.location.href = "?p=" + p;
-                    }
-                }
-            });
-        }
-    }
-</script>

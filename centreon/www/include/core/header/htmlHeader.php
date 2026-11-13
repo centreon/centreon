@@ -110,6 +110,10 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
     <link href="./include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
     <link href="./include/common/javascript/jquery/plugins/qtip/jquery-qtip.css" rel="stylesheet" type="text/css"/>
 
+    <!-- Modern listing styles and JS module -->
+    <link href="./include/common/listing/listing.css<?php echo $versionParam; ?>" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="./include/common/listing/listing.js<?php echo $versionParam; ?>"></script>
+
     <!-- graph css -->
     <link href="./include/common/javascript/charts/c3.min.css" type="text/css" rel="stylesheet" />
     <link href="./include/views/graphs/javascript/centreon-status-chart.css" type="text/css" rel="stylesheet" />
