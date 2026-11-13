@@ -79,6 +79,7 @@ template:
               echo "WARNING: some trap databases were not delivered, generate them from the UI (Configuration > SNMP Traps > Generate)."
             {{- end }}
         env:
+          {{- include "centreon-central.tzEnv" . | nindent 10 }}
           {{- if $traps }}
           {{- include "centreon-central.fpmInstallEnv" . | nindent 10 }}
           - { name: INSTALL_DB_STEPS, value: "false" }

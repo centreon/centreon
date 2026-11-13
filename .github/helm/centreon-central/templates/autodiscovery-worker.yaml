@@ -60,6 +60,7 @@ spec:
             {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" "APP_SECRET") | nindent 12 }}
             {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "SALT" "key" "SALT") | nindent 12 }}
             - { name: PHP_TIMEZONE, value: {{ .Values.fpm.phpTimezone | default .Values.timezone | quote }} }
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
             - { name: CENTREON_INTERNAL_API_BASE_URL, value: "http://httpd:80" }
             # Automatic saves export and reload through the web API as the
             # centreon-gorgone service account.

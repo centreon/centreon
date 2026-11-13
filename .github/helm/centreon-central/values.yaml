@@ -19,7 +19,12 @@ imagePullSecrets: []
 # and keep it: the install creates the database partitions in this timezone
 # and the partitioning job must read them in the same one. The per-component
 # values (fpm.phpTimezone, cronJobs.timeZone, centralPoller.engine.timezone,
-# pollers[].timezone) override it; empty means this one.
+# pollers[].timezone) override it; empty means this one. It is also the TZ of
+# every other container (fpm, httpd, install and config-delivery Jobs,
+# autodiscovery worker, broker and rrdcached, bundled MariaDB, Valkey, init
+# containers), so all pods log in the same timezone. A remote poller's
+# containers use its pollers[].timezone. An external database keeps its own
+# server time zone (an RDS parameter group), outside the chart.
 timezone: Europe/Paris
 
 images:

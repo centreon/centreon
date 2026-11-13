@@ -44,6 +44,7 @@ template:
         env:
           {{- include "centreon-central.fpmInstallEnv" . | nindent 10 }}
           - { name: INSTALL_DB_STEPS, value: "true" }
+          {{- include "centreon-central.tzEnv" . | nindent 10 }}
           - { name: INSTALL_ID, value: {{ $installId | quote }} }
           {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_PWD" "key" "MYSQL_ROOT_PASSWORD") | nindent 10 }}
         {{- with .Values.install.resources }}

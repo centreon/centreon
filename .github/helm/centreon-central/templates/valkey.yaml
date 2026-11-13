@@ -52,6 +52,7 @@ spec:
               {{- end }}
           env:
             {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "VALKEY_PASSWORD" "key" "VALKEY_PASSWORD") | nindent 12 }}
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           ports:
             - { name: valkey, containerPort: 6379 }
           # A real authenticated PING (the password through the environment).

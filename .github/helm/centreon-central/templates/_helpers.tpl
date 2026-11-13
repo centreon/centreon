@@ -139,11 +139,20 @@ externalTrafficPolicy: {{ .externalTrafficPolicy }}
     {{- include "centreon-central.dbAdminUserEnv" $ | nindent 4 }}
     {{- end }}
     - { name: INSTALL_ID, value: {{ include "centreon-central.installId" $ | quote }} }
+    {{- include "centreon-central.tzEnv" $ | nindent 4 }}
     {{- include "centreon-central.secretEnv" (dict "ctx" $ "name" "MYSQL_PWD" "key" .passwordKey) | nindent 4 }}
   {{- with include "centreon-central.dbTlsMounts" $ }}
   volumeMounts:
     {{- . | nindent 4 }}
   {{- end }}
+{{- end -}}
+
+{{/* TZ of a Central container (date, logs): the global timezone, so every
+     pod logs in the same one. Not in fpmInstallEnv: that one is hashed into
+     the install id, and a TZ alone must not rerun the install Job. Remote
+     pollers' containers use their own pollers[].timezone (_poller.tpl). */}}
+{{- define "centreon-central.tzEnv" -}}
+- { name: TZ, value: {{ .Values.timezone | default "UTC" | quote }} }
 {{- end -}}
 
 {{/* Where the web (fpm, cron) reaches gorgone-central's API: overrides
@@ -332,6 +341,7 @@ imagePullSecrets:
     - { name: VAULT_ADDRESS, value: {{ required "vault.address is required with vault.enabled" .Values.vault.address | quote }} }
     - { name: VAULT_PORT, value: {{ .Values.vault.port | quote }} }
     - { name: VAULT_ROOT_PATH, value: {{ .Values.vault.rootPath | quote }} }
+    {{- include "centreon-central.tzEnv" . | nindent 4 }}
     {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "VAULT_ROLE_ID" "key" "VAULT_ROLE_ID") | nindent 4 }}
     {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "VAULT_SECRET_ID" "key" "VAULT_SECRET_ID") | nindent 4 }}
     {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" "APP_SECRET") | nindent 4 }}

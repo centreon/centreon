@@ -59,6 +59,8 @@ spec:
             # mariadb-upgrade (system tables) when the image's version is
             # newer than the data's, e.g. the bitnami 11.8.2 data.
             - { name: MARIADB_AUTO_UPGRADE, value: "1" }
+            # Server time zone (system_time_zone, NOW()) and log timestamps.
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           ports:
             - name: mysql
               containerPort: {{ $port }}
