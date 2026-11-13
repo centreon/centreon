@@ -138,8 +138,22 @@ class CentreonExternalCommand
             if ($this->debug) {
                 echo "COMMAND BEFORE SEND: {$str_remote}";
             }
-            $result = file_put_contents($varlib . '/centcore/' . microtime(true) . '-externalcommand.cmd', $str_remote, FILE_APPEND);
-            $return_remote = ($result !== false) ? 0 : 1;
+            // Feature flag "gorgone_api_commands": the commands go to the Gorgone API, no file is written
+            $gorgoneCommandService = App\Kernel::createForWeb()
+                ->getContainer()
+                ->get('legacy.service_locator')
+                ->get('gorgone_command_service');
+            if ($gorgoneCommandService->isEnabled()) {
+                try {
+                    $gorgoneCommandService->sendLegacyCommands($str_remote);
+                } catch (Core\Gorgone\Application\Exception\GorgoneCommandException) {
+                    // Already logged by the service.
+                    $return_remote = 1;
+                }
+            } else {
+                $result = file_put_contents($varlib . '/centcore/' . microtime(true) . '-externalcommand.cmd', $str_remote, FILE_APPEND);
+                $return_remote = ($result !== false) ? 0 : 1;
+            }
         }
 
         $this->cmdTab = [];

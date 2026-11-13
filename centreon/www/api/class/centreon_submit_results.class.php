@@ -33,6 +33,9 @@ class CentreonSubmitResults extends CentreonWebService
     /** @var string The path to the centcore pipe file */
     protected $centcoreFile;
 
+    /** @var string[]|null Commands to send to the Gorgone API (feature flag "gorgone_api_commands") */
+    protected $gorgoneCommands = null;
+
     /** @var bool If the file pipe is open */
     protected $pipeOpened = false;
 
@@ -244,7 +247,10 @@ class CentreonSubmitResults extends CentreonWebService
      */
     private function openPipe(): void
     {
-        if ($this->fh = @fopen($this->centcoreFile, 'a+')) {
+        if ($this->getGorgoneCommandService()->isEnabled()) {
+            $this->gorgoneCommands = [];
+            $this->pipeOpened = true;
+        } elseif ($this->fh = @fopen($this->centcoreFile, 'a+')) {
             $this->pipeOpened = true;
         } else {
             throw new RestBadRequestException("Can't open centcore pipe");
@@ -258,8 +264,31 @@ class CentreonSubmitResults extends CentreonWebService
      */
     private function closePipe(): void
     {
-        fclose($this->fh);
         $this->pipeOpened = false;
+        if ($this->gorgoneCommands !== null) {
+            $commands = $this->gorgoneCommands;
+            $this->gorgoneCommands = null;
+
+            try {
+                $this->getGorgoneCommandService()->sendLegacyCommands($commands);
+            } catch (Core\Gorgone\Application\Exception\GorgoneCommandException $ex) {
+                throw new RestInternalServerErrorException('Error during send command to Gorgone: ' . $ex->getMessage());
+            }
+
+            return;
+        }
+        fclose($this->fh);
+    }
+
+    /**
+     * @return Core\Gorgone\Application\Service\GorgoneCommandService
+     */
+    private function getGorgoneCommandService()
+    {
+        return App\Kernel::createForWeb()
+            ->getContainer()
+            ->get('legacy.service_locator')
+            ->get('gorgone_command_service');
     }
 
     /**
@@ -276,7 +305,11 @@ class CentreonSubmitResults extends CentreonWebService
         }
 
         if ($string != '') {
-            fwrite($this->fh, $string . "\n");
+            if ($this->gorgoneCommands !== null) {
+                $this->gorgoneCommands[] = $string;
+            } else {
+                fwrite($this->fh, $string . "\n");
+            }
         }
 
         return true;

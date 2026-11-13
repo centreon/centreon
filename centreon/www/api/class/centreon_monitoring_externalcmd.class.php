@@ -100,7 +100,14 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                 $userAcl = new CentreonACL($centreon->user->user_id, $isAdmin);
             }
 
-            if ($fh = @fopen($this->centcore_file, 'a+')) {
+            // Feature flag "gorgone_api_commands": the commands go to the Gorgone API, no file is written
+            $gorgoneCommandService = App\Kernel::createForWeb()
+                ->getContainer()
+                ->get('legacy.service_locator')
+                ->get('gorgone_command_service');
+            $gorgoneCommands = $gorgoneCommandService->isEnabled() ? [] : null;
+
+            if ($gorgoneCommands !== null || $fh = @fopen($this->centcore_file, 'a+')) {
                 foreach ($this->arguments['commands'] as $command) {
                     $commandSplitted = explode(';', $command['command']);
                     $action = $commandSplitted[0];
@@ -158,14 +165,24 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                     }
 
                     if (isset($pollers[$command['poller_id']])) {
-                        fwrite(
-                            $fh,
-                            'EXTERNALCMD:' . $command['poller_id'] . ':['
-                            . $command['timestamp'] . '] ' . $command['command'] . "\n"
-                        );
+                        $commandLine = 'EXTERNALCMD:' . $command['poller_id'] . ':['
+                            . $command['timestamp'] . '] ' . $command['command'];
+                        if ($gorgoneCommands !== null) {
+                            $gorgoneCommands[] = $commandLine;
+                        } else {
+                            fwrite($fh, $commandLine . "\n");
+                        }
                     }
                 }
-                fclose($fh);
+                if ($gorgoneCommands !== null) {
+                    try {
+                        $gorgoneCommandService->sendLegacyCommands($gorgoneCommands);
+                    } catch (Core\Gorgone\Application\Exception\GorgoneCommandException $ex) {
+                        throw new RestException('Cannot send commands to Gorgone: ' . $ex->getMessage());
+                    }
+                } else {
+                    fclose($fh);
+                }
 
                 return ['success' => true];
             }

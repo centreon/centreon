@@ -16,6 +16,7 @@ parameters:
     database_user: "%env(user)%"
     database_password: "%env(password)%"
     centreon_var_lib: "%env(_CENTREON_VARLIB_)%"
+    centreon_cache_dir: "%env(_CENTREON_CACHEDIR_)%"
     validation_path: "%env(_CENTREON_PATH_)%config/packages/validator"
     centreon_path: "%env(_CENTREON_PATH_)%"
     centreon_etc_path: "%env(_CENTREON_ETC_)%"
@@ -146,4 +147,5 @@ services:
       public: true
       arguments:
         - internal_api_client: '@Core\Common\Infrastructure\Api\InternalApiClient'
+          gorgone_command_service: '@Core\Gorgone\Application\Service\GorgoneCommandService'
       tags: [ 'container.service_locator' ]

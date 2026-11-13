@@ -228,6 +228,12 @@ try {
         ->getContainer()
         ->get(VmwareConfigurationService::class);
 
+    // Sends the commands to the Gorgone API when the feature flag "gorgone_api_commands" is enabled
+    $gorgoneCommandService = Kernel::createForWeb()
+        ->getContainer()
+        ->get('legacy.service_locator')
+        ->get('gorgone_command_service');
+
     $tab_server = [];
     $tabs = $centreon->user->access->getPollerAclConf(['fields' => ['name', 'id', 'localhost'], 'order' => ['name'], 'conditions' => ['ns_activate' => '1'], 'keys' => ['id']]);
 
@@ -349,13 +355,17 @@ try {
                 }
                 $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], true);
             } else {
-                $written = file_put_contents(
-                    $centcore_pipe,
-                    'SENDCFGFILE:' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-                if ($written === false) {
-                    throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
+                if ($gorgoneCommandService->isEnabled()) {
+                    $gorgoneCommandService->sendLegacyCommands('SENDCFGFILE:' . (int) $host['id']);
+                } else {
+                    $written = file_put_contents(
+                        $centcore_pipe,
+                        'SENDCFGFILE:' . (int) $host['id'] . "\n",
+                        FILE_APPEND | LOCK_EX
+                    );
+                    if ($written === false) {
+                        throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
+                    }
                 }
                 $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], false);
                 if (! isset($msg_restart[$host['id']])) {

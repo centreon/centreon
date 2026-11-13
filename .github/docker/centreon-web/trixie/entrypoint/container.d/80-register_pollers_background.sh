@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# An external Gorgone API is used (see 73-gorgone-api.sh): there is no local gorgoned to restart.
+if [ -n "${GORGONE_API_ADDRESS:-}" ]; then
+  return 0
+fi
+
 set +x
 
 POLL_INTERVAL=10

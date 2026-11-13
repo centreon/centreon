@@ -317,6 +317,18 @@ services:
         class: Centreon\Domain\Gorgone\GorgoneService
         public: true
 
+    # Commands sent through the Gorgone REST API instead of the centcore files (feature flag gorgone_api_commands)
+    Core\Gorgone\Application\Repository\WriteGorgoneJobRepositoryInterface:
+        class: Core\Gorgone\Infrastructure\Repository\ApiWriteGorgoneJobRepository
+
+    Core\Gorgone\Application\Repository\ReadGorgoneNodeRepositoryInterface:
+        class: Core\Gorgone\Infrastructure\Repository\DbReadGorgoneNodeRepository
+
+    Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterface:
+        class: Core\Gorgone\Infrastructure\Repository\FsReadGorgoneConfigurationRepository
+        arguments:
+            $cacheDirectory: '%centreon_cache_dir%'
+
     # Information data used in the configuration
     Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationServiceInterface:
         class: Centreon\Domain\PlatformInformation\PlatformInformationService

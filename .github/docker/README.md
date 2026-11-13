@@ -137,12 +137,26 @@ centreon-web image accepts the following environment variables:
   * `es_ES`
   * `pt_BR`
   * `pt_PT`
+* `GORGONE_API_ADDRESS`: address of an external Gorgone API, for instance `gorgone-server` running in another container. Unset (default value): the local Perl `gorgoned` is used and nothing changes. When set:
+  * the local `gorgoned` is not started, nor the loop that restarts it to register new pollers
+  * the `gorgone_api_*` options of Centreon point at that address
+  * the feature flag `gorgone_api_commands` is enabled: centreon-web sends its commands (external commands, configuration export, reload and restart of the pollers, SNMP traps database) through the Gorgone REST API and writes no file in `/var/lib/centreon/centcore*`, so no volume has to be shared with Gorgone
+* `GORGONE_API_PORT`: port of that API (default value: `8085`)
+* `GORGONE_API_USERNAME` / `GORGONE_API_PASSWORD`: credentials of that API (HTTP basic authentication), when it requires them
 
 Usage:
 
 ```bash
 CENTREON_DATASET=0 CENTREON_LANG=fr_FR docker compose -f .github/docker/docker-compose.yml up -d --wait
 ```
+
+```bash
+# centreon-web without its local gorgoned, calling a Gorgone API reachable as "gorgone" on the compose network
+GORGONE_API_ADDRESS=gorgone docker compose -f .github/docker/docker-compose.yml up -d --wait
+```
+
+> [!NOTE]
+> The remote-server import and export (`STARTWORKER` and `SENDEXPORTFILE` commands) are not available through the Gorgone API yet: they still go through the centcore files, so the `remote-server` profile needs the local `gorgoned`.
 
 ## :gear: Additional services using profiles
 

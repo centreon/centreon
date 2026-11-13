@@ -32,6 +32,32 @@ if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_t
 // Init Centcore Pipe
 $centcore_pipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
 
+// Sends the commands to the Gorgone API when the feature flag "gorgone_api_commands" is enabled
+$gorgoneCommandService = App\Kernel::createForWeb()
+    ->getContainer()
+    ->get('legacy.service_locator')
+    ->get('gorgone_command_service');
+/**
+ * Send a centcore command to a poller, through the Gorgone API or the centcore file.
+ *
+ * @return string|null error to display, null on success
+ */
+$sendCentcoreCommand = static function (string $command, int $pollerId) use ($gorgoneCommandService, $centcore_pipe): ?string {
+    if ($gorgoneCommandService->isEnabled()) {
+        try {
+            $gorgoneCommandService->sendLegacyCommands($command . ':' . $pollerId);
+        } catch (Core\Gorgone\Application\Exception\GorgoneCommandException $ex) {
+            return 'Error while sending ' . $command . ' to Gorgone: '
+                . htmlspecialchars($ex->getMessage(), ENT_QUOTES, 'UTF-8');
+        }
+
+        return null;
+    }
+    $return = file_put_contents($centcore_pipe, $command . ':' . $pollerId . "\n", FILE_APPEND | LOCK_EX);
+
+    return $return === false ? "Error while writing into {$centcore_pipe}" : null;
+};
+
 // Get Poller List
 $acl = $centreon->user->access;
 $tab_nagios_server = $acl->getPollerAclConf(['get_row'    => 'name', 'order'      => ['name'], 'keys'       => ['id'], 'conditions' => ['ns_activate' => 1]]);
@@ -143,13 +169,9 @@ if ($form->validate()) {
         if (isset($ret['apply']) && $ret['apply'] && $returnVal == 0) {
             $msg_generate .= sprintf('<strong>%s</strong><br/>', _('Centcore commands'));
             foreach ($tab_server as $host) {
-                $return = file_put_contents(
-                    $centcore_pipe,
-                    'SYNCTRAP:' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-                if ($return === false) {
-                    $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
+                $error = $sendCentcoreCommand('SYNCTRAP', (int) $host['id']);
+                if ($error !== null) {
+                    $msg_generate .= $error . '<br/>';
                 } else {
                     $msg_generate .= "Poller (id:{$host['id']}): SYNCTRAP sent to centcore.cmd<br/>";
                 }
@@ -157,13 +179,9 @@ if ($form->validate()) {
         }
         if (isset($ret['signal']) && in_array($ret['signal'], ['RELOADCENTREONTRAPD', 'RESTARTCENTREONTRAPD'])) {
             foreach ($tab_server as $host) {
-                $return = file_put_contents(
-                    $centcore_pipe,
-                    $ret['signal'] . ':' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-                if ($return === false) {
-                    $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
+                $error = $sendCentcoreCommand($ret['signal'], (int) $host['id']);
+                if ($error !== null) {
+                    $msg_generate .= $error . '<br/>';
                 } else {
                     $msg_generate .= "Poller (id:{$host['id']}): {$ret['signal']} sent to centcore.cmd<br/>";
                 }

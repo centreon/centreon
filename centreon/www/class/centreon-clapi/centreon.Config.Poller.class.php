@@ -27,6 +27,7 @@ use Centreon\Infrastructure\Service\VmwareConfigurationService;
 use CentreonDB;
 use CentreonRemote\ServiceProvider;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
+use Core\Gorgone\Application\Exception\GorgoneCommandException;
 use Exception;
 use Generate;
 use LogicException;
@@ -763,6 +764,20 @@ class CentreonConfigPoller
      */
     private function writeToCentcorePipe($cmd, $id): int
     {
+        // Feature flag "gorgone_api_commands": the command goes to the Gorgone API, no file is written
+        $gorgoneCommandService = $this->container->get('legacy.service_locator')->get('gorgone_command_service');
+        if ($gorgoneCommandService->isEnabled()) {
+            try {
+                $gorgoneCommandService->sendLegacyCommands(sprintf('%s:%d', $cmd, $id));
+            } catch (GorgoneCommandException $ex) {
+                echo $ex->getMessage() . PHP_EOL;
+
+                return 1;
+            }
+
+            return 0;
+        }
+
         if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
             $pipe = _CENTREON_VARLIB_ . '/centcore/' . hrtime(true) . '-externalcommand.cmd';
         } else {

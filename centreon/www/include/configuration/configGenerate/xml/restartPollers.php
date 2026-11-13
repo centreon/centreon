@@ -212,9 +212,15 @@ try {
      * @var EngineCommandGenerator $commandGenerator
      */
     $commandGenerator = $container->get(EngineCommandGenerator::class);
+    // Sends the commands to the Gorgone API when the feature flag "gorgone_api_commands" is enabled
+    $gorgoneCommandService = $container->get('legacy.service_locator')->get('gorgone_command_service');
     foreach ($poller as $host) {
         if ($ret['restart_mode'] == 1) {
-            if ($fh = @fopen($centcorePipe, 'a+')) {
+            if ($gorgoneCommandService->isEnabled()) {
+                $gorgoneCommandService->sendLegacyCommands(
+                    $commandGenerator->getEngineCommand('RELOAD') . ':' . $host['id']
+                );
+            } elseif ($fh = @fopen($centcorePipe, 'a+')) {
                 $reloadCommand = ($commandGenerator !== null)
                     ? $commandGenerator->getEngineCommand('RELOAD')
                     : 'RELOAD';
@@ -233,7 +239,11 @@ try {
                 . htmlspecialchars(string: $host['name'], encoding: 'UTF-8') . "\n"
             );
         } elseif ($ret['restart_mode'] == 2) {
-            if ($fh = @fopen($centcorePipe, 'a+')) {
+            if ($gorgoneCommandService->isEnabled()) {
+                $gorgoneCommandService->sendLegacyCommands(
+                    $commandGenerator->getEngineCommand('RESTART') . ':' . $host['id']
+                );
+            } elseif ($fh = @fopen($centcorePipe, 'a+')) {
                 $restartCommand = ($commandGenerator !== null)
                     ? $commandGenerator->getEngineCommand('RESTART')
                     : 'RESTART';
