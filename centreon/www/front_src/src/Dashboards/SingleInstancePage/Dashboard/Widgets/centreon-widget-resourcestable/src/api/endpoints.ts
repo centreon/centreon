@@ -4,6 +4,7 @@ import { buildListingEndpoint } from '@centreon/ui';
 
 import { always, cond, equals, pluck, T } from 'ramda';
 
+import { baseEndpoint as apiBaseEndpoint } from '../../../../../../../api/endpoint';
 import type { NamedEntity, Resource } from '../../../models';
 import {
   formatStatus,
@@ -14,21 +15,28 @@ import type { DisplayType } from '../Listing/models';
 export const resourcesEndpoint = '/monitoring/resources';
 export const viewByHostEndpoint = '/monitoring/resources/hosts';
 
-interface BuildResourcesEndpointProps {
+export const countResourcesEndpoint = '/monitoring/resources/count';
+export const exportResourcesEndpoint = '/monitoring/resources/export';
+export const maxExportedResources = 10000;
+
+interface FiltersProps {
   displayResources?: 'withTicket' | 'withoutTicket';
   hostSeverities: Array<NamedEntity>;
   isDownHostHidden?: boolean;
   isUnreachableHostHidden?: boolean;
-  limit: number;
-  page: number;
   provider?: { id: number; name: string };
   resources: Array<Resource>;
   serviceSeverities: Array<NamedEntity>;
-  sort;
   states: Array<string>;
   statusTypes: Array<'soft' | 'hard'>;
   statuses: Array<string>;
   type: DisplayType;
+}
+
+interface BuildResourcesEndpointProps extends FiltersProps {
+  limit: number;
+  page: number;
+  sort;
 }
 
 const getFormattedType = cond([
@@ -37,14 +45,14 @@ const getFormattedType = cond([
   [T, (type) => [type]]
 ]);
 
-export const buildResourcesEndpoint = ({
+// The widget filters as query parameters. The listing, the count and the CSV
+// export all build their request from it, so that they select the same
+// resources.
+const getFiltersQueryParameters = ({
   type,
   statuses,
   states,
-  sort,
-  limit,
   resources,
-  page,
   statusTypes,
   hostSeverities,
   serviceSeverities,
@@ -52,19 +60,11 @@ export const buildResourcesEndpoint = ({
   isUnreachableHostHidden,
   displayResources,
   provider
-}: BuildResourcesEndpointProps): string => {
-  const baseEndpoint = equals(type, 'host')
-    ? viewByHostEndpoint
-    : resourcesEndpoint;
-
-  const formattedType = getFormattedType(type);
-  const formattedStatuses = formatStatus(statuses);
-
+}: FiltersProps) => {
   const { resourcesSearchConditions, resourcesCustomParameters } =
     getResourcesSearchQueryParameters(resources);
 
-  return buildListingEndpoint({
-    baseEndpoint,
+  return {
     customQueryParameters: [
       ...(provider
         ? [
@@ -75,8 +75,8 @@ export const buildResourcesEndpoint = ({
             }
           ]
         : []),
-      { name: 'types', value: formattedType },
-      { name: 'statuses', value: formattedStatuses },
+      { name: 'types', value: getFormattedType(type) },
+      { name: 'statuses', value: formatStatus(statuses) },
       { name: 'status_types', value: statusTypes },
       ...(hostSeverities
         ? [
@@ -97,100 +97,110 @@ export const buildResourcesEndpoint = ({
       { name: 'states', value: states },
       ...resourcesCustomParameters
     ],
+    search: {
+      conditions: [
+        ...resourcesSearchConditions,
+        ...(isDownHostHidden
+          ? [{ field: 'parent_status', values: { $neq: 1 } }]
+          : []),
+        ...(isUnreachableHostHidden
+          ? [{ field: 'parent_status', values: { $neq: 2 } }]
+          : [])
+      ]
+    }
+  };
+};
+
+export const buildResourcesEndpoint = ({
+  sort,
+  limit,
+  page,
+  ...filters
+}: BuildResourcesEndpointProps): string => {
+  const baseEndpoint = equals(filters.type, 'host')
+    ? viewByHostEndpoint
+    : resourcesEndpoint;
+
+  const { customQueryParameters, search } = getFiltersQueryParameters(filters);
+
+  return buildListingEndpoint({
+    baseEndpoint,
+    customQueryParameters,
     parameters: {
       limit,
       page,
-      search: {
-        conditions: [
-          ...resourcesSearchConditions,
-          ...(isDownHostHidden
-            ? [{ field: 'parent_status', values: { $neq: 1 } }]
-            : []),
-          ...(isUnreachableHostHidden
-            ? [{ field: 'parent_status', values: { $neq: 2 } }]
-            : [])
-        ]
-      },
+      search,
       sort
     }
   });
 };
 
-export const countResourcesEndpoint = '/monitoring/resources/count';
+interface Pagination {
+  limit: number;
+  page: number;
+  sort;
+}
 
-type BuildCountEndpointProps = Omit<
-  BuildResourcesEndpointProps,
-  'limit' | 'page' | 'sort'
->;
+interface BuildCountEndpointProps extends FiltersProps {
+  pagination?: Pagination;
+}
 
+// Without `pagination`, counts all the resources matching the filters; with
+// it, counts the resources of that page only.
 export const buildCountEndpoint = ({
-  type,
-  statuses,
-  states,
-  resources,
-  statusTypes,
-  hostSeverities,
-  serviceSeverities,
-  isDownHostHidden,
-  isUnreachableHostHidden,
-  displayResources,
-  provider
+  pagination,
+  ...filters
 }: BuildCountEndpointProps): string => {
-  const formattedType = getFormattedType(type);
-  const formattedStatuses = formatStatus(statuses);
-
-  const { resourcesSearchConditions, resourcesCustomParameters } =
-    getResourcesSearchQueryParameters(resources);
+  const { customQueryParameters, search } = getFiltersQueryParameters(filters);
 
   return buildListingEndpoint({
     baseEndpoint: countResourcesEndpoint,
     customQueryParameters: [
-      { name: 'all_pages', value: true },
-      ...(provider
-        ? [
-            { name: 'ticket_provider_id', value: provider.id },
-            {
-              name: 'only_with_opened_tickets',
-              value: !!equals(displayResources, 'withTicket')
-            }
-          ]
-        : []),
-      { name: 'types', value: formattedType },
-      { name: 'statuses', value: formattedStatuses },
-      { name: 'status_types', value: statusTypes },
-      ...(hostSeverities
-        ? [
-            {
-              name: 'host_severity_names',
-              value: pluck('name', hostSeverities)
-            }
-          ]
-        : []),
-      ...(serviceSeverities
-        ? [
-            {
-              name: 'service_severity_names',
-              value: pluck('name', serviceSeverities)
-            }
-          ]
-        : []),
-      { name: 'states', value: states },
-      ...resourcesCustomParameters
+      { name: 'all_pages', value: !pagination },
+      ...customQueryParameters
     ],
     parameters: {
-      search: {
-        conditions: [
-          ...resourcesSearchConditions,
-          ...(isDownHostHidden
-            ? [{ field: 'parent_status', values: { $neq: 1 } }]
-            : []),
-          ...(isUnreachableHostHidden
-            ? [{ field: 'parent_status', values: { $neq: 2 } }]
-            : [])
-        ]
-      }
+      ...pagination,
+      search
     }
   });
+};
+
+interface BuildExportEndpointProps extends FiltersProps, Pagination {
+  columns: Array<string>;
+  isAllPages: boolean;
+}
+
+export const buildExportEndpoint = ({
+  columns,
+  isAllPages,
+  limit,
+  page,
+  sort,
+  ...filters
+}: BuildExportEndpointProps): string => {
+  const { customQueryParameters, search } = getFiltersQueryParameters(filters);
+
+  const endpoint = buildListingEndpoint({
+    baseEndpoint: `${apiBaseEndpoint}${exportResourcesEndpoint}`,
+    customQueryParameters: [
+      ...customQueryParameters,
+      { name: 'all_pages', value: isAllPages },
+      { name: 'max_lines', value: maxExportedResources }
+    ],
+    parameters: {
+      limit,
+      page,
+      search,
+      sort
+    }
+  });
+
+  const columnsParameters = columns
+    .map((column) => `columns[]=${column}`)
+    .join('&');
+
+  return `${endpoint}&${columnsParameters}&format=csv`;
 };
 
 export const closeTicketEndpoint =

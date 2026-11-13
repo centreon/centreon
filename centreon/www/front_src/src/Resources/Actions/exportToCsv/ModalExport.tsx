@@ -1,23 +1,9 @@
-import { Modal } from '@centreon/ui/components';
-
 import { equals } from 'ramda';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
-import {
-  labelCancel,
-  labelExport,
-  labelExportToCSV,
-  labelSelecetPages,
-  labelSelectColumns
-} from '../../translatedLabels';
-import { defaultCheckedColumnAtom, defaultCheckedPageAtom } from './atoms';
-import useExportCsvStyles from './exportCsv.styles';
-import InformationsLine from './InformationsLine';
-import { ColumnId, columnOptions, PageId, pageOptions } from './models';
-import RadioButtons from './RadioButtons';
+import ExportDialog from './ExportDialog';
+import { ColumnId, PageId } from './models';
 import useExportCSV from './useExportCsv';
-import Warning from './Warning';
 
 interface Props {
   onCancel: () => void;
@@ -25,8 +11,6 @@ interface Props {
 }
 
 const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
-  const { t } = useTranslation();
-  const { classes } = useExportCsvStyles();
   const [isAllPagesChecked, setIsAllPagesChecked] = useState(true);
   const [isAllColumnsChecked, setIsAllColumnsChecked] = useState(true);
 
@@ -55,41 +39,16 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
   };
 
   return (
-    <Modal hasCloseButton={false} open={open} size="medium">
-      <Modal.Header>{t(labelExportToCSV)}</Modal.Header>
-      <Modal.Body>
-        <div className={classes.container}>
-          <div className={classes.subContainer}>
-            <div className={classes.radioButtonsContainer}>
-              <RadioButtons<ColumnId>
-                defaultChecked={defaultCheckedColumnAtom}
-                getData={getSelectedColumnsData}
-                options={columnOptions}
-                title={t(labelSelectColumns)}
-              />
-              <RadioButtons<PageId>
-                defaultChecked={defaultCheckedPageAtom}
-                getData={getSelectedPagesData}
-                options={pageOptions}
-                title={t(labelSelecetPages)}
-              />
-            </div>
-            <InformationsLine
-              hasReachedMaximumLinesToExport={hasReachedMaximumLinesToExport}
-              isLoading={isLoading}
-              numberExportedLines={numberExportedLines}
-            />
-          </div>
-          <Warning />
-        </div>
-      </Modal.Body>
-      <Modal.Actions
-        disabled={isLoading}
-        labels={{ cancel: t(labelCancel), confirm: t(labelExport) }}
-        onCancel={onCancel}
-        onConfirm={confirm}
-      />
-    </Modal>
+    <ExportDialog
+      hasReachedMaximumLinesToExport={hasReachedMaximumLinesToExport}
+      isLoading={isLoading}
+      numberExportedLines={numberExportedLines}
+      onCancel={onCancel}
+      onConfirm={confirm}
+      onSelectColumns={getSelectedColumnsData}
+      onSelectPages={getSelectedPagesData}
+      open={open}
+    />
   );
 };
 

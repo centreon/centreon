@@ -17,7 +17,12 @@ import DowntimeForm from './Actions/Downtime';
 import CloseTicketModal from './Columns/CloseTicket/Modal';
 import OpenTicketModal from './Columns/OpenTicket/Modal';
 import { rowColorConditions } from './colors';
-import { DisplayType as DisplayTypeEnum, type NamedEntity } from './models';
+import {
+  DisplayType as DisplayTypeEnum,
+  type ExportParameters,
+  exportableColumnIds,
+  type NamedEntity
+} from './models';
 import useListing from './useListing';
 
 interface ListingProps
@@ -28,6 +33,8 @@ interface ListingProps
   changeViewMode?: (displayType: DisplayTypeEnum) => void;
   displayType?: DisplayTypeEnum;
   hostSeverities: Array<NamedEntity>;
+  isEditingDashboard?: boolean;
+  isExportEnabled?: boolean;
   isFromPreview?: boolean;
   limit?: number;
   refreshCount: number;
@@ -58,6 +65,8 @@ const Listing = ({
   sortField,
   sortOrder,
   changeViewMode,
+  isEditingDashboard,
+  isExportEnabled,
   isFromPreview,
   playlistHash,
   dashboardId,
@@ -125,24 +134,65 @@ const Listing = ({
   const showApproximate = isApproximate && exactCount === null;
   const effectiveTotalRows = exactCount ?? data?.meta?.total;
 
+  const visibleColumnIds = (
+    selectedColumnIds ?? defaultSelectedColumnIds
+  ).filter((id) => columns.some((col) => col.id === id));
+
+  // The export is only offered when viewing a dashboard: not while editing
+  // it, nor in the widget preview, nor in a playlist.
+  const isExportVisible =
+    !!isExportEnabled && !isEditingDashboard && !isFromPreview && !playlistHash;
+
+  const exportedVisibleColumnIds = visibleColumnIds.filter((id) =>
+    exportableColumnIds.includes(id)
+  );
+  const exportParameters: ExportParameters | undefined = isExportVisible
+    ? {
+        columnIds: [
+          ...new Set([
+            ...exportedVisibleColumnIds,
+            ...columns
+              .map(({ id }) => id)
+              .filter((id) => exportableColumnIds.includes(id))
+          ])
+        ],
+        displayType,
+        hostSeverities,
+        limit: limit || 10,
+        page: page || 1,
+        resources,
+        serviceSeverities,
+        sortField,
+        sortOrder,
+        states,
+        statuses,
+        statusTypes,
+        visibleColumnIds: exportedVisibleColumnIds
+      }
+    : undefined;
+
   return (
     <>
       <MemoizedListing
         actions={
           <Actions
             displayType={displayType}
+            exportParameters={exportParameters}
             hasMetaService={hasMetaService}
             isOpenTicketEnabled={isOpenTicketEnabled}
             setPanelOptions={setPanelOptions}
           />
         }
-        actionsBarMemoProps={[displayType, hasMetaService, isOpenTicketEnabled]}
+        actionsBarMemoProps={[
+          displayType,
+          hasMetaService,
+          isOpenTicketEnabled,
+          JSON.stringify(exportParameters)
+        ]}
         approximateTotalRows={showApproximate}
         checkable
         columnConfiguration={{
-          selectedColumnIds: (
-            selectedColumnIds ?? defaultSelectedColumnIds
-          ).filter((id) => columns.some((col) => col.id === id)),
+          selectedColumnIds: visibleColumnIds,
           sortable: true
         }}
         columns={columns}

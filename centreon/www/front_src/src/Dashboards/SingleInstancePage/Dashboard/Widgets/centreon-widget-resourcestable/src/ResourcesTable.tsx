@@ -15,6 +15,7 @@ const ResourceTable = ({
   setPanelOptions,
   changeViewMode,
   isFromPreview,
+  isEditingDashboard,
   id,
   dashboardId,
   playlistHash,
@@ -25,6 +26,7 @@ const ResourceTable = ({
 
   const {
     displayType,
+    isExportEnabled,
     refreshInterval,
     refreshIntervalCustom,
     states,
@@ -52,6 +54,8 @@ const ResourceTable = ({
         displayType={displayType}
         hostSeverities={hostSeverities}
         id={id}
+        isEditingDashboard={isEditingDashboard}
+        isExportEnabled={isExportEnabled}
         isFromPreview={isFromPreview}
         isInViewport={isInViewport}
         limit={limit}

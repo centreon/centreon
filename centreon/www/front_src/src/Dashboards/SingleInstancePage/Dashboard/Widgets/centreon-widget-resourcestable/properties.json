@@ -82,6 +82,11 @@
       "baseEndpoint": "/monitoring/severities/service",
       "isSingleAutocomplete": false
     },
+    "isExportEnabled": {
+      "type": "switch",
+      "label": "Enable CSV export",
+      "defaultValue": false
+    },
     "refreshInterval": {
       "type": "refresh-interval",
       "defaultValue": "default",
