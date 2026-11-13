@@ -20,6 +20,10 @@ services:
       - ../.env
     environment:
       MARIADB_AUTO_UPGRADE: "1"
+      # MON-214629: same value everywhere — PHP_TIMEZONE below and the OS
+      # clock of every other service derive from this one variable too, so
+      # the container's own date and whatever PHP/Centreon compute agree.
+      TZ: "${TZ:-Europe/Paris}"
     # MON-214282: MYSQL_PORT (default unchanged, 3306) picks this server's own
     # listening port, same variable every DB client below reads.
     command: ["--port=${MYSQL_PORT:-3306}", "--skip-ssl", "--skip-name-resolve"]
@@ -47,6 +51,8 @@ services:
     image: "${VALKEY_IMAGE:-valkey/valkey:8.1.11-alpine@sha256:2602ace2be6569bc2bbb06f873776516ab9089821525be34f4305c67eb9db02a}"
     environment:
       VALKEY_PASSWORD: "${VALKEY_PASSWORD:-centreon-valkey-dev}"
+      # MON-214629: see db's own TZ comment — one value for every service.
+      TZ: "${TZ:-Europe/Paris}"
     command: ["sh", "-c", "exec valkey-server --requirepass \"$$VALKEY_PASSWORD\" --save '' --appendonly no"]
     healthcheck:
       test: ["CMD-SHELL", "valkey-cli -a \"$$VALKEY_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
@@ -108,9 +114,13 @@ services:
       # to empty to fall back to 'disable' (and drop the 'host' row).
       RRDCACHED_PORT: "${RRDCACHED_PORT:-42217}"
       # Resolved into centreon.ini at container start (01-config.sh) — the
-      # image itself defaults to UTC (Dockerfile), this dev stack keeps the
-      # value it always had rather than silently changing behavior.
-      PHP_TIMEZONE: "${PHP_TIMEZONE:-Europe/Paris}"
+      # image itself defaults to UTC (Dockerfile). MON-214629: derived from
+      # the single TZ variable below, not a second independent default, so
+      # PHP's clock and the container's OS clock can never disagree.
+      PHP_TIMEZONE: "${TZ:-Europe/Paris}"
+      # MON-214629: OS-level clock (date, cron, every non-PHP process) — see
+      # db's own TZ comment.
+      TZ: "${TZ:-Europe/Paris}"
       # MON-214472: default unchanged (256M, image's own default) when unset
       # or empty — raise it for large inventories (MON-213806).
       PHP_MEMORY_LIMIT: "${PHP_MEMORY_LIMIT:-256M}"
@@ -229,7 +239,9 @@ services:
       # produces, not independent placeholders.
       APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
       SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
-      PHP_TIMEZONE: "${PHP_TIMEZONE:-Europe/Paris}"
+      # MON-214629: see fpm's own PHP_TIMEZONE/TZ comments — must match fpm.
+      PHP_TIMEZONE: "${TZ:-Europe/Paris}"
+      TZ: "${TZ:-Europe/Paris}"
     command: >-
       su -s /bin/sh www-data -c
       "exec /usr/share/centreon/bin/console centreon-autodiscovery:save-worker"
@@ -267,6 +279,8 @@ services:
       GORGONE_WSS_UPSTREAM: "${GORGONE_WSS_UPSTREAM:-gorgone-central:8087}"
       # MON-214473: must outlast the longest export request.
       HTTPD_PROXY_TIMEOUT: "${HTTPD_PROXY_TIMEOUT:-300}"
+      # MON-214629: see db's own TZ comment — one value for every service.
+      TZ: "${TZ:-Europe/Paris}"
     volumes:
       # See the matching comment on fpm's own mount of this volume — fpm
       # writes, httpd only serves it back statically, :ro here on purpose.
@@ -347,6 +361,8 @@ services:
       # "please registernodes" — confirmed testing the full C12 stack).
       GORGONE_API_USERNAME: centreon-gorgone
       GORGONE_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
+      # MON-214629: see db's own TZ comment — one value for every service.
+      TZ: "${TZ:-Europe/Paris}"
       # No shared centreon-cache/centreon-varlib: since G7/MON-213813
       # (legacycmd, payload_dir) + MON-213827 (LegacyCommandSender), a
       # poller_type=docker poller (the Central's own, see 12-install.sh)
@@ -393,6 +409,8 @@ services:
       # Every GORGONE__ segment must be uppercase (see gorgone-central's own
       # comment above) — this dev stack has no TLS on httpd (port 80 only).
       GORGONE__GORGONE__MODULES__PULLWSS__SSL: "false"
+      # MON-214629: see db's own TZ comment — one value for every service.
+      TZ: "${TZ:-Europe/Paris}"
     restart: unless-stopped
     depends_on:
       httpd:
@@ -436,7 +454,9 @@ services:
     restart: unless-stopped
     environment:
       NAME: gorgone-central-poller
-      TZ: UTC
+      # MON-214629: was hardcoded to UTC, disagreeing with every other
+      # service — see db's own TZ comment.
+      TZ: "${TZ:-Europe/Paris}"
       DEBUG: "false"
       APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
       SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
@@ -500,6 +520,8 @@ services:
       # these env vars instead.
       APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
       SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
+      # MON-214629: see db's own TZ comment — one value for every service.
+      TZ: "${TZ:-Europe/Paris}"
     volumes:
       - poller-broker:/etc/centreon-broker
       - centreon-status:/var/lib/centreon/status
@@ -537,6 +559,9 @@ services:
       context: ../../..
       dockerfile: .github/docker/centreon-web-split/trixie/Dockerfile
       target: rrdcached
+    environment:
+      # MON-214629: see db's own TZ comment — one value for every service.
+      TZ: "${TZ:-Europe/Paris}"
     expose:
       - "42217"
     volumes:
@@ -588,12 +613,15 @@ services:
     environment:
       MYSQL_HOST: db
       MYSQL_PORT: "${MYSQL_PORT:-3306}"
-      # Must match fpm's own PHP_TIMEZONE exactly (same expression/default):
-      # centreon-partitioning.php reads partition boundaries fpm created
-      # using fpm's timezone — a mismatch (e.g. this left at the image's UTC
-      # default while fpm runs Europe/Paris) makes the day boundary disagree
-      # by one, failing with "Duplicate partition name pXXXXXXXX".
-      PHP_TIMEZONE: "${PHP_TIMEZONE:-Europe/Paris}"
+      # Must match fpm's own PHP_TIMEZONE exactly (same expression, derived
+      # from the same TZ variable, MON-214629): centreon-partitioning.php
+      # reads partition boundaries fpm created using fpm's timezone — a
+      # mismatch makes the day boundary disagree by one, failing with
+      # "Duplicate partition name pXXXXXXXX".
+      PHP_TIMEZONE: "${TZ:-Europe/Paris}"
+      # MON-214629: OS-level clock (cron's own scheduling) — see db's own TZ
+      # comment.
+      TZ: "${TZ:-Europe/Paris}"
 
 volumes:
   centreon-cache:
