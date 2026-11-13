@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-05-28
+- **Scope:** Legacy
 
 ## Context
 
@@ -17,7 +18,7 @@ Let legacy code **boot the kernel** to reach services. Legacy web code gets the 
 - Services stay private, so the container can still optimise and remove unused ones.
 - Each new legacy need means adding the service to the locator.
 - `src/App` code that calls legacy code through `LegacyContainer` boots a second, separate `LegacyKernel`, with its own services and database connection. Work done through it is not part of the caller's transaction.
-- The opposite direction, `src/App` calling legacy code, is covered by [ADR-0005](0005-isolate-legacy-in-infrastructure-legacy.md).
+- The opposite direction, `src/App` calling legacy code, is covered by [ADR-0005](0005-apip-isolate-legacy-in-infrastructure-legacy.md).
 
 ## When to Amend
 
