@@ -88,6 +88,7 @@ return [
         ],
         'directories' => [
             'config.new',
+            'migrations',
             'src/Adaptation',
             'src/App',
             'tests/php/Adaptation',

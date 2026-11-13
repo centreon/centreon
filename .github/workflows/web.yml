@@ -122,6 +122,7 @@ jobs:
         "centreon/libinstall/**"
         "centreon/logrotate/**"
         "centreon/lua/**"
+        "centreon/migrations/**"
         "centreon/packaging/**"
         "centreon/selinux/**"
         "centreon/snmptrapd/**"
@@ -174,6 +175,7 @@ jobs:
         "centreon/tests/performance/**"
       upgrade_test_paths: |
         "centreon/www/install/**"
+        "centreon/migrations/**"
         "centreon/packaging/**"
         "centreon/tests/e2e/features/Platform-upgrade-update/**"
       translation_paths: |
