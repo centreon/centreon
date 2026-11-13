@@ -114,10 +114,11 @@ final readonly class PatchServiceCommandHandler
         // The references come before the name: a restricted actor must not be able to tell a duplicate name from a
         // resource they cannot access.
         [$host, $checkCommand] = $this->assertReferencesExist($command, $service);
-        $withRelations = $this->relations->applyTo($service, $command);
+        $updated = clone $service;
+        $this->relations->applyTo($updated, $command);
         $this->assertNameIsAvailable($command, $service);
 
-        $updated = $this->applyChanges($withRelations, $command, $host, $checkCommand);
+        $this->applyChanges($updated, $command, $host, $checkCommand);
         $this->assertRulesAcrossFieldsHold($command, $updated);
 
         $vaultWritten = false;
@@ -125,7 +126,7 @@ final readonly class PatchServiceCommandHandler
         if ($command->macros instanceof ServiceMacroChanges) {
             $resolved = $this->macros->applyTo($updated, $service->checkOptions->macros, $command->macros);
             [$macros, $passwordRewritten, $vaultWritten] = $this->vaultPasswords($service, $resolved);
-            $updated = $updated->with(checkOptions: new ServiceCheckOptions($updated->checkOptions->checkCommandId, $updated->checkOptions->args, $macros));
+            $updated->changeCheckOptions(new ServiceCheckOptions($updated->checkOptions->checkCommandId, $updated->checkOptions->args, $macros));
         }
 
         try {
@@ -206,29 +207,53 @@ final readonly class PatchServiceCommandHandler
         }
     }
 
-    private function applyChanges(Service $service, PatchServiceCommand $command, ?HostState $host, ?Command $checkCommand): Service
+    private function applyChanges(Service $service, PatchServiceCommand $command, ?HostState $host, ?Command $checkCommand): void
     {
-        return $service->with(
-            name: $command->name,
-            hostId: $command->hostId,
-            hostActivated: $host instanceof HostState ? $host->activated : new NoValue(),
-            hostPollerId: $host instanceof HostState ? $host->pollerId : new NoValue(),
-            activated: $command->activated,
-            templateId: $command->templateId,
-            checkOptions: $command->checkOptions instanceof ServiceCheckOptionsChanges
-                ? $command->checkOptions->applyTo($service->checkOptions)
-                : new NoValue(),
-            schedulingOptions: $command->schedulingOptions instanceof ServiceSchedulingOptionsChanges
-                ? $command->schedulingOptions->applyTo($service->schedulingOptions)
-                : new NoValue(),
-            notifications: $this->notifications($service, $command),
-            dataProcessing: $this->dataProcessing($service, $command, $checkCommand),
-            extendedInformations: $command->extendedInformations instanceof ServiceExtendedInformationsChanges
-                ? $command->extendedInformations->applyTo($service->extendedInformations)
-                : new NoValue(),
-            graphTemplateId: $command->graphTemplateId,
-            severityId: $command->severityId,
-        );
+        if ($command->name instanceof ServiceName) {
+            $service->rename($command->name);
+        }
+
+        if ($command->hostId instanceof HostId && $host instanceof HostState) {
+            $service->moveToHost($command->hostId, $host);
+        }
+
+        if (is_bool($command->activated)) {
+            $command->activated ? $service->enable() : $service->disable();
+        }
+
+        if (! $command->templateId instanceof NoValue) {
+            $service->changeTemplate($command->templateId);
+        }
+
+        if ($command->checkOptions instanceof ServiceCheckOptionsChanges) {
+            $service->changeCheckOptions($command->checkOptions->applyTo($service->checkOptions));
+        }
+
+        if ($command->schedulingOptions instanceof ServiceSchedulingOptionsChanges) {
+            $service->changeSchedulingOptions($command->schedulingOptions->applyTo($service->schedulingOptions));
+        }
+
+        $notifications = $this->notifications($service, $command);
+        if (! $notifications instanceof NoValue) {
+            $service->changeNotifications($notifications);
+        }
+
+        $dataProcessing = $this->dataProcessing($service, $command, $checkCommand);
+        if ($dataProcessing instanceof ServiceDataProcessing) {
+            $service->changeDataProcessing($dataProcessing);
+        }
+
+        if ($command->extendedInformations instanceof ServiceExtendedInformationsChanges) {
+            $service->changeExtendedInformations($command->extendedInformations->applyTo($service->extendedInformations));
+        }
+
+        if (! $command->graphTemplateId instanceof NoValue) {
+            $service->changeGraphTemplate($command->graphTemplateId);
+        }
+
+        if (! $command->severityId instanceof NoValue) {
+            $service->changeRelations($command->severityId, $service->serviceGroupIds, $service->categoryIds, $service->trapIds);
+        }
     }
 
     /**

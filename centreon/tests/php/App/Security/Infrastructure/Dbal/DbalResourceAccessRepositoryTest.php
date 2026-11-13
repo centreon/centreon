@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -124,13 +125,14 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
      */
     public function testGrantResourceAccessForAMovedService(): void
     {
-        $service = (new Service(
+        $service = new Service(
             id: new ServiceId(9003),
             name: new ServiceName('ping'),
             hostId: new HostId(9001),
             hostActivated: true,
             hostPollerId: new PollerId(1),
-        ))->with(hostId: new HostId(9004), hostPollerId: new PollerId(2));
+        );
+        $service->moveToHost(new HostId(9004), new HostState(true, new PollerId(2)));
 
         $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10)], AccessGroupId::class));
 

@@ -228,7 +228,14 @@ final class FakeServiceRepository implements ServiceRepository
         usort($visible, static fn (ServiceSeverityId $left, ServiceSeverityId $right): int => $left->value <=> $right->value);
         $severityId = $visible[0] ?? null;
 
-        return $severityId?->value === $service->severityId?->value ? $service : $service->with(severityId: $severityId);
+        if ($severityId?->value === $service->severityId?->value) {
+            return $service;
+        }
+
+        $read = clone $service;
+        $read->changeRelations($severityId, $read->serviceGroupIds, $read->categoryIds, $read->trapIds);
+
+        return $read;
     }
 
     /**

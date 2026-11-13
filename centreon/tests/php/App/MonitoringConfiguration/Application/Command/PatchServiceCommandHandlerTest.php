@@ -221,10 +221,9 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
             dataProcessing: new ServiceDataProcessing(obsessOverService: TriStateEnum::True, freshnessThreshold: 30),
             extendedInformations: new ServiceExtendedInformations(note: 'a note', iconId: new MediaId(50)),
         );
-        $this->serviceRepository->services[self::SERVICE_ID] = $this->serviceRepository->services[self::SERVICE_ID]->with(
-            schedulingOptions: new ServiceSchedulingOptions(checkTimeperiodId: new TimePeriodId(40), maxCheckAttempts: 3),
-            graphTemplateId: new GraphTemplateId(60),
-        );
+        $stored = $this->serviceRepository->services[self::SERVICE_ID];
+        $stored->changeSchedulingOptions(new ServiceSchedulingOptions(checkTimeperiodId: new TimePeriodId(40), maxCheckAttempts: 3));
+        $stored->changeGraphTemplate(new GraphTemplateId(60));
 
         $this->patch($this->command(
             graphTemplateId: null,
@@ -451,7 +450,9 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
 
     public function testANameUsedOnTheHostIsAConflict(): void
     {
-        $this->serviceRepository->services[6] = $this->serviceRepository->services[self::SERVICE_ID]->with(name: new ServiceName('PONG'));
+        $other = clone $this->serviceRepository->services[self::SERVICE_ID];
+        $other->rename(new ServiceName('PONG'));
+        $this->serviceRepository->services[6] = $other;
 
         $this->expectException(ServiceAlreadyExistsException::class);
 
@@ -461,7 +462,9 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
     public function testAMoveOntoAHostWhereTheNameIsUsedIsAConflict(): void
     {
         $this->hostRepository->states[self::OTHER_HOST_ID] = new HostState(true, new PollerId(self::OTHER_POLLER_ID));
-        $this->serviceRepository->services[6] = $this->serviceRepository->services[self::SERVICE_ID]->with(hostId: new HostId(self::OTHER_HOST_ID));
+        $other = clone $this->serviceRepository->services[self::SERVICE_ID];
+        $other->moveToHost(new HostId(self::OTHER_HOST_ID), new HostState(true, new PollerId(self::OTHER_POLLER_ID)));
+        $this->serviceRepository->services[6] = $other;
 
         try {
             $this->patch($this->command(hostId: self::OTHER_HOST_ID));

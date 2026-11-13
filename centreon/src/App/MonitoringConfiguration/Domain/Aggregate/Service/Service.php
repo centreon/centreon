@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
@@ -37,7 +38,6 @@ use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Aggregate\VaultScopedInterface;
 use App\Shared\Domain\Collection;
-use App\Shared\Domain\NoValue;
 use App\Shared\Domain\VaultInterface;
 
 /**
@@ -57,23 +57,22 @@ final class Service extends AggregateRoot implements AclScopedInterface, PollerS
      */
     public function __construct(
         ?ServiceId $id,
-        public readonly ServiceName $name,
-        public readonly HostId $hostId,
-        public readonly bool $hostActivated,
-        public readonly ?PollerId $hostPollerId,
-        // Mutable (the other fields are readonly) so enable()/disable() can toggle it.
+        public ServiceName $name,
+        public HostId $hostId,
+        public bool $hostActivated,
+        public ?PollerId $hostPollerId,
         public bool $activated = true,
-        public readonly ?ServiceTemplateId $templateId = null,
-        public readonly ServiceCheckOptions $checkOptions = new ServiceCheckOptions(null),
-        public readonly ServiceSchedulingOptions $schedulingOptions = new ServiceSchedulingOptions(),
-        public readonly ?ServiceNotifications $notifications = null,
-        public readonly ServiceDataProcessing $dataProcessing = new ServiceDataProcessing(),
-        public readonly ?ServiceExtendedInformations $extendedInformations = null,
-        public readonly ?GraphTemplateId $graphTemplateId = null,
-        public readonly ?ServiceSeverityId $severityId = null,
-        public readonly Collection $serviceGroupIds = new Collection([], ServiceGroupId::class),
-        public readonly Collection $categoryIds = new Collection([], ServiceCategoryId::class),
-        public readonly Collection $trapIds = new Collection([], TrapId::class),
+        public ?ServiceTemplateId $templateId = null,
+        public ServiceCheckOptions $checkOptions = new ServiceCheckOptions(null),
+        public ServiceSchedulingOptions $schedulingOptions = new ServiceSchedulingOptions(),
+        public ?ServiceNotifications $notifications = null,
+        public ServiceDataProcessing $dataProcessing = new ServiceDataProcessing(),
+        public ?ServiceExtendedInformations $extendedInformations = null,
+        public ?GraphTemplateId $graphTemplateId = null,
+        public ?ServiceSeverityId $severityId = null,
+        public Collection $serviceGroupIds = new Collection([], ServiceGroupId::class),
+        public Collection $categoryIds = new Collection([], ServiceCategoryId::class),
+        public Collection $trapIds = new Collection([], TrapId::class),
     ) {
         parent::__construct($id);
     }
@@ -116,51 +115,70 @@ final class Service extends AggregateRoot implements AclScopedInterface, PollerS
         return null;
     }
 
+    public function rename(ServiceName $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function moveToHost(HostId $hostId, HostState $host): void
+    {
+        $this->hostId = $hostId;
+        $this->hostActivated = $host->activated;
+        $this->hostPollerId = $host->pollerId;
+    }
+
+    public function changeTemplate(?ServiceTemplateId $templateId): void
+    {
+        $this->templateId = $templateId;
+    }
+
+    public function changeCheckOptions(ServiceCheckOptions $checkOptions): void
+    {
+        $this->checkOptions = $checkOptions;
+    }
+
+    public function changeSchedulingOptions(ServiceSchedulingOptions $schedulingOptions): void
+    {
+        $this->schedulingOptions = $schedulingOptions;
+    }
+
+    public function changeNotifications(?ServiceNotifications $notifications): void
+    {
+        $this->notifications = $notifications;
+    }
+
+    public function changeDataProcessing(ServiceDataProcessing $dataProcessing): void
+    {
+        $this->dataProcessing = $dataProcessing;
+    }
+
+    public function changeExtendedInformations(?ServiceExtendedInformations $extendedInformations): void
+    {
+        $this->extendedInformations = $extendedInformations;
+    }
+
+    public function changeGraphTemplate(?GraphTemplateId $graphTemplateId): void
+    {
+        $this->graphTemplateId = $graphTemplateId;
+    }
+
     /**
-     * A copy of this service with the provided properties replaced: NoValue keeps the current one, null clears an
-     * optional one. A new host comes with its own state (activation, poller), which decides the poller to flag.
+     * The relations {@see hasSameRelationsAs()} compares, changed together.
      *
-     * @param NoValue|Collection<ServiceGroupId> $serviceGroupIds
-     * @param NoValue|Collection<ServiceCategoryId> $categoryIds
-     * @param NoValue|Collection<TrapId> $trapIds
+     * @param Collection<ServiceGroupId> $serviceGroupIds
+     * @param Collection<ServiceCategoryId> $categoryIds
+     * @param Collection<TrapId> $trapIds
      */
-    public function with(
-        NoValue|ServiceName $name = new NoValue(),
-        NoValue|HostId $hostId = new NoValue(),
-        NoValue|bool $hostActivated = new NoValue(),
-        NoValue|PollerId|null $hostPollerId = new NoValue(),
-        NoValue|bool $activated = new NoValue(),
-        NoValue|ServiceTemplateId|null $templateId = new NoValue(),
-        NoValue|ServiceCheckOptions $checkOptions = new NoValue(),
-        NoValue|ServiceSchedulingOptions $schedulingOptions = new NoValue(),
-        NoValue|ServiceNotifications|null $notifications = new NoValue(),
-        NoValue|ServiceDataProcessing $dataProcessing = new NoValue(),
-        NoValue|ServiceExtendedInformations|null $extendedInformations = new NoValue(),
-        NoValue|GraphTemplateId|null $graphTemplateId = new NoValue(),
-        NoValue|ServiceSeverityId|null $severityId = new NoValue(),
-        NoValue|Collection $serviceGroupIds = new NoValue(),
-        NoValue|Collection $categoryIds = new NoValue(),
-        NoValue|Collection $trapIds = new NoValue(),
-    ): self {
-        return new self(
-            id: $this->id(),
-            name: NoValue::resolve($name, $this->name),
-            hostId: NoValue::resolve($hostId, $this->hostId),
-            hostActivated: NoValue::resolve($hostActivated, $this->hostActivated),
-            hostPollerId: NoValue::resolve($hostPollerId, $this->hostPollerId),
-            activated: NoValue::resolve($activated, $this->activated),
-            templateId: NoValue::resolve($templateId, $this->templateId),
-            checkOptions: NoValue::resolve($checkOptions, $this->checkOptions),
-            schedulingOptions: NoValue::resolve($schedulingOptions, $this->schedulingOptions),
-            notifications: NoValue::resolve($notifications, $this->notifications),
-            dataProcessing: NoValue::resolve($dataProcessing, $this->dataProcessing),
-            extendedInformations: NoValue::resolve($extendedInformations, $this->extendedInformations),
-            graphTemplateId: NoValue::resolve($graphTemplateId, $this->graphTemplateId),
-            severityId: NoValue::resolve($severityId, $this->severityId),
-            serviceGroupIds: NoValue::resolve($serviceGroupIds, $this->serviceGroupIds),
-            categoryIds: NoValue::resolve($categoryIds, $this->categoryIds),
-            trapIds: NoValue::resolve($trapIds, $this->trapIds),
-        );
+    public function changeRelations(
+        ?ServiceSeverityId $severityId,
+        Collection $serviceGroupIds,
+        Collection $categoryIds,
+        Collection $trapIds,
+    ): void {
+        $this->severityId = $severityId;
+        $this->serviceGroupIds = $serviceGroupIds;
+        $this->categoryIds = $categoryIds;
+        $this->trapIds = $trapIds;
     }
 
     /**

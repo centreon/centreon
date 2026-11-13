@@ -70,56 +70,63 @@ final readonly class ServiceRelationsUpdater
     ) {
     }
 
-    public function applyTo(Service $service, PatchServiceCommand $command): Service
+    public function applyTo(Service $service, PatchServiceCommand $command): void
     {
-        $updated = $service->with(
-            serviceGroupIds: $this->resolveScoped(
-                $command->serviceGroupIds,
-                $service->serviceGroupIds,
-                ServiceGroupId::class,
-                fn (): AccessScope => $this->accessScopes->serviceGroups($command->actor),
-                function (array $ids, AccessScope $scope): void {
-                    $missingIds = $scope->missing($ids, array_keys($this->serviceGroupRepository->findNamesByIds(new Collection($ids, ServiceGroupId::class))->toArray()));
-                    if ($missingIds !== []) {
-                        throw new ServiceGroupNotFoundException($missingIds);
-                    }
-                },
-            ),
-            categoryIds: $this->resolveScoped(
-                $command->categoryIds,
-                $service->categoryIds,
-                ServiceCategoryId::class,
-                fn (): AccessScope => $this->accessScopes->serviceCategories($command->actor),
-                function (array $ids, AccessScope $scope): void {
-                    $missingIds = $scope->missing($ids, array_keys($this->serviceCategoryRepository->findNamesByIds(new Collection($ids, ServiceCategoryId::class))->toArray()));
-                    if ($missingIds !== []) {
-                        throw new ServiceCategoryNotFoundException($missingIds);
-                    }
-                },
-            ),
-            trapIds: $this->resolve(
-                $command->trapIds,
-                $service->trapIds,
-                TrapId::class,
-                function (array $ids): void {
-                    $missingIds = array_values(array_unique(array_diff(
-                        array_map(static fn (TrapId $id): int => $id->value, $ids),
-                        array_keys($this->trapRepository->findByIds(new Collection($ids, TrapId::class))->toArray()),
-                    )));
-                    if ($missingIds !== []) {
-                        throw new TrapNotFoundException($missingIds);
-                    }
-                },
-            ),
+        $serviceGroupIds = $this->resolveScoped(
+            $command->serviceGroupIds,
+            $service->serviceGroupIds,
+            ServiceGroupId::class,
+            fn (): AccessScope => $this->accessScopes->serviceGroups($command->actor),
+            function (array $ids, AccessScope $scope): void {
+                $missingIds = $scope->missing($ids, array_keys($this->serviceGroupRepository->findNamesByIds(new Collection($ids, ServiceGroupId::class))->toArray()));
+                if ($missingIds !== []) {
+                    throw new ServiceGroupNotFoundException($missingIds);
+                }
+            },
+        );
+        $categoryIds = $this->resolveScoped(
+            $command->categoryIds,
+            $service->categoryIds,
+            ServiceCategoryId::class,
+            fn (): AccessScope => $this->accessScopes->serviceCategories($command->actor),
+            function (array $ids, AccessScope $scope): void {
+                $missingIds = $scope->missing($ids, array_keys($this->serviceCategoryRepository->findNamesByIds(new Collection($ids, ServiceCategoryId::class))->toArray()));
+                if ($missingIds !== []) {
+                    throw new ServiceCategoryNotFoundException($missingIds);
+                }
+            },
+        );
+        $trapIds = $this->resolve(
+            $command->trapIds,
+            $service->trapIds,
+            TrapId::class,
+            function (array $ids): void {
+                $missingIds = array_values(array_unique(array_diff(
+                    array_map(static fn (TrapId $id): int => $id->value, $ids),
+                    array_keys($this->trapRepository->findByIds(new Collection($ids, TrapId::class))->toArray()),
+                )));
+                if ($missingIds !== []) {
+                    throw new TrapNotFoundException($missingIds);
+                }
+            },
         );
 
-        return $this->withContacts($updated, $command);
+        if (! $serviceGroupIds instanceof NoValue || ! $categoryIds instanceof NoValue || ! $trapIds instanceof NoValue) {
+            $service->changeRelations(
+                $service->severityId,
+                NoValue::resolve($serviceGroupIds, $service->serviceGroupIds),
+                NoValue::resolve($categoryIds, $service->categoryIds),
+                NoValue::resolve($trapIds, $service->trapIds),
+            );
+        }
+
+        $this->changeContacts($service, $command);
     }
 
-    private function withContacts(Service $service, PatchServiceCommand $command): Service
+    private function changeContacts(Service $service, PatchServiceCommand $command): void
     {
         if ($command->contactIds instanceof NoValue && $command->contactGroupIds instanceof NoValue) {
-            return $service;
+            return;
         }
 
         $notifications = $service->notifications ?? ServiceNotificationsChanges::none();
@@ -148,7 +155,7 @@ final readonly class ServiceRelationsUpdater
             },
         );
 
-        return $service->with(notifications: $notifications->withContacts(
+        $service->changeNotifications($notifications->withContacts(
             NoValue::resolve($contactIds, $notifications->contactIds),
             NoValue::resolve($contactGroupIds, $notifications->contactGroupIds),
         ));
