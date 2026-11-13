@@ -155,17 +155,11 @@ services:
       APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
       SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
     volumes:
-      # Generic application state (Symfony cache, /var/lib/centreon) kept
-      # across a recreate. Ownership is fixed natively at build time in the
-      # Dockerfile (chown centreon:centreon, chmod 775).
-      - centreon-cache:/var/cache/centreon
-      - centreon-varlib:/var/lib/centreon
       # RRD graph rendering (centreonGraph.class.php shells out to rrdtool,
       # reading these files — never writes them, confirmed by exploring the
       # PHP source, no `.rrd` write/unlink call anywhere under www/) — a
-      # narrower, dedicated pair of volumes vs. reusing centreon-varlib
-      # above: this data will be shared with centreon-broker specifically,
-      # not with gorgone (which has no reason to see it).
+      # dedicated pair of volumes: this data is shared with centreon-broker
+      # specifically, not with gorgone (which has no reason to see it).
       #
       # Not :ro: these are fresh named volumes with no image-provided
       # ownership, and centreon-broker's own image ships USER centreon-broker
@@ -246,13 +240,6 @@ services:
       su -s /bin/sh www-data -c
       "exec /usr/share/centreon/bin/console centreon-autodiscovery:save-worker"
     volumes:
-      # No centreon-cache here: this worker's own Symfony cache never needs
-      # to be fpm's exact files, and sharing it made 15-cache.sh's rm -rf
-      # race between the two containers on every cold start (MON-214281).
-      # No centreon-varlib either: this compose has no Vault, so vault.json
-      # (the only thing under it this worker ever reads) never exists here
-      # anyway — the chart's own per-pod vault-config.sh (fpm image) is what
-      # this worker would run itself if this compose ever grows Vault.
       - centreon-license:/etc/centreon/license.d:ro
     healthcheck:
       # save-worker touches this file at the end of every successful poll
@@ -624,8 +611,6 @@ services:
       TZ: "${TZ:-Europe/Paris}"
 
 volumes:
-  centreon-cache:
-  centreon-varlib:
   centreon-status:
   centreon-metrics:
   centreon-media:
