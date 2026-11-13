@@ -27,6 +27,8 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-partition/config.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon-partition/mysqlTable.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon-partition/options.class.php';
 
+require_once _CENTREON_PATH_ . '/cron/checkConfiguration.php';
+
 // Create partitioned tables
 $centreonDb = new CentreonDB('centreon');
 $centstorageDb = new CentreonDB('centstorage', 3);
