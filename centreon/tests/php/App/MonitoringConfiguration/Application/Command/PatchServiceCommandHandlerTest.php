@@ -59,6 +59,7 @@ use App\MonitoringConfiguration\Domain\Exception\ServiceAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckArgumentsPartlyFilledException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckCommandMissingException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceExtendedInformationsTooLongException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceNameForbiddenCharactersException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceTemplateNotFoundException;
@@ -434,6 +435,18 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         $this->patch($this->command(name: 'pong', templateId: 30));
 
         self::assertSame(30, $this->written()->templateId?->value);
+    }
+
+    public function testANameWithAForbiddenCharacterIsRefused(): void
+    {
+        try {
+            $this->patch($this->command(name: 'ping!'));
+            self::fail('A forbidden character must be refused.');
+        } catch (ServiceNameForbiddenCharactersException $exception) {
+            self::assertSame(['name' => 'ping!'], $exception->criteria);
+        }
+
+        $this->assertNothingWritten();
     }
 
     public function testANameUsedOnTheHostIsAConflict(): void

@@ -39,6 +39,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
@@ -53,6 +54,7 @@ use App\MonitoringConfiguration\Domain\Exception\ServiceAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckArgumentsPartlyFilledException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckCommandMissingException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceExtendedInformationsTooLongException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceNameForbiddenCharactersException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
@@ -180,11 +182,15 @@ final readonly class PatchServiceCommandHandler
     }
 
     /**
-     * Checked against the host the service ends up on, the service itself left out. A name and a host left as they
-     * are need no check, even when legacy stored a duplicate.
+     * A name provided must hold no forbidden character. It must be free on the host the service ends up on, the
+     * service itself left out; a name and a host left as they are need no check, even when legacy stored a duplicate.
      */
     private function assertNameIsAvailable(PatchServiceCommand $command, Service $service): void
     {
+        if ($command->name instanceof ServiceName && $command->name->hasForbiddenCharacters()) {
+            throw new ServiceNameForbiddenCharactersException($command->name->value);
+        }
+
         $name = NoValue::resolve($command->name, $service->name);
         $hostId = NoValue::resolve($command->hostId, $service->hostId);
         if ($name->value === $service->name->value && $hostId->value === $service->hostId->value) {

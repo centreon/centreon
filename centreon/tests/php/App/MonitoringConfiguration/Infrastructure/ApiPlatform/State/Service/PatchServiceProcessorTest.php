@@ -28,6 +28,7 @@ use App\Shared\Infrastructure\Validator\Constraints\WhenPlatformValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
+use Symfony\Component\Validator\Validation;
 
 /**
  * The HTTP contract of the service partial update: route, authentication and access gate, input validation before
@@ -359,6 +360,23 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
 
         self::assertResponseStatusCodeSame(204);
         self::assertSame([$hostId], $this->ids('SELECT host_host_id FROM host_service_relation WHERE service_service_id = ?', $serviceId));
+    }
+
+    /**
+     * The input refuses the character first; with the input validation skipped, the handler still does.
+     */
+    public function testTheHandlerRefusesANameWithAForbiddenCharacter(): void
+    {
+        $serviceId = $this->insertService('ping', $this->insertHost($this->insertPoller()));
+        $this->login();
+        // A validator without any constraint mapping validates nothing.
+        self::getContainer()->set('validator', Validation::createValidator());
+
+        $response = $this->patch($serviceId, ['name' => 'ping!']);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertMessageStartsWith('[name] The name must not contain control characters', $response);
+        self::assertSame('ping', $this->column('service_description', $serviceId));
     }
 
     public function testANameUsedOnTheHostIsAConflict(): void

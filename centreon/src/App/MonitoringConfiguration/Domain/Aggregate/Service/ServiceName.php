@@ -40,4 +40,13 @@ final readonly class ServiceName
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
         $this->value = $value;
     }
+
+    /**
+     * Whether the name holds a character a write refuses. Not an invariant: a name legacy stored with one is still
+     * read.
+     */
+    public function hasForbiddenCharacters(): bool
+    {
+        return preg_match('/[~!$%^&*"|\'<>?,()=\x00-\x1F\x7F]/', $this->value) === 1;
+    }
 }

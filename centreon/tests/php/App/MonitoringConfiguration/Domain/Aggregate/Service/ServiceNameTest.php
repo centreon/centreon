@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ServiceNameTest extends TestCase
@@ -62,5 +63,25 @@ final class ServiceNameTest extends TestCase
         $name = new ServiceName(str_repeat('é', 200));
 
         self::assertSame(200, mb_strlen($name->value));
+    }
+
+    #[DataProvider('forbiddenCharacterProvider')]
+    public function testItTellsAForbiddenCharacter(string $name, bool $forbidden): void
+    {
+        self::assertSame($forbidden, (new ServiceName($name))->hasForbiddenCharacters());
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function forbiddenCharacterProvider(): iterable
+    {
+        yield 'plain' => ['disk usage /var', false];
+
+        yield 'a forbidden character' => ['ping!', true];
+
+        yield 'a quote' => ["it's", true];
+
+        yield 'a control character' => ["ping\tpong", true];
     }
 }
