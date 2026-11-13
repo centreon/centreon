@@ -252,18 +252,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
     }
 
     /**
-     * A service without extended information keeps none when the update leaves them all unset.
-     */
-    public function testClearingTheTextsOfAServiceWithoutAnyChangesNothing(): void
-    {
-        $this->store(extendedInformations: null);
-
-        $this->patch($this->command(extendedInformations: new ServiceExtendedInformationsChanges(note: null, comment: null)));
-
-        $this->assertNothingWritten();
-    }
-
-    /**
      * A move to another host carries the previous host, and the poller of that host when it was enabled and is not
      * the new one; the service is built with the state of its new host.
      */

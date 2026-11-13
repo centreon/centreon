@@ -118,8 +118,6 @@ final readonly class PatchServiceCommandHandler
         $passwordRewritten = false;
         if ($command->macros instanceof ServiceMacroChanges) {
             $resolved = $this->macros->applyTo($updated, $service->checkOptions->macros, $command->macros);
-            // The vault write comes last, once every validation has passed: a rejected update must never leave an
-            // orphan secret behind.
             [$macros, $passwordRewritten, $vaultWritten] = $this->vaultPasswords($service, $resolved);
             $updated = $updated->with(checkOptions: new ServiceCheckOptions($updated->checkOptions->checkCommandId, $updated->checkOptions->args, $macros));
         }
@@ -139,8 +137,6 @@ final readonly class PatchServiceCommandHandler
     }
 
     /**
-     * The same rules ran on the input, earlier: this is the authoritative check, against what exists now.
-     *
      * @return array{?HostState, ?Command} the state of the host the service moves to, and the check command it is
      *                                     given, when the update provides them
      */

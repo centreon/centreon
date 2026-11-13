@@ -48,14 +48,11 @@ final readonly class ServiceExtendedInformationsChanges
     ) {
     }
 
-    /**
-     * A service without any of these keeps none when the change leaves them all unset.
-     */
-    public function applyTo(?ServiceExtendedInformations $current): ?ServiceExtendedInformations
+    public function applyTo(?ServiceExtendedInformations $current): ServiceExtendedInformations
     {
-        $empty = new ServiceExtendedInformations();
-        $base = $current ?? $empty;
-        $updated = new ServiceExtendedInformations(
+        $base = $current ?? new ServiceExtendedInformations();
+
+        return new ServiceExtendedInformations(
             noteUrl: NoValue::resolve($this->noteUrl, $base->noteUrl),
             note: NoValue::resolve($this->note, $base->note),
             actionUrl: NoValue::resolve($this->actionUrl, $base->actionUrl),
@@ -64,8 +61,6 @@ final readonly class ServiceExtendedInformationsChanges
             comment: NoValue::resolve($this->comment, $base->comment),
             geoCoordinates: NoValue::resolve($this->geoCoordinates, $base->geoCoordinates),
         );
-
-        return ! $current instanceof ServiceExtendedInformations && $updated->equals($empty) ? null : $updated;
     }
 
     /**
