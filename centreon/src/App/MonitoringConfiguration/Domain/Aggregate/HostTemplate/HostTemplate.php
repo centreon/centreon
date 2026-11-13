@@ -41,6 +41,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\NoValue;
 use App\Shared\Domain\VaultInterface;
 use Webmozart\Assert\Assert;
 
@@ -131,6 +132,88 @@ final class HostTemplate extends AggregateRoot
             categoryIds: $categoryIds,
             linkedServiceTemplateIds: $linkedServiceTemplateIds,
         );
+    }
+
+    /**
+     * A copy of this template with the provided properties replaced: NoValue keeps the current one, null
+     * clears an optional one.
+     *
+     * @throws HostTemplateLockedException
+     * @throws \InvalidArgumentException when a number does not fit its column
+     */
+    public function with(
+        NoValue|HostTemplateName $name = new NoValue(),
+        NoValue|HostAlias $alias = new NoValue(),
+        NoValue|SnmpVersionEnum|null $snmpVersion = new NoValue(),
+        NoValue|SnmpCommunity|null $snmpCommunity = new NoValue(),
+        NoValue|TimezoneId|null $timezoneId = new NoValue(),
+        NoValue|HostSeverityId|null $severityId = new NoValue(),
+        NoValue|CheckOptions $checkOptions = new NoValue(),
+        NoValue|ExtendedInformations|null $extendedInformations = new NoValue(),
+        NoValue|SchedulingOptions $schedulingOptions = new NoValue(),
+        NoValue|DataProcessing $dataProcessing = new NoValue(),
+        NoValue|Notifications|null $notifications = new NoValue(),
+    ): self {
+        $this->assertUnlocked();
+
+        if ($schedulingOptions instanceof SchedulingOptions) {
+            self::assertSchedulingOptionsBounds($schedulingOptions);
+        }
+        if ($dataProcessing instanceof DataProcessing) {
+            self::assertDataProcessingBounds($dataProcessing);
+        }
+        if ($notifications instanceof Notifications) {
+            self::assertNotificationsBounds($notifications);
+        }
+
+        return new self(
+            id: $this->id(),
+            name: NoValue::resolve($name, $this->name),
+            checkOptions: NoValue::resolve($checkOptions, $this->checkOptions),
+            serviceTemplateCheckCommandIds: $this->serviceTemplateCheckCommandIds,
+            alias: NoValue::resolve($alias, $this->alias),
+            isLocked: $this->isLocked,
+            parentTemplateIds: $this->parentTemplateIds,
+            snmpCommunity: NoValue::resolve($snmpCommunity, $this->snmpCommunity),
+            snmpVersion: NoValue::resolve($snmpVersion, $this->snmpVersion),
+            timezoneId: NoValue::resolve($timezoneId, $this->timezoneId),
+            severityId: NoValue::resolve($severityId, $this->severityId),
+            extendedInformations: NoValue::resolve($extendedInformations, $this->extendedInformations),
+            schedulingOptions: NoValue::resolve($schedulingOptions, $this->schedulingOptions),
+            dataProcessing: NoValue::resolve($dataProcessing, $this->dataProcessing),
+            notifications: NoValue::resolve($notifications, $this->notifications),
+            categoryIds: $this->categoryIds,
+            linkedServiceTemplateIds: $this->linkedServiceTemplateIds,
+        );
+    }
+
+    /**
+     * Every field but the relations; contacts and contact groups count through the notifications.
+     */
+    public function hasSameConfigurationAs(self $other): bool
+    {
+        return $this->name->value === $other->name->value
+            && $this->alias?->value === $other->alias?->value
+            && $this->snmpVersion === $other->snmpVersion
+            && $this->snmpCommunity?->value === $other->snmpCommunity?->value
+            && $this->timezoneId?->value === $other->timezoneId?->value
+            && $this->severityId?->value === $other->severityId?->value
+            && $this->checkOptions->equals($other->checkOptions)
+            && $this->schedulingOptions->equals($other->schedulingOptions)
+            && $this->dataProcessing->equals($other->dataProcessing)
+            && ($this->extendedInformations ?? new ExtendedInformations())->equals($other->extendedInformations ?? new ExtendedInformations())
+            && ($this->notifications ?? Notifications::default())->equals($other->notifications ?? Notifications::default());
+    }
+
+    /**
+     * Whether $before kept its secrets in a vault entry this template no longer references: the entry
+     * can then be deleted once the write is committed.
+     */
+    public function releasesVaultEntryOf(self $before, VaultInterface $vault): bool
+    {
+        $uuid = $before->getVaultUuid($vault);
+
+        return $uuid !== null && $this->getVaultUuid($vault) !== $uuid;
     }
 
     /**
