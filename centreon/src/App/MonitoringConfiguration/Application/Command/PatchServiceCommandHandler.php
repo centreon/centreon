@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\ServiceMacroSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\ServiceMacrosUpdater;
+use App\MonitoringConfiguration\Application\Service\ServicePlatformGuard;
 use App\MonitoringConfiguration\Application\Service\ServiceReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\ServiceRelationsUpdater;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
@@ -80,6 +81,7 @@ final readonly class PatchServiceCommandHandler
     public function __construct(
         private ServiceRepository $repository,
         private ServiceTemplateRepository $serviceTemplateRepository,
+        private ServicePlatformGuard $platform,
         private ServiceReferencesChecker $references,
         private ServiceRelationsUpdater $relations,
         private ServiceMacrosUpdater $macros,
@@ -106,6 +108,8 @@ final readonly class PatchServiceCommandHandler
         if (! $service instanceof Service) {
             throw new ServiceNotFoundException([$command->id->value], 'id');
         }
+
+        $this->platform->assertAvailable($command);
 
         // The references come before the name: a restricted actor must not be able to tell a duplicate name from a
         // resource they cannot access.
