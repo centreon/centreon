@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\InvalidServiceNameException;
 use App\MonitoringConfiguration\Domain\Exception\InvalidServiceTemplateAliasException;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
@@ -51,9 +52,6 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class HostServicesDeployer
 {
-    // The characters legacy refuses in an object name (MonitoringServer::ILLEGAL_CHARACTERS).
-    private const FORBIDDEN_CHARACTERS = '~!$%^&*"|\'<>?,()=';
-
     public function __construct(
         private HostRepository $hostRepository,
         private ServiceTemplateRepository $serviceTemplateRepository,
@@ -110,30 +108,15 @@ final readonly class HostServicesDeployer
     }
 
     /**
-     * Legacy order: runs of whitespace collapsed into one space, then the ends trimmed. A control character left
-     * inside would break the generated engine configuration.
-     *
      * @throws InvalidServiceTemplateAliasException
      */
     private function nameFrom(ServiceTemplate $template): ServiceName
     {
-        $templateId = $template->id()->value;
-        $name = trim((string) preg_replace('/\s{2,}/', ' ', $template->alias ?? ''));
-
-        if ($name === '') {
-            throw InvalidServiceTemplateAliasException::empty($templateId);
+        try {
+            return ServiceName::fromUserInput($template->alias ?? '');
+        } catch (InvalidServiceNameException $exception) {
+            throw InvalidServiceTemplateAliasException::fromInvalidName($template->id()->value, $exception);
         }
-        if (mb_strlen($name) > ServiceName::MAX_LENGTH) {
-            throw InvalidServiceTemplateAliasException::tooLong($templateId);
-        }
-        if (strpbrk($name, self::FORBIDDEN_CHARACTERS) !== false) {
-            throw InvalidServiceTemplateAliasException::forbiddenCharacter($templateId, self::FORBIDDEN_CHARACTERS);
-        }
-        if (preg_match('/[\x00-\x1F\x7F]/', $name) === 1) {
-            throw InvalidServiceTemplateAliasException::controlCharacter($templateId);
-        }
-
-        return new ServiceName($name);
     }
 
     /**

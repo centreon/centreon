@@ -23,42 +23,17 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
-
 /**
  * The stored alias of a service template cannot name the service deployed from it: a validation failure on
  * stored data (HTTP 422) that fails the whole deployment.
  */
 final class InvalidServiceTemplateAliasException extends \RuntimeException
 {
-    private function __construct(int $templateId, string $reason)
-    {
-        parent::__construct(sprintf('The alias of service template #%d %s, no service was deployed.', $templateId, $reason));
-    }
-
-    public static function empty(int $templateId): self
-    {
-        return new self($templateId, 'is empty');
-    }
-
-    public static function tooLong(int $templateId): self
-    {
-        return new self($templateId, sprintf('is longer than %d characters', ServiceName::MAX_LENGTH));
-    }
-
-    /**
-     * @param string $forbiddenCharacters the characters a name may not hold, listed in the message
-     */
-    public static function forbiddenCharacter(int $templateId, string $forbiddenCharacters): self
+    public static function fromInvalidName(int $templateId, InvalidServiceNameException $cause): self
     {
         return new self(
-            $templateId,
-            sprintf('contains a forbidden character (%s)', implode(' ', mb_str_split($forbiddenCharacters))),
+            sprintf('The alias of service template #%d %s, no service was deployed.', $templateId, $cause->reason),
+            previous: $cause,
         );
-    }
-
-    public static function controlCharacter(int $templateId): self
-    {
-        return new self($templateId, 'contains a control character');
     }
 }

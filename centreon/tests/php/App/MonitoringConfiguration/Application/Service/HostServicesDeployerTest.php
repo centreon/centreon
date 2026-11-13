@@ -105,36 +105,16 @@ final class HostServicesDeployerTest extends TestCase
         self::assertSame([], $this->serviceRepository->services);
     }
 
-    /**
-     * Runs of two or more whitespace characters become one space, then the ends are trimmed: in that order, as
-     * legacy, so a run mixing a space and a form feed at an end disappears.
-     */
-    #[DataProvider('normalizedAliasProvider')]
-    public function testItNormalizesTheAliasCollapseThenTrim(string $alias, string $expectedName): void
+    public function testItNamesTheServiceAfterTheNormalizedAlias(): void
     {
-        $this->serviceTemplateRepository->deployableOnHost[self::HOST_ID] = [$this->template(1, $alias)];
+        $this->serviceTemplateRepository->deployableOnHost[self::HOST_ID] = [$this->template(1, '  a  b ')];
 
-        self::assertSame([$expectedName], $this->names($this->deploy()));
+        self::assertSame(['a b'], $this->names($this->deploy()));
     }
 
     /**
-     * @return iterable<string, array{string, string}>
+     * The rules themselves are covered by ServiceNameTest: the template is named in the message.
      */
-    public static function normalizedAliasProvider(): iterable
-    {
-        yield 'inner and outer runs' => ['  a  b ', 'a b'];
-
-        yield 'trailing line break' => ["Ping\n", 'Ping'];
-
-        yield 'run of line breaks' => ["a\n\nb", 'a b'];
-
-        yield 'run with a form feed at an end' => [" \fPing", 'Ping'];
-
-        yield '200 characters' => [str_repeat('a', 200), str_repeat('a', 200)];
-
-        yield '200 multibyte characters' => [str_repeat('é', 200), str_repeat('é', 200)];
-    }
-
     #[DataProvider('invalidAliasProvider')]
     public function testItRefusesAnInvalidAlias(?string $alias, string $expectedReason): void
     {
@@ -155,20 +135,11 @@ final class HostServicesDeployerTest extends TestCase
     {
         yield 'null' => [null, 'is empty'];
 
-        yield 'empty' => ['', 'is empty'];
-
-        yield 'whitespace only' => [" \t\n ", 'is empty'];
-
         yield '201 characters' => [str_repeat('a', 201), 'is longer than 200 characters'];
-        foreach (mb_str_split('~!$%^&*"|\'<>?,()=') as $character) {
-            yield "forbidden {$character}" => ["Pi{$character}ng", 'contains a forbidden character (~ ! $ % ^ & * " | \' < > ? , ( ) =)'];
-        }
 
-        yield 'single inner tab' => ["Pi\tng", 'contains a control character'];
+        yield 'forbidden character' => ['Pi=ng', 'contains a forbidden character (~ ! $ % ^ & * " | \' < > ? , ( ) =)'];
 
-        yield 'inner null byte' => ["Pi\0ng", 'contains a control character'];
-
-        yield 'delete character' => ["Ping\x7F", 'contains a control character'];
+        yield 'run of tabs' => ["a\t\tb", 'contains a control character'];
     }
 
     /**
