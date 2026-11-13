@@ -291,11 +291,11 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 FROM hostcategories_relation hcr
                 INNER JOIN hostcategories hc ON hc.hc_id = hcr.hostcategories_hc_id
                 WHERE hcr.host_host_id = h.host_id AND hc.level IS NULL) AS category_ids',
-            '(SELECT hcr.hostcategories_hc_id
+            // A host holds a single severity; legacy may have left several, of which the lowest is read.
+            '(SELECT MIN(hcr.hostcategories_hc_id)
                 FROM hostcategories_relation hcr
                 INNER JOIN hostcategories hc ON hc.hc_id = hcr.hostcategories_hc_id
-                WHERE hcr.host_host_id = h.host_id AND hc.level IS NOT NULL
-                LIMIT 1) AS severity_id',
+                WHERE hcr.host_host_id = h.host_id AND hc.level IS NOT NULL) AS severity_id',
             '(SELECT GROUP_CONCAT(hhr.host_parent_hp_id)
                 FROM host_hostparent_relation hhr
                 WHERE hhr.host_host_id = h.host_id) AS parent_host_ids',
@@ -359,6 +359,25 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         return new Collection(
             array_map(HostTransformer::createMacro(...), $this->findMacroRows($id->value)),
             HostMacro::class,
+        );
+    }
+
+    public function findSeverityIds(HostId $id): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT hcr.hostcategories_hc_id')
+            ->from('hostcategories_relation', 'hcr')
+            ->innerJoin('hcr', 'hostcategories', 'hc', 'hc.hc_id = hcr.hostcategories_hc_id')
+            ->where($qb->expr()->eq('hcr.host_host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->andWhere('hc.level IS NOT NULL')
+            ->orderBy('hcr.hostcategories_hc_id', 'ASC');
+
+        /** @var list<int|string> $ids */
+        $ids = $qb->executeQuery()->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $value): HostSeverityId => new HostSeverityId((int) $value), $ids),
+            HostSeverityId::class,
         );
     }
 

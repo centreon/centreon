@@ -55,6 +55,7 @@ use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\NoValue;
 use App\Shared\Domain\Vault\VaultCredentials;
@@ -110,7 +111,13 @@ final readonly class PatchHostCommandHandler
         $updatedHost = $this->moveSecretsToTheVault($host, $updatedHost, $command, macrosChanged: $macros !== null);
 
         try {
-            $this->saveAndNotify($host, $updatedHost, $command->actor->userId->value, secretRewritten: $this->providesASecret($command));
+            $this->saveAndNotify(
+                $host,
+                $updatedHost,
+                $command->actor->userId->value,
+                secretRewritten: $this->providesASecret($command),
+                severitiesKept: $this->keepsTheStoredSeverities($this->repository->findSeverityIds($host->id()), $updatedHost->severityId),
+            );
         } catch (\Throwable $exception) {
             if ($this->touchesTheVault($host, $updatedHost, $command)) {
                 $this->logger->warning(
@@ -351,11 +358,27 @@ final readonly class PatchHostCommandHandler
      * flagged too. A secret rewritten in the vault counts as a change even when the host keeps the very
      * same reference, since the path of a vaulted value only depends on its entry and its key.
      */
-    private function saveAndNotify(Host $hostBefore, Host $hostAfter, int $updatedBy, bool $secretRewritten): void
+    /**
+     * Whether the levelled rows stored for the host are exactly the one severity it keeps (or none).
+     *
+     * @param Collection<HostSeverityId> $stored
+     */
+    private function keepsTheStoredSeverities(Collection $stored, ?HostSeverityId $kept): bool
+    {
+        $storedValues = array_values(array_map(static fn (HostSeverityId $id): int => $id->value, $stored->toArray()));
+
+        return $storedValues === ($kept instanceof HostSeverityId ? [$kept->value] : []);
+    }
+
+    /**
+     * @param bool $severitiesKept false when legacy left several severities: the write resolves them to the single
+     *                             one the host keeps
+     */
+    private function saveAndNotify(Host $hostBefore, Host $hostAfter, int $updatedBy, bool $secretRewritten, bool $severitiesKept): void
     {
         $relationsChanged = ! $hostAfter->hasSameRelationsAs($hostBefore) || ! $this->hasSameContactsAs($hostAfter, $hostBefore);
 
-        if ($secretRewritten || $relationsChanged || ! $hostAfter->hasSameConfigurationAs($hostBefore)) {
+        if ($secretRewritten || ! $severitiesKept || $relationsChanged || ! $hostAfter->hasSameConfigurationAs($hostBefore)) {
             $this->repository->update($hostAfter);
             if ($relationsChanged) {
                 $this->repository->replaceRelations($hostAfter);
