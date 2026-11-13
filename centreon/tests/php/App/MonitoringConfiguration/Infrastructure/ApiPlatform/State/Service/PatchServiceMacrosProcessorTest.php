@@ -124,6 +124,20 @@ final class PatchServiceMacrosProcessorTest extends PatchServiceProcessorTestCas
         yield 'a value too long' => [['macros_to_upsert' => [['name' => 'long', 'value' => str_repeat('v', 4097)]]], '[check_options.macros_to_upsert[0].value]'];
 
         yield 'a list of macros sent as null' => [['macros' => null], '[check_options.macros]'];
+
+        yield 'a new password without value' => [['macros_to_upsert' => [['name' => 'pwd', 'value' => null, 'is_password' => true]]], '[check_options'];
+    }
+
+    public function testAPasswordMacroCannotBeUnmasked(): void
+    {
+        $passwordId = $this->insertMacro($this->serviceId, 'PWD', self::SERVICE_PWD, isPassword: true);
+        $before = $this->macros();
+
+        $response = $this->patch($this->serviceId, ['check_options' => ['macros_to_upsert' => [['id' => $passwordId, 'name' => 'pwd', 'value' => 'x', 'is_password' => false]]]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertMessageStartsWith('[check_options] These macros are passwords and must stay so', $response);
+        self::assertSame($before, $this->macros());
     }
 
     /**

@@ -189,7 +189,7 @@ final class PatchServiceRelationsProcessorTest extends PatchServiceProcessorTest
 
         $this->patch($this->serviceId, $section === null ? [$key . '_to_add' => [$hidden]] : [$section => [$key . '_to_add' => [$hidden]]]);
         self::assertResponseStatusCodeSame(422);
-        self::assertNotContains($visible, $read($this));
+        self::assertSame([$hidden], $read($this));
     }
 
     /**
@@ -252,6 +252,22 @@ final class PatchServiceRelationsProcessorTest extends PatchServiceProcessorTest
             static fn (self $test): array => $test->ids('SELECT contactgroup_cg_id FROM contactgroup_service_relation WHERE service_service_id = ?', $test->serviceId),
             'notifications',
         ];
+    }
+
+    /**
+     * The severity the actor cannot see stays linked through an update that does not provide one.
+     */
+    public function testARestrictedActorKeepsAHiddenSeverity(): void
+    {
+        $severity = $this->insertServiceCategory(level: 1);
+        $this->connection->insert('service_categories_relation', ['sc_id' => $severity, 'service_service_id' => $this->serviceId]);
+        ['groupId' => $groupId] = $this->loginAsNonAdmin();
+        $this->grantPair($groupId, $this->hostId, $this->serviceId);
+
+        $this->patch($this->serviceId, ['name' => 'pong']);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame([$severity], $this->ids('SELECT sc_id FROM service_categories_relation WHERE service_service_id = ?', $this->serviceId));
     }
 
     /**

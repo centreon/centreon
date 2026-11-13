@@ -632,6 +632,14 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         yield 'handler removed, template without one' => [
             static fn (self $test): PatchServiceCommand => $test->command(templateId: 33, dataProcessing: new ServiceDataProcessingChanges(eventHandlerCommandId: null)),
         ];
+
+        yield 'template replaced by one without handler' => [
+            static function (self $test): PatchServiceCommand {
+                $test->store(templateId: 30, dataProcessing: new ServiceDataProcessing(eventHandlerArgs: ['restart']));
+
+                return $test->command(templateId: 33);
+            },
+        ];
     }
 
     /**

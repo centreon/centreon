@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service;
 
+use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimePeriodValidator;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatformValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator;
 
 /**
  * The HTTP contract of the service partial update: route, authentication and access gate, input validation before
@@ -480,14 +483,72 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
         self::assertNotNull($this->column('command_command_id', $serviceId));
     }
 
+    public function testANestedReferenceGoneAfterTheInputCheckIsNotFound(): void
+    {
+        $serviceId = $this->insertService('ping', $this->insertHost($this->insertPoller()));
+        $this->login();
+        self::getContainer()->set(ExistingTimePeriodValidator::class, new class () extends ConstraintValidator {
+            public function validate(mixed $value, Constraint $constraint): void
+            {
+            }
+        });
+
+        $this->patch($serviceId, ['monitoring_engine' => ['check_timeperiod_id' => 999999999]]);
+
+        self::assertResponseStatusCodeSame(404);
+        self::assertSame([], $this->activityLogs($serviceId));
+    }
+
+    public function testAnotherTemplateLeavingTheArgumentsWithoutHandlerIsRefused(): void
+    {
+        $templateId = $this->insertServiceTemplate(eventHandlerCommandId: $this->insertCommand(self::MISCELLANEOUS));
+        $serviceId = $this->insertService('ping', $this->insertHost($this->insertPoller()), [
+            'command_command_id' => $this->insertCommand(),
+            'command_command_id_arg2' => '!restart',
+            'service_template_model_stm_id' => $templateId,
+        ]);
+        $this->login();
+
+        $response = $this->patch($serviceId, ['service_template_id' => $this->insertServiceTemplate()]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertMessageStartsWith('[advanced] Event handler arguments require', $response);
+        self::assertSame((string) $templateId, $this->text($this->column('service_template_model_stm_id', $serviceId)));
+    }
+
+    public function testAContactAddedToAServiceUsingTheHostContactsIsNotKept(): void
+    {
+        $serviceId = $this->insertService('ping', $this->insertHost($this->insertPoller()), ['service_use_only_contacts_from_host' => '1']);
+        $this->login();
+
+        $this->patch($serviceId, ['notifications' => ['contacts_to_add' => [$this->insertContact()]]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame([], $this->ids('SELECT contact_id FROM contact_service_relation WHERE service_service_id = ?', $serviceId));
+        self::assertSame([], $this->activityLogs($serviceId));
+    }
+
+    public function testItAcceptsANameOfTheLengthLimit(): void
+    {
+        $serviceId = $this->insertService('ping', $this->insertHost($this->insertPoller()));
+        $this->login();
+        $name = str_repeat('n', 200);
+
+        $this->patch($serviceId, ['name' => $name]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame($name, $this->column('service_description', $serviceId));
+    }
+
     /**
      * On a Cloud platform, the fields only an on-premise platform has are refused; the service template cannot be
      * removed.
      *
      * @param array<string, mixed> $body
+     * @param non-empty-string $reason
      */
     #[DataProvider('onPremiseOnlyProvider')]
-    public function testACloudPlatformRefusesTheOnPremiseFields(array $body, string $path): void
+    public function testACloudPlatformRefusesTheOnPremiseFields(array $body, string $path, string $reason): void
     {
         $serviceId = $this->insertService('ping', $this->insertHost($this->insertPoller()), ['command_command_id' => $this->insertCommand()]);
         $this->login();
@@ -496,7 +557,7 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
         $response = $this->patch($serviceId, $body);
 
         self::assertResponseStatusCodeSame(422);
-        self::assertMessageStartsWith('[' . $path . ']', $response);
+        self::assertMessageStartsWith('[' . $path . '] ' . $reason, $response);
     }
 
     public function testACloudPlatformAcceptsAnUpdateLeavingTheTemplateOut(): void
@@ -512,23 +573,45 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, string}>
+     * @return iterable<string, array{array<string, mixed>, string, non-empty-string}>
      */
     public static function onPremiseOnlyProvider(): iterable
     {
-        yield 'no service template' => [['service_template_id' => null], 'service_template_id'];
+        $field = 'This field is not available on a Cloud platform.';
 
-        yield 'traps added' => [['trap_ids_to_add' => [1]], 'trap_ids_to_add'];
+        yield 'no service template' => [['service_template_id' => null], 'service_template_id', 'This value cannot be null.'];
 
-        yield 'a graph template' => [['graph_template_id' => 1], 'graph_template_id'];
+        yield 'traps replaced' => [['trap_ids' => [1]], 'trap_ids', $field];
 
-        yield 'notifications' => [['notifications' => ['interval' => 1]], 'notifications'];
+        yield 'traps added' => [['trap_ids_to_add' => [1]], 'trap_ids_to_add', $field];
 
-        yield 'a volatile switch' => [['monitoring_engine' => ['is_volatile' => 'true']], 'monitoring_engine.is_volatile'];
+        yield 'traps removed' => [['trap_ids_to_remove' => [1]], 'trap_ids_to_remove', $field];
 
-        yield 'stalking options added' => [['advanced' => ['stalking_options_to_add' => ['ok']]], 'advanced.stalking_options_to_add'];
+        yield 'a graph template' => [['graph_template_id' => 1], 'graph_template_id', $field];
 
-        yield 'a comment' => [['advanced' => ['comment' => 'x']], 'advanced.comment'];
+        yield 'notifications' => [['notifications' => ['interval' => 1]], 'notifications', 'Notifications are not available on a Cloud platform.'];
+
+        foreach (['active_check_enabled', 'passive_check_enabled', 'is_volatile'] as $key) {
+            yield "monitoring_engine.{$key}" => [['monitoring_engine' => [$key => 'true']], "monitoring_engine.{$key}", "{$key} is not available on a Cloud platform."];
+        }
+
+        yield 'monitoring_engine.alt_icon' => [['monitoring_engine' => ['alt_icon' => 'x']], 'monitoring_engine.alt_icon', $field];
+
+        foreach (['obsess_over_service', 'flap_detection_enabled', 'retain_status_information', 'retain_non_status_information'] as $key) {
+            yield "advanced.{$key}" => [['advanced' => [$key => 'true']], "advanced.{$key}", "{$key} is not available on a Cloud platform."];
+        }
+
+        foreach (['acknowledgment_timeout' => 5, 'low_flap_threshold' => 10, 'high_flap_threshold' => 20] as $key => $value) {
+            yield "advanced.{$key}" => [['advanced' => [$key => $value]], "advanced.{$key}", "{$key} is not available on a Cloud platform."];
+        }
+
+        foreach (['stalking_options', 'stalking_options_to_add', 'stalking_options_to_remove'] as $key) {
+            yield "advanced.{$key}" => [['advanced' => [$key => ['ok']]], "advanced.{$key}", 'stalking_options is not available on a Cloud platform.'];
+        }
+
+        yield 'advanced.event_handler_args' => [['advanced' => ['event_handler_args' => ['x']]], 'advanced.event_handler_args', 'event_handler_args is not available on a Cloud platform.'];
+
+        yield 'advanced.comment' => [['advanced' => ['comment' => 'x']], 'advanced.comment', $field];
     }
 
     /**
@@ -608,5 +691,9 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
         yield 'an unknown event handler' => [['advanced' => ['event_handler_command_id' => 999999999]], '[advanced.event_handler_command_id]'];
 
         yield 'an unknown stalking option' => [['advanced' => ['stalking_options_to_add' => ['down']]], '[advanced.stalking_options_to_add[0]]'];
+
+        yield 'an unknown notification option' => [['notifications' => ['options_to_add' => ['down']]], '[notifications.options_to_add[0]]'];
+
+        yield 'arguments too long once stored' => [['check_options' => ['args' => [str_repeat('a', 65536)]]], '[check_options.args]'];
     }
 }

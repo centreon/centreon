@@ -282,6 +282,19 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
         self::assertSame(self::SERVICE_PWD, $purges[0]->service->checkOptions->macros[0]->value);
     }
 
+    public function testWithoutVaultAPasswordIsStoredAsGiven(): void
+    {
+        $this->vault->vaultEnabled = false;
+
+        $this->patch($this->command(macros: ServiceMacroChanges::upsert([new ServiceMacroChange(new ServiceMacroName('pwd'), 's3cr3t', isPassword: true)])));
+
+        $passwords = array_values(array_filter($this->written()->checkOptions->macros, static fn (ServiceMacro $macro): bool => $macro->isPassword));
+        self::assertSame([['PWD', 's3cr3t']], array_map(static fn (ServiceMacro $macro): array => [$macro->name->value, $macro->value], $passwords));
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame([], $this->eventBus->getDispatchedEvents(ServiceVaultPurgeRequested::class));
+        $this->massChange();
+    }
+
     /**
      * An update leaving the macros alone never reaches the vault, even for a service holding a password.
      */
