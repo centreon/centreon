@@ -55,6 +55,11 @@ dependencies/**                         @centreon/owners-pipelines
 
 **/config/features.json                 @centreon/release-management
 
+# AI coding agent context
+/AGENTS.md                              @centreon/owners-php @centreon/owners-react
+/CLAUDE.md                              @centreon/owners-php @centreon/owners-react
+/.claude/rules/frontend*                @centreon/owners-react
+
 # Security Codeowners rules
 .githooks/pre-commit                 @centreon/owners-security
 .githooks/pre-commit.d/*_gitleaks.sh @centreon/owners-security
