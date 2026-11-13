@@ -21,16 +21,26 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace App\Upgrade\Domain\Exception;
 
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Model\MigrationSet;
 
-interface MigrationSetLocker
+/**
+ * The migrations to revert are not the confirmed ones anymore: nothing was reverted.
+ */
+final class RollbackPlanChangedException extends \RuntimeException
 {
     /**
-     * @return bool true if acquired, false if already locked
+     * @param list<string> $planned what the rollback would now revert
      */
-    public function lock(MigrationSet $set): bool;
-
-    public function unlock(MigrationSet $set): void;
+    public function __construct(
+        MigrationSet $set,
+        public readonly array $planned,
+    ) {
+        parent::__construct(sprintf(
+            'The migrations of the %s changed since they were confirmed: it would now revert %s. Nothing was reverted.',
+            $set->label(),
+            $planned === [] ? 'none' : implode(', ', $planned),
+        ));
+    }
 }

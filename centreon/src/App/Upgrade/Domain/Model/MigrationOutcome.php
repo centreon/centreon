@@ -21,14 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace App\Upgrade\Domain\Model;
 
-interface DbmsVersionValidator
+final readonly class MigrationOutcome
 {
     /**
-     * Validate that the DBMS version meets the minimum requirements.
-     *
-     * @throws \RuntimeException when the version is unsupported or cannot be retrieved
+     * @param list<string> $executed the executed versions, or the reverted ones
+     * @param list<string> $warnings what the operator must know although the run succeeded
      */
-    public function validateOrFail(): void;
+    public function __construct(
+        public array $executed,
+        public array $warnings = [],
+    ) {
+    }
 }

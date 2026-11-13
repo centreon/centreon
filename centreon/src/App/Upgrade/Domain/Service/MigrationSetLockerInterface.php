@@ -21,19 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace App\Upgrade\Domain\Service;
 
-interface UpdateLocker
+use App\Upgrade\Domain\Model\MigrationSet;
+
+interface MigrationSetLockerInterface
 {
     /**
-     * Acquire the update lock.
-     *
      * @return bool true if acquired, false if already locked
      */
-    public function lock(): bool;
+    public function lock(MigrationSet $set): bool;
 
-    /**
-     * Release the update lock.
-     */
-    public function unlock(): void;
+    public function unlock(MigrationSet $set): void;
 }

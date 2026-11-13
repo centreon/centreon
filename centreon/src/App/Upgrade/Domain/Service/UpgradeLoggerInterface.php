@@ -21,15 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace App\Upgrade\Domain\Service;
 
-interface UpgradeLogger
+interface UpgradeLoggerInterface
 {
     public function start(string $fromVersion, string $toVersion): void;
 
     public function success(string $fromVersion, string $toVersion, int $durationMs): void;
 
     public function failure(?string $fromVersion, ?string $toVersion, string $message, ?\Throwable $exception = null): void;
+
+    public function info(string $version, string $message): void;
+
+    public function warning(string $version, string $message): void;
 
     public function error(string $version, string $message, ?\Throwable $exception = null): void;
 

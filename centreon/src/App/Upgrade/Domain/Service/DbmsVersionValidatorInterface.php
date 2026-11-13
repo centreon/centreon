@@ -21,12 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace App\Upgrade\Domain\Service;
 
-interface EngineContextWriter
+interface DbmsVersionValidatorInterface
 {
     /**
-     * Write the engine context file if it does not yet contain secrets.
+     * Validate that the DBMS version meets the minimum requirements.
+     *
+     * @throws \RuntimeException when the version is unsupported or cannot be retrieved
      */
-    public function writeIfMissing(): void;
+    public function validateOrFail(): void;
 }

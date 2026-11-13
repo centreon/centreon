@@ -21,12 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace App\Upgrade\Domain\Exception;
 
-interface CacheClearer
+use App\Upgrade\Domain\Model\MigrationSet;
+
+/**
+ * Another update, or another migration or rollback of the same module set, holds the lock.
+ */
+final class MigrationSetBusyException extends \RuntimeException
 {
-    /**
-     * Clear the application cache.
-     */
-    public function clear(): void;
+    public static function updateInProgress(): self
+    {
+        return new self('An update is already in progress');
+    }
+
+    public static function setInProgress(MigrationSet $set): self
+    {
+        return new self(sprintf('The %s is already being migrated or rolled back', $set->label()));
+    }
 }

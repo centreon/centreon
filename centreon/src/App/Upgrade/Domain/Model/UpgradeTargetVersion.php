@@ -21,22 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Domain;
+namespace App\Upgrade\Domain\Model;
 
 /**
- * Shared by the platform update and the upgrade wizard, which announces it.
+ * The version a platform is recorded at once its Centreon Web migration sets ran.
  */
 final class UpgradeTargetVersion
 {
     /**
      * @param string $platformVersion the version of the installed code
      * @param string $legacyVersion the version reached by the legacy update scripts
-     * @param bool $nextUpdatePending whether Update-next.php exists, as on a development build: recording the
-     *                                coming release would skip it once renamed to it
+     * @param bool $nextUpdatePending whether Update-next.php exists (development build)
      */
     public static function resolve(string $platformVersion, string $legacyVersion, bool $nextUpdatePending): string
     {
-        // A legacy script may also be ahead, as a hotfix.
+        // Keep the legacy version on a development build, or when a hotfix script moved it past the installed code.
         return ! $nextUpdatePending && version_compare($platformVersion, $legacyVersion, '>') ? $platformVersion : $legacyVersion;
     }
 }

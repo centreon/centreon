@@ -21,22 +21,11 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace App\Upgrade\Domain\Exception;
 
-use App\Upgrade\Domain\MigrationSet;
-
-final readonly class MigrationSetStatus
+/**
+ * The set has no migration to roll back, or the rollback target is unknown or not executed.
+ */
+final class RollbackTargetNotFoundException extends \RuntimeException
 {
-    /**
-     * @param list<string> $executed
-     * @param list<string> $pending
-     * @param string|null $error why migrate would refuse the set, its migrations being empty when they cannot be read
-     */
-    public function __construct(
-        public MigrationSet $set,
-        public array $executed,
-        public array $pending,
-        public ?string $error = null,
-    ) {
-    }
 }
