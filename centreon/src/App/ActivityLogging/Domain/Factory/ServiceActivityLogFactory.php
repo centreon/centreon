@@ -39,6 +39,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotificationOpti
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceStalkingOptionEnum;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
@@ -75,6 +76,22 @@ final readonly class ServiceActivityLogFactory implements ActivityLogFactoryInte
         );
     }
 
+    public function createForMassChange(ServiceMassChanged $event, Actor $firedBy): ActivityLog
+    {
+        return new ActivityLog(
+            id: null,
+            action: ActionEnum::MassChange,
+            actor: $firedBy,
+            target: new Target(
+                id: new TargetId($event->serviceId->value),
+                name: new TargetName($event->name->value),
+                type: TargetTypeEnum::Service,
+            ),
+            performedAt: $event->firedAt,
+            details: $this->details($event),
+        );
+    }
+
     /**
      * The form and the host, by legacy column and in legacy storage format, like {@see HostActivityLogFactory}.
      * Service groups, categories, severity, traps and macros are left out, so no macro password is logged.
@@ -82,7 +99,7 @@ final readonly class ServiceActivityLogFactory implements ActivityLogFactoryInte
      *
      * @return array<string, string>
      */
-    private function details(Service $service): array
+    private function details(Service|ServiceMassChanged $service): array
     {
         return [
             'service_description' => $service->name->value,

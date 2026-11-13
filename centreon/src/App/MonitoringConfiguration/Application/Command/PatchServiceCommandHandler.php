@@ -415,7 +415,7 @@ final readonly class PatchServiceCommandHandler
             $this->repository->replaceRelationsAndMacros($after);
 
             $hostChanged = $before->hostId->value !== $after->hostId->value;
-            $this->eventBus->fire(new ServiceMassChanged(
+            $this->eventBus->fire(ServiceMassChanged::of(
                 $after,
                 $actorId,
                 previousPollerId: $hostChanged ? $this->previousPollerToFlag($before, $after) : null,

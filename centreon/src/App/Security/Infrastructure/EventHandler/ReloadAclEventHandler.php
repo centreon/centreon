@@ -69,11 +69,11 @@ final readonly class ReloadAclEventHandler
     }
 
     /**
-     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>> $event
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>>|ServiceMassChanged $event
      */
-    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
+    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated|ServiceMassChanged $event): void
     {
-        if (! $event->aggregate instanceof AclScopedInterface) {
+        if (! $event instanceof ServiceMassChanged && ! $event->aggregate instanceof AclScopedInterface) {
             return;
         }
 
@@ -91,9 +91,13 @@ final readonly class ReloadAclEventHandler
             return;
         }
 
-        if (
-            $event instanceof AggregateCreated
-            || (($event instanceof ServiceUpdated || $event instanceof ServiceMassChanged) && $event->previousHostId instanceof HostId)
+        if ($event instanceof ServiceMassChanged) {
+            if ($event->previousHostId instanceof HostId) {
+                $this->resourceAccessRepository->grantServiceAccess($event->hostId, $event->serviceId, $accessGroupIds);
+            }
+        } elseif (
+            $event->aggregate instanceof AclScopedInterface
+            && ($event instanceof AggregateCreated || ($event instanceof ServiceUpdated && $event->previousHostId instanceof HostId))
         ) {
             $this->resourceAccessRepository->grantResourceAccess($event->aggregate, $accessGroupIds);
         }

@@ -54,6 +54,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -229,6 +230,25 @@ final class ServiceActivityLogFactoryTest extends TestCase
         yield 'update' => [ActionEnum::Update];
 
         yield 'mass change' => [ActionEnum::MassChange];
+    }
+
+    /**
+     * The values a mass-change event carries give the line of the service it was fired for: its name, its id and
+     * the whole form, own macros left out.
+     */
+    public function testAMassChangeEventLogsTheWholeForm(): void
+    {
+        $factory = new ServiceActivityLogFactory();
+        $service = $this->completeService();
+        $event = ServiceMassChanged::of($service, 1);
+
+        $line = $factory->createForMassChange($event, new Actor(id: new ActorId(1)));
+
+        self::assertSame([ActionEnum::MassChange, 42, 'web-check', $event->firedAt], [$line->action, $line->target->id->value, $line->target->name->value, $line->performedAt]);
+        self::assertSame(
+            $factory->create(ActionEnum::Add, $service, new Actor(id: new ActorId(1)), new \DateTimeImmutable())->details,
+            $line->details,
+        );
     }
 
     /**

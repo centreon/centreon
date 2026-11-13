@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
@@ -74,15 +75,12 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             default => throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class)),
         };
 
-        // A pair may already be granted: a service moved back to a host before the cache is recomputed keeps the row
-        // of its first stay there, which the unique key of the table would refuse to insert again.
-        foreach ($accessGroupIds as $accessGroupId) {
-            $this->realTimeConnection->executeStatement(
-                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
-                    ON DUPLICATE KEY UPDATE group_id = group_id',
-                ['groupId' => $accessGroupId->value, 'hostId' => $hostId, 'serviceId' => $serviceId],
-            );
-        }
+        $this->grant($hostId, $serviceId, $accessGroupIds);
+    }
+
+    public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void
+    {
+        $this->grant($hostId->value, $serviceId->value, $accessGroupIds);
     }
 
     public function flagAllResourcesAsChanged(): void
@@ -596,6 +594,22 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
     public function findServiceAccessGroupScope(UserId $userId): AccessScope
     {
         return AccessScope::restrictedTo(AccessGroupId::class, $this->accessGroupRepository->findActiveGroupIdsForUser($userId));
+    }
+
+    /**
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    private function grant(int $hostId, ?int $serviceId, Collection $accessGroupIds): void
+    {
+        // A pair may already be granted: a service moved back to a host before the cache is recomputed keeps the row
+        // of its first stay there, which the unique key of the table would refuse to insert again.
+        foreach ($accessGroupIds as $accessGroupId) {
+            $this->realTimeConnection->executeStatement(
+                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
+                    ON DUPLICATE KEY UPDATE group_id = group_id',
+                ['groupId' => $accessGroupId->value, 'hostId' => $hostId, 'serviceId' => $serviceId],
+            );
+        }
     }
 
     /**

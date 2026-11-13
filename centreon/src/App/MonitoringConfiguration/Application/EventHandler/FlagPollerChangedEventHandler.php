@@ -43,7 +43,7 @@ use App\Shared\Domain\Event\AsEventHandler;
  * {@see PollerScopedInterface}): the owning poller's configuration just changed, so its
  * `nagios_server.updated` flag must be raised, or the monitoring engine keeps running on stale
  * configuration until something else touches it. Reacting to the {@see AggregateUpdated} supertype
- * also catches its enable/disable specializations.
+ * also catches its enable/disable specializations. A {@see ServiceMassChanged} names the pollers itself.
  */
 #[AsEventHandler]
 final readonly class FlagPollerChangedEventHandler
@@ -54,10 +54,20 @@ final readonly class FlagPollerChangedEventHandler
     }
 
     /**
-     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>> $event
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>>|ServiceMassChanged $event
      */
-    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
+    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated|ServiceMassChanged $event): void
     {
+        if ($event instanceof ServiceMassChanged) {
+            foreach ([$event->pollerId, $event->previousPollerId] as $pollerId) {
+                if ($pollerId instanceof PollerId) {
+                    $this->pollerRepository->flagIdAsChanged($pollerId);
+                }
+            }
+
+            return;
+        }
+
         if (! $event->aggregate instanceof PollerScopedInterface) {
             return;
         }
@@ -67,7 +77,7 @@ final readonly class FlagPollerChangedEventHandler
         // On a move to another poller, the previous one must be regenerated too, or it keeps monitoring a
         // host (or a service moved to another host) it no longer owns. These events carry the previous poller only
         // when it actually changed.
-        if (($event instanceof HostMassChanged || $event instanceof HostUpdated || $event instanceof ServiceUpdated || $event instanceof ServiceMassChanged)
+        if (($event instanceof HostMassChanged || $event instanceof HostUpdated || $event instanceof ServiceUpdated)
             && $event->previousPollerId instanceof PollerId
         ) {
             $this->pollerRepository->flagIdAsChanged($event->previousPollerId);

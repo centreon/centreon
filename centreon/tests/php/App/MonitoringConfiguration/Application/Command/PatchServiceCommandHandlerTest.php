@@ -157,7 +157,8 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         self::assertSame('pong', $written->name->value);
         self::assertSame([], $this->serviceRepository->activationUpdates);
         self::assertSame([], $this->eventBus->getDispatchedEvents(ServiceDisabled::class));
-        self::assertSame($written, $this->massChange()->aggregate);
+        $event = $this->massChange();
+        self::assertSame([self::SERVICE_ID, 'pong', false], [$event->serviceId->value, $event->name->value, $event->activated]);
     }
 
     public function testItChangesOnlyTheProvidedFields(): void

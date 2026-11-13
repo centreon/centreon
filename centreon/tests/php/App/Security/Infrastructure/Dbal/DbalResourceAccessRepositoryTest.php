@@ -148,6 +148,22 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testGrantServiceAccessByIds(): void
+    {
+        $this->repository->grantServiceAccess(new HostId(9004), new ServiceId(9005), new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9005],
+        );
+
+        self::assertSame(
+            [[10, 9004, 9005], [20, 9004, 9005]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
     /**
      * A service moved back to a host before the real-time ACL cache is recomputed: its pair is still there for one
      * of the groups. The grant keeps it and adds the others.

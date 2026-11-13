@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
@@ -86,6 +87,9 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     /** @var list<array{resource: AggregateRoot<AggregateRootId>&AclScopedInterface, accessGroupIds: list<int>}> */
     public array $grantedAccess = [];
+
+    /** @var list<array{hostId: int, serviceId: int, accessGroupIds: list<int>}> */
+    public array $grantedServiceAccess = [];
 
     public bool $allResourcesFlaggedAsChanged = false;
 
@@ -221,6 +225,15 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         $this->grantedAccess[] = [
             'resource' => $resource,
             'accessGroupIds' => array_values(array_map(static fn ($id): int => $id->value, $accessGroupIds->toArray())),
+        ];
+    }
+
+    public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void
+    {
+        $this->grantedServiceAccess[] = [
+            'hostId' => $hostId->value,
+            'serviceId' => $serviceId->value,
+            'accessGroupIds' => array_values(array_map(static fn (AccessGroupId $id): int => $id->value, $accessGroupIds->toArray())),
         ];
     }
 

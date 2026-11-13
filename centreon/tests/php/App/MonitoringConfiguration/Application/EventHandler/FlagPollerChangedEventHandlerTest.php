@@ -65,6 +65,7 @@ use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 
@@ -250,16 +251,38 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
         self::assertSame([2], $pollerRepository->flaggedPollerIds);
     }
 
-    public function testServiceMassChangedFlagsThePreviousPoller(): void
+    /**
+     * The event names the pollers: the one of the enabled host of the service, and the one of the host it left.
+     *
+     * @param list<int> $flagged
+     */
+    #[DataProvider('massChangeProvider')]
+    public function testServiceMassChangedFlagsThePollersItNames(bool $hostActivated, ?int $previousPollerId, array $flagged): void
     {
         $pollerRepository = new FakePollerRepository();
         $handler = new FlagPollerChangedEventHandler($pollerRepository);
 
-        $service = $this->createService(hostActivated: true);
-        $handler(new ServiceMassChanged($service, 1, previousPollerId: new PollerId(2), previousHostId: new HostId(9)));
+        $handler(ServiceMassChanged::of(
+            $this->createService($hostActivated),
+            1,
+            previousPollerId: $previousPollerId !== null ? new PollerId($previousPollerId) : null,
+            previousHostId: $previousPollerId !== null ? new HostId(9) : null,
+        ));
 
-        self::assertSame([$service], $pollerRepository->flaggedResources);
-        self::assertSame([2], $pollerRepository->flaggedPollerIds);
+        self::assertSame([], $pollerRepository->flaggedResources);
+        self::assertSame($flagged, $pollerRepository->flaggedPollerIds);
+    }
+
+    /**
+     * @return iterable<string, array{bool, ?int, list<int>}>
+     */
+    public static function massChangeProvider(): iterable
+    {
+        yield 'moved off another poller' => [true, 2, [5, 2]];
+
+        yield 'stayed' => [true, null, [5]];
+
+        yield 'on a disabled host' => [false, null, []];
     }
 
     public function testServiceUpdatedWithoutPreviousPollerFlagsTheCurrentOneOnly(): void
