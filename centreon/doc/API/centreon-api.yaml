@@ -6960,6 +6960,68 @@ paths:
             type: string
           style: simple
           explode: false
+  '/api/configuration/hosts/{hostId}/services/deploy':
+    post:
+      operationId: api_configurationhosts_hostIdservicesdeploy_post
+      tags:
+        - Service
+      responses:
+        '201':
+          description: 'The created services, each as a Get answers it'
+          content:
+            application/ld+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service.jsonld'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+          links: {}
+        '204':
+          description: 'Nothing to deploy: no service template, or every name already on the host'
+        '403':
+          description: 'You are not allowed to deploy services'
+        '404':
+          description: 'Host not found'
+        '422':
+          description: 'A service template alias cannot name a service; nothing was deployed'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: integer }
+                  message: { type: string }
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Deploy the services of a host from its templates'
+      description: 'Creates on the host one enabled service per service template of its host templates and their ancestors, named after the template alias, with the service groups of the template, unless a service of the host already has that name (case ignored). All or nothing: an invalid alias fails the whole deployment. Answers the created services, each as a Get does.'
+      parameters:
+        -
+          name: hostId
+          in: path
+          description: 'Host identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
 components:
   securitySchemes:
     Token:

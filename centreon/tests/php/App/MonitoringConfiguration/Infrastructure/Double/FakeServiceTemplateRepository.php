@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
@@ -55,6 +56,12 @@ final class FakeServiceTemplateRepository implements ServiceTemplateRepository
 
     /** @var array<int, ServiceTemplate> templates indexed by id, which findInheritanceLine() chains through their parent */
     public array $templates = [];
+
+    /** @var array<int, list<ServiceTemplate>> what findDeployableOnHost() returns, indexed by host id, in deployment order */
+    public array $deployableOnHost = [];
+
+    /** @var list<int> the host ids findDeployableOnHost() was called with */
+    public array $deployableOnHostRequests = [];
 
     /** @var array<string, list<list<int>>> the ids each lookup was called with, one list per call, by method */
     public array $receivedIds = [];
@@ -118,6 +125,17 @@ final class FakeServiceTemplateRepository implements ServiceTemplateRepository
         }
 
         return new Collection(array_values($line), ServiceTemplate::class);
+    }
+
+    /**
+     * Returns {@see $deployableOnHost} as seeded: the chain walk, the ordering and the hydration are SQL, pinned by
+     * the integration tests of the real repository.
+     */
+    public function findDeployableOnHost(HostId $hostId): Collection
+    {
+        $this->deployableOnHostRequests[] = $hostId->value;
+
+        return new Collection($this->deployableOnHost[$hostId->value] ?? [], ServiceTemplate::class);
     }
 
     /**
