@@ -22,6 +22,8 @@ Read the guide of the zone you touch, linked from the root `AGENTS.md`.
 
 - Run `composer install` in both `php-tools/` (Rector, PHP CS Fixer, PHPStan,
   Deptrac) and `centreon/`; run the composer scripts from `centreon/`.
+- If PHP CS Fixer refuses to run because the local PHP version is newer than
+  it supports, set `PHP_CS_FIXER_IGNORE_ENV=1`.
 - `composer rector:diff` and `cs:diff` check only `git diff --name-only`:
   unstaged changes to tracked files. To check a branch, pass the files:
   `PHP_DIFF_FILES="$(git diff --relative --name-only origin/develop -- '*.php')" composer cs:diff`.
