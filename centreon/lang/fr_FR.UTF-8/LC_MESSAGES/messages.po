@@ -25699,3 +25699,7 @@ msgstr "Modèle d'hôte créé"
 #: centreon/www/install/front_translate.php
 msgid "Host template updated"
 msgstr "Modèle d'hôte mis à jour"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable CSV export"
+msgstr "Activer l'export CSV"

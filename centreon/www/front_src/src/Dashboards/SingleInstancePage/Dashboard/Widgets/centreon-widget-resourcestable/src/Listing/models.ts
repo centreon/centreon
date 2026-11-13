@@ -1,5 +1,7 @@
 import type { ListingMeta, ListingModel } from '@centreon/ui';
 
+import type { SortOrder, Resource as WidgetResource } from '../../../models';
+
 export enum DisplayType {
   All = 'all',
   Host = 'host',
@@ -108,6 +110,43 @@ export enum ResourceCategory {
   host = 'host',
   metaservice = 'metaservice',
   service = 'service'
+}
+
+// The columns handled by the CSV export endpoint
+// (`ExportResourcesInput::EXPORT_ALLOWED_COLUMNS`). The ticket columns of the
+// widget are not part of it.
+export const exportableColumnIds = [
+  'status',
+  'resource',
+  'parent_resource',
+  'duration',
+  'tries',
+  'last_check',
+  'information',
+  'severity',
+  'notes_url',
+  'action_url',
+  'state',
+  'alias',
+  'parent_alias',
+  'fqdn',
+  'monitoring_server_name'
+];
+
+export interface ExportParameters {
+  columnIds: Array<string>;
+  displayType: DisplayType;
+  hostSeverities: Array<NamedEntity>;
+  limit: number;
+  page: number;
+  resources: Array<WidgetResource>;
+  serviceSeverities: Array<NamedEntity>;
+  sortField?: string;
+  sortOrder?: SortOrder;
+  states: Array<string>;
+  statusTypes: Array<'hard' | 'soft'>;
+  statuses: Array<string>;
+  visibleColumnIds: Array<string>;
 }
 
 export interface Ticket {
