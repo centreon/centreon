@@ -32,8 +32,9 @@ main() {
     return 0
   fi
 
-  RESPONSE="$response" REPOSITORY="$GITHUB_REPOSITORY" php -r '
-    foreach (json_decode((string) getenv("RESPONSE"), true) ?: [] as $pull) {
+  # the response is too large for an environment variable: it is read from the standard input
+  REPOSITORY="$GITHUB_REPOSITORY" php -r '
+    foreach (json_decode((string) stream_get_contents(STDIN), true) ?: [] as $pull) {
       if (
         ($pull["head"]["repo"]["full_name"] ?? "") === getenv("REPOSITORY")
         && preg_match("/^[A-Z][A-Z0-9_]+-[0-9]+-update-translations$/", $pull["head"]["ref"] ?? "")
@@ -42,7 +43,7 @@ main() {
         break;
       }
     }
-  '
+  ' <<< "$response"
 }
 
 main
