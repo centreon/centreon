@@ -64,7 +64,7 @@ main() {
     return 1
   fi
 
-  pr_url="$(RESPONSE="$response" php -r 'echo json_decode((string) getenv("RESPONSE"), true)["html_url"] ?? "";')"
+  pr_url="$(php -r 'echo json_decode((string) stream_get_contents(STDIN), true)["html_url"] ?? "";' <<< "$response")"
   echo "::notice::Translations could not be pushed to ${BRANCH_NAME}. Pull request opened: ${pr_url}"
 }
 
