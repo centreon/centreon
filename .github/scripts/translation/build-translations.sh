@@ -55,6 +55,13 @@ if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]
       fi
       if ! git push; then
         # fall back to a pull request from a branch prefixed by the Jira key
+        if [[ -n "${HEAD_REF:-}" ]]; then
+          # that pull request gets its own ticket, not the one of the current pull request
+          jira_key="$(HEAD_REF="" PR_BODY="" bash ../.github/scripts/translation/get-jira-key.sh centreon || true)"
+          if [[ "$jira_key" =~ $jira_key_pattern ]]; then
+            git commit --amend -m "chore(lang): update translations" -m "Refs: $jira_key"
+          fi
+        fi
         if [[ ! "$jira_key" =~ $jira_key_pattern ]] || ! bash ../.github/scripts/translation/create-translations-pr.sh "$jira_key"; then
           echo "::warning::Failed to push translations commit (no push access, e.g. fork pull request). Git patch will be available as artifact."
           cd ..
