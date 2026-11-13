@@ -234,8 +234,8 @@ final readonly class UpdateHostCommandHandler
 
         [$checkOptions, $passwordRewritten] = $this->prepareCheckOptions($command, $existingHost, $resolvedMacros, $vaultUuid, $vaultWritten);
 
-        // The update replaces every relation wholesale (DbalHostRepository::update). Host groups
-        // and categories are ACL-scoped (asserted above), so a restricted actor never sees
+        // The update replaces every relation wholesale (DbalHostRepository::update). Host groups,
+        // categories and severity are ACL-scoped (asserted above), so a restricted actor never sees
         // — and so can never resend — the ones outside their scope. Preserve those from the existing
         // host instead of letting the wholesale replace drop them, even on a GET -> PUT round trip,
         // mirroring legacy (Core PartialUpdateHost, "silently preserved"). Admins and unrestricted
@@ -252,9 +252,14 @@ final readonly class UpdateHostCommandHandler
             $categoryScope,
             HostCategoryId::class,
         );
-        // A host has a single severity, the submitted one, visible or not to the actor. Legacy may have left
-        // several, which the host as loaded does not show (it carries the lowest): they are a change to resolve.
-        $severitiesKept = $this->keepsTheStoredSeverities($this->repository->findSeverityIds($existingHost->id()), $command->severityId);
+        $severityId = $this->preserveInaccessibleSeverity(
+            $command->severityId,
+            $existingHost->severityId,
+            $severityScope,
+        );
+        // A host holds a single severity, the lowest as read. Legacy may have left several: the extra ones are
+        // dropped whatever the actor may see, so they are a change.
+        $severitiesKept = $this->keepsTheStoredSeverities($this->repository->findSeverityIds($existingHost->id()), $severityId);
 
         $host = $existingHost->with(
             name: $command->name,
@@ -264,7 +269,7 @@ final readonly class UpdateHostCommandHandler
             snmpVersion: $command->snmpVersion,
             snmpCommunity: $snmpCommunity,
             timezoneId: $command->timezoneId,
-            severityId: $command->severityId,
+            severityId: $severityId,
             extendedInformations: $command->extendedInformations,
             schedulingOptions: $command->schedulingOptions,
             // A Centreon Monitoring Agent pushes its results: freshness is forced, like the legacy form
@@ -598,6 +603,26 @@ final readonly class UpdateHostCommandHandler
                 ContactGroupId::class,
             ),
         );
+    }
+
+    /**
+     * Single-valued counterpart of {@see self::preserveInaccessible()} for the host severity: the
+     * submitted severity wins when present; otherwise an existing severity the actor cannot access
+     * is preserved (a restricted actor who sends none never meant to clear a severity they cannot
+     * even see).
+     *
+     * @param AccessScope<HostSeverityId> $scope
+     */
+    private function preserveInaccessibleSeverity(
+        ?HostSeverityId $submitted,
+        ?HostSeverityId $existing,
+        AccessScope $scope,
+    ): ?HostSeverityId {
+        if ($submitted instanceof HostSeverityId || ! $existing instanceof HostSeverityId) {
+            return $submitted;
+        }
+
+        return $scope->allows($existing) ? null : $existing;
     }
 
     /**

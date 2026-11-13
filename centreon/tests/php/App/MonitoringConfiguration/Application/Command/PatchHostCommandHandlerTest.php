@@ -206,6 +206,7 @@ final class PatchHostCommandHandlerTest extends TestCase
             new AdditiveInheritanceModeApplier($this->optionRepository),
             $this->eventBus,
             $this->logger,
+            new AccessScopeResolver($this->resourceAccessRepository),
         );
     }
 
@@ -281,6 +282,24 @@ final class PatchHostCommandHandlerTest extends TestCase
 
         self::assertSame(4, $result->severityId?->value);
         self::assertSame([$result], $this->repository->updatedHosts);
+    }
+
+    /**
+     * A severity the actor cannot see is not theirs to remove: an explicit null keeps it.
+     */
+    public function testAnExplicitNullKeepsASeverityTheActorCannotSee(): void
+    {
+        $this->repository->hosts[self::HOST_ID] = $this->seedHost(activated: true)->with(severityId: new HostSeverityId(4));
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(5)]);
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            actor: TestActingUsers::restricted(7),
+            severityId: null,
+        ));
+
+        self::assertSame(4, $result->severityId?->value);
+        self::assertSame([], $this->repository->updatedHosts);
     }
 
     public function testItFailsWhenTheHostDoesNotExist(): void

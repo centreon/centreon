@@ -1113,16 +1113,34 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame([1, 2], $groupIds);
     }
 
-    public function testItClearsAnOutOfScopeSeverityLeftOutByARestrictedActor(): void
+    public function testItPreservesAnOutOfScopeSeverityForARestrictedActor(): void
     {
         $this->addPoller(1);
         // The actor can access only severity 1; the host carries the out-of-scope severity 2.
         $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(1)]);
         $this->seedHost(10, severityId: new HostSeverityId(2));
 
+        // The actor sends no severity: they cannot see the stored one, so it must not be cleared.
         $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
 
-        self::assertNull($host->severityId);
+        self::assertSame(2, $host->severityId?->value);
+        self::assertSame([], $this->hostRepository->updatedHosts);
+    }
+
+    /**
+     * The extra severities legacy may have left are dropped whatever the actor may see; the main one (the
+     * lowest, as read) is kept when the actor cannot see it.
+     */
+    public function testItKeepsAnOutOfScopeMainSeverityAndDropsTheExtraOnes(): void
+    {
+        $this->addPoller(1);
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(1)]);
+        $this->seedHost(10, severityId: new HostSeverityId(2));
+        $this->hostRepository->storedSeverityIds[10] = [3, 2];
+
+        $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
+
+        self::assertSame(2, $host->severityId?->value);
         self::assertSame([$host], $this->hostRepository->updatedHosts);
     }
 

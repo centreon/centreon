@@ -850,10 +850,7 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertSame([], $this->intColumn('SELECT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = ?', $hostId));
     }
 
-    /**
-     * A host has a single severity: the one left out of the round trip is cleared, even hidden from the actor.
-     */
-    public function testARestrictedActorRoundTripKeepsOutOfScopeGroupsAndCategoriesButClearsTheSeverity(): void
+    public function testARestrictedActorRoundTripKeepsOutOfScopeGroupsCategoriesAndSeverity(): void
     {
         $pollerId = $this->insertPoller('Central');
         $accessibleGroupId = $this->insertHostGroup($this->uniqueName('group'));
@@ -889,7 +886,7 @@ final class PutHostProcessorTest extends ApiTestCase
             $this->intColumn('SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = ?', $hostId),
         );
         self::assertEqualsCanonicalizing(
-            [$accessibleCategoryId, $hiddenCategoryId],
+            [$accessibleCategoryId, $hiddenCategoryId, $hiddenSeverityId],
             $this->intColumn('SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = ?', $hostId),
         );
     }
@@ -897,7 +894,7 @@ final class PutHostProcessorTest extends ApiTestCase
     /**
      * The legacy host form hides the related hosts, contacts and contact groups outside the
      * actor's scope: a round trip keeps them stored, and the response, built like the GetHost
-     * body, never surfaces them (nor the hidden groups).
+     * body, never surfaces them (nor the hidden groups, categories and severity).
      */
     public function testARestrictedActorRoundTripKeepsAndHidesOutOfScopeRelations(): void
     {

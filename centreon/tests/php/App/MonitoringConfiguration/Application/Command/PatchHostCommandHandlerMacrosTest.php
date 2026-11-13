@@ -166,6 +166,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
             $this->eventBus,
             $this->logger,
+            new AccessScopeResolver($resourceAccessRepository),
         );
     }
 

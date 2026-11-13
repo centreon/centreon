@@ -189,6 +189,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
             new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
             $this->eventBus,
             $logger,
+            new AccessScopeResolver($this->resourceAccessRepository),
         );
 
         foreach ([1, 2, 3] as $id) {
