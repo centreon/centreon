@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\PatchServiceCommand;
+use App\MonitoringConfiguration\Application\Command\ServiceCheckOptionsChanges;
+use App\MonitoringConfiguration\Application\Command\ServiceDataProcessingChanges;
 use App\MonitoringConfiguration\Application\Command\ServiceMacroChanges;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroChange;
@@ -60,5 +62,27 @@ final class PatchServiceCommandLoggingTest extends TestCase
         self::assertSame('***', $sanitised['macros']);
         self::assertStringNotContainsString('top-secret', json_encode($sanitised, JSON_THROW_ON_ERROR));
         self::assertSame(['user_id' => '1', 'unrestricted_resource_access' => true], $sanitised['actor'], 'The acting user must stay readable in the logs.');
+    }
+
+    public function testTheCommandArgumentsNeverReachTheLogs(): void
+    {
+        SensitivityScanner::reset();
+        SensitiveKeywordDenylist::reset();
+
+        $command = new PatchServiceCommand(
+            id: new ServiceId(1),
+            actor: TestActingUsers::unrestricted(1),
+            checkOptions: new ServiceCheckOptionsChanges(args: ['check-secret']),
+            dataProcessing: new ServiceDataProcessingChanges(eventHandlerArgs: ['handler-secret']),
+        );
+
+        $payload = new LogPayloadNormalizer(new CamelCaseToSnakeCaseNameConverter())->normalize($command);
+        $sanitised = new PayloadSanitizer()->sanitize($payload, PatchServiceCommand::class);
+
+        self::assertIsArray($sanitised);
+        self::assertIsArray($sanitised['check_options']);
+        self::assertIsArray($sanitised['data_processing']);
+        self::assertSame('***', $sanitised['check_options']['args']);
+        self::assertSame('***', $sanitised['data_processing']['event_handler_args']);
     }
 }

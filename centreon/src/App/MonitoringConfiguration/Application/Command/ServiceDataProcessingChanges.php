@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceStalkingOptionEnum;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\NoValue;
 
 /**
@@ -58,6 +59,7 @@ final readonly class ServiceDataProcessingChanges
         public NoValue|int|null $lowFlapThreshold = new NoValue(),
         public NoValue|int|null $highFlapThreshold = new NoValue(),
         public NoValue|CommandId|null $eventHandlerCommandId = new NoValue(),
+        #[Sensitive]
         public NoValue|array $eventHandlerArgs = new NoValue(),
         public NoValue|ListChange $stalkingOptions = new NoValue(),
     ) {

@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\NoValue;
 
 /**
@@ -44,6 +45,7 @@ final readonly class ServiceCheckOptionsChanges
      */
     public function __construct(
         public NoValue|CommandId|null $checkCommandId = new NoValue(),
+        #[Sensitive]
         public NoValue|array $args = new NoValue(),
     ) {
     }
