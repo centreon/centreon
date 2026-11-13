@@ -437,6 +437,14 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         $this->deleteDependenciesWithoutMember('dependency_serviceParent_relation', $parentDependencyIds);
     }
 
+    public function findMacros(ServiceId $id): Collection
+    {
+        return new Collection(
+            array_map(ServiceTransformer::createMacro(...), $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? []),
+            ServiceMacro::class,
+        );
+    }
+
     /**
      * The service rows share-lock the host row through foreign keys, and the later reload flag needs the poller row
      * exclusively, while a host write locks the poller then the host ({@see DbalHostRepository}). Locking the

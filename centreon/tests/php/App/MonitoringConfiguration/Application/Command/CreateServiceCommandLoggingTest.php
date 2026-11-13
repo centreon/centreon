@@ -27,7 +27,10 @@ use App\MonitoringConfiguration\Application\Command\CreateServiceCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Logging\PayloadSanitizer;
@@ -37,7 +40,8 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 /**
- * `LoggingMiddleware` logs the command payload on every dispatch, and command arguments may carry a password.
+ * `LoggingMiddleware` logs the command payload on every dispatch, and command arguments and password macros may carry
+ * a password: the vaulting only happens later, in the handler.
  */
 final class CreateServiceCommandLoggingTest extends TestCase
 {
@@ -65,5 +69,27 @@ final class CreateServiceCommandLoggingTest extends TestCase
         self::assertStringNotContainsString('handler-secret', $logged);
         // The rest of the payload still goes through, so the masking is targeted.
         self::assertArrayHasKey('name', $sanitised);
+    }
+
+    public function testTheMacroChangesNeverReachTheLogs(): void
+    {
+        SensitivityScanner::reset();
+        SensitiveKeywordDenylist::reset();
+
+        $command = new CreateServiceCommand(
+            name: new ServiceName('ping'),
+            hostId: new HostId(10),
+            actor: TestActingUsers::unrestricted(1),
+            macroChanges: new Collection([
+                new ServiceMacroChange(new ServiceMacroName('token'), 'top-secret', isPassword: true),
+            ], ServiceMacroChange::class),
+        );
+
+        $payload = new LogPayloadNormalizer(new CamelCaseToSnakeCaseNameConverter())->normalize($command);
+        $sanitised = new PayloadSanitizer()->sanitize($payload, CreateServiceCommand::class);
+
+        self::assertIsArray($sanitised);
+        self::assertSame('***', $sanitised['macro_changes']);
+        self::assertStringNotContainsString('top-secret', (string) json_encode($sanitised));
     }
 }

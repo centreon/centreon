@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
@@ -90,6 +91,15 @@ interface ServiceRepository
      * as unset.
      */
     public function findOne(ServiceId $id, ActingUser $actor): ?Service;
+
+    /**
+     * The service's own macros as stored, with their ids, in storage order: the narrow read for a caller that only
+     * needs the ids assigned on insertion, without hydrating the whole service. Not ACL-scoped: the caller has
+     * already resolved the service.
+     *
+     * @return Collection<ServiceMacro>
+     */
+    public function findMacros(ServiceId $id): Collection;
 
     /**
      * Bounded UPDATE of the activation flag; never touches a service template, nor the links of the service.

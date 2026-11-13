@@ -46,4 +46,15 @@ final class VaultWriteFailedException extends \RuntimeException
             previous: $previous,
         );
     }
+
+    /**
+     * A service being created: it has no id yet.
+     */
+    public static function forService(\Throwable $previous): self
+    {
+        return new self(
+            'The service was not created: its credentials could not be written to the vault.',
+            previous: $previous,
+        );
+    }
 }
