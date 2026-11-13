@@ -81,8 +81,6 @@ final readonly class HostMacroSecretsSynchronizer
 
         /** @var array<int, string> $toWrite plaintext indexed by position in $macros */
         $toWrite = [];
-        /** @var array<string, true> $keptKeys keys of the host's entry still referenced as is */
-        $keptKeys = [];
         /** @var array<string, int> $firstIndexByName */
         $firstIndexByName = [];
         foreach ($macros as $index => $macro) {
@@ -91,17 +89,15 @@ final readonly class HostMacroSecretsSynchronizer
                 continue;
             }
             $firstIndexByName[$macro->name->value] = $index;
-            // An empty password is stored as is, nothing vaulted.
             if (! $macro->isPassword) {
                 continue;
             }
+            // An empty password is stored as is, nothing vaulted.
             if ($macro->value === '') {
                 continue;
             }
 
             if ($this->isInHostEntry($macro->value, $hostVaultUuid)) {
-                $keptKeys[$this->keyOf($macro->value)] = true;
-
                 continue;
             }
 
@@ -110,10 +106,7 @@ final readonly class HostMacroSecretsSynchronizer
                 : $macro->value;
         }
 
-        // A renamed macro keeps its reference, so its key may be the name another macro now
-        // claims: that one would overwrite the secret the renamed macro still points to. Move the
-        // renamed macro under its own name instead. Moving it claims a new key, which may in turn be
-        // the one another renamed macro points to (chained renames): repeat until no key is claimed.
+        // A renamed password whose key another macro claims moves under its own name; repeat for chained renames.
         $claimedKeys = [];
         foreach (array_keys($toWrite) as $index) {
             $claimedKeys[$this->keyFor($macros[$index])] = true;

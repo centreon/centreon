@@ -30,13 +30,17 @@ use App\ActivityLogging\Domain\Aggregate\Target;
 use App\ActivityLogging\Domain\Aggregate\TargetId;
 use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
- * Logged without details.
- *
  * @implements ActivityLogFactoryInterface<HostTemplate>
  */
 #[AsTaggedItem(index: HostTemplate::class)]
@@ -44,6 +48,11 @@ final readonly class HostTemplateActivityLogFactory implements ActivityLogFactor
 {
     public function create(ActionEnum $action, AggregateRoot $aggregate, Actor $firedBy, \DateTimeImmutable $firedAt): ActivityLog
     {
+        $details = match ($action) {
+            ActionEnum::Add, ActionEnum::Update => $this->details($aggregate),
+            ActionEnum::Delete, ActionEnum::Enable, ActionEnum::Disable, ActionEnum::MassChange => [],
+        };
+
         return new ActivityLog(
             id: null,
             action: $action,
@@ -54,7 +63,135 @@ final readonly class HostTemplateActivityLogFactory implements ActivityLogFactor
                 type: TargetTypeEnum::HostTemplate,
             ),
             performedAt: $firedAt,
-            details: [],
+            details: $details,
         );
+    }
+
+    /**
+     * The host log keys and storage formats (an unset value is an empty string, a tri-state 0, 1 or 2),
+     * without the host-only ones; absent notifications give no key. Relations (parents, categories,
+     * linked service templates, contacts, contact groups) and macros are not logged; the SNMP community
+     * is logged as stored, the `secret::` reference once vaulted.
+     *
+     * @return array<string, string>
+     */
+    private function details(HostTemplate $template): array
+    {
+        return [
+            'host_name' => $template->name->value,
+            'host_alias' => $template->alias->value ?? '',
+            'host_snmp_version' => $template->snmpVersion->value ?? '',
+            'host_snmp_community' => $template->snmpCommunity->value ?? '',
+            'host_location' => (string) $template->timezoneId?->value,
+            'severity_id' => (string) $template->severityId?->value,
+            ...$this->extendedInformationDetails($template->extendedInformations),
+            ...$this->schedulingDetails($template->schedulingOptions),
+            ...$this->dataProcessingDetails($template->dataProcessing),
+            'command_command_id' => (string) $template->checkOptions->checkCommandId?->value,
+            'command_command_id_arg1' => $this->arguments($template->checkOptions->args),
+            ...$this->notificationDetails($template->notifications),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function extendedInformationDetails(?ExtendedInformations $informations): array
+    {
+        return [
+            'ehi_notes_url' => $informations->noteUrl ?? '',
+            'ehi_notes' => $informations->note ?? '',
+            'ehi_action_url' => $informations->actionUrl ?? '',
+            'ehi_icon_image' => (string) $informations?->iconId?->value,
+            'ehi_icon_image_alt' => $informations->altIcon ?? '',
+            'host_comment' => $informations->comment ?? '',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function schedulingDetails(SchedulingOptions $options): array
+    {
+        return [
+            'timeperiod_tp_id' => (string) $options->checkTimeperiodId?->value,
+            'host_max_check_attempts' => (string) $options->maxCheckAttempts,
+            'host_check_interval' => (string) $options->normalCheckInterval,
+            'host_retry_check_interval' => (string) $options->retryCheckInterval,
+            'host_active_checks_enabled' => $this->triState($options->activeCheckEnabled),
+            'host_passive_checks_enabled' => $this->triState($options->passiveCheckEnabled),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function dataProcessingDetails(DataProcessing $dataProcessing): array
+    {
+        return [
+            'host_check_freshness' => $this->triState($dataProcessing->checkFreshness),
+            'host_freshness_threshold' => (string) $dataProcessing->freshnessThreshold,
+            'host_flap_detection_enabled' => $this->triState($dataProcessing->flapDetectionEnabled),
+            'host_low_flap_threshold' => (string) $dataProcessing->lowFlapThreshold,
+            'host_high_flap_threshold' => (string) $dataProcessing->highFlapThreshold,
+            'host_event_handler_enabled' => $this->triState($dataProcessing->eventHandlerEnabled),
+            'command_command_id2' => (string) $dataProcessing->eventHandlerCommandId?->value,
+            'command_command_id_arg2' => $this->arguments($dataProcessing->eventHandlerArgs),
+            'host_acknowledgement_timeout' => (string) $dataProcessing->acknowledgmentTimeout,
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function notificationDetails(?Notifications $notifications): array
+    {
+        if (! $notifications instanceof Notifications) {
+            return [];
+        }
+
+        return [
+            'host_notifications_enabled' => $this->triState($notifications->enabled),
+            'host_notification_options' => implode(',', array_map(
+                static fn (NotificationOptionEnum $option): string => match ($option) {
+                    NotificationOptionEnum::Down => 'd',
+                    NotificationOptionEnum::Unreachable => 'u',
+                    NotificationOptionEnum::Recovery => 'r',
+                    NotificationOptionEnum::Flapping => 'f',
+                    NotificationOptionEnum::DowntimeScheduled => 's',
+                    NotificationOptionEnum::None => 'n',
+                },
+                $notifications->options,
+            )),
+            'host_notification_interval' => (string) $notifications->interval,
+            'timeperiod_tp_id2' => (string) $notifications->periodId?->value,
+            'host_first_notification_delay' => (string) $notifications->firstDelay,
+            'host_recovery_notification_delay' => (string) $notifications->recoveryDelay,
+            'contact_additive_inheritance' => $notifications->contactAdditiveInheritance ? '1' : '0',
+            'cg_additive_inheritance' => $notifications->contactGroupAdditiveInheritance ? '1' : '0',
+        ];
+    }
+
+    private function triState(TriStateEnum $value): string
+    {
+        return match ($value) {
+            TriStateEnum::False => '0',
+            TriStateEnum::True => '1',
+            TriStateEnum::UseDefault => '2',
+        };
+    }
+
+    /**
+     * Bang-prefixed and bang-joined, line breaks and tabs encoded, as stored.
+     *
+     * @param list<string> $arguments
+     */
+    private function arguments(array $arguments): string
+    {
+        if ($arguments === []) {
+            return '';
+        }
+
+        return '!' . implode('!', str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $arguments));
     }
 }

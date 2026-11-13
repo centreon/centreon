@@ -42,6 +42,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSch
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSeverityOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimezoneOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\CreateHostTemplateProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\DeleteHostTemplateProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\DuplicateHostTemplateProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\GetHostTemplateMacrosProvider;
@@ -134,6 +135,26 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
                 is_granted("' . HostTemplatePermissionEnum::CanRead->value . '") or
                 is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list host templates',
+        ),
+        new Post(
+            uriTemplate: '/configuration/host_templates',
+            itemUriTemplate: '/configuration/host_templates/{id}',
+            input: CreateHostTemplateInput::class,
+            processor: CreateHostTemplateProcessor::class,
+            denormalizationContext: ['allow_extra_attributes' => false],
+            openapi: new Model\Operation(
+                summary: 'Create a host template',
+                responses: [
+                    400 => new Model\Response('A field the host template does not have'),
+                    401 => new Model\Response('Authentication required'),
+                    403 => new Model\Response('You are not allowed to create host templates'),
+                    409 => new Model\Response('A host or host template already uses this name'),
+                    422 => new Model\Response('Invalid value, or a reference that does not exist or cannot be used'),
+                    502 => new Model\Response('The vault could not be reached'),
+                ],
+            ),
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to create host templates',
         ),
         new Post(
             uriTemplate: '/configuration/host_templates/{id}/_duplicate',

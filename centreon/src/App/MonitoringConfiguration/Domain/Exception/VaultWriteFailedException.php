@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 
 /**
  * A secret could not be written to the vault before saving: nothing was persisted.
@@ -35,6 +36,14 @@ final class VaultWriteFailedException extends \RuntimeException
     {
         return new self(
             sprintf('Host %d was not updated: its credentials could not be written to the vault.', $hostId->value),
+            previous: $previous,
+        );
+    }
+
+    public static function forNewHostTemplate(HostTemplateName $name, \Throwable $previous): self
+    {
+        return new self(
+            sprintf('Host template "%s" was not created: its credentials could not be written to the vault.', $name->value),
             previous: $previous,
         );
     }

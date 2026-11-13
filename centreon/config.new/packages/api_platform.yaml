@@ -7,6 +7,7 @@ api_platform:
 
     exception_to_status:
         ApiPlatform\Validator\Exception\ValidationException: 422 # Input validation errors are unprocessable entities, not bad requests
+        Symfony\Component\Serializer\Exception\ExtraAttributesException: 400 # a key the input does not have, where the operation sets allow_extra_attributes: false
         App\Shared\Domain\Exception\AggregateAlreadyExistsException: 409
         App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongException: 422 # a generated name too long is a validation failure, not a name-already-taken conflict
         App\MonitoringConfiguration\Domain\Exception\DuplicatedHostTemplateNameTooLongException: 422
