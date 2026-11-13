@@ -9,7 +9,7 @@ set -euo pipefail
 #   EVENT_NAME                    - github.event_name
 #   HAS_UPDATE_TRANSLATIONS_LABEL - "true" or "false"
 #   JIRA_BASE_URL, JIRA_USER_EMAIL, JIRA_API_TOKEN, BRANCH_NAME, RUN_URL,
-#   HEAD_REF, PR_BODY, PR_URL     - see get-jira-key.sh
+#   HEAD_REF, PR_BODY, PR_URL     - see get-jira-key.sh and set-jira-status.sh
 #   GH_TOKEN                      - see find-translations-pr.sh and create-translations-pr.sh
 #   GITHUB_WORKSPACE             - GitHub Actions workspace root
 #   GITHUB_OUTPUT                 - GitHub Actions step output file
@@ -64,7 +64,12 @@ if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]
       else
         git commit -m "chore(lang): update translations"
       fi
-      if ! git push; then
+      if git push; then
+        # the ticket of a pull request is left to its owner
+        if [[ "$jira_key" =~ $jira_key_pattern && "${HEAD_REF:-} ${PR_BODY:-}" != *"$jira_key"* ]]; then
+          bash ../.github/scripts/translation/set-jira-status.sh "$jira_key" "Resolved" || true
+        fi
+      else
         # fall back to a pull request from a branch prefixed by the Jira key
         if [[ -n "$jira_key" && "${HEAD_REF:-} ${PR_BODY:-}" == *"$jira_key"* ]]; then
           # that pull request gets its own ticket, not the one of the current pull request
@@ -78,6 +83,8 @@ if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]
           cd ..
           git diff HEAD~1 > translations.patch
           TRANSLATIONS_PATCH_FILE="translations.patch"
+        else
+          bash ../.github/scripts/translation/set-jira-status.sh "$jira_key" "IN PROGRESS" "NEED REVIEW" || true
         fi
       fi
     fi
