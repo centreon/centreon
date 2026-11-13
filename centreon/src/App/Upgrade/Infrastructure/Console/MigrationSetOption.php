@@ -23,12 +23,14 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Console;
 
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Domain\Model\WebMigrationSetEnum;
 use Symfony\Component\Console\Exception\InvalidOptionException;
+use Webmozart\Assert\Assert;
 
 final class MigrationSetOption
 {
-    public const string SET_DESCRIPTION = 'A core migration set: "realtime" or "configuration"';
+    public const string SET_DESCRIPTION = 'A Centreon Web migration set: "realtime" or "configuration"';
     public const string MODULE_DESCRIPTION = 'The migration set of a module, e.g. "centreon-open-tickets"';
 
     /**
@@ -42,7 +44,7 @@ final class MigrationSetOption
         }
 
         return match (true) {
-            $set !== null => MigrationSet::core($set),
+            $set !== null => MigrationSet::web(self::webSet($set)),
             $module !== null => MigrationSet::module($module),
             default => null,
         };
@@ -55,5 +57,16 @@ final class MigrationSetOption
     public static function require(?string $set, ?string $module): MigrationSet
     {
         return self::resolve($set, $module) ?? throw new InvalidOptionException('Choose a migration set with --set or --module.');
+    }
+
+    /**
+     * @throws \InvalidArgumentException when the set is unknown
+     */
+    private static function webSet(string $set): WebMigrationSetEnum
+    {
+        $sets = array_column(WebMigrationSetEnum::cases(), 'value');
+        Assert::oneOf($set, $sets, 'Unknown Centreon Web migration set %s, expected one of: %2$s.');
+
+        return WebMigrationSetEnum::from($set);
     }
 }

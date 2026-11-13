@@ -24,7 +24,12 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Console;
 
 use App\Shared\Application\Command\CommandBus;
+use App\Shared\Application\Query\QueryBus;
 use App\Upgrade\Application\Command\RollbackMigrationCommand;
+use App\Upgrade\Application\Query\GetRollbackPlanQuery;
+use App\Upgrade\Domain\Exception\LockNotReleasedException;
+use App\Upgrade\Domain\Model\MigrationOutcome;
+use App\Upgrade\Domain\Model\MigrationSet;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
@@ -32,10 +37,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'centreon:migrations:rollback', description: 'Revert the migrations of a set executed after the given version')]
+#[AsCommand(name: 'centreon:migrations:rollback', description: 'Revert the executed migrations of a set versioned after the given version')]
 final readonly class RollbackConsoleCommand
 {
     public function __construct(
+        private QueryBus $queryBus,
         private CommandBus $commandBus,
     ) {
     }
@@ -43,7 +49,7 @@ final readonly class RollbackConsoleCommand
     public function __invoke(
         InputInterface $input,
         SymfonyStyle $io,
-        #[Argument(description: 'The version to roll back to, kept applied, as listed by status -v or as its timestamp ("prev" reverts the last migration, "first" reverts them all)')]
+        #[Argument(description: 'The version to roll back to, kept applied: as listed by status -v, its class name or its timestamp ("prev" reverts the last migration, "first" reverts them all)')]
         string $version,
         #[Option(description: MigrationSetOption::SET_DESCRIPTION)]
         ?string $set = null,
@@ -52,9 +58,27 @@ final readonly class RollbackConsoleCommand
     ): int {
         $migrationSet = MigrationSetOption::require($set, $module);
 
-        // Checked and planned by the rollback itself, before asking anything.
+        try {
+            return $this->rollback($input, $io, $migrationSet, $version);
+        } catch (\Throwable $exception) {
+            if ($exception instanceof LockNotReleasedException && $exception->result instanceof MigrationOutcome) {
+                $io->listing($exception->result->executed);
+                $this->report($io, $exception->result);
+            }
+
+            $io->error($exception->getMessage());
+            if ($io->isVerbose()) {
+                $io->writeln((string) $exception);
+            }
+
+            return Command::FAILURE;
+        }
+    }
+
+    private function rollback(InputInterface $input, SymfonyStyle $io, MigrationSet $migrationSet, string $version): int
+    {
         /** @var list<string> $toRevert */
-        $toRevert = $this->commandBus->execute(new RollbackMigrationCommand($migrationSet, $version, dryRun: true));
+        $toRevert = $this->queryBus->ask(new GetRollbackPlanQuery($migrationSet, $version));
         if ($toRevert === []) {
             $io->success('No migration to revert.');
 
@@ -62,18 +86,27 @@ final readonly class RollbackConsoleCommand
         }
 
         $io->listing($toRevert);
-        $question = \sprintf('Revert these %d migration(s) of the %s? The platform version is not changed.', \count($toRevert), $migrationSet->label());
+        $question = sprintf('Revert these %d migration(s) of the %s? The platform version is not changed.', count($toRevert), $migrationSet->label());
         if ($input->isInteractive() && ! $io->confirm($question, false)) {
             $io->warning('Rollback cancelled.');
 
             return Command::SUCCESS;
         }
 
-        /** @var list<string> $reverted */
         // Refused if another run changed the set meanwhile.
-        $reverted = $this->commandBus->execute(new RollbackMigrationCommand($migrationSet, $version, expected: $toRevert));
-        $io->success(\sprintf('%d migration(s) reverted.', \count($reverted)));
+        /** @var MigrationOutcome $outcome */
+        $outcome = $this->commandBus->execute(new RollbackMigrationCommand($migrationSet, $version, expected: $toRevert));
+        $this->report($io, $outcome);
 
         return Command::SUCCESS;
+    }
+
+    private function report(SymfonyStyle $io, MigrationOutcome $outcome): void
+    {
+        foreach ($outcome->warnings as $warning) {
+            $io->warning($warning);
+        }
+
+        $io->success(sprintf('%d migration(s) reverted.', count($outcome->executed)));
     }
 }
