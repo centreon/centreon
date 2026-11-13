@@ -23,56 +23,6 @@ if (! isset($centreon)) {
     exit();
 }
 
-/**
- * GetUserAclAllowedResources returns allowed resources for the user regarding resource type
- *
- * @param CentreonACL $userAcl
- * @param string $resourceType
- */
-function getUserAclAllowedResources(CentreonACL $userAcl, string $resourceType)
-{
-    return match ($resourceType) {
-        'hosts' => $userAcl->getHostAclConf(null, 'broker'),
-        'servicegroups' => $userAcl->getServiceGroupAclConf(null, 'broker'),
-        'hostgroups' => $userAcl->getHostGroupAclConf(null, 'broker'),
-    };
-}
-
-/**
- * Check resources access regarding selected resources
- *
- * @param CentreonACL $userAcl
- * @param int[] $selectedResources
- * @param string $resourceType
- * @return bool
- **/
-function checkResourcesRelations(CentreonACL $userAcl, array $selectedResources, string $resourceType): bool
-{
-    $allowedResources = getUserAclAllowedResources($userAcl, $resourceType);
-
-    $selectedResourceIds = array_map(
-        static fn (array $resource) => $resource['id'],
-        $selectedResources
-    );
-
-    $diff = array_diff($selectedResourceIds, array_keys($allowedResources));
-
-    if ($diff === []) {
-        return true;
-    }
-
-    foreach ($selectedResources as $resource) {
-        if (
-            in_array($resource['id'], $diff)
-            && $resource['activated'] === '1'
-        ) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 // QuickForm Rules
 function testDowntimeNameExistence($downtimeName = null)
 {
@@ -272,24 +222,10 @@ if ($o == 'w') {
     $form->setDefaults($default_dt);
     $form->freeze();
 } elseif ($o == 'c') {
-    /**
-     * Only search for ACL if the user is not admin
-     */
-    $userId = $centreon->user->user_id;
-    $userIsAdmin = $centreon->user->admin;
-
-    if ($userIsAdmin !== '1') {
-        require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';
-        $userAcl = new CentreonACL($userId, $userIsAdmin);
-
-        if (
-            ! checkResourcesRelations($userAcl, $relations['hosts'], 'hosts')
-            || ! checkResourcesRelations($userAcl, $relations['hostgroups'], 'hostgroups')
-            || ! checkResourcesRelations($userAcl, $relations['servicegroups'], 'servicegroups')
-        ) {
-            $form->addElement('text', 'msgacl', _('error'), 'error');
-            $form->freeze();
-        }
+    // $userAcl is only set for non-admin users, see downtime.php
+    if ($userAcl !== null && ! $downtime->isAllowedForUser((int) $id, $userAcl)) {
+        $form->addElement('text', 'msgacl', _('error'), 'error');
+        $form->freeze();
     }
 
     $subC = $form->addElement(
@@ -389,6 +325,15 @@ if ($form->validate()) {
                 $form->freeze();
                 $valid = true;
             }
+        } elseif (
+            $values['o'] == 'c'
+            && $userAcl !== null
+            && ! $downtime->isAllowedForUser((int) $values['dt_id'], $userAcl)
+        ) {
+            // The frozen form only protects the UI, the update itself must be refused too
+            $valid = false;
+            $form->addElement('text', 'msgacl', _('error'), 'error');
+            $form->freeze();
         } elseif ($values['o'] == 'c') {
             $id = $values['dt_id'];
             $activate = $values['downtime_activate']['downtime_activate'];

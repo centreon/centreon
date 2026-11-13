@@ -16123,6 +16123,14 @@ msgstr ""
 msgid "Some examples:"
 msgstr "Quelques exemples :"
 
+#: centreon/www/include/monitoring/recurrentDowntime/downtime.php
+msgid ""
+"Some recurrent downtimes were not processed because you don't have access "
+"to all of their resources"
+msgstr ""
+"Certaines plages de maintenance récurrentes n'ont pas été traitées car vous "
+"n'avez pas la permission d'accéder à toutes les ressources liées"
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "Sort by"
 msgstr "Trier par"
