@@ -88,7 +88,10 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
                     if (! is_array($data)) {
                         throw new RestBadRequestException('Bad arguments - Invalid result format');
                     }
-                    $this->assertSingleLineValues($data, ['host', 'service', 'output', 'perfdata']);
+                    $this->assertSingleLineValues(
+                        $data,
+                        ['host', 'service', 'status', 'updatetime', 'output', 'perfdata']
+                    );
                 }
                 if ($this->pipeOpened == 0) {
                     $this->openPipe();
