@@ -23,12 +23,10 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application;
 
-interface DbmsVersionValidator
+interface CacheClearerInterface
 {
     /**
-     * Validate that the DBMS version meets the minimum requirements.
-     *
-     * @throws \RuntimeException when the version is unsupported or cannot be retrieved
+     * Clear the application cache.
      */
-    public function validateOrFail(): void;
+    public function clear(): void;
 }

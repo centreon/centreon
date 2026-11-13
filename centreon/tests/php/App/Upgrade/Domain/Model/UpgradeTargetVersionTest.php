@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Upgrade\Domain;
+namespace Tests\App\Upgrade\Domain\Model;
 
-use App\Upgrade\Domain\UpgradeTargetVersion;
+use App\Upgrade\Domain\Model\UpgradeTargetVersion;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

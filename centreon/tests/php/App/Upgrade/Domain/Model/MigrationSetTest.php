@@ -21,28 +21,22 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Upgrade\Domain;
+namespace Tests\App\Upgrade\Domain\Model;
 
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Domain\Model\WebMigrationSetEnum;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class MigrationSetTest extends TestCase
 {
-    public function testTheCoreSetsRunRealtimeFirst(): void
+    public function testTheWebSetsRunRealtimeFirst(): void
     {
         self::assertSame(
-            [MigrationSet::REALTIME, MigrationSet::CONFIGURATION],
-            array_map(static fn (MigrationSet $set): string => $set->name, MigrationSet::coreSets()),
+            ['realtime', 'configuration'],
+            array_map(static fn (MigrationSet $set): string => $set->name, MigrationSet::webSets()),
         );
-        self::assertFalse(MigrationSet::core(MigrationSet::CONFIGURATION)->isModule());
-    }
-
-    public function testRejectsAnUnknownCoreSet(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        MigrationSet::core('module:centreon-open-tickets');
+        self::assertFalse(MigrationSet::web(WebMigrationSetEnum::Configuration)->isModule());
     }
 
     public function testAModuleSetIsNamedAfterItsModule(): void
@@ -69,7 +63,9 @@ final class MigrationSetTest extends TestCase
 
         yield 'trailing dash' => ['centreon-'];
 
-        yield 'too long for its metadata table name' => [str_repeat('a', 37)];
+        yield 'too long for its metadata table name' => [str_repeat('a', 36)];
+
+        yield 'format specifiers' => ['a%s%s'];
     }
 
     #[DataProvider('provideUnsupportedModuleNames')]
@@ -82,35 +78,37 @@ final class MigrationSetTest extends TestCase
         MigrationSet::module($module);
     }
 
-    public function testEachModuleHasItsOwnMetadataTable(): void
-    {
-        self::assertSame('doctrine_migration_versions_centreon_open_tickets', MigrationSet::module('centreon-open-tickets')->table());
-        self::assertSame(64, \mb_strlen(MigrationSet::module(str_repeat('a', 36))->table()), 'MySQL identifiers are limited to 64 characters');
-    }
-
-    public function testTheCoreSetsShareOneMetadataTable(): void
-    {
-        self::assertSame(['doctrine_migration_versions', 'doctrine_migration_versions'], array_map(static fn (MigrationSet $set): string => $set->table(), MigrationSet::coreSets()));
-    }
-
     public function testTheRefusalOfAModuleNameStatesTheWholeRule(): void
     {
         // Made of lowercase letters, digits and dashes, yet refused.
-        $this->expectExceptionMessage('Unsupported module name "3d-maps": lowercase letters and digits, starting with a letter, in words separated by single dashes, at most 36 characters.');
+        $this->expectExceptionMessage('Unsupported module name "3d-maps": lowercase letters and digits, starting with a letter, in words separated by single dashes, at most 35 characters.');
 
         MigrationSet::module('3d-maps');
     }
 
+    public function testTheRefusalQuotesANameWithAPercentSignAsIs(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unsupported module name "foo%": ');
+
+        MigrationSet::module('foo%');
+    }
+
     public function testIsLabelledAfterWhatPeopleChooseItWith(): void
     {
-        // --set=realtime, --module=centreon-open-tickets.
-        self::assertSame('"realtime" migration set', MigrationSet::core(MigrationSet::REALTIME)->label());
+        self::assertSame('"realtime" migration set', MigrationSet::web(WebMigrationSetEnum::Realtime)->label());
         self::assertSame('"centreon-open-tickets" module migration set', MigrationSet::module('centreon-open-tickets')->label());
+    }
+
+    public function testNamesItsUpgradeStepsAfterItself(): void
+    {
+        self::assertSame('migrations:realtime', MigrationSet::web(WebMigrationSetEnum::Realtime)->migrationStep());
+        self::assertSame('migrations_rollback:module:centreon-open-tickets', MigrationSet::module('centreon-open-tickets')->rollbackStep());
     }
 
     public function testAcceptsTheLongestModuleName(): void
     {
-        self::assertTrue(MigrationSet::isModuleName(str_repeat('a', 36)));
+        self::assertTrue(MigrationSet::isModuleName(str_repeat('a', 35)));
         self::assertTrue(MigrationSet::isModuleName('centreon-map4'));
     }
 }

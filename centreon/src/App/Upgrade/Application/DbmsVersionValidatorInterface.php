@@ -23,19 +23,12 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application;
 
-interface UpgradeLogger
+interface DbmsVersionValidatorInterface
 {
-    public function start(string $fromVersion, string $toVersion): void;
-
-    public function success(string $fromVersion, string $toVersion, int $durationMs): void;
-
-    public function failure(?string $fromVersion, ?string $toVersion, string $message, ?\Throwable $exception = null): void;
-
-    public function error(string $version, string $message, ?\Throwable $exception = null): void;
-
-    public function step(string $version, string $stepName, string $message): void;
-
-    public function stepCompleted(string $version, string $stepName, int $durationMs, string $message): void;
-
-    public function stepFailure(string $version, string $stepName, string $message, ?\Throwable $exception = null): void;
+    /**
+     * Validate that the DBMS version meets the minimum requirements.
+     *
+     * @throws \RuntimeException when the version is unsupported or cannot be retrieved
+     */
+    public function validateOrFail(): void;
 }

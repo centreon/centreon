@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application;
 
-interface EngineContextWriter
+interface EngineContextWriterInterface
 {
     /**
      * Write the engine context file if it does not yet contain secrets.

@@ -21,16 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace App\Upgrade\Domain\Model;
 
-/**
- * The migrations of a module run once it is installed: its install.sql, frozen once it ships migrations, would run on a
- * schema they already changed, and its uninstallation dropped their metadata table.
- */
-final class ModuleNotInstalledException extends \RuntimeException
+final readonly class MigrationOutcome
 {
-    public function __construct(string $module)
-    {
-        parent::__construct(\sprintf('The module "%s" is not installed, or does not exist: its migrations can only be run, rolled back or listed once it is installed.', $module));
+    /**
+     * @param list<string> $executed the executed versions, or the reverted ones
+     * @param list<string> $warnings what the operator must know although the run succeeded
+     */
+    public function __construct(
+        public array $executed,
+        public array $warnings = [],
+    ) {
     }
 }
