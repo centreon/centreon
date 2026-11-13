@@ -70,6 +70,7 @@ final readonly class UpdateServiceCommand
         public ActingUser $actor,
         public ?ServiceTemplateId $templateId = null,
         public ?CommandId $checkCommandId = null,
+        #[Sensitive]
         public array $checkCommandArgs = [],
         public ServiceSchedulingOptions $schedulingOptions = new ServiceSchedulingOptions(),
         public ?ServiceNotifications $notifications = null,
