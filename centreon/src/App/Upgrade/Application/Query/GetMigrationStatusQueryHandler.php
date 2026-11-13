@@ -24,79 +24,119 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Query;
 
 use App\Shared\Application\Query\AsQueryHandler;
-use App\Upgrade\Application\MigrationRunner;
-use App\Upgrade\Application\MigrationSetStatus;
-use App\Upgrade\Application\ModuleNotInstalledException;
-use App\Upgrade\Application\TargetVersionRecorder;
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Application\Service\TargetVersionRecorder;
+use App\Upgrade\Domain\Exception\LegacyUpdatesPendingException;
+use App\Upgrade\Domain\Exception\ModuleNotInstalledException;
+use App\Upgrade\Domain\Exception\PlatformVersionUnknownException;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Domain\Model\MigrationSetStatus\MigrationSetStatus;
 use App\Upgrade\Domain\Repository\ModuleRepository;
+use App\Upgrade\Domain\Service\MigrationRunnerInterface;
+use App\Upgrade\Domain\Service\UpgradeLoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsQueryHandler]
 final readonly class GetMigrationStatusQueryHandler
 {
     public function __construct(
-        private MigrationRunner $migrationRunner,
+        private MigrationRunnerInterface $migrationRunner,
         private ModuleRepository $moduleRepository,
         private TargetVersionRecorder $targetVersionRecorder,
+        private UpgradeLoggerInterface $upgradeLogger,
+        #[Autowire(param: 'centreon.version')]
+        private string $platformVersion,
     ) {
     }
 
     /**
-     * @throws ModuleNotInstalledException when the requested set is the one of a module not installed
-     * @throws \Throwable when the requested set cannot be read, reported per set otherwise
+     * A set that cannot be read is reported as such, the requested one included.
      *
-     * @return list<MigrationSetStatus> every set when none is requested, but the modules not installed
+     * @throws ModuleNotInstalledException when the requested set is the one of a module not installed
+     *
+     * @return list<MigrationSetStatus> the requested set, or every set except the uninstalled modules
      */
     public function __invoke(GetMigrationStatusQuery $query): array
     {
         if ($query->set instanceof MigrationSet) {
-            if (! $this->isInstalled($query->set)) {
-                throw new ModuleNotInstalledException((string) $query->set->module);
+            try {
+                $isInstalled = $this->isInstalled($query->set);
+            } catch (\Throwable $exception) {
+                return [$this->unreadable($query->set, $exception)];
             }
 
-            return [$this->status($query->set, $query->set->isModule() ? null : $this->legacyRefusal())];
+            if (! $isInstalled) {
+                $refusal = new ModuleNotInstalledException((string) $query->set->module);
+                $this->upgradeLogger->warning($this->platformVersion, sprintf('Status of the %s refused: %s', $query->set->label(), $refusal->getMessage()));
+
+                throw $refusal;
+            }
+
+            return [$this->status($query->set, $query->set->isModule() ? null : $this->legacyCheck())];
         }
 
-        $legacyRefusal = $this->legacyRefusal();
+        $legacyCheck = $this->legacyCheck();
         $statuses = [];
         foreach ($this->migrationRunner->sets() as $set) {
             try {
-                // Left out without loading their migrations, which run once the module is installed.
+                // Uninstalled modules are skipped before their migration classes are loaded.
                 if (! $this->isInstalled($set)) {
                     continue;
                 }
-
-                $statuses[] = $this->status($set, $legacyRefusal);
             } catch (\Throwable $exception) {
-                // A check of migrate(), a database failure or a broken migration file: the other sets are still worth showing.
-                $statuses[] = new MigrationSetStatus($set, [], [], $exception->getMessage());
+                $statuses[] = $this->unreadable($set, $exception);
+
+                continue;
             }
+
+            $statuses[] = $this->status($set, $set->isModule() ? null : $legacyCheck);
         }
 
         return $statuses;
     }
 
     /**
-     * @param string|null $legacyRefusal why migrate refuses the core sets
+     * @param \Throwable|null $legacyCheck the failure of the legacy version check, for a Centreon Web set
      */
-    private function status(MigrationSet $set, ?string $legacyRefusal): MigrationSetStatus
+    private function status(MigrationSet $set, ?\Throwable $legacyCheck): MigrationSetStatus
     {
-        $status = $this->migrationRunner->status($set);
+        // Only pending legacy scripts are a refusal: any other failure is a broken platform.
+        if ($legacyCheck instanceof \Throwable && ! $legacyCheck instanceof LegacyUpdatesPendingException) {
+            return MigrationSetStatus::unreadable($set, $legacyCheck->getMessage());
+        }
 
-        return $set->isModule() || $legacyRefusal === null
-            ? $status
-            : new MigrationSetStatus($set, $status->executed, $status->pending, $legacyRefusal);
+        try {
+            $status = $this->migrationRunner->status($set);
+        } catch (\Throwable $exception) {
+            return $this->unreadable($set, $exception);
+        }
+
+        return $legacyCheck instanceof LegacyUpdatesPendingException ? MigrationSetStatus::read($set, $status->executed, $status->pending, $legacyCheck->getMessage()) : $status;
+    }
+
+    private function unreadable(MigrationSet $set, \Throwable $exception): MigrationSetStatus
+    {
+        $this->upgradeLogger->error($this->platformVersion, sprintf('Cannot read the status of the %s: %s', $set->label(), $exception->getMessage()), $exception);
+
+        return MigrationSetStatus::unreadable($set, $exception->getMessage());
     }
 
     /**
-     * As migrate(), which refuses the core sets while legacy scripts are pending. A rollback does not.
+     * The failure of the legacy version check, null when it passes.
      */
-    private function legacyRefusal(): ?string
+    private function legacyCheck(): ?\Throwable
     {
         try {
             $this->targetVersionRecorder->legacyVersion();
+        } catch (LegacyUpdatesPendingException $exception) {
+            return $exception;
+        } catch (PlatformVersionUnknownException $exception) {
+            $this->upgradeLogger->warning($this->platformVersion, $exception->getMessage());
+
+            return $exception;
         } catch (\Throwable $exception) {
-            return $exception->getMessage();
+            $this->upgradeLogger->error($this->platformVersion, sprintf('Cannot read the platform version: %s', $exception->getMessage()), $exception);
+
+            return $exception;
         }
 
         return null;

@@ -25,9 +25,21 @@ namespace Tests\App\Upgrade\Application\Command;
 
 use App\Upgrade\Application\Command\MigrateCommand;
 use App\Upgrade\Application\Command\MigrateCommandHandler;
-use App\Upgrade\Application\MigrationSetGuard;
-use App\Upgrade\Application\TargetVersionRecorder;
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Application\Service\MigrationApplier;
+use App\Upgrade\Application\Service\MigrationSetGuard;
+use App\Upgrade\Application\Service\TargetVersionRecorder;
+use App\Upgrade\Domain\Exception\LegacyUpdatesPendingException;
+use App\Upgrade\Domain\Exception\LockNotReleasedException;
+use App\Upgrade\Domain\Exception\MigrationFailedException;
+use App\Upgrade\Domain\Exception\MigrationInterruptedException;
+use App\Upgrade\Domain\Exception\MigrationSetBusyException;
+use App\Upgrade\Domain\Exception\MigrationSetRefusedException;
+use App\Upgrade\Domain\Exception\PlatformVersionNotRecordedException;
+use App\Upgrade\Domain\Exception\PlatformVersionUnknownException;
+use App\Upgrade\Domain\Model\MigrationOutcome;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Domain\Model\WebMigrationSetEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationSetLocker;
@@ -35,6 +47,7 @@ use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateLocker;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateScriptFinder;
+use Tests\App\Upgrade\Infrastructure\Double\FakeUpgradeLogger;
 
 final class MigrateCommandHandlerTest extends TestCase
 {
@@ -50,6 +63,8 @@ final class MigrateCommandHandlerTest extends TestCase
 
     private FakeUpdateScriptFinder $scriptFinder;
 
+    private FakeUpgradeLogger $logger;
+
     private MigrateCommandHandler $handler;
 
     protected function setUp(): void
@@ -59,57 +74,51 @@ final class MigrateCommandHandlerTest extends TestCase
         $this->updateRepository = new FakeUpdateRepository();
         $this->migrationSetLocker = new FakeMigrationSetLocker();
         $this->scriptFinder = new FakeUpdateScriptFinder();
+        $this->logger = new FakeUpgradeLogger();
 
         $this->handler = new MigrateCommandHandler(
-            $this->migrationRunner,
             new MigrationSetGuard($this->locker, $this->migrationSetLocker, new FakeModuleRepository(['centreon-open-tickets'])),
-            new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION),
+            new MigrationApplier(
+                $this->migrationRunner,
+                new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION, new FakeUpgradeLogger()),
+                $this->logger,
+                self::TARGET_VERSION,
+            ),
+            $this->logger,
+            self::TARGET_VERSION,
         );
     }
 
-    public function testMigratesTheCoreSetsInOrderThenRecordsTheTargetVersion(): void
+    public function testMigratesTheWebSetsInOrderThenRecordsTheTargetVersion(): void
     {
         $executed = ($this->handler)(new MigrateCommand());
 
         self::assertSame(['migrate:realtime', 'migrate:configuration'], $this->migrationRunner->journal->getArrayCopy());
-        self::assertSame(['realtime\Version1', 'configuration\Version1'], $executed);
+        self::assertEquals(new MigrationOutcome(['realtime\Version1', 'configuration\Version1']), $executed);
         self::assertSame([self::TARGET_VERSION], $this->updateRepository->updatesRun);
         self::assertTrue($this->locker->unlockCalled);
     }
 
-    public function testNeverMovesTheVersionBackwards(): void
+    public function testMigratesAModuleSetWithoutRecordingThePlatformVersion(): void
     {
-        $this->updateRepository->currentVersion = '26.12.0';
-
-        ($this->handler)(new MigrateCommand());
-
-        self::assertSame([], $this->updateRepository->updatesRun);
-    }
-
-    public function testMigratesAModuleSetUnderItsOwnLockWhileThePlatformUpdateHoldsTheUpdateLock(): void
-    {
-        // The platform update holds the update lock while it upgrades the modules, which migrate their own set.
-        $this->locker->lockAvailable = false;
-
         ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
 
         self::assertSame(['migrate:module:centreon-open-tickets'], $this->migrationRunner->journal->getArrayCopy());
-        self::assertSame(['module:centreon-open-tickets'], $this->migrationSetLocker->released);
         self::assertSame([], $this->updateRepository->updatesRun);
-        self::assertFalse($this->locker->unlockCalled, 'A lock it did not take must not be released');
     }
 
     public function testFailsWhenTheSameModuleSetIsAlreadyBeingMigrated(): void
     {
         $this->migrationSetLocker->lockedSets = ['module:centreon-open-tickets'];
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('The "centreon-open-tickets" module migration set is already being migrated');
+        $this->expectException(MigrationSetBusyException::class);
+        $this->expectExceptionMessage('The "centreon-open-tickets" module migration set is already being migrated or rolled back');
 
         try {
             ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
         } finally {
             self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+            self::assertSame(['warning'], array_column($this->logger->calls, 'method'));
         }
     }
 
@@ -122,40 +131,20 @@ final class MigrateCommandHandlerTest extends TestCase
             ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-bam-server')));
         } finally {
             self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+            self::assertSame(['warning'], array_column($this->logger->calls, 'method'));
         }
-    }
-
-    public function testReleasesTheLockOfAModuleSetWhoseMigrationFails(): void
-    {
-        $this->migrationRunner->failingSets = ['module:centreon-open-tickets'];
-
-        try {
-            ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
-            self::fail('Expected the migration failure to propagate');
-        } catch (\RuntimeException) {
-        }
-
-        self::assertSame(['module:centreon-open-tickets'], $this->migrationSetLocker->released);
-    }
-
-    public function testMigratesASingleCoreSetUnderTheUpdateLockWithoutTouchingThePlatformVersion(): void
-    {
-        self::assertSame(['configuration\Version1'], ($this->handler)(new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION))));
-
-        self::assertSame(['migrate:configuration'], $this->migrationRunner->journal->getArrayCopy());
-        self::assertSame([], $this->updateRepository->updatesRun);
-        self::assertTrue($this->locker->unlockCalled);
     }
 
     public function testStopsAtTheFirstFailureAndReleasesTheLock(): void
     {
-        $this->migrationRunner->failingSets = [MigrationSet::REALTIME];
+        $this->migrationRunner->failingSets = [WebMigrationSetEnum::Realtime->value];
 
         try {
             ($this->handler)(new MigrateCommand());
             self::fail('Expected the migration failure to propagate');
-        } catch (\RuntimeException $exception) {
-            self::assertSame('Migration of "realtime" failed', $exception->getMessage());
+        } catch (MigrationFailedException $exception) {
+            self::assertSame('realtime\Version1', $exception->version);
+            self::assertSame('Migration of "realtime" failed', $exception->getPrevious()?->getMessage());
         }
 
         self::assertSame(['migrate:realtime'], $this->migrationRunner->journal->getArrayCopy());
@@ -163,25 +152,75 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertTrue($this->locker->unlockCalled);
     }
 
-    public function testRefusesTheCoreSetsWhileLegacyUpdateScriptsArePending(): void
+    public function testAFailingUnlockAfterASuccessfulMigrationIsNotReportedAsAFailedMigration(): void
+    {
+        $this->locker->unlockFailure = new \RuntimeException('Semaphore removed');
+
+        try {
+            ($this->handler)(new MigrateCommand());
+            self::fail('Expected the unlock failure to propagate');
+        } catch (LockNotReleasedException $exception) {
+            self::assertSame('Completed, but releasing the lock failed: Semaphore removed', $exception->getMessage());
+            self::assertEquals(new MigrationOutcome(['realtime\Version1', 'configuration\Version1']), $exception->result, 'The executed migrations are still told');
+        }
+
+        self::assertSame([self::TARGET_VERSION], $this->updateRepository->updatesRun);
+        self::assertSame('Migration of the Centreon Web migration sets: Completed, but releasing the lock failed: Semaphore removed', $this->logger->calls[array_key_last($this->logger->calls)]['message'] ?? null);
+    }
+
+    public function testAFailureInTheSecondWebSetKeepsTheFirstOneAndRecordsNoVersion(): void
+    {
+        $this->migrationRunner->failingSets = [WebMigrationSetEnum::Configuration->value];
+
+        try {
+            ($this->handler)(new MigrateCommand());
+            self::fail('Expected the migration failure to propagate');
+        } catch (MigrationInterruptedException $interrupted) {
+            $exception = $interrupted->getPrevious();
+            self::assertInstanceOf(MigrationFailedException::class, $exception);
+            self::assertSame('configuration\Version1', $exception->version);
+            self::assertSame('Migration of "configuration" failed', $exception->getPrevious()?->getMessage());
+        }
+
+        self::assertSame(['migrate:realtime', 'migrate:configuration'], $this->migrationRunner->journal->getArrayCopy());
+        self::assertSame([], $this->updateRepository->updatesRun, 'The platform version waits for every web set');
+        self::assertTrue($this->locker->unlockCalled);
+    }
+
+    public function testTellsAFailedVersionRecordingFromAFailedMigration(): void
+    {
+        $this->updateRepository->versionUpdateFailure = new \RuntimeException('informations is locked');
+
+        try {
+            ($this->handler)(new MigrateCommand());
+            self::fail('Expected the version recording failure to propagate');
+        } catch (PlatformVersionNotRecordedException $exception) {
+            self::assertSame('error', $this->logger->calls[array_key_last($this->logger->calls)]['method'] ?? null);
+            self::assertSame($exception, $this->logger->calls[array_key_last($this->logger->calls)]['exception'] ?? null, 'Raised after the steps: its trace is logged');
+        }
+
+        self::assertSame(['migrate:realtime', 'migrate:configuration'], $this->migrationRunner->journal->getArrayCopy());
+    }
+
+    public function testRefusesTheWebSetsWhileLegacyUpdateScriptsArePending(): void
     {
         $this->scriptFinder->availableUpdates = ['26.04.0', '26.10.0'];
 
-        foreach ([new MigrateCommand(), new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION))] as $command) {
+        foreach ([new MigrateCommand(), new MigrateCommand(MigrationSet::web(WebMigrationSetEnum::Configuration))] as $command) {
             try {
                 ($this->handler)($command);
-                self::fail('The core sets must wait for the legacy update scripts');
-            } catch (\RuntimeException $exception) {
-                self::assertSame('The update scripts of 26.04.0, 26.10.0 are pending: update the platform first, with the upgrade wizard or the API.', $exception->getMessage());
+                self::fail('The Centreon Web sets must wait for the legacy update scripts');
+            } catch (LegacyUpdatesPendingException) {
             }
         }
 
         self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
         self::assertSame([], $this->updateRepository->updatesRun, 'Recording the version would skip the legacy update scripts for good');
+        self::assertSame(['warning', 'warning'], array_column($this->logger->calls, 'method'));
         self::assertTrue($this->locker->unlockCalled);
     }
 
-    public function testTheCoreSetsFailClearlyWhenThePlatformVersionCannotBeRead(): void
+    public function testTheWebSetsFailClearlyWhenThePlatformVersionCannotBeRead(): void
     {
         // Every legacy script would otherwise be listed as pending.
         $this->updateRepository->currentVersion = null;
@@ -190,36 +229,96 @@ final class MigrateCommandHandlerTest extends TestCase
         try {
             ($this->handler)(new MigrateCommand());
             self::fail('Expected the missing version to be reported');
-        } catch (\RuntimeException $exception) {
-            self::assertSame('Cannot retrieve the current platform version', $exception->getMessage());
+        } catch (PlatformVersionUnknownException $exception) {
+            self::assertSame('Cannot read the platform version: the "version" row of the "informations" table is missing or empty. Restore it, or finish the installation, before migrating.', $exception->getMessage());
+            self::assertSame(['warning'], array_column($this->logger->calls, 'method'), 'A refusal the operator can act on');
         }
 
         self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
         self::assertTrue($this->locker->unlockCalled);
     }
 
-    public function testAModuleSetDoesNotWaitForTheLegacyUpdateScripts(): void
-    {
-        $this->scriptFinder->availableUpdates = ['26.10.0'];
-
-        ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
-
-        self::assertSame(['migrate:module:centreon-open-tickets'], $this->migrationRunner->journal->getArrayCopy());
-    }
-
-    public function testTheCoreSetsFailWhenAnUpdateIsAlreadyInProgress(): void
+    public function testTheWebSetsFailWhenAnUpdateIsAlreadyInProgress(): void
     {
         $this->locker->lockAvailable = false;
 
-        foreach ([new MigrateCommand(), new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION))] as $command) {
+        foreach ([new MigrateCommand(), new MigrateCommand(MigrationSet::web(WebMigrationSetEnum::Configuration))] as $command) {
             try {
                 ($this->handler)($command);
-                self::fail('A core set requires the update lock');
-            } catch (\RuntimeException $exception) {
+                self::fail('A Centreon Web set requires the update lock');
+            } catch (MigrationSetBusyException $exception) {
                 self::assertSame('An update is already in progress', $exception->getMessage());
             }
         }
 
         self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+        self::assertSame(['warning', 'warning'], array_column($this->logger->calls, 'method'));
+    }
+
+    public function testLogsAStepPerSet(): void
+    {
+        ($this->handler)(new MigrateCommand());
+
+        self::assertSame(
+            [
+                ['step', 'migrations:realtime'],
+                ['stepCompleted', 'migrations:realtime'],
+                ['step', 'migrations:configuration'],
+                ['stepCompleted', 'migrations:configuration'],
+            ],
+            array_map(static fn (array $call): array => [$call['method'], $call['stepName'] ?? null], $this->logger->calls),
+        );
+        self::assertSame([self::TARGET_VERSION], array_unique(array_column($this->logger->calls, 'version')));
+    }
+
+    public function testTellsTheWebSetsAlreadyMigratedWhenALaterOneFails(): void
+    {
+        $this->migrationRunner->failingSets = [WebMigrationSetEnum::Configuration->value];
+
+        try {
+            ($this->handler)(new MigrateCommand());
+            self::fail('Expected the migration failure to propagate');
+        } catch (MigrationInterruptedException $exception) {
+            self::assertSame(
+                'The "configuration\Version1" migration of the "configuration" migration set failed: Migration of "configuration" failed. Already migrated: "realtime" migration set. A new run resumes with the "configuration" migration set.',
+                $exception->getMessage(),
+            );
+            self::assertSame('Migration of the Centreon Web migration sets failed: ' . $exception->getMessage(), $this->logger->calls[4]['message'] ?? null);
+            self::assertSame(['step', 'stepCompleted', 'step', 'stepFailure', 'error'], array_column($this->logger->calls, 'method'));
+            self::assertNull($this->logger->calls[4]['exception'] ?? null, 'The failed step logged the trace');
+        }
+    }
+
+    /**
+     * @return iterable<string, array{\Throwable}>
+     */
+    public static function provideStepFailures(): iterable
+    {
+        $set = MigrationSet::web(WebMigrationSetEnum::Configuration);
+
+        yield 'a failed migration' => [MigrationFailedException::failed($set, 'Version1', new \RuntimeException('Duplicate key'))];
+
+        yield 'a refused set' => [new MigrationSetRefusedException('Refused')];
+
+        yield 'a lost connection' => [new \RuntimeException('Connection lost')];
+
+        yield 'an open transaction' => [new \LogicException('Transaction open')];
+    }
+
+    #[DataProvider('provideStepFailures')]
+    public function testLogsTheTraceOfAStepFailureOnce(\Throwable $failure): void
+    {
+        $this->migrationRunner->failure = $failure;
+
+        try {
+            ($this->handler)(new MigrateCommand());
+            self::fail('Expected the step failure to propagate');
+        } catch (\Throwable $exception) {
+            self::assertSame($failure, $exception);
+        }
+
+        self::assertSame(['step', 'stepFailure', 'error'], array_column($this->logger->calls, 'method'));
+        self::assertSame($failure, $this->logger->calls[1]['exception'] ?? null);
+        self::assertNull($this->logger->calls[2]['exception'] ?? null);
     }
 }

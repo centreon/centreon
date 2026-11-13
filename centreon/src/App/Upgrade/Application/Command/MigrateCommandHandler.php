@@ -24,56 +24,80 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\AsCommandHandler;
-use App\Upgrade\Application\MigrationRunner;
-use App\Upgrade\Application\MigrationSetGuard;
-use App\Upgrade\Application\ModuleNotInstalledException;
-use App\Upgrade\Application\TargetVersionRecorder;
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Application\Service\MigrationApplier;
+use App\Upgrade\Application\Service\MigrationSetGuard;
+use App\Upgrade\Domain\Exception\LegacyUpdatesPendingException;
+use App\Upgrade\Domain\Exception\LockNotReleasedException;
+use App\Upgrade\Domain\Exception\MigrationFailedException;
+use App\Upgrade\Domain\Exception\MigrationInterruptedException;
+use App\Upgrade\Domain\Exception\MigrationSetBusyException;
+use App\Upgrade\Domain\Exception\MigrationSetRefusedException;
+use App\Upgrade\Domain\Exception\ModuleNotInstalledException;
+use App\Upgrade\Domain\Exception\PlatformVersionNotRecordedException;
+use App\Upgrade\Domain\Exception\PlatformVersionUnknownException;
+use App\Upgrade\Domain\Model\MigrationOutcome;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Domain\Service\UpgradeLoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommandHandler]
 final readonly class MigrateCommandHandler
 {
     public function __construct(
-        private MigrationRunner $migrationRunner,
         private MigrationSetGuard $migrationSetGuard,
-        private TargetVersionRecorder $targetVersionRecorder,
+        private MigrationApplier $migrationApplier,
+        private UpgradeLoggerInterface $upgradeLogger,
+        #[Autowire(param: 'centreon.version')]
+        private string $platformVersion,
     ) {
     }
 
     /**
      * @throws ModuleNotInstalledException
-     * @throws \RuntimeException when another update, or another migration of the same module set, is in progress, or
-     *                           when legacy update scripts must run before the core sets
-     *
-     * @return list<string> the executed versions
+     * @throws MigrationSetBusyException
+     * @throws LockNotReleasedException
+     * @throws LegacyUpdatesPendingException
+     * @throws MigrationSetRefusedException
+     * @throws MigrationFailedException
+     * @throws MigrationInterruptedException
+     * @throws PlatformVersionNotRecordedException
+     * @throws PlatformVersionUnknownException
+     * @throws \LogicException
      */
-    public function __invoke(MigrateCommand $command): array
+    public function __invoke(MigrateCommand $command): MigrationOutcome
     {
         $set = $command->set;
 
-        return $this->migrationSetGuard->run($set, fn (): array => $set?->isModule() === true ? $this->migrationRunner->migrate($set) : $this->migrateCore($set));
+        try {
+            return $this->migrationSetGuard->run(
+                $set,
+                fn (): MigrationOutcome => $set instanceof MigrationSet ? $this->migrationApplier->applySet($set) : $this->migrationApplier->applyWebSets(),
+            );
+        } catch (\Throwable $exception) {
+            if ($exception instanceof ModuleNotInstalledException || $exception instanceof MigrationSetBusyException || $exception instanceof LegacyUpdatesPendingException || $exception instanceof PlatformVersionUnknownException) {
+                $this->upgradeLogger->warning($this->platformVersion, sprintf('Migration of the %s refused: %s', $this->label($set), $exception->getMessage()));
+
+                throw $exception;
+            }
+
+            if ($exception instanceof LockNotReleasedException) {
+                $this->upgradeLogger->error($this->platformVersion, sprintf('Migration of the %s: %s', $this->label($set), $exception->getMessage()), $exception);
+
+                throw $exception;
+            }
+
+            $this->upgradeLogger->error(
+                $this->platformVersion,
+                sprintf('Migration of the %s failed: %s', $this->label($set), $exception->getMessage()),
+                $this->migrationApplier->hasLogged($exception) ? null : $exception,
+            );
+
+            throw $exception;
+        }
     }
 
-    /**
-     * @param MigrationSet|null $set null for all the core sets, then record the target version
-     *
-     * @return list<string>
-     */
-    private function migrateCore(?MigrationSet $set): array
+    private function label(?MigrationSet $set): string
     {
-        $legacyVersion = $this->targetVersionRecorder->legacyVersion();
-
-        if ($set instanceof MigrationSet) {
-            return $this->migrationRunner->migrate($set);
-        }
-
-        $executed = [];
-        foreach (MigrationSet::coreSets() as $coreSet) {
-            $executed = [...$executed, ...$this->migrationRunner->migrate($coreSet)];
-        }
-
-        $this->targetVersionRecorder->record($legacyVersion);
-
-        return $executed;
+        return $set?->label() ?? 'Centreon Web migration sets';
     }
 }

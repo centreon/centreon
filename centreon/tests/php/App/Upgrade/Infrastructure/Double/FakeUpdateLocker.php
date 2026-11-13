@@ -23,21 +23,30 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Double;
 
-use App\Upgrade\Application\UpdateLocker;
+use App\Upgrade\Domain\Service\UpdateLockerInterface;
 
-final class FakeUpdateLocker implements UpdateLocker
+final class FakeUpdateLocker implements UpdateLockerInterface
 {
     public bool $lockAvailable = true;
 
+    public bool $lockCalled = false;
+
     public bool $unlockCalled = false;
+
+    public ?\Throwable $unlockFailure = null;
 
     public function lock(): bool
     {
+        $this->lockCalled = true;
+
         return $this->lockAvailable;
     }
 
     public function unlock(): void
     {
         $this->unlockCalled = true;
+        if ($this->unlockFailure instanceof \Throwable) {
+            throw $this->unlockFailure;
+        }
     }
 }

@@ -27,6 +27,10 @@ use App\Upgrade\Domain\Repository\ModuleRepository;
 
 final class FakeModuleRepository implements ModuleRepository
 {
+    public int $updates = 0;
+
+    public ?\Throwable $failure = null;
+
     /**
      * @param list<string> $installedModules
      */
@@ -37,10 +41,15 @@ final class FakeModuleRepository implements ModuleRepository
 
     public function updateAll(): void
     {
+        ++$this->updates;
     }
 
     public function isInstalled(string $module): bool
     {
-        return \in_array($module, $this->installedModules, true);
+        if ($this->failure instanceof \Throwable) {
+            throw $this->failure;
+        }
+
+        return in_array($module, $this->installedModules, true);
     }
 }

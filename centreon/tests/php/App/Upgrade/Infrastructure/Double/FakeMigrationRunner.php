@@ -23,17 +23,31 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Double;
 
-use App\Upgrade\Application\MigrationRunner;
-use App\Upgrade\Application\MigrationSetStatus;
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Exception\MigrationFailedException;
+use App\Upgrade\Domain\Model\MigrationOutcome;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Domain\Model\MigrationSetStatus\MigrationSetStatus;
+use App\Upgrade\Domain\Service\MigrationRunnerInterface;
 
-final class FakeMigrationRunner implements MigrationRunner
+final class FakeMigrationRunner implements MigrationRunnerInterface
 {
-    /** @var list<string> names of the sets whose migration, rollback or status fails */
+    /** @var list<string> names of the sets whose migration, rollback plan, rollback or status fails */
     public array $failingSets = [];
 
     /** @var list<MigrationSet> */
     public array $sets = [];
+
+    /** Thrown by every migrate() and rollback() call, when set. */
+    public ?\Throwable $failure = null;
+
+    /** @var array<string, list<string>> what the migrations of each set warn of, by set name */
+    public array $warnings = [];
+
+    /** Thrown by every planRollback() call, when set. */
+    public ?\Throwable $planFailure = null;
+
+    /** @var list<list<string>> the expected migrations each rollback was given */
+    public array $confirmedPlans = [];
 
     /** @var list<MigrationSet> the sets whose status was computed */
     public array $statusRequests = [];
@@ -46,38 +60,59 @@ final class FakeMigrationRunner implements MigrationRunner
     ) {
     }
 
-    public function migrate(MigrationSet $set): array
+    public function migrate(MigrationSet $set): MigrationOutcome
     {
         $this->journal[] = 'migrate:' . $set->name;
+        if ($this->failure instanceof \Throwable) {
+            throw $this->failure;
+        }
 
-        if (\in_array($set->name, $this->failingSets, true)) {
-            throw new \RuntimeException(\sprintf('Migration of "%s" failed', $set->name));
+        if (in_array($set->name, $this->failingSets, true)) {
+            throw MigrationFailedException::failed($set, $set->name . '\\Version1', new \RuntimeException(sprintf('Migration of "%s" failed', $set->name)));
+        }
+
+        return new MigrationOutcome([$set->name . '\Version1'], $this->warnings[$set->name] ?? []);
+    }
+
+    public function planRollback(MigrationSet $set, string $versionOrAlias): array
+    {
+        $this->journal[] = 'plan-rollback:' . $set->name . ':' . $versionOrAlias;
+        if ($this->planFailure instanceof \Throwable) {
+            throw $this->planFailure;
+        }
+
+        if (in_array($set->name, $this->failingSets, true)) {
+            throw new \RuntimeException(sprintf('Rollback plan of "%s" failed', $set->name));
         }
 
         return [$set->name . '\Version1'];
     }
 
-    public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false, ?array $expected = null): array
+    public function rollback(MigrationSet $set, string $versionOrAlias, array $expected): MigrationOutcome
     {
-        $this->journal[] = ($dryRun ? 'rollback-dry-run:' : 'rollback:') . $set->name . ':' . $versionOrAlias;
-
-        if (\in_array($set->name, $this->failingSets, true)) {
-            throw new \RuntimeException(\sprintf('Rollback of "%s" failed', $set->name));
+        $this->journal[] = 'rollback:' . $set->name . ':' . $versionOrAlias;
+        $this->confirmedPlans[] = $expected;
+        if ($this->failure instanceof \Throwable) {
+            throw $this->failure;
         }
 
-        return [$set->name . '\Version1'];
+        if (in_array($set->name, $this->failingSets, true)) {
+            throw MigrationFailedException::failed($set, $set->name . '\\Version1', new \RuntimeException(sprintf('Rollback of "%s" failed', $set->name)));
+        }
+
+        return new MigrationOutcome([$set->name . '\Version1'], $this->warnings[$set->name] ?? []);
     }
 
     public function status(MigrationSet $set): MigrationSetStatus
     {
         $this->statusRequests[] = $set;
 
-        if (\in_array($set->name, $this->failingSets, true)) {
+        if (in_array($set->name, $this->failingSets, true)) {
             // As a migration file that does not parse, which is not even an Exception.
-            throw new \ParseError(\sprintf('Status of "%s" failed', $set->name));
+            throw new \ParseError(sprintf('Status of "%s" failed', $set->name));
         }
 
-        return new MigrationSetStatus($set, [], [$set->name . '\Version1']);
+        return MigrationSetStatus::read($set, [], [$set->name . '\Version1']);
     }
 
     public function sets(): array

@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application\Query;
 
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Model\MigrationSet;
 
 final readonly class GetMigrationStatusQuery
 {
     /**
-     * @param MigrationSet|null $set null to get the status of every known set
+     * @param MigrationSet|null $set null for every set except the modules not installed
      */
     public function __construct(
         public ?MigrationSet $set = null,

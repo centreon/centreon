@@ -23,24 +23,44 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Double;
 
-use App\Upgrade\Application\MigrationSetLocker;
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Domain\Service\MigrationSetLockerInterface;
 
-final class FakeMigrationSetLocker implements MigrationSetLocker
+final class FakeMigrationSetLocker implements MigrationSetLockerInterface
 {
     /** @var list<string> names of the sets already being migrated elsewhere */
     public array $lockedSets = [];
 
     /** @var list<string> */
+    public array $acquired = [];
+
+    /** @var list<string> */
     public array $released = [];
+
+    public ?\Throwable $lockFailure = null;
+
+    public ?\Throwable $unlockFailure = null;
 
     public function lock(MigrationSet $set): bool
     {
-        return ! \in_array($set->name, $this->lockedSets, true);
+        if ($this->lockFailure instanceof \Throwable) {
+            throw $this->lockFailure;
+        }
+
+        if (in_array($set->name, $this->lockedSets, true)) {
+            return false;
+        }
+
+        $this->acquired[] = $set->name;
+
+        return true;
     }
 
     public function unlock(MigrationSet $set): void
     {
         $this->released[] = $set->name;
+        if ($this->unlockFailure instanceof \Throwable) {
+            throw $this->unlockFailure;
+        }
     }
 }

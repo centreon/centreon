@@ -24,20 +24,18 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\NonTransactionalCommand;
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Model\MigrationSet;
 
 final readonly class RollbackMigrationCommand implements NonTransactionalCommand
 {
     /**
      * @param string $version the version to roll back to (kept applied), or an alias such as "prev"
-     * @param bool $dryRun true to only tell which migrations would be reverted
-     * @param list<string>|null $expected the migrations to revert, as a dry run listed them to be confirmed
+     * @param list<string> $expected the migrations to revert, as GetRollbackPlanQuery listed them to be confirmed
      */
     public function __construct(
         public MigrationSet $set,
         public string $version,
-        public bool $dryRun = false,
-        public ?array $expected = null,
+        public array $expected,
     ) {
     }
 }

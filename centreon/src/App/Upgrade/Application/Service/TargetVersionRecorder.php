@@ -21,15 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace App\Upgrade\Application\Service;
 
+use App\Upgrade\Domain\Exception\LegacyUpdatesPendingException;
+use App\Upgrade\Domain\Exception\PlatformVersionUnknownException;
+use App\Upgrade\Domain\Model\UpgradeTargetVersion;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
-use App\Upgrade\Domain\UpgradeTargetVersion;
+use App\Upgrade\Domain\Service\UpgradeLoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * The version the platform reaches once its legacy scripts and its core migration sets ran.
+ * Reads the legacy version and records the target one once the Centreon Web migration sets ran.
  */
 final readonly class TargetVersionRecorder
 {
@@ -38,13 +41,15 @@ final readonly class TargetVersionRecorder
         private UpdateScriptFinder $updateScriptFinder,
         #[Autowire(param: 'centreon.version')]
         private string $platformVersion,
+        private UpgradeLoggerInterface $upgradeLogger,
     ) {
     }
 
     /**
-     * The core migrations expect the schema of the legacy scripts, and recording the platform version would skip them.
+     * Refused while legacy scripts are pending: the Centreon Web migrations expect their schema.
      *
-     * @throws \RuntimeException when the platform version cannot be read, or legacy scripts are pending
+     * @throws LegacyUpdatesPendingException
+     * @throws PlatformVersionUnknownException
      *
      * @return string the version the legacy scripts reached
      */
@@ -52,15 +57,12 @@ final readonly class TargetVersionRecorder
     {
         $legacyVersion = $this->updateRepository->findCurrentVersion();
         if ($legacyVersion === null || trim($legacyVersion) === '') {
-            throw new \RuntimeException('Cannot retrieve the current platform version');
+            throw new PlatformVersionUnknownException();
         }
 
         $pending = $this->updateScriptFinder->findOrderedAvailableUpdates($legacyVersion);
         if ($pending !== []) {
-            throw new \RuntimeException(\sprintf(
-                'The update scripts of %s are pending: update the platform first, with the upgrade wizard or the API.',
-                implode(', ', $pending),
-            ));
+            throw new LegacyUpdatesPendingException(array_values($pending));
         }
 
         return $legacyVersion;
@@ -71,7 +73,7 @@ final readonly class TargetVersionRecorder
      */
     public function resolve(string $legacyVersion): string
     {
-        // Removed by the update which recorded it: Update-next.php, which must hold the version back, can no longer be seen.
+        // Without the install directory, a pending Update-next.php cannot be detected: keep the legacy version.
         if (! $this->updateRepository->installDirectoryExists()) {
             return $legacyVersion;
         }
@@ -80,15 +82,31 @@ final readonly class TargetVersionRecorder
     }
 
     /**
-     * Once the core migration sets ran.
+     * Call once the Centreon Web migration sets ran.
      *
-     * @param string $legacyVersion the version reached by the legacy scripts, which recorded it
+     * @param string $legacyVersion the version the legacy scripts reached and already recorded
+     *
+     * @return string|null the warning logged when www/install is gone and the version is kept behind the installed code
      */
-    public function record(string $legacyVersion): void
+    public function record(string $legacyVersion): ?string
     {
+        if (! $this->updateRepository->installDirectoryExists()) {
+            if (! version_compare($this->platformVersion, $legacyVersion, '>')) {
+                return null;
+            }
+
+            $warning = sprintf('Kept the platform version %s: without the install directory, a pending Update-next.php cannot be detected.', $legacyVersion);
+            $this->upgradeLogger->warning($this->platformVersion, $warning);
+
+            return $warning;
+        }
+
         $targetVersion = $this->resolve($legacyVersion);
         if ($targetVersion !== $legacyVersion) {
             $this->updateRepository->updateVersionInformation($targetVersion);
+            $this->upgradeLogger->info($targetVersion, sprintf('Recorded the platform version %s, previously %s', $targetVersion, $legacyVersion));
         }
+
+        return null;
     }
 }

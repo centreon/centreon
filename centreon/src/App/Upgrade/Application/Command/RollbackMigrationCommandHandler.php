@@ -24,27 +24,74 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\AsCommandHandler;
-use App\Upgrade\Application\MigrationRunner;
-use App\Upgrade\Application\MigrationSetGuard;
-use App\Upgrade\Application\ModuleNotInstalledException;
+use App\Upgrade\Application\Service\MigrationApplier;
+use App\Upgrade\Application\Service\MigrationSetGuard;
+use App\Upgrade\Domain\Exception\LockNotReleasedException;
+use App\Upgrade\Domain\Exception\MigrationFailedException;
+use App\Upgrade\Domain\Exception\MigrationSetBusyException;
+use App\Upgrade\Domain\Exception\MigrationSetRefusedException;
+use App\Upgrade\Domain\Exception\ModuleNotInstalledException;
+use App\Upgrade\Domain\Exception\RollbackPlanChangedException;
+use App\Upgrade\Domain\Exception\RollbackTargetNotFoundException;
+use App\Upgrade\Domain\Model\MigrationOutcome;
+use App\Upgrade\Domain\Service\UpgradeLoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommandHandler]
 final readonly class RollbackMigrationCommandHandler
 {
     public function __construct(
-        private MigrationRunner $migrationRunner,
         private MigrationSetGuard $migrationSetGuard,
+        private MigrationApplier $migrationApplier,
+        private UpgradeLoggerInterface $upgradeLogger,
+        #[Autowire(param: 'centreon.version')]
+        private string $platformVersion,
     ) {
     }
 
     /**
      * @throws ModuleNotInstalledException
-     * @throws \RuntimeException when another update, or another migration of the same module set, is in progress
+     * @throws MigrationSetBusyException
+     * @throws LockNotReleasedException
+     * @throws MigrationSetRefusedException
+     * @throws RollbackPlanChangedException
+     * @throws MigrationFailedException
+     * @throws RollbackTargetNotFoundException
+     * @throws \LogicException
      *
-     * @return list<string> the reverted versions
+     * @return MigrationOutcome the reverted versions, and the warnings of their migrations
      */
-    public function __invoke(RollbackMigrationCommand $command): array
+    public function __invoke(RollbackMigrationCommand $command): MigrationOutcome
     {
-        return $this->migrationSetGuard->run($command->set, fn (): array => $this->migrationRunner->rollback($command->set, $command->version, $command->dryRun, $command->expected));
+        $set = $command->set;
+
+        try {
+            return $this->migrationSetGuard->run($set, fn (): MigrationOutcome => $this->migrationApplier->revertSet($set, $command->version, $command->expected));
+        } catch (\Throwable $exception) {
+            if (
+                $exception instanceof ModuleNotInstalledException
+                || $exception instanceof MigrationSetBusyException
+                || $exception instanceof RollbackTargetNotFoundException
+                || $exception instanceof RollbackPlanChangedException
+            ) {
+                $this->upgradeLogger->warning($this->platformVersion, sprintf('Rollback of the %s refused: %s', $set->label(), $exception->getMessage()));
+
+                throw $exception;
+            }
+
+            if ($exception instanceof LockNotReleasedException) {
+                $this->upgradeLogger->error($this->platformVersion, sprintf('Rollback of the %s: %s', $set->label(), $exception->getMessage()), $exception);
+
+                throw $exception;
+            }
+
+            $this->upgradeLogger->error(
+                $this->platformVersion,
+                sprintf('Rollback of the %s failed: %s', $set->label(), $exception->getMessage()),
+                $this->migrationApplier->hasLogged($exception) ? null : $exception,
+            );
+
+            throw $exception;
+        }
     }
 }
