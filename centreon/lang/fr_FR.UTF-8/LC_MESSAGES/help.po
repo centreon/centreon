@@ -4,19 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
-msgstr ""
-"Project-Id-Version: Centreon web\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-09-17 09:59+0000\n"
-"Last-Translator: Weblate user 4 <user-4@users.noreply.weblate.prod.centreon.io>\n"
-"Language-Team: French <https://weblate.prod.centreon.io/projects/centreon-infra-monitoring/26-10/web-help-26-10/fr/>\n"
-"Language: fr_FR\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 2026.8.1\n"
+msgstr "Project-Id-Version: Centreon web\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2025-01-01 00:00+0000\nPO-Revision-Date: 2026-10-27 17:12+0000\nLast-Translator: Anonymous <noreply@weblate.org>\nLanguage-Team: French <https://weblate.prod.centreon.io/projects/centreon-infra-monitoring/26-10/web-help-26-10/fr/>\nLanguage: fr_FR\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Generator: Weblate 2026.10.1\n"
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid "A host or host template inherits properties from its templates, unless the properties are defined directly on the host or host template itself. A host or host template can inherit from multiple templates. The properties of the first template in the list prevail over the properties of the second one, and so on."
@@ -1239,9 +1227,7 @@ msgstr "Il est possible de définir un service spécifique pour la source de don
 msgid ""
 "It should be enabled to control whether or not Centreon Broker\n"
 " should insert performance data in the data_bin table."
-msgstr ""
-"Doit être activé pour que le module Centreon Broker insère les données\n"
-" de performance en base de données dans la table \"data_bin\"."
+msgstr "Doit être activé pour que le module Centreon Broker insère les données\n de performance en base de données dans la table \"data_bin\"."
 
 #: centreon/www/include/Administration/parameters/knowledgeBase/help.php
 msgid "Knowledge wiki url. Exemple: http://wiki/mywiki"
@@ -2566,10 +2552,7 @@ msgid ""
 "This option can be used to avoid search performance issues in Resource status, when dealing with large amounts of data.\n"
 "Limited search: Free text search will be performed only on the following fields: host name, alias and address, and service description. Use if you have a large amount of data.\n"
 "Full search: Free text search will also be performed on the \"information\" field. This is appropriate only if you have a small amount of data, as it affects performance."
-msgstr ""
-"Cette option peut être utilisée pour éviter les problèmes de performance de recherche dans la page Statut des ressources, lors de la gestion de grandes quantités de données.\n"
-"Recherche limitée : la recherche texte libre sera effectuée uniquement sur les champs suivants : nom d'hôte, alias et adresse, et description du service. À utiliser si vous avez une grande quantité de données.\n"
-"Recherche complète : la recherche texte libre sera également effectuée sur le champ \"Informations\". Ceci est approprié uniquement si vous avez une petite quantité de données, car cela affecte les performances."
+msgstr "Cette option peut être utilisée pour éviter les problèmes de performance de recherche dans la page Statut des ressources, lors de la gestion de grandes quantités de données.\nRecherche limitée : la recherche texte libre sera effectuée uniquement sur les champs suivants : nom d'hôte, alias et adresse, et description du service. À utiliser si vous avez une grande quantité de données.\nRecherche complète : la recherche texte libre sera également effectuée sur le champ \"Informations\". Ceci est approprié uniquement si vous avez une petite quantité de données, car cela affecte les performances."
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid "This option controls what (if any) data gets sent to the event broker and, in turn, to any loaded event broker module. Centreon relies heavily on the broker and needs this value to be set as -1."
@@ -4156,9 +4139,7 @@ msgstr "Si l'authentification SSO est activée ou non."
 
 #: unknown
 msgid "Whether or not Broker should create entries in the index_data table. This process should be done by Centreon and this option should only be enabled by advanced users knowing what they\\'re doing"
-msgstr ""
-"Permet d'activer ou non l'insertion des données dans la table \"index_data\".\n"
-" Ce processus est normalement réalisé par Centreon et la modification de cette option doit être réalisée en connaissance de cause."
+msgstr "Permet d'activer ou non l'insertion des données dans la table \"index_data\".\n Ce processus est normalement réalisé par Centreon et la modification de cette option doit être réalisée en connaissance de cause."
 
 #: unknown
 msgid "Whether this host group is enabled."
