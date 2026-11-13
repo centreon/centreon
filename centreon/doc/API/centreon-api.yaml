@@ -15017,7 +15017,7 @@ components:
         - host_id
       properties:
         name:
-          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          pattern: '^(((?![~!$%^&*"|''<>?,()=]).)*)$'
           maxLength: 200
           description: 'Trimmed, and its inner runs of spaces collapsed into one, before it is stored.'
           type: string

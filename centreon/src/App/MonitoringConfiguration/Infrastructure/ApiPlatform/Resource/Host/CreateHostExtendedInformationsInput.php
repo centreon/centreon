@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingMedia;
+use App\MonitoringConfiguration\Infrastructure\Validator\NoControlCharacters;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidGeoCoordinates;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -35,18 +36,21 @@ final readonly class CreateHostExtendedInformationsInput
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(min: ExtendedInformations::MIN_NOTE_URL_LENGTH, max: ExtendedInformations::MAX_NOTE_URL_LENGTH),
+            new NoControlCharacters(),
         ])]
         public ?string $noteUrl = null,
 
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(min: ExtendedInformations::MIN_NOTE_LENGTH, max: ExtendedInformations::MAX_NOTE_LENGTH),
+            new NoControlCharacters(),
         ])]
         public ?string $note = null,
 
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(min: ExtendedInformations::MIN_ACTION_URL_LENGTH, max: ExtendedInformations::MAX_ACTION_URL_LENGTH),
+            new NoControlCharacters(),
         ])]
         public ?string $actionUrl = null,
 
@@ -56,6 +60,7 @@ final readonly class CreateHostExtendedInformationsInput
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(min: ExtendedInformations::MIN_ALT_ICON_LENGTH, max: ExtendedInformations::MAX_ALT_ICON_LENGTH),
+            new NoControlCharacters(),
         ])]
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Blank(message: 'This field is not available on a Cloud platform.'),

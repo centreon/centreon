@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
+use App\MonitoringConfiguration\Domain\Model\EngineConfigurationValue;
 use Webmozart\Assert\Assert;
 
 final readonly class HostName
@@ -39,6 +40,7 @@ final readonly class HostName
         // never carries one, wherever the value is built from.
         $value = str_replace(' ', '_', trim($value));
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
+        Assert::notRegex($value, EngineConfigurationValue::CONTROL_CHARACTERS_PATTERN, '[HostName::value] The value must not contain control characters');
         $this->value = $value;
     }
 }

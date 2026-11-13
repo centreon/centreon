@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate;
 use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ExtendedInformationsTest extends TestCase
@@ -126,6 +127,35 @@ final class ExtendedInformationsTest extends TestCase
     public function testItAcceptsAnAltIconExactly200CharactersLong(): void
     {
         self::assertSame(200, mb_strlen((string) new ExtendedInformations(altIcon: str_repeat('a', 200))->altIcon));
+    }
+
+    /**
+     * @return array<string, array{array<string, string>}>
+     */
+    public static function singleLineFieldWithALineBreakProvider(): array
+    {
+        return [
+            'note URL' => [['noteUrl' => "https://example.com\nnotes"]],
+            'note' => [['note' => "a free-text\nnote"]],
+            'action URL' => [['actionUrl' => "https://example.com\nactions"]],
+            'alternative icon text' => [['altIcon' => "server\nicon"]],
+        ];
+    }
+
+    /**
+     * @param array<string, string> $fields
+     */
+    #[DataProvider('singleLineFieldWithALineBreakProvider')]
+    public function testItRejectsALineBreakInASingleLineField(array $fields): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new ExtendedInformations(...$fields);
+    }
+
+    public function testItAcceptsACommentSpanningSeveralLines(): void
+    {
+        self::assertSame("first line\nsecond line", new ExtendedInformations(comment: "first line\nsecond line")->comment);
     }
 
     public function testWithKeepsEveryValueWhenNothingIsProvided(): void
