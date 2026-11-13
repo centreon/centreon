@@ -394,6 +394,43 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame($severityId, $this->findHost($hostId)->severityId?->value);
     }
 
+    public function testAHostHoldingSeveralSeveritiesIsReadWithTheLowestAndListsThemAll(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $categoryId = $this->createHostCategory('Production');
+        $lowerSeverityId = $this->createHostSeverity('Critical', level: 1);
+        $higherSeverityId = $this->createHostSeverity('Minor', level: 4);
+        foreach ([$categoryId, $higherSeverityId, $lowerSeverityId] as $linkedId) {
+            $this->linkHostToCategory($hostId, $linkedId);
+        }
+
+        self::assertSame(min($lowerSeverityId, $higherSeverityId), $this->findHost($hostId)->severityId?->value);
+        $expected = [$lowerSeverityId, $higherSeverityId];
+        sort($expected);
+        self::assertSame(
+            $expected,
+            array_map(static fn (HostSeverityId $id): int => $id->value, $this->repository->findSeverityIds(new HostId($hostId))->toArray()),
+        );
+    }
+
+    public function testUpdateLeavesASingleSeverityOnAHostHoldingSeveral(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $firstSeverityId = $this->createHostSeverity('Critical', level: 1);
+        $secondSeverityId = $this->createHostSeverity('Minor', level: 4);
+        $this->linkHostToCategory($hostId, $firstSeverityId);
+        $this->linkHostToCategory($hostId, $secondSeverityId);
+
+        $this->repository->update($this->findHost($hostId)->with(severityId: new HostSeverityId($secondSeverityId)));
+
+        self::assertSame(
+            [$secondSeverityId],
+            array_map(static fn (HostSeverityId $id): int => $id->value, $this->repository->findSeverityIds(new HostId($hostId))->toArray()),
+        );
+    }
+
     public function testUpdateClearsTheSeverityWithNull(): void
     {
         $pollerId = $this->createPoller('Central');

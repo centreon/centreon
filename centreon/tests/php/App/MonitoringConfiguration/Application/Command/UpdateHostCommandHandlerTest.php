@@ -47,6 +47,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
@@ -1112,17 +1113,34 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame([1, 2], $groupIds);
     }
 
-    public function testItPreservesAnOutOfScopeSeverityForARestrictedActor(): void
+    public function testItClearsAnOutOfScopeSeverityLeftOutByARestrictedActor(): void
     {
         $this->addPoller(1);
         // The actor can access only severity 1; the host carries the out-of-scope severity 2.
         $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(1)]);
         $this->seedHost(10, severityId: new HostSeverityId(2));
 
-        // The actor sends no severity: they cannot see the stored one, so it must not be cleared.
         $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
 
-        self::assertSame(2, $host->severityId?->value);
+        self::assertNull($host->severityId);
+        self::assertSame([$host], $this->hostRepository->updatedHosts);
+    }
+
+    /**
+     * A host holding several severities (legacy) keeps only one after an update, even when the one resent is
+     * the one it already shows.
+     */
+    public function testResendingTheSeverityOfAHostHoldingSeveralIsAWrite(): void
+    {
+        $this->addPoller(1);
+        $this->hostSeverityRepository->hostSeverities[1] = new HostSeverityName('Critical');
+        $this->seedHost(10, severityId: new HostSeverityId(1));
+        $this->hostRepository->storedSeverityIds[10] = [1, 2];
+
+        $host = ($this->handler)($this->command(10, severityId: new HostSeverityId(1)));
+
+        self::assertSame(1, $host->severityId?->value);
+        self::assertSame([$host], $this->hostRepository->updatedHosts);
     }
 
     public function testItPreservesOutOfScopeParentAndChildHostsForARestrictedActor(): void

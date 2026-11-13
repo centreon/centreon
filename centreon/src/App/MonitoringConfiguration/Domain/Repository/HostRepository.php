@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
@@ -62,6 +63,15 @@ interface HostRepository
      * @return Collection<HostMacro>
      */
     public function findMacros(HostId $id): Collection;
+
+    /**
+     * The levelled categories (severities) the host is linked to, lowest id first, whatever the actor may see:
+     * {@see findOne()} reads only the lowest, so a write needs this read to resolve the extra ones legacy may have
+     * left, a host holding a single severity.
+     *
+     * @return Collection<HostSeverityId>
+     */
+    public function findSeverityIds(HostId $id): Collection;
 
     /**
      * Also removes the dependencies left without a parent or child host by this deletion.
