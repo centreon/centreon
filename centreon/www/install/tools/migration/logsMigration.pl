@@ -236,18 +236,33 @@ sub syncDay ($$) {
 #############################################################################################################
 
 sub main {
+	# Prepare DB URI depending on configured RDBMS
+	my $dbh_prefix = "DBI:mysql";
+	my $rdbms_kind = $centreon_config->{rdbms_kind} // "";
+	if($centreon_config->{rdbms_kind}) {
+		if ($rdbms_kind eq "mysql") {
+			$dbh_prefix = "DBI:mysql";
+		}
+		elsif ($rdbms_kind eq "mariadb") {
+			$dbh_prefix = "DBI:MariaDB";
+		}
+		else {
+			print "Warn : RDBMS kind not supported or undefined. Using default Mysql prefix\n";
+		}
+	}
+
 	# Initializing MySQL DB connection
 	$dbh = DBI->connect(
-		"DBI:mysql:database=" . $centreon_config->{centstorage_db} . ";host=" . $centreon_config->{db_host},
+		$dbh_prefix . ":database=" . $centreon_config->{centstorage_db} . ";host=" . $centreon_config->{db_host},
 		$centreon_config->{db_user},
 		$centreon_config->{db_passwd},
-		{ 'RaiseError' => 0, 'PrintError' => 0, 'AutoCommit' => 1 }
+		{ 'RaiseError' => 1, 'PrintError' => 1, 'AutoCommit' => 1 }
 	);
 	$dbhoreon = DBI->connect(
-		"DBI:mysql:database=" . $centreon_config->{centreon_db} . ";host=" . $centreon_config->{db_host},
+		$dbh_prefix . ":database=" . $centreon_config->{centreon_db} . ";host=" . $centreon_config->{db_host},
 		$centreon_config->{db_user},
 		$centreon_config->{db_passwd},
-		{ 'RaiseError' => 0, 'PrintError' => 0, 'AutoCommit' => 1 }
+		{ 'RaiseError' => 1, 'PrintError' => 1, 'AutoCommit' => 1 }
 	);
 	
 	initEnv();
