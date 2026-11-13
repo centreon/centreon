@@ -261,6 +261,25 @@ final class PatchHostCommandHandlerTest extends TestCase
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostEnabled::class));
     }
 
+    /**
+     * A host holding several severities (legacy) keeps only the one it shows, even on a patch that changes
+     * nothing else.
+     */
+    public function testAPatchResolvesTheSeveralSeveritiesOfAHostToOne(): void
+    {
+        $this->seedHost(activated: true);
+        $this->repository->storedSeverityIds[self::HOST_ID] = [5, 4];
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            actor: TestActingUsers::unrestricted(1),
+            name: new HostName('server-01'),
+        ));
+
+        self::assertSame(4, $result->severityId?->value);
+        self::assertSame([$result], $this->repository->updatedHosts);
+    }
+
     public function testItFailsWhenTheHostDoesNotExist(): void
     {
         $this->expectException(HostNotFoundException::class);
