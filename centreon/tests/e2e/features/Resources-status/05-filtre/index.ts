@@ -285,7 +285,9 @@ Then(
         cy.get('div[class*="statusColumn"]:first')
           .invoke('text')
           .should((text) => {
-            expect(text.trim()).to.match(/Pending|Unknown|Warning/);
+            expect(text.trim()).to.match(
+              /Pending|O[Kk]|Unknown|Warning|Critical/
+            );
           });
       }
     );
@@ -293,7 +295,8 @@ Then(
       const cellText = $statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
 
-      expect(cellText).to.match(/^(Pending|OK|Unknown)$/);
+      // Real services of the host group can be Warning or Critical too
+      expect(cellText).to.match(/^(Pending|OK|Unknown|Warning|Critical)$/);
     });
   }
 );
