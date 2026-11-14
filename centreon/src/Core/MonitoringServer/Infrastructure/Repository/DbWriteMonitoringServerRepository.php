@@ -38,6 +38,10 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
     use LoggerTrait;
     use SqlMultipleBindTrait;
 
+    /** MySQL deadlock (1213) and lock wait timeout (1205) errors, worth retrying. */
+    private const RETRYABLE_LOCK_ERRORS = [1205, 1213];
+    private const LOCK_RETRY_ATTEMPTS = 3;
+
     /**
      * @param DatabaseConnection $db
      */
@@ -133,7 +137,23 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
                 WHERE i.deleted = 0
                 SQL
         ));
-        $statement->execute();
+        // Saving a host locks its poller row: retry when MySQL picks this update as the deadlock victim
+        for ($attempt = 1; ; ++$attempt) {
+            try {
+                $statement->execute();
+
+                return;
+            } catch (\PDOException $exception) {
+                $errorCode = (int) ($exception->errorInfo[1] ?? 0);
+                if (
+                    $attempt >= self::LOCK_RETRY_ATTEMPTS
+                    || ! in_array($errorCode, self::RETRYABLE_LOCK_ERRORS, true)
+                ) {
+                    throw $exception;
+                }
+                usleep(100_000 * $attempt);
+            }
+        }
     }
 
     /**
