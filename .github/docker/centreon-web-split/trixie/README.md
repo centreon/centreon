@@ -754,15 +754,48 @@ delivered, and `rrdcached` shows active TCP connections from `centreon-broker`.
 
 ### PHP session persistence
 
-`session.save_path` (`/var/lib/php/sessions`, `centreon-pool.conf`) wasn't a
-volume — every `fpm` recreate silently logged every user out. The DB-side
-`session` table (`CentreonSession::checkSession()`) only tracks whether a
-session id is still valid, it never holds the actual `$_SESSION` content
+`session.save_path` (`/var/lib/php/sessions`) wasn't a volume originally —
+every `fpm` recreate silently logged every user out. The DB-side `session`
+table (`CentreonSession::checkSession()`) only tracks whether a session id
+is still valid, it never holds the actual `$_SESSION` content
 (`$_SESSION['centreon']`, the hydrated contact object used throughout the
-legacy pages) — that lives only in these files. Fixed with a
-`centreon-sessions` named volume on `fpm`. A plain `docker compose restart
-fpm` already survived this (container filesystem untouched by a restart),
-only a recreate needed the volume.
+legacy pages) — that lives only wherever PHP's session handler stores it. A
+plain `docker compose restart fpm` already survived this (container
+filesystem untouched by a restart), only a recreate needed persistence.
+
+**DESIGN CHANGE (MON-214095)**: a `centreon-sessions` named volume (files
+handler) fixed this at first, but a shared RWX volume is exactly what keeps
+`fpm` from scaling to replicas — it's the only thing in this image that
+still needs one. Replaced with sessions in Valkey (the `valkey` service, a
+BSD-licensed Redis-protocol-compatible store — avoids Redis's own RSAL/SSPL/
+AGPL licensing entirely) via `phpredis` (`pecl install redis`, same pattern
+`gnupg` already used). Env-driven, `files` by default so nothing changes
+when unset:
+
+- `PHP_SESSION_HANDLER=files|redis` (image default: `files`).
+- `PHP_SESSION_SAVE_PATH`: the base DSN with **no credentials in it** (e.g.
+  `tcp://valkey:6379`), required when `PHP_SESSION_HANDLER=redis`.
+- `PHP_SESSION_REDIS_PASSWORD`: a **separate** env var, not embedded in
+  `PHP_SESSION_SAVE_PATH` — `01-config.sh` `rawurlencode()`s it itself and
+  appends `?auth=<encoded>` (or `&auth=...` if the save path already has a
+  `?`). This means neither this compose file nor the Helm chart's Secret
+  template has to pre-encode a password that might contain URL-unsafe
+  characters — picked after k8s-helm flagged the chart builds this DSN from
+  a Secret and needs that guarantee.
+- `redis.session.locking_enabled=1` is always set (harmless when the
+  `files` handler is active, only read when `redis` is): phpredis does
+  **not** lock sessions by default, unlike the `files` handler — without
+  it, two concurrent AJAX requests on the same session silently overwrite
+  each other's `$_SESSION`.
+- Session TTL is still just `session.gc_maxlifetime` (7200, unchanged) —
+  Valkey expires the key itself, no file GC needed.
+
+All of this is resolved into `/usr/local/etc/php/conf.d/centreon.ini` by
+`01-config.sh` (same `envsubst` mechanism `PHP_TIMEZONE` already used), not
+baked into the image. `centreon-pool.conf`'s own `php_value[session.*]`
+lines were removed — a pool-level `php_value` always wins over a php.ini
+setting, so leaving them would have silently overridden whatever
+`01-config.sh` resolved.
 
 ### UI-uploaded media (`www/img/media/`)
 
