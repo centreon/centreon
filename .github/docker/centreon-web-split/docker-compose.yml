@@ -72,11 +72,10 @@ services:
       # connection-status API (GET /internal/constatus, confirmed reachable
       # here over plain HTTP, no auth) before attempting config delivery —
       # a latency optimization over blind-retrying, not a correctness
-      # requirement (that script's own fallback, and this script's outer
-      # retry-forever loop, both still hold if gorgone's API is unreachable
-      # for any reason).
+      # requirement (that script's own CONFIG_DELIVERY_REQUIRE_CONNECTED
+      # check and the outer retry-on-failure loop, both still hold if
+      # gorgone's API is unreachable for any reason).
       GORGONE_API_BASE_URL: "http://gorgone-central:8085"
-      CENTREON_DATASET: "${CENTREON_DATASET:-0}"
       # Opt-in overrides, both unset/off by default — same fixture-default
       # behavior as before (admin / Centreon!2021, no forced password
       # change) unless explicitly set. See 12-install.sh for the full
@@ -397,10 +396,11 @@ services:
   # Real monitoring engine for Central-as-a-poller, matching centreon/
   # install-poller's own generated docker-compose.yaml service definition
   # almost verbatim — same image family, same volumes, same healthcheck.
-  # Needed for the COMMAND/reload path (gorgone's systemctl shim targets a
-  # hostname literally called "centengine" over gRPC) — does NOT fix
-  # "Generate Configuration Files"' local centengine -v shell-out in
-  # php-fpm, that's a separate, still-unaddressed local shell-out.
+  # Needed for the COMMAND/reload path (gorgone's own gRPC reload targets a
+  # hostname literally called "centengine"). "Generate Configuration Files"'
+  # local centengine -v shell-out in php-fpm is a separate concern, addressed
+  # by shipping a real centengine binary into the fpm image too (MON-214031,
+  # see trixie/Dockerfile's engine_verifier stage).
   centengine:
     image: "${ENGINE_IMAGE:-docker.centreon.com/centreon/centreon-engine-trixie:develop}"
     pull_policy: always
@@ -438,9 +438,11 @@ services:
   # adaptation block), not two containers.
   #
   # Pinned to an image bundling a fingerprint guard (refuses to start on
-  # the package-default config) and an HTTP reload/restart shim as PID 1 —
-  # not yet wired up here (its HTTP endpoints aren't consumed by anything
-  # in this stack yet).
+  # the package-default config). Its PID 1 also wraps cbd in an HTTP
+  # reload/restart/health shim (api_control.py), but this stack never
+  # calls it: a config change is still applied via a full container
+  # restart, and centengine's own reload goes over gRPC instead (see
+  # gorgone-central-poller below) — no port exposed for the shim here.
   #
   # No seeding step for the `poller-broker` volume: a genuinely empty
   # volume at first boot is the correct, already-handled state on that
@@ -485,14 +487,6 @@ services:
         condition: service_started
     ports:
       - "5669:5669"
-      # api_control.py's HTTP reload/restart/health shim (uvicorn): POST
-      # /reload (SIGHUP, in-place config+AES-key refresh), POST /restart
-      # (SIGTERM then exits the wrapper itself so `restart: unless-stopped`
-      # relaunches the container), GET /health. Not consumed by anything in
-      # this stack yet (still manual `docker compose restart centreon-broker`
-      # after a config change) — exposed so it's reachable for that
-      # follow-up without another compose edit.
-      - "8080:8080"
 
   # TCP write-cache sidecar for Central's merged RRD output (MON-213837).
   # DESIGN CHANGE, see trixie/README.md: no longer network_mode:
@@ -531,9 +525,11 @@ services:
 
   # Scheduled jobs a real RPM/DEB install gets via /etc/cron.d/{centreon,
   # centstorage} (CentACL, downtime start/stop, token/storage purge,
-  # partitioning, reporting, backup) — never ported to this split image
-  # before now. Dedicated container, not folded into fpm: 3 of the 10 jobs
-  # are Perl, and a persistent scheduler inside fpm would multiply per fpm
+  # partitioning, reporting) — never ported to this split image before now.
+  # Of the 10 jobs a real install ships, 8 run here: centreon-send-stats.php
+  # and centreon-backup.pl are dropped (see container.sh). Dedicated
+  # container, not folded into fpm: 2 of those 8 jobs are Perl, and a
+  # persistent scheduler inside fpm would multiply per fpm
   # replica if that image is ever scaled (same reasoning INSTALL_DB_STEPS
   # exists for the install step). Deliberately no shared volume with fpm —
   # see trixie/entrypoint/cron/container.sh for why that would be a real

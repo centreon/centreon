@@ -13,8 +13,11 @@
 # Known TODOs (deliberately out of scope for this first pass, see the plan):
 #   - www/locale (translation build) is not generated here yet.
 #   - No Symfony cache warmup at build time on purpose (see the `fpm` stage below).
-#   - APP_SECRET is never generated here — `.env` ships the literal `%APP_SECRET%`
-#     placeholder, to be resolved by a future init/install step (T9), not this image.
+#
+# APP_SECRET is never generated here — `.env` ships the literal `%APP_SECRET%`
+# placeholder, resolved at container start by container.d/12-install.sh
+# instead (caller-provided APP_SECRET env var, or a random one on first
+# install), not a TODO.
 
 ARG NODE_VERSION=24
 ARG PHP_VERSION=8.4
@@ -574,13 +577,14 @@ FROM php:${PHP_VERSION}-fpm AS fpm
 
 # Same fixed UIDs/GIDs as every other Centreon container image (see
 # centreon-collect/.github/docker/centreon-gorgone/trixie/Dockerfile) — for
-# volume consistency across containers, not just this one: Pilier 2 already
-# needs www-data <-> centreon-gorgone cross-group access on the shared
-# /var/cache/centreon and /var/lib/centreon volumes (confirmed empirically —
-# REMOTECOPY got "Permission denied" without it), and centreon-engine/
-# centreon-broker will matter the same way once engine/broker containers join
-# this topology. www-data here is already 33:33 (official php:8.4-fpm image),
-# matching what gorgone's own Dockerfile assumes.
+# volume consistency across containers, not just this one: www-data <->
+# centreon-gorgone cross-group access on the shared /var/cache/centreon and
+# /var/lib/centreon volumes (confirmed empirically — REMOTECOPY got
+# "Permission denied" without it), and centreon-engine/centreon-broker
+# matter the same way now that those containers are part of this topology
+# too (the RRD volumes they share with fpm, see 03-rrd-volumes.sh). www-data
+# here is already 33:33 (official php:8.4-fpm image), matching what
+# gorgone's own Dockerfile assumes.
 RUN bash -e <<'EOF'
 groupadd -g 900 centreon
 useradd -u 900 -g centreon -M -r -l -d /var/spool/centreon -s /usr/sbin/nologin centreon
@@ -668,10 +672,14 @@ ENV PHP_TIMEZONE=UTC
 # + PHP_SESSION_SAVE_PATH, see 01-config.sh/centreon.ini.template).
 ENV PHP_SESSION_HANDLER=files
 
-# Dev/CI convenience only, mirrors the monolithic image's own
-# container.d/15-installation.sh + JSON answer-file fixtures (opt-in via
-# RUN_INSTALL, see entrypoint/fpm/container.d/12-install.sh) — NOT the real
-# T9 init step, which still needs to be built separately.
+# Install fixtures, opt-in via RUN_INSTALL (see
+# entrypoint/fpm/container.d/12-install.sh), mirroring the monolithic
+# image's own container.d/15-installation.sh + JSON answer-file fixtures.
+# This is the actual install mechanism both here and in the k8s chart: the
+# chart's dedicated install Job runs this same fpm image/entrypoint with
+# INSTALL_DB_STEPS=true, while regular fpm replicas run with it set to
+# false — not a disposable dev/CI-only path with a separate "real" install
+# step still to be built.
 COPY --chown=www-data:www-data .github/docker/centreon-web/trixie/configuration \
     /usr/share/centreon/www/install/tmp
 

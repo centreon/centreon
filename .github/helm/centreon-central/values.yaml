@@ -4,7 +4,8 @@
 # the production overlay (replicas, RWX storage, autoscaling, external DB).
 #
 # One release per namespace: several Service names (db, fpm, httpd,
-# gorgone-central, centreon-broker) are NOT release-prefixed on purpose.
+# gorgone-central, centreon-broker, cbd, centreon-rrdcached, valkey) are NOT
+# release-prefixed on purpose.
 # They are hostnames the install writes into the Centreon database
 # (12-install.sh: cfg_centreonbroker_info host=centreon-broker,
 # options.gorgone_api_address=gorgone-central) or that the images use.
@@ -115,15 +116,17 @@ secrets:
   # and by fpm (config files, install marker check).
   dbRootPassword: "centreon"
   # "centreon" DB user. Injected into the install fixture (database.json):
-  # web config, broker outputs and gorgone-central use it. 12-install.sh GRANTs 'centreon'@'%', which only works if the
-  # user already exists: the bundled MariaDB pre-creates it, an external DB
-  # must too.
+  # web config, broker outputs and gorgone-central use it. 12-install.sh
+  # GRANTs 'centreon'@'%', which only works if the user already exists: the
+  # bundled MariaDB pre-creates it, an external DB must too.
   dbCentreonPassword: "centreon"
   # Password of the centreon-gorgone service account (key
   # GORGONE_API_PASSWORD). The install Job sets it on every run (the split
-  # install would otherwise leave it EMPTY); gorgone-central, the pollers'
-  # gorgone and the config-delivery Job log in to the Centreon API with it,
-  # never with admin. Change it here to rotate it.
+  # install would otherwise leave it EMPTY); gorgone-central, the Central
+  # poller's gorgone, the autodiscovery worker and the config-delivery Job
+  # log in to the Centreon API with it, never with admin (remote pollers use
+  # their own token). It is also gorgone-central's API basic auth password.
+  # Change it here to rotate it.
   gorgoneApiPassword: "centreon-gorgone"
   # Web "admin" password set at the FIRST install (key ADMIN_PASSWORD,
   # optional). Empty = the image fixture's Centreon!2021. Not applied to an
@@ -158,8 +161,9 @@ vault:
   # bundle. Empty = the image's system CAs only.
   caCert: ""
 
-# Centreon API user of gorgone and the config-delivery Job: the dedicated
-# service account, not admin.
+# Centreon API user of gorgone, the autodiscovery worker and the
+# config-delivery Job, and gorgone-central's API basic auth user: the
+# dedicated service account, not admin.
 centreonApiUsername: centreon-gorgone
 
 # ---------------------------------------------------------------------------
@@ -225,7 +229,9 @@ valkey:
 # ---------------------------------------------------------------------------
 # A plain Job (not a Helm hook: a hook would deadlock with `--wait` / ArgoCD
 # PostSync, since fpm waits for the install). Its name derives from the fpm
-# image reference, so a new image tag runs it again (upgrade). Use immutable
+# image reference, the chart version, runId and the install's environment,
+# so a new image tag, chart version or install-related value runs it again
+# (upgrade). Use immutable
 # tags in prod: rebuilding "latest" does not re-run it. Bump runId to force a
 # re-run. backoffLimit is 0 on purpose: 12-install.sh is not resumable, a
 # retried half-install would report success on a broken schema.
@@ -234,8 +240,6 @@ install:
   # First install only: force the admin to change its password at first
   # login (web UI; the REST API does not handle that state).
   adminPasswordExpired: false
-  # 1 = load the CI test dataset after install (CENTREON_DATASET).
-  dataset: "0"
   resources: {}
 
 # ---------------------------------------------------------------------------
@@ -332,12 +336,13 @@ autodiscoveryWorker:
   resources: {}
   extraEnv: []
 
-# Restricts gorgone-central's unauthenticated API (8085) to fpm and the
+# Restricts gorgone-central's API (8085, basic auth only) to fpm, cron and the
 # config-delivery Job, and pullwss (8087) to httpd; php-fpm (9000) to httpd;
-# cbd's gRPC API (51001) to the Central poller pod (BBDO 5669 stays open); the bundled
-# database (3306) to its clients. Poller pods (Central and
-# pollers[]) only accept the CMA port 4317: their engine gRPC API (50155, no
-# auth, can stop the engine) stays pod-local. Everything a poller does is
+# cbd's gRPC API (51001) to the Central poller pod (BBDO 5669 stays open);
+# rrdcached (42217) and Valkey (6379) to fpm; the bundled database (3306) to
+# its clients. Poller pods (Central and pollers[]) only accept the CMA port
+# 4317 (+ 162/udp with traps): their engine gRPC API (50155, no auth, can
+# stop the engine) stays pod-local. Everything a poller does is
 # outbound (pullwss, cbmod to the broker, checks), egress is not filtered.
 networkPolicy:
   enabled: true
@@ -368,6 +373,8 @@ configDelivery:
 # Each run is a short-lived pod on the cron image, output in `kubectl logs`.
 # Per job: `enabled: false` removes the CronJob, `suspend: true` keeps it but
 # stops scheduling it (e.g. during a maintenance; `kubectl patch` works too).
+# Optional per job too: `activeDeadlineSeconds` (kills a run that takes
+# longer) and `resources` (overrides cronJobs.resources below).
 cronJobs:
   enabled: true
   # The VM runs them in the server's local time. Empty = timezone above.
@@ -466,14 +473,16 @@ broker:
 
 # rrdcached in the broker pod (sidecar, 42217/TCP): cbd sends its RRD updates
 # to it, it writes them to the RRD files in batches (fewer disk writes than cbd
-# writing every update itself). Switching it on or off re-runs the install Job
-# (rrd_cached_option of the central rrd output) and the config delivery. No
-# auth: ClusterIP Service "centreon-rrdcached", reachable from fpm only
-# (networkPolicy). Off by default: needs a broker image whose TCP RRD output
-# initializes its logger (centreon-collect MON-213839, see README
-# "rrdcached"), cbd crashes otherwise.
+# writing every update itself). On by default for the storage: the RRD files
+# live on a PVC, often network storage, where every small write is expensive.
+# Switching it on or off re-runs the install Job (rrd_cached_option of the
+# central rrd output) and the config delivery. No auth: ClusterIP Service
+# "centreon-rrdcached", reachable from fpm only (networkPolicy). Needs a
+# broker image whose TCP RRD output initializes its logger (centreon-collect
+# MON-213839, see README "rrdcached"): set false with an older broker, cbd
+# crashes on the first RRD update otherwise.
 rrdcached:
-  enabled: false
+  enabled: true
   resources: {}
 
 # ---------------------------------------------------------------------------
@@ -494,7 +503,8 @@ centralPoller:
     # Matches the Central nagios_server.id.
     uid: "1"
     # Fetches the real "poller-default" API token at startup (only for this
-    # in-cluster Central poller — never hand admin API creds to a remote one).
+    # in-cluster Central poller — never hand the service-account API creds to
+    # a remote one).
     pullwssTokenName: poller-default
     pullwssTokenFetchRetries: "90"
     resources: {}
@@ -584,8 +594,11 @@ pollers: []
 #      key: GORGONE_TOKEN
 #    timezone: Europe/Paris    # optional: the poller's own TZ (default: timezone above)
 #    resources: {}
+#    persistence:              # optional, default persistence.local.pollerData / pollerSpool sizes
+#      size: 1Gi               # poller-data
+#      spoolSize: 5Gi          # poller-spool
 #    traps:                    # same keys as centralPoller.traps; service merged over it.
-#      enabled: false          # Changes the volume list: --cascade=orphan delete first
+#      enabled: false
 #    vmware:
 #      enabled: false
 
@@ -597,8 +610,9 @@ pollers: []
 # in the node's attachment limit), so small directories share one volume.
 # Cross-pod volumes (sharedAccessMode) need ReadWriteMany on a multi-node
 # cluster (EFS, NFS, CephFS...: billed on usage, the size below is only a
-# request): centreonWeb (fpm rw, httpd ro), centreonRrd (broker rw, fpm ro),
-# pollerBroker (central poller rw, broker ro). With ReadWriteOnce every pod
+# request): centreonWeb (fpm rw; httpd, the autodiscovery worker and the
+# send-stats CronJob ro), centreonRrd (broker and its rrdcached sidecar rw,
+# fpm ro), pollerBroker (central poller rw, broker ro). With ReadWriteOnce every pod
 # using them must land on the same node (fine for single-node dev).
 persistence:
   # Per-pod volumes (and shared ones when sharedStorageClass is empty).
@@ -617,8 +631,8 @@ persistence:
     # RRD graphs, status/ + metrics/: about 330 KiB per file, one file per
     # metric and one per service (status). 25 GiB ~ 75,000 files.
     centreonRrd: { size: 25Gi }
-    # /etc/centreon-broker, the delivered broker config (KB). Unchanged from
-    # earlier charts (a PVC can only grow, and only if its class allows it).
+    # /etc/centreon-broker, the delivered broker config (KB). Keep an existing
+    # size: a PVC can only grow, and only if its class allows it.
     pollerBroker: { size: 256Mi }
   local:
     # Poller config and state (remote pollers: pollers[].persistence.size or

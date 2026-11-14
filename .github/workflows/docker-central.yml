@@ -1,7 +1,7 @@
 name: docker-central
 
-# Builds, tests and publishes the split central images (httpd / fpm / cron,
-# .github/docker/centreon-web-split) to the internal registry.
+# Builds, tests and publishes the split central images (httpd / fpm / cron /
+# rrdcached, .github/docker/centreon-web-split) to the internal registry.
 #
 # PoC (epic MON-213806): Harbor only, no ghcr/Pulp promotion yet. On pull
 # requests the build only runs when the PR carries the `build-docker-central`
@@ -11,8 +11,11 @@ name: docker-central
 # gorgone/broker/engine images for the smoke test) are pinned in
 # .github/docker/centreon-web-split/trixie/dependencies.env.
 
+# A `labeled` event for another label creates an empty run (get-environment
+# skips it): give it its own group, otherwise it would cancel the build in
+# progress on the branch.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}${{ github.event.action == 'labeled' && github.event.label.name != 'build-docker-central' && format('-{0}', github.run_id) || '' }}
   cancel-in-progress: true
 
 on:
@@ -82,7 +85,6 @@ jobs:
       broker_tag: ${{ steps.deps.outputs.broker_tag }}
       engine_tag: ${{ steps.deps.outputs.engine_tag }}
       autodisco_tag: ${{ steps.deps.outputs.autodisco_tag }}
-      trapd_tag: ${{ steps.deps.outputs.trapd_tag }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -120,7 +122,7 @@ jobs:
         run: |
           # Parsed, never sourced: only KEY=value lines with a safe value.
           file="${SPLIT_DIR}/trixie/dependencies.env"
-          for key in COLLECT_REF GORGONE_TAG BROKER_TAG ENGINE_TAG AUTODISCO_TAG TRAPD_TAG; do
+          for key in COLLECT_REF GORGONE_TAG BROKER_TAG ENGINE_TAG AUTODISCO_TAG; do
             value=$(sed -nE "s/^${key}=([A-Za-z0-9._-]+)\$/\1/p" "$file" | tail -1)
             if [[ -z "$value" ]]; then
               echo "::error file=${file}::missing or invalid ${key}"
@@ -184,9 +186,8 @@ jobs:
         shell: bash
 
       # Native build per architecture, pushed by digest; the manifest list is
-      # assembled by merge-manifests. The AUTODISCO_IMAGE build-arg and the
-      # perl-libs build context are always passed: a Dockerfile revision that
-      # does not use them yet ignores them.
+      # assembled by merge-manifests. The AUTODISCO_IMAGE and ENGINE_IMAGE
+      # build-args and the perl-libs build context come from dependencies.env.
       - name: Docker build and push by digest
         id: build
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
@@ -368,7 +369,6 @@ jobs:
           GORGONE_IMAGE: ${{ env.REGISTRY }}/centreon-gorgone-trixie:${{ needs.prepare.outputs.gorgone_tag }}
           BROKER_IMAGE: ${{ env.REGISTRY }}/centreon-broker-trixie:${{ needs.prepare.outputs.broker_tag }}
           ENGINE_IMAGE: ${{ env.REGISTRY }}/centreon-engine-trixie:${{ needs.prepare.outputs.engine_tag }}
-          TRAPD_IMAGE: ${{ env.REGISTRY }}/centreon-trapd-trixie:${{ needs.prepare.outputs.trapd_tag }}
           COMPOSE_OVERLAY: ${{ matrix.variant == 'db-tls' && '.github/docker/centreon-web-split/docker-compose.db-tls.yml' || '' }}
           SMOKE_VARIANT: ${{ matrix.variant }}
           SUMMARY_FILE: ${{ github.step_summary }}
