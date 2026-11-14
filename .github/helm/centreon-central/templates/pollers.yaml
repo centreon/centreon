@@ -1,0 +1,82 @@
+{{- /* Remote pollers: one StatefulSet per entry of .Values.pollers. The pod host
+     name (CMA CA CN) is always the pod name <release>-poller-<name>-0: the
+     StatefulSet controller overwrites spec.hostname. */ -}}
+{{- range $poller := .Values.pollers }}
+{{- $p := dict "name" ($poller.displayName | default $poller.name) "uid" (required "pollers[].id is required" $poller.id) "central" false "timezone" ($poller.timezone | default $.Values.timezone) "tokenSecret" (required "pollers[].tokenSecret is required" $poller.tokenSecret) "gorgoneResources" ($poller.resources | default dict) "engineResources" ($poller.resources | default dict) "traps" ($poller.traps | default dict) "vmware" ($poller.vmware | default dict) }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $.Release.Name }}-poller-{{ $poller.name }}
+  labels:
+    {{- include "centreon-central.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: poller-{{ $poller.name }}
+spec:
+  serviceName: {{ $.Release.Name }}-poller-{{ $poller.name }}
+  replicas: 1
+  # centengine crash-loops until the first config delivery, so the pod can be
+  # NotReady for good after a bad value: with OrderedReady a helm upgrade
+  # never replaces it. Immutable: an existing StatefulSet must be deleted with
+  # --cascade=orphan before upgrading.
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" $ "component" (printf "poller-%s" $poller.name)) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "centreon-central.selectorLabels" (dict "ctx" $ "component" (printf "poller-%s" $poller.name)) | nindent 8 }}
+      {{- with $.Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- include "centreon-central.pollerPodSpec" (dict "ctx" $ "p" $p) | nindent 6 }}
+      volumes:
+        - name: poller-centcmd
+          emptyDir: {}
+        {{- with include "centreon-central.vaultVolume" $ }}{{ . | nindent 8 }}{{ end }}
+        {{- if and $poller.traps $poller.traps.enabled }}
+        - name: poller-traps-spool
+          emptyDir: {}
+        {{- end }}
+        {{- if $.Values.persistence.migrateLegacyVolumes }}
+        {{- /* PVCs created by the chart <= 0.40 volumeClaimTemplates:
+               <template>-<statefulset>-0. */ -}}
+        {{- $legacy := dict "legacy-engine" "poller-engine" "legacy-etc" "poller-etc" "legacy-centlog" "poller-centlog" "legacy-cma-pki" "poller-cma-pki" "legacy-cbmod-cache" "poller-cbmod-cache" "legacy-broker" "poller-broker" }}
+        {{- if and $poller.traps $poller.traps.enabled }}
+        {{- $_ := set $legacy "legacy-traps-config" "poller-traps-config" }}
+        {{- end }}
+        {{- range $vol, $old := $legacy }}
+        - name: {{ $vol }}
+          persistentVolumeClaim:
+            claimName: {{ $old }}-{{ $.Release.Name }}-poller-{{ $poller.name }}-0
+            readOnly: true
+        {{- end }}
+        {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: poller-data
+      spec:
+        accessModes: [ReadWriteOnce]
+        {{- with $.Values.persistence.storageClass }}
+        storageClassName: {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ (($poller.persistence | default dict).size) | default $.Values.persistence.local.pollerData.size }}
+    - metadata:
+        name: poller-spool
+      spec:
+        accessModes: [ReadWriteOnce]
+        {{- with $.Values.persistence.storageClass }}
+        storageClassName: {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ (($poller.persistence | default dict).spoolSize) | default $.Values.persistence.local.pollerSpool.size }}
+{{- if and $poller.traps $poller.traps.enabled }}
+---
+{{ include "centreon-central.trapsService" (dict "ctx" $ "name" (printf "%s-poller-%s-snmptrap" $.Release.Name $poller.name) "component" (printf "poller-%s" $poller.name) "svc" (mergeOverwrite (deepCopy $.Values.centralPoller.traps.service) ($poller.traps.service | default dict))) }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,121 @@
+# Production overlay: helm install ... -f values.yaml -f values-prod.yaml
+# (values.yaml is always loaded; this only overrides).
+#
+# Untested parts, see README "Known gaps": RWX on a real multi-node cluster,
+# external/managed database, remote pollers.
+
+# TODO: published images. The defaults are still local/branch builds.
+images:
+  fpm:
+    repository: CHANGE_ME/centreon-web-split-fpm
+    tag: CHANGE_ME          # immutable tag: a new tag re-runs the install Job
+  httpd:
+    repository: CHANGE_ME/centreon-web-split-httpd
+    tag: CHANGE_ME
+
+secrets:
+  # Create it out of band (sealed-secrets / external-secrets), never commit
+  # the values. Keys: APP_SECRET, SALT, MYSQL_ROOT_PASSWORD, MYSQL_PASSWORD,
+  # GORGONE_API_PASSWORD, optional ADMIN_PASSWORD.
+  existingSecret: centreon-secrets
+
+database:
+  bundled: false
+  externalHost: CHANGE_ME
+
+fpm:
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+  pdb:
+    enabled: true
+    minAvailable: 1
+  resources:
+    requests: { cpu: 500m, memory: 512Mi }
+    limits: { memory: 1Gi }
+
+httpd:
+  # serverName left empty: derived from ingress.host as https://<host>.
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+  pdb:
+    enabled: true
+    minAvailable: 1
+  resources:
+    requests: { cpu: 100m, memory: 128Mi }
+    limits: { memory: 256Mi }
+
+ingress:
+  enabled: true
+  className: CHANGE_ME
+  host: CHANGE_ME
+  annotations:
+    # ingress-nginx: remote pollers keep a pullwss websocket open, nginx
+    # closes idle proxied connections after 60s by default. Also raises the
+    # upload size (license/media uploads). Drop for other controllers.
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+  tls:
+    - secretName: centreon-tls
+      hosts: [CHANGE_ME]
+
+gorgoneCentral:
+  resources:
+    requests: { cpu: 200m, memory: 256Mi }
+    limits: { memory: 512Mi }
+
+configDelivery:
+  # With traps the Job runs the install entrypoint first (Symfony cache
+  # rebuild, like fpm): 128Mi got it OOMKilled. One run per deployment.
+  resources:
+    requests: { cpu: 10m, memory: 64Mi }
+    limits: { memory: 1Gi }
+
+cronJobs:
+  jobs:
+    # Telemetry, as on a VM install (disabled by default for dev/test).
+    send-stats:
+      enabled: true
+
+broker:
+  resources:
+    requests: { cpu: 500m, memory: 512Mi }
+    limits: { memory: 2Gi }
+  # Remote pollers outside the cluster need to reach 5669 (BBDO only, cbd's
+  # gRPC API stays on the internal "cbd" Service).
+  service:
+    type: LoadBalancer
+    # Restrict to the pollers' networks.
+    loadBalancerSourceRanges: [CHANGE_ME]
+    # Keep pollers' source IPs (broker logs / ACLs).
+    externalTrafficPolicy: Local
+
+centralPoller:
+  # CMA agents outside the cluster reach the Central engine on 4317.
+  otel:
+    service:
+      type: LoadBalancer
+      loadBalancerSourceRanges: [CHANGE_ME]
+      externalTrafficPolicy: Local
+  gorgone:
+    resources:
+      requests: { cpu: 100m, memory: 256Mi }
+      limits: { memory: 512Mi }
+  engine:
+    resources:
+      requests: { cpu: 500m, memory: 512Mi }
+      limits: { memory: 2Gi }
+
+persistence:
+  # Block storage for per-pod volumes (e.g. gp3).
+  storageClass: CHANGE_ME
+  # Must support ReadWriteMany (EFS, NFS, CephFS...).
+  sharedStorageClass: CHANGE_ME
+  sharedAccessMode: ReadWriteMany
+  keepOnUninstall: true

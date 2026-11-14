@@ -1,0 +1,182 @@
+{{- if .Values.networkPolicy.enabled }}
+# gorgone-central's API (8085) has no auth and its IP allowlist is disabled
+# (pod IPs are ephemeral, see gorgone-central.yaml): only fpm (node sync on
+# poller save, legacy commands), cron (downtimeManager's external commands)
+# and the config-delivery Job may call it. The pullwss endpoint
+# (8087) is only reached through httpd. Needs a CNI that enforces
+# NetworkPolicy (k3s does by default); ignored otherwise.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-gorgone-central
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gorgone-central
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "gorgone-central") | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - { key: app.kubernetes.io/instance, operator: In, values: [{{ .Release.Name | quote }}] }
+              - { key: app.kubernetes.io/component, operator: In, values: [fpm, cron, config-delivery] }
+      ports:
+        - { port: 8085, protocol: TCP }
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "httpd") | nindent 14 }}
+      ports:
+        - { port: 8087, protocol: TCP }
+---
+# Poller pods (Central poller and pollers[]): only the CMA port is reachable.
+# The engine's gRPC API (50155, no auth, can shut the engine down) stays
+# pod-local: traffic inside the pod (gorgone -> centengine) is not filtered.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-pollers
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pollers
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app.kubernetes.io/instance, operator: In, values: [{{ .Release.Name | quote }}] }
+      - key: app.kubernetes.io/component
+        operator: In
+        values:
+          - central-poller
+          {{- range .Values.pollers }}
+          - {{ printf "poller-%s" .name | quote }}
+          {{- end }}
+  policyTypes: [Ingress]
+  ingress:
+    - ports:
+        - { port: 4317, protocol: TCP }
+      {{- with .Values.networkPolicy.pollers.otelFrom }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- $anyTraps := .Values.centralPoller.traps.enabled }}
+    {{- range .Values.pollers }}{{ if and .traps .traps.enabled }}{{ $anyTraps = true }}{{ end }}{{ end }}
+    {{- if $anyTraps }}
+    # SNMP traps (pods without snmptrapd simply do not listen on 162).
+    - ports:
+        - { port: 162, protocol: UDP }
+      {{- with .Values.networkPolicy.pollers.trapsFrom }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+    {{- with .Values.networkPolicy.pollers.extraIngress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+---
+# php-fpm (9000, FastCGI, no auth): only httpd.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-fpm
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: fpm
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "fpm") | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "httpd") | nindent 14 }}
+      ports:
+        - { port: 9000, protocol: TCP }
+---
+# Broker: BBDO 5669 from anywhere (pollers, possibly outside the cluster);
+# cbd's gRPC API (51001, no auth, can stop cbd) only from the Central poller
+# pod (its gorgone reloads cbd after an export, via Service "cbd"; remote
+# pollers[] have no business with the Central broker); rrdcached (42217, no
+# auth) only from fpm, which flushes the RRD files before drawing a graph.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-broker
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: broker
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "broker") | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - ports:
+        - { port: 5669, protocol: TCP }
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "central-poller") | nindent 14 }}
+      ports:
+        - { port: 51001, protocol: TCP }
+    {{- if .Values.rrdcached.enabled }}
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "fpm") | nindent 14 }}
+      ports:
+        - { port: 42217, protocol: TCP }
+    {{- end }}
+{{- if .Values.valkey.enabled }}
+---
+# Valkey (PHP sessions): only fpm.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-valkey
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: valkey
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "valkey") | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "fpm") | nindent 14 }}
+      ports:
+        - { port: 6379, protocol: TCP }
+{{- end }}
+{{- if .Values.database.bundled }}
+---
+# Bundled database: only the release's database clients.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-db
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: db
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "db") | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - { key: app.kubernetes.io/instance, operator: In, values: [{{ .Release.Name | quote }}] }
+              - { key: app.kubernetes.io/component, operator: In, values: [fpm, install, config-delivery, cron, gorgone-central, broker, autodiscovery-worker] }
+      ports:
+        - { port: 3306, protocol: TCP }
+{{- end }}
+{{- end }}
+
