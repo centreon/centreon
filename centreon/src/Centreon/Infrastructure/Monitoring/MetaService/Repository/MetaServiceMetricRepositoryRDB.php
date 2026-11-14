@@ -25,7 +25,6 @@ namespace Centreon\Infrastructure\Monitoring\MetaService\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric\MetaServiceMetricRepositoryInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Monitoring\MetaService\Repository\Model\MetaServiceMetricFactoryRdb;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
@@ -50,9 +49,6 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
     {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
     }
 
     /**

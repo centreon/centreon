@@ -25,7 +25,6 @@ namespace Centreon\Infrastructure\Icon;
 
 use Centreon\Domain\Configuration\Icon\Icon;
 use Centreon\Domain\Configuration\Icon\Interfaces\IconRepositoryInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -53,9 +52,6 @@ class IconRepositoryRDB extends AbstractRepositoryDRB implements IconRepositoryI
     public function setSqlRequestTranslator(SqlRequestParametersTranslator $sqlRequestTranslator): void
     {
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
     }
 
     /**

@@ -84,7 +84,7 @@ class RequestParameters implements RequestParametersInterface
      * @var int Indicates whether we should consider only known search parameters.
      *          Used in the data repository classes.
      */
-    private $concordanceStrictMode = self::CONCORDANCE_MODE_NO_STRICT;
+    private $concordanceStrictMode = self::CONCORDANCE_MODE_STRICT;
 
     /** @var int indicates error behaviour when there unknown search parameters in strict mode */
     private $concordanceErrorMode = self::CONCORDANCE_ERRMODE_EXCEPTION;

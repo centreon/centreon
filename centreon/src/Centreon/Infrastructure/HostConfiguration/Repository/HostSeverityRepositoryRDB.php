@@ -29,11 +29,9 @@ use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\HostConfiguration\Interfaces\HostSeverity\HostSeverityReadRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Model\HostSeverity;
 use Centreon\Domain\Repository\RepositoryException;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\HostConfiguration\Repository\Model\HostSeverityFactoryRdb;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 
 /**
  * This class is designed to represent the MariaDb repository to manage host severity.
@@ -42,16 +40,9 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSeverityReadRepositoryInterface
 {
-    /** @var SqlRequestParametersTranslator */
-    private $sqlRequestTranslator;
-
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
     }
 
     /**

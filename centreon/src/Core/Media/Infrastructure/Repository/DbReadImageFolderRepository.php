@@ -60,7 +60,6 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
 
         $this->sqlRequestTranslator
             ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT)
             ->setConcordanceErrorMode(RequestParameters::CONCORDANCE_ERRMODE_SILENT);
     }
 

@@ -26,10 +26,8 @@ namespace Centreon\Infrastructure\Engine;
 use Centreon\Domain\Engine\EngineConfiguration;
 use Centreon\Domain\Engine\Interfaces\EngineConfigurationRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Host;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 
 /**
  * This class is designed to represent the MariaDb repository to manage Engine configuration.
@@ -38,27 +36,9 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements EngineConfigurationRepositoryInterface
 {
-    /** @var SqlRequestParametersTranslator */
-    private $sqlRequestTranslator;
-
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
-    }
-
-    /**
-     * Initialized by the dependency injector.
-     *
-     * @param SqlRequestParametersTranslator $sqlRequestTranslator
-     */
-    public function setSqlRequestTranslator(SqlRequestParametersTranslator $sqlRequestTranslator): void
-    {
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(
-                RequestParameters::CONCORDANCE_MODE_STRICT
-            );
     }
 
     /**

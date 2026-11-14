@@ -26,7 +26,6 @@ namespace Core\HostCategory\Infrastructure\Repository;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
@@ -116,7 +115,6 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
 
         // Setup for search, pagination and order
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-        $sqlTranslator?->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator?->setConcordanceArray([
             'id' => 'hc.hc_id',
             'name' => 'hc.hc_name',
@@ -203,7 +201,6 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
 
         // Setup for search, pagination and order
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-        $sqlTranslator?->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator?->setConcordanceArray([
             'id' => 'hc.hc_id',
             'name' => 'hc.hc_name',
@@ -621,7 +618,6 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
 
         // Settup for search, pagination, order
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-        $sqlTranslator?->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator?->setConcordanceArray([
             'id' => 'hc.hc_id',
             'name' => 'hc.hc_name',
