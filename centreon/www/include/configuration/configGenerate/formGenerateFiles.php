@@ -116,6 +116,9 @@ $tpl->display('formGenerateFiles.ihtml');
 <script type='text/javascript'>
     var initPollers = '<?php echo json_encode($selectedPollers); ?>';
     var selectedPoller;
+    // MON-214616: pollers going on with the next step, those which failed one are left out
+    var exportedPollers;
+    var partialExport = false;
     var debugOption;
     var generateOption;
     var moveOption;
@@ -142,6 +145,9 @@ $tpl->display('formGenerateFiles.ihtml');
     msgTab['abort'] = "<?php echo addslashes(_('Aborted.')); ?>";
     msgTab['noPoller'] = "<?php echo addslashes(_('No poller selected')); ?>";
     msgTab['postcmd'] = "<?php echo addslashes(_('Executing command')); ?>";
+    msgTab['partial'] = "<?php echo addslashes(
+        _('The monitoring servers in error have been skipped by the following steps.')
+    ); ?>";
 
     jQuery(function () {
 
@@ -169,6 +175,9 @@ $tpl->display('formGenerateFiles.ihtml');
             func();
         } else {
             // no more step
+            if (partialExport) {
+                $('#consoleContent').append(msgTab['partial'] + "<br/>");
+            }
             exportBtn.disabled = false;
         }
     }
@@ -220,6 +229,8 @@ $tpl->display('formGenerateFiles.ihtml');
      */
     function initEnvironment() {
         selectedPoller = jQuery('#nhost').val().join(',');
+        exportedPollers = selectedPoller;
+        partialExport = false;
         debugOption = document.getElementById('ndebug').checked;
         generateOption = document.getElementById('ngen').checked;
         if (generateOption) {
@@ -277,7 +288,9 @@ $tpl->display('formGenerateFiles.ihtml');
                 displayDetails(data);
                 displayPhpErrorMsg('generate', data);
                 if (isError(data) == "1") {
-                    abortProgress();
+                    if (!continueWith(data.find("generated").text(), "moveFiles")) {
+                        abortProgress();
+                    }
                     return null;
                 }
                 updateProgress();
@@ -299,7 +312,7 @@ $tpl->display('formGenerateFiles.ihtml');
             type: 'POST',
             dataType: "xml",
             data: {
-                poller: selectedPoller
+                poller: exportedPollers
             },
             success: function (data) {
                 data = $(data);
@@ -307,13 +320,41 @@ $tpl->display('formGenerateFiles.ihtml');
                 displayDetails(data);
                 displayPhpErrorMsg('move', data);
                 if (isError(data) == "1") {
-                    abortProgress();
+                    if (!continueWith(data.find("delivered").text(), "restartPollers")) {
+                        abortProgress();
+                    }
                     return null;
                 }
                 updateProgress();
                 nextStep();
             }
         });
+    }
+
+    /**
+     * MON-214616: when some pollers failed a step, the others still go on with the next step if it is selected.
+     * The post command is not executed then.
+     *
+     * @param {string} pollers the pollers which did not fail, comma separated
+     * @param {string} next name of the next step
+     * @returns boolean true when the export goes on
+     */
+    function continueWith(pollers, next) {
+        if (pollers === "" || steps[0] !== next) {
+            return false;
+        }
+        exportedPollers = pollers;
+        partialExport = true;
+        var remaining = new Array();
+        for (var i = 0; i < steps.length; i++) {
+            if (steps[i] !== "executeCommand") {
+                remaining.push(steps[i]);
+            }
+        }
+        steps = remaining;
+        updateProgress();
+        nextStep();
+        return true;
     }
 
     /**
@@ -326,7 +367,7 @@ $tpl->display('formGenerateFiles.ihtml');
             type: 'POST',
             dataType: "xml",
             data: {
-                poller: selectedPoller,
+                poller: exportedPollers,
                 mode: restartMode
             },
             success: function (data) {

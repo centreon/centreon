@@ -1243,18 +1243,43 @@ msgstr ""
 #: centreon/src/Centreon/Infrastructure/MonitoringServer/ConfigurationGenerationStatus.php
 msgid ""
 "The last configuration generation of the monitoring server \"%s\" did not "
-"complete (started %s): it failed or is still running. Nothing has been moved "
+"complete (started %s): it failed or is still running. It has not been moved "
 "nor restarted, generate its configuration again"
 msgstr ""
 "La dernière génération de la configuration du serveur de supervision \"%s\" "
 "ne s'est pas terminée (démarrée %s) : elle a échoué ou est encore en cours. "
-"Rien n'a été déplacé ni redémarré, générez à nouveau sa configuration"
+"Il n'a été ni déplacé ni redémarré, générez à nouveau sa configuration"
 
 #: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
 msgid "%d of %d monitoring servers have not been delivered, the others have: %s"
 msgstr ""
 "%d serveurs de supervision sur %d n'ont pas été livrés, les autres l'ont "
 "été : %s"
+
+#: centreon/src/Centreon/Domain/MonitoringServer/Exception/ConfigurationMonitoringServerException.php
+msgid "Error on the monitoring servers: %s"
+msgstr "Erreur sur les serveurs de supervision : %s"
+
+#: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
+msgid "The monitoring servers in error have been skipped by the following steps."
+msgstr "Les serveurs de supervision en erreur ont été ignorés par les étapes suivantes."
+
+#: centreon/www/include/configuration/configGenerate/xml/generateFiles.php
+#: centreon/src/Centreon/Domain/MonitoringServer/UseCase/GenerateAllConfigurations.php
+msgid "%d of %d monitoring servers have not been generated, the others have: %s"
+msgstr ""
+"%d serveurs de supervision sur %d n'ont pas été générés, les autres l'ont "
+"été : %s"
+
+#: centreon/www/include/configuration/configGenerate/xml/generateFiles.php
+msgid "the monitoring engine reported errors in its configuration"
+msgstr "le moteur de supervision a signalé des erreurs dans sa configuration"
+
+#: centreon/src/Centreon/Domain/MonitoringServer/UseCase/GenerateAllConfigurations.php
+msgid "not generated, the generation of a previous monitoring server did not finish in time"
+msgstr ""
+"non généré, la génération d'un serveur de supervision précédent ne s'est pas "
+"terminée à temps"
 
 #: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
 msgid "Gorgone could not deliver the command: %s"

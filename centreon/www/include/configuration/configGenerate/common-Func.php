@@ -24,9 +24,10 @@
  *
  * @param CentreonXML $xml
  * @param mixed[] $tabs
+ * @param list<int> $failedPollers set to the pollers whose configuration has errors
  * @return int
  */
-function printDebug($xml, array $tabs): int
+function printDebug($xml, array $tabs, array &$failedPollers = []): int
 {
     global $pearDB, $ret, $centreon, $nagiosCFGPath;
 
@@ -105,6 +106,7 @@ function printDebug($xml, array $tabs): int
     $xml->startElement('debug');
     $str = '';
     $returnCode = 0;
+    $failedPollers = [];
     foreach ($msg_debug as $pollerId => $message) {
         $show = 'none';
         $toggler = "<label id='togglerp_" . $pollerId . "'>[ + ]</label><label id='togglerm_" . $pollerId
@@ -119,6 +121,7 @@ function printDebug($xml, array $tabs): int
                     if ($matches[1] == 'Errors') {
                         $pollerNameColor = 'red';
                         $returnCode = 1;
+                        $failedPollers[] = (int) $pollerId;
                     } elseif ($matches[1] == 'Warnings') {
                         $pollerNameColor = 'orange';
                     }
@@ -130,6 +133,7 @@ function printDebug($xml, array $tabs): int
             $toggler = "<label id='togglerp_" . $pollerId
                 . "' style='display: none'>[ + ]</label><label id='togglerm_" . $pollerId . "'>[ - ]</label>";
             $returnCode = 1;
+            $failedPollers[] = (int) $pollerId;
         }
         $str .= "<a href='#' onClick=\"toggleDebug('" . $pollerId . "'); return false;\">";
         $str .= $toggler . '</a> ';
