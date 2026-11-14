@@ -72,34 +72,6 @@ spec:
             - { name: centreon-rrd, mountPath: /seed/rrd }
             - { name: poller-broker, mountPath: /seed/broker }
             - { name: broker-cache, mountPath: /seed/cache }
-        # Waits for the config the Central poller's gorgone delivers (first
-        # export) instead of crash-looping on its absence. Also lets the
-        # entrypoint compute the log path from the real config: with
-        # BROKER_LOG_STDOUT, a config landing between the entrypoint and cbd's
-        # start left the log a plain, untailed file. The package-default
-        # config (image fingerprint) counts as not delivered, like in the
-        # entrypoint.
-        - name: wait-config
-          image: {{ include "centreon-central.image" .Values.images.broker }}
-          imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              cfg=/etc/centreon-broker/central-broker.json
-              default=$(cat /var/lib/centreon-broker/.default-config.sha256 2>/dev/null || true)
-              # Without the image's fingerprint the package default can't be
-              # told from a delivered config: only "present" is checked (fine
-              # on a volume that starts empty), and said so.
-              [ -n "$default" ] || echo "WARNING: no package-default fingerprint in this image, waiting for $cfg to exist only."
-              waited=0
-              until [ -s "$cfg" ] && { [ -z "$default" ] || [ "$(sha256sum "$cfg" | cut -d' ' -f1)" != "$default" ]; }; do
-                [ $((waited % 60)) -eq 0 ] && echo "Waiting for $cfg (delivered by the Central poller's gorgone on export)..."
-                sleep 2
-                waited=$((waited + 2))
-              done
-              echo "Broker config delivered."
-          volumeMounts:
-            - { name: poller-broker, mountPath: /etc/centreon-broker, readOnly: true }
         {{- with include "centreon-central.vaultInit" . }}{{ . | nindent 8 }}{{ end }}
         {{- if .Values.rrdcached.enabled }}
         # rrdcached batches cbd's RRD writes (rrd_cached_option tcp, set by
@@ -137,10 +109,10 @@ spec:
         {{- end }}
       containers:
         # Pure image defaults: the entrypoint writes its own private
-        # engine-context.json from APP_SECRET/SALT and refuses the
-        # package-default config (wait-config above keeps it from starting
-        # before the real one), then execs cbd: PID 1 is cbd itself, which
-        # handles SIGTERM (saves its queues) and SIGHUP (reload).
+        # engine-context.json from APP_SECRET/SALT, waits for the config the
+        # Central poller's gorgone delivers on the first export (the
+        # package-default one does not count), then execs cbd: PID 1 is cbd
+        # itself, which handles SIGTERM (saves its queues) and SIGHUP (reload).
         - name: centreon-broker
           image: {{ include "centreon-central.image" .Values.images.broker }}
           imagePullPolicy: {{ .Values.images.broker.pullPolicy }}

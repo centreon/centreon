@@ -247,6 +247,8 @@ containers:
   - name: centengine
     image: {{ include "centreon-central.image" $.Values.images.engine }}
     imagePullPolicy: {{ $.Values.images.engine.pullPolicy }}
+    # The image waits for its cbmod config (delivered by gorgone on the first
+    # export) before starting centengine.
     env:
       - { name: NAME, value: {{ $p.name | quote }} }
       - { name: TZ, value: {{ $p.timezone | default "UTC" | quote }} }
@@ -259,8 +261,7 @@ containers:
       # OpenTelemetry / Centreon Monitoring Agent (CMA) gRPC server, active
       # when an agent configuration is attached to the poller (otl_server.json).
       - { name: otel, containerPort: 4317 }
-    # No probes: centengine crash-loops until its delivered config lands
-    # (accepted, self-resolving).
+    # No probes.
     volumeMounts:
       - { name: poller-data, mountPath: /etc/centreon-engine, subPath: engine }
       - {{ $brokerMount }}
@@ -310,8 +311,9 @@ containers:
     volumeMounts:
       - { name: poller-traps-spool, mountPath: /var/spool/centreontrapd }
       # Read-only: only gorgone writes the definitions (as install-poller's
-      # :ro). centreontrapd fails with "Read-only file system" only while
-      # centreontrapd.sdb has not been delivered yet (SQLite tries to create it).
+      # :ro). The image waits for centreontrapd.sdb before starting the
+      # daemon (older images exit with "Read-only file system" until the
+      # first trap database is sent: SQLite tries to create it).
       - { name: poller-data, mountPath: /etc/snmp/centreon_traps, subPath: traps-config, readOnly: true }
       - { name: poller-centcmd, mountPath: /var/lib/centreon-engine/rw }
     {{- with $p.traps.centreontrapdResources }}

@@ -214,13 +214,13 @@ services:
       su -s /bin/sh www-data -c
       "exec /usr/share/centreon/bin/console centreon-autodiscovery:save-worker"
     volumes:
-      # Same Symfony/app-state volumes as fpm (console runs the same
-      # application tree) — not :ro, 15-cache.sh rebuilds the Symfony cache
-      # on every start, same as fpm does.
-      - centreon-cache:/var/cache/centreon
-      # vault.json lives here (var/lib/centreon/vault) — read-only, this
-      # worker never writes Centreon state of its own.
-      - centreon-varlib:/var/lib/centreon:ro
+      # No centreon-cache here: this worker's own Symfony cache never needs
+      # to be fpm's exact files, and sharing it made 15-cache.sh's rm -rf
+      # race between the two containers on every cold start (MON-214281).
+      # No centreon-varlib either: this compose has no Vault, so vault.json
+      # (the only thing under it this worker ever reads) never exists here
+      # anyway — the chart's own per-pod vault-config.sh (fpm image) is what
+      # this worker would run itself if this compose ever grows Vault.
       - centreon-license:/etc/centreon/license.d:ro
     healthcheck:
       # save-worker touches this file at the end of every successful poll
@@ -324,12 +324,13 @@ services:
       # "please registernodes" — confirmed testing the full C12 stack).
       GORGONE_API_USERNAME: centreon-gorgone
       GORGONE_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
-    volumes:
-      # Same named volumes as fpm — REMOTECOPY reads source files off its own
-      # disk, never from the triggering request, so this has to be the exact
-      # same filesystem fpm wrote to, not a copy.
-      - centreon-cache:/var/cache/centreon
-      - centreon-varlib:/var/lib/centreon
+      # No shared centreon-cache/centreon-varlib: since G7/MON-213813
+      # (legacycmd, payload_dir) + MON-213827 (LegacyCommandSender), a
+      # poller_type=docker poller (the Central's own, see 12-install.sh)
+      # gets file CONTENT embedded straight in the triggering HTTP request
+      # (SENDCFGFILE/SYNCTRAP/SENDEXPORTFILE), staged under gorgone's own
+      # /var/lib/centreon-gorgone/payload and used as the REMOTECOPY source
+      # from there — it no longer reads fpm's disk at all (MON-214281).
 
   # Central's own engine acting as a poller for config-delivery purposes (the
   # existing, unmodified TYPE=poller image/config, reused as-is).
@@ -401,6 +402,10 @@ services:
   # local centengine -v shell-out in php-fpm is a separate concern, addressed
   # by shipping a real centengine binary into the fpm image too (MON-214031,
   # see trixie/Dockerfile's engine_verifier stage).
+  #
+  # MON-214281: waiting for the broker module config instead of crash-looping
+  # is now native to this image (centreon-collect G10) — no entrypoint
+  # override needed here any more.
   centengine:
     image: "${ENGINE_IMAGE:-docker.centreon.com/centreon/centreon-engine-trixie:develop}"
     pull_policy: always
@@ -534,10 +539,11 @@ services:
   # exists for the install step). Deliberately no shared volume with fpm —
   # see trixie/entrypoint/cron/container.sh for why that would be a real
   # regression risk (fpm's own "already installed" guard on
-  # /etc/centreon/centreon.conf.php). No depends_on fpm either: a job
-  # firing before fpm's own install has finished just gets a harmless DB
-  # error, logged, retried on its own next scheduled run — same
-  # self-healing philosophy as the rest of this stack's config delivery.
+  # /etc/centreon/centreon.conf.php). MON-214281: depends_on fpm below
+  # (service_healthy, same as httpd/gorgone-central/autodisco-save-worker)
+  # instead of a job racing fpm's install and hitting a real "1044 Access
+  # denied" before its GRANT lands — fpm is only healthy once that install
+  # (and its GRANT) has finished.
   centreon-cron:
     build:
       context: ../../..
@@ -553,6 +559,8 @@ services:
       - ../.env
     depends_on:
       db:
+        condition: service_healthy
+      fpm:
         condition: service_healthy
     environment:
       MYSQL_HOST: db
