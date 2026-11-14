@@ -23,6 +23,7 @@ ini_set('display_errors', 'Off');
 
 use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
+use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
@@ -175,12 +176,7 @@ try {
     // Set new error handler
     set_error_handler($log_error);
 
-    $centcoreDirectory = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ : '/var/lib/centreon';
-    if (is_dir($centcoreDirectory . '/centcore')) {
-        $centcorePipe = $centcoreDirectory . '/centcore/' . microtime(true) . '-externalcommand.cmd';
-    } else {
-        $centcorePipe = $centcoreDirectory . '/centcore.cmd';
-    }
+    $legacyCommandSender = $container->get(LegacyCommandSender::class);
 
     $stdout = '';
     if (! isset($msg_restart)) {
@@ -214,15 +210,10 @@ try {
     $commandGenerator = $container->get(EngineCommandGenerator::class);
     foreach ($poller as $host) {
         if ($ret['restart_mode'] == 1) {
-            if ($fh = @fopen($centcorePipe, 'a+')) {
-                $reloadCommand = ($commandGenerator !== null)
-                    ? $commandGenerator->getEngineCommand('RELOAD')
-                    : 'RELOAD';
-                fwrite($fh, $reloadCommand . ':' . $host['id'] . "\n");
-                fclose($fh);
-            } else {
-                throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-            }
+            $reloadCommand = ($commandGenerator !== null)
+                ? $commandGenerator->getEngineCommand('RELOAD')
+                : 'RELOAD';
+            $legacyCommandSender->sendCommand($reloadCommand, (int) $host['id']);
 
             // Manage Error Message
             if (! isset($msg_restart[$host['id']])) {
@@ -233,15 +224,10 @@ try {
                 . htmlspecialchars(string: $host['name'], encoding: 'UTF-8') . "\n"
             );
         } elseif ($ret['restart_mode'] == 2) {
-            if ($fh = @fopen($centcorePipe, 'a+')) {
-                $restartCommand = ($commandGenerator !== null)
-                    ? $commandGenerator->getEngineCommand('RESTART')
-                    : 'RESTART';
-                fwrite($fh, $restartCommand . ':' . $host['id'] . "\n");
-                fclose($fh);
-            } else {
-                throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-            }
+            $restartCommand = ($commandGenerator !== null)
+                ? $commandGenerator->getEngineCommand('RESTART')
+                : 'RESTART';
+            $legacyCommandSender->sendCommand($restartCommand, (int) $host['id']);
 
             // Manage error Message
             if (! isset($msg_restart[$host['id']])) {

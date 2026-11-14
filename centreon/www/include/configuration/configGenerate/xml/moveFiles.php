@@ -24,6 +24,7 @@ ini_set('display_errors', 'Off');
 use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Entity\Task;
+use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 use Centreon\Infrastructure\Service\VmwareConfigurationService;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
@@ -224,9 +225,9 @@ try {
     // Centcore pipe path
     $centcore_pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
 
-    $vmwareConfigurationService = Kernel::createForWeb()
-        ->getContainer()
-        ->get(VmwareConfigurationService::class);
+    $container = Kernel::createForWeb()->getContainer();
+    $legacyCommandSender = $container->get(LegacyCommandSender::class);
+    $vmwareConfigurationService = $container->get(VmwareConfigurationService::class);
 
     $tab_server = [];
     $tabs = $centreon->user->access->getPollerAclConf(['fields' => ['name', 'id', 'localhost'], 'order' => ['name'], 'conditions' => ['ns_activate' => '1'], 'keys' => ['id']]);
@@ -241,7 +242,16 @@ try {
         if (isset($pollers) && ($pollers == 0 || in_array($host['id'], $pollers))) {
             $listBrokerFile = glob($centreonBrokerPath . $host['id'] . '/*.{xml,json,cfg,sql}', GLOB_BRACE);
             $listVmWareFile = glob($vmWareConfigPath . $host['id'] . '/*.json', GLOB_BRACE);
-            if (isset($host['localhost']) && $host['localhost'] == 1) {
+            if ($legacyCommandSender->isContainerized((int) $host['id'])) {
+                // Configuration files are embedded in the request: Gorgone does not share the cache directory
+                $legacyCommandSender->sendConfigurationFiles((int) $host['id']);
+                $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], false);
+                if (! isset($msg_restart[$host['id']])) {
+                    $msg_restart[$host['id']] = '';
+                }
+                $msg_restart[$host['id']] .= _('<br><b>Centreon : </b>All configuration will be send to '
+                    . $host['name'] . ' by Gorgone in several minutes.');
+            } elseif (isset($host['localhost']) && $host['localhost'] == 1) {
                 // Check if monitoring engine's configuration directory existss
                 $dbResult = $pearDB->query("
                     SELECT cfg_dir FROM cfg_nagios, nagios_server

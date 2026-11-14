@@ -91,7 +91,8 @@ class Broker extends AbstractObjectJSON
         name,
         centreonbroker_module_path,
         centreonbroker_cfg_path,
-        centreonbroker_logs_path
+        centreonbroker_logs_path,
+        poller_type
     ';
 
     /** @var string[] */
@@ -480,7 +481,8 @@ class Broker extends AbstractObjectJSON
 
             // gRPC parameters
             $object['grpc'] = [
-                'port' => 51000 + (int) $row['config_id'],
+                'rpc_port' => 51000 + (int) $row['config_id'],
+                'listen_address' => $this->engine['poller_type'] === 'docker' ? '0.0.0.0' : '127.0.0.1',
             ];
 
             // Force as list-array eventually wrong indexed object keys (input, output)
@@ -643,6 +645,7 @@ class Broker extends AbstractObjectJSON
             $this->engine['broker_modules_path'] = $row['centreonbroker_module_path'];
             $this->engine['broker_cfg_path'] = $row['centreonbroker_cfg_path'];
             $this->engine['broker_logs_path'] = $row['centreonbroker_logs_path'];
+            $this->engine['poller_type'] = $row['poller_type'] ?: 'vm';
         } catch (Exception $e) {
             throw new Exception('Exception received : ' . $e->getMessage() . "\n");
         }

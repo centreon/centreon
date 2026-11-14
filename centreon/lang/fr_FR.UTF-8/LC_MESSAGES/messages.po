@@ -841,6 +841,14 @@ msgstr "Comparer les licences Edition"
 msgid "Contribute on GitHub"
 msgstr "Contribution sur GitHub"
 
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid "Could not read file \"%s\""
+msgstr "Impossible de lire le fichier \"%s\""
+
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid "Could not send command to Gorgone (%s): %s"
+msgstr "Impossible d'envoyer la commande à Gorgone (%s) : %s"
+
 #: centreon/www/install/front_translate.php
 msgid "Data processing"
 msgstr "Traitement des données"
@@ -1204,9 +1212,17 @@ msgstr "Gestionnaire d'évènements"
 msgid "Get more from Centreon"
 msgstr "Profiter davantage de Centreon"
 
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid "Gorgone rejected the command (HTTP %d): %s"
+msgstr "Gorgone a rejeté la commande (HTTP %d) : %s"
+
 #: centreon/www/install/front_translate.php
 msgid "Host monitoring properties"
 msgstr "Propriétés de supervision de l'hôte"
+
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid "Invalid Gorgone command \"%s\""
+msgstr "Commande Gorgone invalide \"%s\""
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Join The Watch"

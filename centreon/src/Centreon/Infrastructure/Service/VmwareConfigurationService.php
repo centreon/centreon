@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Centreon\Infrastructure\Service;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Infrastructure\Gorgone\LegacyCommandException;
+use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Exception;
 use Symfony\Component\Process\Process;
@@ -35,21 +37,29 @@ final class VmwareConfigurationService
 
     public function __construct(
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
+        private readonly LegacyCommandSender $legacyCommandSender,
     ) {
     }
 
     /**
-     * Restart centreon_vmware (locally via systemctl or on a remote poller via centcore pipe)
-     * if and only if the VMware configuration has changed since the last export.
+     * Restart centreon_vmware (locally via systemctl, on a remote poller via centcore pipe, or on a
+     * containerized poller through the Gorgone API) if and only if the VMware configuration has changed
+     * since the last export.
      *
      * @param int $pollerId
      * @param bool $isLocalhost true → systemctl restart locally, false → write VMWARERESTART to centcore pipe
      *
-     * @throws Exception when writing to the centcore pipe fails
+     * @throws Exception when writing to the centcore pipe fails or when Gorgone does not accept the command
      */
     public function restartIfConfigurationChanged(int $pollerId, bool $isLocalhost): void
     {
         if (! $this->writeMonitoringServerRepository->resetVmwareConfigurationChange($pollerId)) {
+            return;
+        }
+
+        if ($this->legacyCommandSender->isContainerized($pollerId)) {
+            $this->sendRestartCommandToGorgone($pollerId);
+
             return;
         }
 
@@ -65,6 +75,21 @@ final class VmwareConfigurationService
 
         if (! $isLocalhost) {
             throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function sendRestartCommandToGorgone(int $pollerId): void
+    {
+        try {
+            $this->legacyCommandSender->sendCommand('VMWARERESTART', $pollerId);
+        } catch (LegacyCommandException $ex) {
+            $this->error(sprintf('Failed to send VMWARERESTART command to Gorgone: %s', $ex->getMessage()));
+            $this->writeMonitoringServerRepository->notifyVmwareConfigurationChange($pollerId);
+
+            throw new Exception($ex->getMessage(), 0, $ex);
         }
     }
 

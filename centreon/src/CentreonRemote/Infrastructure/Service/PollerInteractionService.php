@@ -23,6 +23,7 @@ namespace CentreonRemote\Infrastructure\Service;
 
 use App\Kernel;
 use Centreon;
+use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 use Centreon\Infrastructure\Service\VmwareConfigurationService;
 use Centreon\ServiceProvider;
 use CentreonBroker;
@@ -124,9 +125,9 @@ class PollerInteractionService
             ? _CENTREON_VARLIB_ . '/centcore.cmd'
             : '/var/lib/centreon/centcore.cmd';
 
-        $vmwareConfigurationService = Kernel::createForWeb()
-            ->getContainer()
-            ->get(VmwareConfigurationService::class);
+        $container = Kernel::createForWeb()->getContainer();
+        $legacyCommandSender = $container->get(LegacyCommandSender::class);
+        $vmwareConfigurationService = $container->get(VmwareConfigurationService::class);
 
         $tabServer = [];
         $tabs = $this->centreon->user->access->getPollerAclConf([
@@ -148,6 +149,14 @@ class PollerInteractionService
 
         foreach ($tabServer as $host) {
             if (in_array($host['id'], $pollerIDs)) {
+                if ($legacyCommandSender->isContainerized((int) $host['id'])) {
+                    // Configuration files are embedded in the request: Gorgone does not share the cache directory
+                    $legacyCommandSender->sendConfigurationFiles((int) $host['id']);
+                    $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], false);
+
+                    continue;
+                }
+
                 $written = file_put_contents(
                     $centCorePipe,
                     'SENDCFGFILE:' . (int) $host['id'] . "\n",
@@ -200,8 +209,12 @@ class PollerInteractionService
             }
         }
 
+        $legacyCommandSender = Kernel::createForWeb()->getContainer()->get(LegacyCommandSender::class);
+
         foreach ($tabServers as $poller) {
-            if (isset($poller['localhost']) && (int) $poller['localhost'] === 1) {
+            if ($legacyCommandSender->isContainerized((int) $poller['id'])) {
+                $legacyCommandSender->sendCommand('RESTART', (int) $poller['id']);
+            } elseif (isset($poller['localhost']) && (int) $poller['localhost'] === 1) {
                 $this->restartEngine($poller['engine_restart_command']);
             } else {
                 $written = file_put_contents(

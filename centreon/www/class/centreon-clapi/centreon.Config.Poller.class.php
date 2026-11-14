@@ -23,6 +23,8 @@ namespace CentreonClapi;
 
 use App\Kernel;
 use Centreon\Domain\Entity\Task;
+use Centreon\Infrastructure\Gorgone\LegacyCommandException;
+use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 use Centreon\Infrastructure\Service\VmwareConfigurationService;
 use CentreonDB;
 use CentreonRemote\ServiceProvider;
@@ -473,7 +475,8 @@ class CentreonConfigPoller
 
         // Move files
         $msg_copy = '';
-        if (isset($host['localhost']) && $host['localhost'] == 1) {
+        $isContainerized = $this->getLegacyCommandSender()->isContainerized((int) $host['id']);
+        if (! $isContainerized && isset($host['localhost']) && $host['localhost'] == 1) {
             // Get Apache user name
             $apacheUser = $this->getApacheUser();
 
@@ -640,15 +643,25 @@ class CentreonConfigPoller
                     ['params' => $exportParams]
                 );
             }
-            $return = $this->writeToCentcorePipe('SENDCFGFILE', $host['id']);
+            if ($isContainerized) {
+                try {
+                    // Configuration files are embedded in the request: Gorgone does not share the cache directory
+                    $this->getLegacyCommandSender()->sendConfigurationFiles((int) $host['id']);
+                } catch (LegacyCommandException $e) {
+                    echo $e->getMessage() . PHP_EOL;
+
+                    return 1;
+                }
+            } else {
+                $return = $this->writeToCentcorePipe('SENDCFGFILE', $host['id']);
+            }
 
             $this->container->get(VmwareConfigurationService::class)
                 ->restartIfConfigurationChanged((int) $host['id'], false);
 
-            $msg_copy .= _(
-                "OK: All configuration will be send to '"
-                . $host['name'] . "' by centcore in several minutes."
-            );
+            $msg_copy .= $isContainerized
+                ? _("OK: All configuration will be send to '" . $host['name'] . "' by Gorgone in several minutes.")
+                : _("OK: All configuration will be send to '" . $host['name'] . "' by centcore in several minutes.");
         }
         echo $msg_copy . "\n";
 
@@ -721,6 +734,19 @@ class CentreonConfigPoller
         );
         passthru($cmd);
 
+        if ($this->getLegacyCommandSender()->isContainerized((int) $pollerId)) {
+            try {
+                // The database is embedded in the request: Gorgone does not share the trap directory
+                $this->getLegacyCommandSender()->sendTrapDatabase((int) $pollerId, $filename);
+            } catch (LegacyCommandException $e) {
+                echo $e->getMessage() . PHP_EOL;
+
+                return 1;
+            }
+
+            return 0;
+        }
+
         return $this->writeToCentcorePipe('SYNCTRAP', $pollerId);
     }
 
@@ -755,7 +781,7 @@ class CentreonConfigPoller
 
     /**
      * Write command to centcore pipe, using the dynamic centcore pipe file
-     * when possible
+     * when possible, or send it to Gorgone through its API for a containerized poller
      *
      * @param string $cmd
      * @param int $id
@@ -763,6 +789,18 @@ class CentreonConfigPoller
      */
     private function writeToCentcorePipe($cmd, $id): int
     {
+        if ($this->getLegacyCommandSender()->isContainerized((int) $id)) {
+            try {
+                $this->getLegacyCommandSender()->sendCommand($cmd, (int) $id);
+            } catch (LegacyCommandException $e) {
+                echo $e->getMessage() . PHP_EOL;
+
+                return 1;
+            }
+
+            return 0;
+        }
+
         if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
             $pipe = _CENTREON_VARLIB_ . '/centcore/' . hrtime(true) . '-externalcommand.cmd';
         } else {
@@ -772,6 +810,14 @@ class CentreonConfigPoller
         $result = file_put_contents($pipe, $fullCommand, FILE_APPEND);
 
         return ($result !== false) ? 0 : 1;
+    }
+
+    private function getLegacyCommandSender(): LegacyCommandSender
+    {
+        $sender = $this->container->get(LegacyCommandSender::class);
+        \assert($sender instanceof LegacyCommandSender);
+
+        return $sender;
     }
 
     /**
