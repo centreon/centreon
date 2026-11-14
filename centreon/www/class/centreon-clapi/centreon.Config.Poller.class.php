@@ -23,8 +23,10 @@ namespace CentreonClapi;
 
 use App\Kernel;
 use Centreon\Domain\Entity\Task;
+use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
+use Centreon\Infrastructure\MonitoringServer\ConfigurationGenerationStatus;
 use Centreon\Infrastructure\Service\VmwareConfigurationService;
 use CentreonDB;
 use CentreonRemote\ServiceProvider;
@@ -152,6 +154,9 @@ class CentreonConfigPoller
         $statement->execute();
         $host = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
+        if (! $this->isLastGenerationComplete($host)) {
+            return 1;
+        }
 
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $reloadCommand = $this->commandGenerator->getEngineCommand('RELOAD');
@@ -243,6 +248,9 @@ class CentreonConfigPoller
         $statement->execute();
         $host = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
+        if (! $this->isLastGenerationComplete($host)) {
+            return 1;
+        }
 
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $restartCommand = $this->commandGenerator->getEngineCommand('RESTART');
@@ -472,6 +480,9 @@ class CentreonConfigPoller
         $statement->execute();
         $host = $statement->fetchRow();
         $statement->closeCursor();
+        if (! $this->isLastGenerationComplete($host)) {
+            return 1;
+        }
 
         // Move files
         $msg_copy = '';
@@ -848,6 +859,25 @@ class CentreonConfigPoller
         }
 
         throw new CentreonClapiException(self::UNKNOWN_POLLER_ID);
+    }
+
+    /**
+     * MON-214474: moving the files of a poller, or reloading/restarting it, is refused when its last configuration
+     * generation did not complete (they would be those of an older generation, or a mix).
+     *
+     * @param array<string, mixed> $host nagios_server row
+     */
+    private function isLastGenerationComplete(array $host): bool
+    {
+        try {
+            ConfigurationGenerationStatus::create()->assertCompleted((int) $host['id'], (string) $host['name']);
+        } catch (IncompleteGenerationException $ex) {
+            echo 'Error: ' . $ex->getMessage() . PHP_EOL;
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

@@ -22,6 +22,7 @@
 // file centreon.config.php may not exist in test environment
 
 use App\Kernel;
+use Centreon\Infrastructure\MonitoringServer\ConfigurationGenerationStatus;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -502,6 +503,11 @@ class Generate
      */
     private function configPoller($username = 'unknown'): void
     {
+        // Until markCompleted() below, moving these files or restarting this poller is refused (MON-214474):
+        // a generation dying on the way (memory, timeout) must not let an older or half-written one be deployed.
+        $generationStatus = new ConfigurationGenerationStatus($this->backend_instance->generate_path);
+        $generationStatus->markStarted((int) $this->current_poller['id'], (string) $username);
+
         $this->backend_instance->setUserName($username);
         $this->backend_instance->initPath($this->current_poller['id']);
         $this->backend_instance->setPollerId($this->current_poller['id']);
@@ -538,5 +544,7 @@ class Generate
             $this->readMonitoringServerRepository
         ))->generateFromPollerId($this->current_poller['id']);
         $this->backend_instance->movePath($this->current_poller['id']);
+
+        $generationStatus->markCompleted((int) $this->current_poller['id']);
     }
 }
