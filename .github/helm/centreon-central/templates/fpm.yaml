@@ -45,6 +45,8 @@ spec:
         - name: migrate-volumes
           image: {{ include "centreon-central.image" .Values.images.fpm }}
           imagePullPolicy: {{ .Values.images.fpm.pullPolicy }}
+          env:
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           securityContext:
             runAsUser: 0
           command: ["/bin/sh", "-c"]
@@ -76,6 +78,8 @@ spec:
         - name: seed-volumes
           image: {{ include "centreon-central.image" .Values.images.fpm }}
           imagePullPolicy: {{ .Values.images.fpm.pullPolicy }}
+          env:
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           securityContext:
             runAsUser: 0
           command: ["/bin/sh", "-c"]
@@ -114,6 +118,7 @@ spec:
           imagePullPolicy: {{ .Values.images.fpm.pullPolicy }}
           env:
             {{- include "centreon-central.fpmInstallEnv" . | nindent 12 }}
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
             - { name: INSTALL_DB_STEPS, value: "false" }
             {{- include "centreon-central.exportTimeoutEnv" . | nindent 12 }}
             {{- with include "centreon-central.fpmSessionEnv" . }}{{ . | nindent 12 }}{{ end }}

@@ -102,12 +102,14 @@ before re-running the schema installers.
 config-delivery purposes (`gorgone-central-poller`, the existing unmodified
 `TYPE=poller` image) — the architecture validated end-to-end in a separate
 `centreon-collect` session (websocket handshake through `httpd`'s
-`GORGONE_WSS_UPSTREAM` reverse proxy, `REMOTECOPY`, `COMMAND`/reload). `fpm`
-and `gorgone-central` share the `centreon-cache`/`centreon-varlib` named
-volumes (`/var/cache/centreon`, `/var/lib/centreon`) — `REMOTECOPY` reads
-source files off gorgone's own disk, never from the triggering request, so
-this has to be the literal same filesystem `fpm` writes to, not a copy (see
-`www/include/configuration/configGenerate/xml/moveFiles.php`).
+`GORGONE_WSS_UPSTREAM` reverse proxy, `REMOTECOPY`, `COMMAND`/reload). No
+shared volume between `fpm` and `gorgone-central` (MON-214629 dropped the
+former `centreon-cache`/`centreon-varlib` named volumes): since
+G7/MON-213813 (legacycmd, payload_dir) + MON-213827 (`LegacyCommandSender`),
+a `poller_type=docker` poller gets file content embedded straight in the
+triggering HTTP request instead — `REMOTECOPY`'s source is that payload,
+staged under gorgone's own `/var/lib/centreon-gorgone/payload`, not `fpm`'s
+disk.
 
 Self-registration needed a one-word fix upstream —
 `gorgone/gorgone/modules/centreon/nodes/class.pm` sending
@@ -1627,12 +1629,12 @@ centreon-modules/autodisco owners (M3, `AUTODISCO_TAG=MON-213817-autodisco-save-
 - **Liveness, not `/tmp/docker.ready`**: the worker touches
   `/tmp/autodiscovery-worker.alive` at the end of every successful poll loop;
   the healthcheck above checks that file's mtime, not install completion.
-- **License and Vault, read-only, shared with `fpm`**: `/etc/centreon/license.d`
-  (new `centreon-license` volume, also mounted on `fpm`, which is where the UI
-  actually writes an uploaded license) and `/var/lib/centreon` (vault.json,
-  via the existing `centreon-varlib` volume) — without Vault reachable, the
-  save-worker's own fail-closed guard suspends saves rather than writing
-  anything in clear.
+- **License, read-only, shared with `fpm`**: `/etc/centreon/license.d`
+  (`centreon-license` volume, also mounted on `fpm`, which is where the UI
+  actually writes an uploaded license). No Vault in this compose (no
+  `vault.json` to read either, MON-214629 dropped the former
+  `centreon-varlib` volume that would have carried it) — the save-worker's
+  own fail-closed guard suspends saves rather than writing anything in clear.
 - **Image requirement**: needs the SourceGuardian autodiscovery module +
   `php8.4-sourceguardian-loader` baked in (C5's `modules_fetcher`/
   `autodisco_source` stages) — `bin/console list centreon-autodiscovery` has

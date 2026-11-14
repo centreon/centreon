@@ -19,7 +19,12 @@ imagePullSecrets: []
 # and keep it: the install creates the database partitions in this timezone
 # and the partitioning job must read them in the same one. The per-component
 # values (fpm.phpTimezone, cronJobs.timeZone, centralPoller.engine.timezone,
-# pollers[].timezone) override it; empty means this one.
+# pollers[].timezone) override it; empty means this one. It is also the TZ of
+# every other container (fpm, httpd, install and config-delivery Jobs,
+# autodiscovery worker, broker and rrdcached, bundled MariaDB, Valkey, init
+# containers), so all pods log in the same timezone. A remote poller's
+# containers use its pollers[].timezone. An external database keeps its own
+# server time zone (an RDS parameter group), outside the chart.
 timezone: Europe/Paris
 
 images:
@@ -101,8 +106,8 @@ images:
 # rotate on every sync and orphan everything already encrypted in the DB.
 # Either point existingSecret at a Secret holding the keys below
 # (APP_SECRET, SALT, MYSQL_ROOT_PASSWORD, MYSQL_PASSWORD,
-# GORGONE_API_PASSWORD, optional ADMIN_PASSWORD), or let the chart create one
-# from these values.
+# GORGONE_API_PASSWORD, optional ADMIN_PASSWORD and MYSQL_ROOT_USER), or let
+# the chart create one from these values.
 secrets:
   existingSecret: ""
   # Identical on web, gorgone, centengine and centreon-broker (engine/broker
@@ -112,13 +117,19 @@ secrets:
   # carry a VM's values when migrating.
   appSecret: ""
   salt: ""
-  # MariaDB root password, used by the install Job (schema, upgrades, GRANT)
-  # and by fpm (config files, install marker check).
+  # Database admin account, used by the install Job (schema, upgrades,
+  # CREATE USER/GRANT) and by fpm (config files, install marker check).
+  # dbRootUser (key MYSQL_ROOT_USER, optional in an existingSecret: absent =
+  # root): an external database's master user, e.g. AWS RDS's. It needs
+  # CREATE, CREATE USER and the privileges it grants WITH GRANT OPTION (an
+  # RDS master user has them); no SUPER. The bundled MariaDB only has root.
+  dbRootUser: root
   dbRootPassword: "centreon"
   # "centreon" DB user. Injected into the install fixture (database.json):
-  # web config, broker outputs and gorgone-central use it. 12-install.sh
-  # GRANTs 'centreon'@'%', which only works if the user already exists: the
-  # bundled MariaDB pre-creates it, an external DB must too.
+  # web config, broker outputs and gorgone-central use it. The install Job
+  # creates 'centreon'@'%' when missing; with the bundled MariaDB it is
+  # granted ALL ON *.*, with an external database (database.bundled=false)
+  # only the Centreon schemas (configurationDb, storageDb).
   dbCentreonPassword: "centreon"
   # Password of the centreon-gorgone service account (key
   # GORGONE_API_PASSWORD). The install Job sets it on every run (the split
@@ -171,8 +182,9 @@ centreonApiUsername: centreon-gorgone
 # ---------------------------------------------------------------------------
 database:
   # Bundled single-instance MariaDB (dev/test). Set bundled=false and
-  # externalHost for a managed database (untested: the install runs
-  # GRANT ALL ... WITH GRANT OPTION as root).
+  # externalHost for a managed database (e.g. AWS RDS MariaDB 11.8): admin
+  # user from secrets.dbRootUser / MYSQL_ROOT_USER, "centreon" granted on the
+  # Centreon schemas only, no SUPER needed. See README "External database".
   bundled: true
   externalHost: ""
   # TCP port of the database (bundled: the port MariaDB listens on), for
@@ -371,10 +383,28 @@ configurationExport:
   # Timeout of the REST export's generation step (internal call to
   # generateFiles.php). 60 s covers a few thousand hosts; raise it for large
   # inventories (MON-213806 scale tests: ~10k hosts already take longer).
-  # Derived from it: php max_execution_time (at least this + 60 s, never
-  # below 300), httpd ProxyTimeout (at least this + 240 s for the REST
-  # generate-and-reload, never below 300) and the config-delivery client.
+  # Derived from it, together with resultTimeoutSeconds below: php
+  # max_execution_time, httpd ProxyTimeout (never below 300) and the
+  # config-delivery client — see the exportTimeoutEnv / httpdProxyTimeout
+  # helper comments for the exact formulas.
   generationTimeoutSeconds: 60
+  # Hosts processed per batch during generation (MON-214629): bounds PHP's
+  # peak memory to roughly this size regardless of how many hosts the poller
+  # has, instead of loading every host of the poller at once. 2000 keeps a
+  # 10k-host poller under the packaged PHP_MEMORY_LIMIT default (256M).
+  hostBatchSize: 2000
+  # How long (seconds) the REST generate-and-reload call waits for gorgone to
+  # confirm delivery to one poller (LegacyCommandSender, MON-214293). Same
+  # default as the code's own fallback (50) when unset/invalid.
+  resultTimeoutSeconds: 50
+  # Pollers delivered to at once by one generate-and-reload call
+  # (LegacyCommandSender::deliverToPollers, MON-214479). A fleet bigger than
+  # this needs more than one round — each round waits up to
+  # resultTimeoutSeconds — so the derived timeouts below assume at most 2
+  # rounds (pollers <~ 2x this); raise generationTimeoutSeconds/
+  # resultTimeoutSeconds together for a bigger fleet, same as for a bigger
+  # host count. Same default as the code's own fallback (10).
+  deliveryConcurrency: 10
 
 # One-shot Job after each install/upgrade (fpm image, no php-fpm): resyncs
 # gorgone-central's node list, waits for the Central poller to connect, runs
@@ -404,6 +434,17 @@ cronJobs:
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 3
   resources: {}
+  # Fallback for a job that doesn't set its own below (MON-214629): a run
+  # that never progresses — e.g. the wait-install init container looping
+  # forever because the install Job's marker never appears after a crash —
+  # otherwise hangs its Job indefinitely, and with concurrencyPolicy Forbid
+  # that blocks every later scheduled run too (observed: cron-token-removal
+  # and cron-centacl stuck, no run for 4h30). Kubernetes' activeDeadlineSeconds
+  # kills the whole pod, init containers included, once it elapses, so this
+  # bounds wait-install's own wait too — it keeps no separate timeout of its
+  # own, since it's shared with fpm's and config-delivery's init containers,
+  # which must be allowed to wait indefinitely during a slow install/upgrade.
+  activeDeadlineSeconds: 1800
   jobs:
     # ACL computation for non-admin users.
     centacl:
@@ -411,12 +452,18 @@ cronJobs:
       schedule: "* * * * *"
       user: www-data
       command: php -q /usr/share/centreon/cron/centAcl.php
+      # Scheduled every minute, but a big platform (10k+ hosts, many ACLs) can
+      # legitimately take several minutes to compute: with concurrencyPolicy
+      # Forbid, a long run just makes the next few schedules a no-op, which is
+      # fine — only a truly stuck run (the goal here) must be bounded.
+      activeDeadlineSeconds: 900
     # Starts / stops recurrent downtimes.
     downtime-manager:
       enabled: true
       schedule: "*/5 * * * *"
       user: www-data
       command: php -q /usr/share/centreon/cron/downtimeManager.php
+      activeDeadlineSeconds: 600
     event-report-builder:
       enabled: true
       schedule: "0 3 * * *"
@@ -435,6 +482,7 @@ cronJobs:
       schedule: "*/5 * * * *"
       user: centreon
       command: php -q /usr/share/centreon/cron/centKnowledgeSynchronizer.php
+      activeDeadlineSeconds: 600
     # Telemetry to statistics.centreon.com. A central ALWAYS sends the base
     # payload (UUID, versions, platform, auth options); options.send_statistics
     # only adds module statistics. Disabled here so dev/test/CI clusters don't
@@ -447,6 +495,7 @@ cronJobs:
       # Mounts the licence volume read-only (it reports whether a valid
       # licence exists). With a ReadWriteOnce class, pins the pod to fpm's node.
       licenses: true
+      activeDeadlineSeconds: 300
     # No centreon-backup.pl job: the cron image has no MariaDB client, and a
     # backup written into the pod's ephemeral filesystem is lost when the Job
     # ends. Back up the database and the volumes instead (managed DB backups,
@@ -456,16 +505,22 @@ cronJobs:
       schedule: "* * * * *"
       user: www-data
       command: /usr/share/centreon/cron/outdated-token-removal.php
+      activeDeadlineSeconds: 300
+    # Purge and partitioning can legitimately outlast their own period on a
+    # big database (see concurrencyPolicy above): generous but still bounded,
+    # well under the next day's run.
     storage-purge:
       enabled: true
       schedule: "0 2 * * *"
       user: centreon
       command: php /usr/share/centreon/cron/centstorage_purge.php
+      activeDeadlineSeconds: 7200
     partitioning:
       enabled: true
       schedule: "0 4 * * *"
       user: centreon
       command: php /usr/share/centreon/cron/centreon-partitioning.php
+      activeDeadlineSeconds: 7200
 
 # ---------------------------------------------------------------------------
 # centreon-broker: central-broker-master (RRD output merged in), singleton

@@ -38,6 +38,15 @@ abstract class AbstractService extends AbstractObject
     /** @var array */
     protected $service_cache;
 
+    /**
+     * service_id => service_description for every service generated so far
+     * (MON-214629), only ever populated by Service, but declared here since
+     * getString() (below) reads it.
+     *
+     * @var array<int, string>
+     */
+    protected $serviceDescriptionsById = [];
+
     // no flap_detection_options attribute
     /** @var string */
     protected $attributes_select = '
@@ -126,6 +135,15 @@ abstract class AbstractService extends AbstractObject
      */
     public function getString($service_id, $attr)
     {
+        // MON-214629: service_description is the only attribute read once a
+        // service's own batch is done (Dependency/Escalation/generateIndexData,
+        // all run after every batch) — resolve it from the map built
+        // incrementally as each service is generated (serviceDescriptionsById),
+        // which (unlike service_cache) is never cleared between batches.
+        if ($attr === 'service_description' && isset($this->serviceDescriptionsById[$service_id])) {
+            return $this->serviceDescriptionsById[$service_id];
+        }
+
         return $this->service_cache[$service_id][$attr] ?? null;
     }
 

@@ -33,6 +33,7 @@ spec:
           imagePullPolicy: {{ .Values.images.httpd.pullPolicy }}
           env:
             - { name: PHP_FPM_UPSTREAM, value: "fpm:9000" }
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
             - { name: HTTPD_SERVER_NAME, value: {{ include "centreon-central.serverName" . | quote }} }
             - { name: GORGONE_WSS_UPSTREAM, value: "gorgone-central:8087" }
             - { name: HTTPD_PROXY_TIMEOUT, value: {{ include "centreon-central.httpdProxyTimeout" . | quote }} }

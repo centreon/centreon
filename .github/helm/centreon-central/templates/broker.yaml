@@ -36,6 +36,8 @@ spec:
         - name: migrate-volumes
           image: {{ include "centreon-central.image" .Values.images.broker }}
           imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+          env:
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           securityContext:
             runAsUser: 0
           command: ["/bin/sh", "-c"]
@@ -56,6 +58,8 @@ spec:
         - name: own-volumes
           image: {{ include "centreon-central.image" .Values.images.broker }}
           imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+          env:
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           securityContext:
             runAsUser: 0
           command: ["/bin/sh", "-c"]
@@ -84,6 +88,8 @@ spec:
         - name: rrdcached
           image: {{ include "centreon-central.image" .Values.images.rrdcached }}
           imagePullPolicy: {{ .Values.images.rrdcached.pullPolicy }}
+          env:
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           restartPolicy: Always
           ports:
             - { name: rrdcached, containerPort: 42217 }
@@ -123,6 +129,7 @@ spec:
             # /dev/stdout) instead of a file in the container tailed by the
             # image. Ignored by images without it.
             - { name: BROKER_LOG_STDOUT, value: "true" }
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           ports:
             - { name: bbdo, containerPort: 5669 }
             # cbd's gRPC API: 51000 + the config_id of central-broker-master

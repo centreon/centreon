@@ -43,6 +43,17 @@ app.kubernetes.io/component: {{ .component }}
       key: {{ .key }}
 {{- end -}}
 
+{{/* Database admin user (key MYSQL_ROOT_USER, optional: absent = "root" in
+     the scripts). A managed database (AWS RDS) has its own master user. */}}
+{{- define "centreon-central.dbAdminUserEnv" -}}
+- name: MYSQL_ROOT_USER
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "centreon-central.secretName" . }}
+      key: MYSQL_ROOT_USER
+      optional: true
+{{- end -}}
+
 {{- define "centreon-central.pvcName" -}}
 {{- printf "%s-%s" .ctx.Release.Name .name -}}
 {{- end -}}
@@ -93,16 +104,17 @@ externalTrafficPolicy: {{ .externalTrafficPolicy }}
 {{- end -}}
 
 {{/* initContainer waiting for the install Job's marker (options.helm_install_id
-     = this release's install id), as root: used by fpm, the autodiscovery
-     worker and the config-delivery Job. */}}
+     = this release's install id), as the database admin (MYSQL_ROOT_USER,
+     default root): used by fpm, the autodiscovery worker and the
+     config-delivery Job. */}}
 {{- define "centreon-central.waitInstall" -}}
-{{ include "centreon-central.waitInstallAs" (dict "ctx" . "user" "root" "passwordKey" "MYSQL_ROOT_PASSWORD") }}
+{{ include "centreon-central.waitInstallAs" (dict "ctx" . "user" "" "passwordKey" "MYSQL_ROOT_PASSWORD") }}
 {{- end -}}
 
 {{/* waitInstall as a given database user: (dict "ctx" $ "user" <user>
-     "passwordKey" <Secret key>). As "centreon" (CronJobs) the query also
-     fails until the install Job has granted that user its database, and no
-     root password reaches the pod. */}}
+     "passwordKey" <Secret key>), "user" empty = the database admin. As
+     "centreon" (CronJobs) the query also fails until the install Job has
+     granted that user its database, and no root password reaches the pod. */}}
 {{- define "centreon-central.waitInstallAs" -}}
 {{- $ := .ctx -}}
 - name: wait-install
@@ -111,7 +123,7 @@ externalTrafficPolicy: {{ .externalTrafficPolicy }}
   command: ["/bin/sh", "-c"]
   args:
     - |
-      until [ "$(mysql {{ include "centreon-central.dbCliTls" $ }} -N -s -h"$MYSQL_HOST" -P"$MYSQL_PORT" -u"$MYSQL_USER" "$MYSQL_DB_CONFIGURATION" \
+      until [ "$(mysql {{ include "centreon-central.dbCliTls" $ }} -N -s -h"$MYSQL_HOST" -P"$MYSQL_PORT" -u"${MYSQL_USER:-${MYSQL_ROOT_USER:-root}}" "$MYSQL_DB_CONFIGURATION" \
           -e "SELECT value FROM options WHERE \`key\` = 'helm_install_id'" 2>/dev/null)" = "$INSTALL_ID" ]; do
         echo "Waiting for install $INSTALL_ID..."
         sleep 5
@@ -121,13 +133,26 @@ externalTrafficPolicy: {{ .externalTrafficPolicy }}
     - { name: MYSQL_HOST, value: {{ include "centreon-central.dbHost" $ | quote }} }
     - { name: MYSQL_PORT, value: {{ include "centreon-central.dbPort" $ | quote }} }
     - { name: MYSQL_DB_CONFIGURATION, value: {{ $.Values.database.configurationDb | quote }} }
+    {{- if .user }}
     - { name: MYSQL_USER, value: {{ .user | quote }} }
+    {{- else }}
+    {{- include "centreon-central.dbAdminUserEnv" $ | nindent 4 }}
+    {{- end }}
     - { name: INSTALL_ID, value: {{ include "centreon-central.installId" $ | quote }} }
+    {{- include "centreon-central.tzEnv" $ | nindent 4 }}
     {{- include "centreon-central.secretEnv" (dict "ctx" $ "name" "MYSQL_PWD" "key" .passwordKey) | nindent 4 }}
   {{- with include "centreon-central.dbTlsMounts" $ }}
   volumeMounts:
     {{- . | nindent 4 }}
   {{- end }}
+{{- end -}}
+
+{{/* TZ of a Central container (date, logs): the global timezone, so every
+     pod logs in the same one. Not in fpmInstallEnv: that one is hashed into
+     the install id, and a TZ alone must not rerun the install Job. Remote
+     pollers' containers use their own pollers[].timezone (_poller.tpl). */}}
+{{- define "centreon-central.tzEnv" -}}
+- { name: TZ, value: {{ .Values.timezone | default "UTC" | quote }} }
 {{- end -}}
 
 {{/* Where the web (fpm, cron) reaches gorgone-central's API: overrides
@@ -146,7 +171,13 @@ externalTrafficPolicy: {{ .externalTrafficPolicy }}
 - { name: MYSQL_PORT, value: {{ include "centreon-central.dbPort" . | quote }} }
 - { name: MYSQL_DB_CONFIGURATION, value: {{ .Values.database.configurationDb | quote }} }
 - { name: MYSQL_DB_STORAGE, value: {{ .Values.database.storageDb | quote }} }
+{{ include "centreon-central.dbAdminUserEnv" . }}
 {{ include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_ROOT_PASSWORD" "key" "MYSQL_ROOT_PASSWORD") }}
+{{- if not .Values.database.bundled }}
+# External database: "centreon" granted on the two Centreon schemas only (a
+# managed database refuses GRANT ALL ON *.*).
+- { name: CENTREON_DB_GRANT_SCOPE, value: "schemas" }
+{{- end }}
 # "centreon" DB user's password: replaces the install fixture's (database.json).
 {{ include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_PASSWORD" "key" "MYSQL_PASSWORD") }}
 {{ include "centreon-central.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" "APP_SECRET") }}
@@ -310,6 +341,7 @@ imagePullSecrets:
     - { name: VAULT_ADDRESS, value: {{ required "vault.address is required with vault.enabled" .Values.vault.address | quote }} }
     - { name: VAULT_PORT, value: {{ .Values.vault.port | quote }} }
     - { name: VAULT_ROOT_PATH, value: {{ .Values.vault.rootPath | quote }} }
+    {{- include "centreon-central.tzEnv" . | nindent 4 }}
     {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "VAULT_ROLE_ID" "key" "VAULT_ROLE_ID") | nindent 4 }}
     {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "VAULT_SECRET_ID" "key" "VAULT_SECRET_ID") | nindent 4 }}
     {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" "APP_SECRET") | nindent 4 }}
@@ -447,23 +479,39 @@ valkey:6379
 {{/* fpm's session handler (image contract: the entrypoint URL-encodes the
      password into the save path). */}}
 {{/*
-Configuration export timeouts (MON-214473), all derived from
-configurationExport.generationTimeoutSeconds: fpm runs the generation within
-it and PHP must not stop it first; httpd must outlast the whole REST
-generate-and-reload (generation + two gorgone deliveries of up to 60 s each).
+Configuration export env (MON-214473, MON-214479, MON-214629), all derived
+from configurationExport.*: fpm runs the generation within
+generationTimeoutSeconds and PHP must not stop it first; httpd must outlast
+the whole REST generate-and-reload (generation, then gorgone delivery to each
+poller awaited resultTimeoutSeconds at a time, deliveryConcurrency pollers per
+round — LegacyCommandSender::deliverToPollers). The margins below assume at
+most 2 rounds (see deliveryConcurrency's comment); PHP_MAX_EXECUTION_TIME is
+kept safely under httpd's ProxyTimeout so PHP's own timeout fires first with a
+clear error instead of httpd silently cutting the connection.
+hostBatchSize bounds the generation's peak memory regardless of poller size.
 */}}
 {{- define "centreon-central.generationTimeout" -}}
 {{- int .Values.configurationExport.generationTimeoutSeconds -}}
 {{- end }}
 
+{{- define "centreon-central.resultTimeout" -}}
+{{- int .Values.configurationExport.resultTimeoutSeconds -}}
+{{- end }}
+
 {{- define "centreon-central.exportTimeoutEnv" -}}
 {{- $generation := include "centreon-central.generationTimeout" . | int -}}
+{{- $result := include "centreon-central.resultTimeout" . | int -}}
 - { name: CENTREON_CONFIGURATION_GENERATION_TIMEOUT, value: {{ $generation | quote }} }
-- { name: PHP_MAX_EXECUTION_TIME, value: {{ max 300 (add $generation 60) | quote }} }
+- { name: PHP_MAX_EXECUTION_TIME, value: {{ max 300 (add $generation (add (mul 2 $result) 60)) | quote }} }
+- { name: CENTREON_CONFIGURATION_GENERATION_HOST_BATCH_SIZE, value: {{ int .Values.configurationExport.hostBatchSize | quote }} }
+- { name: CENTREON_GORGONE_RESULT_TIMEOUT, value: {{ $result | quote }} }
+- { name: CENTREON_GORGONE_DELIVERY_CONCURRENCY, value: {{ int .Values.configurationExport.deliveryConcurrency | quote }} }
 {{- end }}
 
 {{- define "centreon-central.httpdProxyTimeout" -}}
-{{- max 300 (add (include "centreon-central.generationTimeout" . | int) 240) -}}
+{{- $generation := include "centreon-central.generationTimeout" . | int -}}
+{{- $result := include "centreon-central.resultTimeout" . | int -}}
+{{- max 300 (add $generation (add (mul 2 $result) 140)) -}}
 {{- end }}
 
 {{- define "centreon-central.fpmSessionEnv" -}}
