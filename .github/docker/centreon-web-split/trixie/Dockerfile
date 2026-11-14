@@ -31,6 +31,10 @@ ARG CENTREON_MINOR_VERSION=0
 # autodisco_source below. amd64-only upstream image; the module itself is
 # plain PHP, architecture-independent.
 ARG AUTODISCO_IMAGE=docker.centreon.com/centreon/centreon-autodisco-trixie:develop
+# Real centengine, for config-verification only (MON-214031) — see
+# engine_verifier below. Multi-arch, Debian trixie, same base family as
+# php:8.4-fpm, unlike AUTODISCO_IMAGE above: no --platform pin needed.
+ARG ENGINE_IMAGE=docker.centreon.com/centreon/centreon-engine-trixie:develop
 
 #############################################
 # Stage 1: frontend build (pnpm / rspack)
@@ -277,6 +281,19 @@ clear=$(grep -rL 'sg_load' --include='*.php' \
   | grep -v '/src/CentreonAutoDiscovery/Application/Controller/[A-Za-z]*Controller\.php$' || true)
 if [ -n "$clear" ]; then echo "autodiscovery PHP not SourceGuardian-encoded:" >&2; echo "$clear" >&2; exit 1; fi
 EOF2
+
+#############################################
+# Real centengine, for config-verification only (MON-214031). The split fpm
+# image never runs centengine itself (Pilier 2 gives centengine its own
+# container) — this exists purely so "Generate Configuration Files"'s debug
+# step (common-Func.php's printDebug(), `$nagios_bin -v
+# <cfgpath>/centengine.DEBUG`) reports a real syntax/consistency check
+# instead of the fake binary's hardcoded "Total Warnings: 0 / Total Errors:
+# 0" (see that COPY further down). ENGINE_TAG/ENGINE_IMAGE couples the fpm
+# image's verification binary to the same engine version actually running
+# the stack.
+#############################################
+FROM ${ENGINE_IMAGE} AS engine_verifier
 
 #############################################
 # Stage 3: assemble the full /usr/share/centreon tree, macro-resolved
@@ -704,22 +721,45 @@ EOF
 RUN touch /etc/centreon-engine/engine-context.json && \
     chown www-data:www-data /etc/centreon-engine/engine-context.json
 
-# Shim for "Generate Configuration Files"'s optional debug=true step
-# (common-Func.php's printDebug()): shells out to `$nagios_bin -v
-# <cfgpath>/centengine.DEBUG 2>&1` and looks for "Total Errors:"/"Total
-# Warnings:" lines via regex — no real engine belongs in this image on
-# purpose (see trixie/README.md), but the validation step itself doesn't
-# need a real one, only output matching that shape. Same trick the
-# historical bookworm-tmp prototype used for the same reason (see ticket
-# 03/[[03 - T2 Split www at build time]] in the vault). `nagios_bin` itself
-# already resolves to this real path via insertBaseConf.php's own macro
-# substitution (no placeholder bug here, unlike rrdtool_path_bin).
-COPY --chmod=755 <<'EOF' /usr/sbin/centengine
-#!/bin/sh
-echo " Total Warnings: 0"
-echo " Total Errors:   0"
-exit 0
-EOF
+# Real centengine (MON-214031), for "Generate Configuration Files"'s
+# optional debug=true step (common-Func.php's printDebug()): shells out to
+# `$nagios_bin -v <cfgpath>/centengine.DEBUG 2>&1` and looks for "Total
+# Errors:"/"Total Warnings:" lines via regex. Previously a fake shim
+# hardcoding "Total Warnings: 0 / Total Errors: 0" (see trixie/README.md and
+# git history) — meant debug=true could never report a real config error.
+# `nagios_bin` itself already resolves to this real path via
+# insertBaseConf.php's own macro substitution (no placeholder bug here,
+# unlike rrdtool_path_bin). This image still never *runs* centengine as a
+# service (Pilier 2 owns that, its own container) — only `-v`/`-V`
+# invocations, so no centengine user/config/whitelist setup is needed here.
+COPY --from=engine_verifier --link \
+    /usr/sbin/centengine /usr/sbin/centengine
+# /usr/lib/, NOT /lib/: on Debian trixie's merged-usr layout, /lib is a
+# SYMLINK to usr/lib — found the hard way via a real arm64 CI failure
+# ("exec /bin/sh: no such file or directory" on the RUN below). `COPY
+# --link` creates its destination directory tree as a real directory
+# instead of following a symlink across layers, so a `--link` COPY into
+# /lib/ replaces that symlink with a genuine /lib directory containing only
+# these 3 files — deleting every other file reachable through it,
+# including /lib/ld-linux-aarch64.so.1 (arm64) or /lib/libc.so.6 (depending
+# on arch). amd64 happened to still build because its own dynamic linker
+# lives under /lib64/, untouched by this — but that image's /lib was
+# exactly as broken, just not yet hit by anything that needed it.
+COPY --from=engine_verifier --link \
+    /lib/libcentreon_clib.so /lib/libcentreon_engine_conf.so /lib/cbmod.so \
+    /usr/lib/
+# All of centengine's other runtime libs (libmariadb3, libssl3t64, libzstd1,
+# zlib1g — confirmed via `ldd`) are already present in this image (PHP's own
+# pdo_mysql/openssl/zlib extensions), so no apt install is needed here.
+# ldconfig: refreshes this image's own ld.so.cache so the dynamic linker
+# finds the 3 Centreon libs just dropped into /usr/lib — COPY alone doesn't
+# update it. test -L /lib: guards against the exact bug above recurring
+# silently (a future edit reintroducing a /lib/-targeted --link COPY).
+RUN test -L /lib && \
+    ldconfig && \
+    centengine -V && \
+    missing=$(ldd /usr/sbin/centengine | grep 'not found' || true) && \
+    if [ -n "$missing" ]; then echo "centengine missing libraries:" >&2; echo "$missing" >&2; exit 1; fi
 
 # bin/console (and other CLI scripts) shebang is #!/usr/bin/php — that path
 # only exists via update-alternatives on a real Debian package install
