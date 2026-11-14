@@ -11,6 +11,9 @@
 #   IMAGE_TEMPLATE  CI image of a build target, with "{target}" as placeholder
 #                   (e.g. registry/centreon-web-split-{target}-trixie:<tag>)
 #   GORGONE_IMAGE, BROKER_IMAGE, ENGINE_IMAGE, TRAPD_IMAGE  dependency images
+#   COMPOSE_OVERLAY optional extra compose file layered on the base stack
+#                   (e.g. the database TLS overlay docker-compose.db-tls.yml)
+#   SMOKE_VARIANT  label of this run in the summary (default "plain")
 #   SUMMARY_FILE   optional markdown summary output
 #   WAIT_TIMEOUT   seconds to wait for the stack to be healthy (default 1200)
 set -euo pipefail
@@ -26,7 +29,10 @@ SPLIT_DIR=.github/docker/centreon-web-split
 BASE="$SPLIT_DIR/docker-compose.yml"
 OVERRIDE="$SPLIT_DIR/docker-compose.ci-images.yml"
 PROJECT=central-smoke
-compose() { docker compose -p "$PROJECT" -f "$BASE" -f "$OVERRIDE" "$@"; }
+SMOKE_VARIANT="${SMOKE_VARIANT:-plain}"
+compose_files=(-f "$BASE")
+[[ -n "${COMPOSE_OVERLAY:-}" ]] && compose_files+=(-f "$COMPOSE_OVERLAY")
+compose() { docker compose -p "$PROJECT" "${compose_files[@]}" -f "$OVERRIDE" "$@"; }
 
 results=()
 failures=0
@@ -37,7 +43,7 @@ record() {
 
 write_summary() {
   {
-    echo "### Central compose smoke test"
+    echo "### Central compose smoke test (${SMOKE_VARIANT})"
     echo
     echo "| Check | Result |"
     echo "| --- | --- |"
@@ -184,6 +190,30 @@ if has_service valkey; then
   else
     record "UI session survives fpm recreate (HTTP ${after})" ko
   fi
+fi
+
+# Database TLS overlay: MariaDB runs with require_secure_transport, so every
+# check above already went through TLS clients. Prove the server side too, and
+# run the Perl report jobs once (centreon::common::db, db_ssl* from conf.pm).
+if has_service db-tls-init; then
+  if compose exec -T db sh -c 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb --skip-ssl -h 127.0.0.1 -uroot -e "SELECT 1"' >/dev/null 2>&1; then
+    record "db refuses a non-TLS login" ko
+  else
+    record "db refuses a non-TLS login" ok
+  fi
+  cipher=$(compose exec -T db sh -c 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb --ssl --ssl-ca=/certs/ca/ca.pem -h 127.0.0.1 -uroot -N -s -e "SHOW SESSION STATUS LIKE '"'"'Ssl_cipher'"'"'"' 2>/dev/null | awk '{print $2}' | tr -d '[:space:]' || true)
+  if [[ -n "$cipher" ]]; then
+    record "db TLS session (${cipher})" ok
+  else
+    record "db TLS session" ko
+  fi
+  for job in eventReportBuilder dashboardBuilder; do
+    if compose exec -T --user centreon centreon-cron /usr/share/centreon/cron/"$job" --config=/etc/centreon/conf.pm         >"$LOG_DIR/${job}.log" 2>&1; then
+      record "cron ${job} over TLS" ok
+    else
+      record "cron ${job} over TLS" ko
+    fi
+  done
 fi
 
 (( failures == 0 ))

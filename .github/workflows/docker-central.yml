@@ -339,7 +339,13 @@ jobs:
     needs: [prepare, merge-manifests]
     runs-on: ubuntu-24.04
     timeout-minutes: 40
-    name: compose smoke test
+    strategy:
+      fail-fast: false
+      matrix:
+        # db-tls: same stack with the opt-in database TLS overlay
+        # (require_secure_transport on MariaDB, TLS on every client).
+        variant: [plain, db-tls]
+    name: compose smoke test (${{ matrix.variant }})
     env:
       REGISTRY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
       TAG: ${{ needs.prepare.outputs.tag }}
@@ -363,6 +369,8 @@ jobs:
           BROKER_IMAGE: ${{ env.REGISTRY }}/centreon-broker-trixie:${{ needs.prepare.outputs.broker_tag }}
           ENGINE_IMAGE: ${{ env.REGISTRY }}/centreon-engine-trixie:${{ needs.prepare.outputs.engine_tag }}
           TRAPD_IMAGE: ${{ env.REGISTRY }}/centreon-trapd-trixie:${{ needs.prepare.outputs.trapd_tag }}
+          COMPOSE_OVERLAY: ${{ matrix.variant == 'db-tls' && '.github/docker/centreon-web-split/docker-compose.db-tls.yml' || '' }}
+          SMOKE_VARIANT: ${{ matrix.variant }}
           SUMMARY_FILE: ${{ github.step_summary }}
         run: ./.github/scripts/centreon-central-docker-compose-smoke.sh
         shell: bash
@@ -371,7 +379,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: central-compose-smoke-logs
+          name: central-compose-smoke-logs-${{ matrix.variant }}
           path: /tmp/centreon-central-smoke
           retention-days: 7
           if-no-files-found: ignore
