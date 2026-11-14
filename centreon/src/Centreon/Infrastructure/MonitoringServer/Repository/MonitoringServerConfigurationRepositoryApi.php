@@ -62,6 +62,9 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
     /** @var int */
     private $timeout = 60;
 
+    /** @var int|null timeout of the generation call, the general timeout when not set */
+    private ?int $generationTimeout = null;
+
     /**
      * @param AuthenticationTokenServiceInterface $authenticationTokenService
      * @param ContactInterface $contact
@@ -94,11 +97,39 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
     }
 
     /**
+     * To be used by the dependency injector: timeout of the generation call only, which takes much longer than
+     * the other calls on large configurations. Comes from an environment variable: an empty or invalid value
+     * keeps the general timeout.
+     *
+     * @param int|string|null $timeout seconds
+     *
+     * @return MonitoringServerConfigurationRepositoryApi
+     */
+    public function setGenerationTimeout(int|string|null $timeout): self
+    {
+        $timeout = is_string($timeout) ? trim($timeout) : $timeout;
+        $this->generationTimeout = (is_int($timeout) || ctype_digit((string) $timeout)) && (int) $timeout > 0
+            ? (int) $timeout
+            : null;
+
+        return $this;
+    }
+
+    /**
      * @inheritDoc
      */
     public function generateConfiguration(int $monitoringServerId): void
     {
-        $this->callHttp('generateFiles.php', 'generate=true&debug=true&poller=' . $monitoringServerId);
+        $timeout = $this->generationTimeout ?? $this->timeout;
+        $this->callHttp(
+            'generateFiles.php',
+            'generate=true&debug=true&poller=' . $monitoringServerId,
+            $timeout,
+            sprintf(
+                _('The configuration generation did not finish within %d seconds (it may still be running)'),
+                $timeout
+            ),
+        );
     }
 
     /**
@@ -157,14 +188,21 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
     /**
      * @param string $filePath
      * @param string $payloadBody
+     * @param int|null $timeout seconds, the general timeout when null
+     * @param string|null $timeoutMessage reason given when the call times out
      *
      * @throws RepositoryException
      * @throws TimeoutException
      * @throws AuthenticationException
      * @throws GorgoneDeliveryException
      */
-    private function callHttp(string $filePath, string $payloadBody): void
-    {
+    private function callHttp(
+        string $filePath,
+        string $payloadBody,
+        ?int $timeout = null,
+        ?string $timeoutMessage = null,
+    ): void {
+        $timeout ??= $this->timeout;
         try {
             $this->initUri();
             $fullUriPath = $this->serverUri . '/include/configuration/configGenerate/xml/' . $filePath;
@@ -187,7 +225,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
                 'verify_peer' => false,
                 'headers' => ['X-AUTH-TOKEN' => $providerToken->getToken()],
                 'body' => $payloadBody,
-                'timeout' => $this->timeout,
+                'timeout' => $timeout,
             ];
 
             $optionPayload['verify_host'] = $optionPayload['verify_peer'];
@@ -218,7 +256,10 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
             throw MonitoringServerConfigurationRepositoryException::errorWhenInitializingApiUri();
         } catch (\Throwable $ex) {
             if ($ex instanceof TransportException && mb_strpos($ex->getMessage(), 'timeout') > 0) {
-                throw MonitoringServerConfigurationRepositoryException::timeout($ex);
+                throw MonitoringServerConfigurationRepositoryException::timeout(
+                    $ex,
+                    $timeoutMessage ?? sprintf(_('%s did not answer within %d seconds'), $filePath, $timeout),
+                );
             }
 
             throw MonitoringServerConfigurationRepositoryException::unexpectedError($ex);

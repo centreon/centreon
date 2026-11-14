@@ -1220,6 +1220,18 @@ msgstr "Profiter davantage de Centreon"
 msgid "Gorgone rejected the command (HTTP %d): %s"
 msgstr "Gorgone a rejeté la commande (HTTP %d) : %s"
 
+#: centreon/src/Centreon/Infrastructure/MonitoringServer/Repository/MonitoringServerConfigurationRepositoryApi.php
+msgid "%s did not answer within %d seconds"
+msgstr "%s n'a pas répondu sous %d secondes"
+
+#: centreon/src/Centreon/Infrastructure/MonitoringServer/Repository/MonitoringServerConfigurationRepositoryApi.php
+msgid ""
+"The configuration generation did not finish within %d seconds (it may still "
+"be running)"
+msgstr ""
+"La génération de la configuration ne s'est pas terminée sous %d secondes "
+"(elle est peut-être encore en cours)"
+
 #: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
 msgid "Gorgone could not deliver the command: %s"
 msgstr "Gorgone n'a pas pu transmettre la commande : %s"

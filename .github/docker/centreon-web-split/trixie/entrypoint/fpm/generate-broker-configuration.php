@@ -52,11 +52,14 @@ if ((getenv('GORGONE_API_USERNAME') ?: '') !== '' && (getenv('GORGONE_API_PASSWO
         . base64_encode(getenv('GORGONE_API_USERNAME') . ':' . getenv('GORGONE_API_PASSWORD'))];
 }
 $gorgoneNodeId = $pollerId;
-// generate-and-reload waits for gorgone's final result of each delivery
-// (moveFiles then restartPollers, each bounded by the web's curl.timeout of
-// 60s), so it can legitimately take far longer than the other calls. Kept
-// under httpd's ProxyTimeout (300s).
-$generateAndReloadTimeout = 150;
+// generate-and-reload chains the generation (bounded by the web's
+// CENTREON_CONFIGURATION_GENERATION_TIMEOUT, 60s when empty) and the two
+// deliveries that wait for gorgone's final result (moveFiles then
+// restartPollers, each bounded by the web's curl.timeout of 60s), so it can
+// legitimately take far longer than the other calls. Kept under httpd's
+// ProxyTimeout (the chart sets it to at least generation timeout + 240s).
+$generationTimeout = (int) (getenv('CENTREON_CONFIGURATION_GENERATION_TIMEOUT') ?: 0);
+$generateAndReloadTimeout = ($generationTimeout > 0 ? $generationTimeout : 60) + 2 * 60 + 30;
 
 /**
  * @param array<int,string> $headers
