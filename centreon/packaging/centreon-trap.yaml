@@ -81,6 +81,8 @@ overrides:
     replaces:
       - centreon-trap-central
       - centreon-trap-poller
+    recommends:
+      - logrotate
   deb:
     depends:
       - "centreon-perl-libs (>= ${MAJOR_VERSION}~)"
@@ -88,6 +90,8 @@ overrides:
       - libsnmp-perl
       - snmptrapd
       - snmpd
+    recommends:
+      - logrotate
 
 rpm:
   summary: Centreon Traps
