@@ -29,11 +29,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\Security\Domain\Aggregate\AccessGroupId;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
@@ -797,20 +799,19 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
-    public function testUserWithNoAclGroupHasAccessToNoImageFolders(): void
+    public function testUserWithNoAclGroupHasAccessToNoGrantedImageFolders(): void
     {
-        // Legacy `if ($accessGroups === []) return new \EmptyIterator()`: a user with no accessible
-        // ACL resource is fully restricted (fails closed): their scope allows nothing, it is
-        // not unrestricted.
+        // A user with no accessible ACL resource is fully restricted (fails closed): their scope
+        // is not unrestricted, and holds nothing but the system folders.
         $userId = new UserId($this->createContact('user-no-acl-media'));
 
         $folderScope = $this->repository->findImageFolderAccessScope($userId);
 
         self::assertFalse($folderScope->isUnrestricted());
-        self::assertSame([], $folderScope->allowedIdValues());
+        self::assertSame([], $this->fixtureImageFolderIds($folderScope));
     }
 
-    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoImageFolders(): void
+    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoGrantedImageFolders(): void
     {
         $contactId = $this->createContact('user-empty-resource-media');
         $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [], allImageFolders: false);
@@ -820,7 +821,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $folderScope = $this->repository->findImageFolderAccessScope($userId);
 
         self::assertFalse($folderScope->isUnrestricted());
-        self::assertSame([], $folderScope->allowedIdValues());
+        self::assertSame([], $this->fixtureImageFolderIds($folderScope));
     }
 
     public function testUserWithAclResourceFlaggedAllImageFoldersHasAccessToAllImageFolders(): void
@@ -842,7 +843,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $folderScope = $this->repository->findImageFolderAccessScope($userId);
         self::assertFalse($folderScope->isUnrestricted());
-        self::assertEquals([301], $folderScope->allowedIdValues());
+        self::assertSame([301], $this->fixtureImageFolderIds($folderScope));
     }
 
     public function testAnImageFolderRelationWithoutFolderIsIgnored(): void
@@ -851,7 +852,44 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $contactId = $this->createContact('user-null-folder-media');
         $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301, null], allImageFolders: false);
 
-        self::assertSame([301], $this->repository->findImageFolderAccessScope(new UserId($contactId))->allowedIdValues());
+        self::assertSame([301], $this->fixtureImageFolderIds($this->repository->findImageFolderAccessScope(new UserId($contactId))));
+    }
+
+    public function testUserWithNoAclGroupStillHasAccessToTheSystemImageFolders(): void
+    {
+        $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'centreon-map']);
+        $userId = new UserId($this->createContact('user-no-acl-system-media'));
+
+        $folderScope = $this->repository->findImageFolderAccessScope($userId);
+
+        self::assertFalse($folderScope->isUnrestricted());
+        self::assertSame([303], $this->fixtureImageFolderIds($folderScope));
+    }
+
+    public function testOnlyTheExactSystemFolderNamesAreGranted(): void
+    {
+        // the column collation ignores case: "PPM" must not be taken for the "ppm" system folder
+        $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'PPM']);
+        $this->connection->insert('view_img_dir', ['dir_id' => 304, 'dir_name' => 'Dashboards']);
+
+        $userId = new UserId($this->createContact('user-no-acl-system-case-media'));
+
+        self::assertSame([], $this->fixtureImageFolderIds($this->repository->findImageFolderAccessScope($userId)));
+    }
+
+    public function testSystemImageFoldersAreAddedToTheGrantedImageFoldersOnce(): void
+    {
+        $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'centreon-map']);
+        $this->connection->insert('view_img_dir', ['dir_id' => 304, 'dir_name' => 'ppm']);
+
+        $contactId = $this->createContact('user-granted-and-system-media');
+        // granting a system folder explicitly must not duplicate it in the scope
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301, 303], allImageFolders: false);
+
+        self::assertSame(
+            [301, 303, 304],
+            $this->fixtureImageFolderIds($this->repository->findImageFolderAccessScope(new UserId($contactId))),
+        );
     }
 
     /**
@@ -1363,6 +1401,26 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
                 'hg_hg_id' => $hostGroupId,
             ]);
         }
+    }
+
+    /**
+     * The image folders of the scope that this test created (301 to 305), sorted. Other folders,
+     * such as system folders already present in the database, are left out so that the
+     * assertions do not depend on the database content. Duplicates are kept.
+     *
+     * @param AccessScope<MediaDirectoryId> $scope
+     *
+     * @return list<int>
+     */
+    private function fixtureImageFolderIds(AccessScope $scope): array
+    {
+        $ids = array_values(array_filter(
+            $scope->allowedIdValues(),
+            static fn (int $id): bool => $id >= 301 && $id <= 305,
+        ));
+        sort($ids);
+
+        return $ids;
     }
 
     /**

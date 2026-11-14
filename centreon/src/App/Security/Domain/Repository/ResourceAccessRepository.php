@@ -134,6 +134,9 @@ interface ResourceAccessRepository
     public function findServiceGroupAccessScope(UserId $userId): AccessScope;
 
     /**
+     * The image folders the user may read: those granted by their ACL resources, plus the system
+     * folders (MediaDirectory::SYSTEM_NAMES), which are readable even without any ACL resource.
+     *
      * @return AccessScope<MediaDirectoryId>
      */
     public function findImageFolderAccessScope(UserId $userId): AccessScope;
