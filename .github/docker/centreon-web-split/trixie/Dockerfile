@@ -735,6 +735,22 @@ ENV CENTREON_INTERNAL_API_BASE_URL=http://centreon-httpd:80
 # which Symfony would read as a path.
 ENV FILE_FEATURE_FLAGS=/usr/share/centreon/config/features.json
 
+# The official php:8.4-fpm base image keeps its own build toolchain
+# ($PHPIZE_DEPS: gcc, g++, make, libc6-dev, dpkg-dev, autoconf, re2c,
+# pkg-config) installed — confirmed directly on the base image itself, not
+# assumed. libc6-dev alone pulls linux-libc-dev, which by itself accounted
+# for all 611 OS CVEs (45 HIGH/CRITICAL) Trivy found on this image. Every
+# PHP extension this image ships is compiled in the separate fpm_extensions
+# stage above and copied in as a prebuilt .so (see the COPY --from=
+# fpm_extensions block above) — nothing in this final stage ever compiles
+# anything, so the toolchain this base image carries is pure dead weight
+# here. Purge last, right before the final php-fpm/php -m sanity checks
+# below, so a build-time failure here still proves nothing *runtime* broke:
+# --auto-remove also drops linux-libc-dev (only pulled in by libc6-dev), but
+# named explicitly too as a safety net in case that dependency chain ever
+# changes upstream.
+RUN apt-get purge -y --auto-remove $PHPIZE_DEPS libc6-dev linux-libc-dev
+
 RUN php-fpm -t
 
 ARG BUILD_DATE

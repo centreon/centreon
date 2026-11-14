@@ -73,17 +73,16 @@ services:
       # into cfg_centreonbroker_info's 'host' row for Central's rrd output;
       # fpm has no way to read that row back, so this is a second, redundant
       # source of truth for the same hostname, not derived from the first.
-      # Harmless to set even while rrd_cached_option stays 'disable'
-      # (RRDCACHED_PORT unset below): nothing calls fsockopen() unless
-      # broker actually attempts an rrd flush, which it doesn't while
-      # disabled.
       CENTREON_RRDCACHED_HOST: "${RRDCACHED_HOST:-rrdcached}"
-      # Disabled by default until a BROKER_TAG carrying MON-213839's 'host'
-      # key support is in use (C12: G9). 12-install.sh forces
-      # rrd_cached_option back to 'disable' (and drops the 'host' row)
-      # whenever this is unset/empty, idempotently on every start either
-      # way.
-      RRDCACHED_PORT: "${RRDCACHED_PORT:-}"
+      # Enabled by default as of MON-213839 (G9): BROKER_TAG/ENGINE_TAG/
+      # COLLECT_REF now point at the broker image carrying the rrd output's
+      # 'host' key support, so rrdcached no longer needs to share broker's
+      # network namespace, and the former segfault-on-first-write bug this
+      # used to default-off for is gone. 12-install.sh sets
+      # rrd_cached_option='tcp' (and upserts the 'host' row) whenever this
+      # is set, idempotently on every start either way — still overridable
+      # to empty to fall back to 'disable' (and drop the 'host' row).
+      RRDCACHED_PORT: "${RRDCACHED_PORT:-42217}"
       # Resolved into centreon.ini at container start (01-config.sh) — the
       # image itself defaults to UTC (Dockerfile), this dev stack keeps the
       # value it always had rather than silently changing behavior.
@@ -130,6 +129,11 @@ services:
       # image, confirmed by comparing this exact path on both containers
       # directly.
       - centreon-media:/usr/share/centreon/www/img/media
+      # Uploaded license files (Administration > Parameters > License) — the
+      # autodisco-save-worker service below (MON-213829) reads this read-only:
+      # its auto-discovery license check needs to see whatever fpm last wrote
+      # here, not a build-time snapshot of its own image layer.
+      - centreon-license:/etc/centreon/license.d
       # PHP's own session store (session.save_handler=files, session.save_path
       # in centreon-pool.conf) — without this, every fpm recreate silently
       # logs every user out: the DB-side `session` table only tracks whether
@@ -144,6 +148,67 @@ services:
       interval: 5s
       timeout: 5s
       retries: 60
+
+  # Drains mod_auto_disco_save_request, writing discovered hosts/macros
+  # straight to the database (MON-213829) — a dedicated container from the
+  # same fpm image/entrypoint pipeline, running centreon-autodiscovery's
+  # save-worker console command instead of php-fpm. A config-only replica
+  # of fpm (RUN_INSTALL=true, INSTALL_DB_STEPS=false,
+  # RUN_CONFIG_DELIVERY=false): same pattern 12-install.sh already
+  # documents for N fpm replicas sharing one install. Needs the
+  # centreon-autodisco SourceGuardian module baked into AUTODISCO_TAG (C5)
+  # and the internal API URL fix from C8 for its own scheduled-job
+  # export/reload calls.
+  autodisco-save-worker:
+    build:
+      context: ../../..
+      dockerfile: .github/docker/centreon-web-split/trixie/Dockerfile
+      target: fpm
+    env_file:
+      - ../.env
+    depends_on:
+      db:
+        condition: service_healthy
+      fpm:
+        condition: service_healthy
+    environment:
+      RUN_INSTALL: "true"
+      INSTALL_DB_STEPS: "false"
+      RUN_CONFIG_DELIVERY: "false"
+      # fpm already chowns these (03-rrd-volumes.sh) — this replica mounts
+      # /var/lib/centreon read-only below, so it can't do it itself, and
+      # doesn't need to: it never touches .rrd files.
+      RRD_VOLUMES_CHOWN: "false"
+      MYSQL_HOST: db
+      CENTREON_INTERNAL_API_BASE_URL: "http://httpd:80"
+      CENTREON_API_USERNAME: centreon-gorgone
+      CENTREON_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
+      # Same pair as fpm's — this replica decrypts the same
+      # engine-context.json/centreon.conf.php secrets fpm's own install run
+      # produces, not independent placeholders.
+      APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
+      SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
+      PHP_TIMEZONE: "${PHP_TIMEZONE:-Europe/Paris}"
+    command: >-
+      su -s /bin/sh www-data -c
+      "exec /usr/share/centreon/bin/console centreon-autodiscovery:save-worker"
+    volumes:
+      # Same Symfony/app-state volumes as fpm (console runs the same
+      # application tree) — not :ro, 15-cache.sh rebuilds the Symfony cache
+      # on every start, same as fpm does.
+      - centreon-cache:/var/cache/centreon
+      # vault.json lives here (var/lib/centreon/vault) — read-only, this
+      # worker never writes Centreon state of its own.
+      - centreon-varlib:/var/lib/centreon:ro
+      - centreon-license:/etc/centreon/license.d:ro
+    healthcheck:
+      # save-worker touches this file at the end of every successful poll
+      # loop (see centreon-autodisco's own --heartbeat-file default).
+      test: ["CMD-SHELL", "find /tmp/autodiscovery-worker.alive -mmin -10 | grep -q ."]
+      interval: 30s
+      timeout: 5s
+      start_period: 2m
+      retries: 3
 
   httpd:
     build:
@@ -419,11 +484,10 @@ services:
   # volumes, nothing else), cbd/fpm tolerate it not being up yet the same
   # way they tolerate any other not-yet-ready peer.
   #
-  # Disabled by default stack-wide (RRDCACHED_PORT unset, see fpm's own
-  # environment above and 12-install.sh) until a BROKER_TAG carrying the
-  # 'host' key fix is in use (C12: G9). This container still runs and
-  # answers its healthcheck regardless — proves the wiring, does nothing
-  # until broker is told to use it.
+  # Enabled by default as of MON-213839 (G9, see fpm's own environment
+  # above and 12-install.sh): BROKER_TAG/ENGINE_TAG/COLLECT_REF now carry
+  # the 'host' key support, so the former segfault-on-first-write bug (and
+  # the netns-sharing workaround it forced) no longer applies.
   rrdcached:
     build:
       context: ../../..
@@ -487,6 +551,7 @@ volumes:
   centreon-status:
   centreon-metrics:
   centreon-media:
+  centreon-license:
   centreon-sessions:
   poller-etc:
   poller-engine:
