@@ -2591,10 +2591,6 @@ msgstr ""
 msgid "Categories"
 msgstr "Catégories"
 
-#: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
-msgid "Centcore commands"
-msgstr "Commandes centcore"
-
 #: centreon/src/Centreon/Infrastructure/Engine/EngineRepositoryFile.php
 #, php-format
 msgid "Centcore directory %s does not exist"
@@ -8276,6 +8272,10 @@ msgstr "Gorgone"
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Gorgone Information"
 msgstr "Informations Gorgone"
+
+#: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
+msgid "Gorgone commands"
+msgstr "Commandes Gorgone"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Gorgone connection port"
