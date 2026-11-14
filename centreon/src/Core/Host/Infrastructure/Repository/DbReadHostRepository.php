@@ -453,6 +453,79 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     /**
      * @inheritDoc
      */
+    public function findHostGroupIdsByHostIds(array $hostIds): array
+    {
+        if ($hostIds === []) {
+            return [];
+        }
+
+        [$bindValues, $hostIdsQuery] = $this->createMultipleBindQuery($hostIds, ':host_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT hgr.host_host_id, hgr.hostgroup_hg_id
+                FROM `:db`.hostgroup_relation hgr
+                INNER JOIN `:db`.hostgroup hg
+                    ON hg.hg_id = hgr.hostgroup_hg_id
+                WHERE hgr.host_host_id IN ({$hostIdsQuery})
+                    AND hg.hg_activate = '1'
+                ORDER BY hgr.host_host_id, hgr.hostgroup_hg_id
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $result = [];
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{host_host_id: int, hostgroup_hg_id: int} $row */
+            $result[(int) $row['host_host_id']][] = (int) $row['hostgroup_hg_id'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findParentHostIdsByHostIds(array $hostIds): array
+    {
+        if ($hostIds === []) {
+            return [];
+        }
+
+        [$bindValues, $hostIdsQuery] = $this->createMultipleBindQuery($hostIds, ':host_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT host_host_id, host_parent_hp_id
+                FROM `:db`.host_hostparent_relation
+                WHERE host_host_id IN ({$hostIdsQuery})
+                ORDER BY host_host_id, host_parent_hp_id
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $result = [];
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{host_host_id: int, host_parent_hp_id: int} $row */
+            $result[(int) $row['host_host_id']][] = (int) $row['host_parent_hp_id'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findNames(array $hostIds): HostNamesById
     {
         $concatenator = new SqlConcatenator();

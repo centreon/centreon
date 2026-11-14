@@ -117,3 +117,26 @@ it('splits service macros between direct and template macros for each service', 
             [...$serviceMacros, ...$templateMacros]
         ))->each->toBeFalse();
 });
+
+it('resolves monitoring parent names from a pre-loaded parent id list (MON-214625)', function (): void {
+    (new ReflectionProperty(Host::class, 'hosts'))->setValue($this->host, [
+        1 => ['host_name' => 'parent-1'],
+        2 => ['host_name' => 'parent-2'],
+    ]);
+
+    expect(($this->callPrivate)('getParents', [1, 2]))->toBe(['parent-1', 'parent-2']);
+});
+
+it('ignores a pre-loaded parent id unknown to this poller', function (): void {
+    (new ReflectionProperty(Host::class, 'hosts'))->setValue($this->host, [
+        1 => ['host_name' => 'parent-1'],
+    ]);
+
+    expect(($this->callPrivate)('getParents', [1, 999]))->toBe(['parent-1']);
+});
+
+it('resolves to no parent when the pre-loaded list is empty', function (): void {
+    (new ReflectionProperty(Host::class, 'hosts'))->setValue($this->host, []);
+
+    expect(($this->callPrivate)('getParents', []))->toBe([]);
+});
