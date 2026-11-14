@@ -1,0 +1,65 @@
+#
+# Adapted from centreon/packaging/src/centreon-apache.conf for the split
+# httpd/php-fpm topology (Pilier 1). Differences from the packaged version:
+#   - fcgi:// target is the php-fpm container/service, not 127.0.0.1:9042
+#   - ServerName + UseCanonicalName On added: fixes the second of the two
+#     independent internal-URL bugs documented on the pillar-1 page
+#     (MonitoringServerConfigurationRepositoryApi::initUri() uses
+#     $_SERVER['SERVER_NAME'] directly — the first bug, CENTREON_INTERNAL_API_BASE_URL,
+#     is fixed on the php-fpm side, in centreon-pool.conf)
+#   - RewriteCond install-gate removed on purpose: T9 will own automated
+#     install, this vhost no longer redirects to www/install/install.php
+#
+# ${HTTPD_SERVER_NAME} and ${PHP_FPM_UPSTREAM} are substituted at container
+# start by entrypoint/httpd/container.d/10-config.sh (envsubst, restricted to
+# these variables — do not widen that substitution list, this file also
+# contains literal Apache regex backreferences like $1 that must survive it).
+#
+Define base_uri "/centreon"
+Define install_dir "/usr/share/centreon"
+
+ServerTokens Prod
+
+<VirtualHost *:80>
+    ServerName ${HTTPD_SERVER_NAME}
+    UseCanonicalName On
+
+    Header set X-Frame-Options: "sameorigin"
+    Header always edit Set-Cookie ^(.*)$ $1;HttpOnly;SameSite=Strict
+    ServerSignature Off
+    TraceEnable Off
+    AllowEncodedSlashes NoDecode
+
+    Alias ${base_uri}/api ${install_dir}
+    Alias ${base_uri} ${install_dir}/www/
+
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+
+    <LocationMatch ^\${base_uri}/?(?!api/(?![^/]+\.php(?:/|$)))(.*\.php(/.*)?)$>
+        ProxyPassMatch "fcgi://${PHP_FPM_UPSTREAM}${install_dir}/www/$1"
+    </LocationMatch>
+
+    <LocationMatch ^\${base_uri}/?(authentication|api(?!/[^/]+\.php(?:/|$))(/(latest|beta|v[0-9]+|v[0-9]+\.[0-9]+))?)(/.*)?$>
+        ProxyPassMatch "fcgi://${PHP_FPM_UPSTREAM}${install_dir}/api/index.php/$1"
+    </LocationMatch>
+
+    ProxyTimeout 300
+    ErrorDocument 404 ${base_uri}/index.html
+    Options -Indexes +FollowSymLinks
+
+    <Directory "${install_dir}/www">
+        DirectoryIndex index.php
+        AllowOverride none
+        Require all granted
+        FallbackResource ${base_uri}/index.html
+    </Directory>
+
+    <Directory "${install_dir}/api">
+        AllowOverride none
+        Require all granted
+    </Directory>
+
+    <If "'${base_uri}' != '/'">
+        RedirectMatch ^/$ ${base_uri}
+    </If>
+</VirtualHost>

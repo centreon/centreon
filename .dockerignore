@@ -1,0 +1,15 @@
+# Shared build context for every Dockerfile under .github/docker/ that uses
+# the repo root as context (confirmed via `grep -rn context: .github/docker/`
+# and the `.github/workflows/*.yml` build steps) — kept deliberately minimal.
+# Only excludes things no image build could ever legitimately need from the
+# host (editor/VCS/OS metadata), never anything a specific Dockerfile's COPY
+# might rely on, since this file is shared across unrelated image builds.
+
+.git
+.github/.cache
+.claude
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+*.swp
