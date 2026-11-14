@@ -86,6 +86,13 @@ class LegacyCommandSender
     private const RESULT_TIMEOUT_ENV = 'CENTREON_GORGONE_RESULT_TIMEOUT';
     private const RESULT_POLL_INTERVAL_US = 500000;
 
+    /**
+     * Default number of pollers whose delivery is awaited at the same time by deliverToPollers(): bounds the
+     * configuration files Gorgone holds at once.
+     */
+    private const DEFAULT_DELIVERY_CONCURRENCY = 10;
+    private const DELIVERY_CONCURRENCY_ENV = 'CENTREON_GORGONE_DELIVERY_CONCURRENCY';
+
     /** Same values as gorgone::standard::constants */
     private const GORGONE_ACTION_FINISH_KO = 1;
     private const GORGONE_ACTION_FINISH_OK = 2;
@@ -94,6 +101,21 @@ class LegacyCommandSender
 
     /** @var array<int, bool> */
     private array $isContainerizedByPollerId = [];
+
+    /**
+     * Inside deliverToPollers(): tokens of the tracked commands sent, whose final result is awaited later
+     * (null otherwise: the final result is awaited before returning).
+     *
+     * @var list<string>|null
+     */
+    private ?array $deferredTokens = null;
+
+    /**
+     * Inside deliverToPollers(): connection status of the Gorgone nodes, read once for the pollers sent together.
+     *
+     * @var array<mixed>|null
+     */
+    private ?array $nodeStatuses = null;
 
     public function __construct(
         private readonly ConfigurationLoaderApiInterface $configuration,
@@ -132,6 +154,107 @@ class LegacyCommandSender
         }
 
         return $this->isContainerizedByPollerId[$pollerId];
+    }
+
+    /**
+     * Deliver to several pollers at once: the commands of each poller are sent without waiting for the
+     * previous poller, then the final results are awaited together (at most CENTREON_GORGONE_DELIVERY_CONCURRENCY
+     * pollers at a time, 10 by default). The total time is close to the slowest poller, not the sum.
+     *
+     * A poller which fails (not connected, failure reported by Gorgone, no result in time) does not stop the
+     * delivery to the others.
+     *
+     * @param array<int, callable(): mixed> $deliveries by poller id, what to send to the poller (calls to
+     *                                                  sendConfigurationFiles(), sendCommand()...)
+     *
+     * @return array<int, LegacyCommandException> by poller id, the failure of each poller not delivered
+     */
+    public function deliverToPollers(array $deliveries): array
+    {
+        $concurrency = $this->getDeliveryConcurrency();
+        $timeout = $this->getResultTimeout();
+        $failures = [];
+        /** @var array<string, array{pollerId: int, deadline: float}> $pending by token */
+        $pending = [];
+        try {
+            while ($deliveries !== [] || $pending !== []) {
+                // read once for the pollers sent in this round, not reused by the later rounds
+                $this->nodeStatuses = null;
+                while ($deliveries !== [] && $this->countPollers($pending) < $concurrency) {
+                    $pollerId = (int) array_key_first($deliveries);
+                    $deliver = $deliveries[$pollerId];
+                    unset($deliveries[$pollerId]);
+                    try {
+                        foreach ($this->sendWithoutWaiting($deliver) as $token) {
+                            $pending[$token] = ['pollerId' => $pollerId, 'deadline' => microtime(true) + $timeout];
+                        }
+                    } catch (LegacyCommandException $ex) {
+                        $failures[$pollerId] = $ex;
+                    }
+                }
+
+                $isAnyFinished = false;
+                foreach ($pending as $token => ['pollerId' => $pollerId, 'deadline' => $deadline]) {
+                    try {
+                        if (! $this->isFinished((string) $token, $deadline, $timeout)) {
+                            continue;
+                        }
+                    } catch (LegacyCommandException $ex) {
+                        $failures[$pollerId] ??= $ex;
+                    }
+                    unset($pending[$token]);
+                    $isAnyFinished = true;
+                }
+                if ($pending !== [] && ! $isAnyFinished) {
+                    usleep(self::RESULT_POLL_INTERVAL_US);
+                }
+            }
+        } finally {
+            $this->nodeStatuses = null;
+        }
+
+        return $failures;
+    }
+
+    /**
+     * One error for the pollers not delivered by deliverToPollers(), naming each of them with its reason.
+     * Its code is the reason shared by every failure (RESULT_TIMEOUT: the deliveries may still succeed), or
+     * DELIVERY_FAILED when the reasons differ.
+     *
+     * @param non-empty-array<int, LegacyCommandException> $failures by poller id
+     * @param array<int, string> $pollerNames by poller id
+     * @param int $pollerCount number of pollers of the delivery
+     */
+    public static function combineFailures(
+        array $failures,
+        array $pollerNames,
+        int $pollerCount,
+    ): LegacyCommandException {
+        if ($pollerCount === 1 && count($failures) === 1) {
+            // Same error as a single delivery
+            return reset($failures);
+        }
+        $reasons = array_values(array_unique(array_map(
+            static fn (LegacyCommandException $ex): int => (int) $ex->getCode(),
+            $failures
+        )));
+        $code = count($reasons) === 1 ? $reasons[0] : GorgoneDeliveryException::DELIVERY_FAILED;
+
+        $details = [];
+        foreach ($failures as $pollerId => $ex) {
+            $details[] = sprintf('%s: %s', $pollerNames[$pollerId] ?? '#' . $pollerId, $ex->getMessage());
+        }
+
+        return new LegacyCommandException(
+            sprintf(
+                _('%d of %d monitoring servers have not been delivered, the others have: %s'),
+                count($failures),
+                $pollerCount,
+                implode(' | ', $details)
+            ),
+            $code,
+            reset($failures)
+        );
     }
 
     /**
@@ -308,7 +431,12 @@ class LegacyCommandSender
 
         $token = $this->sendToApi($apiCommands);
         if ($trackedPollerIds !== []) {
-            $this->waitForFinalResult($token);
+            if ($this->deferredTokens !== null) {
+                // deliverToPollers() awaits the final results of every poller together
+                $this->deferredTokens[] = $token;
+            } else {
+                $this->waitForFinalResult($token);
+            }
         }
 
         return $token;
@@ -322,10 +450,13 @@ class LegacyCommandSender
      */
     private function assertNodeConnected(int $pollerId): void
     {
-        [, $response] = $this->callApi('GET', 'internal/constatus');
-        $node = is_array($response) && is_array($response['data'] ?? null)
-            ? ($response['data'][(string) $pollerId] ?? null)
-            : null;
+        if ($this->deferredTokens !== null) {
+            // deliverToPollers(): one status for every poller
+            $nodeStatuses = $this->nodeStatuses ??= $this->fetchNodeStatuses();
+        } else {
+            $nodeStatuses = $this->fetchNodeStatuses();
+        }
+        $node = $nodeStatuses[(string) $pollerId] ?? null;
         if (
             ! is_array($node)
             || ((int) ($node['ping_ok'] ?? 0) <= 0 && (int) ($node['last_ping_recv'] ?? 0) <= 0)
@@ -338,8 +469,44 @@ class LegacyCommandSender
     }
 
     /**
+     * @param callable(): mixed $deliver
+     *
+     * @throws LegacyCommandException
+     * @return list<string> tokens of the tracked commands sent, whose final result is not awaited
+     */
+    private function sendWithoutWaiting(callable $deliver): array
+    {
+        $this->deferredTokens = [];
+        try {
+            $deliver();
+
+            return $this->deferredTokens;
+        } finally {
+            $this->deferredTokens = null;
+        }
+    }
+
+    /**
+     * @param array<string, array{pollerId: int, deadline: float}> $pending
+     */
+    private function countPollers(array $pending): int
+    {
+        return count(array_unique(array_column($pending, 'pollerId')));
+    }
+
+    /**
+     * @throws LegacyCommandException
+     * @return array<mixed> connection status of the Gorgone nodes, by node id
+     */
+    private function fetchNodeStatuses(): array
+    {
+        [, $response] = $this->callApi('GET', 'internal/constatus');
+
+        return is_array($response) && is_array($response['data'] ?? null) ? $response['data'] : [];
+    }
+
+    /**
      * Wait for the final result logged by legacycmd under the request token (legacycmd_final = 1).
-     * Any failure logged under that token, by legacycmd or by one of its sub-actions, is reported at once.
      *
      * @throws LegacyCommandException
      */
@@ -347,41 +514,53 @@ class LegacyCommandSender
     {
         $timeout = $this->getResultTimeout();
         $deadline = microtime(true) + $timeout;
-        while (true) {
-            [, $response] = $this->callApi('GET', 'log/' . rawurlencode($token));
-            $entries = is_array($response) && is_array($response['data'] ?? null) ? $response['data'] : [];
-            foreach ($entries as $entry) {
-                if (! is_array($entry)) {
-                    continue;
-                }
-                $data = $entry['data'] ?? null;
-                if (is_string($data)) {
-                    $data = json_decode($data, true);
-                }
-                $code = (int) ($entry['code'] ?? -1);
-                if ($code === self::GORGONE_ACTION_FINISH_KO) {
-                    throw new LegacyCommandException(sprintf(
-                        _('Gorgone could not deliver the command: %s'),
-                        is_array($data) && is_scalar($data['message'] ?? null) ? (string) $data['message'] : $token
-                    ), GorgoneDeliveryException::DELIVERY_FAILED);
-                }
-                if (
-                    $code === self::GORGONE_ACTION_FINISH_OK
-                    && is_array($data)
-                    && (int) ($data['legacycmd_final'] ?? 0) === 1
-                ) {
-                    return;
-                }
-            }
-            if (microtime(true) >= $deadline) {
-                throw new LegacyCommandException(sprintf(
-                    _('Gorgone did not confirm the delivery within %d seconds (token %s)'),
-                    $timeout,
-                    $token
-                ), GorgoneDeliveryException::RESULT_TIMEOUT);
-            }
+        while (! $this->isFinished($token, $deadline, $timeout)) {
             usleep(self::RESULT_POLL_INTERVAL_US);
         }
+    }
+
+    /**
+     * Tell whether legacycmd logged the final result under the request token (legacycmd_final = 1).
+     * Any failure logged under that token, by legacycmd or by one of its sub-actions, is reported at once.
+     *
+     * @throws LegacyCommandException on failure, or once the deadline is reached without final result
+     */
+    private function isFinished(string $token, float $deadline, int $timeout): bool
+    {
+        [, $response] = $this->callApi('GET', 'log/' . rawurlencode($token));
+        $entries = is_array($response) && is_array($response['data'] ?? null) ? $response['data'] : [];
+        foreach ($entries as $entry) {
+            if (! is_array($entry)) {
+                continue;
+            }
+            $data = $entry['data'] ?? null;
+            if (is_string($data)) {
+                $data = json_decode($data, true);
+            }
+            $code = (int) ($entry['code'] ?? -1);
+            if ($code === self::GORGONE_ACTION_FINISH_KO) {
+                throw new LegacyCommandException(sprintf(
+                    _('Gorgone could not deliver the command: %s'),
+                    is_array($data) && is_scalar($data['message'] ?? null) ? (string) $data['message'] : $token
+                ), GorgoneDeliveryException::DELIVERY_FAILED);
+            }
+            if (
+                $code === self::GORGONE_ACTION_FINISH_OK
+                && is_array($data)
+                && (int) ($data['legacycmd_final'] ?? 0) === 1
+            ) {
+                return true;
+            }
+        }
+        if (microtime(true) >= $deadline) {
+            throw new LegacyCommandException(sprintf(
+                _('Gorgone did not confirm the delivery within %d seconds (token %s)'),
+                $timeout,
+                $token
+            ), GorgoneDeliveryException::RESULT_TIMEOUT);
+        }
+
+        return false;
     }
 
     private function getResultTimeout(): int
@@ -391,6 +570,15 @@ class LegacyCommandSender
         return is_string($timeout) && ctype_digit($timeout) && (int) $timeout > 0
             ? (int) $timeout
             : self::DEFAULT_RESULT_TIMEOUT;
+    }
+
+    private function getDeliveryConcurrency(): int
+    {
+        $concurrency = getenv(self::DELIVERY_CONCURRENCY_ENV);
+
+        return is_string($concurrency) && ctype_digit($concurrency) && (int) $concurrency > 0
+            ? (int) $concurrency
+            : self::DEFAULT_DELIVERY_CONCURRENCY;
     }
 
     /**

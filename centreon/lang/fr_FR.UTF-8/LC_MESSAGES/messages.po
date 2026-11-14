@@ -1251,6 +1251,12 @@ msgstr ""
 "Rien n'a été déplacé ni redémarré, générez à nouveau sa configuration"
 
 #: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid "%d of %d monitoring servers have not been delivered, the others have: %s"
+msgstr ""
+"%d serveurs de supervision sur %d n'ont pas été livrés, les autres l'ont "
+"été : %s"
+
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
 msgid "Gorgone could not deliver the command: %s"
 msgstr "Gorgone n'a pas pu transmettre la commande : %s"
 
