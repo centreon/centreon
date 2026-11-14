@@ -1,0 +1,4 @@
+nodes:
+  - id: 1
+    type: pullwss
+    prevail: 1
