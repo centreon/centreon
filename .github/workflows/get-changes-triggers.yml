@@ -37,6 +37,10 @@ on:
         required: false
         type: string
         default: ''
+      selinux_paths:
+        required: false
+        type: string
+        default: ''
       is_nightly:
         required: true
         type: string
@@ -73,6 +77,9 @@ on:
       trigger_trapd:
         description: "if the trapd (centreontrapd/snmptrapd) docker image jobs should be triggered"
         value: ${{ jobs.get-triggers.outputs.trigger_trapd }}
+      trigger_selinux_lint:
+        description: "if the SELinux policy lint job should be triggered"
+        value: ${{ jobs.get-triggers.outputs.trigger_selinux_lint }}
 
 jobs:
   get-triggers:
@@ -88,6 +95,7 @@ jobs:
       trigger_upgrade_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_upgrade_testing || steps.get_triggers.outputs.trigger_upgrade_testing || 'true' }}
       trigger_delivery: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_delivery || steps.get_triggers.outputs.trigger_delivery || 'true' }}
       trigger_trapd: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_trapd || steps.get_triggers.outputs.trigger_trapd || 'true' }}
+      trigger_selinux_lint: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_selinux_lint || steps.get_triggers.outputs.trigger_selinux_lint || 'true' }}
 
     steps:
       - name: Checkout sources
@@ -111,6 +119,7 @@ jobs:
           UPGRADE_TEST_PATHS: ${{ inputs.upgrade_test_paths }}
           TRANSLATION_PATHS: ${{ inputs.translation_paths }}
           TRAPD_PATHS: ${{ inputs.trapd_paths }}
+          SELINUX_PATHS: ${{ inputs.selinux_paths }}
         with:
           script: |
             const paths = {
@@ -123,6 +132,7 @@ jobs:
               upgrade_test_paths: process.env.UPGRADE_TEST_PATHS,
               translation_paths: process.env.TRANSLATION_PATHS,
               trapd_paths: process.env.TRAPD_PATHS,
+              selinux_paths: process.env.SELINUX_PATHS,
             };
 
             for (const [key, value] of Object.entries(paths)) {
@@ -163,6 +173,8 @@ jobs:
             ${{ steps.inline_inputs.outputs.translation_paths }}
             trapd:
             ${{ steps.inline_inputs.outputs.trapd_paths }}
+            selinux:
+            ${{ steps.inline_inputs.outputs.selinux_paths }}
 
       - name: Determine triggers for event ${{ github.event_name }}
         if: github.event_name == 'pull_request' || inputs.base_sha != ''
@@ -179,6 +191,7 @@ jobs:
           HAS_UPGRADE_TEST_CHANGES: ${{ steps.get_changed_files.outputs.upgrade_test_any_changed }}
           HAS_TRANSLATION_CHANGES: ${{ steps.get_changed_files.outputs.translation_any_changed }}
           HAS_TRAPD_CHANGES: ${{ steps.get_changed_files.outputs.trapd_any_changed }}
+          HAS_SELINUX_CHANGES: ${{ steps.get_changed_files.outputs.selinux_any_changed }}
           GITHUB_ACTOR: ${{ github.actor }}
           LABELS: ${{ inputs.labels }}
         with:
@@ -195,6 +208,7 @@ jobs:
             let hasUpgradeTest  = process.env.HAS_UPGRADE_TEST_CHANGES === 'true';
             let hasTranslation  = process.env.HAS_TRANSLATION_CHANGES === 'true';
             let hasTrapd        = process.env.HAS_TRAPD_CHANGES === 'true';
+            let hasSelinux      = process.env.HAS_SELINUX_CHANGES === 'true';
 
             try {
               const labels = JSON.parse(process.env.LABELS);
@@ -253,6 +267,7 @@ jobs:
               trigger_upgrade_testing:  !isWeblateTranslationOnly && (isNightly || hasUpgradeTest),
               trigger_delivery:         isNightly || hasFrontendProd || hasBackendProd || nonWeblateTranslation || (isWeblateTranslationOnly && !isPR),
               trigger_trapd:            isNightly || hasTrapd,
+              trigger_selinux_lint:     isNightly || hasSelinux,
             };
 
             for (const [key, value] of Object.entries(outputs)) {
@@ -316,3 +331,4 @@ jobs:
             core.setOutput('trigger_upgrade_testing', triggerUpgradeTesting ? 'true' : 'false');
             core.setOutput('trigger_delivery', 'true');
             core.setOutput('trigger_trapd', 'true');
+            core.setOutput('trigger_selinux_lint', 'true');

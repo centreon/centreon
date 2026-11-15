@@ -27,6 +27,7 @@ on:
       - ".github/scripts/centreon-trapd-docker-boot-test.sh"
       - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
       - ".github/scripts/lib/centreon-trapd-common.sh"
+      - ".github/scripts/selinux-lint.sh"
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
@@ -43,6 +44,7 @@ on:
       - ".github/scripts/centreon-trapd-docker-boot-test.sh"
       - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
       - ".github/scripts/lib/centreon-trapd-common.sh"
+      - ".github/scripts/selinux-lint.sh"
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
@@ -187,6 +189,10 @@ jobs:
         "centreon/bin/centreontrapd*"
         ".version"
         ".version.centreon-web"
+      selinux_paths: |
+        ".github/scripts/selinux-lint.sh"
+        "centreon/selinux/**"
+        "centreon/packaging/*selinux*"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
@@ -921,6 +927,36 @@ jobs:
           pat: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: './features'
 
+  selinux-lint:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_selinux_lint == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    container:
+      image: almalinux:9
+    env:
+      # EPEL only keeps the latest build: bump this (and the baseline) when it moves.
+      SELINT_PACKAGE: selint-1.5.0-1.el9
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install selint
+        run: |
+          dnf install -y epel-release
+          dnf install -y "$SELINT_PACKAGE"
+          selint --version
+        shell: bash
+
+      - name: Lint SELinux policy against its baseline
+        run: .github/scripts/selinux-lint.sh centreon/selinux
+        shell: bash
+
   package:
     needs:
       [
@@ -939,6 +975,7 @@ jobs:
         frontend-component-test,
         gherkin-lint,
         e2e-lint,
+        selinux-lint,
       ]
     if: |
       needs.changes.outputs.trigger_packaging == 'true' &&

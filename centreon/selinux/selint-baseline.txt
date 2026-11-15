@@ -1,0 +1,6 @@
+# selint findings accepted as-is. Regenerate with:
+#   .github/scripts/selinux-lint.sh --update-baseline centreon/selinux
+centreon-web.fc: W-004: File context path contains a potentially unescaped regex character '.' at position 40: /usr/share/centreon/bin/changeRrdDsName.pl
+centreon-web.fc: W-004: File context path contains a potentially unescaped regex character '.' at position 41: /usr/share/centreon/bin/migrateWikiPages.php
+centreon-web.fc: W-004: File context path contains a potentially unescaped regex character '.' at position 46: /usr/share/centreon/bin/centreon-partitioning.php
+centreon-web.if: C-004: No comment before interface definition for centreon_search_spool
