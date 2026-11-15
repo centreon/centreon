@@ -1,10 +1,15 @@
 #!/bin/bash
 
+. /usr/share/selinux/packages/centreon/centreon-selinux-functions.sh
+
 PHP_FPM_PORT=9042
 
 load_policy() {
-  if ! semodule -i /usr/share/selinux/packages/centreon/centreon-web.pp; then
-    echo "ERROR: could not load the centreon-web SELinux module, php-fpm will be denied in enforcing mode" >&2
+  # paths: keep in sync with centreon-web.fc
+  if ! centreon_selinux_load centreon-web /usr/share/centreon /var/lib/centreon /var/run/centreon \
+    /usr/bin/centFillTrapDB /usr/bin/centreon /usr/bin/centreonSyncArchives /usr/bin/centreonSyncPlugins \
+    /usr/bin/centreon_trap_send /usr/bin/generateSqlLite; then
+    echo "ERROR: php-fpm will be denied in enforcing mode" >&2
     return
   fi
   # -a only for a new local mapping, -m when one exists (upgrade or admin change)
@@ -22,8 +27,7 @@ load_policy() {
   setsebool -P httpd_can_network_connect on || :
   setsebool -P httpd_can_network_relay on || :
   setsebool -P httpd_mod_auth_pam on || :
-  restorecon -R -v /var/log/centreon/login.log > /dev/null 2>&1 || :
-  restorecon -R -v /var/cache/centreon/symfony/App_KernelProdContainer.php > /dev/null 2>&1 || :
+  restorecon -R /var/log/centreon/login.log /var/cache/centreon/symfony > /dev/null 2>&1 || :
 }
 
 action="$1"
