@@ -8,7 +8,7 @@
 
 `src/App` names its interfaces two ways. Repository interfaces carry no suffix (`HostRepository`), and their implementations are named after their storage (`DbalHostRepository`, `FileSystemPluginRepository`). Among the other interfaces, a few carry the `Interface` suffix (`TransformerInterface`, `VaultInterface`, `AclScopedInterface`), but most do not (`CommandBus`, `CacheClearer`, `DnsResolver`), and their implementations are then named after a mechanism (`MessengerCommandBus`, `SymfonyCacheClearer`, `SystemDnsResolver`). Nothing says which way a new one should go.
 
-Without a suffix, the implementation has to invent a name. Before [PR 12170](https://github.com/centreon/centreon/pull/12170), the interface `App\Upgrade\Application\UpgradeLogger` was implemented by `LegacyUpgradeLoggerWrapper`, a name that describes a mechanism rather than the role. PR 12170 moves it to `App\Upgrade\Domain\Service\UpgradeLoggerInterface`, so that its implementation takes the short name, `App\Upgrade\Infrastructure\Log\UpgradeLogger`. The other ports that PR adds carry the suffix too, while the repository interfaces of the context carry none.
+Without a suffix, the implementation has to invent a name. Before [PR 12170](https://github.com/centreon/centreon/pull/12170), the interface `App\Upgrade\Application\UpgradeLogger` was implemented by `LegacyUpgradeLoggerWrapper`, a name that describes a mechanism rather than the role. PR 12170 renames it `App\Upgrade\Application\UpgradeLoggerInterface`, so that its implementation takes the short name, `App\Upgrade\Infrastructure\Log\UpgradeLogger`. The other ports that PR adds carry the suffix too, while the repository interfaces of the context carry none.
 
 Two alternatives were weighed:
 
