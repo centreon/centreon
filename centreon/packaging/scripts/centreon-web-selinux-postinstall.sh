@@ -7,9 +7,12 @@ load_policy() {
     echo "ERROR: could not load the centreon-web SELinux module, php-fpm will be denied in enforcing mode" >&2
     return
   fi
-  # -a fails when the port already has a local mapping (upgrade): fall back to -m
-  semanage port -a -t centreon_php_fpm_port_t -p tcp "$PHP_FPM_PORT" > /dev/null 2>&1 \
-    || semanage port -m -t centreon_php_fpm_port_t -p tcp "$PHP_FPM_PORT" \
+  # -a only for a new local mapping, -m when one exists (upgrade or admin change)
+  semanage_action="-a"
+  if semanage port -l -C -n | awk -v p="$PHP_FPM_PORT" '$2 == "tcp" { for (i = 3; i <= NF; i++) { f = $i; sub(/,$/, "", f); if (f == p) found = 1 } } END { exit !found }'; then
+    semanage_action="-m"
+  fi
+  semanage port "$semanage_action" -t centreon_php_fpm_port_t -p tcp "$PHP_FPM_PORT" \
     || echo "ERROR: could not label tcp/$PHP_FPM_PORT for php-fpm" >&2
   setsebool -P httpd_unified on || :
   setsebool -P httpd_can_network_connect on || :
