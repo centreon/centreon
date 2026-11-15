@@ -1,0 +1,60 @@
+name: selinux-enforcing-test
+
+# Needs a self-hosted runner on a disposable EL VM with Centreon central and the
+# *-selinux packages installed; containers cannot enforce SELinux.
+# "centreon-el9-selinux" is a placeholder label until such a runner exists.
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+    inputs:
+      centreon_url:
+        description: "Base URL of the Centreon web on the runner host"
+        required: false
+        default: "http://127.0.0.1"
+        type: string
+      fail_on_unconfined:
+        description: "Fail when a Centreon daemon runs as unconfined_service_t"
+        required: false
+        default: false
+        type: boolean
+      run_config_export:
+        description: "Generate and reload the poller configuration through the API"
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
+  selinux-enforcing-smoke-test:
+    needs: [dependency-scan]
+    runs-on: [self-hosted, centreon-el9-selinux]
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run the SELinux enforcing smoke test
+        env:
+          CENTREON_URL: ${{ inputs.centreon_url }}
+          CENTREON_API_USER: ${{ secrets.SELINUX_TEST_CENTREON_API_USER || 'admin' }}
+          CENTREON_API_PASSWORD: ${{ secrets.SELINUX_TEST_CENTREON_API_PASSWORD }}
+          FAIL_ON_UNCONFINED: ${{ inputs.fail_on_unconfined && '1' || '0' }}
+          RUN_CONFIG_EXPORT: ${{ inputs.run_config_export && '1' || '0' }}
+        run: |
+          sudo --non-interactive \
+            --preserve-env=CENTREON_URL,CENTREON_API_USER,CENTREON_API_PASSWORD,FAIL_ON_UNCONFINED,RUN_CONFIG_EXPORT,GITHUB_STEP_SUMMARY \
+            bash .github/scripts/selinux-enforcing-smoke-test.sh
+        shell: bash
