@@ -1034,6 +1034,8 @@ jobs:
           MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
           MINOR_VERSION: ${{ needs.get-environment.outputs.minor_version }}
         run: |
+          SELINUX_POLICY_VERSION=$(rpm -q --qf '%{VERSION}' selinux-policy-devel | cut -d. -f1,2)
+          sed -i "s/@SELINUX_POLICY_VERSION@/$SELINUX_POLICY_VERSION/g" centreon/packaging/*-selinux.yaml
           cd centreon/selinux
           sed -i "s/@VERSION@/$MAJOR_VERSION.$MINOR_VERSION/g" *.te
           make -f /usr/share/selinux/devel/Makefile
