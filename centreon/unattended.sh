@@ -104,6 +104,7 @@ centreon_admin_password=
 # Variables will be defined later according to the target system OS
 BASE_PACKAGES=
 CENTREON_SELINUX_PACKAGES=
+CENTREON_SELINUX_MODULES=
 RELEASE_REPO_FILE=
 PHP_SERVICE_UNIT=
 HTTP_SERVICE_UNIT=
@@ -939,6 +940,21 @@ function set_selinux_config() {
 
 }
 #========= end of function set_selinux_config()
+
+#========= begin of function centreon_selinux_modules_loaded()
+# return 0 when every module of CENTREON_SELINUX_MODULES is loaded
+#
+function centreon_selinux_modules_loaded() {
+	local _loaded _module
+	_loaded=$(semodule -l 2>/dev/null | awk '{print $1}') || return 1
+	for _module in "${CENTREON_SELINUX_MODULES[@]}"; do
+		if ! grep -qx -- "$_module" <<<"$_loaded"; then
+			log "WARN" "SELinux module [$_module] is not loaded"
+			return 1
+		fi
+	done
+}
+#========= end of function centreon_selinux_modules_loaded()
 
 #========= begin of function set_runtime_selinux_mode ()
 # set runtime SELinux mode: $1 (permissive | enforcing)
@@ -1908,6 +1924,12 @@ function update_after_installation() {
 			log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/docs/administration/secure-platform for more details."
 		fi
 
+		# enforcing without the Centreon rules would deny php-fpm, broker, engine...
+		if [ "$selinux_mode" == "enforcing" ] && ! centreon_selinux_modules_loaded; then
+			log "WARN" "Centreon SELinux rules are missing: keeping SELinux [permissive] instead of [enforcing]"
+			selinux_mode="permissive"
+		fi
+
 		#then change the SELinux mode
 		set_runtime_selinux_mode $selinux_mode
 
@@ -2226,12 +2248,14 @@ install)
 	case $topology in
 	central)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux $gorgone_selinux_package_name centreon-plugins-selinux)
+		CENTREON_SELINUX_MODULES=(centreon-common centreon-web centreon-broker centreon-engine centreon-gorgoned centreon-plugins)
 		install_central
 		CENTREON_DOC_URL="https://docs.centreon.com/docs/installation/web-and-post-installation/#web-installation"
 		;;
 
 	poller)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-broker-selinux centreon-engine-selinux $gorgone_selinux_package_name centreon-plugins-selinux)
+		CENTREON_SELINUX_MODULES=(centreon-common centreon-broker centreon-engine centreon-gorgoned centreon-plugins)
 		install_poller
 		CENTREON_DOC_URL="https://docs.centreon.com/docs/monitoring/monitoring-servers/add-a-poller-to-configuration/"
 		;;

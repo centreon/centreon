@@ -16,6 +16,7 @@ license: "Apache-2.0"
 
 depends:
   - policycoreutils
+  - policycoreutils-python-utils
   - selinux-policy
   - selinux-policy-targeted
   - centreon-common-selinux >= ${MAJOR_VERSION}
