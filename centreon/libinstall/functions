@@ -1415,11 +1415,11 @@ ServerTokens Prod
     AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
 
     <LocationMatch ^\${base_uri}/?(?!api/(?![^/]+\.php(?:/|$)))(.*\.php(/.*)?)$>
-        ProxyPassMatch "fcgi://127.0.0.1:9042${install_dir}/www/$1"
+        ProxyPassMatch "unix:/run/php-fpm/centreon.sock|fcgi://localhost${install_dir}/www/$1"
     </LocationMatch>
 
     <LocationMatch ^\${base_uri}/?(authentication|api(?!/[^/]+\.php(?:/|$))(/(latest|beta|v[0-9]+|v[0-9]+\.[0-9]+))?)(/.*)?$>
-        ProxyPassMatch "fcgi://127.0.0.1:9042${install_dir}/api/index.php/$1"
+        ProxyPassMatch "unix:/run/php-fpm/centreon.sock|fcgi://localhost${install_dir}/api/index.php/$1"
     </LocationMatch>
 
     ProxyTimeout 300
@@ -1548,8 +1548,10 @@ prepare_php_fpm_config() {
 [centreon]
 user = $WEB_USER
 group = $WEB_GROUP
-listen = 127.0.0.1:9042
-listen.allowed_clients = 127.0.0.1
+listen = /run/php-fpm/centreon.sock
+listen.owner = $WEB_USER
+listen.group = $WEB_GROUP
+listen.mode = 0660
 pm = ondemand
 pm.max_children = 30
 pm.process_idle_timeout = 10s

@@ -100,7 +100,7 @@ echo "[tls] mysql client config written: $MYSQL_CLIENT_CFG"
 
 # 3. Apache TLS vhost — generated from Centreon's official HTTPS template so the
 #    CI HTTPS path is byte-identical to production (security headers, cipher list,
-#    HSTS, FCGI to php-fpm:9042, HTTP→HTTPS redirect). Only cert paths differ.
+#    HSTS, FCGI to php-fpm unix socket, HTTP→HTTPS redirect). Only cert paths differ.
 #    The 00- prefix sorts before the install-step's 10-centreon.conf, making
 #    our <VirtualHost *:80> redirect block Apache's default-:80 vhost (Apache
 #    picks the first vhost in file order when no ServerName matches).
@@ -160,7 +160,7 @@ sed -e "s|/etc/pki/tls/certs/ca.crt|$SRV_PEM|g" \
     "$TEMPLATE" > "$VHOST_DEST" || exit 1
 
 if [ "$PLATFORM" = "debian" ]; then
-  # Modules the official template needs: ssl, proxy, proxy_fcgi (php-fpm:9042
+  # Modules the official template needs: ssl, proxy, proxy_fcgi (php-fpm unix socket
   # handoff), headers (HSTS / X-Frame-Options / cookie rewrite), deflate
   # (AddOutputFilterByType), rewrite (the :80 redirect block).
   a2enmod ssl proxy proxy_fcgi headers deflate rewrite >/dev/null || exit 1

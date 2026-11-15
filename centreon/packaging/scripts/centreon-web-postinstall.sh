@@ -133,6 +133,16 @@ fixPhpFpmDefaultPoolAclUsers() {
   fi
 }
 
+warnLegacyFcgiTcpProxy() {
+  # Kept (noreplace) Apache confs may still proxy to the old TCP pool.
+  local f
+  for f in /etc/httpd/conf.d/*.conf /etc/apache2/sites-available/*.conf; do
+    if [ -f "$f" ] && grep -q 'fcgi://127.0.0.1:9042' "$f"; then
+      echo "WARNING: $f still proxies to 127.0.0.1:9042; use unix:/run/php-fpm/centreon.sock|fcgi://localhost (see /usr/share/centreon/examples/centreon-apache.conf)."
+    fi
+  done
+}
+
 manageApacheAndPhpFpm() {
   echo "Managing apache and php fpm configuration and services ..."
   if [ "$1" = "rpm" ]; then
@@ -150,6 +160,7 @@ manageApacheAndPhpFpm() {
     systemctl restart php@PHP_MIN_VERSION@-fpm || :
     systemctl restart apache2 || :
   fi
+  warnLegacyFcgiTcpProxy
 }
 
 rebuildSymfonyCache() {
