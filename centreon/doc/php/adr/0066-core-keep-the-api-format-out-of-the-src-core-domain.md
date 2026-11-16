@@ -1,4 +1,4 @@
-# ADR-0069: Keep the API format out of the `src/Core` Domain
+# ADR-0066: Keep the API format out of the `src/Core` Domain
 
 - **Status:** Accepted
 - **Date:** 2026-11-16
@@ -27,7 +27,7 @@ Settled in [#12663](https://github.com/centreon/centreon/pull/12663).
 
 - The Domain does not change when the API changes.
 - Existing Domain classes that carry the API format, such as `Endpoint` and the implementations of `ValueObjectInterface`, keep it until they are touched.
-- The rule follows [ADR-0068](0068-apip-keep-the-api-format-out-of-the-domain.md), so the mapping is already in place when a context moves to `src/App`.
+- The rule follows [ADR-0065](0065-apip-keep-the-api-format-out-of-the-domain.md), so the mapping is already in place when a context moves to `src/App`.
 - The rule is enforced in review.
 
 ## When to Amend

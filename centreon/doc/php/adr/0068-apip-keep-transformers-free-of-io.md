@@ -1,4 +1,4 @@
-# ADR-0071: Keep `src/App` Transformers free of I/O
+# ADR-0068: Keep `src/App` Transformers free of I/O
 
 - **Status:** Accepted
 - **Date:** 2026-11-16

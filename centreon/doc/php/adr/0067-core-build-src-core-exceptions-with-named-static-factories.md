@@ -1,4 +1,4 @@
-# ADR-0070: Build `src/Core` exceptions with named static factories
+# ADR-0067: Build `src/Core` exceptions with named static factories
 
 - **Status:** Accepted
 - **Date:** 2026-11-16

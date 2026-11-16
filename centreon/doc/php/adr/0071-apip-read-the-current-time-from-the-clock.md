@@ -1,4 +1,4 @@
-# ADR-0074: Read the current time in `src/App` from `ClockInterface`, never from `new \DateTimeImmutable()`
+# ADR-0071: Read the current time in `src/App` from `ClockInterface`, never from `new \DateTimeImmutable()`
 
 - **Status:** Accepted
 - **Date:** 2026-11-16

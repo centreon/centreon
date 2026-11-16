@@ -1,4 +1,4 @@
-# ADR-0073: Authorize every `src/App` write operation through a voter declared on the operation
+# ADR-0070: Authorize every `src/App` write operation through a voter declared on the operation
 
 - **Status:** Accepted
 - **Date:** 2026-11-16

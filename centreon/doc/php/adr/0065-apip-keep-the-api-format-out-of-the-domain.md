@@ -1,4 +1,4 @@
-# ADR-0068: Keep the API format out of the `src/App` Domain
+# ADR-0065: Keep the API format out of the `src/App` Domain
 
 - **Status:** Accepted
 - **Date:** 2026-11-16

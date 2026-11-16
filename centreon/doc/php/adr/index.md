@@ -27,29 +27,28 @@ The guides show how to apply the records; the code examples live there.
 | [0009](0009-apip-aggregates-readonly-by-default.md)                 | Make aggregate properties `readonly` by default, and mutate them only through business methods  | APIP  | Accepted |
 | [0012](0012-apip-change-aggregate-internals-through-the-root.md)    | Change an aggregate's inner entities and value objects only through its aggregate root          | APIP  | Accepted |
 | [0044](0044-apip-back-every-enum-with-a-business-value.md)          | Back every new `src/App` enum with a business value, a string by default                        | APIP  | Accepted |
-| [0057](0057-apip-return-a-collection-for-a-set-of-objects.md)       | Return a `Collection` for a set of objects, never an array of objects                           | APIP  | Accepted |
-| [0068](0068-apip-keep-the-api-format-out-of-the-domain.md)          | Keep the API format out of the `src/App` Domain                                                 | APIP  | Accepted |
-| [0074](0074-apip-read-the-current-time-from-the-clock.md)           | Read the current time in `src/App` from `ClockInterface`, never from `new \DateTimeImmutable()` | APIP  | Accepted |
+| [0058](0058-apip-return-a-collection-for-a-set-of-objects.md)       | Return a `Collection` for a set of objects, never an array of objects                           | APIP  | Accepted |
+| [0065](0065-apip-keep-the-api-format-out-of-the-domain.md)          | Keep the API format out of the `src/App` Domain                                                 | APIP  | Accepted |
+| [0071](0071-apip-read-the-current-time-from-the-clock.md)           | Read the current time in `src/App` from `ClockInterface`, never from `new \DateTimeImmutable()` | APIP  | Accepted |
 | [0045](0045-core-back-every-enum-with-a-business-value.md)          | Back every new `src/Core` enum with a business value, a string by default                       | Core  | Accepted |
-| [0058](0058-core-return-a-collection-for-a-set-of-objects.md)       | Return a `Collection` for a set of objects in `src/Core`, never an array of objects             | Core  | Accepted |
-| [0069](0069-core-keep-the-api-format-out-of-the-src-core-domain.md) | Keep the API format out of the `src/Core` Domain                                                | Core  | Accepted |
+| [0059](0059-core-return-a-collection-for-a-set-of-objects.md)       | Return a `Collection` for a set of objects in `src/Core`, never an array of objects             | Core  | Accepted |
+| [0066](0066-core-keep-the-api-format-out-of-the-src-core-domain.md) | Keep the API format out of the `src/Core` Domain                                                | Core  | Accepted |
 
 ## Project structure
 
-| ADR                                                                                             | Decision                                                                                             | Scope  | Status   |
-| ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------ | -------- |
-| [0002](0002-apip-name-domain-folder-model.md)                                                   | Name the domain folder `Model`, not `Aggregate`                                                      | APIP   | Accepted |
-| [0019](0019-apip-group-per-aggregate-only-domain-model-and-apiplatform.md)                      | Group classes per aggregate only in the Domain model and ApiPlatform layers                          | APIP   | Accepted |
-| [0042](0042-apip-suffix-interfaces-except-domain-repositories.md)                               | Suffix every new `src/App` interface with `Interface`, except a repository interface                 | APIP   | Accepted |
-| [0053](0053-apip-suffix-every-src-app-enum-with-enum.md)                                        | Suffix every new `src/App` enum with `Enum`                                                          | APIP   | Accepted |
-| [0056](0056-apip-keep-only-domain-typed-ports-and-business-rules-in-domain-service.md)          | Keep only domain-typed ports and pure business rules in `Domain/Service`                             | APIP   | Accepted |
-| [0059](0059-apip-name-a-fetch-find-when-it-may-be-missing-and-get-when-it-must-exist.md)        | Name a `src/App` fetch `find*` when its result may be missing, and `get*` when it must exist         | APIP   | Accepted |
-| [0075](0075-apip-wire-services-with-autowiring-and-attributes.md)                               | Wire `src/App` services with autowiring and attributes, not with service definitions                 | APIP   | Accepted |
-| [0043](0043-core-suffix-every-src-core-interface-with-interface.md)                             | Suffix every new `src/Core` interface with `Interface`, repository interfaces included               | Core   | Accepted |
-| [0052](0052-core-name-repository-interfaces-read-or-write-and-implementations-after-storage.md) | Name a `src/Core` repository interface `Read*` or `Write*`, and its implementation after its storage | Core   | Accepted |
-| [0054](0054-core-suffix-every-src-core-enum-with-enum.md)                                       | Suffix every new `src/Core` enum with `Enum`                                                         | Core   | Accepted |
-| [0060](0060-core-name-a-fetch-find-when-it-may-be-missing-and-get-when-it-must-exist.md)        | Name a `src/Core` fetch `find*` when its result may be missing, and `get*` when it must exist        | Core   | Accepted |
-| [0061](0061-legacy-name-a-fetch-find-when-it-may-be-missing-and-get-when-it-must-exist.md)      | Name a legacy fetch `find*` when its result may be missing, and `get*` when it must exist            | Legacy | Accepted |
+| ADR                                                                                             | Decision                                                                                             | Scope | Status   |
+| ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----- | -------- |
+| [0002](0002-apip-name-domain-folder-model.md)                                                   | Name the domain folder `Model`, not `Aggregate`                                                      | APIP  | Accepted |
+| [0019](0019-apip-group-per-aggregate-only-domain-model-and-apiplatform.md)                      | Group classes per aggregate only in the Domain model and ApiPlatform layers                          | APIP  | Accepted |
+| [0042](0042-apip-suffix-interfaces-except-domain-repositories.md)                               | Suffix every new `src/App` interface with `Interface`, except a repository interface                 | APIP  | Accepted |
+| [0053](0053-apip-suffix-every-src-app-enum-with-enum.md)                                        | Suffix every new `src/App` enum with `Enum`                                                          | APIP  | Accepted |
+| [0056](0056-apip-keep-only-domain-typed-ports-and-business-rules-in-domain-service.md)          | Keep only domain-typed ports and pure business rules in `Domain/Service`                             | APIP  | Accepted |
+| [0060](0060-apip-name-a-fetch-find-when-it-may-be-missing-and-get-when-it-must-exist.md)        | Name a `src/App` fetch `find*` when its result may be missing, and `get*` when it must exist         | APIP  | Accepted |
+| [0072](0072-apip-wire-services-with-autowiring-and-attributes.md)                               | Wire `src/App` services with autowiring and attributes, not with service definitions                 | APIP  | Accepted |
+| [0043](0043-core-suffix-every-src-core-interface-with-interface.md)                             | Suffix every new `src/Core` interface with `Interface`, repository interfaces included               | Core  | Accepted |
+| [0052](0052-core-name-repository-interfaces-read-or-write-and-implementations-after-storage.md) | Name a `src/Core` repository interface `Read*` or `Write*`, and its implementation after its storage | Core  | Accepted |
+| [0054](0054-core-suffix-every-src-core-enum-with-enum.md)                                       | Suffix every new `src/Core` enum with `Enum`                                                         | Core  | Accepted |
+| [0061](0061-core-name-a-fetch-find-when-it-may-be-missing-and-get-when-it-must-exist.md)        | Name a `src/Core` fetch `find*` when its result may be missing, and `get*` when it must exist        | Core  | Accepted |
 
 ## Transformers
 
@@ -57,7 +56,7 @@ The guides show how to apply the records; the code examples live there.
 | --------------------------------------------------------- | ------------------------------------------------------------------------- | ----- | -------- |
 | [0003](0003-apip-name-transformers-after-their-output.md) | Name a Transformer after the object it produces                           | APIP  | Accepted |
 | [0004](0004-apip-transformers-are-dedicated-classes.md)   | Implement Transformers as dedicated classes behind `TransformerInterface` | APIP  | Accepted |
-| [0071](0071-apip-keep-transformers-free-of-io.md)         | Keep `src/App` Transformers free of I/O                                   | APIP  | Accepted |
+| [0068](0068-apip-keep-transformers-free-of-io.md)         | Keep `src/App` Transformers free of I/O                                   | APIP  | Accepted |
 
 ## Legacy boundaries
 
@@ -124,29 +123,26 @@ The guides show how to apply the records; the code examples live there.
 | [0015](0015-apip-scope-resource-access-with-acting-user-and-access-scope.md)               | Scope resource access with an acting user and an access scope                                | APIP   | Accepted |
 | [0026](0026-apip-mark-every-secret-sensitive.md)                                           | Mark every secret a command or query carries `#[Sensitive]` so the logging pipeline masks it | APIP   | Accepted |
 | [0047](0047-apip-drop-the-driver-exception-when-a-repository-write-of-a-secret-fails.md)   | Drop the driver exception when a repository write of a secret fails                          | APIP   | Accepted |
-| [0073](0073-apip-authorize-every-write-operation-through-a-voter.md)                       | Authorize every `src/App` write operation through a voter declared on the operation          | APIP   | Accepted |
+| [0070](0070-apip-authorize-every-write-operation-through-a-voter.md)                       | Authorize every `src/App` write operation through a voter declared on the operation          | APIP   | Accepted |
 | [0048](0048-core-drop-the-driver-exception-when-a-repository-write-of-a-secret-fails.md)   | Drop the driver exception when a `src/Core` repository write of a secret fails               | Core   | Accepted |
 | [0022](0022-legacy-escape-at-www-html-output.md)                                           | Escape user-controlled and database-sourced strings at the point of `www/` HTML output       | Legacy | Accepted |
 | [0049](0049-legacy-drop-the-driver-exception-when-a-repository-write-of-a-secret-fails.md) | Drop the driver exception when a legacy repository write of a secret fails                   | Legacy | Accepted |
 
 ## Error handling
 
-| ADR                                                                        | Decision                                                                                    | Scope  | Status   |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------ | -------- |
-| [0062](0062-apip-never-silence-an-error-with-the-at-operator.md)           | Never silence an error with the `@` operator in `src/App`                                   | APIP   | Accepted |
-| [0065](0065-apip-pass-json-throw-on-error-to-every-json-call.md)           | Pass `JSON_THROW_ON_ERROR` to every `json_encode()` and `json_decode()` call in `src/App`   | APIP   | Accepted |
-| [0063](0063-core-never-silence-an-error-with-the-at-operator.md)           | Never silence an error with the `@` operator in `src/Core`                                  | Core   | Accepted |
-| [0066](0066-core-pass-json-throw-on-error-to-every-json-call.md)           | Pass `JSON_THROW_ON_ERROR` to every `json_encode()` and `json_decode()` call in `src/Core`  | Core   | Accepted |
-| [0070](0070-core-build-src-core-exceptions-with-named-static-factories.md) | Build `src/Core` exceptions with named static factories                                     | Core   | Accepted |
-| [0064](0064-legacy-never-silence-an-error-with-the-at-operator.md)         | Never silence an error with the `@` operator in legacy code                                 | Legacy | Accepted |
-| [0067](0067-legacy-pass-json-throw-on-error-to-every-json-call.md)         | Pass `JSON_THROW_ON_ERROR` to every `json_encode()` and `json_decode()` call in legacy code | Legacy | Accepted |
+| ADR                                                                        | Decision                                                    | Scope  | Status   |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------- | ------ | -------- |
+| [0062](0062-apip-never-silence-an-error-with-the-at-operator.md)           | Never silence an error with the `@` operator in `src/App`   | APIP   | Accepted |
+| [0063](0063-core-never-silence-an-error-with-the-at-operator.md)           | Never silence an error with the `@` operator in `src/Core`  | Core   | Accepted |
+| [0067](0067-core-build-src-core-exceptions-with-named-static-factories.md) | Build `src/Core` exceptions with named static factories     | Core   | Accepted |
+| [0064](0064-legacy-never-silence-an-error-with-the-at-operator.md)         | Never silence an error with the `@` operator in legacy code | Legacy | Accepted |
 
 ## Static analysis
 
 | ADR                                                                            | Decision                                                                     | Scope  | Status   |
 | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- | ------ | -------- |
 | [0023](0023-apip-fix-phpstan-findings-in-src-app-never-suppress-them.md)       | Fix PHPStan findings in new and changed `src/App` code, never suppress them  | APIP   | Accepted |
-| [0072](0072-apip-suffix-every-phpstan-type-alias-with-type-alias.md)           | Suffix every `src/App` `@phpstan-type` alias with `TypeAlias`                | APIP   | Accepted |
+| [0069](0069-apip-suffix-every-phpstan-type-alias-with-type-alias.md)           | Suffix every `src/App` `@phpstan-type` alias with `TypeAlias`                | APIP   | Accepted |
 | [0024](0024-core-fix-phpstan-findings-in-src-core-never-suppress-them.md)      | Fix PHPStan findings in new and changed `src/Core` code, never suppress them | Core   | Accepted |
 | [0025](0025-legacy-fix-phpstan-findings-in-legacy-code-never-suppress-them.md) | Fix PHPStan findings in new and changed legacy code, never suppress them     | Legacy | Accepted |
 

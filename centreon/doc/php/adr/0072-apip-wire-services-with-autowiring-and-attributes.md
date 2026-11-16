@@ -1,4 +1,4 @@
-# ADR-0075: Wire `src/App` services with autowiring and attributes, not with service definitions
+# ADR-0072: Wire `src/App` services with autowiring and attributes, not with service definitions
 
 - **Status:** Accepted
 - **Date:** 2026-11-16

@@ -1,4 +1,4 @@
-# ADR-0058: Return a `Collection` for a set of objects in `src/Core`, never an array of objects
+# ADR-0059: Return a `Collection` for a set of objects in `src/Core`, never an array of objects
 
 - **Status:** Accepted
 - **Date:** 2026-11-16
@@ -8,7 +8,7 @@
 
 `src/Core` returns most sets of objects as arrays, documented as `T[]` or `list<T>`, as `ReadHostGroupRepositoryInterface` does. An array of objects carries its item type only in a PHPDoc that PHP never checks.
 
-`src/Core` already has a typed collection, the abstract `Core\Common\Domain\Collection\ObjectCollection`, extended with one class per item type (`AccessGroupCollection`), but few contexts use it. `src/App` returns `App\Shared\Domain\Collection`, a generic collection built with the class of its items ([ADR-0057](0057-apip-return-a-collection-for-a-set-of-objects.md)), and `src/Core` already imports `App\Shared` classes, such as `#[Sensitive]` and the shared `Assert`.
+`src/Core` already has a typed collection, the abstract `Core\Common\Domain\Collection\ObjectCollection`, extended with one class per item type (`AccessGroupCollection`), but few contexts use it. `src/App` returns `App\Shared\Domain\Collection`, a generic collection built with the class of its items ([ADR-0058](0058-apip-return-a-collection-for-a-set-of-objects.md)), and `src/Core` already imports `App\Shared` classes, such as `#[Sensitive]` and the shared `Assert`.
 
 Two alternatives were weighed:
 

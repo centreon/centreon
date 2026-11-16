@@ -1,4 +1,4 @@
-# ADR-0057: Return a `Collection` for a set of objects, never an array of objects
+# ADR-0058: Return a `Collection` for a set of objects, never an array of objects
 
 - **Status:** Accepted
 - **Date:** 2026-11-16

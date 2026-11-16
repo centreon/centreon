@@ -1,12 +1,12 @@
-# ADR-0059: Name a `src/App` fetch `find*` when its result may be missing, and `get*` when it must exist
+# ADR-0061: Name a `src/Core` fetch `find*` when its result may be missing, and `get*` when it must exist
 
 - **Status:** Accepted
 - **Date:** 2026-11-16
-- **Scope:** APIP
+- **Scope:** Core
 
 ## Context
 
-`src/App` repositories mostly follow one convention: `CommandRepository::findOneByName()` returns `?Command`, while `CommandRepository::getById()` returns `Command` and throws `CommandNotFoundException`. It is not written down, and exceptions exist: `ResourceAccessRepository::findHostCategoryAccessScope()` never returns `null`.
+`src/Core` repositories mostly name their fetches `find*` and return `null` when nothing is found, but `ReadProxyRepositoryInterface::getProxy()` returns `?Proxy`. A reader cannot tell from the name whether the result may be missing.
 
 A `get*` that may return `null` makes every caller check a result it was told exists, or forget to.
 
@@ -21,7 +21,7 @@ Settled in [#12663](https://github.com/centreon/centreon/pull/12663).
 
 **A method that fetches one object is named `find*` when the object may be missing**, and returns a nullable type (`?T`).
 
-**It is named `get*` when the object must exist**: it returns a non-nullable type (`T`) and throws a dedicated not-found exception (`CommandNotFoundException`) when the object is missing, declared in its `@throws`.
+**It is named `get*` when the object must exist**: it returns a non-nullable type (`T`) and throws an exception when the object is missing, declared in its `@throws`.
 
 **A method that fetches a set is named `find*`** and returns an empty set when nothing matches. **A fetch uses no other verb**, such as `resolve*` or `load*`.
 
@@ -31,6 +31,7 @@ This applies to a repository and to any port or service method that fetches.
 
 - The name states the contract: a caller of `find*` handles the missing case, a caller of `get*` does not.
 - The rule applies to new methods; renaming an existing one is a change of its own.
+- The rule follows [ADR-0060](0060-apip-name-a-fetch-find-when-it-may-be-missing-and-get-when-it-must-exist.md), so a repository keeps its names when it moves to `src/App`.
 - The rule is enforced in review.
 
 ## When to Amend

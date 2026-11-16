@@ -1,4 +1,4 @@
-# ADR-0072: Suffix every `src/App` `@phpstan-type` alias with `TypeAlias`
+# ADR-0069: Suffix every `src/App` `@phpstan-type` alias with `TypeAlias`
 
 - **Status:** Accepted
 - **Date:** 2026-11-16
