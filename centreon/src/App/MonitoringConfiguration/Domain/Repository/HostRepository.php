@@ -65,9 +65,7 @@ interface HostRepository
     public function findMacros(HostId $id): Collection;
 
     /**
-     * The levelled categories (severities) the host is linked to, lowest id first, whatever the actor may see:
-     * {@see findOne()} reads only the lowest, so a write needs this read to resolve the extra ones legacy may have
-     * left, a host holding a single severity.
+     * The severities linked to the host, lowest id first, whatever the actor may see.
      *
      * @return Collection<HostSeverityId>
      */

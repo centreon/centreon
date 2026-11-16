@@ -257,8 +257,7 @@ final readonly class UpdateHostCommandHandler
             $existingHost->severityId,
             $severityScope,
         );
-        // A host holds a single severity, the lowest as read. Legacy may have left several: the extra ones are
-        // dropped whatever the actor may see, so they are a change.
+        // Extra legacy severities are dropped whatever the actor may see.
         $severitiesKept = $this->keepsTheStoredSeverities($this->repository->findSeverityIds($existingHost->id()), $severityId);
 
         $host = $existingHost->with(

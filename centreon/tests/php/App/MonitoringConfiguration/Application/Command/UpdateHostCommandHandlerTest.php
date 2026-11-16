@@ -1183,6 +1183,22 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame([$host], $this->hostRepository->updatedHosts);
     }
 
+    /**
+     * Only the severity the host shows is protected: hidden extra ones are legacy leftovers, dropped as well.
+     */
+    public function testClearingTheShownSeverityAlsoDropsAHiddenExtraOne(): void
+    {
+        $this->addPoller(1);
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(1)]);
+        $this->seedHost(10, severityId: new HostSeverityId(1));
+        $this->hostRepository->storedSeverityIds[10] = [1, 2];
+
+        $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
+
+        self::assertNull($host->severityId);
+        self::assertSame([$host], $this->hostRepository->updatedHosts);
+    }
+
     public function testItPreservesOutOfScopeParentAndChildHostsForARestrictedActor(): void
     {
         $this->addPoller(1);

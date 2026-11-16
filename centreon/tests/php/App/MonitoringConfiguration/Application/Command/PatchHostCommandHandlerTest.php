@@ -299,6 +299,57 @@ final class PatchHostCommandHandlerTest extends TestCase
         self::assertSame([], $this->repository->updatedHosts);
     }
 
+    public function testAnExplicitNullClearsASeverityTheActorCanSee(): void
+    {
+        $this->seedHost(activated: true);
+        $this->repository->storedSeverityIds[self::HOST_ID] = [5];
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(5)]);
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            actor: TestActingUsers::restricted(7),
+            severityId: null,
+        ));
+
+        self::assertNull($result->severityId);
+        self::assertSame([$result], $this->repository->updatedHosts);
+    }
+
+    public function testAnExplicitNullKeepsAHiddenSeverityAndDropsTheExtraOnes(): void
+    {
+        $this->seedHost(activated: true);
+        $this->repository->storedSeverityIds[self::HOST_ID] = [4, 5];
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(5)]);
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            actor: TestActingUsers::restricted(7),
+            severityId: null,
+        ));
+
+        self::assertSame(4, $result->severityId?->value);
+        self::assertSame([$result], $this->repository->updatedHosts);
+    }
+
+    /**
+     * Only the severity the host shows is protected: hidden extra ones are legacy leftovers, dropped as well.
+     */
+    public function testClearingTheShownSeverityAlsoDropsAHiddenExtraOne(): void
+    {
+        $this->seedHost(activated: true);
+        $this->repository->storedSeverityIds[self::HOST_ID] = [5, 10];
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(5)]);
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            actor: TestActingUsers::restricted(7),
+            severityId: null,
+        ));
+
+        self::assertNull($result->severityId);
+        self::assertSame([$result], $this->repository->updatedHosts);
+    }
+
     public function testItFailsWhenTheHostDoesNotExist(): void
     {
         $this->expectException(HostNotFoundException::class);

@@ -356,12 +356,6 @@ final readonly class PatchHostCommandHandler
     }
 
     /**
-     * Nothing is written when nothing changed. A plain enable/disable keeps the narrow write and its
-     * own event; anything else is a mass change, which carries the previous poller so that it is
-     * flagged too. A secret rewritten in the vault counts as a change even when the host keeps the very
-     * same reference, since the path of a vaulted value only depends on its entry and its key.
-     */
-    /**
      * A severity the actor cannot see is not theirs to remove: an explicit null keeps it.
      */
     private function severity(Host $host, PatchHostCommand $command): NoValue|HostSeverityId|null
@@ -390,8 +384,12 @@ final readonly class PatchHostCommandHandler
     }
 
     /**
-     * @param bool $severitiesKept false when legacy left several severities: the write resolves them to the single
-     *                             one the host keeps
+     * Nothing is written when nothing changed. A plain enable/disable keeps the narrow write and its
+     * own event; anything else is a mass change, which carries the previous poller so that it is
+     * flagged too. A secret rewritten in the vault counts as a change even when the host keeps the very
+     * same reference, since the path of a vaulted value only depends on its entry and its key.
+     *
+     * @param bool $severitiesKept false when legacy left several severities on the host
      */
     private function saveAndNotify(Host $hostBefore, Host $hostAfter, int $updatedBy, bool $secretRewritten, bool $severitiesKept): void
     {
