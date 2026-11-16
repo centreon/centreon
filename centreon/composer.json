@@ -94,8 +94,7 @@
     "symfony/phpunit-bridge": "8.1.*",
     "symfony/stopwatch": "8.1.*",
     "symfony/var-dumper": "8.1.*",
-    "symfony/web-profiler-bundle": "8.1.*",
-    "zircote/swagger-php": "4.11.*"
+    "symfony/web-profiler-bundle": "8.1.*"
   },
   "replace": {
     "paragonie/random_compat": "2.*",
