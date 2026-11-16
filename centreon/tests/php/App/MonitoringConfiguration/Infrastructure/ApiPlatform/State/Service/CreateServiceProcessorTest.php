@@ -131,6 +131,194 @@ final class CreateServiceProcessorTest extends ApiTestCase
     }
 
     /**
+     * The macros of `check_options` are deserialized and stored as the service's own; they are answered with the
+     * ids of their rows, a password macro without its value.
+     */
+    public function testItCreatesAServiceWithMacros(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $checkCommandId = $this->insertCommand('check', type: 2);
+        $this->login();
+
+        $body = $this->request('POST', self::ENDPOINT, [
+            'headers' => ['accept' => 'application/json'],
+            'json' => [
+                'name' => 'web check',
+                'host_id' => $hostId,
+                'check_options' => [
+                    'command_id' => $checkCommandId,
+                    'macros' => [
+                        ['name' => 'port', 'value' => '8080', 'is_password' => false],
+                        ['name' => 'token', 'value' => 's3cr3t', 'is_password' => true],
+                    ],
+                ],
+            ],
+        ])->toArray();
+
+        self::assertResponseStatusCodeSame(201);
+        $serviceId = $body['id'];
+        \assert(is_int($serviceId));
+        \assert(is_array($body['check_options']) && is_array($body['check_options']['macros']));
+        $macros = array_values($body['check_options']['macros']);
+        self::assertCount(2, $macros);
+        \assert(is_array($macros[0]) && is_array($macros[1]));
+        self::assertSame(['name' => 'PORT', 'value' => '8080', 'is_password' => false], array_intersect_key($macros[0], array_flip(['name', 'value', 'is_password'])));
+        self::assertSame(['name' => 'TOKEN', 'is_password' => true], array_intersect_key($macros[1], array_flip(['name', 'value', 'is_password'])));
+        self::assertArrayNotHasKey('value', $macros[1]);
+        self::assertArrayNotHasKey('parent', $macros[0]);
+        self::assertArrayNotHasKey('parent', $macros[1]);
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->fetchFirstColumn('SELECT svc_macro_id FROM on_demand_macro_service WHERE svc_svc_id = ? ORDER BY svc_macro_id', [$serviceId]);
+        self::assertSame(array_map('intval', $ids), [$macros[0]['id'] ?? null, $macros[1]['id'] ?? null]);
+
+        // A password value depends on the vault configuration: only the plain one is compared.
+        self::assertSame(
+            [
+                ['svc_macro_name' => '$_SERVICEPORT$', 'plain_value' => '8080', 'is_password' => null],
+                ['svc_macro_name' => '$_SERVICETOKEN$', 'plain_value' => null, 'is_password' => '1'],
+            ],
+            $this->connection->fetchAllAssociative(
+                'SELECT svc_macro_name, CASE WHEN is_password IS NULL THEN svc_macro_value END AS plain_value,
+                        CAST(is_password AS CHAR) AS is_password
+                    FROM on_demand_macro_service WHERE svc_svc_id = ? ORDER BY svc_macro_id',
+                [$serviceId],
+            ),
+        );
+    }
+
+    /**
+     * A template macro resent by its id with another value becomes an own macro; one resent unchanged stays
+     * inherited and is not stored.
+     */
+    public function testItOverridesAnInheritedMacroReferredToById(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $templateId = $this->insertServiceTemplate('generic', $this->insertCommand('check', type: 2));
+        $overriddenId = $this->insertServiceMacro($templateId, 'URL', '/');
+        $keptId = $this->insertServiceMacro($templateId, 'PORT', '80');
+        $this->login();
+
+        $body = $this->request('POST', self::ENDPOINT, [
+            'headers' => ['accept' => 'application/json'],
+            'json' => [
+                'name' => 'web check',
+                'host_id' => $hostId,
+                'service_template_id' => $templateId,
+                'check_options' => ['macros' => [
+                    ['id' => $overriddenId, 'parent' => 'template', 'name' => 'url', 'value' => '/health', 'is_password' => false],
+                    ['id' => $keptId, 'parent' => 'template', 'name' => 'port', 'value' => '80', 'is_password' => false],
+                ]],
+            ],
+        ])->toArray();
+
+        self::assertResponseStatusCodeSame(201);
+        $serviceId = $body['id'];
+        \assert(is_int($serviceId));
+        self::assertSame(
+            [['svc_macro_name' => '$_SERVICEURL$', 'svc_macro_value' => '/health']],
+            $this->connection->fetchAllAssociative('SELECT svc_macro_name, svc_macro_value FROM on_demand_macro_service WHERE svc_svc_id = ?', [$serviceId]),
+        );
+        \assert(is_array($body['check_options']) && is_array($body['check_options']['macros']));
+        self::assertSame(
+            [['URL', '/health', null], ['PORT', '80', 'template']],
+            array_map(
+                static fn (mixed $macro): array => is_array($macro) ? [$macro['name'] ?? null, $macro['value'] ?? null, $macro['parent'] ?? null] : [],
+                array_values($body['check_options']['macros']),
+            ),
+        );
+    }
+
+    /**
+     * Raised by the handler, which alone knows what the service inherits, and reported against the field the
+     * macros were submitted in.
+     */
+    public function testItRejectsAMacroTheServiceDoesNotInherit(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $templateId = $this->insertServiceTemplate('generic', $this->insertCommand('check', type: 2));
+        $otherTemplateMacroId = $this->insertServiceMacro($this->insertServiceTemplate('other', $this->insertCommand('other', type: 2)), 'URL', '/');
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, ['json' => [
+            'name' => 'web check',
+            'host_id' => $hostId,
+            'service_template_id' => $templateId,
+            'check_options' => ['macros' => [
+                ['id' => $otherTemplateMacroId, 'parent' => 'template', 'name' => 'url', 'value' => '/health', 'is_password' => false],
+            ]],
+        ]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonEquals(['code' => 422, 'message' => "[check_options] One or more macros do not exist on this service.\n"]);
+        self::assertFalse($this->connection->fetchOne("SELECT 1 FROM service WHERE service_template_model_stm_id = ? AND service_register = '1'", [$templateId]));
+    }
+
+    public function testItRejectsMacroNamesDifferingOnlyByCase(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $checkCommandId = $this->insertCommand('check', type: 2);
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, ['json' => [
+            'name' => 'web check',
+            'host_id' => $hostId,
+            'check_options' => [
+                'command_id' => $checkCommandId,
+                'macros' => [
+                    ['name' => 'port', 'value' => '80', 'is_password' => false],
+                    ['name' => 'PORT', 'value' => '8080', 'is_password' => false],
+                ],
+            ],
+        ]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonEquals(['code' => 422, 'message' => "[check_options] A service cannot have two macros with the same name.\n"]);
+    }
+
+    public function testItRejectsAReservedMacroName(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $checkCommandId = $this->insertCommand('check', type: 2);
+        // Seeded rather than taken from the install data, which the integration database does not guarantee.
+        $this->connection->insert('nagios_macro', ['macro_name' => '$_SERVICECRITICALITY_LEVEL$']);
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, ['json' => [
+            'name' => 'web check',
+            'host_id' => $hostId,
+            'check_options' => [
+                'command_id' => $checkCommandId,
+                'macros' => [['name' => 'criticality_level', 'value' => '1', 'is_password' => false]],
+            ],
+        ]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonEquals(['code' => 422, 'message' => "[check_options.macros[0].name] This macro name is reserved and cannot be used.\n"]);
+    }
+
+    /**
+     * Only the upper-cased name, as stored, is measured: "ß" becomes "SS".
+     */
+    public function testItRejectsAMacroNameTooLongOnceUpperCased(): void
+    {
+        $hostId = $this->insertHost($this->insertPoller());
+        $checkCommandId = $this->insertCommand('check', type: 2);
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, ['json' => [
+            'name' => 'web check',
+            'host_id' => $hostId,
+            'check_options' => [
+                'command_id' => $checkCommandId,
+                'macros' => [['name' => str_repeat('ß', 123), 'value' => 'v', 'is_password' => false]],
+            ],
+        ]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonEquals(['code' => 422, 'message' => "[check_options.macros[0].name] This value is too long. It should have 245 characters or less.\n"]);
+    }
+
+    /**
      * One line per violation, each prefixed with its snake_case path, a nested field included.
      */
     public function testItAnswers422WithTheFieldPath(): void
@@ -362,6 +550,17 @@ final class CreateServiceProcessorTest extends ApiTestCase
             'service_description' => $this->tag . '-' . $name,
             'service_register' => '0',
             'command_command_id' => $checkCommandId,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertServiceMacro(int $serviceId, string $name, string $value): int
+    {
+        $this->connection->insert('on_demand_macro_service', [
+            'svc_macro_name' => '$_SERVICE' . $name . '$',
+            'svc_macro_value' => $value,
+            'svc_svc_id' => $serviceId,
         ]);
 
         return (int) $this->connection->lastInsertId();

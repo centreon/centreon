@@ -34,8 +34,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOptions;
@@ -45,6 +47,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
+use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\ServiceNotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\ServiceStalkingOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\CreateServiceInput;
@@ -71,6 +74,8 @@ final readonly class CreateServiceProcessor implements ProcessorInterface
         private CommandBus $commandBus,
         private Security $security,
         private ServiceResourceBuilder $resourceBuilder,
+        private ServiceMacroTransformer $macroTransformer,
+        private ServiceRepository $serviceRepository,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -102,12 +107,51 @@ final readonly class CreateServiceProcessor implements ProcessorInterface
             serviceGroupIds: $this->ids($data->serviceGroupIds, ServiceGroupId::class),
             categoryIds: $this->ids($data->categoryIds, ServiceCategoryId::class),
             trapIds: $this->ids($data->trapIds, TrapId::class),
+            macroChanges: new Collection(
+                array_values(array_map($this->macroTransformer->toChange(...), $checkOptions->macros ?? [])),
+                ServiceMacroChange::class,
+            ),
         );
 
         $service = $this->commandBus->execute($command);
         Assert::isInstanceOf($service, Service::class);
 
-        return $this->resourceBuilder->build($service, $actor);
+        return $this->resourceBuilder->build($this->withStoredMacros($service), $actor);
+    }
+
+    /**
+     * The own macros are read back as stored, since their ids are only assigned on insertion. The service is
+     * otherwise answered as created.
+     */
+    private function withStoredMacros(Service $service): Service
+    {
+        if ($service->checkOptions->macros === []) {
+            return $service;
+        }
+
+        return new Service(
+            id: $service->id(),
+            name: $service->name,
+            hostId: $service->hostId,
+            hostActivated: $service->hostActivated,
+            hostPollerId: $service->hostPollerId,
+            activated: $service->activated,
+            templateId: $service->templateId,
+            checkOptions: new ServiceCheckOptions(
+                $service->checkOptions->checkCommandId,
+                $service->checkOptions->args,
+                array_values($this->serviceRepository->findMacros($service->id())->toArray()),
+            ),
+            schedulingOptions: $service->schedulingOptions,
+            notifications: $service->notifications,
+            dataProcessing: $service->dataProcessing,
+            extendedInformations: $service->extendedInformations,
+            graphTemplateId: $service->graphTemplateId,
+            severityId: $service->severityId,
+            serviceGroupIds: $service->serviceGroupIds,
+            categoryIds: $service->categoryIds,
+            trapIds: $service->trapIds,
+        );
     }
 
     private function schedulingOptions(?ServiceMonitoringEngineInput $input): ServiceSchedulingOptions

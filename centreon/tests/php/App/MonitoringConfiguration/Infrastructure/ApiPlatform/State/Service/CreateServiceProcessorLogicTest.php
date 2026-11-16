@@ -33,7 +33,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
@@ -42,6 +48,8 @@ use App\MonitoringConfiguration\Domain\Service\InheritedServiceMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\CreateServiceInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceAdvancedInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceCheckOptionsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceMacroInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceMacroOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceMonitoringEngineInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
@@ -70,6 +78,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceCategoryRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceGroupRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
@@ -85,8 +94,11 @@ final class CreateServiceProcessorLogicTest extends TestCase
 
     private CommandBusSpy $commandBus;
 
+    private FakeServiceRepository $serviceRepository;
+
     protected function setUp(): void
     {
+        $this->serviceRepository = new FakeServiceRepository();
         $this->commandBus = new CommandBusSpy();
         $this->commandBus->result = new Service(
             id: new ServiceId(42),
@@ -254,6 +266,63 @@ final class CreateServiceProcessorLogicTest extends TestCase
         self::assertNull($this->executedCommand()->notifications);
     }
 
+    /**
+     * Each submitted macro becomes a change, in the order sent, its name upper-cased; the id and the parent tell
+     * which inherited macro it overrides.
+     */
+    public function testMacrosAreMapped(): void
+    {
+        $this->processor()->process(new CreateServiceInput(name: 'ping', hostId: self::HOST_ID, checkOptions: new ServiceCheckOptionsInput(
+            commandId: 5,
+            macros: [
+                new ServiceMacroInput(name: 'port', value: '8080'),
+                new ServiceMacroInput(name: 'pwd', value: null, isPassword: true, id: 11, parent: 'template'),
+            ],
+        )), new Post());
+
+        self::assertSame(
+            [['PORT', '8080', false, null, null], ['PWD', null, true, 11, ServiceMacroParentEnum::Template]],
+            array_map(
+                static fn (ServiceMacroChange $change): array => [$change->name->value, $change->value, $change->isPassword, $change->id?->value, $change->parent],
+                array_values($this->executedCommand()->macroChanges->toArray()),
+            ),
+        );
+    }
+
+    public function testWithoutCheckOptionsNoMacroIsSent(): void
+    {
+        $this->processor()->process(new CreateServiceInput(name: 'ping', hostId: self::HOST_ID, serviceTemplateId: 30), new Post());
+
+        self::assertSame(0, count($this->executedCommand()->macroChanges));
+    }
+
+    /**
+     * The own macros of the created service only get their ids on insertion: the answer reads them back as stored,
+     * so a client can address them on a following write.
+     */
+    public function testItAnswersTheOwnMacrosReadBackWithTheirIds(): void
+    {
+        $this->commandBus->result = new Service(
+            id: new ServiceId(42),
+            name: new ServiceName('ping'),
+            hostId: new HostId(self::HOST_ID),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+            checkOptions: new ServiceCheckOptions(null, [], [new ServiceMacro(new ServiceMacroName('port'), '8080', isPassword: false)]),
+        );
+        $this->serviceRepository->storedMacros[42] = [new ServiceMacro(new ServiceMacroName('port'), '8080', isPassword: false, id: new ServiceMacroId(7))];
+
+        $resource = $this->processor()->process(new CreateServiceInput(name: 'ping', hostId: self::HOST_ID), new Post());
+
+        self::assertSame(
+            [[7, 'PORT', '8080', null]],
+            array_map(
+                static fn (ServiceMacroOutput $macro): array => [$macro->id, $macro->name, $macro->value, $macro->parent],
+                $resource->checkOptions->macros,
+            ),
+        );
+    }
+
     public function testItAnswersTheFormOfTheCreatedService(): void
     {
         $resource = $this->processor()->process(new CreateServiceInput(name: 'ping', hostId: self::HOST_ID), new Post());
@@ -316,7 +385,7 @@ final class CreateServiceProcessorLogicTest extends TestCase
             isCloudPlatform: $isCloudPlatform,
         );
 
-        return new CreateServiceProcessor($this->commandBus, $security, $builder, $isCloudPlatform);
+        return new CreateServiceProcessor($this->commandBus, $security, $builder, new ServiceMacroTransformer(), $this->serviceRepository, $isCloudPlatform);
     }
 
     /**

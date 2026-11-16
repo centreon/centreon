@@ -6260,6 +6260,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
+        '502':
+          description: 'The vault could not be reached'
         '200':
           description: 'Host resource updated'
           content:
@@ -6786,6 +6788,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
+        '502':
+          description: 'The vault could not be reached'
         '201':
           description: 'Service resource created'
           content:
@@ -6810,7 +6814,7 @@ paths:
                 $ref: '#/components/schemas/Error'
           links: {}
       summary: 'Create a service'
-      description: 'Creates a service linked directly to one host, enabled, and answers its form as a Get does. Its own macros are not taken yet.'
+      description: 'Creates a service linked directly to one host, enabled, and answers its form as a Get does. Its own macros are taken from `check_options.macros`; an inherited macro is resent, with its id and parent, only to override it. Password macros are written to the vault, when one is configured, before the service is saved.'
       parameters: []
       requestBody:
         description: 'The new Service resource'
@@ -6952,6 +6956,68 @@ paths:
           name: id
           in: path
           description: 'Service identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+  '/api/configuration/hosts/{hostId}/services/deploy':
+    post:
+      operationId: api_configurationhosts_hostIdservicesdeploy_post
+      tags:
+        - Service
+      responses:
+        '201':
+          description: 'The created services, each as a Get answers it'
+          content:
+            application/ld+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service.jsonld'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+          links: {}
+        '204':
+          description: 'Nothing to deploy: no service template, or every name already on the host'
+        '403':
+          description: 'You are not allowed to deploy services'
+        '404':
+          description: 'Host not found'
+        '422':
+          description: 'A service template alias cannot name a service; nothing was deployed'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: integer }
+                  message: { type: string }
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Deploy the services of a host from its templates'
+      description: 'Creates on the host one enabled service per service template of its host templates and their ancestors, named after the template alias, with the service groups of the template, unless a service of the host already has that name (case ignored). All or nothing: an invalid alias fails the whole deployment. Answers the created services, each as a Get does.'
+      parameters:
+        -
+          name: hostId
+          in: path
+          description: 'Host identifier'
           required: true
           deprecated: false
           schema:
@@ -15135,6 +15201,10 @@ components:
           type: array
           items:
             type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceMacroInput'
     ServiceMonitoringEngineInput:
       type: object
       properties:
@@ -15488,3 +15558,32 @@ components:
           type: integer
         name:
           type: string
+    ServiceMacroInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          maxLength: 245
+          type: string
+        value:
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        parent:
+          enum:
+            - template
+            - command
+          type:
+            - string
+            - 'null'

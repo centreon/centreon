@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
@@ -57,6 +58,9 @@ final class FakeServiceRepository implements ServiceRepository
 
     /** Every name taken, as by a concurrent write after the input validation. */
     public bool $forceNameUsed = false;
+
+    /** @var array<int, list<ServiceMacro>> service id => own macros as read back after insertion */
+    public array $storedMacros = [];
 
     public function add(Service $service): void
     {
@@ -100,15 +104,29 @@ final class FakeServiceRepository implements ServiceRepository
         return new Collection($services, Service::class);
     }
 
-    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
+    /**
+     * Whether a service is shared is SQL, pinned by the integration tests of the real repository.
+     */
+    public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
     {
-        $services = array_values(array_filter(
-            $this->services,
-            fn (Service $service): bool => $service->hostId->value === $hostId->value
-                && in_array($this->serviceTemplateIdOf[$service->id()->value] ?? null, $serviceTemplateIds, true),
-        ));
+        $ids = [];
+        foreach ($this->services as $id => $service) {
+            if (
+                $service->hostId->value === $hostId->value
+                && in_array($this->serviceTemplateIdOf[$id] ?? null, $serviceTemplateIds, true)
+            ) {
+                $ids[] = new ServiceId($id);
+            }
+        }
 
-        return new Collection($services, Service::class);
+        return new Collection($ids, ServiceId::class);
+    }
+
+    public function findOneOnHost(ServiceId $id, HostId $hostId): ?Service
+    {
+        $service = $this->services[$id->value] ?? null;
+
+        return $service?->hostId->value === $hostId->value ? $service : null;
     }
 
     public function remove(Service $service): void
@@ -152,6 +170,18 @@ final class FakeServiceRepository implements ServiceRepository
         }
 
         return $service;
+    }
+
+    /**
+     * The own macros of the stored service; a test seeds {@see $storedMacros} to stand for the ids a real insert
+     * assigns.
+     */
+    public function findMacros(ServiceId $id): Collection
+    {
+        return new Collection(
+            $this->storedMacros[$id->value] ?? $this->services[$id->value]->checkOptions->macros ?? [],
+            ServiceMacro::class,
+        );
     }
 
     /**
