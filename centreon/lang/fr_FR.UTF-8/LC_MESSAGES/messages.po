@@ -19294,6 +19294,12 @@ msgstr "Vous ne pouvez pas changer votre mot de passe car le délai avant change
 msgid "You can't edit this downtime because you don't have access to all of its resources"
 msgstr "Vous ne pouvez pas éditer cette plage de maintenance car vous n'avez pas la permission d'accéder à toutes les ressources liées"
 
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+msgid "You can't link this downtime to resources you don't have access to"
+msgstr ""
+"Vous ne pouvez pas lier cette plage de maintenance à des ressources "
+"auxquelles vous n'avez pas accès"
+
 #: centreon/www/install/smarty_translate.php
 msgid "You cannot add more charts. The maximum charts is "
 msgstr "Vous ne pouvez pas ajouter d'autres graphiques. Le nombre maximum de graphiques est de "

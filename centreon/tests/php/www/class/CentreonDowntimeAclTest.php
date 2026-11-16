@@ -51,8 +51,9 @@ class CentreonDowntimeAclTest extends TestCase
     {
         $this->downtime = $this->getMockBuilder(CentreonDowntime::class)
             ->setConstructorArgs([$this->createMock(CentreonDB::class)])
-            ->onlyMethods(['getRelations'])
+            ->onlyMethods(['getRelations', 'findMetaIdsByServiceKey'])
             ->getMock();
+        $this->downtime->method('findMetaIdsByServiceKey')->willReturn([]);
 
         $this->userAcl = $this->createMock(CentreonACL::class);
         $this->userAcl->method('getHostAclConf')->willReturn([self::ALLOWED_HOST_ID => 'host-a']);
@@ -246,6 +247,126 @@ class CentreonDowntimeAclTest extends TestCase
         $this->givenRelations([1 => $relations, 2 => $relations]);
 
         $this->assertSame([1, 2], $this->downtime->filterIdsAllowedForUser([1, 2], $userAcl));
+    }
+
+    public function testNewDowntimeOnAllowedResourcesIsAllowed(): void
+    {
+        $this->assertTrue($this->downtime->areSubmittedRelationsAllowedForUser(
+            $this->submitted(
+                hosts: [self::ALLOWED_HOST_ID],
+                hostgroups: [self::ALLOWED_HOST_GROUP_ID],
+                services: [self::ALLOWED_HOST_ID . '-' . self::ALLOWED_SERVICE_ID],
+                servicegroups: [self::ALLOWED_SERVICE_GROUP_ID],
+            ),
+            null,
+            $this->userAcl,
+        ));
+    }
+
+    public function testNewDowntimeOnAHostOutsideTheAclIsRefused(): void
+    {
+        $this->assertFalse($this->downtime->areSubmittedRelationsAllowedForUser(
+            $this->submitted(hosts: [self::ALLOWED_HOST_ID, self::FORBIDDEN_HOST_ID]),
+            null,
+            $this->userAcl,
+        ));
+    }
+
+    public function testNewDowntimeOnAServiceOutsideTheAclIsRefused(): void
+    {
+        $this->assertFalse($this->downtime->areSubmittedRelationsAllowedForUser(
+            $this->submitted(services: [self::FORBIDDEN_HOST_ID . '-' . self::ALLOWED_SERVICE_ID]),
+            null,
+            $this->userAcl,
+        ));
+    }
+
+    public function testMalformedSubmittedServiceIsRefused(): void
+    {
+        $this->assertFalse($this->downtime->areSubmittedRelationsAllowedForUser(
+            $this->submitted(services: [(string) self::ALLOWED_SERVICE_ID]),
+            null,
+            $this->userAcl,
+        ));
+    }
+
+    public function testAddingAResourceOutsideTheAclToAnAllowedDowntimeIsRefused(): void
+    {
+        $this->givenRelations([
+            1 => $this->relations(hostgroups: [$this->resource(self::ALLOWED_HOST_GROUP_ID)]),
+        ]);
+
+        $this->assertFalse($this->downtime->areSubmittedRelationsAllowedForUser(
+            $this->submitted(
+                hostgroups: [self::ALLOWED_HOST_GROUP_ID, self::FORBIDDEN_HOST_GROUP_ID],
+            ),
+            1,
+            $this->userAcl,
+        ));
+    }
+
+    public function testKeepingADisabledResourceOutsideTheAclOnEditIsAllowed(): void
+    {
+        $this->givenRelations([
+            1 => $this->relations(
+                hosts: [$this->resource(self::ALLOWED_HOST_ID), $this->resource(self::FORBIDDEN_HOST_ID, false)],
+            ),
+        ]);
+
+        $this->assertTrue($this->downtime->areSubmittedRelationsAllowedForUser(
+            $this->submitted(hosts: [self::ALLOWED_HOST_ID, self::FORBIDDEN_HOST_ID]),
+            1,
+            $this->userAcl,
+        ));
+    }
+
+    public function testSubmittedMetaServicesAreCheckedAgainstTheMetaServiceAcl(): void
+    {
+        $allowedMeta = self::META_HOST_ID . '-' . (1000 + self::ALLOWED_META_ID);
+        $forbiddenMeta = self::META_HOST_ID . '-' . (1000 + self::FORBIDDEN_META_ID);
+        $downtime = $this->getMockBuilder(CentreonDowntime::class)
+            ->setConstructorArgs([$this->createMock(CentreonDB::class)])
+            ->onlyMethods(['getRelations', 'findMetaIdsByServiceKey'])
+            ->getMock();
+        $downtime->method('findMetaIdsByServiceKey')->willReturn([
+            $allowedMeta => (string) self::ALLOWED_META_ID,
+            $forbiddenMeta => (string) self::FORBIDDEN_META_ID,
+        ]);
+
+        $this->assertTrue($downtime->areSubmittedRelationsAllowedForUser(
+            $this->submitted(services: [$allowedMeta]),
+            null,
+            $this->userAcl,
+        ));
+        $this->assertFalse($downtime->areSubmittedRelationsAllowedForUser(
+            $this->submitted(services: [$allowedMeta, $forbiddenMeta]),
+            null,
+            $this->userAcl,
+        ));
+    }
+
+    /**
+     * Same format as the relations submitted by the downtime form
+     *
+     * @param list<int> $hosts
+     * @param list<int> $hostgroups
+     * @param list<string> $services '<hostId>-<serviceId>' identifiers
+     * @param list<int> $servicegroups
+     *
+     * @return array<string, list<int|string>>
+     */
+    private function submitted(
+        array $hosts = [],
+        array $hostgroups = [],
+        array $services = [],
+        array $servicegroups = [],
+    ): array {
+        return [
+            'hosts' => array_map('strval', $hosts),
+            'hostgroups' => array_map('strval', $hostgroups),
+            'services' => $services,
+            'servicegroups' => array_map('strval', $servicegroups),
+        ];
     }
 
     /**

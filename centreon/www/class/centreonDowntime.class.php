@@ -19,6 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 /**
  * Class
  *
@@ -315,7 +319,7 @@ class CentreonDowntime
      * @param int $downtimeId
      *
      * @throws PDOException
-     * @return array<string, array<int, array{id: string, activated: '0'|'1'}>>
+     * @return array<string, array<int, array{id: string, activated: '0'|'1', meta_id?: string}>>
      */
     public function getRelations(int $downtimeId): array
     {
@@ -353,12 +357,11 @@ class CentreonDowntime
                         SQL;
                     break;
                 case 'services':
-                    // A service on a disabled host counts as disabled.
                     // Meta services hang on the _Module_Meta host and are named meta_<meta_id>.
                     $query = <<<'SQL'
                         SELECT CONCAT(dsr.host_host_id, CONCAT('-', dsr.service_service_id)) AS resource_id,
                             IF(s.service_activate = '1' AND h.host_activate = '1', '1', '0') AS activated,
-                            IF(h.host_register = '2', SUBSTRING(s.service_description, 6), NULL) AS meta_id
+                            IF(h.host_register = '2' AND h.host_name = '_Module_Meta', SUBSTRING(s.service_description, 6), NULL) AS meta_id
                         FROM downtime_service_relation dsr
                         INNER JOIN service s
                             ON dsr.service_service_id = s.service_id
@@ -442,6 +445,58 @@ class CentreonDowntime
                 if ($resource['activated'] !== '1') {
                     continue;
                 }
+                if (! $this->isResourceAllowed($userAcl, $resourceType, $resource)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Tells whether the user may link the submitted resources to a downtime.
+     *
+     * Every submitted resource must be part of the user's ACL, except the ones already linked to the downtime:
+     * isAllowedForUser() covers those, and a disabled resource outside the ACL must survive an edit.
+     *
+     * @param array<string, list<int|string>> $submittedRelations submitted ids indexed by getRelations() key,
+     *                                                            services being identified by '<hostId>-<serviceId>'
+     * @param int|null $downtimeId the edited downtime, null on creation
+     * @param CentreonACL $userAcl
+     *
+     * @throws PDOException
+     * @throws ConnectionException
+     * @return bool
+     */
+    public function areSubmittedRelationsAllowedForUser(
+        array $submittedRelations,
+        ?int $downtimeId,
+        CentreonACL $userAcl,
+    ): bool {
+        $savedRelations = $downtimeId !== null ? $this->getRelations($downtimeId) : [];
+        $metaIds = $this->findMetaIdsByServiceKey($submittedRelations['services'] ?? []);
+
+        foreach ($submittedRelations as $resourceType => $resourceIds) {
+            $savedIds = array_map('strval', array_column($savedRelations[$resourceType] ?? [], 'id'));
+
+            foreach ($resourceIds as $resourceId) {
+                $resourceId = (string) $resourceId;
+
+                if (in_array($resourceId, $savedIds, true)) {
+                    continue;
+                }
+
+                // A service id that is not '<hostId>-<serviceId>' can only come from a crafted request
+                if ($resourceType === 'services' && preg_match('/^\d+-\d+$/', $resourceId) !== 1) {
+                    return false;
+                }
+
+                $resource = ['id' => $resourceId, 'activated' => '1'];
+                if (isset($metaIds[$resourceId])) {
+                    $resource['meta_id'] = $metaIds[$resourceId];
+                }
+
                 if (! $this->isResourceAllowed($userAcl, $resourceType, $resource)) {
                     return false;
                 }
@@ -1202,6 +1257,57 @@ class CentreonDowntime
     }
 
     /**
+     * Returns the meta id of the meta services among the given services, indexed by '<hostId>-<serviceId>'.
+     * Meta services hang on the _Module_Meta host and are named meta_<meta_id>.
+     *
+     * @param list<int|string> $serviceKeys '<hostId>-<serviceId>' identifiers
+     *
+     * @throws ConnectionException
+     * @return array<string, string>
+     */
+    protected function findMetaIdsByServiceKey(array $serviceKeys): array
+    {
+        $serviceIds = [];
+        foreach ($serviceKeys as $serviceKey) {
+            if (preg_match('/^\d+-(\d+)$/', (string) $serviceKey, $matches) === 1) {
+                $serviceIds[] = (int) $matches[1];
+            }
+        }
+
+        if ($serviceIds === []) {
+            return [];
+        }
+
+        $queryParameters = [];
+        foreach (array_values(array_unique($serviceIds)) as $index => $serviceId) {
+            $queryParameters[] = QueryParameter::int('service_id_' . $index, $serviceId);
+        }
+        $placeholders = implode(', ', array_map(
+            static fn (QueryParameter $queryParameter): string => ':' . $queryParameter->getName(),
+            $queryParameters
+        ));
+
+        /** @var array<string, string> $metaIds */
+        $metaIds = $this->db->fetchAllKeyValue(
+            <<<SQL
+                SELECT CONCAT(h.host_id, CONCAT('-', s.service_id)) AS service_key,
+                    SUBSTRING(s.service_description, 6) AS meta_id
+                FROM host_service_relation hsr
+                INNER JOIN host h
+                    ON hsr.host_host_id = h.host_id
+                    AND h.host_register = '2'
+                    AND h.host_name = '_Module_Meta'
+                INNER JOIN service s
+                    ON hsr.service_service_id = s.service_id
+                WHERE s.service_id IN ({$placeholders})
+                SQL,
+            QueryParameters::create($queryParameters)
+        );
+
+        return $metaIds;
+    }
+
+    /**
      * @param int[] $serviceTemplateIds
      *
      * @throws PDOException
@@ -1499,7 +1605,7 @@ class CentreonDowntime
 
     /**
      * Returns the resources the user has access to, indexed by id (services: those of $hostId).
-     * Cached for the lifetime of this object to avoid repeating queries on mass actions.
+     * Cached per ACL, type and host.
      *
      * @param CentreonACL $userAcl
      * @param string $resourceType 'hosts', 'hostgroups', 'services' or 'servicegroups'

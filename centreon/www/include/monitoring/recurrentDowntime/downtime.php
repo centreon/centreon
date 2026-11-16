@@ -45,7 +45,7 @@ $downtime = new CentreonDowntime($pearDB);
 
 require_once './include/common/common-Func.php';
 
-// ACL restrictions only apply to non-admin users ($userAcl stays null for admins)
+// No ACL restriction for admins
 $userAcl = null;
 if ($centreon->user->admin !== '1') {
     require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';

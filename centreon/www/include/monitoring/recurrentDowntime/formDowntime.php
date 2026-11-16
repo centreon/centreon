@@ -290,6 +290,24 @@ if ($form->validate()) {
         $valid = false;
         $tpl->assign('msg_err', _('No relation set for this downtime'));
     }
+    // The select lists only offer allowed resources, a crafted request must be refused too
+    if ($valid && $userAcl !== null) {
+        $submittedRelations = [
+            'hosts' => (array) ($values['host_relation'] ?? []),
+            'hostgroups' => (array) ($values['hostgroup_relation'] ?? []),
+            'services' => (array) ($values['svc_relation'] ?? []),
+            'servicegroups' => (array) ($values['svcgroup_relation'] ?? []),
+        ];
+        $editedDowntimeId = $values['o'] == 'c' ? (int) $values['dt_id'] : null;
+
+        if (! $downtime->areSubmittedRelationsAllowedForUser($submittedRelations, $editedDowntimeId, $userAcl)) {
+            $valid = false;
+            $tpl->assign(
+                'relations_acl_err',
+                _("You can't link this downtime to resources you don't have access to")
+            );
+        }
+    }
     if ($valid) {
         if ($values['o'] == 'a') {
             $activate = $values['downtime_activate']['downtime_activate'];
@@ -330,7 +348,6 @@ if ($form->validate()) {
             && $userAcl !== null
             && ! $downtime->isAllowedForUser((int) $values['dt_id'], $userAcl)
         ) {
-            // The frozen form only protects the UI, the update itself must be refused too
             $valid = false;
             $form->addElement('text', 'msgacl', _('error'), 'error');
             $form->freeze();
