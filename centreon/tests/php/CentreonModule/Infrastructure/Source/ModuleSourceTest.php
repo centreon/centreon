@@ -54,25 +54,7 @@ class ModuleSourceTest extends TestCase
         $this->repository = $this->createMock(ModulesInformationsRepository::class);
         $this->repository->method('getAllModuleVsVersion')->willReturnCallback(fn (): array => ['my-module' => $this->installedVersion]);
 
-        $dbManager = $this->createMock(CentreonDBManagerService::class);
-        $dbManager->method('getRepository')->willReturn($this->repository);
-        $configuration = $this->createMock(Configuration::class);
-        $configuration->method('get')->willReturn($this->centreonPath);
-
-        $container = new Container();
-        $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = $dbManager;
-        $container['finder'] = $container->factory(static fn () => new \Symfony\Component\Finder\Finder());
-        $container['configuration'] = $configuration;
-        foreach ([
-            LegacyServiceProvider::CENTREON_LEGACY_MODULE_INSTALLER,
-            LegacyServiceProvider::CENTREON_LEGACY_MODULE_UPGRADER,
-            LegacyServiceProvider::CENTREON_LEGACY_MODULE_REMOVER,
-            LegacyServiceProvider::CENTREON_LEGACY_MODULE_LICENSE,
-        ] as $service) {
-            $container[$service] = static fn (): \stdClass => new \stdClass();
-        }
-
-        $this->source = new ModuleSource(new Psr11Container($container));
+        $this->source = $this->createSource($this->centreonPath);
     }
 
     protected function tearDown(): void
@@ -163,5 +145,37 @@ class ModuleSourceTest extends TestCase
         $module = $this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php');
 
         $this->assertTrue($module->isUpdated(), 'Its migrations cannot run: an update would never bring it up to date');
+    }
+
+    public function testFindsTheModulesWhenTheCentreonPathHasNoTrailingSlash(): void
+    {
+        $this->installedVersion = '26.10.0';
+
+        $source = $this->createSource(rtrim($this->centreonPath, '/'));
+
+        $this->assertSame(['my-module'], array_map(static fn (\CentreonModule\Infrastructure\Entity\Module $module): string => $module->getId(), $source->getList(null, true, false)));
+    }
+
+    private function createSource(string $centreonPath): ModuleSource
+    {
+        $dbManager = $this->createMock(CentreonDBManagerService::class);
+        $dbManager->method('getRepository')->willReturn($this->repository);
+        $configuration = $this->createMock(Configuration::class);
+        $configuration->method('get')->willReturn($centreonPath);
+
+        $container = new Container();
+        $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = $dbManager;
+        $container['finder'] = $container->factory(static fn () => new \Symfony\Component\Finder\Finder());
+        $container['configuration'] = $configuration;
+        foreach ([
+            LegacyServiceProvider::CENTREON_LEGACY_MODULE_INSTALLER,
+            LegacyServiceProvider::CENTREON_LEGACY_MODULE_UPGRADER,
+            LegacyServiceProvider::CENTREON_LEGACY_MODULE_REMOVER,
+            LegacyServiceProvider::CENTREON_LEGACY_MODULE_LICENSE,
+        ] as $service) {
+            $container[$service] = static fn (): \stdClass => new \stdClass();
+        }
+
+        return new ModuleSource(new Psr11Container($container));
     }
 }

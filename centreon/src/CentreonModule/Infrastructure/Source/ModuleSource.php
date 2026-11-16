@@ -311,7 +311,7 @@ class ModuleSource extends SourceAbstract
      */
     protected function getPath(): string
     {
-        return $this->path . static::PATH;
+        return rtrim($this->path, '/') . '/' . static::PATH;
     }
 
     private function hasPendingMigrations(string $moduleId, string $modulePath): bool
