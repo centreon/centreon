@@ -20,13 +20,13 @@ Settled in [#12302](https://github.com/centreon/centreon/pull/12302).
 ## Decision
 
 - **`Domain/Service/` holds only two kinds of classes:** the ports of the context, other than repositories, **whose signatures take or return a Domain type**, and **stateless business rules**, concrete classes that depend only on the Domain.
-- **A port whose signatures use no Domain type** (a lock, a cache, a log, a file to write) is a technical capability: it lives in **`Application/`**, next to the handlers that call it.
+- **A port whose signatures use no Domain type** (a lock, a cache, a file to write) is a technical capability: it lives in **`Application/`**, next to the handlers that call it.
 - **`Application/Service/` holds only concrete classes** shared by several handlers of the context: they call ports and repositories, take locks and chain steps. No interface goes there.
 
 ## Consequences
 
 - Whether a port belongs to the Domain is read from its signatures, without a debate in review.
-- The Domain never declares a logging, lock or cache port.
+- The Domain never declares a logging port ([ADR-0055](0055-apip-log-only-from-the-src-app-infrastructure-layer.md)), nor a lock or cache port whose signatures carry no Domain type.
 - The rule applies to new ports. An existing port that breaks it, such as `GorgoneNodesSynchronizer`, moves in a dedicated refactor, never in the middle of a feature.
 - The rule is enforced in review.
 
