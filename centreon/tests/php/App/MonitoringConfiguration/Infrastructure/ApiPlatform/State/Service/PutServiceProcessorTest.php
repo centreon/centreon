@@ -28,9 +28,7 @@ use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 /**
- * The HTTP wiring of the service update: route, access gate, payload deserialization (the required activation
- * flag), the 200 body, the status codes of the handler and the side effects end to end. Each rule of the payload is
- * pinned by the input validation tests, each rule of the update by the handler's test.
+ * HTTP wiring of PUT /configuration/services/{id}.
  */
 final class PutServiceProcessorTest extends ApiTestCase
 {

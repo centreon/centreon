@@ -46,16 +46,9 @@ interface ServiceRepository
     public function update(Service $service): void;
 
     /**
-     * Rewrites the relations of a stored real service and its own macros:
-     * - its host link only when its host changed;
-     * - its service groups, with its current host, only when they or its host changed: every service-group row
-     *   of the service is then replaced, those of another host or of a host group included;
-     * - its levelless categories and its severity, each in its own half of the shared category table, every
-     *   levelled row being replaced by the one severity;
-     * - its contacts, contact groups and traps;
-     * - its own macros in place: a stored macro keeps its row (id, description, order), a new one is inserted, one
-     *   no longer held is deleted.
-     * Escalations, dependencies and downtimes stay on the (host, service) pair they name.
+     * Rewrites the relations and own macros of a real service. The host link is rewritten only when the host
+     * changed; the service groups only when they or the host changed, every service-group row of the service being
+     * replaced. Own macros are updated in place by id; escalations, dependencies and downtimes are left untouched.
      */
     public function replaceRelationsAndMacros(Service $service): void;
 

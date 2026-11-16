@@ -2221,9 +2221,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
     }
 
     /**
-     * A stored macro keeps its row (id, description, order); a new one is inserted; one no longer held is
-     * deleted; an id the service does not store (another service's or a template's) is never written to, the
-     * macro is inserted as a new row of the service.
+     * Own macros are updated in place by id, inserted or deleted; an id the service does not store is never written to.
      */
     public function testReplaceMacrosInPlace(): void
     {

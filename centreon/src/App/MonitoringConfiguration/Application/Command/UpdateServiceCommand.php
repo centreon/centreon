@@ -42,25 +42,17 @@ use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
-/**
- * Full replace (PUT) of a single service. Mirrors {@see CreateServiceCommand}'s field set, plus the target $id
- * and an explicit $activated (which POST sets to true).
- */
+/** Full replace (PUT) of a service. */
 final readonly class UpdateServiceCommand
 {
     /**
-     * @param ActingUser $actor the acting user: the action-log actor, whose ACL scope also bounds the target lookup
-     *                          and the host, service-group, category, severity and contact checks
-     * @param list<string> $checkCommandArgs ordered check-command arguments; they require a check command, set
-     *                                       here or provided by the service template chain
-     * @param ?ServiceNotifications $notifications null on a platform without notification block (Cloud): the
-     *                                             stored settings are kept
+     * @param ActingUser $actor the acting user, whose ACL scope bounds every lookup
+     * @param list<string> $checkCommandArgs
+     * @param ?ServiceNotifications $notifications null on Cloud: the stored settings are kept
      * @param Collection<ServiceGroupId> $serviceGroupIds
      * @param Collection<ServiceCategoryId> $categoryIds
      * @param Collection<TrapId> $trapIds
-     * @param Collection<ServiceMacroChange> $macroChanges the submitted own macros, in the order to store them;
-     *                                                     resolved by the handler against the ones the service
-     *                                                     owns and inherits
+     * @param Collection<ServiceMacroChange> $macroChanges the submitted own macros, in storage order
      */
     public function __construct(
         public ServiceId $id,

@@ -781,14 +781,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     }
 
     /**
-     * Writes the service's own macros in place, so a macro keeps its id (a client addresses it by id on the next
-     * write) and the columns this layer does not handle (description, order) survive: a macro the service already
-     * stores is updated, any other one is inserted, and a stored macro no longer listed is deleted.
-     *
-     * Only the service's own rows are ever updated or deleted: an id is matched against the rows stored for this
-     * service, and every statement is scoped to it. Service templates keep their macros in the same table, so an
-     * id taken from an inherited macro never reaches another row: a macro carrying an id this service does not
-     * store is inserted as a new row of the service instead.
+     * Updates own macros in place by id (scoped to this service), inserts new ones, deletes the dropped ones.
      *
      * @param list<ServiceMacro> $macros
      */
