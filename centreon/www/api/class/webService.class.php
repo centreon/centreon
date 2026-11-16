@@ -350,7 +350,9 @@ class CentreonWebService
                         FROM `options`
                         wHERE `key` = \'session_expire\'
                     )
-                    WHERE st.token = :token'
+                    WHERE st.token = :token
+                        AND sat.is_revoked = 0
+                        AND (st.expiration_date IS NULL OR st.expiration_date > UNIX_TIMESTAMP())'
                 );
                 $stmt->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], PDO::PARAM_STR);
                 $stmt->execute();
