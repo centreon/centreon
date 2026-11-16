@@ -603,6 +603,15 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         self::assertSame('pong', $this->written()->name->value);
     }
 
+    public function testAStoredServiceBreakingTheArgumentRulesAcceptsAnUnrelatedChange(): void
+    {
+        $this->store(args: ['80', ''], dataProcessing: new ServiceDataProcessing(eventHandlerArgs: ['restart']));
+
+        $this->patch($this->command(name: 'pong'));
+
+        self::assertSame('pong', $this->written()->name->value);
+    }
+
     public function testPartlyFilledArgumentsAreRefused(): void
     {
         $this->expectException(ServiceCheckArgumentsPartlyFilledException::class);
