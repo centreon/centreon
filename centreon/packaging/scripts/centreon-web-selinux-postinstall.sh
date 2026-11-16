@@ -9,8 +9,12 @@ load_policy() {
   fi
   # -a only for a new local mapping, -m when one exists (upgrade or admin change)
   semanage_action="-a"
-  if semanage port -l -C -n | awk -v p="$PHP_FPM_PORT" '$2 == "tcp" { for (i = 3; i <= NF; i++) { f = $i; sub(/,$/, "", f); if (f == p) found = 1 } } END { exit !found }'; then
+  current_type=$(semanage port -l -C -n | awk -v p="$PHP_FPM_PORT" '$2 == "tcp" { for (i = 3; i <= NF; i++) { f = $i; sub(/,$/, "", f); if (f == p) { print $1; exit } } }')
+  if [ -n "$current_type" ]; then
     semanage_action="-m"
+    if [ "$current_type" != "centreon_php_fpm_port_t" ]; then
+      echo "WARNING: tcp/$PHP_FPM_PORT was labelled $current_type, it is now labelled centreon_php_fpm_port_t" >&2
+    fi
   fi
   semanage port "$semanage_action" -t centreon_php_fpm_port_t -p tcp "$PHP_FPM_PORT" \
     || echo "ERROR: could not label tcp/$PHP_FPM_PORT for php-fpm" >&2
