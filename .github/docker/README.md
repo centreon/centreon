@@ -180,7 +180,7 @@ Graphs from VictoriaMetrics, set at each start:
 
 * `serve` (default): writes `/etc/centreon/centreon.conf.php` from the environment, waits until the databases are installed, then runs FrankenPHP as `apache` on port 80 ([`Caddyfile`](centreon-web/frankenphp/Caddyfile), translated from the Apache vhost of the package). No installation, no database root access.
 * `install`: one-shot. Creates the databases (or only the database user when they exist), inserts the dataset (`CENTREON_DATASET`), sets the admin language (`CENTREON_LANG`), the Gorgone API and VictoriaMetrics options, LDAP, OpenID and SAML (when their host resolves), then exits.
-* `cron`: runs the PHP cron jobs of the slim image on their schedules (UTC), as `apache`, with their output in the container logs: `centAcl` and `outdated-token-removal` every minute, `downtimeManager` and `centKnowledgeSynchronizer` every 5 minutes, `centstorage_purge` at 02:00, `centreon-partitioning` at 04:00, `centreon-send-stats` at 05:12.
+* `cron`: runs the PHP cron jobs of the slim image on their schedules (UTC), as `apache`, with their output in the container logs: `centAcl` and `outdated-token-removal` every minute, `downtimeManager` and `centKnowledgeSynchronizer` every 5 minutes, `centstorage_purge` at 02:00, `centreon-partitioning` at 04:00, `centreon-send-stats` at 05:12. It can run as several replicas (see *Replicas* below).
 
 The feature flag `gorgone_api_commands` is always on in this image. `CENTREON_FEATURE_FLAGS` turns on more flags of `config/features.json`, comma separated, for instance `engine_recurring_downtimes`: the pollers then receive the recurring downtimes in their configuration (`recurringdowntimes.cfg`) and Engine schedules them, the `downtimeManager` cron sends nothing. It needs an Engine (and the central Broker, whose `unified_sql` parses the poller configuration) that knows the `recurringdowntime` object; a change to a recurring downtime applies at the next configuration export.
 
@@ -250,6 +250,14 @@ Several `serve` containers can run behind a load balancer (no sticky sessions ne
 The key is checked at start (JSON object, both values non-empty base64) and the container exits on a bad one, without printing it; setting both key variables is an error. Generate one with `php -r 'echo json_encode(["app_secret" => base64_encode(random_bytes(32)), "salt" => substr(base64_encode(random_bytes(64)), 0, 64)]), PHP_EOL;'`. On an existing platform, reuse the content of its current `engine-context.json`: the credentials already exported to the pollers are encrypted with it.
 
 An environment variable rather than a file, for Compose: a bind mount or Compose secret is one more file of the host shared by the replicas, while the variable keeps each container self-contained; `docker inspect` shows it, so in Kubernetes prefer `ENGINE_CONTEXT_PATH` on a mounted Secret, or `CENTREON_ENGINE_CONTEXT` from `secretKeyRef`.
+
+Several `cron` containers can run too, with the same environment and nothing more to set: each job runs once per schedule, in one of them, and when a container stops the others take its jobs from the next minute on. The `cron` role keeps one connection to the `centreon` database (application credentials) and takes MariaDB named locks (`GET_LOCK`) on it; no Redis, no table:
+
+* For each job due in a minute, the lock `cron:<database>:<job>:<minute>` (hashed beyond 64 characters): the container that takes it runs the job, the others log `cron: <job> skipped: slot taken by another replica`. It is kept two minutes, so a container that looks at the same minute a little later skips it too.
+* While the job runs, the lock `cron:<database>:<job>:running`: a run still going, in any container, makes the next ones skip (`cron: <job> skipped: still running`, or `… still running on another replica`). This also keeps two `centAcl.php` from running at once: its own guard (`pidof`, and the `cron_operation.running` flag it clears when its container has no other copy) only sees its own container; it is left unchanged.
+* A lock belongs to its connection: a stopped container or a lost connection frees its locks at once, with no expiry to tune. On a lost connection the container logs it, reconnects and takes its locks back (it logs those another container took meanwhile); while the database is unreachable it skips the due jobs and logs each skip rather than run them unlocked.
+
+The `cron` containers must use the same MariaDB server (named locks are local to a server, Galera does not replicate them), and their clocks must agree within a few seconds: the minute of a run is read from the local clock.
 
 ## :gear: Additional services using profiles
 

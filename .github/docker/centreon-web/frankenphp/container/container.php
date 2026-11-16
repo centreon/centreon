@@ -697,9 +697,134 @@ function cronMatches(string $schedule, int $time): bool
 }
 
 /**
- * Minimal crond: one process per job and per matching minute, output to the container logs,
- * no overlap of two runs of the same job (crond allows it; centAcl.php detects it with ps,
- * which this image does not have).
+ * Named MariaDB locks (GET_LOCK) shared by the cron replicas, on one dedicated connection: a
+ * lock dies with its connection, so a dead container or a lost connection frees it (no TTL).
+ */
+final class CronLocks
+{
+    private ?PDO $pdo = null;
+
+    /** @var array<string, string> lock name => label, re-acquired after a reconnection */
+    private array $held = [];
+
+    private string $error = 'not connected yet';
+
+    /** Lock names are server-wide: prefixed with the database, hashed beyond 64 characters. */
+    public static function name(string $job, string $suffix): string
+    {
+        $name = 'cron:' . dbConfiguration() . ':' . $job . ':' . $suffix;
+
+        return strlen($name) <= 64 ? $name : 'cron:' . sha1($name);
+    }
+
+    public function error(): string
+    {
+        return $this->error;
+    }
+
+    /** true: acquired, false: held by another connection, null: lock database unreachable. */
+    public function acquire(string $name, string $label): ?bool
+    {
+        if (! $this->connected()) {
+            return null;
+        }
+        $result = $this->getLock($name);
+        if ($result === true) {
+            $this->held[$name] = $label;
+        }
+
+        return $result;
+    }
+
+    public function release(string $name): void
+    {
+        unset($this->held[$name]);
+        if ($this->pdo === null) {
+            return; // the lost connection released it
+        }
+        try {
+            $this->pdo->prepare('SELECT RELEASE_LOCK(?)')->execute([$name]);
+        } catch (PDOException $exception) {
+            $this->lost($exception);
+        }
+    }
+
+    /** Detects a lost connection, and reconnects to get the held locks back. */
+    public function ping(): void
+    {
+        if ($this->pdo === null) {
+            $this->connected();
+
+            return;
+        }
+        try {
+            @$this->pdo->query('SELECT 1');
+        } catch (PDOException $exception) {
+            $this->lost($exception);
+        }
+    }
+
+    private function getLock(string $name): ?bool
+    {
+        if ($this->pdo === null) {
+            return null;
+        }
+        try {
+            $statement = @$this->pdo->prepare('SELECT GET_LOCK(?, 0)');
+            $statement->execute([$name]);
+            $result = $statement->fetchColumn();
+        } catch (PDOException $exception) {
+            $this->lost($exception);
+
+            return null;
+        }
+        if ($result === null) {
+            $this->error = "GET_LOCK({$name}) failed";
+
+            return null;
+        }
+
+        return (string) $result === '1';
+    }
+
+    private function connected(): bool
+    {
+        if ($this->pdo !== null) {
+            return true;
+        }
+        try {
+            $this->pdo = connect(dbUser(), dbPassword(), dbConfiguration());
+        } catch (PDOException $exception) {
+            $this->error = $exception->getMessage();
+
+            return false;
+        }
+        out('cron: lock database connected');
+        foreach ($this->held as $name => $label) {
+            if ($this->getLock($name) !== true) {
+                unset($this->held[$name]);
+                out("cron: {$label} lock lost while the lock database was unreachable");
+            }
+        }
+
+        return $this->pdo !== null;
+    }
+
+    private function lost(PDOException $exception): void
+    {
+        $this->pdo = null;
+        $this->error = $exception->getMessage();
+        out("cron: lock database connection lost: {$this->error}");
+    }
+}
+
+/**
+ * Minimal crond: one process per job and per matching minute, output to the container logs.
+ * Several replicas may run: for each due job, the replica that takes the MariaDB lock of the
+ * minute (slot) runs it, and keeps that lock two minutes so a late replica skips the slot too;
+ * a second lock, held while the job runs, keeps two runs of the same job from overlapping on
+ * any replica (crond allows it; centAcl.php detects it with ps, which this image does not
+ * have). Without the lock database, jobs are skipped rather than run unlocked.
  */
 function runCron(): never
 {
@@ -711,26 +836,63 @@ function runCron(): never
         });
     }
 
+    $locks = new CronLocks();
+    $locks->ping();
+    $slotLocks = [];
     $running = [];
+    $lastPing = time();
     $nextMinute = intdiv(time(), 60) * 60 + 60;
     out('cron: ' . count(CRON_JOBS) . ' jobs scheduled (UTC): ' . implode(', ', array_keys(CRON_JOBS)));
     while (! $stop) {
-        foreach ($running as $name => [$process, $started]) {
+        foreach ($running as $name => [$process, $started, $runLock]) {
             $status = proc_get_status($process);
             if (! $status['running']) {
                 proc_close($process);
                 unset($running[$name]);
+                $locks->release($runLock);
                 out(sprintf('cron: %s exited with %d after %ds', $name, $status['exitcode'], time() - $started));
             }
         }
+        foreach ($slotLocks as $slotLock => $slot) {
+            if (time() >= $slot + 120) {
+                unset($slotLocks[$slotLock]);
+                $locks->release($slotLock);
+            }
+        }
+        if (time() - $lastPing >= 5) {
+            $locks->ping();
+            $lastPing = time();
+        }
 
         if (time() >= $nextMinute) {
+            $slot = $nextMinute;
             foreach (CRON_JOBS as $name => [$schedule, $script]) {
-                if (! cronMatches($schedule, $nextMinute)) {
+                if (! cronMatches($schedule, $slot)) {
                     continue;
                 }
                 if (isset($running[$name])) {
-                    out("cron: {$name} is still running, run skipped");
+                    out("cron: {$name} skipped: still running");
+
+                    continue;
+                }
+                $slotLock = CronLocks::name($name, (string) $slot);
+                $acquired = $locks->acquire($slotLock, "{$name} slot");
+                if ($acquired === true) {
+                    $slotLocks[$slotLock] = $slot;
+                    $runLock = CronLocks::name($name, 'running');
+                    $acquired = $locks->acquire($runLock, "{$name} running");
+                    if ($acquired === false) {
+                        out("cron: {$name} skipped: still running on another replica");
+
+                        continue;
+                    }
+                } elseif ($acquired === false) {
+                    out("cron: {$name} skipped: slot taken by another replica");
+
+                    continue;
+                }
+                if ($acquired === null) {
+                    out("cron: {$name} skipped: lock database unreachable: {$locks->error()}");
 
                     continue;
                 }
@@ -740,11 +902,12 @@ function runCron(): never
                     $pipes
                 );
                 if ($process === false) {
+                    $locks->release($runLock);
                     out("cron: unable to start {$name}");
 
                     continue;
                 }
-                $running[$name] = [$process, time()];
+                $running[$name] = [$process, time(), $runLock];
                 out("cron: {$name} started");
             }
             $nextMinute += 60;
