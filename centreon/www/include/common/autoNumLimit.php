@@ -66,7 +66,9 @@ if (isset($_POST['num'], $_POST['search'])
 }
 
 // Cast limit and num to avoid sql error on prepared statement (PDO::PARAM_INT)
-$limit = (int) $limit;
-$num = (int) $num;
+// A page holds at least one item and the first page is 0: a zero or negative value
+// would divide by zero in checkPagination.php or produce an invalid SQL LIMIT clause
+$limit = max(1, (int) $limit);
+$num = max(0, (int) $num);
 
 global $search;
