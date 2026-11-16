@@ -53,6 +53,26 @@ final class ConfigFingerprintTest extends TestCase
         self::assertMatchesRegularExpression('/^[0-9a-f]{8}$/', ConfigFingerprint::ofConfigDir($this->tmpDir));
     }
 
+    public function testGlobExpandsBraceAlternativesWithoutGlobBrace(): void
+    {
+        $this->writeFile($this->tmpDir . '/routes/a.yaml', "resource: a\n");
+        $this->writeFile($this->tmpDir . '/routes/nested/b.php', "<?php\n");
+        $this->writeFile($this->tmpDir . '/services/c.yaml', "resource: c\n");
+        $this->writeFile($this->tmpDir . '/services/d.txt', "ignored\n");
+
+        $files = ConfigFingerprint::glob($this->tmpDir . '/{routes,services}/{*,*/*}.{yaml,php}');
+        sort($files);
+
+        self::assertSame(
+            [
+                $this->tmpDir . '/routes/a.yaml',
+                $this->tmpDir . '/routes/nested/b.php',
+                $this->tmpDir . '/services/c.yaml',
+            ],
+            $files
+        );
+    }
+
     public function testFingerprintIsStableWhileNothingChanges(): void
     {
         $this->writeFile($this->tmpDir . '/routes/a.yaml', "resource: a\n");

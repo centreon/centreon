@@ -174,6 +174,67 @@ Graphs from VictoriaMetrics, set at each start:
 * `VICTORIA_METRICS_URL`: base URL of a VictoriaMetrics API, for instance `http://victoria-metrics:8428`. Required. Every graph (API v2, dashboards, legacy graph pages, API v1 `centreon_metric` and `centreon_monitoring_metric`) is read from VictoriaMetrics (options `metrics_data_source`, `victoria_metrics_url` of *Administration > Parameters > Data*), where the `victoria_metrics` output of Broker writes them (configured in *Configuration > Pollers > Broker configuration*).
 * `VICTORIA_METRICS_USER` / `VICTORIA_METRICS_PASSWORD`: HTTP basic authentication of that API, when it requires one
 
+### FrankenPHP centreon web image
+
+[`centreon-web/frankenphp/Dockerfile`](centreon-web/frankenphp/Dockerfile) builds the same application as the slim image as a "web server only" image: one static [FrankenPHP](https://frankenphp.dev) binary (Caddy and PHP 8.4 in classic mode, musl, built by FrankenPHP's static builder with only the PHP extensions centreon-web uses) on `scratch`. No Apache, PHP-FPM, crond, shell, package manager or MySQL client. The startup logic is PHP ([`container/container.php`](centreon-web/frankenphp/container/container.php), run by `frankenphp php-cli`), and the command picks the role:
+
+* `serve` (default): writes `/etc/centreon/centreon.conf.php` from the environment, waits until the databases are installed, then runs FrankenPHP as `apache` on port 80 ([`Caddyfile`](centreon-web/frankenphp/Caddyfile), translated from the Apache vhost of the package). No installation, no database root access.
+* `install`: one-shot. Creates the databases (or only the database user when they exist), inserts the dataset (`CENTREON_DATASET`), sets the admin language (`CENTREON_LANG`), the Gorgone API and VictoriaMetrics options, LDAP, OpenID and SAML (when their host resolves), then exits.
+* `cron`: runs the PHP cron jobs of the slim image on their schedules (UTC), as `apache`, with their output in the container logs: `centAcl` and `outdated-token-removal` every minute, `downtimeManager` and `centKnowledgeSynchronizer` every 5 minutes, `centstorage_purge` at 02:00, `centreon-partitioning` at 04:00, `centreon-send-stats` at 05:12.
+
+```bash
+docker build -f .github/docker/centreon-web/frankenphp/Dockerfile -t centreon-web-frankenphp:local .
+```
+
+Compose services (same environment for the three, `.env` gives the database credentials):
+
+```yaml
+  web-install:
+    image: centreon-web-frankenphp:local
+    command: ["install"]
+    env_file: [.env]
+    environment: &web-env
+      MYSQL_HOST: db
+      CENTREON_DATASET: ${CENTREON_DATASET:-1}
+      CENTREON_LANG: ${CENTREON_LANG:-en_US}
+      GORGONE_API_ADDRESS: gorgone
+      VICTORIA_METRICS_URL: http://victoria-metrics:8428
+    depends_on:
+      db: { condition: service_healthy }
+  web:
+    image: centreon-web-frankenphp:local
+    env_file: [.env]
+    environment: *web-env
+    ports: ["4000:80"]
+    depends_on:
+      web-install: { condition: service_completed_successfully }
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/frankenphp", "php-cli", "/usr/local/lib/centreon-container/healthcheck.php"]
+      interval: 2s
+      retries: 60
+      timeout: 5s
+  web-cron:
+    image: centreon-web-frankenphp:local
+    command: ["cron"]
+    env_file: [.env]
+    environment: *web-env
+    depends_on:
+      web-install: { condition: service_completed_successfully }
+```
+
+Differences with the slim image:
+
+* The healthcheck has no shell nor curl: the exec form above replaces `CMD-SHELL [ -f /tmp/docker.ready ] && curl …`.
+* PHP errors go to the container output (`error_log = /dev/stderr`), not to `/var/log/centreon/prod.web.log`; the logs of the application stay in `/var/log/centreon` (`docker cp` to read them).
+* Not available: Vault (its setup writes files of the install container that the web containers would need: `VAULT_HOST` is ignored), *Reload ACL* from the UI and CLAPI (they run `cron/centAcl.php` through a shell; the `cron` role runs it every minute), and anything else that runs a command through a shell (`centAcl.php` logs `exec(): Unable to fork` for its `ps` check at each run).
+* Legacy pages are in the `CENTREON_LANG` language for every user: the gettext library of the static build takes the language from the environment (`LANG`, set from `CENTREON_LANG` at start), not from `setlocale()`. The React pages follow the language of each user.
+* CLAPI runs as `apache`: `docker exec -u apache web /usr/local/bin/frankenphp php-cli /usr/share/centreon/bin/centreon -u admin -p … -a APPLYCFG -v 1` (as root, CLAPI changes file owners with `GLOB_BRACE`, which musl does not have).
+* The installation steps print `session_start(): Session cannot be started after headers have already been sent` (`frankenphp php-cli`); the steps do not need the session.
+* The engine context file (`engine-context.json`) is created by centreon-web in `/etc/centreon` of each container (feature flag `gorgone_api_commands`), and pushed to the pollers with every configuration.
+* Port 80 is bound by `apache`: Docker allows it (`net.ipv4.ip_unprivileged_port_start=0`); elsewhere set that sysctl or `CENTREON_HTTP_ADDRESS` (for instance `:8080`).
+
+PHP extensions kept: `ctype curl dom fileinfo filter gd gettext iconv intl ldap mbregex mbstring mysqlnd opcache openssl pcntl pdo pdo_mysql phar posix session simplexml tokenizer xml xmlwriter zip zlib` (plus the built-in `date hash json pcre random reflection spl standard`). Dropped from the slim image, referenced only by Composer packages in code paths centreon-web does not take: `bz2 calendar exif ftp mysqli pdo_sqlite readline shmop sockets sqlite3 sysvmsg sysvsem sysvshm xmlreader xsl`. `opcache` is added (absent from the slim image), `pcntl` runs the role commands and the cron scheduler.
+
 ## :gear: Additional services using profiles
 
 Docker compose has a useful feature which is called `profile`.

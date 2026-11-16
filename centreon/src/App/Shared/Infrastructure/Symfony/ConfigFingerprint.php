@@ -53,7 +53,7 @@ final class ConfigFingerprint
 
         $files = [];
         foreach ($globPatterns as $globPattern) {
-            $files = array_merge($files, glob($globPattern, \GLOB_BRACE) ?: []);
+            $files = array_merge($files, self::glob($globPattern));
         }
         sort($files);
 
@@ -63,5 +63,27 @@ final class ConfigFingerprint
         );
 
         return mb_substr(md5(implode('|', $entries)), 0, 8);
+    }
+
+    /**
+     * glob() with the {a,b} alternatives expanded here: GLOB_BRACE does not exist on musl libc.
+     *
+     * @return list<string>
+     */
+    public static function glob(string $pattern): array
+    {
+        if (preg_match('/\{([^{}]*)\}/', $pattern, $match, \PREG_OFFSET_CAPTURE) !== 1) {
+            return glob($pattern) ?: [];
+        }
+
+        $files = [];
+        foreach (explode(',', $match[1][0]) as $alternative) {
+            $files = array_merge(
+                $files,
+                self::glob(substr_replace($pattern, $alternative, $match[0][1], \strlen($match[0][0])))
+            );
+        }
+
+        return array_values(array_unique($files));
     }
 }

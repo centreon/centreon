@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Shared\Infrastructure\Symfony\ConfigFingerprint;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -144,7 +145,7 @@ class Kernel extends BaseKernel
             clearstatcache();
 
             $files = array_merge(
-                glob($this->getProjectDir() . '/config/{routes,packages}/{*,*/*}.yaml', \GLOB_BRACE) ?: [],
+                ConfigFingerprint::glob($this->getProjectDir() . '/config/{routes,packages}/{*,*/*}.yaml'),
                 glob($this->getProjectDir() . '/config/bundles.php') ?: []
             );
             sort($files);

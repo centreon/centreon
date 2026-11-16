@@ -1,0 +1,110 @@
+# centreon-web served by FrankenPHP (classic mode: one PHP request per thread, no worker),
+# translated from the Apache vhost of the package (centreon/packaging/src/centreon-apache.conf).
+# The mapping of every Apache rule is in README.md (FrankenPHP image).
+#
+# /srv/http/centreon is a symbolic link to /usr/share/centreon/www: the scripts keep the
+# SCRIPT_NAME and PHP_SELF of Apache (/centreon/main.php), as with `Alias /centreon`.
+{
+	admin off
+	auto_https off
+	persist_config off
+	skip_install_trust
+	log {
+		output stderr
+		format console
+		level {$CADDY_LOG_LEVEL:WARN}
+	}
+	# pm.max_children = 30 in the PHP-FPM pool of the package.
+	frankenphp {
+		max_threads {$FRANKENPHP_MAX_THREADS:30}
+	}
+}
+
+{$CENTREON_HTTP_ADDRESS::80} {
+	root * /srv/http
+
+	# ServerTokens Prod, ServerSignature Off; Header set X-Frame-Options;
+	# Header always edit Set-Cookie (HttpOnly, SameSite=Strict on every cookie).
+	header {
+		-Server
+		X-Frame-Options "sameorigin"
+		>Set-Cookie "^(.*)$" "$1;HttpOnly;SameSite=Strict"
+	}
+
+	# LimitRequestBody (Apache default since 2.4.54: 1 GiB).
+	request_body {
+		max_size 1GB
+	}
+
+	# AddOutputFilterByType BROTLI_COMPRESS / DEFLATE.
+	encode {
+		br
+		gzip
+		match {
+			header Content-Type text/html*
+			header Content-Type text/plain*
+			header Content-Type text/xml*
+			header Content-Type text/css*
+			header Content-Type text/javascript*
+			header Content-Type application/javascript*
+			header Content-Type application/json*
+		}
+	}
+
+	# TraceEnable Off. `handle` blocks are tried in their order, before `respond`.
+	@trace method TRACE
+	handle @trace {
+		respond 405
+	}
+
+	# <Files ".ht*"> Require all denied (httpd.conf).
+	@htfiles path_regexp /\.ht
+	handle @htfiles {
+		respond 403
+	}
+
+	# RedirectMatch ^/$ /centreon.
+	redir / /centreon 302
+
+	# RewriteCond /etc/centreon/centreon.conf.php !-f, RewriteRule ^/centreon/?$ install.php [R=302].
+	@notInstalled {
+		path /centreon /centreon/
+		not file {
+			root /etc/centreon
+			try_files /centreon.conf.php
+		}
+	}
+	redir @notInstalled /centreon/install/install.php 302
+
+	# LocationMatch ^/centreon/?(authentication|api(?!/[^/]+\.php(?:/|$))(/(latest|beta|v[0-9]+|v[0-9]+\.[0-9]+))?)(/.*)?$
+	# -> api/index.php (Symfony front controller), which derives its base URI from REQUEST_URI.
+	@symfony {
+		path_regexp ^/centreon/?(authentication|api)(/.*)?$
+		not path_regexp ^/centreon/?api/[^/]+\.php(/|$)
+	}
+	handle @symfony {
+		root * /usr/share/centreon/api
+		rewrite * /index.php
+		php
+	}
+
+	# Alias /centreon -> www, LocationMatch \.php(/.*)?$ -> PHP (with PATH_INFO), DirectoryIndex
+	# index.php, FallbackResource /centreon/index.html (single-page application routes),
+	# Options -Indexes.
+	handle /centreon* {
+		php_server {
+			try_files {path} {path}/index.php /centreon/index.html
+		}
+	}
+
+	# Anything else under the server root (Apache serves its own empty document root).
+	handle {
+		error 404
+	}
+
+	# ErrorDocument 404 /centreon/index.html.
+	handle_errors 404 {
+		rewrite * /centreon/index.html
+		file_server
+	}
+}
