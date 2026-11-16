@@ -1027,13 +1027,23 @@ On failure, the step bracket writes `upgrade.step_failure` (ERROR) and the globa
 
 ## 14. Logging from Core
 
-A `src/Core` class calls the `Adaptation\Log` factories where it logs, as legacy code does, as set by [ADR-0016](adr/0016-core-log-src-core-through-adaptation-logger.md):
+A `src/Core` use case logs nothing: it hands the failure to its presenter in an `ErrorResponse`, and the presenter, in the Infrastructure layer, calls the `Adaptation\Log` factories, as set by [ADR-0016](adr/0016-core-log-src-core-through-adaptation-logger.md):
 
 ```php
+// Use case
 } catch (RepositoryException $exception) {
+    $presenter->presentResponse(new ErrorResponse(
+        message: HostGroupException::errorWhileDeleting(),
+        context: $exception->getBusinessContext(),
+        exception: $exception,
+    ));
+}
+
+// Presenter
+if ($response instanceof ErrorResponse && $response->getException() !== null) {
     Logger::create(LogChannelEnum::WEB)->error(
         'Unable to delete the host group',
-        [...$exception->getBusinessContext(), 'exception' => $exception],
+        [...$response->getContext(), 'exception' => $response->getException()],
     );
 }
 ```

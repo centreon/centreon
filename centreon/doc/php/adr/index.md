@@ -61,7 +61,7 @@ The guides show how to apply the records; the code examples live there.
 | ADR                                                                 | Decision                                                                                                 | Scope  | Status   |
 | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------ | -------- |
 | [0055](0055-apip-log-only-from-the-src-app-infrastructure-layer.md) | Log only from the `src/App` Infrastructure layer, never from the Application, the Domain or a repository | APIP   | Accepted |
-| [0016](0016-core-log-src-core-through-adaptation-logger.md)         | Log from `src/Core` only through the `Adaptation\Log` loggers                                            | Core   | Accepted |
+| [0016](0016-core-log-src-core-through-adaptation-logger.md)         | Log from `src/Core` only in the Infrastructure layer, through the `Adaptation\Log` loggers               | Core   | Accepted |
 | [0017](0017-legacy-log-legacy-code-through-adaptation-logger.md)    | Log from legacy code only through the `Adaptation\Log` loggers                                           | Legacy | Accepted |
 
 ## Database
