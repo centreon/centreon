@@ -212,9 +212,7 @@ final class Service extends AggregateRoot implements AclScopedInterface, PollerS
     }
 
     /**
-     * Whether saving this service left the vault entry $before kept its secrets in without any secret: $before
-     * referenced an entry and none of this service's password macros references it any more. The entry is then
-     * empty, or only holds keys no macro points to, and can be deleted once the save is committed.
+     * Whether $before's vault entry is no longer referenced by any password macro of this service.
      */
     public function releasesVaultEntryOf(self $before, VaultInterface $vault): bool
     {

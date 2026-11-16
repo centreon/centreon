@@ -49,8 +49,8 @@ use App\MonitoringConfiguration\Domain\Exception\ServiceMacroValueRequiredExcept
  *   instead, so echoing back an untouched inherited macro never materialises a copy.
  *
  * A macro is referenced by id + parent (by name for a command macro, see below), so the same reference sent twice
- * under two names makes no sense: only the last one sent is applied. A new macro (no id) refers to nothing and is
- * never dropped this way.
+ * makes no sense: only the last one sent is applied, as on hosts, and names are compared after that. A new macro
+ * (no id) refers to nothing and is never dropped this way.
  *
  * A password macro stays a password: a change cannot set is_password to false on a macro whose source is a
  * password, nor override by name an inherited password with a plain macro, whether it is new or renamed. Its
@@ -78,13 +78,14 @@ final readonly class ServiceMacroChangesResolver
      */
     public function resolve(array $changes, array $current, InheritedServiceMacros $inherited): array
     {
+        $changes = $this->lastChangePerReference($changes);
         $this->assertNamesAreUnique($changes);
 
         $unknownIds = [];
         $unmasked = [];
         $valueRequired = [];
         $resolved = [];
-        foreach ($this->lastChangePerReference($changes) as $change) {
+        foreach ($changes as $change) {
             $source = $this->findSource($change, $current, $inherited);
 
             if (! $this->isResolvedByName($change) && ! $source instanceof ServiceMacro) {

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service;
 
 use ApiPlatform\Metadata\ApiProperty;
+use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\MiscOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHost;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleServiceCategories;
@@ -45,6 +46,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ServiceCommandInheritance]
 final readonly class CreateServiceInput
 {
+    private const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
+    private const FORBIDDEN_CHARACTERS = '/[' . MiscOptions::DEFAULT_ILLEGAL_OBJECT_NAME_CHARS . ']/';
+
     /**
      * @param list<int> $serviceGroupIds
      * @param list<int> $categoryIds
@@ -55,12 +59,12 @@ final readonly class CreateServiceInput
         #[Assert\Sequentially([
             new Assert\NotBlank(normalizer: 'trim'),
             new Assert\Regex(
-                pattern: ServiceName::FORBIDDEN_CHARACTERS,
+                pattern: self::FORBIDDEN_CHARACTERS,
                 message: 'This value must not contain any of the following characters: ~ ! $ % ^ & * " | \' < > ? , ( ) =',
                 match: false,
             ),
             // On the raw value, before the collapse would turn a tab or a line break into a space.
-            new Assert\Regex(pattern: ServiceName::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false),
+            new Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false),
             // Measured on what is stored.
             new Assert\Length(max: ServiceName::MAX_LENGTH, normalizer: [self::class, 'normalizeName']),
         ])]

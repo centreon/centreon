@@ -42,9 +42,9 @@ final class PurgeServiceVaultEventHandlerTest extends TestCase
 {
     private FakeVault $vault;
 
-    private PurgeServiceVaultEventHandler $handler;
-
     private LoggerSpy $logger;
+
+    private PurgeServiceVaultEventHandler $handler;
 
     protected function setUp(): void
     {
@@ -92,19 +92,32 @@ final class PurgeServiceVaultEventHandlerTest extends TestCase
         self::assertSame([['customPath' => 'monitoring/services', 'uuid' => 'uuid-1']], $this->vault->deleteCalls);
     }
 
-    /**
-     * The save that released the entry succeeded: an orphan entry is harmless, so the failure is only logged.
-     */
-    public function testABestEffortPurgeFailureIsOnlyLogged(): void
+    public function testABestEffortPurgeFailureIsLoggedAtErrorWithTheHostAndTheService(): void
     {
         $this->vault->extractedUuids['secret::vault::monitoring/services/uuid-1::_SERVICETOKEN'] = 'uuid-1';
         $this->vault->deleteThrows = true;
 
         ($this->handler)(new ServiceVaultPurgeRequested($this->service(vaulted: true), bestEffort: true));
 
-        self::assertCount(1, $this->logger->warningMessages);
-        self::assertSame(1, $this->logger->warningMessages[0]['context']['service_id']);
-        self::assertInstanceOf(\RuntimeException::class, $this->logger->warningMessages[0]['context']['exception']);
+        self::assertCount(1, $this->logger->errorMessages);
+        $context = $this->logger->errorMessages[0]['context'];
+        self::assertSame(2, $context['host_id']);
+        self::assertSame(1, $context['service_id']);
+        self::assertInstanceOf(\RuntimeException::class, $context['exception']);
+    }
+
+    public function testADefaultPurgeFailureStillThrows(): void
+    {
+        $this->vault->extractedUuids['secret::vault::monitoring/services/uuid-1::_SERVICETOKEN'] = 'uuid-1';
+        $this->vault->deleteThrows = true;
+
+        $this->expectException(VaultPurgeFailedException::class);
+
+        try {
+            ($this->handler)(new ServiceVaultPurgeRequested($this->service(vaulted: true)));
+        } finally {
+            self::assertSame([], $this->logger->errorMessages);
+        }
     }
 
     private function service(bool $vaulted = false): Service
@@ -116,7 +129,7 @@ final class PurgeServiceVaultEventHandlerTest extends TestCase
         return new Service(
             id: new ServiceId(1),
             name: new ServiceName('ping'),
-            hostId: new HostId(1),
+            hostId: new HostId(2),
             hostActivated: true,
             hostPollerId: null,
             checkOptions: new ServiceCheckOptions(null, [], $macros),

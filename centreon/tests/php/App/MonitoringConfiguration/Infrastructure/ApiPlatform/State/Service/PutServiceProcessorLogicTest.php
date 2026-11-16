@@ -87,10 +87,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTrapRepository;
 use Tests\App\Shared\Double\CommandBusSpy;
 
 /**
- * What the processor sends to the update handler: the service of the URI, the payload mapped to the domain, the
- * name collapsed as it will be stored, the repeated ids merged, the defaults of what is absent (a full replace).
- * The HTTP wiring is pinned by {@see PutServiceProcessorTest}, the rules of the payload by the input validation
- * tests.
+ * The command the processor sends to the update handler.
  */
 final class PutServiceProcessorLogicTest extends TestCase
 {

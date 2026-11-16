@@ -89,13 +89,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodReposi
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTrapRepository;
 
 /**
- * The update payload shares the create one's rules (each pinned by {@see CreateServiceInputValidationTest} on the
- * sub-inputs both reuse); what differs is pinned here: the name uniqueness is left to the handler, the command
- * rules of the template chain still apply, and a legacy text above the form bounds is refused when resent.
- *
- * The references that exist: host 10 (service "disk usage" on it), template 30 (with a check command), check
- * command 5, event handler 6, time period 40, media 50, graph template 60, severity 70, service group 80,
- * category 90, trap 100, contact 31, contact group 41.
+ * Rules specific to the update payload; shared rules are covered by CreateServiceInputValidationTest.
  */
 final class UpdateServiceInputValidationTest extends TestCase
 {

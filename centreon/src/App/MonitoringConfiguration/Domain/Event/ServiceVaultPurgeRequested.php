@@ -39,8 +39,8 @@ final readonly class ServiceVaultPurgeRequested implements DeliveredAfterCommitI
 {
     /**
      * @param bool $bestEffort a failed purge is only logged instead of reported to the caller: set it when the
-     *                         purge merely tidies up an entry left by a successful save, an orphan entry being
-     *                         harmless
+     *                         service was removed as a side effect of a successful save, or the purge merely
+     *                         tidies up an entry left by one, an orphan entry being harmless
      */
     public function __construct(
         public Service $service,

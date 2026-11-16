@@ -451,26 +451,59 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         return $this->hydrate($hostId, $rows);
     }
 
-    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
+    public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
     {
         if ($serviceTemplateIds === []) {
-            return new Collection([], Service::class);
+            return new Collection([], ServiceId::class);
         }
 
         $qb = $this->connection->createQueryBuilder();
-        $qb->select(...[...self::OWN_COLUMNS, ...self::HOST_STATE_COLUMNS])
+        $qb->select('s.service_id')
             ->from(self::TABLE_NAME, 's')
             ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
-            ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
             ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
             ->andWhere("s.service_register = '1'")
-            ->andWhere($qb->expr()->in('s.service_template_model_stm_id', $qb->createNamedParameter($serviceTemplateIds, ArrayParameterType::INTEGER)));
+            ->andWhere($qb->expr()->in('s.service_template_model_stm_id', $qb->createNamedParameter($serviceTemplateIds, ArrayParameterType::INTEGER)))
+            ->orderBy('s.service_id');
         $this->keepOnlyServicesWithASingleRelation($qb);
 
-        /** @var list<OwnRowTypeAlias> $rows */
-        $rows = $qb->executeQuery()->fetchAllAssociative();
+        /** @var list<int|string> $ids */
+        $ids = $qb->executeQuery()->fetchFirstColumn();
 
-        return $this->hydrate($hostId, $rows);
+        return new Collection(array_map(static fn (int|string $id): ServiceId => new ServiceId((int) $id), $ids), ServiceId::class);
+    }
+
+    public function findOneOnHost(ServiceId $id, HostId $hostId): ?Service
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(...[...self::OWN_COLUMNS, 'h.host_id', ...self::HOST_STATE_COLUMNS])
+            ->from('host_service_relation', 'hsr')
+            ->innerJoin('hsr', 'host', 'h', "h.host_id = hsr.host_host_id AND h.host_register = '1'")
+            ->innerJoin('hsr', self::TABLE_NAME, 's', "s.service_id = hsr.service_service_id AND s.service_register = '1'")
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
+            ->andWhere($qb->expr()->eq('s.service_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            // Same schema guard as findOne(): a nameless service is not a valid state.
+            ->andWhere("s.service_description IS NOT NULL AND s.service_description != ''")
+            // A link row may be duplicated.
+            ->setMaxResults(1);
+
+        /** @var ListedRowTypeAlias|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+        if ($row === false) {
+            return null;
+        }
+
+        $formRow = $this->findFormRow($id->value);
+        if ($formRow === null) {
+            return null;
+        }
+
+        return $this->transformer->transform([
+            ...$row,
+            ...$formRow,
+            ...$this->findRelationIds($id->value, $hostId->value),
+            'macros' => $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? [],
+        ]);
     }
 
     /**
@@ -748,14 +781,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     }
 
     /**
-     * Writes the service's own macros in place, so a macro keeps its id (a client addresses it by id on the next
-     * write) and the columns this layer does not handle (description, order) survive: a macro the service already
-     * stores is updated, any other one is inserted, and a stored macro no longer listed is deleted.
-     *
-     * Only the service's own rows are ever updated or deleted: an id is matched against the rows stored for this
-     * service, and every statement is scoped to it. Service templates keep their macros in the same table, so an
-     * id taken from an inherited macro never reaches another row: a macro carrying an id this service does not
-     * store is inserted as a new row of the service instead.
+     * Updates own macros in place by id (scoped to this service), inserts new ones, deletes the dropped ones.
      *
      * @param list<ServiceMacro> $macros
      */

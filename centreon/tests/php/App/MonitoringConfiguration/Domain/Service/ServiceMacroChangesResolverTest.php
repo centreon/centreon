@@ -341,24 +341,25 @@ final class ServiceMacroChangesResolverTest extends TestCase
         }
     }
 
-    public function testACommandMacroSentTwiceUnderItsNameIsADuplicate(): void
+    public function testOnlyTheLastOfACommandMacroSentTwiceIsKeptWhateverItsIds(): void
     {
-        $this->expectException(DuplicateServiceMacroNameException::class);
-
-        $this->resolver->resolve([
+        // A command macro is referenced by name: its id is not reliable, so two ids are one macro.
+        $macros = $this->resolver->resolve([
             $this->change('cmd', 'first', id: 31, parent: ServiceMacroParentEnum::Command),
             $this->change('cmd', 'last', id: 99, parent: ServiceMacroParentEnum::Command),
         ], [], $this->inherited);
+
+        self::assertSame([['CMD', 'last', null]], $this->describe($macros));
     }
 
-    public function testTheSameInheritedMacroSentTwiceUnderItsNameIsADuplicate(): void
+    public function testTheSameInheritedMacroSentTwiceUnderItsNameIsNotADuplicate(): void
     {
-        $this->expectException(DuplicateServiceMacroNameException::class);
-
-        $this->resolver->resolve([
+        $macros = $this->resolver->resolve([
             $this->change('tplval', 'first', id: 11, parent: ServiceMacroParentEnum::Template),
             $this->change('tplval', 'second', id: 11, parent: ServiceMacroParentEnum::Template),
         ], [], $this->inherited);
+
+        self::assertSame([['TPLVAL', 'second', null]], $this->describe($macros));
     }
 
     /**

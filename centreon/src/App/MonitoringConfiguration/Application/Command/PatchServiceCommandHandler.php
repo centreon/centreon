@@ -51,6 +51,7 @@ use App\MonitoringConfiguration\Domain\Event\ServiceEnabled;
 use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\EventHandlerArgumentsRequireAHandlerException;
+use App\MonitoringConfiguration\Domain\Exception\InvalidServiceNameException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckArgumentsPartlyFilledException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceCheckCommandMissingException;
@@ -62,6 +63,7 @@ use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\NoValue;
 use App\Shared\Domain\VaultInterface;
@@ -192,8 +194,12 @@ final readonly class PatchServiceCommandHandler
      */
     private function assertNameIsAvailable(PatchServiceCommand $command, Service $service): void
     {
-        if ($command->name instanceof ServiceName && $command->name->hasForbiddenCharacters()) {
-            throw new ServiceNameForbiddenCharactersException($command->name->value);
+        if ($command->name instanceof ServiceName) {
+            try {
+                ServiceName::fromUserInput($command->name->value);
+            } catch (InvalidServiceNameException) {
+                throw new ServiceNameForbiddenCharactersException($command->name->value);
+            }
         }
 
         $name = NoValue::resolve($command->name, $service->name);
@@ -372,21 +378,23 @@ final readonly class PatchServiceCommandHandler
      * @throws VaultWriteFailedException
      *
      * @return array{list<ServiceMacro>, bool, bool} the macros to store, whether a password was rewritten in the
-     *                                               vault, and whether the vault may have been written to
+     *                                               vault, and whether the vault was written to
      */
     private function vaultPasswords(Service $service, array $resolved): array
     {
-        $current = $service->checkOptions->macros;
         $vaultUuid = $this->vault->isEnabled() ? $service->getVaultUuid($this->vault) : null;
 
         try {
-            $macros = $this->macroSecrets->synchronize($resolved, $current, $vaultUuid);
+            $synchronized = $this->macroSecrets->synchronize(
+                new Collection($resolved, ServiceMacro::class),
+                new Collection($service->checkOptions->macros, ServiceMacro::class),
+                $vaultUuid,
+            );
         } catch (\Throwable $exception) {
             throw VaultWriteFailedException::forService($service->id(), $exception);
         }
 
-        $vaultWritten = $this->vault->isEnabled()
-            && array_any([...$resolved, ...$current], static fn (ServiceMacro $macro): bool => $macro->isPassword);
+        $macros = array_values($synchronized->macros->toArray());
 
         // The synchronizer only swaps the value of the macros it wrote to the vault, which may leave the very same
         // reference: the path of a vaulted value only depends on its entry and its key.
@@ -395,7 +403,7 @@ final readonly class PatchServiceCommandHandler
             static fn (ServiceMacro $macro, int $index): bool => $macro->value !== $resolved[$index]->value,
         );
 
-        return [$macros, $passwordRewritten, $vaultWritten];
+        return [$macros, $passwordRewritten, $synchronized->vaultWritten];
     }
 
     /**

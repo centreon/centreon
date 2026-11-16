@@ -106,8 +106,6 @@ final readonly class PutServiceProcessor implements ProcessorInterface
             checkCommandId: $checkOptions?->commandId !== null ? new CommandId($checkOptions->commandId) : null,
             checkCommandArgs: array_values($checkOptions->args ?? []),
             schedulingOptions: $this->schedulingOptions($data->monitoringEngine),
-            // A full replace: on-premise, the notification settings are written, the default ones without block; a
-            // Cloud platform has none, and the handler keeps the stored ones.
             notifications: $this->isCloudPlatform ? null : $this->notifications($data->notifications ?? new ServiceNotificationsInput()),
             dataProcessing: $this->dataProcessing($data->advanced ?? new ServiceAdvancedInput()),
             extendedInformations: $this->extendedInformations($data->monitoringEngine, $data->advanced),

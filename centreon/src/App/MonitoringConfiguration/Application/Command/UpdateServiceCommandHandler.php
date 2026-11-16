@@ -108,18 +108,9 @@ use App\Shared\Domain\VaultInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Full replace (PUT) of a single service. Deliberately duplicates {@see CreateServiceCommandHandler}'s checks rather
- * than sharing them, so the create path is never coupled to a change made for the update path, and checks in the
- * same order: the references, then the rules depending on several of them, then the form bounds, then the name on
- * the target host (the service itself left out), then the macros, then the vault, then the write.
- *
- * The update-specific parts: loading the target (not found when absent or out of the actor's scope), keeping what
- * the actor cannot see (service groups, categories, contacts, contact groups, a hidden severity), resolving the
- * submitted macros against the ones the service already owns, reusing (or releasing) its vault entry, and firing
- * {@see ServiceUpdated} with the previous host and its poller when the service moved.
- *
- * The new service is a copy of the stored one changed through its business methods, then compared with it: an update
- * that changes nothing writes nothing and fires nothing.
+ * Full replace (PUT) of a service, applied to a copy of the stored one through its business methods; an update that
+ * changes nothing writes nothing and fires nothing. Duplicates {@see CreateServiceCommandHandler}'s checks, in the
+ * same order, rather than sharing them, so a change made for the update never reaches the create path.
  */
 #[AsCommandHandler]
 final readonly class UpdateServiceCommandHandler
@@ -152,10 +143,7 @@ final readonly class UpdateServiceCommandHandler
     }
 
     /**
-     * The secrets are written to the vault before the service is saved, so that an unreachable vault saves nothing
-     * (HTTP 502). The vault is outside the transaction: when the update fails after a successful vault write, the
-     * database rolls back but the vault keeps the new values. This divergence is logged as a warning rather than
-     * left silent. A failure of the commit itself, after this handler returns, is not covered.
+     * The vault is written before the save, outside the transaction: a later failure is logged as an error.
      *
      * @throws ServiceNotFoundException
      * @throws HostNotFoundException
@@ -294,7 +282,7 @@ final readonly class UpdateServiceCommandHandler
             return $this->save($command, $existing, $service, $passwordRewritten, $this->keepsTheStoredSeverities($storedSeverityIds, $severityId));
         } catch (\Throwable $exception) {
             if ($vaultWritten) {
-                $this->logger->warning(
+                $this->logger->error(
                     'A service update failed after writing to its vault entry: the vault may now diverge from the service stored in the database.',
                     ['service_id' => $command->id->value, 'exception' => $exception],
                 );
@@ -320,9 +308,7 @@ final readonly class UpdateServiceCommandHandler
     ): Service {
         $activationFlipped = $existing->activated !== $service->activated;
         $loggedChange = $this->hasLoggedChange($existing, $service);
-        // Macros, contacts and relations are compared but never logged: they are the unlogged changes. A secret
-        // rewritten under the service's entry leaves the very same reference, so it is tracked apart.
-        // Extra legacy severities are a change, since the write leaves a single one.
+        // Unlogged changes: macros, contacts, relations, a rewritten secret, extra legacy severities.
         $unloggedChange = $passwordRewritten
             || ! $severitiesKept
             || ! $service->hasSameConfigurationAs($existing)
@@ -335,9 +321,7 @@ final readonly class UpdateServiceCommandHandler
         $this->repository->update($service);
         $this->repository->replaceRelationsAndMacros($service);
 
-        // Activity log as for hosts: 0, 1 or 2 lines, an enable/disable line when the activation flipped, a change
-        // line when a logged property changed. The side-effect handlers (ACL reload, poller flag) catch every one of
-        // these events through the AggregateUpdated supertype.
+        // Side-effect handlers catch these events through the AggregateUpdated supertype.
         if ($activationFlipped) {
             $this->eventBus->fire(
                 $service->activated
@@ -396,9 +380,7 @@ final readonly class UpdateServiceCommandHandler
     }
 
     /**
-     * Whether a property the activity log records changed: everything {@see Service::hasSameConfigurationAs()}
-     * compares but the macros and the notification contacts, which the log leaves out. Both are taken from $before
-     * on the compared copy.
+     * Whether a logged property changed; macros and contacts alone write no line, as for hosts.
      */
     private function hasLoggedChange(Service $before, Service $after): bool
     {
@@ -421,22 +403,23 @@ final readonly class UpdateServiceCommandHandler
      * @throws VaultWriteFailedException
      *
      * @return array{list<ServiceMacro>, bool, bool} the macros to store, whether a password was rewritten in the
-     *                                               vault, and whether the vault may have been written to
+     *                                               vault, and whether the vault was written to
      */
     private function vaultPasswords(Service $existing, array $resolved): array
     {
-        $current = $existing->checkOptions->macros;
         $vaultUuid = $this->vault->isEnabled() ? $existing->getVaultUuid($this->vault) : null;
 
         try {
-            $macros = $this->macroSecretsSynchronizer->synchronize($resolved, $current, $vaultUuid);
+            $synchronized = $this->macroSecretsSynchronizer->synchronize(
+                new Collection($resolved, ServiceMacro::class),
+                new Collection($existing->checkOptions->macros, ServiceMacro::class),
+                $vaultUuid,
+            );
         } catch (\Throwable $exception) {
             throw VaultWriteFailedException::forService($existing->id(), $exception);
         }
 
-        // The synchronizer leaves the vault untouched when no password macro is involved.
-        $vaultWritten = $this->vault->isEnabled()
-            && array_any([...$resolved, ...$current], static fn (ServiceMacro $macro): bool => $macro->isPassword);
+        $macros = array_values($synchronized->macros->toArray());
 
         // The synchronizer only swaps the value of the macros it wrote to the vault.
         $passwordRewritten = array_any(
@@ -444,7 +427,7 @@ final readonly class UpdateServiceCommandHandler
             static fn (ServiceMacro $macro, int $index): bool => $macro->value !== $resolved[$index]->value,
         );
 
-        return [$macros, $passwordRewritten, $vaultWritten];
+        return [$macros, $passwordRewritten, $synchronized->vaultWritten];
     }
 
     /**

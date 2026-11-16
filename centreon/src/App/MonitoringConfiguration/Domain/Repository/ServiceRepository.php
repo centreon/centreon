@@ -46,23 +46,16 @@ interface ServiceRepository
     public function update(Service $service): void;
 
     /**
-     * Rewrites the relations of a stored real service and its own macros:
-     * - its host link only when its host changed;
-     * - its service groups, with its current host, only when they or its host changed: every service-group row
-     *   of the service is then replaced, those of another host or of a host group included;
-     * - its levelless categories and its severity, each in its own half of the shared category table, every
-     *   levelled row being replaced by the one severity;
-     * - its contacts, contact groups and traps;
-     * - its own macros in place: a stored macro keeps its row (id, description, order), a new one is inserted, one
-     *   no longer held is deleted.
-     * Escalations, dependencies and downtimes stay on the (host, service) pair they name.
+     * Rewrites the relations and own macros of a real service. The host link is rewritten only when the host
+     * changed; the service groups only when they or the host changed, every service-group row of the service being
+     * replaced. Own macros are updated in place by id; escalations, dependencies and downtimes are left untouched.
      */
     public function replaceRelationsAndMacros(Service $service): void;
 
     /**
      * The levelled categories (severities) the service is linked to, lowest id first, whatever the actor may see:
-     * {@see findOne()} reads only the one the actor may see, so a write preserving a severity hidden from the
-     * actor needs this unscoped read.
+     * {@see findOne()} reads only the lowest, so a write needs this read to resolve the extra ones legacy may have
+     * left, a service holding a single severity.
      *
      * @return Collection<ServiceSeverityId>
      */
@@ -87,16 +80,22 @@ interface ServiceRepository
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection;
 
     /**
-     * The services of this host that come from one of the given service templates, the ones a host
-     * gets from its host templates. Like {@see findExclusivelyLinkedToHostId()}, a service also
-     * reachable through another host or a hostgroup is left out, and so is never deleted from under
-     * them. Hydrated like {@see findExclusivelyLinkedToHostId()}.
+     * The ids of the services of this host that come from one of the given service templates, the ones a host
+     * gets from its host templates. Like {@see findExclusivelyLinkedToHostId()}, a service also reachable through
+     * another host or a hostgroup is left out, and so is never deleted from under them. Nothing is hydrated, so
+     * one service with malformed stored data cannot fail the whole listing.
      *
      * @param list<int> $serviceTemplateIds
      *
-     * @return Collection<Service>
+     * @return Collection<ServiceId>
      */
-    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection;
+    public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection;
+
+    /**
+     * The real service directly linked to that host, hydrated as {@see findOne()}, not scoped by any actor.
+     * Null when it is not a real service directly linked to that host.
+     */
+    public function findOneOnHost(ServiceId $id, HostId $hostId): ?Service;
 
     /**
      * Also removes the dependencies left without a parent service by this deletion.

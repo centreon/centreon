@@ -32,7 +32,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
@@ -78,12 +77,6 @@ final class FakeServiceRepository implements ServiceRepository
 
     /** Thrown by update(), to stand for a failure after the vault was written. */
     public ?\Throwable $updateThrows = null;
-
-    /**
-     * When set, {@see findOne()} reads the severity as the real repository does: the lowest stored one (see
-     * {@see $storedSeverityIds}) the actor may see, none when they may see none.
-     */
-    public ?AccessScopeResolver $accessScopes = null;
 
     public function add(Service $service): void
     {
@@ -165,15 +158,29 @@ final class FakeServiceRepository implements ServiceRepository
         return new Collection($services, Service::class);
     }
 
-    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
+    /**
+     * Whether a service is shared is SQL, pinned by the integration tests of the real repository.
+     */
+    public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
     {
-        $services = array_values(array_filter(
-            $this->services,
-            fn (Service $service): bool => $service->hostId->value === $hostId->value
-                && in_array($this->serviceTemplateIdOf[$service->id()->value] ?? null, $serviceTemplateIds, true),
-        ));
+        $ids = [];
+        foreach ($this->services as $id => $service) {
+            if (
+                $service->hostId->value === $hostId->value
+                && in_array($this->serviceTemplateIdOf[$id] ?? null, $serviceTemplateIds, true)
+            ) {
+                $ids[] = new ServiceId($id);
+            }
+        }
 
-        return new Collection($services, Service::class);
+        return new Collection($ids, ServiceId::class);
+    }
+
+    public function findOneOnHost(ServiceId $id, HostId $hostId): ?Service
+    {
+        $service = $this->services[$id->value] ?? null;
+
+        return $service?->hostId->value === $hostId->value ? $service : null;
     }
 
     public function remove(Service $service): void
@@ -216,17 +223,13 @@ final class FakeServiceRepository implements ServiceRepository
             return null;
         }
 
-        if (! $this->accessScopes instanceof AccessScopeResolver) {
+        if (! isset($this->storedSeverityIds[$id->value])) {
             return $service;
         }
 
-        $scope = $this->accessScopes->serviceSeverities($actor);
-        $visible = array_values(array_filter(
-            $this->findSeverityIds($id)->toArray(),
-            static fn (ServiceSeverityId $severityId): bool => $scope->allows($severityId),
-        ));
-        usort($visible, static fn (ServiceSeverityId $left, ServiceSeverityId $right): int => $left->value <=> $right->value);
-        $severityId = $visible[0] ?? null;
+        // As the real repository: the lowest stored severity, whatever the actor may see.
+        $stored = $this->storedSeverityIds[$id->value];
+        $severityId = $stored === [] ? null : new ServiceSeverityId(min($stored));
 
         if ($severityId?->value === $service->severityId?->value) {
             return $service;

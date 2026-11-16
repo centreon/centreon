@@ -33,8 +33,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Delivered after the commit: a failure cannot roll the write back. For a deleted service it is reported to the
- * caller instead of being swallowed, since the vault entry is left behind; for an entry merely left by a save
- * ($bestEffort), it is only logged.
+ * caller instead of being swallowed, since the vault entry is left behind; for a service removed with a template or
+ * an entry merely left by a save ($bestEffort), it is only logged.
  */
 #[AsEventHandler]
 final readonly class PurgeServiceVaultEventHandler
@@ -57,7 +57,8 @@ final readonly class PurgeServiceVaultEventHandler
             $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringServices, $uuid);
         } catch (\Throwable $exception) {
             if ($event->bestEffort) {
-                $this->logger->warning('The vault entry a service no longer uses could not be purged.', [
+                $this->logger->error('The vault entry a service no longer uses could not be purged.', [
+                    'host_id' => $event->service->hostId->value,
                     'service_id' => $event->service->id()->value,
                     'exception' => $exception,
                 ]);

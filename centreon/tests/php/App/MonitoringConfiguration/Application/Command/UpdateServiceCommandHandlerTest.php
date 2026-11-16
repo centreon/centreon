@@ -84,6 +84,7 @@ use App\MonitoringConfiguration\Domain\Exception\ServiceCheckCommandMissingExcep
 use App\MonitoringConfiguration\Domain\Exception\ServiceExtendedInformationsTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ServiceMacroValueIsAVaultReferenceException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\ServiceTemplateNotFoundException;
@@ -108,7 +109,6 @@ use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TrapRepository;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Repository\ResourceAccessRepository;
-use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -191,8 +191,7 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
     private LoggerSpy $logger;
 
     /**
-     * Boots the real container and swaps only the repositories, the vault, the logger and the event bus for fakes,
-     * so the handler is built by Symfony's DI exactly as it is in production.
+     * Real container; repositories, vault, logger and event bus faked.
      */
     protected function setUp(): void
     {
@@ -216,8 +215,6 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
         $this->eventBus = new EventBusSpy();
         $this->vault = new FakeVault();
         $this->logger = new LoggerSpy();
-        // The severity is read scoped to the actor, as the real repository reads it.
-        $this->serviceRepository->accessScopes = new AccessScopeResolver($this->resourceAccess);
 
         $container->set(ServiceRepository::class, $this->serviceRepository);
         $container->set(HostRepository::class, $this->hostRepository);
@@ -693,10 +690,10 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * No severity submitted: the hidden one with the lowest id is kept, the only one written back. The service
-     * as the actor loaded it shows no severity at all.
+     * No severity submitted: the main severity (the lowest, as read) is cleared when the actor can see it, and the
+     * extra ones go with it.
      */
-    public function testNoSeverityKeepsTheLowestHiddenOne(): void
+    public function testNoSeverityClearsAVisibleMainOneAndTheExtraOnes(): void
     {
         $this->seedEveryReference();
         $this->serviceRepository->storedSeverityIds[self::SERVICE_ID] = [70, 72, 71];
@@ -704,7 +701,24 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
 
         $service = ($this->handler)($this->command(actorId: self::RESTRICTED_USER_ID));
 
+        self::assertNull($service->severityId);
+        self::assertSame([$service], $this->serviceRepository->relationsReplacedServices);
+    }
+
+    /**
+     * No severity submitted: a main severity the actor cannot see is kept, as they have no right to remove it;
+     * the extra ones are dropped whatever the actor may see.
+     */
+    public function testNoSeverityKeepsAHiddenMainOneAndDropsTheExtraOnes(): void
+    {
+        $this->seedEveryReference();
+        $this->serviceRepository->storedSeverityIds[self::SERVICE_ID] = [72, 71];
+        $this->restrictTheActor();
+
+        $service = ($this->handler)($this->command(actorId: self::RESTRICTED_USER_ID));
+
         self::assertSame(71, $service->severityId?->value);
+        self::assertSame([$service], $this->serviceRepository->relationsReplacedServices);
     }
 
     /**
@@ -1014,6 +1028,21 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
         }
     }
 
+    public function testItRefusesAMacroValueThatIsAVaultReference(): void
+    {
+        try {
+            ($this->handler)($this->command(macroChanges: [
+                new ServiceMacroChange(new ServiceMacroName('pwd'), 'secret::vault::monitoring/services/other::_SERVICEPWD', isPassword: true),
+            ]));
+            self::fail('Expected ServiceMacroValueIsAVaultReferenceException');
+        } catch (ServiceMacroValueIsAVaultReferenceException $exception) {
+            self::assertSame(['checkOptions' => ['PWD']], $exception->criteria);
+        }
+
+        $this->assertNothingWritten();
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
     /**
      * A new password goes under the entry the service already has.
      */
@@ -1067,14 +1096,14 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
         }
 
         $this->assertNothingWritten();
-        self::assertSame([], $this->logger->warningMessages);
+        self::assertSame([], $this->logger->errorMessages);
     }
 
     /**
-     * A failure after a successful vault write leaves the vault ahead of the database: it is logged as a warning,
+     * A failure after a successful vault write leaves the vault ahead of the database: it is logged as an error,
      * and the failure is passed on.
      */
-    public function testAFailureAfterTheVaultWriteIsLoggedAsAWarning(): void
+    public function testAFailureAfterTheVaultWriteIsLoggedAsAnError(): void
     {
         $failure = new \RuntimeException('database down');
         $this->serviceRepository->updateThrows = $failure;
@@ -1086,9 +1115,9 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
             self::assertSame($failure, $exception);
         }
 
-        self::assertCount(1, $this->logger->warningMessages);
-        self::assertSame(self::SERVICE_ID, $this->logger->warningMessages[0]['context']['service_id']);
-        self::assertSame($failure, $this->logger->warningMessages[0]['context']['exception']);
+        self::assertCount(1, $this->logger->errorMessages);
+        self::assertSame(self::SERVICE_ID, $this->logger->errorMessages[0]['context']['service_id']);
+        self::assertSame($failure, $this->logger->errorMessages[0]['context']['exception']);
     }
 
     public function testAFailureWithoutVaultWriteIsNotLogged(): void
@@ -1101,7 +1130,27 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
         } catch (\RuntimeException) {
         }
 
-        self::assertSame([], $this->logger->warningMessages);
+        self::assertSame([], $this->logger->errorMessages);
+    }
+
+    /**
+     * A password kept with its reference leaves the vault untouched: a failure after it diverges from nothing.
+     */
+    public function testAFailureWithAKeptPasswordIsNotLogged(): void
+    {
+        $this->store(macros: [new ServiceMacro(new ServiceMacroName('pwd'), self::SERVICE_PWD, isPassword: true, id: new ServiceMacroId(3))]);
+        $this->serviceRepository->updateThrows = new \RuntimeException('database down');
+
+        try {
+            ($this->handler)($this->command(name: 'pong', macroChanges: [
+                new ServiceMacroChange(new ServiceMacroName('pwd'), null, isPassword: true, id: new ServiceMacroId(3)),
+            ]));
+            self::fail('Expected the update failure');
+        } catch (\RuntimeException) {
+        }
+
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame([], $this->logger->errorMessages);
     }
 
     /**
@@ -1252,10 +1301,7 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * Every reference a service can point to, each existing with one id: host 12 on poller 4, template 30 (with
-     * the check command), a second check command 22 of another type, event handler 21, time periods 40 and 41,
-     * icon 50, graph template 60, severities 70, 71 and 72, service groups 80 and 81, categories 90 and 91, trap
-     * 100.
+     * Seeds one existing row for every reference a service can point to.
      */
     private function seedEveryReference(): void
     {

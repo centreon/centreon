@@ -34,7 +34,6 @@ use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
 use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
-use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
@@ -86,7 +85,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
@@ -153,7 +151,6 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
                     $hostTemplateRepository,
                 )),
             ),
-            new HostTemplateServicesCleaner($hostTemplateRepository, new FakeServiceRepository(), $this->eventBus),
             new HostMacrosUpdater(
                 new InheritedHostMacrosResolver($hostTemplateRepository, $commandRepository),
                 new HostMacroChangesResolver(),
@@ -336,6 +333,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
      *     before?: list<array{string, string, bool, int}>,
      *     changes: MacroChanges,
      *     after: array<string, array{string, bool}>,
+     *     vaultSecrets?: array<string, string>,
      *     vaultCalls?: list<array{secrets: array<string, string>, deletes: list<string>}>,
      *     macrosWritten?: bool,
      *     massChanged?: bool,
@@ -346,6 +344,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
     public function testTheMacrosEndUpAsExpected(array $scenario): void
     {
         $this->vault->vaultEnabled = $scenario['vault'] ?? true;
+        $this->vault->resolved = $scenario['vaultSecrets'] ?? [];
         $this->seedHost(
             array_map(
                 fn (array $macro): HostMacro => $this->macro($macro[0], $macro[1], $macro[2], $macro[3]),
@@ -467,10 +466,12 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             'macrosWritten' => true,
         ]];
 
-        yield 'replace: a renamed password keeps its reference' => [[
+        yield 'replace: a renamed password moves under its new name' => [[
             'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
             'changes' => MacroChanges::replace([$change('RENAMED', null, true, 10)]),
-            'after' => ['RENAMED' => [$reference('TOKEN'), true]],
+            'vaultSecrets' => [$reference('TOKEN') => 'secret'],
+            'after' => ['RENAMED' => [$reference('RENAMED'), true]],
+            'vaultCalls' => [['secrets' => ['_HOSTRENAMED' => 'secret'], 'deletes' => ['_HOSTTOKEN']]],
             'macrosWritten' => true,
         ]];
 
