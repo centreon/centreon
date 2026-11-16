@@ -280,7 +280,7 @@ final class GetServiceTemplateMacrosProviderTest extends ApiTestCase
 
     private function insertHost(string $name): int
     {
-        $this->connection->insert('nagios_server', ['name' => "poller-{$this->tag}", 'uid' => random_int(1, PHP_INT_MAX)]);
+        $this->connection->insert('nagios_server', ['name' => 'poller-' . bin2hex(random_bytes(8)), 'uid' => random_int(1, PHP_INT_MAX)]);
         $pollerId = (int) $this->connection->lastInsertId();
         $this->connection->insert('host', [
             'host_name' => $name,
