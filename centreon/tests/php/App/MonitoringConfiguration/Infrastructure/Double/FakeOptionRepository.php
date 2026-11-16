@@ -34,8 +34,14 @@ final class FakeOptionRepository implements OptionRepository
     /** @var array<string, string> */
     public array $options = [];
 
+    public bool $throws = false;
+
     public function getByName(OptionName $name): Option
     {
+        if ($this->throws) {
+            throw new \RuntimeException('Unable to read the option');
+        }
+
         if (! isset($this->options[$name->value])) {
             throw new OptionDoesNotExistException(['option_name' => $name->value]);
         }

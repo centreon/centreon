@@ -29,9 +29,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectory;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
@@ -66,17 +68,17 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      */
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void
     {
-        // Only Host is mapped: Service is ACL-scoped too, but nothing creates one through an
-        // event yet — map it here before something does (see AclScopedInterface).
-        if (! $resource instanceof Host) {
-            throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class));
-        }
+        // Any other ACL-scoped aggregate must be mapped here before an event creates one (see AclScopedInterface).
+        [$hostId, $serviceId] = match (true) {
+            $resource instanceof Host => [$resource->id()->value, null],
+            $resource instanceof Service => [$resource->hostId->value, $resource->id()->value],
+            default => throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class)),
+        };
 
-        $hostId = $resource->id()->value;
         foreach ($accessGroupIds as $accessGroupId) {
             $this->realTimeConnection->executeStatement(
-                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, NULL)',
-                ['groupId' => $accessGroupId->value, 'hostId' => $hostId],
+                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)',
+                ['groupId' => $accessGroupId->value, 'hostId' => $hostId, 'serviceId' => $serviceId],
             );
         }
     }
@@ -463,9 +465,9 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         }
 
         // No "all image folders" flag anywhere: the accessible set is the union of image-folder
-        // relations across every accessible resource (legacy findByRequestParametersAndAccessGroups()).
-        // This is naturally empty — not "everything" — for a user with no accessible resource at
-        // all, or whose accessible resources carry no image-folder relation.
+        // relations across every accessible resource (legacy findByRequestParametersAndAccessGroups()),
+        // plus the system folders, readable whatever the ACL. So a user with no accessible resource
+        // at all, or whose resources carry no image-folder relation, still gets the system folders.
         $qb = $this->connection->createQueryBuilder();
         $qb
             ->select('DISTINCT arifr.dir_id')
@@ -475,11 +477,22 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->where('arifr.dir_id IS NOT NULL')
             ->setParameter('contactId', $userId->value);
 
-        /** @var list<array{dir_id: numeric-string}> $rows */
-        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+        /** @var list<numeric-string> $grantedIds */
+        $grantedIds = $this->connection->fetchFirstColumn($qb->getSQL(), ['contactId' => $userId->value]);
+
+        // Binary comparison: the names must match exactly, whereas the column collation would
+        // also accept "PPM" or "Dashboards". CAST rather than the BINARY operator, deprecated by MySQL.
+        /** @var list<numeric-string> $systemIds */
+        $systemIds = $this->connection->fetchFirstColumn(
+            'SELECT dir_id FROM view_img_dir WHERE CAST(dir_name AS BINARY) IN (:systemNames)',
+            ['systemNames' => MediaDirectory::SYSTEM_NAMES],
+            ['systemNames' => ArrayParameterType::STRING],
+        );
+
+        $ids = array_values(array_unique(array_map('intval', [...$grantedIds, ...$systemIds])));
 
         return AccessScope::restrictedTo(MediaDirectoryId::class, new Collection(
-            array_map(static fn (array $row): MediaDirectoryId => new MediaDirectoryId((int) $row['dir_id']), $rows),
+            array_map(static fn (int $id): MediaDirectoryId => new MediaDirectoryId($id), $ids),
             MediaDirectoryId::class,
         ));
     }

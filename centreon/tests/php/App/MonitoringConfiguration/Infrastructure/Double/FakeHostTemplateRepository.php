@@ -79,6 +79,8 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public ?\Throwable $addCopyThrows = null;
 
+    public ?\Throwable $findServiceTemplateIdsThrows = null;
+
     private int $nextId = 1000;
 
     public function findNamesByIds(Collection $ids): Collection
@@ -95,6 +97,10 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public function findServiceTemplateIds(Collection $templateIds): array
     {
+        if ($this->findServiceTemplateIdsThrows instanceof \Throwable) {
+            throw $this->findServiceTemplateIdsThrows;
+        }
+
         $serviceTemplateIds = [];
         foreach ($templateIds as $id) {
             array_push($serviceTemplateIds, ...($this->serviceTemplateIdsByTemplate[$id->value] ?? []));

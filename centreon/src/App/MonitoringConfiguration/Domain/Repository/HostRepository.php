@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
@@ -46,6 +47,12 @@ interface HostRepository
      * returns null, the same as a host that does not exist at all, so as not to leak existence.
      */
     public function findOne(HostId $id, ActingUser $actor): ?Host;
+
+    /**
+     * Never a host template; null outside the actor's ACL scope, as for a missing host. Nothing else of the host
+     * is read, so its other stored data cannot make it fail.
+     */
+    public function findState(HostId $id, ActingUser $actor): ?HostState;
 
     /**
      * The host's own (direct) macros as stored, with their ids, in storage order — the narrow read

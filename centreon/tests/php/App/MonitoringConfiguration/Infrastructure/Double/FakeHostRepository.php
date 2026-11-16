@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
@@ -38,6 +39,9 @@ use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 
 final class FakeHostRepository implements HostRepository
 {
+    /** @var array<int, HostState> by host id, hosts only {@see findState()} knows: their aggregate cannot load */
+    public array $states = [];
+
     /** @var array<int, Host> */
     public array $hosts = [];
 
@@ -133,6 +137,21 @@ final class FakeHostRepository implements HostRepository
         }
 
         return $host;
+    }
+
+    public function findState(HostId $id, ActingUser $actor): ?HostState
+    {
+        if (! $this->accessScopes->hosts($actor, new Collection([$id], HostId::class))->allows($id)) {
+            return null;
+        }
+
+        if (isset($this->states[$id->value])) {
+            return $this->states[$id->value];
+        }
+
+        $host = $this->hosts[$id->value] ?? null;
+
+        return $host instanceof Host ? new HostState($host->activated, $host->pollerId) : null;
     }
 
     public function findMacros(HostId $id): Collection

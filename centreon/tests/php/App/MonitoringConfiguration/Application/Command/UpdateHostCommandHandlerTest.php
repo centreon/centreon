@@ -1088,6 +1088,22 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostTemplateServicesCleanupRequested::class));
     }
 
+    public function testTheCleanupIsRequestedBeforeTheDeployment(): void
+    {
+        $this->addPoller(1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->hostTemplateRepository->hostTemplates[8] = new HostTemplate(new HostTemplateId(8), new HostTemplateName('linux-host'));
+        $this->seedHost(10, templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class));
+
+        ($this->handler)($this->command(10, templateIds: new Collection([new HostTemplateId(8)], HostTemplateId::class)));
+
+        $requests = array_values(array_filter(
+            $this->eventBus->getDispatchedEventClasses(),
+            static fn (string $class): bool => in_array($class, [HostTemplateServicesCleanupRequested::class, HostServicesDeploymentRequested::class], true),
+        ));
+        self::assertSame([HostTemplateServicesCleanupRequested::class, HostServicesDeploymentRequested::class], $requests);
+    }
+
     public function testItPreservesOutOfScopeHostGroupsForARestrictedActor(): void
     {
         $this->addPoller(1);
