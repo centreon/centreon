@@ -1,0 +1,59 @@
+meta {
+  name: POST /internal.php - Submit results with a line break in output - HTTP 206
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUriCentreonApiWeb}}/internal.php?object=centreon_submit_results&action=submit
+  body: json
+  auth: none
+}
+
+headers {
+  Cookie: {{sessionCookie}}
+}
+
+script:pre-request {
+  bru.setVar("updateTime", Math.floor(Date.now() / 1000));
+}
+
+body:json {
+  {
+    "results": [
+      {
+        "host": "{{ResultHostName}}",
+        "service": "{{ResultServiceName}}",
+        "status": 0,
+        "updatetime": {{updateTime}},
+        "output": "first line\nsecond line"
+      },
+      {
+        "host": "{{ResultHostName}}",
+        "service": "{{ResultServiceName}}",
+        "status": 0,
+        "updatetime": {{updateTime}},
+        "output": "Service OK"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 206
+}
+
+tests {
+  test("The result with a line break is refused and the valid one is processed (known infra issue: monitoring engine may not run in CI, returns 404 for the valid one).", function () {
+    const results = res.getBody().results;
+    expect(results).to.have.lengthOf(2);
+    expect(results[0].code).to.equal(400);
+    expect(results[0].message).to.equal('Invalid characters in field "output".');
+    expect(results[1].code).to.be.oneOf([202, 404]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
