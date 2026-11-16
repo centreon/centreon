@@ -2,7 +2,8 @@
 
 The oldest code, served by the legacy kernel or directly by PHP pages. It takes
 fixes only, with the smallest change that works: no style or architecture
-rewrite in an unrelated PR.
+rewrite in an unrelated PR. New or changed code still follows the ADRs that
+apply to legacy code.
 
 ## Where it lives
 
@@ -15,10 +16,9 @@ rewrite in an unrelated PR.
 ## Bridges
 
 - `src/Adaptation`: database and logging adapters used by legacy and
-  `src/Core` code. New database calls go through
-  `Adaptation\Database\Connection\ConnectionInterface`, even when the injected
-  instance is a `CentreonDB`; queries use the query builder and bound
-  parameters. Logging adapters are in `src/Adaptation/Log`.
+  `src/Core` code. New code types the connection as
+  `Adaptation\Database\Connection\ConnectionInterface` and calls only its
+  methods; queries use its builders and bound `QueryParameters`. Logging adapters are in `src/Adaptation/Log`.
 - From `src/App` to legacy: adapters in `Infrastructure/Legacy`.
 - From legacy to Symfony services: a dedicated service locator.
 

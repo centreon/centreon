@@ -36,8 +36,12 @@ Deptrac checks both boundaries (`composer dep:new`):
 ## Layers
 
 - **Domain**: aggregates, entities and value objects in `Domain/Model`,
-  repository interfaces in `Domain/Repository`, events in `Domain/Event`.
-- **Application**: commands and their handlers, event handlers.
+  repository interfaces in `Domain/Repository`, events in `Domain/Event`,
+  stateless business rules and ports typed with Domain types in
+  `Domain/Service`.
+- **Application**: commands and their handlers, queries and their handlers
+  (`query.bus`), event handlers, concrete classes shared by several handlers
+  in `Application/Service`.
 - **Infrastructure**: API Platform resources, state providers and processors in
   `Infrastructure/ApiPlatform`, DBAL repositories and transformers in
   `Infrastructure/Dbal`, adapters to legacy code in `Infrastructure/Legacy`,
@@ -48,10 +52,11 @@ Deptrac checks both boundaries (`composer dep:new`):
 - An aggregate root's id is `null` until it is persisted: the DBAL repository
   sets it after the insert (`DbalRepository::setId()`), and `id()` throws a
   `MissingIdException` before that.
-- A repository is an interface in `Domain/Repository/<Aggregate>/`, a
-  `Dbal*Repository` implementation and its transformers in
-  `Infrastructure/Dbal/<Aggregate>/`. Generic behaviour every aggregate needs
-  goes in `App\Shared`, not in one context.
+- A repository is an interface in `Domain/Repository/`, a `Dbal*Repository`
+  implementation and its transformers in `Infrastructure/Dbal/`. Both folders
+  stay flat: only `Domain/Model` and the API Platform layer are grouped by
+  aggregate. Generic behaviour every aggregate needs goes in `App\Shared`, not
+  in one context.
 
 ## API Platform
 

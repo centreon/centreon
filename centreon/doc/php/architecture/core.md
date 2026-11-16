@@ -2,8 +2,9 @@
 
 The previous generation, hexagonal, served by the legacy kernel under
 `/api/latest` (see [app.md](app.md#two-kernels)). It takes fixes and small
-changes only: new features go in `src/App`. An architectural gap found here is
-reported in a ticket, not rewritten in an unrelated PR.
+changes only: new features go in `src/App`. New or changed code still follows
+the ADRs that apply to `src/Core`, and review blocks on them. An architectural
+gap found here is reported in a ticket, not rewritten in an unrelated PR.
 
 ## Layout
 
