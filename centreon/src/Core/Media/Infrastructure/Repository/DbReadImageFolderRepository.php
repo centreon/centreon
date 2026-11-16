@@ -29,7 +29,6 @@ use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
@@ -57,10 +56,6 @@ final class DbReadImageFolderRepository extends DatabaseRepository implements Re
         private readonly SqlRequestParametersTranslator $sqlRequestTranslator,
     ) {
         parent::__construct($connection);
-
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceErrorMode(RequestParameters::CONCORDANCE_ERRMODE_SILENT);
     }
 
     /**
