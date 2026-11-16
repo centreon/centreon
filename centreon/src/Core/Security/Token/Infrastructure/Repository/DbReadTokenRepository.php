@@ -327,6 +327,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                         'JWT' as token_type
                     FROM jwt_tokens
                     WHERE token_name = :tokenName
+                        AND creator_id = :userId
                     SQL,
                 QueryParameters::create([
                     QueryParameter::string('tokenName', $tokenName),
