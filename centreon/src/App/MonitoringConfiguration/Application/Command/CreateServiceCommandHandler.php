@@ -295,9 +295,15 @@ final readonly class CreateServiceCommandHandler
     private function vaultPasswords(array $macros): array
     {
         try {
-            return $this->macroSecretsSynchronizer->synchronize($macros);
+            $synchronized = $this->macroSecretsSynchronizer->synchronize(
+                new Collection($macros, ServiceMacro::class),
+                new Collection([], ServiceMacro::class),
+                null,
+            );
+
+            return array_values($synchronized->macros->toArray());
         } catch (\Throwable $exception) {
-            throw VaultWriteFailedException::forService($exception);
+            throw VaultWriteFailedException::forService(null, $exception);
         }
     }
 

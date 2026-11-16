@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\EventHandler;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Infrastructure\Security\CredentialUser;
@@ -43,8 +45,9 @@ use Webmozart\Assert\Assert;
  * `centreon_acl` (else e.g. a disabled or deleted host lingers there until some flag is raised). An
  * admin flags all resources; a non-admin flags only their own access groups.
  *
- * Seeding `centreon_acl` directly (which grants access) happens on creation only, so a non-admin
- * creator sees their new resource without waiting for the cron. On a later enable/disable, or on a
+ * Seeding `centreon_acl` directly (which grants access) happens on creation, so a non-admin
+ * creator sees their new resource without waiting for the cron, and when a non-admin moves a service to
+ * another host, so they keep seeing it there (the stale pair is purged by the cron). On a later enable/disable, or on a
  * deletion, the flag alone drives the recompute — the cron purges stale rows for a deleted resource.
  * Caught via the {@see AggregateUpdated} supertype (enable/disable) and {@see AggregateDeleted}.
  *
@@ -87,7 +90,10 @@ final readonly class ReloadAclEventHandler
             return;
         }
 
-        if ($event instanceof AggregateCreated) {
+        if (
+            $event instanceof AggregateCreated
+            || ($event instanceof ServiceUpdated && $event->previousHostId instanceof HostId)
+        ) {
             $this->resourceAccessRepository->grantResourceAccess($event->aggregate, $accessGroupIds);
         }
         $this->accessGroupRepository->flagGroupsAsChanged($accessGroupIds);

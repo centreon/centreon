@@ -158,4 +158,79 @@ final class ServiceCheckOptionsTest extends TestCase
 
         yield 'an empty argument between filled ones' => [['80', '', 'crit'], true];
     }
+
+    public function testEqualsHoldsForTheSameValues(): void
+    {
+        self::assertTrue(self::checkOptions()->equals(self::checkOptions()));
+    }
+
+    /**
+     * Ids and descriptions are not compared: a macro equivalent to the stored one is no change, whichever row
+     * it would be written to.
+     */
+    public function testEqualsComparesTheMacrosAsASetOfNameValueAndPasswordFlag(): void
+    {
+        $reordered = new ServiceCheckOptions(new CommandId(2), ['80', 'crit'], [
+            new ServiceMacro(new ServiceMacroName('TOKEN'), 's3cr3t', isPassword: true),
+            new ServiceMacro(new ServiceMacroName('PORT'), '8080', isPassword: false, description: 'kept', id: new ServiceMacroId(4)),
+        ]);
+
+        self::assertTrue(self::checkOptions()->equals($reordered));
+    }
+
+    public function testEqualsCountsTwoStoredMacrosOfTheSameName(): void
+    {
+        $port = new ServiceMacro(new ServiceMacroName('PORT'), '8080', isPassword: false);
+        $other = new ServiceMacro(new ServiceMacroName('PORT'), '9090', isPassword: false);
+
+        self::assertFalse((new ServiceCheckOptions(null, [], [$port, $other]))->equals(new ServiceCheckOptions(null, [], [$port, $port])));
+        self::assertFalse((new ServiceCheckOptions(null, [], [$port, $port]))->equals(new ServiceCheckOptions(null, [], [$port])));
+    }
+
+    #[DataProvider('changeProvider')]
+    public function testEqualsDetectsAChange(ServiceCheckOptions $changed): void
+    {
+        self::assertFalse(self::checkOptions()->equals($changed));
+    }
+
+    /**
+     * @return iterable<string, array{ServiceCheckOptions}>
+     */
+    public static function changeProvider(): iterable
+    {
+        $macros = self::checkOptions()->macros;
+
+        yield 'command' => [new ServiceCheckOptions(new CommandId(3), ['80', 'crit'], $macros)];
+
+        yield 'no command' => [new ServiceCheckOptions(null, ['80', 'crit'], $macros)];
+
+        yield 'arguments' => [new ServiceCheckOptions(new CommandId(2), ['80', 'warn'], $macros)];
+
+        yield 'argument order' => [new ServiceCheckOptions(new CommandId(2), ['crit', '80'], $macros)];
+
+        yield 'a macro value' => [new ServiceCheckOptions(new CommandId(2), ['80', 'crit'], [
+            $macros[0]->withValue('9090', false),
+            $macros[1],
+        ])];
+
+        yield 'a macro name' => [new ServiceCheckOptions(new CommandId(2), ['80', 'crit'], [
+            $macros[0]->rename(new ServiceMacroName('OTHER')),
+            $macros[1],
+        ])];
+
+        yield 'a password flag' => [new ServiceCheckOptions(new CommandId(2), ['80', 'crit'], [
+            $macros[0],
+            $macros[1]->withValue('s3cr3t', false),
+        ])];
+
+        yield 'a macro less' => [new ServiceCheckOptions(new CommandId(2), ['80', 'crit'], [$macros[0]])];
+    }
+
+    private static function checkOptions(): ServiceCheckOptions
+    {
+        return new ServiceCheckOptions(new CommandId(2), ['80', 'crit'], [
+            new ServiceMacro(new ServiceMacroName('PORT'), '8080', isPassword: false),
+            new ServiceMacro(new ServiceMacroName('TOKEN'), 's3cr3t', isPassword: true),
+        ]);
+    }
 }

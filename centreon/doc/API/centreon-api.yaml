@@ -6962,6 +6962,78 @@ paths:
             type: string
           style: simple
           explode: false
+    put:
+      operationId: api_configurationservices_id_put
+      tags:
+        - Service
+      responses:
+        '403':
+          description: 'You are not allowed to update services'
+        '404':
+          description: 'Service not found, or a nested reference (command, time period, icon, contact, contact group) that no longer exists'
+        '409':
+          description: 'The name is already used by another service on the host'
+        '422':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+        '200':
+          description: 'Service resource updated'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Service.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Update a service'
+      description: 'Replaces the whole form of a service linked directly to one host, and answers it as a Get does. A field left out takes its default; `activated` is required. Service groups, categories, contacts and contact groups the user cannot see stay linked, and so does a severity they cannot see when none is given. Own macros are sent back with their id to keep them, inherited ones with their id and parent only to override them; a password macro sent without value keeps its stored one. Password macros are written to the vault, when one is configured, before the service is saved. On a Cloud platform, the stored notification settings are kept.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Service identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The updated Service resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Service.UpdateServiceInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service.UpdateServiceInput'
+        required: true
   '/api/configuration/hosts/{hostId}/services/deploy':
     post:
       operationId: api_configurationhosts_hostIdservicesdeploy_post
@@ -15587,3 +15659,79 @@ components:
           type:
             - string
             - 'null'
+    Service.UpdateServiceInput:
+      type: object
+      required:
+        - name
+        - host_id
+        - activated
+      properties:
+        name:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          maxLength: 200
+          description: 'Trimmed, and its inner runs of spaces collapsed into one, before it is stored.'
+          type: string
+        host_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type: integer
+        activated:
+          description: 'Required: send back the value read on Get to keep it.'
+          type: boolean
+        service_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Mandatory on a Cloud platform, optional otherwise.'
+          type:
+            - integer
+            - 'null'
+        service_group_ids:
+          type: array
+          items:
+            type: integer
+        category_ids:
+          type: array
+          items:
+            type: integer
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        trap_ids:
+          description: 'Not available on a Cloud platform.'
+          type: array
+          items:
+            type: integer
+        graph_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Not available on a Cloud platform.'
+          type:
+            - integer
+            - 'null'
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceCheckOptionsInput'
+            -
+              type: 'null'
+        monitoring_engine:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceMonitoringEngineInput'
+            -
+              type: 'null'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceNotificationsInput'
+            -
+              type: 'null'
+        advanced:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceAdvancedInput'
+            -
+              type: 'null'
