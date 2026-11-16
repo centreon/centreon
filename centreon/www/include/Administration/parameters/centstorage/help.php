@@ -88,9 +88,9 @@ $help['tip_audit_log_option'] = dgettext('help', 'Enable/Disable logging of all 
 // Graph data source
 $help['tip_metrics_data_source'] = dgettext(
     'help',
-    'Where the performance and status graphs of the API v2 and of the dashboards are read from: the RRD files '
-    . 'written by the RRD output of Centreon Broker, or VictoriaMetrics, written by its victoria_metrics output. '
-    . 'The legacy graph pages and the API v1 always read the RRD files.'
+    'Where the performance and status graphs are read from: the RRD files written by the RRD output of '
+    . 'Centreon Broker, or VictoriaMetrics, written by its victoria_metrics output. With VictoriaMetrics, '
+    . 'rrdtool is not used: graph images and poller statistics graphs are not available.'
 );
 $help['tip_victoria_metrics_url'] = dgettext(
     'help',

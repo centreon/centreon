@@ -160,18 +160,18 @@ GORGONE_API_ADDRESS=gorgone docker compose -f .github/docker/docker-compose.yml 
 
 ### Slim centreon web image
 
-[`centreon-web/alma9/Dockerfile.slim`](centreon-web/alma9/Dockerfile.slim) builds centreon-web alone (PHP-FPM, Apache, crond) for a layout where Gorgone, Engine and Broker run in their own containers. It takes the application installed in the published `centreon-web-alma9` image (`WEB_IMAGE` build argument), lays the application sources of the checkout over it, and copies it into a root filesystem that holds only its run time: no package manager, Python, Perl, systemd, SNMP, Engine, Broker or Gorgone. The daemons are started directly by the entrypoint. The locales of the supported languages are built in (`LOCALES` build argument). It requires `GORGONE_API_ADDRESS`.
+[`centreon-web/alma9/Dockerfile.slim`](centreon-web/alma9/Dockerfile.slim) builds centreon-web alone (PHP-FPM, Apache, crond) for a layout where Gorgone, Engine and Broker run in their own containers. It takes the application installed in the published `centreon-web-alma9` image (`WEB_IMAGE` build argument), lays the application sources of the checkout over it, and copies it into a root filesystem that holds only its run time: no package manager, Python, Perl, systemd, SNMP, rrdtool, Engine, Broker or Gorgone. The daemons are started directly by the entrypoint. The locales of the supported languages are built in (`LOCALES` build argument). It requires `GORGONE_API_ADDRESS` and `VICTORIA_METRICS_URL`: the container stops at start when one is missing.
 
 ```bash
 docker build -f .github/docker/centreon-web/alma9/Dockerfile.slim -t centreon-web-slim-alma9:local .
-WEB_IMAGE=centreon-web-slim-alma9:local GORGONE_API_ADDRESS=gorgone docker compose -f .github/docker/docker-compose.yml up -d --wait
+WEB_IMAGE=centreon-web-slim-alma9:local GORGONE_API_ADDRESS=gorgone VICTORIA_METRICS_URL=http://victoria-metrics:8428 docker compose -f .github/docker/docker-compose.yml up -d --wait
 ```
 
-Not available in this image: the local poller (configuration export and reload go through the Gorgone API), the remote-server profile, the Broker Graphite/InfluxDB outputs set up at startup, the MIB import (`centFillTrapDB`, Perl) and the Perl cron jobs (`eventReportBuilder`, `dashboardBuilder`: availability reports, `centreon-backup.pl`). Graphs need the RRD files of Broker on a volume shared at `/var/lib/centreon/metrics` and `/var/lib/centreon/status`, unless they are read from VictoriaMetrics (below). Nothing can be installed in a running container (no `dnf`).
+Not available in this image: the local poller (configuration export and reload go through the Gorgone API), the remote-server profile, the Broker Graphite/InfluxDB outputs set up at startup, the MIB import (`centFillTrapDB`, Perl) and the Perl cron jobs (`eventReportBuilder`, `dashboardBuilder`: availability reports, `centreon-backup.pl`). The graphs are read from VictoriaMetrics only (below): no RRD file, so the graph images (PNG export of the legacy graph pages and widgets) and the poller statistics graphs (*Administration > Platform Status > Performances*, RRD files of the Perl Gorgone) answer that they are not available. Nothing can be installed in a running container (no `dnf`).
 
 Graphs from VictoriaMetrics, set at each start:
 
-* `VICTORIA_METRICS_URL`: base URL of a VictoriaMetrics API, for instance `http://victoria-metrics:8428`. Unset (default value): the graphs are read from the RRD files and the options are left as they are. When set, the performance and status graphs of the API v2 and of the dashboards are read from VictoriaMetrics (options `metrics_data_source`, `victoria_metrics_url` of *Administration > Parameters > Data*), where the `victoria_metrics` output of Broker writes them (configured in *Configuration > Pollers > Broker configuration*). The legacy graph pages and the API v1 still read the RRD files.
+* `VICTORIA_METRICS_URL`: base URL of a VictoriaMetrics API, for instance `http://victoria-metrics:8428`. Required. Every graph (API v2, dashboards, legacy graph pages, API v1 `centreon_metric` and `centreon_monitoring_metric`) is read from VictoriaMetrics (options `metrics_data_source`, `victoria_metrics_url` of *Administration > Parameters > Data*), where the `victoria_metrics` output of Broker writes them (configured in *Configuration > Pollers > Broker configuration*).
 * `VICTORIA_METRICS_USER` / `VICTORIA_METRICS_PASSWORD`: HTTP basic authentication of that API, when it requires one
 
 ## :gear: Additional services using profiles

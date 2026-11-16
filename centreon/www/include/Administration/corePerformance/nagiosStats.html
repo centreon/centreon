@@ -12,6 +12,9 @@
 {assign var='cpt' value=0}
 	{assign var='cpt2' value=$cpt}
 	{assign var='cpt' value=$cpt+1}
+	{if $notAvailableMessage}
+	<div class="msg" align="center">{$notAvailableMessage}</div>
+	{else}
 	<div class="graphs">
 	<div class="graphZone col3">
 		{foreach from=$options key=keyOptions item=itemOptions}
@@ -34,6 +37,7 @@
 		{/foreach}
 	</div>
 </div>
+	{/if}
 </form>
 
 <script src="./include/common/javascript/moment-with-locales.min.2.29.4.js"></script>

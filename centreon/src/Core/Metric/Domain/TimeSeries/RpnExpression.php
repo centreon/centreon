@@ -117,6 +117,25 @@ final class RpnExpression
     }
 
     /**
+     * Checks the syntax of the expression without data: it can be computed from the given curves.
+     *
+     * @param list<string> $curveNames curves the expression may read
+     * @param bool $isVdef VDEF (one value) rather than CDEF (one value per timestamp)
+     *
+     * @throws RpnExpressionException
+     */
+    public function check(array $curveNames, bool $isVdef): void
+    {
+        $grid = TimeGrid::forPeriod(0, 600, 60);
+        $series = array_fill_keys($curveNames, array_fill(0, $grid->count(), 1.0));
+        if ($isVdef) {
+            $this->evaluateVdef($series, $grid->getStep());
+        } else {
+            $this->evaluate($series, $grid, 0);
+        }
+    }
+
+    /**
      * @return list<string> curves the expression reads
      */
     public function getCurveNames(): array

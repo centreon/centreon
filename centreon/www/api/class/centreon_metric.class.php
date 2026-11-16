@@ -22,6 +22,7 @@
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource;
 
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonGraphNg.class.php';
@@ -390,6 +391,10 @@ class CentreonMetric extends CentreonWebService
         }
         if ($rows < 10) {
             throw new RestBadRequestException('The rows must be greater as 10');
+        }
+
+        if (LegacyMetricsDataSource::isVictoriaMetrics($this->pearDB)) {
+            throw new RestNotFoundException(LegacyMetricsDataSource::pollerStatisticsNotAvailableMessage());
         }
 
         // Init graph object
@@ -968,7 +973,8 @@ class CentreonMetric extends CentreonWebService
      */
     protected function convertNaN($element)
     {
-        if (strtoupper($element) == 'NAN') {
+        // rrdtool gives "NaN", VictoriaMetrics null
+        if ($element === null || strtoupper((string) $element) === 'NAN') {
             return null;
         }
 

@@ -54,11 +54,13 @@
                         {displaysvg svgPath="www/img/icons/circle-crossed.svg" color="var(--icons-fill-color)" height=14.0 width=14.0}
                     </span>
                     <span>{$metric.title}</span>
+                    {if $graphImagesAvailable}
                     <a class="actions" href="#" data-href="./include/views/graphs/generateGraphs/generateMetricImage.php?cpt=1">
                         <span class="ico-14 margin_right">
                             {displaysvg svgPath="www/img/icons/picture.svg" color="var(--icons-fill-color)" height=14.0 width=14.0}
                         </span>
                     </a>
+                    {/if}
                 </div>
                 <div class="content">
                     <div class="action left">

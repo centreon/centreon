@@ -19,7 +19,10 @@
  *
  */
 
+use Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource;
+
 require_once 'centreonGraph.class.php';
+require_once __DIR__ . '/centreonGraphNg.class.php';
 
 /**
  * Class
@@ -56,6 +59,11 @@ class CentreonGraphService extends CentreonGraph
      */
     public function getData($rows = 200)
     {
+        if ($this->victoriaMetrics) {
+            return $this->getDataFromTimeSeries();
+        }
+        $rrdtool = LegacyMetricsDataSource::checkRrdtool($this->generalOpt['rrdtool_path_bin'] ?? null);
+
         $legendDataInfo = ['last' => 'LAST', 'min' => 'MINIMUM', 'max' => 'MAXIMUM', 'average' => 'AVERAGE', 'total' => 'TOTAL'];
 
         // Flush RRDCached for have the last values
@@ -163,7 +171,7 @@ class CentreonGraphService extends CentreonGraph
 
         $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'a']];
 
-        $process = proc_open($this->generalOpt['rrdtool_path_bin'] . ' - ', $descriptorspec, $pipes, null, null);
+        $process = proc_open($rrdtool . ' - ', $descriptorspec, $pipes, null, null);
         if (is_resource($process) === false) {
             throw new RuntimeException();
         }
@@ -221,7 +229,7 @@ class CentreonGraphService extends CentreonGraph
         // Get legends
         $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'a']];
 
-        $process = proc_open($this->generalOpt['rrdtool_path_bin'] . ' - ', $descriptorspec, $pipes, null, null);
+        $process = proc_open($rrdtool . ' - ', $descriptorspec, $pipes, null, null);
         if (is_resource($process) === false) {
             throw new RuntimeException();
         }
@@ -257,6 +265,57 @@ class CentreonGraphService extends CentreonGraph
         }
 
         return $metrics;
+    }
+
+    /**
+     * The curves of getData() in the shape of a CentreonGraphNg graph (data source victoria_metrics):
+     * legend values become the "extras" of getLegends(). VDEF virtual metrics are left out, as
+     * rrdtool xport does.
+     *
+     * @param array{times: list<int|string>, metrics: list<array<string, mixed>>} $graph CentreonGraphNg::getGraph()
+     *
+     * @return array{metrics: list<array<string, mixed>>, legends: array<string, array{extras: list<array{name: string, value: string}>}>}
+     */
+    public static function convertGraphNgData(array $graph): array
+    {
+        $metrics = [];
+        $legends = [];
+        foreach ($graph['metrics'] as $metric) {
+            $isVirtual = (int) ($metric['virtual'] ?? 0) === 1;
+            if ($isVirtual && ($metric['def_type'] ?? 'CDEF') === 'VDEF') {
+                continue;
+            }
+            $dsData = is_array($metric['ds_data'] ?? null) ? $metric['ds_data'] : [];
+            $legend = str_replace('\\\\', '\\', (string) ($metric['metric_legend'] ?? ''));
+            $data = [];
+            foreach ($graph['times'] as $position => $time) {
+                $data[(string) $time] = $metric['data'][$position] ?? null;
+            }
+            $info = [
+                'data' => $data,
+                'legend' => $legend,
+                'graph_type' => (string) ($dsData['ds_filled'] ?? '') === '1' ? 'area' : 'line',
+                'unit' => $metric['unit'] ?? null,
+                'color' => $dsData['ds_color_line'] ?? null,
+                'negative' => ! empty($dsData['ds_invert']),
+            ];
+            if (! $isVirtual) {
+                $info['stack'] = (int) ($metric['stack'] ?? 0) === 1;
+                $info['crit'] = $metric['crit'] ?? null;
+                $info['warn'] = $metric['warn'] ?? null;
+                $info['metric_name'] = ! empty($dsData['ds_name']) ? $dsData['ds_name'] : $legend;
+            }
+            $metrics[] = $info;
+
+            foreach ($metric['prints'] ?? [] as $print) {
+                $parts = explode(':', (string) ($print[0] ?? ''), 2);
+                if (count($parts) === 2) {
+                    $legends[(string) ($metric['metric_legend'] ?? '')]['extras'][] = ['name' => $parts[0], 'value' => $parts[1]];
+                }
+            }
+        }
+
+        return ['metrics' => $metrics, 'legends' => $legends];
     }
 
     /**
@@ -321,5 +380,29 @@ class CentreonGraphService extends CentreonGraph
         }
 
         return $row['id'];
+    }
+
+    /**
+     * getData() from VictoriaMetrics, through CentreonGraphNg (same curves, virtual metrics computed in PHP).
+     *
+     * @throws Exception
+     * @return list<array<string, mixed>>
+     */
+    private function getDataFromTimeSeries(): array
+    {
+        $graph = new CentreonGraphNg($this->user_id);
+        if (is_array($this->metricsEnabled) && $this->metricsEnabled !== []) {
+            foreach ($this->metricsEnabled as $metricId) {
+                $graph->addMetric($metricId);
+            }
+        } else {
+            $graph->addServiceMetrics($this->indexData['host_id'], $this->indexData['service_id']);
+        }
+        $converted = self::convertGraphNgData(
+            $graph->getGraph((int) $this->RRDoptions['start'], (int) $this->RRDoptions['end'])
+        );
+        $this->legends = $converted['legends'];
+
+        return $converted['metrics'];
     }
 }

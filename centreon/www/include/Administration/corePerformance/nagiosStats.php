@@ -139,4 +139,11 @@ $tpl->assign('endTime', $end);
 $tpl->assign('pollerId', $pollerId);
 $tpl->assign('title', $title);
 $tpl->assign('session_id', session_id());
+// The engine statistics RRD files are written by the Perl Gorgone statistics module only
+$tpl->assign(
+    'notAvailableMessage',
+    Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource::isVictoriaMetrics($pearDB)
+        ? Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource::pollerStatisticsNotAvailableMessage()
+        : ''
+);
 $tpl->display('nagiosStats.html');

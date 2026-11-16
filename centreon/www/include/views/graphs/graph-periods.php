@@ -86,4 +86,9 @@ $tpl->assign('periods', $periods);
 $tpl->assign('svc_id', $chartId);
 $tpl->assign('srv_name', $serviceName);
 
+// rrdtool draws the images: none when the metrics are stored in VictoriaMetrics
+$tpl->assign(
+    'graphImagesAvailable',
+    ! Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource::isVictoriaMetrics($pearDB)
+);
 $tpl->display('graph-periods.html');

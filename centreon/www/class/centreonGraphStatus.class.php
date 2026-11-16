@@ -19,6 +19,9 @@
  *
  */
 
+use Core\Metric\Domain\TimeSeries\StatusTimeline;
+use Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource;
+
 /**
  * Class
  *
@@ -86,10 +89,21 @@ class CentreonGraphStatus
      */
     public function getData()
     {
+        if (LegacyMetricsDataSource::isVictoriaMetricsOption($this->generalOpt['metrics_data_source'] ?? null)) {
+            return StatusTimeline::fromRows(
+                LegacyMetricsDataSource::getGraphReader()->findStatusRows(
+                    (int) $this->index,
+                    (int) $this->startTime,
+                    (int) $this->endTime
+                )
+            );
+        }
+
         $this->setRRDOption('imgformat', 'JSONTIME');
         $this->setRRDOption('start', $this->startTime);
         $this->setRRDOption('end', $this->endTime);
 
+        LegacyMetricsDataSource::checkRrdtool($this->generalOpt['rrdtool_path_bin'] ?? null);
         $path = $this->statusPath . '/' . $this->index . '.rrd';
         if (file_exists($path) === false) {
             throw new RuntimeException();
@@ -101,7 +115,7 @@ class CentreonGraphStatus
 
         $jsonData = $this->getJsonStream();
 
-        return Core\Metric\Domain\TimeSeries\StatusTimeline::fromRows($jsonData['data']);
+        return StatusTimeline::fromRows($jsonData['data'] ?? []);
     }
 
     /**
@@ -206,7 +220,7 @@ class CentreonGraphStatus
     {
         $result = [];
         $query = "SELECT `key`, `value` FROM options
-            WHERE `key` IN ('rrdtool_path_bin', 'rrdcached_enabled', 'debug_rrdtool', 'debug_path')";
+            WHERE `key` IN ('rrdtool_path_bin', 'rrdcached_enabled', 'debug_rrdtool', 'debug_path', 'metrics_data_source')";
         try {
             $res = $this->pearDB->query($query);
         } catch (PDOException $e) {
@@ -317,6 +331,8 @@ class CentreonGraphStatus
      */
     private function getJsonStream()
     {
+        $rrdtool = LegacyMetricsDataSource::checkRrdtool($this->generalOpt['rrdtool_path_bin'] ?? null);
+        $rrdData = null;
         $this->flushRrdcached($this->index);
 
         $commandLine = '';
@@ -346,7 +362,7 @@ class CentreonGraphStatus
         }
         $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => $stderr];
 
-        $process = proc_open($this->generalOpt['rrdtool_path_bin'] . ' - ', $descriptorspec, $pipes, null, null);
+        $process = proc_open($rrdtool . ' - ', $descriptorspec, $pipes, null, null);
 
         if (is_resource($process)) {
             fwrite($pipes[0], $commandLine);

@@ -172,3 +172,24 @@ it('should give unknown when no value is known', function (string $function): vo
 it('should list the curves an expression reads', function (): void {
     expect((new RpnExpression('v12,vv3,+,8,*'))->getCurveNames())->toBe(['v12', 'vv3']);
 });
+
+it('should accept a valid expression without data', function (string $expression, bool $isVdef): void {
+    (new RpnExpression($expression))->check(['used', 'free'], $isVdef);
+
+    expect(true)->toBeTrue();
+})->with([
+    'CDEF' => ['used,free,+,100,*', false],
+    'CDEF dividing by zero' => ['used,used,-,1,EXC,/', false],
+    'VDEF' => ['used,AVERAGE', true],
+    'VDEF percentile' => ['used,95,PERCENT', true],
+]);
+
+it('should refuse an invalid expression without data', function (string $expression, bool $isVdef): void {
+    (new RpnExpression($expression))->check(['used', 'free'], $isVdef);
+})->with([
+    'unknown curve' => ['used,swap,+', false],
+    'missing operand' => ['used,+', false],
+    'unsupported operator' => ['used,TREND', false],
+    'too many values' => ['used,free', false],
+    'VDEF without function' => ['used,free,+', true],
+])->throws(RpnExpressionException::class);

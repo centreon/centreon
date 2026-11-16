@@ -1,4 +1,7 @@
 {$form.javascript}
+{if $rrdUnusedMessage}
+<div class="msg" align="center">{$rrdUnusedMessage}</div>
+{/if}
 <form {$form.attributes}>
     <table class="formTable table">
         <tr class="ListHeader">

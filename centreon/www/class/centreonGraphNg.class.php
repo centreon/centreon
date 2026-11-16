@@ -19,6 +19,8 @@
  *
  */
 
+use Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource;
+
 require_once __DIR__ . '/centreonDuration.class.php';
 require_once __DIR__ . '/centreonGMT.class.php';
 require_once __DIR__ . '/centreonACL.class.php';
@@ -219,6 +221,9 @@ class CentreonGraphNg
      */
     protected ?Closure $dataFetcher = null;
 
+    /** Option metrics_data_source = victoria_metrics: no RRD file is read. */
+    protected bool $victoriaMetrics = false;
+
     /**
      * CentreonGraphNg constructor
      *
@@ -239,6 +244,9 @@ class CentreonGraphNg
         $stmt = $this->db->prepare('SELECT `key`, `value` FROM options');
         $stmt->execute();
         $this->generalOpt = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+        $this->victoriaMetrics = LegacyMetricsDataSource::isVictoriaMetricsOption(
+            $this->generalOpt['metrics_data_source']['value'] ?? null
+        );
 
         // Get RRDCacheD options
         $stmt = $this->db->query(
@@ -622,6 +630,9 @@ class CentreonGraphNg
             $this->graphData['metrics'][] = $this->vmetrics[$vmetricId];
         }
 
+        if ($this->dataFetcher === null && $this->victoriaMetrics) {
+            $this->dataFetcher = LegacyMetricsDataSource::getGraphReader()->fetchGraphData(...);
+        }
         $rrdData = $this->dataFetcher !== null
             ? ($this->dataFetcher)($this->getDataDefinition())
             : $this->runRrdtool();
@@ -797,7 +808,7 @@ class CentreonGraphNg
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return is_null($row) ? 0 : $row['id'];
+        return is_array($row) ? $row['id'] : 0;
     }
 
     /**
@@ -811,6 +822,10 @@ class CentreonGraphNg
     public function statusGraphExists($hostId, $serviceId)
     {
         $id = $this->getIndexDataId($hostId, $serviceId);
+        if ($this->victoriaMetrics) {
+            // the status series is written with the metrics of the index
+            return (int) $id > 0;
+        }
 
         return (bool) (is_file($this->dbStatusPath . '/' . $id . '.rrd'));
     }
@@ -994,6 +1009,7 @@ class CentreonGraphNg
     private function runRrdtool()
     {
         $rrdData = null;
+        $rrdtool = LegacyMetricsDataSource::checkRrdtool($this->generalOpt['rrdtool_path_bin']['value'] ?? null);
 
         $this->flushRrdcached($this->listMetricsId);
 
@@ -1024,7 +1040,7 @@ class CentreonGraphNg
         $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => $stderr];
 
         $process = proc_open(
-            $this->generalOpt['rrdtool_path_bin']['value'] . ' - ',
+            $rrdtool . ' - ',
             $descriptorspec,
             $pipes,
             null,
@@ -1483,7 +1499,9 @@ class CentreonGraphNg
             $minimumValue = null;
             $maximumValue = null;
             $averageValue = null;
-            $isCurveInverted = (int) $this->metrics[$metric['metric_id']]['ds_data']['ds_invert'] === 1;
+            // virtual metrics have no metric_id: never inverted, as before
+            $isCurveInverted = (int) ($metric['virtual'] ?? 0) === 0
+                && (int) ($metric['ds_data']['ds_invert'] ?? 0) === 1;
 
             for (; $gprintsPos < $gprintsSize; $gprintsPos++) {
                 if (isset($rrdData['meta']['gprints'][$gprintsPos]['line'])) {
@@ -1592,7 +1610,7 @@ class CentreonGraphNg
      */
     private function checkDBAvailability($metricId)
     {
-        if ($this->dataFetcher !== null) {
+        if ($this->dataFetcher !== null || $this->victoriaMetrics) {
             return 1;
         }
         if (! file_exists($this->dbPath . $metricId . '.rrd') && ! preg_match('/^v/', $metricId)) {

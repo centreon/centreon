@@ -70,6 +70,8 @@ while ($data = $metricsDataSourceOptions->fetchRow()) {
     $gopt[$data['key']] = $data['value'];
 }
 $gopt['metrics_data_source'] ??= 'rrd';
+// RRD folders and retention are not used when the metrics are stored in VictoriaMetrics: kept as is, not shown
+$rrdUnused = Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource::isVictoriaMetricsOption($gopt['metrics_data_source']);
 
 // Format of text input
 $attrsText        = ['size' => '40'];
@@ -98,15 +100,21 @@ $form->addElement('header', 'audit', _('Audit log activation'));
 $form->addElement('header', 'metrics_data_source_header', _('Graph data source'));
 
 // inputs declaration
-$form->addElement('text', 'RRDdatabase_path', _('Path to RRDTool Database For Metrics'), $attrsText);
-$form->addElement('text', 'RRDdatabase_status_path', _('Path to RRDTool Database For Status'), $attrsText);
-$form->addElement(
-    'text',
-    'RRDdatabase_nagios_stats_path',
-    _('Path to RRDTool Database For Monitoring Engine Statistics'),
-    $attrsText
-);
-$form->addElement('text', 'len_storage_rrd', _('Retention duration for performance data in RRDTool databases'), $attrsText2);
+if ($rrdUnused) {
+    foreach (['RRDdatabase_path', 'RRDdatabase_status_path', 'RRDdatabase_nagios_stats_path', 'len_storage_rrd'] as $rrdOption) {
+        $form->addElement('hidden', $rrdOption);
+    }
+} else {
+    $form->addElement('text', 'RRDdatabase_path', _('Path to RRDTool Database For Metrics'), $attrsText);
+    $form->addElement('text', 'RRDdatabase_status_path', _('Path to RRDTool Database For Status'), $attrsText);
+    $form->addElement(
+        'text',
+        'RRDdatabase_nagios_stats_path',
+        _('Path to RRDTool Database For Monitoring Engine Statistics'),
+        $attrsText
+    );
+    $form->addElement('text', 'len_storage_rrd', _('Retention duration for performance data in RRDTool databases'), $attrsText2);
+}
 $form->addElement('text', 'len_storage_mysql', _('Retention duration for performance data in MySQL database'), $attrsText2);
 $form->addElement('text', 'len_storage_downtimes', _('Retention duration for downtimes'), $attrsText2);
 $form->addElement('text', 'len_storage_comments', _('Retention duration for comments'), $attrsText2);
@@ -189,6 +197,7 @@ $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
 $form->accept($renderer);
 
 $tpl->assign('ods_log_retention_unit', _('days'));
+$tpl->assign('rrdUnused', $rrdUnused);
 
 // prepare help texts
 $helptext = '';

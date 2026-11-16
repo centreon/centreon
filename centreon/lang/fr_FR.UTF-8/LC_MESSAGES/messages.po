@@ -25767,3 +25767,27 @@ msgstr "L'URL doit commencer par http:// ou https://"
 #: centreon/www/include/Administration/parameters/DB-Func.php
 msgid "The URL is required to read the graphs from VictoriaMetrics"
 msgstr "L'URL est obligatoire pour lire les graphiques depuis VictoriaMetrics"
+
+#: centreon/src/Core/Metric/Infrastructure/Graph/LegacyMetricsDataSource.php
+msgid "rrdtool cannot be run (%s): install it or store the metrics in VictoriaMetrics"
+msgstr "rrdtool ne peut pas être exécuté (%s) : installez-le ou stockez les métriques dans VictoriaMetrics"
+
+#: centreon/src/Core/Metric/Infrastructure/Graph/LegacyMetricsDataSource.php
+msgid "no path configured"
+msgstr "aucun chemin configuré"
+
+#: centreon/src/Core/Metric/Infrastructure/Graph/LegacyMetricsDataSource.php
+msgid "Graph images are not available when the metrics are stored in VictoriaMetrics"
+msgstr "Les images des graphiques ne sont pas disponibles quand les métriques sont stockées dans VictoriaMetrics"
+
+#: centreon/src/Core/Metric/Infrastructure/Graph/LegacyMetricsDataSource.php
+msgid "The poller statistics graphs are not available when the metrics are stored in VictoriaMetrics"
+msgstr "Les graphiques de statistiques des collecteurs ne sont pas disponibles quand les métriques sont stockées dans VictoriaMetrics"
+
+#: centreon/src/Core/Metric/Infrastructure/Graph/LegacyMetricsDataSource.php
+msgid "RRDtool is not used: the metrics are stored in VictoriaMetrics"
+msgstr "RRDtool n'est pas utilisé : les métriques sont stockées dans VictoriaMetrics"
+
+#: centreon/www/include/views/virtualMetrics/DB-Func.php
+msgid "Invalid RPN syntax: %s"
+msgstr "Syntaxe RPN invalide : %s"

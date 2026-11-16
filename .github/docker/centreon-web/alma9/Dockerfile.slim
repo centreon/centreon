@@ -1,7 +1,9 @@
 # Slim centreon-web test image for the containerised layout: centreon-web
 # (PHP-FPM, Apache and the PHP cron jobs) alone, talking to an external Gorgone
-# API (GORGONE_API_ADDRESS is required), with Engine, Broker and Gorgone in
-# their own containers and the database external.
+# API (GORGONE_API_ADDRESS is required) and reading the graphs from
+# VictoriaMetrics (VICTORIA_METRICS_URL is required, no RRD file nor rrdtool),
+# with Engine, Broker and Gorgone in their own containers and the database
+# external.
 #
 # - app: the application as installed in the published monolith image, with
 #   the application sources of the checkout laid over it;
@@ -100,7 +102,6 @@ ${ROOTFS_DNF} module enable "php:remi-${PHP_VERSION}"
 # - sudo: entrypoint scripts (vault, openid, saml)
 # - libfaketime: end-to-end tests of recurrent downtimes
 # - mod_ssl, ca-certificates: HTTPS mode (04-tls.sh)
-# - rrdtool: graph rendering
 # - cronie: PHP cron jobs (ACL, downtimes, purge, partitioning, tokens)
 # - mariadb-common, libedit, ncurses-libs: configuration and libraries of the
 #   copied mysql clients
@@ -110,7 +111,7 @@ ${ROOTFS_DNF} install \
   httpd mod_ssl \
   php-fpm php-cli php-common php-pdo php-mysqlnd php-gd php-xml php-mbstring php-ldap php-intl \
   php-curl php-zip php-process \
-  rrdtool cronie \
+  cronie \
   mariadb-common mariadb-connector-c-config libedit ncurses-libs
 
 # Users and groups of the monolith image, with the same ids: the copied files keep them.

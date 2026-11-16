@@ -261,6 +261,11 @@ $tpl->assign('timerEnabled', returnSvg('www/img/icons/timer.svg', 'var(--icons-f
 $tpl->assign('removeIcon', returnSvg('www/img/icons/circle-crossed.svg', 'var(--icons-fill-color)', 20, 20));
 $tpl->assign('csvIcon', returnSvg('www/img/icons/csv.svg', 'var(--icons-fill-color)', 19, 19));
 $tpl->assign('pictureIcon', returnSvg('www/img/icons/picture.svg', 'var(--icons-fill-color)', 19, 19));
+// rrdtool draws the images: none when the metrics are stored in VictoriaMetrics
+$tpl->assign(
+    'graphImagesAvailable',
+    ! Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource::isVictoriaMetrics($pearDB)
+);
 $tpl->display('graphs.html');
 
 $multi = 1;

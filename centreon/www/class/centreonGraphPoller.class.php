@@ -19,6 +19,8 @@
  *
  */
 
+use Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource;
+
 /**
  * Class
  *
@@ -195,6 +197,10 @@ class centreonGraphPoller
      */
     public function getGraph($start, $end)
     {
+        if (LegacyMetricsDataSource::isVictoriaMetricsOption($this->generalOpt['metrics_data_source'] ?? null)) {
+            // the engine statistics RRD files are written by the Perl Gorgone statistics module only
+            throw new RuntimeException(LegacyMetricsDataSource::pollerStatisticsNotAvailableMessage());
+        }
         $this->buildCommandLine($start, $end);
 
         return $this->getJsonStream();
@@ -345,7 +351,13 @@ class centreonGraphPoller
             2 => $stderr,
         ];
 
-        $process = proc_open($this->generalOpt['rrdtool_path_bin'] . ' - ', $descriptorspec, $pipes, null, null);
+        $process = proc_open(
+            LegacyMetricsDataSource::checkRrdtool($this->generalOpt['rrdtool_path_bin'] ?? null) . ' - ',
+            $descriptorspec,
+            $pipes,
+            null,
+            null
+        );
         $this->graphData = ['global' => $this->extraDatas, 'metrics' => []];
         foreach ($this->metrics as $metric) {
             $this->graphData['metrics'][] = $metric;

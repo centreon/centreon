@@ -117,12 +117,16 @@ const templateGraph = ({ graphId, graphType, graphTitle, hostId, serviceId }) =>
                     {t}Display multiple periods{/t}
                 </a>
                 {/if}
+                {if $graphImagesAvailable}
                 {literal}
                 <a class="actions" data-href="./include/views/graphs/generateGraphs/generateImage.php">
                     <span class="ico-18 margin_right">
                         ${pictureIcon}
                     </span>
                 </a>
+                {/literal}
+                {/if}
+                {literal}
                 <a class="actions download_graph_csv" data-hostid="${hostId}" data-serviceid="${serviceId}">
                     <span class="ico-18 margin_right">
                         ${csvIcon}

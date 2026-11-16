@@ -19,6 +19,8 @@
  *
  */
 
+use Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource;
+
 // this class need also others classes
 require_once _CENTREON_PATH_ . 'www/class/centreonDuration.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonGMT.class.php';
@@ -67,6 +69,9 @@ class CentreonGraph
 
     /** @var bool */
     public $checkcurve;
+
+    /** Option metrics_data_source = victoria_metrics: no RRD file, no image. */
+    protected bool $victoriaMetrics = false;
 
     // Objects
     /** @var CentreonDB */
@@ -258,6 +263,9 @@ class CentreonGraph
         }
         $DBRESULT->closeCursor();
         unset($opt);
+        $this->victoriaMetrics = LegacyMetricsDataSource::isVictoriaMetricsOption(
+            $this->generalOpt['metrics_data_source'] ?? null
+        );
 
         // Get RRDCacheD options
         $result = $this->DB->query(
@@ -328,7 +336,8 @@ class CentreonGraph
                     SQL
             );
             foreach (array_keys($odsm) as $mid) {
-                if (! isset($metrics_cache[$mid])) {
+                // ods_view_details.metric_id is an integer: virtual metrics ("v<id>") are not stored
+                if (! isset($metrics_cache[$mid]) && is_int($mid)) {
                     $this->DB->executePreparedQuery($insertViewDetailsStatement, [
                         ':metric_id' => $mid,
                         ':user_id' => $this->user_id,
@@ -1189,6 +1198,19 @@ class CentreonGraph
      */
     public function getImageData()
     {
+        if ($this->victoriaMetrics) {
+            if ($this->checkcurve) {
+                return '';
+            }
+            LegacyMetricsDataSource::displayMessageImage(LegacyMetricsDataSource::graphImagesNotAvailableMessage());
+        }
+        if (! $this->checkcurve) {
+            try {
+                LegacyMetricsDataSource::checkRrdtool($this->generalOpt['rrdtool_path_bin'] ?? null);
+            } catch (RuntimeException $exception) {
+                LegacyMetricsDataSource::displayMessageImage($exception->getMessage(), 500);
+            }
+        }
         $commandLine = '';
 
         $this->flushRrdcached($this->listMetricsId);
@@ -1389,6 +1411,10 @@ class CentreonGraph
     public function statusGraphExists($hostId, $serviceId)
     {
         $id = $this->getIndexDataId($hostId, $serviceId);
+        if ($this->victoriaMetrics) {
+            // the status series is written with the metrics of the index
+            return (int) $id > 0;
+        }
 
         return (bool) (is_file($this->dbStatusPath . '/' . $id . '.rrd'));
     }
@@ -1585,7 +1611,8 @@ class CentreonGraph
                 $l_value /= $l_base;
                 $l_cpx++;
             }
-            $l_upx = $l_px[$l_cpx][$l_base];
+            // no prefix below the base (no row 0)
+            $l_upx = $l_px[$l_cpx][$l_base] ?? '';
 
             return $l_sign . sprintf('%.2f', $l_value) . $l_upx . $l_unit;
         }
@@ -1930,6 +1957,9 @@ class CentreonGraph
      */
     private function checkDBAvailability($metric_id)
     {
+        if ($this->victoriaMetrics) {
+            return 1;
+        }
         if (! file_exists($this->dbPath . $metric_id . '.rrd') && ! preg_match('/^v/', $metric_id)) {
             return 0;
         }

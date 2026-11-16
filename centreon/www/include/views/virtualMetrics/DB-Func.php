@@ -19,8 +19,51 @@
  *
  */
 
+use Core\Metric\Domain\Exception\RpnExpressionException;
+use Core\Metric\Domain\TimeSeries\RpnExpression;
+use Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource;
+
 if (! isset($oreon)) {
     exit;
+}
+
+/**
+ * Checks an RPN function in PHP, as the graphs read from VictoriaMetrics compute it: no rrdtool.
+ *
+ * @param string $rpnFunction
+ * @param bool $isVdef
+ * @param int $indexId index of the service: its metrics and virtual metrics are the known curves
+ * @param string|null $vmetricName name of the checked virtual metric (not a curve of itself)
+ *
+ * @return string|null the error, null when the function is valid
+ */
+function checkRpnWithoutRrdtool(string $rpnFunction, bool $isVdef, int $indexId, ?string $vmetricName): ?string
+{
+    global $pearDB, $pearDBO;
+
+    $names = [];
+    $statement = $pearDBO->prepare('SELECT metric_name FROM metrics WHERE index_id = :index_id');
+    $statement->bindValue(':index_id', $indexId, PDO::PARAM_INT);
+    $statement->execute();
+    while (($name = $statement->fetchColumn()) !== false) {
+        $names[] = (string) $name;
+    }
+    $statement = $pearDB->prepare('SELECT vmetric_name FROM virtual_metrics WHERE index_id = :index_id');
+    $statement->bindValue(':index_id', $indexId, PDO::PARAM_INT);
+    $statement->execute();
+    while (($name = $statement->fetchColumn()) !== false) {
+        if ((string) $name !== $vmetricName) {
+            $names[] = (string) $name;
+        }
+    }
+
+    try {
+        (new RpnExpression($rpnFunction))->check($names, $isVdef);
+    } catch (RpnExpressionException $exception) {
+        return $exception->getMessage();
+    }
+
+    return null;
 }
 
 /**
@@ -33,7 +76,7 @@ if (! isset($oreon)) {
  */
 function testRpnSyntaxWithRrdtool(array $fields): array|true
 {
-    global $pearDBO, $oreon;
+    global $pearDB, $pearDBO, $oreon;
 
     if (! isset($fields['def_type'])) {
         return true;
@@ -70,6 +113,17 @@ function testRpnSyntaxWithRrdtool(array $fields): array|true
         return true;
     }
 
+    if (LegacyMetricsDataSource::isVictoriaMetrics($pearDB)) {
+        $error = checkRpnWithoutRrdtool(
+            $rpnFunction,
+            $defType === 'VDEF',
+            (int) $indexId,
+            isset($fields['vmetric_name']) ? (string) $fields['vmetric_name'] : null
+        );
+
+        return $error === null ? true : ['rpn_function' => sprintf(_('Invalid RPN syntax: %s'), $error)];
+    }
+
     $rpnParts = explode(',', $rpnFunction);
     $defArgs = [];
     $usedMetrics = [];
@@ -96,7 +150,11 @@ function testRpnSyntaxWithRrdtool(array $fields): array|true
         return true;
     }
 
-    $rrdtoolBin = $oreon->optGen['rrdtool_path_bin'] ?? '/usr/bin/rrdtool';
+    try {
+        $rrdtoolBin = LegacyMetricsDataSource::checkRrdtool($oreon->optGen['rrdtool_path_bin'] ?? '/usr/bin/rrdtool');
+    } catch (RuntimeException $exception) {
+        return ['rpn_function' => $exception->getMessage()];
+    }
     $cmd = escapeshellarg($rrdtoolBin) . ' graph /dev/null --start now-1h';
     foreach ($defArgs as $def) {
         $cmd .= ' ' . escapeshellarg($def);
@@ -672,6 +730,28 @@ function checkRRDGraphData($v_id = null, $force = 0)
     $statement = $pearDB->prepare($query);
     $statement->bindValue(':vmetric_id', (int) $v_id, PDO::PARAM_INT);
     $statement->execute();
+    if ($statement->rowCount() == 1 && LegacyMetricsDataSource::isVictoriaMetrics($pearDB)) {
+        $statement = $pearDB->prepare(
+            'SELECT vmetric_name, index_id, def_type, rpn_function FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
+        );
+        $statement->bindValue(':vmetric_id', (int) $v_id, PDO::PARAM_INT);
+        $statement->execute();
+        $vmetric = $statement->fetch(PDO::FETCH_ASSOC);
+        $error = checkRpnWithoutRrdtool(
+            (string) $vmetric['rpn_function'],
+            (string) $vmetric['def_type'] === '1',
+            (int) $vmetric['index_id'],
+            (string) $vmetric['vmetric_name']
+        );
+        $statement = $pearDB->prepare(
+            'UPDATE `virtual_metrics` SET `ck_state` = :ck_state WHERE `vmetric_id` = :vmetric_id'
+        );
+        $statement->bindValue(':ck_state', $error === null ? '1' : '2', PDO::PARAM_STR);
+        $statement->bindValue(':vmetric_id', (int) $v_id, PDO::PARAM_INT);
+        $statement->execute();
+
+        return [$error === null ? 0 : 1, (string) $error];
+    }
     if ($statement->rowCount() == 1) {
         /**
          * Create XML Request Objects
@@ -700,7 +780,12 @@ function checkRRDGraphData($v_id = null, $force = 0)
         /**
          * Display Images Binary Data
          */
-        $lastline = exec($oreon->optGen['rrdtool_path_bin'] . $obj->displayImageFlow() . ' 2>&1', $result, $rc);
+        try {
+            $rrdtoolBin = LegacyMetricsDataSource::checkRrdtool($oreon->optGen['rrdtool_path_bin'] ?? null);
+        } catch (RuntimeException $exception) {
+            return [1, $exception->getMessage()];
+        }
+        $lastline = exec($rrdtoolBin . $obj->displayImageFlow() . ' 2>&1', $result, $rc);
         $ckstate = (! $rc) ? '1' : '2';
         $statement = $pearDB->prepare(
             'UPDATE `virtual_metrics` SET `ck_state` = :ck_state WHERE `vmetric_id` = :vmetric_id'

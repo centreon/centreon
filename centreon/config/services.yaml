@@ -150,4 +150,5 @@ services:
       arguments:
         - internal_api_client: '@Core\Common\Infrastructure\Api\InternalApiClient'
           gorgone_command_service: '@Core\Gorgone\Application\Service\GorgoneCommandService'
+          metrics_graph_reader: '@Core\Metric\Infrastructure\Graph\TimeSeriesGraphReader'
       tags: [ 'container.service_locator' ]

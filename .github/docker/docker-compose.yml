@@ -30,6 +30,10 @@ services:
       GORGONE_API_PORT: ${GORGONE_API_PORT:-8085}
       GORGONE_API_USERNAME: ${GORGONE_API_USERNAME:-}
       GORGONE_API_PASSWORD: ${GORGONE_API_PASSWORD:-}
+      # Graphs read from VictoriaMetrics, required by the slim image. See README.md.
+      VICTORIA_METRICS_URL: ${VICTORIA_METRICS_URL:-}
+      VICTORIA_METRICS_USER: ${VICTORIA_METRICS_USER:-}
+      VICTORIA_METRICS_PASSWORD: ${VICTORIA_METRICS_PASSWORD:-}
     healthcheck:
       test: ["CMD-SHELL", "[ -f /tmp/docker.ready ] && curl --fail http://localhost/centreon/api/latest/platform/versions"]
       interval: 1s

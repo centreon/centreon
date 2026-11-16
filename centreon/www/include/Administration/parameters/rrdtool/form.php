@@ -56,7 +56,13 @@ $form->registerRule('is_writable_path', 'callback', 'is_writable_path');
 $form->registerRule('rrdcached_has_option', 'callback', 'rrdcached_has_option');
 $form->registerRule('rrdcached_valid', 'callback', 'rrdcached_valid');
 
-$form->addRule('rrdtool_path_bin', _("Can't execute binary"), 'is_executable_binary');
+// rrdtool is not needed when the metrics are stored in VictoriaMetrics
+$rrdUnused = Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource::isVictoriaMetricsOption(
+    $gopt['metrics_data_source'] ?? null
+);
+if (! $rrdUnused) {
+    $form->addRule('rrdtool_path_bin', _("Can't execute binary"), 'is_executable_binary');
+}
 // $form->addRule('oreon_rrdbase_path', _("Can't write in directory"), 'is_writable_path'); - Field is not added so no need for rule
 
 // Smarty template initialization
@@ -76,10 +82,8 @@ if (! isset($gopt['rrdcached_enable'])) {
 }
 
 if (version_compare('1.4.0', $version, '>')) {
+    // also without rrdtool (version unknown); the rrdcached fields are no longer in this form
     $gopt['rrdcached_enable'] = '0';
-    $form->freeze('rrdcached_enable');
-    $form->freeze('rrdcached_port');
-    $form->freeze('rrdcached_unix_path');
 }
 
 $form->setDefaults($gopt);
@@ -128,5 +132,9 @@ $tpl->assign('o', $o);
 $tpl->assign('genOpt_rrdtool_properties', _('RRDTool Properties'));
 $tpl->assign('genOpt_rrdtool_configurations', _('RRDTool Configuration'));
 $tpl->assign('valid', $valid);
+$tpl->assign(
+    'rrdUnusedMessage',
+    $rrdUnused ? Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource::rrdtoolNotUsedMessage() : ''
+);
 
 $tpl->display('form.ihtml');

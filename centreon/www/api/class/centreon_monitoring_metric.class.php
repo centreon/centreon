@@ -261,7 +261,8 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
      */
     protected function convertNaN($element)
     {
-        if (strtoupper($element) == 'NAN') {
+        // rrdtool gives "NaN", VictoriaMetrics null
+        if ($element === null || strtoupper((string) $element) === 'NAN') {
             return null;
         }
 

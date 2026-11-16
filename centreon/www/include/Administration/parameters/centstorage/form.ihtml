@@ -7,6 +7,7 @@
                 <h3>| {t}Performance Data Management{/t}</h3>
             </td>
         </tr>
+        {if !$rrdUnused}
         <tr class="list_lvl_1">
             <td class="ListColLvl1_name" colspan="2">
                 <h4>{$form.header.folder}</h4>
@@ -67,6 +68,7 @@
             <td class="FormRowValue">{$form.RRDdatabase_nagios_stats_path.html}</td>
         </tr>
 
+        {/if}
         <tr class="list_lvl_1">
             <td class="ListColLvl1_name" colspan="2">
                 <h4>{$form.header.metrics_data_source_header}</h4>
@@ -190,6 +192,7 @@
             </td>
             <td class="FormRowValue">{$form.len_storage_mysql.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td>
         </tr>
+        {if !$rrdUnused}
         <tr class="list_two">
             <td class="FormRowField">
                 <div class="formRowLabel">
@@ -208,6 +211,7 @@
             </td>
             <td class="FormRowValue">{$form.len_storage_rrd.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td>
         </tr>
+        {/if}
         <tr class="list_one">
             <td class="FormRowField">
                 <div class="formRowLabel">

@@ -28,11 +28,8 @@ use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
 use Centreon\Domain\Monitoring\Service;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\Metric\Application\Repository\ReadMetricTimeSeriesRepositoryInterface;
-use Core\Metric\Domain\Model\MetricDataSourceType;
 use Core\Metric\Domain\TimeSeries\StatusTimeline;
-use Core\Metric\Domain\TimeSeries\TimeGrid;
-use Core\Metric\Infrastructure\Graph\RrdtoolGraphDataBuilder;
+use Core\Metric\Infrastructure\Graph\TimeSeriesGraphReader;
 
 /**
  * Graphs read from VictoriaMetrics (option metrics_data_source = victoria_metrics): the graph
@@ -42,20 +39,15 @@ use Core\Metric\Infrastructure\Graph\RrdtoolGraphDataBuilder;
  */
 final class MetricRepositoryVictoriaMetrics extends AbstractRepositoryRDB implements MetricRepositoryInterface
 {
-    /** Step used when the check interval of the service is unknown, in seconds. */
-    private const DEFAULT_CHECK_INTERVAL = 60;
-
     private ?ContactInterface $contact = null;
 
     /**
      * @param DatabaseConnection $db
-     * @param ReadMetricTimeSeriesRepositoryInterface $timeSeriesRepository
-     * @param RrdtoolGraphDataBuilder $graphDataBuilder
+     * @param TimeSeriesGraphReader $graphReader
      */
     public function __construct(
         DatabaseConnection $db,
-        private readonly ReadMetricTimeSeriesRepositoryInterface $timeSeriesRepository,
-        private readonly RrdtoolGraphDataBuilder $graphDataBuilder,
+        private readonly TimeSeriesGraphReader $graphReader,
     ) {
         $this->db = $db;
     }
@@ -76,20 +68,13 @@ final class MetricRepositoryVictoriaMetrics extends AbstractRepositoryRDB implem
     public function findMetricsByService(Service $service, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         [$hostId, $serviceId] = self::extractIds($service);
-        $minimumStep = $this->findCheckInterval($hostId, $serviceId);
 
         // CentreonGraphNg reads the configuration database through this global (getMyServiceField)
         global $pearDB;
         $pearDB = new \CentreonDB('centreon', 3);
 
         $graph = new \CentreonGraphNg($this->contact?->getId());
-        $graph->setDataFetcher(
-            fn (array $definition): array => $this->graphDataBuilder->build(
-                $definition,
-                $minimumStep,
-                $this->findDataSourceTypes(array_column($definition['metrics'], 'id'))
-            )
-        );
+        $graph->setDataFetcher($this->graphReader->fetchGraphData(...));
         $graph->addServiceMetrics($hostId, $serviceId);
 
         return $graph->getGraph($start->getTimestamp(), $end->getTimestamp());
@@ -101,21 +86,12 @@ final class MetricRepositoryVictoriaMetrics extends AbstractRepositoryRDB implem
     public function findStatusByService(Service $service, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         [$hostId, $serviceId] = self::extractIds($service);
-        $indexId = $this->findIndexId($hostId, $serviceId);
-        $grid = TimeGrid::forPeriod(
+
+        return StatusTimeline::fromRows($this->graphReader->findStatusRows(
+            $this->findIndexId($hostId, $serviceId),
             $start->getTimestamp(),
-            $end->getTimestamp(),
-            $this->findCheckInterval($hostId, $serviceId)
-        );
-        $values = $this->timeSeriesRepository->findStatusSeries($indexId, $grid);
-
-        $rows = [];
-        foreach ($grid->getTimestamps() as $index => $timestamp) {
-            $value = $values[$index] ?? NAN;
-            $rows[] = [(string) $timestamp, is_finite($value) ? $value : null];
-        }
-
-        return StatusTimeline::fromRows($rows);
+            $end->getTimestamp()
+        ));
     }
 
     /**
@@ -134,38 +110,6 @@ final class MetricRepositoryVictoriaMetrics extends AbstractRepositoryRDB implem
         }
 
         return [$hostId, $serviceId];
-    }
-
-    /**
-     * @param list<int> $metricIds
-     *
-     * @return array<int, MetricDataSourceType>
-     */
-    private function findDataSourceTypes(array $metricIds): array
-    {
-        if ($metricIds === []) {
-            return [];
-        }
-        $placeholders = [];
-        foreach (array_values($metricIds) as $position => $metricId) {
-            $placeholders[":metric_{$position}"] = $metricId;
-        }
-        $statement = $this->db->prepare($this->translateDbName(sprintf(
-            'SELECT metric_id, data_source_type FROM `:dbstg`.`metrics` WHERE metric_id IN (%s)',
-            implode(', ', array_keys($placeholders))
-        )));
-        foreach ($placeholders as $placeholder => $metricId) {
-            $statement->bindValue($placeholder, $metricId, \PDO::PARAM_INT);
-        }
-        $statement->execute();
-
-        $types = [];
-        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $row) {
-            /** @var array{metric_id: int|string, data_source_type: string|null} $row */
-            $types[(int) $row['metric_id']] = MetricDataSourceType::fromColumn($row['data_source_type']);
-        }
-
-        return $types;
     }
 
     /**
@@ -190,31 +134,5 @@ final class MetricRepositoryVictoriaMetrics extends AbstractRepositoryRDB implem
         }
 
         return (int) $indexId;
-    }
-
-    /**
-     * Normal check interval of the service in seconds (real time value, in interval_length units).
-     */
-    private function findCheckInterval(int $hostId, int $serviceId): int
-    {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                SELECT s.check_interval, o.`value` AS interval_length
-                FROM `:dbstg`.`services` s
-                LEFT JOIN `:db`.`options` o ON o.`key` = 'interval_length'
-                WHERE s.host_id = :host_id AND s.service_id = :service_id
-                SQL
-        ));
-        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
-        $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        if (! is_array($row) || ! is_numeric($row['check_interval'] ?? null)) {
-            return self::DEFAULT_CHECK_INTERVAL;
-        }
-        $intervalLength = is_numeric($row['interval_length'] ?? null) ? (float) $row['interval_length'] : 60.0;
-        $seconds = (int) round((float) $row['check_interval'] * $intervalLength);
-
-        return $seconds > 0 ? $seconds : self::DEFAULT_CHECK_INTERVAL;
     }
 }

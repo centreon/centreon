@@ -204,4 +204,9 @@ $tpl->assign('metrics', $metrics);
 $tpl->assign('timerDisabled', returnSvg('www/img/icons/timer.svg', 'var(--icons-disabled-fill-color)', 14, 14));
 $tpl->assign('timerEnabled', returnSvg('www/img/icons/timer.svg', 'var(--icons-fill-color)', 14, 14));
 
+// rrdtool draws the images: none when the metrics are stored in VictoriaMetrics
+$tpl->assign(
+    'graphImagesAvailable',
+    ! Core\Metric\Infrastructure\Graph\LegacyMetricsDataSource::isVictoriaMetrics($pearDB)
+);
 $tpl->display('graph-split.html');
