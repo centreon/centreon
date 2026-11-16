@@ -42,9 +42,6 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class MigrationApplier
 {
-    /** @var \WeakMap<\Throwable, true> */
-    private \WeakMap $loggedFailures;
-
     public function __construct(
         private MigrationRunnerInterface $migrationRunner,
         private TargetVersionRecorder $targetVersionRecorder,
@@ -52,15 +49,6 @@ final readonly class MigrationApplier
         #[Autowire(param: 'centreon.version')]
         private string $platformVersion,
     ) {
-        $this->loggedFailures = new \WeakMap();
-    }
-
-    /**
-     * Whether a step already logged this failure with its trace.
-     */
-    public function hasLogged(\Throwable $exception): bool
-    {
-        return isset($this->loggedFailures[$exception]);
     }
 
     /**
@@ -91,12 +79,7 @@ final readonly class MigrationApplier
                     throw $exception;
                 }
 
-                $interrupted = new MigrationInterruptedException($migrated, $webSet, $exception, $warnings);
-                if ($this->hasLogged($exception)) {
-                    $this->loggedFailures[$interrupted] = true;
-                }
-
-                throw $interrupted;
+                throw new MigrationInterruptedException($migrated, $webSet, $exception, $warnings);
             }
             $migrated[] = $webSet->label();
         }
@@ -176,7 +159,6 @@ final readonly class MigrationApplier
             $result = $run();
         } catch (\Throwable $exception) {
             $this->upgradeLogger->stepFailure($this->platformVersion, $step, "Step '{$step}' failed: {$exception->getMessage()}", $exception);
-            $this->loggedFailures[$exception] = true;
 
             throw $exception;
         }

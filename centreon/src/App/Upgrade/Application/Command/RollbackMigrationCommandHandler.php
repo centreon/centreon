@@ -67,29 +67,16 @@ final readonly class RollbackMigrationCommandHandler
 
         try {
             return $this->migrationSetGuard->run($set, fn (): MigrationOutcome => $this->migrationApplier->revertSet($set, $command->version, $command->expected));
+        } catch (ModuleNotInstalledException|MigrationSetBusyException|RollbackTargetNotFoundException|RollbackPlanChangedException $refusal) {
+            $this->upgradeLogger->warning($this->platformVersion, sprintf('Rollback of the %s refused: %s', $set->label(), $refusal->getMessage()));
+
+            throw $refusal;
+        } catch (LockNotReleasedException $exception) {
+            $this->upgradeLogger->error($this->platformVersion, sprintf('Rollback of the %s: %s', $set->label(), $exception->getMessage()), $exception);
+
+            throw $exception;
         } catch (\Throwable $exception) {
-            if (
-                $exception instanceof ModuleNotInstalledException
-                || $exception instanceof MigrationSetBusyException
-                || $exception instanceof RollbackTargetNotFoundException
-                || $exception instanceof RollbackPlanChangedException
-            ) {
-                $this->upgradeLogger->warning($this->platformVersion, sprintf('Rollback of the %s refused: %s', $set->label(), $exception->getMessage()));
-
-                throw $exception;
-            }
-
-            if ($exception instanceof LockNotReleasedException) {
-                $this->upgradeLogger->error($this->platformVersion, sprintf('Rollback of the %s: %s', $set->label(), $exception->getMessage()), $exception);
-
-                throw $exception;
-            }
-
-            $this->upgradeLogger->error(
-                $this->platformVersion,
-                sprintf('Rollback of the %s failed: %s', $set->label(), $exception->getMessage()),
-                $this->migrationApplier->hasLogged($exception) ? null : $exception,
-            );
+            $this->upgradeLogger->error($this->platformVersion, sprintf('Rollback of the %s failed: %s', $set->label(), $exception->getMessage()), $exception);
 
             throw $exception;
         }
