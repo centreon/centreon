@@ -99,7 +99,7 @@ final readonly class PatchServiceCommandHandler
     /**
      * The secrets are written to the vault before the service is saved, so that an unreachable vault saves nothing.
      * The vault is outside the transaction: when the service cannot be saved after that, the database rolls back but
-     * the vault keeps what was written. That divergence is logged as a warning rather than left silent. A failure of
+     * the vault keeps what was written. That divergence is logged as an error rather than left silent. A failure of
      * the commit itself, after this handler returns, is not covered.
      */
     public function __invoke(PatchServiceCommand $command): void
@@ -135,7 +135,7 @@ final readonly class PatchServiceCommandHandler
             $this->saveAndNotify($service, $updated, $command, $passwordRewritten);
         } catch (\Throwable $exception) {
             if ($vaultWritten) {
-                $this->logger->warning(
+                $this->logger->error(
                     'A service update failed after writing to its vault entry: the vault may now diverge from the service stored in the database.',
                     ['service_id' => $command->id->value, 'exception' => $exception],
                 );

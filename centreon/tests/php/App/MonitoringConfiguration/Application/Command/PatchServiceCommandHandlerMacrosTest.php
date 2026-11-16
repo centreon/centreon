@@ -229,14 +229,14 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
         }
 
         $this->assertNothingWritten();
-        self::assertSame([], $this->logger->warningMessages);
+        self::assertSame([], $this->logger->errorMessages);
     }
 
     /**
-     * A failure after a successful vault write leaves the vault ahead of the database: it is logged as a warning, and
+     * A failure after a successful vault write leaves the vault ahead of the database: it is logged as an error, and
      * the failure is passed on.
      */
-    public function testAFailureAfterTheVaultWriteIsLoggedAsAWarning(): void
+    public function testAFailureAfterTheVaultWriteIsLoggedAsAnError(): void
     {
         $failure = new \RuntimeException('database down');
         $this->serviceRepository->updateThrows = $failure;
@@ -248,8 +248,8 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
             self::assertSame($failure, $exception);
         }
 
-        self::assertCount(1, $this->logger->warningMessages);
-        self::assertSame(self::SERVICE_ID, $this->logger->warningMessages[0]['context']['service_id']);
+        self::assertCount(1, $this->logger->errorMessages);
+        self::assertSame(self::SERVICE_ID, $this->logger->errorMessages[0]['context']['service_id']);
     }
 
     public function testAFailureWithoutVaultWriteIsNotLogged(): void
@@ -262,7 +262,7 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
         } catch (\RuntimeException) {
         }
 
-        self::assertSame([], $this->logger->warningMessages);
+        self::assertSame([], $this->logger->errorMessages);
     }
 
     /**
