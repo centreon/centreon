@@ -109,6 +109,16 @@ final class GetServiceTemplateMacrosProviderLogicTest extends TestCase
         self::assertSame(['FROMTEMPLATE'], array_map(static fn (ServiceMacroOutput $macro): string => $macro->name, $output->macros));
     }
 
+    public function testAnInheritedPasswordIsNeverEchoed(): void
+    {
+        $this->addTemplate(2, macros: [$this->macro(20, 'secret', 's3cr3t', isPassword: true)]);
+        $this->addTemplate(1, parentId: 2);
+
+        $output = $this->provider->provide(new Get(), ['id' => 1]);
+
+        self::assertEquals([new ServiceMacroOutput(20, 'SECRET', null, true, 'template')], $output->macros);
+    }
+
     public function testAnUnknownTemplateIsNotFound(): void
     {
         $this->expectException(ServiceTemplateNotFoundException::class);
