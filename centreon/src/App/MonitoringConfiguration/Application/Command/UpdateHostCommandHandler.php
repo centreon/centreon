@@ -258,7 +258,7 @@ final readonly class UpdateHostCommandHandler
             $severityScope,
         );
         // Extra legacy severities are dropped whatever the actor may see.
-        $severitiesKept = $this->keepsTheStoredSeverities($this->repository->findSeverityIds($existingHost->id()), $severityId);
+        $extraSeverities = $this->repository->hasExtraSeverities($existingHost->id(), $severityId);
 
         $host = $existingHost->with(
             name: $command->name,
@@ -301,7 +301,7 @@ final readonly class UpdateHostCommandHandler
         // Macros and contacts are compared by hasSameConfigurationAs() but never logged by legacy, so
         // they count among the unlogged changes, with the relations.
         $unloggedChange = $passwordRewritten
-            || ! $severitiesKept
+            || $extraSeverities
             || ! $host->hasSameConfigurationAs($existingHost)
             || ! $host->hasSameRelationsAs($existingHost);
 
@@ -622,18 +622,6 @@ final readonly class UpdateHostCommandHandler
         }
 
         return $scope->allows($existing) ? null : $existing;
-    }
-
-    /**
-     * Whether the levelled rows stored for the host are exactly the one severity it keeps (or none).
-     *
-     * @param Collection<HostSeverityId> $stored
-     */
-    private function keepsTheStoredSeverities(Collection $stored, ?HostSeverityId $kept): bool
-    {
-        $storedValues = array_values(array_map(static fn (HostSeverityId $id): int => $id->value, $stored->toArray()));
-
-        return $storedValues === ($kept instanceof HostSeverityId ? [$kept->value] : []);
     }
 
     /**

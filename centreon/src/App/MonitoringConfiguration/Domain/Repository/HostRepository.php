@@ -65,11 +65,9 @@ interface HostRepository
     public function findMacros(HostId $id): Collection;
 
     /**
-     * The severities linked to the host, lowest id first, whatever the actor may see.
-     *
-     * @return Collection<HostSeverityId>
+     * Whether the host is linked to a severity other than the one it keeps, whatever the actor may see.
      */
-    public function findSeverityIds(HostId $id): Collection;
+    public function hasExtraSeverities(HostId $id, ?HostSeverityId $kept): bool;
 
     /**
      * Also removes the dependencies left without a parent or child host by this deletion.

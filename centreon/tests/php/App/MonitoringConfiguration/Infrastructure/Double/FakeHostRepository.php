@@ -73,10 +73,7 @@ final class FakeHostRepository implements HostRepository
     /** @var list<list<int>> the host ids asked to {@see findIconIdsByIds()}, one list per call */
     public array $receivedIconHostIds = [];
 
-    /**
-     * @var array<int, list<int>> host id => every levelled category it is linked to, as {@see findSeverityIds()}
-     *                            reads them; unset, the stored host's severity
-     */
+    /** @var array<int, list<int>> host id => every levelled category it is linked to, in read order; unset, the stored host's severity */
     public array $storedSeverityIds = [];
 
     private readonly AccessScopeResolver $accessScopes;
@@ -147,9 +144,8 @@ final class FakeHostRepository implements HostRepository
             return $host;
         }
 
-        // As the real repository: the lowest stored severity.
         $stored = $this->storedSeverityIds[$id->value];
-        $severityId = $stored === [] ? null : new HostSeverityId(min($stored));
+        $severityId = $stored === [] ? null : new HostSeverityId($stored[0]);
 
         return $severityId?->value === $host->severityId?->value ? $host : $host->with(severityId: $severityId);
     }
@@ -174,21 +170,9 @@ final class FakeHostRepository implements HostRepository
         return new Collection($this->hosts[$id->value]->checkOptions->macros ?? [], HostMacro::class);
     }
 
-    public function findSeverityIds(HostId $id): Collection
+    public function hasExtraSeverities(HostId $id, ?HostSeverityId $kept): bool
     {
-        if (isset($this->storedSeverityIds[$id->value])) {
-            $stored = $this->storedSeverityIds[$id->value];
-            sort($stored);
-
-            return new Collection(
-                array_map(static fn (int $value): HostSeverityId => new HostSeverityId($value), $stored),
-                HostSeverityId::class,
-            );
-        }
-
-        $severityId = ($this->hosts[$id->value] ?? null)?->severityId;
-
-        return new Collection($severityId instanceof HostSeverityId ? [$severityId] : [], HostSeverityId::class);
+        return array_diff($this->storedSeverityIds[$id->value] ?? [], [$kept?->value]) !== [];
     }
 
     public function remove(Host $host): void

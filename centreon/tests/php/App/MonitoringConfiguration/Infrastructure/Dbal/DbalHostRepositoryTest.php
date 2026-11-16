@@ -394,24 +394,46 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame($severityId, $this->findHost($hostId)->severityId?->value);
     }
 
-    public function testAHostHoldingSeveralSeveritiesIsReadWithTheLowestAndListsThemAll(): void
+    public function testAHostHoldingSeveralSeveritiesIsReadWithTheLowestLevelAndHasExtraOnes(): void
     {
         $pollerId = $this->createPoller('Central');
         $hostId = $this->createHost('server-01', $pollerId);
         $categoryId = $this->createHostCategory('Production');
-        $lowerSeverityId = $this->createHostSeverity('Critical', level: 1);
-        $higherSeverityId = $this->createHostSeverity('Minor', level: 4);
-        foreach ([$categoryId, $higherSeverityId, $lowerSeverityId] as $linkedId) {
+        $minorSeverityId = $this->createHostSeverity('Minor', level: 4);
+        $criticalSeverityId = $this->createHostSeverity('Critical', level: 1);
+        foreach ([$categoryId, $minorSeverityId, $criticalSeverityId] as $linkedId) {
             $this->linkHostToCategory($hostId, $linkedId);
         }
 
-        self::assertSame(min($lowerSeverityId, $higherSeverityId), $this->findHost($hostId)->severityId?->value);
-        $expected = [$lowerSeverityId, $higherSeverityId];
-        sort($expected);
-        self::assertSame(
-            $expected,
-            array_map(static fn (HostSeverityId $id): int => $id->value, $this->repository->findSeverityIds(new HostId($hostId))->toArray()),
-        );
+        self::assertSame($criticalSeverityId, $this->findHost($hostId)->severityId?->value);
+        self::assertTrue($this->repository->hasExtraSeverities(new HostId($hostId), new HostSeverityId($criticalSeverityId)));
+        self::assertTrue($this->repository->hasExtraSeverities(new HostId($hostId), null));
+    }
+
+    public function testAHostHoldingSeveralSeveritiesOfTheSameLevelIsReadWithTheLowestId(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $firstSeverityId = $this->createHostSeverity('Critical', level: 1);
+        $secondSeverityId = $this->createHostSeverity('Urgent', level: 1);
+        $this->linkHostToCategory($hostId, $secondSeverityId);
+        $this->linkHostToCategory($hostId, $firstSeverityId);
+
+        self::assertSame($firstSeverityId, $this->findHost($hostId)->severityId?->value);
+    }
+
+    public function testAHostHoldingOneSeverityHasNoExtraOnes(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $categoryId = $this->createHostCategory('Production');
+        $severityId = $this->createHostSeverity('Critical', level: 1);
+        $this->linkHostToCategory($hostId, $categoryId);
+        $this->linkHostToCategory($hostId, $severityId);
+
+        self::assertFalse($this->repository->hasExtraSeverities(new HostId($hostId), new HostSeverityId($severityId)));
+        self::assertTrue($this->repository->hasExtraSeverities(new HostId($hostId), null));
+        self::assertFalse($this->repository->hasExtraSeverities(new HostId($this->createHost('server-02', $pollerId)), null));
     }
 
     public function testUpdateLeavesASingleSeverityOnAHostHoldingSeveral(): void
@@ -425,10 +447,8 @@ final class DbalHostRepositoryTest extends KernelTestCase
 
         $this->repository->update($this->findHost($hostId)->with(severityId: new HostSeverityId($secondSeverityId)));
 
-        self::assertSame(
-            [$secondSeverityId],
-            array_map(static fn (HostSeverityId $id): int => $id->value, $this->repository->findSeverityIds(new HostId($hostId))->toArray()),
-        );
+        self::assertSame($secondSeverityId, $this->findHost($hostId)->severityId?->value);
+        self::assertFalse($this->repository->hasExtraSeverities(new HostId($hostId), new HostSeverityId($secondSeverityId)));
     }
 
     public function testUpdateClearsTheSeverityWithNull(): void

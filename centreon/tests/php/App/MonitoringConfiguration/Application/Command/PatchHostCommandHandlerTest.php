@@ -269,7 +269,7 @@ final class PatchHostCommandHandlerTest extends TestCase
     public function testAPatchResolvesTheSeveralSeveritiesOfAHostToOne(): void
     {
         $this->seedHost(activated: true);
-        $this->repository->storedSeverityIds[self::HOST_ID] = [5, 4];
+        $this->repository->storedSeverityIds[self::HOST_ID] = [4, 5];
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),

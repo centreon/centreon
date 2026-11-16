@@ -1151,14 +1151,14 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
     /**
      * The extra severities legacy may have left are dropped whatever the actor may see; the main one (the
-     * lowest, as read) is kept when the actor cannot see it.
+     * one read) is kept when the actor cannot see it.
      */
     public function testItKeepsAnOutOfScopeMainSeverityAndDropsTheExtraOnes(): void
     {
         $this->addPoller(1);
         $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(1)]);
         $this->seedHost(10, severityId: new HostSeverityId(2));
-        $this->hostRepository->storedSeverityIds[10] = [3, 2];
+        $this->hostRepository->storedSeverityIds[10] = [2, 3];
 
         $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
 
