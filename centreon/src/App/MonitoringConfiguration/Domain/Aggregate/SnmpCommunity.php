@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate;
 
+use App\MonitoringConfiguration\Domain\Model\EngineConfigurationValue;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
@@ -43,6 +44,7 @@ final readonly class SnmpCommunity
         // The column's width: the caller builds this from whatever will land there, plaintext
         // or `secret::` reference.
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
+        Assert::notRegex($value, EngineConfigurationValue::CONTROL_CHARACTERS_PATTERN, '[SnmpCommunity::value] The value must not contain control characters');
         $this->value = $value;
     }
 }

@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\MiscOptions;
 use App\MonitoringConfiguration\Domain\Exception\InvalidServiceNameException;
+use App\MonitoringConfiguration\Domain\Model\EngineConfigurationValue;
 use Webmozart\Assert\Assert;
 
 final readonly class ServiceName
@@ -58,7 +59,7 @@ final readonly class ServiceName
             throw InvalidServiceNameException::forbiddenCharacter();
         }
         // On the raw value, before the collapse would turn a tab or a line break into a space.
-        if (preg_match('/[\x00-\x1F\x7F]/', $value) === 1) {
+        if (preg_match(EngineConfigurationValue::CONTROL_CHARACTERS_PATTERN, $value) === 1) {
             throw InvalidServiceNameException::controlCharacter();
         }
 
