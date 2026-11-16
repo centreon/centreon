@@ -1,0 +1,29 @@
+meta {
+  name: GET /configuration/services/categories - Search on an undeclared key is rejected
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/categories?search={"unknown_key":"foo"}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: gte 400
+}
+
+tests {
+  test("A search on an undeclared key is rejected instead of being silently ignored", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.not.have.property("result");
+    expect(body).to.have.property("message").that.is.a("string");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
