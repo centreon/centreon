@@ -84,3 +84,23 @@ $help['tip_partitioning_backup_directory'] = dgettext(
  * Audit Logs
  */
 $help['tip_audit_log_option'] = dgettext('help', 'Enable/Disable logging of all modifications in Centreon');
+
+// Graph data source
+$help['tip_metrics_data_source'] = dgettext(
+    'help',
+    'Where the performance and status graphs of the API v2 and of the dashboards are read from: the RRD files '
+    . 'written by the RRD output of Centreon Broker, or VictoriaMetrics, written by its victoria_metrics output. '
+    . 'The legacy graph pages and the API v1 always read the RRD files.'
+);
+$help['tip_victoria_metrics_url'] = dgettext(
+    'help',
+    'Base URL of the VictoriaMetrics API, for instance http://victoria-metrics:8428.'
+);
+$help['tip_victoria_metrics_user'] = dgettext(
+    'help',
+    'User of the HTTP basic authentication of VictoriaMetrics (leave empty without authentication).'
+);
+$help['tip_victoria_metrics_password'] = dgettext(
+    'help',
+    'Password of the HTTP basic authentication of VictoriaMetrics. Leave empty to keep the stored password.'
+);

@@ -158,7 +158,11 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('brokercfg_event_script_timeout', 15),
 ('brokercfg_event_script_managed_event_ttl', 3600),
 ('brokercfg_event_script_script_path', '/usr/share/centreon/bin/console agent-configuration:host:create'),
-('brokercfg_event_script_event', 'neb:UnknownHost');
+('brokercfg_event_script_event', 'neb:UnknownHost'),
+('metrics_data_source', 'rrd'),
+('victoria_metrics_url', ''),
+('victoria_metrics_user', ''),
+('victoria_metrics_password', '');
 
 --
 -- Contenu de la table `giv_components_template`
@@ -534,7 +538,8 @@ INSERT INTO `cb_module` (`cb_module_id`, `name`, `libname`, `loading_pos`, `is_b
 (19, 'InfluxDB', 'influxdb.so', 22, 0, 1),
 (20, 'Correlation', 'correlation.so', 30, 0, 1),
 (21, 'Generic', 'lua.so', 40, 0, 1),
-(23, 'BBDO', NULL, NULL, 0, 1);
+(23, 'BBDO', NULL, NULL, 0, 1),
+(24, 'VictoriaMetrics', 'victoria_metrics.so', 22, 0, 1);
 
 
 --
@@ -562,7 +567,8 @@ INSERT INTO `cb_type` (`cb_type_id`, `type_name`, `type_shortname`, `cb_module_i
 (34, 'Unified SQL', 'unified_sql', 8),
 (35, 'BBDO Server', 'bbdo_server', 23),
 (36, 'BBDO Client', 'bbdo_client', 23),
-(37, 'Run script on event', 'event_script', 21);
+(37, 'Run script on event', 'event_script', 21),
+(38, 'Storage - VictoriaMetrics', 'victoria_metrics', 24);
 
 --
 -- Contenu de la table `cb_field`
@@ -645,7 +651,10 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (93, 'encryption','Enable TLS encryption','Enable TLS 1.3 encryption','radio', NULL),
 (94, 'ca_certificate',"Trusted CA's certificate path (optional)","If the server's certificate is signed by an untrusted Certification Authority (CA), then specify the certificate's path.\nIf the server\s certificate is self-signed, then specify its path.\nYou can also add the certificate to the store of certificates trusted by the operating system.\nThe file must be in PEM format.",'text', NULL),
 (95, 'ca_name','Certificate Common Name (optional)','If the Common Name (CN) of the certificate is different from the value in the "Server address" field, the CN must be provided here','text', NULL),
-(96, 'compression','Compression','Enable data compression','radio', NULL);
+(96, 'compression','Compression','Enable data compression','radio', NULL),
+(102, 'http_target', 'HTTP write target', 'Path of the write endpoint (default: /write; Broker adds precision=s)', 'text', NULL),
+(103, 'http_delete_target', 'HTTP delete target', 'Path of the endpoint that deletes the series of a rebuilt or removed graph (default: /api/v1/admin/tsdb/delete_series)', 'text', NULL),
+(104, 'http_series_target', 'HTTP series target', 'Path of the endpoint that lists the series of a metric to rebuild (default: /api/v1/series)', 'text', NULL);
 
 INSERT INTO `cb_fieldgroup` (`cb_fieldgroup_id`, `groupname`, `displayname`, `multiple`, `group_parent_id`) VALUES
 (1, 'filters', '', 0, NULL),
@@ -827,7 +836,8 @@ INSERT INTO `cb_tag_type_relation` (`cb_tag_id`, `cb_type_id`, `cb_type_uniq`) V
 (2, 35, 1),
 (1, 36, 1),
 (2, 36, 1),
-(1, 37, 0);
+(1, 37, 0),
+(1, 38, 0);
 
 --
 -- Contenu de la table `cb_type_field_relation`
@@ -994,7 +1004,24 @@ INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`
 (37, 98, 1, 1),
 (37, 99, 1, 3),
 (37, 100, 1, 4),
-(37, 101, 0, 2);
+(37, 101, 0, 2),
+(38, 7, 1, 1),
+(38, 18, 0, 2),
+(38, 82, 0, 3),
+(38, 8, 0, 4),
+(38, 9, 0, 5),
+(38, 102, 0, 6),
+(38, 103, 0, 7),
+(38, 104, 0, 8),
+(38, 34, 0, 9),
+(38, 55, 0, 10),
+(38, 56, 0, 11),
+(38, 57, 0, 12),
+(38, 58, 0, 13),
+(38, 59, 0, 14),
+(38, 60, 0, 15),
+(38, 61, 0, 16),
+(38, 62, 0, 17);
 
 --
 -- Contenu de la table `cb_type_field_relation`

@@ -69,6 +69,72 @@
 
         <tr class="list_lvl_1">
             <td class="ListColLvl1_name" colspan="2">
+                <h4>{$form.header.metrics_data_source_header}</h4>
+            </td>
+        </tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_metrics_data_source">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.metrics_data_source.label}
+                        </p>
+                    </div>
+                </div>
+            </td>
+            <td class="FormRowValue">{$form.metrics_data_source.html}</td>
+        </tr>
+        <tr class="list_two">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_victoria_metrics_url">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.victoria_metrics_url.label}
+                        </p>
+                    </div>
+                </div>
+            </td>
+            <td class="FormRowValue">{$form.victoria_metrics_url.html}</td>
+        </tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_victoria_metrics_user">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.victoria_metrics_user.label}
+                        </p>
+                    </div>
+                </div>
+            </td>
+            <td class="FormRowValue">{$form.victoria_metrics_user.html}</td>
+        </tr>
+        <tr class="list_two">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_victoria_metrics_password">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.victoria_metrics_password.label}
+                        </p>
+                    </div>
+                </div>
+            </td>
+            <td class="FormRowValue">{$form.victoria_metrics_password.html}</td>
+        </tr>
+
+        <tr class="list_lvl_1">
+            <td class="ListColLvl1_name" colspan="2">
                 <h4>{$form.header.retention}</h4>
             </td>
         </tr>

@@ -540,6 +540,11 @@ class Broker extends AbstractObjectJSON
                             : $output['db_password'];
                     }
                 }
+                if ($output['type'] === 'victoria_metrics') {
+                    // Broker requires both keys, empty without authentication
+                    $output['db_user'] ??= '';
+                    $output['db_password'] ??= '';
+                }
                 if (! isset($output['lua_parameter']) || ! is_array($output['lua_parameter'])) {
                     continue;
                 }

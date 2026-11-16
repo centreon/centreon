@@ -101,39 +101,7 @@ class CentreonGraphStatus
 
         $jsonData = $this->getJsonStream();
 
-        $metrics = ['critical' => [], 'warning' => [], 'ok' => [], 'unknown' => []];
-
-        $lastStatus = null;
-        $interval = [];
-        foreach ($jsonData['data'] as $row) {
-            $time = (string) $row[0];
-            $value = $row[1];
-            if (is_null($value)) {
-                $currentStatus = 'unknown';
-            } elseif ($value < 75) {
-                $currentStatus = 'critical';
-            } elseif ($value == 100) {
-                $currentStatus = 'ok';
-            } elseif ($value > 74) {
-                $currentStatus = 'warning';
-            } else {
-                $currentStatus = 'unknown';
-            }
-            if (is_null($lastStatus)) {
-                $interval = ['start' => $time, 'end' => null];
-                $lastStatus = $currentStatus;
-            } elseif ($lastStatus !== $currentStatus) {
-                $interval['end'] = $time;
-                $metrics[$lastStatus][] = $interval;
-                $lastStatus = $currentStatus;
-                $interval = ['start' => $time, 'end' => null];
-            }
-        }
-
-        $interval['end'] = $time;
-        $metrics[$lastStatus][] = $interval;
-
-        return $metrics;
+        return Core\Metric\Domain\TimeSeries\StatusTimeline::fromRows($jsonData['data']);
     }
 
     /**

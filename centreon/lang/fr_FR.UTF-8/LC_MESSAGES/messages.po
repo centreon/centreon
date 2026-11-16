@@ -25735,3 +25735,35 @@ msgstr "La configuration n'a pas pu être vérifiée pour le moment : le collect
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
 msgid "Broker statistics are not available: no statistics file was found for this poller"
 msgstr "Les statistiques de Centreon Broker ne sont pas disponibles : aucun fichier de statistiques trouvé pour ce collecteur"
+
+#: centreon/www/include/Administration/parameters/centstorage/form.php
+msgid "Graph data source"
+msgstr "Source des données des graphiques"
+
+#: centreon/www/include/Administration/parameters/centstorage/form.php
+msgid "Read the graphs from"
+msgstr "Lire les graphiques depuis"
+
+#: centreon/www/include/Administration/parameters/centstorage/form.php
+msgid "RRD files"
+msgstr "Fichiers RRD"
+
+#: centreon/www/include/Administration/parameters/centstorage/form.php
+msgid "VictoriaMetrics URL"
+msgstr "URL de VictoriaMetrics"
+
+#: centreon/www/include/Administration/parameters/centstorage/form.php
+msgid "VictoriaMetrics user"
+msgstr "Utilisateur VictoriaMetrics"
+
+#: centreon/www/include/Administration/parameters/centstorage/form.php
+msgid "VictoriaMetrics password"
+msgstr "Mot de passe VictoriaMetrics"
+
+#: centreon/www/include/Administration/parameters/DB-Func.php
+msgid "The URL must start with http:// or https://"
+msgstr "L'URL doit commencer par http:// ou https://"
+
+#: centreon/www/include/Administration/parameters/DB-Func.php
+msgid "The URL is required to read the graphs from VictoriaMetrics"
+msgstr "L'URL est obligatoire pour lire les graphiques depuis VictoriaMetrics"

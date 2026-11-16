@@ -61,6 +61,16 @@ while ($data = $DBRESULT3->fetchRow()) {
     $gopt[$data['key']] = $data['value'];
 }
 
+// Data source of the graphs
+$metricsDataSourceOptions = $pearDB->query(
+    "SELECT `key`, `value` FROM `options`
+    WHERE `key` IN ('metrics_data_source', 'victoria_metrics_url', 'victoria_metrics_user')"
+);
+while ($data = $metricsDataSourceOptions->fetchRow()) {
+    $gopt[$data['key']] = $data['value'];
+}
+$gopt['metrics_data_source'] ??= 'rrd';
+
 // Format of text input
 $attrsText        = ['size' => '40'];
 $attrsText2        = ['size' => '5'];
@@ -85,6 +95,7 @@ $form->addElement('header', 'partitioning', _('Partitioning retention options'))
 $form->addElement('header', 'Input', _('Input treatment options'));
 $form->addElement('header', 'reporting', _('Dashboard Integration Properties'));
 $form->addElement('header', 'audit', _('Audit log activation'));
+$form->addElement('header', 'metrics_data_source_header', _('Graph data source'));
 
 // inputs declaration
 $form->addElement('text', 'RRDdatabase_path', _('Path to RRDTool Database For Metrics'), $attrsText);
@@ -106,6 +117,23 @@ $form->addElement('text', 'audit_log_retention', _('Retention duration for audit
 
 $form->addRule('len_storage_downtimes', _('Mandatory field'), 'required');
 $form->addRule('len_storage_downtimes', _('Must be a number'), 'numeric');
+
+// Data source of the performance and status graphs
+$form->addElement(
+    'select',
+    'metrics_data_source',
+    _('Read the graphs from'),
+    ['rrd' => _('RRD files'), 'victoria_metrics' => 'VictoriaMetrics']
+);
+$form->addElement('text', 'victoria_metrics_url', _('VictoriaMetrics URL'), $attrsText);
+$form->addElement('text', 'victoria_metrics_user', _('VictoriaMetrics user'), ['size' => '40', 'autocomplete' => 'off']);
+$form->addElement(
+    'password',
+    'victoria_metrics_password',
+    _('VictoriaMetrics password'),
+    ['size' => '40', 'autocomplete' => 'new-password']
+);
+$form->addFormRule('checkMetricsDataSource');
 
 // Parameters for Partitioning
 $form->addElement('text', 'partitioning_retention', _('Retention duration for partitioning'), $attrsText2);
@@ -134,6 +162,7 @@ if ($form->validate()) {
     // Update in DB
     updateODSConfigData();
     updatePartitioningConfigData($pearDB, $form, $centreon);
+    updateMetricsDataSourceConfigData($pearDB, $form);
 
     $centreon->initOptGen($pearDB);
 

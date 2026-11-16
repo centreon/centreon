@@ -1,0 +1,23 @@
+{ "about": "RRDtool graph JSON output",
+  "meta": {
+    "start": 1700000100,
+    "end": 1700001600,
+    "step": 300,
+    "legend": [
+      "vv9"
+          ]
+    ,"gprints": [
+        { "line": "vv9" },
+        { "gprint": "Last:inf" },
+        { "gprint": "Average:nan" }
+        ]
+     },
+  "data": [
+    [ "1700000100",null ],
+    [ "1700000400",null ],
+    [ "1700000700",null ],
+    [ "1700001000",null ],
+    [ "1700001300",null ],
+    [ "1700001600",null ]
+  ]
+}

@@ -312,6 +312,13 @@ services:
     Centreon\Domain\Monitoring\Metric\Interfaces\MetricServiceInterface:
         class: Centreon\Domain\Monitoring\Metric\MetricService
 
+    # Graphs read from the RRD files or from VictoriaMetrics (option metrics_data_source)
+    Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface:
+        class: Centreon\Infrastructure\Monitoring\Metric\MetricRepositorySelector
+        arguments:
+            $rrdRepository: !service_closure '@Centreon\Infrastructure\Monitoring\Metric\MetricRepositoryLegacy'
+            $victoriaMetricsRepository: !service_closure '@Centreon\Infrastructure\Monitoring\Metric\MetricRepositoryVictoriaMetrics'
+
     # Proxy configuration
     Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface:
         class: Centreon\Domain\Proxy\ProxyService

@@ -8376,3 +8376,19 @@ msgstr ""
 "Niveau de sévérité, doit être un entier entre 1 et 127. Les éléments "
 "affichés seront triés par ordre croissant. Ainsi, la sévérité la plus basse "
 "est considérée comme la priorité la plus haute."
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid "Where the performance and status graphs of the API v2 and of the dashboards are read from: the RRD files written by the RRD output of Centreon Broker, or VictoriaMetrics, written by its victoria_metrics output. The legacy graph pages and the API v1 always read the RRD files."
+msgstr "Source des graphiques de performance et de statut de l'API v2 et des tableaux de bord : les fichiers RRD écrits par la sortie RRD de Centreon Broker, ou VictoriaMetrics, alimenté par sa sortie victoria_metrics. Les anciennes pages de graphiques et l'API v1 lisent toujours les fichiers RRD."
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid "Base URL of the VictoriaMetrics API, for instance http://victoria-metrics:8428."
+msgstr "URL de base de l'API de VictoriaMetrics, par exemple http://victoria-metrics:8428."
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid "User of the HTTP basic authentication of VictoriaMetrics (leave empty without authentication)."
+msgstr "Utilisateur de l'authentification HTTP basique de VictoriaMetrics (laisser vide sans authentification)."
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid "Password of the HTTP basic authentication of VictoriaMetrics. Leave empty to keep the stored password."
+msgstr "Mot de passe de l'authentification HTTP basique de VictoriaMetrics. Laisser vide pour conserver le mot de passe enregistré."

@@ -714,6 +714,48 @@ function updatePartitioningConfigData($db, $form, $centreon)
     $centreon->initOptGen($db);
 }
 
+/**
+ * Form rule of the graph data source: VictoriaMetrics needs an http(s) URL.
+ *
+ * @param array<string, mixed> $fields submitted values
+ *
+ * @return array<string, string>|true
+ */
+function checkMetricsDataSource(array $fields): array|bool
+{
+    $url = trim((string) ($fields['victoria_metrics_url'] ?? ''));
+    if ($url !== '' && preg_match('#^https?://[^\s/]+#i', $url) !== 1) {
+        return ['victoria_metrics_url' => _('The URL must start with http:// or https://')];
+    }
+    if (($fields['metrics_data_source'] ?? 'rrd') === 'victoria_metrics' && $url === '') {
+        return ['victoria_metrics_url' => _('The URL is required to read the graphs from VictoriaMetrics')];
+    }
+
+    return true;
+}
+
+/**
+ * Save the graph data source. The password is never displayed: left empty, the stored one is kept.
+ *
+ * @param CentreonDB $db
+ * @param HTML_QuickFormCustom $form
+ */
+function updateMetricsDataSourceConfigData($db, $form): void
+{
+    $ret = $form->getSubmitValues();
+    $dataSource = ($ret['metrics_data_source'] ?? 'rrd') === 'victoria_metrics' ? 'victoria_metrics' : 'rrd';
+    updateOption($db, 'metrics_data_source', $dataSource);
+    updateOption($db, 'victoria_metrics_url', trim((string) ($ret['victoria_metrics_url'] ?? '')));
+    $user = trim((string) ($ret['victoria_metrics_user'] ?? ''));
+    updateOption($db, 'victoria_metrics_user', $user);
+    $password = (string) ($ret['victoria_metrics_password'] ?? '');
+    if ($user === '') {
+        updateOption($db, 'victoria_metrics_password', '');
+    } elseif ($password !== '') {
+        updateOption($db, 'victoria_metrics_password', $password);
+    }
+}
+
 function updateODSConfigData()
 {
     global $form, $pearDBO, $pearDB;

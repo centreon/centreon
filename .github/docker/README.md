@@ -167,7 +167,12 @@ docker build -f .github/docker/centreon-web/alma9/Dockerfile.slim -t centreon-we
 WEB_IMAGE=centreon-web-slim-alma9:local GORGONE_API_ADDRESS=gorgone docker compose -f .github/docker/docker-compose.yml up -d --wait
 ```
 
-Not available in this image: the local poller (configuration export and reload go through the Gorgone API), the remote-server profile, the Broker Graphite/InfluxDB outputs set up at startup, the MIB import (`centFillTrapDB`, Perl) and the Perl cron jobs (`eventReportBuilder`, `dashboardBuilder`: availability reports, `centreon-backup.pl`). Graphs need the RRD files of Broker on a volume shared at `/var/lib/centreon/metrics` and `/var/lib/centreon/status`. Nothing can be installed in a running container (no `dnf`).
+Not available in this image: the local poller (configuration export and reload go through the Gorgone API), the remote-server profile, the Broker Graphite/InfluxDB outputs set up at startup, the MIB import (`centFillTrapDB`, Perl) and the Perl cron jobs (`eventReportBuilder`, `dashboardBuilder`: availability reports, `centreon-backup.pl`). Graphs need the RRD files of Broker on a volume shared at `/var/lib/centreon/metrics` and `/var/lib/centreon/status`, unless they are read from VictoriaMetrics (below). Nothing can be installed in a running container (no `dnf`).
+
+Graphs from VictoriaMetrics, set at each start:
+
+* `VICTORIA_METRICS_URL`: base URL of a VictoriaMetrics API, for instance `http://victoria-metrics:8428`. Unset (default value): the graphs are read from the RRD files and the options are left as they are. When set, the performance and status graphs of the API v2 and of the dashboards are read from VictoriaMetrics (options `metrics_data_source`, `victoria_metrics_url` of *Administration > Parameters > Data*), where the `victoria_metrics` output of Broker writes them (configured in *Configuration > Pollers > Broker configuration*). The legacy graph pages and the API v1 still read the RRD files.
+* `VICTORIA_METRICS_USER` / `VICTORIA_METRICS_PASSWORD`: HTTP basic authentication of that API, when it requires one
 
 ## :gear: Additional services using profiles
 

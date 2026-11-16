@@ -212,6 +212,14 @@ class CentreonGraphNg
     protected $rrdCachedOptions;
 
     /**
+     * Reads the curves elsewhere than in the RRD files (VictoriaMetrics): it receives the graph
+     * definition (see getDataDefinition()) and returns data shaped like the rrdtool JSON output.
+     *
+     * @var null|Closure(array<string, mixed>): array<string, mixed>
+     */
+    protected ?Closure $dataFetcher = null;
+
+    /**
      * CentreonGraphNg constructor
      *
      * @param int $userId
@@ -257,6 +265,18 @@ class CentreonGraphNg
     public function setMultipleServices($multiple): void
     {
         $this->multipleServices = $multiple;
+    }
+
+    /**
+     * Read the curves through $fetcher instead of rrdtool (no RRD file needed).
+     *
+     * @param Closure(array<string, mixed>): array<string, mixed> $fetcher
+     *
+     * @return void
+     */
+    public function setDataFetcher(Closure $fetcher): void
+    {
+        $this->dataFetcher = $fetcher;
     }
 
     /**
@@ -586,43 +606,6 @@ class CentreonGraphNg
      */
     public function getJsonStream()
     {
-        $commandLine = '';
-
-        $this->flushRrdcached($this->listMetricsId);
-
-        $commandLine = ' graph - ';
-
-        foreach ($this->rrdOptions as $key => $value) {
-            $commandLine .= '--' . $key;
-            if (isset($value)) {
-                if (preg_match('/\'/', $value)) {
-                    $value = "'" . preg_replace('/\'/', ' ', $value) . "'";
-                }
-                $commandLine .= '=' . $value;
-            }
-            $commandLine .= ' ';
-        }
-
-        foreach ($this->arguments as $arg) {
-            $commandLine .= ' ' . $arg . ' ';
-        }
-        $commandLine = preg_replace('/(\\$|`)/', '', $commandLine);
-        $this->log($commandLine);
-
-        if (is_writable($this->generalOpt['debug_path']['value'])) {
-            $stderr = ['file', $this->generalOpt['debug_path']['value'] . '/rrdtool.log', 'a'];
-        } else {
-            $stderr = ['pipe', 'a'];
-        }
-        $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => $stderr];
-
-        $process = proc_open(
-            $this->generalOpt['rrdtool_path_bin']['value'] . ' - ',
-            $descriptorspec,
-            $pipes,
-            null,
-            null
-        );
         $this->extraDatas['multiple_services'] = $this->multipleServices;
         $this->graphData = ['global' => $this->extraDatas, 'metrics' => []];
         foreach ($this->metrics as $metric) {
@@ -639,20 +622,87 @@ class CentreonGraphNg
             $this->graphData['metrics'][] = $this->vmetrics[$vmetricId];
         }
 
-        if (is_resource($process)) {
-            fwrite($pipes[0], $commandLine);
-            fclose($pipes[0]);
-
-            $str = stream_get_contents($pipes[1]);
-            $returnValue = proc_close($process);
-
-            $str = preg_replace('/OK u:.*$/', '', $str);
-            $rrdData = json_decode($str, true);
-        }
+        $rrdData = $this->dataFetcher !== null
+            ? ($this->dataFetcher)($this->getDataDefinition())
+            : $this->runRrdtool();
 
         $this->formatByMetrics($rrdData);
 
         return $this->graphData;
+    }
+
+    /**
+     * Curves of the graph, for a data fetcher: real metrics (all, hidden ones included, since virtual
+     * metrics may use them), virtual metrics in evaluation order with their RPN expression whose
+     * metric names are replaced by the curve names ("v<metric_id>", "vv<vmetric_id>"), and the drawn
+     * lines in rrdtool order with the legend values to print.
+     *
+     * @return array{
+     *     start: int,
+     *     end: int,
+     *     metrics: list<array{id: int, invert: bool}>,
+     *     vmetrics: list<array{id: int, def_type: string, rpn: string}>,
+     *     lines: list<array{name: string, print_source: string, prints: list<array{label: string, function: string, format: string}>}>
+     * }
+     */
+    public function getDataDefinition(): array
+    {
+        $definition = [
+            'start' => (int) $this->extraDatas['start'],
+            'end' => (int) $this->extraDatas['end'],
+            'metrics' => [],
+            'vmetrics' => [],
+            'lines' => [],
+        ];
+        $prints = static function (array $metric): array {
+            $list = [];
+            foreach (
+                ['last' => 'LAST', 'min' => 'MINIMUM', 'max' => 'MAXIMUM', 'average' => 'AVERAGE', 'total' => 'TOTAL'] as $name => $cf
+            ) {
+                if (! $metric['ds_data']['ds_' . $name]) {
+                    continue;
+                }
+                $integer = ($name === 'min' || $name === 'max')
+                    && isset($metric['ds_data']['ds_minmax_int']) && $metric['ds_data']['ds_minmax_int'];
+                $list[] = ['label' => ucfirst($name), 'function' => $cf, 'format' => $integer ? '%.0lf' : '%.2lf'];
+            }
+
+            return $list;
+        };
+
+        foreach ($this->metrics as $metricId => $metric) {
+            $isInverted = isset($metric['ds_data']['ds_invert']) && $metric['ds_data']['ds_invert'];
+            $definition['metrics'][] = ['id' => (int) $metricId, 'invert' => (bool) $isInverted];
+            if ($metric['hidden'] == 1) {
+                continue;
+            }
+            $definition['lines'][] = [
+                'name' => 'v' . $metricId,
+                // as rrdtool, the legend values of an inverted curve are those of the stored values
+                'print_source' => $isInverted ? 'vi' . $metricId : 'v' . $metricId,
+                'prints' => $prints($metric),
+            ];
+        }
+        $vlines = [];
+        foreach ($this->vmetricsOrder as $vmetricId) {
+            $vmetric = $this->vmetrics[$vmetricId];
+            $definition['vmetrics'][] = [
+                'id' => (int) $vmetricId,
+                'def_type' => $vmetric['def_type'],
+                'rpn' => $vmetric['rpn_function'],
+            ];
+            if ($vmetric['hidden'] == 1) {
+                continue;
+            }
+            $vlines[] = [
+                'name' => 'vv' . $vmetricId,
+                'print_source' => 'vv' . $vmetricId,
+                'prints' => $prints($vmetric),
+            ];
+        }
+        $definition['lines'] = array_merge($definition['lines'], $vlines);
+
+        return $definition;
     }
 
     /**
@@ -934,6 +984,65 @@ class CentreonGraphNg
         fclose($sock);
 
         return true;
+    }
+
+    /**
+     * Run rrdtool on the graph arguments.
+     *
+     * @return mixed decoded rrdtool JSON output
+     */
+    private function runRrdtool()
+    {
+        $rrdData = null;
+
+        $this->flushRrdcached($this->listMetricsId);
+
+        $commandLine = ' graph - ';
+
+        foreach ($this->rrdOptions as $key => $value) {
+            $commandLine .= '--' . $key;
+            if (isset($value)) {
+                if (preg_match('/\'/', $value)) {
+                    $value = "'" . preg_replace('/\'/', ' ', $value) . "'";
+                }
+                $commandLine .= '=' . $value;
+            }
+            $commandLine .= ' ';
+        }
+
+        foreach ($this->arguments as $arg) {
+            $commandLine .= ' ' . $arg . ' ';
+        }
+        $commandLine = preg_replace('/(\\$|`)/', '', $commandLine);
+        $this->log($commandLine);
+
+        if (is_writable($this->generalOpt['debug_path']['value'])) {
+            $stderr = ['file', $this->generalOpt['debug_path']['value'] . '/rrdtool.log', 'a'];
+        } else {
+            $stderr = ['pipe', 'a'];
+        }
+        $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => $stderr];
+
+        $process = proc_open(
+            $this->generalOpt['rrdtool_path_bin']['value'] . ' - ',
+            $descriptorspec,
+            $pipes,
+            null,
+            null
+        );
+
+        if (is_resource($process)) {
+            fwrite($pipes[0], $commandLine);
+            fclose($pipes[0]);
+
+            $str = stream_get_contents($pipes[1]);
+            proc_close($process);
+
+            $str = preg_replace('/OK u:.*$/', '', $str);
+            $rrdData = json_decode($str, true);
+        }
+
+        return $rrdData;
     }
 
     /**
@@ -1483,6 +1592,9 @@ class CentreonGraphNg
      */
     private function checkDBAvailability($metricId)
     {
+        if ($this->dataFetcher !== null) {
+            return 1;
+        }
         if (! file_exists($this->dbPath . $metricId . '.rrd') && ! preg_match('/^v/', $metricId)) {
             return 0;
         }
