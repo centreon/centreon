@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ServiceSchedulingOptionsTest extends TestCase
@@ -92,5 +93,61 @@ final class ServiceSchedulingOptionsTest extends TestCase
         self::assertSame(1, $options->maxCheckAttempts);
         self::assertSame(1, $options->normalCheckInterval);
         self::assertSame(1, $options->retryCheckInterval);
+    }
+
+    public function testEqualsHoldsForTheSameValues(): void
+    {
+        self::assertTrue(self::options()->equals(self::options()));
+    }
+
+    #[DataProvider('fieldChangeProvider')]
+    public function testEqualsDetectsAChangeOfEachField(ServiceSchedulingOptions $changed): void
+    {
+        self::assertFalse(self::options()->equals($changed));
+    }
+
+    /**
+     * @return iterable<string, array{ServiceSchedulingOptions}>
+     */
+    public static function fieldChangeProvider(): iterable
+    {
+        yield 'check period' => [self::options(checkTimeperiodId: new TimePeriodId(2))];
+
+        yield 'no check period' => [self::options(checkTimeperiodId: null)];
+
+        yield 'max check attempts' => [self::options(maxCheckAttempts: 4)];
+
+        yield 'normal check interval' => [self::options(normalCheckInterval: 6)];
+
+        yield 'retry check interval' => [self::options(retryCheckInterval: 2)];
+
+        yield 'active checks' => [self::options(activeCheckEnabled: TriStateEnum::UseDefault)];
+
+        yield 'passive checks' => [self::options(passiveCheckEnabled: TriStateEnum::UseDefault)];
+
+        yield 'volatile' => [self::options(isVolatile: TriStateEnum::UseDefault)];
+    }
+
+    /**
+     * Every field set by default, none to the value object's own default.
+     */
+    private static function options(
+        ?TimePeriodId $checkTimeperiodId = new TimePeriodId(1),
+        int $maxCheckAttempts = 3,
+        int $normalCheckInterval = 5,
+        int $retryCheckInterval = 1,
+        TriStateEnum $activeCheckEnabled = TriStateEnum::True,
+        TriStateEnum $passiveCheckEnabled = TriStateEnum::False,
+        TriStateEnum $isVolatile = TriStateEnum::True,
+    ): ServiceSchedulingOptions {
+        return new ServiceSchedulingOptions(
+            $checkTimeperiodId,
+            $maxCheckAttempts,
+            $normalCheckInterval,
+            $retryCheckInterval,
+            $activeCheckEnabled,
+            $passiveCheckEnabled,
+            $isVolatile,
+        );
     }
 }
