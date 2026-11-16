@@ -159,6 +159,20 @@ it('should push a configuration as an uncompressed tar archive', function (): vo
         ->and(rtrim(mb_substr($body, 1024, 100, '8bit'), "\0"))->toBe('hosts.cfg');
 });
 
+it('should name the jobs a configuration push requires, only when there are some', function (): void {
+    $archive = new TarArchive(['centengine.cfg' => 'engine']);
+    $repository = ($this->createRepository)();
+
+    $repository->pushConfiguration(7, 'engine', $archive, ['0123456789abcdef0123456789abcdef', 'job-2']);
+    $repository->pushConfiguration(7, 'engine_context', $archive);
+
+    expect($this->requests[0]['url'])->toMatch(
+        '#^http://10\.0\.0\.5:8085/v1/nodes/7/config/engine\?id=[0-9a-f]{32}&requires=0123456789abcdef0123456789abcdef%2Cjob-2$#'
+    )->and($this->requests[1]['url'])->toMatch(
+        '#^http://10\.0\.0\.5:8085/v1/nodes/7/config/engine_context\?id=[0-9a-f]{32}$#'
+    );
+});
+
 it('should ask for the validation of a configuration with the archive of a push', function (): void {
     $archive = new TarArchive(['centengine.DEBUG' => 'engine', 'hosts.cfg' => 'hosts']);
     $this->answer = ['{"id": "job-43", "digest": "sha256:abc", "size": 3072}', 202];

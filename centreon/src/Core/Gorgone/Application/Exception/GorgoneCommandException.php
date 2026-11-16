@@ -65,6 +65,15 @@ final class GorgoneCommandException extends \Exception
         ));
     }
 
+    public static function missingEngineContext(int $nodeId): self
+    {
+        return new self(sprintf(
+            'The encryption key file of Centreon (engine-context.json) is missing or empty: '
+            . 'the configuration of poller #%d is not sent',
+            $nodeId
+        ));
+    }
+
     public static function invalidConfigurationFile(int $nodeId, string $target, \Throwable $previous): self
     {
         return new self(

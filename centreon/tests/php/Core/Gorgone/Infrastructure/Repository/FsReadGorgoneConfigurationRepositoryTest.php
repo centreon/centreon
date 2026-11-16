@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Gorgone\Infrastructure\Repository;
 
+use App\Shared\Infrastructure\EngineContextFile;
 use Core\Gorgone\Application\Repository\ReadGorgoneNodeRepositoryInterface;
 use Core\Gorgone\Infrastructure\Repository\FsReadGorgoneConfigurationRepository;
 use Symfony\Component\Filesystem\Filesystem;
@@ -46,7 +47,16 @@ beforeEach(function (): void {
     $nodes = $this->createMock(ReadGorgoneNodeRepositoryInterface::class);
     $nodes->method('findTrapsDirectories')->willReturn([$this->root . '/missing', $this->traps]);
 
-    $this->repository = new FsReadGorgoneConfigurationRepository($this->cache . '/', $nodes);
+    $this->keyFile = $this->root . '/secrets/web-key.json';
+    $this->key = "{\"app_secret\":\"secret\",\"salt\":\"salt\"}\n";
+    $this->filesystem->dumpFile($this->keyFile, $this->key);
+
+    $this->createRepository = fn (string $keyFile): FsReadGorgoneConfigurationRepository => new FsReadGorgoneConfigurationRepository(
+        $this->cache . '/',
+        $nodes,
+        new EngineContextFile($keyFile, $this->root, true),
+    );
+    $this->repository = ($this->createRepository)($this->keyFile);
 });
 
 afterEach(function (): void {
@@ -76,6 +86,21 @@ it('should read the traps database from the first directory holding it', functio
 it('should return nothing when the configuration is not generated', function (string $target): void {
     expect($this->repository->findFiles(9, $target))->toBe([]);
 })->with(['engine', 'broker', 'vmware', 'centreontrapd']);
+
+it('should read the key file of centreon-web under the name the pollers expect, whatever the node', function (int $nodeId): void {
+    expect($this->repository->findFiles($nodeId, 'engine_context'))->toBe(['engine-context.json' => $this->key]);
+})->with([3, 9]);
+
+it('should follow a key file which is a symbolic link, as a mounted secret', function (): void {
+    $this->filesystem->symlink($this->keyFile, $this->root . '/engine-context.json');
+
+    expect(($this->createRepository)($this->root . '/engine-context.json')->findFiles(3, 'engine_context'))
+        ->toBe(['engine-context.json' => $this->key]);
+});
+
+it('should return nothing when centreon-web has no key file', function (): void {
+    expect(($this->createRepository)($this->root . '/missing.json')->findFiles(3, 'engine_context'))->toBe([]);
+});
 
 it('should refuse an unknown target', function (): void {
     $this->repository->findFiles(3, 'export');

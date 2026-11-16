@@ -38,6 +38,8 @@ use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryI
 use Psr\Log\LoggerInterface;
 
 const POLLER_UID = 7300000000000000001;
+const ENGINE_CONTEXT = '{"app_secret":"s3cr3t-app-secret-value","salt":"s3cr3t-salt-value"}';
+const ENGINE_FILES = ['centengine.DEBUG' => 'cfg_file=hosts.cfg', 'hosts.cfg' => 'define host {}'];
 
 /**
  * Records the calls made to the Gorgone API, in order.
@@ -54,6 +56,9 @@ final class RecordingGorgoneJobRepository implements WriteGorgoneJobRepositoryIn
 
     /** @var int number of calls, failed ones included */
     public int $attempts = 0;
+
+    /** @var list<string> archives pushed, in order */
+    public array $pushedArchives = [];
 
     public function submitEngineCommands(int $nodeId, array $commands): string
     {
@@ -75,9 +80,18 @@ final class RecordingGorgoneJobRepository implements WriteGorgoneJobRepositoryIn
         ]);
     }
 
-    public function pushConfiguration(int $nodeId, string $target, TarArchive $archive): string
+    public function pushConfiguration(int $nodeId, string $target, TarArchive $archive, array $requires = []): string
     {
-        return $this->record(['config', $nodeId, $target, $archive->getFileNames()]);
+        $jobId = $this->record([
+            'config',
+            $nodeId,
+            $target,
+            $archive->getFileNames(),
+            ...($requires !== [] ? [$requires] : []),
+        ]);
+        $this->pushedArchives[] = $archive->toString(0);
+
+        return $jobId;
     }
 
     public function validateConfiguration(int $nodeId, string $target, TarArchive $archive): string
@@ -160,11 +174,15 @@ beforeEach(function (): void {
     );
 
     $this->files = [];
+    $this->engineContext = ['engine-context.json' => ENGINE_CONTEXT];
     $this->configuration = $this->createMock(ReadGorgoneConfigurationRepositoryInterface::class);
     $this->configuration->method('findFiles')->willReturnCallback(
         function (int $nodeId, string $target): array {
             /** @var array<int, array<string, array<string, string>>> $files */
             $files = $this->files;
+            if ($target === GorgoneCommandService::TARGET_ENGINE_CONTEXT) {
+                return $this->engineContext;
+            }
 
             return $files[$nodeId][$target] ?? [];
         }
@@ -262,8 +280,9 @@ it('should route the central poller like the other pollers', function (): void {
         array_filter($this->jobs->calls, static fn (array $call): bool => $call[1] === $nodeId)
     ));
     expect($callsOf(1))->toBe([
-        ['config', 'engine', ['centengine.cfg']],
-        ['config', 'broker', ['central-broker.json']],
+        ['config', 'engine_context', ['engine-context.json']],
+        ['config', 'engine', ['centengine.cfg'], ['job-1']],
+        ['config', 'broker', ['central-broker.json'], ['job-1']],
         ['service_control', 'broker', 'reload', ['broker']],
         ['service_control', 'engine', 'restart', ['engine', 'broker']],
     ])->and(array_column($callsOf(2), 0))->toBe(array_column($callsOf(1), 0));
@@ -334,7 +353,7 @@ it('should split a large number of external commands into several jobs', functio
         ->and($this->jobs->calls[2][2][49])->toBe('[1700000000] COMMAND_449');
 });
 
-it('should push the engine, broker and vmware configurations for SENDCFGFILE', function (): void {
+it('should push the key file, then the engine, broker and vmware configurations for SENDCFGFILE', function (): void {
     $this->files[2] = [
         'engine' => ['centengine.cfg' => 'engine', 'hosts.cfg' => 'hosts'],
         'broker' => ['central-module.json' => '{}'],
@@ -343,19 +362,107 @@ it('should push the engine, broker and vmware configurations for SENDCFGFILE', f
 
     $jobIds = ($this->createService)()->sendLegacyCommands('SENDCFGFILE:2');
 
+    // The engine and broker files reference encrypted values: their push fails when the key push failed.
     expect($this->jobs->calls)->toBe([
-        ['config', 2, 'engine', ['centengine.cfg', 'hosts.cfg']],
-        ['config', 2, 'broker', ['central-module.json']],
+        ['config', 2, 'engine_context', ['engine-context.json']],
+        ['config', 2, 'engine', ['centengine.cfg', 'hosts.cfg'], ['job-1']],
+        ['config', 2, 'broker', ['central-module.json'], ['job-1']],
         ['config', 2, 'vmware', ['centreon_vmware.json']],
-    ])->and($jobIds)->toBe(['job-1', 'job-2', 'job-3']);
+    ])->and($jobIds)->toBe(['job-1', 'job-2', 'job-3', 'job-4']);
 });
 
-it('should not push the vmware nor the broker configuration when there is none', function (): void {
+it('should push the key file as a tar archive holding exactly its content', function (): void {
     $this->files[2] = ['engine' => ['centengine.cfg' => 'engine']];
 
     ($this->createService)()->sendLegacyCommands('SENDCFGFILE:2');
 
-    expect($this->jobs->calls)->toBe([['config', 2, 'engine', ['centengine.cfg']]]);
+    expect($this->jobs->pushedArchives[0])
+        ->toBe((new TarArchive(['engine-context.json' => ENGINE_CONTEXT]))->toString(0));
+});
+
+it('should push the key file to every poller, each one before its own configuration', function (): void {
+    $this->files = [1 => ['engine' => ENGINE_FILES], 2 => ['engine' => ENGINE_FILES]];
+
+    ($this->createService)()->sendLegacyCommands(['SENDCFGFILE:1', 'SENDCFGFILE:2']);
+
+    expect(array_map(static fn (array $call): array => array_slice($call, 1, 2), $this->jobs->calls))->toBe([
+        [1, 'engine_context'],
+        [1, 'engine'],
+        [2, 'engine_context'],
+        [2, 'engine'],
+    ])->and($this->jobs->calls[3][4])->toBe(['job-3']);
+});
+
+it('should fail without any call when centreon-web has no key file', function (array $engineContext): void {
+    $this->files = [2 => ['engine' => ['centengine.cfg' => 'engine'], 'broker' => ['central-module.json' => '{}']]];
+    $this->engineContext = $engineContext;
+
+    expect(fn () => ($this->createService)()->sendLegacyCommands('SENDCFGFILE:2'))
+        ->toThrow(
+            GorgoneCommandException::class,
+            'The encryption key file of Centreon (engine-context.json) is missing or empty: '
+            . 'the configuration of poller #2 is not sent'
+        )
+        ->and($this->jobs->attempts)->toBe(0);
+})->with([
+    'missing' => [[]],
+    'empty' => [['engine-context.json' => '']],
+]);
+
+it('should push the key file only for SENDCFGFILE', function (): void {
+    $this->files[1] = ['centreontrapd' => ['centreontrapd.sdb' => 'SQLite format 3']];
+
+    ($this->createService)()->sendLegacyCommands(['SYNCTRAP:1', 'RELOAD:1', 'EXTERNALCMD:1:[1700000000] ENABLE_NOTIFICATIONS']);
+
+    expect(array_column($this->jobs->calls, 2))->not->toContain('engine_context');
+});
+
+it('should never write the content of the key file in a log, an error or a report', function (): void {
+    $this->files = [1 => ['engine' => ENGINE_FILES], 2 => ['engine' => ENGINE_FILES]];
+    $logged = [];
+    $logger = $this->createMock(LoggerInterface::class);
+    $logger->method('log')->willReturnCallback(
+        static function (mixed $level, string|\Stringable $message, array $context = []) use (&$logged): void {
+            $logged[] = (string) $message;
+            array_walk_recursive($context, static function (mixed $value) use (&$logged): void {
+                for ($ex = $value instanceof \Throwable ? $value : null; $ex !== null; $ex = $ex->getPrevious()) {
+                    $logged[] = $ex->getMessage();
+                }
+                $logged[] = is_scalar($value) ? (string) $value : get_debug_type($value);
+            });
+        }
+    );
+    $service = ($this->createService)();
+    $service->setLogger($logger);
+
+    $jobIds = $service->sendLegacyCommands('SENDCFGFILE:1');
+    $this->jobStates->states['job-1'] = ['failed', 'cannot write /etc/centreon-engine/engine-context.json'];
+    $this->jobStates->states['job-2'] = ['failed', 'required job job-1 failed'];
+    $report = $service->reportOutcomes(['Central' => $jobIds]);
+
+    $this->jobs->failure = GorgoneCommandException::requestFailed(
+        'engine_context configuration for poller #2',
+        new \RuntimeException('connection refused')
+    );
+    $messages = [];
+    try {
+        $service->sendLegacyCommands('SENDCFGFILE:2');
+    } catch (GorgoneCommandException $ex) {
+        $messages[] = $ex->getMessage();
+    }
+
+    $this->engineContext = [];
+    try {
+        $service->sendLegacyCommands('SENDCFGFILE:2');
+    } catch (GorgoneCommandException $ex) {
+        $messages[] = $ex->getMessage();
+    }
+
+    $texts = implode("\n", [...$logged, ...$messages, ...$report['messages'], ...$report['failures']]);
+    expect($report['failures'])->toBe(['Central: failed (cannot write /etc/centreon-engine/engine-context.json).'])
+        ->and($messages)->toHaveCount(2)
+        ->and($logged)->not->toBe([])
+        ->and($texts)->not->toContain('s3cr3t');
 });
 
 it('should fail without any call when the engine configuration is not generated', function (): void {
@@ -582,7 +689,6 @@ it('should log and propagate the errors met while reading the jobs', function ()
         ->toThrow(GorgoneCommandException::class, 'connection refused');
 });
 
-const ENGINE_FILES = ['centengine.DEBUG' => 'cfg_file=hosts.cfg', 'hosts.cfg' => 'define host {}'];
 const CHECK_OK = "Checking hosts...\n\nTotal Warnings: 0\nTotal Errors:   0\n\nThings look okay\n";
 const CHECK_KO = "Error: Could not find any host matching 'srv'\n\nTotal Warnings: 1\nTotal Errors:   2\n";
 const UNVERIFIED_MESSAGE = 'The configuration could not be verified now: the poller will verify it when it is applied.';
@@ -597,7 +703,7 @@ it('should ask the poller to validate the engine archive a push would send', fun
 
     expect($this->jobs->calls[0])->toBe(['validation', 1, 'engine', ['centengine.DEBUG', 'hosts.cfg']])
         // The configuration push sends the same engine files.
-        ->and($this->jobs->calls[1])->toBe(['config', 1, 'engine', ['centengine.DEBUG', 'hosts.cfg']])
+        ->and($this->jobs->calls[2])->toBe(['config', 1, 'engine', ['centengine.DEBUG', 'hosts.cfg'], ['job-2']])
         ->and(array_keys($validations))->toBe([1])
         ->and($validations[1]->getPollerId())->toBe(1)
         ->and($validations[1]->getStatus())->toBe(ConfigurationValidation::STATUS_VALID)

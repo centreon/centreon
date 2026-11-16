@@ -74,14 +74,19 @@ final class ApiWriteGorgoneJobRepository extends AbstractApiGorgoneRepository im
     /**
      * @inheritDoc
      */
-    public function pushConfiguration(int $nodeId, string $target, TarArchive $archive): string
+    public function pushConfiguration(int $nodeId, string $target, TarArchive $archive, array $requires = []): string
     {
+        $query = ['id' => self::createJobId()];
+        if ($requires !== []) {
+            $query['requires'] = implode(',', $requires);
+        }
+
         return $this->submit(
             'PUT',
             $nodeId,
             'config/' . rawurlencode($target),
             [
-                'query' => ['id' => self::createJobId()],
+                'query' => $query,
                 'headers' => ['Content-Type' => 'application/x-tar'],
                 'body' => $archive->toString(),
             ],

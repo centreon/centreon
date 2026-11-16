@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Gorgone\Infrastructure\Repository;
 
+use App\Shared\Infrastructure\EngineContextFile;
 use Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterface;
 use Core\Gorgone\Application\Repository\ReadGorgoneNodeRepositoryInterface;
 use Core\Gorgone\Application\Service\GorgoneCommandService;
@@ -38,10 +39,12 @@ final class FsReadGorgoneConfigurationRepository implements ReadGorgoneConfigura
     /**
      * @param string $cacheDirectory Centreon cache directory (holds "config/{engine,broker,vmware}/<node id>")
      * @param ReadGorgoneNodeRepositoryInterface $readNodeRepository
+     * @param EngineContextFile $engineContextFile key file of centreon-web, the same for every node
      */
     public function __construct(
         private readonly string $cacheDirectory,
         private readonly ReadGorgoneNodeRepositoryInterface $readNodeRepository,
+        private readonly EngineContextFile $engineContextFile,
     ) {
     }
 
@@ -59,10 +62,29 @@ final class FsReadGorgoneConfigurationRepository implements ReadGorgoneConfigura
                 "{$configDirectory}/vmware/{$nodeId}/" . self::VMWARE_FILE
             ),
             GorgoneCommandService::TARGET_CENTREONTRAPD => $this->readTrapsDatabase($nodeId),
+            GorgoneCommandService::TARGET_ENGINE_CONTEXT => $this->readEngineContext(),
             default => throw new \InvalidArgumentException(
                 sprintf('Unknown configuration target "%s"', $target)
             ),
         };
+    }
+
+    /**
+     * Under the name the pollers expect, whatever the local path. A symbolic link is followed:
+     * a mounted secret is one.
+     *
+     * @throws \RuntimeException
+     *
+     * @return array<string, string> empty when the file does not exist
+     */
+    private function readEngineContext(): array
+    {
+        $path = $this->engineContextFile->getPath();
+        if (! is_file($path)) {
+            return [];
+        }
+
+        return [EngineContextFile::FILE_NAME => $this->getContent($path)];
     }
 
     /**

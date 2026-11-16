@@ -53,8 +53,14 @@ final class GorgoneCommandService
     public const TARGET_VMWARE = 'vmware';
     public const TARGET_CENTREONTRAPD = 'centreontrapd';
 
+    /** Key file Engine and Broker decrypt the credentials with (engine-context.json). */
+    public const TARGET_ENGINE_CONTEXT = 'engine_context';
+
     /** Longest time spent waiting for the outcome of jobs, whatever the Gorgone command timeout. */
     public const MAX_WAIT_SECONDS = 30;
+
+    /** Pushes which fail when the push of the key file failed: their files hold encrypted values. */
+    private const KEY_DEPENDENT_TARGETS = [self::TARGET_ENGINE, self::TARGET_BROKER];
     private const COMMAND_EXTERNAL = 'EXTERNALCMD';
     private const COMMAND_SEND_CONFIGURATION = 'SENDCFGFILE';
     private const COMMAND_SYNC_TRAP = 'SYNCTRAP';
@@ -547,20 +553,47 @@ final class GorgoneCommandService
     private function sendConfiguration(int $nodeId): array
     {
         // Every archive is built before the first one is pushed.
+        $keyArchive = $this->buildEngineContextArchive($nodeId);
         $archives = [
             self::TARGET_ENGINE => $this->buildArchive($nodeId, self::TARGET_ENGINE, true),
             self::TARGET_BROKER => $this->buildArchive($nodeId, self::TARGET_BROKER, false),
             self::TARGET_VMWARE => $this->buildArchive($nodeId, self::TARGET_VMWARE, false),
         ];
 
-        $jobIds = [];
+        // The key goes first: the configurations which reference encrypted values require it.
+        $keyJobId = $this->writeJobRepository->pushConfiguration($nodeId, self::TARGET_ENGINE_CONTEXT, $keyArchive);
+        $jobIds = [$keyJobId];
         foreach ($archives as $target => $archive) {
             if (! $archive->isEmpty()) {
-                $jobIds[] = $this->writeJobRepository->pushConfiguration($nodeId, $target, $archive);
+                $jobIds[] = $this->writeJobRepository->pushConfiguration(
+                    $nodeId,
+                    $target,
+                    $archive,
+                    in_array($target, self::KEY_DEPENDENT_TARGETS, true) ? [$keyJobId] : []
+                );
             }
         }
 
         return $jobIds;
+    }
+
+    /**
+     * Archive of the key file of centreon-web, the same for every node. Its content is never logged.
+     *
+     * @param int $nodeId
+     *
+     * @throws \Throwable
+     *
+     * @return TarArchive
+     */
+    private function buildEngineContextArchive(int $nodeId): TarArchive
+    {
+        $files = $this->readConfigurationRepository->findFiles($nodeId, self::TARGET_ENGINE_CONTEXT);
+        if (count($files) !== 1 || reset($files) === '') {
+            throw GorgoneCommandException::missingEngineContext($nodeId);
+        }
+
+        return $this->buildArchiveOf($nodeId, self::TARGET_ENGINE_CONTEXT, $files);
     }
 
     /**
@@ -579,6 +612,20 @@ final class GorgoneCommandService
             throw GorgoneCommandException::missingConfiguration($nodeId, $target);
         }
 
+        return $this->buildArchiveOf($nodeId, $target, $files);
+    }
+
+    /**
+     * @param int $nodeId
+     * @param string $target
+     * @param array<string, string> $files
+     *
+     * @throws GorgoneCommandException
+     *
+     * @return TarArchive
+     */
+    private function buildArchiveOf(int $nodeId, string $target, array $files): TarArchive
+    {
         try {
             return new TarArchive($files);
         } catch (\InvalidArgumentException $ex) {

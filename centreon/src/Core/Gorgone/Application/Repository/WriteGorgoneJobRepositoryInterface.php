@@ -67,12 +67,13 @@ interface WriteGorgoneJobRepositoryInterface
      * @param int $nodeId
      * @param string $target
      * @param TarArchive $archive
+     * @param list<string> $requires jobs of the node the push waits for: it fails when one of them did not succeed
      *
      * @throws GorgoneCommandException
      *
      * @return string job id
      */
-    public function pushConfiguration(int $nodeId, string $target, TarArchive $archive): string;
+    public function pushConfiguration(int $nodeId, string $target, TarArchive $archive, array $requires = []): string;
 
     /**
      * Ask a node to verify the files of a configuration target, without applying them.
