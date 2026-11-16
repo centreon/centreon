@@ -1,0 +1,30 @@
+meta {
+  name: GET /monitoring/hosts - Revoked token refused - HTTP 401
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/hosts
+  body: none
+  auth: none
+}
+
+headers {
+  X-AUTH-TOKEN: {{RevokedTokenValue}}
+}
+
+assert {
+  res.status: eq 401
+}
+
+tests {
+  test("The revoked API token is refused.", function () {
+    expect(res.getBody()).to.be.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

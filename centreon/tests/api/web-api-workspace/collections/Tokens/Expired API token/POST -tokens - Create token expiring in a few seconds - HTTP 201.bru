@@ -1,0 +1,51 @@
+meta {
+  name: POST /administration/tokens - Create token expiring in a few seconds - HTTP 201
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/administration/tokens
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ExpiringTokenName}}",
+    "type": "api",
+    "user_id": {{currentUserID}},
+    "expiration_date": "{{ExpiringTokenExpirationDate}}"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  // The expiration date is only a few seconds ahead: the token expires by itself during the run.
+  const expirationMs = Date.now() + 4000;
+  bru.setVar("ExpiringTokenExpirationMs", expirationMs);
+  bru.setVar(
+    "ExpiringTokenExpirationDate",
+    new Date(expirationMs).toISOString().split(".")[0] + "+00:00"
+  );
+}
+
+tests {
+  test("Token has been successfully created and carries the requested expiration date.", function () {
+    const body = res.getBody();
+    expect(body).to.include({"name": bru.getEnvVar("ExpiringTokenName")});
+    expect(body.token).to.be.a("string");
+    expect(new Date(body.expiration_date).getTime()).to.equal(
+      Math.floor(bru.getVar("ExpiringTokenExpirationMs") / 1000) * 1000
+    );
+    bru.setVar("ExpiringTokenValue", body.token);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
