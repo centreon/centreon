@@ -61,14 +61,14 @@ $attrsTextarea = ['rows' => '5', 'cols' => '40'];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br />'
     . '<br /><br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
-$hostsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list';
+$hostsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list&e=enable';
 $attrHosts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostsRoute, 'multiple' => true, 'linkedObject' => 'centreonHost', 'showDisabled' => true];
-$hostgroupsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup&action=list';
+$hostgroupsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup&action=list&e=enable';
 $attrHostgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostgroupsRoute, 'multiple' => true, 'linkedObject' => 'centreonHostgroups', 'showDisabled' => true];
-$servicesRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list';
+$servicesRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list&e=enable';
 $attrServices = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $servicesRoute, 'multiple' => true, 'linkedObject' => 'centreonService', 'showDisabled' => true];
 $servicegroupsRoute = './include/common/webServices/rest/internal.php'
-    . '?object=centreon_configuration_servicegroup&action=list';
+    . '?object=centreon_configuration_servicegroup&action=list&e=enable';
 $attrServicegroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $servicegroupsRoute, 'multiple' => true, 'linkedObject' => 'centreonServicegroups', 'showDisabled' => true];
 
 // Init QuickFrom
@@ -290,23 +290,26 @@ if ($form->validate()) {
         $valid = false;
         $tpl->assign('msg_err', _('No relation set for this downtime'));
     }
-    // The select lists only offer allowed resources, a crafted request must be refused too
-    if ($valid && $userAcl !== null) {
-        $submittedRelations = [
-            'hosts' => (array) ($values['host_relation'] ?? []),
-            'hostgroups' => (array) ($values['hostgroup_relation'] ?? []),
-            'services' => (array) ($values['svc_relation'] ?? []),
-            'servicegroups' => (array) ($values['svcgroup_relation'] ?? []),
-        ];
-        $editedDowntimeId = $values['o'] == 'c' ? (int) $values['dt_id'] : null;
+    // The select lists only offer enabled and allowed resources, a crafted request must be refused too
+    $submittedRelations = [
+        'hosts' => (array) ($values['host_relation'] ?? []),
+        'hostgroups' => (array) ($values['hostgroup_relation'] ?? []),
+        'services' => (array) ($values['svc_relation'] ?? []),
+        'servicegroups' => (array) ($values['svcgroup_relation'] ?? []),
+    ];
+    $editedDowntimeId = $values['o'] == 'c' ? (int) $values['dt_id'] : null;
 
-        if (! $downtime->areSubmittedRelationsAllowedForUser($submittedRelations, $editedDowntimeId, $userAcl)) {
-            $valid = false;
-            $tpl->assign(
-                'relations_acl_err',
-                _("You can't link this downtime to resources you don't have access to")
-            );
-        }
+    if ($valid && ! $downtime->areSubmittedRelationsEnabled($submittedRelations, $editedDowntimeId)) {
+        $valid = false;
+        $tpl->assign('relations_err', _("You can't link this downtime to disabled resources"));
+    }
+    if (
+        $valid
+        && $userAcl !== null
+        && ! $downtime->areSubmittedRelationsAllowedForUser($submittedRelations, $editedDowntimeId, $userAcl)
+    ) {
+        $valid = false;
+        $tpl->assign('relations_err', _("You can't link this downtime to resources you don't have access to"));
     }
     if ($valid) {
         if ($values['o'] == 'a') {

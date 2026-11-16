@@ -19295,6 +19295,12 @@ msgid "You can't edit this downtime because you don't have access to all of its 
 msgstr "Vous ne pouvez pas éditer cette plage de maintenance car vous n'avez pas la permission d'accéder à toutes les ressources liées"
 
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+msgid "You can't link this downtime to disabled resources"
+msgstr ""
+"Vous ne pouvez pas lier cette plage de maintenance à des ressources "
+"désactivées"
+
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "You can't link this downtime to resources you don't have access to"
 msgstr ""
 "Vous ne pouvez pas lier cette plage de maintenance à des ressources "

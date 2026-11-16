@@ -64,6 +64,16 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
             $aclHostGroups .= ' AND hg.hg_id IN (' . $acl->getHostGroupsString() . ') ';
         }
 
+        // Check for host group enable
+        $enableFilter = '';
+        if (isset($this->arguments['e'])) {
+            $enableFilter = match (mb_strtolower((string) $this->arguments['e'])) {
+                'enable' => " AND hg.hg_activate = '1' ",
+                'disable' => " AND hg.hg_activate = '0' ",
+                default => throw new RestBadRequestException('Error, bad enable status'),
+            };
+        }
+
         $query = filter_var(
             $this->arguments['q'] ?? '',
             FILTER_SANITIZE_FULL_SPECIAL_CHARS
@@ -103,7 +113,7 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
                     hg.hg_id,
                     hg.hg_activate
                 FROM hostgroup hg
-                WHERE hg.hg_name LIKE :hostGroupName {$aclHostGroups}
+                WHERE hg.hg_name LIKE :hostGroupName {$aclHostGroups} {$enableFilter}
                 ORDER BY hg.hg_name
                 {$range}
             SQL;

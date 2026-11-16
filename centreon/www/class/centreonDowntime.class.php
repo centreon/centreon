@@ -474,19 +474,11 @@ class CentreonDowntime
         ?int $downtimeId,
         CentreonACL $userAcl,
     ): bool {
-        $savedRelations = $downtimeId !== null ? $this->getRelations($downtimeId) : [];
-        $metaIds = $this->findMetaIdsByServiceKey($submittedRelations['services'] ?? []);
+        $newRelations = $this->findNewlySubmittedRelations($submittedRelations, $downtimeId);
+        $metaIds = $this->findMetaIdsByServiceKey($newRelations['services'] ?? []);
 
-        foreach ($submittedRelations as $resourceType => $resourceIds) {
-            $savedIds = array_map('strval', array_column($savedRelations[$resourceType] ?? [], 'id'));
-
+        foreach ($newRelations as $resourceType => $resourceIds) {
             foreach ($resourceIds as $resourceId) {
-                $resourceId = (string) $resourceId;
-
-                if (in_array($resourceId, $savedIds, true)) {
-                    continue;
-                }
-
                 // A service id that is not '<hostId>-<serviceId>' can only come from a crafted request
                 if ($resourceType === 'services' && preg_match('/^\d+-\d+$/', $resourceId) !== 1) {
                     return false;
@@ -500,6 +492,35 @@ class CentreonDowntime
                 if (! $this->isResourceAllowed($userAcl, $resourceType, $resource)) {
                     return false;
                 }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Tells whether every submitted resource is enabled, whoever the user is.
+     *
+     * Resources already linked to the downtime are not checked: a disabled one must survive an edit.
+     *
+     * @param array<string, list<int|string>> $submittedRelations submitted ids indexed by getRelations() key,
+     *                                                            services being identified by '<hostId>-<serviceId>'
+     * @param int|null $downtimeId the edited downtime, null on creation
+     *
+     * @throws PDOException
+     * @throws ConnectionException
+     * @return bool
+     */
+    public function areSubmittedRelationsEnabled(array $submittedRelations, ?int $downtimeId): bool
+    {
+        foreach ($this->findNewlySubmittedRelations($submittedRelations, $downtimeId) as $resourceType => $resourceIds) {
+            if ($resourceIds === []) {
+                continue;
+            }
+
+            $enabledIds = $this->findEnabledResourceIds($resourceType, $resourceIds);
+            if (array_diff($resourceIds, $enabledIds) !== []) {
+                return false;
             }
         }
 
@@ -1278,17 +1299,10 @@ class CentreonDowntime
             return [];
         }
 
-        $queryParameters = [];
-        foreach (array_values(array_unique($serviceIds)) as $index => $serviceId) {
-            $queryParameters[] = QueryParameter::int('service_id_' . $index, $serviceId);
-        }
-        $placeholders = implode(', ', array_map(
-            static fn (QueryParameter $queryParameter): string => ':' . $queryParameter->getName(),
-            $queryParameters
-        ));
+        [$queryParameters, $placeholders] = $this->createIntQueryParameters($serviceIds, 'service_id_');
 
         /** @var array<string, string> $metaIds */
-        $metaIds = $this->db->fetchAllKeyValue(
+        return $this->db->fetchAllKeyValue(
             <<<SQL
                 SELECT CONCAT(h.host_id, CONCAT('-', s.service_id)) AS service_key,
                     SUBSTRING(s.service_description, 6) AS meta_id
@@ -1303,8 +1317,123 @@ class CentreonDowntime
                 SQL,
             QueryParameters::create($queryParameters)
         );
+    }
 
-        return $metaIds;
+    /**
+     * Returns the given resources that are enabled. A service is enabled when both it and its host are.
+     *
+     * @param string $resourceType a getRelations() key: 'hosts', 'hostgroups', 'services' or 'servicegroups'
+     * @param list<string> $resourceIds services being identified by '<hostId>-<serviceId>'
+     *
+     * @throws ConnectionException
+     * @return list<string>
+     */
+    protected function findEnabledResourceIds(string $resourceType, array $resourceIds): array
+    {
+        if ($resourceType === 'services') {
+            return $this->findEnabledServiceKeys($resourceIds);
+        }
+
+        $ids = array_map('intval', array_filter($resourceIds, 'ctype_digit'));
+        if ($ids === []) {
+            return [];
+        }
+
+        [$queryParameters, $placeholders] = $this->createIntQueryParameters($ids, 'id_');
+
+        $query = match ($resourceType) {
+            'hosts' => "SELECT host_id FROM host WHERE host_activate = '1' AND host_id IN ({$placeholders})",
+            'hostgroups' => "SELECT hg_id FROM hostgroup WHERE hg_activate = '1' AND hg_id IN ({$placeholders})",
+            'servicegroups' => "SELECT sg_id FROM servicegroup WHERE sg_activate = '1' AND sg_id IN ({$placeholders})",
+        };
+
+        return array_map('strval', $this->db->fetchFirstColumn($query, QueryParameters::create($queryParameters)));
+    }
+
+    /**
+     * @param list<string> $serviceKeys '<hostId>-<serviceId>' identifiers
+     *
+     * @throws ConnectionException
+     * @return list<string> the enabled ones, as '<hostId>-<serviceId>'
+     */
+    private function findEnabledServiceKeys(array $serviceKeys): array
+    {
+        $hostIds = [];
+        $serviceIds = [];
+        foreach ($serviceKeys as $serviceKey) {
+            if (preg_match('/^(\d+)-(\d+)$/', $serviceKey, $matches) === 1) {
+                $hostIds[] = (int) $matches[1];
+                $serviceIds[] = (int) $matches[2];
+            }
+        }
+
+        if ($serviceIds === []) {
+            return [];
+        }
+
+        [$hostParameters, $hostPlaceholders] = $this->createIntQueryParameters($hostIds, 'host_id_');
+        [$serviceParameters, $servicePlaceholders] = $this->createIntQueryParameters($serviceIds, 'service_id_');
+
+        // Every enabled host/service pair among the given ids, the caller keeps the submitted ones
+        $enabledServiceKeys = $this->db->fetchFirstColumn(
+            <<<SQL
+                SELECT CONCAT(h.host_id, CONCAT('-', s.service_id))
+                FROM host h
+                CROSS JOIN service s
+                WHERE h.host_activate = '1'
+                    AND h.host_id IN ({$hostPlaceholders})
+                    AND s.service_activate = '1'
+                    AND s.service_id IN ({$servicePlaceholders})
+                SQL,
+            QueryParameters::create([...$hostParameters, ...$serviceParameters])
+        );
+
+        return array_map('strval', $enabledServiceKeys);
+    }
+
+    /**
+     * Returns the submitted ids that are not already linked to the downtime.
+     *
+     * @param array<string, list<int|string>> $submittedRelations submitted ids indexed by getRelations() key
+     * @param int|null $downtimeId the edited downtime, null on creation
+     *
+     * @throws PDOException
+     * @return array<string, list<string>> indexed by getRelations() key
+     */
+    private function findNewlySubmittedRelations(array $submittedRelations, ?int $downtimeId): array
+    {
+        $savedRelations = $downtimeId !== null ? $this->getRelations($downtimeId) : [];
+
+        $newRelations = [];
+        foreach ($submittedRelations as $resourceType => $resourceIds) {
+            $savedIds = array_map('strval', array_column($savedRelations[$resourceType] ?? [], 'id'));
+            $newRelations[$resourceType] = array_values(
+                array_diff(array_map('strval', $resourceIds), $savedIds)
+            );
+        }
+
+        return $newRelations;
+    }
+
+    /**
+     * @param list<int> $ids
+     * @param string $prefix
+     *
+     * @return array{0: list<QueryParameter>, 1: string} the parameters and their comma-separated placeholders
+     */
+    private function createIntQueryParameters(array $ids, string $prefix): array
+    {
+        $queryParameters = [];
+        foreach (array_values(array_unique($ids)) as $index => $id) {
+            $queryParameters[] = QueryParameter::int($prefix . $index, $id);
+        }
+
+        $placeholders = implode(', ', array_map(
+            static fn (QueryParameter $queryParameter): string => ':' . $queryParameter->getName(),
+            $queryParameters
+        ));
+
+        return [$queryParameters, $placeholders];
     }
 
     /**
