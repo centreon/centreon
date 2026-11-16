@@ -61,10 +61,21 @@ concurrency:
 jobs:
   # Fails in seconds if the triggering user hasn't set up their own token, instead of
   # discovering it several minutes into `qa-verify` (after PR discovery + Docker startup).
+  # Also validates jira_key's shape here, once, so every later step can trust $TICKET_KEY
+  # instead of re-escaping a free-form input inside its own run: script.
   check-token:
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
+      - name: Validate jira_key format
+        env:
+          TICKET_KEY: ${{ inputs.jira_key }}
+        run: |
+          if ! [[ "$TICKET_KEY" =~ ^[A-Z]+-[0-9]+$ ]]; then
+            echo "::error::jira_key '$TICKET_KEY' doesn't match the expected <PROJECT>-<NUMBER> shape (e.g. MON-12345)."
+            exit 1
+          fi
+
       - name: Check that the triggering user has their own Claude token
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor_id)] || secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] }}
@@ -84,6 +95,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Checkout the centreon-qa plugin
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -92,6 +105,7 @@ jobs:
           ref: develop # the centreon-qa-ci plugin lands with centreon/dotfiles#133, orchestrator contract + QA tab support with #184
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           path: dotfiles
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -99,7 +113,7 @@ jobs:
           node-version: 20
 
       - name: Install Claude Code CLI
-        run: npm install -g @anthropic-ai/claude-code
+        run: npm install -g @anthropic-ai/claude-code@2.1.325
 
       - name: Login to Docker registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
@@ -301,8 +315,10 @@ jobs:
 
       - name: Enrich the report with execution metadata
         if: ${{ !cancelled() }}
+        env:
+          TICKET_KEY: ${{ inputs.jira_key }}
         run: |
-          report=".claude/skills/qa-ticket-verify/runs/${{ inputs.jira_key }}.report.json"
+          report=".claude/skills/qa-ticket-verify/runs/$TICKET_KEY.report.json"
           if [ ! -f "$report" ]; then
             echo "No report.json written (notice-only or failed run) — nothing to enrich."
             exit 0
@@ -328,7 +344,7 @@ jobs:
       - name: Render the report as HTML
         if: ${{ !cancelled() }}
         run: |
-          report=".claude/skills/qa-ticket-verify/runs/${{ inputs.jira_key }}.report.json"
+          report=".claude/skills/qa-ticket-verify/runs/$TICKET_KEY.report.json"
           if [ ! -f "$report" ]; then
             echo "No report.json written (notice-only or failed run) — nothing to render."
             exit 0
@@ -370,5 +386,6 @@ jobs:
             .claude/skills/qa-ticket-verify/runs/*
             .claude/skills/qa-ticket-verify/selectors.json
             playwright-mcp-output/**
+          include-hidden-files: true # the report, runs/ and selectors.json all live under the hidden .claude/ dir
           retention-days: 14
           if-no-files-found: warn
