@@ -404,7 +404,7 @@ abstract class AbstractObject
      *
      * @return array|false|mixed|mixed[]|string|string[]|null
      */
-    private function toUTF8($str)
+    protected function toUTF8($str)
     {
         $finalString = $str;
         if (mb_detect_encoding($finalString, 'UTF-8', true) !== 'UTF-8') {

@@ -28,6 +28,14 @@ require_once _CENTREON_PATH_ . '/www/class/centreonDowntime.Broker.class.php';
 
 require_once _CENTREON_PATH_ . '/cron/checkConfiguration.php';
 
+// The rules are part of the poller configuration and Engine schedules the occurrences itself
+$featureFlags = App\Kernel::createForWeb()->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
+if ($featureFlags->isEnabled('engine_recurring_downtimes')) {
+    echo date('Y-m-d H:i:s') . " Recurring downtimes are scheduled by Centreon Engine (feature flag engine_recurring_downtimes): nothing to send\n";
+
+    exit(0);
+}
+
 $unix_time = time();
 
 $ext_cmd_add['host'] = ['[%u] SCHEDULE_HOST_DOWNTIME;%s;%u;%u;%u;0;%u;Downtime cycle;[Downtime cycle #%u]', '[%u] SCHEDULE_HOST_SVC_DOWNTIME;%s;%u;%u;%u;0;%u;Downtime cycle;[Downtime cycle #%u]'];

@@ -58,6 +58,7 @@ require_once __DIR__ . '/meta_command.class.php';
 require_once __DIR__ . '/meta_host.class.php';
 require_once __DIR__ . '/meta_service.class.php';
 require_once __DIR__ . '/meta_timeperiod.class.php';
+require_once __DIR__ . '/recurringdowntime.class.php';
 require_once __DIR__ . '/resource.class.php';
 require_once __DIR__ . '/service.class.php';
 require_once __DIR__ . '/servicecategory.class.php';
@@ -167,6 +168,7 @@ class Generate
         Resource::getInstance($this->dependencyInjector)->reset();
         Engine::getInstance($this->dependencyInjector)->reset();
         Broker::getInstance($this->dependencyInjector)->reset();
+        RecurringDowntime::getInstance($this->dependencyInjector)->reset();
 
         (new AdditionalConnectorVmWareV6(
             $this->dependencyInjector,
@@ -519,6 +521,9 @@ class Generate
             $this->current_poller['localhost']
         );
         $this->generateModuleObjects(self::GENERATION_FOR_ENGINE);
+        RecurringDowntime::getInstance($this->dependencyInjector)->generateFromPollerId(
+            (int) $this->current_poller['id']
+        );
 
         Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         $this->backend_instance->movePath($this->current_poller['id']);

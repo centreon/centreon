@@ -257,12 +257,21 @@ function prepareFiles(): void
         fail('GORGONE_API_ADDRESS is required by the FrankenPHP centreon-web image (no local gorgoned).');
     }
 
+    // gorgone_api_commands always, plus the flags listed in CENTREON_FEATURE_FLAGS (comma separated).
+    $flags = ['gorgone_api_commands', ...array_filter(array_map('trim', explode(',', (string) env('CENTREON_FEATURE_FLAGS', ''))))];
     $featuresFile = CENTREON_DIR . '/config/features.json';
     $features = (string) file_get_contents($featuresFile);
-    $updated = preg_replace('/"gorgone_api_commands": [0-3]/', '"gorgone_api_commands": 3', $features);
-    if ($updated === $features && ! str_contains($features, '"gorgone_api_commands": 3')) {
-        out('Feature flag gorgone_api_commands is unknown to this image: commands still go to the centcore files.');
-    } elseif ($updated !== $features) {
+    $updated = $features;
+    foreach (array_unique($flags) as $flag) {
+        $pattern = '/"' . preg_quote($flag, '/') . '": [0-3]/';
+        if (preg_match($pattern, $updated) !== 1) {
+            out("Feature flag {$flag} is unknown to this image: ignored.");
+
+            continue;
+        }
+        $updated = (string) preg_replace($pattern, "\"{$flag}\": 3", $updated);
+    }
+    if ($updated !== $features) {
         file_put_contents($featuresFile, $updated);
     }
 

@@ -65,7 +65,7 @@ tar -C /tmp/centreon-src \
   --exclude=./www/install --exclude=./www/front_src --exclude=./www/widgets/src \
   --exclude=./config/centreon.config.php --exclude=./config/centreon.conf.php \
   --exclude=./config.new/reference.php --exclude='node_modules' \
-  -cf - ./src ./www ./config ./config.new \
+  -cf - ./src ./www ./config ./config.new ./cron ./lib \
   | tar -C /tmp/overlay -xf - --no-same-owner
 cp /tmp/overlay/config/centreon.config.php.template /tmp/overlay/config/centreon.config.php
 cp /tmp/centreon-src/packaging/src/centreon-macroreplacement.txt /tmp/macros.sed

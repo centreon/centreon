@@ -182,6 +182,8 @@ Graphs from VictoriaMetrics, set at each start:
 * `install`: one-shot. Creates the databases (or only the database user when they exist), inserts the dataset (`CENTREON_DATASET`), sets the admin language (`CENTREON_LANG`), the Gorgone API and VictoriaMetrics options, LDAP, OpenID and SAML (when their host resolves), then exits.
 * `cron`: runs the PHP cron jobs of the slim image on their schedules (UTC), as `apache`, with their output in the container logs: `centAcl` and `outdated-token-removal` every minute, `downtimeManager` and `centKnowledgeSynchronizer` every 5 minutes, `centstorage_purge` at 02:00, `centreon-partitioning` at 04:00, `centreon-send-stats` at 05:12.
 
+The feature flag `gorgone_api_commands` is always on in this image. `CENTREON_FEATURE_FLAGS` turns on more flags of `config/features.json`, comma separated, for instance `engine_recurring_downtimes`: the pollers then receive the recurring downtimes in their configuration (`recurringdowntimes.cfg`) and Engine schedules them, the `downtimeManager` cron sends nothing. It needs an Engine (and the central Broker, whose `unified_sql` parses the poller configuration) that knows the `recurringdowntime` object; a change to a recurring downtime applies at the next configuration export.
+
 ```bash
 docker build -f .github/docker/centreon-web/frankenphp/Dockerfile -t centreon-web-frankenphp:local .
 ```
