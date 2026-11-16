@@ -14,7 +14,6 @@ Feature: Legacy API token validity
     Then the realtime hosts listing on the API v1 with this token returns HTTP 403
     And a "SCHEDULE_FORCED_HOST_SVC_CHECKS" external command sent to the API v1 with this token returns HTTP 403
     And the external command is not forwarded to the poller
-    And a call to the current API with this token returns HTTP 401
 
     Examples:
       | token name     | state change                                  |

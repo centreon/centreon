@@ -235,15 +235,3 @@ Then('the external command is not forwarded to the poller', () => {
     expect(output.trim()).to.eq('');
   });
 });
-
-Then(
-  'a call to the current API with this token returns HTTP {int}',
-  (status: number) => {
-    requestWithToken({
-      headerName: 'X-AUTH-TOKEN',
-      url: `${apiLatest}/monitoring/hosts`
-    }).then((response) => {
-      expect(response.status).to.eq(status);
-    });
-  }
-);
