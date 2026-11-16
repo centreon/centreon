@@ -22,16 +22,17 @@ The guides show how to apply the records; the code examples live there.
 
 ## Domain model
 
-| ADR                                                                 | Decision                                                                                       | Scope | Status   |
-| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ----- | -------- |
-| [0009](0009-apip-aggregates-readonly-by-default.md)                 | Make aggregate properties `readonly` by default, and mutate them only through business methods | APIP  | Accepted |
-| [0012](0012-apip-change-aggregate-internals-through-the-root.md)    | Change an aggregate's inner entities and value objects only through its aggregate root         | APIP  | Accepted |
-| [0044](0044-apip-back-every-enum-with-a-business-value.md)          | Back every new `src/App` enum with a business value, a string by default                       | APIP  | Accepted |
-| [0057](0057-apip-return-a-collection-for-a-set-of-objects.md)       | Return a `Collection` for a set of objects, never an array of objects                          | APIP  | Accepted |
-| [0068](0068-apip-keep-the-api-format-out-of-the-domain.md)          | Keep the API format out of the `src/App` Domain                                                | APIP  | Accepted |
-| [0045](0045-core-back-every-enum-with-a-business-value.md)          | Back every new `src/Core` enum with a business value, a string by default                      | Core  | Accepted |
-| [0058](0058-core-return-a-collection-for-a-set-of-objects.md)       | Return a `Collection` for a set of objects in `src/Core`, never an array of objects            | Core  | Accepted |
-| [0069](0069-core-keep-the-api-format-out-of-the-src-core-domain.md) | Keep the API format out of the `src/Core` Domain                                               | Core  | Accepted |
+| ADR                                                                 | Decision                                                                                        | Scope | Status   |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ----- | -------- |
+| [0009](0009-apip-aggregates-readonly-by-default.md)                 | Make aggregate properties `readonly` by default, and mutate them only through business methods  | APIP  | Accepted |
+| [0012](0012-apip-change-aggregate-internals-through-the-root.md)    | Change an aggregate's inner entities and value objects only through its aggregate root          | APIP  | Accepted |
+| [0044](0044-apip-back-every-enum-with-a-business-value.md)          | Back every new `src/App` enum with a business value, a string by default                        | APIP  | Accepted |
+| [0057](0057-apip-return-a-collection-for-a-set-of-objects.md)       | Return a `Collection` for a set of objects, never an array of objects                           | APIP  | Accepted |
+| [0068](0068-apip-keep-the-api-format-out-of-the-domain.md)          | Keep the API format out of the `src/App` Domain                                                 | APIP  | Accepted |
+| [0074](0074-apip-read-the-current-time-from-the-clock.md)           | Read the current time in `src/App` from `ClockInterface`, never from `new \DateTimeImmutable()` | APIP  | Accepted |
+| [0045](0045-core-back-every-enum-with-a-business-value.md)          | Back every new `src/Core` enum with a business value, a string by default                       | Core  | Accepted |
+| [0058](0058-core-return-a-collection-for-a-set-of-objects.md)       | Return a `Collection` for a set of objects in `src/Core`, never an array of objects             | Core  | Accepted |
+| [0069](0069-core-keep-the-api-format-out-of-the-src-core-domain.md) | Keep the API format out of the `src/Core` Domain                                                | Core  | Accepted |
 
 ## Project structure
 
@@ -43,6 +44,7 @@ The guides show how to apply the records; the code examples live there.
 | [0053](0053-apip-suffix-every-src-app-enum-with-enum.md)                                        | Suffix every new `src/App` enum with `Enum`                                                          | APIP   | Accepted |
 | [0056](0056-apip-keep-only-domain-typed-ports-and-business-rules-in-domain-service.md)          | Keep only domain-typed ports and pure business rules in `Domain/Service`                             | APIP   | Accepted |
 | [0059](0059-apip-name-a-fetch-find-when-it-may-be-missing-and-get-when-it-must-exist.md)        | Name a `src/App` fetch `find*` when its result may be missing, and `get*` when it must exist         | APIP   | Accepted |
+| [0075](0075-apip-wire-services-with-autowiring-and-attributes.md)                               | Wire `src/App` services with autowiring and attributes, not with service definitions                 | APIP   | Accepted |
 | [0043](0043-core-suffix-every-src-core-interface-with-interface.md)                             | Suffix every new `src/Core` interface with `Interface`, repository interfaces included               | Core   | Accepted |
 | [0052](0052-core-name-repository-interfaces-read-or-write-and-implementations-after-storage.md) | Name a `src/Core` repository interface `Read*` or `Write*`, and its implementation after its storage | Core   | Accepted |
 | [0054](0054-core-suffix-every-src-core-enum-with-enum.md)                                       | Suffix every new `src/Core` enum with `Enum`                                                         | Core   | Accepted |
@@ -122,6 +124,7 @@ The guides show how to apply the records; the code examples live there.
 | [0015](0015-apip-scope-resource-access-with-acting-user-and-access-scope.md)               | Scope resource access with an acting user and an access scope                                | APIP   | Accepted |
 | [0026](0026-apip-mark-every-secret-sensitive.md)                                           | Mark every secret a command or query carries `#[Sensitive]` so the logging pipeline masks it | APIP   | Accepted |
 | [0047](0047-apip-drop-the-driver-exception-when-a-repository-write-of-a-secret-fails.md)   | Drop the driver exception when a repository write of a secret fails                          | APIP   | Accepted |
+| [0073](0073-apip-authorize-every-write-operation-through-a-voter.md)                       | Authorize every `src/App` write operation through a voter declared on the operation          | APIP   | Accepted |
 | [0048](0048-core-drop-the-driver-exception-when-a-repository-write-of-a-secret-fails.md)   | Drop the driver exception when a `src/Core` repository write of a secret fails               | Core   | Accepted |
 | [0022](0022-legacy-escape-at-www-html-output.md)                                           | Escape user-controlled and database-sourced strings at the point of `www/` HTML output       | Legacy | Accepted |
 | [0049](0049-legacy-drop-the-driver-exception-when-a-repository-write-of-a-secret-fails.md) | Drop the driver exception when a legacy repository write of a secret fails                   | Legacy | Accepted |
