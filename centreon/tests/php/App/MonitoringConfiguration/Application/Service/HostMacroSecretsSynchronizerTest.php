@@ -61,11 +61,10 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
         self::assertSame([['customPath' => 'monitoring/hosts', 'key' => '_HOSTPWD', 'value' => 's3cr3t', 'uuid' => self::HOST_UUID]], $this->vault->writeCalls);
     }
 
-    public function testItLeavesAReferenceAlreadyInTheHostEntryUntouched(): void
+    public function testItLeavesAKeptReferenceUntouched(): void
     {
-        // A kept or renamed direct password keeps its reference.
         $macros = $this->synchronizer->synchronize(
-            [$this->macro('renamed', self::HOST_PWD, true, 5)],
+            [$this->macro('pwd', self::HOST_PWD, true, 5)],
             [$this->macro('pwd', self::HOST_PWD, true, 5)],
             self::HOST_UUID,
         );
@@ -73,6 +72,21 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
         self::assertSame(self::HOST_PWD, $macros[0]->value);
         self::assertSame([], $this->vault->writeCalls);
         self::assertSame([], $this->vault->deletedKeys);
+    }
+
+    public function testARenamedPasswordMovesUnderItsNewName(): void
+    {
+        $this->vault->resolved = [self::HOST_PWD => 's3cr3t'];
+
+        $macros = $this->synchronizer->synchronize(
+            [$this->macro('renamed', self::HOST_PWD, true, 5)],
+            [$this->macro('pwd', self::HOST_PWD, true, 5)],
+            self::HOST_UUID,
+        );
+
+        self::assertSame('secret::vault::monitoring/hosts/host-uuid::_HOSTRENAMED', $macros[0]->value);
+        self::assertSame(['_HOSTRENAMED' => 's3cr3t'], array_column($this->vault->writeCalls, 'value', 'key'));
+        self::assertSame([['uuid' => self::HOST_UUID, 'deletes' => ['_HOSTPWD']]], $this->vault->deletedKeys);
     }
 
     public function testItCopiesAnInheritedSecretUnderTheHostEntry(): void
@@ -139,7 +153,7 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
         );
 
         $written = array_column($this->vault->writeCalls, 'value', 'key');
-        self::assertSame(['_HOSTOLD' => 'fresh-secret', '_HOSTNEW' => 'renamed-secret'], $written);
+        self::assertSame(['_HOSTNEW' => 'renamed-secret', '_HOSTOLD' => 'fresh-secret'], $written);
         self::assertSame('secret::vault::monitoring/hosts/host-uuid::_HOSTNEW', $macros[0]->value);
         self::assertSame('secret::vault::monitoring/hosts/host-uuid::_HOSTOLD', $macros[1]->value);
         self::assertSame([], $this->vault->deletedKeys);

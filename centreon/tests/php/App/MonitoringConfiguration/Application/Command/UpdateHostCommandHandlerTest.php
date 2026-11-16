@@ -411,7 +411,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ]));
     }
 
-    public function testAFailureAfterAVaultWriteIsLoggedAsAWarning(): void
+    public function testAFailureAfterAVaultWriteIsLoggedAsAnError(): void
     {
         $this->addPoller(1);
         $this->vault->vaultEnabled = true;
@@ -429,9 +429,9 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         }
 
         // The vault now holds the new community while the rolled-back row still references it.
-        self::assertCount(1, $this->logger->warningMessages);
-        self::assertSame(10, $this->logger->warningMessages[0]['context']['host_id']);
-        self::assertSame($failure, $this->logger->warningMessages[0]['context']['exception']);
+        self::assertCount(1, $this->logger->errorMessages);
+        self::assertSame(10, $this->logger->errorMessages[0]['context']['host_id']);
+        self::assertSame($failure, $this->logger->errorMessages[0]['context']['exception']);
     }
 
     public function testAFailureWithoutAVaultWriteLogsNothing(): void
@@ -447,7 +447,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         } catch (\RuntimeException) {
         }
 
-        self::assertSame([], $this->logger->warningMessages);
+        self::assertSame([], $this->logger->errorMessages);
     }
 
     public function testAFailedVaultWriteLogsNoDivergence(): void
@@ -463,7 +463,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         } catch (VaultWriteFailedException) {
         }
 
-        self::assertSame([], $this->logger->warningMessages);
+        self::assertSame([], $this->logger->errorMessages);
     }
 
     public function testItIgnoresAVaultReferenceSentAsTheSnmpCommunity(): void
@@ -814,10 +814,11 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
     public function testRenamingAPasswordMacroKeepsItsSecret(): void
     {
-        // R5: the macro keeps its id and its vault reference, no plaintext is ever needed.
+        // The macro keeps its id and its secret, moved under the key of its new name.
         $this->addPoller(1);
         $this->vault->vaultEnabled = true;
         $reference = 'secret::vault::monitoring/hosts/host-uuid::_HOSTPWD';
+        $this->vault->resolved = [$reference => 's3cr3t'];
         $this->seedHost(10, macros: [new HostMacro(new HostMacroName('pwd'), $reference, isPassword: true, id: new HostMacroId(5))]);
 
         $host = ($this->handler)($this->command(10, macroChanges: [
@@ -825,8 +826,13 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ]));
 
         $macro = $host->checkOptions->macros[0];
-        self::assertSame(['RENAMED', 5, $reference], [$macro->name->value, $macro->id?->value, $macro->value]);
-        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame(
+            ['RENAMED', 5, 'secret::vault::monitoring/hosts/host-uuid::_HOSTRENAMED'],
+            [$macro->name->value, $macro->id?->value, $macro->value],
+        );
+        self::assertCount(1, $this->vault->writeManyCalls);
+        self::assertSame(['_HOSTRENAMED' => 's3cr3t'], $this->vault->writeManyCalls[0]['secrets']);
+        self::assertSame(['_HOSTPWD'], $this->vault->writeManyCalls[0]['deletes']);
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostVaultPurgeRequested::class));
     }
 
