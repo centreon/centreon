@@ -134,9 +134,11 @@ Given(
 
       cy.request({
         body: {
+          // biome-ignore lint/style/useNamingConvention: API payload field
           expiration_date: `${expirationDate.toISOString().split('.')[0]}Z`,
           name: tokenName,
           type: 'api',
+          // biome-ignore lint/style/useNamingConvention: API payload field
           user_id: apiTokenUserId
         },
         log: false,
@@ -157,6 +159,7 @@ When('the token is disabled from the Authentication Tokens page', () => {
 
   // Same call as the "Disable" toggle of the Authentication Tokens page
   cy.request({
+    // biome-ignore lint/style/useNamingConvention: API payload field
     body: { is_revoked: true },
     method: 'PATCH',
     url: `${apiLatest}/administration/tokens/${apiTokenName}/users/${apiTokenUserId}`
@@ -204,6 +207,7 @@ Then(
         commands: [
           {
             command: externalCommandMarker,
+            // biome-ignore lint/style/useNamingConvention: API payload field
             poller_id: 1,
             timestamp
           }
