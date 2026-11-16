@@ -40,7 +40,9 @@ $pearDB = $dependencyInjector['configuration_db'];
 $pearDBO = $dependencyInjector['realtime_db'];
 
 // Check Session
-CentreonSession::start();
+// This endpoint only reads the session: release its lock right away so a slow
+// query does not block the other requests of the same user.
+CentreonSession::start(1);
 if (! CentreonSession::checkSession(session_id(), $pearDB)) {
     echo 'Bad Session';
 
