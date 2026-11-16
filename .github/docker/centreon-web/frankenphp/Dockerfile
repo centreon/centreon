@@ -31,7 +31,7 @@ FROM ${FRANKENPHP_BUILDER_IMAGE} AS frankenphp
 ARG SPC_COMMIT=f318424c245430b5562ff7ee142491bcc1088072
 ARG PHP_VERSION=8.4.27
 # Evidence: README.md (FrankenPHP image, PHP extensions).
-ARG PHP_EXTENSIONS="ctype,curl,dom,fileinfo,filter,gd,gettext,iconv,intl,ldap,mbregex,mbstring,mysqlnd,opcache,openssl,pcntl,pdo,pdo_mysql,phar,posix,session,simplexml,tokenizer,xml,xmlwriter,zip,zlib"
+ARG PHP_EXTENSIONS="ctype,curl,dom,fileinfo,filter,gd,gettext,iconv,intl,ldap,mbregex,mbstring,mysqlnd,opcache,openssl,pcntl,pdo,pdo_mysql,phar,posix,redis,session,simplexml,tokenizer,xml,xmlwriter,zip,zlib"
 # libjpeg: imagecreatefromjpeg/imagejpeg (gd suggests it only).
 ARG PHP_EXTENSION_LIBS="brotli,watcher,libjpeg"
 
@@ -49,9 +49,16 @@ chmod +x dist/spc
 # Only the extensions listed above, without their optional libraries (AVIF, WebP,
 # FreeType, HTTP/3...), and no Mercure nor Vulcain module in Caddy.
 sed -i 's/^\(  with-suggests:\).*/\1 false/' craft.yml
+# A build root kept from another PHP version or extension list gives a binary without the
+# added extension (seen when adding redis): start from an empty one when they change.
+stamp="${SPC_COMMIT} ${PHP_VERSION} ${PHP_EXTENSIONS} ${PHP_EXTENSION_LIBS}"
+if [ "$(cat dist/.centreon-build 2>/dev/null)" != "${stamp}" ]; then
+  find dist -mindepth 1 -maxdepth 1 ! -name spc ! -name downloads -exec rm -rf {} +
+fi
 PHP_VERSION="${PHP_VERSION}" PHP_EXTENSIONS="${PHP_EXTENSIONS}" PHP_EXTENSION_LIBS="${PHP_EXTENSION_LIBS}" \
   XCADDY_ARGS="--with github.com/dunglas/caddy-cbrotli@v1.0.1" OUTPUT_DIR=/out \
   ./build-static.sh
+printf '%s' "${stamp}" > dist/.centreon-build
 mv /out/frankenphp-linux-* /out/frankenphp
 /out/frankenphp php-cli -r 'echo implode(" ", get_loaded_extensions()), PHP_EOL;'
 EOF

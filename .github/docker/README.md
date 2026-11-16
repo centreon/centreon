@@ -232,10 +232,24 @@ Differences with the slim image:
 * Legacy pages are in the `CENTREON_LANG` language for every user: the gettext library of the static build takes the language from the environment (`LANG`, set from `CENTREON_LANG` at start), not from `setlocale()`. The React pages follow the language of each user.
 * CLAPI runs as `apache`: `docker exec -u apache web /usr/local/bin/frankenphp php-cli /usr/share/centreon/bin/centreon -u admin -p … -a APPLYCFG -v 1` (as root, CLAPI changes file owners with `GLOB_BRACE`, which musl does not have).
 * The installation steps print `session_start(): Session cannot be started after headers have already been sent` (`frankenphp php-cli`); the steps do not need the session.
-* The engine context file (`engine-context.json`) is created by centreon-web in `/etc/centreon` of each container (feature flag `gorgone_api_commands`), and pushed to the pollers with every configuration.
+* The engine context file (`engine-context.json`, the key credentials are encrypted with) is pushed to the pollers with every configuration (target `engine_context`). It comes from the environment (see *Replicas* below); without it, centreon-web creates one in `/etc/centreon` of each container (feature flag `gorgone_api_commands`), and the container warns at start that replicas would not agree on it.
 * Port 80 is bound by `apache`: Docker allows it (`net.ipv4.ip_unprivileged_port_start=0`); elsewhere set that sysctl or `CENTREON_HTTP_ADDRESS` (for instance `:8080`).
 
-PHP extensions kept: `ctype curl dom fileinfo filter gd gettext iconv intl ldap mbregex mbstring mysqlnd opcache openssl pcntl pdo pdo_mysql phar posix session simplexml tokenizer xml xmlwriter zip zlib` (plus the built-in `date hash json pcre random reflection spl standard`). Dropped from the slim image, referenced only by Composer packages in code paths centreon-web does not take: `bz2 calendar exif ftp mysqli pdo_sqlite readline shmop sockets sqlite3 sysvmsg sysvsem sysvshm xmlreader xsl`. `opcache` is added (absent from the slim image), `pcntl` runs the role commands and the cron scheduler.
+PHP extensions kept: `ctype curl dom fileinfo filter gd gettext iconv intl ldap mbregex mbstring mysqlnd opcache openssl pcntl pdo pdo_mysql phar posix redis session simplexml tokenizer xml xmlwriter zip zlib` (plus the built-in `date hash json pcre random reflection spl standard`). Dropped from the slim image, referenced only by Composer packages in code paths centreon-web does not take: `bz2 calendar exif ftp mysqli pdo_sqlite readline shmop sockets sqlite3 sysvmsg sysvsem sysvshm xmlreader xsl`. `opcache` is added (absent from the slim image), `pcntl` runs the role commands and the cron scheduler, `redis` stores the sessions of replicas (`SESSION_REDIS_URL`).
+
+#### Replicas
+
+Several `serve` containers can run behind a load balancer (no sticky sessions needed) when they share the PHP sessions and the encryption key. The `serve` and `cron` roles read:
+
+| Variable | Value | Unset |
+|---|---|---|
+| `SESSION_REDIS_URL` | `tcp://<host>:<port>` of a Redis or Valkey server, `?auth=<password>` (URL-encoded) when it needs one, or `tls://…`. The `serve` role waits up to 60 s for it, then FrankenPHP stores the sessions there (`session.save_handler = redis` through `php_ini` in the Caddyfile; same lifetime, `session.gc_maxlifetime`, and a lock per session as with files). The legacy pages and Symfony both use this native PHP session. | Local files (`/var/lib/php/session`): one replica only. |
+| `CENTREON_ENGINE_CONTEXT` | The content of `engine-context.json`: `{"app_secret": "<base64>", "salt": "<base64>"}` (`app_secret`: 32 random bytes, `salt`: 64). Written at start to `/etc/centreon/engine-context.json` (`root:apache`, `0640`: centreon-web cannot replace it) and removed from the environment of FrankenPHP. | Key created on demand by each container. |
+| `ENGINE_CONTEXT_PATH` | Path of that file, for instance a mounted Kubernetes Secret; it must be readable by uid or gid 48 (`apache`), e.g. `defaultMode: 0440` with `fsGroup: 48`. | |
+
+The key is checked at start (JSON object, both values non-empty base64) and the container exits on a bad one, without printing it; setting both key variables is an error. Generate one with `php -r 'echo json_encode(["app_secret" => base64_encode(random_bytes(32)), "salt" => substr(base64_encode(random_bytes(64)), 0, 64)]), PHP_EOL;'`. On an existing platform, reuse the content of its current `engine-context.json`: the credentials already exported to the pollers are encrypted with it.
+
+An environment variable rather than a file, for Compose: a bind mount or Compose secret is one more file of the host shared by the replicas, while the variable keeps each container self-contained; `docker inspect` shows it, so in Kubernetes prefer `ENGINE_CONTEXT_PATH` on a mounted Secret, or `CENTREON_ENGINE_CONTEXT` from `secretKeyRef`.
 
 ## :gear: Additional services using profiles
 

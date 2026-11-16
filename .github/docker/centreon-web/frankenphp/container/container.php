@@ -24,6 +24,9 @@ const INSTALLER_DIST = '/usr/local/lib/centreon-container/install';
 const INSTALLER_DIR = CENTREON_DIR . '/www/install';
 const SQL_DATA_DIR = '/usr/local/lib/centreon-container/sql';
 const READY_FILE = '/tmp/docker.ready';
+// Where centreon-web looks for the key without ENGINE_CONTEXT_PATH nor local engine
+// (App\Shared\Infrastructure\EngineContextFile::getPath()).
+const ENGINE_CONTEXT_FILE = CENTREON_ETC . '/engine-context.json';
 const WEB_USER = 'apache';
 const WEB_UID = 48;
 const WEB_GID = 48;
@@ -320,6 +323,104 @@ function writeCentreonConfiguration(): void
     chgrp($file, WEB_GID);
 }
 
+/**
+ * Check the shape of a key without ever printing it: {"app_secret": "<base64>", "salt": "<base64>"}.
+ */
+function validateEngineContext(string $content, string $source): void
+{
+    $shape = '{"app_secret": "<base64>", "salt": "<base64>"}';
+    try {
+        $data = json_decode($content, true, 2, JSON_THROW_ON_ERROR);
+    } catch (JsonException) {
+        fail("{$source} is not valid JSON: expected {$shape}.");
+    }
+    foreach (['app_secret', 'salt'] as $key) {
+        $value = is_array($data) ? ($data[$key] ?? null) : null;
+        $decoded = is_string($value) ? base64_decode($value, true) : false;
+        if ($decoded === false || $decoded === '') {
+            fail("{$source}: \"{$key}\" must be a non-empty base64 string ({$shape}).");
+        }
+    }
+}
+
+/**
+ * serve and cron: the key credentials are encrypted with (engine-context.json), pushed to the
+ * pollers as the engine_context target. Replicas must share it, so it comes from outside:
+ * CENTREON_ENGINE_CONTEXT (content) or ENGINE_CONTEXT_PATH (file, e.g. a mounted Secret).
+ */
+function prepareEngineContext(): void
+{
+    $content = env('CENTREON_ENGINE_CONTEXT');
+    $path = env('ENGINE_CONTEXT_PATH');
+    if ($content !== null && $path !== null) {
+        fail('Set CENTREON_ENGINE_CONTEXT or ENGINE_CONTEXT_PATH, not both.');
+    }
+
+    if ($path !== null) {
+        $fileContent = @file_get_contents($path);
+        if ($fileContent === false) {
+            fail("ENGINE_CONTEXT_PATH: {$path} cannot be read.");
+        }
+        validateEngineContext($fileContent, "ENGINE_CONTEXT_PATH ({$path})");
+        out("Credentials encryption key read from {$path}.");
+
+        return;
+    }
+
+    if ($content === null) {
+        out('WARNING: neither CENTREON_ENGINE_CONTEXT nor ENGINE_CONTEXT_PATH is set: this container '
+            . 'creates its own credentials encryption key, and several replicas would not agree on it.');
+
+        return;
+    }
+
+    validateEngineContext($content, 'CENTREON_ENGINE_CONTEXT');
+    // Readable by the web user, writable by root only: centreon-web never replaces it.
+    $temporary = ENGINE_CONTEXT_FILE . '.tmp';
+    $previousUmask = umask(0027);
+    $written = file_put_contents($temporary, $content);
+    umask($previousUmask);
+    if ($written === false || ! chmod($temporary, 0640) || ! chgrp($temporary, WEB_GID)
+        || ! rename($temporary, ENGINE_CONTEXT_FILE)) {
+        fail('Unable to write ' . ENGINE_CONTEXT_FILE . ' from CENTREON_ENGINE_CONTEXT.');
+    }
+    // Not passed on to FrankenPHP: no PHP script nor phpinfo() sees it.
+    putenv('CENTREON_ENGINE_CONTEXT');
+    out('Credentials encryption key written from CENTREON_ENGINE_CONTEXT.');
+}
+
+/**
+ * serve: PHP sessions (legacy pages and Symfony share the native handler) in Redis when
+ * SESSION_REDIS_URL is set, so that any replica serves any session; local files otherwise.
+ * The Caddyfile reads the two PHP_SESSION_* variables (php_ini).
+ */
+function configureSessions(): void
+{
+    $url = env('SESSION_REDIS_URL');
+    if ($url === null) {
+        out('PHP sessions in local files: set SESSION_REDIS_URL to run several replicas.');
+
+        return;
+    }
+    $parts = parse_url($url);
+    if ($parts === false || ! in_array($parts['scheme'] ?? '', ['tcp', 'tls'], true) || ! isset($parts['host'])) {
+        fail('SESSION_REDIS_URL must be tcp://<host>:<port>[?auth=<password>] or tls://...');
+    }
+    // Never print the query string: it may hold the password.
+    $endpoint = $parts['host'] . ':' . ($parts['port'] ?? 6379);
+    out("Waiting for the session store at {$endpoint}...");
+    for ($attempt = 1; ($socket = @stream_socket_client("tcp://{$endpoint}", $errno, $error, 2)) === false; $attempt++) {
+        if ($attempt === 30) {
+            fail("Session store {$endpoint} unreachable: {$error}");
+        }
+        sleep(2);
+    }
+    fclose($socket);
+    putenv('PHP_SESSION_SAVE_HANDLER=redis');
+    putenv("PHP_SESSION_SAVE_PATH={$url}");
+    out("PHP sessions in Redis at {$endpoint}.");
+}
+
 /** 15-installation.sh */
 function install(PDO $root): void
 {
@@ -402,8 +503,8 @@ function install(PDO $root): void
     }
 
     // generationCache.php (cache:clear) and createEngineContextConfiguration.php are not run: the
-    // cache is built in the image, and centreon-web creates engine-context.json on demand
-    // (feature flag gorgone_api_commands), both in the containers that serve.
+    // cache is built in the image, and the key comes from the environment of the containers that
+    // serve (prepareEngineContext), or centreon-web creates it on demand in each of them.
 
     out('Disabling statistics collection...');
     $root->exec("USE `{$configurationDb}`");
@@ -663,6 +764,8 @@ switch ($role) {
     case 'serve':
         @unlink(READY_FILE);
         prepareFiles();
+        prepareEngineContext();
+        configureSessions();
         writeCentreonConfiguration();
         waitForInstalledDatabases();
         touch(READY_FILE);
@@ -685,6 +788,7 @@ switch ($role) {
 
     case 'cron':
         prepareFiles();
+        prepareEngineContext();
         writeCentreonConfiguration();
         waitForInstalledDatabases();
         dropPrivileges();

@@ -17,6 +17,10 @@
 	# pm.max_children = 30 in the PHP-FPM pool of the package.
 	frankenphp {
 		max_threads {$FRANKENPHP_MAX_THREADS:30}
+		# PHP sessions: the files of php.ini, or Redis when container.php sets these variables
+		# from SESSION_REDIS_URL (replicas behind a load balancer).
+		php_ini session.save_handler {$PHP_SESSION_SAVE_HANDLER:files}
+		php_ini session.save_path {$PHP_SESSION_SAVE_PATH:/var/lib/php/session}
 	}
 }
 
