@@ -1,4 +1,4 @@
-# ADR-0016: Log from `src/Core` only in the Infrastructure layer, through the `Adaptation\Log` loggers
+# ADR-0016: Log from `src/Core` only through the `Adaptation\Log` loggers
 
 - **Status:** Accepted
 - **Date:** 2026-11-05
@@ -19,8 +19,6 @@ Two alternatives were weighed:
 - **Keep `LoggerTrait`.** It lost: it is a second entry point beside `Adaptation\Log\Logger`, configured in the container apart from it.
 - **Inject a `LoggerInterface` built by the container.** It lost: an autowired `LoggerInterface` is the default Monolog logger of the `config/` kernel, without the masking and exception formatting processors, which are declared for `config.new` and the `Adaptation` adapter only, and without the module channels. Wiring an `Adaptation\Log` logger instead needs container configuration per context, and most `src/Core` contexts have no `symfony.yaml` of their own.
 
-`src/Core` also logs in every layer: use cases, and a few Domain classes, log their failures themselves. Some endpoints already log from their presenter instead, which receives the failure in an `ErrorResponse` carrying the caught exception and its context (`FindMediasPresenter`).
-
 Settled in [#12302](https://github.com/centreon/centreon/pull/12302).
 
 ## Decision
@@ -30,8 +28,6 @@ Settled in [#12302](https://github.com/centreon/centreon/pull/12302).
 - `Logger::create(LogChannelEnum::…)` for a `LogChannelEnum` channel (`web`, `upgrade`, `poller-install`, …);
 - a dedicated logger with its own business methods: `LoggerAuthentication::create()`, `LoggerPassword::create()`, `LoggerToken::create()` or `LoggerUpgrade::create()`;
 - in a **module**'s `src/Core`, `Logger::create(new ModuleLogChannel('<module>'))`, which writes to `<module>.log`.
-
-**Log only from the Infrastructure layer.** A use case and a Domain class log nothing: a use case hands a failure to its presenter in an `ErrorResponse` that carries the caught exception and the business context, and the presenter logs it. A repository never logs ([ADR-0029](0029-core-make-src-core-repositories-throw-repository-exception.md)).
 
 **Never** log through `LoggerTrait` or the other `Centreon\Domain\Log\*` classes, `CentreonLog`, `CentreonUserLog`, `ExceptionLogger`, `error_log()` or an autowired `LoggerInterface`.
 
@@ -46,7 +42,6 @@ An example is in [logging.md](../logging.md#14-logging-from-core).
 - The alignment is not complete: the handlers and levels differ, on the `web` channel in production and on every channel in dev ([logging.md](../logging.md)).
 - Existing classes that get `LoggerInterface` by autowiring log without masking until they are touched.
 - No container configuration is needed: a class logs wherever it is built, as legacy code does.
-- Existing Domain and Application classes that log keep their lines until they are touched; a touched use case then moves its log line to its presenter. `DomainCallNamespacesCustomRule` does not see a `Logger::create()` call, so the layer is checked in review.
 - A `Logger::create()` call cannot be replaced by a fake, so a test does not assert on its lines. A dedicated logger is a singleton: a test swaps its instance by reflection around a recording spy `LoggerInterface`, as the Pest file `LoginTest` does.
 - `src/App` is out of scope: it uses an injected PSR-3 logger, to which a class's log calls are rewritten when it moves there.
 - `#[Sensitive]` is not read for a direct log call: only the [keyword net](../glossary.md#keyword-net) masks its context. Logging identifiers rather than objects is what keeps a secret out.

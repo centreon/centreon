@@ -1027,7 +1027,7 @@ On failure, the step bracket writes `upgrade.step_failure` (ERROR) and the globa
 
 ## 14. Logging from Core
 
-A `src/Core` use case logs nothing: it hands the failure to its presenter in an `ErrorResponse`, and the presenter, in the Infrastructure layer, calls the `Adaptation\Log` factories, as set by [ADR-0016](adr/0016-core-log-src-core-through-adaptation-logger.md):
+A `src/Core` use case logs nothing: it hands the failure to its presenter in an `ErrorResponse`, and the presenter, in the Infrastructure layer, calls the `Adaptation\Log` factories, as set by [ADR-0016](adr/0016-core-log-src-core-through-adaptation-logger.md) and [ADR-0057](adr/0057-core-log-only-from-the-src-core-infrastructure-layer.md):
 
 ```php
 // Use case
