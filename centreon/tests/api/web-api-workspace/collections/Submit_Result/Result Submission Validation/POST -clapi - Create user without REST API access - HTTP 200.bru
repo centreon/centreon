@@ -1,0 +1,32 @@
+meta {
+  name: POST /clapi - Create user without REST API access - HTTP 200
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUriCentreonCLAPI}}
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "add",
+    "object": "CONTACT",
+    "values": "{{NoRestUserLogin}};{{NoRestUserLogin}};{{NoRestUserLogin}}@localhost;{{NoRestUserPassword}};0;1;en_US;local"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
