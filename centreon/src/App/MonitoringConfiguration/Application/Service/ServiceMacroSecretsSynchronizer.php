@@ -25,21 +25,21 @@ namespace App\MonitoringConfiguration\Application\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\Shared\Application\Vault\VaultCredentialWriter;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 
 /**
- * Keeps a service's password macros in line with its own vault entry before the service is persisted: every own
- * password macro is stored as a reference under the service's entry (one entry per service, shared by its
- * password macros, under `monitoring/services`), never under a template's or another service's.
+ * Keeps a service's password macros under its own vault entry (`monitoring/services`, keys `_SERVICE<NAME>`):
  *
  * - a plaintext value is written to the service's entry, a new one when it has none yet;
  * - a reference to another entry has its secret copied under the service's entry, never shared, so editing or
  *   deleting the template cannot change or purge the service's secret. The only such references are those
  *   ServiceMacroChangesResolver carries over when an inherited password is promoted with its stored value kept:
  *   the API refuses any submitted reference;
- * - a reference already in the service's entry is left untouched, even after a rename;
+ * - a reference already in the service's entry, under the key of the macro's name, is left untouched; after a
+ *   rename, the secret is written again under the new name and the old key deleted;
  * - an empty value is stored as is, nothing vaulted;
  * - a key of the service's entry no macro references any more (macro removed, reverted to inherited as
  *   redundant, or no longer a password) is deleted from the entry.
@@ -57,47 +57,48 @@ final readonly class ServiceMacroSecretsSynchronizer
     }
 
     /**
-     * @param list<ServiceMacro> $macros the own macros the service will hold, values in raw stored form
-     * @param list<ServiceMacro> $previous the own macros the service held so far (empty on creation)
+     * @param Collection<ServiceMacro> $ownMacros the own macros the service will hold, values in raw stored form
+     * @param Collection<ServiceMacro> $previous the own macros the service held so far (empty on creation)
      * @param ?string $serviceVaultUuid the service's vault entry, null when it has none yet (one is minted if a
      *                                  secret must be written)
-     *
-     * @return list<ServiceMacro> $macros with every password value to store
      */
-    public function synchronize(array $macros, array $previous, ?string $serviceVaultUuid): array
+    public function synchronize(Collection $ownMacros, Collection $previous, ?string $serviceVaultUuid): SynchronizedServiceMacros
     {
-        $previousKeys = $this->serviceEntryKeys($previous, $serviceVaultUuid);
+        // Positional from here on: the writes are tracked by index.
+        $macros = array_values($ownMacros->toArray());
+        $previousKeys = $this->serviceEntryKeys(array_values($previous->toArray()), $serviceVaultUuid);
 
         // Nothing to vault nor to purge: leave the vault untouched (not even a feature-flag probe), so a service
         // without password macros never reaches the vault at all.
         $hasPasswordMacro = array_any($macros, static fn (ServiceMacro $macro): bool => $macro->isPassword);
         if (! $hasPasswordMacro && $previousKeys === []) {
-            return $macros;
+            return new SynchronizedServiceMacros(new Collection($macros, ServiceMacro::class), false);
         }
 
         if (! $this->vault->isEnabled()) {
-            return $macros;
+            return new SynchronizedServiceMacros(new Collection($macros, ServiceMacro::class), false);
         }
 
         /** @var array<int, string> $toWrite plaintext indexed by position in $macros */
         $toWrite = [];
-        /** @var array<string, int> $firstIndexByName */
-        $firstIndexByName = [];
+        /** @var array<string, true> $seenNames */
+        $seenNames = [];
         foreach ($macros as $index => $macro) {
             // Duplicates are refused on write; a legacy service may still hold some: the first one wins.
-            if (isset($firstIndexByName[$macro->name->value])) {
+            if (isset($seenNames[$macro->name->value])) {
                 continue;
             }
-            $firstIndexByName[$macro->name->value] = $index;
-            // An empty password is stored as is, nothing vaulted.
+            $seenNames[$macro->name->value] = true;
             if (! $macro->isPassword) {
                 continue;
             }
+            // An empty password is stored as is, nothing vaulted.
             if ($macro->value === '') {
                 continue;
             }
-
-            if ($this->isInServiceEntry($macro->value, $serviceVaultUuid)) {
+            // Every secret is read here, before the single write below, so renames and swaps cannot overwrite a key
+            // another macro still has to read.
+            if ($this->isInServiceEntry($macro->value, $serviceVaultUuid) && $this->keyOf($macro->value) === $this->keyFor($macro)) {
                 continue;
             }
 
@@ -106,34 +107,15 @@ final readonly class ServiceMacroSecretsSynchronizer
                 : $macro->value;
         }
 
-        // A renamed macro keeps its reference, so its key may be the name another macro now claims: that one would
-        // overwrite the secret the renamed macro still points to. Move the renamed macro under its own name instead.
-        // Moving it claims a new key, which may in turn be the one another renamed macro points to (chained
-        // renames): repeat until no key is claimed.
-        $claimedKeys = [];
+        $writtenKeys = [];
         foreach (array_keys($toWrite) as $index) {
-            $claimedKeys[$this->keyFor($macros[$index])] = true;
+            $writtenKeys[$this->keyFor($macros[$index])] = true;
         }
-        do {
-            $claimedKeyCount = count($claimedKeys);
-            foreach ($macros as $index => $macro) {
-                if (
-                    $firstIndexByName[$macro->name->value] === $index
-                    && ! isset($toWrite[$index])
-                    && $macro->isPassword
-                    && $this->isInServiceEntry($macro->value, $serviceVaultUuid)
-                    && isset($claimedKeys[$this->keyOf($macro->value)])
-                    && $this->keyOf($macro->value) !== $this->keyFor($macro)
-                ) {
-                    $toWrite[$index] = $this->vault->resolve($macro->value);
-                    $claimedKeys[$this->keyFor($macro)] = true;
-                }
-            }
-        } while (count($claimedKeys) > $claimedKeyCount);
+        $keptKeys = $this->serviceEntryKeys(array_values(array_diff_key($macros, $toWrite)), $serviceVaultUuid);
 
         $credentials = VaultCredentials::empty();
         foreach (array_keys($previousKeys) as $key) {
-            if (! isset($claimedKeys[$key]) && ! $this->isKeptBy($key, $macros, $serviceVaultUuid, $toWrite)) {
+            if (! isset($writtenKeys[$key]) && ! isset($keptKeys[$key])) {
                 $credentials = $credentials->clear($key);
             }
         }
@@ -148,7 +130,10 @@ final readonly class ServiceMacroSecretsSynchronizer
             $macros[$index] = $macro->withValue($stored[$this->keyFor($macro)], true);
         }
 
-        return array_values($macros);
+        // The same test persist() makes before reaching the vault.
+        $vaultWritten = $credentials->toInsert() !== [] || $credentials->clearedKeys() !== [];
+
+        return new SynchronizedServiceMacros(new Collection(array_values($macros), ServiceMacro::class), $vaultWritten);
     }
 
     /**
@@ -166,21 +151,6 @@ final readonly class ServiceMacroSecretsSynchronizer
         }
 
         return $keys;
-    }
-
-    /**
-     * @param list<ServiceMacro> $macros
-     * @param array<int, string> $toWrite
-     */
-    private function isKeptBy(string $key, array $macros, ?string $serviceVaultUuid, array $toWrite): bool
-    {
-        return array_any(
-            $macros,
-            fn (ServiceMacro $macro, int $index): bool => ! isset($toWrite[$index])
-                && $macro->isPassword
-                && $this->isInServiceEntry($macro->value, $serviceVaultUuid)
-                && $this->keyOf($macro->value) === $key,
-        );
     }
 
     private function isInServiceEntry(string $value, ?string $serviceVaultUuid): bool
