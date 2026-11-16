@@ -54,9 +54,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceTemplate
             output: ServiceTemplateChoicesOutput::class,
             provider: ListServiceTemplatesChoicesProvider::class,
         ),
-        // A service template's own and inherited macros, read to prefill a service before it is created.
-        // Same family as the services' service template choices list, so it takes the same right, not a
-        // service template one.
+        // Prefills a service: same right as the services' template choices list.
         new Get(
             uriTemplate: '/configuration/services/service_templates/{id}/macros',
             // Positive integers only: `/0` is a 404, not a failed id assertion.

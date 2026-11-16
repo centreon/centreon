@@ -36,14 +36,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\Service
 use Webmozart\Assert\Assert;
 
 /**
- * Returns a service template's macros to prefill a service before it is created: the template's own
- * macros (direct, parent null), then those it inherits from its ancestor templates and check command
- * that it does not override (parent "template" or "command"), resolved like GetService.
- *
- * No actor scoping, like the service template choices list (ListServiceTemplatesChoicesProvider). Like
- * that list, locked and disabled templates are found: legacy offers and inherits from them too. The
- * license host limit does not apply either: a service may already have a template the license no
- * longer allows.
+ * A service template's own macros, then the inherited ones it does not override.
  *
  * @implements ProviderInterface<ServiceTemplateMacrosOutput>
  */
