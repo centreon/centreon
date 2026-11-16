@@ -34,6 +34,25 @@ else
   dnf install -y /tmp/packages-centreon/centreon-*.rpm
 fi
 
+# Test only, not to merge: use the centreon-collect build of centreon/centreon-collect#4069 (MON-214276 feature repository)
+for arch in x86_64 noarch; do
+  cat > /etc/yum.repos.d/centreon-collect-feature-\${arch}.repo <<REPO
+[centreon-collect-feature-\${arch}]
+name=centreon-collect MON-214276 feature (\${arch})
+baseurl=https://packages.centreon.com/standard/rpm-feature/MON-214276/\${MAJOR_VERSION}/el10/canary/\${arch}/
+enabled=1
+gpgcheck=0
+priority=1
+REPO
+done
+collect_packages=\$(rpm -qa --qf '%{NAME}\\n' | grep -E '^centreon-(engine|broker|connector|clib|collect|protobuf-lib|monitoring-agent)' | sort -u)
+dnf distro-sync -y \${collect_packages}
+dnf repoquery --installed --qf '%{name} %{evr} %{from_repo}\\n' \${collect_packages}
+if dnf repoquery --installed --qf '%{from_repo}\\n' \${collect_packages} | grep -v '^centreon-collect-feature' | grep -q .; then
+  echo "Some centreon-collect packages do not come from the MON-214276 feature repository" >&2
+  exit 1
+fi
+
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php.d/20-timezone.ini
 
 if [[ "$STABILITY" == "stable" ]]; then
