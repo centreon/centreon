@@ -2,12 +2,11 @@
   "_meta": {
     "description": "Cumulative DOM/CSS selector catalog built by the qa-ticket-verify skill. Keys are dotted paths '<area>.<elementName>'. Before adding a selector, check it isn't already here under a different name. Prefer the most specific already-verified selector; only add a new one when nothing close enough exists yet.",
     "howToExtend": "When a needed selector is missing: 1) search the PR diff for the exact data-testid/aria-label/id being added or touched, 2) grep the existing frontend/legacy source for the component, 3) as a last resort inspect the live page via Playwright's snapshot tool and note the accessible name/role instead of a brittle CSS path. Always record where it came from in 'source'.",
-    "playwrightMcpNote": "browser_click/browser_type's `target` accepts either a snapshot ref (e.g. 'e21', no 'ref=' prefix) or a raw CSS selector string directly — verified during the MON-207985 run. For anything inside the legacy iframe, Playwright resolves it via iframe[name=\"main-content\"].contentFrame() automatically when given a selector; browser_evaluate needs an explicit document.querySelector('#main-content').contentDocument instead.",
+    "playwrightMcpNote": "browser_click/browser_type's `target` accepts a snapshot ref (e.g. 'e21') reliably. A raw CSS selector string passed directly does NOT reliably auto-resolve into iframe[name=\"main-content\"] in practice (intermittently times out even for a selector proven to exist) - for anything inside the legacy iframe prefer mcp__playwright__browser_run_code_unsafe with page.frame({name:'main-content'}) instead. Full cookbook (checkboxes, select2, page-ID lookup, etc.) lives in the xray-manual-test skill's references/playwright-cookbook.md.",
     "conventions": "'${placeholder}' in a selector means it's a template — substitute the real value described in the adjacent note. A value ending in ' (text-match)' means it's not a CSS selector but a cy.contains()-style text match; use Playwright's text/role-based lookup for those instead of a raw selector. getByLabel({label,tag}) resolves to '${tag}[aria-label=\"${label}\"]'; getByTestId({tag,testId}) resolves to '${tag}[data-testid=\"${testId}\"]' (tag defaults to any element when omitted) — both are project Cypress commands (packages/js-config/cypress/e2e/commands.ts), not real selectors themselves.",
-    "lastUpdated": "2026-09-08",
+    "lastUpdated": "2026-11-16",
     "coverage": "Extracted from centreon/tests/e2e/features/** across all 28 top-level feature directories (146 feature files) via parallel agent sweep, plus live verification during the MON-207985 dry run. Legacy pages render inside iframe #main-content (see generic-legacy-iframe); React pages use data-testid/aria-label directly on the top-level document."
   },
-
   "login": {
     "usernameInput": "input[aria-label=\"Alias\"]",
     "passwordInput": "input[type=\"password\"]",
@@ -70,7 +69,6 @@
     "checkAllCheckbox": "#checkall",
     "csrfTokenInput": "form[name=\"form\"] input[name=\"centreon_token\"]"
   },
-
   "acls.shared": {
     "iframeMainContent": "iframe#main-content",
     "bulkActionDropdown": "select[name=\"o1\"]",
@@ -82,7 +80,12 @@
     "authorizationsInformationTabLinkText": "Authorizations information (text-match, a)",
     "activateStatusDisabledRadioTemplate": "input[name=\"${field}_activate[${field}_activate]\"][value=\"0\"]",
     "activateStatusDisabledRadioTemplate_note": "${field} e.g. acl_group, acl_action, acl_topo, acl_res",
-    "source": "ACLs/01-04/index.ts"
+    "source": "api/internal.php?object=centreon_topology&action=navigationList (live lookup, MedWassCh-1)",
+    "menusAccessPage": "main.php?p=50201",
+    "resourcesAccessPage": "main.php?p=50202",
+    "accessGroupsPage": "main.php?p=50203",
+    "actionsAccessPage": "main.php?p=50204",
+    "reloadAclPage": "main.php?p=50205"
   },
   "acls.access-groups": {
     "groupNameInput": "input[name=\"acl_group_name\"]",
@@ -113,7 +116,6 @@
     "resourceCommentTextarea": "textarea[name=\"acl_res_comment\"]",
     "source": "ACLs/04-acl-resources-access/index.ts"
   },
-
   "additional-connectors": {
     "createButton": "button[aria-label=\"create\"]",
     "addButton": "button[aria-label=\"Add\"]",
@@ -139,7 +141,6 @@
     "notAllowedPageTestId": "[data-testid=\"You are not allowed to see this page\"]",
     "source": "Additional-connectors/commands.ts; Additional-connectors/01-05/index.ts"
   },
-
   "administration.default-page": {
     "defaultPageSelect": "select[name=\"default_page\"]",
     "generalOptionsSubmitButton": "input.btc.bt_success[name^=\"submit\"]",
@@ -164,7 +165,6 @@
     "databaseInformationsPanel": "#database_informations",
     "source": "Administration/04-db-partitionning/index.ts"
   },
-
   "agent-configuration": {
     "nameInput": "input[aria-label=\"Name\"]",
     "pollersInput": "input[aria-label=\"Pollers\"]",
@@ -185,7 +185,6 @@
     "enableAgentToggleTestId": "span[data-testid=\"enable_agent\"]",
     "source": "Agent-configuration/commands.ts; Agent-configuration/01-06/index.ts"
   },
-
   "api-token": {
     "addButton": "[aria-label=\"Add\"]",
     "nameInput": "#Name",
@@ -208,7 +207,6 @@
     "tableRow": ".MuiTableBody-root .MuiTableRow-root",
     "source": "Api-Token/01-06/index.ts"
   },
-
   "authentication.login": {
     "aliasInput": "input[aria-label=\"Alias\"]",
     "passwordInput": "input[aria-label=\"Password\"]",
@@ -285,7 +283,6 @@
     "webSsoOnlyRadio": "input[aria-label=\"Web SSO only\"]",
     "source": "Authentication/Web-SSO/common.ts, 01-03/index.ts"
   },
-
   "backup-configuration": {
     "backupEnabledInput": "input[name=\"backup_enabled[backup_enabled]\"]",
     "backupDirectoryInput": "input[name=\"backup_backup_directory\"]",
@@ -300,7 +297,6 @@
     "radioLabelTextMatchTemplate_note": "${labelText} typically Yes/No or Dump/File",
     "source": "Backup-configuration/commands.ts, 01-backup-properties/index.ts"
   },
-
   "cloud-notifications": {
     "notificationNameInput": "#Notificationname",
     "searchHostGroupsInput": "#Searchhostgroups",
@@ -325,7 +321,6 @@
     "duplicateNameErrorText": "This name already exists (text-match)",
     "source": "Cloud-notifications/01-05/index.ts"
   },
-
   "commands": {
     "openAutocompleteButton": "getByLabel({label:'Open', tag:'button'})",
     "insertMacroTestIdButtonTemplate": "getByTestId({tag:'button', testId:'${label}'})",
@@ -358,7 +353,6 @@
     "linkByNameTemplate": "${name} (text-match, a)",
     "source": "Commands/commands.ts, 01-02/index.ts"
   },
-
   "contacts.shared": {
     "connectAliasInput": "getByLabel({label:'Alias', tag:'input'})",
     "connectPasswordInput": "getByLabel({label:'Password', tag:'input'})",
@@ -376,7 +370,19 @@
     "notificationsEnabledLabelTemplate": "cy.contains('label', '${isNotificationsEnabled}')",
     "compulsoryErrorTemplate": "cy.contains('font', '${message}')",
     "compulsoryErrorTemplate_note": "${message} e.g. Compulsory Alias, Compulsory Name, Valid Email",
-    "source": "Contacts/01-contact-configuration/index.ts, 04, 05"
+    "source": "Contacts/01-contact-configuration/index.ts, 04, 05",
+    "enableNotificationsRadioName": "contact_enable_notifications[contact_enable_notifications]",
+    "hostNotifOptsCheckboxNameTemplate": "contact_hostNotifOpts[${key}]",
+    "hostNotifOptsCheckboxNameTemplate_note": "${key} one of d(own)/u(nreachable)/r(ecovery)/f(lapping)/s(cheduled)/n(one) - ALL REQUIRED despite only service side mattering for most AD tests",
+    "serviceNotifOptsCheckboxNameTemplate": "contact_svNotifOpts[${key}]",
+    "serviceNotifOptsCheckboxNameTemplate_note": "${key} one of w(arning)/u(nknown)/c(ritical)/r(ecovery)/f(lapping)/s(cheduled)/n(one)",
+    "hostNotificationPeriodSelect2Container": "#select2-timeperiod_tp_id-container",
+    "serviceNotificationPeriodSelect2Container": "#select2-timeperiod_tp_id2-container",
+    "hostNotificationCommandsSearchbox": "getByPlaceholder(\"Host Notification Commands\")",
+    "serviceNotificationCommandsSearchbox": "getByPlaceholder(\"Service Notification Commands\")",
+    "checkboxLabelClickNote": "custom checkboxes/radios: get the input's id then click label[for=\"<id>\"] with force:true - direct input click fails as not-visible",
+    "allFieldsRequiredNote": "Add a User form: Host Notification Options/Period/Commands are marked * (Compulsory) even when the ticket only mentions Service-side settings - fill both sides or save silently re-renders the form with validation errors",
+    "source2": "live MON-17585 run: Contacts/Users add form (p=60301&o=a)"
   },
   "contacts.contact-group": {
     "cgNameInput": "input[name=\"cg_name\"]",
@@ -395,7 +401,6 @@
     "svNotifCmdsSelect": "#contact_svNotifCmds",
     "source": "Contacts/03-contact-template-configuration/index.ts"
   },
-
   "dashboard-creation": {
     "createDashboardButton": "getByLabel({label:'create', tag:'button'})",
     "nameInput": "getByLabel({label:'Name', tag:'input'})",
@@ -553,7 +558,6 @@
     "showOnlyFavoritesToggle": "Show only dashboards added to favorites (text-match)",
     "source": "Dashboards/19-dashboard-favourites/index.ts"
   },
-
   "downtime": {
     "startDateInput": "input[name=\"start\"]",
     "startTimeInput": "input[name=\"start_time\"]",
@@ -575,7 +579,6 @@
     "noDowntimeScheduledText": "No downtime scheduled (text-match)",
     "source": "Downtime/01-04/index.ts, common.ts (visited via PAGES.monitoring.downtimesLegacy / recurrentDowntimesLegacy, legacy iframe)"
   },
-
   "host-groups": {
     "nameTestId": "getByTestId({testId:'Name'})",
     "aliasTestId": "getByTestId({testId:'Alias'})",
@@ -600,7 +603,6 @@
     "bulkActionSelect": "select[name=\"o1\"]",
     "source": "HostGroups/02-host-group-dependency-configuration/index.ts (legacy iframe)"
   },
-
   "host-configuration-form": {
     "hostNameInput": "input[name=\"host_name\"]",
     "hostAliasInput": "input[name=\"host_alias\"]",
@@ -609,7 +611,10 @@
     "hostExtendedInfosTabLink": "Host Extended Infos (text-match, a)",
     "searchHostInput": "input[name=\"searchH\"]",
     "editTemplateIcon": "img[title=\"Edit template\"]",
-    "source": "Hosts/01-host-configuration/index.ts (legacy p=60101)"
+    "source": "Hosts/01-host-configuration/index.ts (legacy p=60101)",
+    "templateSelect2SearchField_note": "click #select2-tpSelect_0-container (after clicking the row's +Add a new entry first), type into active search, click exact-text option",
+    "monitoringServerSelect": "select[name=\"host_hPars\"], select containing options Central/<poller-name> (plain <select>, not select2)",
+    "source2": "live MON-18668 run: Hosts add form (p=60101&o=a)"
   },
   "host-category-configuration": {
     "hcNameInput": "input[name=\"hc_name\"]",
@@ -662,7 +667,6 @@
     "listingDispatchUrl_note": "legacy bulk POST endpoint: o=mu bulk disable, o=u single, o=mc mass change",
     "source": "Hosts/10-host-listing-acl/index.ts"
   },
-
   "knowledges": {
     "kbWikiUrlInput": "input[name=\"kb_wiki_url\"]",
     "kbWikiAccountInput": "input[name=\"kb_wiki_account\"]",
@@ -676,7 +680,6 @@
     "deleteWikiPageLink": "Delete wiki page (text-match, a)",
     "source": "Knowledges/common.ts, 01-knowledge-base/index.ts"
   },
-
   "ldaps": {
     "configurationNameInput": "input[name=\"ar_name\"]",
     "descriptionTextarea": "textarea[name=\"ar_description\"]",
@@ -697,7 +700,6 @@
     "submenuToggleTemplate": "#img_${menuId}",
     "source": "Ldaps/commands.ts, 01-02/index.ts"
   },
-
   "logs.changes-log": {
     "hostFilterSelect": "select#host_filter",
     "logStatusBadgeTemplate": "span[class*=\"badge service_${status}\"]",
@@ -716,7 +718,6 @@
     "select2ResultsOptionsList": "ul.select2-results__options",
     "source": "Logs/07-event-log-acl/index.ts"
   },
-
   "macros.hosts-macros": {
     "macroAddButton": "#macro_add",
     "macroNameInputTemplate": "#macroInput_${index}",
@@ -735,7 +736,6 @@
     "checkCommandTitleSpan": "span[title=\"Check Command\"]",
     "source": "Macros/commands.ts, 02-services-macros/index.ts"
   },
-
   "notifications.escalation-configuration": {
     "escNameInput": "input[name=\"esc_name\"]",
     "escAliasInput": "input[name=\"esc_alias\"]",
@@ -761,7 +761,6 @@
     "escalationRowLinkByIdTemplate": "a[href*=\"esc_id=${id}\"]",
     "source": "Notifications/commands.ts, 01-escalation-configuration/index.ts"
   },
-
   "platform-upgrade-update": {
     "stepWrapperIndicator": "th.step-wrapper span",
     "stepWrapperIndicator_note": "cy.contains(N) on this element indicates the active wizard step (1-9)",
@@ -779,7 +778,6 @@
     "wizardSuccessButton": ".btc.bt_success",
     "source": "Platform-upgrade-update/common.ts, 01-02/index.ts"
   },
-
   "poller-configuration": {
     "legacyPollerRowSelectCheckboxTemplate": "form input[name=\"select[${index}]\"]",
     "exportConfigurationLegacyLink": "#exportConfigurationLink",
@@ -801,7 +799,6 @@
     "pollerRunningIcon_note": "within the 6th <td> (index 4) of the poller row",
     "source": "Poller-configuration/common.ts, 01-02/index.ts"
   },
-
   "resources-access-management": {
     "createRuleButton": "[data-testid=\"createResourceAccessRule\"]",
     "paginationInput": ".MuiTablePagination-input",
@@ -810,7 +807,6 @@
     "searchInput": "input[data-testid=\"Search\"]",
     "source": "Resources-Access-Management/commands.ts, 01-rules-listing/index.ts"
   },
-
   "resources-status.shared": {
     "stateFilterButton": "[aria-label=\"State filter\"]",
     "searchInput": "input[placeholder=\"Search\"]",
@@ -876,7 +872,6 @@
     "currentPageOnlyOption": "[data-testid=\"Current page only\"]",
     "source": "Resources-status/07-csv-export/index.ts"
   },
-
   "services-configuration.shared": {
     "moreActionsSelect": "select[name=\"o1\"]",
     "tabByIndexTemplate": "li#c${n}",
@@ -897,7 +892,12 @@
     "serviceTemplateSelect": "select#service_template_model_stm_id",
     "notifCriticalCheckbox": "#notifC",
     "searchHostInput": "input[name=\"searchH\"]",
-    "source": "Services-configuration/03-service-configuration/index.ts"
+    "source": "Services-configuration/03-service-configuration/index.ts",
+    "hostsMultiSelectSearchbox": "getByRole(searchbox, {name:\"Hosts\"})",
+    "checkCommandSelect2Container": "#select2-command_command_id-container",
+    "normalCheckIntervalInput": "input[name=\"service_normal_check_interval\"]",
+    "serviceTemplateSelect2Container_note": "template field: click its select2 container, type into the active .select2-search__field, click the exact-text .select2-results__option",
+    "source2": "live MON-18668/17585 run: Services by host add form (p=60201&o=a)"
   },
   "services-configuration.service-group": {
     "nameInput": "input[name=\"sg_name\"]",
@@ -986,7 +986,6 @@
     "hostGroupsMultiSelectInput": "input[placeholder=\"Linked with Host Groups\"]",
     "source": "Services-configuration/15-inherited-check-commands/index.ts"
   },
-
   "snmp-traps": {
     "trapNameInput": "input[name=\"traps_name\"]",
     "trapOidInput": "input[name=\"traps_oid\"]",
@@ -1022,7 +1021,6 @@
     "addedFor": "MON-207985",
     "verifiedLive": true
   },
-
   "time-period": {
     "nameInput": "input[name=\"tp_name\"]",
     "aliasInput": "input[name=\"tp_alias\"]",
@@ -1036,7 +1034,6 @@
     "searchTimePeriodInput": "input[name=\"searchTP\"]",
     "source": "Time-Period/common.ts, 01-time-period-configuration/index.ts"
   },
-
   "web-server-configuration": {
     "hostAliasInput": "input[name=\"host_alias\"]",
     "saveButtonLegacy": "input[name=\"submitC\"]",
@@ -1047,5 +1044,90 @@
     "pollersHeaderButton": "button[aria-label=\"Pollers\"]",
     "exportAndReloadButton": "button[aria-label=\"Export & reload\"]",
     "source": "Web-server-configuration/common.ts, 01-03/index.ts"
+  },
+  "anomaly-detection": {
+    "pageId": "60220 (Configuration > Services > Anomaly Detection); add=&o=a, edit=&o=c&service_id=<id>",
+    "addLinkNote": "Create manually link may not render as clickable text in empty-list state - navigate straight to p=60220&o=a instead of clicking it",
+    "descriptionInput": "input[name=\"service_description\"]",
+    "statusEnabledLabel_note": "Status Enabled/Disabled radios, label-click pattern like other custom radios",
+    "hostServiceSelect2Container": "#select2-service_hPars-container",
+    "hostServiceSelect2_note": "AJAX remote select2: open, type host name fragment into .select2-search__field:visible, click option with full text host - service",
+    "metricSelect2Container": "#select2-metricFilter-container",
+    "metricSelect2_note": "options only populate AFTER host-service is selected; opening it before that returns empty/stale results. This container reports not-visible to normal click - dispatch mousedown/mouseup/click events via page.evaluate instead of locator.click",
+    "enableChangeOfStatusRadioName": "status_change[status_change]",
+    "detectAnomaliesAfterInput": "input[name=\"max_check_attempts\"]",
+    "detectAnomaliesAfterInput_note": "despite the UI label, name attribute is max_check_attempts not anything AD-specific",
+    "enableNotificationRadioName": "service_notifications_enabled[service_notifications_enabled]",
+    "impliedContactsSearchbox": "getByPlaceholder(\"Implied Contacts\")",
+    "notificationIntervalInput": "input[name=\"service_notification_interval\"]",
+    "notificationPeriodSelect2Container": "#select2-timeperiod_tp_id2-container",
+    "notificationPeriodSelect2_bug": "KNOWN PRODUCT BUG: this field never persists on save for AD services (always NULL in DB) - see references/anomaly-detection-lab.md in the xray-manual-test skill. Workaround: UPDATE service SET timeperiod_tp_id2=... directly via SQL after saving everything else.",
+    "notificationTypeCheckboxNameTemplate": "service_notifOpts[${key}]",
+    "notificationTypeCheckboxNameTemplate_note": "${key} one of c(ritical)/r(ecovery)/n(one) - fewer options than the Contact form's svNotifOpts",
+    "source": "live MON-18668/17585 run"
+  },
+  "pollers-export": {
+    "pageId": "60901 = Pollers list (tick row, click Export configuration link -> navigates to 60902); 60902 = export options page",
+    "genCheckboxId": "ngen",
+    "debugCheckboxId": "ndebug",
+    "moveCheckboxId": "nmove",
+    "restartCheckboxId": "nrestart",
+    "postcmdCheckboxId": "npostcmd",
+    "checkboxLabelClickNote": "click label[for=\"<id>\"] with force:true, not the input directly (same pattern as everywhere else in legacy forms)",
+    "defaultsNote": "gen+debug default CHECKED, move+restart+postcmd default UNCHECKED, and ALL reset to these defaults every time you land on this page - re-check move/restart before every export, do not assume a prior export's selection persists",
+    "restartMethodSelect": "select with options Restart/Reload, defaults to Reload",
+    "exportButtonText": "Export",
+    "consoleOutputSelector": "#console",
+    "consoleOutputNote": "read via frame.evaluate(() => document.querySelector(\"#console\").innerText); success shows Preparing/Generating/Moving/Restarting all OK + Progress (100%); a Warning/Error line here is real (e.g. missing notification time period)",
+    "source": "live MON-18668/17585 run"
+  },
+  "reporting": {
+    "availabilityHostsPage": "main.php?p=30701",
+    "availabilityServicesPage": "main.php?p=30702",
+    "availabilityHostGroupsPage": "main.php?p=30703",
+    "availabilityServiceGroupsPage": "main.php?p=30704",
+    "source": "api/internal.php?object=centreon_topology&action=navigationList, discovered while testing MON-17632"
+  },
+  "pollers": {
+    "pollersListPage": "main.php?p=60901",
+    "pollerWizardPage": "main.php?p=60959",
+    "source": "api/internal.php?object=centreon_topology&action=navigationList, discovered while setting up CMA for MON-212375",
+    "agentConfigurationsPage": "/configuration/pollers/agent-configurations"
+  },
+  "bam": {
+    "businessViewsPage": "/configuration/bam/bvs",
+    "businessActivitiesPage": "/configuration/bam/bas",
+    "monitoringDashboardPage": "main.php?p=207",
+    "source": "discovered while testing MON-17106, confirmed root cause via SQL + httpd/php-fpm logs",
+    "contactEditPage": "main.php?p=60301&o=c&contact_id=<id>",
+    "contactBaNotifOptionsCheckboxes": "input[name^=\"contact_bamNotifOptions\"] (name is stable, id is random qf_* per page load)",
+    "contactBaNotifPeriodSelect": "#contact_bamNotifPeriod (select2, textbox via #select2-contact_bamNotifPeriod-container)",
+    "contactBaNotifCommandSelect": "#contact_bamNotifCommand (select2, textbox via #select2-contact_bamNotifCommand-container)",
+    "baEditNotificationAccordion": "React Flow BA node panel, accordion heading button named \"Notification\" (role=button) - has its own Activate notifications / Recovery-Warning-Critical-Flapping checkboxes, Interval, Time period, Contact groups (click text \"Contact groups (N)\" to open secondary panel and check a row), Escalations",
+    "exportConfigPollerSelect": "#nhost select2 multi-select on main.php?p=60902, role=Pollers, REQUIRED (red asterisk) - export silently stays at Progress 0% with no visible error if left empty, must pick at least one poller (e.g. \"Central\") before clicking Export",
+    "knownBug": "CORRECTION (was wrongly filed as MON-214685, retracted): the Contact edit form's Business Activity section DOES persist correctly - the apparent failure was caused by never having filled the regular Host Notification Commands field (even with Host Notification Options = None only). Always fill BOTH Host Notification Commands and Service Notification Commands on a BAM contact before touching the Business Activity section, or saves can silently fail to persist fields elsewhere on the same form.",
+    "simulationModeStatusClassTemplate": "node has class border-status-background-${status} where status is success|warning|critical, computed per-node in BA tree React Flow Simulation mode",
+    "simulationModeDowntimeIconTestId": "[data-testid=\"DowntimeIcon\"] - appears on a node in Simulation mode when that KPI/BA is in downtime (for inheritance testing: Ratio/Number BA with 0 KPIs in downtime must NOT show this icon on the BA node, only a real downtime should)",
+    "treeEditorSaveDualPath": "the BA tree React Flow editor own Save button calls legacy PUT /centreon/api/internal.php?object=centreon_business_activity&action=update (works correctly) - this is DIFFERENT from the documented REST PATCH /api/latest/configuration/business-activities/{id}/tree, which as of 26.10.1 always returns 204 but silently no-ops (never persists any field) - filed as MON-214841. Do not test BA tree field persistence via the REST PATCH endpoint, use the UI Save button or the legacy internal.php endpoint instead.",
+    "thresholdFieldsNote": "Ratio/Number mode warning/critical thresholds live in mod_bam.level_w / mod_bam.level_c - verify persistence directly via SQL after a UI save rather than only re-reading the form, since the REST tree-patch bug above can make a form silently fail without any visible UI error",
+    "source2": "live MON-210692/MON-212366 runs (MedWassCh-1, 26.10.1)"
+  },
+  "open-tickets": {
+    "rulesConfigPage": "main.php?p=60420 (Configuration > Open tickets rules)",
+    "formattingPopupTextarea": "textarea[name=\"format_popup\"] (Advanced tab of a rule) - must contain compatible markup for the Simple provider to accept tickets opened via the automatic notification plugin, otherwise open-service silently fails with a template error",
+    "notificationPluginPath": "/usr/lib/centreon/plugins/centreon_notification_centreon_opentickets_api.pl --plugin=notification::centreon::opentickets::api::plugin --mode=open-service|close-service --rule-name=<rule> --host-id=<id> --service-id=<id> [--api-hostname --api-username --api-password --api-proto --api-port] - packaged as RPM centreon-plugin-Notification-Centreon-Opentickets-Api, install via dnf if missing",
+    "statefileDirPermissionNote": "plugin writes a statefile under /var/lib/centreon/centplugins/ - if that dir doesn't exist or isn't owned by apache:apache (775), the plugin fails with UNKNOWN: Cannot write statefile ... Need write/exec permissions. Fix: sudo mkdir -p /var/lib/centreon/centplugins && sudo chown apache:apache ... && chmod 775 .... Always run the plugin itself as sudo -u apache perl ..., not as the ssh user.",
+    "ticketIdCustomVariable": "centreon_storage.customvariables WHERE service_id=<id> AND name=\"TICKET_ID\" (columns: host_id, name, service_id, value, no host_name column despite older docs/tickets referencing one) - holds the open ticket id as value; cleared (empty) after close-service",
+    "staleHostRemainsAfterServiceMove": "moving a service to a new host (edit the service Hosts multi-select, remove old host chip, add new) leaves TWO rows in centreon_storage.services for the same service_id (one per old+new host_id) even after re-exporting config - this is the documented precondition for MON-196614 repro, confirmed reproducible on 26.10.1; the open/close ticket cycle itself was verified NOT buggy anymore on that version (correct ticket id returned both ways, single non-duplicated TICKET_ID row)",
+    "source": "live MON-196614 run (MedWassCh-1, 26.10.1)"
+  },
+  "extensions-manager": {
+    "managerPage": "/administration/extensions/manager (React route) - the legacy main.php?p=50709 topology entry points at this same route via breadcrumb/redirect, but navigating main.php?p=50709 directly while an existing session is in a stale/odd state can render \"You are not allowed to reach this page\" even for a real admin - re-navigate to the direct React path if that happens instead of assuming an ACL problem",
+    "moduleTileSelector": "each module/widget tile shows name + version as a clickable button; clicking opens a details dialog (GET .../internal.php?object=centreon_module&action=details&id=<module-dir>&type=module) but shows no visible Update button when installed version == available repo version (no update actually pending)",
+    "updateAllInstallAllButtons": "button Update all / Install all, both [disabled] when nothing is outdated - don't rely on clicking a module tile to force an update test if dnf has no newer package available",
+    "updateEndpointDirectTest": "POST /centreon/api/internal.php?object=centreon_module&action=update&id=<module-dir>&type=module (e.g. id=centreon-awie, id=centreon-dsm) - this is the endpoint from MON-191781's bug report; it ALWAYS runs Upgrader::upgrade() -> clearCache() (new Symfony Process) even when the module is already at its latest version (no upgrade/ migration directories match), so you don't need a real version bump to exercise the buggy code path - just call it on any installed module and check for a 500 / check php-fpm error log for \"Class ... Process not found\"",
+    "errorLogPathNote": "the actual prod error_log path is read from /etc/php-fpm.d/centreon.conf's php_admin_value[error_log] - on MedWassCh-1 (26.10.1) it's /var/log/centreon/prod.web.log, NOT /var/log/php-fpm/centreon-error.log as some older tickets reference; always grep the pool conf first rather than assuming the path",
+    "vendorPresenceCheck": "ls /usr/share/centreon/vendor/symfony/process - quick way to confirm Symfony Process ships in prod vendor (not require-dev only) before even touching the UI, for MON-191781-style regressions",
+    "source": "live MON-191781 run (MedWassCh-1, 26.10.1)"
   }
 }
