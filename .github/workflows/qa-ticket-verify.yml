@@ -216,19 +216,26 @@ jobs:
           fi
           echo "App confirms DB connectivity (web version $app_version)"
 
+      - name: Fetch the Jira ticket
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+          TICKET_KEY: ${{ inputs.jira_key }}
+        run: |
+          curl -s --fail-with-body -u "$JIRA_EMAIL:$JIRA_API_TOKEN" -o ticket.json \
+            "${JIRA_BASE_URL%/}/rest/api/3/issue/$TICKET_KEY?fields=summary,description,status,comment,customfield_12014,customfield_11948,customfield_11915,customfield_11913,customfield_11914,customfield_11981"
+
       - name: Run QA verification
         id: qa
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor_id)] || secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] }}
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
           GH_TOKEN: ${{ github.token }}
           TICKET_KEY: ${{ inputs.jira_key }}
+          TICKET_FILE: ${{ github.workspace }}/ticket.json
           PR_NUMBER: ${{ steps.find_pr.outputs.number }}
           PR_URL: ${{ steps.find_pr.outputs.url }}
           TRIGGERED_BY: ${{ github.actor }}
-          REPORT_MODE: ${{ inputs.report_mode || 'comment' }}
           QA_SKILL_DIR: ${{ github.workspace }}/dotfiles/plugins/centreon-qa-ci/skills/qa-ticket-verify
         run: |
           set -o pipefail
@@ -298,6 +305,30 @@ jobs:
           PR_URL: ${{ steps.find_pr.outputs.url }}
           TRIGGERED_BY: ${{ github.actor }}
           QA_SKILL_DIR: ${{ github.workspace }}/dotfiles/plugins/centreon-qa-ci/skills/qa-ticket-verify
+
+      - name: Post the report to Jira
+        if: ${{ !cancelled() }}
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+          TICKET_KEY: ${{ inputs.jira_key }}
+          PR_URL: ${{ steps.find_pr.outputs.url }}
+          TRIGGERED_BY: ${{ github.actor }}
+          QA_SKILL_DIR: ${{ github.workspace }}/dotfiles/plugins/centreon-qa-ci/skills/qa-ticket-verify
+        run: |
+          if [ "${{ inputs.report_mode || 'comment' }}" = "artifact" ]; then
+            echo "report_mode=artifact — nothing posted to Jira, the report stays in the run's artifacts."
+            exit 0
+          fi
+          runs=.claude/skills/qa-ticket-verify/runs
+          if [ -f "$runs/$TICKET_KEY.report.json" ]; then
+            python3 "$QA_SKILL_DIR/scripts/post-report.py" "$runs/$TICKET_KEY.report.json"
+          elif [ -f "$runs/$TICKET_KEY.notice.txt" ]; then
+            python3 "$QA_SKILL_DIR/scripts/post-report.py" --notice "$(cat "$runs/$TICKET_KEY.notice.txt")"
+          else
+            echo "::warning::No report.json or notice.txt found for $TICKET_KEY — nothing to post."
+          fi
 
       - name: Post failure notice to Jira if the run errored before reporting
         if: failure()
