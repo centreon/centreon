@@ -23,80 +23,170 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Application\EventHandler;
 
+use App\MonitoringConfiguration\Application\Command\DeleteHostTemplateServiceCommand;
 use App\MonitoringConfiguration\Application\EventHandler\CleanHostTemplateServicesEventHandler;
+use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateServicesCleanupRequested;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Collection;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceDeployer;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
+use Tests\App\Shared\Double\CommandBusSpy;
+use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class CleanHostTemplateServicesEventHandlerTest extends TestCase
 {
-    private FakeServiceDeployer $serviceDeployer;
+    private const HOST_ID = 12;
 
-    private LoggerInterface&MockObject $logger;
+    private FakeHostTemplateRepository $templateRepository;
 
-    private CleanHostTemplateServicesEventHandler $handler;
+    private FakeServiceRepository $serviceRepository;
+
+    private CommandBusSpy $commandBus;
+
+    private LoggerSpy $logger;
+
+    /** @var list<int> */
+    private array $serviceIds = [];
 
     protected function setUp(): void
     {
-        $this->serviceDeployer = new FakeServiceDeployer();
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->handler = new CleanHostTemplateServicesEventHandler($this->serviceDeployer, $this->logger);
+        $this->templateRepository = new FakeHostTemplateRepository();
+        $this->serviceRepository = new FakeServiceRepository();
+        $this->commandBus = new CommandBusSpy();
+        $this->logger = new LoggerSpy();
+
+        // Template 3 is removed, template 4 kept: the services of service templates 30 and 31 go.
+        $this->templateRepository->serviceTemplateIdsByTemplate = [3 => [30, 31], 4 => [40]];
+        $this->serviceIds = [$this->seedService(30), $this->seedService(31)];
+        $this->seedService(40);
     }
 
-    public function testItRemovesTheServicesOfTheRemovedTemplates(): void
+    public function testItRequestsTheDeletionOfEachServiceOfTheRemovedTemplatesForTheActor(): void
     {
-        $this->logger->expects(self::never())->method('error');
+        $this->handle();
 
-        ($this->handler)($this->event());
+        self::assertEqualsCanonicalizing(
+            array_map(static fn (int $id): array => [$id, self::HOST_ID, 7], $this->serviceIds),
+            array_map(
+                static function (object $command): array {
+                    self::assertInstanceOf(DeleteHostTemplateServiceCommand::class, $command);
 
-        self::assertSame(
-            [['hostId' => 12, 'previousTemplateIds' => [3, 4], 'templateIds' => [4], 'requestedBy' => 7]],
-            $this->serviceDeployer->removeCalls,
+                    return [$command->serviceId->value, $command->hostId->value, $command->deletedBy->value];
+                },
+                $this->commandBus->executed,
+            ),
         );
+        self::assertSame([], $this->logger->errorMessages);
     }
 
-    public function testItLogsAndSwallowsACleanupFailure(): void
+    public function testTheOtherServicesAreStillCleanedWhenOneFails(): void
     {
-        $this->serviceDeployer->removeThrows = true;
-        $this->logger->expects(self::once())
-            ->method('error')
-            ->with(self::isString(), self::callback(
-                static fn (array $context): bool => $context['host_id'] === 12
-                    && $context['exception'] instanceof \Throwable,
-            ));
+        $failing = $this->serviceIds[0];
+        $this->commandBus->failsFor = static fn (object $command): bool => $command instanceof DeleteHostTemplateServiceCommand
+            && $command->serviceId->value === $failing;
 
-        ($this->handler)($this->event());
+        $this->handle();
 
-        self::assertCount(1, $this->serviceDeployer->removeCalls);
+        self::assertCount(2, $this->commandBus->executed);
     }
 
     /**
-     * The event is delivered after the commit, so nothing can be rolled back and an escaping
-     * exception would turn a saved host into a 5xx — a failing logger included.
+     * Delivered after the commit, so nothing can be rolled back: an escaping exception would turn a
+     * saved host into a 5xx.
      */
-    public function testItSwallowsAFailingLoggerToo(): void
+    public function testAFailingServiceNeverEscapes(): void
     {
-        $this->serviceDeployer->removeThrows = true;
-        $this->logger->method('error')->willThrowException(new \RuntimeException('The logger failed.'));
+        $this->commandBus->throws = true;
 
-        ($this->handler)($this->event());
+        $this->handle();
 
-        self::assertCount(1, $this->serviceDeployer->removeCalls);
+        self::assertCount(2, $this->commandBus->executed);
     }
 
-    private function event(): HostTemplateServicesCleanupRequested
+    public function testAFailureBeforeAnyServiceNeverEscapes(): void
     {
-        return new HostTemplateServicesCleanupRequested(
-            new HostId(12),
+        $this->templateRepository->findServiceTemplateIdsThrows = new \RuntimeException('The database failed.');
+
+        $this->handle();
+
+        self::assertSame([], $this->commandBus->executed);
+    }
+
+    public function testEachFailingServiceIsLoggedAtErrorWithTheHostAndTheService(): void
+    {
+        $this->commandBus->throws = true;
+
+        $this->handle();
+
+        $loggedServiceIds = [];
+        foreach ($this->logger->errorMessages as $entry) {
+            self::assertSame(self::HOST_ID, $entry['context']['host_id']);
+            self::assertInstanceOf(\RuntimeException::class, $entry['context']['exception']);
+            $loggedServiceIds[] = $entry['context']['service_id'];
+        }
+        self::assertEqualsCanonicalizing($this->serviceIds, $loggedServiceIds);
+    }
+
+    public function testAFailureBeforeAnyServiceIsLoggedAtErrorWithTheHost(): void
+    {
+        $this->templateRepository->findServiceTemplateIdsThrows = new \RuntimeException('The database failed.');
+        $failure = $this->templateRepository->findServiceTemplateIdsThrows;
+
+        $this->handle();
+
+        self::assertCount(1, $this->logger->errorMessages);
+        $context = $this->logger->errorMessages[0]['context'];
+        self::assertSame(self::HOST_ID, $context['host_id']);
+        self::assertArrayNotHasKey('service_id', $context);
+        self::assertSame($failure, $context['exception']);
+    }
+
+    public function testAFailingLoggerIsSwallowedToo(): void
+    {
+        $this->commandBus->throws = true;
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->method('error')->willThrowException(new \RuntimeException('The logger failed.'));
+
+        $this->handle($logger);
+
+        self::assertCount(2, $this->commandBus->executed);
+    }
+
+    private function handle(?LoggerInterface $logger = null): void
+    {
+        $handler = new CleanHostTemplateServicesEventHandler(
+            new HostTemplateServicesCleaner($this->templateRepository, $this->serviceRepository),
+            $this->commandBus,
+            $logger ?? $this->logger,
+        );
+
+        $handler(new HostTemplateServicesCleanupRequested(
+            new HostId(self::HOST_ID),
             new Collection([new HostTemplateId(3), new HostTemplateId(4)], HostTemplateId::class),
             new Collection([new HostTemplateId(4)], HostTemplateId::class),
             new UserId(7),
+        ));
+    }
+
+    private function seedService(int $serviceTemplateId): int
+    {
+        $service = new Service(
+            id: null,
+            name: new ServiceName('service-' . $serviceTemplateId),
+            hostId: new HostId(self::HOST_ID),
+            hostActivated: true,
+            hostPollerId: null,
         );
+        $this->serviceRepository->add($service);
+        $this->serviceRepository->serviceTemplateIdOf[$service->id()->value] = $serviceTemplateId;
+
+        return $service->id()->value;
     }
 }

@@ -39,15 +39,23 @@ $hosts_selected_str = '';
 $hosts_selected_str_append = '';
 $hostsDone = [];
 $servicesDone = [];
-foreach ($selected_values as $value) {
+$queryParams = [];
+foreach ($selected_values as $key => $value) {
     $str = explode(';', $value);
-    $selected_str .= $selected_str_append . 'services.host_id = ' . $str[0] . ' AND services.service_id = ' . $str[1];
+    $hostId = (int) $str[0];
+    $serviceId = (int) ($str[1] ?? 0);
+    $selected_str .= $selected_str_append
+        . 'services.host_id = :host_id_' . $key
+        . ' AND services.service_id = :service_id_' . $key;
+    $queryParams[':host_id_' . $key] = [$hostId, PDO::PARAM_INT];
+    $queryParams[':service_id_' . $key] = [$serviceId, PDO::PARAM_INT];
     $selected_str_append = ' OR ';
 
-    if (! isset($hostsDone[$str[0]])) {
-        $hosts_selected_str .= $hosts_selected_str_append . $str[0];
+    if (! isset($hostsDone[$hostId])) {
+        $hosts_selected_str .= $hosts_selected_str_append . ':hosts_host_id_' . $key;
+        $queryParams[':hosts_host_id_' . $key] = [$hostId, PDO::PARAM_INT];
         $hosts_selected_str_append = ', ';
-        $hostsDone[$str[0]] = 1;
+        $hostsDone[$hostId] = 1;
     }
 }
 
@@ -86,7 +94,8 @@ $query .= ') ORDER BY `host_name`, `description`';
 
 $hosts_done = [];
 
-$dbResult = $db_storage->query($query);
+$dbResult = $db_storage->prepareQuery($query);
+$db_storage->executePreparedQuery($dbResult, $queryParams, true);
 while (($row = $dbResult->fetch())) {
     if (isset($hosts_done[$row['host_name'] . ';' . $row['description']])) {
         continue;

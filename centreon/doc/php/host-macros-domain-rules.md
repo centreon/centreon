@@ -58,7 +58,7 @@ These rules apply when a secret store (vault) is enabled. Without one, password 
 
 1. **One entry per host.** All of a host's secrets (SNMP community and password macros) are stored under a single entry that belongs to the host. The key for a macro is `_HOST<NAME>`.
 2. **Secrets are never shared.** An own password macro always refers to the host's own entry. When the host overrides an inherited password and keeps its value, the secret is **copied** into the host's entry. Changing or deleting the template then never affects the host.
-3. A secret already stored in the host's entry stays where it is, even after a rename. If a rename makes two macros claim the same key, the renamed macro is moved under its own name.
+3. A password macro's secret is always stored under the key of its own name. When a password macro is renamed, its secret is written again under the new key and the old key is deleted.
 4. An empty password is stored as an empty value, with nothing written to the vault.
 5. A secret that no macro uses any more is deleted from the host's entry. This happens when the macro is removed, when it becomes redundant and goes back to being inherited, or when it is no longer a password. An entry left empty is purged.
 6. Every validation happens before any secret is written, so a rejected change never leaves an orphan secret behind.
