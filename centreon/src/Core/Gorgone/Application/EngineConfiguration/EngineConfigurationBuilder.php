@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\Gorgone\Application\EngineConfiguration;
 
 /**
- * Builds the JSON configuration of a poller run by centreon-engine (schema engine-configuration.v3.json)
+ * Builds the JSON configuration of a poller run by centreon-engine (schema engine-configuration.v4.json)
  * from the attributes the .cfg generator writes, as it writes them. Only the fields of the schema are
  * kept: centreon-engine refuses a document with an unknown field. Values are kept as written, "encrypt::"
  * and "raw::" included: centreon-engine reads them as Engine does, with the key of the engine_context target.
@@ -41,8 +41,10 @@ final class EngineConfigurationBuilder
     /**
      * Version 2: timeperiods, check periods, time zones, recurring downtimes, encrypted values.
      * Version 3: groups, severities, tags, parents, dependencies, acknowledgement timeouts, event log settings.
+     * Version 4: contacts, contact groups, escalations, notification, event handler, flapping and freshness
+     * settings of the objects and of the engine, TLS of the connection to the central broker.
      */
-    public const VERSION = 3;
+    public const VERSION = 4;
     public const KIND_HOST = 'host';
     public const KIND_HOST_TEMPLATE = 'host_template';
     public const KIND_SERVICE = 'service';
@@ -56,20 +58,46 @@ final class EngineConfigurationBuilder
     public const KIND_TAG = 'tag';
     public const KIND_HOST_DEPENDENCY = 'host_dependency';
     public const KIND_SERVICE_DEPENDENCY = 'service_dependency';
+    /** A contact, or a contact template when it is not registered. */
+    public const KIND_CONTACT = 'contact';
+    public const KIND_CONTACTGROUP = 'contactgroup';
+    public const KIND_HOST_ESCALATION = 'host_escalation';
+    public const KIND_SERVICE_ESCALATION = 'service_escalation';
     /** Host of the meta-services, which the document does not carry: what refers to it is left out. */
     private const META_HOST = '_Module_Meta';
 
     private const STRING_FIELDS = [
-        self::KIND_HOST => ['host_name', 'alias', 'address', 'check_command', 'check_period', 'timezone'],
-        self::KIND_SERVICE => ['host_name', 'service_description', 'check_command', 'check_period'],
+        self::KIND_HOST => [
+            'host_name', 'alias', 'address', 'check_command', 'check_period', 'timezone', 'notification_period',
+            'notification_options', 'event_handler', 'flap_detection_options',
+        ],
+        self::KIND_SERVICE => [
+            'host_name', 'service_description', 'check_command', 'check_period', 'notification_period',
+            'notification_options', 'event_handler', 'flap_detection_options',
+        ],
     ];
     private const INTEGER_FIELDS = [
         'check_interval', 'retry_interval', 'max_check_attempts', 'icon_id', 'acknowledgement_timeout',
+        'notification_interval', 'first_notification_delay', 'recovery_notification_delay', 'freshness_threshold',
     ];
+    /** Percentages. */
+    private const NUMBER_FIELDS = ['low_flap_threshold', 'high_flap_threshold'];
     /** Lists of names, and lists of ids, of hosts and services. */
-    private const NAME_LISTS = [self::KIND_HOST => ['parents'], self::KIND_SERVICE => []];
+    private const NAME_LISTS = [
+        self::KIND_HOST => ['parents', 'contacts', 'contact_groups'],
+        self::KIND_SERVICE => ['contacts', 'contact_groups'],
+    ];
     private const ID_LISTS = ['category_tags', 'group_tags'];
-    private const BOOLEAN_FIELDS = ['active_checks_enabled', 'passive_checks_enabled'];
+    private const BOOLEAN_FIELDS = [
+        self::KIND_HOST => [
+            'active_checks_enabled', 'passive_checks_enabled', 'notifications_enabled', 'event_handler_enabled',
+            'flap_detection_enabled', 'check_freshness',
+        ],
+        self::KIND_SERVICE => [
+            'active_checks_enabled', 'passive_checks_enabled', 'notifications_enabled', 'event_handler_enabled',
+            'flap_detection_enabled', 'check_freshness', 'is_volatile',
+        ],
+    ];
     private const ID_MACROS = [
         self::KIND_HOST => ['_HOST_ID', 'host_id'],
         self::KIND_SERVICE => ['_SERVICE_ID', 'service_id'],
@@ -83,13 +111,44 @@ final class EngineConfigurationBuilder
         'status_update_interval' => 0,
         'retention_update_interval' => 0,
         'cached_host_check_horizon' => 0,
+        'notification_timeout' => 0,
+        'event_handler_timeout' => 0,
+        'service_freshness_check_interval' => 0,
+        'host_freshness_check_interval' => 0,
+        'additional_freshness_latency' => 0,
     ];
     private const BOOLEAN_SETTINGS = [
         'use_retained_scheduling_info', 'log_service_retries', 'log_host_retries', 'log_external_commands',
         'log_passive_checks', 'soft_state_dependencies', 'enable_predictive_host_dependency_checks',
-        'enable_predictive_service_dependency_checks',
+        'enable_predictive_service_dependency_checks', 'enable_notifications', 'log_notifications',
+        'enable_event_handlers', 'log_event_handlers', 'enable_flap_detection', 'check_service_freshness',
+        'check_host_freshness',
     ];
-    private const LOG_LEVEL_SETTINGS = ['log_level_events', 'log_level_checks', 'log_level_external_command'];
+    /** Percentages. */
+    private const NUMBER_SETTINGS = [
+        'low_service_flap_threshold', 'high_service_flap_threshold', 'low_host_flap_threshold',
+        'high_host_flap_threshold',
+    ];
+    private const STRING_SETTINGS = [
+        'global_host_event_handler', 'global_service_event_handler', 'date_format', 'admin_email', 'admin_pager',
+        'illegal_macro_output_chars',
+    ];
+    private const LOG_LEVEL_SETTINGS = [
+        'log_level_events', 'log_level_checks', 'log_level_external_command', 'log_level_notifications',
+        'log_level_runtime',
+    ];
+    private const CONTACT_STRINGS = [
+        'contact_name', 'alias', 'email', 'pager', 'address1', 'address2', 'address3', 'address4', 'address5',
+        'address6', 'host_notification_period', 'service_notification_period', 'host_notification_options',
+        'service_notification_options', 'timezone',
+    ];
+    private const CONTACT_LISTS = ['host_notification_commands', 'service_notification_commands', 'contactgroups'];
+    private const CONTACT_BOOLEANS = ['host_notifications_enabled', 'service_notifications_enabled'];
+    private const ESCALATION_LISTS = [
+        'host_name', 'hostgroup_name', 'service_description', 'servicegroup_name', 'contact_groups',
+    ];
+    /** TLS keys of the cbmod output to the central broker; the paths are on the poller. */
+    private const BROKER_TLS_FIELDS = ['private_key', 'public_cert', 'ca_certificate', 'tls_hostname'];
     private const DEPENDENCY_LISTS = [
         'host_name', 'hostgroup_name', 'dependent_host_name', 'dependent_hostgroup_name', 'service_description',
         'servicegroup_name', 'dependent_service_description', 'dependent_servicegroup_name',
@@ -112,7 +171,13 @@ final class EngineConfigurationBuilder
         self::KIND_TAG => 'tags',
         self::KIND_HOST_DEPENDENCY => 'host_dependencies',
         self::KIND_SERVICE_DEPENDENCY => 'service_dependencies',
+        self::KIND_CONTACT => 'contacts',
+        self::KIND_CONTACTGROUP => 'contactgroups',
+        self::KIND_HOST_ESCALATION => 'host_escalations',
+        self::KIND_SERVICE_ESCALATION => 'service_escalations',
     ];
+    /** Collection of the contact templates (KIND_CONTACT not registered). */
+    private const CONTACT_TEMPLATES = 'contact_templates';
 
     /** @var array<string, int|string|bool> */
     private array $settings = [];
@@ -120,7 +185,7 @@ final class EngineConfigurationBuilder
     /** @var array<string, string> */
     private array $resourceMacros = [];
 
-    /** @var array{address: string, name: string}|null */
+    /** @var array{address: string, name: string, tls?: array<string, string>}|null */
     private ?array $broker = null;
 
     /** @var array<string, list<array<string, mixed>>> objects by collection of the document */
@@ -160,11 +225,18 @@ final class EngineConfigurationBuilder
             self::KIND_SEVERITY => $this->mapSeverity($written),
             self::KIND_TAG => $this->mapTag($written),
             self::KIND_HOST_DEPENDENCY, self::KIND_SERVICE_DEPENDENCY => $this->mapDependency($written),
+            self::KIND_CONTACT => $this->mapContact($written),
+            self::KIND_CONTACTGROUP => $this->mapContactgroup($written),
+            self::KIND_HOST_ESCALATION, self::KIND_SERVICE_ESCALATION => $this->mapEscalation($written),
             default => throw new \InvalidArgumentException(sprintf('Unknown object kind "%s"', $kind)),
         };
-        if ($object !== null) {
-            $this->objects[self::COLLECTIONS[$kind]][] = $object;
+        if ($object === null) {
+            return;
         }
+        $collection = $kind === self::KIND_CONTACT && isset($object['name'])
+            ? self::CONTACT_TEMPLATES
+            : self::COLLECTIONS[$kind];
+        $this->objects[$collection][] = $object;
     }
 
     /**
@@ -209,6 +281,18 @@ final class EngineConfigurationBuilder
             $value = $written[$name] ?? null;
             if ($value === '0' || $value === '1') {
                 $this->settings[$name] = $value === '1';
+            }
+        }
+        foreach (self::NUMBER_SETTINGS as $name) {
+            $value = $written[$name] ?? null;
+            if (is_string($value) && $value !== '') {
+                $this->settings[$name] = self::toPercent($value, $name, 'centengine.cfg');
+            }
+        }
+        foreach (self::STRING_SETTINGS as $name) {
+            $value = $written[$name] ?? null;
+            if (is_string($value) && $value !== '') {
+                $this->settings[$name] = $value;
             }
         }
         foreach (self::LOG_LEVEL_SETTINGS as $name) {
@@ -280,8 +364,10 @@ final class EngineConfigurationBuilder
                 continue;
             }
             $type = (string) ($output['type'] ?? '');
-            $isTcp = in_array($type, self::BROKER_TCP_OUTPUTS, true)
-                || ($type === 'bbdo_client' && ($output['transport_protocol'] ?? 'tcp') === 'tcp');
+            // The database stores "TCP" or "gRPC".
+            $isBbdoClient = $type === 'bbdo_client'
+                && strtolower((string) ($output['transport_protocol'] ?? 'tcp')) === 'tcp';
+            $isTcp = in_array($type, self::BROKER_TCP_OUTPUTS, true) || $isBbdoClient;
             $host = trim((string) ($output['host'] ?? ''));
             $port = (string) ($output['port'] ?? '');
             if (! $isTcp || $host === '' || ! ctype_digit($port)) {
@@ -291,6 +377,10 @@ final class EngineConfigurationBuilder
                 $host = "[{$host}]";
             }
             $this->broker = ['address' => "{$host}:{$port}", 'name' => $name];
+            $tls = self::brokerTls($output, $isBbdoClient);
+            if ($tls !== null) {
+                $this->broker['tls'] = $tls;
+            }
 
             return;
         }
@@ -311,12 +401,14 @@ final class EngineConfigurationBuilder
             ));
         }
 
+        $broker = $this->broker;
+        if ($broker['name'] === '') {
+            unset($broker['name']);
+        }
         $document = [
             'version' => self::VERSION,
             'poller' => ['id' => $this->pollerId, 'name' => $this->pollerName],
-            'broker' => $this->broker['name'] !== ''
-                ? $this->broker
-                : ['address' => $this->broker['address']],
+            'broker' => $broker,
         ];
         if ($this->settings !== []) {
             $document['settings'] = $this->settings;
@@ -324,7 +416,7 @@ final class EngineConfigurationBuilder
         if ($this->resourceMacros !== []) {
             $document['resource_macros'] = $this->resourceMacros;
         }
-        foreach (self::COLLECTIONS as $collection) {
+        foreach ([self::CONTACT_TEMPLATES, ...array_values(self::COLLECTIONS)] as $collection) {
             if (($this->objects[$collection] ?? []) !== []) {
                 $document[$collection] = $this->objects[$collection];
             }
@@ -419,7 +511,12 @@ final class EngineConfigurationBuilder
                 $object[$field] = self::toInteger($written[$field], $field, $label, 0);
             }
         }
-        foreach (self::BOOLEAN_FIELDS as $field) {
+        foreach (self::NUMBER_FIELDS as $field) {
+            if (isset($written[$field]) && is_string($written[$field]) && $written[$field] !== '') {
+                $object[$field] = self::toPercent($written[$field], $field, $label);
+            }
+        }
+        foreach (self::BOOLEAN_FIELDS[$kind] as $field) {
             $value = $written[$field] ?? null;
             if ($value === '0' || $value === '1') {
                 $object[$field] = $value === '1';
@@ -643,6 +740,170 @@ final class EngineConfigurationBuilder
         }
 
         return $dependency;
+    }
+
+    /**
+     * contacts.cfg: a contact, or a contact template (register 0, with a name).
+     *
+     * @param _Written $written
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array<string, mixed>
+     */
+    private function mapContact(array $written): array
+    {
+        $contact = [];
+        if (($written['register'] ?? '1') === '0') {
+            $name = $written['name'] ?? '';
+            if (! is_string($name) || $name === '') {
+                throw new \InvalidArgumentException('The contact template has no name');
+            }
+            $contact['name'] = $name;
+        } elseif (! is_string($written['contact_name'] ?? null) || $written['contact_name'] === '') {
+            throw new \InvalidArgumentException('A contact needs a contact_name');
+        }
+        $uses = self::names($written['use'] ?? []);
+        if ($uses !== []) {
+            $contact['use'] = $uses;
+        }
+        foreach (self::CONTACT_STRINGS as $field) {
+            if (isset($written[$field]) && is_string($written[$field]) && $written[$field] !== '') {
+                $contact[$field] = $written[$field];
+            }
+        }
+        foreach (self::CONTACT_BOOLEANS as $field) {
+            $value = $written[$field] ?? null;
+            if ($value === '0' || $value === '1') {
+                $contact[$field] = $value === '1';
+            }
+        }
+        foreach (self::CONTACT_LISTS as $field) {
+            $names = self::names($written[$field] ?? []);
+            if ($names !== []) {
+                $contact[$field] = $names;
+            }
+        }
+
+        return $contact;
+    }
+
+    /**
+     * contactgroups.cfg: name, alias and the member contacts.
+     *
+     * @param _Written $written
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array<string, mixed>
+     */
+    private function mapContactgroup(array $written): array
+    {
+        $name = $written['contactgroup_name'] ?? '';
+        if (! is_string($name) || $name === '') {
+            throw new \InvalidArgumentException('A contact group needs a contactgroup_name');
+        }
+        $group = ['contactgroup_name' => $name];
+        if (isset($written['alias']) && is_string($written['alias'])) {
+            $group['alias'] = $written['alias'];
+        }
+        foreach (['members', 'contactgroup_members'] as $field) {
+            $names = self::names($written[$field] ?? []);
+            if ($names !== []) {
+                $group[$field] = $names;
+            }
+        }
+
+        return $group;
+    }
+
+    /**
+     * escalations.cfg: a host or service escalation; one of a meta-service is left out, and the
+     * escalation name (written as a comment, ";escalation_name") is not kept.
+     *
+     * @param _Written $written
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array<string, mixed>|null
+     */
+    private function mapEscalation(array $written): ?array
+    {
+        $escalation = [];
+        foreach (self::ESCALATION_LISTS as $field) {
+            $names = self::names($written[$field] ?? []);
+            if (in_array(self::META_HOST, $names, true)) {
+                return null;
+            }
+            if ($names !== []) {
+                $escalation[$field] = $names;
+            }
+        }
+        $label = 'escalation ' . (is_string($written[';escalation_name'] ?? null) ? $written[';escalation_name'] : '');
+        foreach (['first_notification', 'last_notification'] as $field) {
+            if (isset($written[$field]) && is_string($written[$field]) && $written[$field] !== '') {
+                $escalation[$field] = self::toInteger($written[$field], $field, $label, 0);
+            }
+        }
+        $interval = $written['notification_interval'] ?? null;
+        if (is_string($interval) && $interval !== '') {
+            if (! is_numeric($interval) || (float) $interval < 0) {
+                throw new \InvalidArgumentException(
+                    sprintf('Invalid value "%s" for notification_interval of %s', $interval, $label)
+                );
+            }
+            $escalation['notification_interval'] = (float) $interval;
+        }
+        foreach (['escalation_period', 'escalation_options'] as $field) {
+            if (isset($written[$field]) && is_string($written[$field]) && $written[$field] !== '') {
+                $escalation[$field] = $written[$field];
+            }
+        }
+
+        return $escalation;
+    }
+
+    /**
+     * The TLS of a cbmod output: tls (yes, auto) and the certificates of an ipv4/ipv6/tcp output, or
+     * encryption, certificate and ca_certificate of a bbdo_client one; null without TLS.
+     *
+     * @param array<mixed> $output
+     *
+     * @return array<string, string>|null
+     */
+    private static function brokerTls(array $output, bool $isBbdoClient): ?array
+    {
+        $mode = strtolower(trim((string) ($output[$isBbdoClient ? 'encryption' : 'tls'] ?? 'no')));
+        if (! in_array($mode, ['yes', 'auto'], true)) {
+            return null;
+        }
+        $tls = ['tls' => $mode];
+        if ($isBbdoClient && isset($output['certificate'])) {
+            $output['public_cert'] = $output['certificate'];
+        }
+        foreach (self::BROKER_TLS_FIELDS as $field) {
+            $value = trim((string) ($output[$field] ?? ''));
+            if ($value !== '') {
+                $tls[$field] = $value;
+            }
+        }
+
+        return $tls;
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    private static function toPercent(string $value, string $field, string $owner): float
+    {
+        $value = trim($value);
+        if (! is_numeric($value) || (float) $value < 0 || (float) $value > 100) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid value "%s" for %s of %s: a percentage is expected', $value, $field, $owner)
+            );
+        }
+
+        return (float) $value;
     }
 
     /**

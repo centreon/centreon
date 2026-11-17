@@ -37,7 +37,7 @@ beforeEach(function (): void {
 
 it('should build the smallest document from the poller and its broker module', function (): void {
     expect($this->builder->build())->toBe([
-        'version' => 3,
+        'version' => 4,
         'poller' => ['id' => 3, 'name' => 'poller-3'],
         'broker' => ['address' => '10.0.0.1:5669', 'name' => 'poller-3-module'],
     ]);
@@ -89,7 +89,9 @@ it('should map a host as written in hosts.cfg, keeping only the fields of the sc
         'acknowledgement_timeout' => 30,
         'active_checks_enabled' => true,
         'passive_checks_enabled' => false,
+        'notifications_enabled' => true,
         'parents' => ['srv-0'],
+        'contacts' => ['admin'],
         'category_tags' => [3, 5],
         'group_tags' => [4],
         'severity_id' => 2,
@@ -221,6 +223,221 @@ it('should map the commands, resource macros and engine settings', function (): 
     );
 });
 
+it('should map the notification, event handler, flapping and freshness fields of a service', function (): void {
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_SERVICE, [
+        'host_name' => 'srv-1',
+        'service_description' => 'Disk',
+        'check_command' => 'check_disk',
+        'contacts' => 'admin,ops-lead',
+        'contact_groups' => 'ops',
+        'notification_interval' => '30',
+        'first_notification_delay' => '5',
+        'recovery_notification_delay' => '2',
+        'notification_options' => 'w,u,c,r,f,s',
+        'notification_period' => 'workhours',
+        'notifications_enabled' => '1',
+        'event_handler' => 'restart-service!disk',
+        'event_handler_enabled' => '0',
+        'flap_detection_enabled' => '1',
+        'low_flap_threshold' => '12.5',
+        'high_flap_threshold' => '40',
+        'check_freshness' => '1',
+        'freshness_threshold' => '600',
+        'is_volatile' => '0',
+        'stalking_options' => 'o,w',
+        'obsess_over_service' => '1',
+        '_SERVICE_ID' => '7',
+    ]);
+
+    expect($this->builder->build()['services'])->toBe([[
+        'host_name' => 'srv-1',
+        'service_description' => 'Disk',
+        'check_command' => 'check_disk',
+        'notification_period' => 'workhours',
+        'notification_options' => 'w,u,c,r,f,s',
+        'event_handler' => 'restart-service!disk',
+        'notification_interval' => 30,
+        'first_notification_delay' => 5,
+        'recovery_notification_delay' => 2,
+        'freshness_threshold' => 600,
+        'low_flap_threshold' => 12.5,
+        'high_flap_threshold' => 40.0,
+        'notifications_enabled' => true,
+        'event_handler_enabled' => false,
+        'flap_detection_enabled' => true,
+        'check_freshness' => true,
+        'is_volatile' => false,
+        'contacts' => ['admin', 'ops-lead'],
+        'contact_groups' => ['ops'],
+        'service_id' => 7,
+    ]]);
+});
+
+it('should map contacts, contact templates, contact groups and escalations', function (): void {
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_CONTACT, [
+        'name' => 'contact-template',
+        'host_notification_commands' => ['host-notify-by-email'],
+        'service_notification_commands' => ['service-notify-by-email'],
+        'host_notification_options' => 'd,u,r',
+        'register' => '0',
+    ]);
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_CONTACT, [
+        'contact_name' => 'admin',
+        'alias' => 'Administrator',
+        'email' => 'admin@example.com',
+        'pager' => '0600',
+        'address1' => 'Desk 3',
+        'host_notification_period' => '24x7',
+        'service_notification_period' => 'workhours',
+        'service_notification_options' => 'w,c,r',
+        'host_notifications_enabled' => '1',
+        'service_notifications_enabled' => '1',
+        'use' => ['contact-template'],
+        'register' => '1',
+        'timezone' => ':Europe/Paris',
+    ]);
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_CONTACTGROUP, [
+        'contactgroup_name' => 'ops',
+        'alias' => 'Operators',
+        'members' => ['admin'],
+    ]);
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_SERVICE_ESCALATION, [
+        ';escalation_name' => 'disk-escalation',
+        'host_name' => ['srv-1'],
+        'service_description' => ['Disk'],
+        'first_notification' => '2',
+        'last_notification' => '0',
+        'notification_interval' => '10',
+        'escalation_period' => '24x7',
+        'escalation_options' => 'c,r',
+        'contact_groups' => ['ops'],
+    ]);
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_HOST_ESCALATION, [
+        ';escalation_name' => 'hosts',
+        'hostgroup_name' => ['linux'],
+        'first_notification' => '1',
+        'escalation_options' => 'd',
+        'contact_groups' => ['ops'],
+    ]);
+    // The escalation of a meta-service is left out, as the meta-services.
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_SERVICE_ESCALATION, [
+        'host_name' => ['_Module_Meta'],
+        'service_description' => ['meta_1'],
+        'contact_groups' => ['ops'],
+    ]);
+
+    $document = $this->builder->build();
+    expect($document['contact_templates'])->toBe([[
+        'name' => 'contact-template',
+        'host_notification_options' => 'd,u,r',
+        'host_notification_commands' => ['host-notify-by-email'],
+        'service_notification_commands' => ['service-notify-by-email'],
+    ]])->and($document['contacts'])->toBe([[
+        'use' => ['contact-template'],
+        'contact_name' => 'admin',
+        'alias' => 'Administrator',
+        'email' => 'admin@example.com',
+        'pager' => '0600',
+        'address1' => 'Desk 3',
+        'host_notification_period' => '24x7',
+        'service_notification_period' => 'workhours',
+        'service_notification_options' => 'w,c,r',
+        'timezone' => ':Europe/Paris',
+        'host_notifications_enabled' => true,
+        'service_notifications_enabled' => true,
+    ]])->and($document['contactgroups'])->toBe([[
+        'contactgroup_name' => 'ops',
+        'alias' => 'Operators',
+        'members' => ['admin'],
+    ]])->and($document['service_escalations'])->toBe([[
+        'host_name' => ['srv-1'],
+        'service_description' => ['Disk'],
+        'contact_groups' => ['ops'],
+        'first_notification' => 2,
+        'last_notification' => 0,
+        'notification_interval' => 10.0,
+        'escalation_period' => '24x7',
+        'escalation_options' => 'c,r',
+    ]])->and($document['host_escalations'])->toBe([[
+        'hostgroup_name' => ['linux'],
+        'contact_groups' => ['ops'],
+        'first_notification' => 1,
+        'escalation_options' => 'd',
+    ]])->and(array_slice(array_keys($document), 3))->toBe(
+        ['contact_templates', 'contacts', 'contactgroups', 'host_escalations', 'service_escalations']
+    );
+});
+
+it('should map the notification, event handler, flapping and freshness settings', function (): void {
+    $this->builder->setEngineSettings([
+        'enable_notifications' => '1',
+        'notification_timeout' => '30',
+        'log_notifications' => '1',
+        'log_level_notifications' => 'err',
+        'log_level_runtime' => 'warning',
+        'enable_event_handlers' => '1',
+        'global_service_event_handler' => 'log-event!svc',
+        'event_handler_timeout' => '30',
+        'log_event_handlers' => '1',
+        'enable_flap_detection' => '0',
+        'low_service_flap_threshold' => '25.0',
+        'high_service_flap_threshold' => '50.0',
+        'check_service_freshness' => '1',
+        'service_freshness_check_interval' => '60',
+        'additional_freshness_latency' => '15',
+        'date_format' => 'euro',
+        'admin_email' => 'admin@example.com',
+        'illegal_macro_output_chars' => '`~$^&"|\'<>',
+        'obsess_over_services' => '0',
+    ]);
+
+    expect($this->builder->build()['settings'])->toBe([
+        'notification_timeout' => 30,
+        'event_handler_timeout' => 30,
+        'service_freshness_check_interval' => 60,
+        'additional_freshness_latency' => 15,
+        'enable_notifications' => true,
+        'log_notifications' => true,
+        'enable_event_handlers' => true,
+        'log_event_handlers' => true,
+        'enable_flap_detection' => false,
+        'check_service_freshness' => true,
+        'low_service_flap_threshold' => 25.0,
+        'high_service_flap_threshold' => 50.0,
+        'global_service_event_handler' => 'log-event!svc',
+        'date_format' => 'euro',
+        'admin_email' => 'admin@example.com',
+        'illegal_macro_output_chars' => '`~$^&"|\'<>',
+        'log_level_notifications' => 'err',
+        'log_level_runtime' => 'warning',
+    ]);
+});
+
+it('should keep the TLS settings of the output to the central broker', function (array $output, ?array $tls): void {
+    $builder = new EngineConfigurationBuilder(3, 'poller-3');
+    $builder->addBrokerModule('module', [$output]);
+
+    $broker = $builder->build()['broker'];
+    expect($broker['tls'] ?? null)->toBe($tls);
+})->with([
+    'ipv4 with certificates' => [
+        ['type' => 'ipv4', 'host' => 'central', 'port' => '5669', 'tls' => 'yes',
+            'private_key' => '/etc/centreon-broker/poller.key', 'public_cert' => '/etc/centreon-broker/poller.crt',
+            'ca_certificate' => '/etc/centreon-broker/ca.crt', 'tls_hostname' => 'central.example.com',
+            'compression' => 'no'],
+        ['tls' => 'yes', 'private_key' => '/etc/centreon-broker/poller.key',
+            'public_cert' => '/etc/centreon-broker/poller.crt', 'ca_certificate' => '/etc/centreon-broker/ca.crt',
+            'tls_hostname' => 'central.example.com'],
+    ],
+    'ipv4 auto' => [['type' => 'ipv4', 'host' => 'central', 'port' => '5669', 'tls' => 'auto'], ['tls' => 'auto']],
+    'ipv4 without' => [['type' => 'ipv4', 'host' => 'central', 'port' => '5669', 'tls' => 'no'], null],
+    'bbdo client' => [
+        ['type' => 'bbdo_client', 'host' => 'central', 'port' => '5669', 'transport_protocol' => 'TCP',
+            'encryption' => 'yes', 'ca_certificate' => '/etc/ca.crt'],
+        ['tls' => 'yes', 'ca_certificate' => '/etc/ca.crt'],
+    ],
+]);
+
 it('should keep the first TCP output to the central broker', function (array $outputs, string $address): void {
     $builder = new EngineConfigurationBuilder(3, 'poller-3');
     $builder->addBrokerModule('first-module', $outputs);
@@ -232,6 +449,11 @@ it('should keep the first TCP output to the central broker', function (array $ou
     'ipv6' => [[['type' => 'ipv6', 'host' => 'fd00::1', 'port' => '5669']], '[fd00::1]:5669'],
     'bbdo client over tcp' => [
         [['type' => 'bbdo_client', 'host' => 'central', 'port' => '5669', 'transport_protocol' => 'tcp']],
+        'central:5669',
+    ],
+    // The database stores "TCP".
+    'bbdo client over TCP' => [
+        [['type' => 'bbdo_client', 'host' => 'central', 'port' => '5669', 'transport_protocol' => 'TCP']],
         'central:5669',
     ],
 ]);
@@ -263,7 +485,13 @@ it('should refuse what centreon-engine could not read', function (string $kind, 
     ],
     'template without name' => [EngineConfigurationBuilder::KIND_HOST_TEMPLATE, ['alias' => 'x'], 'has no name'],
     'command without line' => [EngineConfigurationBuilder::KIND_COMMAND, ['command_name' => 'x'], 'command_line'],
-    'unknown kind' => ['contact', ['contact_name' => 'admin'], 'Unknown object kind "contact"'],
+    'unknown kind' => ['connector', ['connector_name' => 'perl'], 'Unknown object kind "connector"'],
+    'contact without name' => [EngineConfigurationBuilder::KIND_CONTACT, ['email' => 'x'], 'contact_name'],
+    'flap threshold above 100' => [
+        EngineConfigurationBuilder::KIND_SERVICE,
+        ['service_description' => 'Ping', 'high_flap_threshold' => '150'],
+        'a percentage is expected',
+    ],
 ]);
 
 it('should map a timeperiod as written in timeperiods.cfg, exceptions included', function (): void {
@@ -450,12 +678,27 @@ it('should match the schema the engine reads', function (): void {
             'severities',
             'tags',
             'host_dependencies',
-            'service_dependencies'
+            'service_dependencies',
+            'contact_templates',
+            'contacts',
+            'contactgroups',
+            'host_escalations',
+            'service_escalations'
         )
+        ->and(array_keys($schema['properties']['broker']['properties']['tls']['properties']))
+        ->toBe(['tls', 'private_key', 'public_cert', 'ca_certificate', 'tls_hostname'])
+        ->and(array_keys($schema['$defs']['contact']['properties']))
+        ->toContain('name', 'use', 'contact_name', 'email', 'host_notification_commands', 'timezone')
+        ->and(array_keys($schema['$defs']['escalation']['properties']))
+        ->toContain('host_name', 'service_description', 'contact_groups', 'escalation_options')
         ->and(array_keys($schema['$defs']['host']['properties']))
         ->toContain('check_period', 'timezone', 'parents', 'category_tags', 'group_tags', 'severity_id')
+        ->and(array_keys($schema['$defs']['host']['properties']))
+        ->toContain('contacts', 'contact_groups', 'notification_options', 'event_handler', 'check_freshness')
         ->and(array_keys($schema['$defs']['service']['properties']))
         ->toContain('category_tags', 'group_tags', 'severity_id', 'icon_id', 'acknowledgement_timeout')
+        ->and(array_keys($schema['$defs']['service']['properties']))
+        ->toContain('is_volatile', 'low_flap_threshold', 'freshness_threshold', 'first_notification_delay')
         ->and(array_keys($schema['properties']['settings']['properties']))
         ->toContain(
             'use_timezone',
@@ -463,7 +706,14 @@ it('should match the schema the engine reads', function (): void {
             'use_retained_scheduling_info',
             'log_service_retries',
             'log_level_external_command',
-            'cached_host_check_horizon'
+            'cached_host_check_horizon',
+            'enable_notifications',
+            'log_level_notifications',
+            'log_level_runtime',
+            'global_service_event_handler',
+            'low_service_flap_threshold',
+            'additional_freshness_latency',
+            'illegal_macro_output_chars'
         );
 });
 

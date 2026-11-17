@@ -35,11 +35,14 @@ final class EngineConfigurationCapture
         'Service' => EngineConfigurationBuilder::KIND_SERVICE,
         'ServiceTemplate' => EngineConfigurationBuilder::KIND_SERVICE_TEMPLATE,
         'Timeperiod' => EngineConfigurationBuilder::KIND_TIMEPERIOD,
+        'Contact' => EngineConfigurationBuilder::KIND_CONTACT,
+        'Contactgroup' => EngineConfigurationBuilder::KIND_CONTACTGROUP,
     ];
 
     /**
      * Objects by the type of their .cfg definition, for the generator classes that write several types
-     * (Hostgroup and Servicegroup also write tags, Dependency host and service dependencies).
+     * (Hostgroup and Servicegroup also write tags, Dependency host and service dependencies, Escalation host
+     * and service escalations).
      */
     private const OBJECT_KINDS = [
         'hostgroup' => EngineConfigurationBuilder::KIND_HOSTGROUP,
@@ -48,6 +51,8 @@ final class EngineConfigurationCapture
         'tag' => EngineConfigurationBuilder::KIND_TAG,
         'hostdependency' => EngineConfigurationBuilder::KIND_HOST_DEPENDENCY,
         'servicedependency' => EngineConfigurationBuilder::KIND_SERVICE_DEPENDENCY,
+        'hostescalation' => EngineConfigurationBuilder::KIND_HOST_ESCALATION,
+        'serviceescalation' => EngineConfigurationBuilder::KIND_SERVICE_ESCALATION,
     ];
 
     private static ?EngineConfigurationBuilder $builder = null;
