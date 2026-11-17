@@ -23,4 +23,12 @@ final class JsonLastErrorMsgScope
     }
 }
 
+function checkInsideClosure(string $json)
+{
+    $decoded = json_decode($json, true);
+    $isValid = static fn (): bool => json_last_error() === JSON_ERROR_NONE;
+
+    return $isValid() ? $decoded : null;
+}
+
 ?>

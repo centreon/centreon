@@ -26,13 +26,11 @@ namespace Tools\Rector\Rule;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignOp;
 use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\BinaryOp\BitwiseOr;
 use PhpParser\Node\Expr\BinaryOp\Coalesce;
-use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Ternary;
@@ -53,7 +51,7 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
 /**
  * Unlike Rector's JsonThrowOnErrorRector, also flags calls with existing flags or named arguments,
- * and adds a named flags: argument. Like it, skips a scope that calls json_last_error().
+ * and adds a named flags: argument. Like it, skips a function or method that calls json_last_error(), closures included.
  */
 final class JsonThrowOnErrorFlagRector extends AbstractRector
 {
@@ -88,11 +86,11 @@ final class JsonThrowOnErrorFlagRector extends AbstractRector
      */
     public function getNodeTypes(): array
     {
-        return [FileWithoutNamespace::class, Namespace_::class, ClassMethod::class, Function_::class, Closure::class, ArrowFunction::class];
+        return [FileWithoutNamespace::class, Namespace_::class, ClassMethod::class, Function_::class];
     }
 
     /**
-     * @param FileWithoutNamespace|Namespace_|ClassMethod|Function_|Closure|ArrowFunction $node
+     * @param FileWithoutNamespace|Namespace_|ClassMethod|Function_ $node
      */
     public function refactor(Node $node): ?Node
     {
@@ -116,13 +114,13 @@ final class JsonThrowOnErrorFlagRector extends AbstractRector
     /**
      * @param Node[] $stmts
      *
-     * @return FuncCall[] calls of this scope, nested functions and closures excluded
+     * @return FuncCall[] calls of this scope and its closures, nested functions and methods excluded
      */
     private function findScopeFuncCalls(array $stmts): array
     {
         $funcCalls = [];
         $this->traverseNodesWithCallable($stmts, static function (Node $node) use (&$funcCalls): ?int {
-            if ($node instanceof FunctionLike) {
+            if ($node instanceof ClassMethod || $node instanceof Function_) {
                 return NodeVisitor::DONT_TRAVERSE_CHILDREN;
             }
 

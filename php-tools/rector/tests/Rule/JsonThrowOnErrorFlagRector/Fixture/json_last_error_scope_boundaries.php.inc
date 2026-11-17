@@ -2,13 +2,13 @@
 
 function outerScope(string $json)
 {
-    $decoded = json_decode($json, true);
-    $encode = static fn (array $data) => json_encode($data);
+    $decode = static fn (string $input) => json_decode($input, true);
+    $decoded = $decode($json);
     if (json_last_error() !== JSON_ERROR_NONE) {
         return null;
     }
 
-    return [$decoded, $encode];
+    return $decoded;
 }
 
 function siblingScope(string $json)
@@ -24,13 +24,13 @@ $topLevel = json_encode([]);
 
 function outerScope(string $json)
 {
-    $decoded = json_decode($json, true);
-    $encode = static fn (array $data) => json_encode($data, flags: JSON_THROW_ON_ERROR);
+    $decode = static fn (string $input) => json_decode($input, true);
+    $decoded = $decode($json);
     if (json_last_error() !== JSON_ERROR_NONE) {
         return null;
     }
 
-    return [$decoded, $encode];
+    return $decoded;
 }
 
 function siblingScope(string $json)
