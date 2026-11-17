@@ -1,4 +1,3 @@
-import { rs } from '@rstest/core';
 import { waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -220,23 +219,22 @@ export default () => {
       expect(queryErrors).toEqual([]);
     });
 
-    // No detail endpoint: the panel opens without a details query.
-    it('opens the panel of the clicked row without requesting its details', async () => {
+    it('opens the panel of the clicked row on its decoded details', async () => {
       const { queryErrors } = await initializeListing();
-
-      const fetchSpy = rs.spyOn(window, 'fetch');
 
       await userEvent.click(screen.getByText('Generic active host'));
 
       expect(await screen.findByTestId('form-panel')).toBeVisible();
       expect(window.location.search).toBe('?id=1&mode=edit');
 
-      // Long enough for a detail query to have run and failed.
-      await new Promise((resolve) => {
-        setTimeout(resolve, 500);
-      });
+      await waitForRequest('@getHostTemplate1');
 
-      expect(fetchSpy).not.toHaveBeenCalled();
+      // The detail fills the form: it decoded.
+      await waitFor(() =>
+        expect(screen.getAllByTestId('host-template-form-name')[1]).toHaveValue(
+          'generic-active-host-custom'
+        )
+      );
       expect(queryErrors).toEqual([]);
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
