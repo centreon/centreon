@@ -8,6 +8,7 @@ import { useSearchParams } from 'react-router';
 
 import {
   formStateAtom,
+  formStateOnDiscardAtom,
   isCloseConfirmationDialogOpenAtom,
   isMassChangeConfirmationDialogOpenAtom
 } from '../atoms';
@@ -21,18 +22,41 @@ const CloseModal = (): JSX.Element => {
   );
   const setFormState = useSetAtom(formStateAtom);
   const { mode } = useAtomValue(formStateAtom);
+  const [formStateOnDiscard, setFormStateOnDiscard] = useAtom(
+    formStateOnDiscardAtom
+  );
   const setIsMassChangeConfirmationDialogOpen = useSetAtom(
     isMassChangeConfirmationDialogOpenAtom
   );
 
   const discard = useCallback(() => {
     setIsDialogOpen(false);
+    setFormStateOnDiscard(null);
+
+    if (formStateOnDiscard) {
+      setSearchParams({
+        id: String(formStateOnDiscard.id),
+        mode: formStateOnDiscard.mode
+      });
+      setFormState(formStateOnDiscard);
+
+      return;
+    }
+
     setSearchParams({});
 
     setFormState((formState) => ({ ...formState, isOpen: false }));
-  }, []);
+  }, [
+    formStateOnDiscard,
+    setFormState,
+    setFormStateOnDiscard,
+    setIsDialogOpen,
+    setSearchParams
+  ]);
 
   const submitAndClose = useCallback(() => {
+    setFormStateOnDiscard(null);
+
     // A mass change is written only once its count is confirmed, from here
     // too.
     if (equals(mode, 'massChange')) {
@@ -46,11 +70,19 @@ const CloseModal = (): JSX.Element => {
       setIsDialogOpen(false);
       setSearchParams({});
     });
-  }, [mode, setIsDialogOpen, setIsMassChangeConfirmationDialogOpen]);
+  }, [
+    mode,
+    setFormStateOnDiscard,
+    setIsDialogOpen,
+    setIsMassChangeConfirmationDialogOpen,
+    setSearchParams,
+    submitForm
+  ]);
 
   const closeDialog = useCallback(() => {
     setIsDialogOpen(false);
-  }, []);
+    setFormStateOnDiscard(null);
+  }, [setFormStateOnDiscard, setIsDialogOpen]);
 
   return (
     <UnsavedChangesDialog

@@ -461,7 +461,7 @@ function _isOnPremMajor() {
 #
 # Unlike _usesInternalRepo (VM/RPM path), this doesn't just switch the
 # registry at the same major: RPM/DEB packages ARE published for cloud majors
-# (to an internal repo, per .github/actions/promote-to-stable), but poller
+# (to an internal repo, per .github/actions/promote-to-stable-pulp), but poller
 # container images are only ever published for on-prem majors — so a cloud
 # major has to resolve to a *different*, older major here.
 function _pollerImageMajor() {

@@ -29,8 +29,10 @@ import {
   labelNoteUrl
 } from '../translatedLabels';
 
-// The three blocks fill the form's `extendedInfos` and the API's
-// `extended_informations`.
+// The three blocks fill the form's `extendedInfos`, and a group of the API:
+// `extended_informations` for a host, the `apiGroup` a resource names
+// otherwise, which can differ from one block to the next.
+const defaultApiGroup = 'extended_informations';
 interface ExtendedInfosDetail<Values> {
   extendedInfos: Values;
 }
@@ -58,7 +60,7 @@ const getExtendedInfosDecoder = <Values>({
     ).map((value) => value ?? defaultValues)
   }) as JsonDecoder.DecoderObject<ExtendedInfosDetail<Values>>;
 
-const detailKeyMap = { extendedInfos: 'extended_informations' } as const;
+const getDetailKeyMap = (apiGroup: string) => ({ extendedInfos: apiGroup });
 
 const getExtendedInfos = <Values>(
   values: Record<string, unknown>,
@@ -115,9 +117,11 @@ const defaultNotesAndIcons: NotesAndIconsValues = {
 // A note, its link, and the icon the resource is shown with. The alternative
 // text of the icon is refused on cloud.
 export const getNotesAndIconsBlock = ({
+  apiGroup = defaultApiGroup,
   mediasEndpoint,
   resource: { baseEndpoint, idPrefix }
 }: {
+  apiGroup?: string;
   mediasEndpoint: string;
   resource: ResourceOptions;
 }): FieldBlock<ExtendedInfosDetail<NotesAndIconsValues>> => ({
@@ -139,7 +143,7 @@ export const getNotesAndIconsBlock = ({
       noteUrl: 'note_url'
     }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ isCloudPlatform, t }) => {
     const icon: InputPropsWithoutGroup = {
       fieldName: 'extended-infos-icon',
@@ -211,7 +215,7 @@ export const getNotesAndIconsBlock = ({
     const infos = getExtendedInfos(values, defaultNotesAndIcons);
 
     return {
-      extended_informations: {
+      [apiGroup]: {
         icon_id: infos.icon?.id ?? null,
         note: toApiText(infos.note),
         note_url: toApiText(infos.noteUrl),
@@ -260,8 +264,10 @@ const defaultActionUrlAndGeoCoordinates: ActionUrlAndGeoCoordinatesValues = {
 
 // A link to act on the resource, and where it stands on a map.
 export const getActionUrlAndGeoCoordinatesBlock = ({
+  apiGroup = defaultApiGroup,
   resource: { idPrefix }
 }: {
+  apiGroup?: string;
   resource: ResourceOptions;
 }): FieldBlock<ExtendedInfosDetail<ActionUrlAndGeoCoordinatesValues>> => ({
   defaultValues: { extendedInfos: defaultActionUrlAndGeoCoordinates },
@@ -273,7 +279,7 @@ export const getActionUrlAndGeoCoordinatesBlock = ({
     defaultValues: defaultActionUrlAndGeoCoordinates,
     keyMap: { actionUrl: 'action_url', geoCoordinates: 'geo_coordinates' }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ t }) => ({
     actionUrlAndGeoCoordinates: getBlock({
       columns: [
@@ -307,7 +313,7 @@ export const getActionUrlAndGeoCoordinatesBlock = ({
     const infos = getExtendedInfos(values, defaultActionUrlAndGeoCoordinates);
 
     return {
-      extended_informations: {
+      [apiGroup]: {
         action_url: toApiText(infos.actionUrl),
         geo_coordinates: toApiText(infos.geoCoordinates)
       }
@@ -319,8 +325,10 @@ const defaultComment = { comment: '' };
 
 // A free comment on the resource. Refused on cloud.
 export const getCommentBlock = ({
+  apiGroup = defaultApiGroup,
   resource: { idPrefix }
 }: {
+  apiGroup?: string;
   resource: ResourceOptions;
 }): FieldBlock<ExtendedInfosDetail<{ comment: string }>> => ({
   defaultValues: { extendedInfos: defaultComment },
@@ -329,7 +337,7 @@ export const getCommentBlock = ({
     defaultValues: defaultComment,
     keyMap: { comment: 'comment' }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(apiGroup),
   getInputs: ({ isCloudPlatform, t }) =>
     isCloudPlatform
       ? {}
@@ -354,7 +362,7 @@ export const getCommentBlock = ({
     isCloudPlatform
       ? {}
       : {
-          extended_informations: {
+          [apiGroup]: {
             comment: toApiText(getExtendedInfos(values, defaultComment).comment)
           }
         }

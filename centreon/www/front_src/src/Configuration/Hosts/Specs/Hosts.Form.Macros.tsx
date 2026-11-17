@@ -430,7 +430,7 @@ export default () => {
       const { request } = await waitForRequest('@getTemplateMacros5');
 
       expect(request.url.pathname).toContain(
-        '/api/configuration/hosts/host_templates/5'
+        '/api/configuration/hosts/host_templates/5/macros'
       );
 
       await expectMacroValue(0, 'name', 'OS');

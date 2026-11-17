@@ -99,7 +99,16 @@ Then('all the properties, including the macros, are successfully saved', () => {
 
 Then('the export configuration is done with success', () => {
   cy.exportConfig();
-  cy.wait('@exportConf').its('response.statusCode').should('eq', 204);
+  // The export request can be sent twice: wait for one that answered 204
+  cy.waitUntil(
+    () =>
+      cy
+        .get<Array<{ response?: { statusCode: number } }>>('@exportConf.all')
+        .then((calls) =>
+          calls.some((call) => call.response?.statusCode === 204)
+        ),
+    { interval: 1000, timeout: 60000 }
+  );
 });
 
 Then('the macros are exported to the file {string}', (fileName: string) => {
@@ -314,6 +323,17 @@ Given(
 When(
   'the non-admin user creates a new Service Template {string} with {string} as its parent',
   (child: string, parent: string) => {
+    // A retry reuses the containers: remove the template of a previous attempt
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: `SELECT service_id FROM service WHERE service_description = '${child}' AND service_register = '0'`
+    }).then(([rows]) => {
+      if (rows.length > 0) {
+        cy.setUserTokenApiV1().executeActionViaClapi({
+          bodyContent: { action: 'DEL', object: 'STPL', values: child }
+        });
+      }
+    });
     clickToAddService();
     // Fill mandatory fields
     cy.getIframeBody()
