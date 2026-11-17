@@ -15998,6 +15998,7 @@ components:
             - 'false'
             - 'true'
             - use_default
+            - null
           description: 'Whether notifications are enabled; "use_default" or null leaves the directive to the template chain.'
           type:
             - string

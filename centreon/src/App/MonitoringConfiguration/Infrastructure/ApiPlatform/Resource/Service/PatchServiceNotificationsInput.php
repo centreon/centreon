@@ -58,7 +58,10 @@ final readonly class PatchServiceNotificationsInput
      * @param list<string> $optionsToRemove
      */
     public function __construct(
-        #[ApiProperty(description: 'Whether notifications are enabled; "use_default" or null leaves the directive to the template chain.')]
+        #[ApiProperty(
+            description: 'Whether notifications are enabled; "use_default" or null leaves the directive to the template chain.',
+            openapiContext: ['type' => ['string', 'null'], 'enum' => [TriStateEnum::False->value, TriStateEnum::True->value, TriStateEnum::UseDefault->value, null]],
+        )]
         #[Assert\Choice(choices: [TriStateEnum::False->value, TriStateEnum::True->value, TriStateEnum::UseDefault->value])]
         public ?string $enabled = null,
 
