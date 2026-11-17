@@ -26,26 +26,34 @@ namespace Tools\Rector\Rule;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignOp;
 use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\BinaryOp\BitwiseOr;
 use PhpParser\Node\Expr\BinaryOp\Coalesce;
+use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Ternary;
+use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\Int_;
+use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Function_;
+use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\NodeFinder;
+use PhpParser\NodeVisitor;
 use Rector\NodeTypeResolver\Node\AttributeKey;
+use Rector\PhpParser\Node\CustomNode\FileWithoutNamespace;
 use Rector\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
 /**
- * Unlike Rector's JsonThrowOnErrorRector, also flags calls with existing flags, named arguments
- * or a json_last_error() check, and adds a named flags: argument.
+ * Unlike Rector's JsonThrowOnErrorRector, also flags calls with existing flags or named arguments,
+ * and adds a named flags: argument. Like it, skips a scope that calls json_last_error().
  */
 final class JsonThrowOnErrorFlagRector extends AbstractRector
 {
@@ -80,47 +88,89 @@ final class JsonThrowOnErrorFlagRector extends AbstractRector
      */
     public function getNodeTypes(): array
     {
-        return [FuncCall::class];
+        return [FileWithoutNamespace::class, Namespace_::class, ClassMethod::class, Function_::class, Closure::class, ArrowFunction::class];
     }
 
     /**
-     * @param FuncCall $node
+     * @param FileWithoutNamespace|Namespace_|ClassMethod|Function_|Closure|ArrowFunction $node
      */
     public function refactor(Node $node): ?Node
     {
-        $functionName = $this->getName($node);
-        if ($functionName === null || ! isset(self::FLAGS_POSITION[$functionName])) {
-            return null;
-        }
+        $funcCalls = $this->findScopeFuncCalls($node instanceof FunctionLike ? (array) $node->getStmts() : $node->stmts);
 
-        if ($node->isFirstClassCallable() || $node->getArgs() === []) {
-            return null;
-        }
-
-        foreach ($node->getArgs() as $arg) {
-            if ($arg->unpack) {
+        // The flag leaves json_last_error() untouched on success, so a check relying on it would read a stale error.
+        foreach ($funcCalls as $funcCall) {
+            if ($this->isNames($funcCall, ['json_last_error', 'json_last_error_msg'])) {
                 return null;
             }
         }
 
-        $flagsArg = $this->findFlagsArg($node, self::FLAGS_POSITION[$functionName]);
+        $hasChanged = false;
+        foreach ($funcCalls as $funcCall) {
+            $hasChanged = $this->addThrowFlag($funcCall) || $hasChanged;
+        }
+
+        return $hasChanged ? $node : null;
+    }
+
+    /**
+     * @param Node[] $stmts
+     *
+     * @return FuncCall[] calls of this scope, nested functions and closures excluded
+     */
+    private function findScopeFuncCalls(array $stmts): array
+    {
+        $funcCalls = [];
+        $this->traverseNodesWithCallable($stmts, static function (Node $node) use (&$funcCalls): ?int {
+            if ($node instanceof FunctionLike) {
+                return NodeVisitor::DONT_TRAVERSE_CHILDREN;
+            }
+
+            if ($node instanceof FuncCall) {
+                $funcCalls[] = $node;
+            }
+
+            return null;
+        });
+
+        return $funcCalls;
+    }
+
+    private function addThrowFlag(FuncCall $funcCall): bool
+    {
+        $functionName = $this->getName($funcCall);
+        if ($functionName === null || ! isset(self::FLAGS_POSITION[$functionName])) {
+            return false;
+        }
+
+        if ($funcCall->isFirstClassCallable() || $funcCall->getArgs() === []) {
+            return false;
+        }
+
+        foreach ($funcCall->getArgs() as $arg) {
+            if ($arg->unpack) {
+                return false;
+            }
+        }
+
+        $flagsArg = $this->findFlagsArg($funcCall, self::FLAGS_POSITION[$functionName]);
         if (! $flagsArg instanceof Arg) {
-            $node->args[] = new Arg(
+            $funcCall->args[] = new Arg(
                 value: $this->createThrowFlag(),
                 name: new Identifier('flags'),
             );
 
-            return $node;
+            return true;
         }
 
         if ($this->containsThrowFlag($flagsArg->value)) {
-            return null;
+            return false;
         }
 
         if ($flagsArg->value instanceof Int_ && $flagsArg->value->value === 0) {
             $flagsArg->value = $this->createThrowFlag();
 
-            return $node;
+            return true;
         }
 
         if ($this->needsParentheses($flagsArg->value)) {
@@ -129,7 +179,7 @@ final class JsonThrowOnErrorFlagRector extends AbstractRector
 
         $flagsArg->value = new BitwiseOr($flagsArg->value, $this->createThrowFlag());
 
-        return $node;
+        return true;
     }
 
     private function needsParentheses(Expr $expr): bool
