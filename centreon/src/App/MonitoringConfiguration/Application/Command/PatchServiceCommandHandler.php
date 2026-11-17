@@ -460,16 +460,8 @@ final readonly class PatchServiceCommandHandler
      */
     private function collapsesStoredSeverities(PatchServiceCommand $command, Service $after): bool
     {
-        if ($command->severityId instanceof NoValue) {
-            return false;
-        }
-
-        $storedValues = array_values(array_unique(array_map(
-            static fn (ServiceSeverityId $id): int => $id->value,
-            $this->repository->findSeverityIds($after->id())->toArray(),
-        )));
-
-        return $storedValues !== ($after->severityId instanceof ServiceSeverityId ? [$after->severityId->value] : []);
+        return ! $command->severityId instanceof NoValue
+            && $this->repository->hasExtraSeverities($after->id(), $after->severityId);
     }
 
     /**
