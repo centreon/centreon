@@ -24,9 +24,10 @@ declare(strict_types=1);
 namespace Core\Gorgone\Application\EngineConfiguration;
 
 /**
- * Builds the JSON configuration of a poller run by centreon-engine (schema engine-configuration.v1.json)
+ * Builds the JSON configuration of a poller run by centreon-engine (schema engine-configuration.v2.json)
  * from the attributes the .cfg generator writes, as it writes them. Only the fields of the schema are
- * kept: centreon-engine refuses a document with an unknown field.
+ * kept: centreon-engine refuses a document with an unknown field. Values are kept as written, "encrypt::"
+ * and "raw::" included: centreon-engine reads them as Engine does, with the key of the engine_context target.
  *
  * @phpstan-type _Written array<string, string|list<string>> attributes as written in the .cfg file,
  *                                                            custom macros included ("_HOST_ID" => "12")
@@ -37,16 +38,19 @@ final class EngineConfigurationBuilder
     public const FEATURE_FLAG = 'engine_structured_configuration';
     public const ENGINE_NAME = 'centreon-engine';
     public const FILE_NAME = 'engine-configuration.json';
-    public const VERSION = 1;
+    /** Version 2: timeperiods, check periods, time zones, recurring downtimes, encrypted values. */
+    public const VERSION = 2;
     public const KIND_HOST = 'host';
     public const KIND_HOST_TEMPLATE = 'host_template';
     public const KIND_SERVICE = 'service';
     public const KIND_SERVICE_TEMPLATE = 'service_template';
     public const KIND_COMMAND = 'command';
+    public const KIND_TIMEPERIOD = 'timeperiod';
+    public const KIND_RECURRING_DOWNTIME = 'recurring_downtime';
 
     private const STRING_FIELDS = [
-        self::KIND_HOST => ['host_name', 'alias', 'address', 'check_command'],
-        self::KIND_SERVICE => ['host_name', 'service_description', 'check_command'],
+        self::KIND_HOST => ['host_name', 'alias', 'address', 'check_command', 'check_period', 'timezone'],
+        self::KIND_SERVICE => ['host_name', 'service_description', 'check_command', 'check_period'],
     ];
     private const INTEGER_FIELDS = ['check_interval', 'retry_interval', 'max_check_attempts'];
     private const BOOLEAN_FIELDS = ['active_checks_enabled', 'passive_checks_enabled'];
@@ -61,19 +65,23 @@ final class EngineConfigurationBuilder
         'max_service_check_spread' => 0,
         'max_host_check_spread' => 0,
         'status_update_interval' => 0,
+        'retention_update_interval' => 0,
     ];
+    private const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    /** Attributes of timeperiods.cfg that are not exceptions. */
+    private const TIMEPERIOD_FIELDS = ['name', 'timeperiod_name', 'alias', 'use', 'exclude', 'register'];
     private const BROKER_TCP_OUTPUTS = ['ipv4', 'ipv6', 'tcp'];
-    private const RAW_PREFIX = 'raw::';
-    private const ENCRYPTED_PREFIX = 'encrypt::';
     private const COLLECTIONS = [
         self::KIND_COMMAND => 'commands',
         self::KIND_HOST_TEMPLATE => 'host_templates',
         self::KIND_HOST => 'hosts',
         self::KIND_SERVICE_TEMPLATE => 'service_templates',
         self::KIND_SERVICE => 'services',
+        self::KIND_TIMEPERIOD => 'timeperiods',
+        self::KIND_RECURRING_DOWNTIME => 'recurring_downtimes',
     ];
 
-    /** @var array<string, int> */
+    /** @var array<string, int|string|bool> */
     private array $settings = [];
 
     /** @var array<string, string> */
@@ -113,6 +121,7 @@ final class EngineConfigurationBuilder
             self::KIND_HOST, self::KIND_SERVICE => $this->mapMonitoredObject($kind, $written, false),
             self::KIND_HOST_TEMPLATE => $this->mapMonitoredObject(self::KIND_HOST, $written, true),
             self::KIND_SERVICE_TEMPLATE => $this->mapMonitoredObject(self::KIND_SERVICE, $written, true),
+            self::KIND_TIMEPERIOD => $this->mapTimeperiod($written),
             default => throw new \InvalidArgumentException(sprintf('Unknown object kind "%s"', $kind)),
         };
         $this->objects[self::COLLECTIONS[$kind]][] = $object;
@@ -131,7 +140,7 @@ final class EngineConfigurationBuilder
             if ($name === '' || is_array($value)) {
                 continue;
             }
-            $this->resourceMacros[$name] = self::plainValue($value, "resource macro {$name}");
+            $this->resourceMacros[$name] = (string) $value;
         }
     }
 
@@ -152,6 +161,59 @@ final class EngineConfigurationBuilder
                 $this->settings[$name] = self::toInteger($value, $name, 'centengine.cfg', $minimum);
             }
         }
+        $timezone = $written['use_timezone'] ?? null;
+        if (is_string($timezone) && $timezone !== '') {
+            $this->settings['use_timezone'] = $timezone;
+        }
+        $retained = $written['use_retained_scheduling_info'] ?? null;
+        if ($retained === '0' || $retained === '1') {
+            $this->settings['use_retained_scheduling_info'] = $retained === '1';
+        }
+    }
+
+    /**
+     * A recurring downtime as the generator writes it (RecurringDowntime::formatObject).
+     *
+     * @param array{downtime_id: int|string, downtime_name?: ?string, timezone?: ?string,
+     *     host_ids: array<int|string>, service_ids: array<string>, period: array<string>} $object
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function addRecurringDowntime(array $object): void
+    {
+        $id = self::toInteger((string) $object['downtime_id'], 'downtime_id', 'recurring downtime', 1);
+        $rule = ['downtime_id' => $id];
+        $name = trim((string) preg_replace('/[;\s]+/', ' ', (string) ($object['downtime_name'] ?? '')));
+        if ($name !== '') {
+            $rule['downtime_name'] = $name;
+        }
+        if (! empty($object['timezone'])) {
+            $rule['timezone'] = (string) $object['timezone'];
+        }
+        $label = "recurring downtime {$id}";
+        $hostIds = array_map(
+            static fn (int|string $hostId): int => self::toInteger((string) $hostId, 'host_ids', $label, 1),
+            array_values($object['host_ids'])
+        );
+        if ($hostIds !== []) {
+            $rule['host_ids'] = $hostIds;
+        }
+        $serviceIds = [];
+        foreach ($object['service_ids'] as $pair) {
+            $parts = explode(':', (string) $pair);
+            if (count($parts) !== 2) {
+                throw new \InvalidArgumentException(sprintf('Invalid service id "%s" of %s', $pair, $label));
+            }
+            $serviceIds[] = [
+                self::toInteger($parts[0], 'service_ids', $label, 1),
+                self::toInteger($parts[1], 'service_ids', $label, 1),
+            ];
+        }
+        if ($serviceIds !== []) {
+            $rule['service_ids'] = $serviceIds;
+        }
+        $rule['periods'] = array_values(array_map('strval', $object['period']));
+        $this->objects[self::COLLECTIONS[self::KIND_RECURRING_DOWNTIME]][] = $rule;
     }
 
     /**
@@ -326,7 +388,7 @@ final class EngineConfigurationBuilder
             if ($key === $idMacro) {
                 $object[$idField] = self::toInteger($value, $idField, $label, 1);
             } else {
-                $macros[mb_substr($key, 1)] = self::plainValue($value, "macro {$key} of {$label}");
+                $macros[mb_substr($key, 1)] = $value;
             }
         }
         if ($macros !== []) {
@@ -352,19 +414,52 @@ final class EngineConfigurationBuilder
     }
 
     /**
-     * Value without the "raw::" marker of the .cfg files; an encrypted value is refused.
+     * A timeperiod as written in timeperiods.cfg: its weekdays, then its exceptions (the other attributes).
+     *
+     * @param _Written $written
      *
      * @throws \InvalidArgumentException
+     *
+     * @return array<string, mixed>
      */
-    private static function plainValue(string $value, string $owner): string
+    private function mapTimeperiod(array $written): array
     {
-        if (str_starts_with($value, self::ENCRYPTED_PREFIX)) {
-            throw new \InvalidArgumentException(
-                sprintf('Encrypted value for %s: centreon-engine cannot decrypt it', $owner)
-            );
+        $name = $written['timeperiod_name'] ?? '';
+        if (! is_string($name) || $name === '') {
+            throw new \InvalidArgumentException('A timeperiod needs a timeperiod_name');
+        }
+        $period = ['timeperiod_name' => $name];
+        if (isset($written['alias']) && is_string($written['alias'])) {
+            $period['alias'] = $written['alias'];
+        }
+        foreach (['use', 'exclude'] as $list) {
+            $names = array_values(array_filter(
+                array_map('strval', (array) ($written[$list] ?? [])),
+                static fn (string $value): bool => $value !== ''
+            ));
+            if ($names !== []) {
+                $period[$list] = $names;
+            }
+        }
+        foreach (self::WEEKDAYS as $day) {
+            if (isset($written[$day]) && is_string($written[$day]) && $written[$day] !== '') {
+                $period[$day] = $written[$day];
+            }
+        }
+        $exceptions = [];
+        foreach ($written as $days => $timerange) {
+            $days = (string) $days;
+            if (in_array($days, self::TIMEPERIOD_FIELDS, true) || in_array($days, self::WEEKDAYS, true)
+                || is_array($timerange)) {
+                continue;
+            }
+            $exceptions[] = ['days' => $days, 'timerange' => $timerange];
+        }
+        if ($exceptions !== []) {
+            $period['exceptions'] = $exceptions;
         }
 
-        return str_starts_with($value, self::RAW_PREFIX) ? mb_substr($value, mb_strlen(self::RAW_PREFIX)) : $value;
+        return $period;
     }
 
     /**

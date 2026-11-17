@@ -458,7 +458,7 @@ abstract class AbstractObject
 
     /**
      * Hands what was just written to the centreon-engine JSON configuration, while one is built.
-     * Encrypted values are decrypted: centreon-engine has no key to decrypt them.
+     * Values go as written, "encrypt::" ones included: centreon-engine decrypts them when it uses them.
      *
      * @param array<string, mixed> $object
      *
@@ -474,7 +474,7 @@ abstract class AbstractObject
         $written = [];
         foreach ($this->attributes_write as $attr) {
             if (isset($object[$attr]) && ! is_null($object[$attr]) && $object[$attr] != '') {
-                $written[$attr] = $this->decryptForCapture((string) $object[$attr]);
+                $written[$attr] = (string) $object[$attr];
             }
         }
         foreach ($this->attributes_default as $attr) {
@@ -495,23 +495,10 @@ abstract class AbstractObject
         }
         foreach ($this->attributes_hash as $attr) {
             foreach (isset($object[$attr]) && is_array($object[$attr]) ? $object[$attr] : [] as $key => $value) {
-                $written[(string) $key] = $this->decryptForCapture((string) $value);
+                $written[(string) $key] = (string) $value;
             }
         }
 
         EngineConfigurationCapture::record(static::class, $written);
-    }
-
-    /**
-     * @throws RuntimeException
-     */
-    private function decryptForCapture(string $value): string
-    {
-        if (! str_starts_with($value, 'encrypt::')) {
-            return $value;
-        }
-
-        return $this->engineContextEncryption->decrypt(substr($value, strlen('encrypt::')))
-            ?? throw new RuntimeException('Unable to decrypt a value of the centreon-engine configuration');
     }
 }

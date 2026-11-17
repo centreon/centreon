@@ -240,6 +240,7 @@ class RecurringDowntime extends AbstractObject
     protected function writeObject($object): void
     {
         fwrite($this->fp, $this->toUTF8(self::formatObject($object)));
+        EngineConfigurationCapture::recordRecurringDowntime($object);
     }
 
     /**

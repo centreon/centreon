@@ -34,6 +34,7 @@ final class EngineConfigurationCapture
         'HostTemplate' => EngineConfigurationBuilder::KIND_HOST_TEMPLATE,
         'Service' => EngineConfigurationBuilder::KIND_SERVICE,
         'ServiceTemplate' => EngineConfigurationBuilder::KIND_SERVICE_TEMPLATE,
+        'Timeperiod' => EngineConfigurationBuilder::KIND_TIMEPERIOD,
     ];
 
     private static ?EngineConfigurationBuilder $builder = null;
@@ -69,6 +70,16 @@ final class EngineConfigurationCapture
         } elseif (isset(self::KINDS[$class])) {
             self::$builder->addObject(self::KINDS[$class], $written);
         }
+    }
+
+    /**
+     * @param array{downtime_id: int|string, downtime_name?: ?string, timezone?: ?string,
+     *     host_ids: array<int|string>, service_ids: array<string>, period: array<string>} $object
+     *     a recurring downtime as RecurringDowntime writes it
+     */
+    public static function recordRecurringDowntime(array $object): void
+    {
+        self::$builder?->addRecurringDowntime($object);
     }
 
     /**

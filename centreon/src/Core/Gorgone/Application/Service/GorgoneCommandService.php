@@ -572,7 +572,7 @@ final class GorgoneCommandService
     private function sendConfiguration(int $nodeId): array
     {
         if ($this->isRunByCentreonEngine($nodeId)) {
-            return [$this->sendEngineConfiguration($nodeId)];
+            return $this->sendEngineConfiguration($nodeId);
         }
 
         // Every archive is built before the first one is pushed.
@@ -601,23 +601,26 @@ final class GorgoneCommandService
     }
 
     /**
-     * centreon-engine takes one JSON document, with no encrypted value: no key file nor archive is sent.
+     * centreon-engine takes one JSON document, whose "encrypt::" values it decrypts with the key file: the key
+     * goes first, as for the other pollers, and the document waits for it.
      *
      * @param int $nodeId
      *
      * @throws \Throwable
      *
-     * @return string job id
+     * @return list<string> job ids
      */
-    private function sendEngineConfiguration(int $nodeId): string
+    private function sendEngineConfiguration(int $nodeId): array
     {
+        $keyArchive = $this->buildEngineContextArchive($nodeId);
         $files = $this->readConfigurationRepository->findFiles($nodeId, self::TARGET_ENGINE_CONFIGURATION);
         $json = reset($files);
         if (! is_string($json) || $json === '') {
             throw GorgoneCommandException::missingConfiguration($nodeId, self::TARGET_ENGINE_CONFIGURATION);
         }
+        $keyJobId = $this->writeJobRepository->pushConfiguration($nodeId, self::TARGET_ENGINE_CONTEXT, $keyArchive);
 
-        return $this->writeJobRepository->pushEngineConfiguration($nodeId, $json);
+        return [$keyJobId, $this->writeJobRepository->pushEngineConfiguration($nodeId, $json, [$keyJobId])];
     }
 
     /**

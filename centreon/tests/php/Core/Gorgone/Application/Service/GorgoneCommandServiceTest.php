@@ -906,7 +906,7 @@ it('should keep the centreon-engine configuration off by default', function (): 
     expect($features['engine_structured_configuration'] ?? null)->toBe(0);
 });
 
-it('should push only the JSON configuration to a poller run by centreon-engine', function (): void {
+it('should push the key then the JSON configuration to a poller run by centreon-engine', function (): void {
     $this->centreonEngineNodes = [2];
     $this->files[1] = ['engine' => ENGINE_FILES, 'broker' => ['central-broker.json' => '{}']];
     $this->files[2] = [
@@ -920,16 +920,18 @@ it('should push only the JSON configuration to a poller run by centreon-engine',
         ['SENDCFGFILE:2', 'RESTART:2', 'RELOADBROKER:2', 'SENDCFGFILE:1', 'RELOAD:1']
     );
 
-    // No key file nor archive for centreon-engine; the engine control requires only its configuration.
+    // The key of its encrypt:: values first, the document waits for it; no .cfg archive for centreon-engine;
+    // the engine control requires only its configuration.
     expect($this->jobs->calls)->toBe([
-        ['engine_configuration', 2, '{"version":1}'],
+        ['config', 2, 'engine_context', ['engine-context.json']],
+        ['engine_configuration', 2, '{"version":1}', ['job-1']],
         ['service_control', 2, 'engine', 'restart', ['engine']],
         ['service_control', 2, 'broker', 'reload', ['broker']],
         ['config', 1, 'engine_context', ['engine-context.json']],
-        ['config', 1, 'engine', ['centengine.DEBUG', 'hosts.cfg'], ['job-4']],
-        ['config', 1, 'broker', ['central-broker.json'], ['job-4']],
+        ['config', 1, 'engine', ['centengine.DEBUG', 'hosts.cfg'], ['job-5']],
+        ['config', 1, 'broker', ['central-broker.json'], ['job-5']],
         ['service_control', 1, 'engine', 'reload', ['engine', 'broker']],
-    ])->and($jobIds)->toHaveCount(7);
+    ])->and($jobIds)->toHaveCount(8);
 });
 
 it('should ignore engine_name while the centreon-engine configuration is disabled', function (): void {
