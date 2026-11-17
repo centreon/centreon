@@ -137,7 +137,12 @@ final class JsonThrowOnErrorFlagRector extends AbstractRector
     private function addThrowFlag(FuncCall $funcCall): bool
     {
         $functionName = $this->getName($funcCall);
-        if ($functionName === null || ! isset(self::FLAGS_POSITION[$functionName])) {
+        if ($functionName === null) {
+            return false;
+        }
+
+        $functionName = mb_strtolower($functionName);
+        if (! isset(self::FLAGS_POSITION[$functionName])) {
             return false;
         }
 
