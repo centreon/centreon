@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTe
 
 use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Infrastructure\Validator\NoControlCharacters;
 use App\Shared\Infrastructure\Validator\Constraints\NotNullWhenProvided;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -44,7 +45,7 @@ final readonly class DuplicateHostTemplateInput
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(max: HostTemplateName::MAX_LENGTH, normalizer: 'trim'),
-            new Assert\Regex(pattern: '/[\x00-\x1F\x7F]/', message: 'This value must not contain control characters.', match: false),
+            new NoControlCharacters(),
         ])]
         public ?string $name = null,
     ) {

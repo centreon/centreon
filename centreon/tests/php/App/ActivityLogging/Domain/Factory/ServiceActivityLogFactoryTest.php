@@ -54,6 +54,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -204,7 +205,53 @@ final class ServiceActivityLogFactoryTest extends TestCase
     }
 
     /**
-     * Only a creation logs the form: the other actions keep the name of the service and its host.
+     * The line of an update or a mass change carries the same detail as the creation: the whole form and the host.
+     */
+    #[DataProvider('changeActionProvider')]
+    public function testChangeDetails(ActionEnum $action): void
+    {
+        $factory = new ServiceActivityLogFactory();
+        $service = $this->completeService();
+
+        $change = $factory->create($action, $service, new Actor(id: new ActorId(1)), new \DateTimeImmutable());
+
+        self::assertSame(
+            $factory->create(ActionEnum::Add, $service, new Actor(id: new ActorId(1)), new \DateTimeImmutable())->details,
+            $change->details,
+        );
+        self::assertCount(45, $change->details);
+    }
+
+    /**
+     * @return iterable<string, array{ActionEnum}>
+     */
+    public static function changeActionProvider(): iterable
+    {
+        yield 'update' => [ActionEnum::Update];
+
+        yield 'mass change' => [ActionEnum::MassChange];
+    }
+
+    /**
+     * The line carries the service's name and id; its own macros are left out.
+     */
+    public function testAMassChangeEventLogsTheWholeForm(): void
+    {
+        $factory = new ServiceActivityLogFactory();
+        $service = $this->completeService();
+        $event = ServiceMassChanged::of($service, 1);
+
+        $line = $factory->createForMassChange($event, new Actor(id: new ActorId(1)));
+
+        self::assertSame([ActionEnum::MassChange, 42, 'web-check', $event->firedAt], [$line->action, $line->target->id->value, $line->target->name->value, $line->performedAt]);
+        self::assertSame(
+            $factory->create(ActionEnum::Add, $service, new Actor(id: new ActorId(1)), new \DateTimeImmutable())->details,
+            $line->details,
+        );
+    }
+
+    /**
+     * Only a creation, an update or a mass change logs the whole form.
      */
     #[DataProvider('otherActionProvider')]
     public function testOtherActionsLogTheNameAndTheHostOnly(ActionEnum $action): void
@@ -224,10 +271,6 @@ final class ServiceActivityLogFactoryTest extends TestCase
         yield 'enable' => [ActionEnum::Enable];
 
         yield 'disable' => [ActionEnum::Disable];
-
-        yield 'update' => [ActionEnum::Update];
-
-        yield 'mass change' => [ActionEnum::MassChange];
     }
 
     private function completeService(): Service

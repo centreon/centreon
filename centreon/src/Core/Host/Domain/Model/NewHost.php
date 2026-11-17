@@ -28,6 +28,7 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\YesNoDefault;
 use Core\Domain\Common\GeoCoords;
+use Webmozart\Assert\Assert;
 
 class NewHost
 {
@@ -40,6 +41,7 @@ class NewHost
     public const MAX_ACTION_URL_LENGTH = 65535;
     public const MAX_ICON_ALT_LENGTH = 200;
     public const MAX_COMMENT_LENGTH = 65535;
+    protected const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
 
     /**
      * @param int $monitoringServerId
@@ -155,6 +157,15 @@ class NewHost
         Assertion::maxLength($this->actionUrl, self::MAX_ACTION_URL_LENGTH, "{$shortName}::actionUrl");
         Assertion::maxLength($this->iconAlternative, self::MAX_ICON_ALT_LENGTH, "{$shortName}::iconAlternative");
         Assertion::maxLength($this->comment, self::MAX_COMMENT_LENGTH, "{$shortName}::comment");
+
+        // Single-line values written into the monitoring engine configuration (not the comment).
+        Assert::notRegex($this->name, self::CONTROL_CHARACTERS, "[{$shortName}::name] The value must not contain control characters");
+        Assert::notRegex($this->alias, self::CONTROL_CHARACTERS, "[{$shortName}::alias] The value must not contain control characters");
+        Assert::notRegex($this->snmpCommunity, self::CONTROL_CHARACTERS, "[{$shortName}::snmpCommunity] The value must not contain control characters");
+        Assert::notRegex($this->noteUrl, self::CONTROL_CHARACTERS, "[{$shortName}::noteUrl] The value must not contain control characters");
+        Assert::notRegex($this->note, self::CONTROL_CHARACTERS, "[{$shortName}::note] The value must not contain control characters");
+        Assert::notRegex($this->actionUrl, self::CONTROL_CHARACTERS, "[{$shortName}::actionUrl] The value must not contain control characters");
+        Assert::notRegex($this->iconAlternative, self::CONTROL_CHARACTERS, "[{$shortName}::iconAlternative] The value must not contain control characters");
 
         // Assertions on ForeignKeys
         $foreignKeys = [

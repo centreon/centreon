@@ -24,10 +24,12 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Security\Domain\Aggregate\ActingUser;
@@ -62,6 +64,28 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var array<int, list<ServiceMacro>> service id => own macros as read back after insertion */
     public array $storedMacros = [];
 
+    /**
+     * @var array<int, list<int>> service id => every levelled category it is linked to, in read order, whatever the
+     *                            actor may see; unset, the stored service's severity
+     */
+    public array $storedSeverityIds = [];
+
+    /**
+     * @var array<int, array<int, HostState>> service id => every host it is directly linked to, as
+     *                                        {@see findLinkedHostStates()} reads them; unset, the stored service's
+     *                                        own host. A saved relation rewrite leaves the service's host only.
+     */
+    public array $linkedHostStates = [];
+
+    /** @var list<Service> */
+    public array $updatedServices = [];
+
+    /** @var list<Service> */
+    public array $relationsReplacedServices = [];
+
+    /** Thrown by update(), to stand for a failure after the vault was written. */
+    public ?\Throwable $updateThrows = null;
+
     public function add(Service $service): void
     {
         do {
@@ -73,6 +97,50 @@ final class FakeServiceRepository implements ServiceRepository
         $reflection->setValue($service, new ServiceId($id));
 
         $this->services[$id] = $service;
+    }
+
+    public function update(Service $service): void
+    {
+        if ($this->updateThrows instanceof \Throwable) {
+            throw $this->updateThrows;
+        }
+
+        if (! isset($this->services[$service->id()->value])) {
+            return;
+        }
+
+        $this->updatedServices[] = $service;
+        $this->services[$service->id()->value] = $service;
+    }
+
+    public function replaceRelationsAndMacros(Service $service): void
+    {
+        if (! isset($this->services[$service->id()->value])) {
+            return;
+        }
+
+        $this->relationsReplacedServices[] = $service;
+        $this->services[$service->id()->value] = $service;
+        unset($this->linkedHostStates[$service->id()->value]);
+    }
+
+    public function hasExtraSeverities(ServiceId $id, ?ServiceSeverityId $kept): bool
+    {
+        return array_diff($this->storedSeverityIds[$id->value] ?? [], [$kept?->value]) !== [];
+    }
+
+    public function findLinkedHostStates(ServiceId $id): Collection
+    {
+        if (isset($this->linkedHostStates[$id->value])) {
+            return new Collection($this->linkedHostStates[$id->value], HostState::class);
+        }
+
+        $service = $this->services[$id->value] ?? null;
+
+        return new Collection(
+            $service instanceof Service ? [$service->hostId->value => new HostState($service->hostActivated, $service->hostPollerId)] : [],
+            HostState::class,
+        );
     }
 
     public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool
@@ -169,7 +237,22 @@ final class FakeServiceRepository implements ServiceRepository
             return null;
         }
 
-        return $service;
+        if (! isset($this->storedSeverityIds[$id->value])) {
+            return $service;
+        }
+
+        // As the real repository: the first stored severity, whatever the actor may see.
+        $stored = $this->storedSeverityIds[$id->value];
+        $severityId = $stored === [] ? null : new ServiceSeverityId($stored[0]);
+
+        if ($severityId?->value === $service->severityId?->value) {
+            return $service;
+        }
+
+        $read = clone $service;
+        $read->changeRelations($severityId, $read->serviceGroupIds, $read->categoryIds, $read->trapIds);
+
+        return $read;
     }
 
     /**
