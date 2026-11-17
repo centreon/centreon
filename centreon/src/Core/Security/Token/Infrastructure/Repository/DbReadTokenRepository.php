@@ -327,6 +327,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                         `type` as token_type
                     FROM authentication_tokens
                     WHERE token_name = :tokenName
+                        AND creator_id = :userId
                     SQL,
                 QueryParameters::create([
                     QueryParameter::string('tokenName', $tokenName),

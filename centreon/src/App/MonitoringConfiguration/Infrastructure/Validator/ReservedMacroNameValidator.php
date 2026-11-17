@@ -30,9 +30,10 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Rejects a custom host macro whose `$_HOST<NAME>$` form collides with a reserved macro listed in
- * `nagios_macro` (see MON-208474). This restores the validation legacy intended but never actually
- * enforced — its QuickForm rule bound each name double-quoted, so the IN () check never matched.
+ * Rejects a custom macro whose stored form (`$_HOST<NAME>$` for a host, `$_SERVICE<NAME>$` for a service, see
+ * {@see ReservedMacroName::$prefix}) collides with a reserved macro listed in `nagios_macro` (see MON-208474).
+ * This restores the validation legacy intended but never actually enforced — its QuickForm rule bound each name
+ * double-quoted, so the IN () check never matched.
  */
 final class ReservedMacroNameValidator extends ConstraintValidator
 {
@@ -54,7 +55,7 @@ final class ReservedMacroNameValidator extends ConstraintValidator
             return;
         }
 
-        $storageName = '$_HOST' . mb_strtoupper(trim($value)) . '$';
+        $storageName = $constraint->prefix . mb_strtoupper(trim($value)) . '$';
 
         if (in_array($storageName, $this->reservedNames(), true)) {
             $this->context->buildViolation($constraint->message)->addViolation();

@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroOutput;
 use App\Shared\Infrastructure\TransformerInterface;
