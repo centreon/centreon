@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\ServiceS
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidEventHandlerCommand;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Infrastructure\Validator\Constraints\ExclusiveKeys;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -133,6 +134,7 @@ final readonly class PatchServiceAdvancedInput
         ])]
         #[Assert\All([new Assert\Type('string')])]
         #[ValidCommandArguments('event handler')]
+        #[Sensitive]
         public array $eventHandlerArgs = [],
 
         #[Assert\Sequentially([
