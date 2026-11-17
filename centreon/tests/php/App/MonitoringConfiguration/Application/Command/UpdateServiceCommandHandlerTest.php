@@ -882,6 +882,45 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
         self::assertSame(self::POLLER_ID, $events[0]->previousPollerId?->value);
     }
 
+    public function testASaveCarriesTheOtherHostLinksItDrops(): void
+    {
+        $this->serviceRepository->linkedHostStates[self::SERVICE_ID] = [
+            self::HOST_ID => new HostState(true, new PollerId(self::POLLER_ID)),
+            self::OTHER_HOST_ID => new HostState(true, new PollerId(self::OTHER_POLLER_ID)),
+            13 => new HostState(true, new PollerId(self::POLLER_ID)),
+            14 => new HostState(false, new PollerId(5)),
+            15 => new HostState(true, new PollerId(self::OTHER_POLLER_ID)),
+        ];
+
+        ($this->handler)($this->command(name: 'pong'));
+
+        $events = $this->eventBus->getDispatchedEvents(ServiceUpdated::class);
+        self::assertCount(1, $events);
+        self::assertNull($events[0]->previousPollerId);
+        self::assertSame([self::OTHER_HOST_ID, 13, 14, 15], array_map(static fn (HostId $id): int => $id->value, $events[0]->droppedHostLinks->hostIds));
+        self::assertSame([self::OTHER_POLLER_ID], array_map(static fn (PollerId $id): int => $id->value, $events[0]->droppedHostLinks->pollerIds));
+    }
+
+    /**
+     * The enable/disable event of a flip alone does not carry the dropped links: an update without a log line does.
+     */
+    public function testAnActivationFlipAloneCarriesTheHostLinksItDrops(): void
+    {
+        $this->serviceRepository->linkedHostStates[self::SERVICE_ID] = [
+            self::HOST_ID => new HostState(true, new PollerId(self::POLLER_ID)),
+            self::OTHER_HOST_ID => new HostState(true, new PollerId(self::OTHER_POLLER_ID)),
+        ];
+
+        ($this->handler)($this->command(activated: false));
+
+        self::assertCount(1, $this->eventBus->getDispatchedEvents(ServiceDisabled::class));
+        $events = $this->eventBus->getDispatchedEvents(ServiceUpdated::class);
+        self::assertCount(1, $events);
+        self::assertFalse($events[0]->loggable);
+        self::assertSame([self::OTHER_HOST_ID], array_map(static fn (HostId $id): int => $id->value, $events[0]->droppedHostLinks->hostIds));
+        self::assertSame([self::OTHER_POLLER_ID], array_map(static fn (PollerId $id): int => $id->value, $events[0]->droppedHostLinks->pollerIds));
+    }
+
     /**
      * Nothing differs from the stored service: nothing is written and nothing fires.
      */

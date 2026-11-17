@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
@@ -56,6 +57,13 @@ interface ServiceRepository
      * Whether the service is linked to a severity other than the one it keeps, whatever the actor may see.
      */
     public function hasExtraSeverities(ServiceId $id, ?ServiceSeverityId $kept): bool;
+
+    /**
+     * Every direct host link of the service, lowest id first, ignoring ACL; read before a save to know what it drops.
+     *
+     * @return Collection<HostState> indexed by host id
+     */
+    public function findLinkedHostStates(ServiceId $id): Collection;
 
     /**
      * Compared as legacy does: case-insensitive, whatever the actor's scope or the service's activation. A service

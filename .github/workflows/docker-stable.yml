@@ -79,7 +79,8 @@ jobs:
             is_cloud=true
             echo "is_cloud=true" >> $GITHUB_OUTPUT
             echo "edition=cloud" >> $GITHUB_OUTPUT
-            DISTRIBS=("alma9")
+            # Cloud is deployed on el10 only.
+            DISTRIBS=("alma10")
           else
             is_cloud=false
             echo "is_cloud=false" >> $GITHUB_OUTPUT
