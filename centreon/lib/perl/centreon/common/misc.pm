@@ -37,6 +37,7 @@ use strict;
 use warnings;
 use vars qw($centreon_config);
 use POSIX ":sys_wait_h";
+use Text::ParseWords;
 
 my $read_size = 1*1024*1024*10; # 10Mo
 
@@ -205,15 +206,30 @@ sub get_line_pipe {
 sub backtick {
     my %arg = (
         command => undef,
+        arguments => [],
         logger => undef,
         timeout => 30,
         wait_exit => 0,
+        no_shell_interpretation => 0,
         @_,
     );
     my @output;
     my $pid;
     my $return_code;
-    
+    my @command_list;   # only used when no_shell_interpretation is set
+
+    if ($arg{no_shell_interpretation}) {
+        # Split the command without letting a shell interpret it: quotewords honours
+        # quotes and spaces but leaves &, ;, |, $... as plain text of the arguments.
+        @command_list = quotewords('\s+', 0, $arg{command});
+        # quotewords appends an undef element when the string ends with a space.
+        pop(@command_list) if (@command_list && !defined($command_list[-1]));
+        if (!@command_list || !defined($command_list[0]) || $command_list[0] eq '') {
+            $arg{logger}->writeLogError("Cant execute command, it needs a shell or has unbalanced quotes");
+            return (-1, '', -1);
+        }
+    }
+
     my $sig_do;
     if ($arg{wait_exit} == 0) {
         $sig_do = 'IGNORE';
@@ -264,7 +280,14 @@ sub backtick {
         # kill -9 will kill it and all its descendents
         setpgrp(0, 0);
 
-        exec($arg{command});
+        if ($arg{no_shell_interpretation}) {
+            # Indirect object syntax forces exec to not use a shell.
+            exec {$command_list[0]} @command_list, @{$arg{arguments}};
+        } elsif (scalar(@{$arg{arguments}}) > 0) {
+            exec($arg{command}, @{$arg{arguments}});
+        } else {
+            exec($arg{command});
+        }
         # Exec is in error. No such command maybe.
         exit(127);
     }

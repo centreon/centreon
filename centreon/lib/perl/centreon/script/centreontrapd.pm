@@ -688,47 +688,98 @@ sub manage_exec {
     return 1;
 }
 
+# The engine reads external commands with a fixed-size buffer and processes a
+# longer line in several pieces; a write larger than PIPE_BUF (4096 on Linux) can
+# also interleave with another process writing to the same pipe. So the record
+# stays within PIPE_BUF, newline included.
+use constant MAX_EXTERNAL_COMMAND_LINE => 4096;
+
+######################################
+## Write an external command for the engine
+#
+# The line is appended by the daemon itself to the command file, or to a new
+# file of the command directory, so the trap values it contains are written as
+# they were received.
+sub write_external_command {
+    my ($self, %options) = @_;
+
+    my $prefix = '';
+    if ($self->{centreontrapd_config}->{mode} == 0) {
+        $prefix = "EXTERNALCMD:$self->{current_server_id}:";
+    }
+    my $line = $prefix . '[' . $options{datetime} . '] ' . $options{command};
+    # The engine reads one external command per line.
+    $line =~ s/[\r\n\0]/ /g;
+
+    # Keep the record within one engine read; substr returns the whole line when it
+    # already fits, so it is applied in every case. One byte is left for the newline.
+    if (length($line) >= MAX_EXTERNAL_COMMAND_LINE) {
+        $self->{logger}->writeLogInfo($options{log_prefix} . ": external command of " . length($line) . " bytes truncated to " . (MAX_EXTERNAL_COMMAND_LINE - 1));
+    }
+    $line = substr($line, 0, MAX_EXTERNAL_COMMAND_LINE - 1);
+
+    # In the command directory we create a new file per trap; the command file is
+    # the engine pipe, which the engine creates: we only append to it, never create
+    # it, so that a regular file is not left where the engine expects its pipe.
+    my $in_cmd_dir = defined($self->{cmdDir});
+    my $file = $in_cmd_dir ? $self->{cmdDir} . '/' . $options{datetime} . '-traps' : $self->{cmdFile};
+
+    my ($pid, $timeout);
+    eval {
+        # The trap process ignores SIGCHLD: close() could not get the exit code of su.
+        local $SIG{CHLD} = 'DEFAULT';
+        # On timeout su is stopped, so that closing the pipe does not wait for it.
+        # SIGTERM, not SIGKILL: su passes it to the shell it started in its own session.
+        local $SIG{ALRM} = sub {
+            die "Timeout by signal ALARM\n" if (!defined($pid));
+            $timeout = 1;
+            kill('TERM', $pid);
+        };
+        alarm($self->{current_alarm_timeout});
+        my $fh;
+        if ($self->{whoami} eq $self->{centreontrapd_config}->{centreon_user}) {
+            my $flags = POSIX::O_WRONLY() | POSIX::O_APPEND();
+            $flags |= POSIX::O_CREAT() if ($in_cmd_dir);
+            sysopen($fh, $file, $flags, 0666)
+                or die "cannot open '$file': $!\n";
+        } else {
+            # The file is written by the centreon user, the line goes through stdin.
+            my $quoted_file = $file;
+            $quoted_file =~ s/'/'\\''/g;
+            $pid = open($fh, '|-', 'su', '-l', $self->{centreontrapd_config}->{centreon_user}, '-c', "exec cat >> '$quoted_file'")
+                or die "cannot run su: $!\n";
+        }
+        my $written = syswrite($fh, $line . "\n");
+        my $error = $!;
+        my $closed = close($fh);
+        alarm(0);
+        die "Timeout by signal ALARM\n" if ($timeout);
+        die "cannot write to '$file': $error\n" if (!defined($written));
+        die "cannot write to '$file': " . ($! ? $! : 'exit code ' . ($? >> 8)) . "\n" if (!$closed);
+    };
+    if ($@) {
+        alarm(0);
+        chomp(my $error = $@);
+        $self->{logger}->writeLogError($options{log_prefix} . ": " . $error);
+        return 1;
+    }
+    $self->{logger}->writeLogInfo($options{log_prefix} . ": Written external command: $line");
+    return 0;
+}
+
 ######################################
 ## Force a new check for selected services
 #
 sub forceCheck {
     my $self = shift;
     my $datetime = time();
-    my $submit;
 
-    my $str = "SCHEDULE_FORCED_SVC_CHECK;$self->{current_hostname};$self->{current_service_desc};$datetime";
-    my $prefix = "";
-    if ($self->{centreontrapd_config}->{mode} == 0) {
-        $prefix = "EXTERNALCMD:$self->{current_server_id}:";
-    }
-    
-    if ($self->{whoami} eq $self->{centreontrapd_config}->{centreon_user}) {
-        $str =~ s/"/\\"/g;
-        if (defined($self->{cmdDir})) {
-            $submit = '/bin/echo "' . $prefix .  "[$datetime] $str\" >> " . $self->{cmdDir} . "/" . $datetime . "-traps";
-        } else {
-            $submit = '/bin/echo "' . $prefix .  "[$datetime] $str\" >> " . $self->{cmdFile};
-        }
-    } else {
-        $str =~ s/'/'\\''/g;
-        $str =~ s/"/\\"/g;
-        if (defined($self->{cmdDir})) {
-            $submit = "su -l " . $self->{centreontrapd_config}->{centreon_user} . " -c '/bin/echo \"" . $prefix . "[$datetime] $str\" >> " . $self->{cmdDir} . "/" . $datetime . "-traps' 2>&1";
-        } else {
-            $submit = "su -l " . $self->{centreontrapd_config}->{centreon_user} . " -c '/bin/echo \"" . $prefix . "[$datetime] $str\" >> " . $self->{cmdFile} . "' 2>&1";
-        }
-    }
-    
-    my ($lerror, $stdout) = centreon::common::misc::backtick(
-        command => $submit,
-        logger => $self->{logger},
-        timeout => $self->{current_alarm_timeout}
+    $self->write_external_command(
+        datetime => $datetime,
+        command => "SCHEDULE_FORCED_SVC_CHECK;$self->{current_hostname};$self->{current_service_desc};$datetime",
+        log_prefix => 'FORCE'
     );
     $self->{logger}->writeLogInfo("FORCE: Reschedule linked service");
-    $self->{logger}->writeLogInfo("FORCE: Launched command: $submit");
-    if (defined($stdout) && $stdout ne "") {
-        $self->{logger}->writeLogError("FORCE stdout: $stdout");
-    }
 }
 
 #######################################
@@ -737,42 +788,13 @@ sub forceCheck {
 
 sub submitResult_do {
     my $self = shift;
-    my $str = $_[0];
-    my $datetime = time();
-    my $submit;
 
-    my $prefix = "";
-    if ($self->{centreontrapd_config}->{mode} == 0) {
-        $prefix = "EXTERNALCMD:$self->{current_server_id}:";
-    }
-    
-    if ($self->{whoami} eq $self->{centreontrapd_config}->{centreon_user}) {
-        $str =~ s/"/\\"/g;
-        if (defined($self->{cmdDir})) {
-            $submit = '/bin/echo "' . $prefix . "[$datetime] $str\" >> " . $self->{cmdDir} . "/" . $datetime . "-traps";
-        } else {
-            $submit = '/bin/echo "' . $prefix . "[$datetime] $str\" >> " . $self->{cmdFile};
-        }
-    } else {
-        $str =~ s/'/'\\''/g;
-        $str =~ s/"/\\"/g;
-		if (defined($self->{cmdDir})) {
-            $submit = "su -l " . $self->{centreontrapd_config}->{centreon_user} . " -c '/bin/echo \"" . $prefix . "[$datetime] $str\" >> " . $self->{cmdDir} . "/" . $datetime . "-traps' 2>&1";
-        } else {
-            $submit = "su -l " . $self->{centreontrapd_config}->{centreon_user} . " -c '/bin/echo \"" . $prefix . "[$datetime] $str\" >> " . $self->{cmdFile} . "' 2>&1";
-        }
-    }
-    my ($lerror, $stdout) = centreon::common::misc::backtick(
-        command => $submit,
-        logger => $self->{logger},
-        timeout => $self->{current_alarm_timeout}
+    $self->write_external_command(
+        datetime => time(),
+        command => $_[0],
+        log_prefix => 'SUBMIT'
     );
-    
     $self->{logger}->writeLogInfo("SUBMIT: Force service status via passive check update");
-    $self->{logger}->writeLogInfo("SUBMIT: Launched command: $submit");
-    if (defined($stdout) && $stdout ne "") {
-        $self->{logger}->writeLogError("SUBMIT RESULT stdout: $stdout");
-    }
 }
 
 sub submitResult {
@@ -792,18 +814,21 @@ sub submitResult {
 }
 
 sub execute_preexec {
-    my $self = shift;
+    my ($self, %options) = @_;
+    # Run the command without a shell by default; not wired to the configuration yet.
+    my $no_shell_interpretation = defined($options{no_shell_interpretation}) ? $options{no_shell_interpretation} : 1;
 
     foreach my $row (@{$self->{trap_data}->{ref_oids}->{ $self->{current_trap_id} }->{traps_preexec}}) {
         my $tpe_string = $row->{tpe_string};
         $tpe_string = $self->substitute_string($tpe_string);
         $tpe_string = $self->substitute_centreon_var($tpe_string);
-        
+
         my ($lerror, $output, $exit_code) = centreon::common::misc::backtick(
             command => $tpe_string,
             logger => $self->{logger},
             timeout => $self->{current_alarm_timeout},
-            wait_exit => 1
+            wait_exit => 1,
+            no_shell_interpretation => $no_shell_interpretation
         );
         if ($exit_code == -1) {
             $self->{logger}->writeLogError("EXEC prexec: Execution error: $!");
@@ -853,52 +878,65 @@ sub substitute_host_macro {
     return $str;
 }
 
+=head3 substitute_string($str)
+
+Replace the trap macros ($1, @{OID}, $*, $pN, $A, $R, $o...) in $str by the values
+of the received trap.
+
+=cut
+
 sub substitute_string {
-    my $self = shift;
-    my $str = $_[0];
+    my ($self, $str) = @_;
+
+    my $trap_data = $self->{trap_data};
 
     # Substitute @{oid_value} and $1, $2,...
-    for (my $i=0; $i <= $#{$self->{trap_data}->{entvar}}; $i++) {
+    for (my $i=0; $i <= $#{$trap_data->{entvar}}; $i++) {
         my $x = $i + 1;
-        $str =~ s/\@\{$self->{trap_data}->{entvarname}->[$i]\}/$self->{trap_data}->{entvar}->[$i]/g;
-        $str =~ s/\$$x([^0-9]|$)/$self->{trap_data}->{entvar}->[$i]$1/g;
+        $str =~ s/\@\{$trap_data->{entvarname}->[$i]\}/$trap_data->{entvar}->[$i]/g;
+        $str =~ s/\$$x([^0-9]|$)/$trap_data->{entvar}->[$i]$1/g;
     }
 
     # Substitute preexec var
-    for (my $i=0; $i <= $#{$self->{trap_data}->{preexec}}; $i++) {
+    for (my $i=0; $i <= $#{$trap_data->{preexec}}; $i++) {
         my $x = $i + 1;
-        $str =~ s/\$p$x([^0-9]|$)/$self->{trap_data}->{preexec}->[$i]$1/g;
+        $str =~ s/\$p$x([^0-9]|$)/$trap_data->{preexec}->[$i]$1/g;
     }
 
     # Substitute $*
-    my $sub_str = join($self->{centreontrapd_config}->{separator}, @{$self->{trap_data}->{entvar}});
+    my $sub_str = join($self->{centreontrapd_config}->{separator}, @{$trap_data->{entvar}});
     $str =~ s/\$\*/$sub_str/g;
 
     # $A
-    $str =~ s/\$A/$self->{trap_data}->{agent_dns_name}/g;
+    $str =~ s/\$A/$trap_data->{agent_dns_name}/g;
 
     # $aA (Trap agent IP Adress)
-    $str =~ s/\$aA/$self->{trap_data}->{var}->[4]/g;
-    
+    $str =~ s/\$aA/$trap_data->{var}->[4]/g;
+
     # $R, $r (Trap Hostname)
-    $str =~ s/\$R/$self->{trap_data}->{var}->[0]/g;
-    $str =~ s/\$r/$self->{trap_data}->{var}->[0]/g;
+    $str =~ s/\$R/$trap_data->{var}->[0]/g;
+    $str =~ s/\$r/$trap_data->{var}->[0]/g;
 
     # $aR, $ar (IP Adress)
-    $str =~ s/\$aR/$self->{trap_data}->{var}->[1]/g;
-    $str =~ s/\$ar/$self->{trap_data}->{var}->[1]/g;
+    $str =~ s/\$aR/$trap_data->{var}->[1]/g;
+    $str =~ s/\$ar/$trap_data->{var}->[1]/g;
 
     # $o (Trap OID)
-    $str =~ s/\$o/$self->{trap_data}->{var}->[3]/g;
+    $str =~ s/\$o/$trap_data->{var}->[3]/g;
 
     # Clean OID
     $str =~ s/\@\{[\.0-9]*\}//g;
     return $str;
 }
 
+=head3 substitute_centreon_var($str)
+
+Replace the Centreon macros (@HOSTNAME@, @OUTPUT@, @HOSTADDRESS@...) in $str.
+
+=cut
+
 sub substitute_centreon_var {
-    my $self = shift;
-    my $str = $_[0];
+    my ($self, $str) = @_;
 
     $str =~ s/\@HOSTNAME\@/$self->{current_hostname}/g;
     $str =~ s/\@HOSTID\@/$self->{current_host_id}/g;
@@ -1019,10 +1057,12 @@ sub checkMatchingRules {
 ## Execute a specific command
 #
 sub executeCommand {
-    my $self = shift;
+    my ($self, %options) = @_;
+    # Run the command without a shell by default; not wired to the configuration yet.
+    my $no_shell_interpretation = defined($options{no_shell_interpretation}) ? $options{no_shell_interpretation} : 1;
     my $datetime = time();
     my $traps_execution_command = $self->{trap_data}->{ref_oids}->{ $self->{current_trap_id} }->{traps_execution_command};
-    
+
     if ($traps_execution_command =~ /\@TRAPFORWARD\((.*?)\)\@/) {
         centreon::trapd::lib::trap_forward(
             trap_data => $self->{trap_data},
@@ -1032,10 +1072,8 @@ sub executeCommand {
         return ;
     }
     
-    $traps_execution_command = $self->substitute_string($traps_execution_command);
-    
     ##########################
-    # REPLACE MACROS
+    # REPLACE special Chars of the configured command, before the trap values are put in it
     if ($self->{htmlentities} == 1) {
         $traps_execution_command = HTML::Entities::decode_entities($traps_execution_command);
     } else {
@@ -1043,20 +1081,24 @@ sub executeCommand {
         $traps_execution_command =~ s/\&#039\;\&#039\;/"/g;
         $traps_execution_command =~ s/\&#039\;/'/g;
     }
-    
+
+    ##########################
+    # REPLACE MACROS
+    $traps_execution_command = $self->substitute_string($traps_execution_command);
     $traps_execution_command = $self->substitute_centreon_var($traps_execution_command);
-    
+
     ##########################
     # SEND COMMAND
     if ($traps_execution_command) {
         $self->{logger}->writeLogInfo("EXEC: Launch specific command");
         $self->{logger}->writeLogInfo("EXEC: Launched command: $traps_execution_command");
-    
+
         my ($lerror, $output, $exit_code) = centreon::common::misc::backtick(
             command => $traps_execution_command,
             logger => $self->{logger},
             timeout => $self->{current_alarm_timeout},
-            wait_exit => 1
+            wait_exit => 1,
+            no_shell_interpretation => $no_shell_interpretation
         );
         if ($exit_code == -1) {
             $self->{logger}->writeLogError("EXEC: Execution error: $!");
