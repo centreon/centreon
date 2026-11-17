@@ -50,6 +50,7 @@ use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Exception\MissingIdException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
@@ -257,7 +258,9 @@ final class ServiceTest extends TestCase
 
     public function testDuplicateCarriesEveryFieldToTheNewHost(): void
     {
-        $source = $this->persistedService()->with(activated: false);
+        $source = $this->persistedService();
+        $source->disable();
+
         $checkOptions = new ServiceCheckOptions(new CommandId(2), ['80'], [$this->passwordMacro('TOKEN', 'new-ref')]);
 
         $copy = $source->duplicate(new HostId(9), $checkOptions);

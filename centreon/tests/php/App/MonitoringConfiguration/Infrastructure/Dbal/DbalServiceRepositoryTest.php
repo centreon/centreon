@@ -181,13 +181,16 @@ final class DbalServiceRepositoryTest extends KernelTestCase
     {
         $hostId = $this->insertListedHost('h1');
         $whole = $this->withWholeForm($this->storedService('ping', $hostId, [$this->insertServiceGroup()]));
-        $whole = $whole->with(
-            checkOptions: new ServiceCheckOptions(
-                $whole->checkOptions->checkCommandId,
-                $whole->checkOptions->args,
-                [new ServiceMacro(new ServiceMacroName('TOKEN'), 'secret-value', isPassword: true)],
-            ),
-            severityId: new ServiceSeverityId($this->insertServiceCategory(level: 2)),
+        $whole->changeCheckOptions(new ServiceCheckOptions(
+            $whole->checkOptions->checkCommandId,
+            $whole->checkOptions->args,
+            [new ServiceMacro(new ServiceMacroName('TOKEN'), 'secret-value', isPassword: true)],
+        ));
+        $whole->changeRelations(
+            new ServiceSeverityId($this->insertServiceCategory(level: 2)),
+            $whole->serviceGroupIds,
+            $whole->categoryIds,
+            $whole->trapIds,
         );
         $this->repository->update($whole);
         $this->repository->replaceRelationsAndMacros($whole);
