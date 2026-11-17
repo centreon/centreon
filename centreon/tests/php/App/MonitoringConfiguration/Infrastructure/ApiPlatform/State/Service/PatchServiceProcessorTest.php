@@ -714,6 +714,14 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
 
         yield 'an unknown notification option' => [['notifications' => ['options_to_add' => ['down']]], '[notifications.options_to_add[0]]'];
 
+        foreach (['options', 'options_to_add', 'options_to_remove'] as $key) {
+            yield "a null notification option in {$key}" => [['notifications' => [$key => [null]]], "[notifications.{$key}[0]] This value should be of type string.\n"];
+        }
+
+        foreach (['stalking_options', 'stalking_options_to_add', 'stalking_options_to_remove'] as $key) {
+            yield "a null stalking option in {$key}" => [['advanced' => [$key => [null]]], "[advanced.{$key}[0]] This value should be of type string.\n"];
+        }
+
         yield 'arguments too long once stored' => [['check_options' => ['args' => [str_repeat('a', 65536)]]], '[check_options.args]'];
     }
 }
