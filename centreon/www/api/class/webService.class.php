@@ -234,6 +234,24 @@ class CentreonWebService
     }
 
     /**
+     * Check that the given fields hold single-line values: they are written to
+     * line-based files (Centcore command file, Engine configuration files).
+     *
+     * @param array<string, mixed> $data
+     * @param list<string> $fields
+     *
+     * @throws RestBadRequestException
+     */
+    protected function assertSingleLineValues(array $data, array $fields): void
+    {
+        foreach ($fields as $field) {
+            if (isset($data[$field]) && preg_match('/[\r\n\0]/', (string) $data[$field]) === 1) {
+                throw new RestBadRequestException(sprintf('Invalid characters in field "%s".', $field));
+            }
+        }
+    }
+
+    /**
      * Load database
      *
      * @return void
@@ -350,7 +368,9 @@ class CentreonWebService
                         FROM `options`
                         wHERE `key` = \'session_expire\'
                     )
-                    WHERE st.token = :token'
+                    WHERE st.token = :token
+                        AND sat.is_revoked = 0
+                        AND (st.expiration_date IS NULL OR st.expiration_date > UNIX_TIMESTAMP())'
                 );
                 $stmt->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], PDO::PARAM_STR);
                 $stmt->execute();

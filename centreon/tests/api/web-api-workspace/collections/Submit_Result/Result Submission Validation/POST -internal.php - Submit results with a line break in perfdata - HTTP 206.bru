@@ -1,0 +1,52 @@
+meta {
+  name: POST /internal.php - Submit results with a line break in perfdata - HTTP 206
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUriCentreonApiWeb}}/internal.php?object=centreon_submit_results&action=submit
+  body: json
+  auth: none
+}
+
+headers {
+  Cookie: {{sessionCookie}}
+}
+
+script:pre-request {
+  bru.setVar("updateTime", Math.floor(Date.now() / 1000));
+}
+
+body:json {
+  {
+    "results": [
+      {
+        "host": "{{ResultHostName}}",
+        "service": "{{ResultServiceName}}",
+        "status": 0,
+        "updatetime": {{updateTime}},
+        "output": "Service OK",
+        "perfdata": "p=1\nEXTERNALCMD:ENABLE_NOTIFICATIONS"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 206
+}
+
+tests {
+  test("The result with a line break in perfdata is refused.", function () {
+    const results = res.getBody().results;
+    expect(results).to.have.lengthOf(1);
+    expect(results[0].code).to.equal(400);
+    expect(results[0].message).to.equal('Invalid characters in field "perfdata".');
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -25,8 +25,11 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
@@ -47,6 +50,12 @@ interface HostRepository
     public function findOne(HostId $id, ActingUser $actor): ?Host;
 
     /**
+     * Never a host template; null outside the actor's ACL scope, as for a missing host. Nothing else of the host
+     * is read, so its other stored data cannot make it fail.
+     */
+    public function findState(HostId $id, ActingUser $actor): ?HostState;
+
+    /**
      * The host's own (direct) macros as stored, with their ids, in storage order — the narrow read
      * for a caller that only needs the ids assigned on insertion, without hydrating the whole host.
      * Not ACL-scoped: the caller has already resolved the host.
@@ -54,6 +63,11 @@ interface HostRepository
      * @return Collection<HostMacro>
      */
     public function findMacros(HostId $id): Collection;
+
+    /**
+     * Whether the host is linked to a severity other than the one it keeps, whatever the actor may see.
+     */
+    public function hasExtraSeverities(HostId $id, ?HostSeverityId $kept): bool;
 
     /**
      * Also removes the dependencies left without a parent or child host by this deletion.
@@ -129,6 +143,16 @@ interface HostRepository
      * @return Collection<HostName> indexed by id
      */
     public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * The hosts' own icons, not the ones inherited from their templates. Never a host template; not scoped by
+     * ACL. A host without its own icon is absent from the result.
+     *
+     * @param Collection<HostId> $ids
+     *
+     * @return Collection<MediaId> indexed by host id
+     */
+    public function findIconIdsByIds(Collection $ids): Collection;
 
     /**
      * Includes $ids themselves, minus any that is not a host.

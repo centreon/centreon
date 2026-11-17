@@ -23,18 +23,15 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Service;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
-use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Shared\Domain\Collection;
-use App\Shared\Domain\Event\EventBus;
 
 /**
- * Deletes the services a host got from the templates it no longer has, like a deleted host takes its
- * services with it: each one is announced, and its vault entry is purged once the update is committed.
+ * Finds the services a host got from the templates it no longer has.
  *
  * A service goes when a template the host lost provided it, directly or through its ancestors, and no
  * template the host keeps (nor their ancestors) provides it too.
@@ -44,33 +41,34 @@ final readonly class HostTemplateServicesCleaner
     public function __construct(
         private HostTemplateRepository $templateRepository,
         private ServiceRepository $serviceRepository,
-        private EventBus $eventBus,
     ) {
     }
 
-    public function cleanUp(Host $hostBefore, Host $hostAfter, int $deletedBy): void
+    /**
+     * @param Collection<HostTemplateId> $previousTemplateIds
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @return Collection<ServiceId>
+     */
+    public function findServiceIdsToRemove(HostId $hostId, Collection $previousTemplateIds, Collection $templateIds): Collection
     {
-        $keptIds = array_map(static fn (HostTemplateId $id): int => $id->value, $hostAfter->templateIds->toArray());
+        $keptIds = array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray());
         $lostTemplates = array_values(array_filter(
-            $hostBefore->templateIds->toArray(),
+            $previousTemplateIds->toArray(),
             static fn (HostTemplateId $id): bool => ! in_array($id->value, $keptIds, true),
         ));
         if ($lostTemplates === []) {
-            return;
+            return new Collection([], ServiceId::class);
         }
 
         $serviceTemplateIds = array_values(array_diff(
             $this->templateRepository->findServiceTemplateIds(new Collection($lostTemplates, HostTemplateId::class)),
-            $this->templateRepository->findServiceTemplateIds($hostAfter->templateIds),
+            $this->templateRepository->findServiceTemplateIds($templateIds),
         ));
         if ($serviceTemplateIds === []) {
-            return;
+            return new Collection([], ServiceId::class);
         }
 
-        foreach ($this->serviceRepository->findFromServiceTemplates($hostAfter->id(), $serviceTemplateIds) as $service) {
-            $this->serviceRepository->remove($service);
-            $this->eventBus->fire(new ServiceDeleted($service, $deletedBy));
-            $this->eventBus->fire(new ServiceVaultPurgeRequested($service));
-        }
+        return $this->serviceRepository->findIdsFromServiceTemplates($hostId, $serviceTemplateIds);
     }
 }
