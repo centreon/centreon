@@ -339,6 +339,25 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
     }
 
     /**
+     * On a move, a dropped link on the previous host's poller adds no poller: that one is flagged as the previous.
+     */
+    public function testAMoveDropsNoPollerOfThePreviousHost(): void
+    {
+        $this->hostRepository->states[self::OTHER_HOST_ID] = new HostState(true, new PollerId(self::OTHER_POLLER_ID));
+        $this->serviceRepository->linkedHostStates[self::SERVICE_ID] = [
+            self::HOST_ID => new HostState(true, new PollerId(self::POLLER_ID)),
+            13 => new HostState(true, new PollerId(self::POLLER_ID)),
+        ];
+
+        $this->patch($this->command(hostId: self::OTHER_HOST_ID));
+
+        $event = $this->massChange();
+        self::assertSame(self::POLLER_ID, $event->previousPollerId?->value);
+        self::assertSame([13], array_map(static fn (HostId $id): int => $id->value, $event->droppedHostLinks->hostIds));
+        self::assertSame([], $event->droppedHostLinks->pollerIds);
+    }
+
+    /**
      * Every reference provided is checked again as the authority, and nothing is written when one is refused.
      *
      * @param \Closure(self): PatchServiceCommand $command
