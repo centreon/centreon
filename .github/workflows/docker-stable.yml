@@ -79,12 +79,8 @@ jobs:
             is_cloud=true
             echo "is_cloud=true" >> $GITHUB_OUTPUT
             echo "edition=cloud" >> $GITHUB_OUTPUT
-            # Cloud packages are built on alma10 only from 26.11 on (zero-padded NN.NN).
-            if [[ "${major_version//./}" -lt 2611 ]]; then
-              DISTRIBS=("alma9")
-            else
-              DISTRIBS=("alma10")
-            fi
+            # Cloud is deployed on el10 only.
+            DISTRIBS=("alma10")
           else
             is_cloud=false
             echo "is_cloud=false" >> $GITHUB_OUTPUT
