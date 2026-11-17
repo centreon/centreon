@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
@@ -35,6 +36,26 @@ use App\Shared\Domain\Collection;
 interface ServiceRepository
 {
     public function add(Service $service): void;
+
+    /**
+     * Rewrites the form columns of a stored real service (its alias and the columns the form does not expose are
+     * left as they are) and its extended information: every `extended_service_information` row of the service is
+     * updated, and one is written when it has none. Precondition: the caller loaded the service (typically
+     * {@see findOne()} in the same transaction); a service template is never touched.
+     */
+    public function update(Service $service): void;
+
+    /**
+     * Rewrites the relations and own macros of a real service. The host link is rewritten only when the host
+     * changed; the service groups only when they or the host changed, every service-group row of the service being
+     * replaced. Own macros are updated in place by id; escalations, dependencies and downtimes are left untouched.
+     */
+    public function replaceRelationsAndMacros(Service $service): void;
+
+    /**
+     * Whether the service is linked to a severity other than the one it keeps, whatever the actor may see.
+     */
+    public function hasExtraSeverities(ServiceId $id, ?ServiceSeverityId $kept): bool;
 
     /**
      * Compared as legacy does: case-insensitive, whatever the actor's scope or the service's activation. A service

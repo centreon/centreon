@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\CreateServiceInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceAdvancedInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\ServiceCheckOptionsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\UpdateServiceInput;
 use App\MonitoringConfiguration\Infrastructure\Validator\ServiceCommandInheritance;
 use App\MonitoringConfiguration\Infrastructure\Validator\ServiceCommandInheritanceValidator;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
@@ -132,6 +133,28 @@ final class ServiceCommandInheritanceValidatorTest extends ConstraintValidatorTe
         $this->validator->validate($this->input(commandId: 5, eventHandlerArgs: ['', '']), new ServiceCommandInheritance());
 
         $this->assertNoViolation();
+    }
+
+    /**
+     * The update payload follows the same rules.
+     */
+    public function testUpdateInput(): void
+    {
+        $constraint = new ServiceCommandInheritance();
+        $this->validator->validate(
+            new UpdateServiceInput(
+                name: 'ping',
+                hostId: 10,
+                activated: true,
+                serviceTemplateId: 40,
+                advanced: new ServiceAdvancedInput(eventHandlerArgs: ['arg']),
+            ),
+            $constraint,
+        );
+
+        $this->buildViolation($constraint->templateWithoutCommandMessage)->atPath('property.path.serviceTemplateId')
+            ->buildNextViolation($constraint->eventHandlerArgumentsWithoutHandlerMessage)->atPath('property.path.advanced.eventHandlerArgs')
+            ->assertRaised();
     }
 
     protected function createValidator(): ConstraintValidatorInterface

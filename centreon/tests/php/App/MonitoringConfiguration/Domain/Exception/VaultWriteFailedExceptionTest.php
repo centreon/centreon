@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Exception;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use PHPUnit\Framework\TestCase;
 
@@ -32,9 +33,19 @@ final class VaultWriteFailedExceptionTest extends TestCase
     {
         $previous = new \RuntimeException('vault unreachable');
 
-        $exception = VaultWriteFailedException::forService($previous);
+        $exception = VaultWriteFailedException::forService(null, $previous);
 
         self::assertSame('The service was not created: its credentials could not be written to the vault.', $exception->getMessage());
+        self::assertSame($previous, $exception->getPrevious());
+    }
+
+    public function testItReportsAServiceThatCouldNotBeUpdated(): void
+    {
+        $previous = new \RuntimeException('vault unreachable');
+
+        $exception = VaultWriteFailedException::forService(new ServiceId(42), $previous);
+
+        self::assertSame('Service 42 was not updated: its credentials could not be written to the vault.', $exception->getMessage());
         self::assertSame($previous, $exception->getPrevious());
     }
 }

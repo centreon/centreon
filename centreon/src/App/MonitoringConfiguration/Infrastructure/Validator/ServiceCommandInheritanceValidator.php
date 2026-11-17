@@ -28,14 +28,15 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\CreateServiceInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service\UpdateServiceInput;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
  * A check command, and an event handler for event handler arguments, set on the service or inherited from its
- * template chain; the create handler re-checks both as the authority. An unknown template is left to its own
- * constraint.
+ * template chain; check command arguments only with such a check command, a list of empty arguments being none. The
+ * create and update handlers re-check them as the authority. An unknown template is left to its own constraint.
  */
 final class ServiceCommandInheritanceValidator extends ConstraintValidator
 {
@@ -49,7 +50,7 @@ final class ServiceCommandInheritanceValidator extends ConstraintValidator
             throw new UnexpectedTypeException($constraint, ServiceCommandInheritance::class);
         }
 
-        if (! $value instanceof CreateServiceInput) {
+        if (! $value instanceof CreateServiceInput && ! $value instanceof UpdateServiceInput) {
             return;
         }
 
