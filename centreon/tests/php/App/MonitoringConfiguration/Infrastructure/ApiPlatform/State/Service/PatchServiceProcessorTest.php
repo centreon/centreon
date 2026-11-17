@@ -225,6 +225,7 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
             'service_template_model_stm_id' => $templateId,
             'service_max_check_attempts' => 3,
             'service_is_volatile' => '1',
+            'service_notifications_enabled' => '1',
         ]);
         $this->connection->update('extended_service_information', ['esi_notes' => 'a note'], ['service_service_id' => $serviceId]);
         $this->login();
@@ -233,13 +234,14 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
             'service_template_id' => null,
             'check_options' => ['args' => []],
             'monitoring_engine' => ['max_check_attempts' => null, 'is_volatile' => null, 'note' => null],
+            'notifications' => ['enabled' => null],
         ]);
 
         self::assertResponseStatusCodeSame(204);
         self::assertSame(
-            [null, null, null, '2', (string) $commandId],
+            [null, null, null, '2', '2', (string) $commandId],
             array_map($this->text(...), $this->connection->fetchNumeric(
-                'SELECT service_template_model_stm_id, command_command_id_arg, service_max_check_attempts, service_is_volatile, command_command_id
+                'SELECT service_template_model_stm_id, command_command_id_arg, service_max_check_attempts, service_is_volatile, service_notifications_enabled, command_command_id
                     FROM service WHERE service_id = ?',
                 [$serviceId],
             ) ?: []),
