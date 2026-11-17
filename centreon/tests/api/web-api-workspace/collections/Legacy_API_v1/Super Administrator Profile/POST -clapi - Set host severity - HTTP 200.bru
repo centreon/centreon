@@ -1,0 +1,38 @@
+meta {
+  name: POST centreon_clapi - Set host severity - HTTP 200
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUriCentreonCLAPI}}
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "setseverity",
+    "object": "HOST",
+    "values": "{{CriticalityHostName}};{{CriticalityHostSeverityName}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("CLAPI attaches the severity to the host", function () {
+    expect(res.getBody()).to.have.property("result");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

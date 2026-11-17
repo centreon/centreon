@@ -33,8 +33,8 @@ use App\Shared\Domain\Event\EventInterface;
 /**
  * Requests the removal of the services a host got from the templates it is no longer linked to.
  *
- * Deferred for the same reason as {@see HostServicesDeploymentRequested}: the legacy cleaner works
- * through its own connection, so it must run once the host update is committed.
+ * Deferred because the cleanup is best effort, one service at a time: run once the host update is
+ * committed, no failing service can roll that update back.
  */
 final readonly class HostTemplateServicesCleanupRequested implements DeliveredAfterCommitInterface, EventInterface
 {

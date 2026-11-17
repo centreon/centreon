@@ -11,11 +11,6 @@ parameters:
 			path: widgets/open-tickets/src/export.php
 
 		-
-			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) p must contain 3 or more characters\.$#'
-			count: 1
-			path: widgets/open-tickets/src/export.php
-
-		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) d1 must contain 3 or more characters\.$#'
 			count: 2
 			path: widgets/open-tickets/src/index.php
@@ -23,11 +18,6 @@ parameters:
 		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) op must contain 3 or more characters\.$#'
 			count: 22
-			path: widgets/open-tickets/src/index.php
-
-		-
-			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) p must contain 3 or more characters\.$#'
-			count: 1
 			path: widgets/open-tickets/src/index.php
 
 		-

@@ -25,13 +25,14 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\DuplicateHostTemplateCommand;
 use App\MonitoringConfiguration\Application\Command\DuplicateHostTemplateCommandHandler;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateDuplicated;
 use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostTemplateNameTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
@@ -40,7 +41,6 @@ use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\Shared\Application\Vault\VaultCredentialReader;
 use App\Shared\Application\Vault\VaultCredentialWriter;
-use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
@@ -189,7 +189,7 @@ final class DuplicateHostTemplateCommandHandlerTest extends TestCase
 
         $copy = $this->onlyCopy();
         self::assertSame('secret::vault::monitoring/hosts/new-uuid::_HOSTSNMPCOMMUNITY', $copy->snmpCommunity?->value);
-        $macros = $copy->macros->toArray();
+        $macros = $copy->checkOptions->macros;
         self::assertSame('secret::vault::monitoring/hosts/new-uuid::_HOSTPWD', $macros[0]->value);
         self::assertNull($macros[0]->id);
         self::assertSame('plain', $macros[1]->value);
@@ -290,10 +290,10 @@ final class DuplicateHostTemplateCommandHandlerTest extends TestCase
         $this->repository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic'),
-            macros: new Collection([
+            checkOptions: new CheckOptions(null, macros: [
                 new HostMacro(new HostMacroName('PWD'), self::SOURCE_PASSWORD, isPassword: true, id: new HostMacroId(1)),
                 new HostMacro(new HostMacroName('PLAIN'), 'plain', isPassword: false, id: new HostMacroId(2)),
-            ], HostMacro::class),
+            ]),
             isLocked: $isLocked,
             snmpCommunity: new SnmpCommunity(self::SOURCE_SNMP),
         );
