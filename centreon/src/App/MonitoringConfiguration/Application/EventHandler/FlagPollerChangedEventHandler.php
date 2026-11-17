@@ -26,6 +26,8 @@ namespace App\MonitoringConfiguration\Application\EventHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
+use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
@@ -41,7 +43,8 @@ use App\Shared\Domain\Event\AsEventHandler;
  * {@see PollerScopedInterface}): the owning poller's configuration just changed, so its
  * `nagios_server.updated` flag must be raised, or the monitoring engine keeps running on stale
  * configuration until something else touches it. Reacting to the {@see AggregateUpdated} supertype
- * also catches its enable/disable specializations.
+ * also catches its enable/disable specializations. {@see ServiceMassChanged} and {@see ServiceUpdated} also carry
+ * the pollers of the host links a save dropped.
  */
 #[AsEventHandler]
 final readonly class FlagPollerChangedEventHandler
@@ -52,10 +55,20 @@ final readonly class FlagPollerChangedEventHandler
     }
 
     /**
-     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>> $event
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>>|ServiceMassChanged $event
      */
-    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
+    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated|ServiceMassChanged $event): void
     {
+        if ($event instanceof ServiceMassChanged) {
+            foreach ([$event->pollerId, $event->previousPollerId, ...$event->droppedHostLinks->pollerIds] as $pollerId) {
+                if ($pollerId instanceof PollerId) {
+                    $this->pollerRepository->flagIdAsChanged($pollerId);
+                }
+            }
+
+            return;
+        }
+
         if (! $event->aggregate instanceof PollerScopedInterface) {
             return;
         }
@@ -63,11 +76,18 @@ final readonly class FlagPollerChangedEventHandler
         $this->pollerRepository->flagAsChanged($event->aggregate);
 
         // On a move to another poller, the previous one must be regenerated too, or it keeps monitoring a
-        // host it no longer owns. Both events carry the previous poller only when it actually changed.
-        if (($event instanceof HostMassChanged || $event instanceof HostUpdated)
+        // host (or a service moved to another host) it no longer owns. These events carry the previous poller only
+        // when it actually changed.
+        if (($event instanceof HostMassChanged || $event instanceof HostUpdated || $event instanceof ServiceUpdated)
             && $event->previousPollerId instanceof PollerId
         ) {
             $this->pollerRepository->flagIdAsChanged($event->previousPollerId);
+        }
+
+        if ($event instanceof ServiceUpdated) {
+            foreach ($event->droppedHostLinks->pollerIds as $pollerId) {
+                $this->pollerRepository->flagIdAsChanged($pollerId);
+            }
         }
     }
 }

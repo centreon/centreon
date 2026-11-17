@@ -6,6 +6,9 @@ parameters:
 
     level: 3
 
+    scanFiles:
+        - vendor/centreon/centreon/www/include/common/sqlCommonFunction.php
+
     paths:
         - config
         - packaging

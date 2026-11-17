@@ -4,8 +4,10 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { type APIType, FieldType, type FilterConfiguration } from '../models';
+import { getPayload } from '../ResourceForm/blocks';
 import {
   getDuplicateServiceEndpoint,
+  getServiceDecoder,
   getServiceEndpoint,
   getServiceTemplatesEndpoint,
   namedEntitiesListDecoder,
@@ -13,6 +15,7 @@ import {
   servicesListDecoder,
   servicesListEndpoint
 } from './api';
+import { blocks, type FormValues, type PlatformContext } from './Form/sections';
 import {
   labelHostName,
   labelIncludeDisabledHosts,
@@ -26,30 +29,50 @@ interface UseServicesState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
-const api: APIType = {
+const getAdapter = (context: PlatformContext) => (data: unknown) =>
+  getPayload(blocks, data as FormValues, context);
+
+const getApi = (context: PlatformContext): APIType => ({
   activationField: 'activated',
+  adapter: getAdapter(context),
   apiFormat: 'JSON-LD',
   baseEndpoint: servicesBaseEndpoint,
-  decoders: { getAll: servicesListDecoder },
+  decoders: { getAll: servicesListDecoder, getOne: getServiceDecoder(context) },
   // Every write names one service, so a selection becomes one request per row.
   endpoints: {
+    create: servicesListEndpoint,
     deleteOne: getServiceEndpoint,
     disable: getServiceEndpoint,
     duplicate: getDuplicateServiceEndpoint,
     enable: getServiceEndpoint,
-    getAll: servicesListEndpoint
+    getAll: servicesListEndpoint,
+    getOne: getServiceEndpoint,
+    update: getServiceEndpoint
   },
+  // The listing sorts on the host and service names only.
+  isActivationSortable: false,
   // The duplicate route takes no body, so there is no copy count to ask for.
   isSingleDuplicate: true,
   methods: {
     disable: Method.PATCH,
-    enable: Method.PATCH
+    enable: Method.PATCH,
+    // The form sends the whole service, where enable and disable send only
+    // `activated`.
+    update: Method.PUT
   },
   writeBaseEndpoint: servicesBaseEndpoint
-};
+});
 
-const useServices = (): UseServicesState => {
+const useServices = ({
+  isAdditiveInheritanceEnabled,
+  isCloudPlatform
+}: PlatformContext): UseServicesState => {
   const { t } = useTranslation();
+
+  const api = useMemo(
+    () => getApi({ isAdditiveInheritanceEnabled, isCloudPlatform }),
+    [isAdditiveInheritanceEnabled, isCloudPlatform]
+  );
 
   const filtersConfiguration: Array<FilterConfiguration> = useMemo(
     () => [
@@ -60,7 +83,7 @@ const useServices = (): UseServicesState => {
       },
       {
         // The host name only, not its alias or address as the legacy page did.
-        fieldName: 'host.name',
+        fieldName: 'host_name',
         fieldType: FieldType.Text,
         name: t(labelHostName)
       },
@@ -80,10 +103,12 @@ const useServices = (): UseServicesState => {
       },
       {
         // Off by default: the services of a disabled host are left out, as
-        // the legacy page did.
+        // the legacy page did. The API reads it the other way round: only
+        // enabled hosts with `host_activated=true`, every host without it.
         fieldName: 'include_disabled_hosts',
         fieldType: FieldType.Checkbox,
-        name: t(labelIncludeDisabledHosts)
+        name: t(labelIncludeDisabledHosts),
+        uncheckedQueryParameter: 'host_activated'
       }
     ],
     [t]

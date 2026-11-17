@@ -30,8 +30,7 @@ namespace App\Shared\Domain\Aggregate;
  * poller. Purely a marker — {@see \App\MonitoringConfiguration\Application\EventHandler\FlagPollerChangedEventHandler}
  * checks `$event->aggregate instanceof PollerScopedInterface` to decide whether to act.
  *
- * AggregateCreated and AggregateDeleted are wired (Host creation and deletion); extend to
- * AggregateUpdated/Duplicated once those Host use cases exist.
+ * Implemented by Host and Service; {@see \App\MonitoringConfiguration\Domain\Repository\PollerRepository::flagAsChanged()} resolves the poller each one flags.
  */
 interface PollerScopedInterface
 {
