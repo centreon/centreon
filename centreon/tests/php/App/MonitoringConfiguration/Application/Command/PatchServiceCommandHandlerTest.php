@@ -842,10 +842,21 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         $this->patch($this->command(notifications: new ServiceNotificationsChanges(options: ListChange::add($none))));
     }
 
-    public function testNullClearsAHiddenSeverity(): void
+    public function testNullKeepsAHiddenSeverity(): void
     {
         $this->seedEveryReference();
         $this->store(severityId: 71);
+        $this->restrictTheActor();
+
+        $this->patch($this->command(actorId: self::RESTRICTED_USER_ID, severityId: null));
+
+        $this->assertNothingWritten();
+    }
+
+    public function testNullClearsAVisibleSeverityForARestrictedActor(): void
+    {
+        $this->seedEveryReference();
+        $this->store(severityId: 70);
         $this->restrictTheActor();
 
         $this->patch($this->command(actorId: self::RESTRICTED_USER_ID, severityId: null));

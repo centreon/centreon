@@ -258,9 +258,26 @@ final readonly class PatchServiceCommandHandler
             $service->changeGraphTemplate($command->graphTemplateId);
         }
 
-        if (! $command->severityId instanceof NoValue) {
-            $service->changeRelations($command->severityId, $service->serviceGroupIds, $service->categoryIds, $service->trapIds);
+        $severityId = $this->severity($service, $command);
+        if (! $severityId instanceof NoValue) {
+            $service->changeRelations($severityId, $service->serviceGroupIds, $service->categoryIds, $service->trapIds);
         }
+    }
+
+    /**
+     * A severity the actor cannot see is not theirs to remove: an explicit null keeps it.
+     */
+    private function severity(Service $service, PatchServiceCommand $command): NoValue|ServiceSeverityId|null
+    {
+        if (
+            $command->severityId === null
+            && $service->severityId instanceof ServiceSeverityId
+            && ! $this->accessScopes->serviceSeverities($command->actor)->allows($service->severityId)
+        ) {
+            return $service->severityId;
+        }
+
+        return $command->severityId;
     }
 
     /**
