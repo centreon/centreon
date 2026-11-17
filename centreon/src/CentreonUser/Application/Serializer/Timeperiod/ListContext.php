@@ -25,14 +25,6 @@ use Centreon\Application\Serializer\SerializerContextInterface;
 use CentreonUser\Domain\Entity\Timeperiod;
 
 /**
- * @OA\Schema(
- *   schema="TimeperiodEntity",
- *
- *       @OA\Property(property="id", type="integer"),
- *       @OA\Property(property="name", type="string"),
- *       @OA\Property(property="alias", type="string")
- * )
- *
  * Serialize Timeperiod entity for list
  */
 class ListContext implements SerializerContextInterface

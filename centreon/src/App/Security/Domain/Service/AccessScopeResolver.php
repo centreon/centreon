@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
@@ -144,6 +145,17 @@ final readonly class AccessScopeResolver
             HostId::class,
             fn (UserId $userId): AccessScope => $this->resourceAccessRepository->findHostAccessScope($userId, $among),
         );
+    }
+
+    /**
+     * Services are scoped in SQL, by the real-time ACL cache of the actor's Access Groups, never by a list of
+     * service ids: the scope is the set of those groups.
+     *
+     * @return AccessScope<AccessGroupId>
+     */
+    public function serviceAccessGroups(ActingUser $actor): AccessScope
+    {
+        return $this->resolve($actor, AccessGroupId::class, $this->resourceAccessRepository->findServiceAccessGroupScope(...));
     }
 
     /**
