@@ -943,9 +943,10 @@ function set_selinux_config() {
 
 #========= begin of function centreon_selinux_modules_loaded()
 # return 0 when every module of CENTREON_SELINUX_MODULES is loaded
+# and, when the web module defines it, the php-fpm port label is set
 #
 function centreon_selinux_modules_loaded() {
-	local _loaded _module
+	local _loaded _module _web_pp=/usr/share/selinux/packages/centreon/centreon-web.pp
 	_loaded=$(semodule -l 2>/dev/null | awk '{print $1}') || return 1
 	for _module in "${CENTREON_SELINUX_MODULES[@]}"; do
 		if ! grep -qx -- "$_module" <<<"$_loaded"; then
@@ -953,6 +954,12 @@ function centreon_selinux_modules_loaded() {
 			return 1
 		fi
 	done
+	# older centreon-web modules allow every unreserved port and need no label
+	if [ -f "$_web_pp" ] && grep -aq centreon_php_fpm_port_t "$_web_pp" &&
+		! semanage port -l -C -n 2>/dev/null | grep -qE '^centreon_php_fpm_port_t +tcp +([0-9]+, )*9042(,|$)'; then
+		log "WARN" "tcp/9042 is not labelled centreon_php_fpm_port_t"
+		return 1
+	fi
 }
 #========= end of function centreon_selinux_modules_loaded()
 
@@ -1928,6 +1935,7 @@ function update_after_installation() {
 		if [ "$selinux_mode" == "enforcing" ] && ! centreon_selinux_modules_loaded; then
 			log "WARN" "Centreon SELinux rules are missing: keeping SELinux [permissive] instead of [enforcing]"
 			selinux_mode="permissive"
+			selinux_enforcing_skipped="true"
 		fi
 
 		#then change the SELinux mode
@@ -2356,6 +2364,11 @@ if [ ${#failed_services[@]} -gt 0 ]; then
 		echo "unattended.sh FAILED: services not running: ${failed_services[*]} - see ${LOG_FILE}" >&3
 	fi
 	exit 2
+fi
+
+# The admin asked for enforcing: say it on the console, not only in the log file.
+if [ "${selinux_enforcing_skipped:-}" == "true" ] && [ -n "${LOG_FILE:-}" ]; then
+	echo "WARNING: SELinux left in [permissive] mode instead of [enforcing]: Centreon SELinux rules are missing - see ${LOG_FILE}" >&3
 fi
 
 # Final notice on the console (the rest of the run is in the log file).
