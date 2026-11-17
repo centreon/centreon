@@ -45,6 +45,13 @@ Decisions taken by the PHP team on the backend architecture, by topic. The terms
 | [0013](0013-messages-carry-serializable-values-only.md) | Make commands, queries and events carry serializable values only | Accepted |
 | [0014](0014-one-aggregate-per-command.md) | Change one aggregate per command, and let other aggregates react through events | Accepted |
 
+## Error handling
+
+| ADR | Decision | Status |
+|---|---|---|
+| [0073](0073-core-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in `src/Core` | Accepted |
+| [0074](0074-legacy-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in legacy code | Accepted |
+
 ## Security
 
 | ADR | Decision | Status |
