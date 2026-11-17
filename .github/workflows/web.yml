@@ -1225,12 +1225,15 @@ jobs:
   deliver-pulp:
     runs-on: centreon-ubuntu-26.04-small
     needs: [changes, get-environment, bruno-api-test, e2e-test]
+    # nightly: deliver what was built even if other jobs failed; those jobs keep the run red
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
       contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-environment.outputs.stability) &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.result == 'success' &&
+      needs.changes.result == 'success' &&
+      (needs.get-environment.outputs.is_nightly == 'true' ||
+      (! contains(needs.*.result, 'failure') && ! contains(needs.*.result, 'cancelled'))) &&
       needs.changes.outputs.trigger_delivery == 'true' &&
       github.event.pull_request.head.repo.fork != true
     strategy:
