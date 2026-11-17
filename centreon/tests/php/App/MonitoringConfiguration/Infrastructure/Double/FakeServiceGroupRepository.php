@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceGroupCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
 use App\Shared\Domain\Collection;
@@ -36,6 +37,9 @@ final class FakeServiceGroupRepository implements ServiceGroupRepository
     /** @var \IteratorAggregate<int, ServiceGroup>&\Countable */
     public \IteratorAggregate&\Countable $result;
 
+    /** @var array<int, string> names indexed by service group id, what findNamesByIds() knows */
+    public array $names = [];
+
     public function __construct()
     {
         $this->result = new Collection([], ServiceGroup::class);
@@ -46,5 +50,17 @@ final class FakeServiceGroupRepository implements ServiceGroupRepository
         $this->receivedCriteria = $criteria;
 
         return $this->result;
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $names = [];
+        foreach ($ids as $id) {
+            if (isset($this->names[$id->value])) {
+                $names[$id->value] = new ServiceGroupName($this->names[$id->value]);
+            }
+        }
+
+        return new Collection($names, ServiceGroupName::class);
     }
 }

@@ -25,7 +25,6 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTempl
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
@@ -37,13 +36,7 @@ use App\Shared\Domain\Collection;
 use Webmozart\Assert\Assert;
 
 /**
- * Returns a host template's macros to prefill a host before it is created: the template's own
- * macros (direct, parent null), then those it inherits from its ancestor templates and check
- * commands that it does not override (parent "template" or "command"), resolved like GetHost.
- *
- * No actor scoping, like the host template choices list (ListHostTemplatesChoicesProvider). Unlike
- * that list, the license host limit does not apply: a template the license no longer allows still
- * gives its macros, as a host may already have it. An inactive template is not found.
+ * A host template's own macros, then the inherited ones it does not override; not ACL- or license-scoped.
  *
  * @implements ProviderInterface<HostTemplateMacrosOutput>
  */
@@ -71,8 +64,7 @@ final readonly class GetHostTemplateMacrosProvider implements ProviderInterface
             throw new HostTemplateNotFoundException([$templateId->value], 'id');
         }
 
-        /** @var list<HostMacro> $ownMacros */
-        $ownMacros = array_values($template->macros->toArray());
+        $ownMacros = $template->checkOptions->macros;
         // The template's own check command falls back to the first ancestor's, as for a host.
         $inherited = $this->inheritedHostMacrosResolver->resolveLine($inheritanceLine, null);
 
