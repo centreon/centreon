@@ -73,7 +73,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: centreon/dotfiles
-          ref: develop
+          ref: feat/qa-ticket-verify-isolate-jira-secrets
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           path: dotfiles
           persist-credentials: false
