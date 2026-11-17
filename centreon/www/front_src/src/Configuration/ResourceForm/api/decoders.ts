@@ -18,6 +18,17 @@ export const namedEntitiesListDecoder = buildListingDecoder({
   listingDecoderName: 'Entity List'
 });
 
+// The same, for a selector whose entities are read their own way.
+export const buildNamedEntitiesListDecoder = (
+  entityDecoder: JsonDecoder.Decoder<NamedEntity>
+) =>
+  buildListingDecoder({
+    apiFormat: 'JSON-LD',
+    entityDecoder,
+    entityDecoderName: 'Entity',
+    listingDecoderName: 'Entity List'
+  });
+
 export const iconDecoder = JsonDecoder.object<Icon>(
   {
     ...namedEntityDecoder,

@@ -441,6 +441,30 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
         );
     }
 
+    public function testItListsTheIconInheritedFromAHostStoredAsTheOnlyParent(): void
+    {
+        $iconId = $this->insertImage("host-{$this->tag}.png", 'host-dir');
+        $this->connection->insert('host', ['host_name' => "host-{$this->tag}", 'host_register' => '1', 'host_activate' => '1']);
+        $hostId = (int) $this->connection->lastInsertId();
+        $this->setIcon($hostId, $iconId);
+        $templateId = $this->insertHostTemplate("host-parent-{$this->tag}");
+        $this->linkTemplateToParent($templateId, $hostId, 1);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
+        self::assertResponseIsSuccessful();
+
+        /** @var array{member: list<array<string, mixed>>} $body */
+        $body = $response->toArray();
+        self::assertCount(1, $body['member']);
+        self::assertSame([], $body['member'][0]['parent_templates']);
+        self::assertSame(
+            ['id' => $iconId, 'name' => "host-{$this->tag}.png", 'url' => "/img/media/host-dir/host-{$this->tag}.png"],
+            $this->withoutJsonLdKeys($body['member'][0]['icon'])
+        );
+    }
+
     public function testItOmitsTheIconOfATemplateWithoutAnyIcon(): void
     {
         $parentId = $this->insertHostTemplate("iconless-parent-{$this->tag}");

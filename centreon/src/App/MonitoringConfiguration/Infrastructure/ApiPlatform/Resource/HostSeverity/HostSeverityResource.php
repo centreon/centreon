@@ -30,6 +30,7 @@ use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostSeverityPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostSeverity\ListHostSeveritiesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostSeverity\ListHostSeveritiesProvider;
 
@@ -40,6 +41,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostSeverity\Li
             uriTemplate: '/configuration/hosts/host_severities',
             openapi: false,
             security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host severities',
+            itemUriTemplate: '/configuration/host_severities/{id}',
+            output: HostSeverityChoicesOutput::class,
+            provider: ListHostSeveritiesChoicesProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/configuration/host_templates/host_severities',
+            openapi: false,
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access host severities',
             itemUriTemplate: '/configuration/host_severities/{id}',
             output: HostSeverityChoicesOutput::class,
