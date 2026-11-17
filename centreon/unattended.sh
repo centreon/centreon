@@ -872,7 +872,7 @@ function set_required_prerequisite() {
 		set_centreon_repos
 		IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
 		for _repo in "${array_apt[@]}"; do
-		    if (( $(version_int) < $(version_int 25.10) )); then
+		    if [[ $(version_int) < $(version_int 25.10) && $_repo == "stable" ]]; then
 			    echo "deb https://packages.centreon.com/$repo_prefix-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
 			else
 				echo "deb https://packages.centreon.com/$apt_standard_repo/ $(lsb_release -sc)-$_repo main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
