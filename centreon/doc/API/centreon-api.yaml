@@ -9952,7 +9952,7 @@ components:
               description: 'Scheduled date for the next check (ISO8601)'
             next_host_notification:
               type: integer
-              description: ...
+              description: '...'
             notification_interval:
               type: number
               format: float
