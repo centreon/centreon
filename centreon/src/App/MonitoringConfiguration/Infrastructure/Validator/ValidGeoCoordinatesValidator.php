@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
+use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;

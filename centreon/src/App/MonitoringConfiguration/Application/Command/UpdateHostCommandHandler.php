@@ -26,20 +26,20 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
@@ -126,7 +126,7 @@ final readonly class UpdateHostCommandHandler
      * saves nothing (HTTP 502). The vault is outside the transaction: when the update fails after a
      * successful vault write, the database rolls back but the vault keeps the new values, which the
      * stored references may now resolve to (changed secret) or miss (cleared key). This divergence is
-     * logged as a warning rather than left silent. A failure of the commit itself, after this handler
+     * logged as an error rather than left silent. A failure of the commit itself, after this handler
      * returns, is not covered.
      */
     public function __invoke(UpdateHostCommand $command): Host
@@ -137,7 +137,7 @@ final readonly class UpdateHostCommandHandler
             return $this->update($command, $vaultWritten);
         } catch (\Throwable $exception) {
             if ($vaultWritten) {
-                $this->logger->warning(
+                $this->logger->error(
                     'A host update failed after writing to its vault entry: the vault may now diverge from the host stored in the database.',
                     ['host_id' => $command->id->value, 'exception' => $exception],
                 );
@@ -257,6 +257,8 @@ final readonly class UpdateHostCommandHandler
             $existingHost->severityId,
             $severityScope,
         );
+        // Extra legacy severities are dropped whatever the actor may see.
+        $extraSeverities = $this->repository->hasExtraSeverities($existingHost->id(), $severityId);
 
         $host = $existingHost->with(
             name: $command->name,
@@ -299,6 +301,7 @@ final readonly class UpdateHostCommandHandler
         // Macros and contacts are compared by hasSameConfigurationAs() but never logged by legacy, so
         // they count among the unlogged changes, with the relations.
         $unloggedChange = $passwordRewritten
+            || $extraSeverities
             || ! $host->hasSameConfigurationAs($existingHost)
             || ! $host->hasSameRelationsAs($existingHost);
 

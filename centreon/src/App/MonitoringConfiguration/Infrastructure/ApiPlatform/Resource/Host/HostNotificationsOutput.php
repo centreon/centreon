@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use ApiPlatform\Metadata\ApiProperty;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\NotificationContact\NotificationContactResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
@@ -38,11 +38,10 @@ final readonly class HostNotificationsOutput
      * @param list<string> $options
      */
     public function __construct(
-        #[ApiProperty(openapiContext: ['enum' => [TriStateEnum::False->value, TriStateEnum::True->value, TriStateEnum::UseDefault->value]])]
-        public string $enabled,
+        public TriStateEnum $enabled,
         public array $contacts,
         public array $contactGroups,
-        #[ApiProperty(openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => NotificationOptionEnumResolver::API_VALUES]])]
+        #[ApiProperty(openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => [NotificationOptionEnum::Down->value, NotificationOptionEnum::Unreachable->value, NotificationOptionEnum::Recovery->value, NotificationOptionEnum::Flapping->value, NotificationOptionEnum::DowntimeScheduled->value, NotificationOptionEnum::None->value]]])]
         public array $options,
         public ?int $interval,
         #[ApiProperty(readableLink: true)]

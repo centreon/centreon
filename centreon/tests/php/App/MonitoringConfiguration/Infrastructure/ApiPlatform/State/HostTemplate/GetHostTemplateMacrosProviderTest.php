@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
@@ -68,7 +69,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
     {
         $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
 
-        $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $this->request('GET', $this->uri($templateId));
         self::assertResponseStatusCodeSame(401);
     }
 
@@ -82,7 +83,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
         $this->login($username);
 
         // the macros prefill a host, so it demands read-write, like the choices list
-        $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $this->request('GET', $this->uri($templateId));
         self::assertResponseStatusCodeSame(403);
     }
 
@@ -96,7 +97,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
         $this->login($username);
 
         // no host template role of its own is needed
-        $response = $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $response = $this->request('GET', $this->uri($templateId));
         self::assertResponseIsSuccessful();
         self::assertSame("tpl-{$this->tag}", $response->toArray()['name']);
     }
@@ -112,7 +113,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $response = $this->request('GET', $this->uri($templateId));
         self::assertResponseIsSuccessful();
 
         $body = $response->toArray();
@@ -152,7 +153,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $response = $this->request('GET', $this->uri($templateId));
         self::assertResponseIsSuccessful();
 
         /** @var list<array<string, mixed>> $macros */
@@ -167,7 +168,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('GET', self::BASE_ENDPOINT . '/' . PHP_INT_MAX);
+        $this->request('GET', $this->uri(PHP_INT_MAX));
         self::assertResponseStatusCodeSame(404);
     }
 
@@ -178,7 +179,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
         $this->login();
 
-        $this->request('GET', self::BASE_ENDPOINT . "/{$hostId}");
+        $this->request('GET', $this->uri($hostId));
         self::assertResponseStatusCodeSame(404);
     }
 
@@ -193,7 +194,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        $response = $this->request('GET', $this->uri($templateId));
         self::assertResponseIsSuccessful();
         self::assertSame(['PORT'], array_column((array) $response->toArray()['macros'], 'name'));
     }
@@ -204,8 +205,75 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
         $this->login();
 
+        $this->request('GET', $this->uri($templateId));
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testTheTemplateUriWithoutTheMacrosSegmentServesNothing(): void
+    {
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->login();
+
         $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
         self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * "0<id>" would name an existing template: only the id requirement keeps it unrouted.
+     */
+    #[DataProvider('provideInvalidIds')]
+    public function testAnInvalidIdIsNotRouted(string $invalidId): void
+    {
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT . '/' . str_replace('<id>', (string) $templateId, $invalidId) . '/macros');
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideInvalidIds(): iterable
+    {
+        yield 'zero' => ['0'];
+
+        yield 'leading zero' => ['0<id>'];
+
+        yield 'not a number' => ['not-a-number'];
+    }
+
+    /**
+     * A loop is refused on save, but older data may hold one: the inheritance walk must still end.
+     */
+    public function testItResolvesTheMacrosOnALoopAlreadyInTheData(): void
+    {
+        $first = $this->insertHostTemplate("loop-first-{$this->tag}");
+        $second = $this->insertHostTemplate("loop-second-{$this->tag}");
+        $child = $this->insertHostTemplate("loop-child-{$this->tag}");
+        $this->linkToTemplate($first, $second, order: 1);
+        $this->linkToTemplate($second, $first, order: 1);
+        $this->linkToTemplate($child, $first, order: 1);
+        $firstMacroId = $this->insertMacro($first, '$_HOSTFIRST$', '1', isPassword: false, order: 0);
+        $secondMacroId = $this->insertMacro($second, '$_HOSTSECOND$', '2', isPassword: false, order: 0);
+
+        $this->login();
+
+        /** @var list<array<string, mixed>> $firstMacros */
+        $firstMacros = $this->request('GET', $this->uri($first))->toArray()['macros'];
+        self::assertSame([$firstMacroId, $secondMacroId], array_column($firstMacros, 'id'));
+        self::assertArrayNotHasKey('parent', $firstMacros[0]);
+        self::assertSame('template', $firstMacros[1]['parent']);
+
+        /** @var list<array<string, mixed>> $childMacros */
+        $childMacros = $this->request('GET', $this->uri($child))->toArray()['macros'];
+        self::assertSame([$firstMacroId, $secondMacroId], array_column($childMacros, 'id'));
+        self::assertSame(['template', 'template'], array_column($childMacros, 'parent'));
+    }
+
+    private function uri(int $templateId): string
+    {
+        return self::BASE_ENDPOINT . "/{$templateId}/macros";
     }
 
     private function insertHostTemplate(string $name, bool $locked = false, bool $active = true, ?int $commandId = null): int

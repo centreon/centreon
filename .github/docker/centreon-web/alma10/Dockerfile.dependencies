@@ -117,6 +117,7 @@ dnf install -y centreon-plugin-Operatingsystems-Linux-Snmp
 
 sed -i '/^agentaddress/d' /etc/snmp/snmpd.conf
 echo 'agentaddress  127.0.0.1' >> /etc/snmp/snmpd.conf
+echo 'rocommunity  public 127.0.0.1' >> /etc/snmp/snmpd.conf
 
 dnf clean all --enablerepo=*
 

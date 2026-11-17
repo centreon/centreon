@@ -47,10 +47,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
@@ -321,6 +325,34 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
     }
 
+    public function testFlagAsChangedForAServiceRaisesTheFlagOfThePollerOfItsEnabledHost(): void
+    {
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
+
+        $this->repository->flagAsChanged($this->buildService(hostActivated: true, hostPollerId: 1));
+
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
+    }
+
+    public function testFlagAsChangedForAServiceOfADisabledHostFlagsNoPoller(): void
+    {
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
+
+        $this->repository->flagAsChanged($this->buildService(hostActivated: false, hostPollerId: 1));
+
+        self::assertSame('0', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
+    }
+
+    public function testFlagAsChangedStillRejectsAPollerScopedAggregateWithoutPollerMapping(): void
+    {
+        $unmapped = new class (new HostId(1)) extends AggregateRoot implements PollerScopedInterface {
+        };
+
+        $this->expectException(\LogicException::class);
+
+        $this->repository->flagAsChanged($unmapped);
+    }
+
     public function testFlagIdAsChangedRaisesTheUpdatedFlagOfThatPoller(): void
     {
         $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
@@ -348,6 +380,17 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $reflection->setValue($host, new HostId(1));
 
         return $host;
+    }
+
+    private function buildService(bool $hostActivated, int $hostPollerId): Service
+    {
+        return new Service(
+            id: new ServiceId(1),
+            name: new ServiceName('ping'),
+            hostId: new HostId(1),
+            hostActivated: $hostActivated,
+            hostPollerId: new PollerId($hostPollerId),
+        );
     }
 
     private function insertPoller(int $id, string $name, bool $isCentral = false): void

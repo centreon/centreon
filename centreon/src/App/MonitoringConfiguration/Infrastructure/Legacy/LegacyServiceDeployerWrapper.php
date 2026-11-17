@@ -24,24 +24,20 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Legacy;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Exception\ServiceDeploymentFailedException;
 use App\MonitoringConfiguration\Domain\Service\ServiceDeployer;
 use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Legacy\LegacyContainer;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
-use Core\Host\Application\HostTemplateServicesCleaner;
 use Core\Service\Application\UseCase\DeployServices\DeployServices;
 use Symfony\Component\Security\Core\Authentication\Token\PreAuthenticatedToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Webmozart\Assert\Assert;
 
 /**
- * The only class allowed to know that service deployment, and the cleanup of the services left by
- * removed templates, are still legacy code.
+ * The only class allowed to know that service deployment is still legacy code.
  *
  * `LegacyContainer` boots a second kernel with its own connection, so the host must already be
  * committed, see {@see HostServicesDeploymentRequested}. Outside a legacy request that container's
@@ -75,25 +71,6 @@ final readonly class LegacyServiceDeployerWrapper implements ServiceDeployer
             if (($failureMessage = $presenter->failureMessage()) !== null) {
                 throw new ServiceDeploymentFailedException($failureMessage);
             }
-        });
-    }
-
-    public function removeFromRemovedTemplates(
-        HostId $hostId,
-        Collection $previousTemplateIds,
-        Collection $templateIds,
-        UserId $requestedBy,
-    ): void {
-        // Impersonated too: the service deletion log reads its author from the legacy token storage.
-        $this->asRequester($requestedBy, function () use ($hostId, $previousTemplateIds, $templateIds): void {
-            $cleaner = $this->legacyContainer->get(HostTemplateServicesCleaner::class);
-            Assert::isInstanceOf($cleaner, HostTemplateServicesCleaner::class);
-
-            $cleaner->cleanServicesFromRemovedTemplates(
-                $hostId->value,
-                array_map(static fn (HostTemplateId $id): int => $id->value, $previousTemplateIds->toArray()),
-                array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray()),
-            );
         });
     }
 
