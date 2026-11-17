@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\ReservedMacroName;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\VaultInterface;
@@ -40,13 +40,14 @@ final readonly class HostMacroInput
 {
     public function __construct(
         // The short name (e.g. "MYMACRO"); the domain wraps it to $_HOST<NAME>$. Length is bounded so
-        // the wrapped form fits on_demand_macro_host.host_macro_name, matching HostMacroName's own limit.
+        // the wrapped form fits on_demand_macro_host.host_macro_name, matching HostMacroName's own limit,
+        // measured on the same upper-cased form (upper-casing can lengthen a name: "ß" becomes "SS").
         // No character-set rule: legacy only upper-cases and stores the name (its sole check is the
         // reserved-name one below), so the endpoint stays as permissive. Only blankness, storage width
         // and reserved names are enforced.
         #[Assert\Sequentially([
             new Assert\NotBlank(normalizer: 'trim'),
-            new Assert\Length(max: HostMacroName::MAX_STORAGE_LENGTH - 7, normalizer: 'trim'),
+            new Assert\Length(max: HostMacroName::MAX_STORAGE_LENGTH - 7, normalizer: [self::class, 'normalizeName']),
             new ReservedMacroName(),
         ])]
         public string $name,
@@ -73,6 +74,14 @@ final readonly class HostMacroInput
         #[Assert\Choice(callback: [self::class, 'parents'])]
         public ?string $parent = null,
     ) {
+    }
+
+    /**
+     * The form HostMacroName stores.
+     */
+    public static function normalizeName(string $name): string
+    {
+        return mb_strtoupper(trim($name));
     }
 
     /**

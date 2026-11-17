@@ -79,7 +79,8 @@ const Page = <TFilters,>({
   isWelcomePageDisplayedAtom,
   navbar,
   formVariant = 'modal',
-  formPanelWidth
+  formPanelWidth,
+  getRowId
 }: Pick<
   ConfigurationBase<TFilters>,
   | 'columns'
@@ -94,6 +95,7 @@ const Page = <TFilters,>({
   | 'navbar'
   | 'formVariant'
   | 'formPanelWidth'
+  | 'getRowId'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
@@ -141,6 +143,7 @@ const Page = <TFilters,>({
           data={data}
           filtersAtom={filtersAtom}
           filtersAtomKey={filtersAtomKey}
+          getRowId={getRowId}
           hasWriteAccess={!!actions?.edit}
           isLoading={isLoading}
           selectedColumnIdsAtom={selectedColumnIdsAtom}

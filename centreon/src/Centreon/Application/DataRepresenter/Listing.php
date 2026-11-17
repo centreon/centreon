@@ -23,18 +23,6 @@ namespace Centreon\Application\DataRepresenter;
 
 use JsonSerializable;
 
-/**
- * @OA\Schema(
- *   schema="Pagination",
- *   allOf={
- *     @OA\Schema(
- *       @OA\Property(property="total", type="integer"),
- *       @OA\Property(property="offset", type="integer"),
- *       @OA\Property(property="limit", type="integer")
- *     )
- *   }
- * )
- */
 class Listing implements JsonSerializable
 {
     /** @var array */

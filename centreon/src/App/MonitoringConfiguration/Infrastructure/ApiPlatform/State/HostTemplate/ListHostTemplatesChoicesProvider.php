@@ -29,9 +29,11 @@ use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateChoicesOutput;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -78,7 +80,15 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-        $criteria = $criteria->withExcludedIds($this->unlicensedHostTemplates->findIds());
+
+        $excludedIds = $this->unlicensedHostTemplates->findIds()->toArray();
+        $templateId = $operation->getParameters()?->get('exclude_template_id')?->getValue(null);
+        if (is_int($templateId)) {
+            // the template itself and its descendants: picking any of them as its parent makes a loop
+            $templateId = new HostTemplateId($templateId);
+            array_push($excludedIds, $templateId, ...$this->repository->findDescendantIds($templateId)->toArray());
+        }
+        $criteria = $criteria->withExcludedIds(new Collection($excludedIds, HostTemplateId::class));
 
         $hostTemplates = $this->repository->findAll($criteria);
         $resources = [];
