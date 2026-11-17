@@ -25,15 +25,6 @@ use Centreon\Application\Serializer\SerializerContextInterface;
 use Centreon\Domain\Entity\AclGroup;
 
 /**
- * @OA\Schema(
- *   schema="AclGroupEntity",
- *       @OA\Property(property="id", type="integer"),
- *       @OA\Property(property="name", type="string"),
- *       @OA\Property(property="alias", type="string"),
- *       @OA\Property(property="changed", type="integer"),
- *       @OA\Property(property="activate", type="string", enum={"0","1","2"})
- * )
- *
  * Serialize AclGroup entity for list
  */
 class ListContext implements SerializerContextInterface
