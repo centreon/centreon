@@ -294,7 +294,8 @@ interval, `-w 300` batches about one update per write, so every RRD file is
 still written once per check. To write less often without rebuilding the
 image, set `rrdcached.args`. It replaces the whole CMD (the entrypoint stays
 `rrdcached`): copy the CMD from `values.yaml` and change only the timings,
-e.g. `-w 3600 -z 1800`. Keep `-g`, `-l 0.0.0.0:42217` (cbd, fpm, the probes
+e.g. `-w 3600 -z 1800 -f 7200` (`-f` at least 2x `-w`, rrdcached warns
+otherwise). Keep `-g`, `-l 0.0.0.0:42217` (cbd, fpm, the probes
 and the NetworkPolicy use 42217), `-b /var/lib/centreon -B`,
 `-j /var/lib/rrdcached/journal`, `-F` and `-p` (UID 902 cannot write the
 default pid file). Empty (default): the image's CMD, unchanged behaviour.
@@ -307,20 +308,27 @@ A longer `-w` holds more updates in memory:
   puts the journal on its own ReadWriteOnce PVC
   (`<release>-rrdcached-journal`, `rrdcached.journal.size`/`storageClass`,
   default 1Gi on `persistence.storageClass`), replayed at the next start.
+  rrdcached writes it in 4 KiB blocks: an abrupt death then loses only the
+  last unwritten block (~60 updates), not `-w` seconds of updates.
   RWO fits the broker: a one-replica StatefulSet whose pod is deleted
   before the next one starts (same as `broker-cache`). Being its own volume,
   it can use block storage (gp3) while the RRD files stay on EFS. The
-  broker's `own-volumes` init gives it to UID 902 and removes the stale pid
-  file an abrupt death leaves there.
+  broker's `own-volumes` init gives it to UID 902 and removes the pid file
+  an abrupt death leaves there (rrdcached 1.7.2 also removes a stale one
+  itself).
 - **Clean stop** (rollout, drain): `-F` writes every pending update after
   cbd has stopped, inside the pod's single grace period
   (`broker.terminationGracePeriodSeconds`, 60 s, shared with cbd saving its
   queues). Raise it with a long `-w` on slow storage: past it the flush is
   killed, and only a persistent journal replays what was not written.
 
-Measure before and after (EFS write operations, the broker pod's stop
-time): neither the timings above nor the persistent journal were measured
-on EFS yet.
+Tested with Docker on the rrdcached image (1.7.2, 20 files x 100 updates,
+`-w 3600 -z 1800 -f 7200`, journal on a volume): after a SIGKILL the
+restart replayed 1963 of the 2000 updates (the journal's last block was
+not written yet) and the clean stop wrote them to the RRD files; the
+leftover pid file did not block the restart. Measure on the target before
+and after (EFS write operations, the broker pod's stop time): neither the
+timings nor the journal were measured on EFS yet.
 
 **Requirement**: a broker image whose TCP RRD output initializes its logger
 (centreon-collect MON-213839). Without it the output's constructor leaves

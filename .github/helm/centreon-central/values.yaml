@@ -579,17 +579,20 @@ rrdcached:
   # about one update per write. A longer -w writes less often but holds more
   # pending updates: lost on an abrupt pod death unless journal.persistent,
   # and longer to flush on stop (broker.terminationGracePeriodSeconds).
-  # Example, the CMD with -w 3600 -z 1800:
+  # Keep -f at least 2x -w (rrdcached warns otherwise).
+  # Example, the CMD with -w 3600 -z 1800 (so -f 7200):
   #   args: ["-g", "-l", "0.0.0.0:42217", "-b", "/var/lib/centreon", "-B",
   #          "-j", "/var/lib/rrdcached/journal", "-F", "-w", "3600",
-  #          "-z", "1800", "-f", "3600",
+  #          "-z", "1800", "-f", "7200",
   #          "-p", "/var/lib/rrdcached/journal/rrdcached.pid"]
   args: []
   # rrdcached's journal (-j): every update is appended there before it is
   # cached, and replayed at start. emptyDir (default): survives a sidecar
   # restart, not the pod's death. persistent: a ReadWriteOnce PVC
   # (<release>-rrdcached-journal), so an abrupt death (OOM kill, node loss,
-  # grace period exceeded) loses nothing not yet written. RWO is enough: the
+  # grace period exceeded) loses only the journal's last unwritten 4 KiB
+  # block (~60 updates; measured: 1963 of 2000 replayed), not -w seconds
+  # of updates. RWO is enough: the
   # broker is a one-replica StatefulSet, its pod is deleted before the next
   # one starts. Its own volume, so a block-storage class (gp3) can be used
   # even when the RRD files are on EFS. Size: about 60 bytes per update held
