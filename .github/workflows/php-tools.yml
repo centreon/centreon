@@ -59,3 +59,7 @@ jobs:
       - name: 🔍 PHPStan checks
         working-directory: php-tools
         run: composer stan -- --no-progress
+
+      - name: 🧪 PHPUnit tests
+        working-directory: php-tools
+        run: composer test
