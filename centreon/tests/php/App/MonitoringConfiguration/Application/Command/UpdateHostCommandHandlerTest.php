@@ -25,35 +25,35 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\UpdateHostCommand;
 use App\MonitoringConfiguration\Application\Command\UpdateHostCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
@@ -66,6 +66,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
@@ -411,7 +412,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ]));
     }
 
-    public function testAFailureAfterAVaultWriteIsLoggedAsAWarning(): void
+    public function testAFailureAfterAVaultWriteIsLoggedAsAnError(): void
     {
         $this->addPoller(1);
         $this->vault->vaultEnabled = true;
@@ -429,9 +430,9 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         }
 
         // The vault now holds the new community while the rolled-back row still references it.
-        self::assertCount(1, $this->logger->warningMessages);
-        self::assertSame(10, $this->logger->warningMessages[0]['context']['host_id']);
-        self::assertSame($failure, $this->logger->warningMessages[0]['context']['exception']);
+        self::assertCount(1, $this->logger->errorMessages);
+        self::assertSame(10, $this->logger->errorMessages[0]['context']['host_id']);
+        self::assertSame($failure, $this->logger->errorMessages[0]['context']['exception']);
     }
 
     public function testAFailureWithoutAVaultWriteLogsNothing(): void
@@ -447,7 +448,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         } catch (\RuntimeException) {
         }
 
-        self::assertSame([], $this->logger->warningMessages);
+        self::assertSame([], $this->logger->errorMessages);
     }
 
     public function testAFailedVaultWriteLogsNoDivergence(): void
@@ -463,7 +464,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         } catch (VaultWriteFailedException) {
         }
 
-        self::assertSame([], $this->logger->warningMessages);
+        self::assertSame([], $this->logger->errorMessages);
     }
 
     public function testItIgnoresAVaultReferenceSentAsTheSnmpCommunity(): void
@@ -573,7 +574,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new Collection([$templateMacro], HostMacro::class),
+            new CheckOptions(null, macros: [$templateMacro]),
         );
         $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
         $this->seedHost(10, templateIds: $templateIds);
@@ -598,7 +599,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new Collection([new HostMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70))], HostMacro::class),
+            new CheckOptions(null, macros: [new HostMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70))]),
         );
         $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
         $this->seedHost(10, templateIds: $templateIds);
@@ -617,7 +618,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new Collection([new HostMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70))], HostMacro::class),
+            new CheckOptions(null, macros: [new HostMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70))]),
         );
         $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
         $this->seedHost(
@@ -647,7 +648,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
             new HostTemplateName('generic-host'),
-            new Collection([new HostMacro(new HostMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostMacroId(70))], HostMacro::class),
+            new CheckOptions(null, macros: [new HostMacro(new HostMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostMacroId(70))]),
         );
         $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
         $this->seedHost(10, snmpCommunity: new SnmpCommunity($hostReference), templateIds: $templateIds);
@@ -814,10 +815,11 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
     public function testRenamingAPasswordMacroKeepsItsSecret(): void
     {
-        // R5: the macro keeps its id and its vault reference, no plaintext is ever needed.
+        // The macro keeps its id and its secret, moved under the key of its new name.
         $this->addPoller(1);
         $this->vault->vaultEnabled = true;
         $reference = 'secret::vault::monitoring/hosts/host-uuid::_HOSTPWD';
+        $this->vault->resolved = [$reference => 's3cr3t'];
         $this->seedHost(10, macros: [new HostMacro(new HostMacroName('pwd'), $reference, isPassword: true, id: new HostMacroId(5))]);
 
         $host = ($this->handler)($this->command(10, macroChanges: [
@@ -825,8 +827,13 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ]));
 
         $macro = $host->checkOptions->macros[0];
-        self::assertSame(['RENAMED', 5, $reference], [$macro->name->value, $macro->id?->value, $macro->value]);
-        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame(
+            ['RENAMED', 5, 'secret::vault::monitoring/hosts/host-uuid::_HOSTRENAMED'],
+            [$macro->name->value, $macro->id?->value, $macro->value],
+        );
+        self::assertCount(1, $this->vault->writeManyCalls);
+        self::assertSame(['_HOSTRENAMED' => 's3cr3t'], $this->vault->writeManyCalls[0]['secrets']);
+        self::assertSame(['_HOSTPWD'], $this->vault->writeManyCalls[0]['deletes']);
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostVaultPurgeRequested::class));
     }
 
@@ -1088,6 +1095,22 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostTemplateServicesCleanupRequested::class));
     }
 
+    public function testTheCleanupIsRequestedBeforeTheDeployment(): void
+    {
+        $this->addPoller(1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->hostTemplateRepository->hostTemplates[8] = new HostTemplate(new HostTemplateId(8), new HostTemplateName('linux-host'));
+        $this->seedHost(10, templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class));
+
+        ($this->handler)($this->command(10, templateIds: new Collection([new HostTemplateId(8)], HostTemplateId::class)));
+
+        $requests = array_values(array_filter(
+            $this->eventBus->getDispatchedEventClasses(),
+            static fn (string $class): bool => in_array($class, [HostTemplateServicesCleanupRequested::class, HostServicesDeploymentRequested::class], true),
+        ));
+        self::assertSame([HostTemplateServicesCleanupRequested::class, HostServicesDeploymentRequested::class], $requests);
+    }
+
     public function testItPreservesOutOfScopeHostGroupsForARestrictedActor(): void
     {
         $this->addPoller(1);
@@ -1123,6 +1146,57 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
 
         self::assertSame(2, $host->severityId?->value);
+        self::assertSame([], $this->hostRepository->updatedHosts);
+    }
+
+    /**
+     * The extra severities legacy may have left are dropped whatever the actor may see; the main one (the
+     * one read) is kept when the actor cannot see it.
+     */
+    public function testItKeepsAnOutOfScopeMainSeverityAndDropsTheExtraOnes(): void
+    {
+        $this->addPoller(1);
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(1)]);
+        $this->seedHost(10, severityId: new HostSeverityId(2));
+        $this->hostRepository->storedSeverityIds[10] = [2, 3];
+
+        $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
+
+        self::assertSame(2, $host->severityId?->value);
+        self::assertSame([$host], $this->hostRepository->updatedHosts);
+    }
+
+    /**
+     * A host holding several severities (legacy) keeps only one after an update, even when the one resent is
+     * the one it already shows.
+     */
+    public function testResendingTheSeverityOfAHostHoldingSeveralIsAWrite(): void
+    {
+        $this->addPoller(1);
+        $this->hostSeverityRepository->hostSeverities[1] = new HostSeverityName('Critical');
+        $this->seedHost(10, severityId: new HostSeverityId(1));
+        $this->hostRepository->storedSeverityIds[10] = [1, 2];
+
+        $host = ($this->handler)($this->command(10, severityId: new HostSeverityId(1)));
+
+        self::assertSame(1, $host->severityId?->value);
+        self::assertSame([$host], $this->hostRepository->updatedHosts);
+    }
+
+    /**
+     * Only the severity the host shows is protected: hidden extra ones are legacy leftovers, dropped as well.
+     */
+    public function testClearingTheShownSeverityAlsoDropsAHiddenExtraOne(): void
+    {
+        $this->addPoller(1);
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(1)]);
+        $this->seedHost(10, severityId: new HostSeverityId(1));
+        $this->hostRepository->storedSeverityIds[10] = [1, 2];
+
+        $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
+
+        self::assertNull($host->severityId);
+        self::assertSame([$host], $this->hostRepository->updatedHosts);
     }
 
     public function testItPreservesOutOfScopeParentAndChildHostsForARestrictedActor(): void
@@ -1297,7 +1371,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
     public function testItKeepsATemplateTheLicenseNoLongerAllows(): void
     {
         $this->addPoller(1);
-        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('connector'), new Collection([], HostMacro::class));
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('connector'));
         $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
         $this->seedHost(10, templateIds: $templateIds);
         $this->hostTemplateRepository->monitoringConnectorTemplateIds = [7];
@@ -1312,7 +1386,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
     {
         $this->addPoller(1);
         foreach ([7, 8] as $id) {
-            $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('connector-' . $id), new Collection([], HostMacro::class));
+            $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('connector-' . $id));
         }
         $this->seedHost(10, templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class));
         $this->hostTemplateRepository->monitoringConnectorTemplateIds = [7, 8];
