@@ -53,14 +53,11 @@ export const labelNameMustNotStartWithModule =
 export const labelNameContainsForbiddenCharacters = 'Unauthorized value';
 export const labelInvalidAddress = 'Not a valid IP address';
 export const labelParentAndChildHost = 'Circular Definition';
-// Templates. The listing filter keeps `labelHostTemplate`.
-export const labelSelectATemplate = 'Select a template';
+// The add button of the templates and macros lists.
 export const labelAddNewEntry = 'Add new entry';
-export const labelEditTemplate = 'Modify';
 export const labelCreateServicesLinkedToTemplates =
   'Automatically create services from templates';
 // Custom macros.
-export const labelCustomMacros = 'Custom macros';
 export const labelClear = 'Clear';
 export const labelAlreadyExists = 'Already exists';
 
@@ -91,6 +88,7 @@ export {
   labelContactAdditiveInheritance,
   labelContactGroupAdditiveInheritance,
   labelContactsToNotify,
+  labelCustomMacros,
   labelDataProcessing,
   labelDefault,
   labelEnableFreshnessCheck,

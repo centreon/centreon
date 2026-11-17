@@ -6,7 +6,7 @@ import { ResponseError, useBulkResponse, useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
-import { equals, isEmpty } from 'ramda';
+import { equals, has, isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
@@ -202,7 +202,14 @@ const useForm = ({
       return;
     }
 
-    const payload = adapter(values);
+    // A form that reads the activation sends back the latest one, which the
+    // panel header may have changed since the detail loaded.
+    const activation = formState.resource?.isActivated;
+    const payload = adapter(
+      has('isActivated', values) && !isNil(activation)
+        ? { ...values, isActivated: activation }
+        : values
+    );
     const mutate = isAddMode
       ? createMutation
       : updateMutation(formState.id as number);
