@@ -946,7 +946,7 @@ function set_selinux_config() {
 # and, when the web module defines it, the php-fpm port label is set
 #
 function centreon_selinux_modules_loaded() {
-	local _loaded _module _web_pp=/usr/share/selinux/packages/centreon/centreon-web.pp
+	local _loaded _module _ports _web_pp=/usr/share/selinux/packages/centreon/centreon-web.pp
 	_loaded=$(semodule -l 2>/dev/null | awk '{print $1}') || return 1
 	for _module in "${CENTREON_SELINUX_MODULES[@]}"; do
 		if ! grep -qx -- "$_module" <<<"$_loaded"; then
@@ -955,8 +955,9 @@ function centreon_selinux_modules_loaded() {
 		fi
 	done
 	# older centreon-web modules allow every unreserved port and need no label
-	if [ -f "$_web_pp" ] && grep -aq centreon_php_fpm_port_t "$_web_pp" &&
-		! semanage port -l -C -n 2>/dev/null | grep -qE '^centreon_php_fpm_port_t +tcp +([0-9]+, )*9042(,|$)'; then
+	if [ -f "$_web_pp" ] && grep -aq centreon_php_fpm_port_t "$_web_pp"; then
+		_ports=$(semanage port -l -C -n 2>/dev/null) || _ports=""
+		grep -qE '^centreon_php_fpm_port_t +tcp +([0-9-]+, )*9042(,|$)' <<<"$_ports" && return 0
 		log "WARN" "tcp/9042 is not labelled centreon_php_fpm_port_t"
 		return 1
 	fi
@@ -2356,6 +2357,11 @@ if [ -e $tmp_passwords_file ] && [ "$operation" = "update" ]; then
 	rm -f $tmp_passwords_file
 fi
 
+# The admin asked for enforcing: say it on the console (fd 3), not only in the log file.
+if [ "${selinux_enforcing_skipped:-}" == "true" ]; then
+	echo "WARNING: SELinux left in [permissive] mode instead of [enforcing]: Centreon SELinux rules are missing${LOG_FILE:+ - see $LOG_FILE}" >&3
+fi
+
 # A service left down must fail the run (non-zero exit) so CI and callers notice it;
 # this is checked only now so the credentials above are still shown.
 if [ ${#failed_services[@]} -gt 0 ]; then
@@ -2366,10 +2372,6 @@ if [ ${#failed_services[@]} -gt 0 ]; then
 	exit 2
 fi
 
-# The admin asked for enforcing: say it on the console, not only in the log file.
-if [ "${selinux_enforcing_skipped:-}" == "true" ] && [ -n "${LOG_FILE:-}" ]; then
-	echo "WARNING: SELinux left in [permissive] mode instead of [enforcing]: Centreon SELinux rules are missing - see ${LOG_FILE}" >&3
-fi
 
 # Final notice on the console (the rest of the run is in the log file).
 if [ -n "${LOG_FILE:-}" ]; then
