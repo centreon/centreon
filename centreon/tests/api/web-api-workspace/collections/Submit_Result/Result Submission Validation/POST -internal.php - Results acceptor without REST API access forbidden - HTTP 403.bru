@@ -1,0 +1,42 @@
+meta {
+  name: POST /internal.php - Results acceptor without REST API access forbidden - HTTP 403
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUriCentreonApiWeb}}/internal.php?object=centreon_results_acceptor&action=submit
+  body: json
+  auth: none
+}
+
+headers {
+  Cookie: {{noRestSessionCookie}}
+}
+
+script:pre-request {
+  bru.setVar("updateTime", Math.floor(Date.now() / 1000));
+}
+
+body:json {
+  {
+    "results": [
+      {
+        "host": "{{ResultHostName}}",
+        "service": "{{ResultServiceName}}",
+        "status": 0,
+        "updatetime": {{updateTime}},
+        "output": "Should be forbidden"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -25,11 +25,13 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceGroupCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalServiceGroupRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\ServiceGroupTransformer;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -172,6 +174,41 @@ final class DbalServiceGroupRepositoryTest extends KernelTestCase
         self::assertSame([], $this->names($result));
     }
 
+    public function testFindNamesByIdsReturnsTheNamesIndexedByIdDisabledGroupsIncluded(): void
+    {
+        $enabledId = $this->insertServiceGroup("names-{$this->tag}");
+        $disabledId = $this->insertServiceGroup("disabled-{$this->tag}", activate: '0');
+
+        $names = $this->findNamesByIds($enabledId, $disabledId);
+
+        // Indexed by id, in no particular order: the query has no ORDER BY.
+        self::assertCount(2, $names);
+        self::assertSame("names-{$this->tag}", $names[$enabledId]);
+        self::assertSame("disabled-{$this->tag}", $names[$disabledId]);
+    }
+
+    public function testFindNamesByIdsLeavesOutAnUnknownOrNamelessGroup(): void
+    {
+        $namelessId = $this->insertServiceGroup(null);
+        $emptyNameId = $this->insertServiceGroup('');
+
+        self::assertSame([], $this->findNamesByIds($namelessId, $emptyNameId, $namelessId + 1000000));
+    }
+
+    public function testFindNamesByIdsIgnoresTheActorsScope(): void
+    {
+        // Names are looked up by id: scoping what a service shows is the caller's.
+        $this->resourceAccessRepository->serviceGroupScope = AccessScope::restrictedTo(ServiceGroupId::class, []);
+        $groupId = $this->insertServiceGroup("scoped-{$this->tag}");
+
+        self::assertSame([$groupId => "scoped-{$this->tag}"], $this->findNamesByIds($groupId));
+    }
+
+    public function testFindNamesByIdsWithoutIdsIsEmpty(): void
+    {
+        self::assertCount(0, $this->repository->findNamesByIds(new Collection([], ServiceGroupId::class)));
+    }
+
     /**
      * @param \IteratorAggregate<int, ServiceGroup>&\Countable $result
      *
@@ -203,5 +240,18 @@ final class DbalServiceGroupRepositoryTest extends KernelTestCase
         $this->connection->insert('servicegroup', ['sg_name' => $name, 'sg_activate' => $activate]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @return array<string> indexed by id
+     */
+    private function findNamesByIds(int ...$ids): array
+    {
+        $names = $this->repository->findNamesByIds(new Collection(
+            array_map(static fn (int $id): ServiceGroupId => new ServiceGroupId($id), $ids),
+            ServiceGroupId::class,
+        ));
+
+        return array_map(static fn (ServiceGroupName $name): string => $name->value, $names->toArray());
     }
 }
