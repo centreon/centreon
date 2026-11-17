@@ -288,7 +288,7 @@ final class MigrateCommandHandlerTest extends TestCase
             );
             self::assertSame('Migration of the Centreon Web migration sets failed: ' . $exception->getMessage(), $this->logger->calls[4]['message'] ?? null);
             self::assertSame(['step', 'stepCompleted', 'step', 'stepFailure', 'error'], array_column($this->logger->calls, 'method'));
-            self::assertNull($this->logger->calls[4]['exception'] ?? null, 'The failed step logged the trace');
+            self::assertSame($exception, $this->logger->calls[4]['exception'] ?? null);
         }
     }
 
@@ -309,7 +309,7 @@ final class MigrateCommandHandlerTest extends TestCase
     }
 
     #[DataProvider('provideStepFailures')]
-    public function testLogsTheTraceOfAStepFailureOnce(\Throwable $failure): void
+    public function testLogsTheTraceOfAStepFailureWithTheStepAndTheRunFailures(\Throwable $failure): void
     {
         $this->migrationRunner->failure = $failure;
 
@@ -322,6 +322,6 @@ final class MigrateCommandHandlerTest extends TestCase
 
         self::assertSame(['step', 'stepFailure', 'error'], array_column($this->logger->calls, 'method'));
         self::assertSame($failure, $this->logger->calls[1]['exception'] ?? null);
-        self::assertNull($this->logger->calls[2]['exception'] ?? null);
+        self::assertSame($failure, $this->logger->calls[2]['exception'] ?? null);
     }
 }

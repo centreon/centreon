@@ -73,24 +73,16 @@ final readonly class MigrateCommandHandler
                 $set,
                 fn (): MigrationOutcome => $set instanceof MigrationSet ? $this->migrationApplier->applySet($set) : $this->migrationApplier->applyWebSets(),
             );
+        } catch (ModuleNotInstalledException|MigrationSetBusyException|LegacyUpdatesPendingException|PlatformVersionUnknownException $refusal) {
+            $this->upgradeLogger->warning($this->platformVersion, sprintf('Migration of the %s refused: %s', $this->label($set), $refusal->getMessage()));
+
+            throw $refusal;
+        } catch (LockNotReleasedException $exception) {
+            $this->upgradeLogger->error($this->platformVersion, sprintf('Migration of the %s: %s', $this->label($set), $exception->getMessage()), $exception);
+
+            throw $exception;
         } catch (\Throwable $exception) {
-            if ($exception instanceof ModuleNotInstalledException || $exception instanceof MigrationSetBusyException || $exception instanceof LegacyUpdatesPendingException || $exception instanceof PlatformVersionUnknownException) {
-                $this->upgradeLogger->warning($this->platformVersion, sprintf('Migration of the %s refused: %s', $this->label($set), $exception->getMessage()));
-
-                throw $exception;
-            }
-
-            if ($exception instanceof LockNotReleasedException) {
-                $this->upgradeLogger->error($this->platformVersion, sprintf('Migration of the %s: %s', $this->label($set), $exception->getMessage()), $exception);
-
-                throw $exception;
-            }
-
-            $this->upgradeLogger->error(
-                $this->platformVersion,
-                sprintf('Migration of the %s failed: %s', $this->label($set), $exception->getMessage()),
-                $this->migrationApplier->hasLogged($exception) ? null : $exception,
-            );
+            $this->upgradeLogger->error($this->platformVersion, sprintf('Migration of the %s failed: %s', $this->label($set), $exception->getMessage()), $exception);
 
             throw $exception;
         }

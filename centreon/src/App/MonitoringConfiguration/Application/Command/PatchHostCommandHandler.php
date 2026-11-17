@@ -28,7 +28,6 @@ use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer
 use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
-use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
@@ -36,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -46,6 +46,7 @@ use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
+use App\MonitoringConfiguration\Domain\Event\HostTemplateServicesCleanupRequested;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
@@ -53,6 +54,8 @@ use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\EventBus;
@@ -71,7 +74,6 @@ final readonly class PatchHostCommandHandler
         private CommandRepository $commandRepository,
         private HostReferencesChecker $references,
         private HostRelationsUpdater $relations,
-        private HostTemplateServicesCleaner $templateServices,
         private HostMacrosUpdater $macros,
         private HostMacroSecretsSynchronizer $macroSecrets,
         private VaultInterface $vault,
@@ -79,6 +81,7 @@ final readonly class PatchHostCommandHandler
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private EventBus $eventBus,
         private LoggerInterface $logger,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -110,7 +113,13 @@ final readonly class PatchHostCommandHandler
         $updatedHost = $this->moveSecretsToTheVault($host, $updatedHost, $command, macrosChanged: $macros !== null);
 
         try {
-            $this->saveAndNotify($host, $updatedHost, $command->actor->userId->value, secretRewritten: $this->providesASecret($command));
+            $this->saveAndNotify(
+                $host,
+                $updatedHost,
+                $command->actor->userId->value,
+                secretRewritten: $this->providesASecret($command),
+                extraSeverities: $this->repository->hasExtraSeverities($host->id(), $updatedHost->severityId),
+            );
         } catch (\Throwable $exception) {
             if ($this->touchesTheVault($host, $updatedHost, $command)) {
                 $this->logger->warning(
@@ -215,7 +224,7 @@ final readonly class PatchHostCommandHandler
             alias: $command->alias,
             snmpVersion: $command->snmpVersion,
             timezoneId: $command->timezoneId,
-            severityId: $command->severityId,
+            severityId: $this->severity($host, $command),
             extendedInformations: $command->extendedInformations instanceof NoValue
                 ? new NoValue()
                 : $command->extendedInformations->applyTo($host->extendedInformations),
@@ -346,20 +355,38 @@ final readonly class PatchHostCommandHandler
     }
 
     /**
+     * A severity the actor cannot see is not theirs to remove: an explicit null keeps it.
+     */
+    private function severity(Host $host, PatchHostCommand $command): NoValue|HostSeverityId|null
+    {
+        if (
+            $command->severityId === null
+            && $host->severityId instanceof HostSeverityId
+            && ! $this->accessScopes->hostSeverities($command->actor)->allows($host->severityId)
+        ) {
+            return $host->severityId;
+        }
+
+        return $command->severityId;
+    }
+
+    /**
      * Nothing is written when nothing changed. A plain enable/disable keeps the narrow write and its
      * own event; anything else is a mass change, which carries the previous poller so that it is
      * flagged too. A secret rewritten in the vault counts as a change even when the host keeps the very
      * same reference, since the path of a vaulted value only depends on its entry and its key.
+     *
+     * @param bool $extraSeverities true when legacy left several severities on the host
      */
-    private function saveAndNotify(Host $hostBefore, Host $hostAfter, int $updatedBy, bool $secretRewritten): void
+    private function saveAndNotify(Host $hostBefore, Host $hostAfter, int $updatedBy, bool $secretRewritten, bool $extraSeverities): void
     {
         $relationsChanged = ! $hostAfter->hasSameRelationsAs($hostBefore) || ! $this->hasSameContactsAs($hostAfter, $hostBefore);
 
-        if ($secretRewritten || $relationsChanged || ! $hostAfter->hasSameConfigurationAs($hostBefore)) {
+        if ($secretRewritten || $extraSeverities || $relationsChanged || ! $hostAfter->hasSameConfigurationAs($hostBefore)) {
             $this->repository->update($hostAfter);
             if ($relationsChanged) {
                 $this->repository->replaceRelations($hostAfter);
-                $this->templateServices->cleanUp($hostBefore, $hostAfter, $updatedBy);
+                $this->requestTheCleanupOfRemovedTemplates($hostBefore, $hostAfter, $updatedBy);
             }
 
             if (! $hostAfter->checkOptions->hasSameMacrosAs($hostBefore->checkOptions)) {
@@ -383,6 +410,27 @@ final readonly class PatchHostCommandHandler
                     ? new HostEnabled($hostAfter, $updatedBy)
                     : new HostDisabled($hostAfter, $updatedBy),
             );
+        }
+    }
+
+    /**
+     * Like the PUT, removing a template removes the services it brought to the host, after the commit and
+     * one service at a time. Fired before the deployment, so the services of the remaining templates are
+     * deployed afterwards.
+     */
+    private function requestTheCleanupOfRemovedTemplates(Host $hostBefore, Host $hostAfter, int $updatedBy): void
+    {
+        $templateIdValues = static fn (Host $host): array => array_map(
+            static fn (HostTemplateId $id): int => $id->value,
+            $host->templateIds->toArray(),
+        );
+        if (array_diff($templateIdValues($hostBefore), $templateIdValues($hostAfter)) !== []) {
+            $this->eventBus->fire(new HostTemplateServicesCleanupRequested(
+                $hostAfter->id(),
+                $hostBefore->templateIds,
+                $hostAfter->templateIds,
+                new UserId($updatedBy),
+            ));
         }
     }
 

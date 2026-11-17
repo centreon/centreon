@@ -117,37 +117,21 @@ final class MigrationApplierTest extends TestCase
         }
 
         self::assertInstanceOf(MigrationFailedException::class, $caught);
-        self::assertTrue($this->applier->hasLogged($caught));
-    }
-
-    public function testAnInterruptionKeepsTheLoggedTraceOfItsCause(): void
-    {
-        $this->migrationRunner->failingSets = ['configuration'];
-        $caught = null;
-
-        try {
-            $this->applier->applyWebSets();
-        } catch (MigrationInterruptedException $exception) {
-            $caught = $exception;
-        }
-
-        self::assertInstanceOf(MigrationInterruptedException::class, $caught);
-        self::assertTrue($this->applier->hasLogged($caught));
+        self::assertSame(['step', 'stepFailure'], array_column($this->logger->calls, 'method'));
+        self::assertSame($caught, $this->logger->calls[1]['exception'] ?? null);
     }
 
     public function testAFailedVersionRecordingIsLeftToItsCallerToLog(): void
     {
         $this->updateRepository->versionUpdateFailure = new \RuntimeException('informations is locked');
-        $caught = null;
 
         try {
             $this->applier->applyWebSets();
-        } catch (PlatformVersionNotRecordedException $exception) {
-            $caught = $exception;
+            self::fail('Expected the version recording failure to propagate');
+        } catch (PlatformVersionNotRecordedException) {
         }
 
-        self::assertInstanceOf(PlatformVersionNotRecordedException::class, $caught);
-        self::assertFalse($this->applier->hasLogged($caught));
+        self::assertSame([], array_values(array_intersect(array_column($this->logger->calls, 'method'), ['stepFailure', 'error'])));
     }
 
     public function testTellsTheWarningsOfTheMigrationsWhenThePlatformVersionCannotBeRecorded(): void

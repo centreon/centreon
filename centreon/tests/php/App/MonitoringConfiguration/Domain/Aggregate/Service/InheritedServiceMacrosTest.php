@@ -162,6 +162,51 @@ final class InheritedServiceMacrosTest extends TestCase
         );
     }
 
+    public function testFindByNameReturnsTheInheritedMacroOfThatName(): void
+    {
+        $inherited = InheritedServiceMacros::resolve([$this->template(1, [$this->macro(11, 'tpl', 'v')])], []);
+
+        self::assertSame(11, $inherited->findByName(new ServiceMacroName('TPL'))?->id?->value);
+        self::assertNull($inherited->findByName(new ServiceMacroName('other')));
+    }
+
+    /**
+     * The parent is the id namespace: the same id under another origin is another macro.
+     */
+    public function testFindBySourceMatchesTheOriginAndTheId(): void
+    {
+        $command = $this->command(CommandTypeEnum::Check, '$USER1$/check -a $_SERVICECMD$', [
+            new CommandMacro(new CommandMacroId(11), 'CMD', CommandMacroTypeEnum::Service),
+        ]);
+        $inherited = InheritedServiceMacros::resolve([$this->template(1, [$this->macro(11, 'tpl', 'v')])], [$command]);
+
+        self::assertSame('TPL', $inherited->findBySource(ServiceMacroParentEnum::Template, new ServiceMacroId(11))?->name->value);
+        self::assertSame('CMD', $inherited->findBySource(ServiceMacroParentEnum::Command, new ServiceMacroId(11))?->name->value);
+        self::assertNull($inherited->findBySource(ServiceMacroParentEnum::Template, new ServiceMacroId(12)));
+    }
+
+    /**
+     * A macro equivalent to the inherited macro of its name (name, value, password flag) is not kept; one that
+     * differs in value or flag, or has no inherited counterpart, is kept, in its order.
+     */
+    public function testWithoutRedundantDropsTheMacrosEquivalentToTheInheritedOnes(): void
+    {
+        $inherited = InheritedServiceMacros::resolve([$this->template(1, [
+            $this->macro(11, 'same', 'v'),
+            $this->macro(12, 'other-value', 'v'),
+            $this->macro(13, 'other-flag', 'v'),
+        ])], []);
+
+        $kept = $inherited->withoutRedundant([
+            new ServiceMacro(new ServiceMacroName('same'), 'v', isPassword: false),
+            new ServiceMacro(new ServiceMacroName('other-value'), 'w', isPassword: false),
+            new ServiceMacro(new ServiceMacroName('other-flag'), 'v', isPassword: true),
+            new ServiceMacro(new ServiceMacroName('own'), 'v', isPassword: false),
+        ]);
+
+        self::assertSame(['OTHER-VALUE', 'OTHER-FLAG', 'OWN'], array_map(static fn (ServiceMacro $macro): string => $macro->name->value, $kept));
+    }
+
     /**
      * @param list<ServiceMacro> $macros
      */

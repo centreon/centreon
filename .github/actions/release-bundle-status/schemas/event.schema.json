@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "events/<ts>_<subject>_<type>_<run_id>-<attempt>.json",
+  "type": "object",
+  "required": ["schema_version", "bundle", "source", "subject", "type", "status", "ts", "commit", "run_url"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "bundle": {"type": "string"}, "source": {"type": "string"}, "subject": {"type": "string"},
+    "type": {"type": "string"}, "status": {"type": "string"},
+    "ts": {"type": "string", "format": "date-time"}, "commit": {"type": "string"}, "run_url": {"type": "string"}
+  }
+}

@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceStalkingOptionEnum;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ServiceDataProcessingTest extends TestCase
@@ -157,6 +158,150 @@ final class ServiceDataProcessingTest extends TestCase
                 ServiceStalkingOptionEnum::Critical,
             ],
             $dataProcessing->stalkingOptions,
+        );
+    }
+
+    /**
+     * Freshness forced on with a 500-second threshold; every other field is kept.
+     */
+    public function testACentreonMonitoringAgentServiceAlwaysChecksFreshnessWithAFixedThreshold(): void
+    {
+        $fields = [
+            'flapDetectionEnabled' => TriStateEnum::False,
+            'eventHandlerEnabled' => TriStateEnum::True,
+            'obsessOverService' => TriStateEnum::False,
+            'retainStatusInformation' => TriStateEnum::True,
+            'retainNonStatusInformation' => TriStateEnum::False,
+            'acknowledgmentTimeout' => 5,
+            'lowFlapThreshold' => 10,
+            'highFlapThreshold' => 90,
+            'eventHandlerCommandId' => new CommandId(42),
+            'eventHandlerArgs' => ['warn'],
+            'stalkingOptions' => [ServiceStalkingOptionEnum::Ok],
+        ];
+        $original = new ServiceDataProcessing(...[...$fields, 'checkFreshness' => TriStateEnum::False, 'freshnessThreshold' => 30]);
+
+        $changed = $original->withCentreonMonitoringAgentFreshness();
+
+        self::assertEquals(
+            new ServiceDataProcessing(...[...$fields, 'checkFreshness' => TriStateEnum::True, 'freshnessThreshold' => 500]),
+            $changed,
+        );
+    }
+
+    /**
+     * All-empty arguments are no argument, as legacy stores them; a mixed list is kept, with no all-or-none rule.
+     *
+     * @param list<string> $args
+     * @param list<string> $expected
+     */
+    #[DataProvider('eventHandlerArgumentListProvider')]
+    public function testAnAllEmptyEventHandlerArgumentListIsNoArgument(array $args, array $expected): void
+    {
+        self::assertSame($expected, (new ServiceDataProcessing(eventHandlerArgs: $args))->eventHandlerArgs);
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, list<string>}>
+     */
+    public static function eventHandlerArgumentListProvider(): iterable
+    {
+        yield 'no argument' => [[], []];
+
+        yield 'one empty argument' => [[''], []];
+
+        yield 'two empty arguments' => [['', ''], []];
+
+        yield 'an empty and a filled argument' => [['', 'warn'], ['', 'warn']];
+    }
+
+    public function testEqualsHoldsForTheSameValues(): void
+    {
+        self::assertTrue(self::dataProcessing()->equals(self::dataProcessing()));
+    }
+
+    public function testEqualsIgnoresTheOrderTheStalkingOptionsWereGivenIn(): void
+    {
+        self::assertTrue(self::dataProcessing()->equals(
+            self::dataProcessing(stalkingOptions: [ServiceStalkingOptionEnum::Critical, ServiceStalkingOptionEnum::Ok]),
+        ));
+    }
+
+    #[DataProvider('fieldChangeProvider')]
+    public function testEqualsDetectsAChangeOfEachField(ServiceDataProcessing $changed): void
+    {
+        self::assertFalse(self::dataProcessing()->equals($changed));
+    }
+
+    /**
+     * @return iterable<string, array{ServiceDataProcessing}>
+     */
+    public static function fieldChangeProvider(): iterable
+    {
+        yield 'check freshness' => [self::dataProcessing(checkFreshness: TriStateEnum::UseDefault)];
+
+        yield 'flap detection' => [self::dataProcessing(flapDetectionEnabled: TriStateEnum::UseDefault)];
+
+        yield 'event handler enabled' => [self::dataProcessing(eventHandlerEnabled: TriStateEnum::UseDefault)];
+
+        yield 'obsess over service' => [self::dataProcessing(obsessOverService: TriStateEnum::UseDefault)];
+
+        yield 'retain status information' => [self::dataProcessing(retainStatusInformation: TriStateEnum::UseDefault)];
+
+        yield 'retain non-status information' => [self::dataProcessing(retainNonStatusInformation: TriStateEnum::UseDefault)];
+
+        yield 'acknowledgement timeout' => [self::dataProcessing(acknowledgmentTimeout: 16)];
+
+        yield 'freshness threshold' => [self::dataProcessing(freshnessThreshold: 0)];
+
+        yield 'low flap threshold' => [self::dataProcessing(lowFlapThreshold: 11)];
+
+        yield 'high flap threshold' => [self::dataProcessing(highFlapThreshold: 91)];
+
+        yield 'event handler' => [self::dataProcessing(eventHandlerCommandId: new CommandId(8))];
+
+        yield 'no event handler' => [self::dataProcessing(eventHandlerCommandId: null)];
+
+        yield 'event handler arguments' => [self::dataProcessing(eventHandlerArgs: ['other'])];
+
+        yield 'stalking options' => [self::dataProcessing(stalkingOptions: [ServiceStalkingOptionEnum::Ok])];
+    }
+
+    /**
+     * Every field set by default, none to the value object's own default.
+     *
+     * @param list<string> $eventHandlerArgs
+     * @param list<ServiceStalkingOptionEnum> $stalkingOptions
+     */
+    private static function dataProcessing(
+        TriStateEnum $checkFreshness = TriStateEnum::True,
+        TriStateEnum $flapDetectionEnabled = TriStateEnum::False,
+        TriStateEnum $eventHandlerEnabled = TriStateEnum::True,
+        TriStateEnum $obsessOverService = TriStateEnum::False,
+        TriStateEnum $retainStatusInformation = TriStateEnum::True,
+        TriStateEnum $retainNonStatusInformation = TriStateEnum::False,
+        int $acknowledgmentTimeout = 15,
+        int $freshnessThreshold = 60,
+        int $lowFlapThreshold = 10,
+        int $highFlapThreshold = 90,
+        ?CommandId $eventHandlerCommandId = new CommandId(7),
+        array $eventHandlerArgs = ['arg'],
+        array $stalkingOptions = [ServiceStalkingOptionEnum::Ok, ServiceStalkingOptionEnum::Critical],
+    ): ServiceDataProcessing {
+        return new ServiceDataProcessing(
+            $checkFreshness,
+            $flapDetectionEnabled,
+            $eventHandlerEnabled,
+            $obsessOverService,
+            $retainStatusInformation,
+            $retainNonStatusInformation,
+            $acknowledgmentTimeout,
+            $freshnessThreshold,
+            $lowFlapThreshold,
+            $highFlapThreshold,
+            $eventHandlerCommandId,
+            $eventHandlerArgs,
+            $stalkingOptions,
         );
     }
 }

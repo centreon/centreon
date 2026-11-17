@@ -409,6 +409,15 @@ jobs:
           STABILITY: ${{ needs.get-environment.outputs.stability }}
           EVENT_NAME: ${{ github.event_name }}
           HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          HEAD_REF: ${{ github.head_ref }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
         run: bash .github/scripts/translation/build-translations.sh
         shell: bash
 
@@ -1605,15 +1614,16 @@ jobs:
             echo "additional_tag=" >> "$GITHUB_OUTPUT"
           fi
 
-          # On a release/hotfix branch (stability 'testing'), also tag with the
-          # deterministic target version (e.g. 26.10.5). promote-docker-to-ghcr
+          # On a release/hotfix branch or a testing bundle tag (stability 'testing'), also
+          # tag with the deterministic target version (e.g. 26.10.5). promote-docker-to-ghcr
           # pulls this exact tag on the eventual stable event — computed the same
           # way from the same version file, so no release_type reconstruction is
           # needed to find the candidate to promote. version_tag is only ever
           # applied by promote-docker-tag below, once docker-boot-test/
           # docker-config-wiring-test have validated this exact image — that's
           # the real gate before this candidate can be promoted to ghcr.io stable.
-          if [[ "$RAW_REF" =~ ^(release|hotfix)-[0-9]+\.[0-9]+-next$ ]]; then
+          if [[ "$RAW_REF" =~ ^(release|hotfix)-[0-9]+\.[0-9]+-next$ ||
+                "$RAW_REF" =~ ^testing-(cloud|onprem)-(release|hotfix)-[0-9]{8}-[0-9]{2}\.[0-9]{2}-[1-9][0-9]*$ ]]; then
             echo "version_tag=${MAJOR_VERSION}.${MINOR_VERSION}" >> "$GITHUB_OUTPUT"
           else
             echo "version_tag=" >> "$GITHUB_OUTPUT"
@@ -2217,13 +2227,16 @@ jobs:
         e2e-test,
         bruno-api-test
       ]
+    # nightly: deliver what was built even if other jobs failed; those jobs keep the run red
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
       ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.result == 'success' &&
+      needs.changes.result == 'success' &&
+      (needs.get-environment.outputs.is_nightly == 'true' ||
+      (! contains(needs.*.result, 'failure') && ! contains(needs.*.result, 'cancelled'))) &&
       needs.changes.outputs.trigger_delivery == 'true' &&
       github.event.pull_request.head.repo.fork != true
     strategy:
@@ -2458,3 +2471,39 @@ jobs:
         run: |
           echo "::warning::Pulp delivery of ${{ matrix.component }}-${{ matrix.operating_system }} failed (promote: ${{ steps.promote-pulp.outcome }}, SBOM attestation: ${{ steps.attest-sbom.outcome }}). ghcr.io delivery is unaffected."
         shell: bash
+
+  # Reports this run's delivery to its testing bundle: runs on testing-* tags only.
+  release-bundle-status:
+    needs: [get-environment, deliver-pulp]
+    if: |
+      always() &&
+      startsWith(github.ref, 'refs/tags/testing-') &&
+      needs.get-environment.outputs.stability == 'testing'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Flag a cancelled run
+        id: run_cancelled
+        if: cancelled()
+        run: echo "value=true" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Checkout sources
+        if: always()
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/actions/release-bundle-status
+
+      - name: Report the delivery state to the bundle status
+        if: always()
+        uses: ./.github/actions/release-bundle-status
+        with:
+          component: centreon-web
+          bundle: ${{ needs.get-environment.outputs.testing_tag }}
+          bundle_path: ${{ needs.get-environment.outputs.testing_bundle_path }}
+          needs: ${{ toJSON(needs) }}
+          expected_jobs: deliver-pulp
+          run_cancelled: ${{ steps.run_cancelled.outputs.value || 'false' }}
