@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateListingTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Service\AccessScopeResolver;
@@ -66,6 +67,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->repository = new DbalHostTemplateRepository(
             $this->connection,
             new HostTemplateTransformer(),
+            new HostTemplateListingTransformer(),
             new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
             new DbalModuleRepository($this->connection),
         );
@@ -292,13 +294,13 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $full = $templates[$templateId];
         self::assertSame('An alias', $full->alias?->value);
         self::assertTrue($full->isLocked);
-        self::assertSame($iconId, $full->iconId?->value);
+        self::assertSame($iconId, $full->extendedInformations?->iconId?->value);
         self::assertSame([$secondParentId, $firstParentId], $this->idValues($full->parentTemplateIds));
 
         $bare = $templates[$bareId];
         self::assertNull($bare->alias, 'A blank alias is read as no alias.');
         self::assertFalse($bare->isLocked);
-        self::assertNull($bare->iconId);
+        self::assertNull($bare->extendedInformations);
         self::assertSame([], $this->idValues($bare->parentTemplateIds));
     }
 
@@ -678,16 +680,15 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $line = $this->inheritanceLine($templateId);
 
         self::assertSame([$templateId], array_keys($line));
-        $macros = $line[$templateId]->macros->toArray();
+        $macros = $line[$templateId]->checkOptions->macros;
         self::assertCount(2, $macros);
-        // With their own ids, as direct macros of the template.
+        // With their own ids.
         self::assertSame($passwordId, $macros[0]->id?->value);
         self::assertTrue($macros[0]->isPassword);
         self::assertSame('PLAIN', $macros[1]->name->value);
         self::assertSame($plainId, $macros[1]->id?->value);
         self::assertSame('value', $macros[1]->value);
         self::assertFalse($macros[1]->isPassword);
-        self::assertTrue($macros[1]->isDirect());
     }
 
     public function testFindInheritanceLineIsDepthFirstByRelationOrderNearestFirst(): void
@@ -765,8 +766,8 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
 
         $line = $this->inheritanceLine($withCommandId);
 
-        self::assertSame($commandId, $line[$withCommandId]->checkCommandId?->value);
-        self::assertNull($line[$withoutCommandId]->checkCommandId);
+        self::assertSame($commandId, $line[$withCommandId]->checkOptions->checkCommandId?->value);
+        self::assertNull($line[$withoutCommandId]->checkOptions->checkCommandId);
     }
 
     public function testFindInheritanceLineLoadsTheCheckCommandsOfTheLinkedServiceTemplates(): void
@@ -817,7 +818,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
         $this->insertMacro($templateId, 'NOT_A_HOST_MACRO', 'x', isPassword: false, order: 0);
 
-        self::assertSame([], $this->inheritanceLine($templateId)[$templateId]->macros->toArray());
+        self::assertSame([], $this->inheritanceLine($templateId)[$templateId]->checkOptions->macros);
     }
 
     public function testFindInheritanceLineReturnsAnEmptyCollectionForNoIds(): void

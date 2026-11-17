@@ -1,18 +1,22 @@
-import { userPermissionsAtom } from '@centreon/ui-context';
+import {
+  isAdditiveInheritanceEnabledAtom,
+  platformFeaturesAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { object } from 'yup';
 
 import ConfigurationBase from '../ConfigurationBase';
-import { type Actions, type Form, ResourceType } from '../models';
+import { type Actions, ResourceType } from '../models';
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
   selectedColumnIdsAtom
 } from './atoms';
 import useColumns from './Columns/useColumns';
+import { getDefaultValues, useFormInputs, useValidationSchema } from './Form';
 import type { Filters } from './models';
 import {
   labelCreateService,
@@ -26,25 +30,37 @@ import {
   defaultSelectedColumnIds,
   defaultSortField,
   filtersAtomKey,
-  filtersInitialValues
+  filtersInitialValues,
+  getServiceRowId
 } from './utils';
-
-// The form sections are not built yet: a row opens an empty panel.
-const form: Form = {
-  defaultValues: {},
-  groups: [],
-  inputs: [],
-  validationSchema: object()
-};
 
 const Services = () => {
   const { t } = useTranslation();
 
   const userPermissions = useAtomValue(userPermissionsAtom);
+  // Read once and handed to every hook: the fields and the rules that guard
+  // them have to agree on the platform.
+  const isCloudPlatform = !!useAtomValue(platformFeaturesAtom)?.isCloudPlatform;
+  const isAdditiveInheritanceEnabled = useAtomValue(
+    isAdditiveInheritanceEnabledAtom
+  );
   const canEdit = !!userPermissions?.configuration_service_write;
 
   const { columns } = useColumns();
-  const { api, filtersConfiguration } = useServices();
+  const { api, filtersConfiguration } = useServices({
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform
+  });
+  const { groups, inputs } = useFormInputs({
+    canEdit,
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform
+  });
+  const { validationSchema } = useValidationSchema({ isCloudPlatform });
+  const defaultValues = useMemo(
+    () => getDefaultValues({ isCloudPlatform }),
+    [isCloudPlatform]
+  );
 
   const actions: Actions = useMemo(
     () => ({
@@ -55,7 +71,8 @@ const Services = () => {
       massive: canEdit,
       // Keeps the status toggle on screen, disabled, for a read-only user.
       rowActionsWithoutWriteAccess: true,
-      viewDetails: false
+      // A row opens its service, read-only without write access.
+      viewDetails: true
     }),
     [canEdit]
   );
@@ -75,8 +92,9 @@ const Services = () => {
       // The default width fits neither five filters nor the names the
       // autocomplete holds.
       filtersPanelWidth={60}
-      form={form}
+      form={{ defaultValues, groups, inputs, validationSchema }}
       formVariant="panel"
+      getRowId={getServiceRowId}
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{
         description: t(labelServicesDescription),
