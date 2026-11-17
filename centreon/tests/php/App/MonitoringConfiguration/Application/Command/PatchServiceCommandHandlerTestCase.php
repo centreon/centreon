@@ -53,6 +53,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
@@ -323,6 +324,8 @@ abstract class PatchServiceCommandHandlerTestCase extends KernelTestCase
         array $categoryIds = [],
         array $trapIds = [],
         array $macros = [],
+        ?int $graphTemplateId = null,
+        ServiceSchedulingOptions $schedulingOptions = new ServiceSchedulingOptions(),
     ): void {
         $this->serviceRepository->services[self::SERVICE_ID] = new Service(
             id: new ServiceId(self::SERVICE_ID),
@@ -333,9 +336,11 @@ abstract class PatchServiceCommandHandlerTestCase extends KernelTestCase
             activated: $activated,
             templateId: $templateId !== null ? new ServiceTemplateId($templateId) : null,
             checkOptions: new ServiceCheckOptions($checkCommandId !== null ? new CommandId($checkCommandId) : null, $args, $macros),
+            schedulingOptions: $schedulingOptions,
             notifications: $notifications ?? $this->notifications(),
             dataProcessing: $dataProcessing,
             extendedInformations: $extendedInformations,
+            graphTemplateId: $graphTemplateId !== null ? new GraphTemplateId($graphTemplateId) : null,
             severityId: $severityId !== null ? new ServiceSeverityId($severityId) : null,
             serviceGroupIds: new Collection(array_map(static fn (int $value): ServiceGroupId => new ServiceGroupId($value), $serviceGroupIds), ServiceGroupId::class),
             categoryIds: new Collection(array_map(static fn (int $value): ServiceCategoryId => new ServiceCategoryId($value), $categoryIds), ServiceCategoryId::class),

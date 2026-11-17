@@ -29,7 +29,11 @@ use App\MonitoringConfiguration\Application\Command\ServiceDataProcessingChanges
 use App\MonitoringConfiguration\Application\Command\ServiceExtendedInformationsChanges;
 use App\MonitoringConfiguration\Application\Command\ServiceNotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\ServiceSchedulingOptionsChanges;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceStalkingOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
 use App\MonitoringConfiguration\Domain\Exception\ServiceFieldsNotAvailableOnCloudException;
@@ -138,6 +142,18 @@ final class PatchServiceCommandHandlerCloudTest extends PatchServiceCommandHandl
     public function testItAcceptsClearingThem(): void
     {
         $this->seedEveryReference();
+        $this->store(
+            dataProcessing: new ServiceDataProcessing(
+                acknowledgmentTimeout: 5,
+                eventHandlerCommandId: new CommandId(21),
+                eventHandlerArgs: ['restart'],
+                stalkingOptions: [ServiceStalkingOptionEnum::Ok],
+            ),
+            extendedInformations: new ServiceExtendedInformations(altIcon: 'icon', comment: 'a comment'),
+            trapIds: [100],
+            graphTemplateId: 60,
+            schedulingOptions: new ServiceSchedulingOptions(isVolatile: TriStateEnum::True),
+        );
 
         $this->patch($this->command(
             name: 'pong',
@@ -149,7 +165,16 @@ final class PatchServiceCommandHandlerCloudTest extends PatchServiceCommandHandl
             dataProcessing: new ServiceDataProcessingChanges(acknowledgmentTimeout: null, eventHandlerArgs: [], stalkingOptions: ListChange::replace([])),
         ));
 
-        self::assertSame('pong', $this->written()->name->value);
+        $written = $this->written();
+        self::assertSame('pong', $written->name->value);
+        self::assertNull($written->graphTemplateId);
+        self::assertSame([], $this->idValues($written->trapIds));
+        self::assertNull($written->extendedInformations?->altIcon);
+        self::assertNull($written->extendedInformations?->comment);
+        self::assertNull($written->dataProcessing->acknowledgmentTimeout);
+        self::assertSame([], $written->dataProcessing->eventHandlerArgs);
+        self::assertSame([], $written->dataProcessing->stalkingOptions);
+        self::assertSame(TriStateEnum::UseDefault, $written->schedulingOptions->isVolatile);
     }
 
     /**
