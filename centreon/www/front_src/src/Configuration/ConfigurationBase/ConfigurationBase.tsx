@@ -32,7 +32,8 @@ const Base = <TFilters,>({
   filtersPanelWidth,
   formVariant,
   formPanelWidth,
-  defaultSortField
+  defaultSortField,
+  getRowId
 }: ConfigurationBase<TFilters>): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
@@ -102,6 +103,7 @@ const Base = <TFilters,>({
       form={form}
       formPanelWidth={formPanelWidth}
       formVariant={formVariant}
+      getRowId={getRowId}
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={labels}
       navbar={navbar}

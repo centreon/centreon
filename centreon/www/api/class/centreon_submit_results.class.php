@@ -92,6 +92,7 @@ class CentreonSubmitResults extends CentreonWebService
                             || ! isset($data['status']) || ! isset($data['updatetime']) || ! isset($data['output'])) {
                             throw new RestBadRequestException('Missing argument.');
                         }
+                        $this->assertSingleLineValues($data, ['host', 'service', 'output', 'perfdata']);
 
                         // Validate is the host and service exists in poller
                         if (! isset($this->pollerHosts['name'][$data['host']])) {
@@ -128,6 +129,7 @@ class CentreonSubmitResults extends CentreonWebService
                         if (! is_numeric($data['updatetime'])) {
                             throw new RestBadRequestException('The timestamp is not a integer.');
                         }
+                        $data['updatetime'] = (int) $data['updatetime'];
 
                         if (isset($data['perfdata'])) {
                             if ($data['perfdata'] !== '' && ! preg_match($this->perfDataRegex, $data['perfdata'])) {
@@ -172,8 +174,9 @@ class CentreonSubmitResults extends CentreonWebService
      */
     public function authorize($action, $user, $isInternal = false)
     {
+        // Same access rights whatever the entry point
         return (bool) (
-            parent::authorize($action, $user, $isInternal)
+            parent::authorize($action, $user, false)
             || ($user && $user->hasAccessRestApiRealtime())
         );
     }

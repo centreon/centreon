@@ -1,0 +1,36 @@
+meta {
+  name: POST /authentication/providers/configurations/local - Session login with REST API access - HTTP 200
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{protocol}}://{{server}}:{{portWeb}}/centreon/authentication/providers/configurations/local
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "login": "{{user_administrator_login}}",
+    "password": "{{user_administrator_password}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Session cookie received.", function () {
+    const cookies = [].concat(res.getHeader("set-cookie") || []);
+    const session = cookies.map((c) => c.split(";")[0]).find((c) => c.startsWith("PHPSESSID="));
+    expect(session).to.be.a("string");
+    bru.setVar("sessionCookie", session);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
