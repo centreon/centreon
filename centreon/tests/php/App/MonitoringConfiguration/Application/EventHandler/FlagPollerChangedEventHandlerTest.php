@@ -48,6 +48,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
@@ -61,9 +62,11 @@ use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceDisabled;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 
@@ -247,6 +250,74 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
 
         self::assertSame([$service], $pollerRepository->flaggedResources);
         self::assertSame([2], $pollerRepository->flaggedPollerIds);
+    }
+
+    /**
+     * @param list<int> $flagged
+     */
+    #[DataProvider('massChangeProvider')]
+    public function testServiceMassChangedFlagsThePollersItNames(bool $hostActivated, ?int $previousPollerId, array $flagged): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $handler(ServiceMassChanged::of(
+            $this->createService($hostActivated),
+            1,
+            previousPollerId: $previousPollerId !== null ? new PollerId($previousPollerId) : null,
+            previousHostId: $previousPollerId !== null ? new HostId(9) : null,
+        ));
+
+        self::assertSame([], $pollerRepository->flaggedResources);
+        self::assertSame($flagged, $pollerRepository->flaggedPollerIds);
+    }
+
+    /**
+     * @return iterable<string, array{bool, ?int, list<int>}>
+     */
+    public static function massChangeProvider(): iterable
+    {
+        yield 'moved off another poller' => [true, 2, [5, 2]];
+
+        yield 'stayed' => [true, null, [5]];
+
+        yield 'on a disabled host' => [false, null, []];
+    }
+
+    /**
+     * The pollers of the other host links the save dropped are flagged too, after those the event names.
+     */
+    public function testServiceMassChangedFlagsThePollersOfTheDroppedHostLinks(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $handler(ServiceMassChanged::of(
+            $this->createService(hostActivated: true),
+            1,
+            previousPollerId: new PollerId(2),
+            previousHostId: new HostId(9),
+            droppedHostLinks: new DroppedHostLinks([new HostId(11), new HostId(12)], [new PollerId(6), new PollerId(7)]),
+        ));
+
+        self::assertSame([5, 2, 6, 7], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testServiceUpdatedFlagsThePollersOfTheDroppedHostLinks(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $service = $this->createService(hostActivated: true);
+        $handler(new ServiceUpdated(
+            $service,
+            1,
+            loggable: false,
+            droppedHostLinks: new DroppedHostLinks([new HostId(11), new HostId(12)], [new PollerId(6), new PollerId(7)]),
+        ));
+
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+        self::assertSame([6, 7], $pollerRepository->flaggedPollerIds);
     }
 
     public function testServiceUpdatedWithoutPreviousPollerFlagsTheCurrentOneOnly(): void

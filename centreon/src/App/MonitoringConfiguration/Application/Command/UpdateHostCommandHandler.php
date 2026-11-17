@@ -257,6 +257,8 @@ final readonly class UpdateHostCommandHandler
             $existingHost->severityId,
             $severityScope,
         );
+        // Extra legacy severities are dropped whatever the actor may see.
+        $extraSeverities = $this->repository->hasExtraSeverities($existingHost->id(), $severityId);
 
         $host = $existingHost->with(
             name: $command->name,
@@ -299,6 +301,7 @@ final readonly class UpdateHostCommandHandler
         // Macros and contacts are compared by hasSameConfigurationAs() but never logged by legacy, so
         // they count among the unlogged changes, with the relations.
         $unloggedChange = $passwordRewritten
+            || $extraSeverities
             || ! $host->hasSameConfigurationAs($existingHost)
             || ! $host->hasSameRelationsAs($existingHost);
 
