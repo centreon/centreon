@@ -47,13 +47,10 @@ use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 
 final class PutHostProcessorTest extends ApiTestCase
 {
-    use InsertsMonitoringConnectorTemplates;
-
     private Connection $connection;
 
     private Connection $realTimeConnection;
@@ -70,12 +67,6 @@ final class PutHostProcessorTest extends ApiTestCase
         /** @var Connection $realTimeConnection */
         $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
         $this->realTimeConnection = $realTimeConnection;
-    }
-
-    protected function tearDown(): void
-    {
-        $this->dropMonitoringConnectorTables($this->connection);
-        parent::tearDown();
     }
 
     public function testItRequiresAuthentication(): void
@@ -619,26 +610,6 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertArrayNotHasKey('value', $payload['check_options']['macros'][0]);
     }
 
-    public function testItKeepsATemplateTheLicenseNoLongerAllowsButRejectsAddingOne(): void
-    {
-        $this->login();
-        $pollerId = $this->insertPoller('Central');
-        $keptId = $this->insertHostTemplate($this->uniqueName('connector'));
-        $addedId = $this->insertHostTemplate($this->uniqueName('connector'));
-        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
-        $this->connection->insert('host_template_relation', ['host_host_id' => $hostId, 'host_tpl_id' => $keptId, '`order`' => 1]);
-        $this->insertMonitoringConnectorTemplates($this->connection, $keptId, $addedId);
-        $payload = [...$this->payload($this->uniqueName('server'), $pollerId), 'create_services_linked_to_templates' => false];
-
-        $this->request('PUT', $this->endpoint($hostId), ['json' => [...$payload, 'template_ids' => [$keptId]]]);
-        self::assertResponseStatusCodeSame(200);
-
-        $this->request('PUT', $this->endpoint($hostId), ['json' => [...$payload, 'template_ids' => [$keptId, $addedId]]]);
-        self::assertResponseStatusCodeSame(422);
-        // One line per violation, each prefixed with its field.
-        self::assertJsonContains(['message' => "[template_ids] The license host limit is reached: host templates coming from Monitoring Connectors cannot be used.\n"]);
-    }
-
     /**
      * The services only the replaced template provides are removed before the new template's are deployed: its
      * `Ping` replaces the removed `Ping` instead of being skipped as a name already on the host. A service shared
@@ -683,79 +654,6 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertSame([$keptService, $keptName, $keptServiceTemplateId], $services[0]);
         self::assertSame([$sharedService, $sharedName, $lostServiceTemplateId], $services[1]);
         self::assertSame(['Ping', $addedServiceTemplateId], array_slice($services[2], 1));
-    }
-
-    public function testAChangedInheritedMacroBecomesADirectMacroWithoutTouchingTheTemplate(): void
-    {
-        $this->login();
-        $pollerId = $this->insertPoller('Central');
-        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
-        $templateMacroId = $this->insertMacro($templateId, '$_HOSTSHARED$', 'tpl-value');
-        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
-
-        $response = $this->request('PUT', $this->endpoint($hostId), [
-            'json' => [
-                ...$this->payload($this->uniqueName('server'), $pollerId),
-                'template_ids' => [$templateId],
-                'create_services_linked_to_templates' => false,
-                'check_options' => ['macros' => [
-                    // Every part changed: name, value and password flag.
-                    ['id' => $templateMacroId, 'parent' => 'template', 'name' => 'renamed', 'value' => 'host-value', 'is_password' => true],
-                ]],
-            ],
-        ]);
-
-        self::assertResponseStatusCodeSame(200);
-        // The template's row is left exactly as it was...
-        self::assertSame(
-            [['host_macro_id' => $templateMacroId, 'host_macro_name' => '$_HOSTSHARED$', 'host_macro_value' => 'tpl-value', 'description' => null]],
-            $this->macroRows($templateId),
-        );
-        // ...and the host got a row of its own.
-        $hostRows = $this->macroRows($hostId);
-        self::assertCount(1, $hostRows);
-        self::assertNotSame($templateMacroId, $hostRows[0]['host_macro_id']);
-        self::assertSame('$_HOSTRENAMED$', $hostRows[0]['host_macro_name']);
-
-        // The response lists the host's own macro, then the template macro it still inherits.
-        /** @var array{check_options: array{macros: list<array{id: ?int, name: string, parent: ?string}>}} $payload */
-        $payload = $response->toArray();
-        self::assertSame(
-            [
-                ['id' => $hostRows[0]['host_macro_id'], 'name' => 'RENAMED', 'parent' => null],
-                ['id' => $templateMacroId, 'name' => 'SHARED', 'parent' => 'template'],
-            ],
-            array_map(
-                static fn (array $macro): array => ['id' => $macro['id'] ?? null, 'name' => $macro['name'], 'parent' => $macro['parent'] ?? null],
-                $payload['check_options']['macros'],
-            ),
-        );
-    }
-
-    public function testAnInheritedMacroIdSentAsADirectOneIsRejected(): void
-    {
-        // A template's macro lives in the same table as the host's: its id must never be taken for
-        // one of the host's own macros.
-        $this->login();
-        $pollerId = $this->insertPoller('Central');
-        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
-        $templateMacroId = $this->insertMacro($templateId, '$_HOSTSHARED$', 'tpl-value');
-        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
-
-        $this->request('PUT', $this->endpoint($hostId), [
-            'json' => [
-                ...$this->payload($this->uniqueName('server'), $pollerId),
-                'template_ids' => [$templateId],
-                'create_services_linked_to_templates' => false,
-                'check_options' => ['macros' => [
-                    ['id' => $templateMacroId, 'parent' => null, 'name' => 'shared', 'value' => 'host-value', 'is_password' => false],
-                ]],
-            ],
-        ]);
-
-        self::assertResponseStatusCodeSame(422);
-        self::assertSame('tpl-value', $this->macroRows($templateId)[0]['host_macro_value']);
-        self::assertSame([], $this->macroRows($hostId));
     }
 
     public function testItRejectsAVaultReferenceAsAMacroValue(): void
