@@ -44,12 +44,8 @@ use App\MonitoringConfiguration\Domain\Service\ServiceMacroChangesResolver;
 use App\Shared\Domain\VaultInterface;
 
 /**
- * Turns what a partial update says about the own macros of a service into the own macros it must hold, against the
- * service as the update leaves it: what the service inherits depends on the template and the check command it ends
- * up with.
- *
- * The rules the input checked earlier are checked again here, as the authority: a macro cannot be named like a
- * reserved one, nor carry a vault reference as its value. Nothing is written to the vault here.
+ * Resolves the own macros a partial update leaves, against the updated template and check command; never writes the
+ * vault.
  */
 final readonly class ServiceMacrosUpdater
 {
@@ -92,8 +88,7 @@ final readonly class ServiceMacrosUpdater
     }
 
     /**
-     * A service holds one macro per name: a rename or a new macro onto a name the service already uses is refused
-     * rather than losing one of the two.
+     * A rename or a new macro onto a name already used is refused rather than losing one of the two.
      *
      * @param list<ServiceMacro> $macros
      *
@@ -173,9 +168,7 @@ final readonly class ServiceMacrosUpdater
     }
 
     /**
-     * The own macros a write did not point at are kept as they are; the ones it wrote follow. A write that points at
-     * an inherited macro replaces the own macro under the name of that inherited macro, not under the name it is
-     * given: an own macro already holding the new name is not replaced, which the check of the names refuses.
+     * A write pointing at an inherited macro replaces the own macro under the inherited name, not the given one.
      *
      * @param list<ServiceMacro> $current
      * @param list<ServiceMacroChange> $changes

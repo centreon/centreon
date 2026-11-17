@@ -35,8 +35,7 @@ use App\Shared\Domain\NoValue;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * The fields of a service a Cloud platform does not have, refused by a partial update there. Clearing one, back to
- * its default, is accepted. The service template cannot be removed.
+ * Refuses on Cloud the fields it lacks; clearing one back to its default is accepted, removing the template is not.
  */
 final readonly class ServicePlatformGuard
 {

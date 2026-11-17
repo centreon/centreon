@@ -50,13 +50,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\NoValue;
 
 /**
- * Gives a service the relations (service groups, categories, traps, contacts and contact groups) a partial update
- * changes.
- *
- * The resources a change brings are checked here, as the authority, after the same rules ran earlier on the input.
- * A resource the actor cannot access is reported like one that does not exist, and a replacement leaves in place
- * the links the actor cannot see (service groups, categories, contacts and contact groups are scoped by access
- * rights, traps are not).
+ * Applies the relations of a partial update; a replacement keeps the links the actor cannot see (traps are not scoped).
  */
 final readonly class ServiceRelationsUpdater
 {
@@ -162,8 +156,7 @@ final readonly class ServiceRelationsUpdater
     }
 
     /**
-     * Like {@see resolve()} for a relation scoped by what the actor can see: the list of what they can see is loaded
-     * once, and only when the relation is changed, to check what is brought and to tell what is left in place.
+     * Like {@see resolve()} for a scoped relation, the scope being loaded only when the relation changes.
      *
      * @template T of AggregateRootId
      *

@@ -62,12 +62,8 @@ use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
 use Webmozart\Assert\Assert;
 
 /**
- * Builds the command of a partial update from the validated Input DTO and the keys that were really sent: a key
- * left out becomes {@see NoValue}, a key sent as null clears the value when it can be cleared (a tri-state reads as
- * "use default"), anything else replaces it.
- *
- * The "monitoring_engine" section feeds the scheduling options and the notes, URLs, icon and coordinates; the
- * "advanced" one the data processing directives and the comment.
+ * Builds the command from the validated Input DTO and the keys really sent: a key left out becomes {@see NoValue},
+ * and a tri-state sent as null reads as "use default".
  */
 final readonly class PatchServiceCommandFactory
 {
@@ -213,9 +209,6 @@ final readonly class PatchServiceCommandFactory
     }
 
     /**
-     * How the update changes a list, from the one of its three keys that was sent: the key itself replaces the
-     * list, with `_to_add` it is added to, with `_to_remove` it is removed from.
-     *
      * @template U of int|string
      * @template T
      *

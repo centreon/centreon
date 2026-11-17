@@ -71,12 +71,9 @@ use App\Shared\Domain\VaultInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * A partial update of a single service: the fields it provides are checked and applied to the stored service, in
- * this order: the references, the relations, the name on the target host, the rules spanning several fields (only
- * when the update provides one of them), the own macros, then the vault, then the write.
- *
- * A change of the activation alone is a narrow write with its own event; anything else is a mass change, which
- * rewrites the whole service.
+ * Partial update of a service, checked in order: platform, references, relations, name, cross-field rules, own
+ * macros, then the vault and the write. An activation change alone is a narrow write with its own event; anything
+ * else is a mass change, which rewrites the whole service.
  */
 #[AsCommandHandler]
 final readonly class PatchServiceCommandHandler
@@ -98,15 +95,11 @@ final readonly class PatchServiceCommandHandler
     }
 
     /**
-     * The secrets are written to the vault before the service is saved, so that an unreachable vault saves nothing.
-     * The vault is outside the transaction: when the service cannot be saved after that, the database rolls back but
-     * the vault keeps what was written. That divergence is logged as an error rather than left silent. A failure of
-     * the commit itself, after this handler returns, is not covered.
+     * Vault written before the save (outside the transaction): a later failure is logged as a divergence.
      */
     public function __invoke(PatchServiceCommand $command): void
     {
-        // Actor-scoped: findOne returns null for a service outside the actor's ACL scope, the same as a
-        // nonexistent one, so a restricted actor can never tell them apart.
+        // A service outside the actor's scope reads as nonexistent.
         $service = $this->repository->findOne($command->id, $command->actor);
         if (! $service instanceof Service) {
             throw new ServiceNotFoundException([$command->id->value], 'id');
@@ -114,8 +107,7 @@ final readonly class PatchServiceCommandHandler
 
         $this->platform->assertAvailable($command);
 
-        // The references come before the name: a restricted actor must not be able to tell a duplicate name from a
-        // resource they cannot access.
+        // References first, so a duplicate name never reveals a resource the actor cannot access.
         [$host, $checkCommand] = $this->assertReferencesExist($command, $service);
         $updated = clone $service;
         $this->relations->applyTo($updated, $command);
@@ -147,8 +139,7 @@ final readonly class PatchServiceCommandHandler
     }
 
     /**
-     * @return array{?HostState, ?Command} the state of the host the service moves to, and the check command it is
-     *                                     given, when the update provides them
+     * @return array{?HostState, ?Command} the target host and the check command, when provided
      */
     private function assertReferencesExist(PatchServiceCommand $command, Service $service): array
     {
@@ -190,8 +181,7 @@ final readonly class PatchServiceCommandHandler
     }
 
     /**
-     * A name provided must hold no forbidden character. It must be free on the host the service ends up on, the
-     * service itself left out; a name and a host left as they are need no check, even when legacy stored a duplicate.
+     * A name and a host left as they are need no check, even when legacy stored a duplicate.
      */
     private function assertNameIsAvailable(PatchServiceCommand $command, Service $service): void
     {
@@ -281,9 +271,7 @@ final readonly class PatchServiceCommandHandler
     }
 
     /**
-     * Once the notifications are changed, the rules of a write apply to what they become: a service notifying the
-     * contacts of its host only has none of its own (those the actor cannot see stay linked), and the additive
-     * inheritance flags are reset when the platform option disables them.
+     * Also run when only the contacts change: the host-contacts-only and additive inheritance rules apply to the result.
      */
     private function notifications(Service $service, PatchServiceCommand $command): NoValue|ServiceNotifications|null
     {
@@ -310,8 +298,7 @@ final readonly class PatchServiceCommandHandler
     }
 
     /**
-     * A Centreon Monitoring Agent check command given to the service pushes its results: its freshness is always
-     * checked, whatever the same update says. One inherited from the template does not count.
+     * A Centreon Monitoring Agent check command given here forces the freshness check; one inherited does not.
      */
     private function dataProcessing(Service $service, PatchServiceCommand $command, ?Command $checkCommand): NoValue|ServiceDataProcessing
     {
@@ -327,14 +314,7 @@ final readonly class PatchServiceCommandHandler
     }
 
     /**
-     * Checked on the service as the update leaves it, and only when the update provides one of the fields a rule
-     * involves: a stored service already breaking a rule is not refused for an unrelated change.
-     *
-     * - a check command, its own or provided by its template chain, for the check command, its arguments and the
-     *   template;
-     * - every argument filled or none;
-     * - an event handler, its own or provided by its template chain, for the event handler arguments it holds;
-     * - the form bounds of the notes and URLs provided.
+     * Only rules touching a provided field: a stored violation never blocks an unrelated change.
      */
     private function assertRulesAcrossFieldsHold(PatchServiceCommand $command, Service $service): void
     {
@@ -388,15 +368,11 @@ final readonly class PatchServiceCommandHandler
     }
 
     /**
-     * Moves every password macro of the resolved ones under the service's own vault entry, leaving a `secret::`
-     * reference in its place, and removes the keys no macro references any more, before the service is saved.
-     *
-     * @param list<ServiceMacro> $resolved the own macros the service must hold
+     * @param list<ServiceMacro> $resolved
      *
      * @throws VaultWriteFailedException
      *
-     * @return array{list<ServiceMacro>, bool, bool} the macros to store, whether a password was rewritten in the
-     *                                               vault, and whether the vault was written to
+     * @return array{list<ServiceMacro>, bool, bool} the macros to store, whether a password was rewritten, whether the vault was written
      */
     private function vaultPasswords(Service $service, array $resolved): array
     {
@@ -414,8 +390,7 @@ final readonly class PatchServiceCommandHandler
 
         $macros = array_values($synchronized->macros->toArray());
 
-        // The synchronizer only swaps the value of the macros it wrote to the vault, which may leave the very same
-        // reference: the path of a vaulted value only depends on its entry and its key.
+        // A rewritten password may keep its previous vault reference: only the swapped value reveals the rewrite.
         $passwordRewritten = array_any(
             $macros,
             static fn (ServiceMacro $macro, int $index): bool => $macro->value !== $resolved[$index]->value,
@@ -424,11 +399,6 @@ final readonly class PatchServiceCommandHandler
         return [$macros, $passwordRewritten, $synchronized->vaultWritten];
     }
 
-    /**
-     * Nothing is written when nothing changed. A plain enable/disable keeps the narrow write and its own event;
-     * anything else is a mass change, which carries the previous host and its poller when the service moved, and
-     * the other host links the save drops.
-     */
     private function saveAndNotify(Service $before, Service $after, PatchServiceCommand $command, bool $passwordRewritten): void
     {
         $actorId = $command->actor->userId->value;
@@ -451,9 +421,7 @@ final readonly class PatchServiceCommandHandler
                 droppedHostLinks: $droppedHostLinks,
             ));
 
-            // The entry this update left without any secret is purged once the update is committed, so that a failed
-            // update never deletes a live secret. Best effort: the update is already saved, and a leftover entry is
-            // harmless.
+            // Purged after commit (best effort) so a failed update never deletes a live secret.
             if ($this->vault->isEnabled() && $after->releasesVaultEntryOf($before, $this->vault)) {
                 $this->eventBus->fire(new ServiceVaultPurgeRequested($before, bestEffort: true));
             }
@@ -472,8 +440,7 @@ final readonly class PatchServiceCommandHandler
     }
 
     /**
-     * A legacy service may hold several severities, of which it shows the lowest: a severity provided leaves a single
-     * one, so extra ones are a change.
+     * A legacy service may hold several severities: a severity provided collapses them, which is a change.
      */
     private function collapsesStoredSeverities(PatchServiceCommand $command, Service $after): bool
     {
@@ -482,8 +449,7 @@ final readonly class PatchServiceCommandHandler
     }
 
     /**
-     * The poller the service leaves, flagged besides the one of its new host: only while the previous host was
-     * enabled, and once when both hosts share it.
+     * Null when the previous host is disabled or the new host already flags the same poller.
      */
     private function previousPollerToFlag(Service $before, Service $after): ?PollerId
     {

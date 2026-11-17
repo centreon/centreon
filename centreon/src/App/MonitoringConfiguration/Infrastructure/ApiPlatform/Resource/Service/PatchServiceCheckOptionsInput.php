@@ -33,10 +33,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * The check command of a service and the arguments it passes. A key left out is left untouched: the arguments may
- * come without a command, they then apply to the command the service already has, its own or its template's.
- *
- * The own macros have three keys, of which only one can be sent: they are replaced, written, or removed.
+ * Check command, arguments and own macros of a service; arguments sent alone apply to its current command, own or
+ * inherited.
  */
 #[ExclusiveKeys([
     ['macros', 'macrosToUpsert', 'macrosToRemove'],

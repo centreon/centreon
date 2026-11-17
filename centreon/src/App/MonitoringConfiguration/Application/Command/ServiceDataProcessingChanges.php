@@ -31,15 +31,7 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\NoValue;
 
 /**
- * What a partial update changes in a service's freshness, flap detection, event handler, obsession, retention and
- * stalking directives.
- *
- * - `NoValue`: the field is not provided, the stored value stays as it is;
- * - `null`: the value is cleared, the service then inherits it;
- * - a value: it replaces the stored one.
- *
- * The on/off directives cannot be `null`: "use default" is a value of their own ({@see TriStateEnum::UseDefault}).
- * The event handler arguments are a list: an empty one clears them. Removing the event handler keeps them.
+ * Data processing directives of a partial update; removing the event handler keeps its arguments.
  */
 final readonly class ServiceDataProcessingChanges
 {

@@ -39,16 +39,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 use App\Shared\Domain\Event\EventInterface;
 
 /**
- * A service changed by a mass change, as it was saved: its form (without its own macros, which the activity log
- * leaves out), the poller of its host to flag, the host and poller it left when it moved, and the other host links
- * the save dropped.
+ * A service as a mass change saved it, without its own macros: the activity log leaves them out.
  */
 final readonly class ServiceMassChanged implements EventInterface
 {
     /**
      * @param ?PollerId $pollerId the poller of its host to flag, null when that host is disabled or has none
-     * @param ?PollerId $previousPollerId the poller of the host the service left, when that host was enabled and
-     *                                    another poller monitors the new one; null otherwise
+     * @param ?PollerId $previousPollerId the enabled previous host's poller, unless $pollerId already flags it
      * @param ?HostId $previousHostId the host the service left, null when it stayed
      */
     public function __construct(

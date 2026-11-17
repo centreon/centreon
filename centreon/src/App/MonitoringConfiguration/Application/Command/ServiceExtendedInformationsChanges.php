@@ -29,11 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformat
 use App\Shared\Domain\NoValue;
 
 /**
- * What a partial update changes in a service's notes, URLs, icon, comment and geographic coordinates.
- *
- * - `NoValue`: the field is not provided, the stored value stays as it is;
- * - `null`: the value is cleared;
- * - a value: it replaces the stored one.
+ * Notes, URLs, icon, comment and geographic coordinates of a partial update.
  */
 final readonly class ServiceExtendedInformationsChanges
 {
@@ -64,10 +60,7 @@ final readonly class ServiceExtendedInformationsChanges
     }
 
     /**
-     * The names of the texts this change provides, as {@see ServiceExtendedInformations::exceedsFormBounds()} names
-     * them.
-     *
-     * @return list<string>
+     * @return list<string> the provided texts, named as {@see ServiceExtendedInformations::exceedsFormBounds()} does
      */
     public function providedTexts(): array
     {

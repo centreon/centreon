@@ -29,14 +29,8 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\NoValue;
 
 /**
- * What a partial update changes in how a service is checked: its own check command and the arguments it passes.
- *
- * - `NoValue`: the field is not provided, the stored value stays as it is;
- * - `null` (command only): the service no longer has a check command of its own. Its arguments are cleared with
- *   it, unless the same update provides new ones;
- * - a value: it replaces the stored one. Arguments provided alone keep the current command.
- *
- * The own macros are not part of this object: they are changed separately.
+ * Check command and arguments of a partial update: clearing the command clears its arguments unless new ones are
+ * provided, arguments alone keep the current command. The own macros change separately.
  */
 final readonly class ServiceCheckOptionsChanges
 {

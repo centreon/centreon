@@ -43,8 +43,8 @@ use App\Shared\Domain\Event\AsEventHandler;
  * {@see PollerScopedInterface}): the owning poller's configuration just changed, so its
  * `nagios_server.updated` flag must be raised, or the monitoring engine keeps running on stale
  * configuration until something else touches it. Reacting to the {@see AggregateUpdated} supertype
- * also catches its enable/disable specializations. A {@see ServiceMassChanged} names the pollers itself. A service
- * event also names the pollers of the other host links its save dropped.
+ * also catches its enable/disable specializations. {@see ServiceMassChanged} and {@see ServiceUpdated} also carry
+ * the pollers of the host links a save dropped.
  */
 #[AsEventHandler]
 final readonly class FlagPollerChangedEventHandler

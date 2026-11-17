@@ -36,8 +36,7 @@ use App\Shared\Infrastructure\Validator\Constraints\IdList;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The notification settings of a service. A key left out is left untouched. The contacts, the contact groups and
- * the options each have three keys, of which only one can be sent: the list is replaced, added to, or removed from.
+ * The notification settings of a service.
  */
 #[ExclusiveKeys([
     ['contacts', 'contactsToAdd', 'contactsToRemove'],

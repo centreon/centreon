@@ -41,13 +41,11 @@ use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Every key is optional: a key left out leaves the value untouched, a key sent as null clears it where a value can
- * be cleared. The properties that cannot be null carry {@see NotNullWhenProvided}, since this DTO reads both cases
- * as null (see {@see RequestPayload}). The rules that need the stored service (the name on the target host, a check
- * command or an event handler own or inherited) are checked by the command handler only.
+ * Every key is optional: a key left out leaves the value untouched, null clears it where it can be cleared. The
+ * non-nullable properties carry {@see NotNullWhenProvided}, as this DTO reads both cases as null (see
+ * {@see RequestPayload}). The rules needing the stored service are checked by the command handler only.
  *
- * Do not add an `id` property here: it would flip a missing-service 404 into a 422 via
- * InvalidReferenceExceptionListener.
+ * Do not add an `id` property: it would turn a missing-service 404 into a 422 via InvalidReferenceExceptionListener.
  */
 #[ExclusiveKeys([
     ['serviceGroupIds', 'serviceGroupIdsToAdd', 'serviceGroupIdsToRemove'],

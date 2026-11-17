@@ -29,13 +29,7 @@ use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
 
 /**
- * What a partial update changes in a service's scheduling directives.
- *
- * - `NoValue`: the field is not provided, the stored value stays as it is;
- * - `null`: the value is cleared, the service then inherits it from its templates;
- * - a value: it replaces the stored one.
- *
- * The three on/off directives cannot be `null`: "use default" is a value of their own ({@see TriStateEnum::UseDefault}).
+ * Scheduling directives of a partial update.
  */
 final readonly class ServiceSchedulingOptionsChanges
 {

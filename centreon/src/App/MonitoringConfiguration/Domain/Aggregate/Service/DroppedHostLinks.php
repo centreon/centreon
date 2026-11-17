@@ -29,8 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Shared\Domain\Collection;
 
 /**
- * The direct host links a save drops besides the one to the service's previous host, with the pollers to flag for
- * them: each once, an enabled host's only, never the poller of the previous or current host, flagged on their own.
+ * Host links a save drops besides the previous host's, with the pollers of the enabled ones not already flagged.
  */
 final readonly class DroppedHostLinks
 {
@@ -45,8 +44,7 @@ final readonly class DroppedHostLinks
     }
 
     /**
-     * @param Collection<HostState> $storedLinks the hosts the service is directly linked to before the save, indexed
-     *                                           by host id
+     * @param Collection<HostState> $storedLinks the direct host links before the save, indexed by host id
      */
     public static function of(Collection $storedLinks, Service $before, Service $after): self
     {

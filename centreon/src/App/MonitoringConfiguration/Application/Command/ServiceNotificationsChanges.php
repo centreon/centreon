@@ -34,15 +34,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\NoValue;
 
 /**
- * What a partial update changes in a service's notification settings.
- *
- * - `NoValue`: the field is not provided, the stored value stays as it is;
- * - `null` (interval, period and delays only): the value is cleared, the service then inherits it;
- * - a value: it replaces the stored one.
- *
- * `enabled` cannot be `null`: "use default" is a value of its own ({@see TriStateEnum::UseDefault}). The three
- * switches cannot be `null` either. The contacts and contact groups are not part of this object: they are
- * relations, changed separately.
+ * Notification settings of a partial update; the contacts and contact groups are relations, changed separately.
  */
 final readonly class ServiceNotificationsChanges
 {

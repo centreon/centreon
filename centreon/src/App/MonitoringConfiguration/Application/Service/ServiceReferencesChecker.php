@@ -54,11 +54,8 @@ use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 
 /**
- * The authoritative check of the resources a partial update of a service refers to, run by the command handler
- * after the same rules ran, earlier, on the input. It catches what changed in between.
- *
- * A resource the actor cannot access is reported like one that does not exist, so a restricted actor cannot probe
- * for what they cannot see. Service templates, graph templates, time periods, icons and commands are not scoped.
+ * Re-checks the references of a partial update; an inaccessible one is reported as nonexistent (templates, time
+ * periods, icons and commands are not scoped).
  */
 final readonly class ServiceReferencesChecker
 {

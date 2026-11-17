@@ -59,9 +59,7 @@ interface ServiceRepository
     public function hasExtraSeverities(ServiceId $id, ?ServiceSeverityId $kept): bool;
 
     /**
-     * The hosts the service is directly linked to, each with its state, lowest id first, whatever the actor may
-     * see: {@see findOne()} reads only the lowest, and {@see replaceRelationsAndMacros()} keeps only the host the
-     * service is saved with, so a write needs this read, before it, to know the links it drops.
+     * Every direct host link of the service, lowest id first, ignoring ACL; read before a save to know what it drops.
      *
      * @return Collection<HostState> indexed by host id
      */

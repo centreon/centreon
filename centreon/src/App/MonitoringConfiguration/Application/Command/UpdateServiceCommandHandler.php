@@ -109,9 +109,9 @@ use App\Shared\Domain\VaultInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Full replace (PUT) of a service, applied to a copy of the stored one through its business methods; an update that
- * changes nothing writes nothing and fires nothing. Duplicates {@see CreateServiceCommandHandler}'s checks, in the
- * same order, rather than sharing them, so a change made for the update never reaches the create path.
+ * Full replace of a service; an update that changes nothing writes nothing and fires nothing. Duplicates
+ * {@see CreateServiceCommandHandler}'s checks, in the same order, so a change made for the update never reaches the
+ * create path.
  */
 #[AsCommandHandler]
 final readonly class UpdateServiceCommandHandler
@@ -269,8 +269,7 @@ final readonly class UpdateServiceCommandHandler
             if (! $notifications instanceof NoValue) {
                 $service->changeNotifications($notifications);
             }
-            // A Centreon Monitoring Agent command set on the service pushes its results: its freshness is always
-            // checked. One inherited from the template does not count.
+            // A Centreon Monitoring Agent check command set here forces the freshness check; one inherited does not.
             $service->changeDataProcessing(
                 $checkCommand?->isCentreonMonitoringAgent() === true
                     ? $command->dataProcessing->withCentreonMonitoringAgentFreshness()

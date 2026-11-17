@@ -36,8 +36,7 @@ use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The "Advanced" section of a service. A key left out is left untouched. The stalking options have three keys, of
- * which only one can be sent: the list is replaced, added to, or removed from.
+ * The "Advanced" section of a service.
  */
 #[ExclusiveKeys([
     ['stalkingOptions', 'stalkingOptionsToAdd', 'stalkingOptionsToRemove'],
