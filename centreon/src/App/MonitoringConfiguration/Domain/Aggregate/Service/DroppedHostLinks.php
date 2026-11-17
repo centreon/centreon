@@ -29,9 +29,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Shared\Domain\Collection;
 
 /**
- * The direct host links a saved service loses besides the one to its previous host: a service linked to several
- * hosts keeps only the host it is saved with. Their pollers to flag follow {@see HostState::pollerToFlag()}, each
- * once, without the pollers of the service's previous and current hosts, which are flagged on their own.
+ * The direct host links a save drops besides the one to the service's previous host, with the pollers to flag for
+ * them: each once, an enabled host's only, never the poller of the previous or current host, flagged on their own.
  */
 final readonly class DroppedHostLinks
 {
