@@ -64,8 +64,8 @@ final class FakeServiceRepository implements ServiceRepository
     public array $storedMacros = [];
 
     /**
-     * @var array<int, list<int>> service id => every levelled category it is linked to, as {@see findSeverityIds()}
-     *                            reads them, whatever the actor may see; unset, the stored service's severity
+     * @var array<int, list<int>> service id => every levelled category it is linked to, in read order, whatever the
+     *                            actor may see; unset, the stored service's severity
      */
     public array $storedSeverityIds = [];
 
@@ -115,18 +115,9 @@ final class FakeServiceRepository implements ServiceRepository
         $this->services[$service->id()->value] = $service;
     }
 
-    public function findSeverityIds(ServiceId $id): Collection
+    public function hasExtraSeverities(ServiceId $id, ?ServiceSeverityId $kept): bool
     {
-        if (isset($this->storedSeverityIds[$id->value])) {
-            return new Collection(
-                array_map(static fn (int $value): ServiceSeverityId => new ServiceSeverityId($value), $this->storedSeverityIds[$id->value]),
-                ServiceSeverityId::class,
-            );
-        }
-
-        $severityId = ($this->services[$id->value] ?? null)?->severityId;
-
-        return new Collection($severityId instanceof ServiceSeverityId ? [$severityId] : [], ServiceSeverityId::class);
+        return array_diff($this->storedSeverityIds[$id->value] ?? [], [$kept?->value]) !== [];
     }
 
     public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool
@@ -227,9 +218,9 @@ final class FakeServiceRepository implements ServiceRepository
             return $service;
         }
 
-        // As the real repository: the lowest stored severity, whatever the actor may see.
+        // As the real repository: the first stored severity, whatever the actor may see.
         $stored = $this->storedSeverityIds[$id->value];
-        $severityId = $stored === [] ? null : new ServiceSeverityId(min($stored));
+        $severityId = $stored === [] ? null : new ServiceSeverityId($stored[0]);
 
         return $severityId?->value === $service->severityId?->value ? $service : $service->with(severityId: $severityId);
     }
