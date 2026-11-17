@@ -26,20 +26,26 @@ namespace Tools\Rector\Rule;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\AssignOp;
+use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\BinaryOp\BitwiseOr;
+use PhpParser\Node\Expr\BinaryOp\Coalesce;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\Int_;
 use PhpParser\NodeFinder;
+use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
 /**
- * Unlike Rector's JsonThrowOnErrorRector, also handles calls that already pass flags or named arguments,
- * and adds the flag as a named argument instead of filling the intermediate defaults.
+ * Unlike Rector's JsonThrowOnErrorRector, also flags calls with existing flags, named arguments
+ * or a json_last_error() check, and adds a named flags: argument.
  */
 final class JsonThrowOnErrorFlagRector extends AbstractRector
 {
@@ -111,11 +117,27 @@ final class JsonThrowOnErrorFlagRector extends AbstractRector
             return null;
         }
 
-        $flagsArg->value = $flagsArg->value instanceof Int_ && $flagsArg->value->value === 0
-            ? $this->createThrowFlag()
-            : new BitwiseOr($flagsArg->value, $this->createThrowFlag());
+        if ($flagsArg->value instanceof Int_ && $flagsArg->value->value === 0) {
+            $flagsArg->value = $this->createThrowFlag();
+
+            return $node;
+        }
+
+        if ($this->needsParentheses($flagsArg->value)) {
+            $flagsArg->value->setAttribute(AttributeKey::WRAPPED_IN_PARENTHESES, true);
+        }
+
+        $flagsArg->value = new BitwiseOr($flagsArg->value, $this->createThrowFlag());
 
         return $node;
+    }
+
+    private function needsParentheses(Expr $expr): bool
+    {
+        return $expr instanceof Ternary
+            || $expr instanceof Assign
+            || $expr instanceof AssignOp
+            || ($expr instanceof BinaryOp && ! $expr instanceof BitwiseOr && ! $expr instanceof Coalesce);
     }
 
     private function findFlagsArg(FuncCall $funcCall, int $position): ?Arg
