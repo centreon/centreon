@@ -74,6 +74,8 @@ const applyRecurrentDowntime = (key: string): void => {
     .click();
 
   cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
+  // The listing replaces the form once the downtime is saved: the cron must see it
+  cy.waitForElementInIframe('#main-content', `a:contains("dst-${key}")`);
 
   // Freeze the clock to the faketime wall time on the transition day and run the
   // recurrent-downtime cron so it emits SCHEDULE_SVC_DOWNTIME for that day.

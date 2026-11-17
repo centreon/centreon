@@ -16,6 +16,7 @@ import { buildSelector } from '../selector';
 import {
   labelActiveChecksEnabled,
   labelCheckPeriod,
+  labelIsVolatile,
   labelMaxCheckAttempts,
   labelMustBeIntegerOfAtLeastOne,
   labelNormalCheckInterval,
@@ -29,7 +30,9 @@ import {
   triStateOptions
 } from '../triState';
 
-// Both blocks fill the API's `scheduling_options`.
+// Both blocks fill one group of the API: `scheduling_options` for a host, the
+// `apiGroup` a resource names otherwise.
+const defaultApiGroup = 'scheduling_options';
 
 interface CheckPeriodAndIntervalsValues {
   checkPeriod: NamedEntity | null;
@@ -40,6 +43,8 @@ interface CheckPeriodAndIntervalsValues {
 
 interface ActiveAndPassiveChecksValues {
   activeCheckEnabled: TriState;
+  // Only where the block is built `withVolatile`.
+  isVolatile?: TriState;
   passiveCheckEnabled: TriState;
 }
 
@@ -62,9 +67,11 @@ const getInputIds = (idPrefix: string, fieldName: string) => ({
 
 // The check period and the counts and intervals the engine schedules with.
 export const getCheckPeriodAndIntervalsBlock = ({
+  apiGroup = defaultApiGroup,
   resource: { baseEndpoint, idPrefix },
   timePeriodsEndpoint
 }: {
+  apiGroup?: string;
   resource: ResourceOptions;
   timePeriodsEndpoint: string;
 }): FieldBlock<{ schedulingOptions: CheckPeriodAndIntervalsValues }> => ({
@@ -90,7 +97,7 @@ export const getCheckPeriodAndIntervalsBlock = ({
       )
     ).map((value) => value ?? defaultCheckPeriodAndIntervals)
   },
-  detailKeyMap: { schedulingOptions: 'scheduling_options' },
+  detailKeyMap: { schedulingOptions: apiGroup },
   getInputs: ({ t }) => {
     const getNumberInput = (
       fieldName: keyof CheckPeriodAndIntervalsValues,
@@ -143,7 +150,7 @@ export const getCheckPeriodAndIntervalsBlock = ({
     };
 
     return {
-      scheduling_options: {
+      [apiGroup]: {
         check_timeperiod_id: schedulingOptions.checkPeriod?.id ?? null,
         max_check_attempts: toApiNumber(schedulingOptions.maxCheckAttempts),
         normal_check_interval: toApiNumber(
@@ -156,72 +163,93 @@ export const getCheckPeriodAndIntervalsBlock = ({
 });
 
 // Whether the engine runs the checks, and whether it accepts submitted ones.
-// On premise only: cloud refuses both.
+// `withVolatile` adds whether each non-OK result counts as a new problem, which
+// only a service has. On premise only: cloud refuses all of them.
 export const getActiveAndPassiveChecksBlock = ({
-  resource: { idPrefix }
+  apiGroup = defaultApiGroup,
+  resource: { idPrefix },
+  withVolatile = false
 }: {
+  apiGroup?: string;
   resource: ResourceOptions;
-}): FieldBlock<{ schedulingOptions: ActiveAndPassiveChecksValues }> => ({
-  defaultValues: { schedulingOptions: defaultActiveAndPassiveChecks },
-  detailDecoders: {
-    schedulingOptions: JsonDecoder.optional(
-      JsonDecoder.nullable(
-        JsonDecoder.object<ActiveAndPassiveChecksValues>(
-          {
-            activeCheckEnabled: optionalTriStateDecoder,
-            passiveCheckEnabled: optionalTriStateDecoder
-          },
-          'Scheduling options',
-          {
-            activeCheckEnabled: 'active_check_enabled',
-            passiveCheckEnabled: 'passive_check_enabled'
-          }
+  withVolatile?: boolean;
+}): FieldBlock<{ schedulingOptions: ActiveAndPassiveChecksValues }> => {
+  const defaultValues: ActiveAndPassiveChecksValues = {
+    ...defaultActiveAndPassiveChecks,
+    ...(withVolatile && { isVolatile: defaultTriState })
+  };
+
+  return {
+    defaultValues: { schedulingOptions: defaultValues },
+    detailDecoders: {
+      schedulingOptions: JsonDecoder.optional(
+        JsonDecoder.nullable(
+          JsonDecoder.object<ActiveAndPassiveChecksValues>(
+            // Without it, no `isVolatile` key at all: a host never has one.
+            {
+              activeCheckEnabled: optionalTriStateDecoder,
+              passiveCheckEnabled: optionalTriStateDecoder,
+              ...(withVolatile && { isVolatile: optionalTriStateDecoder })
+            } as JsonDecoder.DecoderObject<ActiveAndPassiveChecksValues>,
+            'Scheduling options',
+            {
+              activeCheckEnabled: 'active_check_enabled',
+              passiveCheckEnabled: 'passive_check_enabled',
+              ...(withVolatile && { isVolatile: 'is_volatile' })
+            }
+          )
         )
-      )
-    ).map((value) => value ?? defaultActiveAndPassiveChecks)
-  },
-  detailKeyMap: { schedulingOptions: 'scheduling_options' },
-  getInputs: ({ isCloudPlatform, t }) => {
-    if (isCloudPlatform) {
-      return {};
-    }
-
-    const getTriStateInput = (
-      fieldName: keyof ActiveAndPassiveChecksValues,
-      label: string
-    ) => ({
-      ...getInputIds(idPrefix, fieldName),
-      label: t(label),
-      segmentedButtons: { options: triStateOptions },
-      type: InputType.SegmentedButtons
-    });
-
-    return {
-      activeAndPassiveChecks: getBlock({
-        columns: [
-          getTriStateInput('activeCheckEnabled', labelActiveChecksEnabled),
-          getTriStateInput('passiveCheckEnabled', labelPassiveChecksEnabled)
-        ],
-        idPrefix,
-        name: 'scheduling-checks-enabled'
-      })
-    };
-  },
-  getSchema: () => ({}),
-  toPayload: (values, { isCloudPlatform }) => {
-    if (isCloudPlatform) {
-      return {};
-    }
-
-    const { schedulingOptions = defaultActiveAndPassiveChecks } = values as {
-      schedulingOptions?: ActiveAndPassiveChecksValues;
-    };
-
-    return {
-      scheduling_options: {
-        active_check_enabled: schedulingOptions.activeCheckEnabled,
-        passive_check_enabled: schedulingOptions.passiveCheckEnabled
+      ).map((value) => value ?? defaultValues)
+    },
+    detailKeyMap: { schedulingOptions: apiGroup },
+    getInputs: ({ isCloudPlatform, t }) => {
+      if (isCloudPlatform) {
+        return {};
       }
-    };
-  }
-});
+
+      const getTriStateInput = (
+        fieldName: keyof ActiveAndPassiveChecksValues,
+        label: string
+      ) => ({
+        ...getInputIds(idPrefix, fieldName),
+        label: t(label),
+        segmentedButtons: { options: triStateOptions },
+        type: InputType.SegmentedButtons
+      });
+
+      return {
+        activeAndPassiveChecks: getBlock({
+          columns: [
+            getTriStateInput('activeCheckEnabled', labelActiveChecksEnabled),
+            getTriStateInput('passiveCheckEnabled', labelPassiveChecksEnabled),
+            ...(withVolatile
+              ? [getTriStateInput('isVolatile', labelIsVolatile)]
+              : [])
+          ],
+          idPrefix,
+          name: 'scheduling-checks-enabled'
+        })
+      };
+    },
+    getSchema: () => ({}),
+    toPayload: (values, { isCloudPlatform }) => {
+      if (isCloudPlatform) {
+        return {};
+      }
+
+      const { schedulingOptions = defaultValues } = values as {
+        schedulingOptions?: ActiveAndPassiveChecksValues;
+      };
+
+      return {
+        [apiGroup]: {
+          active_check_enabled: schedulingOptions.activeCheckEnabled,
+          passive_check_enabled: schedulingOptions.passiveCheckEnabled,
+          ...(withVolatile && {
+            is_volatile: schedulingOptions.isVolatile ?? defaultTriState
+          })
+        }
+      };
+    }
+  };
+};
