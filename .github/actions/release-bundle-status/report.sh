@@ -42,7 +42,7 @@ fi
 if [[ -d "$MANIFESTS_DIR" ]]; then
   while IFS= read -r -d '' manifest; do
     # shellcheck disable=SC2016 # jq variables, not shell ones
-    if ! jq -e -c '.distrib as $d | .packages[]
+    if ! jq -c '.distrib as $d | .packages[]
           | {name, version, release, arch, distrib: $d, sha256, repository}
           | with_entries(select(.value != null))' "$manifest" >> "$WORK/packages.jsonl"; then
       echo "::error::Unreadable delivery manifest $manifest"
