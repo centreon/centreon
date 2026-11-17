@@ -51,10 +51,11 @@ use Webmozart\Assert\Assert;
  *
  * Seeding `centreon_acl` directly (which grants access) happens on creation, so a non-admin
  * creator sees their new resource without waiting for the cron, and when a non-admin moves a service to
- * another host, so they keep seeing it there. When a non-admin's save unlinks a service from hosts (the one it
- * moved from, or the other links the save dropped), every Access Group the cache grants the service on one of them
- * is flagged too, so the cron purges those stale pairs. On a later enable/disable, or on a
- * deletion, the flag alone drives the recompute — the cron purges stale rows for a deleted resource.
+ * another host, so they keep seeing it there. When a non-admin saves a service, every Access Group the cache grants
+ * it on its current host or on a host the save unlinked it from is flagged too: a removed service group or category,
+ * or a dropped host link, can leave them a stale pair the cron only rebuilds for a flagged group. On a later
+ * enable/disable, or on a deletion, the flag alone drives the recompute — the cron purges stale rows for a deleted
+ * resource.
  * Caught via the {@see AggregateUpdated} supertype (enable/disable) and {@see AggregateDeleted}.
  *
  * A duplication ({@see AggregateDuplicated}) only flags: the copy's own ACL scope is seeded from the
@@ -105,7 +106,7 @@ final readonly class ReloadAclEventHandler
             }
         }
 
-        $groupIdsToFlag = $this->withGroupsGrantingLeftHosts($accessGroupIds, $event);
+        $groupIdsToFlag = $this->withGroupsGrantingTheService($accessGroupIds, $event);
         if (count($groupIdsToFlag) > 0) {
             $this->accessGroupRepository->flagGroupsAsChanged($groupIdsToFlag);
         }
@@ -115,29 +116,31 @@ final readonly class ReloadAclEventHandler
      * @param Collection<AccessGroupId> $accessGroupIds
      * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>>|ServiceMassChanged $event
      *
-     * @return Collection<AccessGroupId> $accessGroupIds, then the other groups the cache grants the service on a
-     *                                   host it left, each once
+     * @return Collection<AccessGroupId> $accessGroupIds, then the other groups the cache grants the service on its
+     *                                   current host or a host it left, each once
      */
-    private function withGroupsGrantingLeftHosts(
+    private function withGroupsGrantingTheService(
         Collection $accessGroupIds,
         AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated|ServiceMassChanged $event,
     ): Collection {
         if ($event instanceof ServiceMassChanged) {
             $serviceId = $event->serviceId;
+            $hostId = $event->hostId;
         } elseif ($event instanceof ServiceUpdated && $event->aggregate instanceof Service) {
             $serviceId = $event->aggregate->id();
+            $hostId = $event->aggregate->hostId;
         } else {
             return $accessGroupIds;
         }
 
-        $leftHostIds = $event->droppedHostLinks->hostIds;
+        $hostIds = [$hostId, ...$event->droppedHostLinks->hostIds];
         if ($event->previousHostId instanceof HostId) {
-            $leftHostIds[] = $event->previousHostId;
+            $hostIds[] = $event->previousHostId;
         }
 
         $grantingGroupIds = $this->resourceAccessRepository->findAccessGroupIdsGrantingService(
             $serviceId,
-            new Collection($leftHostIds, HostId::class),
+            new Collection($hostIds, HostId::class),
         );
         $groupIds = [];
         foreach ([...$accessGroupIds->toArray(), ...$grantingGroupIds->toArray()] as $groupId) {

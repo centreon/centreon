@@ -71,8 +71,7 @@ interface ResourceAccessRepository
     public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void;
 
     /**
-     * The Access Groups the `centreon_acl` real-time cache grants that service on one of those hosts, lowest id
-     * first: once the service is no longer linked to a host, they are the groups to recompute.
+     * The Access Groups the `centreon_acl` real-time cache grants that service on one of those hosts, lowest id first.
      *
      * @param Collection<HostId> $hostIds
      *

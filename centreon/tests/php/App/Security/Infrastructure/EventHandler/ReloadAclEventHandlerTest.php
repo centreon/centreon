@@ -396,11 +396,9 @@ final class ReloadAclEventHandlerTest extends TestCase
     }
 
     /**
-     * A save that unlinks a service from hosts, the one it moved from and the other links it dropped, also flags
-     * every other group the cache grants the service on one of them; a grant on another service or host is left
-     * alone, and the kept host's grant is unchanged.
+     * A grant on another service or on a host the service was never linked to is left alone.
      */
-    public function testItFlagsTheGroupsGrantingTheServiceOnTheHostsItLeft(): void
+    public function testItFlagsTheGroupsGrantingTheServiceOnItsHostAndTheHostsItLeft(): void
     {
         $accessGroupRepository = new FakeAccessGroupRepository();
         $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
@@ -419,7 +417,24 @@ final class ReloadAclEventHandlerTest extends TestCase
         ));
 
         self::assertSame([['hostId' => 1, 'serviceId' => 1, 'accessGroupIds' => [10, 20]]], $resourceAccessRepository->grantedServiceAccess);
-        self::assertSame([10, 20, 30, 50], $accessGroupRepository->flaggedGroupIds);
+        self::assertSame([10, 20, 30, 40, 50], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    /**
+     * A removed service group or category can leave another group a stale pair on the host the service keeps.
+     */
+    public function testItFlagsTheGroupsGrantingTheServiceOnTheHostItKeeps(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+        $resourceAccessRepository->grantedPairs = [1 => [1 => [10, 40]], 2 => [1 => [70]]];
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+        $handler(ServiceMassChanged::of($this->createService(), 7));
+
+        self::assertSame([], $resourceAccessRepository->grantedServiceAccess);
+        self::assertSame([10, 40], $accessGroupRepository->flaggedGroupIds);
     }
 
     public function testItFlagsTheGroupsGrantingTheServiceOnTheHostLinksAnUpdateDropped(): void
