@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
@@ -71,6 +72,9 @@ final class FakeHostRepository implements HostRepository
 
     /** @var list<list<int>> the host ids asked to {@see findIconIdsByIds()}, one list per call */
     public array $receivedIconHostIds = [];
+
+    /** @var array<int, list<int>> host id => every levelled category it is linked to, in read order; unset, the stored host's severity */
+    public array $storedSeverityIds = [];
 
     private readonly AccessScopeResolver $accessScopes;
 
@@ -136,7 +140,14 @@ final class FakeHostRepository implements HostRepository
             return null;
         }
 
-        return $host;
+        if (! isset($this->storedSeverityIds[$id->value])) {
+            return $host;
+        }
+
+        $stored = $this->storedSeverityIds[$id->value];
+        $severityId = $stored === [] ? null : new HostSeverityId($stored[0]);
+
+        return $severityId?->value === $host->severityId?->value ? $host : $host->with(severityId: $severityId);
     }
 
     public function findState(HostId $id, ActingUser $actor): ?HostState
@@ -157,6 +168,11 @@ final class FakeHostRepository implements HostRepository
     public function findMacros(HostId $id): Collection
     {
         return new Collection($this->hosts[$id->value]->checkOptions->macros ?? [], HostMacro::class);
+    }
+
+    public function hasExtraSeverities(HostId $id, ?HostSeverityId $kept): bool
+    {
+        return array_diff($this->storedSeverityIds[$id->value] ?? [], [$kept?->value]) !== [];
     }
 
     public function remove(Host $host): void
@@ -185,6 +201,8 @@ final class FakeHostRepository implements HostRepository
 
         $this->updatedHosts[] = $host;
         $this->hosts[$host->id()->value] = $host;
+        // The write leaves the single severity of the host.
+        unset($this->storedSeverityIds[$host->id()->value]);
     }
 
     public function replaceRelations(Host $host): void

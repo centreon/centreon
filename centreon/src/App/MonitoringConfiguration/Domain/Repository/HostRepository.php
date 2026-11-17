@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
@@ -62,6 +63,11 @@ interface HostRepository
      * @return Collection<HostMacro>
      */
     public function findMacros(HostId $id): Collection;
+
+    /**
+     * Whether the host is linked to a severity other than the one it keeps, whatever the actor may see.
+     */
+    public function hasExtraSeverities(HostId $id, ?HostSeverityId $kept): bool;
 
     /**
      * Also removes the dependencies left without a parent or child host by this deletion.
