@@ -40,28 +40,6 @@ class ModuleDetailEntity implements JsonSerializable
     }
 
     /**
-     * @OA\Schema(
-     *   schema="ModuleDetailEntity",
-     *
-     *       @OA\Property(property="id", type="integer"),
-     *       @OA\Property(property="type", type="string", enum={"module","widget"}),
-     *       @OA\Property(property="title", type="string"),
-     *       @OA\Property(property="description", type="string"),
-     *       @OA\Property(property="label", type="string"),
-     *       @OA\Property(property="stability", type="string"),
-     *       @OA\Property(property="version", type="object",
-     *          @OA\Property(property="current", type="string"),
-     *          @OA\Property(property="available", type="string"),
-     *          @OA\Property(property="outdated", type="boolean"),
-     *          @OA\Property(property="installed", type="boolean")
-     *       ),
-     *       @OA\Property(property="is_internal", type="boolean"),
-     *       @OA\Property(property="license", type="string"),
-     *       @OA\Property(property="images", type="array", items={"string"}),
-     *       @OA\Property(property="last_update", type="string"),
-     *       @OA\Property(property="release_note", type="string")
-     * )
-     *
      * JSON serialization of entity
      *
      * @return array<string,mixed>

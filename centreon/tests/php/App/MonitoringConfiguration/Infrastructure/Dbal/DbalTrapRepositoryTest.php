@@ -24,9 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\Trap;
+use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TrapCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalTrapRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\TrapTransformer;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -149,6 +151,33 @@ final class DbalTrapRepositoryTest extends KernelTestCase
         self::assertSame(["pg-{$this->tag}-B"], $this->names($result));
     }
 
+    public function testFindByIdsReturnsTheTrapsWithTheirVendorIndexedById(): void
+    {
+        $vendorId = $this->insertVendor("vendor-{$this->tag}");
+        $trapId = $this->insertTrap("trap-{$this->tag}", $vendorId);
+
+        $traps = $this->findByIds($trapId);
+
+        self::assertSame([$trapId], array_keys($traps));
+        self::assertSame("trap-{$this->tag}", $traps[$trapId]->name->value);
+        self::assertSame($vendorId, $traps[$trapId]->vendor->id->value);
+        self::assertSame("vendor-{$this->tag}", $traps[$trapId]->vendor->name->value);
+    }
+
+    public function testFindByIdsLeavesOutATrapWithoutVendorOrNameAndAnUnknownId(): void
+    {
+        $vendorId = $this->insertVendor("vendor-{$this->tag}");
+        $withoutVendor = $this->insertTrap("no-vendor-{$this->tag}", null);
+        $nameless = $this->insertTrap(null, $vendorId);
+
+        self::assertSame([], $this->findByIds($withoutVendor, $nameless, $nameless + 1000000));
+    }
+
+    public function testFindByIdsWithoutIdsIsEmpty(): void
+    {
+        self::assertCount(0, $this->repository->findByIds(new Collection([], TrapId::class)));
+    }
+
     /**
      * @param \IteratorAggregate<int, Trap>&\Countable $result
      *
@@ -192,5 +221,16 @@ final class DbalTrapRepositoryTest extends KernelTestCase
         ]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @return array<Trap> indexed by id
+     */
+    private function findByIds(int ...$ids): array
+    {
+        return $this->repository->findByIds(new Collection(
+            array_map(static fn (int $id): TrapId => new TrapId($id), $ids),
+            TrapId::class,
+        ))->toArray();
     }
 }

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
@@ -50,11 +51,19 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var array<int, int> linked service template counts indexed by host template id */
     public array $linkedServiceTemplateCounts = [];
 
+    /** @var list<list<int>> the host ids asked to {@see findInheritedIconIds()}, one list per call */
+    public array $receivedInheritedIconHostIds = [];
+
     /** @var list<int> the template ids of the last findInheritanceLine() call, in order */
     public array $receivedLineTemplateIds = [];
 
     /** @var list<int> the templates of the paid Monitoring Connectors, the excluded connector slugs being ignored */
     public array $monitoringConnectorTemplateIds = [];
+
+    /** @var array<int, list<int>> the templates inheriting from each template, directly or not, indexed by template id */
+    public array $descendantIds = [];
+
+    public ?HostTemplateCriteria $receivedCriteria = null;
 
     /** @var list<string> names used by hosts, templates excluded */
     public array $hostNames = [];
@@ -69,6 +78,8 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     public array $removedIds = [];
 
     public ?\Throwable $addCopyThrows = null;
+
+    public ?\Throwable $findServiceTemplateIdsThrows = null;
 
     private int $nextId = 1000;
 
@@ -86,6 +97,10 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public function findServiceTemplateIds(Collection $templateIds): array
     {
+        if ($this->findServiceTemplateIdsThrows instanceof \Throwable) {
+            throw $this->findServiceTemplateIdsThrows;
+        }
+
         $serviceTemplateIds = [];
         foreach ($templateIds as $id) {
             array_push($serviceTemplateIds, ...($this->serviceTemplateIdsByTemplate[$id->value] ?? []));
@@ -96,6 +111,7 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public function findInheritedIconIds(Collection $hostIds): Collection
     {
+        $this->receivedInheritedIconHostIds[] = array_values(array_map(static fn (HostId $id): int => $id->value, $hostIds->toArray()));
         $iconIds = [];
         foreach ($hostIds as $hostId) {
             if (isset($this->inheritedIconIds[$hostId->value])) {
@@ -130,6 +146,8 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public function findAll(HostTemplateCriteria $criteria): \IteratorAggregate&\Countable
     {
+        $this->receivedCriteria = $criteria;
+
         return new Collection(array_values($this->hostTemplates), HostTemplate::class);
     }
 
@@ -155,6 +173,14 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     {
         return new Collection(
             array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $this->monitoringConnectorTemplateIds),
+            HostTemplateId::class,
+        );
+    }
+
+    public function findDescendantIds(HostTemplateId $id): Collection
+    {
+        return new Collection(
+            array_map(static fn (int $descendantId): HostTemplateId => new HostTemplateId($descendantId), $this->descendantIds[$id->value] ?? []),
             HostTemplateId::class,
         );
     }

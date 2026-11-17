@@ -159,6 +159,33 @@ final readonly class DbalServiceCategoryRepository extends DbalRepository implem
         );
     }
 
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_values(array_map(static fn (ServiceCategoryId $id): int => $id->value, $ids->toArray()));
+        if ($idValues === []) {
+            return new Collection([], ServiceCategoryName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('sc.sc_id', 'sc.sc_name')
+            ->from(self::TABLE_NAME, 'sc')
+            ->where('sc.level IS NULL') // a levelled row is a severity, not a category
+            ->andWhere($qb->expr()->in('sc.sc_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{sc_id: int|string, sc_name: string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        // `sc_name` is nullable; a nameless row reads as "not found".
+        $names = [];
+        foreach ($rows as $row) {
+            if (($name = (string) $row['sc_name']) !== '') {
+                $names[(int) $row['sc_id']] = new ServiceCategoryName($name);
+            }
+        }
+
+        return new Collection($names, ServiceCategoryName::class);
+    }
+
     /**
      * @param array<RowTypeAlias> $rows
      *
