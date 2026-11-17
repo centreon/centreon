@@ -405,16 +405,25 @@ if (isset($preferences['display_severities'])
     && isset($preferences['criticality_filter'])
     && $preferences['criticality_filter'] != ''
 ) {
-    $tab = explode(',', $preferences['criticality_filter']);
-    $labels = '';
-    foreach ($tab as $p) {
-        if ($labels != '') {
-            $labels .= ',';
-        }
-        $labels .= "'" . trim($p) . "'";
+    $names = array_map('trim', explode(',', $preferences['criticality_filter']));
+    // The legacy form stores names HTML-encoded while the API stores them as typed: match both.
+    $names = array_unique([
+        ...$names,
+        ...array_map(
+            static fn (string $name): string => htmlspecialchars($name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            $names
+        ),
+    ]);
+    [$bindValues, $bindQuery] = createMultipleBindQuery(
+        list: $names,
+        prefix: ':criticality_',
+        bindType: PDO::PARAM_STR
+    );
+    $RES = $db->prepare('SELECT sc_id FROM service_categories WHERE sc_name IN (' . $bindQuery . ')');
+    foreach ($bindValues as $key => [$value, $type]) {
+        $RES->bindValue($key, $value, $type);
     }
-    $query2 = 'SELECT sc_id FROM service_categories WHERE sc_name IN (' . $labels . ')';
-    $RES = $db->query($query2);
+    $RES->execute();
     $idC = '';
     while ($d1 = $RES->fetch()) {
         if ($idC != '') {
@@ -422,7 +431,8 @@ if (isset($preferences['display_severities'])
         }
         $idC .= $d1['sc_id'];
     }
-    $query .= " AND cv2.`value` IN ({$idC}) ";
+    // No severity matches the filter: list nothing instead of building an invalid "IN ()".
+    $query .= $idC !== '' ? " AND cv2.`value` IN ({$idC}) " : ' AND 1 = 0 ';
 }
 
 if (! $centreon->user->admin) {

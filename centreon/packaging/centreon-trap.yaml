@@ -70,6 +70,7 @@ contents:
 scripts:
   postinstall: ./scripts/centreon-trap-postinstall.sh
   preremove: ./scripts/centreon-trap-preremove.sh
+  postremove: ./scripts/centreon-trap-postremove.sh
 
 overrides:
   rpm:
@@ -78,10 +79,11 @@ overrides:
       - centreon-perl-libs < ${NEXT_MAJOR_VERSION}
       - net-snmp
       - perl(SNMP)
-      - logrotate
     replaces:
       - centreon-trap-central
       - centreon-trap-poller
+    recommends:
+      - logrotate
   deb:
     depends:
       - "centreon-perl-libs (>= ${MAJOR_VERSION}~)"
@@ -89,6 +91,7 @@ overrides:
       - libsnmp-perl
       - snmptrapd
       - snmpd
+    recommends:
       - logrotate
 
 rpm:

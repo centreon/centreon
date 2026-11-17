@@ -1,0 +1,38 @@
+meta {
+  name: POST centreon_clapi - Delete host - HTTP 200
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUriCentreonCLAPI}}
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "del",
+    "object": "HOST",
+    "values": "{{CriticalityHostName}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("CLAPI deletes the host (cleanup)", function () {
+    expect(res.getBody()).to.have.property("result");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
