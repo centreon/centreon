@@ -25,13 +25,6 @@ use Centreon\Application\Serializer\SerializerContextInterface;
 use Centreon\Domain\Entity\ContactGroup;
 
 /**
- * @OA\Schema(
- *   schema="ContactGroup",
- *       @OA\Property(property="id", type="integer"),
- *       @OA\Property(property="name", type="string"),
- *       @OA\Property(property="activate", type="integer")
- * )
- *
  * Serialize ContactGroup entity for list
  */
 class ListContext implements SerializerContextInterface

@@ -36,6 +36,9 @@ final class FakeTrapRepository implements TrapRepository
     /** @var \IteratorAggregate<int, Trap>&\Countable */
     public \IteratorAggregate&\Countable $result;
 
+    /** @var array<int, Trap> traps indexed by id, what findByIds() knows */
+    public array $traps = [];
+
     public function __construct()
     {
         $this->result = new Collection([], Trap::class);
@@ -46,5 +49,17 @@ final class FakeTrapRepository implements TrapRepository
         $this->receivedCriteria = $criteria;
 
         return $this->result;
+    }
+
+    public function findByIds(Collection $ids): Collection
+    {
+        $traps = [];
+        foreach ($ids as $id) {
+            if (isset($this->traps[$id->value])) {
+                $traps[$id->value] = $this->traps[$id->value];
+            }
+        }
+
+        return new Collection($traps, Trap::class);
     }
 }
