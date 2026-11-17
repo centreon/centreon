@@ -3,10 +3,15 @@
 # in: NEEDS (toJSON(needs)), EXPECTED_JOBS (comma-separated), RUN_CANCELLED; out: state, job_results
 set -euo pipefail
 
-if [[ -z "${EXPECTED_JOBS// /}" ]]; then
+if [[ -z "${EXPECTED_JOBS//[ ,]/}" ]]; then
   echo "No delivery expected for this component in this scope, nothing to report"
   echo "state=" >> "$GITHUB_OUTPUT"
   exit 0
+fi
+
+if ! jq -e 'type == "object"' <<< "$NEEDS" > /dev/null 2>&1; then
+  echo "::error::needs is not a JSON object: $NEEDS"
+  exit 1
 fi
 
 JOB_RESULTS=$(jq -c --arg expected "$EXPECTED_JOBS" '
@@ -15,9 +20,9 @@ JOB_RESULTS=$(jq -c --arg expected "$EXPECTED_JOBS" '
   | map({key: ., value: ($needs[.].result // "missing")}) | from_entries
 ' <<< "$NEEDS")
 
-for job in $(jq -r 'to_entries[] | select(.value == "missing") | .key' <<< "$JOB_RESULTS"); do
-  echo "::warning::Expected delivery job '$job' is not in the needs of this job, counted as failed"
-done
+while read -r job; do
+  [[ -n "$job" ]] && echo "::warning::Expected delivery job '$job' is not in the needs of this job, counted as failed"
+done < <(jq -r 'to_entries[] | select(.value == "missing") | .key' <<< "$JOB_RESULTS")
 
 # delivery jobs skip themselves on a cancelled run (! cancelled()), so cancellation comes from RUN_CANCELLED
 STATE=$(jq -r --arg cancelled "$RUN_CANCELLED" '

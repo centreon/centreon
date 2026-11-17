@@ -20,8 +20,15 @@ if [[ "$BUNDLE_PATH" != "bundles/$SCOPE/$MAJOR/$TYPE/$NUMBER/$ITERATION" ]]; the
   echo "::error::Bundle path '$BUNDLE_PATH' does not match the tag '$BUNDLE'"
   exit 1
 fi
-PREFIX=$BUNDLE_PATH
-[[ "$DRY_RUN" == "true" ]] && PREFIX="dry-run/$BUNDLE_PATH"
+if [[ ! "$COMPONENT" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+  echo "::error::Invalid component name '$COMPONENT'"
+  exit 1
+fi
+case "$DRY_RUN" in
+  true) PREFIX="dry-run/$BUNDLE_PATH" ;;
+  false) PREFIX=$BUNDLE_PATH ;;
+  *) echo "::error::dry_run must be true or false (got '$DRY_RUN')"; exit 1 ;;
+esac
 
 # conditional writes (--if-match) need aws cli 2.22 or later
 AWS_VERSION=$(aws --version 2>&1 | sed -n 's|^aws-cli/\([0-9.]*\).*|\1|p')
@@ -31,16 +38,23 @@ if [[ "$(printf '%s\n' 2.22.0 "$AWS_VERSION" | sort -V | head -n 1)" != "2.22.0"
 fi
 
 # packages from the delivery manifests of the run (one directory per artifact)
-PACKAGES='[]'
+: > "$WORK/packages.jsonl"
 if [[ -d "$MANIFESTS_DIR" ]]; then
-  # shellcheck disable=SC2016 # jq variables, not shell ones
-  PACKAGES=$(find "$MANIFESTS_DIR" -name pulp-delivery-manifest.json -print0 \
-    | xargs -0 -r jq -c '.distrib as $d | .packages[]
-        | {name, version, release, arch, distrib: $d, sha256, repository}
-        | with_entries(select(.value != null))' \
-    | jq -s -c 'unique_by(.repository, .name, .version, .release, .arch, .sha256)')
+  while IFS= read -r -d '' manifest; do
+    # shellcheck disable=SC2016 # jq variables, not shell ones
+    if ! jq -e -c '.distrib as $d | .packages[]
+          | {name, version, release, arch, distrib: $d, sha256, repository}
+          | with_entries(select(.value != null))' "$manifest" >> "$WORK/packages.jsonl"; then
+      echo "::error::Unreadable delivery manifest $manifest"
+      exit 1
+    fi
+  done < <(find "$MANIFESTS_DIR" -name pulp-delivery-manifest.json -print0)
 fi
+PACKAGES=$(jq -s -c 'unique_by(.repository, .distrib, .name, .version, .release, .arch, .sha256)' "$WORK/packages.jsonl")
 echo "$(jq length <<< "$PACKAGES") delivered package(s) found in the manifests"
+if [[ "$STATE" == "success" && "$PACKAGES" == "[]" ]]; then
+  echo "::warning::Successful delivery but no package found in the manifests of the run (artifact download failed?)"
+fi
 
 SECTION=$(jq -n -c \
   --arg repo "$REPO" --arg state "$STATE" --arg commit "$GITHUB_SHA" --arg run_url "$RUN_URL" \
@@ -60,16 +74,23 @@ jq -n -c --arg bundle "$BUNDLE" --arg source "$REPO" --arg subject "$COMPONENT" 
   --arg ts "$NOW" --arg commit "$GITHUB_SHA" --arg run_url "$RUN_URL" \
   '{schema_version: 1, bundle: $bundle, source: $source, subject: $subject, type: "delivery",
     status: $status, ts: $ts, commit: $commit, run_url: $run_url}' > "$WORK/event.json"
-aws s3api put-object --bucket "$BUCKET" --key "$EVENT_KEY" --body "$WORK/event.json" \
-  --content-type application/json --if-none-match '*' > /dev/null \
-  || echo "::warning::Event $EVENT_KEY already exists, not overwritten"
+if ! aws s3api put-object --bucket "$BUCKET" --key "$EVENT_KEY" --body "$WORK/event.json" \
+     --content-type application/json --if-none-match '*' > /dev/null 2> "$WORK/event.err"; then
+  if grep -q -E "\((PreconditionFailed|ConditionalRequestConflict)\)" "$WORK/event.err"; then
+    echo "::warning::Event $EVENT_KEY already exists, not overwritten"
+  else
+    cat "$WORK/event.err" >&2
+    echo "::error::Cannot write s3://$BUCKET/$EVENT_KEY"
+    exit 1
+  fi
+fi
 
 # global file: replace only components.<COMPONENT>, recompute the status, write if unchanged since read
 GLOBAL_KEY="$PREFIX/global-build-status.json"
 for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
   if aws s3api get-object --bucket "$BUCKET" --key "$GLOBAL_KEY" "$WORK/global.json" > "$WORK/head.json" 2> "$WORK/get.err"; then
     CONDITION=(--if-match "$(jq -r .ETag "$WORK/head.json")")
-  elif grep -q -E "NoSuchKey|Not Found|404" "$WORK/get.err"; then
+  elif grep -q -E "\(NoSuchKey\)|\(404\)" "$WORK/get.err"; then
     CONDITION=(--if-none-match '*')
     jq -n --arg bundle "$BUNDLE" --arg scope "$SCOPE" --arg type "$TYPE" --arg major "$MAJOR" \
       --arg number "$NUMBER" --argjson iteration "$ITERATION" \
@@ -82,7 +103,7 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
   fi
 
   # complete once every component expected by the repositories reported success
-  jq --arg component "$COMPONENT" --argjson section "$SECTION" --arg now "$NOW" '
+  jq --arg component "$COMPONENT" --argjson section "$SECTION" --arg now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
     .components[$component] = $section
     | .updated_at = $now
     | ([.repos[]?.expected[]?] | unique) as $expected
@@ -104,7 +125,7 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
     exit 0
   fi
-  if grep -q -E "PreconditionFailed|ConditionalRequestConflict|412|409" "$WORK/put.err"; then
+  if grep -q -E "\((PreconditionFailed|ConditionalRequestConflict|412|409)\)" "$WORK/put.err"; then
     echo "Global file changed since it was read (attempt $attempt/$MAX_ATTEMPTS), retrying"
     sleep $((RANDOM % 4 + attempt))
     continue
