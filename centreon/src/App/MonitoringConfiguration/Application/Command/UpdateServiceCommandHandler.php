@@ -248,8 +248,8 @@ final readonly class UpdateServiceCommandHandler
             : new NoValue();
         $severityId = $this->preserveInaccessibleSeverity($command->severityId, $existing->severityId, $severityScope);
         // A legacy service may hold several severities, which the service as loaded does not show (it carries the
-        // lowest): the write leaves the single one kept, so extra ones are a change.
-        $storedSeverityIds = $this->repository->findSeverityIds($existing->id());
+        // one read): the write leaves the single one kept, so extra ones are a change.
+        $extraSeverities = $this->repository->hasExtraSeverities($existing->id(), $severityId);
         // A restricted actor never sees, so never resends, the groups and categories outside their scope: they are
         // kept rather than dropped by the full replace.
         $serviceGroupIds = $this->preserveInaccessible($command->serviceGroupIds, $existing->serviceGroupIds, $serviceGroupScope, ServiceGroupId::class);
@@ -280,7 +280,7 @@ final readonly class UpdateServiceCommandHandler
             $service->changeGraphTemplate($command->graphTemplateId);
             $service->changeRelations($severityId, $serviceGroupIds, $categoryIds, $command->trapIds);
 
-            return $this->save($command, $existing, $service, $passwordRewritten, $this->keepsTheStoredSeverities($storedSeverityIds, $severityId));
+            return $this->save($command, $existing, $service, $passwordRewritten, $extraSeverities);
         } catch (\Throwable $exception) {
             if ($vaultWritten) {
                 $this->logger->error(
@@ -298,20 +298,20 @@ final readonly class UpdateServiceCommandHandler
      *
      * @param bool $passwordRewritten whether a password was rewritten in the vault, which leaves the very same
      *                                reference on the service
-     * @param bool $severitiesKept whether the stored severities are exactly the one the service keeps
+     * @param bool $extraSeverities whether legacy left severities other than the one the service keeps
      */
     private function save(
         UpdateServiceCommand $command,
         Service $existing,
         Service $service,
         bool $passwordRewritten,
-        bool $severitiesKept,
+        bool $extraSeverities,
     ): Service {
         $activationFlipped = $existing->activated !== $service->activated;
         $loggedChange = $this->hasLoggedChange($existing, $service);
         // Unlogged changes: macros, contacts, relations, a rewritten secret, extra legacy severities.
         $unloggedChange = $passwordRewritten
-            || ! $severitiesKept
+            || $extraSeverities
             || ! $service->hasSameConfigurationAs($existing)
             || ! $service->hasSameRelationsAs($existing);
 
@@ -357,18 +357,6 @@ final readonly class UpdateServiceCommandHandler
         }
 
         return $service;
-    }
-
-    /**
-     * Whether the levelled rows stored for the service are exactly the one severity it keeps (or none).
-     *
-     * @param Collection<ServiceSeverityId> $stored
-     */
-    private function keepsTheStoredSeverities(Collection $stored, ?ServiceSeverityId $kept): bool
-    {
-        $storedValues = array_values(array_unique(array_map(static fn (ServiceSeverityId $id): int => $id->value, $stored->toArray())));
-
-        return $storedValues === ($kept instanceof ServiceSeverityId ? [$kept->value] : []);
     }
 
     /**

@@ -1003,11 +1003,11 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         // A row of a host group is left out even when it also names the service's host.
         $this->connection->insert('servicegroup_relation', ['service_service_id' => $serviceId, 'host_host_id' => $hostId, 'hostgroup_hg_id' => $hostGroupId, 'servicegroup_sg_id' => $throughAHostGroup]);
 
-        // Categories are the levelless rows; the severity is the levelled row with the lowest id.
+        // Categories are the levelless rows; the severity is the levelled row with the lowest level.
         $category = $this->insertServiceCategory(level: null);
-        $lowestSeverity = $this->insertServiceCategory(level: 3);
-        $higherSeverity = $this->insertServiceCategory(level: 1);
-        foreach ([$higherSeverity, $category, $lowestSeverity] as $categoryId) {
+        $minorSeverity = $this->insertServiceCategory(level: 3);
+        $criticalSeverity = $this->insertServiceCategory(level: 1);
+        foreach ([$criticalSeverity, $category, $minorSeverity] as $categoryId) {
             $this->linkToServiceCategory($serviceId, $categoryId);
         }
 
@@ -1020,7 +1020,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertInstanceOf(Service::class, $service);
         self::assertSame([$onItsHost], $this->idValues($service->serviceGroupIds));
         self::assertSame([$category], $this->idValues($service->categoryIds));
-        self::assertSame($lowestSeverity, $service->severityId?->value);
+        self::assertSame($criticalSeverity, $service->severityId?->value);
         self::assertSame('first', $service->extendedInformations?->note);
         self::assertSame($firstGraph, $service->graphTemplateId?->value);
     }
@@ -2280,25 +2280,28 @@ final class DbalServiceRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Every levelled category of the service, lowest id first, whatever the actor may see; levelless categories
-     * and other services' severities are left out.
+     * Any levelled category other than the kept one counts, whatever the actor may see; levelless categories and
+     * other services' severities are left out.
      */
-    public function testFindSeverityIdsIsUnscoped(): void
+    public function testHasExtraSeveritiesIsUnscoped(): void
     {
         $hostId = $this->insertListedHost('h1');
         $serviceId = $this->insertListedService('svc', $hostId);
         $otherServiceId = $this->insertListedService('other', $hostId);
+        $singleSeverityServiceId = $this->insertListedService('single', $hostId);
         $secondSeverityId = $this->insertServiceCategory(level: 2);
         $firstSeverityId = $this->insertServiceCategory(level: 1);
         $this->linkToServiceCategory($serviceId, $firstSeverityId);
         $this->linkToServiceCategory($serviceId, $secondSeverityId);
         $this->linkToServiceCategory($serviceId, $this->insertServiceCategory(level: null));
         $this->linkToServiceCategory($otherServiceId, $this->insertServiceCategory(level: 3));
+        $this->linkToServiceCategory($singleSeverityServiceId, $firstSeverityId);
+        $this->linkToServiceCategory($singleSeverityServiceId, $this->insertServiceCategory(level: null));
 
-        self::assertSame(
-            [min($firstSeverityId, $secondSeverityId), max($firstSeverityId, $secondSeverityId)],
-            $this->idValues($this->repository->findSeverityIds(new ServiceId($serviceId))),
-        );
+        self::assertTrue($this->repository->hasExtraSeverities(new ServiceId($serviceId), new ServiceSeverityId($firstSeverityId)));
+        self::assertTrue($this->repository->hasExtraSeverities(new ServiceId($serviceId), null));
+        self::assertFalse($this->repository->hasExtraSeverities(new ServiceId($singleSeverityServiceId), new ServiceSeverityId($firstSeverityId)));
+        self::assertFalse($this->repository->hasExtraSeverities(new ServiceId($this->insertListedService('none', $hostId)), null));
     }
 
     /**

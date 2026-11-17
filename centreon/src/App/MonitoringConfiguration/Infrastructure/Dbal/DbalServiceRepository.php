@@ -364,20 +364,20 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         $this->saveMacros($serviceId, $service->checkOptions->macros);
     }
 
-    public function findSeverityIds(ServiceId $id): Collection
+    public function hasExtraSeverities(ServiceId $id, ?ServiceSeverityId $kept): bool
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('DISTINCT scr.sc_id')
+        $qb->select('1')
             ->from('service_categories_relation', 'scr')
             ->innerJoin('scr', 'service_categories', 'sc', 'sc.sc_id = scr.sc_id')
             ->where($qb->expr()->eq('scr.service_service_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
             ->andWhere('sc.level IS NOT NULL')
-            ->orderBy('scr.sc_id', 'ASC');
+            ->setMaxResults(1);
+        if ($kept instanceof ServiceSeverityId) {
+            $qb->andWhere($qb->expr()->neq('scr.sc_id', $qb->createNamedParameter($kept->value, ParameterType::INTEGER)));
+        }
 
-        return new Collection(
-            array_map(static fn (int $value): ServiceSeverityId => new ServiceSeverityId($value), $this->fetchIds($qb)),
-            ServiceSeverityId::class,
-        );
+        return $qb->executeQuery()->fetchOne() !== false;
     }
 
     public function findLinkedHostStates(ServiceId $id): Collection
@@ -971,10 +971,14 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
     {
         $qb = $this->connection->createQueryBuilder();
 
-        $severity = '(SELECT MIN(scr.sc_id)
+        // A service holds a single severity; legacy may have left several, of which the lowest level (then the
+        // lowest id) is read, as the legacy form does.
+        $severity = '(SELECT scr.sc_id
             FROM service_categories_relation scr
             INNER JOIN service_categories sc ON sc.sc_id = scr.sc_id
-            WHERE scr.service_service_id = s.service_id AND sc.level IS NOT NULL)';
+            WHERE scr.service_service_id = s.service_id AND sc.level IS NOT NULL
+            ORDER BY sc.level ASC, sc.sc_id ASC
+            LIMIT 1)';
 
         $qb->select(
             's.command_command_id AS check_command_id',

@@ -690,7 +690,7 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * No severity submitted: the main severity (the lowest, as read) is cleared when the actor can see it, and the
+     * No severity submitted: the main severity (the one read) is cleared when the actor can see it, and the
      * extra ones go with it.
      */
     public function testNoSeverityClearsAVisibleMainOneAndTheExtraOnes(): void
@@ -712,7 +712,7 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
     public function testNoSeverityKeepsAHiddenMainOneAndDropsTheExtraOnes(): void
     {
         $this->seedEveryReference();
-        $this->serviceRepository->storedSeverityIds[self::SERVICE_ID] = [72, 71];
+        $this->serviceRepository->storedSeverityIds[self::SERVICE_ID] = [71, 72];
         $this->restrictTheActor();
 
         $service = ($this->handler)($this->command(actorId: self::RESTRICTED_USER_ID));
