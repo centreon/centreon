@@ -35,4 +35,9 @@ final readonly class HostState
         public ?PollerId $pollerId,
     ) {
     }
+
+    public function pollerToFlag(): ?PollerId
+    {
+        return $this->activated ? $this->pollerId : null;
+    }
 }
