@@ -44,9 +44,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotifi
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceBuilder;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Repository\AccessGroupRepository;
+use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Domain\Service\AccessScopeResolver;
+use App\Security\Infrastructure\Dbal\CredentialTransformer;
+use App\Security\Infrastructure\Dbal\DbalCredentialRepository;
 use App\Shared\Application\Command\CommandBus;
+use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -54,6 +60,9 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 
+/**
+ * @phpstan-import-type RowTypeAlias from DbalCredentialRepository
+ */
 final class CreateHostProcessorTest extends ApiTestCase
 {
     use InsertsMonitoringConnectorTemplates;
@@ -1395,12 +1404,18 @@ final class CreateHostProcessorTest extends ApiTestCase
         $this->assertReferenceIsRejected('severity_id', $categoryId, login: false);
     }
 
+    /**
+     * The services of the templates are deployed after the host is committed, in their own transaction: a refused
+     * alias rolls the whole deployment back, never the host, and the client still gets its HTTP 201.
+     */
     public function testItCreatesAHostWithTemplatesAndRelatedHosts(): void
     {
         $this->login();
         $pollerId = $this->insertPoller('Central');
         $firstTemplateId = $this->insertHostTemplate($this->uniqueName('generic'));
         $secondTemplateId = $this->insertHostTemplate($this->uniqueName('linux'));
+        $this->insertServiceTemplate($this->uniqueName('ping'), $secondTemplateId, 'Ping');
+        $this->insertServiceTemplate($this->uniqueName('bad'), $secondTemplateId, 'bad=alias');
         $parentId = $this->insertHost($this->uniqueName('router'), $pollerId);
         $childId = $this->insertHost($this->uniqueName('vm'), $pollerId);
 
@@ -1410,8 +1425,6 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'address' => '10.0.0.50',
                 'poller_id' => $pollerId,
                 'template_ids' => [$secondTemplateId, $firstTemplateId, $secondTemplateId],
-                // Nothing here asserts deployment, and leaving it on would boot the legacy kernel.
-                'create_services_linked_to_templates' => false,
                 'parent_host_ids' => [$parentId],
                 'child_host_ids' => [$childId],
             ],
@@ -1448,6 +1461,53 @@ final class CreateHostProcessorTest extends ApiTestCase
             [$childId],
             $this->intColumn('SELECT host_host_id FROM host_hostparent_relation WHERE host_parent_hp_id = ?', $hostId),
         );
+        self::assertSame([], $this->intColumn('SELECT service_service_id FROM host_service_relation WHERE host_host_id = ?', $hostId));
+    }
+
+    /**
+     * A Cloud admin escapes resource scoping (customer_admin_acl), so the services are deployed without any
+     * centreon_acl row granting the new host.
+     */
+    public function testACloudAdminGetsTheServicesOfTheTemplatesOfTheHostItCreates(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('generic'));
+        $serviceTemplateId = $this->insertServiceTemplate($this->uniqueName('ping'), $templateId, 'Ping');
+        $username = bin2hex(random_bytes(8));
+        $contactId = $this->createNonAdminContact($username);
+        $this->grantHostReadAndWriteTopologyRole($contactId);
+        $this->addContactToCustomerAdminAclGroup($contactId);
+        $this->forceCloudCredentials();
+        $this->login($username);
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.51',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var int $hostId */
+        $hostId = $response->toArray()['id'];
+        /** @var list<array{service_description: string, service_template_model_stm_id: int|string}> $services */
+        $services = $this->connection->fetchAllAssociative(
+            'SELECT s.service_description, s.service_template_model_stm_id
+                FROM service s
+                JOIN host_service_relation hsr ON hsr.service_service_id = s.service_id
+                WHERE hsr.host_host_id = ?',
+            [$hostId],
+        );
+        self::assertSame(
+            [['Ping', $serviceTemplateId]],
+            array_map(static fn (array $row): array => [$row['service_description'], (int) $row['service_template_model_stm_id']], $services),
+        );
+        // A restricted creator would get the services too, through the rows granting it the new host.
+        /** @var int|string $aclRows */
+        $aclRows = $this->realTimeConnection->fetchOne('SELECT COUNT(*) FROM centreon_acl WHERE host_id = ?', [$hostId]);
+        self::assertSame(0, (int) $aclRows);
     }
 
     public function testItRejectsAnUnknownTemplate(): void
@@ -1530,10 +1590,8 @@ final class CreateHostProcessorTest extends ApiTestCase
     }
 
     /**
-     * The toggle is honoured in `CreateHostCommandHandler`, which is where it is unit-tested: the
-     * legacy deployer runs on its own connection and cannot see this test's open transaction, so
-     * an end-to-end assertion on the created services is not reachable here. What this pins is the
-     * binding — a non-boolean must be refused rather than silently ignored.
+     * The toggle is honoured in `CreateHostCommandHandler`, which is where it is unit-tested. What
+     * this pins is the binding: a non-boolean must be refused rather than silently ignored.
      */
     public function testItRejectsANonBooleanServiceDeploymentToggle(): void
     {
@@ -2820,6 +2878,55 @@ final class CreateHostProcessorTest extends ApiTestCase
         $this->connection->insert('host', ['host_name' => $name, 'host_register' => '0']);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertServiceTemplate(string $name, int $hostTemplateId, string $alias): int
+    {
+        $this->connection->insert('service', [
+            'service_description' => $name,
+            'service_alias' => $alias,
+            'service_register' => '0',
+        ]);
+        $serviceTemplateId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('host_service_relation', ['host_host_id' => $hostTemplateId, 'service_service_id' => $serviceTemplateId]);
+
+        return $serviceTemplateId;
+    }
+
+    private function addContactToCustomerAdminAclGroup(int $contactId): void
+    {
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'customer_admin_acl',
+            'acl_group_alias' => 'customer_admin_acl',
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+    }
+
+    /**
+     * `Credential::hasUnrestrictedResourceAccess()` (customer_admin_acl → ROLE_CLOUD_ADMIN) is resolved once, at
+     * hydration time, by `DbalCredentialRepository`'s own `$isCloudPlatform` (bound from IS_CLOUD_PLATFORM): the
+     * container's repository is replaced by one built for Cloud, reusing its other real dependencies. Must run
+     * before the request is made.
+     */
+    private function forceCloudCredentials(): void
+    {
+        $container = self::getContainer();
+
+        /** @var TransformerInterface<RowTypeAlias, Credential> $transformer */
+        $transformer = $container->get(CredentialTransformer::class);
+        /** @var AccessGroupRepository $accessGroupRepository */
+        $accessGroupRepository = $container->get(AccessGroupRepository::class);
+
+        $container->set(
+            CredentialRepository::class,
+            new DbalCredentialRepository($this->connection, $transformer, $accessGroupRepository, true),
+        );
     }
 
     private function assertReferenceIsRejected(string $field, mixed $value, bool $login = true): void
