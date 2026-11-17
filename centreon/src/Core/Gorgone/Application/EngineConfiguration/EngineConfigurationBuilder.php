@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\Gorgone\Application\EngineConfiguration;
 
 /**
- * Builds the JSON configuration of a poller run by centreon-engine (schema engine-configuration.v2.json)
+ * Builds the JSON configuration of a poller run by centreon-engine (schema engine-configuration.v3.json)
  * from the attributes the .cfg generator writes, as it writes them. Only the fields of the schema are
  * kept: centreon-engine refuses a document with an unknown field. Values are kept as written, "encrypt::"
  * and "raw::" included: centreon-engine reads them as Engine does, with the key of the engine_context target.
@@ -38,8 +38,11 @@ final class EngineConfigurationBuilder
     public const FEATURE_FLAG = 'engine_structured_configuration';
     public const ENGINE_NAME = 'centreon-engine';
     public const FILE_NAME = 'engine-configuration.json';
-    /** Version 2: timeperiods, check periods, time zones, recurring downtimes, encrypted values. */
-    public const VERSION = 2;
+    /**
+     * Version 2: timeperiods, check periods, time zones, recurring downtimes, encrypted values.
+     * Version 3: groups, severities, tags, parents, dependencies, acknowledgement timeouts, event log settings.
+     */
+    public const VERSION = 3;
     public const KIND_HOST = 'host';
     public const KIND_HOST_TEMPLATE = 'host_template';
     public const KIND_SERVICE = 'service';
@@ -47,12 +50,25 @@ final class EngineConfigurationBuilder
     public const KIND_COMMAND = 'command';
     public const KIND_TIMEPERIOD = 'timeperiod';
     public const KIND_RECURRING_DOWNTIME = 'recurring_downtime';
+    public const KIND_HOSTGROUP = 'hostgroup';
+    public const KIND_SERVICEGROUP = 'servicegroup';
+    public const KIND_SEVERITY = 'severity';
+    public const KIND_TAG = 'tag';
+    public const KIND_HOST_DEPENDENCY = 'host_dependency';
+    public const KIND_SERVICE_DEPENDENCY = 'service_dependency';
+    /** Host of the meta-services, which the document does not carry: what refers to it is left out. */
+    private const META_HOST = '_Module_Meta';
 
     private const STRING_FIELDS = [
         self::KIND_HOST => ['host_name', 'alias', 'address', 'check_command', 'check_period', 'timezone'],
         self::KIND_SERVICE => ['host_name', 'service_description', 'check_command', 'check_period'],
     ];
-    private const INTEGER_FIELDS = ['check_interval', 'retry_interval', 'max_check_attempts'];
+    private const INTEGER_FIELDS = [
+        'check_interval', 'retry_interval', 'max_check_attempts', 'icon_id', 'acknowledgement_timeout',
+    ];
+    /** Lists of names, and lists of ids, of hosts and services. */
+    private const NAME_LISTS = [self::KIND_HOST => ['parents'], self::KIND_SERVICE => []];
+    private const ID_LISTS = ['category_tags', 'group_tags'];
     private const BOOLEAN_FIELDS = ['active_checks_enabled', 'passive_checks_enabled'];
     private const ID_MACROS = [
         self::KIND_HOST => ['_HOST_ID', 'host_id'],
@@ -66,6 +82,17 @@ final class EngineConfigurationBuilder
         'max_host_check_spread' => 0,
         'status_update_interval' => 0,
         'retention_update_interval' => 0,
+        'cached_host_check_horizon' => 0,
+    ];
+    private const BOOLEAN_SETTINGS = [
+        'use_retained_scheduling_info', 'log_service_retries', 'log_host_retries', 'log_external_commands',
+        'log_passive_checks', 'soft_state_dependencies', 'enable_predictive_host_dependency_checks',
+        'enable_predictive_service_dependency_checks',
+    ];
+    private const LOG_LEVEL_SETTINGS = ['log_level_events', 'log_level_checks', 'log_level_external_command'];
+    private const DEPENDENCY_LISTS = [
+        'host_name', 'hostgroup_name', 'dependent_host_name', 'dependent_hostgroup_name', 'service_description',
+        'servicegroup_name', 'dependent_service_description', 'dependent_servicegroup_name',
     ];
     private const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     /** Attributes of timeperiods.cfg that are not exceptions. */
@@ -79,6 +106,12 @@ final class EngineConfigurationBuilder
         self::KIND_SERVICE => 'services',
         self::KIND_TIMEPERIOD => 'timeperiods',
         self::KIND_RECURRING_DOWNTIME => 'recurring_downtimes',
+        self::KIND_HOSTGROUP => 'hostgroups',
+        self::KIND_SERVICEGROUP => 'servicegroups',
+        self::KIND_SEVERITY => 'severities',
+        self::KIND_TAG => 'tags',
+        self::KIND_HOST_DEPENDENCY => 'host_dependencies',
+        self::KIND_SERVICE_DEPENDENCY => 'service_dependencies',
     ];
 
     /** @var array<string, int|string|bool> */
@@ -122,9 +155,16 @@ final class EngineConfigurationBuilder
             self::KIND_HOST_TEMPLATE => $this->mapMonitoredObject(self::KIND_HOST, $written, true),
             self::KIND_SERVICE_TEMPLATE => $this->mapMonitoredObject(self::KIND_SERVICE, $written, true),
             self::KIND_TIMEPERIOD => $this->mapTimeperiod($written),
+            self::KIND_HOSTGROUP => $this->mapHostgroup($written),
+            self::KIND_SERVICEGROUP => $this->mapServicegroup($written),
+            self::KIND_SEVERITY => $this->mapSeverity($written),
+            self::KIND_TAG => $this->mapTag($written),
+            self::KIND_HOST_DEPENDENCY, self::KIND_SERVICE_DEPENDENCY => $this->mapDependency($written),
             default => throw new \InvalidArgumentException(sprintf('Unknown object kind "%s"', $kind)),
         };
-        $this->objects[self::COLLECTIONS[$kind]][] = $object;
+        if ($object !== null) {
+            $this->objects[self::COLLECTIONS[$kind]][] = $object;
+        }
     }
 
     /**
@@ -165,9 +205,17 @@ final class EngineConfigurationBuilder
         if (is_string($timezone) && $timezone !== '') {
             $this->settings['use_timezone'] = $timezone;
         }
-        $retained = $written['use_retained_scheduling_info'] ?? null;
-        if ($retained === '0' || $retained === '1') {
-            $this->settings['use_retained_scheduling_info'] = $retained === '1';
+        foreach (self::BOOLEAN_SETTINGS as $name) {
+            $value = $written[$name] ?? null;
+            if ($value === '0' || $value === '1') {
+                $this->settings[$name] = $value === '1';
+            }
+        }
+        foreach (self::LOG_LEVEL_SETTINGS as $name) {
+            $value = $written[$name] ?? null;
+            if (is_string($value) && $value !== '') {
+                $this->settings[$name] = $value;
+            }
         }
     }
 
@@ -377,6 +425,26 @@ final class EngineConfigurationBuilder
                 $object[$field] = $value === '1';
             }
         }
+        foreach (self::NAME_LISTS[$kind] as $field) {
+            $names = self::names($written[$field] ?? []);
+            if ($names !== []) {
+                $object[$field] = $names;
+            }
+        }
+        foreach (self::ID_LISTS as $field) {
+            $ids = array_map(
+                static fn (string $id): int => self::toInteger($id, $field, $label, 1),
+                self::names($written[$field] ?? [])
+            );
+            if ($ids !== []) {
+                $object[$field] = $ids;
+            }
+        }
+        // The generator writes the severity with the macros ("severity" => id).
+        $severity = $written['severity'] ?? null;
+        if (is_string($severity) && $severity !== '') {
+            $object['severity_id'] = self::toInteger($severity, 'severity', $label, 1);
+        }
 
         [$idMacro, $idField] = self::ID_MACROS[$kind];
         $macros = [];
@@ -396,6 +464,185 @@ final class EngineConfigurationBuilder
         }
 
         return $object;
+    }
+
+    /**
+     * @param string|list<string> $value a list, or one comma-separated value
+     *
+     * @return list<string>
+     */
+    private static function names(string|array $value): array
+    {
+        $names = is_array($value) ? $value : explode(',', $value);
+
+        return array_values(array_filter(
+            array_map(static fn ($name): string => trim((string) $name), $names),
+            static fn (string $name): bool => $name !== ''
+        ));
+    }
+
+    /**
+     * hostgroups.cfg: id, name, alias and the member hosts.
+     *
+     * @param _Written $written
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array<string, mixed>
+     */
+    private function mapHostgroup(array $written): array
+    {
+        $name = $written['hostgroup_name'] ?? '';
+        if (! is_string($name) || $name === '') {
+            throw new \InvalidArgumentException('A host group needs a hostgroup_name');
+        }
+        $group = [];
+        if (isset($written['hostgroup_id']) && is_string($written['hostgroup_id'])) {
+            $group['hostgroup_id'] = self::toInteger(
+                $written['hostgroup_id'],
+                'hostgroup_id',
+                "host group \"{$name}\"",
+                1
+            );
+        }
+        $group['hostgroup_name'] = $name;
+        if (isset($written['alias']) && is_string($written['alias'])) {
+            $group['alias'] = $written['alias'];
+        }
+        $members = array_values(array_filter(
+            self::names($written['members'] ?? []),
+            static fn (string $host): bool => $host !== self::META_HOST
+        ));
+        if ($members !== []) {
+            $group['members'] = $members;
+        }
+
+        return $group;
+    }
+
+    /**
+     * servicegroups.cfg: id, name, alias and the members, written as host, service, host, service...
+     *
+     * @param _Written $written
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array<string, mixed>
+     */
+    private function mapServicegroup(array $written): array
+    {
+        $name = $written['servicegroup_name'] ?? '';
+        if (! is_string($name) || $name === '') {
+            throw new \InvalidArgumentException('A service group needs a servicegroup_name');
+        }
+        $group = [];
+        if (isset($written['servicegroup_id']) && is_string($written['servicegroup_id'])) {
+            $group['servicegroup_id'] = self::toInteger(
+                $written['servicegroup_id'],
+                'servicegroup_id',
+                "service group \"{$name}\"",
+                1
+            );
+        }
+        $group['servicegroup_name'] = $name;
+        if (isset($written['alias']) && is_string($written['alias'])) {
+            $group['alias'] = $written['alias'];
+        }
+        $members = [];
+        foreach (array_chunk(self::names($written['members'] ?? []), 2) as $pair) {
+            if (count($pair) === 2 && $pair[0] !== self::META_HOST) {
+                $members[] = $pair;
+            }
+        }
+        if ($members !== []) {
+            $group['members'] = $members;
+        }
+
+        return $group;
+    }
+
+    /**
+     * severities.cfg.
+     *
+     * @param _Written $written
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array<string, mixed>
+     */
+    private function mapSeverity(array $written): array
+    {
+        $name = $written['severity_name'] ?? '';
+        if (! is_string($name) || $name === '') {
+            throw new \InvalidArgumentException('A severity needs a severity_name');
+        }
+        $label = "severity \"{$name}\"";
+        $severity = [
+            'id' => self::toInteger((string) ($written['id'] ?? ''), 'id', $label, 1),
+            'severity_name' => $name,
+            'level' => self::toInteger((string) ($written['level'] ?? ''), 'level', $label, 1),
+        ];
+        if (isset($written['icon_id']) && is_string($written['icon_id'])) {
+            $severity['icon_id'] = self::toInteger($written['icon_id'], 'icon_id', $label, 0);
+        }
+        $severity['type'] = (string) ($written['type'] ?? '');
+
+        return $severity;
+    }
+
+    /**
+     * tags.cfg: host and service categories, host and service groups.
+     *
+     * @param _Written $written
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array<string, mixed>
+     */
+    private function mapTag(array $written): array
+    {
+        $name = $written['tag_name'] ?? '';
+        if (! is_string($name) || $name === '') {
+            throw new \InvalidArgumentException('A tag needs a tag_name');
+        }
+
+        return [
+            'id' => self::toInteger((string) ($written['id'] ?? ''), 'id', "tag \"{$name}\"", 1),
+            'tag_name' => $name,
+            'type' => (string) ($written['type'] ?? ''),
+        ];
+    }
+
+    /**
+     * dependencies.cfg: a host or service dependency; one on a meta-service is left out.
+     *
+     * @param _Written $written
+     *
+     * @return array<string, mixed>|null
+     */
+    private function mapDependency(array $written): ?array
+    {
+        $dependency = [];
+        foreach (self::DEPENDENCY_LISTS as $field) {
+            $names = self::names($written[$field] ?? []);
+            if (in_array(self::META_HOST, $names, true)) {
+                return null;
+            }
+            if ($names !== []) {
+                $dependency[$field] = $names;
+            }
+        }
+        foreach (['execution_failure_criteria', 'notification_failure_criteria', 'dependency_period'] as $field) {
+            if (isset($written[$field]) && is_string($written[$field]) && $written[$field] !== '') {
+                $dependency[$field] = $written[$field];
+            }
+        }
+        $inherits = $written['inherits_parent'] ?? null;
+        if ($inherits === '0' || $inherits === '1') {
+            $dependency['inherits_parent'] = $inherits === '1';
+        }
+
+        return $dependency;
     }
 
     /**

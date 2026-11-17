@@ -37,6 +37,19 @@ final class EngineConfigurationCapture
         'Timeperiod' => EngineConfigurationBuilder::KIND_TIMEPERIOD,
     ];
 
+    /**
+     * Objects by the type of their .cfg definition, for the generator classes that write several types
+     * (Hostgroup and Servicegroup also write tags, Dependency host and service dependencies).
+     */
+    private const OBJECT_KINDS = [
+        'hostgroup' => EngineConfigurationBuilder::KIND_HOSTGROUP,
+        'servicegroup' => EngineConfigurationBuilder::KIND_SERVICEGROUP,
+        'severity' => EngineConfigurationBuilder::KIND_SEVERITY,
+        'tag' => EngineConfigurationBuilder::KIND_TAG,
+        'hostdependency' => EngineConfigurationBuilder::KIND_HOST_DEPENDENCY,
+        'servicedependency' => EngineConfigurationBuilder::KIND_SERVICE_DEPENDENCY,
+    ];
+
     private static ?EngineConfigurationBuilder $builder = null;
 
     public static function start(EngineConfigurationBuilder $builder): void
@@ -57,8 +70,9 @@ final class EngineConfigurationCapture
     /**
      * @param string $class generator class which wrote the object
      * @param array<string, string|list<string>> $written attributes as written in the .cfg file
+     * @param string $objectName type of the .cfg definition ("define <type>")
      */
-    public static function record(string $class, array $written): void
+    public static function record(string $class, array $written, string $objectName = ''): void
     {
         if (self::$builder === null) {
             return;
@@ -69,6 +83,8 @@ final class EngineConfigurationCapture
             self::$builder->setEngineSettings($written);
         } elseif (isset(self::KINDS[$class])) {
             self::$builder->addObject(self::KINDS[$class], $written);
+        } elseif (isset(self::OBJECT_KINDS[$objectName])) {
+            self::$builder->addObject(self::OBJECT_KINDS[$objectName], $written);
         }
     }
 

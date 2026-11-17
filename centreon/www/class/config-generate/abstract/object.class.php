@@ -499,6 +499,7 @@ abstract class AbstractObject
             }
         }
 
-        EngineConfigurationCapture::record(static::class, $written);
+        // Resource and Engine set no object_name.
+        EngineConfigurationCapture::record(static::class, $written, $this->object_name ?? '');
     }
 }

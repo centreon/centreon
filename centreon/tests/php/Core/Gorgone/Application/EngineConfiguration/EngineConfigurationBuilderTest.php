@@ -37,7 +37,7 @@ beforeEach(function (): void {
 
 it('should build the smallest document from the poller and its broker module', function (): void {
     expect($this->builder->build())->toBe([
-        'version' => 2,
+        'version' => 3,
         'poller' => ['id' => 3, 'name' => 'poller-3'],
         'broker' => ['address' => '10.0.0.1:5669', 'name' => 'poller-3-module'],
     ]);
@@ -60,7 +60,12 @@ it('should map a host as written in hosts.cfg, keeping only the fields of the sc
         'notifications_enabled' => '1',
         'use' => ['generic-host', 'OS-Linux'],
         'parents' => ['srv-0'],
+        'category_tags' => ['3', '5'],
         'group_tags' => ['4'],
+        'severity' => '2',
+        'icon_id' => '9',
+        'acknowledgement_timeout' => '30',
+        'notes' => 'not sent',
         '_HOST_ID' => '12',
         '_SNMPCOMMUNITY' => 'public',
         '_SNMPVERSION' => '2c',
@@ -80,8 +85,14 @@ it('should map a host as written in hosts.cfg, keeping only the fields of the sc
         'check_interval' => 5,
         'retry_interval' => 1,
         'max_check_attempts' => 3,
+        'icon_id' => 9,
+        'acknowledgement_timeout' => 30,
         'active_checks_enabled' => true,
         'passive_checks_enabled' => false,
+        'parents' => ['srv-0'],
+        'category_tags' => [3, 5],
+        'group_tags' => [4],
+        'severity_id' => 2,
         'host_id' => 12,
         // Values as written: centreon-engine strips raw:: and decrypts encrypt::.
         'macros' => [
@@ -93,7 +104,7 @@ it('should map a host as written in hosts.cfg, keeping only the fields of the sc
     ]]);
 });
 
-it('should map a service with its host name and _SERVICE_ID, without the severity', function (): void {
+it('should map a service with its host name, _SERVICE_ID, severity and tags', function (): void {
     $this->builder->addObject(EngineConfigurationBuilder::KIND_SERVICE, [
         'host_name' => 'srv-1',
         'service_description' => 'Ping',
@@ -102,6 +113,7 @@ it('should map a service with its host name and _SERVICE_ID, without the severit
         '_SERVICE_ID' => '42',
         '_CRITICALITY_LEVEL' => '1',
         'severity' => '7',
+        'group_tags' => ['30', '31'],
     ]);
 
     expect($this->builder->build()['services'])->toBe([[
@@ -109,6 +121,8 @@ it('should map a service with its host name and _SERVICE_ID, without the severit
         'host_name' => 'srv-1',
         'service_description' => 'Ping',
         'check_interval' => 10,
+        'group_tags' => [30, 31],
+        'severity_id' => 7,
         'service_id' => 42,
         'macros' => ['CRITICALITY_LEVEL' => '1'],
     ]]);
@@ -169,6 +183,12 @@ it('should map the commands, resource macros and engine settings', function (): 
         'retention_update_interval' => '15',
         'use_timezone' => ':Europe/Paris',
         'use_retained_scheduling_info' => '1',
+        'log_service_retries' => '1',
+        'log_host_retries' => '0',
+        'soft_state_dependencies' => '2',
+        'cached_host_check_horizon' => '15',
+        'log_level_events' => 'info',
+        'log_level_external_command' => 'err',
         'log_file' => '/var/log/centreon-engine/centengine.log',
         'cfg_file' => ['/etc/centreon-engine/hosts.cfg'],
     ]);
@@ -189,8 +209,13 @@ it('should map the commands, resource macros and engine settings', function (): 
         'max_host_check_spread' => 15,
         'status_update_interval' => 30,
         'retention_update_interval' => 15,
+        'cached_host_check_horizon' => 15,
         'use_timezone' => ':Europe/Paris',
         'use_retained_scheduling_info' => true,
+        'log_service_retries' => true,
+        'log_host_retries' => false,
+        'log_level_events' => 'info',
+        'log_level_external_command' => 'err',
     ])->and(array_keys($document))->toBe(
         ['version', 'poller', 'broker', 'settings', 'resource_macros', 'commands']
     );
@@ -301,6 +326,115 @@ it('should map a recurring downtime as the generator writes it', function (): vo
     ]))->toThrow(\InvalidArgumentException::class, 'Invalid service id "14"');
 });
 
+it('should map groups, severities and tags as the generator writes them', function (): void {
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_HOSTGROUP, [
+        'hostgroup_id' => '4',
+        'hostgroup_name' => 'Linux',
+        'alias' => 'Linux servers',
+        'members' => ['srv-1', 'srv-2'],
+    ]);
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_SERVICEGROUP, [
+        'servicegroup_id' => '30',
+        'servicegroup_name' => 'Pings',
+        'alias' => 'Pings',
+        'members' => ['srv-1', 'Ping', 'srv-2', 'Ping', '_Module_Meta', 'meta_1'],
+    ]);
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_SEVERITY, [
+        'id' => '2',
+        'severity_name' => 'Critical',
+        'level' => '1',
+        'icon_id' => '5',
+        'type' => 'host',
+    ]);
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_TAG, [
+        'id' => '4',
+        'tag_name' => 'Linux',
+        'type' => 'hostgroup',
+    ]);
+
+    $document = $this->builder->build();
+    expect($document['hostgroups'])->toBe([[
+        'hostgroup_id' => 4,
+        'hostgroup_name' => 'Linux',
+        'alias' => 'Linux servers',
+        'members' => ['srv-1', 'srv-2'],
+    ]])->and($document['servicegroups'])->toBe([[
+        'servicegroup_id' => 30,
+        'servicegroup_name' => 'Pings',
+        'alias' => 'Pings',
+        'members' => [['srv-1', 'Ping'], ['srv-2', 'Ping']],
+    ]])->and($document['severities'])->toBe([[
+        'id' => 2,
+        'severity_name' => 'Critical',
+        'level' => 1,
+        'icon_id' => 5,
+        'type' => 'host',
+    ]])->and($document['tags'])->toBe([['id' => 4, 'tag_name' => 'Linux', 'type' => 'hostgroup']]);
+});
+
+it('should map the dependencies, leaving out those of meta-services', function (): void {
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_SERVICE_DEPENDENCY, [
+        ';dependency_name' => 'web-db',
+        'execution_failure_criteria' => 'c,u',
+        'notification_failure_criteria' => 'w,c',
+        'inherits_parent' => '1',
+        'host_name' => ['db-1'],
+        'service_description' => ['MySQL'],
+        'dependent_host_name' => ['web-1'],
+        'dependent_service_description' => ['HTTP'],
+    ]);
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_HOST_DEPENDENCY, [
+        'execution_failure_criteria' => 'd',
+        'inherits_parent' => '0',
+        'hostgroup_name' => ['Routers'],
+        'dependent_hostgroup_name' => ['Linux'],
+    ]);
+    $this->builder->addObject(EngineConfigurationBuilder::KIND_SERVICE_DEPENDENCY, [
+        'host_name' => ['_Module_Meta'],
+        'service_description' => ['meta_1'],
+        'dependent_host_name' => ['_Module_Meta'],
+        'dependent_service_description' => ['meta_2'],
+    ]);
+
+    $document = $this->builder->build();
+    expect($document['service_dependencies'])->toBe([[
+        'host_name' => ['db-1'],
+        'dependent_host_name' => ['web-1'],
+        'service_description' => ['MySQL'],
+        'dependent_service_description' => ['HTTP'],
+        'execution_failure_criteria' => 'c,u',
+        'notification_failure_criteria' => 'w,c',
+        'inherits_parent' => true,
+    ]])->and($document['host_dependencies'])->toBe([[
+        'hostgroup_name' => ['Routers'],
+        'dependent_hostgroup_name' => ['Linux'],
+        'execution_failure_criteria' => 'd',
+        'inherits_parent' => false,
+    ]]);
+});
+
+it('should refuse a relation centreon-engine could not read', function (string $kind, array $written, string $message): void {
+    expect(fn () => $this->builder->addObject($kind, $written))
+        ->toThrow(\InvalidArgumentException::class, $message);
+})->with([
+    'group without name' => [EngineConfigurationBuilder::KIND_HOSTGROUP, ['alias' => 'x'], 'hostgroup_name'],
+    'severity without level' => [
+        EngineConfigurationBuilder::KIND_SEVERITY,
+        ['id' => '1', 'severity_name' => 'x', 'type' => 'host'],
+        'Invalid value "" for level of severity "x"',
+    ],
+    'tag with a bad id' => [
+        EngineConfigurationBuilder::KIND_TAG,
+        ['id' => 'x', 'tag_name' => 't', 'type' => 'hostgroup'],
+        'Invalid value "x" for id of tag "t"',
+    ],
+    'host with a bad tag' => [
+        EngineConfigurationBuilder::KIND_HOST,
+        ['host_name' => 'h', 'category_tags' => ['a']],
+        'Invalid value "a" for category_tags of host "h"',
+    ],
+]);
+
 it('should match the schema the engine reads', function (): void {
     $schemaFile = getenv('ENGINE_CONFIGURATION_SCHEMA');
     if (! is_string($schemaFile) || ! is_file($schemaFile)) {
@@ -308,10 +442,29 @@ it('should match the schema the engine reads', function (): void {
     }
     $schema = json_decode((string) file_get_contents($schemaFile), true, 512, JSON_THROW_ON_ERROR);
     expect($schema['properties']['version']['const'])->toBe(EngineConfigurationBuilder::VERSION)
-        ->and(array_keys($schema['properties']))->toContain('timeperiods', 'recurring_downtimes')
-        ->and(array_keys($schema['$defs']['host']['properties']))->toContain('check_period', 'timezone')
+        ->and(array_keys($schema['properties']))->toContain(
+            'timeperiods',
+            'recurring_downtimes',
+            'hostgroups',
+            'servicegroups',
+            'severities',
+            'tags',
+            'host_dependencies',
+            'service_dependencies'
+        )
+        ->and(array_keys($schema['$defs']['host']['properties']))
+        ->toContain('check_period', 'timezone', 'parents', 'category_tags', 'group_tags', 'severity_id')
+        ->and(array_keys($schema['$defs']['service']['properties']))
+        ->toContain('category_tags', 'group_tags', 'severity_id', 'icon_id', 'acknowledgement_timeout')
         ->and(array_keys($schema['properties']['settings']['properties']))
-        ->toContain('use_timezone', 'retention_update_interval', 'use_retained_scheduling_info');
+        ->toContain(
+            'use_timezone',
+            'retention_update_interval',
+            'use_retained_scheduling_info',
+            'log_service_retries',
+            'log_level_external_command',
+            'cached_host_check_horizon'
+        );
 });
 
 it('should write the maps as JSON objects', function (): void {
