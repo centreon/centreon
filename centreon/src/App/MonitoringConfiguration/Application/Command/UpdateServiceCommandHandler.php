@@ -35,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
@@ -108,9 +109,9 @@ use App\Shared\Domain\VaultInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Full replace (PUT) of a service; an update that changes nothing writes nothing and fires nothing. Duplicates
- * {@see CreateServiceCommandHandler}'s checks, in the same order, rather than sharing them, so a change made for
- * the update never reaches the create path.
+ * Full replace of a service; an update that changes nothing writes nothing and fires nothing. Duplicates
+ * {@see CreateServiceCommandHandler}'s checks, in the same order, so a change made for the update never reaches the
+ * create path.
  */
 #[AsCommandHandler]
 final readonly class UpdateServiceCommandHandler
@@ -258,28 +259,25 @@ final readonly class UpdateServiceCommandHandler
         [$macros, $passwordRewritten, $vaultWritten] = $this->vaultPasswords($existing, $resolvedMacros);
 
         try {
-            $service = $existing->with(
-                name: $command->name,
-                hostId: $command->hostId,
-                hostActivated: $host->activated,
-                hostPollerId: $host->pollerId,
-                activated: $command->activated,
-                templateId: $command->templateId,
-                checkOptions: new ServiceCheckOptions($command->checkCommandId, $command->checkCommandArgs, $macros),
-                schedulingOptions: $command->schedulingOptions,
-                notifications: $notifications,
-                // A Centreon Monitoring Agent command set on the service pushes its results: its freshness is
-                // always checked. One inherited from the template does not count, as legacy.
-                dataProcessing: $checkCommand?->isCentreonMonitoringAgent() === true
+            $service = clone $existing;
+            $service->rename($command->name);
+            $service->moveToHost($command->hostId, $host);
+            $command->activated ? $service->enable() : $service->disable();
+            $service->changeTemplate($command->templateId);
+            $service->changeCheckOptions(new ServiceCheckOptions($command->checkCommandId, $command->checkCommandArgs, $macros));
+            $service->changeSchedulingOptions($command->schedulingOptions);
+            if (! $notifications instanceof NoValue) {
+                $service->changeNotifications($notifications);
+            }
+            // A Centreon Monitoring Agent check command set here forces the freshness check; one inherited does not.
+            $service->changeDataProcessing(
+                $checkCommand?->isCentreonMonitoringAgent() === true
                     ? $command->dataProcessing->withCentreonMonitoringAgentFreshness()
                     : $command->dataProcessing,
-                extendedInformations: $command->extendedInformations,
-                graphTemplateId: $command->graphTemplateId,
-                severityId: $severityId,
-                serviceGroupIds: $serviceGroupIds,
-                categoryIds: $categoryIds,
-                trapIds: $command->trapIds,
             );
+            $service->changeExtendedInformations($command->extendedInformations);
+            $service->changeGraphTemplate($command->graphTemplateId);
+            $service->changeRelations($severityId, $serviceGroupIds, $categoryIds, $command->trapIds);
 
             return $this->save($command, $existing, $service, $passwordRewritten, $extraSeverities);
         } catch (\Throwable $exception) {
@@ -320,6 +318,7 @@ final readonly class UpdateServiceCommandHandler
             return $service;
         }
 
+        $droppedHostLinks = DroppedHostLinks::of($this->repository->findLinkedHostStates($service->id()), $existing, $service);
         $this->repository->update($service);
         $this->repository->replaceRelationsAndMacros($service);
 
@@ -341,11 +340,12 @@ final readonly class UpdateServiceCommandHandler
                 $command->actor->userId->value,
                 previousPollerId: $hostChanged ? $this->previousPollerToFlag($existing, $service) : null,
                 previousHostId: $hostChanged ? $existing->hostId : null,
+                droppedHostLinks: $droppedHostLinks,
             ));
-        } elseif (! $activationFlipped) {
+        } elseif (! $activationFlipped || $droppedHostLinks->hostIds !== []) {
             // Only properties the log leaves out changed: the side effects must still run, without a log line.
-            // (When the activation also flipped, the enable/disable event above already runs them.)
-            $this->eventBus->fire(new ServiceUpdated($service, $command->actor->userId->value, loggable: false));
+            // When the activation also flipped, the enable/disable event above runs them, but not for dropped links.
+            $this->eventBus->fire(new ServiceUpdated($service, $command->actor->userId->value, loggable: false, droppedHostLinks: $droppedHostLinks));
         }
 
         // Deferred (post-commit) purge of the vault entry this update left without any secret: the stored service
@@ -374,13 +374,12 @@ final readonly class UpdateServiceCommandHandler
      */
     private function hasLoggedChange(Service $before, Service $after): bool
     {
-        $comparable = $after->with(
-            checkOptions: new ServiceCheckOptions($after->checkOptions->checkCommandId, $after->checkOptions->args, $before->checkOptions->macros),
-            notifications: $after->notifications?->withContacts(
-                $before->notifications->contactIds ?? new Collection([], NotificationContactId::class),
-                $before->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class),
-            ),
-        );
+        $comparable = clone $after;
+        $comparable->changeCheckOptions(new ServiceCheckOptions($after->checkOptions->checkCommandId, $after->checkOptions->args, $before->checkOptions->macros));
+        $comparable->changeNotifications($after->notifications?->withContacts(
+            $before->notifications->contactIds ?? new Collection([], NotificationContactId::class),
+            $before->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class),
+        ));
 
         return ! $comparable->hasSameConfigurationAs($before);
     }

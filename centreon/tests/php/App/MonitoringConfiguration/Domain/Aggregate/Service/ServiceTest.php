@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -49,7 +50,6 @@ use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
-use App\Shared\Domain\Exception\MissingIdException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
@@ -207,83 +207,52 @@ final class ServiceTest extends TestCase
         self::assertNull($service->getVaultUuid($vault));
     }
 
-    public function testWithKeepsTheIdentityAndEverythingWhenNothingIsProvided(): void
+    public function testItIsChangedThroughItsBusinessMethods(): void
     {
-        $original = $this->persistedService();
+        $service = $this->persistedService();
 
-        $copy = $original->with();
-
-        self::assertNotSame($original, $copy);
-        self::assertSame(42, $copy->id()->value);
-        self::assertTrue($copy->hasSameConfigurationAs($original));
-        self::assertTrue($copy->hasSameRelationsAs($original));
-        self::assertSame([true, true, 3], [$copy->activated, $copy->hostActivated, $copy->hostPollerId?->value]);
-    }
-
-    public function testWithReplacesTheProvidedPropertiesOnly(): void
-    {
-        $original = $this->persistedService();
-
-        $changed = $original->with(
-            name: new ServiceName('other-check'),
-            hostId: new HostId(5),
-            hostActivated: false,
-            hostPollerId: new PollerId(9),
-            activated: false,
-            trapIds: new Collection([new TrapId(13)], TrapId::class),
-        );
+        $service->rename(new ServiceName('other-check'));
+        $service->moveToHost(new HostId(5), new HostState(false, new PollerId(9)));
+        $service->changeTemplate(null);
+        $service->changeGraphTemplate(new GraphTemplateId(8));
+        $service->changeRelations(null, new Collection([], ServiceGroupId::class), new Collection([], ServiceCategoryId::class), new Collection([new TrapId(13)], TrapId::class));
 
         self::assertSame(
-            ['other-check', 5, false, 9, false, [13]],
+            ['other-check', 5, false, 9, null, 8, null, [], [], [13], 42],
             [
-                $changed->name->value,
-                $changed->hostId->value,
-                $changed->hostActivated,
-                $changed->hostPollerId?->value,
-                $changed->activated,
-                array_map(static fn (TrapId $id): int => $id->value, $changed->trapIds->toArray()),
-            ],
-        );
-        self::assertSame($original->checkOptions, $changed->checkOptions);
-        self::assertSame($original->schedulingOptions, $changed->schedulingOptions);
-        self::assertSame($original->notifications, $changed->notifications);
-        self::assertSame($original->dataProcessing, $changed->dataProcessing);
-        self::assertSame($original->extendedInformations, $changed->extendedInformations);
-        self::assertSame($original->serviceGroupIds, $changed->serviceGroupIds);
-        self::assertSame($original->categoryIds, $changed->categoryIds);
-        self::assertSame([7, 4, 6], [$changed->templateId?->value, $changed->graphTemplateId?->value, $changed->severityId?->value]);
-        self::assertSame(['web-check', 1, true], [$original->name->value, $original->hostId->value, $original->activated]);
-    }
-
-    public function testWithClearsAnOptionalPropertySetToNull(): void
-    {
-        $changed = $this->persistedService()->with(
-            hostPollerId: null,
-            templateId: null,
-            notifications: null,
-            extendedInformations: null,
-            graphTemplateId: null,
-            severityId: null,
-        );
-
-        self::assertSame(
-            [null, null, null, null, null, null],
-            [
-                $changed->hostPollerId,
-                $changed->templateId,
-                $changed->notifications,
-                $changed->extendedInformations,
-                $changed->graphTemplateId,
-                $changed->severityId,
+                $service->name->value,
+                $service->hostId->value,
+                $service->hostActivated,
+                $service->hostPollerId?->value,
+                $service->templateId,
+                $service->graphTemplateId?->value,
+                $service->severityId,
+                $service->serviceGroupIds->toArray(),
+                $service->categoryIds->toArray(),
+                array_map(static fn (TrapId $id): int => $id->value, $service->trapIds->toArray()),
+                $service->id()->value,
             ],
         );
     }
 
-    public function testWithRequiresAPersistedService(): void
+    public function testEachSectionIsReplacedAsAWhole(): void
     {
-        $this->expectException(MissingIdException::class);
+        $service = $this->persistedService();
+        $checkOptions = new ServiceCheckOptions(null, ['443']);
+        $schedulingOptions = new ServiceSchedulingOptions(maxCheckAttempts: 2);
+        $dataProcessing = new ServiceDataProcessing(acknowledgmentTimeout: 5);
+        $extendedInformations = new ServiceExtendedInformations(note: 'a note');
 
-        $this->service()->with(name: new ServiceName('other-check'));
+        $service->changeCheckOptions($checkOptions);
+        $service->changeSchedulingOptions($schedulingOptions);
+        $service->changeNotifications(null);
+        $service->changeDataProcessing($dataProcessing);
+        $service->changeExtendedInformations($extendedInformations);
+
+        self::assertSame(
+            [$checkOptions, $schedulingOptions, null, $dataProcessing, $extendedInformations],
+            [$service->checkOptions, $service->schedulingOptions, $service->notifications, $service->dataProcessing, $service->extendedInformations],
+        );
     }
 
     public function testSameConfigurationIgnoresTheActivationAndTheStateOfTheHost(): void
@@ -291,7 +260,10 @@ final class ServiceTest extends TestCase
         $original = $this->persistedService();
 
         self::assertTrue($original->hasSameConfigurationAs(
-            $original->with(activated: false, hostActivated: false, hostPollerId: new PollerId(9)),
+            $this->changed($original, static function (Service $service): void {
+                $service->disable();
+                $service->moveToHost($service->hostId, new HostState(false, new PollerId(9)));
+            }),
         ));
     }
 
@@ -301,19 +273,19 @@ final class ServiceTest extends TestCase
         $original = $this->persistedService();
 
         $changed = match ($field) {
-            'name' => $original->with(name: new ServiceName('other-check')),
-            'host' => $original->with(hostId: new HostId(5)),
-            'template' => $original->with(templateId: new ServiceTemplateId(8)),
-            'no template' => $original->with(templateId: null),
-            'check options' => $original->with(checkOptions: new ServiceCheckOptions(new CommandId(2), ['443'])),
-            'scheduling options' => $original->with(schedulingOptions: new ServiceSchedulingOptions(normalCheckInterval: 6, retryCheckInterval: 1)),
-            'notifications' => $original->with(notifications: $this->notifications(interval: 5)),
-            'no notifications' => $original->with(notifications: null),
-            'contacts' => $original->with(notifications: $this->notifications(contactIds: [21, 22])),
-            'data processing' => $original->with(dataProcessing: new ServiceDataProcessing(obsessOverService: TriStateEnum::True)),
-            'extended information' => $original->with(extendedInformations: new ServiceExtendedInformations(iconId: new MediaId(9))),
-            'no extended information' => $original->with(extendedInformations: null),
-            'graph template' => $original->with(graphTemplateId: new GraphTemplateId(5)),
+            'name' => $this->changed($original, static fn (Service $service) => $service->rename(new ServiceName('other-check'))),
+            'host' => $this->changed($original, static fn (Service $service) => $service->moveToHost(new HostId(5), new HostState(true, new PollerId(3)))),
+            'template' => $this->changed($original, static fn (Service $service) => $service->changeTemplate(new ServiceTemplateId(8))),
+            'no template' => $this->changed($original, static fn (Service $service) => $service->changeTemplate(null)),
+            'check options' => $this->changed($original, static fn (Service $service) => $service->changeCheckOptions(new ServiceCheckOptions(new CommandId(2), ['443']))),
+            'scheduling options' => $this->changed($original, static fn (Service $service) => $service->changeSchedulingOptions(new ServiceSchedulingOptions(normalCheckInterval: 6, retryCheckInterval: 1))),
+            'notifications' => $this->changed($original, fn (Service $service) => $service->changeNotifications($this->notifications(interval: 5))),
+            'no notifications' => $this->changed($original, static fn (Service $service) => $service->changeNotifications(null)),
+            'contacts' => $this->changed($original, fn (Service $service) => $service->changeNotifications($this->notifications(contactIds: [21, 22]))),
+            'data processing' => $this->changed($original, static fn (Service $service) => $service->changeDataProcessing(new ServiceDataProcessing(obsessOverService: TriStateEnum::True))),
+            'extended information' => $this->changed($original, static fn (Service $service) => $service->changeExtendedInformations(new ServiceExtendedInformations(iconId: new MediaId(9)))),
+            'no extended information' => $this->changed($original, static fn (Service $service) => $service->changeExtendedInformations(null)),
+            'graph template' => $this->changed($original, static fn (Service $service) => $service->changeGraphTemplate(new GraphTemplateId(5))),
             default => self::fail("Unknown field {$field}"),
         };
 
@@ -335,16 +307,17 @@ final class ServiceTest extends TestCase
     {
         $original = $this->persistedService();
 
-        $copy = $original->with(
-            checkOptions: new ServiceCheckOptions(new CommandId(2), ['80']),
-            schedulingOptions: new ServiceSchedulingOptions(normalCheckInterval: 5, retryCheckInterval: 1),
-            notifications: $this->notifications(),
-            dataProcessing: new ServiceDataProcessing(obsessOverService: TriStateEnum::False),
-            extendedInformations: new ServiceExtendedInformations(iconId: new MediaId(8)),
-        );
+        $copy = $this->changed($original, function (Service $service): void {
+            $service->changeCheckOptions(new ServiceCheckOptions(new CommandId(2), ['80']));
+            $service->changeSchedulingOptions(new ServiceSchedulingOptions(normalCheckInterval: 5, retryCheckInterval: 1));
+            $service->changeNotifications($this->notifications());
+            $service->changeDataProcessing(new ServiceDataProcessing(obsessOverService: TriStateEnum::False));
+            $service->changeExtendedInformations(new ServiceExtendedInformations(iconId: new MediaId(8)));
+        });
+        $withoutNotifications = static fn (Service $service) => $service->changeNotifications(null);
 
         self::assertTrue($original->hasSameConfigurationAs($copy));
-        self::assertTrue($original->with(notifications: null)->hasSameConfigurationAs($original->with(notifications: null)));
+        self::assertTrue($this->changed($original, $withoutNotifications)->hasSameConfigurationAs($this->changed($original, $withoutNotifications)));
     }
 
     #[DataProvider('relationProvider')]
@@ -376,13 +349,15 @@ final class ServiceTest extends TestCase
 
     public function testSameRelationsComparesTheSets(): void
     {
-        $service = $this->persistedService()->with(
-            serviceGroupIds: new Collection([new ServiceGroupId(1), new ServiceGroupId(2)], ServiceGroupId::class),
+        $groups = static fn (int ...$ids): \Closure => static fn (Service $service) => $service->changeRelations(
+            $service->severityId,
+            new Collection(array_map(static fn (int $id): ServiceGroupId => new ServiceGroupId($id), $ids), ServiceGroupId::class),
+            $service->categoryIds,
+            $service->trapIds,
         );
+        $service = $this->changed($this->persistedService(), $groups(1, 2));
 
-        self::assertTrue($service->hasSameRelationsAs($service->with(
-            serviceGroupIds: new Collection([new ServiceGroupId(2), new ServiceGroupId(1), new ServiceGroupId(2)], ServiceGroupId::class),
-        )));
+        self::assertTrue($service->hasSameRelationsAs($this->changed($service, $groups(2, 1, 2))));
     }
 
     public function testASaveDroppingEverySecretReleasesTheVaultEntry(): void
@@ -432,14 +407,25 @@ final class ServiceTest extends TestCase
         self::assertTrue($after->releasesVaultEntryOf($before, $vault));
     }
 
+    /**
+     * @param \Closure(Service): void $change
+     */
+    private function changed(Service $service, \Closure $change): Service
+    {
+        $copy = clone $service;
+        $change($copy);
+
+        return $copy;
+    }
+
     private function withOtherRelation(Service $service, string $relation): Service
     {
         return match ($relation) {
-            'service groups' => $service->with(serviceGroupIds: new Collection([new ServiceGroupId(10), new ServiceGroupId(14)], ServiceGroupId::class)),
-            'categories' => $service->with(categoryIds: new Collection([], ServiceCategoryId::class)),
-            'severity' => $service->with(severityId: new ServiceSeverityId(15)),
-            'no severity' => $service->with(severityId: null),
-            'traps' => $service->with(trapIds: new Collection([new TrapId(16)], TrapId::class)),
+            'service groups' => $this->changed($service, static fn (Service $copy) => $copy->changeRelations($copy->severityId, new Collection([new ServiceGroupId(10), new ServiceGroupId(14)], ServiceGroupId::class), $copy->categoryIds, $copy->trapIds)),
+            'categories' => $this->changed($service, static fn (Service $copy) => $copy->changeRelations($copy->severityId, $copy->serviceGroupIds, new Collection([], ServiceCategoryId::class), $copy->trapIds)),
+            'severity' => $this->changed($service, static fn (Service $copy) => $copy->changeRelations(new ServiceSeverityId(15), $copy->serviceGroupIds, $copy->categoryIds, $copy->trapIds)),
+            'no severity' => $this->changed($service, static fn (Service $copy) => $copy->changeRelations(null, $copy->serviceGroupIds, $copy->categoryIds, $copy->trapIds)),
+            'traps' => $this->changed($service, static fn (Service $copy) => $copy->changeRelations($copy->severityId, $copy->serviceGroupIds, $copy->categoryIds, new Collection([new TrapId(16)], TrapId::class))),
             default => self::fail("Unknown relation {$relation}"),
         };
     }

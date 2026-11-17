@@ -129,11 +129,14 @@ final readonly class CreateServiceProcessor implements ProcessorInterface
             return $service;
         }
 
-        return $service->with(checkOptions: new ServiceCheckOptions(
+        $answered = clone $service;
+        $answered->changeCheckOptions(new ServiceCheckOptions(
             $service->checkOptions->checkCommandId,
             $service->checkOptions->args,
             array_values($this->serviceRepository->findMacros($service->id())->toArray()),
         ));
+
+        return $answered;
     }
 
     private function schedulingOptions(?ServiceMonitoringEngineInput $input): ServiceSchedulingOptions
