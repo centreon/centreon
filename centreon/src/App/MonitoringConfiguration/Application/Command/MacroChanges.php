@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 
 /**
  * How a partial update changes the custom macros of a host: it replaces them all, writes some of

@@ -32,7 +32,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
@@ -144,6 +144,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
                     404 => new Model\Response('Host not found'),
                     409 => new Model\Response('Host name already used by another host or template'),
                     422 => new Model\Response('Invalid input, or a referenced resource that does not exist or is not accessible'),
+                    502 => new Model\Response('The vault could not be reached'),
                 ],
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",

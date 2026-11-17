@@ -77,7 +77,7 @@ final readonly class DataProcessingInput
         public ?int $highFlapThreshold = null,
 
         #[WhenPlatform(forCloud: true, constraints: [
-            new Assert\Count(max: 0, maxMessage: 'event_handler_args is not available on a Cloud platform.'),
+            new Assert\Count(exactly: 0, exactMessage: 'event_handler_args is not available on a Cloud platform.'),
         ])]
         #[Assert\All([new Assert\Type('string')])]
         #[ValidCommandArguments('event handler')]
