@@ -80,6 +80,13 @@ interface ServiceRepository
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection;
 
     /**
+     * The ids of the services {@see findExclusivelyLinkedToHostId()} returns, nothing hydrated.
+     *
+     * @return Collection<ServiceId>
+     */
+    public function findIdsExclusivelyLinkedToHostId(HostId $hostId): Collection;
+
+    /**
      * The services directly attached to this host that have more than one relation row in total (another host or
      * a hostgroup): the complement of {@see findExclusivelyLinkedToHostId()} among the host's services.
      *

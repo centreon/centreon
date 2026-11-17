@@ -38,13 +38,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
 use App\MonitoringConfiguration\Domain\Event\ServiceDuplicated;
-use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Command\NonTransactionalCommand;
 use App\Shared\Application\Vault\VaultCredentialReader;
 use App\Shared\Application\Vault\VaultCredentialWriter;
-use App\Shared\Domain\Collection;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -63,9 +61,6 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
     private FakeServiceRepository $serviceRepository;
 
     private FakeResourceAccessRepository $resourceAccessRepository;
-
-    /** @var list<int> the service templates the license no longer allows, as evaluated before the host copy */
-    private array $unlicensedServiceTemplateIds = [];
 
     private FakeVault $vault;
 
@@ -117,6 +112,10 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
         $this->duplicate();
 
         self::assertSame(['kept'], array_map(static fn (Service $clone): string => $clone->name->value, $this->clones()));
+        $warning = $this->logger->lastRecord();
+        self::assertNotNull($warning);
+        self::assertSame('warning', $warning['level']);
+        self::assertSame(1, $warning['context']['service_id'] ?? null);
     }
 
     public function testTheCloneCarriesTheSourceMacros(): void
@@ -235,6 +234,7 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
         $exception = $this->duplicateFailing();
 
         self::assertInstanceOf(VaultWriteFailedException::class, $exception);
+        self::assertStringStartsWith('Service 1 was not duplicated', $exception->getMessage());
         self::assertSame('Unable to write vault credential', $exception->getPrevious()?->getMessage());
         self::assertSame([], $this->clones());
     }
@@ -287,6 +287,53 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
         );
     }
 
+    public function testAnEntryMintedForACloneThatFailsToBeBuiltIsPurged(): void
+    {
+        $this->givenTwoVaultedServices();
+        // Longer than a macro value may be: the clone cannot be built once its secret is written.
+        $this->vault->writtenPaths = ['_SERVICEFIRST' => $this->reference('uuid-1', 'FIRST' . str_repeat('X', ServiceMacro::MAX_VALUE_LENGTH))];
+
+        $this->duplicateFailing();
+
+        self::assertSame(
+            [['customPath' => VaultPathEnum::MonitoringServices->value, 'uuid' => 'uuid-1']],
+            $this->vault->deleteCalls,
+        );
+    }
+
+    public function testWithTheVaultOffTheSourcesEntryIsNeverPurged(): void
+    {
+        $reference = $this->reference('src-uuid', 'PASSWORD');
+        $this->seedService(1, 'ping', macros: [new ServiceMacro(new ServiceMacroName('PASSWORD'), $reference, isPassword: true)]);
+        $this->serviceRepository->addThrows = new \RuntimeException('Unable to write the service');
+
+        $exception = $this->duplicateFailing();
+
+        self::assertSame('Unable to write the service', $exception->getMessage());
+        self::assertSame([], $this->vault->deleteCalls);
+    }
+
+    public function testTheMintedEntriesArePurgedWhenTheAccessFailsToBeDuplicated(): void
+    {
+        $this->givenTwoVaultedServices();
+        $this->vault->writtenPaths = [
+            '_SERVICEFIRST' => $this->reference('uuid-1', 'FIRST'),
+            '_SERVICESECOND' => $this->reference('uuid-2', 'SECOND'),
+        ];
+        $this->resourceAccessRepository->duplicateHostServiceAccessThrows = true;
+
+        $exception = $this->duplicateFailing();
+
+        self::assertSame('duplicateHostServiceAccess failed', $exception->getMessage());
+        self::assertSame(
+            [
+                ['customPath' => VaultPathEnum::MonitoringServices->value, 'uuid' => 'uuid-1'],
+                ['customPath' => VaultPathEnum::MonitoringServices->value, 'uuid' => 'uuid-2'],
+            ],
+            $this->vault->deleteCalls,
+        );
+    }
+
     public function testAPurgeFailureNeverReplacesTheCause(): void
     {
         $this->givenTwoVaultedServices();
@@ -316,27 +363,6 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
         $exception = $this->duplicateFailing($logger);
 
         self::assertInstanceOf(VaultWriteFailedException::class, $exception);
-    }
-
-    public function testAnUnlicensedServiceTemplateRefusesBeforeAnyWrite(): void
-    {
-        $this->vault->vaultEnabled = true;
-        $reference = $this->reference('src-uuid', 'PASSWORD');
-        $this->vault->resolved[$reference] = 's3cr3t';
-        $this->seedService(1, 'licensed', macros: [new ServiceMacro(new ServiceMacroName('PASSWORD'), $reference, isPassword: true)]);
-        $this->seedService(2, 'unlicensed', templateId: 30);
-        $this->seedService(3, 'shared');
-        $this->serviceRepository->sharedServiceIds = [3];
-        $this->unlicensedServiceTemplateIds = [30];
-
-        $exception = $this->duplicateFailing();
-
-        self::assertInstanceOf(UnlicensedServiceTemplatesException::class, $exception);
-        self::assertSame(['serviceTemplateId' => 30], $exception->criteria);
-        self::assertSame([], $this->clones());
-        self::assertSame([], $this->serviceRepository->addedHostLinks);
-        self::assertSame([], $this->vault->writeManyCalls);
-        self::assertSame([], $this->resourceAccessRepository->duplicatedHostServiceAccess);
     }
 
     public function testEachCloneFiresServiceDuplicatedForTheActor(): void
@@ -387,10 +413,6 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
             sourceHostId: new HostId(self::SOURCE_HOST_ID),
             newHostId: new HostId(self::COPY_HOST_ID),
             duplicatedBy: new UserId(self::ACTOR_ID),
-            unlicensedServiceTemplateIds: new Collection(
-                array_map(static fn (int $id): ServiceTemplateId => new ServiceTemplateId($id), $this->unlicensedServiceTemplateIds),
-                ServiceTemplateId::class,
-            ),
         ));
     }
 

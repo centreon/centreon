@@ -451,6 +451,24 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         return $this->hydrate($hostId, $rows);
     }
 
+    public function findIdsExclusivelyLinkedToHostId(HostId $hostId): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('s.service_id')
+            ->from(self::TABLE_NAME, 's')
+            ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
+            ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
+            ->andWhere("h.host_register = '1'")
+            ->orderBy('s.service_id', 'ASC');
+        $this->keepOnlyServicesWithASingleRelation($qb);
+
+        return new Collection(
+            array_map(static fn (int $value): ServiceId => new ServiceId($value), $this->fetchIds($qb)),
+            ServiceId::class,
+        );
+    }
+
     public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
     {
         if ($serviceTemplateIds === []) {

@@ -53,7 +53,6 @@ final readonly class DuplicateHostServicesEventHandler
                     sourceHostId: $event->sourceHostId,
                     newHostId: $event->newHostId,
                     duplicatedBy: $event->duplicatedBy,
-                    unlicensedServiceTemplateIds: $event->unlicensedServiceTemplateIds,
                 )
             );
         } catch (\Throwable $exception) {

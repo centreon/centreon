@@ -24,9 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Event;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
 use App\Shared\Domain\Event\EventInterface;
 
@@ -36,16 +34,11 @@ use App\Shared\Domain\Event\EventInterface;
  */
 final readonly class HostServicesDuplicationRequested implements DeliveredAfterCommitInterface, EventInterface
 {
-    /**
-     * @param Collection<ServiceTemplateId> $unlicensedServiceTemplateIds the service templates the license no longer
-     *                                                                    allows, as evaluated before the host copy existed
-     */
     public function __construct(
         public HostId $sourceHostId,
         public HostId $newHostId,
         // The actor who triggered the duplication, the author of the copied services.
         public UserId $duplicatedBy,
-        public Collection $unlicensedServiceTemplateIds,
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {
     }

@@ -232,6 +232,20 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertNull($this->repository->findOneOnHost(new ServiceId($serviceTemplateId + 1000000), new HostId($hostId)));
     }
 
+    public function testFindIdsExclusivelyLinkedToHostIdLeavesServicesSharedWithAHostOrAHostGroupOut(): void
+    {
+        $hostId = $this->insertListedHost('h1');
+        $otherHostId = $this->insertListedHost('h2');
+        $exclusive = $this->insertListedService('exclusive', $hostId);
+        $sharedWithAHost = $this->insertListedService('shared-with-a-host', $hostId);
+        $this->linkServiceToHost($sharedWithAHost, $otherHostId);
+        $sharedWithAHostGroup = $this->insertListedService('shared-with-a-host-group', $hostId);
+        $this->linkServiceToHostGroup($sharedWithAHostGroup, $this->insertHostGroup());
+        $this->insertListedService('of-the-other-host', $otherHostId);
+
+        self::assertSame([$exclusive], $this->idValues($this->repository->findIdsExclusivelyLinkedToHostId(new HostId($hostId))));
+    }
+
     public function testFindIdsSharedWithOthersCountsHostGroupLinks(): void
     {
         $hostId = $this->insertListedHost('h1');

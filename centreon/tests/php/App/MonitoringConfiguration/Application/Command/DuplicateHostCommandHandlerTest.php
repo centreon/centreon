@@ -46,6 +46,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
@@ -56,6 +59,7 @@ use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongExcept
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesException;
 use App\Shared\Application\Vault\VaultCredentialReader;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
@@ -66,6 +70,7 @@ use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceTemplateRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
@@ -89,6 +94,8 @@ final class DuplicateHostCommandHandlerTest extends TestCase
 
     private FakeServiceTemplateRepository $serviceTemplateRepository;
 
+    private FakeServiceRepository $serviceRepository;
+
     private DuplicateHostCommandHandler $handler;
 
     protected function setUp(): void
@@ -104,6 +111,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $this->logger = new RecordingLogger();
         $this->hostTemplateRepository = new FakeHostTemplateRepository();
         $this->serviceTemplateRepository = new FakeServiceTemplateRepository();
+        $this->serviceRepository = new FakeServiceRepository();
 
         // Without the license services, the license host limit is reached.
         $this->handler = $this->handlerWithin(new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()));
@@ -250,19 +258,53 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertSame($copy->id()->value, $event->newHostId->value);
     }
 
-    public function testTheServiceTemplatesTheLicenseNoLongerAllowsAreHandedToTheServicesStep(): void
+    public function testItRejectsASourceWhoseServiceTemplatesTheLicenseNoLongerAllows(): void
     {
         $this->storeSourceHost(1, 'web');
+        $this->vault->vaultEnabled = true;
+        $this->storeService(10, hostId: 1, templateId: 31);
+        $this->storeService(11, hostId: 1, templateId: 30);
+        $this->serviceTemplateRepository->monitoringConnectorTemplateIds = [30];
+
+        try {
+            ($this->handler)(new DuplicateHostCommand(new HostId(1), actor: TestActingUsers::unrestricted(42)));
+            self::fail('A host whose services the license no longer allows must not be duplicated.');
+        } catch (UnlicensedServiceTemplatesException $exception) {
+            self::assertSame(['serviceTemplateId' => 30], $exception->criteria);
+        }
+
+        self::assertNull($this->findCopyByName('web_1'));
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostServicesDuplicationRequested::class));
+    }
+
+    public function testAServiceTemplateTheLicenseAllowsDoesNotRefuseTheDuplication(): void
+    {
+        $this->storeSourceHost(1, 'web');
+        $this->storeService(10, hostId: 1, templateId: 31);
         $this->serviceTemplateRepository->monitoringConnectorTemplateIds = [30];
 
         ($this->handler)(new DuplicateHostCommand(new HostId(1), actor: TestActingUsers::unrestricted(42)));
 
-        self::assertSame([30], $this->unlicensedServiceTemplateIdsOfTheRequest());
+        self::assertNotNull($this->findCopyByName('web_1'));
+    }
+
+    public function testASharedServiceIsNotClonedSoItsTemplateDoesNotRefuseTheDuplication(): void
+    {
+        $this->storeSourceHost(1, 'web');
+        $this->storeService(10, hostId: 1, templateId: 30);
+        $this->serviceRepository->sharedServiceIds = [10];
+        $this->serviceTemplateRepository->monitoringConnectorTemplateIds = [30];
+
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), actor: TestActingUsers::unrestricted(42)));
+
+        self::assertNotNull($this->findCopyByName('web_1'));
     }
 
     public function testTheCopyItselfDoesNotCountAgainstTheLicenseOfItsServices(): void
     {
         $this->storeSourceHost(1, 'web');
+        $this->storeService(10, hostId: 1, templateId: 30);
         $this->serviceTemplateRepository->monitoringConnectorTemplateIds = [30];
         // One host left before the limit: the copy reaches it.
         $this->handler = $this->handlerWithin($this->limitOf(maxHosts: 2));
@@ -270,7 +312,6 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         ($this->handler)(new DuplicateHostCommand(new HostId(1), actor: TestActingUsers::unrestricted(42)));
 
         self::assertSame(2, $this->repository->countAll());
-        self::assertSame([], $this->unlicensedServiceTemplateIdsOfTheRequest());
     }
 
     public function testRemintsVaultedSecretsIntoAFreshVaultEntry(): void
@@ -536,6 +577,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             $this->logger,
             new HostTemplateLicenseGuard(new UnlicensedHostTemplates($limit, $this->hostTemplateRepository)),
             new UnlicensedServiceTemplates($limit, $this->serviceTemplateRepository),
+            $this->serviceRepository,
         );
     }
 
@@ -557,18 +599,16 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         );
     }
 
-    /**
-     * @return list<int>
-     */
-    private function unlicensedServiceTemplateIdsOfTheRequest(): array
+    private function storeService(int $id, int $hostId, int $templateId): void
     {
-        $events = $this->eventBus->getDispatchedEvents(HostServicesDuplicationRequested::class);
-        self::assertCount(1, $events);
-
-        return array_values(array_map(
-            static fn (ServiceTemplateId $id): int => $id->value,
-            $events[0]->unlicensedServiceTemplateIds->toArray(),
-        ));
+        $this->serviceRepository->services[$id] = new Service(
+            id: new ServiceId($id),
+            name: new ServiceName("service-{$id}"),
+            hostId: new HostId($hostId),
+            hostActivated: true,
+            hostPollerId: null,
+            templateId: new ServiceTemplateId($templateId),
+        );
     }
 
     private function storeSourceHost(int $id, string $name): Host

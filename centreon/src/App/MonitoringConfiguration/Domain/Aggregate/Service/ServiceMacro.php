@@ -107,9 +107,8 @@ final readonly class ServiceMacro
     }
 
     /**
-     * A copy of this macro as a brand-new own row: it keeps the name and password flag, takes $value when one is
-     * given (a re-minted secret) or the current value otherwise, and drops the id, the origin and the description,
-     * so the copy never borrows the source's identity. Used when duplicating a host's services.
+     * A new own row keeping the name and password flag, with $value or the current value; the id, the origin and
+     * the description are dropped.
      */
     public function copyWithoutIdentity(?string $value = null): self
     {

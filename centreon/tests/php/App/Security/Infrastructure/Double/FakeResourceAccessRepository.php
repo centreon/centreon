@@ -97,6 +97,8 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public bool $duplicateHostAccessThrows = false;
 
+    public bool $duplicateHostServiceAccessThrows = false;
+
     public function __construct()
     {
         $this->pollerScope = AccessScope::unrestricted(PollerId::class);
@@ -243,6 +245,10 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
     {
+        if ($this->duplicateHostServiceAccessThrows) {
+            throw new \RuntimeException('duplicateHostServiceAccess failed');
+        }
+
         $this->duplicatedHostServiceAccess[] = [
             'sourceHostId' => $sourceHostId->value,
             'newHostId' => $newHostId->value,

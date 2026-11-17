@@ -181,6 +181,17 @@ final class FakeServiceRepository implements ServiceRepository
         return new Collection($services, Service::class);
     }
 
+    public function findIdsExclusivelyLinkedToHostId(HostId $hostId): Collection
+    {
+        $ids = array_map(
+            static fn (Service $service): int => $service->id()->value,
+            $this->findExclusivelyLinkedToHostId($hostId)->toArray(),
+        );
+        sort($ids);
+
+        return new Collection(array_map(static fn (int $id): ServiceId => new ServiceId($id), $ids), ServiceId::class);
+    }
+
     public function findIdsSharedWithOthers(HostId $hostId): Collection
     {
         $ids = array_values(array_filter(
