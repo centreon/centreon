@@ -1,0 +1,32 @@
+meta {
+  name: POST /clapi - Delete user without REST API access - HTTP 200
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUriCentreonCLAPI}}
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "del",
+    "object": "CONTACT",
+    "values": "{{NoRestUserLogin}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -6,12 +6,12 @@ import type { ReactElement } from 'react';
 import Macros, {
   type InheritedMacrosConfig
 } from '../../ConfigurationBase/Form/Macros';
+import type { TemplateRow } from '../../ResourceForm/OrderedTemplates';
 import {
   getHostTemplateMacrosEndpoint,
   hostsBaseEndpoint
 } from '../api/endpoints';
 import type { NamedEntity } from '../models';
-import type { TemplateRow } from './Templates';
 
 // A host inherits the macros of its templates and of its check command.
 const inheritance: InheritedMacrosConfig = {
