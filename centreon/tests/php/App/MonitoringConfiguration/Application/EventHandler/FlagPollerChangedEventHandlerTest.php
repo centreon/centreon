@@ -253,8 +253,6 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
     }
 
     /**
-     * The event names the pollers: the one of the enabled host of the service, and the one of the host it left.
-     *
      * @param list<int> $flagged
      */
     #[DataProvider('massChangeProvider')]

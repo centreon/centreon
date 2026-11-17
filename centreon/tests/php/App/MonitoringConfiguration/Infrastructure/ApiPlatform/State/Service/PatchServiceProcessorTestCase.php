@@ -291,8 +291,7 @@ abstract class PatchServiceProcessorTestCase extends ApiTestCase
     }
 
     /**
-     * Grants the (host, service) pair to the access group in the real-time ACL cache, through the main connection:
-     * the lookup reads centreon_acl cross-database, inside the test transaction.
+     * Through the main connection: the lookup reads centreon_acl cross-database, inside the test transaction.
      */
     protected function grantPair(int $groupId, int $hostId, int $serviceId): void
     {
@@ -320,8 +319,7 @@ abstract class PatchServiceProcessorTestCase extends ApiTestCase
     }
 
     /**
-     * Logs in a non-admin with "Configuration > Services > Services by host" at the given access right, member of
-     * one access group, granted no resource yet.
+     * At the given right on "Configuration > Services > Services by host", in one access group granted nothing yet.
      *
      * @return array{contactId: int, groupId: int}
      */

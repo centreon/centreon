@@ -51,9 +51,7 @@ use App\Shared\Domain\Exception\AggregateNotFoundException;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * The lists a partial update changes with three keys: replaced, added to, or removed from. The stored service has
- * service groups 80 and 81, categories 90 and 91, traps 100, contacts 31 and 32, contact groups 41 and 42, the
- * warning and critical notification options and the ok and warning stalking options. Contact group 43 exists too.
+ * The lists a partial update changes with three keys: replaced, added to, or removed from.
  */
 final class PatchServiceCommandHandlerRelationsTest extends PatchServiceCommandHandlerTestCase
 {
@@ -180,11 +178,9 @@ final class PatchServiceCommandHandlerRelationsTest extends PatchServiceCommandH
     }
 
     /**
-     * A restricted actor's replacement keeps the links they cannot see, and a removal leaves them alone: they see
-     * service group 80, category 90, contact 31 and contact group 41 only.
+     * By a replacement as by a removal.
      *
-     * @param \Closure(self, bool): PatchServiceCommand $command builds a replacement (true) or a removal (false) of
-     *                                                           everything the list holds
+     * @param \Closure(self, bool): PatchServiceCommand $command a replacement (true) or a removal (false) of the whole list
      * @param \Closure(Service): list<int> $read
      */
     #[DataProvider('scopedListProvider')]
@@ -235,8 +231,7 @@ final class PatchServiceCommandHandlerRelationsTest extends PatchServiceCommandH
     }
 
     /**
-     * What a replacement or an addition brings must exist and, for a scoped list, be visible to the actor; a removal
-     * is never checked.
+     * Only what a replacement or an addition brings: a removal is never checked.
      *
      * @param \Closure(self): PatchServiceCommand $command
      * @param class-string<AggregateNotFoundException> $exceptionClass

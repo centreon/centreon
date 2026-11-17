@@ -882,11 +882,6 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
         self::assertSame(self::POLLER_ID, $events[0]->previousPollerId?->value);
     }
 
-    /**
-     * A service linked to several hosts keeps its own only: the save carries the other links, read before they are
-     * dropped, and the pollers of those hosts to flag, each once, without the kept host's poller or one of a disabled
-     * host.
-     */
     public function testASaveCarriesTheOtherHostLinksItDrops(): void
     {
         $this->serviceRepository->linkedHostStates[self::SERVICE_ID] = [

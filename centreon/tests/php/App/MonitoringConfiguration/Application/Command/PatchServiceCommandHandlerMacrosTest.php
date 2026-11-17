@@ -45,8 +45,7 @@ use App\Shared\Domain\Exception\AggregateNotFoundException;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * The own macros of a service, replaced, written or removed. The stored service owns "port" (id 3) and "user"
- * (id 4).
+ * The own macros of a service, replaced, written or removed.
  */
 final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHandlerTestCase
 {
@@ -182,9 +181,6 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
         );
     }
 
-    /**
-     * A password resent without value keeps its stored secret: nothing to write.
-     */
     public function testAPasswordResentWithoutValueChangesNothing(): void
     {
         $this->store(macros: [new ServiceMacro(new ServiceMacroName('pwd'), self::SERVICE_PWD, isPassword: true, id: new ServiceMacroId(5))]);
@@ -198,8 +194,7 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
     }
 
     /**
-     * A new password goes under the entry the service already has, before the save; rewritten under the same key,
-     * it keeps the same reference and is still a change.
+     * Rewritten under the same key, it keeps the same reference and is still a change.
      */
     public function testAPasswordIsWrittenToTheServiceEntry(): void
     {
@@ -233,8 +228,7 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
     }
 
     /**
-     * A failure after a successful vault write leaves the vault ahead of the database: it is logged as an error, and
-     * the failure is passed on.
+     * The failure is passed on after the log.
      */
     public function testAFailureAfterTheVaultWriteIsLoggedAsAnError(): void
     {
@@ -272,8 +266,7 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
     }
 
     /**
-     * The last password removed leaves the service's vault entry without any secret: its key is deleted before the
-     * save, and the entry purged once the save is committed, on a best-effort basis.
+     * The last key is deleted before the save; the purge after it is best effort.
      */
     public function testAReleasedEntryIsPurgedAfterTheSave(): void
     {
@@ -301,9 +294,6 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
         $this->massChange();
     }
 
-    /**
-     * An update leaving the macros alone never reaches the vault, even for a service holding a password.
-     */
     public function testAnUpdateOfAnotherFieldLeavesTheVaultAlone(): void
     {
         $this->store(macros: [new ServiceMacro(new ServiceMacroName('pwd'), self::SERVICE_PWD, isPassword: true, id: new ServiceMacroId(5))]);

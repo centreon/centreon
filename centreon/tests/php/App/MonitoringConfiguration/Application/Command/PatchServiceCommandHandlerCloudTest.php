@@ -41,8 +41,7 @@ use App\Shared\Domain\Aggregate\TriStateEnum;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * The handler on a Cloud platform, the platform flag read from the environment when the container builds the
- * handler.
+ * The platform flag is read from the environment when the container builds the handler.
  */
 final class PatchServiceCommandHandlerCloudTest extends PatchServiceCommandHandlerTestCase
 {

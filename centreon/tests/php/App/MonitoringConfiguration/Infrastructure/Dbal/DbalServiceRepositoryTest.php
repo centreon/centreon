@@ -2305,8 +2305,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Every host the service is directly linked to, lowest id first, with its activation and poller; a host group
-     * link and another service's links are left out.
+     * Lowest id first; a host group link and another service's links are left out.
      */
     public function testFindLinkedHostStatesReadsEveryDirectHostLink(): void
     {

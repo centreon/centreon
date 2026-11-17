@@ -181,8 +181,7 @@ final class PatchServiceMacrosProcessorTest extends PatchServiceProcessorTestCas
     }
 
     /**
-     * The last password removed: its key is deleted before the save, and the entry, left without any secret, once
-     * the save is committed.
+     * Its key is deleted before the save, the emptied entry once the save is committed.
      */
     public function testRemovingTheLastPasswordReleasesTheServiceEntry(): void
     {
@@ -197,9 +196,6 @@ final class PatchServiceMacrosProcessorTest extends PatchServiceProcessorTestCas
         self::assertArrayNotHasKey('$_SERVICEPWD$', $this->macros());
     }
 
-    /**
-     * A password sent back without value keeps its stored secret: nothing to write.
-     */
     public function testAPasswordSentWithoutValueChangesNothing(): void
     {
         $passwordId = $this->insertMacro($this->serviceId, 'PWD', self::SERVICE_PWD, isPassword: true);

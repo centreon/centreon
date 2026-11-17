@@ -165,8 +165,7 @@ final class PatchServiceRelationsProcessorTest extends PatchServiceProcessorTest
     }
 
     /**
-     * A restricted actor's replacement keeps what they cannot see, and their removal leaves it alone. They see one
-     * of the two linked values only.
+     * By a replacement as by a removal; the actor sees one of the two linked values only.
      *
      * @param \Closure(self, int): array{string, int, int} $seed links a visible and a hidden value to the service
      *                                                           (granted to the access group given), and gives the key

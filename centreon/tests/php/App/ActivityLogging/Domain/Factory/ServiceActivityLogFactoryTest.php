@@ -233,8 +233,7 @@ final class ServiceActivityLogFactoryTest extends TestCase
     }
 
     /**
-     * The values a mass-change event carries give the line of the service it was fired for: its name, its id and
-     * the whole form, own macros left out.
+     * The line carries the service's name and id; its own macros are left out.
      */
     public function testAMassChangeEventLogsTheWholeForm(): void
     {
@@ -252,8 +251,7 @@ final class ServiceActivityLogFactoryTest extends TestCase
     }
 
     /**
-     * Only a creation, an update or a mass change logs the form: the other actions keep the name of the service and
-     * its host.
+     * Only a creation, an update or a mass change logs the whole form.
      */
     #[DataProvider('otherActionProvider')]
     public function testOtherActionsLogTheNameAndTheHostOnly(ActionEnum $action): void

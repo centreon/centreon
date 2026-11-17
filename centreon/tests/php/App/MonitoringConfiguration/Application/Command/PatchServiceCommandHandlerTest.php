@@ -99,9 +99,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         $this->assertNothingWritten();
     }
 
-    /**
-     * Every family provided with the value the service already has: nothing is written and nothing fires.
-     */
     public function testValuesEqualToTheStoredOnesChangeNothing(): void
     {
         $this->patch($this->command(
@@ -146,9 +143,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         self::assertSame([], $this->eventBus->getDispatchedEvents(ServiceMassChanged::class));
     }
 
-    /**
-     * The activation changed along with anything else is one mass change: no enable/disable event, no narrow write.
-     */
     public function testAnActivationWithAnotherChangeIsOneMassChange(): void
     {
         $this->patch($this->command(activated: false, name: 'pong'));
@@ -211,9 +205,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         self::assertNull($event->previousPollerId);
     }
 
-    /**
-     * Null clears a value of each family: a text, a reference, a number, a tri-state and a list.
-     */
     public function testNullClearsAValueOfEachFamily(): void
     {
         $this->addTemplate(30, checkCommandId: self::CHECK_COMMAND_ID);
@@ -253,10 +244,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         );
     }
 
-    /**
-     * A move to another host carries the previous host, and the poller of that host when it was enabled and is not
-     * the new one; the service is built with the state of its new host.
-     */
     public function testAMoveCarriesThePreviousHostAndPoller(): void
     {
         $this->hostRepository->states[self::OTHER_HOST_ID] = new HostState(false, new PollerId(self::OTHER_POLLER_ID));
@@ -296,11 +283,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         yield 'onto the same poller' => [[true, self::POLLER_ID], self::POLLER_ID];
     }
 
-    /**
-     * A service linked to several hosts keeps its own only: the save carries the other links, read before they are
-     * dropped, and the pollers of those hosts to flag, each once, without the kept host's poller or one of a disabled
-     * host.
-     */
     public function testASaveCarriesTheOtherHostLinksItDrops(): void
     {
         $this->serviceRepository->linkedHostStates[self::SERVICE_ID] = [
@@ -358,8 +340,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
     }
 
     /**
-     * Every reference provided is checked again as the authority, and nothing is written when one is refused.
-     *
      * @param \Closure(self): PatchServiceCommand $command
      * @param class-string<AggregateNotFoundException|AggregateConflictException> $exceptionClass
      * @param array<string, mixed> $criteria
@@ -431,9 +411,6 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
     }
 
     /**
-     * For an actor whose access is restricted, a host or a severity outside their scope is refused as if it did not
-     * exist.
-     *
      * @param \Closure(self): PatchServiceCommand $command
      * @param class-string<AggregateNotFoundException> $exceptionClass
      * @param array<string, mixed> $criteria
@@ -552,8 +529,7 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
     }
 
     /**
-     * The references are checked before the name: a restricted actor cannot learn that a name exists on a host they
-     * cannot use.
+     * A restricted actor cannot learn that a name exists on a host they cannot use.
      */
     public function testAReferenceIsRefusedBeforeTheName(): void
     {
@@ -567,8 +543,7 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
     }
 
     /**
-     * Removing the check command clears its arguments, unless the same update provides new ones; the template's
-     * command then receives them.
+     * Arguments provided along go to the template's command.
      *
      * @param list<string>|null $args the arguments provided, null for none
      * @param list<string> $expected
@@ -619,8 +594,7 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
     }
 
     /**
-     * A service left without any check command, its own or its template's, is refused when the update touches the
-     * command, the arguments or the template.
+     * Only when the update touches the command, the arguments or the template.
      *
      * @param \Closure(self): PatchServiceCommand $command
      */
@@ -750,8 +724,7 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
     }
 
     /**
-     * A Centreon Monitoring Agent check command given to the service imposes its freshness over the values sent in
-     * the same update; one inherited from the template does not.
+     * Over the values sent in the same update; a command inherited from the template does not.
      */
     public function testACentreonMonitoringAgentCommandImposesTheFreshness(): void
     {
@@ -780,8 +753,7 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
     }
 
     /**
-     * A service ending up notifying the contacts of its host only has none of its own: the visible ones are cleared,
-     * those added by the same update included; those the actor cannot see stay linked.
+     * Contacts added by the same update are cleared too; those the actor cannot see stay linked.
      */
     public function testSwitchingToTheHostContactsClearsTheVisibleContacts(): void
     {

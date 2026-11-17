@@ -31,8 +31,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Validation;
 
 /**
- * The HTTP contract of the service partial update: route, authentication and access gate, input validation before
- * the service is looked up, the fields and their side effects (activity log, poller and ACL flags).
+ * The HTTP contract of the service partial update.
  */
 final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
 {
@@ -157,8 +156,7 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
     }
 
     /**
-     * Only the keys sent are written: everything else keeps its stored value. The change is one mass-change line,
-     * named after the service and carrying its whole form.
+     * The log line is named after the service and carries its whole form.
      */
     public function testItUpdatesOnlyTheSentFieldsAndLogsOneMassChangeLine(): void
     {
@@ -212,9 +210,6 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
         self::assertSame('1', $this->pollerUpdated($pollerId));
     }
 
-    /**
-     * Null clears a value of each family: a text, a reference, a number, a tri-state and a list.
-     */
     public function testNullClearsAValueOfEachFamily(): void
     {
         $commandId = $this->insertCommand();
@@ -308,10 +303,6 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
         self::assertSame(0, $this->aclResourceChanged($aclResourceId));
     }
 
-    /**
-     * A non-admin moving a service: the poller of each host is flagged, and the service is granted at once on its
-     * new host to the mover's groups, so it stays visible to them.
-     */
     public function testMovingAServiceFlagsBothPollersAndKeepsItVisibleToItsMover(): void
     {
         $previousPollerId = $this->insertPoller();
@@ -435,8 +426,7 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
     }
 
     /**
-     * A service ending up notifying the contacts of its host only has none of its own, those sent with the switch
-     * included.
+     * Contacts sent along with the switch are cleared too.
      */
     public function testSwitchingToTheHostContactsClearsTheContacts(): void
     {
@@ -561,8 +551,7 @@ final class PatchServiceProcessorTest extends PatchServiceProcessorTestCase
     }
 
     /**
-     * On a Cloud platform, the fields only an on-premise platform has are refused; the service template cannot be
-     * removed.
+     * Removing the service template is refused too.
      *
      * @param array<string, mixed> $body
      * @param non-empty-string $reason

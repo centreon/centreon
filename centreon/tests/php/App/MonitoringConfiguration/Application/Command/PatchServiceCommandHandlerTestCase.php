@@ -118,9 +118,8 @@ use Tests\App\Shared\Double\FakeVault;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 /**
- * Boots the real container and swaps only the repositories, the vault, the logger and the event bus for fakes, so
- * the handler is built by Symfony's DI exactly as it is in production. The stored service is "ping" on host 10
- * (poller 3, enabled), with its own check command 20, contact 31 and contact group 41.
+ * Boots the real container with fakes for the repositories, the vault, the logger and the event bus only, so Symfony
+ * builds the handler as in production.
  */
 abstract class PatchServiceCommandHandlerTestCase extends KernelTestCase
 {
@@ -397,12 +396,6 @@ abstract class PatchServiceCommandHandlerTestCase extends KernelTestCase
         }
     }
 
-    /**
-     * Every reference a service can point to, each existing with one id: host 12 on poller 4, template 30 (with the
-     * check command), event handler 21, a command 22 of another type, time periods 40 and 41, icon 50, graph
-     * template 60, severities 70, 71 and 72, service groups 80, 81 and 82, categories 90, 91 and 92, traps 100 and
-     * 101.
-     */
     protected function seedEveryReference(): void
     {
         $this->hostRepository->states[self::OTHER_HOST_ID] = new HostState(true, new PollerId(self::OTHER_POLLER_ID));
