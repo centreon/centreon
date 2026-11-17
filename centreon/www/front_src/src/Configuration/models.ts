@@ -165,6 +165,9 @@ export interface APIType {
   // The field a PATCH-based enable/disable sets, when an endpoint does not
   // spell it the way the older migrated listings do.
   activationField?: string;
+  // The status column sorts on `activationField` unless the endpoint cannot
+  // sort on it.
+  isActivationSortable?: boolean;
   decoders?: {
     getOne?: JsonDecoder.Decoder<unknown>;
     getAll?: JsonDecoder.Decoder<unknown>;
@@ -193,6 +196,10 @@ export interface FilterConfiguration {
   // The autocomplete reads `{ result, meta }`; a Hydra selector needs a decoder
   // built with `apiFormat: 'JSON-LD'` to get there.
   decoder?: JsonDecoder.Decoder<unknown>;
+  // A checkbox sends `fieldName=true` when checked. A filter whose parameter
+  // reads the other way round names it here instead: it is then sent as `true`
+  // when the box is unchecked, and left out when checked.
+  uncheckedQueryParameter?: string;
 }
 
 export interface Configuration {

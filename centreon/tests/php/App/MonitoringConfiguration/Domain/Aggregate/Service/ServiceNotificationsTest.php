@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -225,6 +226,114 @@ final class ServiceNotificationsTest extends TestCase
         self::assertTrue($scoped->useOnlyContactsFromHost);
     }
 
+    public function testWithoutAdditiveInheritanceKeepsEveryOtherField(): void
+    {
+        $notifications = $this->createFilledNotifications(useOnlyContactsFromHost: false);
+
+        self::assertEquals(
+            $this->createFilledNotifications(useOnlyContactsFromHost: false, additiveInheritance: false),
+            $notifications->withoutAdditiveInheritance(),
+        );
+    }
+
+    /**
+     * Both additive-inheritance flags go off whatever they were; every other field is kept.
+     */
+    public function testWithHostContactsOnlyClearsTheVisibleContactsAndKeepsTheHiddenOnes(): void
+    {
+        $notifications = $this->createFilledNotifications(useOnlyContactsFromHost: false);
+
+        $cleared = $notifications->withHostContactsOnly(
+            AccessScope::restrictedTo(NotificationContactId::class, [new NotificationContactId(3)]),
+            AccessScope::restrictedTo(ContactGroupId::class, [new ContactGroupId(7), new ContactGroupId(8)]),
+        );
+
+        self::assertSame([4], array_map(static fn (NotificationContactId $id): int => $id->value, $cleared->contactIds->toArray()));
+        self::assertSame([], $cleared->contactGroupIds->toArray());
+        self::assertEquals(
+            $this->createFilledNotifications(useOnlyContactsFromHost: true, additiveInheritance: false)
+                ->withContacts($cleared->contactIds, $cleared->contactGroupIds),
+            $cleared,
+        );
+    }
+
+    public function testWithHostContactsOnlyClearsEveryContactForAnUnrestrictedScope(): void
+    {
+        $cleared = $this->createFilledNotifications(useOnlyContactsFromHost: true)->withHostContactsOnly(
+            AccessScope::unrestricted(NotificationContactId::class),
+            AccessScope::unrestricted(ContactGroupId::class),
+        );
+
+        self::assertSame([], $cleared->contactIds->toArray());
+        self::assertSame([], $cleared->contactGroupIds->toArray());
+        self::assertFalse($cleared->contactAdditiveInheritance);
+        self::assertFalse($cleared->contactGroupAdditiveInheritance);
+        self::assertTrue($cleared->useOnlyContactsFromHost);
+    }
+
+    public function testEqualsHoldsForTheSameValues(): void
+    {
+        self::assertTrue(self::notifications()->equals(self::notifications()));
+    }
+
+    public function testEqualsComparesTheContactsAndContactGroupsAsSets(): void
+    {
+        self::assertTrue(self::notifications()->equals(self::notifications(contactIds: [4, 3], contactGroupIds: [8, 7])));
+    }
+
+    #[DataProvider('fieldChangeProvider')]
+    public function testEqualsDetectsAChangeOfEachField(ServiceNotifications $changed): void
+    {
+        self::assertFalse(self::notifications()->equals($changed));
+    }
+
+    /**
+     * @return iterable<string, array{ServiceNotifications}>
+     */
+    public static function fieldChangeProvider(): iterable
+    {
+        yield 'enabled' => [self::notifications(enabled: TriStateEnum::UseDefault)];
+
+        yield 'contacts' => [self::notifications(contactIds: [3])];
+
+        yield 'contact groups' => [self::notifications(contactGroupIds: [7, 9])];
+
+        yield 'options' => [self::notifications(options: [ServiceNotificationOptionEnum::Critical])];
+
+        yield 'interval' => [self::notifications(interval: 31)];
+
+        yield 'period' => [self::notifications(periodId: new TimePeriodId(3))];
+
+        yield 'no period' => [self::notifications(periodId: null)];
+
+        yield 'first delay' => [self::notifications(firstDelay: 6)];
+
+        yield 'recovery delay' => [self::notifications(recoveryDelay: 11)];
+
+        yield 'contact additive inheritance' => [self::notifications(contactAdditiveInheritance: false)];
+
+        yield 'contact group additive inheritance' => [self::notifications(contactGroupAdditiveInheritance: false)];
+
+        yield 'contacts of the host only' => [self::notifications(useOnlyContactsFromHost: false)];
+    }
+
+    private function createFilledNotifications(bool $useOnlyContactsFromHost, bool $additiveInheritance = true): ServiceNotifications
+    {
+        return new ServiceNotifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([new NotificationContactId(3), new NotificationContactId(4)], NotificationContactId::class),
+            contactGroupIds: new Collection([new ContactGroupId(7), new ContactGroupId(8)], ContactGroupId::class),
+            options: [ServiceNotificationOptionEnum::Critical, ServiceNotificationOptionEnum::Recovery],
+            interval: 30,
+            periodId: new TimePeriodId(2),
+            firstDelay: 5,
+            recoveryDelay: 10,
+            contactAdditiveInheritance: $additiveInheritance,
+            contactGroupAdditiveInheritance: $additiveInheritance,
+            useOnlyContactsFromHost: $useOnlyContactsFromHost,
+        );
+    }
+
     /**
      * @param list<ServiceNotificationOptionEnum> $options
      */
@@ -235,6 +344,47 @@ final class ServiceNotificationsTest extends TestCase
             contactIds: new Collection([], NotificationContactId::class),
             contactGroupIds: new Collection([], ContactGroupId::class),
             options: $options,
+        );
+    }
+
+    /**
+     * Every field set by default, none to the value object's own default.
+     *
+     * @param list<int> $contactIds
+     * @param list<int> $contactGroupIds
+     * @param list<ServiceNotificationOptionEnum> $options
+     */
+    private static function notifications(
+        TriStateEnum $enabled = TriStateEnum::True,
+        array $contactIds = [3, 4],
+        array $contactGroupIds = [7, 8],
+        array $options = [ServiceNotificationOptionEnum::Critical, ServiceNotificationOptionEnum::Recovery],
+        int $interval = 30,
+        ?TimePeriodId $periodId = new TimePeriodId(2),
+        int $firstDelay = 5,
+        int $recoveryDelay = 10,
+        bool $contactAdditiveInheritance = true,
+        bool $contactGroupAdditiveInheritance = true,
+        bool $useOnlyContactsFromHost = true,
+    ): ServiceNotifications {
+        return new ServiceNotifications(
+            enabled: $enabled,
+            contactIds: new Collection(
+                array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), $contactIds),
+                NotificationContactId::class,
+            ),
+            contactGroupIds: new Collection(
+                array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), $contactGroupIds),
+                ContactGroupId::class,
+            ),
+            options: $options,
+            interval: $interval,
+            periodId: $periodId,
+            firstDelay: $firstDelay,
+            recoveryDelay: $recoveryDelay,
+            contactAdditiveInheritance: $contactAdditiveInheritance,
+            contactGroupAdditiveInheritance: $contactGroupAdditiveInheritance,
+            useOnlyContactsFromHost: $useOnlyContactsFromHost,
         );
     }
 }

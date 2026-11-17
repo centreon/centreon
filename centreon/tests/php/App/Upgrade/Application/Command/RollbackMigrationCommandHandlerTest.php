@@ -214,7 +214,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
     }
 
     #[DataProvider('provideStepFailures')]
-    public function testLogsTheTraceOfAStepFailureOnce(\Throwable $failure): void
+    public function testLogsTheTraceOfAStepFailureWithTheStepAndTheRunFailures(\Throwable $failure): void
     {
         $migrationRunner = new FakeMigrationRunner();
         $migrationRunner->failure = $failure;
@@ -232,7 +232,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
 
         self::assertSame(['step', 'stepFailure', 'error'], array_column($logger->calls, 'method'));
         self::assertSame($failure, $logger->calls[1]['exception'] ?? null);
-        self::assertNull($logger->calls[2]['exception'] ?? null);
+        self::assertSame($failure, $logger->calls[2]['exception'] ?? null);
     }
 
     private function rollbackHandler(FakeUpgradeLogger $logger): RollbackMigrationCommandHandler

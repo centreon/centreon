@@ -191,4 +191,95 @@ final class ServiceExtendedInformationsTest extends TestCase
 
         new ServiceExtendedInformations(altIcon: str_repeat('a', 201));
     }
+
+    /**
+     * Both sides of each form bound, in characters.
+     *
+     * @return iterable<string, array{array<string, string>, list<string>}>
+     */
+    public static function formBoundsProvider(): iterable
+    {
+        yield 'nothing set' => [[], []];
+
+        yield 'note at its form bound' => [['note' => str_repeat('é', 512)], []];
+
+        yield 'note above its form bound' => [['note' => str_repeat('n', 513)], ['note']];
+
+        yield 'note url at its form bound' => [['noteUrl' => str_repeat('é', 2048)], []];
+
+        yield 'note url above its form bound' => [['noteUrl' => str_repeat('u', 2049)], ['noteUrl']];
+
+        yield 'action url at its form bound' => [['actionUrl' => str_repeat('é', 2048)], []];
+
+        yield 'action url above its form bound' => [['actionUrl' => str_repeat('a', 2049)], ['actionUrl']];
+
+        yield 'every text above its form bound' => [
+            ['noteUrl' => str_repeat('u', 2049), 'note' => str_repeat('n', 513), 'actionUrl' => str_repeat('a', 2049)],
+            ['noteUrl', 'note', 'actionUrl'],
+        ];
+
+        yield 'comment and alt icon filling their column' => [['comment' => str_repeat('c', 65535), 'altIcon' => str_repeat('i', 200)], []];
+    }
+
+    /**
+     * @param array<string, string> $fields
+     * @param list<string> $expected
+     */
+    #[DataProvider('formBoundsProvider')]
+    public function testExceedsFormBounds(array $fields, array $expected): void
+    {
+        self::assertSame($expected, (new ServiceExtendedInformations(...$fields))->exceedsFormBounds());
+    }
+
+    public function testEqualsHoldsForTheSameValues(): void
+    {
+        self::assertTrue(self::informations()->equals(self::informations()));
+    }
+
+    #[DataProvider('fieldChangeProvider')]
+    public function testEqualsDetectsAChangeOfEachField(ServiceExtendedInformations $changed): void
+    {
+        self::assertFalse(self::informations()->equals($changed));
+    }
+
+    /**
+     * @return iterable<string, array{ServiceExtendedInformations}>
+     */
+    public static function fieldChangeProvider(): iterable
+    {
+        yield 'note URL' => [self::informations(noteUrl: 'https://example.com/other')];
+
+        yield 'note' => [self::informations(note: 'another note')];
+
+        yield 'action URL' => [self::informations(actionUrl: null)];
+
+        yield 'icon' => [self::informations(iconId: new MediaId(9))];
+
+        yield 'no icon' => [self::informations(iconId: null)];
+
+        yield 'alternative text' => [self::informations(altIcon: 'other')];
+
+        yield 'comment' => [self::informations(comment: 'another comment')];
+
+        yield 'latitude' => [self::informations(geoCoordinates: new GeoCoordinates('48.86', '2.35'))];
+
+        yield 'longitude' => [self::informations(geoCoordinates: new GeoCoordinates('48.85', '2.36'))];
+
+        yield 'no coordinates' => [self::informations(geoCoordinates: null)];
+    }
+
+    /**
+     * Every field set by default.
+     */
+    private static function informations(
+        ?string $noteUrl = 'https://example.com/notes',
+        ?string $note = 'a note',
+        ?string $actionUrl = 'https://example.com/action',
+        ?MediaId $iconId = new MediaId(8),
+        ?string $altIcon = 'alt text',
+        ?string $comment = 'a comment',
+        ?GeoCoordinates $geoCoordinates = new GeoCoordinates('48.85', '2.35'),
+    ): ServiceExtendedInformations {
+        return new ServiceExtendedInformations($noteUrl, $note, $actionUrl, $iconId, $altIcon, $comment, $geoCoordinates);
+    }
 }
