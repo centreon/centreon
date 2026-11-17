@@ -24,13 +24,15 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use ApiPlatform\Metadata\ApiProperty;
+use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\MiscOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostGroups;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessiblePoller;
+use App\MonitoringConfiguration\Infrastructure\Validator\NoControlCharacters;
 use App\MonitoringConfiguration\Infrastructure\Validator\UniqueHostName;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidHostAddress;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
@@ -40,8 +42,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class CreateHostInput
 {
-    private const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
-
     /**
      * @param list<int> $hostGroupIds
      * @param list<int> $templateIds
@@ -54,11 +54,12 @@ final readonly class CreateHostInput
             new Assert\NotBlank(normalizer: 'trim'),
             new Assert\Length(min: HostName::MIN_LENGTH, max: HostName::MAX_LENGTH),
             new Assert\Regex(
-                pattern: '/(^_Module(?:_| ))|([~!$%^&*"|\'<>?,()=])/',
+                pattern: '/(^_Module(?:_| ))|([' . MiscOptions::DEFAULT_ILLEGAL_OBJECT_NAME_CHARS . '])/',
                 message: 'This value must not start with "_Module_" and must not contain any of the following characters: ~ ! $ % ^ & * " | \' < > ? , ( ) =',
                 match: false,
                 normalizer: 'trim',
             ),
+            new NoControlCharacters(),
             new UniqueHostName(),
         ])]
         public string $name,
@@ -89,7 +90,7 @@ final readonly class CreateHostInput
         #[Assert\Length(max: HostAlias::MAX_LENGTH, normalizer: 'trim')]
         // Stricter than legacy, deliberately: config generation writes this straight into a
         // `.cfg` line (object.class.php), so an embedded newline would inject a directive.
-        #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false)]
+        #[NoControlCharacters]
         public ?string $alias = null,
 
         public ?SnmpVersionEnum $snmpVersion = null,
@@ -100,7 +101,7 @@ final readonly class CreateHostInput
         #[WhenVault(forVault: false, constraints: [
             new Assert\Length(max: SnmpCommunity::MAX_LENGTH, normalizer: 'trim'),
         ])]
-        #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false)]
+        #[NoControlCharacters]
         #[Sensitive]
         public ?string $snmpCommunity = null,
 

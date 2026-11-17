@@ -27,46 +27,6 @@ use JsonSerializable;
 use Pimple\Container;
 use Symfony\Component\Serializer;
 
-/**
- * @OA\Server(
- *      url="{protocol}://{host}/centreon/api",
- *      variables={
- *          "protocol": {"enum": {"http", "https"}, "default": "http"},
- *          "host": {"default": "centreon-dev"}
- *      }
- * )
- */
-/**
- * @OA\Info(
- *      title="Centreon Server API",
- *      version="0.1"
- * )
- */
-/**
- * @OA\ExternalDocumentation(
- *      url="https://documentation.centreon.com/docs/centreon/en/18.10/api/api_rest/index.html",
- *      description="Official Centreon documentation about REST API"
- * )
- */
-
-/**
- * @OA\Components(
- *      securitySchemes={
- *          "Session": {
- *              "type": "apiKey",
- *              "in": "cookie",
- *              "name": "centreon",
- *              "description": "This type of authorization is mostly used for needs of Centreon Web UI"
- *          },
- *          "AuthToken": {
- *              "type": "apiKey",
- *              "in": "header",
- *              "name": "HTTP_CENTREON_AUTH_TOKEN",
- *              "description": "For external access to the resources that require authorization"
- *          }
- *      }
- * )
- */
 abstract class WebServiceAbstract extends \CentreonWebService
 {
     /** @var Container */

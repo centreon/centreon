@@ -49,22 +49,38 @@ Given('a user is logged in a Centreon server', () => {
 });
 
 Given('a configured passive host', () => {
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: services.serviceOk.host,
-    template: 'generic-host'
-  }).applyPollerConfiguration();
+  // A retry reuses the containers: create the host only once
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `SELECT host_id FROM host WHERE host_name = '${services.serviceOk.host}'`
+  }).then(([rows]) => {
+    if (rows.length === 0) {
+      cy.addHost({
+        hostGroup: 'Linux-Servers',
+        name: services.serviceOk.host,
+        template: 'generic-host'
+      }).applyPollerConfiguration();
+    }
+  });
   cy.setPassiveResource('/centreon/api/latest/configuration/hosts/15');
 });
 
 Given('a configured passive service linked to the host', () => {
-  cy.addService({
-    activeCheckEnabled: false,
-    host: services.serviceOk.host,
-    maxCheckAttempts: 1,
-    name: services.serviceOk.name,
-    template: services.serviceOk.template
-  }).applyPollerConfiguration();
+  // A retry reuses the containers: create the service only once
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `SELECT service_id FROM service WHERE service_description = '${services.serviceOk.name}'`
+  }).then(([rows]) => {
+    if (rows.length === 0) {
+      cy.addService({
+        activeCheckEnabled: false,
+        host: services.serviceOk.host,
+        maxCheckAttempts: 1,
+        name: services.serviceOk.name,
+        template: services.serviceOk.template
+      }).applyPollerConfiguration();
+    }
+  });
   cy.setPassiveResource('/centreon/api/latest/configuration/services/31');
 });
 
@@ -77,7 +93,11 @@ When('the user check the option "Use deprecated pages"', () => {
   // Wait for the 'Name' field to be visible in the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="contact_name"]');
   // Check the option 'Use deprecated pages'
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(0).click();
+  cy.getIframeBody()
+    .find('div.md-checkbox.md-checkbox-inline')
+    .eq(0)
+    .find('input[type="checkbox"]')
+    .check({ force: true });
 });
 
 When('the user clicks on "Save"', () => {
@@ -109,6 +129,7 @@ When('the user submits result for the configured service', () => {
   );
   // Click on the 'Submit result for this service' option
   cy.getIframeBody().contains('a', 'Submit result for this service').click();
+  cy.wait('@getTimeZone');
 });
 
 When('the user puts a link as "Check output"', () => {
@@ -192,6 +213,7 @@ When('the user adds a comment to a configured passive service', () => {
   );
   // Click on the 'Add a comment for this service' option
   cy.getIframeBody().contains('a', 'Add a comment for this service').click();
+  cy.wait('@getTimeZone');
   // Wait for the 'Comments' field to be visible in the DOM
   cy.waitForElementInIframe('#main-content', 'textarea[name="comment"]');
   // Type a value in the 'Comments' textarea
