@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Centreon web 2.x\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-11-06 17:34+0000\n"
+"PO-Revision-Date: 2026-11-17 12:34+0000\n"
 "Last-Translator: admin <noreply@centreon.com>\n"
 "Language-Team: Spanish <https://weblate.prod.centreon.io/projects/centreon-infra-monitoring/26-10/web-messages-26-10/es/>\n"
 "Language: es_ES\n"
@@ -21,9 +21,7 @@ msgstr "+ Añadir nueva entrada"
 
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid " Required fields"
-msgstr ""
-" \n"
-"Campos obligatorios"
+msgstr " Campos obligatorios"
 
 #: centreon/www/install/smarty_translate.php
 msgid " Table is not partitioned "
@@ -1090,7 +1088,7 @@ msgstr "Número de teléfono móvil del administrador."
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/install/front_translate.php
 msgid "Advanced"
-msgstr "avanzado"
+msgstr "Avanzado"
 
 #: centreon/www/install/menu_translation.php
 msgid "Advanced Logs"
@@ -1657,7 +1655,7 @@ msgstr ""
 #: centreon/www/include/Administration/myAccount/DB-Func.php
 #: centreon/www/include/configuration/configObject/contact/DB-Func.php
 msgid "Authentication failed"
-msgstr ""
+msgstr "Autenticación fallida"
 
 #: centreon/www/install/front_translate.php
 msgid "Authentication mode"
@@ -1816,7 +1814,7 @@ msgstr ""
 #: centreon/www/include/core/header/htmlHeader.php
 #: centreon/www/install/smarty_translate.php
 msgid "Back"
-msgstr "regreso"
+msgstr "Atrás"
 
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
@@ -3256,7 +3254,7 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Commands"
-msgstr "comandos"
+msgstr "Comandos"
 
 #: centreon/www/install/front_translate.php
 msgid "Commands are used by the monitoring engine to run plugins to perform actions. While most commands come ready-to-use via Monitoring Connectors, you can also create custom commands for specific needs."
@@ -3331,7 +3329,7 @@ msgstr "Tipo de comentario"
 #: centreon/www/install/menu_translation.php
 #: centreon/www/install/smarty_translate.php
 msgid "Comments"
-msgstr "comentarios"
+msgstr "Comentarios"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Common Options"
@@ -3468,7 +3466,7 @@ msgstr "Alias ​​obligatorio"
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 msgid "Compulsory field"
-msgstr "campo obligatorio"
+msgstr "Campo obligatorio"
 
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Compulsory image name"
@@ -3813,7 +3811,7 @@ msgstr "Convertir gd2 -> png :"
 
 #: centreon/www/install/front_translate.php
 msgid "Copy"
-msgstr ""
+msgstr "Copiar"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
@@ -3998,7 +3996,7 @@ msgstr "Creación del usuario accediendo a las bases de datos."
 
 #: centreon/www/install/front_translate.php
 msgid "Creation date"
-msgstr ""
+msgstr "Fecha de creación"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Creation time"
@@ -4596,7 +4594,7 @@ msgstr "Defina su endpoint"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Delete"
-msgstr "eliminar"
+msgstr "Eliminar"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -4864,7 +4862,7 @@ msgstr ""
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/install/front_translate.php
 msgid "Disable"
-msgstr "desactivar"
+msgstr "Deshabilitar"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -4981,7 +4979,7 @@ msgstr ""
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 msgid "Disabled"
-msgstr "discapacitado"
+msgstr "Deshabilitado"
 
 #: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 msgid "Disabled Hosts"
@@ -5014,7 +5012,7 @@ msgstr "Eliminar el acuse de recibo del incidente del host."
 
 #: centreon/www/install/front_translate.php
 msgid "Discard"
-msgstr ""
+msgstr "Descartar"
 
 #: centreon/www/include/options/session/connected_user.php
 msgid "Disconnect user"
@@ -5346,7 +5344,7 @@ msgstr ""
 #: centreon/www/include/views/graphTemplates/listGraphTemplates.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 msgid "Do you confirm the deletion ?"
-msgstr "¿Confirma usted esta eliminación?"
+msgstr "¿Confirma la eliminación?"
 
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
@@ -5400,7 +5398,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Do you want to quit the form without saving the changes?"
-msgstr ""
+msgstr "¿Desea salir del formulario sin guardar los cambios?"
 
 #: centreon/www/install/front_translate.php
 msgid "Do you want to quit without saving the changes?"
@@ -5412,7 +5410,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Do you want to save the changes?"
-msgstr ""
+msgstr "¿Desea guardar los cambios?"
 
 #: centreon/www/install/front_translate.php
 msgid "Do you want to switch to classic mode?"
@@ -5601,7 +5599,7 @@ msgstr "Tugurio"
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 msgid "Duplicate"
-msgstr "duplicar"
+msgstr "Duplicar"
 
 #: centreon/www/install/front_translate.php
 msgid "Duplicate dashboard"
@@ -5645,7 +5643,7 @@ msgstr ""
 #: centreon/www/widgets/host-monitoring/src/action.php
 #: centreon/www/widgets/service-monitoring/src/action.php
 msgid "Duration"
-msgstr "duración"
+msgstr "Duración"
 
 #: centreon/www/install/front_translate.php
 msgid "E-mail"
@@ -5769,7 +5767,7 @@ msgstr "Directorio vacío"
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
 #: centreon/www/install/front_translate.php
 msgid "Enable"
-msgstr "activar"
+msgstr "Habilitar"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -6104,7 +6102,7 @@ msgstr ""
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 msgid "Enabled"
-msgstr "activado"
+msgstr "Habilitado"
 
 #: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 msgid "Enabled Hosts"
@@ -23295,7 +23293,7 @@ msgstr "ERROR"
 
 #: unknown
 msgid "Edit"
-msgstr "editar"
+msgstr "Editar"
 
 #: unknown
 msgid "Embedded Perl initialisation file"
