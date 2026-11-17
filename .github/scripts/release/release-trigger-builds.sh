@@ -42,13 +42,12 @@ prepare() {
   previous_sha=$(git rev-parse "refs/tags/$previous^{commit}")
   echo "Previous stable bundle tag: $previous ($previous_sha)"
 
-  local head_sha exists=false
+  local head_sha base exists=false
   if head_sha=$(git rev-parse -q --verify "refs/remotes/origin/$branch^{commit}"); then
     exists=true
     echo "Branch $branch exists at $head_sha"
   else
     # cloud release from develop, onprem release from dev-XX.YY.x, hotfix from the previous stable bundle tag
-    local base
     if [[ "$type" == "hotfix" ]]; then
       base=$previous
       head_sha=$previous_sha
@@ -58,6 +57,28 @@ prepare() {
       head_sha=$(git rev-parse -q --verify "refs/remotes/origin/$base^{commit}") \
         || { echo "::error::Base branch $base not found"; exit 1; }
     fi
+  fi
+
+  # the mapping is read at the target, never from develop: each line carries its own component paths;
+  # checked before the branch is created, so a target without a valid mapping leaves nothing behind
+  local components_file="$RUNNER_TEMP/release-components.json"
+  if ! git show "$head_sha:$MAPPING_PATH" > "$components_file" 2> /dev/null; then
+    if [[ "$exists" == "true" ]]; then
+      echo "::error::$branch has no $MAPPING_PATH: add it to the branch (cherry-pick from dev-$major.x or develop) and re-run"
+    else
+      echo "::error::$base ($head_sha) has no $MAPPING_PATH: create $branch from it by hand, add the file (cherry-pick from dev-$major.x or develop), then re-run"
+    fi
+    exit 1
+  fi
+  jq -e '
+    .schema_version == 1
+    and (.components | type == "object" and length > 0 and all(.[];
+          (.workflow | type == "string") and (.bundle_component | type == "string" or . == null)
+          and (.paths | type == "array" and length > 0 and all(.[]; type == "string" and length > 0))))
+    and ((.full_extras // []) | type == "array" and all(.[]; (.workflow | type == "string")))
+  ' "$components_file" > /dev/null || { echo "::error::$MAPPING_PATH at $head_sha is not a valid mapping"; exit 1; }
+
+  if [[ "$exists" == "false" ]]; then
     if [[ "$DRY_RUN" == "true" ]]; then
       echo "[dry-run] would create $branch from $base ($head_sha)"
     else
@@ -69,15 +90,6 @@ prepare() {
       [[ "$response" == "$head_sha" ]] || { echo "::error::Branch $branch created at $response, expected $head_sha"; exit 1; }
     fi
   fi
-
-  # the mapping is read at the target, never from develop: each line carries its own component paths
-  local components_file="$RUNNER_TEMP/release-components.json"
-  if ! git show "$head_sha:$MAPPING_PATH" > "$components_file" 2> /dev/null; then
-    echo "::error::$branch has no $MAPPING_PATH: add it to the branch (cherry-pick from its dev branch) and re-run"
-    exit 1
-  fi
-  jq -e '.schema_version == 1 and (.components | type == "object")' "$components_file" > /dev/null \
-    || { echo "::error::$MAPPING_PATH on $branch is not a valid mapping"; exit 1; }
 
   out branch "$branch"
   out branch_exists "$exists"
@@ -127,7 +139,10 @@ dispatch() {
   } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
 
   local workflows
-  mapfile -t workflows < <(jq -r '.[] | select(.action != "skipped") | .workflow' "$manifest")
+  local selected
+  selected=$(jq -r '.[] | select(.action != "skipped") | .workflow' "$manifest")
+  mapfile -t workflows <<< "$selected"
+  [[ -n "$selected" ]] || workflows=()
   if (( ${#workflows[@]} == 0 )); then
     echo "::warning::No component to dispatch ($DISPATCH_CONTENT)"
     return 0
@@ -136,7 +151,8 @@ dispatch() {
   # check every target at the branch before dispatching anything
   local wf missing=()
   for wf in "${workflows[@]}"; do
-    if ! git show "$HEAD_SHA:.github/workflows/$wf" 2> /dev/null | grep -q -E '^[[:space:]]+workflow_dispatch:'; then
+    if ! git show "$HEAD_SHA:.github/workflows/$wf" > "$RUNNER_TEMP/target-workflow.yml" 2> /dev/null \
+      || ! grep -q -E '^[^#]*\bworkflow_dispatch\b' "$RUNNER_TEMP/target-workflow.yml"; then
       missing+=("$wf")
     fi
   done

@@ -13,9 +13,10 @@ echo "[DEBUG] Using BASE_SHA $BASE_SHA and HEAD_SHA $HEAD_SHA to build commit li
 
 # Paths to identify changes in components, from the mapping read at the target ref
 declare -A COMPONENT_PATHS
+ENTRIES=$(jq -r '.components | to_entries[] | "\(.key)\t\(.value.paths | join(" "))"' "$COMPONENTS_FILE")
 while IFS=$'\t' read -r component paths; do
   COMPONENT_PATHS[$component]="$paths"
-done < <(jq -r '.components | to_entries[] | "\(.key)\t\(.value.paths | join(" "))"' "$COMPONENTS_FILE")
+done <<< "$ENTRIES"
 
 # Prepare list of commit-list
 mkdir -p artifacts/commit-lists
