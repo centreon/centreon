@@ -241,12 +241,14 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
         $failure = new \RuntimeException('database down');
         $this->serviceRepository->updateThrows = $failure;
 
+        $caught = null;
         try {
             $this->patch($this->command(macros: ServiceMacroChanges::upsert([new ServiceMacroChange(new ServiceMacroName('pwd'), 's3cr3t', isPassword: true)])));
-            self::fail('Expected the update failure');
         } catch (\RuntimeException $exception) {
-            self::assertSame($failure, $exception);
+            $caught = $exception;
         }
+
+        self::assertSame($failure, $caught);
 
         self::assertCount(1, $this->logger->errorMessages);
         self::assertSame(self::SERVICE_ID, $this->logger->errorMessages[0]['context']['service_id']);
@@ -254,13 +256,17 @@ final class PatchServiceCommandHandlerMacrosTest extends PatchServiceCommandHand
 
     public function testAFailureWithoutVaultWriteIsNotLogged(): void
     {
-        $this->serviceRepository->updateThrows = new \RuntimeException('database down');
+        $failure = new \RuntimeException('database down');
+        $this->serviceRepository->updateThrows = $failure;
 
+        $caught = null;
         try {
             $this->patch($this->command(macros: ServiceMacroChanges::remove([new ServiceMacroId(3)])));
-            self::fail('Expected the update failure');
-        } catch (\RuntimeException) {
+        } catch (\RuntimeException $exception) {
+            $caught = $exception;
         }
+
+        self::assertSame($failure, $caught);
 
         self::assertSame([], $this->logger->errorMessages);
     }
