@@ -24,14 +24,17 @@ declare(strict_types=1);
 namespace App\Security\Infrastructure\EventHandler;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
 use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
+use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\AggregateCreated;
 use App\Shared\Domain\Event\AggregateDeleted;
 use App\Shared\Domain\Event\AggregateDuplicated;
@@ -44,11 +47,13 @@ use Webmozart\Assert\Assert;
  * Reacts to the create, change or deletion of any ACL-scoped resource (see {@see AclScopedInterface}):
  * its visibility may differ, so the ACL tables are flagged for the `centAcl` cron to recompute
  * `centreon_acl` (else e.g. a disabled or deleted host lingers there until some flag is raised). An
- * admin flags all resources; a non-admin flags only their own access groups.
+ * admin flags all resources; a non-admin flags their own access groups.
  *
  * Seeding `centreon_acl` directly (which grants access) happens on creation, so a non-admin
  * creator sees their new resource without waiting for the cron, and when a non-admin moves a service to
- * another host, so they keep seeing it there (the stale pair is purged by the cron). On a later enable/disable, or on a
+ * another host, so they keep seeing it there. When a non-admin's save unlinks a service from hosts (the one it
+ * moved from, or the other links the save dropped), every Access Group the cache grants the service on one of them
+ * is flagged too, so the cron purges those stale pairs. On a later enable/disable, or on a
  * deletion, the flag alone drives the recompute — the cron purges stale rows for a deleted resource.
  * Caught via the {@see AggregateUpdated} supertype (enable/disable) and {@see AggregateDeleted}.
  *
@@ -87,20 +92,58 @@ final readonly class ReloadAclEventHandler
         }
 
         $accessGroupIds = $this->accessGroupRepository->findActiveGroupIdsForUser($credentialUser->credential->userId);
-        if (count($accessGroupIds) === 0) {
-            return;
+        if (count($accessGroupIds) > 0) {
+            if ($event instanceof ServiceMassChanged) {
+                if ($event->previousHostId instanceof HostId) {
+                    $this->resourceAccessRepository->grantServiceAccess($event->hostId, $event->serviceId, $accessGroupIds);
+                }
+            } elseif (
+                $event->aggregate instanceof AclScopedInterface
+                && ($event instanceof AggregateCreated || ($event instanceof ServiceUpdated && $event->previousHostId instanceof HostId))
+            ) {
+                $this->resourceAccessRepository->grantResourceAccess($event->aggregate, $accessGroupIds);
+            }
         }
 
-        if ($event instanceof ServiceMassChanged) {
-            if ($event->previousHostId instanceof HostId) {
-                $this->resourceAccessRepository->grantServiceAccess($event->hostId, $event->serviceId, $accessGroupIds);
-            }
-        } elseif (
-            $event->aggregate instanceof AclScopedInterface
-            && ($event instanceof AggregateCreated || ($event instanceof ServiceUpdated && $event->previousHostId instanceof HostId))
-        ) {
-            $this->resourceAccessRepository->grantResourceAccess($event->aggregate, $accessGroupIds);
+        $groupIdsToFlag = $this->withGroupsGrantingLeftHosts($accessGroupIds, $event);
+        if (count($groupIdsToFlag) > 0) {
+            $this->accessGroupRepository->flagGroupsAsChanged($groupIdsToFlag);
         }
-        $this->accessGroupRepository->flagGroupsAsChanged($accessGroupIds);
+    }
+
+    /**
+     * @param Collection<AccessGroupId> $accessGroupIds
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>>|ServiceMassChanged $event
+     *
+     * @return Collection<AccessGroupId> $accessGroupIds, then the other groups the cache grants the service on a
+     *                                   host it left, each once
+     */
+    private function withGroupsGrantingLeftHosts(
+        Collection $accessGroupIds,
+        AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated|ServiceMassChanged $event,
+    ): Collection {
+        if ($event instanceof ServiceMassChanged) {
+            $serviceId = $event->serviceId;
+        } elseif ($event instanceof ServiceUpdated && $event->aggregate instanceof Service) {
+            $serviceId = $event->aggregate->id();
+        } else {
+            return $accessGroupIds;
+        }
+
+        $leftHostIds = $event->droppedHostLinks->hostIds;
+        if ($event->previousHostId instanceof HostId) {
+            $leftHostIds[] = $event->previousHostId;
+        }
+
+        $grantingGroupIds = $this->resourceAccessRepository->findAccessGroupIdsGrantingService(
+            $serviceId,
+            new Collection($leftHostIds, HostId::class),
+        );
+        $groupIds = [];
+        foreach ([...$accessGroupIds->toArray(), ...$grantingGroupIds->toArray()] as $groupId) {
+            $groupIds[$groupId->value] ??= $groupId;
+        }
+
+        return new Collection(array_values($groupIds), AccessGroupId::class);
     }
 }

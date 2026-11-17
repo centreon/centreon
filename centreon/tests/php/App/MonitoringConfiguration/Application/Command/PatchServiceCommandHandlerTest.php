@@ -39,6 +39,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
@@ -293,6 +294,48 @@ final class PatchServiceCommandHandlerTest extends PatchServiceCommandHandlerTes
         yield 'from a disabled host' => [[false, self::POLLER_ID], self::OTHER_POLLER_ID];
 
         yield 'onto the same poller' => [[true, self::POLLER_ID], self::POLLER_ID];
+    }
+
+    /**
+     * A service linked to several hosts keeps its own only: the save carries the other links, read before they are
+     * dropped, and the pollers of those hosts to flag, each once, without the kept host's poller or one of a disabled
+     * host.
+     */
+    public function testASaveCarriesTheOtherHostLinksItDrops(): void
+    {
+        $this->serviceRepository->linkedHostStates[self::SERVICE_ID] = [
+            self::HOST_ID => new HostState(true, new PollerId(self::POLLER_ID)),
+            self::OTHER_HOST_ID => new HostState(true, new PollerId(self::OTHER_POLLER_ID)),
+            13 => new HostState(true, new PollerId(self::POLLER_ID)),
+            14 => new HostState(false, new PollerId(5)),
+            15 => new HostState(true, new PollerId(self::OTHER_POLLER_ID)),
+        ];
+
+        $this->patch($this->command(name: 'pong'));
+
+        $event = $this->massChange();
+        self::assertSame(self::POLLER_ID, $event->pollerId?->value);
+        self::assertNull($event->previousPollerId);
+        self::assertSame([self::OTHER_HOST_ID, 13, 14, 15], array_map(static fn (HostId $id): int => $id->value, $event->droppedHostLinks->hostIds));
+        self::assertSame([self::OTHER_POLLER_ID], array_map(static fn (PollerId $id): int => $id->value, $event->droppedHostLinks->pollerIds));
+    }
+
+    /**
+     * On a move, the host left is the previous one, not a dropped link; a link to the new host is kept.
+     */
+    public function testAMoveOntoAnotherLinkedHostDropsNoOtherLink(): void
+    {
+        $this->hostRepository->states[self::OTHER_HOST_ID] = new HostState(true, new PollerId(self::OTHER_POLLER_ID));
+        $this->serviceRepository->linkedHostStates[self::SERVICE_ID] = [
+            self::HOST_ID => new HostState(true, new PollerId(self::POLLER_ID)),
+            self::OTHER_HOST_ID => new HostState(true, new PollerId(self::OTHER_POLLER_ID)),
+        ];
+
+        $this->patch($this->command(hostId: self::OTHER_HOST_ID));
+
+        $event = $this->massChange();
+        self::assertSame([self::OTHER_POLLER_ID, self::HOST_ID, self::POLLER_ID], [$event->pollerId?->value, $event->previousHostId?->value, $event->previousPollerId?->value]);
+        self::assertEquals(new DroppedHostLinks(), $event->droppedHostLinks);
     }
 
     /**

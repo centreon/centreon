@@ -71,6 +71,16 @@ interface ResourceAccessRepository
     public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void;
 
     /**
+     * The Access Groups the `centreon_acl` real-time cache grants that service on one of those hosts, lowest id
+     * first: once the service is no longer linked to a host, they are the groups to recompute.
+     *
+     * @param Collection<HostId> $hostIds
+     *
+     * @return Collection<AccessGroupId>
+     */
+    public function findAccessGroupIdsGrantingService(ServiceId $serviceId, Collection $hostIds): Collection;
+
+    /**
      * Flags every Access Group's resource scoping as changed, so the `centAcl` cron fully
      * recomputes `centreon_acl` for all of them on its next run. Used when the creator is an
      * admin: the new resource may now be visible via any group's resource-scoping rule, not

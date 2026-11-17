@@ -35,4 +35,12 @@ final readonly class HostState
         public ?PollerId $pollerId,
     ) {
     }
+
+    /**
+     * The poller to flag after a write on the host's resources: none while the host is disabled.
+     */
+    public function pollerToFlag(): ?PollerId
+    {
+        return $this->activated ? $this->pollerId : null;
+    }
 }

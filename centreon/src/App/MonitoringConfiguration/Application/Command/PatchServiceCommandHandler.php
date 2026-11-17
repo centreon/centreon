@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
@@ -408,7 +409,8 @@ final readonly class PatchServiceCommandHandler
 
     /**
      * Nothing is written when nothing changed. A plain enable/disable keeps the narrow write and its own event;
-     * anything else is a mass change, which carries the previous host and its poller when the service moved.
+     * anything else is a mass change, which carries the previous host and its poller when the service moved, and
+     * the other host links the save drops.
      */
     private function saveAndNotify(Service $before, Service $after, PatchServiceCommand $command, bool $passwordRewritten): void
     {
@@ -419,6 +421,7 @@ final readonly class PatchServiceCommandHandler
             || ! $after->hasSameRelationsAs($before)
             || $this->collapsesStoredSeverities($command, $after)
         ) {
+            $droppedHostLinks = DroppedHostLinks::of($this->repository->findLinkedHostStates($after->id()), $before, $after);
             $this->repository->update($after);
             $this->repository->replaceRelationsAndMacros($after);
 
@@ -428,6 +431,7 @@ final readonly class PatchServiceCommandHandler
                 $actorId,
                 previousPollerId: $hostChanged ? $this->previousPollerToFlag($before, $after) : null,
                 previousHostId: $hostChanged ? $before->hostId : null,
+                droppedHostLinks: $droppedHostLinks,
             ));
 
             // The entry this update left without any secret is purged once the update is committed, so that a failed

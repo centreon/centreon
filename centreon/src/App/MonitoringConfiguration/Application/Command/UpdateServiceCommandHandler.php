@@ -35,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
@@ -318,6 +319,7 @@ final readonly class UpdateServiceCommandHandler
             return $service;
         }
 
+        $droppedHostLinks = DroppedHostLinks::of($this->repository->findLinkedHostStates($service->id()), $existing, $service);
         $this->repository->update($service);
         $this->repository->replaceRelationsAndMacros($service);
 
@@ -339,11 +341,12 @@ final readonly class UpdateServiceCommandHandler
                 $command->actor->userId->value,
                 previousPollerId: $hostChanged ? $this->previousPollerToFlag($existing, $service) : null,
                 previousHostId: $hostChanged ? $existing->hostId : null,
+                droppedHostLinks: $droppedHostLinks,
             ));
-        } elseif (! $activationFlipped) {
+        } elseif (! $activationFlipped || $droppedHostLinks->hostIds !== []) {
             // Only properties the log leaves out changed: the side effects must still run, without a log line.
-            // (When the activation also flipped, the enable/disable event above already runs them.)
-            $this->eventBus->fire(new ServiceUpdated($service, $command->actor->userId->value, loggable: false));
+            // When the activation also flipped, the enable/disable event above runs them, but not for dropped links.
+            $this->eventBus->fire(new ServiceUpdated($service, $command->actor->userId->value, loggable: false, droppedHostLinks: $droppedHostLinks));
         }
 
         // Deferred (post-commit) purge of the vault entry this update left without any secret: the stored service

@@ -35,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
@@ -392,6 +393,63 @@ final class ReloadAclEventHandlerTest extends TestCase
         self::assertSame([], $resourceAccessRepository->grantedServiceAccess);
         self::assertSame([10, 20, 10, 20, 10, 20], $accessGroupRepository->flaggedGroupIds);
         self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    /**
+     * A save that unlinks a service from hosts, the one it moved from and the other links it dropped, also flags
+     * every other group the cache grants the service on one of them; a grant on another service or host is left
+     * alone, and the kept host's grant is unchanged.
+     */
+    public function testItFlagsTheGroupsGrantingTheServiceOnTheHostsItLeft(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+        $resourceAccessRepository->grantedPairs = [
+            1 => [1 => [40], 9 => [20, 30], 11 => [50], 12 => [60]],
+            2 => [11 => [70]],
+        ];
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+        $handler(ServiceMassChanged::of(
+            $this->createService(),
+            7,
+            previousHostId: new HostId(9),
+            droppedHostLinks: new DroppedHostLinks([new HostId(11)], []),
+        ));
+
+        self::assertSame([['hostId' => 1, 'serviceId' => 1, 'accessGroupIds' => [10, 20]]], $resourceAccessRepository->grantedServiceAccess);
+        self::assertSame([10, 20, 30, 50], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItFlagsTheGroupsGrantingTheServiceOnTheHostLinksAnUpdateDropped(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+        $resourceAccessRepository->grantedPairs = [1 => [11 => [50]]];
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+        $handler(new ServiceUpdated($this->createService(), 7, loggable: false, droppedHostLinks: new DroppedHostLinks([new HostId(11)], [])));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 50], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    /**
+     * An admin's save flags every resource, which recomputes the groups granting the hosts left too.
+     */
+    public function testAnAdminFlagsAllResourcesWhenAServiceLeavesHosts(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+        $resourceAccessRepository->grantedPairs = [1 => [11 => [50]]];
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+        $handler(ServiceMassChanged::of($this->createService(), 1, droppedHostLinks: new DroppedHostLinks([new HostId(11)], [])));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
     }
 
     private function createService(): Service

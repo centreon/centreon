@@ -167,6 +167,32 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     }
 
     /**
+     * The groups granted the service on one of the hosts given, each once, lowest first: a grant of the service on
+     * another host, of another service on those hosts, or of the host alone is left out.
+     */
+    public function testFindAccessGroupIdsGrantingServiceReadsThePairsOnTheHostsGiven(): void
+    {
+        $this->realTimeConnection->executeStatement(
+            'INSERT INTO centreon_acl (group_id, host_id, service_id)
+                VALUES (30, 9101, 9100), (10, 9102, 9100), (30, 9102, 9100), (40, 9103, 9100), (50, 9101, 9104), (60, 9101, NULL)',
+        );
+
+        $groupIds = $this->repository->findAccessGroupIdsGrantingService(
+            new ServiceId(9100),
+            new Collection([new HostId(9101), new HostId(9102)], HostId::class),
+        );
+
+        self::assertSame([10, 30], array_map(static fn (AccessGroupId $id): int => $id->value, $groupIds->toArray()));
+    }
+
+    public function testFindAccessGroupIdsGrantingServiceOnNoHostFindsNone(): void
+    {
+        $this->realTimeConnection->executeStatement('INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (10, 9101, 9100)');
+
+        self::assertCount(0, $this->repository->findAccessGroupIdsGrantingService(new ServiceId(9100), new Collection([], HostId::class)));
+    }
+
+    /**
      * A service moved back to a host before the real-time ACL cache is recomputed: its pair is still there for one
      * of the groups. The grant keeps it and adds the others.
      */

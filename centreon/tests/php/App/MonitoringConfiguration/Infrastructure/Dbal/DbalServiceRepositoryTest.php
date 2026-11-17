@@ -2302,6 +2302,37 @@ final class DbalServiceRepositoryTest extends KernelTestCase
     }
 
     /**
+     * Every host the service is directly linked to, lowest id first, with its activation and poller; a host group
+     * link and another service's links are left out.
+     */
+    public function testFindLinkedHostStatesReadsEveryDirectHostLink(): void
+    {
+        $firstPollerId = $this->createPoller($this->token . '-p1');
+        $secondPollerId = $this->createPoller($this->token . '-p2');
+        $enabledHostId = $this->insertListedHost('h1');
+        $this->attachToPoller($enabledHostId, $firstPollerId);
+        $disabledHostId = $this->insertListedHost('h2', activated: '0');
+        $this->attachToPoller($disabledHostId, $secondPollerId);
+        $hostWithoutPollerId = $this->insertListedHost('h3');
+        $serviceId = $this->insertListedService('svc', $disabledHostId);
+        $this->linkServiceToHost($serviceId, $hostWithoutPollerId);
+        $this->linkServiceToHost($serviceId, $enabledHostId);
+        $this->linkServiceToHostGroup($serviceId, $this->insertHostGroup());
+        $this->insertListedService('other', $this->insertListedHost('h4'));
+
+        $states = $this->repository->findLinkedHostStates(new ServiceId($serviceId))->toArray();
+
+        self::assertSame(
+            [
+                $enabledHostId => [true, $firstPollerId],
+                $disabledHostId => [false, $secondPollerId],
+                $hostWithoutPollerId => [true, null],
+            ],
+            array_map(static fn (HostState $state): array => [$state->activated, $state->pollerId?->value], $states),
+        );
+    }
+
+    /**
      * @return array<string, ?string> the form columns of the service, as strings
      */
     private function serviceColumns(int $serviceId): array

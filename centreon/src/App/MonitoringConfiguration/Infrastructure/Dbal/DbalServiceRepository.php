@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
@@ -377,6 +378,29 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             array_map(static fn (int $value): ServiceSeverityId => new ServiceSeverityId($value), $this->fetchIds($qb)),
             ServiceSeverityId::class,
         );
+    }
+
+    public function findLinkedHostStates(ServiceId $id): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hsr.host_host_id', ...self::HOST_STATE_COLUMNS)
+            ->from('host_service_relation', 'hsr')
+            ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
+            ->where($qb->expr()->eq('hsr.service_service_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->orderBy('hsr.host_host_id', 'ASC');
+
+        /** @var list<array{host_host_id: int|string, host_activate: string|null, host_poller_id: int|string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $states = [];
+        foreach ($rows as $row) {
+            $states[(int) $row['host_host_id']] = new HostState(
+                activated: $row['host_activate'] === '1',
+                pollerId: $row['host_poller_id'] !== null ? new PollerId((int) $row['host_poller_id']) : null,
+            );
+        }
+
+        return new Collection($states, HostState::class);
     }
 
     /**

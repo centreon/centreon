@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
@@ -69,6 +70,13 @@ final class FakeServiceRepository implements ServiceRepository
      */
     public array $storedSeverityIds = [];
 
+    /**
+     * @var array<int, array<int, HostState>> service id => every host it is directly linked to, as
+     *                                        {@see findLinkedHostStates()} reads them; unset, the stored service's
+     *                                        own host. A saved relation rewrite leaves the service's host only.
+     */
+    public array $linkedHostStates = [];
+
     /** @var list<Service> */
     public array $updatedServices = [];
 
@@ -113,6 +121,7 @@ final class FakeServiceRepository implements ServiceRepository
 
         $this->relationsReplacedServices[] = $service;
         $this->services[$service->id()->value] = $service;
+        unset($this->linkedHostStates[$service->id()->value]);
     }
 
     public function findSeverityIds(ServiceId $id): Collection
@@ -127,6 +136,20 @@ final class FakeServiceRepository implements ServiceRepository
         $severityId = ($this->services[$id->value] ?? null)?->severityId;
 
         return new Collection($severityId instanceof ServiceSeverityId ? [$severityId] : [], ServiceSeverityId::class);
+    }
+
+    public function findLinkedHostStates(ServiceId $id): Collection
+    {
+        if (isset($this->linkedHostStates[$id->value])) {
+            return new Collection($this->linkedHostStates[$id->value], HostState::class);
+        }
+
+        $service = $this->services[$id->value] ?? null;
+
+        return new Collection(
+            $service instanceof Service ? [$service->hostId->value => new HostState($service->hostActivated, $service->hostPollerId)] : [],
+            HostState::class,
+        );
     }
 
     public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool

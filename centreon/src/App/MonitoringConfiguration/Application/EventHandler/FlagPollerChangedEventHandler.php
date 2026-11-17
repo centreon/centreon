@@ -43,7 +43,8 @@ use App\Shared\Domain\Event\AsEventHandler;
  * {@see PollerScopedInterface}): the owning poller's configuration just changed, so its
  * `nagios_server.updated` flag must be raised, or the monitoring engine keeps running on stale
  * configuration until something else touches it. Reacting to the {@see AggregateUpdated} supertype
- * also catches its enable/disable specializations. A {@see ServiceMassChanged} names the pollers itself.
+ * also catches its enable/disable specializations. A {@see ServiceMassChanged} names the pollers itself. A service
+ * event also names the pollers of the other host links its save dropped.
  */
 #[AsEventHandler]
 final readonly class FlagPollerChangedEventHandler
@@ -59,7 +60,7 @@ final readonly class FlagPollerChangedEventHandler
     public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated|ServiceMassChanged $event): void
     {
         if ($event instanceof ServiceMassChanged) {
-            foreach ([$event->pollerId, $event->previousPollerId] as $pollerId) {
+            foreach ([$event->pollerId, $event->previousPollerId, ...$event->droppedHostLinks->pollerIds] as $pollerId) {
                 if ($pollerId instanceof PollerId) {
                     $this->pollerRepository->flagIdAsChanged($pollerId);
                 }
@@ -81,6 +82,12 @@ final readonly class FlagPollerChangedEventHandler
             && $event->previousPollerId instanceof PollerId
         ) {
             $this->pollerRepository->flagIdAsChanged($event->previousPollerId);
+        }
+
+        if ($event instanceof ServiceUpdated) {
+            foreach ($event->droppedHostLinks->pollerIds as $pollerId) {
+                $this->pollerRepository->flagIdAsChanged($pollerId);
+            }
         }
     }
 }

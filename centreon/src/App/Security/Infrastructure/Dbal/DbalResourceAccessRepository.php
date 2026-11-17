@@ -49,6 +49,7 @@ use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -82,6 +83,34 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
     public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void
     {
         $this->grant($hostId->value, $serviceId->value, $accessGroupIds);
+    }
+
+    public function findAccessGroupIdsGrantingService(ServiceId $serviceId, Collection $hostIds): Collection
+    {
+        if ($hostIds->count() === 0) {
+            return new Collection([], AccessGroupId::class);
+        }
+
+        $qb = $this->realTimeConnection->createQueryBuilder();
+        $qb->select('DISTINCT group_id')
+            ->from('centreon_acl')
+            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId->value, ParameterType::INTEGER)))
+            ->andWhere($qb->expr()->in(
+                'host_id',
+                $qb->createNamedParameter(
+                    array_values(array_map(static fn (HostId $id): int => $id->value, $hostIds->toArray())),
+                    ArrayParameterType::INTEGER,
+                ),
+            ))
+            ->orderBy('group_id', 'ASC');
+
+        /** @var list<int|string> $groupIds */
+        $groupIds = $qb->executeQuery()->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $id): AccessGroupId => new AccessGroupId((int) $id), $groupIds),
+            AccessGroupId::class,
+        );
     }
 
     public function flagAllResourcesAsChanged(): void

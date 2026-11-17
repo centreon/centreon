@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
@@ -60,6 +61,15 @@ interface ServiceRepository
      * @return Collection<ServiceSeverityId>
      */
     public function findSeverityIds(ServiceId $id): Collection;
+
+    /**
+     * The hosts the service is directly linked to, each with its state, lowest id first, whatever the actor may
+     * see: {@see findOne()} reads only the lowest, and {@see replaceRelationsAndMacros()} keeps only the host the
+     * service is saved with, so a write needs this read, before it, to know the links it drops.
+     *
+     * @return Collection<HostState> indexed by host id
+     */
+    public function findLinkedHostStates(ServiceId $id): Collection;
 
     /**
      * Compared as legacy does: case-insensitive, whatever the actor's scope or the service's activation. A service

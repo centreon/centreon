@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Event;
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
@@ -39,7 +40,8 @@ use App\Shared\Domain\Event\EventInterface;
 
 /**
  * A service changed by a mass change, as it was saved: its form (without its own macros, which the activity log
- * leaves out), the poller of its host to flag, and the host and poller it left when it moved.
+ * leaves out), the poller of its host to flag, the host and poller it left when it moved, and the other host links
+ * the save dropped.
  */
 final readonly class ServiceMassChanged implements EventInterface
 {
@@ -65,12 +67,18 @@ final readonly class ServiceMassChanged implements EventInterface
         public int $creatorId,
         public ?PollerId $previousPollerId = null,
         public ?HostId $previousHostId = null,
+        public DroppedHostLinks $droppedHostLinks = new DroppedHostLinks(),
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {
     }
 
-    public static function of(Service $service, int $creatorId, ?PollerId $previousPollerId = null, ?HostId $previousHostId = null): self
-    {
+    public static function of(
+        Service $service,
+        int $creatorId,
+        ?PollerId $previousPollerId = null,
+        ?HostId $previousHostId = null,
+        DroppedHostLinks $droppedHostLinks = new DroppedHostLinks(),
+    ): self {
         return new self(
             serviceId: $service->id(),
             name: $service->name,
@@ -87,6 +95,7 @@ final readonly class ServiceMassChanged implements EventInterface
             creatorId: $creatorId,
             previousPollerId: $previousPollerId,
             previousHostId: $previousHostId,
+            droppedHostLinks: $droppedHostLinks,
         );
     }
 

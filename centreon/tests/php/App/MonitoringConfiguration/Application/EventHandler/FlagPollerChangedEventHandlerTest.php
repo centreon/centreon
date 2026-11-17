@@ -48,6 +48,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
@@ -283,6 +284,42 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
         yield 'stayed' => [true, null, [5]];
 
         yield 'on a disabled host' => [false, null, []];
+    }
+
+    /**
+     * The pollers of the other host links the save dropped are flagged too, after those the event names.
+     */
+    public function testServiceMassChangedFlagsThePollersOfTheDroppedHostLinks(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $handler(ServiceMassChanged::of(
+            $this->createService(hostActivated: true),
+            1,
+            previousPollerId: new PollerId(2),
+            previousHostId: new HostId(9),
+            droppedHostLinks: new DroppedHostLinks([new HostId(11), new HostId(12)], [new PollerId(6), new PollerId(7)]),
+        ));
+
+        self::assertSame([5, 2, 6, 7], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testServiceUpdatedFlagsThePollersOfTheDroppedHostLinks(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $service = $this->createService(hostActivated: true);
+        $handler(new ServiceUpdated(
+            $service,
+            1,
+            loggable: false,
+            droppedHostLinks: new DroppedHostLinks([new HostId(11), new HostId(12)], [new PollerId(6), new PollerId(7)]),
+        ));
+
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+        self::assertSame([6, 7], $pollerRepository->flaggedPollerIds);
     }
 
     public function testServiceUpdatedWithoutPreviousPollerFlagsTheCurrentOneOnly(): void
