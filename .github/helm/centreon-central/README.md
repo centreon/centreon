@@ -283,8 +283,44 @@ direct writes. When enabled:
 - fpm flushes rrdcached before drawing a graph (`CENTREON_RRDCACHED_HOST`,
   ClusterIP Service `centreon-rrdcached`, reachable from fpm only).
 - Native sidecar: started (answers PING) before cbd, stopped after it, and
-  flushes its pending updates on SIGTERM. Its journal is an emptyDir: updates
-  not written yet are lost only on an abrupt pod death.
+  flushes its pending updates on SIGTERM. Its journal is an emptyDir by
+  default: updates not written yet are lost only on an abrupt pod death
+  (see `rrdcached.journal` below).
+
+### Tuning (`rrdcached.args`, `rrdcached.journal`)
+
+The flags are the image's CMD (`-w 300 -z 60 -f 3600`): with a 5 min check
+interval, `-w 300` batches about one update per write, so every RRD file is
+still written once per check. To write less often without rebuilding the
+image, set `rrdcached.args`. It replaces the whole CMD (the entrypoint stays
+`rrdcached`): copy the CMD from `values.yaml` and change only the timings,
+e.g. `-w 3600 -z 1800`. Keep `-g`, `-l 0.0.0.0:42217` (cbd, fpm, the probes
+and the NetworkPolicy use 42217), `-b /var/lib/centreon -B`,
+`-j /var/lib/rrdcached/journal`, `-F` and `-p` (UID 902 cannot write the
+default pid file). Empty (default): the image's CMD, unchanged behaviour.
+A change restarts the broker pod.
+
+A longer `-w` holds more updates in memory:
+
+- **Abrupt death** (OOM kill, node loss): up to `-w` seconds of updates are
+  lost with the default emptyDir journal. `rrdcached.journal.persistent: true`
+  puts the journal on its own ReadWriteOnce PVC
+  (`<release>-rrdcached-journal`, `rrdcached.journal.size`/`storageClass`,
+  default 1Gi on `persistence.storageClass`), replayed at the next start.
+  RWO fits the broker: a one-replica StatefulSet whose pod is deleted
+  before the next one starts (same as `broker-cache`). Being its own volume,
+  it can use block storage (gp3) while the RRD files stay on EFS. The
+  broker's `own-volumes` init gives it to UID 902 and removes the stale pid
+  file an abrupt death leaves there.
+- **Clean stop** (rollout, drain): `-F` writes every pending update after
+  cbd has stopped, inside the pod's single grace period
+  (`broker.terminationGracePeriodSeconds`, 60 s, shared with cbd saving its
+  queues). Raise it with a long `-w` on slow storage: past it the flush is
+  killed, and only a persistent journal replays what was not written.
+
+Measure before and after (EFS write operations, the broker pod's stop
+time): neither the timings above nor the persistent journal were measured
+on EFS yet.
 
 **Requirement**: a broker image whose TCP RRD output initializes its logger
 (centreon-collect MON-213839). Without it the output's constructor leaves

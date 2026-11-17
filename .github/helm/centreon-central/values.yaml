@@ -534,7 +534,11 @@ broker:
   # OOM kill), in-memory events lost.
   cacheDirectory: /var/cache/centreon-broker
   # cbd (the image's PID 1) saves its queues on SIGTERM before exiting:
-  # allow for a large backlog.
+  # allow for a large backlog. One budget for the whole pod: the rrdcached
+  # sidecar is stopped after cbd, then flushes every pending update (-F)
+  # within what is left. Raise it with a long rrdcached -w on slow storage
+  # (EFS); past it the flush is killed, the journal replays it at the next
+  # start only with rrdcached.journal.persistent.
   terminationGracePeriodSeconds: 60
   # "centreon-broker" Service, BBDO 5669 only: remote pollers send their data
   # here (LoadBalancer/NodePort for pollers outside the cluster; BBDO is raw
@@ -559,6 +563,42 @@ broker:
 # crashes on the first RRD update otherwise.
 rrdcached:
   enabled: true
+  # rrdcached's flags (the sidecar's args; the entrypoint stays rrdcached).
+  # Empty = the image's CMD, which is:
+  #   ["-g", "-l", "0.0.0.0:42217", "-b", "/var/lib/centreon", "-B",
+  #    "-j", "/var/lib/rrdcached/journal", "-F", "-w", "300", "-z", "60",
+  #    "-f", "3600", "-p", "/var/lib/rrdcached/journal/rrdcached.pid"]
+  # Set, it REPLACES that CMD wholesale: copy it and change only the
+  # timings. Keep -g (foreground), -l 0.0.0.0:42217 (cbd, fpm, the probes and
+  # the NetworkPolicy use 42217), -b /var/lib/centreon and -B (the RRD
+  # directories), -j (the journal volume below), -F (flush everything on
+  # stop) and -p (UID 902 cannot write the default /var/run pid file).
+  # -w: seconds a file's updates are held before being written (one write
+  # per file per -w); -z: random delay spreading those writes; -f: flush of
+  # files with no new update. With a 5 min check interval, -w 300 batches
+  # about one update per write. A longer -w writes less often but holds more
+  # pending updates: lost on an abrupt pod death unless journal.persistent,
+  # and longer to flush on stop (broker.terminationGracePeriodSeconds).
+  # Example, the CMD with -w 3600 -z 1800:
+  #   args: ["-g", "-l", "0.0.0.0:42217", "-b", "/var/lib/centreon", "-B",
+  #          "-j", "/var/lib/rrdcached/journal", "-F", "-w", "3600",
+  #          "-z", "1800", "-f", "3600",
+  #          "-p", "/var/lib/rrdcached/journal/rrdcached.pid"]
+  args: []
+  # rrdcached's journal (-j): every update is appended there before it is
+  # cached, and replayed at start. emptyDir (default): survives a sidecar
+  # restart, not the pod's death. persistent: a ReadWriteOnce PVC
+  # (<release>-rrdcached-journal), so an abrupt death (OOM kill, node loss,
+  # grace period exceeded) loses nothing not yet written. RWO is enough: the
+  # broker is a one-replica StatefulSet, its pod is deleted before the next
+  # one starts. Its own volume, so a block-storage class (gp3) can be used
+  # even when the RRD files are on EFS. Size: about 60 bytes per update held
+  # (50,000 files at one update per 5 min over -w 3600 ~ 36 MB).
+  journal:
+    persistent: false
+    size: 1Gi
+    # Empty = persistence.storageClass.
+    storageClass: ""
   resources: {}
 
 # ---------------------------------------------------------------------------

@@ -271,6 +271,11 @@ migrate() {
 }
 {{- end -}}
 
+{{/* "true" when rrdcached's journal is on its own PVC (rrdcached.journal). */}}
+{{- define "centreon-central.rrdcachedJournalPvc" -}}
+{{- if and .Values.rrdcached.enabled .Values.rrdcached.journal.persistent }}true{{ end -}}
+{{- end -}}
+
 {{/* "true" when fpm can run several replicas: the generated config is then
      shared (the UI generates it and moves it in two requests that may reach
      two replicas), otherwise it is pod-local. */}}
