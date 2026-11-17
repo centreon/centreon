@@ -35,7 +35,7 @@ $type = $type ? '&type=' . $type : '';
 $o = $_GET['o'] ?? null;
 $option = $o !== null ? "&o={$o}" : '';
 
-// Keep the selected service when paginating its metrics (Administration > Parameters > Data)
+// Keep the index_id filter across pages (e.g. a service's metrics in Administration > Parameters > Data)
 $indexId = filter_var($_GET['index_id'] ?? null, FILTER_VALIDATE_INT);
 if ($indexId !== false) {
     $option .= '&index_id=' . $indexId;
