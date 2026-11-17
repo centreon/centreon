@@ -342,6 +342,20 @@ final class UpdateCommandHandlerTest extends TestCase
         self::assertSame(['24.10.1'], $this->updateRepository->updatesRun, 'The platform version is not recorded');
     }
 
+    public function testKeepsTheLegacyVersionWithoutTheInstallDirectory(): void
+    {
+        $this->scriptFinder->availableUpdates = ['24.10.1'];
+        $this->updateRepository->installDirectoryPresent = false;
+
+        ($this->handler)(new UpdateCommand());
+
+        self::assertSame('24.10.1', $this->callFor('start')['toVersion']);
+        self::assertSame(['24.10.1'], $this->updateRepository->updatesRun, 'The platform version is not recorded');
+        self::assertSame('Kept the platform version 24.10.1: without the install directory, a pending Update-next.php cannot be detected.', $this->callFor('warning')['message']);
+        self::assertNotContains('backup_install_directory', array_column($this->logger->calls, 'stepName'));
+        self::assertContains('success', $this->loggedMethods());
+    }
+
     public function testStopsAtTheFirstFailingMigrationSetAndReleasesTheLock(): void
     {
         $this->migrationRunner->failingSets = [WebMigrationSetEnum::Realtime->value];
