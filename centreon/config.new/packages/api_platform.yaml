@@ -10,6 +10,7 @@ api_platform:
         App\Shared\Domain\Exception\AggregateAlreadyExistsException: 409
         App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongException: 422 # a generated name too long is a validation failure, not a name-already-taken conflict
         App\MonitoringConfiguration\Domain\Exception\DuplicatedHostTemplateNameTooLongException: 422
+        App\MonitoringConfiguration\Domain\Exception\InvalidServiceTemplateAliasException: 422 # a stored alias that cannot name a service fails the deployment
         App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException: 400
         App\Shared\Domain\Exception\AggregateNotFoundException: 404
         App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException: 403 # duplicating a host the license no longer allows; before AggregateConflictException, as the first match wins. A payload's template_ids stays a 422, see InvalidReferenceExceptionListener

@@ -27,13 +27,20 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\Security\Domain\Aggregate\AccessGroupId;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
+use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
@@ -86,6 +93,148 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame(10, (int) $rows[0]['group_id']);
         self::assertNull($rows[0]['service_id']);
         self::assertSame(20, (int) $rows[1]['group_id']);
+    }
+
+    /**
+     * A service is granted on its host: one (group, host, service) row per given group.
+     */
+    public function testGrantResourceAccessForAService(): void
+    {
+        $service = new Service(
+            id: new ServiceId(9002),
+            name: new ServiceName('ping'),
+            hostId: new HostId(9001),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        );
+
+        $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9002],
+        );
+
+        self::assertSame(
+            [[10, 9001, 9002], [20, 9001, 9002]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    /**
+     * A service moved to another host is granted on its new host: the rows name the new pair.
+     */
+    public function testGrantResourceAccessForAMovedService(): void
+    {
+        $service = new Service(
+            id: new ServiceId(9003),
+            name: new ServiceName('ping'),
+            hostId: new HostId(9001),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        );
+        $service->moveToHost(new HostId(9004), new HostState(true, new PollerId(2)));
+
+        $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9003],
+        );
+
+        self::assertSame(
+            [[10, 9004, 9003]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    public function testGrantServiceAccessByIds(): void
+    {
+        $this->repository->grantServiceAccess(new HostId(9004), new ServiceId(9005), new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9005],
+        );
+
+        self::assertSame(
+            [[10, 9004, 9005], [20, 9004, 9005]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    /**
+     * The groups granted the service on one of the hosts given, each once, lowest first: a grant of the service on
+     * another host, of another service on those hosts, or of the host alone is left out.
+     */
+    public function testFindAccessGroupIdsGrantingServiceReadsThePairsOnTheHostsGiven(): void
+    {
+        $this->realTimeConnection->executeStatement(
+            'INSERT INTO centreon_acl (group_id, host_id, service_id)
+                VALUES (30, 9101, 9100), (10, 9102, 9100), (30, 9102, 9100), (40, 9103, 9100), (50, 9101, 9104), (60, 9101, NULL)',
+        );
+
+        $groupIds = $this->repository->findAccessGroupIdsGrantingService(
+            new ServiceId(9100),
+            new Collection([new HostId(9101), new HostId(9102)], HostId::class),
+        );
+
+        self::assertSame([10, 30], array_map(static fn (AccessGroupId $id): int => $id->value, $groupIds->toArray()));
+    }
+
+    public function testFindAccessGroupIdsGrantingServiceOnNoHostFindsNone(): void
+    {
+        $this->realTimeConnection->executeStatement('INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (10, 9101, 9100)');
+
+        self::assertCount(0, $this->repository->findAccessGroupIdsGrantingService(new ServiceId(9100), new Collection([], HostId::class)));
+    }
+
+    /**
+     * A service moved back to a host before the real-time ACL cache is recomputed: its pair is still there for one
+     * of the groups. The grant keeps it and adds the others.
+     */
+    public function testGrantResourceAccessKeepsAPairAlreadyGranted(): void
+    {
+        $this->realTimeConnection->executeStatement(
+            'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (10, 9005, 9006)',
+        );
+        $service = new Service(
+            id: new ServiceId(9006),
+            name: new ServiceName('ping'),
+            hostId: new HostId(9005),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        );
+
+        $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9006],
+        );
+
+        self::assertSame(
+            [[10, 9005, 9006], [20, 9005, 9006]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    /**
+     * An ACL-scoped aggregate with no mapping is refused rather than granted with rows of the wrong shape.
+     */
+    public function testGrantResourceAccessRefusesAnAggregateWithoutMapping(): void
+    {
+        $resource = new class (new HostId(9001)) extends AggregateRoot implements AclScopedInterface {
+        };
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('No ACL grant mapping for aggregate');
+
+        $this->repository->grantResourceAccess($resource, new Collection([new AccessGroupId(10)], AccessGroupId::class));
     }
 
     public function testFlagAllResourcesAsChangedFlagsEveryAclResource(): void
@@ -752,20 +901,19 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
-    public function testUserWithNoAclGroupHasAccessToNoImageFolders(): void
+    public function testUserWithNoAclGroupHasAccessToNoGrantedImageFolders(): void
     {
-        // Legacy `if ($accessGroups === []) return new \EmptyIterator()`: a user with no accessible
-        // ACL resource is fully restricted (fails closed): their scope allows nothing, it is
-        // not unrestricted.
+        // A user with no accessible ACL resource is fully restricted (fails closed): their scope
+        // is not unrestricted, and holds nothing but the system folders.
         $userId = new UserId($this->createContact('user-no-acl-media'));
 
         $folderScope = $this->repository->findImageFolderAccessScope($userId);
 
         self::assertFalse($folderScope->isUnrestricted());
-        self::assertSame([], $folderScope->allowedIdValues());
+        self::assertSame([], $this->fixtureImageFolderIds($folderScope));
     }
 
-    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoImageFolders(): void
+    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoGrantedImageFolders(): void
     {
         $contactId = $this->createContact('user-empty-resource-media');
         $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [], allImageFolders: false);
@@ -775,7 +923,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $folderScope = $this->repository->findImageFolderAccessScope($userId);
 
         self::assertFalse($folderScope->isUnrestricted());
-        self::assertSame([], $folderScope->allowedIdValues());
+        self::assertSame([], $this->fixtureImageFolderIds($folderScope));
     }
 
     public function testUserWithAclResourceFlaggedAllImageFoldersHasAccessToAllImageFolders(): void
@@ -797,7 +945,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $folderScope = $this->repository->findImageFolderAccessScope($userId);
         self::assertFalse($folderScope->isUnrestricted());
-        self::assertEquals([301], $folderScope->allowedIdValues());
+        self::assertSame([301], $this->fixtureImageFolderIds($folderScope));
     }
 
     public function testAnImageFolderRelationWithoutFolderIsIgnored(): void
@@ -806,7 +954,44 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $contactId = $this->createContact('user-null-folder-media');
         $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301, null], allImageFolders: false);
 
-        self::assertSame([301], $this->repository->findImageFolderAccessScope(new UserId($contactId))->allowedIdValues());
+        self::assertSame([301], $this->fixtureImageFolderIds($this->repository->findImageFolderAccessScope(new UserId($contactId))));
+    }
+
+    public function testUserWithNoAclGroupStillHasAccessToTheSystemImageFolders(): void
+    {
+        $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'centreon-map']);
+        $userId = new UserId($this->createContact('user-no-acl-system-media'));
+
+        $folderScope = $this->repository->findImageFolderAccessScope($userId);
+
+        self::assertFalse($folderScope->isUnrestricted());
+        self::assertSame([303], $this->fixtureImageFolderIds($folderScope));
+    }
+
+    public function testOnlyTheExactSystemFolderNamesAreGranted(): void
+    {
+        // the column collation ignores case: "PPM" must not be taken for the "ppm" system folder
+        $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'PPM']);
+        $this->connection->insert('view_img_dir', ['dir_id' => 304, 'dir_name' => 'Dashboards']);
+
+        $userId = new UserId($this->createContact('user-no-acl-system-case-media'));
+
+        self::assertSame([], $this->fixtureImageFolderIds($this->repository->findImageFolderAccessScope($userId)));
+    }
+
+    public function testSystemImageFoldersAreAddedToTheGrantedImageFoldersOnce(): void
+    {
+        $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'centreon-map']);
+        $this->connection->insert('view_img_dir', ['dir_id' => 304, 'dir_name' => 'ppm']);
+
+        $contactId = $this->createContact('user-granted-and-system-media');
+        // granting a system folder explicitly must not duplicate it in the scope
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301, 303], allImageFolders: false);
+
+        self::assertSame(
+            [301, 303, 304],
+            $this->fixtureImageFolderIds($this->repository->findImageFolderAccessScope(new UserId($contactId))),
+        );
     }
 
     /**
@@ -1318,6 +1503,26 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
                 'hg_hg_id' => $hostGroupId,
             ]);
         }
+    }
+
+    /**
+     * The image folders of the scope that this test created (301 to 305), sorted. Other folders,
+     * such as system folders already present in the database, are left out so that the
+     * assertions do not depend on the database content. Duplicates are kept.
+     *
+     * @param AccessScope<MediaDirectoryId> $scope
+     *
+     * @return list<int>
+     */
+    private function fixtureImageFolderIds(AccessScope $scope): array
+    {
+        $ids = array_values(array_filter(
+            $scope->allowedIdValues(),
+            static fn (int $id): bool => $id >= 301 && $id <= 305,
+        ));
+        sort($ids);
+
+        return $ids;
     }
 
     /**

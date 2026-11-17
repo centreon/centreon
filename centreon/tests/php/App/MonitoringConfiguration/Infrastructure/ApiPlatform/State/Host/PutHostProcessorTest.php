@@ -639,6 +639,38 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertJsonContains(['message' => "[template_ids] The license host limit is reached: host templates coming from Monitoring Connectors cannot be used.\n"]);
     }
 
+    public function testRemovingATemplateDeletesTheServicesOnlyItProvides(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $otherHostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $keptId = $this->insertHostTemplate($this->uniqueName('kept'));
+        $lostId = $this->insertHostTemplate($this->uniqueName('lost'));
+        $this->connection->insert('host_template_relation', ['host_host_id' => $hostId, 'host_tpl_id' => $keptId, '`order`' => 1]);
+        $this->connection->insert('host_template_relation', ['host_host_id' => $hostId, 'host_tpl_id' => $lostId, '`order`' => 2]);
+
+        $keptService = $this->insertServiceOfHost($hostId, $this->insertServiceTemplate($keptId));
+        $lostServiceTemplateId = $this->insertServiceTemplate($lostId);
+        $lostService = $this->insertServiceOfHost($hostId, $lostServiceTemplateId);
+        $sharedService = $this->insertServiceOfHost($hostId, $lostServiceTemplateId);
+        $this->connection->insert('host_service_relation', ['host_host_id' => $otherHostId, 'service_service_id' => $sharedService]);
+
+        $this->request('PUT', $this->endpoint($hostId), ['json' => [
+            ...$this->payload($this->uniqueName('server'), $pollerId),
+            'template_ids' => [$keptId],
+            'create_services_linked_to_templates' => false,
+        ]]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame([$keptId], $this->intColumn('SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = ?', $hostId));
+        self::assertSame(
+            [$keptService, $sharedService],
+            $this->intColumn('SELECT service_service_id FROM host_service_relation WHERE host_host_id = ? ORDER BY service_service_id', $hostId),
+        );
+        self::assertFalse($this->connection->fetchOne('SELECT service_id FROM service WHERE service_id = ?', [$lostService]));
+    }
+
     public function testAChangedInheritedMacroBecomesADirectMacroWithoutTouchingTheTemplate(): void
     {
         $this->login();
@@ -1212,6 +1244,28 @@ final class PutHostProcessorTest extends ApiTestCase
         $this->connection->insert('host', ['host_name' => $name, 'host_register' => '0']);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertServiceTemplate(int $hostTemplateId): int
+    {
+        $this->connection->insert('service', ['service_description' => $this->uniqueName('service-template'), 'service_register' => '0']);
+        $serviceTemplateId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('host_service_relation', ['host_host_id' => $hostTemplateId, 'service_service_id' => $serviceTemplateId]);
+
+        return $serviceTemplateId;
+    }
+
+    private function insertServiceOfHost(int $hostId, int $serviceTemplateId): int
+    {
+        $this->connection->insert('service', [
+            'service_description' => $this->uniqueName('service'),
+            'service_register' => '1',
+            'service_template_model_stm_id' => $serviceTemplateId,
+        ]);
+        $serviceId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('host_service_relation', ['host_host_id' => $hostId, 'service_service_id' => $serviceId]);
+
+        return $serviceId;
     }
 
     private function insertMacro(int $hostId, string $name, string $value, bool $isPassword = false, ?string $description = null): int

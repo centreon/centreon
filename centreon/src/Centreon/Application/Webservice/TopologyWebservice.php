@@ -29,11 +29,7 @@ use Centreon\Domain\Repository\TopologyRepository;
 use Centreon\Infrastructure\Webservice;
 use Centreon\ServiceProvider;
 use Core\Common\Infrastructure\FeatureFlags;
-use OpenApi\Annotations as OA;
 
-/**
- * @OA\Tag(name="centreon_topology", description="Web Service for Topology")
- */
 class TopologyWebservice extends Webservice\WebServiceAbstract implements
     Webservice\WebserviceAutorizePublicInterface
 {
@@ -80,42 +76,6 @@ class TopologyWebservice extends Webservice\WebServiceAbstract implements
     }
 
     /**
-     * @OA\Get(
-     *   path="/internal.php?object=centreon_topology&action=getTopologyByPage",
-     *   description="Get topology object by page id",
-     *   tags={"centreon_topology"},
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_topology"},
-     *          default="centreon_topology"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"getTopologyByPage"},
-     *          default="getTopologyByPage"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="topology_page",
-     *       @OA\Schema(
-     *          type="string"
-     *       ),
-     *       description="Page ID for topology",
-     *       required=false
-     *   ),
-     * )
      * @throws \RestBadRequestException
      * @return array
      */
@@ -138,51 +98,6 @@ class TopologyWebservice extends Webservice\WebServiceAbstract implements
     }
 
     /**
-     * @OA\Get(
-     *   path="/internal.php?object=centreon_topology&action=navigationList",
-     *   description="Get list of menu items by acl",
-     *   tags={"centreon_topology"},
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_topology"},
-     *          default="centreon_topology"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"navigationList"},
-     *          default="navigationList"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="reactOnly",
-     *       @OA\Schema(
-     *          type="integer"
-     *       ),
-     *       description="fetch react only list(value 1) or full list",
-     *       required=false
-     *   ),
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="forActive",
-     *       @OA\Schema(
-     *          type="integer"
-     *       ),
-     *       description="represent values for active check",
-     *       required=false
-     *   )
-     * )
      * @throws \RestBadRequestException
      */
     public function getNavigationList()

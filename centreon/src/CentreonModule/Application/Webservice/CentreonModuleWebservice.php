@@ -33,9 +33,6 @@ use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\Infrastructure\Source\ModuleSource;
 use CentreonModule\ServiceProvider;
 
-/**
- * @OA\Tag(name="centreon_module", description="Resource for authorized access")
- */
 class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements Webservice\WebserviceAutorizeRestApiInterface
 {
     /**
@@ -53,124 +50,6 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
     }
 
     /**
-     * @OA\Get(
-     *   path="/internal.php?object=centreon_module&action=list",
-     *   description="Get list of modules and widgets",
-     *   tags={"centreon_module"},
-     *   security={{"Session": {}}},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_module"},
-     *          default="centreon_module"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"list"},
-     *          default="list"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="search",
-     *
-     *       @OA\Schema(
-     *          type="string"
-     *       ),
-     *       description="filter the result by name and keywords",
-     *       required=false
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="installed",
-     *
-     *       @OA\Schema(
-     *          type="boolean"
-     *       ),
-     *       description="filter the result by installed or non-installed modules",
-     *       required=false
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="updated",
-     *
-     *       @OA\Schema(
-     *          type="boolean"
-     *       ),
-     *       description="filter the result by updated or non-installed modules",
-     *       required=false
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="types",
-     *
-     *       @OA\Schema(
-     *          type="array",
-     *          items={"type": "string", "enum": {"module", "widget"}}
-     *       ),
-     *       description="filter the result by type",
-     *       required=false
-     *   ),
-     *
-     *   @OA\Response(
-     *      response="200",
-     *      description="OK",
-     *
-     *       @OA\MediaType(
-     *          mediaType="application/json",
-     *
-     *          @OA\Schema(
-     *
-     *              @OA\Property(property="module",
-     *                  @OA\Property(
-     *                      property="entities",
-     *                      type="array",
-     *
-     *                      @OA\Items(ref="#/components/schemas/ModuleEntity")
-     *                  ),
-     *
-     *                  @OA\Property(
-     *                      property="pagination",
-     *                      ref="#/components/schemas/Pagination"
-     *                  )
-     *              ),
-     *              @OA\Property(property="widget", type="object",
-     *                  @OA\Property(
-     *                      property="entities",
-     *                      type="array",
-     *
-     *                      @OA\Items(ref="#/components/schemas/ModuleEntity")
-     *                  ),
-     *
-     *                  @OA\Property(
-     *                      property="pagination",
-     *                      ref="#/components/schemas/Pagination"
-     *                  )
-     *              ),
-     *              @OA\Property(property="status", type="boolean")
-     *          )
-     *      )
-     *   )
-     * )
-     *
      * Get list of modules and widgets
      *
      * @throws \RestBadRequestException
@@ -212,79 +91,6 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
     }
 
     /**
-     * @OA\Get(
-     *   path="/internal.php?object=centreon_module&action=details",
-     *   description="Get details of modules and widgets",
-     *   tags={"centreon_module"},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_module"},
-     *          default="centreon_module"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"details"},
-     *          default="details"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="id",
-     *
-     *       @OA\Schema(
-     *          type="string"
-     *       ),
-     *       description="ID of a module or a widget",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="type",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={
-     *              "module",
-     *              "widget"
-     *          }
-     *       ),
-     *       description="type of object",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Response(
-     *      response="200",
-     *      description="OK",
-     *
-     *       @OA\MediaType(
-     *          mediaType="application/json",
-     *
-     *          @OA\Schema(
-     *
-     *              @OA\Property(property="result", ref="#/components/schemas/ModuleDetailEntity"),
-     *              @OA\Property(property="status", type="boolean")
-     *          )
-     *      )
-     *   )
-     * )
-     *
      * Get details of module/widget
      *
      * @throws \RestBadRequestException
@@ -314,75 +120,6 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
     }
 
     /**
-     * @OA\Post(
-     *   path="/internal.php?object=centreon_module&action=install",
-     *   summary="Install module or widget",
-     *   tags={"centreon_module"},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_module"},
-     *          default="centreon_module"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"install"},
-     *          default="install"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="id",
-     *
-     *       @OA\Schema(
-     *          type="string"
-     *       ),
-     *       description="ID of a module or a widget",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="type",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={
-     *              "module",
-     *              "widget"
-     *          }
-     *       ),
-     *       description="type of object",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Response(
-     *       response="200",
-     *       description="OK",
-     *
-     *       @OA\JsonContent(
-     *
-     *          @OA\Property(property="result", ref="#/components/schemas/UpdateAction"),
-     *          @OA\Property(property="status", type="boolean")
-     *       )
-     *   )
-     * )
-     *
      * Install module or widget
      *
      * @throws \RestBadRequestException
@@ -421,88 +158,6 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
     }
 
     /**
-     * @OA\Post(
-     *   path="/internal.php?object=centreon_module&action=update",
-     *   summary="Update module or widget",
-     *   tags={"centreon_module"},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_module"},
-     *          default="centreon_module"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"update"},
-     *          default="update"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="id",
-     *
-     *       @OA\Schema(
-     *          type="string"
-     *       ),
-     *       description="ID of a module or a widget",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="type",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={
-     *              "module",
-     *              "widget"
-     *          }
-     *       ),
-     *       description="type of object",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="clearCache",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"0", "1"},
-     *          default="1"
-     *       ),
-     *       description="0 to leave the cache as is when updating several modules: the clearCache action ends the batch",
-     *       required=false
-     *   ),
-     *
-     *   @OA\Response(
-     *       response="200",
-     *       description="OK",
-     *
-     *       @OA\JsonContent(
-     *
-     *          @OA\Property(property="result", ref="#/components/schemas/UpdateAction"),
-     *          @OA\Property(property="status", type="boolean")
-     *       )
-     *   )
-     * )
-     *
      * Update module or widget
      *
      * @throws \RestBadRequestException
@@ -552,24 +207,6 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
     }
 
     /**
-     * @OA\Post(
-     *   path="/internal.php?object=centreon_module&action=clearCache",
-     *   description="Clear the cache once a batch of module updates sent with clearCache=0 is over, whatever their outcome",
-     *   tags={"centreon_module"},
-     *   security={{"Session": {}}},
-     *
-     *   @OA\Response(
-     *       response="200",
-     *       description="OK",
-     *
-     *       @OA\JsonContent(
-     *
-     *          @OA\Property(property="result", type="string"),
-     *          @OA\Property(property="status", type="boolean")
-     *       )
-     *   )
-     * )
-     *
      * @return Response
      */
     public function postClearCache()
@@ -584,75 +221,6 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
     }
 
     /**
-     * @OA\Delete(
-     *   path="/internal.php?object=centreon_module&action=remove",
-     *   summary="Remove module or widget",
-     *   tags={"centreon_module"},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_module"},
-     *          default="centreon_module"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"remove"},
-     *          default="remove"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="id",
-     *
-     *       @OA\Schema(
-     *          type="string"
-     *       ),
-     *       description="ID of a module or a widget",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="type",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={
-     *              "module",
-     *              "widget"
-     *          }
-     *       ),
-     *       description="type of object",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Response(
-     *       response="200",
-     *       description="OK",
-     *
-     *       @OA\JsonContent(
-     *
-     *          @OA\Property(property="result", type="string"),
-     *          @OA\Property(property="status", type="boolean")
-     *       )
-     *   )
-     * )
-     *
      * Remove module or widget
      *
      * @throws \RestBadRequestException

@@ -52,6 +52,7 @@ final readonly class MigrationSetGuard
      * @throws ModuleNotInstalledException
      * @throws MigrationSetBusyException
      * @throws LockNotReleasedException when the callback succeeded but the lock could not be released
+     * @throws \Throwable whatever the callback throws
      *
      * @return T
      */

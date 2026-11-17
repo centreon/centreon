@@ -126,7 +126,7 @@ final readonly class UpdateHostCommandHandler
      * saves nothing (HTTP 502). The vault is outside the transaction: when the update fails after a
      * successful vault write, the database rolls back but the vault keeps the new values, which the
      * stored references may now resolve to (changed secret) or miss (cleared key). This divergence is
-     * logged as a warning rather than left silent. A failure of the commit itself, after this handler
+     * logged as an error rather than left silent. A failure of the commit itself, after this handler
      * returns, is not covered.
      */
     public function __invoke(UpdateHostCommand $command): Host
@@ -137,7 +137,7 @@ final readonly class UpdateHostCommandHandler
             return $this->update($command, $vaultWritten);
         } catch (\Throwable $exception) {
             if ($vaultWritten) {
-                $this->logger->warning(
+                $this->logger->error(
                     'A host update failed after writing to its vault entry: the vault may now diverge from the host stored in the database.',
                     ['host_id' => $command->id->value, 'exception' => $exception],
                 );
@@ -257,6 +257,8 @@ final readonly class UpdateHostCommandHandler
             $existingHost->severityId,
             $severityScope,
         );
+        // Extra legacy severities are dropped whatever the actor may see.
+        $extraSeverities = $this->repository->hasExtraSeverities($existingHost->id(), $severityId);
 
         $host = $existingHost->with(
             name: $command->name,
@@ -299,6 +301,7 @@ final readonly class UpdateHostCommandHandler
         // Macros and contacts are compared by hasSameConfigurationAs() but never logged by legacy, so
         // they count among the unlogged changes, with the relations.
         $unloggedChange = $passwordRewritten
+            || $extraSeverities
             || ! $host->hasSameConfigurationAs($existingHost)
             || ! $host->hasSameRelationsAs($existingHost);
 
