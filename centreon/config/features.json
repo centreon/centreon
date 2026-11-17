@@ -7,5 +7,6 @@
   "ad_exclusion_periods": 0,
   "resource_access_management": 2,
   "gorgone_api_commands": 0,
-  "engine_recurring_downtimes": 0
+  "engine_recurring_downtimes": 0,
+  "engine_structured_configuration": 0
 }

@@ -29,6 +29,7 @@ use Core\Common\Infrastructure\FeatureFlags;
 use Core\Gorgone\Application\Exception\GorgoneCommandException;
 use Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterface;
 use Core\Gorgone\Application\Repository\ReadGorgoneJobRepositoryInterface;
+use Core\Gorgone\Application\Repository\ReadGorgoneNodeRepositoryInterface;
 use Core\Gorgone\Application\Repository\WriteGorgoneJobRepositoryInterface;
 use Core\Gorgone\Application\Service\GorgoneCommandService;
 use Core\Gorgone\Domain\Model\ConfigurationValidation;
@@ -92,6 +93,11 @@ final class RecordingGorgoneJobRepository implements WriteGorgoneJobRepositoryIn
         $this->pushedArchives[] = $archive->toString(0);
 
         return $jobId;
+    }
+
+    public function pushEngineConfiguration(int $nodeId, string $json, array $requires = []): string
+    {
+        return $this->record(['engine_configuration', $nodeId, $json, ...($requires !== [] ? [$requires] : [])]);
     }
 
     public function validateConfiguration(int $nodeId, string $target, TarArchive $archive): string
@@ -199,13 +205,24 @@ beforeEach(function (): void {
         ))
     );
 
-    $this->createService = fn (int $flag = 1): GorgoneCommandService => new GorgoneCommandService(
-        new FeatureFlags(false, json_encode(['gorgone_api_commands' => $flag], JSON_THROW_ON_ERROR)),
+    // Pollers run by centreon-engine (nagios_server.engine_name).
+    $this->centreonEngineNodes = [];
+    $this->nodes = $this->createMock(ReadGorgoneNodeRepositoryInterface::class);
+    $this->nodes->method('isRunByCentreonEngine')->willReturnCallback(
+        fn (int $nodeId): bool => in_array($nodeId, $this->centreonEngineNodes, true)
+    );
+
+    $this->createService = fn (int $flag = 1, int $structuredFlag = 0): GorgoneCommandService => new GorgoneCommandService(
+        new FeatureFlags(false, json_encode(
+            ['gorgone_api_commands' => $flag, 'engine_structured_configuration' => $structuredFlag],
+            JSON_THROW_ON_ERROR
+        )),
         $this->monitoringServers,
         $this->configuration,
         $this->jobs,
         $this->jobStates,
         $this->optionService,
+        $this->nodes,
         fn (): float => $this->jobStates->now,
     );
 });
@@ -880,4 +897,74 @@ it('should call nothing when no poller is to validate', function (): void {
     expect(($this->createService)()->validateConfiguration([]))->toBe([])
         ->and($this->jobs->attempts)->toBe(0)
         ->and($this->jobStates->waits)->toBe([]);
+});
+
+it('should keep the centreon-engine configuration off by default', function (): void {
+    $featuresFile = dirname(__DIR__, 6) . '/config/features.json';
+    $features = json_decode((string) file_get_contents($featuresFile), true, 512, JSON_THROW_ON_ERROR);
+
+    expect($features['engine_structured_configuration'] ?? null)->toBe(0);
+});
+
+it('should push only the JSON configuration to a poller run by centreon-engine', function (): void {
+    $this->centreonEngineNodes = [2];
+    $this->files[1] = ['engine' => ENGINE_FILES, 'broker' => ['central-broker.json' => '{}']];
+    $this->files[2] = [
+        'engine' => ENGINE_FILES,
+        'broker' => ['central-module.json' => '{}'],
+        'vmware' => ['centreon_vmware.json' => '{}'],
+        'engine_configuration' => ['engine-configuration.json' => '{"version":1}'],
+    ];
+
+    $jobIds = ($this->createService)(1, 1)->sendLegacyCommands(
+        ['SENDCFGFILE:2', 'RESTART:2', 'RELOADBROKER:2', 'SENDCFGFILE:1', 'RELOAD:1']
+    );
+
+    // No key file nor archive for centreon-engine; the engine control requires only its configuration.
+    expect($this->jobs->calls)->toBe([
+        ['engine_configuration', 2, '{"version":1}'],
+        ['service_control', 2, 'engine', 'restart', ['engine']],
+        ['service_control', 2, 'broker', 'reload', ['broker']],
+        ['config', 1, 'engine_context', ['engine-context.json']],
+        ['config', 1, 'engine', ['centengine.DEBUG', 'hosts.cfg'], ['job-4']],
+        ['config', 1, 'broker', ['central-broker.json'], ['job-4']],
+        ['service_control', 1, 'engine', 'reload', ['engine', 'broker']],
+    ])->and($jobIds)->toHaveCount(7);
+});
+
+it('should ignore engine_name while the centreon-engine configuration is disabled', function (): void {
+    $this->centreonEngineNodes = [2];
+    $this->files[2] = [
+        'engine' => ENGINE_FILES,
+        'engine_configuration' => ['engine-configuration.json' => '{"version":1}'],
+    ];
+    $this->nodes->expects($this->never())->method('isRunByCentreonEngine');
+
+    ($this->createService)()->sendLegacyCommands(['SENDCFGFILE:2', 'RESTART:2']);
+
+    expect(array_column($this->jobs->calls, 0))->toBe(['config', 'config', 'service_control'])
+        ->and($this->jobs->calls[2])->toBe(['service_control', 2, 'engine', 'restart', ['engine', 'broker']]);
+});
+
+it('should fail without any call when the JSON configuration of a centreon-engine poller is missing', function (array $files): void {
+    $this->centreonEngineNodes = [2];
+    $this->files[2] = ['engine' => ENGINE_FILES, 'engine_configuration' => $files];
+
+    expect(fn () => ($this->createService)(1, 1)->sendLegacyCommands('SENDCFGFILE:2'))
+        ->toThrow(GorgoneCommandException::class, 'No "engine_configuration" configuration file found for poller #2')
+        ->and($this->jobs->attempts)->toBe(0);
+})->with([
+    'missing' => [[]],
+    'empty' => [['engine-configuration.json' => '']],
+]);
+
+it('should not ask a poller run by centreon-engine to validate .cfg files', function (): void {
+    $this->centreonEngineNodes = [2];
+    $this->files = [1 => ['engine' => ENGINE_FILES], 2 => ['engine' => ENGINE_FILES]];
+
+    $validations = ($this->createService)(1, 1)->validateConfiguration([2, 1]);
+
+    expect($validations[2]->isUnverified())->toBeTrue()
+        ->and($validations[1]->isValid())->toBeTrue()
+        ->and($this->jobs->calls)->toBe([['validation', 1, 'engine', ['centengine.DEBUG', 'hosts.cfg']]]);
 });

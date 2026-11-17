@@ -26,9 +26,11 @@ namespace Core\Gorgone\Application\Service;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use Core\Common\Infrastructure\FeatureFlags;
+use Core\Gorgone\Application\EngineConfiguration\EngineConfigurationBuilder;
 use Core\Gorgone\Application\Exception\GorgoneCommandException;
 use Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterface;
 use Core\Gorgone\Application\Repository\ReadGorgoneJobRepositoryInterface;
+use Core\Gorgone\Application\Repository\ReadGorgoneNodeRepositoryInterface;
 use Core\Gorgone\Application\Repository\WriteGorgoneJobRepositoryInterface;
 use Core\Gorgone\Domain\Model\ConfigurationValidation;
 use Core\Gorgone\Domain\Model\JobOutcome;
@@ -55,6 +57,9 @@ final class GorgoneCommandService
 
     /** Key file Engine and Broker decrypt the credentials with (engine-context.json). */
     public const TARGET_ENGINE_CONTEXT = 'engine_context';
+
+    /** JSON configuration of a poller run by centreon-engine (read target only: it has its own route). */
+    public const TARGET_ENGINE_CONFIGURATION = 'engine_configuration';
 
     /** Longest time spent waiting for the outcome of jobs, whatever the Gorgone command timeout. */
     public const MAX_WAIT_SECONDS = 30;
@@ -102,6 +107,9 @@ final class GorgoneCommandService
     /** @var array<string, int|null> */
     private array $nodeIds = [];
 
+    /** @var array<int, bool> */
+    private array $centreonEngineNodes = [];
+
     /** @var list<string>|null */
     private ?array $illegalCharacters = null;
 
@@ -115,6 +123,7 @@ final class GorgoneCommandService
      * @param WriteGorgoneJobRepositoryInterface $writeJobRepository
      * @param ReadGorgoneJobRepositoryInterface $readJobRepository
      * @param OptionServiceInterface $optionService
+     * @param ReadGorgoneNodeRepositoryInterface $readNodeRepository
      * @param (\Closure(): float)|null $clock current time in seconds, the system monotonic clock by default
      */
     public function __construct(
@@ -124,6 +133,7 @@ final class GorgoneCommandService
         private readonly WriteGorgoneJobRepositoryInterface $writeJobRepository,
         private readonly ReadGorgoneJobRepositoryInterface $readJobRepository,
         private readonly OptionServiceInterface $optionService,
+        private readonly ReadGorgoneNodeRepositoryInterface $readNodeRepository,
         private readonly ?\Closure $clock = null,
     ) {
     }
@@ -283,6 +293,15 @@ final class GorgoneCommandService
                 // Nothing more is sent to a Gorgone API which cannot be reached.
                 if ($unreachable !== null) {
                     throw $unreachable;
+                }
+                if ($this->isRunByCentreonEngine($pollerId)) {
+                    $validations[$pollerId] = new ConfigurationValidation(
+                        $pollerId,
+                        ConfigurationValidation::STATUS_UNVERIFIED,
+                        message: _('centreon-engine verifies its configuration when it applies it.')
+                    );
+
+                    continue;
                 }
                 $jobIds[$pollerId] = $this->writeJobRepository->validateConfiguration(
                     $pollerId,
@@ -479,7 +498,7 @@ final class GorgoneCommandService
                     $nodeId,
                     $service,
                     $operation,
-                    $operation === self::OPERATION_STOP ? [] : self::REQUIRED_CONFIGURATIONS[$service]
+                    $operation === self::OPERATION_STOP ? [] : $this->findRequiredConfigurations($nodeId, $service)
                 );
             }
         }
@@ -552,6 +571,10 @@ final class GorgoneCommandService
      */
     private function sendConfiguration(int $nodeId): array
     {
+        if ($this->isRunByCentreonEngine($nodeId)) {
+            return [$this->sendEngineConfiguration($nodeId)];
+        }
+
         // Every archive is built before the first one is pushed.
         $keyArchive = $this->buildEngineContextArchive($nodeId);
         $archives = [
@@ -575,6 +598,62 @@ final class GorgoneCommandService
         }
 
         return $jobIds;
+    }
+
+    /**
+     * centreon-engine takes one JSON document, with no encrypted value: no key file nor archive is sent.
+     *
+     * @param int $nodeId
+     *
+     * @throws \Throwable
+     *
+     * @return string job id
+     */
+    private function sendEngineConfiguration(int $nodeId): string
+    {
+        $files = $this->readConfigurationRepository->findFiles($nodeId, self::TARGET_ENGINE_CONFIGURATION);
+        $json = reset($files);
+        if (! is_string($json) || $json === '') {
+            throw GorgoneCommandException::missingConfiguration($nodeId, self::TARGET_ENGINE_CONFIGURATION);
+        }
+
+        return $this->writeJobRepository->pushEngineConfiguration($nodeId, $json);
+    }
+
+    /**
+     * @param int $nodeId
+     * @param string $service
+     *
+     * @throws \Throwable
+     *
+     * @return list<string>
+     */
+    private function findRequiredConfigurations(int $nodeId, string $service): array
+    {
+        // centreon-engine holds the broker connection: its JSON configuration is its only one.
+        if ($service === 'engine' && $this->isRunByCentreonEngine($nodeId)) {
+            return [self::TARGET_ENGINE];
+        }
+
+        return self::REQUIRED_CONFIGURATIONS[$service];
+    }
+
+    /**
+     * Run by centreon-engine (feature flag "engine_structured_configuration" and nagios_server.engine_name).
+     *
+     * @param int $nodeId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isRunByCentreonEngine(int $nodeId): bool
+    {
+        if (! $this->featureFlags->isEnabled(EngineConfigurationBuilder::FEATURE_FLAG)) {
+            return false;
+        }
+
+        return $this->centreonEngineNodes[$nodeId] ??= $this->readNodeRepository->isRunByCentreonEngine($nodeId);
     }
 
     /**

@@ -173,6 +173,24 @@ it('should name the jobs a configuration push requires, only when there are some
     );
 });
 
+it('should push the configuration of centreon-engine as a JSON document', function (): void {
+    $repository = ($this->createRepository)();
+
+    $jobId = $repository->pushEngineConfiguration(7, '{"version":1}');
+    $repository->pushEngineConfiguration(7, '{"version":1}', ['job-2']);
+
+    expect($jobId)->toBe('job-42')
+        ->and($this->requests[0]['method'])->toBe('PUT')
+        ->and($this->requests[0]['url'])->toMatch(
+            '#^http://10\.0\.0\.5:8085/v1/nodes/7/engine-configuration\?id=[0-9a-f]{32}$#'
+        )
+        ->and(($this->findHeader)('Content-Type'))->toBe('application/json')
+        ->and($this->requests[0]['options']['body'])->toBe('{"version":1}')
+        ->and($this->requests[1]['url'])->toMatch(
+            '#^http://10\.0\.0\.5:8085/v1/nodes/7/engine-configuration\?id=[0-9a-f]{32}&requires=job-2$#'
+        );
+});
+
 it('should ask for the validation of a configuration with the archive of a push', function (): void {
     $archive = new TarArchive(['centengine.DEBUG' => 'engine', 'hosts.cfg' => 'hosts']);
     $this->answer = ['{"id": "job-43", "digest": "sha256:abc", "size": 3072}', 202];

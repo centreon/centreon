@@ -434,7 +434,8 @@ class CentreonConfigPoller
             chown($this->engineCachePath . "/{$poller_id}", $apacheUser);
             chgrp($this->engineCachePath . "/{$poller_id}", $apacheUser);
 
-            foreach (glob($this->engineCachePath . "/{$poller_id}/*.cfg") as $file) {
+            // engine-configuration.json: poller run by centreon-engine
+            foreach (glob($this->engineCachePath . "/{$poller_id}/*.{cfg,json}", GLOB_BRACE) as $file) {
                 chown($file, $apacheUser);
                 chgrp($file, $apacheUser);
             }

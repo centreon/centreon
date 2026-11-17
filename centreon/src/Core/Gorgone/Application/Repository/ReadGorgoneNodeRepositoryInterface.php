@@ -36,4 +36,16 @@ interface ReadGorgoneNodeRepositoryInterface
      * @return list<string>
      */
     public function findTrapsDirectories(int $nodeId): array;
+
+    /**
+     * Tell whether a node is run by centreon-engine (nagios_server.engine_name), which takes its
+     * configuration as one JSON document instead of the Engine and Broker files.
+     *
+     * @param int $nodeId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function isRunByCentreonEngine(int $nodeId): bool;
 }

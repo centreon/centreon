@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Gorgone\Infrastructure\Repository;
 
 use App\Shared\Infrastructure\EngineContextFile;
+use Core\Gorgone\Application\EngineConfiguration\EngineConfigurationBuilder;
 use Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterface;
 use Core\Gorgone\Application\Repository\ReadGorgoneNodeRepositoryInterface;
 use Core\Gorgone\Application\Service\GorgoneCommandService;
@@ -57,6 +58,9 @@ final class FsReadGorgoneConfigurationRepository implements ReadGorgoneConfigura
 
         return match ($target) {
             GorgoneCommandService::TARGET_ENGINE => $this->readDirectory("{$configDirectory}/engine/{$nodeId}"),
+            GorgoneCommandService::TARGET_ENGINE_CONFIGURATION => $this->readFile(
+                "{$configDirectory}/engine/{$nodeId}/" . EngineConfigurationBuilder::FILE_NAME
+            ),
             GorgoneCommandService::TARGET_BROKER => $this->readDirectory("{$configDirectory}/broker/{$nodeId}"),
             GorgoneCommandService::TARGET_VMWARE => $this->readFile(
                 "{$configDirectory}/vmware/{$nodeId}/" . self::VMWARE_FILE

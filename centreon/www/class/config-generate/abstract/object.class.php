@@ -29,6 +29,8 @@ use Security\Interfaces\EncryptionInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
+require_once __DIR__ . '/../EngineConfigurationCapture.class.php';
+
 /**
  * Class
  *
@@ -317,6 +319,7 @@ abstract class AbstractObject
 
         $object_file .= "}\n";
         fwrite($this->fp, $this->toUTF8($object_file));
+        $this->captureWrittenAttributes($object);
     }
 
     /**
@@ -449,5 +452,66 @@ abstract class AbstractObject
                 fwrite($this->fp, $this->toUTF8($attr . '=' . $object[$attr] . "\n"));
             }
         }
+
+        $this->captureWrittenAttributes($object);
+    }
+
+    /**
+     * Hands what was just written to the centreon-engine JSON configuration, while one is built.
+     * Encrypted values are decrypted: centreon-engine has no key to decrypt them.
+     *
+     * @param array<string, mixed> $object
+     *
+     * @throws RuntimeException
+     */
+    private function captureWrittenAttributes(array $object): void
+    {
+        if (! EngineConfigurationCapture::isActive()) {
+            return;
+        }
+
+        // Same rules as writeObject() and writeNoObject()
+        $written = [];
+        foreach ($this->attributes_write as $attr) {
+            if (isset($object[$attr]) && ! is_null($object[$attr]) && $object[$attr] != '') {
+                $written[$attr] = $this->decryptForCapture((string) $object[$attr]);
+            }
+        }
+        foreach ($this->attributes_default as $attr) {
+            if (isset($object[$attr]) && ! is_null($object[$attr]) && $object[$attr] != 2) {
+                $written[$attr] = (string) $object[$attr];
+            }
+        }
+        foreach ($this->attributes_array as $attr) {
+            if (isset($object[$attr]) && is_array($object[$attr])) {
+                $values = array_values(array_map(
+                    'strval',
+                    array_filter($object[$attr], static fn ($value) => ! is_null($value))
+                ));
+                if ($values !== []) {
+                    $written[$attr] = $values;
+                }
+            }
+        }
+        foreach ($this->attributes_hash as $attr) {
+            foreach (isset($object[$attr]) && is_array($object[$attr]) ? $object[$attr] : [] as $key => $value) {
+                $written[(string) $key] = $this->decryptForCapture((string) $value);
+            }
+        }
+
+        EngineConfigurationCapture::record(static::class, $written);
+    }
+
+    /**
+     * @throws RuntimeException
+     */
+    private function decryptForCapture(string $value): string
+    {
+        if (! str_starts_with($value, 'encrypt::')) {
+            return $value;
+        }
+
+        return $this->engineContextEncryption->decrypt(substr($value, strlen('encrypt::')))
+            ?? throw new RuntimeException('Unable to decrypt a value of the centreon-engine configuration');
     }
 }

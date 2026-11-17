@@ -26,6 +26,8 @@ use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
+require_once __DIR__ . '/EngineConfigurationCapture.class.php';
+
 /**
  * Class
  *
@@ -561,6 +563,14 @@ class Broker extends AbstractObjectJSON
                     }
                 }
             }
+            // A module (cbmod) gives centreon-engine the address of the central broker
+            if ($row['daemon'] != '1') {
+                EngineConfigurationCapture::recordBrokerModule(
+                    (string) $object['broker_name'],
+                    $object['output'] ?? []
+                );
+            }
+
             // Generate file
             $this->generateFile($object);
             $this->writeFile($this->backend_instance->getPath());

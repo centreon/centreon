@@ -25,6 +25,7 @@ namespace Core\Gorgone\Infrastructure\Repository;
 
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Gorgone\Application\EngineConfiguration\EngineConfigurationBuilder;
 use Core\Gorgone\Application\Repository\ReadGorgoneNodeRepositoryInterface;
 
 final class DbReadGorgoneNodeRepository extends AbstractRepositoryRDB implements ReadGorgoneNodeRepositoryInterface
@@ -66,5 +67,20 @@ final class DbReadGorgoneNodeRepository extends AbstractRepositoryRDB implements
         $directories[] = self::DEFAULT_TRAPS_DIRECTORY;
 
         return array_values(array_unique($directories));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isRunByCentreonEngine(int $nodeId): bool
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            'SELECT engine_name FROM `:db`.`nagios_server` WHERE id = :id'
+        ));
+        $statement->bindValue(':id', $nodeId, \PDO::PARAM_INT);
+        $statement->execute();
+        $engineName = $statement->fetchColumn();
+
+        return EngineConfigurationBuilder::isCentreonEngine(is_string($engineName) ? $engineName : null);
     }
 }

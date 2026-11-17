@@ -83,9 +83,16 @@ it('should read the traps database from the first directory holding it', functio
     expect($this->repository->findFiles(3, 'centreontrapd'))->toBe(['centreontrapd.sdb' => 'SQLite format 3']);
 });
 
+it('should read the JSON configuration of a poller run by centreon-engine from its engine directory', function (): void {
+    $this->filesystem->dumpFile($this->cache . '/config/engine/3/engine-configuration.json', '{"version":1}');
+
+    expect($this->repository->findFiles(3, 'engine_configuration'))
+        ->toBe(['engine-configuration.json' => '{"version":1}']);
+});
+
 it('should return nothing when the configuration is not generated', function (string $target): void {
     expect($this->repository->findFiles(9, $target))->toBe([]);
-})->with(['engine', 'broker', 'vmware', 'centreontrapd']);
+})->with(['engine', 'broker', 'vmware', 'centreontrapd', 'engine_configuration']);
 
 it('should read the key file of centreon-web under the name the pollers expect, whatever the node', function (int $nodeId): void {
     expect($this->repository->findFiles($nodeId, 'engine_context'))->toBe(['engine-context.json' => $this->key]);

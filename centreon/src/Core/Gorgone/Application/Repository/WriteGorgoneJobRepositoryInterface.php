@@ -76,6 +76,20 @@ interface WriteGorgoneJobRepositoryInterface
     public function pushConfiguration(int $nodeId, string $target, TarArchive $archive, array $requires = []): string;
 
     /**
+     * Push the JSON configuration of a node run by centreon-engine. Once applied, the node reports
+     * its digest as the applied "engine" configuration.
+     *
+     * @param int $nodeId
+     * @param string $json the document (schema engine-configuration.v1.json)
+     * @param list<string> $requires jobs of the node the push waits for: it fails when one of them did not succeed
+     *
+     * @throws GorgoneCommandException
+     *
+     * @return string job id
+     */
+    public function pushEngineConfiguration(int $nodeId, string $json, array $requires = []): string;
+
+    /**
      * Ask a node to verify the files of a configuration target, without applying them.
      *
      * @param int $nodeId

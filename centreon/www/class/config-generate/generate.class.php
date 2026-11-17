@@ -24,6 +24,8 @@
 use App\Kernel;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
+use Core\Common\Infrastructure\FeatureFlags;
+use Core\Gorgone\Application\EngineConfiguration\EngineConfigurationBuilder;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
@@ -70,6 +72,7 @@ require_once __DIR__ . '/timezone.class.php';
 require_once __DIR__ . '/vault.class.php';
 require_once __DIR__ . '/AdditionalConnectorVmWareV6.class.php';
 require_once __DIR__ . '/AgentConfiguration.php';
+require_once __DIR__ . '/EngineConfigurationCapture.class.php';
 
 /**
  * Class
@@ -111,6 +114,8 @@ class Generate
 
     private WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository;
 
+    private FeatureFlags $featureFlags;
+
     /**
      * Generate constructor
      *
@@ -137,6 +142,8 @@ class Generate
         $this->writeMonitoringServerRepository = $kernel->getContainer()->get(WriteMonitoringServerRepositoryInterface::class)
             ?? throw new Exception('WriteMonitoringServerRepositoryInterface not found');
         $this->writeMonitoringServerRepository->updateAllEncryptionReadyFromRealtime();
+        $this->featureFlags = $kernel->getContainer()->get(FeatureFlags::class)
+            ?? throw new Exception('FeatureFlags not found');
     }
 
     /**
@@ -232,7 +239,7 @@ class Generate
      */
     public function configPollers($username = 'unknown'): void
     {
-        $query = 'SELECT id, localhost, centreonconnector_path FROM '
+        $query = 'SELECT id, name, engine_name, localhost, centreonconnector_path FROM '
             . "nagios_server WHERE ns_activate = '1'";
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->execute();
@@ -461,7 +468,7 @@ class Generate
      */
     private function getPollerFromId($poller_id): void
     {
-        $query = 'SELECT id, localhost,  centreonconnector_path FROM nagios_server '
+        $query = 'SELECT id, name, engine_name, localhost, centreonconnector_path FROM nagios_server '
             . 'WHERE id = :poller_id';
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
@@ -481,7 +488,7 @@ class Generate
      */
     private function getPollerFromName($poller_name): void
     {
-        $query = 'SELECT id, localhost, centreonconnector_path FROM nagios_server '
+        $query = 'SELECT id, name, engine_name, localhost, centreonconnector_path FROM nagios_server '
             . 'WHERE name = :poller_name';
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->bindParam(':poller_name', $poller_name, PDO::PARAM_STR);
@@ -508,6 +515,31 @@ class Generate
         $this->backend_instance->initPath($this->current_poller['id']);
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
+
+        // A poller run by centreon-engine also gets its configuration as one JSON document
+        $engineConfiguration = $this->createEngineConfigurationBuilder();
+        if ($engineConfiguration !== null) {
+            EngineConfigurationCapture::start($engineConfiguration);
+        }
+        try {
+            $this->generatePollerFiles();
+        } finally {
+            EngineConfigurationCapture::stop();
+        }
+        if ($engineConfiguration !== null) {
+            $this->writeEngineConfiguration($engineConfiguration);
+        }
+    }
+
+    /**
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    private function generatePollerFiles(): void
+    {
         (new AgentConfiguration(
             $this->backend_instance,
             $this->readAgentConfigurationRepository,
@@ -543,5 +575,47 @@ class Generate
             $this->readMonitoringServerRepository
         ))->generateFromPollerId($this->current_poller['id']);
         $this->backend_instance->movePath($this->current_poller['id']);
+    }
+
+    /**
+     * @return EngineConfigurationBuilder|null null when the poller is not run by centreon-engine
+     */
+    private function createEngineConfigurationBuilder(): ?EngineConfigurationBuilder
+    {
+        if (
+            ! $this->featureFlags->isEnabled(EngineConfigurationBuilder::FEATURE_FLAG)
+            || ! EngineConfigurationBuilder::isCentreonEngine($this->current_poller['engine_name'] ?? null)
+        ) {
+            return null;
+        }
+
+        return new EngineConfigurationBuilder(
+            (int) $this->current_poller['id'],
+            (string) $this->current_poller['name']
+        );
+    }
+
+    /**
+     * Written next to the .cfg files of the poller, which centreon-engine does not read.
+     *
+     * @param EngineConfigurationBuilder $builder
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function writeEngineConfiguration(EngineConfigurationBuilder $builder): void
+    {
+        $path = $this->backend_instance->getEngineGeneratePath() . '/' . (int) $this->current_poller['id']
+            . '/' . EngineConfigurationBuilder::FILE_NAME;
+        $temporaryPath = $path . '.tmp';
+        if (
+            file_put_contents($temporaryPath, $builder->toJson()) === false
+            || ! chmod($temporaryPath, 0660)
+            || ! rename($temporaryPath, $path)
+        ) {
+            @unlink($temporaryPath);
+
+            throw new Exception("Cannot write the centreon-engine configuration '" . $path . "'");
+        }
     }
 }
