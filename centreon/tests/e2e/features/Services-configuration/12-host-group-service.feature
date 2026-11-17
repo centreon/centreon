@@ -21,7 +21,7 @@ Feature: Host Group Service configuration
     Then the properties are updated
 
   @MON-158049
-  Scenario: Duplicate one existing host group server
+  Scenario: Duplicate one existing host group service
     Given a host group service is configured
     When the user duplicates the host group service
     Then the new duplicated host group service has the same properties

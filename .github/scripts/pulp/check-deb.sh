@@ -33,7 +33,7 @@ mapfile -t E_SUITE      < <(echo "$PACKAGES_JSON" | jq -r '.[].suite')
 # the package was published and fetchable. --retry covers those transient 5xx.
 declare -A VERSION_BY_REPO   # repo -> latest_version_href, empty when missing
 for repo in $(printf '%s\n' "${E_REPOSITORY[@]}" | sort -u); do
-  VERSION_BY_REPO[$repo]=$(pulp deb repository show --name "$repo" 2>/dev/null | jq -r '.latest_version_href // empty')
+  VERSION_BY_REPO[$repo]=$(latest_version_href deb "$repo")
   [[ -n "${VERSION_BY_REPO[$repo]}" ]] || echo "[WARN] Repository $repo does not exist or has no version"
 done
 
