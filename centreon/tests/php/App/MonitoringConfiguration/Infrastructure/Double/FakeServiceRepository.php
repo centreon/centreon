@@ -26,6 +26,9 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Security\Domain\Aggregate\ActingUser;
@@ -54,6 +57,27 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var list<array{id: int, activated: bool}> */
     public array $activationUpdates = [];
 
+    /** Every name taken, as by a concurrent write after the input validation. */
+    public bool $forceNameUsed = false;
+
+    /** @var array<int, list<ServiceMacro>> service id => own macros as read back after insertion */
+    public array $storedMacros = [];
+
+    /**
+     * @var array<int, list<int>> service id => every levelled category it is linked to, in read order, whatever the
+     *                            actor may see; unset, the stored service's severity
+     */
+    public array $storedSeverityIds = [];
+
+    /** @var list<Service> */
+    public array $updatedServices = [];
+
+    /** @var list<Service> */
+    public array $relationsReplacedServices = [];
+
+    /** Thrown by update(), to stand for a failure after the vault was written. */
+    public ?\Throwable $updateThrows = null;
+
     public function add(Service $service): void
     {
         do {
@@ -67,6 +91,54 @@ final class FakeServiceRepository implements ServiceRepository
         $this->services[$id] = $service;
     }
 
+    public function update(Service $service): void
+    {
+        if ($this->updateThrows instanceof \Throwable) {
+            throw $this->updateThrows;
+        }
+
+        if (! isset($this->services[$service->id()->value])) {
+            return;
+        }
+
+        $this->updatedServices[] = $service;
+        $this->services[$service->id()->value] = $service;
+    }
+
+    public function replaceRelationsAndMacros(Service $service): void
+    {
+        if (! isset($this->services[$service->id()->value])) {
+            return;
+        }
+
+        $this->relationsReplacedServices[] = $service;
+        $this->services[$service->id()->value] = $service;
+    }
+
+    public function hasExtraSeverities(ServiceId $id, ?ServiceSeverityId $kept): bool
+    {
+        return array_diff($this->storedSeverityIds[$id->value] ?? [], [$kept?->value]) !== [];
+    }
+
+    public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool
+    {
+        if ($this->forceNameUsed) {
+            return true;
+        }
+
+        foreach ($this->services as $id => $service) {
+            if (
+                $id !== $excludingServiceId?->value
+                && $service->hostId->value === $hostId->value
+                && strcasecmp($service->name->value, $name->value) === 0
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection
     {
         $services = array_values(array_filter(
@@ -77,15 +149,29 @@ final class FakeServiceRepository implements ServiceRepository
         return new Collection($services, Service::class);
     }
 
-    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
+    /**
+     * Whether a service is shared is SQL, pinned by the integration tests of the real repository.
+     */
+    public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
     {
-        $services = array_values(array_filter(
-            $this->services,
-            fn (Service $service): bool => $service->hostId->value === $hostId->value
-                && in_array($this->serviceTemplateIdOf[$service->id()->value] ?? null, $serviceTemplateIds, true),
-        ));
+        $ids = [];
+        foreach ($this->services as $id => $service) {
+            if (
+                $service->hostId->value === $hostId->value
+                && in_array($this->serviceTemplateIdOf[$id] ?? null, $serviceTemplateIds, true)
+            ) {
+                $ids[] = new ServiceId($id);
+            }
+        }
 
-        return new Collection($services, Service::class);
+        return new Collection($ids, ServiceId::class);
+    }
+
+    public function findOneOnHost(ServiceId $id, HostId $hostId): ?Service
+    {
+        $service = $this->services[$id->value] ?? null;
+
+        return $service?->hostId->value === $hostId->value ? $service : null;
     }
 
     public function remove(Service $service): void
@@ -128,7 +214,27 @@ final class FakeServiceRepository implements ServiceRepository
             return null;
         }
 
-        return $service;
+        if (! isset($this->storedSeverityIds[$id->value])) {
+            return $service;
+        }
+
+        // As the real repository: the first stored severity, whatever the actor may see.
+        $stored = $this->storedSeverityIds[$id->value];
+        $severityId = $stored === [] ? null : new ServiceSeverityId($stored[0]);
+
+        return $severityId?->value === $service->severityId?->value ? $service : $service->with(severityId: $severityId);
+    }
+
+    /**
+     * The own macros of the stored service; a test seeds {@see $storedMacros} to stand for the ids a real insert
+     * assigns.
+     */
+    public function findMacros(ServiceId $id): Collection
+    {
+        return new Collection(
+            $this->storedMacros[$id->value] ?? $this->services[$id->value]->checkOptions->macros ?? [],
+            ServiceMacro::class,
+        );
     }
 
     /**

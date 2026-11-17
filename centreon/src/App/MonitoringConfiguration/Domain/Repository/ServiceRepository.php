@@ -26,12 +26,43 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
 
 interface ServiceRepository
 {
+    public function add(Service $service): void;
+
+    /**
+     * Rewrites the form columns of a stored real service (its alias and the columns the form does not expose are
+     * left as they are) and its extended information: every `extended_service_information` row of the service is
+     * updated, and one is written when it has none. Precondition: the caller loaded the service (typically
+     * {@see findOne()} in the same transaction); a service template is never touched.
+     */
+    public function update(Service $service): void;
+
+    /**
+     * Rewrites the relations and own macros of a real service. The host link is rewritten only when the host
+     * changed; the service groups only when they or the host changed, every service-group row of the service being
+     * replaced. Own macros are updated in place by id; escalations, dependencies and downtimes are left untouched.
+     */
+    public function replaceRelationsAndMacros(Service $service): void;
+
+    /**
+     * Whether the service is linked to a severity other than the one it keeps, whatever the actor may see.
+     */
+    public function hasExtraSeverities(ServiceId $id, ?ServiceSeverityId $kept): bool;
+
+    /**
+     * Compared as legacy does: case-insensitive, whatever the actor's scope or the service's activation. A service
+     * reaching the host only through a host group is not counted.
+     */
+    public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool;
+
     /**
      * Services directly attached to this host (`host_service_relation.host_host_id`) that have
      * exactly one relation row in total — mirrors legacy `findServiceIdsExclusivelyLinkedToHostId()`:
@@ -45,16 +76,22 @@ interface ServiceRepository
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection;
 
     /**
-     * The services of this host that come from one of the given service templates, the ones a host
-     * gets from its host templates. Like {@see findExclusivelyLinkedToHostId()}, a service also
-     * reachable through another host or a hostgroup is left out, and so is never deleted from under
-     * them. Hydrated like {@see findExclusivelyLinkedToHostId()}.
+     * The ids of the services of this host that come from one of the given service templates, the ones a host
+     * gets from its host templates. Like {@see findExclusivelyLinkedToHostId()}, a service also reachable through
+     * another host or a hostgroup is left out, and so is never deleted from under them. Nothing is hydrated, so
+     * one service with malformed stored data cannot fail the whole listing.
      *
      * @param list<int> $serviceTemplateIds
      *
-     * @return Collection<Service>
+     * @return Collection<ServiceId>
      */
-    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection;
+    public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection;
+
+    /**
+     * The real service directly linked to that host, hydrated as {@see findOne()}, not scoped by any actor.
+     * Null when it is not a real service directly linked to that host.
+     */
+    public function findOneOnHost(ServiceId $id, HostId $hostId): ?Service;
 
     /**
      * Also removes the dependencies left without a parent service by this deletion.
@@ -81,6 +118,15 @@ interface ServiceRepository
      * as unset.
      */
     public function findOne(ServiceId $id, ActingUser $actor): ?Service;
+
+    /**
+     * The service's own macros as stored, with their ids, in storage order: the narrow read for a caller that only
+     * needs the ids assigned on insertion, without hydrating the whole service. Not ACL-scoped: the caller has
+     * already resolved the service.
+     *
+     * @return Collection<ServiceMacro>
+     */
+    public function findMacros(ServiceId $id): Collection;
 
     /**
      * Bounded UPDATE of the activation flag; never touches a service template, nor the links of the service.
