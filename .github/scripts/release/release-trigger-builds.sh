@@ -7,6 +7,28 @@ MAPPING_PATH=.github/scripts/release/release-components.json
 
 out() { echo "$1=$2" >> "$GITHUB_OUTPUT"; }
 
+# true when the root "on:" of a workflow file declares workflow_dispatch, as a scalar,
+# a flow or block sequence, or a mapping key (other mentions, e.g. in expressions, don't count)
+declares_dispatch() {
+  awk '
+    function is_dispatch(v) { sub(/[[:space:]]+#.*$/, "", v); return v ~ /^workflow_dispatch[[:space:]]*(:.*)?$/ }
+    /^("on"|'"'"'on'"'"'|on):/ {
+      in_on = 1; ind = 0; v = $0; sub(/^[^:]*:[[:space:]]*/, "", v); sub(/[[:space:]]+#.*$/, "", v)
+      if (v ~ /^[[{]/) { gsub(/[][{}[:space:]]/, "", v); n = split(v, items, ","); for (i = 1; i <= n; i++) if (is_dispatch(items[i])) found = 1 }
+      else if (is_dispatch(v)) found = 1
+      next
+    }
+    !in_on || /^[[:space:]]*(#|$)/ { next }
+    /^-[[:space:]]/ { v = $0; sub(/^-[[:space:]]*/, "", v); if (is_dispatch(v)) found = 1; next }
+    /^[^[:space:]]/ { in_on = 0; next }
+    {
+      match($0, /^[[:space:]]+/); if (!ind) ind = RLENGTH
+      if (RLENGTH == ind) { v = substr($0, ind + 1); sub(/^-[[:space:]]*/, "", v); if (is_dispatch(v)) found = 1 }
+    }
+    END { exit !found }
+  ' "$1"
+}
+
 # in: DISPATCH_TARGET_RELEASE_BRANCH, DRY_RUN, GITHUB_REPOSITORY, BRANCH_TOKEN (PAT, branch creation only)
 # out: branch, branch_exists, head_sha, previous_stable_bundle_tag(_sha), release_scope, release_type, major, components_file
 prepare() {
@@ -152,7 +174,7 @@ dispatch() {
   local wf missing=()
   for wf in "${workflows[@]}"; do
     if ! git show "$HEAD_SHA:.github/workflows/$wf" > "$RUNNER_TEMP/target-workflow.yml" 2> /dev/null \
-      || ! grep -q -E '^[^#]*\bworkflow_dispatch\b' "$RUNNER_TEMP/target-workflow.yml"; then
+      || ! declares_dispatch "$RUNNER_TEMP/target-workflow.yml"; then
       missing+=("$wf")
     fi
   done
