@@ -24080,12 +24080,9 @@ msgstr "período de tempo"
 msgid "topology_name"
 msgstr "Nome da Topologia"
 
-#: centreon/www/install/front_translate.php
-msgid "Removal"
-msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "The lists set to Replacement will overwrite those of every selected service, and empty the entries you can see when left blank."
+msgid "The lists set to Replace will overwrite those of every selected service, and empty the entries you can see when left blank."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -24093,7 +24090,7 @@ msgid "Some selected services are linked to several hosts: saving them will keep
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "None excludes the other notification options: set them to Replacement, or the services that have some will refuse the change."
+msgid "None excludes the other notification options: set them to Replace, or the services that have some will refuse the change."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
