@@ -366,7 +366,7 @@ export const getNotificationRecipientsBlock = ({
       },
       // Yes removes each resource's own recipients, whatever the list modes.
       ...(withUseOnlyContactsFromHost && {
-        getWarning: (t) => (values) =>
+        getWarning: ({ t, values }) =>
           isUsingOnlyContactsFromHost(values)
             ? t(labelHostRecipientsReplaceOwn)
             : null

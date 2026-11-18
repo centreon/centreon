@@ -79,13 +79,19 @@ export type UpdateModePaths = Record<
   ReadonlyArray<ReadonlyArray<string>>
 >;
 
+// What a mass change warning reads: the labels and the values to apply.
+export interface MassChangeWarningContext {
+  t: TFunction;
+  values: FormValues;
+}
+
 // What a block adds to a mass change of the resource.
 export interface BlockMassChange {
   // Laid over the defaults once their tri-states are cleared, for the fields
   // that have no "unchanged" of their own, such as a switch.
   defaultValues?: FormValues;
   // The confirmation's warning, when the values ask for one.
-  getWarning?: (t: TFunction) => (values: FormValues) => string | null;
+  getWarning?: (context: MassChangeWarningContext) => string | null;
   updateModeFields?: UpdateModePaths;
 }
 

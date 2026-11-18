@@ -16,6 +16,7 @@ import ConfigurationBase from '../ConfigurationBase';
 import { formStateAtom } from '../ConfigurationBase/atoms';
 import { labelMassChange } from '../ConfigurationBase/translatedLabels';
 import { type Actions, type ResourceRow, ResourceType } from '../models';
+import { joinWarnings } from '../ResourceForm/massChange';
 import type { FormValues } from '../ResourceForm/models';
 import {
   filtersAtom,
@@ -108,7 +109,6 @@ const Services = () => {
       isCloudPlatform,
       isMassChange: true
     };
-    const getFieldsWarning = getMassChangeWarning(t);
 
     // The API saves a service linked to several hosts on its first host only.
     // Read when the confirmation opens, on the rows loaded by then and the
@@ -128,12 +128,10 @@ const Services = () => {
       adapter: getMassChangeAdapter(context),
       defaultValues: getMassChangeDefaultValues(context),
       getConfirmationWarning: (values: FormValues): string | null =>
-        [
+        joinWarnings([
           hasSharedService() ? t(labelSharedServicesKeepFirstHost) : null,
-          getFieldsWarning(values)
-        ]
-          .filter(Boolean)
-          .join(' ') || null,
+          getMassChangeWarning({ t, values })
+        ]),
       groups: massChangeGroups,
       inputs: massChangeInputs,
       validationSchema: massChangeValidationSchema

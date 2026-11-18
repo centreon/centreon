@@ -169,7 +169,9 @@ describe('getMassChangeAdapter', () => {
 });
 
 describe('getMassChangeWarning', () => {
-  const getWarning = getMassChangeWarning(((label: string) => label) as never);
+  const t = ((label: string) => label) as never;
+  const getWarning = (values: Record<string, unknown>) =>
+    getMassChangeWarning({ t, values });
 
   it('warns that inheriting only the host recipients removes the services own, on Yes only', () => {
     const values = getMassChangeDefaultValues(onPremise) as Record<
