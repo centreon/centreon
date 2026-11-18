@@ -191,6 +191,7 @@ With `collector_enrolment` (it needs `engine_structured_configuration` too), an 
 * `COLLECTOR_SERVER_URL` (`collector_server_url`): the agent gateway of gorgone-server as the collectors reach it; default `http(s)://<GORGONE_API_ADDRESS>:5556`.
 * `COLLECTOR_BROKER_ADDRESS` (`collector_broker_address`): the central broker input the collectors send to; default the address of the central in the platform topology.
 * `COLLECTOR_IMAGE` (`collector_image`): image of the command given to the administrator; default `centreon-engine`.
+* `COLLECTOR_DOCKER_NETWORK` (`collector_docker_network`): Docker network added to that command (`--network`) when gorgone-server is only reachable through it, as in a compose stack; unset by default.
 
 The page **Configuration > Pollers > Collectors** (React, admin only, shown with the flag) does the same from the UI: it lists the enrolment tokens (kind, uses, expiry, last use) and the collectors that used them (state, poller, address and version they reported), creates a named or fleet enrolment and shows its token and command once with a copy button, revokes a token, approves or rejects a pending fleet enrolment and asks a collector to rotate its credential. Its API, all admin only:
 

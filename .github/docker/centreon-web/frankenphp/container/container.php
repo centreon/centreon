@@ -549,11 +549,13 @@ function configureOptions(PDO $root): void
     replaceOptions($root, $gorgone);
 
     // Collector enrolment: the gorgone-server address the collectors dial, the central broker
-    // address their results go to, and the image of the docker run line given to the admin.
+    // address their results go to, and the image and docker network of the docker run line given
+    // to the admin.
     $collector = array_filter([
         'collector_server_url' => env('COLLECTOR_SERVER_URL'),
         'collector_broker_address' => env('COLLECTOR_BROKER_ADDRESS'),
         'collector_image' => env('COLLECTOR_IMAGE'),
+        'collector_docker_network' => env('COLLECTOR_DOCKER_NETWORK'),
     ], static fn (?string $value): bool => $value !== null);
     if ($collector !== []) {
         replaceOptions($root, $collector);

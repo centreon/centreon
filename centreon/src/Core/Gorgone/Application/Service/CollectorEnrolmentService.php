@@ -63,6 +63,8 @@ final class CollectorEnrolmentService
     public const OPTION_SERVER_URL = 'collector_server_url';
     public const OPTION_BROKER_ADDRESS = 'collector_broker_address';
     public const OPTION_IMAGE = 'collector_image';
+    /** Docker network of the docker run line, when gorgone-server is only reachable through one. */
+    public const OPTION_NETWORK = 'collector_docker_network';
 
     /** Name rules of the poller wizard (40 characters), restricted to what a host name can be. */
     private const NAME_PATTERN = '/^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/';
@@ -589,6 +591,10 @@ final class CollectorEnrolmentService
         if ($hostname !== null) {
             // The name of the poller, so that the machine reports it.
             array_push($arguments, '--name', $hostname, '--hostname', $hostname);
+        }
+        $network = $this->option(self::OPTION_NETWORK);
+        if ($network !== null) {
+            array_push($arguments, '--network', $network);
         }
         foreach ($environment as $variable => $value) {
             array_push($arguments, '-e', $variable . '=' . $value);

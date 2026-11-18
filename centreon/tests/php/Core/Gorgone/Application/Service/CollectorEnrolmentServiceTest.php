@@ -372,6 +372,13 @@ it('binds a token to an existing poller and marks it run by centreon-engine', fu
         ->and($created->command)->toEndWith(' registry.example/centreon-engine:26.10');
 });
 
+it('puts the configured docker network in the command', function (): void {
+    $this->optionValues['collector_docker_network'] = 'centreon_default';
+    $created = ($this->createService)()->create('collector-1', null, false, 3600, null, 7, 'jdoe');
+
+    expect($created->command)->toContain(' --hostname collector-1 --network centreon_default -e ');
+});
+
 it('creates a fleet token with an expiry and optional uses, and no poller yet', function (): void {
     $created = ($this->createService)()->create(null, null, true, 600, 5, 7, 'jdoe');
 
