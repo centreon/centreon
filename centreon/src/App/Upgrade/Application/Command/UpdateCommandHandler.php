@@ -31,6 +31,7 @@ use App\Upgrade\Application\Service\MigrationApplier;
 use App\Upgrade\Application\Service\TargetVersionRecorder;
 use App\Upgrade\Application\UpdateLockerInterface;
 use App\Upgrade\Application\UpgradeLoggerInterface;
+use App\Upgrade\Domain\Exception\ClosingStepsFailedException;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
@@ -56,7 +57,8 @@ final readonly class UpdateCommandHandler
 
     /**
      * @throws \RuntimeException when another update is already in progress or the current version cannot be read
-     * @throws \Throwable any failure thrown by validation, the repositories, the migrations or a closing step (re-thrown after the lock is released and the failure is logged)
+     * @throws ClosingStepsFailedException when closing steps failed, after all of them ran
+     * @throws \Throwable any failure thrown by validation, the repositories or the migrations (re-thrown after the lock is released and the failure is logged)
      */
     public function __invoke(UpdateCommand $command): void
     {
@@ -102,7 +104,7 @@ final readonly class UpdateCommandHandler
                 }
 
                 // Every closing step runs: the modules upgraded before a failure still need the cache clear.
-                $failure = null;
+                $failures = [];
                 foreach ([
                     'modules_update' => fn () => $this->moduleRepository->updateAll(),
                     'widgets_update' => fn () => $this->widgetRepository->updateAll(),
@@ -112,11 +114,11 @@ final readonly class UpdateCommandHandler
                     try {
                         $this->runStep($currentVersion, $step, $action);
                     } catch (\Throwable $exception) {
-                        $failure ??= $exception;
+                        $failures[$step] = $exception;
                     }
                 }
-                if ($failure instanceof \Throwable) {
-                    throw $failure;
+                if ($failures !== []) {
+                    throw new ClosingStepsFailedException($failures);
                 }
 
                 $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
