@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
@@ -379,6 +380,29 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         return $qb->executeQuery()->fetchOne() !== false;
     }
 
+    public function findLinkedHostStates(ServiceId $id): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hsr.host_host_id', ...self::HOST_STATE_COLUMNS)
+            ->from('host_service_relation', 'hsr')
+            ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
+            ->where($qb->expr()->eq('hsr.service_service_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->orderBy('hsr.host_host_id', 'ASC');
+
+        /** @var list<array{host_host_id: int|string, host_activate: string|null, host_poller_id: int|string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $states = [];
+        foreach ($rows as $row) {
+            $states[(int) $row['host_host_id']] = new HostState(
+                activated: $row['host_activate'] === '1',
+                pollerId: $row['host_poller_id'] !== null ? new PollerId((int) $row['host_poller_id']) : null,
+            );
+        }
+
+        return new Collection($states, HostState::class);
+    }
+
     /**
      * No unique index backs the name on a host, in legacy either: this check is the only guard.
      */
@@ -449,6 +473,24 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         return $this->hydrate($hostId, $rows);
+    }
+
+    public function findIdsExclusivelyLinkedToHostId(HostId $hostId): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('s.service_id')
+            ->from(self::TABLE_NAME, 's')
+            ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
+            ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
+            ->andWhere("h.host_register = '1'")
+            ->orderBy('s.service_id', 'ASC');
+        $this->keepOnlyServicesWithASingleRelation($qb);
+
+        return new Collection(
+            array_map(static fn (int $value): ServiceId => new ServiceId($value), $this->fetchIds($qb)),
+            ServiceId::class,
+        );
     }
 
     public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
@@ -541,6 +583,39 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             ...$this->findRelationIds($id->value, (int) $row['host_id']),
             'macros' => $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? [],
         ]);
+    }
+
+    public function findIdsSharedWithOthers(HostId $hostId): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT s.service_id')
+            ->from(self::TABLE_NAME, 's')
+            ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
+            ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
+            ->innerJoin(
+                's',
+                '(SELECT service_service_id FROM host_service_relation GROUP BY service_service_id HAVING COUNT(*) > 1)',
+                'shared',
+                'shared.service_service_id = s.service_id',
+            )
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
+            ->andWhere("h.host_register = '1'")
+            ->orderBy('s.service_id', 'ASC');
+
+        return new Collection(
+            array_map(static fn (int $value): ServiceId => new ServiceId($value), $this->fetchIds($qb)),
+            ServiceId::class,
+        );
+    }
+
+    public function addHostLink(ServiceId $id, HostId $hostId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('host_service_relation')
+            ->values(['host_host_id' => ':hostId', 'service_service_id' => ':serviceId'])
+            ->setParameter('hostId', $hostId->value, ParameterType::INTEGER)
+            ->setParameter('serviceId', $id->value, ParameterType::INTEGER)
+            ->executeStatement();
     }
 
     public function updateActivationStatus(ServiceId $id, bool $activated): void

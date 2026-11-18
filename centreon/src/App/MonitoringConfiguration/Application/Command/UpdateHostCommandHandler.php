@@ -363,10 +363,7 @@ final readonly class UpdateHostCommandHandler
         }
 
         if ($command->deployServicesFromTemplates && count($command->templateIds) > 0) {
-            $this->eventBus->fire(new HostServicesDeploymentRequested(
-                $host->id(),
-                $command->actor->userId,
-            ));
+            $this->eventBus->fire(new HostServicesDeploymentRequested($host->id(), $command->actor));
         }
 
         return $host;

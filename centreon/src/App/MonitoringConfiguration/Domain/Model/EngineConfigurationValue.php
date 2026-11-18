@@ -38,4 +38,13 @@ final class EngineConfigurationValue
     private function __construct()
     {
     }
+
+    /**
+     * Replaces each run of control characters with a space. The API rejects them on input; this
+     * keeps a value stored with one (CLAPI, older data) loadable, on a single line.
+     */
+    public static function toSingleLine(string $value): string
+    {
+        return (string) preg_replace('/[\x00-\x1F\x7F]+/', ' ', $value);
+    }
 }

@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Event;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\Shared\Domain\Event\AggregateUpdated;
 
@@ -32,7 +33,8 @@ use App\Shared\Domain\Event\AggregateUpdated;
  * Fired on a full update of a service (PUT). When the service moved to another host, it carries that previous
  * host, so the acting user keeps seeing the service on its new host, and the poller of the previous host when
  * that host was enabled, so both it and the new one are flagged for a configuration reload (see
- * FlagPollerChangedEventHandler). Both are null when the host did not change.
+ * FlagPollerChangedEventHandler). Both are null when the host did not change. It also carries the other host links
+ * the save dropped.
  */
 final readonly class ServiceUpdated extends AggregateUpdated
 {
@@ -42,6 +44,7 @@ final readonly class ServiceUpdated extends AggregateUpdated
         public ?PollerId $previousPollerId = null,
         public ?HostId $previousHostId = null,
         bool $loggable = true,
+        public DroppedHostLinks $droppedHostLinks = new DroppedHostLinks(),
     ) {
         parent::__construct($service, $creatorId, loggable: $loggable);
     }

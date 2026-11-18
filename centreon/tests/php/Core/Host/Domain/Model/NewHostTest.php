@@ -272,21 +272,22 @@ foreach (
 // single-line fields
 foreach (
     [
-        'name',
-        'alias',
-        'snmpCommunity',
-        'noteUrl',
-        'note',
-        'actionUrl',
-        'iconAlternative',
-    ] as $field
+        'name' => 'abc_def',
+        'alias' => 'abc def',
+        'snmpCommunity' => 'abc def',
+        'noteUrl' => 'abc def',
+        'note' => 'abc def',
+        'actionUrl' => 'abc def',
+        'iconAlternative' => 'abc def',
+    ] as $field => $expected
 ) {
     it(
-        "should throw an exception when host {$field} contains a line break",
-        fn () => ($this->createHost)([$field => "abc\ndef"])
-    )->throws(
-        \InvalidArgumentException::class,
-        "[NewHost::{$field}] The value must not contain control characters"
+        "should replace control characters with a space when host {$field} contains some",
+        function () use ($field, $expected): void {
+            $host = ($this->createHost)([$field => "\tabc\r\n\x01def\n"]);
+
+            expect($host->{'get' . $field}())->toBe($expected);
+        }
     );
 }
 

@@ -23,19 +23,18 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Application\Command;
 
-use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Application\Command\UpdateCommand;
 use App\Upgrade\Application\Command\UpdateCommandHandler;
-use App\Upgrade\Application\DbmsVersionValidator;
-use App\Upgrade\Application\EngineContextWriter;
-use App\Upgrade\Domain\Repository\ModuleRepository;
-use App\Upgrade\Domain\Repository\WidgetRepository;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Tests\App\Upgrade\Infrastructure\Double\FakeCacheClearer;
+use Tests\App\Upgrade\Infrastructure\Double\FakeDbmsVersionValidator;
+use Tests\App\Upgrade\Infrastructure\Double\FakeEngineContextWriter;
+use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateLocker;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateScriptFinder;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpgradeLogger;
+use Tests\App\Upgrade\Infrastructure\Double\FakeWidgetRepository;
 
 final class UpdateCommandHandlerTest extends TestCase
 {
@@ -45,15 +44,15 @@ final class UpdateCommandHandlerTest extends TestCase
 
     private FakeUpdateLocker $locker;
 
-    private DbmsVersionValidator&MockObject $dbmsValidator;
+    private FakeDbmsVersionValidator $dbmsValidator;
 
-    private ModuleRepository&MockObject $moduleRepository;
+    private FakeModuleRepository $moduleRepository;
 
-    private WidgetRepository&MockObject $widgetRepository;
+    private FakeWidgetRepository $widgetRepository;
 
-    private EngineContextWriter&MockObject $engineContextWriter;
+    private FakeEngineContextWriter $engineContextWriter;
 
-    private CacheClearer&MockObject $cacheClearer;
+    private FakeCacheClearer $cacheClearer;
 
     private UpdateCommandHandler $handler;
 
@@ -64,11 +63,11 @@ final class UpdateCommandHandlerTest extends TestCase
         $this->updateRepository = new FakeUpdateRepository();
         $this->scriptFinder = new FakeUpdateScriptFinder();
         $this->locker = new FakeUpdateLocker();
-        $this->dbmsValidator = $this->createMock(DbmsVersionValidator::class);
-        $this->moduleRepository = $this->createMock(ModuleRepository::class);
-        $this->widgetRepository = $this->createMock(WidgetRepository::class);
-        $this->engineContextWriter = $this->createMock(EngineContextWriter::class);
-        $this->cacheClearer = $this->createMock(CacheClearer::class);
+        $this->dbmsValidator = new FakeDbmsVersionValidator();
+        $this->moduleRepository = new FakeModuleRepository();
+        $this->widgetRepository = new FakeWidgetRepository();
+        $this->engineContextWriter = new FakeEngineContextWriter();
+        $this->cacheClearer = new FakeCacheClearer();
         $this->logger = new FakeUpgradeLogger();
 
         $this->handler = new UpdateCommandHandler(
@@ -158,9 +157,7 @@ final class UpdateCommandHandlerTest extends TestCase
 
     public function testDbmsValidationFailurePropagates(): void
     {
-        $this->dbmsValidator
-            ->method('validateOrFail')
-            ->willThrowException(new \RuntimeException('MariaDB version 10.5 required'));
+        $this->dbmsValidator->failure = new \RuntimeException('MariaDB version 10.5 required');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/MariaDB/');
@@ -174,17 +171,8 @@ final class UpdateCommandHandlerTest extends TestCase
         $this->updateRepository->currentVersion = '24.10.0';
 
         // Simulate a failure during runUpdate
-        $failingRepository = new class ('24.10.0') extends FakeUpdateRepository {
-            public function __construct(string $version)
-            {
-                $this->currentVersion = $version;
-            }
-
-            public function runMonitoringSql(string $version): void
-            {
-                throw new \RuntimeException('SQL error during update');
-            }
-        };
+        $failingRepository = new FakeUpdateRepository();
+        $failingRepository->monitoringSqlFailure = new \RuntimeException('SQL error during update');
 
         $handler = new UpdateCommandHandler(
             $failingRepository,
@@ -216,7 +204,7 @@ final class UpdateCommandHandlerTest extends TestCase
     {
         // A failure inside one of the handler-owned steps (here cache_clear) must still
         // propagate and release the lock.
-        $this->cacheClearer->method('clear')->willThrowException(new \RuntimeException('cache clear failed'));
+        $this->cacheClearer->failure = new \RuntimeException('cache clear failed');
 
         try {
             ($this->handler)(new UpdateCommand());
@@ -238,12 +226,14 @@ final class UpdateCommandHandlerTest extends TestCase
         self::assertSame(['backup', 'remove'], $this->updateRepository->calls);
     }
 
-    public function testEngineContextAndCacheAreCalledOnSuccess(): void
+    public function testRunsEveryPostUpgradeStepOnSuccess(): void
     {
-        $this->engineContextWriter->expects(self::once())->method('writeIfMissing');
-        $this->cacheClearer->expects(self::once())->method('clear');
-
         ($this->handler)(new UpdateCommand());
+
+        self::assertSame(1, $this->moduleRepository->updates);
+        self::assertSame(1, $this->widgetRepository->updates);
+        self::assertSame(1, $this->engineContextWriter->writes);
+        self::assertSame(1, $this->cacheClearer->clears);
     }
 
     public function testEmitsAnErrorButNoFailureWhenItFailsBeforeStart(): void
@@ -251,9 +241,7 @@ final class UpdateCommandHandlerTest extends TestCase
         // A failure raised before start() (here DBMS validation) must not emit a dangling
         // failure() with no matching start(); instead a standalone error() keeps
         // the aborted attempt visible in the upgrade channel (and it is still re-thrown).
-        $this->dbmsValidator
-            ->method('validateOrFail')
-            ->willThrowException(new \RuntimeException('MariaDB version 10.5 required'));
+        $this->dbmsValidator->failure = new \RuntimeException('MariaDB version 10.5 required');
 
         try {
             ($this->handler)(new UpdateCommand());
@@ -277,7 +265,7 @@ final class UpdateCommandHandlerTest extends TestCase
     public function testEmitsFailureAfterStartWhenAStepFails(): void
     {
         // A failure raised after start() must emit a balanced failure(), preceded by start().
-        $this->cacheClearer->method('clear')->willThrowException(new \RuntimeException('cache clear failed'));
+        $this->cacheClearer->failure = new \RuntimeException('cache clear failed');
 
         try {
             ($this->handler)(new UpdateCommand());

@@ -29,9 +29,15 @@ class FakeUpdateRepository implements UpdateRepository
 {
     public ?string $currentVersion = '24.10.0';
 
+    public ?\Throwable $versionReadFailure = null;
+
     public bool $postUpdateCalled = false;
 
     public bool $installDirectoryPresent = true;
+
+    public ?\Throwable $versionUpdateFailure = null;
+
+    public ?\Throwable $monitoringSqlFailure = null;
 
     /** @var string[] versions whose version row was recorded */
     public array $updatesRun = [];
@@ -41,11 +47,18 @@ class FakeUpdateRepository implements UpdateRepository
 
     public function findCurrentVersion(): ?string
     {
+        if ($this->versionReadFailure instanceof \Throwable) {
+            throw $this->versionReadFailure;
+        }
+
         return $this->currentVersion;
     }
 
     public function runMonitoringSql(string $version): void
     {
+        if ($this->monitoringSqlFailure instanceof \Throwable) {
+            throw $this->monitoringSqlFailure;
+        }
     }
 
     public function runScript(string $version): void
@@ -62,7 +75,12 @@ class FakeUpdateRepository implements UpdateRepository
 
     public function updateVersionInformation(string $version): void
     {
+        if ($this->versionUpdateFailure instanceof \Throwable) {
+            throw $this->versionUpdateFailure;
+        }
+
         $this->updatesRun[] = $version;
+        $this->currentVersion = $version;
     }
 
     public function installDirectoryExists(): bool
