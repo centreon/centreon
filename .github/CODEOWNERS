@@ -8,6 +8,7 @@
 **/composer.*                           @centreon/owners-php
 **/tests/api/                           @centreon/owners-php
 **/tests/php/                           @centreon/owners-php
+**/tests/acl/                           @centreon/owners-php
 **/tests/clapi_export/                  @centreon/owners-php
 **/www/                                 @centreon/owners-php
 **/tmpl/                                @centreon/owners-php

@@ -145,6 +145,13 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 WHERE host_id = :sourceHostId AND service_id IS NULL',
             ['newHostId' => $newHostId->value, 'sourceHostId' => $sourceHostId->value],
         );
+
+        /** @var list<int|string> $groupIds */
+        $groupIds = $this->realTimeConnection->fetchFirstColumn(
+            'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :newHostId AND service_id IS NULL',
+            ['newHostId' => $newHostId->value],
+        );
+        $this->invalidateAclFingerprints(array_map('intval', $groupIds));
     }
 
     public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
@@ -177,6 +184,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 );
             }
         }
+        $this->invalidateAclFingerprints(array_map('intval', $groupIds));
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool
@@ -642,14 +650,38 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      */
     private function grant(int $hostId, ?int $serviceId, Collection $accessGroupIds): void
     {
-        // A service moved back to a host before the cache is recomputed still holds its row there.
+        $groupIds = [];
+        // A pair may already be granted: a service moved back to a host before the cache is recomputed keeps the row
+        // of its first stay there, which the unique key of the table would refuse to insert again.
         foreach ($accessGroupIds as $accessGroupId) {
             $this->realTimeConnection->executeStatement(
                 'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
                     ON DUPLICATE KEY UPDATE group_id = group_id',
                 ['groupId' => $accessGroupId->value, 'hostId' => $hostId, 'serviceId' => $serviceId],
             );
+            $groupIds[] = $accessGroupId->value;
         }
+        $this->invalidateAclFingerprints($groupIds);
+    }
+
+    /**
+     * cron/centAcl.php skips an access group whose fingerprint still matches the rows it computes for it. A row
+     * written here, outside the cron, removes that fingerprint, so that the next recompute of the group compares its
+     * rows instead of skipping it.
+     *
+     * @param list<int> $groupIds
+     */
+    private function invalidateAclFingerprints(array $groupIds): void
+    {
+        if ($groupIds === []) {
+            return;
+        }
+
+        $this->realTimeConnection->executeStatement(
+            'DELETE FROM centreon_acl_checksum WHERE group_id IN (:groupIds)',
+            ['groupIds' => $groupIds],
+            ['groupIds' => ArrayParameterType::INTEGER],
+        );
     }
 
     /**
