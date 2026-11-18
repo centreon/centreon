@@ -16,7 +16,7 @@ Centreon-HA repository contains:
 
 ## Supported databases
 
-Both database nodes must run the same engine on the same distribution. Create the database resource with the `ocf:heartbeat:db-centreon` agent; `ocf:heartbeat:mariadb-centreon`, its previous name, still works.
+Both database nodes must run the same engine on the same distribution, with a different `server_id` (or `server-id`) each: the resource agent does not check it. Create the database resource with the `ocf:heartbeat:db-centreon` agent; `ocf:heartbeat:mariadb-centreon`, its previous name, still works.
 
 - MariaDB.
 - MySQL 8.4 or later, with `gtid_mode=ON`, `enforce_gtid_consistency=ON`, `skip_replica_start=ON`, `log_bin=ON`, `log_replica_updates=ON` (the MySQL defaults) and the `rpl_semi_sync_source` and `rpl_semi_sync_replica` plugins loaded (`semisync_source.so` and `semisync_replica.so`). The resource agent checks these prerequisites when it starts the database.

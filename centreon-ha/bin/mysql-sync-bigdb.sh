@@ -181,9 +181,6 @@ fi
 #############
 
 restore_master_writable() {
-    # Run on any exit between making the master read-only and writable again.
-    # A second interrupt must not stop the restore.
-    trap '' INT TERM
     if "$SQL_CLIENT" -B -N --connect-timeout=10 -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF' ; then
         echo "The master '$master_hostname' is writable again." >&2
     elif "$MYSQLADMIN" --connect-timeout=10 -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" ping > /dev/null 2>&1 ; then
@@ -192,9 +189,40 @@ restore_master_writable() {
         echo "ERROR: The master '$master_hostname' is stopped or stopping: start it with 'systemctl start $SQL_SYSTEMD_SERVICE'." >&2
     fi
 }
-trap restore_master_writable EXIT
+SNAPSHOT_DATADIR_MOUNT="$SNAPSHOT_MOUNT_PATH/snap-dbbackupdatadir"
+
+remove_snapshot() {
+    if mountpoint -q "$SNAPSHOT_DATADIR_MOUNT" && ! umount "$SNAPSHOT_DATADIR_MOUNT" ; then
+        echo "ERROR: Can't unmount the snapshot: run 'umount $SNAPSHOT_DATADIR_MOUNT; lvremove /dev/$vg_name/dbbackupdatadir'" >&2
+        return 1
+    fi
+    if ! lvremove -f /dev/$vg_name/dbbackupdatadir ; then
+        echo "ERROR: Can't remove the snapshot: run 'lvremove /dev/$vg_name/dbbackupdatadir'" >&2
+        return 1
+    fi
+}
+
+# On any exit before the end of the copy, make the master writable again and
+# remove the snapshot. A second interrupt must not stop this cleanup, nor a
+# closed output (SIGPIPE) when the ssh session running the script drops.
+master_readonly=0
+snapshot_created=0
+cleanup_on_exit() {
+    trap '' INT TERM HUP PIPE
+    if [ "$master_readonly" -eq 1 ] ; then
+        restore_master_writable
+    fi
+    if [ "$snapshot_created" -eq 1 ] ; then
+        remove_snapshot
+    fi
+}
+trap cleanup_on_exit EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
+trap 'exit 129' HUP
+trap 'exit 141' PIPE
+
+master_readonly=1
 
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
     gtid_current_pos=$("$SQL_CLIENT" -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
@@ -247,6 +275,7 @@ if [ "$lv_name_logbin" != "$lv_name" ] ; then
 else
     lvcreate -l $free_pe -s -n dbbackupdatadir $lv_name
 fi
+snapshot_created=1
 
 ###
 # Start server
@@ -275,14 +304,13 @@ if ! "$SQL_CLIENT" -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e
     echo "ERROR: Can't remove read_only on master" >&2
     exit 1
 fi
-trap - EXIT INT TERM
+master_readonly=0
 
 ###
 # Mount snapshot
 ###
 
 echo "Mount LVM snapshot"
-SNAPSHOT_DATADIR_MOUNT="$SNAPSHOT_MOUNT_PATH/snap-dbbackupdatadir"
 mkdir -p "$SNAPSHOT_DATADIR_MOUNT"
 TYPEFS_BACKUP=$(df -T "$SQL_CONF_DATADIR" | tail -1 | awk -F' ' '{print $(NF-5)}')
 [ "$TYPEFS_BACKUP"  = "xfs" ] && MNTOPTIONS="-o nouuid"
@@ -303,11 +331,9 @@ $USER_SUDO ssh -p $SSH_PORT $slave_hostname "rm -f \"${logbin_loc}/${logbin_file
 
 abort_copy() {
     # Leave the slave stopped: setting up the replication on a partial copy
-    # would mark the master's transactions as executed without their data
+    # would mark the master's transactions as executed without their data.
+    # The exit handler removes the snapshot.
     echo "ERROR: The copy to '$slave_hostname' is incomplete. Its database is left stopped: do not start it, nor let Pacemaker manage it, before mysql-sync-bigdb.sh succeeds." >&2
-    if ! umount "$SNAPSHOT_DATADIR_MOUNT" || ! lvremove -f /dev/$vg_name/dbbackupdatadir ; then
-        echo "ERROR: Remove the snapshot by hand: umount $SNAPSHOT_DATADIR_MOUNT; lvremove /dev/$vg_name/dbbackupdatadir" >&2
-    fi
     exit 1
 }
 
@@ -317,19 +343,18 @@ echo "Rsync in progress (exclude MySQL, ${logbin_files}, ${relaylog_files})"
 # running as mysql, cannot update them
 rsync -av $RSYNC_EXTRA_OPTIONS --delete --progress --exclude="mysql" --exclude="debian-*.flag" --exclude="mariadb_upgrade_info" --exclude="mysql_upgrade_info" --exclude="${SQL_CONF_PID_FILE}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude="auto.cnf" --exclude="mysqld-auto.cnf" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$SQL_CONF_DATADIR/ || abort_copy
 
-mysql_ibd_system=''
+mysql_ibd_system=()
 # MySQL keeps its system tables in mysql.ibd, copied above: mysql/ has no .ibd
 for file in "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/"*.ibd; do
     [ -e "$file" ] || continue
-    filename=$(basename $file | sed 's/\.ibd//')
-    mysql_ibd_system="$mysql_ibd_system \"$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.ibd\""
+    mysql_ibd_system+=("$file")
     # rsync fails on a missing source file
-    if [ -f "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.frm" ] ; then
-        mysql_ibd_system="$mysql_ibd_system \"$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.frm\""
+    if [ -f "${file%.ibd}.frm" ] ; then
+        mysql_ibd_system+=("${file%.ibd}.frm")
     fi
 done
-if [ -n "$mysql_ibd_system" ] ; then
-    eval rsync -av $RSYNC_EXTRA_OPTIONS --progress $mysql_ibd_system -e \"\$USER_SUDO ssh -p $SSH_PORT\" \$slave_hostname:\"\$SQL_CONF_DATADIR/mysql/\" || abort_copy
+if [ "${#mysql_ibd_system[@]}" -gt 0 ] ; then
+    rsync -av $RSYNC_EXTRA_OPTIONS --progress "${mysql_ibd_system[@]}" -e "$USER_SUDO ssh -p $SSH_PORT" "$slave_hostname:$SQL_CONF_DATADIR/mysql/" || abort_copy
 fi
 
 # Mode Fastest. Uncomment this and comment line above
@@ -341,8 +366,13 @@ fi
 ###
 
 echo "Umount and Delete LVM snapshot"
-umount "$SNAPSHOT_DATADIR_MOUNT"
-lvremove -f /dev/$vg_name/dbbackupdatadir
+# On a failure, the snapshot stays for the exit handler to retry
+snapshot_status=0
+if remove_snapshot ; then
+    snapshot_created=0
+else
+    snapshot_status=1
+fi
 
 ###
 # Demarrer le serveur slave
@@ -446,4 +476,4 @@ while : ; do
 done
 echo "OK"
 
-exit 0
+exit $snapshot_status

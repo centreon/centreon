@@ -5,6 +5,29 @@ load helpers
 UUID_A=3e11fa47-71ca-11e1-9e33-c80aa9429562
 UUID_B=8a94f357-aab4-11df-86ab-c80aa9429562
 
+# client_binary default of the resource agent
+
+@test "resource agent: defaults to the mariadb client when it exists" {
+  mkdir -p "$BATS_TEST_TMPDIR/bin"
+  printf '#!/bin/bash\n' > "$BATS_TEST_TMPDIR/bin/mariadb"
+  chmod +x "$BATS_TEST_TMPDIR/bin/mariadb"
+  PATH="$BATS_TEST_TMPDIR/bin:$PATH"
+  load_ocf_common 1
+  [ "$OCF_RESKEY_client_binary_default" = "mariadb" ]
+  [ "$MYSQL" = "mariadb" ]
+}
+
+@test "resource agent: defaults to the mysql client otherwise" {
+  # No client at all in PATH, even when the host has a mariadb client
+  local saved_path="$PATH"
+  mkdir -p "$BATS_TEST_TMPDIR/empty"
+  PATH="$BATS_TEST_TMPDIR/empty"
+  load_ocf_common 0
+  PATH="$saved_path"
+  [ "$OCF_RESKEY_client_binary_default" = "mysql" ]
+  [ "$MYSQL" = "mysql" ]
+}
+
 # gtid_set_valid
 
 @test "gtid_set_valid: MySQL accepts untagged and tagged GTID sets" {

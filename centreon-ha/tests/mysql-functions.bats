@@ -279,23 +279,51 @@ stub_systemctl() {
 
 # sql_fetch_clients
 
-@test "sql_fetch_clients: uses the MariaDB names when the mariadb client exists" {
+@test "sql_fetch_clients: uses the MariaDB names when the mariadb clients exist" {
   load_mysql_functions mariadbd "" ""
-  printf '#!/bin/bash\n' > "$STUB_DIR/mariadb"
-  chmod +x "$STUB_DIR/mariadb"
-  sql_fetch_clients
+  for client in mariadb mariadb-admin mariadb-show; do
+    printf '#!/bin/bash\n' > "$STUB_DIR/$client"
+    chmod +x "$STUB_DIR/$client"
+  done
+  PATH="$STUB_DIR" sql_fetch_clients
   [ "$SQL_CLIENT" = "mariadb" ]
   [ "$SQL_ADMIN" = "mariadb-admin" ]
   [ "$SQL_SHOW" = "mariadb-show" ]
 }
 
-@test "sql_fetch_clients: uses the mysql names otherwise" {
-  if command -v mariadb >/dev/null; then
-    skip "a mariadb client is installed on this host"
-  fi
+@test "sql_fetch_clients: uses the mysql names without all the mariadb clients" {
   load_mysql_functions mysqld "" ""
-  sql_fetch_clients
+  for client in mariadb mariadb-admin; do
+    printf '#!/bin/bash\n' > "$STUB_DIR/$client"
+    chmod +x "$STUB_DIR/$client"
+  done
+  PATH="$STUB_DIR" sql_fetch_clients
   [ "$SQL_CLIENT" = "mysql" ]
   [ "$SQL_ADMIN" = "mysqladmin" ]
   [ "$SQL_SHOW" = "mysqlshow" ]
+}
+
+# The scripts call the clients through the detected names
+
+@test "scripts: no direct mysql, mysqladmin or mysqlshow call" {
+  run grep -nE '(^[[:space:]]*|[$(]|if !? ?|elif |until )(mysql|mysqladmin|mysqlshow) -' \
+    "$CENTREON_HA_DIR"/bin/*.sh "$CENTREON_HA_DIR"/lib/*.sh
+  [ "$status" -eq 1 ]
+}
+
+@test "scripts: the backup and sync scripts pass file names as arguments, not through eval" {
+  run grep -nw eval "$CENTREON_HA_DIR"/bin/centreondb-smooth-backup.sh "$CENTREON_HA_DIR"/bin/mysql-sync-bigdb.sh
+  [ "$status" -eq 1 ]
+}
+
+@test "scripts: the ones using the detected client names source the library" {
+  local script
+  for script in "$CENTREON_HA_DIR"/bin/*.sh; do
+    if grep -qE 'SQL_(CLIENT|ADMIN|SHOW)' "$script"; then
+      grep -q 'centreon-ha/lib/mysql-functions.sh' "$script" || {
+        echo "$script uses the client names without sourcing the library"
+        return 1
+      }
+    fi
+  done
 }

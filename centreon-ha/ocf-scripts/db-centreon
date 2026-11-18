@@ -241,8 +241,9 @@ MariaDB/MySQL test user password
 <parameter name="enable_creation" unique="0" required="0">
 <longdesc lang="en">
 MariaDB only: initialize the datadir with mysql_install_db when it has no
-mysql directory. With MySQL, initialize the datadir (mysqld --initialize)
-before the agent starts it.
+mysql directory. With MySQL, initialize the datadir and set up its accounts,
+including the test and replication users, before the agent starts it:
+mysqld --initialize gives root an expired temporary password.
 </longdesc>
 <shortdesc lang="en">Create the database if it does not exist</shortdesc>
 <content type="boolean" default="${OCF_RESKEY_enable_creation_default}"/>

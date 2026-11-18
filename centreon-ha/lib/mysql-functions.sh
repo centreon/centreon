@@ -25,9 +25,11 @@ SQL_CONF_RELAY_LOG=
 
 sql_fetch_clients()
 {
-    # MariaDB warns when its clients are called by their mysql* names, which
-    # MySQL alone ships: call them by the names of the installed engine
-    if command -v mariadb > /dev/null 2>&1 ; then
+    # MariaDB 11.0+ warns when its clients run under their deprecated mysql*
+    # names, the only names MySQL ships: use the names of the installed engine
+    if command -v mariadb > /dev/null 2>&1 \
+        && command -v mariadb-admin > /dev/null 2>&1 \
+        && command -v mariadb-show > /dev/null 2>&1 ; then
         SQL_CLIENT="mariadb"
         SQL_ADMIN="mariadb-admin"
         SQL_SHOW="mariadb-show"

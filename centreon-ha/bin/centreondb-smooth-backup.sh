@@ -319,7 +319,7 @@ if [ "$OPT_INCR" -ne "0" ] ; then
 	echo "Incremental backup launched:"
 	echo "#####################"
 
-	save_bin_logs=""
+	save_bin_logs=()
 	while : ; do
 		last_binlog_file=$(($last_binlog_file + 1))
 		if [ "$last_binlog_file" -gt "$current_binlog_file" ] ; then
@@ -327,29 +327,33 @@ if [ "$OPT_INCR" -ne "0" ] ; then
 		fi
 		file_test=$(echo "$logbin_loc/$logbin_files.$(printf "%06d" $last_binlog_file)")
 		if [ -f "$file_test" ] ; then
-			save_bin_logs="$save_bin_logs \"$file_test\" "
+			save_bin_logs+=("$file_test")
 		else
 			output_log "ERROR: Missing binary log '$file_test'." 1
 			binlog_gap=1
 		fi
 	done
 	
+	# The chain cannot be restored past a missing binary log: drop the
+	# checkpoint whatever happens to the copy of the other ones
+	if [ "$binlog_gap" -eq 1 ] ; then
+		drop_checkpoint "The binary logs have a gap"
+	fi
+
 	echo "Save files"
-	if [ -n "$save_bin_logs" ] ; then
+	if [ "${#save_bin_logs[@]}" -gt 0 ] ; then
 		if [ "$DO_ARCHIVE" -eq "0" ] ; then
-			copy_command="cp -pf $save_bin_logs \"$BACKUP_DIR_TOTAL/\""
+			cp -pf "${save_bin_logs[@]}" "$BACKUP_DIR_TOTAL/"
 		else
-			copy_command="tar czvf \"$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz\" $save_bin_logs"
+			tar czvf "$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz" "${save_bin_logs[@]}"
 		fi
 		# Advance the checkpoint only once the binary logs are saved
-		if ! eval "$copy_command" ; then
+		if [ $? -ne 0 ] ; then
 			output_log "ERROR: Can't save the binary logs, the incremental backup checkpoint is not updated." 1
 			exit 1
 		fi
 	fi
-	# The chain cannot be restored past a missing binary log
 	if [ "$binlog_gap" -eq 1 ] ; then
-		drop_checkpoint "The binary logs have a gap"
 		exit 1
 	fi
 	write_checkpoint "$current_binlog_file" || exit 1
@@ -397,16 +401,28 @@ systemctl start "$SQL_SYSTEMD_SERVICE"
 
 set_readonly
 
-# The backup runs on the replica: skip-slave-start keeps its replication
-# stopped after the restart, and the resource agent does not restart it
-if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
-	_start_replica="START SLAVE"
-else
-	_start_replica="START REPLICA"
+# The checkpoint of the snapshot: read before the replication resumes, as
+# replicated writes can rotate the binary log. Saved once the backup succeeds.
+total_checkpoint=""
+if [ "$logbin_activated" -ne "0" ] && ! total_checkpoint=$(get_current_logbin_file 0) ; then
+	total_checkpoint=""
 fi
-if ! "$SQL_CLIENT" -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "$_start_replica" ; then
-	output_log "ERROR: Can't restart the replication, run '$_start_replica' on this node." 1
-	backup_status=1
+
+# The backup runs on the replica: skip-slave-start keeps its replication
+# stopped after the restart, and the resource agent does not restart it.
+# Only on a read-only node, never on a master with stale replica settings.
+if [ "$readonly_value" = "1" ] ; then
+	if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+		_start_replica="START SLAVE"
+	else
+		_start_replica="START REPLICA"
+	fi
+	if ! "$SQL_CLIENT" -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "$_start_replica" ; then
+		output_log "ERROR: Can't restart the replication, run '$_start_replica' on this node." 1
+		backup_status=1
+	fi
+elif [ "$READONLY_CHECK" -eq "0" ] ; then
+	output_log "WARNING: read_only not checked, so the replication is not restarted: on a replica, run 'START SLAVE' (MariaDB) or 'START REPLICA' (MySQL)."
 fi
 
 ###
@@ -431,16 +447,6 @@ else
     output_log "Unable to mount device, backup aborted" 
     lvremove -f /dev/$vg_name/dbbackup
     exit 1;
-fi
-
-###
-# Get Index path
-###
-
-# Saved as checkpoint once the total backup succeeds
-total_checkpoint=""
-if [ "$logbin_activated" -ne "0" ] && ! total_checkpoint=$(get_current_logbin_file 0) ; then
-	total_checkpoint=""
 fi
 
 concat_datadir=$(echo "$datadir" | sed "s#^${mount_point}##")
@@ -472,26 +478,26 @@ if [ -n "$logbin_files" ] ; then
 	done
 fi
 
-save_files=""
+# The file names come from the datadir: pass them as arguments, after --
+save_files=()
 tmp_path=$(echo "$SNAPSHOT_MOUNT/$concat_datadir" | sed "s#/\+#/#g")
-for tmp_file in $(find "$tmp_path" -type f); do
+while IFS= read -r -d '' tmp_file ; do
 	tmp_result=$(echo -e "$ar_exclude_file" | awk -v pattern="$tmp_file" 'BEGIN { message="NOK" } $0 == pattern { message="OK"; exit(0) }  END { print message }')
 	if [ "$tmp_result" = "NOK" ] ; then
-		tmp_file=$(echo "$tmp_file" | sed "s#^$SNAPSHOT_MOUNT/##")
-		save_files="$save_files \"$tmp_file\""
+		save_files+=("${tmp_file#"$SNAPSHOT_MOUNT"/}")
 	fi
-done
+done < <(find "$tmp_path" -type f -print0)
 
 output_log "Save files"
 copy_status=1
 if cd "$SNAPSHOT_MOUNT" ; then
 	if [ "$DO_ARCHIVE" -eq "0" ] ; then
-		eval cp --parent -pf $save_files \"$BACKUP_DIR_TOTAL/\"
+		cp --parent -pf -- "${save_files[@]}" "$BACKUP_DIR_TOTAL/"
 	else
-		eval tar czvf \"$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz\" $save_files
+		tar czvf "$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz" -- "${save_files[@]}"
 	fi
 	copy_status=$?
-	cd -
+	cd - > /dev/null
 fi
 
 ###
@@ -515,8 +521,17 @@ if [ "$logbin_activated" -ne "0" ] ; then
 	elif ! write_checkpoint "$total_checkpoint" ; then
 		backup_status=1
 	fi
+else
+	# A checkpoint of an older backup does not describe this one
+	if ! rm -f "$SAVE_LAST_DIR/centreondb-smooth-backup.save" ; then
+		output_log "ERROR: Can't remove $SAVE_LAST_DIR/centreondb-smooth-backup.save: remove it by hand." 1
+		backup_status=1
+	fi
 fi
 
-echo "$save_timestamp" > "$SAVE_LAST_DIR/$SAVE_LAST_FILE"
+if ! echo "$save_timestamp" > "$SAVE_LAST_DIR/$SAVE_LAST_FILE" ; then
+	output_log "ERROR: Can't write $SAVE_LAST_DIR/$SAVE_LAST_FILE." 1
+	backup_status=1
+fi
 
 exit $backup_status

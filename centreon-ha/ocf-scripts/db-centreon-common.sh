@@ -57,7 +57,8 @@ else
 	OCF_RESKEY_pid_default="/var/run/mysql/mysqld.pid"
 	OCF_RESKEY_socket_default="/var/lib/mysql/mysql.sock"
 fi
-# MariaDB warns when its client is called mysql, the only name MySQL ships
+# MariaDB 11.0+ warns when its client is called mysql, the only name MySQL
+# ships
 if command -v mariadb >/dev/null 2>&1; then
 	OCF_RESKEY_client_binary_default="mariadb"
 else

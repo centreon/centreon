@@ -8,8 +8,8 @@ centreon/check-centreon-gpg-key.sh:generic-api-key:17
 .github/docker/.env:generic-api-key:23
 .github/docker/.env:generic-api-key:14
 .github/docker/.env:generic-api-key:13
-centreon-ha/ocf-scripts/db-centreon-common.sh:generic-api-key:77
-centreon-ha/ocf-scripts/db-centreon-common.sh:generic-api-key:68
+centreon-ha/ocf-scripts/db-centreon-common.sh:generic-api-key:78
+centreon-ha/ocf-scripts/db-centreon-common.sh:generic-api-key:69
 centreon/www/install/insertBaseConf.sql:generic-api-key:586
 centreon/tests/php/Security/EncryptionTest.php:generic-api-key:49
 centreon/tests/php/Security/EncryptionTest.php:generic-api-key:48
