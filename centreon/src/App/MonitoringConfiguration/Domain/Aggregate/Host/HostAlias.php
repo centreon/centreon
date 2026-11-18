@@ -35,9 +35,8 @@ final readonly class HostAlias
 
     public function __construct(string $value)
     {
-        $value = trim($value);
+        $value = trim(EngineConfigurationValue::toSingleLine($value));
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
-        Assert::notRegex($value, EngineConfigurationValue::CONTROL_CHARACTERS_PATTERN, '[HostAlias::value] The value must not contain control characters');
         $this->value = $value;
     }
 }

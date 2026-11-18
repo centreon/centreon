@@ -315,35 +315,35 @@ foreach (
     );
 }
 
-// single-line fields
+// single-line fields: a host loaded with a stored control character stays usable
 foreach (
     [
-        'name',
-        'alias',
-        'snmpCommunity',
-        'noteUrl',
-        'note',
-        'actionUrl',
-        'iconAlternative',
-    ] as $field
+        'name' => 'abc_def',
+        'alias' => 'abc def',
+        'snmpCommunity' => 'abc def',
+        'noteUrl' => 'abc def',
+        'note' => 'abc def',
+        'actionUrl' => 'abc def',
+        'iconAlternative' => 'abc def',
+    ] as $field => $expected
 ) {
     it(
-        "should throw an exception when host {$field} contains a line break",
-        fn () => ($this->createHost)([$field => "abc\ndef"])
-    )->throws(
-        \InvalidArgumentException::class,
-        "[Host::{$field}] The value must not contain control characters"
+        "should replace control characters with a space when host {$field} contains some",
+        function () use ($field, $expected): void {
+            $host = ($this->createHost)([$field => "\tabc\r\n\x01def\n"]);
+
+            expect($host->{'get' . $field}())->toBe($expected);
+        }
     );
 
     it(
-        "should throw an exception when host {$field} is set with a line break",
-        function () use ($field): void {
+        "should replace control characters with a space when host {$field} is set with some",
+        function () use ($field, $expected): void {
             $host = ($this->createHost)();
-            $host->{'set' . $field}("abc\ndef");
+            $host->{'set' . $field}("\tabc\r\n\x01def\n");
+
+            expect($host->{'get' . $field}())->toBe($expected);
         }
-    )->throws(
-        \InvalidArgumentException::class,
-        "[Host::{$field}] The value must not contain control characters"
     );
 }
 
