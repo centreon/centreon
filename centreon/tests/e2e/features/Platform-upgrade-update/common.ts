@@ -134,9 +134,12 @@ const getStableRepositoryIndexPath = (majorVersion: string): string => {
 // to resolve at all; curl keeps that failure on the Cypress/Node side, where we control it.
 const isRepositoryReachable = (url: string): Cypress.Chainable<boolean> =>
   cy
-    .exec(`curl -s -o /dev/null -w '%{http_code}' --max-time 10 "${url}" || true`, {
-      failOnNonZeroExit: false
-    })
+    .exec(
+      `curl -s -o /dev/null -w '%{http_code}' --max-time 10 "${url}" || true`,
+      {
+        failOnNonZeroExit: false
+      }
+    )
     .then(({ stdout }) => stdout.trim() === '200');
 
 // End-of-life major versions leave packages.centreon.com and only their stable
