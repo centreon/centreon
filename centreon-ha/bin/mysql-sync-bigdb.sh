@@ -334,11 +334,11 @@ else
     reset_sql="STOP REPLICA;
 RESET REPLICA ALL;
 RESET BINARY LOGS AND GTIDS;"
-    # GET_SOURCE_PUBLIC_KEY=1: without TLS, caching_sha2_password (the
-    # default plugin) needs the RSA public key of the source whenever the
-    # source has not cached the password yet, e.g. after a restart
+    # SOURCE_SSL=1: caching_sha2_password (the default plugin) needs a
+    # secure connection whenever the source has not cached the password
+    # yet, e.g. after a restart
     replication_sql="SET GLOBAL gtid_purged = '$gtid_current_pos';
-CHANGE REPLICATION SOURCE TO SOURCE_HOST='$master_hostname', SOURCE_USER='$DBREPLUSER', SOURCE_PASSWORD='$DBREPLPASSWORD', SOURCE_AUTO_POSITION=1, GET_SOURCE_PUBLIC_KEY=1;
+CHANGE REPLICATION SOURCE TO SOURCE_HOST='$master_hostname', SOURCE_USER='$DBREPLUSER', SOURCE_PASSWORD='$DBREPLPASSWORD', SOURCE_AUTO_POSITION=1, SOURCE_SSL=1;
 START REPLICA;
 SHOW PROCESSLIST;"
 fi

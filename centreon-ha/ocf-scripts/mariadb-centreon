@@ -655,16 +655,16 @@ set_master() {
             MASTER_PASSWORD='$OCF_RESKEY_replication_passwd', \
             MASTER_USE_GTID=current_pos";
     else
-        # GET_SOURCE_PUBLIC_KEY=1: without TLS, caching_sha2_password (the
-        # default plugin) needs the RSA public key of the source whenever the
-        # source has not cached the password yet, e.g. after a restart
+        # SOURCE_SSL=1: caching_sha2_password (the default plugin) needs a
+        # secure connection whenever the source has not cached the password
+        # yet, e.g. after a restart
         ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
             -e "CHANGE REPLICATION SOURCE TO SOURCE_HOST='$new_master', \
             SOURCE_PORT=$OCF_RESKEY_replication_port, \
             SOURCE_USER='$OCF_RESKEY_replication_user', \
             SOURCE_PASSWORD='$OCF_RESKEY_replication_passwd', \
             SOURCE_AUTO_POSITION=1, \
-            GET_SOURCE_PUBLIC_KEY=1";
+            SOURCE_SSL=1";
     fi
 }
 

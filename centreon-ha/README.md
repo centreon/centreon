@@ -20,6 +20,7 @@ Both database nodes must run the same engine on the same distribution:
 
 - MariaDB.
 - MySQL 8.4 or later, with `gtid_mode=ON`, `enforce_gtid_consistency=ON` and the `rpl_semi_sync_source` and `rpl_semi_sync_replica` plugins loaded (`semisync_source.so` and `semisync_replica.so`). The `mariadb-centreon` resource agent checks these prerequisites when it starts the database.
+  The replication uses TLS: keep TLS enabled on the servers (MySQL generates a certificate by default).
   MySQL ships no `mysqld_safe`: set the `binary` parameter of the resource to the server binary (`/usr/sbin/mysqld`), and the `pid` and `socket` parameters to the `pid-file` and `socket` of the MySQL configuration.
 
 ## How to install Centreon-HA
