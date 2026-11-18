@@ -34,10 +34,12 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\GraphTemplat
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\GraphTemplate\GraphTemplateChoicesTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\GraphTemplate\ListGraphTemplatesChoicesProvider;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGraphTemplateRepository;
+use Tests\App\Shared\Double\FakeOptionRepository;
 
 /**
  * Provider logic with an in-memory repository. The HTTP wiring is covered by ListGraphTemplatesChoicesProviderTest.
@@ -55,14 +57,14 @@ final class ListGraphTemplatesChoicesProviderLogicTest extends TestCase
         $this->provider = new ListGraphTemplatesChoicesProvider(
             new GraphTemplateChoicesTransformer(),
             $this->repository,
-            new Pagination(['client_items_per_page' => true]),
+            new PaginationResolver(new Pagination(['client_items_per_page' => true]), new FakeOptionRepository(), fallbackItemsPerPage: 30),
         );
     }
 
     public function testItRejectsZeroItemsPerPage(): void
     {
         $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('itemsPerPage must be a positive integer.');
+        $this->expectExceptionMessage('The "itemsPerPage" parameter must be a positive integer.');
 
         $this->provide(['itemsPerPage' => '0']);
     }

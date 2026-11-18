@@ -40,6 +40,7 @@ use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -49,6 +50,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceGroupRepository;
+use Tests\App\Shared\Double\FakeOptionRepository;
 
 /**
  * Provider logic with an in-memory repository. The HTTP wiring is covered by ListServiceGroupsChoicesProviderTest.
@@ -67,7 +69,7 @@ final class ListServiceGroupsChoicesProviderLogicTest extends TestCase
     public function testItRejectsZeroItemsPerPage(): void
     {
         $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('itemsPerPage must be a positive integer.');
+        $this->expectExceptionMessage('The "itemsPerPage" parameter must be a positive integer.');
 
         $this->provide(['itemsPerPage' => '0']);
     }
@@ -170,7 +172,7 @@ final class ListServiceGroupsChoicesProviderLogicTest extends TestCase
         $provider = new ListServiceGroupsChoicesProvider(
             new ServiceGroupChoicesTransformer(),
             $this->repository,
-            new Pagination(['client_items_per_page' => true]),
+            new PaginationResolver(new Pagination(['client_items_per_page' => true]), new FakeOptionRepository(), fallbackItemsPerPage: 30),
             new Security($container),
         );
 

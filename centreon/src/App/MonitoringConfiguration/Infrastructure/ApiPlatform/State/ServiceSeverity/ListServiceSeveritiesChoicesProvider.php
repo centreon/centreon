@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceSeverity;
 
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity;
@@ -32,12 +31,13 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceSeverityCriter
 use App\MonitoringConfiguration\Domain\Repository\ServiceSeverityRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceSeverity\ServiceSeverityChoicesOutput;
 use App\Security\Infrastructure\Security\CredentialUser;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
 
 /**
@@ -54,7 +54,7 @@ final readonly class ListServiceSeveritiesChoicesProvider implements ProviderInt
         #[Autowire(service: ServiceSeverityChoicesTransformer::class)]
         private TransformerInterface $transformer,
         private ServiceSeverityRepository $repository,
-        private Pagination $pagination,
+        private PaginationResolver $paginationResolver,
         private Security $security,
     ) {
     }
@@ -68,12 +68,8 @@ final readonly class ListServiceSeveritiesChoicesProvider implements ProviderInt
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
         $criteria = ServiceSeverityCriteria::forActor($credentialUser->credential->actingUser());
-        if ($this->pagination->isEnabled($operation, $context)) {
-            $itemsPerPage = $this->pagination->getLimit($operation, $context);
-            if ($itemsPerPage <= 0) {
-                throw new BadRequestHttpException('itemsPerPage must be a positive integer.');
-            }
-            $criteria = $criteria->withPagination($this->pagination->getPage($context), $itemsPerPage);
+        if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
+            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
         }
 
         /** @var array{name?: mixed} $filters */

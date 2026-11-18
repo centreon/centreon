@@ -25,7 +25,6 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
@@ -35,8 +34,10 @@ use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\ApiPlatform\State\SortAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -57,7 +58,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
         #[Autowire(service: ResourceListCommandTransformer::class)]
         private TransformerInterface $transformer,
         private CommandRepository $commandRepository,
-        private Pagination $pagination,
+        private PaginationResolver $paginationResolver,
         private Security $security,
     ) {
     }
@@ -96,11 +97,8 @@ final readonly class ListCommandsProvider implements ProviderInterface
         }
 
         $criteria = new CommandCriteria();
-        if ($this->pagination->isEnabled($operation, $context)) {
-            $criteria = $criteria->withPagination(
-                $this->pagination->getPage($context),
-                $this->pagination->getLimit($operation, $context)
-            );
+        if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
+            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
         }
 
         $criteria = $this->handleTypeFilter($allowedTypes, $criteria);

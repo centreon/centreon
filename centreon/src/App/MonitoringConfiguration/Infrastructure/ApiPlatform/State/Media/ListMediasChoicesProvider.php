@@ -24,18 +24,18 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media;
 
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Media\MediaChoicesOutput;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @implements ProviderInterface<MediaChoicesOutput>
@@ -51,7 +51,7 @@ final readonly class ListMediasChoicesProvider implements ProviderInterface
         #[Autowire(service: MediaChoicesTransformer::class)]
         private TransformerInterface $transformer,
         private MediaRepository $repository,
-        private Pagination $pagination,
+        private PaginationResolver $paginationResolver,
     ) {
     }
 
@@ -63,12 +63,8 @@ final readonly class ListMediasChoicesProvider implements ProviderInterface
         // No actor scoping: the legacy host form's icon picker (return_image_list(1)) ignores the
         // image-folder ACL, unlike the generic /configuration/medias endpoint.
         $criteria = MediaCriteria::unscoped();
-        if ($this->pagination->isEnabled($operation, $context)) {
-            $itemsPerPage = $this->pagination->getLimit($operation, $context);
-            if ($itemsPerPage <= 0) {
-                throw new BadRequestHttpException('itemsPerPage must be a positive integer.');
-            }
-            $criteria = $criteria->withPagination($this->pagination->getPage($context), $itemsPerPage);
+        if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
+            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
         }
 
         /** @var array{name?: mixed} $filters */
