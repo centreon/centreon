@@ -1,0 +1,58 @@
+# Gorgone-less light Central PoC (MON-215448 / MON-215451): remote poller.
+# Separate compose project, like a poller behind NAT: no published port, only
+# the external gls-wan network, outbound BBDO to centreon-broker:5669.
+#
+#   docker compose -p gls-poller -f docker-compose.poller.yml --env-file images.env up -d
+name: gls-poller
+
+services:
+  volumes-init:
+    image: "${REGISTRY}/centreon-engine-trixie:${ENGINE_TAG}"
+    user: "0"
+    entrypoint: ["/bin/sh", "/gls/init-volumes.sh", "poller"]
+    environment:
+      APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
+      SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
+    volumes:
+      - ./scripts:/gls:ro
+      - poller-engine-etc:/mnt/engine-etc
+      - poller-broker-etc:/mnt/broker-etc
+    network_mode: none
+    restart: "no"
+
+  poller-engine:
+    image: "${REGISTRY}/centreon-engine-trixie:${ENGINE_TAG}"
+    hostname: poller-engine
+    restart: unless-stopped
+    depends_on:
+      volumes-init: {condition: service_completed_successfully}
+    environment:
+      TZ: "${TZ:-Europe/Paris}"
+      NAME: "${POLLER_NAME:-gls-poller}"
+      APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
+      SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
+    volumes:
+      - poller-engine-etc:/etc/centreon-engine
+      - poller-broker-etc:/etc/centreon-broker
+      - poller-engine-varlib:/var/lib/centreon-engine
+      - poller-engine-log:/var/log/centreon-engine
+      - ./overrides/05-engine-config.sh:/usr/local/lib/centreon-engine/container.d/05-engine-config.sh:ro
+    # Connected = an established outbound socket to port 5669 (0x1625).
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q ':1625 01' /proc/net/tcp /proc/net/tcp6 2>/dev/null"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10m
+      retries: 3
+    networks: [wan]
+
+networks:
+  wan:
+    name: gls-wan
+    external: true
+
+volumes:
+  poller-engine-etc:
+  poller-broker-etc:
+  poller-engine-varlib:
+  poller-engine-log:
