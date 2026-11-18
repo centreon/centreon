@@ -480,7 +480,7 @@ class CentreonDowntime
         foreach ($newRelations as $resourceType => $resourceIds) {
             foreach ($resourceIds as $resourceId) {
                 // A service id that is not '<hostId>-<serviceId>' can only come from a crafted request
-                if ($resourceType === 'services' && preg_match('/^\d+-\d+$/', $resourceId) !== 1) {
+                if ($resourceType === 'services' && preg_match('/^\d+-\d+\z/', $resourceId) !== 1) {
                     return false;
                 }
 
@@ -1290,7 +1290,7 @@ class CentreonDowntime
     {
         $serviceIds = [];
         foreach ($serviceKeys as $serviceKey) {
-            if (preg_match('/^\d+-(\d+)$/', (string) $serviceKey, $matches) === 1) {
+            if (preg_match('/^\d+-(\d+)\z/', (string) $serviceKey, $matches) === 1) {
                 $serviceIds[] = (int) $matches[1];
             }
         }
@@ -1360,7 +1360,7 @@ class CentreonDowntime
     {
         $idPairs = [];
         foreach ($serviceKeys as $serviceKey) {
-            if (preg_match('/^(\d+)-(\d+)$/', $serviceKey, $matches) === 1) {
+            if (preg_match('/^(\d+)-(\d+)\z/', $serviceKey, $matches) === 1) {
                 $idPairs[$serviceKey] = [$matches[1], $matches[2]];
             }
         }

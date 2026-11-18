@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\www\class;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use CentreonDB;
 use CentreonDowntime;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -155,13 +157,30 @@ class CentreonDowntimeEnabledRelationsTest extends TestCase
         array $enabledServiceIds,
         bool $expected,
     ): void {
+        // Each lookup must bind the distinct ids of its own side of the '<hostId>-<serviceId>' keys
+        $submittedIds = static fn (int $side): array => array_values(array_unique(array_map(
+            static fn (string $serviceKey): int => (int) explode('-', $serviceKey)[$side],
+            $serviceKeys
+        )));
+        $boundIds = static fn (QueryParameters $queryParameters): array => array_map(
+            static fn (QueryParameter $queryParameter): mixed => $queryParameter->getValue(),
+            array_values($queryParameters->toArray())
+        );
+
         $database = $this->createMock(CentreonDB::class);
         $database->expects($this->exactly(2))
             ->method('fetchFirstColumn')
             ->willReturnCallback(
-                static fn (string $query): array => match (true) {
-                    str_contains($query, "host_activate = '1'") => $enabledHostIds,
-                    str_contains($query, "service_activate = '1'") => $enabledServiceIds,
+                function (string $query, QueryParameters $queryParameters) use (
+                    $submittedIds,
+                    $boundIds,
+                    $enabledHostIds,
+                    $enabledServiceIds,
+                ): array {
+                    $isHostLookup = str_contains($query, "host_activate = '1'");
+                    $this->assertSame($submittedIds($isHostLookup ? 0 : 1), $boundIds($queryParameters));
+
+                    return $isHostLookup ? $enabledHostIds : $enabledServiceIds;
                 }
             );
 
@@ -179,6 +198,7 @@ class CentreonDowntimeEnabledRelationsTest extends TestCase
 
         $this->assertFalse($downtime->areSubmittedRelationsEnabled($this->submitted(hosts: ['1 OR 1=1']), null));
         $this->assertFalse($downtime->areSubmittedRelationsEnabled($this->submitted(services: ['10']), null));
+        $this->assertFalse($downtime->areSubmittedRelationsEnabled($this->submitted(services: ["1-10\n"]), null));
     }
 
     /**
