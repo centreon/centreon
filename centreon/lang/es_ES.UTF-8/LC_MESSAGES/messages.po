@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Centreon web 2.x\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-11-17 12:34+0000\n"
+"PO-Revision-Date: 2026-11-19 09:34+0000\n"
 "Last-Translator: admin <noreply@centreon.com>\n"
 "Language-Team: Spanish <https://weblate.prod.centreon.io/projects/centreon-infra-monitoring/26-10/web-messages-26-10/es/>\n"
 "Language: es_ES\n"
@@ -6241,7 +6241,7 @@ msgstr "Eventos de error"
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostConfigurationServiceException.php
 #, php-format
 msgid "Error on adding a host (Reason: %s)"
-msgstr ""
+msgstr "Error al añadir un host (motivo: %s)"
 
 #: centreon/src/Centreon/Domain/MonitoringServer/Exception/ConfigurationMonitoringServerException.php
 #, php-format
@@ -6251,7 +6251,7 @@ msgstr ""
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostMacroServiceException.php
 #, php-format
 msgid "Error on reading host macros (Reason: %s)"
-msgstr ""
+msgstr "Error al leer las macros del host (Motivo: %s)"
 
 #: centreon/src/Centreon/Domain/ServiceConfiguration/Exception/ServiceConfigurationServiceException.php
 #, php-format
@@ -22628,7 +22628,7 @@ msgstr "Punto final de autorización"
 
 #: unknown
 msgid "Auto Discovery"
-msgstr "Descubrimiento automatizado"
+msgstr "Descubrimiento automático"
 
 #: unknown
 msgid "Axis Properties"
