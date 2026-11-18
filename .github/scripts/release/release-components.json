@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "testing_tag_builds": false,
+  "testing_tag_builds": true,
   "components": {
     "centreon": {
       "workflow": "web.yml",
