@@ -16,6 +16,14 @@ function siblingScope(string $json)
     return json_decode($json, true);
 }
 
+final class SiblingClass
+{
+    public function decode(string $json): mixed
+    {
+        return json_decode($json, true);
+    }
+}
+
 $topLevel = json_encode([]);
 
 ?>
@@ -36,6 +44,14 @@ function outerScope(string $json)
 function siblingScope(string $json)
 {
     return json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+}
+
+final class SiblingClass
+{
+    public function decode(string $json): mixed
+    {
+        return json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+    }
 }
 
 $topLevel = json_encode([], flags: JSON_THROW_ON_ERROR);

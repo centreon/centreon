@@ -31,4 +31,22 @@ function checkInsideClosure(string $json)
     return $isValid() ? $decoded : null;
 }
 
+final class HelperCheck
+{
+    public function decode(string $json): mixed
+    {
+        $decoded = json_decode($json, true);
+        $this->assertValid();
+
+        return $decoded;
+    }
+
+    private function assertValid(): void
+    {
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException(json_last_error_msg());
+        }
+    }
+}
+
 ?>

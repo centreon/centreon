@@ -34,11 +34,10 @@ use PhpParser\Node\Expr\BinaryOp\Coalesce;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Ternary;
-use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\Int_;
-use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\NodeFinder;
@@ -51,7 +50,8 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
 /**
  * Unlike Rector's JsonThrowOnErrorRector, also flags calls with existing flags or named arguments,
- * and adds a named flags: argument. Like it, skips a function or method that calls json_last_error(), closures included.
+ * and adds a named flags: argument. Like it, skips a class or function that calls json_last_error(), closures included;
+ * a check made in another class, a used trait or a parent class is not detected.
  */
 final class JsonThrowOnErrorFlagRector extends AbstractRector
 {
@@ -86,15 +86,15 @@ final class JsonThrowOnErrorFlagRector extends AbstractRector
      */
     public function getNodeTypes(): array
     {
-        return [FileWithoutNamespace::class, Namespace_::class, ClassMethod::class, Function_::class];
+        return [FileWithoutNamespace::class, Namespace_::class, ClassLike::class, Function_::class];
     }
 
     /**
-     * @param FileWithoutNamespace|Namespace_|ClassMethod|Function_ $node
+     * @param FileWithoutNamespace|Namespace_|ClassLike|Function_ $node
      */
     public function refactor(Node $node): ?Node
     {
-        $funcCalls = $this->findScopeFuncCalls($node instanceof FunctionLike ? (array) $node->getStmts() : $node->stmts);
+        $funcCalls = $this->findScopeFuncCalls($node->stmts);
 
         // The flag leaves json_last_error() untouched on success, so a check relying on it would read a stale error.
         foreach ($funcCalls as $funcCall) {
@@ -114,13 +114,13 @@ final class JsonThrowOnErrorFlagRector extends AbstractRector
     /**
      * @param Node[] $stmts
      *
-     * @return FuncCall[] calls of this scope and its closures, nested functions and methods excluded
+     * @return FuncCall[] calls of this scope, its methods and closures, nested classes and functions excluded
      */
     private function findScopeFuncCalls(array $stmts): array
     {
         $funcCalls = [];
         $this->traverseNodesWithCallable($stmts, static function (Node $node) use (&$funcCalls): ?int {
-            if ($node instanceof ClassMethod || $node instanceof Function_) {
+            if ($node instanceof ClassLike || $node instanceof Function_) {
                 return NodeVisitor::DONT_TRAVERSE_CHILDREN;
             }
 
