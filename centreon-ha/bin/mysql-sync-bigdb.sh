@@ -35,6 +35,8 @@ cmd_line $*
 # minimum Go
 VG_FREESIZE_NEEDED=1
 STOP_TIMEOUT=60
+# Longer than the default connect retry (60s) of the replica threads
+REPLICATION_TIMEOUT=120
 SNAPSHOT_MOUNT_PATH="/mnt/"
 USER="mysql"
 USER_SUDO="sudo -u $USER"
@@ -361,19 +363,36 @@ if ! mysql -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$repli
     exit 1
 fi
 
-# START SLAVE/REPLICA returns before the threads connect: wait for them
+# START SLAVE/REPLICA returns before the threads connect: wait until they run
+# without error for a few seconds, so that the first events are applied
 echo -n "Wait for the replication threads:"
 i=0
+running=0
 while : ; do
-    replica_status=$(mysql -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" -e "$status_sql")
-    if echo "$replica_status" | grep -qE "^ *${io_running_field}: Yes$" \
-        && echo "$replica_status" | grep -qE "^ *${sql_running_field}: Yes$" ; then
-        break
+    if replica_status=$(mysql -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" -e "$status_sql") ; then
+        if echo "$replica_status" | grep -qE "^ *${io_running_field}: Yes$" \
+            && echo "$replica_status" | grep -qE "^ *${sql_running_field}: Yes$" \
+            && echo "$replica_status" | grep -qE "^ *Last_IO_Errno: 0$" \
+            && echo "$replica_status" | grep -qE "^ *Last_SQL_Errno: 0$" ; then
+            running=$(($running + 1))
+            if [ "$running" -ge 3 ] ; then
+                break
+            fi
+        else
+            running=0
+        fi
+    else
+        replica_status=""
+        running=0
     fi
-    if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
+    if [ "$i" -gt "$REPLICATION_TIMEOUT" ] ; then
         echo ""
-        echo "ERROR: The replication does not run on '$slave_hostname':" >&2
-        echo "$replica_status" | grep -E "^ *(${io_running_field}|${sql_running_field}|Last_IO_Error|Last_SQL_Error):" >&2
+        if [ -z "$replica_status" ] ; then
+            echo "ERROR: Can't read the replication status on '$slave_hostname'." >&2
+        else
+            echo "ERROR: The replication does not run on '$slave_hostname':" >&2
+            echo "$replica_status" | grep -E "^ *(${io_running_field}|${sql_running_field}|Last_IO_Error|Last_SQL_Error):" >&2
+        fi
         exit 1
     fi
     echo -n "."

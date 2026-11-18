@@ -281,11 +281,14 @@ mysql_common_start()
         return $OCF_ERR_GENERIC
     fi
     # Without the pid file, the start would wait for the timeout and leave
-    # an unmanaged server behind
+    # an unmanaged server behind. The cause is in the configuration of this
+    # node: OCF_ERR_INSTALLED bans this node only.
     if [ ! -s "$OCF_RESKEY_pid" ]; then
-        systemctl stop "$service_name"
-        ocf_exit_reason "The $service_name service started without writing $OCF_RESKEY_pid: set the pid parameter to the pid-file of the server"
-        return $OCF_ERR_CONFIGURED
+        if ! systemctl stop "$service_name"; then
+            ocf_log err "Failed to stop the $service_name service: the server runs unmanaged"
+        fi
+        ocf_exit_reason "The $service_name service started on $NODENAME without writing $OCF_RESKEY_pid: the pid parameter must match the pid-file of the server"
+        return $OCF_ERR_INSTALLED
     fi
     pid=$(cat $OCF_RESKEY_pid)
 

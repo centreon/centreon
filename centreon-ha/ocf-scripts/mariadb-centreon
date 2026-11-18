@@ -891,7 +891,10 @@ mysql_start() {
     mysql_common_status info
     if [ $? = $OCF_SUCCESS ]; then
         ocf_log info "$_DB_NAME already running"
-        if [ "$_is_mariadb" -eq 0 ] ; then
+        # A server still in recovery does not accept connections yet: leave
+        # it to the monitor rather than kill it
+        if [ "$_is_mariadb" -eq 0 ] \
+            && $MYSQL $MYSQL_OPTIONS_TEST -e "SELECT 1" >/dev/null 2>&1 ; then
             check_mysql_prerequisites
             return $?
         fi
