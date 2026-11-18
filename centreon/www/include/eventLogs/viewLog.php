@@ -210,7 +210,7 @@ if (! $getInputs['engine']) {
     $form->addElement(
         'button',
         'graph',
-        _('Apply period'),
+        _('Run query'),
         ['onclick' => 'apply_period()', 'class' => 'btc bt_success']
     );
 } else {
@@ -297,10 +297,31 @@ if (! $getInputs['engine']) {
      * Selecting chosen Host, Service, HG and/or SG
      */
     function apply_period() {
+        // A click can reach the disabled button (forced or synthetic click).
+        if (searchRunning) {
+            return;
+        }
         var openid = getArgsForHost();
         const args = openid[0];
+        if (window.history.pushState) {
+            window.history.pushState("", "", "main.php?p=20301" + openid[1]);
+        }
         document.getElementById('openid').innerHTML = args;
         logs(args, '', '');
+    }
+
+    /*
+     * A search on Event Logs can be expensive. Changing a filter does not run it:
+     * only the "Run query" button does. The button is disabled while a search runs,
+     * and enabled again when it ends, even on error, so the list can be refreshed.
+     */
+    var searchRunning = false;
+
+    function setSearchRunning(running) {
+        searchRunning = running;
+        if (_engine == 0) {
+            jQuery('#div1 [name=graph]').prop('disabled', running);
+        }
     }
 
     function apply_period_engine() {
@@ -504,6 +525,7 @@ if (! $getInputs['engine']) {
         var _addrXSL = "./include/eventLogs/xsl/log.xsl";
 
         if (!type) {
+            setSearchRunning(true);
             var _addr = './include/eventLogs/xml/data.php?output=' + _output + '&oh=' + _oh + '&warning=' + _warning +
                 '&unknown=' + _unknown + '&critical=' + _critical + '&ok=' + _ok + '&unreachable=' + _unreachable +
                 '&down=' + _down + '&up=' + _up + '&num=' + _num + '&error=' + _error + '&alert=' + _alert +
@@ -521,7 +543,12 @@ if (isset($search_service) && $search_service) {
 
             proc.setXml(_addr)
             proc.setXslt(_addrXSL)
-            proc.setCallback(function(t){formatDateMoment(t); proc = null;});
+            proc.setCallback(function(t){formatDateMoment(t); proc = null; setSearchRunning(false);});
+            // xslt.js is cached by browsers: after an upgrade, an older copy without
+            // setErrorCallback can still be loaded.
+            if (typeof proc.setErrorCallback === 'function') {
+                proc.setErrorCallback(function(){proc = null; setSearchRunning(false);});
+            }
             proc.transform("logView4xml");
         } else {
             var openid = document.getElementById('openid').innerHTML;
@@ -728,20 +755,6 @@ if (isset($search_service) && $search_service) {
                 };
             }
 
-            jQuery("#service_group_filter, #host_filter, #service_filter, #host_group_filter").change(
-                function (event, infos) {
-                    var argArray = getArgsForHost();
-                    args = argArray[0];
-                    urlargs = argArray[1];
-                    if (typeof infos !== "undefined" && infos.origin === "select2defaultinit") {
-                        return false;
-                    }
-                    if (window.history.pushState) {
-                        window.history.pushState("", "", "main.php?p=20301" + urlargs);
-                    }
-                    document.getElementById('openid').innerHTML = args;
-                    logs(args, '', false);
-                });
 
             //setServiceGroup
             jQuery("#setHostGroup").click(function () {
@@ -820,10 +833,8 @@ if (isset($search_service) && $search_service) {
 
             jQuery("#output").keypress(function (event) {
                 if (event.which == 13) {
-                    var argArray = getArgsForHost();
-                    args = argArray[0];
-                    urlargs = argArray[1];
-                    logs(args, '', false);
+                    // Only the "Run query" button runs the search. Enter would submit
+                    // the form and reload the page.
                     event.preventDefault();
                 }
             });
