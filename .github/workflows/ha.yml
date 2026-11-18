@@ -74,9 +74,39 @@ jobs:
         "centreon-ha/.env"
       frontend_production_paths: |
         ""
+      backend_test_paths: |
+        "centreon-ha/tests/**"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
+
+  backend-unit-test:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_backend_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install bats
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends bats bc
+        shell: bash
+
+      - name: Run the unit tests
+        run: bats centreon-ha/tests
+        shell: bash
 
   package:
     needs: [get-environment, changes]
