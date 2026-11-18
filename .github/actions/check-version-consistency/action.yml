@@ -63,6 +63,23 @@ runs:
             return;
           }
 
+          if (filePath.match(/config\.new\/packages\/centreon\.yaml$/)) {
+            const content = fs.readFileSync(filePath, { encoding: 'utf8' });
+            const matches = content.match(/centreon\.version:\s*'?(\d+\.\d+\.\d+)'?/);
+            if (!matches || matches.length < 2) {
+              core.setFailed(`Version not found in ${filePath}.`);
+              return;
+            }
+
+            if (version !== matches[1]) {
+              core.setFailed(`Version mismatch: expected ${version}, found ${matches[1]} in ${filePath}.`);
+              return;
+            }
+
+            core.info(`Version consistency check passed for ${filePath} ${matches[1]}.`);
+            return;
+          }
+
           if (filePath.match(/\.version.(\w|-)+$/)) {
             const minorVersionContent = fs.readFileSync(filePath, { encoding: 'utf8' });
             const minorVersionMatch = minorVersionContent.match(/MINOR="?(\d+)"?/);
