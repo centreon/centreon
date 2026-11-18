@@ -1,36 +1,43 @@
 # Bundle status files in S3, shared by report.sh (component final jobs) and release-trigger-builds.
-# Sourced, not executed. Needs: BUCKET, aws cli 2.22+ (conditional writes), jq.
+# Sourced, not executed. Needs: BUCKET, aws cli 2.22.5+ (conditional writes), jq.
 # Functions check every command: they run inside $(...), where set -e doesn't apply.
 # Layout and schemas: delivery-tooling docs/release/testing-bundles.md
 
 BUNDLE_TAG_REGEX='^testing-(cloud|onprem)-(release|hotfix)-([0-9]{8})-([0-9]{2}\.[0-9]{2})-([1-9][0-9]*)$'
 
-# conditional writes (--if-match / --if-none-match) need aws cli 2.22 or later
+# put-object --if-match (ETag conditional writes) needs aws cli 2.22.5 or later
 bundle_s3_check_aws() {
   local version
   version=$(aws --version 2>&1 | sed -n 's|^aws-cli/\([0-9.]*\).*|\1|p')
-  if [[ "$(printf '%s\n' 2.22.0 "$version" | sort -V | head -n 1)" != "2.22.0" ]]; then
-    echo "::error::aws cli ${version:-unknown} does not support conditional writes, 2.22 or later is needed"
+  if [[ "$(printf '%s\n' 2.22.5 "$version" | sort -V | head -n 1)" != "2.22.5" ]]; then
+    echo "::error::aws cli ${version:-unknown} does not support conditional writes, 2.22.5 or later is needed"
     return 1
   fi
 }
 
 # usage: bundle_s3_put_event <key> <event json file>; written once, an existing event is kept
 bundle_s3_put_event() {
-  local key=$1 file=$2 err
+  local key=$1 file=$2 err attempt
   err=$(mktemp)
-  if ! aws s3api put-object --bucket "$BUCKET" --key "$key" --body "$file" \
-       --content-type application/json --if-none-match '*' > /dev/null 2> "$err"; then
-    if grep -q -E "\((PreconditionFailed|ConditionalRequestConflict)\)" "$err"; then
-      echo "::warning::Event $key already exists, not overwritten"
-    else
-      cat "$err" >&2
+  for attempt in 1 2 3; do
+    if aws s3api put-object --bucket "$BUCKET" --key "$key" --body "$file" \
+         --content-type application/json --if-none-match '*' > /dev/null 2> "$err"; then
       rm -f "$err"
-      echo "::error::Cannot write s3://$BUCKET/$key"
-      return 1
+      return 0
     fi
-  fi
+    if grep -q "(PreconditionFailed)" "$err"; then
+      echo "::warning::Event $key already exists, not overwritten"
+      rm -f "$err"
+      return 0
+    fi
+    # 409: a concurrent request on the key, nothing was stored; anything else is not retried
+    grep -q "(ConditionalRequestConflict)" "$err" || break
+    sleep "$attempt"
+  done
+  cat "$err" >&2
   rm -f "$err"
+  echo "::error::Cannot write s3://$BUCKET/$key"
+  return 1
 }
 
 # usage: bundle_s3_update_global <global key> <bundle tag> <components|repos> <name> <section json file>

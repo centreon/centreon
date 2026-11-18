@@ -38,7 +38,8 @@ concurrency:
 
 env:
   BUCKET: release-orchestrator
-  # true writes and reads the bundle status under dry-run/ (tests)
+  # tests only: true reads and writes the bundle status under dry-run/. The component reporters
+  # (release-bundle-status) need dry_run: true as well, or they report under bundles/
   STATUS_DRY_RUN: "false"
 
 jobs:

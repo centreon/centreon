@@ -131,7 +131,8 @@ check_mapping() {
           and (.paths | type == "array" and length > 0 and all(.[]; type == "string" and length > 0))
           and ((.scopes // ["cloud", "onprem"]) | type == "array" and length > 0
                and all(.[]; . == "cloud" or . == "onprem"))))
-    and ((.full_extras // []) | type == "array" and all(.[]; (.workflow | type == "string")))
+    and ((.full_extras // []) | type == "array" and all(.[];
+          (.workflow | type == "string") and (.bundle_component | type == "string" or . == null)))
     and ((.testing_tag_builds // false) | type == "boolean")
     and ((.pre_tag_workflows // []) | type == "array" and all(.[]; type == "string" and length > 0))
   ' "$1" > /dev/null
@@ -241,15 +242,15 @@ validate() {
     fi
   fi
 
-  # cloud: a release and a hotfix never share a major; an open train = testing tag without stable tag
+  # cloud: a release and a hotfix never share a major; an open train = testing tag without stable tag.
+  # Only the latest number of the other line counts: older uncut ones are superseded, they can't build
   if [[ "$scope" == "cloud" ]]; then
-    local other=hotfix open_other=""
+    local other=hotfix other_latest
     [[ "$type" == "hotfix" ]] && other=release
-    while read -r n; do
-      [[ -n "$n" ]] || continue
-      grep -Fqx "release-cloud-$n-$major" <<< "$all_tags" || open_other+=" $n"
-    done < <(sed -n "s|^testing-cloud-$other-\([0-9]\{8\}\)-${major//./\\.}-[1-9][0-9]*$|\1|p" <<< "$all_tags" | sort -u)
-    [[ -z "$open_other" ]] || fail "Cloud $other train(s)$open_other still open on $major: a cloud release and hotfix never share a major"
+    other_latest=$(sed -n "s|^testing-cloud-$other-\([0-9]\{8\}\)-${major//./\\.}-[1-9][0-9]*$|\1|p" <<< "$all_tags" | sort -u | tail -n 1)
+    if [[ -n "$other_latest" ]] && ! grep -Fqx "release-cloud-$other_latest-$major" <<< "$all_tags"; then
+      fail "Cloud $other train $other_latest still open on $major: a cloud release and hotfix never share a major"
+    fi
   fi
 
   # role: the first repository of the chain having the branch opens the bundle, the next ones join it
@@ -273,7 +274,13 @@ validate() {
       local rc=0
       read_global "$global" "$root/$scope/$major/$type/$number/$latest/global-build-status.json" || rc=$?
       if (( rc == 0 )); then
-        local pending
+        # a repository tagged in it without a record yet is still starting: its plan is not known
+        local pending unrecorded=""
+        for r in "${CHAIN[@]}"; do
+          grep -Fqx "$latest" <<< "$(bundle_iterations "$r" "$prefix")" || continue
+          [[ "$(jq --arg r "$r" '(.repos // {}) | has($r)' "$global")" == "true" ]] || unrecorded+=" $r"
+        done
+        [[ -z "$unrecorded" ]] || errors+=("Bundle $prefix-$latest is tagged but not recorded yet in:$unrecorded. Wait for their release-trigger-builds, or re-run its failed jobs")
         pending=$(jq -r '([.repos[]?.expected[]?] | unique) - (.components | keys) | join(" ")' "$global")
         [[ -z "$pending" ]] || errors+=("Bundle $prefix-$latest is still building, no state yet for: $pending. Wait, or cancel their runs")
       elif (( rc == 3 )); then
@@ -330,13 +337,21 @@ validate() {
         runs=$(gh run list -R "$GITHUB_REPOSITORY" --workflow "$wf" --branch "$BRANCH" --limit 1 \
                  --json status,conclusion,url) || { soft_fail "Cannot list the $wf runs on $BRANCH"; continue; }
         if [[ "$(jq length <<< "$runs")" == 0 ]]; then
-          echo "::warning::No $wf run on $BRANCH yet"
+          soft_fail "No $wf run on $BRANCH yet: wait for it to start (or start it), then dispatch again once it is done"
         elif [[ "$(jq -r '.[0].status' <<< "$runs")" != "completed" ]]; then
           errors+=("$wf is running on $BRANCH ($(jq -r '.[0].url' <<< "$runs")): wait for it, then re-run")
         elif ! [[ "$(jq -r '.[0].conclusion' <<< "$runs")" =~ ^(success|skipped|neutral)$ ]]; then
           errors+=("The last $wf run on $BRANCH did not succeed ($(jq -r '.[0].url' <<< "$runs"))")
         fi
       done
+      # a pre-tag workflow may have pushed since the checkout: the tag must carry its commit
+      local remote_head
+      remote_head=$(git ls-remote "$(remote_url "$repo")" "refs/heads/$BRANCH" | cut -f1) || remote_head=""
+      if [[ -z "$remote_head" ]]; then
+        soft_fail "Cannot read the head of $BRANCH in $repo"
+      elif [[ "$remote_head" != "$HEAD_SHA" ]]; then
+        errors+=("$BRANCH moved to $remote_head since this run started (pre-tag workflow?): dispatch again")
+      fi
     fi
   fi
 
@@ -527,6 +542,20 @@ record() {
   rm -rf "$work"
 }
 
+# number of workflow_dispatch runs of a workflow on a ref (0 or 1), listed up to 3 times; returns 1 if unreadable
+runs_on_ref() {
+  local attempt count
+  for (( attempt = 1; attempt <= 3; attempt++ )); do
+    if count=$(gh run list --workflow "$1" --branch "$2" --event workflow_dispatch --limit 1 \
+                 --json databaseId --jq length); then
+      echo "$count"
+      return 0
+    fi
+    (( attempt < 3 )) && sleep $(( attempt * ${RETRY_DELAY:-5} ))
+  done
+  return 1
+}
+
 # in: MODE (legacy|testing), DISPATCH_CONTENT, BRANCH, HEAD_SHA, COMPONENTS_FILE, CHANGED_FILE, DRY_RUN, GH_TOKEN
 #   testing-tag mode only: TAG, RELEASE_SCOPE
 # out: manifest (path of the JSON manifest: every component and what was done with it)
@@ -595,13 +624,7 @@ dispatch() {
   for wf in "${workflows[@]}"; do
     args=()
     if [[ "$mode" == "testing" ]]; then
-      existing=""
-      for (( attempt = 1; attempt <= 3; attempt++ )); do
-        existing=$(gh run list --workflow "$wf" --branch "$ref" --event workflow_dispatch --limit 1 \
-                     --json databaseId --jq length) && break
-        existing=""
-        (( attempt < 3 )) && sleep $(( attempt * ${RETRY_DELAY:-5} ))
-      done
+      existing=$(runs_on_ref "$wf" "$ref") || existing=""
       if [[ ! "$existing" =~ ^[0-9]+$ ]]; then
         echo "::error::Cannot list the runs of $wf on $ref: not dispatched, to never start it twice"
         failed+=("$wf")
@@ -615,6 +638,19 @@ dispatch() {
     fi
     ok=false
     for (( attempt = 1; attempt <= tries; attempt++ )); do
+      # a dispatch reported as failed may still have started the run: look before sending it again
+      if [[ "$mode" == "testing" ]] && (( attempt > 1 )); then
+        existing=$(runs_on_ref "$wf" "$ref") || existing=""
+        if [[ ! "$existing" =~ ^[0-9]+$ ]]; then
+          echo "::error::Cannot list the runs of $wf on $ref: not dispatched again, to never start it twice"
+          break
+        fi
+        if [[ "$existing" != "0" ]]; then
+          echo "$wf has a run on $ref after a failed dispatch, not dispatched again"
+          ok=true
+          break
+        fi
+      fi
       echo "Dispatching $wf on $ref${args[*]:+ ${args[*]}}"
       if gh workflow run "$wf" --ref "$ref" "${args[@]}"; then ok=true; break; fi
       (( attempt < tries )) && sleep $(( attempt * ${RETRY_DELAY:-5} ))
