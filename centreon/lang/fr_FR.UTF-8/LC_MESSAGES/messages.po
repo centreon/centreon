@@ -24697,14 +24697,14 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 
 
 #: centreon/www/install/front_translate.php
-msgid "The lists set to Replace will overwrite those of every selected service, and empty the entries you can see when left blank."
-msgstr "Les listes en mode Remplacer écraseront celles de chaque service sélectionné, et videront les entrées que vous voyez si elles sont laissées vides."
+msgid "Lists set to Replace will overwrite the corresponding lists of all selected services. If you leave a list set to Replace blank, its existing entries will be deleted from all selected services. Entries you don't have access to are unaffected."
+msgstr "Les listes en mode Remplacer écraseront les listes correspondantes de tous les services sélectionnés. Si vous laissez vide une liste en mode Remplacer, ses entrées existantes seront supprimées de tous les services sélectionnés. Les entrées auxquelles vous n'avez pas accès ne sont pas modifiées."
 
 
 #: centreon/www/install/front_translate.php
-msgid "None excludes the other notification options: set them to Replace, or the services that have some will refuse the change."
-msgstr "Aucun exclut les autres options de notification : passez-les en Remplacer, sinon les services qui en ont refuseront la modification."
+msgid "\"None\" can't be combined with other options. Set this list to Replace, or services with other options won't be updated."
+msgstr "« Aucun » ne peut pas être combiné avec d'autres options. Passez cette liste en mode Remplacer, sinon les services ayant d'autres options ne seront pas mis à jour."
 
 #: centreon/www/install/front_translate.php
-msgid "Inheriting only the contacts and contact groups of the host removes those of each selected resource that you can see."
-msgstr "Hériter uniquement des contacts et groupes de contacts de l'hôte supprime ceux de chaque ressource sélectionnée que vous voyez."
+msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
+msgstr "Lorsque les services héritent uniquement des contacts et groupes de contacts de leur hôte, leurs propres contacts et groupes de contacts sont supprimés. Seuls ceux auxquels vous avez accès sont concernés."

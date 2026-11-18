@@ -112,4 +112,4 @@ export const labelReplacement = 'Replace';
 export const labelRemoval = 'Delete';
 // Wording to confirm with UX.
 export const labelHostRecipientsReplaceOwn =
-  'Inheriting only the contacts and contact groups of the host removes those of each selected resource that you can see.';
+  'When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected.';

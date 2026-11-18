@@ -47,6 +47,6 @@ export const labelMustBeIntegerBetweenZeroAndOneHundred =
 
 // Mass change. Wording to confirm with UX.
 export const labelReplacementOverwritesLists =
-  'The lists set to Replace will overwrite those of every selected service, and empty the entries you can see when left blank.';
+  "Lists set to Replace will overwrite the corresponding lists of all selected services. If you leave a list set to Replace blank, its existing entries will be deleted from all selected services. Entries you don't have access to are unaffected.";
 export const labelNoneNeedsReplacement =
-  'None excludes the other notification options: set them to Replace, or the services that have some will refuse the change.';
+  '"None" can\'t be combined with other options. Set this list to Replace, or services with other options won\'t be updated.';
