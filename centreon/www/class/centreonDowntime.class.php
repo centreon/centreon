@@ -1358,37 +1358,50 @@ class CentreonDowntime
      */
     private function findEnabledServiceKeys(array $serviceKeys): array
     {
-        $hostIds = [];
-        $serviceIds = [];
+        $idPairs = [];
         foreach ($serviceKeys as $serviceKey) {
             if (preg_match('/^(\d+)-(\d+)$/', $serviceKey, $matches) === 1) {
-                $hostIds[] = (int) $matches[1];
-                $serviceIds[] = (int) $matches[2];
+                $idPairs[$serviceKey] = [$matches[1], $matches[2]];
             }
         }
 
-        if ($serviceIds === []) {
+        if ($idPairs === []) {
             return [];
         }
 
-        [$hostParameters, $hostPlaceholders] = $this->createIntQueryParameters($hostIds, 'host_id_');
-        [$serviceParameters, $servicePlaceholders] = $this->createIntQueryParameters($serviceIds, 'service_id_');
-
-        // Every enabled host/service pair among the given ids, the caller keeps the submitted ones
-        $enabledServiceKeys = $this->db->fetchFirstColumn(
-            <<<SQL
-                SELECT CONCAT(h.host_id, CONCAT('-', s.service_id))
-                FROM host h
-                CROSS JOIN service s
-                WHERE h.host_activate = '1'
-                    AND h.host_id IN ({$hostPlaceholders})
-                    AND s.service_activate = '1'
-                    AND s.service_id IN ({$servicePlaceholders})
-                SQL,
-            QueryParameters::create([...$hostParameters, ...$serviceParameters])
+        [$hostParameters, $hostPlaceholders] = $this->createIntQueryParameters(
+            array_map('intval', array_column($idPairs, 0)),
+            'host_id_'
+        );
+        [$serviceParameters, $servicePlaceholders] = $this->createIntQueryParameters(
+            array_map('intval', array_column($idPairs, 1)),
+            'service_id_'
         );
 
-        return array_map('strval', $enabledServiceKeys);
+        $enabledHostIds = array_flip(array_map('strval', $this->db->fetchFirstColumn(
+            <<<SQL
+                SELECT host_id FROM host
+                WHERE host_activate = '1' AND host_id IN ({$hostPlaceholders})
+                SQL,
+            QueryParameters::create($hostParameters)
+        )));
+        $enabledServiceIds = array_flip(array_map('strval', $this->db->fetchFirstColumn(
+            <<<SQL
+                SELECT service_id FROM service
+                WHERE service_activate = '1' AND service_id IN ({$servicePlaceholders})
+                SQL,
+            QueryParameters::create($serviceParameters)
+        )));
+
+        // A service is enabled when both it and its host are
+        $enabledServiceKeys = [];
+        foreach ($idPairs as $serviceKey => [$hostId, $serviceId]) {
+            if (isset($enabledHostIds[$hostId], $enabledServiceIds[$serviceId])) {
+                $enabledServiceKeys[] = (string) $serviceKey;
+            }
+        }
+
+        return $enabledServiceKeys;
     }
 
     /**

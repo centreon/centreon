@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\www\class;
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
 use CentreonDB;
 use CentreonDowntime;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -129,20 +128,45 @@ class CentreonDowntimeEnabledRelationsTest extends TestCase
         ));
     }
 
-    public function testOnlyTheEnabledServicesAmongTheSubmittedOnesAreFound(): void
+    /**
+     * @return iterable<string, array{list<string>, list<string>, list<string>, bool}>
+     */
+    public static function provideServiceKeys(): iterable
     {
-        $database = $this->createMock(CentreonDB::class);
-        $database->expects($this->once())
-            ->method('fetchFirstColumn')
-            ->with(
-                $this->callback(static fn (string $query): bool => str_contains($query, "h.host_activate = '1'")
-                    && str_contains($query, "s.service_activate = '1'")),
-                $this->callback(static fn (QueryParameters $queryParameters): bool => $queryParameters->length() === 3)
-            )
-            ->willReturn(['1-10']);
+        yield 'service and host enabled' => [['1-10', '2-20'], ['1', '2'], ['10', '20'], true];
 
-        $this->assertFalse((new CentreonDowntime($database))->areSubmittedRelationsEnabled(
-            $this->submitted(services: ['1-10', '1-20']),
+        yield 'one service disabled' => [['1-10', '1-20'], ['1'], ['10'], false];
+
+        yield 'one host disabled' => [['1-10', '2-20'], ['1'], ['10', '20'], false];
+
+        // 1 and 20 are both enabled, but not together: '1-20' must not make '2-20' pass
+        yield 'enabled ids from different pairs' => [['1-10', '2-20'], ['1'], ['20'], false];
+    }
+
+    /**
+     * @param list<string> $serviceKeys
+     * @param list<string> $enabledHostIds
+     * @param list<string> $enabledServiceIds
+     */
+    #[DataProvider('provideServiceKeys')]
+    public function testAServiceIsEnabledWhenBothItAndItsHostAre(
+        array $serviceKeys,
+        array $enabledHostIds,
+        array $enabledServiceIds,
+        bool $expected,
+    ): void {
+        $database = $this->createMock(CentreonDB::class);
+        $database->expects($this->exactly(2))
+            ->method('fetchFirstColumn')
+            ->willReturnCallback(
+                static fn (string $query): array => match (true) {
+                    str_contains($query, "host_activate = '1'") => $enabledHostIds,
+                    str_contains($query, "service_activate = '1'") => $enabledServiceIds,
+                }
+            );
+
+        $this->assertSame($expected, (new CentreonDowntime($database))->areSubmittedRelationsEnabled(
+            $this->submitted(services: $serviceKeys),
             null,
         ));
     }
