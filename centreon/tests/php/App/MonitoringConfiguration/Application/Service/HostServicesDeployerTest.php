@@ -162,6 +162,23 @@ final class HostServicesDeployerTest extends TestCase
     }
 
     /**
+     * The alias is validated before the skip: a service legacy created from a refused alias does not exempt that
+     * template, which keeps failing every deployment on the host until its alias is fixed.
+     */
+    public function testARefusedAliasFailsTheDeploymentEvenWhenItsServiceIsAlreadyOnTheHost(): void
+    {
+        $this->addExistingService('Pi=ng');
+        $this->serviceTemplateRepository->deployableOnHost[self::HOST_ID] = [$this->template(1, 'http'), $this->template(2, 'Pi=ng')];
+
+        try {
+            $this->deploy();
+            self::fail('The deployment must fail.');
+        } catch (InvalidServiceTemplateAliasException) {
+            self::assertCount(1, $this->serviceRepository->services);
+        }
+    }
+
+    /**
      * The name is compared as the repository compares it, under the column collation (case-insensitive with the
      * fake): `ping` is not deployed next to `Ping`.
      */
