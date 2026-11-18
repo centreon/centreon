@@ -23,7 +23,6 @@ import Services from '..';
 import {
   getDuplicateServiceEndpoint,
   getServiceEndpoint,
-  getServiceTemplateMacrosEndpoint,
   serviceFormCommandsEndpoint,
   serviceFormContactGroupsEndpoint,
   serviceFormContactsEndpoint,
@@ -178,11 +177,11 @@ const initialize = ({
     response: getServiceFormCommandsResponse()
   });
 
-  // For when the template field (F03) can pick template 30.
+  // Literal, so the spec pins the route instead of echoing the builder.
   interceptAPIRequest({
     alias: 'getTemplateMacros30',
     method: Method.GET,
-    path: `**${getServiceTemplateMacrosEndpoint({ id: 30 })}`,
+    path: '**/configuration/services/service_templates/30/macros',
     response: getServiceTemplateMacrosResponse()
   });
 

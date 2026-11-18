@@ -37,6 +37,15 @@ const findMacroInput = async (
   return queryMacroInput(index, key) as HTMLInputElement;
 };
 
+const expectRowBar = (index: number, barColor: string): Promise<void> =>
+  waitFor(async () =>
+    expect(
+      getComputedStyle(
+        await screen.findByTestId(`${macrosTestId}-${index}-inherited-bar`)
+      ).backgroundColor
+    ).toBe(barColor)
+  );
+
 const queryArgs = (): HTMLInputElement | null =>
   document.querySelector<HTMLInputElement>(
     `input[data-testid="${argsTestId}"]`
@@ -263,15 +272,6 @@ export default () => {
   it('marks an inherited macro with a bar until it is edited', async () => {
     await openService0();
 
-    const expectRowBar = (index: number, barColor: string): Promise<void> =>
-      waitFor(async () =>
-        expect(
-          getComputedStyle(
-            await screen.findByTestId(`${macrosTestId}-${index}-inherited-bar`)
-          ).backgroundColor
-        ).toBe(barColor)
-      );
-
     expect(await findMacroInput(2, 'name')).toHaveValue('TIMEOUT');
     await expectRowBar(0, 'rgba(0, 0, 0, 0)');
     await expectRowBar(2, 'rgb(252, 196, 129)');
@@ -309,6 +309,63 @@ export default () => {
           value: null
         }
       ]
+    });
+  });
+
+  describe('inherited from the template picked', () => {
+    const templateBar = 'rgb(252, 196, 129)';
+    const commandBar = 'rgb(159, 199, 78)';
+
+    const pickTemplate = async (): Promise<void> => {
+      await openCreationForm();
+      await pickOption('service-form-template', 'generic-active-service');
+      await waitForRequest('@getTemplateMacros30');
+    };
+
+    it('shows what the template lends, its own macros and those it inherits', async () => {
+      await pickTemplate();
+
+      await waitFor(() =>
+        expect(queryMacroInput(0, 'name')).toHaveValue('TIMEOUT')
+      );
+      expect(queryMacroInput(0, 'value')).toHaveValue('10');
+      await expectRowBar(0, templateBar);
+
+      expect(queryMacroInput(1, 'name')).toHaveValue('SNMP_COMMUNITY');
+      expect(queryMacroInput(1, 'value')).toHaveAttribute('type', 'password');
+      await expectRowBar(1, templateBar);
+
+      expect(queryMacroInput(2, 'name')).toHaveValue('RETRIES');
+      expect(queryMacroInput(2, 'value')).toHaveValue('3');
+      await expectRowBar(2, templateBar);
+
+      expect(queryMacroInput(3, 'name')).toHaveValue('PORT');
+      expect(queryMacroInput(3, 'value')).toHaveValue('');
+      await expectRowBar(3, commandBar);
+    });
+
+    it('creates the service with only the template macros it changes', async () => {
+      await pickTemplate();
+
+      await replaceValue(await findMacroInput(0, 'value'), '20');
+      await expectRowBar(0, 'rgba(0, 0, 0, 0)');
+
+      await save();
+
+      const { request } = await waitForRequest('@createService');
+
+      expect(
+        (request.body as { check_options: { macros: Array<unknown> } })
+          .check_options.macros
+      ).toEqual([
+        {
+          id: 31,
+          is_password: false,
+          name: 'TIMEOUT',
+          parent: 'template',
+          value: '20'
+        }
+      ]);
     });
   });
 
