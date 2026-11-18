@@ -158,6 +158,12 @@ if [ "$?" -eq 1 ] ; then
     echo "ERROR: Not enough free space in the VolumeGroup." >&2
     exit 1
 fi
+# Fail before stopping the master: the exit handler would remove a snapshot
+# that this run did not create
+if lvs "$vg_name/dbbackupdatadir" > /dev/null 2>&1 ; then
+    echo "ERROR: The snapshot '$vg_name/dbbackupdatadir' of an earlier run exists: check that no sync runs, then remove it with 'lvremove $vg_name/dbbackupdatadir'." >&2
+    exit 1
+fi
 
 ###
 # Check slave server stopped
@@ -269,13 +275,17 @@ echo "OK"
 # Do snapshot
 ###
 echo "Create LVM snapshot"
-if [ "$lv_name_logbin" != "$lv_name" ] ; then
-    lvcreate -l $(($free_pe / 2)) -s -n dbbackupdatadir $lv_name
-    lvcreate -l $(($free_pe / 2)) -s -n dbbackuplogbin $lv_name_logbin
-else
-    lvcreate -l $free_pe -s -n dbbackupdatadir $lv_name
-fi
+# Set before lvcreate, so that an interrupt cannot leave the snapshot behind:
+# no snapshot of that name existed before
 snapshot_created=1
+snapshot_failed=0
+if ! lvcreate -l $free_pe -s -n dbbackupdatadir $lv_name ; then
+    echo "ERROR: Can't create the LVM snapshot" >&2
+    snapshot_failed=1
+    if ! lvs "$vg_name/dbbackupdatadir" > /dev/null 2>&1 ; then
+        snapshot_created=0
+    fi
+fi
 
 ###
 # Start server
@@ -305,6 +315,9 @@ if ! "$SQL_CLIENT" -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e
     exit 1
 fi
 master_readonly=0
+if [ "$snapshot_failed" -eq 1 ] ; then
+    exit 1
+fi
 
 ###
 # Mount snapshot
@@ -314,7 +327,11 @@ echo "Mount LVM snapshot"
 mkdir -p "$SNAPSHOT_DATADIR_MOUNT"
 TYPEFS_BACKUP=$(df -T "$SQL_CONF_DATADIR" | tail -1 | awk -F' ' '{print $(NF-5)}')
 [ "$TYPEFS_BACKUP"  = "xfs" ] && MNTOPTIONS="-o nouuid"
-mount $MNTOPTIONS /dev/$vg_name/dbbackupdatadir "$SNAPSHOT_DATADIR_MOUNT"
+# rsync --delete from an empty mount point would empty the replica
+if ! mount $MNTOPTIONS /dev/$vg_name/dbbackupdatadir "$SNAPSHOT_DATADIR_MOUNT" ; then
+    echo "ERROR: Can't mount the LVM snapshot" >&2
+    exit 1
+fi
 
 concat_datadir=$(echo "$SQL_CONF_DATADIR" | sed "s#^${mount_point}##")
 

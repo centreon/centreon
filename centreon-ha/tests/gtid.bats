@@ -7,14 +7,30 @@ UUID_B=8a94f357-aab4-11df-86ab-c80aa9429562
 
 # client_binary default of the resource agent
 
-@test "resource agent: defaults to the mariadb client when it exists" {
+@test "resource agent: defaults to the mariadb client with MariaDB when it exists" {
   mkdir -p "$BATS_TEST_TMPDIR/bin"
-  printf '#!/bin/bash\n' > "$BATS_TEST_TMPDIR/bin/mariadb"
-  chmod +x "$BATS_TEST_TMPDIR/bin/mariadb"
+  for binary in mariadb mariadbd; do
+    printf '#!/bin/bash\n' > "$BATS_TEST_TMPDIR/bin/$binary"
+    chmod +x "$BATS_TEST_TMPDIR/bin/$binary"
+  done
   PATH="$BATS_TEST_TMPDIR/bin:$PATH"
   load_ocf_common 1
   [ "$OCF_RESKEY_client_binary_default" = "mariadb" ]
   [ "$MYSQL" = "mariadb" ]
+}
+
+@test "resource agent: defaults to the mysql client with MySQL, even with a mariadb client" {
+  if [ -x /usr/sbin/mariadbd ] || [ -x /usr/libexec/mariadbd ]; then
+    skip "a MariaDB server is installed on this host"
+  fi
+  local saved_path="$PATH"
+  mkdir -p "$BATS_TEST_TMPDIR/bin"
+  printf '#!/bin/bash\n' > "$BATS_TEST_TMPDIR/bin/mariadb"
+  chmod +x "$BATS_TEST_TMPDIR/bin/mariadb"
+  PATH="$BATS_TEST_TMPDIR/bin"
+  load_ocf_common 0
+  PATH="$saved_path"
+  [ "$OCF_RESKEY_client_binary_default" = "mysql" ]
 }
 
 @test "resource agent: defaults to the mysql client otherwise" {
@@ -33,16 +49,20 @@ UUID_B=8a94f357-aab4-11df-86ab-c80aa9429562
 @test "mysql_missing_settings: names only the settings that do not hold" {
   load_ocf_common 0
   run mysql_missing_settings "ON/ON/0/1/1"
+  [ "$status" -eq 0 ]
   [ "$output" = "skip_replica_start=ON" ]
   run mysql_missing_settings "OFF/ON/1/0/1"
+  [ "$status" -eq 0 ]
   [ "$output" = "gtid_mode=ON, log_bin=ON" ]
   run mysql_missing_settings "ON/ON/1/1/1"
+  [ "$status" -eq 0 ]
   [ "$output" = "" ]
 }
 
 @test "mysql_missing_settings: names every setting of an unreadable value" {
   load_ocf_common 0
   run mysql_missing_settings ""
+  [ "$status" -eq 0 ]
   [ "$output" = "gtid_mode=ON, enforce_gtid_consistency=ON, skip_replica_start=ON, log_bin=ON, log_replica_updates=ON" ]
   [ "${#output}" -le 116 ]
 }

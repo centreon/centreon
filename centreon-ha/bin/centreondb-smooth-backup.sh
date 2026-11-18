@@ -399,7 +399,12 @@ lvcreate -l $free_pe -s -n dbbackup $lv_name
 output_log "Start $SQL_DB_BINARY:"
 systemctl start "$SQL_SYSTEMD_SERVICE"
 
-set_readonly
+readonly_restored=1
+if ! set_readonly ; then
+	output_log "ERROR: Can't restore read_only=$readonly_value on this node." 1
+	backup_status=1
+	readonly_restored=0
+fi
 
 # The checkpoint of the snapshot: read before the replication resumes, as
 # replicated writes can rotate the binary log. Saved once the backup succeeds.
@@ -411,18 +416,20 @@ fi
 # The backup runs on the replica: skip-slave-start keeps its replication
 # stopped after the restart, and the resource agent does not restart it.
 # Only on a read-only node, never on a master with stale replica settings.
-if [ "$readonly_value" = "1" ] ; then
-	if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
-		_start_replica="START SLAVE"
-	else
-		_start_replica="START REPLICA"
-	fi
+if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+	_start_replica="START SLAVE"
+else
+	_start_replica="START REPLICA"
+fi
+if [ "$readonly_value" = "1" ] && [ "$readonly_restored" -eq 0 ] ; then
+	output_log "ERROR: The replication is not restarted on a node that may be writable: run '$_start_replica' once read_only is restored." 1
+elif [ "$readonly_value" = "1" ] ; then
 	if ! "$SQL_CLIENT" -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "$_start_replica" ; then
 		output_log "ERROR: Can't restart the replication, run '$_start_replica' on this node." 1
 		backup_status=1
 	fi
 elif [ "$READONLY_CHECK" -eq "0" ] ; then
-	output_log "WARNING: read_only not checked, so the replication is not restarted: on a replica, run 'START SLAVE' (MariaDB) or 'START REPLICA' (MySQL)."
+	output_log "WARNING: read_only not checked, so the replication is not restarted: on a replica, run '$_start_replica'."
 fi
 
 ###
@@ -479,18 +486,26 @@ if [ -n "$logbin_files" ] ; then
 fi
 
 # The file names come from the datadir: pass them as arguments, after --
+# A partial list would make a partial backup: list them all before the copy
 save_files=()
 tmp_path=$(echo "$SNAPSHOT_MOUNT/$concat_datadir" | sed "s#/\+#/#g")
-while IFS= read -r -d '' tmp_file ; do
-	tmp_result=$(echo -e "$ar_exclude_file" | awk -v pattern="$tmp_file" 'BEGIN { message="NOK" } $0 == pattern { message="OK"; exit(0) }  END { print message }')
-	if [ "$tmp_result" = "NOK" ] ; then
-		save_files+=("${tmp_file#"$SNAPSHOT_MOUNT"/}")
-	fi
-done < <(find "$tmp_path" -type f -print0)
+list_status=1
+if file_list=$(mktemp) && find "$tmp_path" -type f -print0 > "$file_list" ; then
+	list_status=0
+	while IFS= read -r -d '' tmp_file ; do
+		tmp_result=$(echo -e "$ar_exclude_file" | awk -v pattern="$tmp_file" 'BEGIN { message="NOK" } $0 == pattern { message="OK"; exit(0) }  END { print message }')
+		if [ "$tmp_result" = "NOK" ] ; then
+			save_files+=("${tmp_file#"$SNAPSHOT_MOUNT"/}")
+		fi
+	done < "$file_list"
+else
+	output_log "ERROR: Can't list the files of the snapshot." 1
+fi
+rm -f "$file_list"
 
 output_log "Save files"
 copy_status=1
-if cd "$SNAPSHOT_MOUNT" ; then
+if [ "$list_status" -eq 0 ] && cd "$SNAPSHOT_MOUNT" ; then
 	if [ "$DO_ARCHIVE" -eq "0" ] ; then
 		cp --parent -pf -- "${save_files[@]}" "$BACKUP_DIR_TOTAL/"
 	else

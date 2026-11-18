@@ -58,8 +58,8 @@ else
 	OCF_RESKEY_socket_default="/var/lib/mysql/mysql.sock"
 fi
 # MariaDB 11.0+ warns when its client is called mysql, the only name MySQL
-# ships
-if command -v mariadb >/dev/null 2>&1; then
+# ships. The engine decides, as the client options differ.
+if [ "$_is_mariadb" -eq 1 ] && command -v mariadb >/dev/null 2>&1; then
 	OCF_RESKEY_client_binary_default="mariadb"
 else
 	OCF_RESKEY_client_binary_default="mysql"

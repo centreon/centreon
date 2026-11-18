@@ -306,7 +306,8 @@ stub_systemctl() {
 # The scripts call the clients through the detected names
 
 @test "scripts: no direct mysql, mysqladmin or mysqlshow call" {
-  run grep -nE '(^[[:space:]]*|[$(]|if !? ?|elif |until )(mysql|mysqladmin|mysqlshow) -' \
+  # With options, an input redirection or no argument at all
+  run grep -nE '(^[[:space:]]*|[$(]|if !? ?|elif |until )(mysql|mysqladmin|mysqlshow)( +-| *<| *[|;)]| *$)' \
     "$CENTREON_HA_DIR"/bin/*.sh "$CENTREON_HA_DIR"/lib/*.sh
   [ "$status" -eq 1 ]
 }
@@ -320,7 +321,7 @@ stub_systemctl() {
   local script
   for script in "$CENTREON_HA_DIR"/bin/*.sh; do
     if grep -qE 'SQL_(CLIENT|ADMIN|SHOW)' "$script"; then
-      grep -q 'centreon-ha/lib/mysql-functions.sh' "$script" || {
+      grep -qE '^[[:space:]]*(source|\.)[[:space:]]+/usr/share/centreon-ha/lib/mysql-functions\.sh' "$script" || {
         echo "$script uses the client names without sourcing the library"
         return 1
       }

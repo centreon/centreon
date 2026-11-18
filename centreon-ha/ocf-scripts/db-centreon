@@ -822,7 +822,7 @@ check_mysql_prerequisites() {
     # GTIDS (MySQL 8.2+); 8.4 is the first LTS release with them.
     # A failing query is an error, not a misconfiguration: OCF_ERR_INSTALLED
     # would ban the node until a cleanup.
-    local version major minor settings plugins
+    local version major minor settings missing plugins
 
     if ! version=$($MYSQL $MYSQL_OPTIONS_TEST -s -N -e "SELECT @@version"); then
         ocf_exit_reason "Unable to read the MySQL version"
@@ -858,7 +858,8 @@ check_mysql_prerequisites() {
         return $OCF_ERR_GENERIC
     fi
     if [ "$settings" != "ON/ON/1/1/1" ]; then
-        ocf_exit_reason "MySQL needs $(mysql_missing_settings "$settings")"
+        missing=$(mysql_missing_settings "$settings")
+        ocf_exit_reason "MySQL needs ${missing:-gtid_mode, enforce_gtid_consistency, skip_replica_start, log_bin and log_replica_updates ON}"
         return $OCF_ERR_INSTALLED
     fi
 
