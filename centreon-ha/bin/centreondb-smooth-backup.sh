@@ -64,6 +64,7 @@ if [ -z "$SQL_SYSTEMD_SERVICE" ] ; then
 fi
 
 logbin_activated=1
+backup_status=0
 
 #####
 # Functions
@@ -112,8 +113,7 @@ get_current_logbin_file() {
 	if [ -n "$DBROOTPASSWORD" ] ; then
 		_password_args=(-p"$DBROOTPASSWORD")
 	fi
-	# Print nothing and fail when the status cannot be read, so that the
-	# callers keep the previous checkpoint
+	# Print nothing and fail when the current binary log is unknown
 	if ! _status=$(mysql -B -u "$DBROOTUSER" "${_password_args[@]}" -e "$_show_status\G") ; then
 		return 1
 	fi
@@ -126,8 +126,10 @@ get_current_logbin_file() {
 
 save_current_logbin_file() {
 	if ! current_logbin_file=$(get_current_logbin_file 0) ; then
-		output_log "ERROR: Can't get the current binary log, the incremental backup checkpoint is not updated." 1
-		return
+		# Without a checkpoint, the next incremental backup is a total one
+		rm -f "$SAVE_LAST_DIR/centreondb-smooth-backup.save"
+		output_log "ERROR: Can't get the current binary log: the next incremental backup will be a total one." 1
+		return 1
 	fi
 	output_log "Save current logbin file = $current_logbin_file"
 	echo "$current_logbin_file" > "$SAVE_LAST_DIR/centreondb-smooth-backup.save"
@@ -273,8 +275,11 @@ fi
 # Verify if an problem in incremental numbers
 ###
 if [ "$logbin_activated" -eq "1" ] && [ "$OPT_INCR" -eq 1 ] ; then
-	current_binlog_file=$(get_current_logbin_file 1)
-	if [ -z "$current_binlog_file" ] || ! echo "$last_binlog_file $current_binlog_file" | awk '{ if ($1 < $2 ) { exit(0) } else { exit(1) } }' ; then
+	if ! current_binlog_file=$(get_current_logbin_file 1) ; then
+		output_log "ERROR: Can't read the binary log status, no backup done." 1
+		exit 1
+	fi
+	if ! echo "$last_binlog_file $current_binlog_file" | awk '{ if ($1 < $2 ) { exit(0) } else { exit(1) } }' ; then
 		output_log "Binary logs value error '$last_binlog_file' '$current_binlog_file'. Can't do an incremental backup."
 		OPT_INCR=0
 	fi
@@ -316,21 +321,27 @@ if [ "$OPT_INCR" -ne "0" ] ; then
 		file_test=$(echo "$logbin_loc/$logbin_files.$(printf "%06d" $last_binlog_file)")
 		if [ -f "$file_test" ] ; then
 			save_bin_logs="$save_bin_logs \"$file_test\" "
+		else
+			output_log "ERROR: Missing binary log '$file_test', the backup chain has a gap." 1
+			backup_status=1
 		fi
 	done
 	
-	if [ "$logbin_activated" -ne "0" ] ; then
-		save_current_logbin_file
-	fi
-	
 	echo "Save files"
 	if [ "$DO_ARCHIVE" -eq "0" ] ; then
-		eval cp -pf $save_bin_logs \"$BACKUP_DIR_TOTAL/\"
+		copy_command="cp -pf $save_bin_logs \"$BACKUP_DIR_TOTAL/\""
 	else
-		eval tar czvf \"$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz\" $save_bin_logs
+		copy_command="tar czvf \"$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz\" $save_bin_logs"
 	fi
+	# Advance the checkpoint only once the binary logs are saved
+	if [ -z "$save_bin_logs" ] || ! eval "$copy_command" ; then
+		output_log "ERROR: Can't save the binary logs, the incremental backup checkpoint is not updated." 1
+		exit 1
+	fi
+	output_log "Save current logbin file = $current_binlog_file"
+	echo "$current_binlog_file" > "$SAVE_LAST_DIR/centreondb-smooth-backup.save"
 	
-	exit 0
+	exit $backup_status
 fi
 
 echo "#####################"
@@ -401,8 +412,8 @@ fi
 # Get Index path
 ###
 
-if [ "$logbin_activated" -ne "0" ] ; then
-	save_current_logbin_file
+if [ "$logbin_activated" -ne "0" ] && ! save_current_logbin_file ; then
+	backup_status=1
 fi
 
 concat_datadir=$(echo "$datadir" | sed "s#^${mount_point}##")
@@ -463,4 +474,4 @@ lvremove -f /dev/$vg_name/dbbackup
 
 echo "$save_timestamp" > "$SAVE_LAST_DIR/$SAVE_LAST_FILE"
 
-exit 0
+exit $backup_status

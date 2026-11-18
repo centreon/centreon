@@ -17,9 +17,11 @@ UUID_B=8a94f357-aab4-11df-86ab-c80aa9429562
   [ "$status" -eq 0 ]
 }
 
-@test "gtid_set_valid: MySQL rejects empty sets and MariaDB GTIDs" {
+@test "gtid_set_valid: MySQL rejects empty sets, missing intervals and MariaDB GTIDs" {
   load_ocf_common 0
   run gtid_set_valid ""
+  [ "$status" -eq 1 ]
+  run gtid_set_valid "$UUID_A:"
   [ "$status" -eq 1 ]
   run gtid_set_valid "0-1-100"
   [ "$status" -eq 1 ]
@@ -30,6 +32,8 @@ UUID_B=8a94f357-aab4-11df-86ab-c80aa9429562
   run gtid_set_valid "0-1-100"
   [ "$status" -eq 0 ]
   run gtid_set_valid ""
+  [ "$status" -eq 1 ]
+  run gtid_set_valid "$UUID_A:1-5"
   [ "$status" -eq 1 ]
 }
 

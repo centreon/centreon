@@ -240,8 +240,9 @@ MariaDB/MySQL test user password
 
 <parameter name="enable_creation" unique="0" required="0">
 <longdesc lang="en">
-If the MariaDB database does not exist, it will be created. MariaDB only:
-initialize the MySQL datadir before the agent starts it.
+MariaDB only: initialize the datadir with mysql_install_db when it has no
+mysql directory. With MySQL, initialize the datadir (mysqld --initialize)
+before the agent starts it.
 </longdesc>
 <shortdesc lang="en">Create the database if it does not exist</shortdesc>
 <content type="boolean" default="${OCF_RESKEY_enable_creation_default}"/>
@@ -847,8 +848,9 @@ check_mysql_prerequisites() {
 
     # skip_replica_start: the agent configures the replication itself, and
     # CHANGE REPLICATION SOURCE TO fails while replica threads run.
-    # log_bin and log_replica_updates: once promoted, a replica must serve
-    # the transactions it applied to the other node.
+    # log_bin: a promoted replica must write the binary log the other node
+    # replicates from; log_replica_updates: that log must also hold the
+    # transactions it applied.
     if ! settings=$($MYSQL $MYSQL_OPTIONS_TEST -s -N \
         -e "SELECT CONCAT(@@gtid_mode, '/', @@enforce_gtid_consistency, '/', @@skip_replica_start, '/', @@log_bin, '/', @@log_replica_updates)"); then
         ocf_exit_reason "Unable to read the MySQL replication settings"

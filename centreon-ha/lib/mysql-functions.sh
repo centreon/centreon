@@ -69,7 +69,7 @@ sql_fetch_systemd_service()
     # MySQL is mysqld on EL and mysql on Debian
     local _test_service
     for _test_service in mariadb mysqld mysql; do
-        if systemctl list-unit-files --no-legend "$_test_service.service" 2>/dev/null | awk -v unit="$_test_service.service" '$1 == unit && $2 != "masked" { found = 1 } END { exit !found }'; then
+        if systemctl list-unit-files --no-legend "$_test_service.service" 2>/dev/null | awk -v unit="$_test_service.service" '$1 == unit && $2 !~ /^masked/ { found = 1 } END { exit !found }'; then
             SQL_SYSTEMD_SERVICE="$_test_service"
             return 0
         fi

@@ -180,24 +180,38 @@ fi
 ############# END SANITY CHECK
 #############
 
+restore_master_writable() {
+    # Run on any exit between making the master read-only and writable again
+    if $MYSQLADMIN -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" ping > /dev/null 2>&1 ; then
+        if mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF' ; then
+            echo "The master '$master_hostname' is writable again." >&2
+        else
+            echo "ERROR: Can't make the master '$master_hostname' writable again: run 'SET GLOBAL read_only = OFF' on it." >&2
+        fi
+    else
+        echo "ERROR: The master '$master_hostname' is stopped or stopping: start it with 'systemctl start $SQL_SYSTEMD_SERVICE'." >&2
+    fi
+}
+trap restore_master_writable EXIT
+trap 'exit 130' INT TERM
+
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
     gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
 else
-    # mysql -B would print the newlines between the members of gtid_executed
-    # as a literal \n: strip them to get a one-line GTID set. super_read_only
-    # also blocks the sessions that bypass read_only (CONNECTION_ADMIN), so
-    # that the copy matches the GTID set; disabling read_only disables it.
+    # mysql -B prints the newlines of gtid_executed as a literal \n: strip them.
+    # super_read_only also blocks the CONNECTION_ADMIN sessions that read_only
+    # lets write, so that the copy matches the GTID set. Setting read_only=OFF
+    # clears it.
     gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL super_read_only = ON; SELECT REPLACE(@@gtid_executed, '\n', '')")
 fi
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
     _gtid_pattern='[0-9]+-[0-9]+-[0-9]+'
 else
     # uuid:interval, or uuid:tag:interval with GTID tags
-    _gtid_pattern='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}:'
+    _gtid_pattern='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}:([a-z_][a-z0-9_]*:)?[0-9]+'
 fi
 if ! echo "$gtid_current_pos" | grep -qE "$_gtid_pattern" ; then
-    mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF;'
-    echo "ERROR: cannot get gtid current pos"
+    echo "ERROR: Can't make the master read-only or read its GTID set." >&2
     exit 1
 fi
 
@@ -205,7 +219,11 @@ echo "gtid_current_pos = " $gtid_current_pos
 
 i=0
 echo -n "Stopping $SQL_DB_BINARY:"
-$MYSQLADMIN -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" shutdown
+if ! $MYSQLADMIN -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" shutdown ; then
+    echo ""
+    echo "ERROR: Can't stop MySQL Server" >&2
+    exit 1
+fi
 while ps -o args --no-headers -C "$SQL_DB_BINARY" >/dev/null; do
     if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
         echo ""
@@ -252,7 +270,11 @@ echo "OK"
 ###
 
 echo "Remove read_only on master"
-mysql -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=off"
+if ! mysql -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=off" ; then
+    echo "ERROR: Can't remove read_only on master" >&2
+    exit 1
+fi
+trap - EXIT INT TERM
 
 ###
 # Mount snapshot
@@ -279,11 +301,12 @@ $USER_SUDO ssh -p $SSH_PORT $slave_hostname "rm -f \"${logbin_loc}/${logbin_file
 ###
 
 abort_copy() {
-    # Leave the slave stopped: starting it on a partial copy would mark
-    # transactions as executed without their data
-    echo "ERROR: The copy to '$slave_hostname' is incomplete, its database is left stopped." >&2
-    umount "$SNAPSHOT_DATADIR_MOUNT"
-    lvremove -f /dev/$vg_name/dbbackupdatadir
+    # Leave the slave stopped: setting up the replication on a partial copy
+    # would mark the master's transactions as executed without their data
+    echo "ERROR: The copy to '$slave_hostname' is incomplete. Its database is left stopped: do not start it, nor let Pacemaker manage it, before mysql-sync-bigdb.sh succeeds." >&2
+    if ! umount "$SNAPSHOT_DATADIR_MOUNT" || ! lvremove -f /dev/$vg_name/dbbackupdatadir ; then
+        echo "ERROR: Remove the snapshot by hand: umount $SNAPSHOT_DATADIR_MOUNT; lvremove /dev/$vg_name/dbbackupdatadir" >&2
+    fi
     exit 1
 }
 
@@ -293,7 +316,11 @@ rsync -av $RSYNC_EXTRA_OPTIONS --delete --progress --exclude="mysql" --exclude="
 mysql_ibd_system=''
 for file in $(ls "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/"*.ibd); do
     filename=$(basename $file | sed 's/\.ibd//')
-    mysql_ibd_system="$mysql_ibd_system \"$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.ibd\" \"$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.frm\""
+    mysql_ibd_system="$mysql_ibd_system \"$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.ibd\""
+    # rsync fails on a missing source file
+    if [ -f "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.frm" ] ; then
+        mysql_ibd_system="$mysql_ibd_system \"$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.frm\""
+    fi
 done
 if [ -n "$mysql_ibd_system" ] ; then
     eval rsync -av $RSYNC_EXTRA_OPTIONS --progress $mysql_ibd_system -e \"\$USER_SUDO ssh -p $SSH_PORT\" \$slave_hostname:\"\$SQL_CONF_DATADIR/mysql/\" || abort_copy

@@ -121,6 +121,13 @@ load helpers
   [ "$SQL_CONF_RELAY_LOG" = "$DATADIR/logs/relay" ]
 }
 
+@test "sql_fetch_db_config: puts log names without a directory in the datadir" {
+  load_mysql_functions mariadbd "--datadir=@DATADIR@ --log-bin=mysql-bin --relay-log=relay" ""
+  fetch_db_config
+  [ "$SQL_CONF_LOG_BIN" = "$DATADIR/mysql-bin" ]
+  [ "$SQL_CONF_RELAY_LOG" = "$DATADIR/relay" ]
+}
+
 @test "sql_fetch_db_config: keeps absolute log paths" {
   load_mysql_functions mysqld "--datadir=@DATADIR@ --log-bin=/logs/mysql-bin --relay-log=/logs/relay" ""
   fetch_db_config
@@ -209,5 +216,42 @@ EOF
   sql_fetch_server_engine db2
   [ "$SQL_IS_MARIADB" -eq 0 ]
   run sql_fetch_server_engine db3
+  [ "$status" -eq 1 ]
+}
+
+# sql_fetch_systemd_service
+
+stub_systemctl() {
+  # list-unit-files output for the units given as "name state" arguments
+  local unit
+  {
+    echo '#!/bin/bash'
+    echo 'case "$*" in'
+    for unit in "$@"; do
+      echo "  *\" ${unit%% *}.service\") echo \"${unit%% *}.service ${unit#* } disabled\" ;;"
+    done
+    echo 'esac'
+  } > "$STUB_DIR/systemctl"
+  chmod +x "$STUB_DIR/systemctl"
+}
+
+@test "sql_fetch_systemd_service: prefers mariadb, then mysqld, then mysql" {
+  load_mysql_functions mysqld "" ""
+  stub_systemctl "mysql enabled" "mysqld disabled"
+  run_without_errexit sql_fetch_systemd_service
+  [ "$SQL_SYSTEMD_SERVICE" = "mysqld" ]
+}
+
+@test "sql_fetch_systemd_service: skips masked units" {
+  load_mysql_functions mysqld "" ""
+  stub_systemctl "mariadb masked" "mysqld masked-runtime" "mysql disabled"
+  run_without_errexit sql_fetch_systemd_service
+  [ "$SQL_SYSTEMD_SERVICE" = "mysql" ]
+}
+
+@test "sql_fetch_systemd_service: fails without a database unit" {
+  load_mysql_functions mysqld "" ""
+  stub_systemctl "httpd enabled"
+  run sql_fetch_systemd_service
   [ "$status" -eq 1 ]
 }
