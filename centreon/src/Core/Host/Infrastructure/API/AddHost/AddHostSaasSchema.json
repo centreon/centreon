@@ -10,13 +10,15 @@
     ],
     "properties": {
         "name": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[^\\x00-\\x1F\\x7F]*$"
         },
         "alias": {
             "type": [
                 "null",
                 "string"
-            ]
+            ],
+            "pattern": "^[^\\x00-\\x1F\\x7F]*$"
         },
         "snmp_version": {
             "type": [
@@ -34,7 +36,8 @@
             "type": [
                 "null",
                 "string"
-            ]
+            ],
+            "pattern": "^[^\\x00-\\x1F\\x7F]*$"
         },
         "icon_id": {
             "type": [
@@ -82,19 +85,22 @@
             "type": [
                 "null",
                 "string"
-            ]
+            ],
+            "pattern": "^[^\\x00-\\x1F\\x7F]*$"
         },
         "note": {
             "type": [
                 "null",
                 "string"
-            ]
+            ],
+            "pattern": "^[^\\x00-\\x1F\\x7F]*$"
         },
         "action_url": {
             "type": [
                 "null",
                 "string"
-            ]
+            ],
+            "pattern": "^[^\\x00-\\x1F\\x7F]*$"
         },
         "is_activated": {
             "type": [
