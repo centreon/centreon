@@ -1,6 +1,10 @@
 ---
 name: release-trigger-builds
-run-name: 'release-trigger-builds ${{ inputs.dispatch_target_release_branch }} ${{ inputs.dispatch_content }}'
+run-name: 'release-trigger-builds ${{ inputs.dispatch_target_release_branch }} ${{ inputs.dispatch_content }} ${{ inputs.release_number }}${{ inputs.dry_run && '' (dry run)'' || '''' }}'
+
+# Two modes, chosen by "testing_tag_builds" in release-components.json at the target branch:
+# legacy (dispatch on the branch, job 1 only) or testing tag (job 1 checks + tags, job 2 records + dispatches).
+# Design and diagrams: delivery-tooling docs/release/testing-bundles.md and testing-bundles-flow.md
 
 on:
   workflow_dispatch:
@@ -16,11 +20,20 @@ on:
           - REGULAR # Centreon components only without libs
           - CHANGED_ONLY # Anything that received a change
           - FULL # Centreon components + libs
+      release_number:
+        description: "Release number YYYYMMNN (testing-tag mode only): release = YYYYMM00, hotfix = YYYYMM01.."
+        required: false
+        default: ""
       dry_run:
-        description: "Show what would be created and dispatched, without doing it"
+        description: "Check and show what would be created and dispatched, without doing it"
         required: false
         type: boolean
-        default: false
+        default: true
+
+env:
+  BUCKET: release-orchestrator
+  # true writes and reads the bundle status under dry-run/ (tests)
+  STATUS_DRY_RUN: "false"
 
 jobs:
   dependency-scan:
@@ -36,6 +49,17 @@ jobs:
     permissions:
       contents: read
       actions: write
+      id-token: write
+    outputs:
+      mode: ${{ steps.prepare.outputs.mode }}
+      branch: ${{ steps.prepare.outputs.branch }}
+      head_sha: ${{ steps.prepare.outputs.head_sha }}
+      previous_stable_bundle_tag: ${{ steps.prepare.outputs.previous_stable_bundle_tag }}
+      previous_stable_bundle_tag_sha: ${{ steps.prepare.outputs.previous_stable_bundle_tag_sha }}
+      release_scope: ${{ steps.prepare.outputs.release_scope }}
+      tag: ${{ steps.validate.outputs.tag }}
+      role: ${{ steps.validate.outputs.role }}
+      stopped: ${{ steps.tag.outputs.stopped }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -43,7 +67,7 @@ jobs:
           fetch-depth: 0
 
       # logic shared by the 3 repos, components from release-components.json read at the branch
-      - name: Get references and create the release/hotfix branch
+      - name: Get references and the mode of the branch
         id: prepare
         env:
           DISPATCH_TARGET_RELEASE_BRANCH: ${{ inputs.dispatch_target_release_branch }}
@@ -51,7 +75,10 @@ jobs:
           BRANCH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
         run: .github/scripts/release/release-trigger-builds.sh prepare
 
+      # --- legacy mode: dispatch on the branch ---
+
       - name: Detect changed components since last stable release bundle tag
+        if: steps.prepare.outputs.mode == 'legacy'
         uses: ./.github/actions/release-detect-changed-components
         with:
           base_sha: ${{ steps.prepare.outputs.previous_stable_bundle_tag_sha }}
@@ -59,6 +86,7 @@ jobs:
           components_file: ${{ steps.prepare.outputs.components_file }}
 
       - name: Generate release summary
+        if: steps.prepare.outputs.mode == 'legacy'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           BASE_SHA: ${{ steps.prepare.outputs.previous_stable_bundle_tag_sha }}
@@ -66,91 +94,138 @@ jobs:
           PREVIOUS_RELEASE_BUNDLE_TAG: ${{ steps.prepare.outputs.previous_stable_bundle_tag }}
           NEW_BRANCH: ${{ steps.prepare.outputs.branch }}
         with:
-          script: |
-            const fs = require('fs');
-
-            // Data from previous steps and context
-            const baseSha = process.env.BASE_SHA;
-            const headSha = process.env.HEAD_SHA;
-            const repo = process.env.GITHUB_REPOSITORY;
-            const previousReleaseBundleTag = process.env.PREVIOUS_RELEASE_BUNDLE_TAG
-            const newBranch = process.env.NEW_BRANCH
-
-            // Artifacts from previous steps
-            const componentsFile = 'artifacts/changed-components.txt';
-            const commitListsDir = 'artifacts/commit-lists';
-
-            // Build summary
-            // Full diff between baseSha (latest stable bundle tag) and headSha (dev or release/hotfix branch)
-            core.summary
-              .addHeading('Release changes summary', 2)
-              .addRaw('\n\n')
-              .addRaw(`**Base (${previousReleaseBundleTag}):** \`${baseSha}\`\n\n`)
-              .addRaw(`**Head (${newBranch}):** \`${headSha}\`\n\n`)
-              .addLink(
-                `Full diff ${previousReleaseBundleTag} <> ${newBranch}`,
-                `https://github.com/${repo}/compare/${baseSha}...${headSha}`
-              )
-              .addRaw('\n\n');
-
-            if (!fs.existsSync(componentsFile)) {
-              core.summary.addRaw('_No components changed._\n');
-              await core.summary.write();
-              return;
-            }
-
-            // Get components, 1 per line from the file
-            const components = fs
-              .readFileSync(componentsFile, 'utf8')
-              .split('\n')
-              .map(l => l.trim())
-              .filter(Boolean);
-
-            let shown = false;
-
-            for (const component of components) {
-              const commitsPath = `${commitListsDir}/${component}.txt`;
-              if (!fs.existsSync(commitsPath)) continue;
-
-              const lines = fs.readFileSync(commitsPath, 'utf8')
-                .split('\n')
-                .map(l => l.trim())
-                .filter(Boolean);
-
-              if (lines.length === 0) continue;
-
-              shown = true;
-
-              const rendered = lines.map(line => {
-                const [sha, ...rest] = line.split(' ');
-                const subject = rest.join(' ');
-                const url = `https://github.com/${repo}/commit/${sha}`;
-                return `- [\`${sha}\`](${url}) ${subject}`;
-              }).join('\n');
-
-              const diffUrl = `https://github.com/${repo}/compare/${baseSha}...${headSha}`;
-
-              core.summary.addSeparator()
-
-              core.summary
-                .addRaw(`\n\n### ${component} — [Full diff ${previousReleaseBundleTag} <> ${newBranch}](${diffUrl})\n\n`)
-                .addDetails(`Commit list (${lines.length})`, `\n\n${rendered}\n`)
-                .addRaw('\n');
-            }
-
-            if (!shown) {
-              core.summary.addRaw('_No components changed._\n');
-            }
-
-            await core.summary.write();
+          script: await require('./.github/scripts/release/release-summary.js')({ core })
 
       - name: Trigger components on selected branch
+        if: steps.prepare.outputs.mode == 'legacy'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODE: legacy
           DISPATCH_CONTENT: ${{ inputs.dispatch_content }}
           DRY_RUN: ${{ inputs.dry_run }}
           BRANCH: ${{ steps.prepare.outputs.branch }}
           HEAD_SHA: ${{ steps.prepare.outputs.head_sha }}
           COMPONENTS_FILE: ${{ steps.prepare.outputs.components_file }}
           CHANGED_FILE: artifacts/changed-components.txt
+        run: .github/scripts/release/release-trigger-builds.sh dispatch
+
+      # --- testing-tag mode, job 1: every check, then the tag ---
+
+      - name: Detect changed components (plan)
+        if: steps.prepare.outputs.mode == 'testing'
+        env:
+          BASE_SHA: ${{ steps.prepare.outputs.previous_stable_bundle_tag_sha }}
+          HEAD_SHA: ${{ steps.prepare.outputs.head_sha }}
+          COMPONENTS_FILE: ${{ steps.prepare.outputs.components_file }}
+        run: .github/scripts/release/release-detect-changed-components.sh "$BASE_SHA" "$HEAD_SHA" "$COMPONENTS_FILE"
+
+      # a dry run still checks what it can when the bucket is not reachable
+      - name: Get credentials for the bundle status bucket
+        id: aws
+        if: steps.prepare.outputs.mode == 'testing'
+        continue-on-error: ${{ inputs.dry_run }}
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::625664829291:role/release-orchestrator-github-trigger-writer
+          role-session-name: release-trigger-builds-${{ github.run_id }}
+          aws-region: eu-west-1
+
+      - name: Check the release and pick the bundle
+        id: validate
+        if: steps.prepare.outputs.mode == 'testing'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REMOTE_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          S3_AVAILABLE: ${{ steps.aws.outcome == 'success' }}
+          RELEASE_NUMBER: ${{ inputs.release_number }}
+          DISPATCH_CONTENT: ${{ inputs.dispatch_content }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          BRANCH: ${{ steps.prepare.outputs.branch }}
+          BRANCH_EXISTS: ${{ steps.prepare.outputs.branch_exists }}
+          HEAD_SHA: ${{ steps.prepare.outputs.head_sha }}
+          RELEASE_SCOPE: ${{ steps.prepare.outputs.release_scope }}
+          RELEASE_TYPE: ${{ steps.prepare.outputs.release_type }}
+          MAJOR: ${{ steps.prepare.outputs.major }}
+          COMPONENTS_FILE: ${{ steps.prepare.outputs.components_file }}
+          CHANGED_FILE: artifacts/changed-components.txt
+        run: .github/scripts/release/release-trigger-builds.sh validate
+
+      - name: Create the branch if needed, then the testing tag
+        id: tag
+        if: steps.prepare.outputs.mode == 'testing'
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          BRANCH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          BRANCH: ${{ steps.prepare.outputs.branch }}
+          BRANCH_EXISTS: ${{ steps.prepare.outputs.branch_exists }}
+          BRANCH_BASE: ${{ steps.prepare.outputs.branch_base }}
+          HEAD_SHA: ${{ steps.prepare.outputs.head_sha }}
+          TAG: ${{ steps.validate.outputs.tag }}
+          STOP_AFTER_BRANCH: ${{ steps.validate.outputs.stop_after_branch }}
+        run: .github/scripts/release/release-trigger-builds.sh tag
+
+  # testing-tag mode, job 2: re-runnable with "Re-run failed jobs" (same tag, same plan)
+  record-and-dispatch:
+    needs: [release-trigger-builds]
+    if: needs.release-trigger-builds.outputs.mode == 'testing' && needs.release-trigger-builds.outputs.stopped != 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
+      id-token: write
+    env:
+      DRY_RUN: ${{ inputs.dry_run }}
+      DISPATCH_CONTENT: ${{ inputs.dispatch_content }}
+      BRANCH: ${{ needs.release-trigger-builds.outputs.branch }}
+      HEAD_SHA: ${{ needs.release-trigger-builds.outputs.head_sha }}
+      TAG: ${{ needs.release-trigger-builds.outputs.tag }}
+      ROLE: ${{ needs.release-trigger-builds.outputs.role }}
+      RELEASE_SCOPE: ${{ needs.release-trigger-builds.outputs.release_scope }}
+      PREVIOUS_STABLE_BUNDLE_TAG: ${{ needs.release-trigger-builds.outputs.previous_stable_bundle_tag }}
+      CHANGED_FILE: artifacts/changed-components.txt
+      COMMIT_LISTS_DIR: artifacts/commit-lists
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Read the components mapping at the tagged commit
+        id: mapping
+        run: .github/scripts/release/release-trigger-builds.sh mapping
+
+      - name: Detect changed components since last stable release bundle tag
+        uses: ./.github/actions/release-detect-changed-components
+        with:
+          base_sha: ${{ needs.release-trigger-builds.outputs.previous_stable_bundle_tag_sha }}
+          head_sha: ${{ needs.release-trigger-builds.outputs.head_sha }}
+          components_file: ${{ steps.mapping.outputs.components_file }}
+
+      - name: Generate release summary
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          BASE_SHA: ${{ needs.release-trigger-builds.outputs.previous_stable_bundle_tag_sha }}
+          PREVIOUS_RELEASE_BUNDLE_TAG: ${{ needs.release-trigger-builds.outputs.previous_stable_bundle_tag }}
+          NEW_BRANCH: ${{ needs.release-trigger-builds.outputs.tag }}
+        with:
+          script: await require('./.github/scripts/release/release-summary.js')({ core })
+
+      - name: Get credentials for the bundle status bucket
+        if: inputs.dry_run == false
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::625664829291:role/release-orchestrator-github-trigger-writer
+          role-session-name: release-trigger-builds-${{ github.run_id }}-${{ github.run_attempt }}
+          aws-region: eu-west-1
+
+      - name: Record the bundle in the status bucket
+        env:
+          COMPONENTS_FILE: ${{ steps.mapping.outputs.components_file }}
+        run: .github/scripts/release/release-trigger-builds.sh record
+
+      - name: Trigger components on the testing tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODE: testing
+          COMPONENTS_FILE: ${{ steps.mapping.outputs.components_file }}
         run: .github/scripts/release/release-trigger-builds.sh dispatch

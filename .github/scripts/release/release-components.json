@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
+  "testing_tag_builds": false,
   "components": {
     "centreon": {
       "workflow": "web.yml",
       "bundle_component": "centreon-web",
       "paths": [
         "centreon",
-        ".version.centreon-web",
-        "packaging/centreon-web"
+        ".version.centreon-web"
       ]
     },
     "centreon-awie": {
@@ -15,8 +15,7 @@
       "bundle_component": "centreon-awie",
       "paths": [
         "centreon-awie",
-        ".version.centreon-awie",
-        "packaging/centreon-awie"
+        ".version.centreon-awie"
       ]
     },
     "centreon-dsm": {
@@ -24,8 +23,7 @@
       "bundle_component": "centreon-dsm",
       "paths": [
         "centreon-dsm",
-        ".version.centreon-dsm",
-        "packaging/centreon-dsm"
+        ".version.centreon-dsm"
       ]
     },
     "centreon-ha": {
@@ -33,8 +31,10 @@
       "bundle_component": "centreon-ha",
       "paths": [
         "centreon-ha",
-        ".version.centreon-ha",
-        "packaging/centreon-ha"
+        ".version.centreon-ha"
+      ],
+      "scopes": [
+        "onprem"
       ]
     },
     "centreon-open-tickets": {
@@ -42,8 +42,7 @@
       "bundle_component": "centreon-open-tickets",
       "paths": [
         "centreon-open-tickets",
-        ".version.centreon-open-tickets",
-        "packaging/centreon-open-tickets"
+        ".version.centreon-open-tickets"
       ]
     },
     "helm": {
