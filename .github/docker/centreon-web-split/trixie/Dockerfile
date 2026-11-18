@@ -756,6 +756,18 @@ for ext in gd gettext gnupg intl ldap mysqli pcntl pdo_mysql redis snmp sysvsem 
   grep -qix "$ext" <<<"$mods" || { echo "$ext extension not loaded" >&2; exit 1; }
 done
 grep -qi 'SourceGuardian' <<<"$(php -v)" || { echo "SourceGuardian loader not active" >&2; exit 1; }
+# gnupg loading (checked above) isn't enough: the extension itself shells
+# out to the `gpg` binary via gpgme, which neither `ldd` nor `php -m` can
+# see (study-cron-fpm, cross-checking this package list) — "loaded, but
+# every real call fails" is a real, silent failure mode here, not a
+# hypothetical: `gpg` is NOT in this stage's own apt list above, it only
+# arrives transitively (libgpgme11t64 Depends: gpg, confirmed via `apt-cache
+# depends`) and loads fine either way (`php -m` shows gnupg whether or not
+# `gpg` is actually installed) — only an actual call proves it. Without
+# `gpg`, `keyinfo()` fails with "could not init keylist" instead of
+# returning an array. Catches a future Debian repackaging that drops that
+# transitive pull silently, instead of the next real license upload doing it.
+php -r '$k = (new gnupg())->keyinfo(""); if (!is_array($k)) { fwrite(STDERR, "gnupg keyinfo() failed - no working gpg binary?\n"); exit(1); }'
 EOF
 
 COPY --chown=www-data:www-data .github/docker/centreon-web-split/trixie/configuration/fpm/centreon.ini.template \
