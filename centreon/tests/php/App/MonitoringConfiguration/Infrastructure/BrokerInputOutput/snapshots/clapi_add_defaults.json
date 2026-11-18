@@ -1,0 +1,371 @@
+[
+    {
+        "command": "CENTBROKERCFG;ADDINPUT;clapi-9300-defaults;input-ipv4;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDINPUT;clapi-9300-defaults;input-ipv6;ipv6",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDINPUT;clapi-9300-defaults;input-file;file",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDINPUT;clapi-9300-defaults;input-bbdo_server;bbdo_server",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDINPUT;clapi-9300-defaults;input-bbdo_client;bbdo_client",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-ipv4;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-ipv6;ipv6",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-file;file",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-rrd;rrd",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-storage;storage",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-sql;sql",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-unified_sql;unified_sql",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-lua;lua",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-influxdb;influxdb",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-graphite;graphite",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-bbdo_server;bbdo_server",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-bbdo_client;bbdo_client",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-event_script;event_script",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-db_cfg_reader;db_cfg_reader",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-defaults;output-db_cfg_writer;db_cfg_writer",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;LISTINPUT;clapi-9300-defaults",
+        "output": [
+            "id;name",
+            "0;input-ipv4",
+            "1;input-ipv6",
+            "2;input-file",
+            "3;input-bbdo_server",
+            "4;input-bbdo_client"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;clapi-9300-defaults",
+        "output": [
+            "id;name",
+            "0;output-ipv4",
+            "1;output-ipv6",
+            "2;output-file",
+            "3;output-rrd",
+            "4;output-storage",
+            "5;output-sql",
+            "6;output-unified_sql",
+            "7;output-lua",
+            "8;output-influxdb",
+            "9;output-graphite",
+            "10;output-bbdo_server",
+            "11;output-bbdo_client",
+            "12;output-event_script",
+            "13;output-db_cfg_reader",
+            "14;output-db_cfg_writer"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETINPUT;clapi-9300-defaults;0",
+        "output": [
+            "parameter key;parameter value",
+            "name;input-ipv4",
+            "negotiation;yes",
+            "port;",
+            "protocol;bbdo",
+            "tls;no",
+            "type;ipv4"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETINPUT;clapi-9300-defaults;1",
+        "output": [
+            "parameter key;parameter value",
+            "name;input-ipv6",
+            "negotiation;yes",
+            "port;",
+            "protocol;bbdo",
+            "tls;no",
+            "type;ipv6"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETINPUT;clapi-9300-defaults;2",
+        "output": [
+            "parameter key;parameter value",
+            "config;yes",
+            "debug;no",
+            "error;yes",
+            "info;no",
+            "level;low",
+            "name;input-file",
+            "type;file"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETINPUT;clapi-9300-defaults;3",
+        "output": [
+            "parameter key;parameter value",
+            "compression;no",
+            "encryption;no",
+            "name;input-bbdo_server",
+            "port;",
+            "retention;no",
+            "transport_protocol;gRPC",
+            "type;bbdo_server"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETINPUT;clapi-9300-defaults;4",
+        "output": [
+            "parameter key;parameter value",
+            "compression;no",
+            "encryption;no",
+            "host;",
+            "name;input-bbdo_client",
+            "port;",
+            "transport_protocol;gRPC",
+            "type;bbdo_client"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;0",
+        "output": [
+            "parameter key;parameter value",
+            "name;output-ipv4",
+            "negotiation;yes",
+            "port;",
+            "protocol;bbdo",
+            "tls;no",
+            "type;ipv4"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;1",
+        "output": [
+            "parameter key;parameter value",
+            "name;output-ipv6",
+            "negotiation;yes",
+            "port;",
+            "protocol;bbdo",
+            "tls;no",
+            "type;ipv6"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;2",
+        "output": [
+            "parameter key;parameter value",
+            "config;yes",
+            "debug;no",
+            "error;yes",
+            "info;no",
+            "level;low",
+            "name;output-file",
+            "type;file"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;3",
+        "output": [
+            "parameter key;parameter value",
+            "insert_in_index_data;T=options:C=value:CK=key:K=index_data",
+            "metrics_path;D=centreon_storage:T=config:C=RRDdatabase_path:CK=id:K=1",
+            "name;output-rrd",
+            "status_path;D=centreon_storage:T=config:C=RRDdatabase_status_path:CK=id:K=1",
+            "store_in_data_bin;yes",
+            "type;rrd",
+            "write_metrics;yes",
+            "write_status;yes"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;4",
+        "output": [
+            "parameter key;parameter value",
+            "db_host;",
+            "db_name;",
+            "db_port;",
+            "db_type;db2",
+            "db_user;",
+            "insert_in_index_data;T=options:C=value:CK=key:K=index_data",
+            "interval;T=options:C=value:CK=key:K=interval_length",
+            "length;D=centreon_storage:T=config:C=len_storage_rrd:RPN=86400 *:CK=id:K=1",
+            "name;output-storage",
+            "store_in_data_bin;yes",
+            "type;storage"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;5",
+        "output": [
+            "parameter key;parameter value",
+            "db_host;",
+            "db_name;",
+            "db_port;",
+            "db_type;db2",
+            "db_user;",
+            "name;output-sql",
+            "type;sql"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;6",
+        "output": [
+            "parameter key;parameter value",
+            "db_host;",
+            "db_name;",
+            "db_port;",
+            "db_type;T=options:C=value:CK=key:K=unified_sql_db_type",
+            "db_user;",
+            "insert_in_index_data;T=options:C=value:CK=key:K=index_data",
+            "interval;T=options:C=value:CK=key:K=interval_length",
+            "length;D=centreon_storage:T=config:C=len_storage_rrd:RPN=86400 *:CK=id:K=1",
+            "name;output-unified_sql",
+            "store_in_data_bin;yes",
+            "type;unified_sql"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;7",
+        "output": [
+            "parameter key;parameter value",
+            "name;output-lua",
+            "path;",
+            "type;lua"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;8",
+        "output": [
+            "parameter key;parameter value",
+            "db_host;",
+            "db_name;",
+            "db_user;",
+            "metrics_timeseries;",
+            "name;output-influxdb",
+            "status_timeseries;",
+            "type;influxdb"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;9",
+        "output": [
+            "parameter key;parameter value",
+            "db_host;",
+            "metric_naming;",
+            "name;output-graphite",
+            "status_naming;",
+            "type;graphite"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;10",
+        "output": [
+            "parameter key;parameter value",
+            "compression;no",
+            "encryption;no",
+            "name;output-bbdo_server",
+            "port;",
+            "retention;no",
+            "transport_protocol;gRPC",
+            "type;bbdo_server"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;11",
+        "output": [
+            "parameter key;parameter value",
+            "compression;no",
+            "encryption;no",
+            "host;",
+            "name;output-bbdo_client",
+            "port;",
+            "transport_protocol;gRPC",
+            "type;bbdo_client"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;12",
+        "output": [
+            "parameter key;parameter value",
+            "managed_event_ttl;T=options:C=value:CK=key:K=brokercfg_event_script_managed_event_ttl",
+            "name;output-event_script",
+            "script_path;T=options:C=value:CK=key:K=brokercfg_event_script_script_path",
+            "timeout;T=options:C=value:CK=key:K=brokercfg_event_script_timeout",
+            "type;event_script"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;13",
+        "output": [
+            "parameter key;parameter value",
+            "db_host;",
+            "db_name;",
+            "db_port;",
+            "db_type;db2",
+            "db_user;",
+            "name;output-db_cfg_reader",
+            "type;db_cfg_reader"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-defaults;14",
+        "output": [
+            "parameter key;parameter value",
+            "db_host;",
+            "db_name;",
+            "db_port;",
+            "db_type;db2",
+            "db_user;",
+            "name;output-db_cfg_writer",
+            "type;db_cfg_writer"
+        ]
+    }
+]

@@ -27,16 +27,16 @@ use App\Shared\Domain\Collection;
 use Webmozart\Assert\Assert;
 
 /**
- * A single broker flow (one input, output), i.e. the set of `cfg_centreonbroker_info`
- * rows sharing the same `config_group` + `config_group_id`.
+ * A single broker flow (one input or output), i.e. one `cfg_centreonbroker_input_output`
+ * record identified by its `tag` + `input_output_id`.
  */
 final readonly class BrokerInputOutput
 {
     /**
-     * @param BrokerFlowGroupEnum $group the `config_group` (input/output)
-     * @param int $groupId the `config_group_id` (0-based index within its group)
-     * @param BrokerStreamTypeEnum $type the stream kind (`cb_type.name`); its `type`/`blockId`
-     *                                   rows are derived from it at persistence, so they are
+     * @param BrokerFlowGroupEnum $group the `tag` (input/output)
+     * @param int $groupId the `input_output_id` (0-based index within its group)
+     * @param BrokerStreamTypeEnum $type the stream kind (`cb_type.name`); its `type`/`type_id`
+     *                                   columns are derived from it at persistence, so they are
      *                                   not carried in $parameters
      * @param Collection<BrokerParameter> $parameters the key/value rows composing this flow
      *

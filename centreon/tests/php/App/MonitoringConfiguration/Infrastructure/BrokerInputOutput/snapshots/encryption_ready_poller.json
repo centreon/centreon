@@ -1,0 +1,105 @@
+{
+    "encrypted.json": {
+        "centreonBroker": {
+            "broker_id": "<broker-0>",
+            "broker_name": "encrypted",
+            "poller_id": 9101,
+            "uid": 100000000009101,
+            "poller_name": "broker-io-poller-9101",
+            "module_directory": "/usr/share/centreon/lib/centreon-broker",
+            "log_timestamp": false,
+            "log_thread_id": false,
+            "event_queue_max_size": 100000,
+            "command_file": "/var/lib/centreon-broker/command.sock",
+            "cache_directory": "/var/lib/centreon-broker",
+            "bbdo_version": "3.1.0",
+            "log": {
+                "directory": "/var/log/centreon-broker",
+                "filename": "encrypted.log",
+                "max_size": 0,
+                "loggers": {
+                    "core": "error",
+                    "config": "error",
+                    "sql": "error",
+                    "processing": "error",
+                    "perfdata": "error",
+                    "bbdo": "error",
+                    "tcp": "error",
+                    "tls": "error",
+                    "lua": "error",
+                    "bam": "error",
+                    "neb": "error",
+                    "rrd": "error",
+                    "grpc": "error",
+                    "influxdb": "error",
+                    "graphite": "error",
+                    "victoria_metrics": "error",
+                    "stats": "error"
+                }
+            },
+            "output": [
+                {
+                    "name": "lua-with-secrets",
+                    "type": "lua",
+                    "lua_parameter": [
+                        {
+                            "type": "password",
+                            "value": "encrypt::test-encrypted:lua-secret",
+                            "name": "api-key"
+                        },
+                        {
+                            "type": "string",
+                            "value": "https://example.com",
+                            "name": "endpoint"
+                        }
+                    ],
+                    "path": "/usr/share/centreon-broker/lua/secrets.lua"
+                },
+                {
+                    "db_type": "mysql",
+                    "connections_count": "3",
+                    "instance_timeout": "300",
+                    "cleanup_check_interval": "0",
+                    "insert_in_index_data": "1",
+                    "store_in_data_bin": "yes",
+                    "rebuild_check_interval": "60",
+                    "read_timeout": "3600",
+                    "queries_per_transaction": "1000",
+                    "db_port": "3306",
+                    "length": "15552000",
+                    "interval": "60",
+                    "db_name": "centreon_storage",
+                    "db_password": "encrypt::test-encrypted:db-secret",
+                    "db_user": "centreon",
+                    "db_host": "db.example.com",
+                    "name": "unified-sql-with-secrets",
+                    "type": "unified_sql"
+                }
+            ],
+            "stats": [
+                {
+                    "type": "stats",
+                    "name": "encrypted-stats",
+                    "json_fifo": "/var/lib/centreon-broker/encrypted-stats.json"
+                }
+            ],
+            "grpc": {
+                "port": "<51000 + broker-0>"
+            }
+        }
+    },
+    "watchdog.json": {
+        "centreonBroker": {
+            "cbd": [
+                {
+                    "name": "encrypted",
+                    "configuration_file": "/etc/centreon-broker/encrypted.json",
+                    "run": true,
+                    "reload": true
+                }
+            ],
+            "log": "/var/log/centreon-broker/watchdog.log"
+        }
+    },
+    "php-warnings": []
+}

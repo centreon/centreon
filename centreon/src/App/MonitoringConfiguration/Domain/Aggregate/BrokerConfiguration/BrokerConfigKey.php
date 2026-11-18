@@ -24,17 +24,17 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\BrokerConfiguration;
 
 /**
- * The `cfg_centreonbroker_info.config_key` names shared across layers: the factory that
- * builds the default flows, the persistence transformer that derives the meta rows, the
- * central-token read query, and the vault key suffix. Kept in one place so the write and
- * read sides can never silently disagree on a key spelling.
+ * The broker flow parameter keys (former `cfg_centreonbroker_info.config_key` names) shared
+ * across layers: the factory that builds the default flows, the persistence layer that derives
+ * the meta columns, the central-token read query, and the vault key suffix. Kept in one place
+ * so the write and read sides can never silently disagree on a key spelling.
  */
 final class BrokerConfigKey
 {
-    /** The stream kind discriminator (`cb_type.name`); a meta row derived at persistence. */
+    /** The stream kind discriminator (`cb_type.name`); a meta column derived at persistence. */
     public const TYPE = 'type';
 
-    /** The UI block identifier `{tagId}_{typeId}`; a meta row derived at persistence. */
+    /** The UI block identifier `{tagId}_{typeId}`; its type id is a meta column derived at persistence. */
     public const BLOCK_ID = 'blockId';
 
     /** The flow's display name. */

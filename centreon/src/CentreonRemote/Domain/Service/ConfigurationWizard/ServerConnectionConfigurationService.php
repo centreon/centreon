@@ -31,12 +31,16 @@ use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosLogger;
 use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
+use Core\Broker\Infrastructure\Repository\BrokerInfoRowsConverter;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
+/**
+ * @phpstan-import-type _BrokerInfoRow from BrokerInfoRowsConverter
+ */
 abstract class ServerConnectionConfigurationService
 {
     use VaultTrait;
@@ -296,14 +300,31 @@ abstract class ServerConnectionConfigurationService
         $bamBrokerInfoData = BamBrokerCfgInfo::getConfiguration($conf_centreon['password']);
 
         $bamBrokerInfoData = $this->saveCredentialInVault($bamBrokerInfoData);
-        foreach ($bamBrokerInfoData['monitoring'] as $row) {
-            $row['config_id'] = $this->brokerID;
-            $this->insertWithAdapter('cfg_centreonbroker_info', $row);
-        }
+        $this->insertBrokerInputsOutputs($this->brokerID, $bamBrokerInfoData['monitoring']);
+        $this->insertBrokerInputsOutputs($this->brokerID, $bamBrokerInfoData['reporting']);
+    }
 
-        foreach ($bamBrokerInfoData['reporting'] as $row) {
-            $row['config_id'] = $this->brokerID;
-            $this->insertWithAdapter('cfg_centreonbroker_info', $row);
+    /**
+     * Insert the broker inputs/outputs described by rows of the former cfg_centreonbroker_info encoding
+     * (config_group, config_group_id, config_key, config_value...), one record per input/output.
+     *
+     * @param int $configId the broker configuration id
+     * @param iterable<_BrokerInfoRow> $rows rows of inputs/outputs of this configuration, in insertion order
+     *
+     * @throws \Exception
+     */
+    protected function insertBrokerInputsOutputs(int $configId, iterable $rows): void
+    {
+        foreach (BrokerInfoRowsConverter::convert($rows) as $inputOutput) {
+            $this->insertWithAdapter('cfg_centreonbroker_input_output', [
+                'config_id' => $configId,
+                'tag' => $inputOutput->tag,
+                'input_output_id' => $inputOutput->id,
+                'name' => $inputOutput->name,
+                'type_id' => $inputOutput->typeId,
+                'type' => $inputOutput->type,
+                'parameters' => $inputOutput->encodeParameters(),
+            ]);
         }
     }
 

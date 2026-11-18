@@ -87,16 +87,17 @@ class RemoteConnectionConfigurationService extends ServerConnectionConfiguration
      */
     private function insertBrokerInfo(int $configurationId, array $brokerInfo): void
     {
+        $rows = [];
         foreach ($brokerInfo as $brokerConfig => $brokerData) {
             foreach ($brokerData as $row) {
-                $row['config_id'] = $configurationId;
-
                 if ($brokerConfig === 'output_forward' && $row['config_key'] === 'host') {
                     $row['config_value'] = $this->centralIp;
                 }
 
-                $this->insertWithAdapter('cfg_centreonbroker_info', $row);
+                $rows[] = $row;
             }
         }
+
+        $this->insertBrokerInputsOutputs($configurationId, $rows);
     }
 }

@@ -23,6 +23,8 @@ namespace CentreonClapi;
 
 use Centreon_Object_Broker;
 use CentreonConfigCentreonBroker;
+use Core\Broker\Infrastructure\Repository\BrokerInfoRowsConverter;
+use Core\Broker\Infrastructure\Repository\StoredBrokerInputOutput;
 use Exception;
 use PDOException;
 use Pimple\Container;
@@ -376,17 +378,14 @@ class CentreonCentbrokerCfg extends CentreonObject
                 . $element['config_name'] . $this->delim
                 . 'event_queues_total_size' . $this->delim
                 . ($element['event_queues_total_size'] ?? '') . "\n";
-            $sql = 'SELECT config_key, config_value, config_group, config_group_id
-            		FROM cfg_centreonbroker_info
-            		WHERE config_id = ?
-            		ORDER BY config_group_id';
-            $res = $this->db->query($sql, [$element['config_id']]);
             $blockId = [];
             $categories = [];
             $addParamStr = [];
             $setParamStr = [];
-            $resultSet = $res->fetchAll();
-            unset($res);
+            $resultSet = [];
+            foreach ($this->findFlows($element['config_id']) as $flow) {
+                array_push($resultSet, ...$flow->toLegacyRows());
+            }
             foreach ($resultSet as $row) {
                 if (
                     $row['config_key'] != 'name'
@@ -504,20 +503,12 @@ class CentreonCentbrokerCfg extends CentreonObject
      */
     protected function fieldIsValid($configId, $tagName, $args)
     {
-        $sql = "SELECT config_value
-        		FROM cfg_centreonbroker_info
-        		WHERE config_key = 'blockId'
-        		AND config_id = ?
-        		AND config_group_id = ?
-        		AND config_group = ?";
-        $res = $this->db->query($sql, [$configId, $args[1], $tagName]);
-        $row = $res->fetch();
-        unset($res);
-        if (! isset($row['config_value'])) {
+        $flow = $this->findFlow($configId, $tagName, $args[1]);
+        if ($flow === null || $flow->typeId === null) {
             return false;
         }
 
-        [$tagId, $typeId] = explode('_', $row['config_value']);
+        $typeId = $flow->typeId;
         $sql = 'SELECT fieldtype, cf.cb_field_id, ct.cb_module_id
         		FROM cb_type_field_relation ctfr, cb_field cf, cb_type ct
         		WHERE ctfr.cb_field_id = cf.cb_field_id
@@ -609,12 +600,11 @@ class CentreonCentbrokerCfg extends CentreonObject
      */
     private function listFlow($configId, $tagName, $args): void
     {
-        $query = 'SELECT config_group_id as id, config_value as name '
-            . 'FROM cfg_centreonbroker_info '
+        $query = 'SELECT input_output_id as id, name '
+            . 'FROM cfg_centreonbroker_input_output '
             . 'WHERE config_id = ? '
-            . 'AND config_group = ? '
-            . "AND config_key = 'name' "
-            . 'ORDER BY config_group_id ';
+            . 'AND tag = ? '
+            . 'ORDER BY input_output_id ';
         $res = $this->db->query($query, [$configId, $tagName]);
 
         echo "id;name\n";
@@ -639,16 +629,19 @@ class CentreonCentbrokerCfg extends CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
-        $query = 'SELECT config_key, config_value '
-            . 'FROM cfg_centreonbroker_info '
-            . 'WHERE config_id = ? '
-            . 'AND config_group_id = ? '
-            . 'AND config_group = ? '
-            . 'ORDER BY config_key ';
-        $res = $this->db->query($query, [$configId, $args[1], $tagName]);
+        $flow = $this->findFlow($configId, $tagName, $args[1]);
+        $rows = $flow === null ? [] : $flow->toLegacyRows();
+        // Same order as "ORDER BY config_key" on the former table (case-insensitive utf8_general_ci collation).
+        usort(
+            $rows,
+            static fn (array $left, array $right): int => strcmp(
+                strtoupper($left['config_key']),
+                strtoupper($right['config_key'])
+            )
+        );
 
         echo "parameter key;parameter value\n";
-        while ($row = $res->fetch()) {
+        foreach ($rows as $row) {
             if ($row['config_key'] != 'blockId') {
                 echo $row['config_key'] . $this->delim . $row['config_value'] . "\n";
             }
@@ -677,37 +670,57 @@ class CentreonCentbrokerCfg extends CentreonObject
 
         $multiselect = $this->getMultiselect();
 
-        $query = 'DELETE FROM cfg_centreonbroker_info '
-            . 'WHERE config_id = :config_id '
-            . 'AND config_group_id = :config_group_id '
-            . 'AND config_key = :config_key '
-            . 'AND config_group = :config_group ';
-        $this->db->query(
-            $query,
-            [':config_id' => $configId, ':config_group_id' => $args[1], ':config_key' => $args[2], ':config_group' => $tagName]
-        );
-        $sql = 'INSERT INTO cfg_centreonbroker_info '
-            . '(config_id, config_group_id, config_key, '
-            . 'config_value, config_group, grp_level, '
-            . 'parent_grp_id, subgrp_id) '
-            . 'VALUES (?,?,?,?,?,?,?,?)';
+        $flow = $this->findFlow($configId, $tagName, $args[1]);
+        if ($flow === null) {
+            throw new CentreonClapiException(self::INVALIDFIELD);
+        }
+
+        // The rows of the key are replaced by the new values, then the rows are stored back as one input/output.
+        $rows = array_values(array_filter(
+            $flow->toLegacyRows(),
+            static fn (array $row): bool => $row['config_key'] !== $args[2]
+        ));
+        $newRow = static fn (string $key, string $value, int $grpLevel, ?int $parentGrpId, ?int $subgrpId): array => [
+            'config_group' => $flow->tag,
+            'config_group_id' => $flow->id,
+            'config_key' => $key,
+            'config_value' => $value,
+            'grp_level' => $grpLevel,
+            'subgrp_id' => $subgrpId,
+            'parent_grp_id' => $parentGrpId,
+            'fieldIndex' => null,
+        ];
 
         $grplvl = 0;
         $parentgrpid = null;
         if (isset($multiselect[$args[2]])) {
-            $this->db->query(
-                $sql,
-                [$configId, $args[1], $multiselect[$args[2]]['groupname'], '', $tagName, 0, null, 1]
-            );
+            $rows[] = $newRow($multiselect[$args[2]]['groupname'], '', 0, null, 1);
             $grplvl = 1;
-            $parentgrpid = $multiselect[$args[2]]['groupid'];
+            $parentgrpid = (int) $multiselect[$args[2]]['groupid'];
         }
 
         $values = explode(',', $args[3]);
         foreach ($values as $value) {
+            $rows[] = $newRow($args[2], $value, $grplvl, $parentgrpid, null);
+        }
+
+        $sql = 'UPDATE cfg_centreonbroker_input_output '
+            . 'SET name = ?, type_id = ?, type = ?, parameters = ? '
+            . 'WHERE config_id = ? '
+            . 'AND tag = ? '
+            . 'AND input_output_id = ? ';
+        foreach (BrokerInfoRowsConverter::convert($rows) as $updatedFlow) {
             $this->db->query(
                 $sql,
-                [$configId, $args[1], $args[2], $value, $tagName, $grplvl, $parentgrpid, null]
+                [
+                    $updatedFlow->name,
+                    $updatedFlow->typeId,
+                    $updatedFlow->type,
+                    $updatedFlow->encodeParameters(),
+                    $configId,
+                    $updatedFlow->tag,
+                    $updatedFlow->id,
+                ]
             );
         }
     }
@@ -754,16 +767,15 @@ class CentreonCentbrokerCfg extends CentreonObject
             $defaultValues[$field['fieldname']] = $field['value'];
         }
 
-        $sql = 'SELECT config_value '
-            . 'FROM cfg_centreonbroker_info '
+        $sql = 'SELECT name '
+            . 'FROM cfg_centreonbroker_input_output '
             . 'WHERE config_id = ? '
-            . "AND config_key = 'name' "
-            . 'AND config_group = ? ';
+            . 'AND tag = ? ';
         $res = $this->db->query($sql, [$configId, $tagName]);
 
         $listName = [];
         while ($list = $res->fetch()) {
-            $listName[] = $list['config_value'];
+            $listName[] = $list['name'];
         }
 
         if (in_array($args[1], $listName)) {
@@ -771,40 +783,42 @@ class CentreonCentbrokerCfg extends CentreonObject
         }
 
         $blockId = $this->getBlockId($tagName, $args[2]);
-        $sql = 'SELECT MAX(config_group_id) as max_id '
-            . 'FROM cfg_centreonbroker_info '
+        $sql = 'SELECT MAX(input_output_id) as max_id '
+            . 'FROM cfg_centreonbroker_input_output '
             . 'WHERE config_id = ? '
-            . 'AND config_group = ? ';
+            . 'AND tag = ? ';
         $res = $this->db->query($sql, [$configId, $tagName]);
         $row = $res->fetch();
         $i = isset($row['max_id']) ? $row['max_id'] + 1 : 0;
         unset($res);
 
-        $sql = 'INSERT INTO cfg_centreonbroker_info '
-            . '(config_id, config_key, config_value, '
-            . 'config_group, config_group_id) '
-            . 'VALUES (:config_id, :config_key, :config_value, '
-            . ':config_group, :config_group_id)';
-
-        $sqlParams = [':config_id' => $configId, ':config_key' => 'blockId', ':config_value' => $blockId, ':config_group' => $tagName, ':config_group_id' => $i];
-        $this->db->query($sql, $sqlParams);
+        $newRow = static fn (string $key, string $value): array => [
+            'config_group' => $tagName,
+            'config_group_id' => $i,
+            'config_key' => $key,
+            'config_value' => $value,
+        ];
+        $rows = [$newRow('blockId', $blockId)];
 
         $values = explode(',', $args[1]);
         foreach ($values as $value) {
-            $sqlParams[':config_key'] = 'type';
-            $sqlParams[':config_value'] = $args[2];
-            $this->db->query($sql, $sqlParams);
-
-            $sqlParams[':config_key'] = 'name';
-            $sqlParams[':config_value'] = $value;
-            $this->db->query($sql, $sqlParams);
+            $rows[] = $newRow('type', $args[2]);
+            $rows[] = $newRow('name', $value);
         }
 
         unset($defaultValues['name']);
         foreach ($defaultValues as $key => $value) {
-            $sqlParams[':config_key'] = $key;
-            $sqlParams[':config_value'] = $value;
-            $this->db->query($sql, $sqlParams);
+            $rows[] = $newRow((string) $key, (string) $value);
+        }
+
+        $sql = 'INSERT INTO cfg_centreonbroker_input_output '
+            . '(config_id, tag, input_output_id, name, type_id, type, parameters) '
+            . 'VALUES (?, ?, ?, ?, ?, ?, ?)';
+        foreach (BrokerInfoRowsConverter::convert($rows) as $flow) {
+            $this->db->query(
+                $sql,
+                [$configId, $flow->tag, $flow->id, $flow->name, $flow->typeId, $flow->type, $flow->encodeParameters()]
+            );
         }
     }
 
@@ -824,10 +838,57 @@ class CentreonCentbrokerCfg extends CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
-        $sql = 'DELETE FROM cfg_centreonbroker_info '
+        $sql = 'DELETE FROM cfg_centreonbroker_input_output '
             . 'WHERE config_id = ? '
-            . 'AND config_group_id = ? '
-            . 'AND config_group = ? ';
+            . 'AND input_output_id = ? '
+            . 'AND tag = ? ';
         $this->db->query($sql, [$configId, $args[1], $tagName]);
+    }
+
+    /**
+     * Find the inputs/outputs of a broker configuration, ordered by id
+     *
+     * @param int|string $configId
+     *
+     * @throws PDOException
+     * @return list<StoredBrokerInputOutput>
+     */
+    private function findFlows($configId): array
+    {
+        $sql = 'SELECT tag, input_output_id, name, type_id, type, parameters '
+            . 'FROM cfg_centreonbroker_input_output '
+            . 'WHERE config_id = ? '
+            . 'ORDER BY input_output_id, tag ';
+        $res = $this->db->query($sql, [$configId]);
+
+        $flows = [];
+        while ($row = $res->fetch()) {
+            $flows[] = StoredBrokerInputOutput::fromRecord($row);
+        }
+
+        return $flows;
+    }
+
+    /**
+     * Find an input/output of a broker configuration
+     *
+     * @param int|string $configId
+     * @param string $tagName
+     * @param int|string $flowId
+     *
+     * @throws PDOException
+     * @return StoredBrokerInputOutput|null
+     */
+    private function findFlow($configId, $tagName, $flowId): ?StoredBrokerInputOutput
+    {
+        $sql = 'SELECT tag, input_output_id, name, type_id, type, parameters '
+            . 'FROM cfg_centreonbroker_input_output '
+            . 'WHERE config_id = ? '
+            . 'AND tag = ? '
+            . 'AND input_output_id = ? ';
+        $res = $this->db->query($sql, [$configId, $tagName, $flowId]);
+        $row = $res->fetch();
+
+        return is_array($row) ? StoredBrokerInputOutput::fromRecord($row) : null;
     }
 }

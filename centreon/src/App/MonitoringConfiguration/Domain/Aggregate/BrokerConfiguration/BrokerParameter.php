@@ -26,8 +26,9 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\BrokerConfiguration;
 use Webmozart\Assert\Assert;
 
 /**
- * One `cfg_centreonbroker_info` row: a single key/value pair inside a flow, plus its
- * hierarchical positioning columns.
+ * A single key/value pair inside a flow, expressed in the former `cfg_centreonbroker_info` row
+ * encoding (key, value and hierarchical positioning columns). The persistence layer encodes these
+ * pairs into the `parameters` JSON of `cfg_centreonbroker_input_output`.
  */
 final readonly class BrokerParameter
 {

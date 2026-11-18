@@ -23,6 +23,7 @@ require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
+use Core\Broker\Infrastructure\Repository\StoredBrokerInputOutput;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
@@ -364,16 +365,28 @@ function getCfgBrokerInfoData(int $configId): array
     global $pearDB;
 
     $query = <<<'SQL'
-        SELECT config_key, config_value, config_group, config_group_id, fieldIndex
-        FROM cfg_centreonbroker_info
+        SELECT tag, input_output_id, name, type_id, type, parameters
+        FROM cfg_centreonbroker_input_output
         WHERE config_id = :config_id
+        ORDER BY tag, input_output_id
         SQL;
     try {
         $statement = $pearDB->prepare($query);
         $statement->bindValue(':config_id', $configId, PDO::PARAM_INT);
         $statement->execute();
-        $cfgBrokerInfoData = $statement->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $exception) {
+        $cfgBrokerInfoData = [];
+        while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
+            foreach (StoredBrokerInputOutput::fromRecord($record)->toLegacyRows() as $row) {
+                $cfgBrokerInfoData[] = [
+                    'config_key' => $row['config_key'],
+                    'config_value' => $row['config_value'],
+                    'config_group' => $row['config_group'],
+                    'config_group_id' => $row['config_group_id'],
+                    'fieldIndex' => $row['fieldIndex'],
+                ];
+            }
+        }
+    } catch (PDOException|JsonException $exception) {
         throw new Exception('Cannot fetch Broker info config data');
     }
     $statement->closeCursor();

@@ -108,9 +108,9 @@ $elemArr = [];
 $centreonToken = createCSRFToken();
 
 $statementBrokerInfo = $pearDB->prepare(
-    'SELECT COUNT(DISTINCT(config_group_id)) as num '
-    . 'FROM cfg_centreonbroker_info '
-    . 'WHERE config_group = :config_group '
+    'SELECT COUNT(*) as num '
+    . 'FROM cfg_centreonbroker_input_output '
+    . 'WHERE tag = :config_group '
     . 'AND config_id = :config_id'
 );
 

@@ -71,10 +71,10 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
-                DELETE FROM cfg_centreonbroker_info
+                DELETE FROM `:db`.`cfg_centreonbroker_input_output`
                 WHERE config_id = :brokerId
-                    AND config_group_id = :outputId
-                    AND config_group = :tag
+                    AND input_output_id = :outputId
+                    AND tag = :tag
                 SQL
         ));
 
@@ -99,74 +99,72 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
         BrokerInputOutput|NewBrokerInputOutput $inputOutput,
         array $fields,
     ): void {
-        $query = <<<'SQL'
-            INSERT INTO `:db`.`cfg_centreonbroker_info` (
-                config_id,
-                config_key,
-                config_value,
-                config_group,
-                config_group_id,
-                grp_level,
-                subgrp_id,
-                parent_grp_id,
-                fieldIndex
-            ) VALUES
-            SQL;
+        $tag = $inputOutput->getTag();
+        $rows = [
+            ['config_key' => 'type', 'config_value' => $inputOutput->getType()->name],
+            ['config_key' => 'name', 'config_value' => $inputOutput->getName()],
+            [
+                'config_key' => 'blockId',
+                'config_value' => ($tag === 'input' ? '2' : '1') . "_{$inputOutput->getType()->id}",
+            ],
+            ...$this->getParameterRows($fields, $inputOutput->getParameters()),
+        ];
+        $rows = array_map(
+            static fn (array $row): array => [
+                ...$row,
+                'config_group' => $tag,
+                'config_group_id' => $inputOutputId,
+            ],
+            $rows
+        );
 
-        $inserts = [];
-        $inserts[] = <<<'SQL'
-            (:brokerId, 'type', :typeName, :tag, :inputOutputId, 0, null, null, null)
-            SQL;
-        $inserts[] = <<<'SQL'
-            (:brokerId, 'name', :name, :tag, :inputOutputId, 0, null, null, null)
-            SQL;
-        $inserts[] = <<<'SQL'
-            (:brokerId, 'blockId', :blockId, :tag, :inputOutputId, 0, null, null, null)
-            SQL;
-
-        [$paramInserts, $bindValues] = $this->getInsertQueries($fields, $inputOutput->getParameters());
-        $inserts = [...$inserts, ...$paramInserts];
-
-        $request = $query . ' ' . implode(',', $inserts);
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        $statement->bindValue(':inputOutputId', $inputOutputId, \PDO::PARAM_INT);
-        $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);
-        $statement->bindValue(':typeName', $inputOutput->getType()->name, \PDO::PARAM_STR);
-        $statement->bindValue(':tag', $inputOutput->getTag(), \PDO::PARAM_STR);
-        $statement->bindValue(':name', $inputOutput->getName(), \PDO::PARAM_STR);
-        $blockId = ($inputOutput->getTag() === 'input' ? '2' : '1') . "_{$inputOutput->getType()->id}";
-        $statement->bindValue(':blockId', $blockId, \PDO::PARAM_STR);
-        foreach ($bindValues as $key => $value) {
-            if (str_starts_with($key, ':key_') || str_starts_with($key, ':value_')) {
-                $statement->bindValue($key, $value, \PDO::PARAM_STR);
-            } else {
-                $statement->bindValue($key, $value, \PDO::PARAM_INT);
-            }
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.`cfg_centreonbroker_input_output` (
+                    config_id,
+                    tag,
+                    input_output_id,
+                    name,
+                    type_id,
+                    type,
+                    parameters
+                ) VALUES (
+                    :brokerId,
+                    :tag,
+                    :inputOutputId,
+                    :name,
+                    :typeId,
+                    :type,
+                    :parameters
+                )
+                SQL
+        ));
+        foreach (BrokerInfoRowsConverter::convert($rows) as $storedInputOutput) {
+            $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);
+            $statement->bindValue(':tag', $storedInputOutput->tag, \PDO::PARAM_STR);
+            $statement->bindValue(':inputOutputId', $storedInputOutput->id, \PDO::PARAM_INT);
+            $statement->bindValue(':name', $storedInputOutput->name, \PDO::PARAM_STR);
+            $statement->bindValue(':typeId', $storedInputOutput->typeId, \PDO::PARAM_INT);
+            $statement->bindValue(':type', $storedInputOutput->type, \PDO::PARAM_STR);
+            $statement->bindValue(':parameters', $storedInputOutput->encodeParameters(), \PDO::PARAM_STR);
+            $statement->execute();
         }
-
-        $statement->execute();
     }
 
     /**
-     * Build the insert elements of the add input/output query.
-     * Return an array containing :
-     * - an array of the query elements
-     * - an array of all the values to bind.
+     * Build the parameter rows of an input/output, in the former cfg_centreonbroker_info encoding.
      *
      * @param array<string,BrokerInputOutputField|array<string,BrokerInputOutputField>> $fields expected fields informations for the input/output
      * @param _BrokerInputOutputParameter[] $values input/output parameter values
      *
-     * @return array{string[],array<int|string|null>}
+     * @return list<array{config_key:string,config_value:string,subgrp_id?:int,fieldIndex?:int}>
      */
-    private function getInsertQueries(
+    private function getParameterRows(
         array $fields,
         array $values,
     ): array {
-        $inserts = [];
-        $bindValues = [];
+        $rows = [];
 
-        $index = 0;
         foreach ($fields as $fieldName => $fieldInfo) {
             if (is_array($fieldInfo)) {
                 if (($subField = current($fieldInfo)) && $subField->getType() === 'multiselect') {
@@ -182,48 +180,26 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
                         continue;
                     }
 
-                    $multiselectInserts = [];
-                    $multiselectBindValues = [];
-
-                    $multiselectInserts[] = <<<SQL
-                        (:brokerId, :key_{$index}, :value_{$index}, :tag, :inputOutputId, 0, 1, null, null)
-                        SQL;
-
-                    $multiselectBindValues[":key_{$index}"] = $fieldName;
-                    $multiselectBindValues[":value_{$index}"] = '';
-
-                    foreach ($values[$composedName] as $subIndex => $subValue) {
+                    $multiselectRows = [];
+                    foreach ($values[$composedName] as $subValue) {
                         if (! is_string($subValue) || $subValue === '') {
                             // multiselect value not provied, skip value.
                             continue;
                         }
 
-                        $composedIndex = "{$index}_{$subIndex}";
-                        $multiselectInserts[] = <<<SQL
-                            (
-                                :brokerId,
-                                :key_{$composedIndex},
-                                :value_{$composedIndex},
-                                :tag,
-                                :inputOutputId,
-                                1,
-                                null,
-                                1,
-                                null
-                            )
-                            SQL;
-
-                        $multiselectBindValues[":key_{$composedIndex}"] = $subField->getName();
-                        $multiselectBindValues[":value_{$composedIndex}"] = $subValue;
+                        $multiselectRows[] = ['config_key' => $subField->getName(), 'config_value' => $subValue];
                     }
 
-                    if (count($multiselectInserts) <= 1) {
+                    if ($multiselectRows === []) {
                         // no values for multiselect, skip multiselect field.
                         continue;
                     }
 
-                    $inserts = [...$inserts, ...$multiselectInserts];
-                    $bindValues = [...$bindValues, ...$multiselectBindValues];
+                    $rows = [
+                        ...$rows,
+                        ['config_key' => $fieldName, 'config_value' => '', 'subgrp_id' => 1],
+                        ...$multiselectRows,
+                    ];
                 } else {
                     // grouped fields
 
@@ -238,10 +214,8 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
                             continue;
                         }
 
-                        $groupedInserts = [];
-                        $groupedBindValues = [];
+                        $groupedRows = [];
                         $empty = [];
-                        $groupedFieldIndex = 0;
                         foreach ($fieldInfo as $groupedFieldName => $groupFieldInfo) {
                             if (
                                 ! isset($groupedValues[$groupedFieldName])
@@ -258,26 +232,11 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
                                 }
                             }
 
-                            $composedIndex = "{$index}_{$groupIndex}_{$groupedFieldIndex}";
-                            $groupedInserts[] = <<<SQL
-                                (
-                                    :brokerId,
-                                    :key_{$composedIndex},
-                                    :value_{$composedIndex},
-                                    :tag,
-                                    :inputOutputId,
-                                    0,
-                                    null,
-                                    null,
-                                    :fieldIndex_{$composedIndex}
-                                )
-                                SQL;
-
-                            $groupedBindValues[":key_{$composedIndex}"] = "{$fieldName}__{$groupedFieldName}";
-                            $groupedBindValues[":value_{$composedIndex}"] = $groupedValues[$groupedFieldName];
-                            $groupedBindValues[":fieldIndex_{$composedIndex}"] = $groupIndex;
-
-                            ++$groupedFieldIndex;
+                            $groupedRows[] = [
+                                'config_key' => "{$fieldName}__{$groupedFieldName}",
+                                'config_value' => $groupedValues[$groupedFieldName],
+                                'fieldIndex' => (int) $groupIndex,
+                            ];
                         }
 
                         if (array_diff(['value', 'name'], $empty) === []) {
@@ -285,8 +244,7 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
                             continue;
                         }
 
-                        $inserts = [...$inserts, ...$groupedInserts];
-                        $bindValues = [...$bindValues, ...$groupedBindValues];
+                        $rows = [...$rows, ...$groupedRows];
                     }
                 }
             } else {
@@ -301,27 +259,20 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
                 }
 
                 // simple field
-                $inserts[] = <<<SQL
-                    (:brokerId, :key_{$index}, :value_{$index}, :tag, :inputOutputId, 0, null, null, null)
-                    SQL;
-
-                $bindValues[":key_{$index}"] = $fieldName;
-                $bindValues[":value_{$index}"] = $values[$fieldName];
+                $rows[] = ['config_key' => $fieldName, 'config_value' => (string) $values[$fieldName]];
             }
-
-            ++$index;
         }
 
-        return [$inserts, $bindValues];
+        return $rows;
     }
 
     private function getNextOutputId(int $brokerId, string $tag): int
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
-                SELECT MAX(config_group_id)
-                FROM `:db`.`cfg_centreonbroker_info`
-                WHERE config_id = :brokerId && config_group = :tag
+                SELECT MAX(input_output_id)
+                FROM `:db`.`cfg_centreonbroker_input_output`
+                WHERE config_id = :brokerId AND tag = :tag
                 SQL
         ));
         $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);

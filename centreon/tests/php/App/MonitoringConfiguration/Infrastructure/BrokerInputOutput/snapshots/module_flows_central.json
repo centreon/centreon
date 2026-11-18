@@ -1,0 +1,143 @@
+{
+    "central-modules.json": {
+        "centreonBroker": {
+            "broker_id": "<broker-0>",
+            "broker_name": "central-modules",
+            "poller_id": 9100,
+            "uid": 100000000009100,
+            "poller_name": "broker-io-poller-9100",
+            "module_directory": "/usr/share/centreon/lib/centreon-broker",
+            "log_timestamp": false,
+            "log_thread_id": false,
+            "event_queue_max_size": 100000,
+            "command_file": "/var/lib/centreon-broker/command.sock",
+            "cache_directory": "/var/lib/centreon-broker",
+            "bbdo_version": "3.1.0",
+            "log": {
+                "directory": "/var/log/centreon-broker",
+                "filename": "central-modules.log",
+                "max_size": 0,
+                "loggers": {
+                    "core": "error",
+                    "config": "error",
+                    "sql": "error",
+                    "processing": "error",
+                    "perfdata": "error",
+                    "bbdo": "error",
+                    "tcp": "error",
+                    "tls": "error",
+                    "lua": "error",
+                    "bam": "error",
+                    "neb": "error",
+                    "rrd": "error",
+                    "grpc": "error",
+                    "influxdb": "error",
+                    "graphite": "error",
+                    "victoria_metrics": "error",
+                    "stats": "error"
+                }
+            },
+            "output": [
+                {
+                    "port": "5758",
+                    "name": "centreon-map",
+                    "filters": {
+                        "category": [
+                            "bam",
+                            "neb"
+                        ]
+                    },
+                    "type": "ipv4",
+                    "compression": "auto",
+                    "one_peer_retention_mode": "no",
+                    "retry_interval": "60",
+                    "buffering_timeout": "0",
+                    "protocol": "bbdo",
+                    "tls": "auto",
+                    "negociation": "yes"
+                },
+                {
+                    "command_file": "/var/lib/centreon-engine/rw/centengine.cmd",
+                    "queries_per_transaction": "0",
+                    "storage_db_name": "centreon_storage",
+                    "db_port": "3306",
+                    "db_password": "bam-secret",
+                    "db_type": "mysql",
+                    "db_user": "centreon",
+                    "db_name": "centreon",
+                    "cache": "yes",
+                    "type": "bam",
+                    "name": "centreon-bam-monitoring",
+                    "db_host": "localhost"
+                },
+                {
+                    "db_user": "centreon",
+                    "filters": {
+                        "category": [
+                            "bam"
+                        ]
+                    },
+                    "queries_per_transaction": "0",
+                    "db_port": "3306",
+                    "db_password": "bam-secret",
+                    "db_host": "localhost",
+                    "db_type": "mysql",
+                    "db_name": "centreon_storage",
+                    "type": "bam_bi",
+                    "name": "centreon-bam-reporting"
+                },
+                {
+                    "name": "forward-to-anomaly-detection",
+                    "path": "/usr/share/centreon-broker/lua/centreon-anomaly-detection.lua",
+                    "type": "lua",
+                    "lua_parameter": [
+                        {
+                            "type": "string",
+                            "name": "centreon_platform_uuid",
+                            "value": "<platform-uuid>"
+                        },
+                        {
+                            "type": "string",
+                            "name": "destination",
+                            "value": "https://saas.example.com"
+                        },
+                        {
+                            "type": "number",
+                            "name": "max_queue_size",
+                            "value": "100"
+                        },
+                        {
+                            "type": "string",
+                            "name": "token",
+                            "value": "saas-token"
+                        }
+                    ]
+                }
+            ],
+            "stats": [
+                {
+                    "type": "stats",
+                    "name": "central-modules-stats",
+                    "json_fifo": "/var/lib/centreon-broker/central-modules-stats.json"
+                }
+            ],
+            "grpc": {
+                "port": "<51000 + broker-0>"
+            }
+        }
+    },
+    "watchdog.json": {
+        "centreonBroker": {
+            "cbd": [
+                {
+                    "name": "central-modules",
+                    "configuration_file": "/etc/centreon-broker/central-modules.json",
+                    "run": true,
+                    "reload": true
+                }
+            ],
+            "log": "/var/log/centreon-broker/watchdog.log"
+        }
+    },
+    "php-warnings": []
+}

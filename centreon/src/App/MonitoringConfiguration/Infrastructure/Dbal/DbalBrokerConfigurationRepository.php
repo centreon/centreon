@@ -36,6 +36,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class DbalBrokerConfigurationRepository extends DbalRepository implements BrokerConfigurationRepository
 {
+    private const FILTERS_PARENT_KEY = 'filters';
+    private const FILTER_CATEGORY_KEY = 'category';
+    private const FILTER_EVENT_KEY = 'event';
+
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
@@ -46,7 +50,7 @@ final readonly class DbalBrokerConfigurationRepository extends DbalRepository im
     {
         $this->connection->transactional(function () use ($brokerConfiguration): void {
             $this->insertCfgCentreonBroker($brokerConfiguration);
-            $this->insertCfgCentreonBrokerInfo($brokerConfiguration);
+            $this->insertCfgCentreonBrokerInputOutputs($brokerConfiguration);
             $this->insertCfgCentreonBrokerLog($brokerConfiguration);
         });
     }
@@ -56,30 +60,24 @@ final readonly class DbalBrokerConfigurationRepository extends DbalRepository im
         $qb = $this->connection->createQueryBuilder();
 
         $token = $qb
-            ->select('auth.config_value')
+            ->select('JSON_UNQUOTE(JSON_EXTRACT(io.parameters, :authPath))')
             ->from('cfg_centreonbroker', 'cb')
             ->innerJoin('cb', 'nagios_server', 'ns', 'cb.ns_nagios_server = ns.id')
-            ->innerJoin('cb', 'cfg_centreonbroker_info', 'typ', (string) $qb->expr()->and(
-                'typ.config_id = cb.config_id',
-                'typ.config_group = :inputGroup',
-                'typ.config_key = :typeKey',
-                'typ.config_value = :bbdoServer',
-            ))
-            ->innerJoin('cb', 'cfg_centreonbroker_info', 'auth', (string) $qb->expr()->and(
-                'auth.config_id = cb.config_id',
-                'auth.config_group = :inputGroup',
-                'auth.config_key = :authKey',
-                'auth.config_group_id = typ.config_group_id',
+            ->innerJoin('cb', 'cfg_centreonbroker_input_output', 'io', (string) $qb->expr()->and(
+                'io.config_id = cb.config_id',
+                'io.tag = :inputTag',
+                'io.type = :bbdoServer',
             ))
             // `localhost` and `config_activate` are ENUM('0','1'); comparing an ENUM to an integer
             // matches by ordinal index (1 -> the first value '0'), not by value. Compare to the
             // string '1' so the central, activated broker actually matches.
             ->where("ns.localhost = '1'")
             ->andWhere("cb.config_activate = '1'")
-            ->setParameter('inputGroup', BrokerFlowGroupEnum::Input->value)
-            ->setParameter('typeKey', BrokerConfigKey::TYPE)
+            ->andWhere('JSON_EXTRACT(io.parameters, :authPathFilter) IS NOT NULL')
+            ->setParameter('inputTag', BrokerFlowGroupEnum::Input->value)
             ->setParameter('bbdoServer', BrokerStreamTypeEnum::BbdoServer->value)
-            ->setParameter('authKey', BrokerConfigKey::AUTHORIZATION)
+            ->setParameter('authPath', '$.' . BrokerConfigKey::AUTHORIZATION)
+            ->setParameter('authPathFilter', '$.' . BrokerConfigKey::AUTHORIZATION)
             ->setMaxResults(1)
             ->executeQuery()
             ->fetchOne();
@@ -93,7 +91,7 @@ final readonly class DbalBrokerConfigurationRepository extends DbalRepository im
 
     /**
      * INSERT the `cfg_centreonbroker` header row, then assign the generated id to the aggregate
-     * (needed by the `cfg_centreonbroker_info` / `_log` inserts). `bbdo_version` is left to its
+     * (needed by the `cfg_centreonbroker_input_output` / `_log` inserts). `bbdo_version` is left to its
      * DB default (`3.1.0`), matching the wizard.
      */
     private function insertCfgCentreonBroker(BrokerConfiguration $brokerConfiguration): void
@@ -141,7 +139,14 @@ final readonly class DbalBrokerConfigurationRepository extends DbalRepository im
         $this->setId($brokerConfiguration, new BrokerConfigurationId($configId));
     }
 
-    private function insertCfgCentreonBrokerInfo(BrokerConfiguration $brokerConfiguration): void
+    /**
+     * INSERT one `cfg_centreonbroker_input_output` record per flow. The `type`/`type_id` columns are
+     * derived from the stream kind (name -> `cb_type.cb_type_id`): the Domain speaks in names, the
+     * Infrastructure resolves ids.
+     *
+     * @throws \JsonException
+     */
+    private function insertCfgCentreonBrokerInputOutputs(BrokerConfiguration $brokerConfiguration): void
     {
         $configId = $brokerConfiguration->id()->value;
 
@@ -149,22 +154,6 @@ final readonly class DbalBrokerConfigurationRepository extends DbalRepository im
         $typeIds = $this->connection->fetchAllKeyValue('SELECT type_shortname, cb_type_id FROM cb_type');
 
         foreach ($brokerConfiguration->flows as $flow) {
-            foreach ($flow->parameters as $parameter) {
-                $this->insertCfgCentreonBrokerInfoRow(
-                    $configId,
-                    $flow,
-                    $parameter->configKey,
-                    $parameter->configValue,
-                    $parameter->groupLevel,
-                    $parameter->subGroupId,
-                    $parameter->parentGroupId,
-                    $parameter->fieldIndex,
-                );
-            }
-
-            // The stream kind is modeled as BrokerStreamTypeEnum; the Domain never hand-writes the
-            // `type`/`blockId` meta rows. Derive them here (name -> cb_type.id) exactly as the
-            // logger rows are resolved below — Domain speaks in names, Infrastructure resolves ids.
             $typeName = $flow->type->value;
             if (! array_key_exists($typeName, $typeIds)) {
                 throw new \RuntimeException(sprintf(
@@ -173,61 +162,85 @@ final readonly class DbalBrokerConfigurationRepository extends DbalRepository im
                 ));
             }
 
-            $this->insertCfgCentreonBrokerInfoRow($configId, $flow, BrokerConfigKey::TYPE, $typeName);
-            $this->insertCfgCentreonBrokerInfoRow(
-                $configId,
-                $flow,
-                BrokerConfigKey::BLOCK_ID,
-                $this->blockPrefix($flow->group) . '_' . $typeIds[$typeName],
-            );
+            [$name, $parameters] = $this->encodeFlowParameters($flow);
+
+            $this->connection->createQueryBuilder()
+                ->insert('cfg_centreonbroker_input_output')
+                ->values([
+                    'config_id' => ':config_id',
+                    'tag' => ':tag',
+                    'input_output_id' => ':input_output_id',
+                    'name' => ':name',
+                    'type_id' => ':type_id',
+                    'type' => ':type',
+                    'parameters' => ':parameters',
+                ])
+                ->setParameter('config_id', $configId)
+                ->setParameter('tag', $flow->group->value)
+                ->setParameter('input_output_id', $flow->groupId)
+                ->setParameter('name', $name)
+                ->setParameter('type_id', (int) $typeIds[$typeName])
+                ->setParameter('type', $typeName)
+                ->setParameter(
+                    'parameters',
+                    json_encode(
+                        $parameters === [] ? new \stdClass() : $parameters,
+                        JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+                    ),
+                )
+                ->executeStatement();
         }
     }
 
-    private function insertCfgCentreonBrokerInfoRow(
-        int $configId,
-        BrokerInputOutput $flow,
-        string $configKey,
-        string $configValue,
-        int $groupLevel = 0,
-        ?int $subGroupId = null,
-        ?int $parentGroupId = null,
-        ?int $fieldIndex = null,
-    ): void {
-        $this->connection->createQueryBuilder()
-            ->insert('cfg_centreonbroker_info')
-            ->values([
-                'config_id' => ':config_id',
-                'config_key' => ':config_key',
-                'config_value' => ':config_value',
-                'config_group' => ':config_group',
-                'config_group_id' => ':config_group_id',
-                'grp_level' => ':grp_level',
-                'subgrp_id' => ':subgrp_id',
-                'parent_grp_id' => ':parent_grp_id',
-                'fieldIndex' => ':field_index',
-            ])
-            ->setParameter('config_id', $configId)
-            ->setParameter('config_key', $configKey)
-            ->setParameter('config_value', $configValue)
-            ->setParameter('config_group', $flow->group->value)
-            ->setParameter('config_group_id', $flow->groupId)
-            ->setParameter('grp_level', $groupLevel)
-            ->setParameter('subgrp_id', $subGroupId)
-            ->setParameter('parent_grp_id', $parentGroupId)
-            ->setParameter('field_index', $fieldIndex)
-            ->executeStatement();
-    }
-
     /**
-     * The `blockId` prefix, i.e. the `cb_tag` id the flow's group maps to (output = 1,
-     * input = 2) — the legacy `{tagId}_{typeId}` block-identifier encoding.
+     * Encodes the flow parameters into the `parameters` JSON shape of the broker input/output API,
+     * following the same rules as the legacy row reader:
+     * - the `name` parameter goes to its own column, `type`/`blockId` are derived from the stream kind;
+     * - parameters with a field index are grouped fields (`<group>__<field>`), listed in index order
+     *   of first appearance per group;
+     * - `category`/`event` parameters are filter values (`filters_<key>` lists), the empty `filters`
+     *   parent rows are dropped;
+     * - any other parameter is a simple `key => value`, the last one of a repeated key wins.
+     *
+     * @return array{string, array<string, string|list<string>|list<array<string, string>>>}
      */
-    private function blockPrefix(BrokerFlowGroupEnum $group): int
+    private function encodeFlowParameters(BrokerInputOutput $flow): array
     {
-        return match ($group) {
-            BrokerFlowGroupEnum::Output => 1,
-            BrokerFlowGroupEnum::Input => 2,
-        };
+        $name = '';
+        /** @var array<string, string> $simple */
+        $simple = [];
+        /** @var array<string, list<string>> $filters */
+        $filters = [];
+        /** @var array<string, array<int, array<string, string>>> $groups */
+        $groups = [];
+
+        foreach ($flow->parameters as $parameter) {
+            $key = $parameter->configKey;
+            $value = $parameter->configValue;
+
+            if ($parameter->fieldIndex !== null) {
+                $keyParts = explode('__', $key, 3);
+                $groups[$keyParts[0]][$parameter->fieldIndex][$keyParts[1] ?? ''] = $value;
+
+                continue;
+            }
+
+            if ($key === BrokerConfigKey::NAME) {
+                $name = $value;
+            } elseif ($key === BrokerConfigKey::TYPE || $key === BrokerConfigKey::BLOCK_ID) {
+                // Derived from the stream kind at persistence.
+                continue;
+            } elseif ($key === self::FILTER_CATEGORY_KEY || $key === self::FILTER_EVENT_KEY) {
+                $filters[self::FILTERS_PARENT_KEY . '_' . $key][] = $value;
+            } elseif (
+                $parameter->subGroupId === null
+                && ! ($key === self::FILTERS_PARENT_KEY && $value === '')
+            ) {
+                $simple[$key] = $value;
+            }
+        }
+
+        return [$name, [...$simple, ...$filters, ...array_map(array_values(...), $groups)]];
     }
 
     private function insertCfgCentreonBrokerLog(BrokerConfiguration $brokerConfiguration): void

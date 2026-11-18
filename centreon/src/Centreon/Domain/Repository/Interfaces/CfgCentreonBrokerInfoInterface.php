@@ -36,7 +36,9 @@ interface CfgCentreonBrokerInfoInterface
     public function getNewConfigGroupId(int $configId, string $flow): int;
 
     /**
-     * Insert broker configuration in database (table cfg_centreonbroker_info)
+     * Insert a broker configuration parameter in database (table cfg_centreonbroker_input_output):
+     * the parameter is added to the input/output of its config id, config group and config group id,
+     * which is created when it does not exist yet.
      *
      * @param CfgCentreonBrokerInfo $cfgCentreonBrokerInfo the broker info entity
      */
