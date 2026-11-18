@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
+use App\MonitoringConfiguration\Domain\Model\EngineConfigurationValue;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
@@ -39,7 +40,7 @@ final readonly class SnmpCommunity
 
     public function __construct(string $value)
     {
-        $value = trim($value);
+        $value = trim(EngineConfigurationValue::toSingleLine($value));
         // The column's width: the caller builds this from whatever will land there, plaintext
         // or `secret::` reference.
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
