@@ -59,7 +59,11 @@
       "bundle_component": null,
       "paths": [
         ".github/helm",
-        ".version"
+        ".version",
+        ".github/scripts/helm-chart-images-check.sh",
+        ".github/scripts/helm-chart-package.sh",
+        ".github/scripts/helm-chart-version-check.sh",
+        ".github/scripts/helm-chart-version.sh"
       ]
     }
   },

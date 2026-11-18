@@ -162,9 +162,11 @@ remote_url() {
 }
 
 # git with the PAT in a header passed through the environment: never in the URL nor on the command line
+# (needs a checkout with persist-credentials: false, or GitHub refuses a duplicate Authorization header)
 remote_git() {
   local auth
   auth=$(printf 'x-access-token:%s' "$REMOTE_TOKEN" | base64 | tr -d '\n')
+  [[ -n "${GITHUB_ACTIONS:-}" ]] && echo "::add-mask::$auth" >&2
   GIT_TERMINAL_PROMPT=0 GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.extraHeader \
     GIT_CONFIG_VALUE_0="Authorization: Basic $auth" git "$@"
 }
@@ -252,7 +254,7 @@ validate() {
       || version_major=""
   fi
   if [[ "$version_major" != "$major" ]]; then
-    errors+=(".version at $HEAD_SHA has MAJOR=${version_major:-(not readable)} but $BRANCH is a $major branch: the component builds would all be refused. Set MAJOR=$major in .version on the branch (or dispatch the branch of $version_major), then dispatch again")
+    errors+=(".version at $HEAD_SHA has MAJOR=${version_major:-(not readable)} but $BRANCH is a $major branch: the component builds would all be refused. $([[ "$BRANCH_EXISTS" == "true" ]] && echo "Set MAJOR=$major in .version on the branch (or dispatch the branch of $version_major)" || echo "$BRANCH doesn't exist yet and its base has another major: create it by hand with MAJOR=$major in .version"), then dispatch again")
   fi
 
   local self_index=-1 i
@@ -347,11 +349,24 @@ validate() {
         fi
         if [[ -n "$abandoned_repos$abandoned_components" ]]; then
           abandoned_bundle="$prefix-$latest"
+          # a run of N already past get-environment would still deliver over N+1: none may be in progress
+          local busy="" runs_n
+          for r in "${CHAIN[@]}"; do
+            grep -Fqx "$latest" <<< "$(bundle_iterations "$r" "$prefix")" || continue
+            if ! runs_n=$(GH_TOKEN=$REMOTE_TOKEN gh run list -R "${GITHUB_REPOSITORY%%/*}/$r" --branch "$abandoned_bundle" \
+                            --limit 100 --json status,workflowName); then
+              soft_fail "Cannot list the runs of $abandoned_bundle in $r"
+              continue
+            fi
+            busy+=$(jq -r --arg r "$r" '.[] | select(.status != "completed") | " \($r)/\(.workflowName)"' <<< "$runs_n")
+          done
+          [[ -z "$busy" ]] || errors+=("Bundle $abandoned_bundle still has runs in progress:$busy. Cancel them first, then dispatch again with abandon_previous_bundle ticked")
         elif [[ "$abandon" == "true" ]]; then
           echo "::warning::abandon_previous_bundle is ticked but bundle $prefix-$latest is finished: nothing to abandon"
         fi
       elif (( rc == 3 )); then
         echo "::warning::Bundle $prefix-$latest has no status file: nothing to wait for"
+        [[ "$abandon" != "true" ]] || echo "::warning::abandon_previous_bundle is ticked but bundle $prefix-$latest has no status file: nothing to abandon"
       else
         soft_fail "Cannot read the status of bundle $prefix-$latest (bucket unreachable?)"
       fi
