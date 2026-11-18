@@ -56,6 +56,7 @@ const getApi = (context: PlatformContext): APIType => ({
   methods: {
     disable: Method.PATCH,
     enable: Method.PATCH,
+    massUpdate: Method.PATCH,
     // The form sends the whole service, where enable and disable send only
     // `activated`.
     update: Method.PUT

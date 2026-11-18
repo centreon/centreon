@@ -21584,3 +21584,11 @@ msgstr "Standard"
 #: unknown
 msgid "it's required"
 msgstr "es ist erforderlich"
+
+#: centreon/www/install/front_translate.php
+msgid "Removal"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "The lists set to Replacement will overwrite those of every selected service, and empty them when left blank."
+msgstr ""

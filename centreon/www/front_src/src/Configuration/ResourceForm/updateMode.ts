@@ -4,28 +4,33 @@ import type { TFunction } from 'i18next';
 
 import {
   labelIncremental,
+  labelRemoval,
   labelReplacement,
   labelUpdateMode
 } from './translatedLabels';
 
 // Legacy's `mc_mod_*` radios: Incremental adds to what each resource has,
-// Replacement overwrites it, even with an empty list. Another mode is one more
-// entry here and in `updateModeLabels`, its payload key in
+// Replacement overwrites it, even with an empty list. Removal takes the picked
+// entries out of it, where the resource's API offers it. Another mode is one
+// more entry here and in `updateModeLabels`, its payload key in
 // `updateModeSuffixes`.
-export type UpdateMode = 'incremental' | 'replacement';
+export type UpdateMode = 'incremental' | 'replacement' | 'removal';
 
-// The payload key each mode sends a list under: `x_to_add` or `x`.
+// The payload key each mode sends a list under: `x_to_add`, `x` or
+// `x_to_remove`.
 export const updateModeSuffixes: Record<UpdateMode, string> = {
   incremental: '_to_add',
+  removal: '_to_remove',
   replacement: ''
 };
 
 const updateModeLabels: Record<UpdateMode, string> = {
   incremental: labelIncremental,
+  removal: labelRemoval,
   replacement: labelReplacement
 };
 
-const defaultModes: Array<UpdateMode> = ['incremental', 'replacement'];
+export const defaultModes: Array<UpdateMode> = ['incremental', 'replacement'];
 
 interface UpdateModeInputProps {
   field: string;

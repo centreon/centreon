@@ -171,7 +171,7 @@ const isUsingOnlyContactsFromHost = (values: FormikValues): boolean =>
 export const getNotificationRecipientsBlock = ({
   contactGroupsEndpoint,
   contactsEndpoint,
-  resource: { baseEndpoint, idPrefix },
+  resource: { baseEndpoint, idPrefix, relationUpdateModes },
   withOptionalDetailKeys = false,
   withUseOnlyContactsFromHost = false
 }: {
@@ -337,7 +337,14 @@ export const getNotificationRecipientsBlock = ({
             // One choice for contacts and contact groups, as legacy's
             // `mc_mod_hcg`.
             ...(isMassChange
-              ? [getUpdateModeInput({ field: 'contacts', idPrefix, t })]
+              ? [
+                  getUpdateModeInput({
+                    field: 'contacts',
+                    idPrefix,
+                    modes: relationUpdateModes,
+                    t
+                  })
+                ]
               : [])
           ],
           idPrefix,

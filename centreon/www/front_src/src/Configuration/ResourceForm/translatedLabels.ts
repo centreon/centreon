@@ -109,3 +109,4 @@ export const labelSeverityWithLevel = '{{name}} ({{level}})';
 export const labelUpdateMode = 'Update mode';
 export const labelIncremental = 'Incremental';
 export const labelReplacement = 'Replacement';
+export const labelRemoval = 'Removal';

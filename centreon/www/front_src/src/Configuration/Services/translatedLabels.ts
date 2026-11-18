@@ -44,3 +44,7 @@ export const labelDowntimeScheduled = 'Downtime Scheduled';
 export const labelNameContainsForbiddenCharacters = 'Unauthorized value';
 export const labelMustBeIntegerBetweenZeroAndOneHundred =
   'Must be an integer between 0 and 100';
+
+// Mass change. Wording to confirm with UX.
+export const labelReplacementOverwritesLists =
+  'The lists set to Replacement will overwrite those of every selected service, and empty them when left blank.';

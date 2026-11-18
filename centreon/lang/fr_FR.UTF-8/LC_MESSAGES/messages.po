@@ -24694,3 +24694,11 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+#: centreon/www/install/front_translate.php
+msgid "Removal"
+msgstr "Suppression"
+
+#: centreon/www/install/front_translate.php
+msgid "The lists set to Replacement will overwrite those of every selected service, and empty them when left blank."
+msgstr "Les listes en mode Remplacement écraseront celles de chaque service sélectionné, et les videront si elles sont laissées vides."

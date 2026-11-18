@@ -4,6 +4,8 @@ import type { TFunction } from 'i18next';
 import type { JsonDecoder } from 'ts.data.json';
 import type { ObjectShape } from 'yup';
 
+import type { UpdateMode } from './updateMode';
+
 export type NamedEntity = {
   id: number;
   name: string;
@@ -31,6 +33,9 @@ export type FormValues = Record<string, unknown>;
 export interface ResourceOptions {
   baseEndpoint: string;
   idPrefix: string;
+  // The update modes a mass change offers on a relation list, in order, when
+  // the resource's API takes more than Incremental and Replacement.
+  relationUpdateModes?: Array<UpdateMode>;
 }
 
 // The pieces of a form a field block hands over, each one or more inputs that
