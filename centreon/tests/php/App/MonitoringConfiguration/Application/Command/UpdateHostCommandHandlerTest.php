@@ -1053,6 +1053,57 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
     }
 
+    public function testTheServicesDeploymentIsRequestedForTheActingUser(): void
+    {
+        $this->addPoller(1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->seedHost(10);
+        $actor = TestActingUsers::unrestricted(9);
+
+        ($this->handler)($this->command(10, templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class), actor: $actor));
+
+        /** @var list<HostServicesDeploymentRequested> $requests */
+        $requests = $this->eventBus->getDispatchedEvents(HostServicesDeploymentRequested::class);
+        self::assertCount(1, $requests);
+        self::assertSame(10, $requests[0]->hostId->value);
+        self::assertSame($actor, $requests[0]->actor);
+    }
+
+    /**
+     * @return iterable<string, array{list<int>, list<int>, bool}>
+     */
+    public static function noDeploymentProvider(): iterable
+    {
+        yield 'unchanged host with the flag on' => [[7], [7], true];
+
+        yield 'flag off' => [[], [7], false];
+
+        yield 'no template left' => [[7], [], true];
+    }
+
+    /**
+     * @param list<int> $storedTemplateIds
+     * @param list<int> $submittedTemplateIds
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('noDeploymentProvider')]
+    public function testItRequestsNoDeploymentWhenNothingIsSavedOrNotAsked(
+        array $storedTemplateIds,
+        array $submittedTemplateIds,
+        bool $deployServicesFromTemplates,
+    ): void {
+        $this->addPoller(1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->seedHost(10, templateIds: $this->templateIdCollection($storedTemplateIds));
+
+        ($this->handler)($this->command(
+            10,
+            templateIds: $this->templateIdCollection($submittedTemplateIds),
+            deployServicesFromTemplates: $deployServicesFromTemplates,
+        ));
+
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
     public function testItReportsAnUnknownTemplateSubmittedTwiceOnce(): void
     {
         $this->addPoller(1);
@@ -1422,6 +1473,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         DataProcessing $dataProcessing = new DataProcessing(),
         ?Collection $parentHostIds = null,
         ?Collection $childHostIds = null,
+        bool $deployServicesFromTemplates = true,
     ): UpdateHostCommand {
         return new UpdateHostCommand(
             id: new HostId($id),
@@ -1440,6 +1492,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             dataProcessing: $dataProcessing,
             parentHostIds: $parentHostIds ?? new Collection([], HostId::class),
             childHostIds: $childHostIds ?? new Collection([], HostId::class),
+            deployServicesFromTemplates: $deployServicesFromTemplates,
         );
     }
 
@@ -1482,6 +1535,16 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         );
 
         return $this->hostRepository->seed($host, $id);
+    }
+
+    /**
+     * @param list<int> $ids
+     *
+     * @return Collection<HostTemplateId>
+     */
+    private function templateIdCollection(array $ids): Collection
+    {
+        return new Collection(array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $ids), HostTemplateId::class);
     }
 
     /**

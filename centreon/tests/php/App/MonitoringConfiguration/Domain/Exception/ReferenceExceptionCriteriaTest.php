@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Exception\DuplicateServiceMacroNameExcept
 use App\MonitoringConfiguration\Domain\Exception\EventHandlerArgumentsRequireAHandlerException;
 use App\MonitoringConfiguration\Domain\Exception\GraphTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\MediaNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundException;
@@ -63,7 +64,7 @@ final class ReferenceExceptionCriteriaTest extends TestCase
      */
     #[DataProvider('criteriaProvider')]
     public function testTheFactoryNamesTheCriterionAfterTheInputField(
-        AggregateNotFoundException $exception,
+        AggregateNotFoundException|AggregateConflictException $exception,
         array $expected,
     ): void {
         self::assertSame($expected, $exception->criteria);
@@ -79,6 +80,14 @@ final class ReferenceExceptionCriteriaTest extends TestCase
         }
     }
 
+    public function testAKeptValueOnANonPasswordHostMacroIsRejectedWithThisMessage(): void
+    {
+        self::assertSame(
+            'A value is required: these macros are not stored as passwords, so their value cannot be kept.',
+            (new HostMacroValueRequiredException(['PLAIN']))->getMessage(),
+        );
+    }
+
     /**
      * The counterpart: a criterion that is not a payload field is what keeps a missing target
      * aggregate answering 404 rather than 422.
@@ -91,7 +100,7 @@ final class ReferenceExceptionCriteriaTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{AggregateNotFoundException, array<string, mixed>}>
+     * @return iterable<string, array{AggregateNotFoundException|AggregateConflictException, array<string, mixed>}>
      */
     public static function criteriaProvider(): iterable
     {
@@ -101,6 +110,7 @@ final class ReferenceExceptionCriteriaTest extends TestCase
 
         yield 'timezone' => [new TimezoneNotFoundException(5), ['timezoneId' => 5]];
 
+        yield 'host macro value kept on a non-password macro' => [new HostMacroValueRequiredException(['PLAIN']), ['checkOptions' => ['PLAIN']]];
     }
 
     /**
