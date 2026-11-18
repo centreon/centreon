@@ -28,6 +28,25 @@ UUID_B=8a94f357-aab4-11df-86ab-c80aa9429562
   [ "$MYSQL" = "mysql" ]
 }
 
+# mysql_missing_settings
+
+@test "mysql_missing_settings: names only the settings that do not hold" {
+  load_ocf_common 0
+  run mysql_missing_settings "ON/ON/0/1/1"
+  [ "$output" = "skip_replica_start=ON" ]
+  run mysql_missing_settings "OFF/ON/1/0/1"
+  [ "$output" = "gtid_mode=ON, log_bin=ON" ]
+  run mysql_missing_settings "ON/ON/1/1/1"
+  [ "$output" = "" ]
+}
+
+@test "mysql_missing_settings: names every setting of an unreadable value" {
+  load_ocf_common 0
+  run mysql_missing_settings ""
+  [ "$output" = "gtid_mode=ON, enforce_gtid_consistency=ON, skip_replica_start=ON, log_bin=ON, log_replica_updates=ON" ]
+  [ "${#output}" -le 116 ]
+}
+
 # gtid_set_valid
 
 @test "gtid_set_valid: MySQL accepts untagged and tagged GTID sets" {

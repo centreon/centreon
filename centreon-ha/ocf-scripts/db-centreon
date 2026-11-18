@@ -858,7 +858,7 @@ check_mysql_prerequisites() {
         return $OCF_ERR_GENERIC
     fi
     if [ "$settings" != "ON/ON/1/1/1" ]; then
-        ocf_exit_reason "MySQL needs gtid_mode=ON, enforce_gtid_consistency=ON, skip_replica_start=ON, log_bin=ON and log_replica_updates=ON (gtid_mode/enforce_gtid_consistency/skip_replica_start/log_bin/log_replica_updates='$settings')"
+        ocf_exit_reason "MySQL needs $(mysql_missing_settings "$settings")"
         return $OCF_ERR_INSTALLED
     fi
 

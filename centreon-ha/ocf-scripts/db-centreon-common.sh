@@ -293,7 +293,7 @@ mysql_common_start()
         if ! systemctl stop "$service_name"; then
             ocf_log err "Failed to stop the $service_name service: the server runs unmanaged"
         fi
-        ocf_exit_reason "The $service_name service started on $NODENAME without writing $OCF_RESKEY_pid: the pid parameter must match the pid-file of the server"
+        ocf_exit_reason "The $service_name service did not write $OCF_RESKEY_pid: set the pid parameter to the pid-file of the server"
         return $OCF_ERR_INSTALLED
     fi
     pid=$(cat $OCF_RESKEY_pid)
@@ -439,4 +439,24 @@ greater_than_gtid()
 
     greater_than_equal_long $gtid1_transaction_id $gtid2_transaction_id
     return $?
+}
+
+mysql_missing_settings()
+{
+    # $1: gtid_mode/enforce_gtid_consistency/skip_replica_start/log_bin/log_replica_updates
+    # as the server reports them. Prints the required settings that do not
+    # hold, so that the exit reason fits the 128 characters Pacemaker keeps.
+    echo "$1" | awk -F/ '
+    BEGIN {
+        split("gtid_mode=ON enforce_gtid_consistency=ON skip_replica_start=ON log_bin=ON log_replica_updates=ON", name, " ")
+        split("ON ON 1 1 1", want, " ")
+    }
+    {
+        for (i = 1; i <= 5; i++) {
+            if ($i != want[i]) {
+                list = list (list == "" ? "" : ", ") name[i]
+            }
+        }
+        print list
+    }'
 }
