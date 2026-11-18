@@ -280,7 +280,7 @@ validate() {
           grep -Fqx "$latest" <<< "$(bundle_iterations "$r" "$prefix")" || continue
           [[ "$(jq --arg r "$r" '(.repos // {}) | has($r)' "$global")" == "true" ]] || unrecorded+=" $r"
         done
-        [[ -z "$unrecorded" ]] || errors+=("Bundle $prefix-$latest is tagged but not recorded yet in:$unrecorded. Wait for their release-trigger-builds, or re-run its failed jobs")
+        [[ -z "$unrecorded" ]] || errors+=("Bundle $prefix-$latest is tagged but not recorded yet in:$unrecorded. Wait for their release-trigger-builds, or re-run its failed jobs; if that run can't be re-run any more, ask the delivery team to delete the tag $prefix-$latest there")
         pending=$(jq -r '([.repos[]?.expected[]?] | unique) - (.components | keys) | join(" ")' "$global")
         [[ -z "$pending" ]] || errors+=("Bundle $prefix-$latest is still building, no state yet for: $pending. Wait, or cancel their runs")
       elif (( rc == 3 )); then
@@ -335,13 +335,15 @@ validate() {
     else
       for wf in "${pre_tag[@]}"; do
         runs=$(gh run list -R "$GITHUB_REPOSITORY" --workflow "$wf" --branch "$BRANCH" --limit 1 \
-                 --json status,conclusion,url) || { soft_fail "Cannot list the $wf runs on $BRANCH"; continue; }
+                 --json status,conclusion,url,headSha) || { soft_fail "Cannot list the $wf runs on $BRANCH"; continue; }
         if [[ "$(jq length <<< "$runs")" == 0 ]]; then
           soft_fail "No $wf run on $BRANCH yet: wait for it to start (or start it), then dispatch again once it is done"
         elif [[ "$(jq -r '.[0].status' <<< "$runs")" != "completed" ]]; then
           errors+=("$wf is running on $BRANCH ($(jq -r '.[0].url' <<< "$runs")): wait for it, then re-run")
         elif ! [[ "$(jq -r '.[0].conclusion' <<< "$runs")" =~ ^(success|skipped|neutral)$ ]]; then
           errors+=("The last $wf run on $BRANCH did not succeed ($(jq -r '.[0].url' <<< "$runs"))")
+        elif [[ "$(jq -r '.[0].headSha' <<< "$runs")" != "$HEAD_SHA" ]]; then
+          errors+=("The last $wf run on $BRANCH ran on $(jq -r '.[0].headSha' <<< "$runs"), not on its head $HEAD_SHA: start $wf on the branch, then dispatch again")
         fi
       done
       # a pre-tag workflow may have pushed since the checkout: the tag must carry its commit

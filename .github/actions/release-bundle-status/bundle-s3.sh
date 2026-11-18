@@ -32,7 +32,7 @@ bundle_s3_put_event() {
     fi
     # 409: a concurrent request on the key, nothing was stored; anything else is not retried
     grep -q "(ConditionalRequestConflict)" "$err" || break
-    sleep "$attempt"
+    (( attempt < 3 )) && sleep "$attempt"
   done
   cat "$err" >&2
   rm -f "$err"
