@@ -49,4 +49,6 @@ export const labelMustBeIntegerBetweenZeroAndOneHundred =
 export const labelSharedServicesKeepFirstHost =
   'Some selected services are linked to several hosts: saving them will keep only their first host.';
 export const labelReplacementOverwritesLists =
-  'The lists set to Replacement will overwrite those of every selected service, and empty them when left blank.';
+  'The lists set to Replacement will overwrite those of every selected service, and empty the entries you can see when left blank.';
+export const labelNoneNeedsReplacement =
+  'None excludes the other notification options: set them to Replacement, or the services that have some will refuse the change.';

@@ -8,7 +8,7 @@ import {
 
 import { type QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useAtom, useAtomValue } from 'jotai';
-import { prop, uniqBy } from 'ramda';
+import { isEmpty, prop, uniqBy } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -20,8 +20,8 @@ import type { FormValues } from '../ResourceForm/models';
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
-  selectedColumnIdsAtom,
-  sharedServiceIdsAtom
+  massChangeRowsAtom,
+  selectedColumnIdsAtom
 } from './atoms';
 import useColumns from './Columns/useColumns';
 import {
@@ -98,13 +98,9 @@ const Services = () => {
     isMassChange: true
   });
   const [formState, setFormState] = useAtom(formStateAtom);
-  const [sharedServiceIds, setSharedServiceIds] = useAtom(sharedServiceIdsAtom);
+  const [massChangeRows, setMassChangeRows] = useAtom(massChangeRowsAtom);
   const queryClient = useQueryClient();
-
-  // Still read on the rows left after a partial failure.
-  const hasSharedService = (formState.selection ?? []).some(({ id }) =>
-    sharedServiceIds.includes(id)
-  );
+  const { selection } = formState;
 
   const massChange = useMemo(() => {
     const context = {
@@ -112,17 +108,29 @@ const Services = () => {
       isCloudPlatform,
       isMassChange: true
     };
-    const getListsWarning = getMassChangeWarning(t);
+    const getFieldsWarning = getMassChangeWarning(t);
+
+    // The API saves a service linked to several hosts on its first host only.
+    // Read when the confirmation opens, on the rows loaded by then and the
+    // services still selected after a partial failure.
+    const hasSharedService = (): boolean => {
+      const selectedIds = (selection ?? []).map(({ id }) => id);
+
+      return !isEmpty(
+        getSharedServiceIds(
+          massChangeRows.filter(({ id }) => selectedIds.includes(id as number)),
+          getShownRows(queryClient)
+        )
+      );
+    };
 
     return {
       adapter: getMassChangeAdapter(context),
       defaultValues: getMassChangeDefaultValues(context),
-      // The API saves a service linked to several hosts on its first host
-      // only.
       getConfirmationWarning: (values: FormValues): string | null =>
         [
-          hasSharedService ? t(labelSharedServicesKeepFirstHost) : null,
-          getListsWarning(values)
+          hasSharedService() ? t(labelSharedServicesKeepFirstHost) : null,
+          getFieldsWarning(values)
         ]
           .filter(Boolean)
           .join(' ') || null,
@@ -131,7 +139,9 @@ const Services = () => {
       validationSchema: massChangeValidationSchema
     };
   }, [
-    hasSharedService,
+    massChangeRows,
+    queryClient,
+    selection,
     isAdditiveInheritanceEnabled,
     isCloudPlatform,
     massChangeGroups,
@@ -153,9 +163,7 @@ const Services = () => {
           Icon: MassChangeIcon,
           label: labelMassChange,
           onClick: (rows) => {
-            setSharedServiceIds(
-              getSharedServiceIds(rows, getShownRows(queryClient))
-            );
+            setMassChangeRows(rows);
             setFormState({
               id: null,
               isOpen: true,
@@ -175,7 +183,7 @@ const Services = () => {
       // A row opens its service, read-only without write access.
       viewDetails: true
     }),
-    [canEdit, queryClient, setFormState, setSharedServiceIds]
+    [canEdit, setFormState, setMassChangeRows]
   );
 
   return (

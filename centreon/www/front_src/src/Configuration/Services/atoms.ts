@@ -1,6 +1,7 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
+import type { ResourceRow } from '../models';
 import type { Filters } from './models';
 import { columnsAtomKey, filtersAtomKey, filtersInitialValues } from './utils';
 
@@ -16,6 +17,5 @@ export const filtersAtom = atomWithStorage<Filters>(
 
 export const isWelcomePageDisplayedAtom = atom<boolean>(true);
 
-// The services of the mass change selection that the listing shows on several
-// hosts: saving one keeps only its first host.
-export const sharedServiceIdsAtom = atom<Array<number>>([]);
+// The listing rows a mass change was opened on, with their hosts.
+export const massChangeRowsAtom = atom<Array<ResourceRow>>([]);

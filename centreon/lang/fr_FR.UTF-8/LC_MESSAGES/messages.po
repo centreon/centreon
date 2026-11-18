@@ -24700,9 +24700,13 @@ msgid "Removal"
 msgstr "Suppression"
 
 #: centreon/www/install/front_translate.php
-msgid "The lists set to Replacement will overwrite those of every selected service, and empty them when left blank."
-msgstr "Les listes en mode Remplacement écraseront celles de chaque service sélectionné, et les videront si elles sont laissées vides."
+msgid "The lists set to Replacement will overwrite those of every selected service, and empty the entries you can see when left blank."
+msgstr "Les listes en mode Remplacement écraseront celles de chaque service sélectionné, et videront les entrées que vous voyez si elles sont laissées vides."
 
 #: centreon/www/install/front_translate.php
 msgid "Some selected services are linked to several hosts: saving them will keep only their first host."
 msgstr "Certains services sélectionnés sont liés à plusieurs hôtes : les enregistrer ne conservera que leur premier hôte."
+
+#: centreon/www/install/front_translate.php
+msgid "None excludes the other notification options: set them to Replacement, or the services that have some will refuse the change."
+msgstr "Aucun exclut les autres options de notification : passez-les en Remplacement, sinon les services qui en ont refuseront la modification."

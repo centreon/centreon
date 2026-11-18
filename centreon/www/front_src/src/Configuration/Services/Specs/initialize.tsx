@@ -57,6 +57,9 @@ import {
   getTrapsResponse
 } from './utils';
 
+// The services a partial update can reach, each under `patchService<id>`.
+export const patchableServiceIds = [0, 1, 2, 5];
+
 interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
@@ -71,10 +74,6 @@ interface Props {
   // Opens the page on a deep link, such as `?mode=edit&id=0`.
   searchParams?: string;
 }
-
-// Every service a partial update reached, in order: a test can tell exactly
-// which services were written to, none included.
-export const patchedServiceIds: Array<number> = [];
 
 const initialize = ({
   isEmpty = false,
@@ -240,24 +239,19 @@ const initialize = ({
 
   // Enable, disable and mass change are a partial update of the service, one
   // request each.
-  patchedServiceIds.length = 0;
-
-  [0, 1, 2, 5].forEach((id) => {
+  patchableServiceIds.forEach((id) => {
     const fails = patchFails.includes(id);
 
     interceptRequest(
       Method.PATCH,
       `**${getServiceEndpoint({ id })}`,
-      () => {
-        patchedServiceIds.push(id);
-
-        return fails
+      () =>
+        fails
           ? HttpResponse.json(
               { code: 422, message: 'Refused' },
               { status: 422 }
             )
-          : new HttpResponse(null, { status: 204 });
-      },
+          : new HttpResponse(null, { status: 204 }),
       `patchService${id}`
     );
   });

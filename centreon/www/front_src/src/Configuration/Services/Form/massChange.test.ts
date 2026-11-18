@@ -1,6 +1,10 @@
 import { mergeDeepRight } from 'ramda';
 
-import { labelReplacementOverwritesLists } from '../translatedLabels';
+import { labelNone } from '../../ResourceForm/translatedLabels';
+import {
+  labelNoneNeedsReplacement,
+  labelReplacementOverwritesLists
+} from '../translatedLabels';
 import {
   getMassChangeAdapter,
   getMassChangeDefaultValues,
@@ -119,6 +123,19 @@ describe('getMassChangeAdapter', () => {
     });
   });
 
+  it('adds the stalking options picked, or replaces them in Replacement', () => {
+    const warning = {
+      dataProcessing: { stalkingOptions: { warning: { checked: true } } }
+    };
+
+    expect(apply(warning)).toEqual({
+      advanced: { stalking_options_to_add: ['warning'] }
+    });
+    expect(
+      apply({ ...warning, ...withMode('stalkingOptions', 'replacement') })
+    ).toEqual({ advanced: { stalking_options: ['warning'] } });
+  });
+
   it('sends nothing for a list set to Removal with nothing picked', () => {
     expect(apply(withMode('groups', 'removal'))).toEqual({});
   });
@@ -150,6 +167,19 @@ describe('getMassChangeAdapter', () => {
 
 describe('getMassChangeWarning', () => {
   const getWarning = getMassChangeWarning(((label: string) => label) as never);
+
+  it('warns when None is added rather than replacing the notification options', () => {
+    const values = mergeDeepRight(getMassChangeDefaultValues(onPremise), {
+      notifications: { options: [labelNone] }
+    }) as Record<string, unknown>;
+
+    expect(getWarning(values)).toBe(labelNoneNeedsReplacement);
+    expect(
+      getWarning(
+        mergeDeepRight(values, withMode('notificationOptions', 'replacement'))
+      )
+    ).toBe(labelReplacementOverwritesLists);
+  });
 
   it('warns only when a list is replaced', () => {
     const values = getMassChangeDefaultValues(onPremise) as Record<

@@ -12,7 +12,7 @@ import {
   labelReplacementOverwritesLists,
   labelSharedServicesKeepFirstHost
 } from '../translatedLabels';
-import initialize, { patchedServiceIds } from './initialize';
+import initialize, { patchableServiceIds } from './initialize';
 import { getSharedServiceListingResponse } from './utils';
 
 const initializeListing = async (
@@ -85,14 +85,21 @@ const expectConfirmation = async (text: string): Promise<void> => {
   ).toHaveTextContent(new RegExp(`^${text}$`));
 };
 
+// Every partial update the services received, by service id, as the request
+// recorder logged them.
+const getPatchedServiceIds = (): Array<number> =>
+  patchableServiceIds.flatMap((id) =>
+    getRequestCalls(`patchService${id}`).map(() => id)
+  );
+
 // Exactly these services were written to, as many times, each with this body
-// when one is given.
+// when one is given, and never through the edit form's PUT.
 const expectPatchedServices = async (
   expectedIds: Array<number>,
   body?: object
 ): Promise<void> => {
   await waitFor(() => {
-    expect([...patchedServiceIds].sort()).toEqual([...expectedIds].sort());
+    expect(getPatchedServiceIds().sort()).toEqual([...expectedIds].sort());
 
     [...new Set(expectedIds)].forEach((id) => {
       const calls = getRequestCalls(`patchService${id}`);
@@ -110,6 +117,10 @@ const expectPatchedServices = async (
 
       // Answered too, not only sent: requests are logged on arrival.
       expect(calls.every(({ answered }) => answered)).toBe(true);
+    });
+
+    [0, 1, 2].forEach((id) => {
+      expect(getRequestCalls(`updateService${id}`)).toHaveLength(0);
     });
   });
 };
