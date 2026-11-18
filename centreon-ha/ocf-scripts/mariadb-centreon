@@ -51,18 +51,9 @@ OCF_RESKEY_node_list_default=""
 . ${OCF_FUNCTIONS_DIR}/mariadb-centreon-common.sh
 
 #######################################################################
-# MariaDB when a mariadbd binary exists, MySQL otherwise. The EL distribution
-# packages install the server in /usr/libexec. Keep in sync with
-# sql_fetch_db_binary in mysql-functions.sh.
-_is_mariadb=0
-_DB_NAME="MySQL"
-if command -v mariadbd &>/dev/null || [ -x /usr/sbin/mariadbd ] || [ -x /usr/libexec/mariadbd ]; then
-    _is_mariadb=1
-    _DB_NAME="MariaDB"
-fi
-
-# MySQL 8.4 removed the SLAVE/MASTER statements and renamed the status
-# columns to Source_*/Replica_*
+# MySQL 8.4 removed the SLAVE/MASTER statements; their replacements (8.0.22+)
+# name the status columns Source_*/Replica_*. _is_mariadb comes from
+# mariadb-centreon-common.sh.
 if [ "$_is_mariadb" -eq 1 ] ; then
     _SQL_SHOW_REPLICA_STATUS="SHOW SLAVE STATUS"
     _SQL_START_REPLICA="START SLAVE"
@@ -124,9 +115,9 @@ uses look at the mysql resource agent which supports older replication
 forms which mysql and mariadb have in common.
 
 With MySQL, version 8.4 or later is required, with gtid_mode=ON,
-enforce_gtid_consistency=ON and the rpl_semi_sync_source and
-rpl_semi_sync_replica plugins loaded. Both nodes must run the same database
-engine.
+enforce_gtid_consistency=ON, skip_replica_start=ON and the
+rpl_semi_sync_source and rpl_semi_sync_replica plugins loaded. Both nodes must
+run the same database engine.
 
 The resource must be setup to use notifications. Set 'notify=true' in the metadata
 attributes when defining a MariaDB/MySQL master/slave instance.
@@ -314,7 +305,6 @@ END
 }
 
 # Convenience functions
-# (the GTID comparison functions are in mariadb-centreon-common.sh)
 
 set_gtid() {
     # Sets the GTID in CIB using attrd_updater for this node.
@@ -860,13 +850,15 @@ check_mysql_prerequisites() {
         return $OCF_ERR_INSTALLED
     fi
 
+    # skip_replica_start: the agent configures the replication itself, and
+    # CHANGE REPLICATION SOURCE TO fails while replica threads run
     if ! settings=$($MYSQL $MYSQL_OPTIONS_TEST -s -N \
-        -e "SELECT CONCAT(@@gtid_mode, '/', @@enforce_gtid_consistency)"); then
-        ocf_exit_reason "Unable to read gtid_mode and enforce_gtid_consistency"
+        -e "SELECT CONCAT(@@gtid_mode, '/', @@enforce_gtid_consistency, '/', @@skip_replica_start)"); then
+        ocf_exit_reason "Unable to read gtid_mode, enforce_gtid_consistency and skip_replica_start"
         return $OCF_ERR_GENERIC
     fi
-    if [ "$settings" != "ON/ON" ]; then
-        ocf_exit_reason "MySQL needs gtid_mode=ON and enforce_gtid_consistency=ON (gtid_mode/enforce_gtid_consistency='$settings')"
+    if [ "$settings" != "ON/ON/1" ]; then
+        ocf_exit_reason "MySQL needs gtid_mode=ON, enforce_gtid_consistency=ON and skip_replica_start=ON (gtid_mode/enforce_gtid_consistency/skip_replica_start='$settings')"
         return $OCF_ERR_INSTALLED
     fi
 
@@ -899,6 +891,10 @@ mysql_start() {
     mysql_common_status info
     if [ $? = $OCF_SUCCESS ]; then
         ocf_log info "$_DB_NAME already running"
+        if [ "$_is_mariadb" -eq 0 ] ; then
+            check_mysql_prerequisites
+            return $?
+        fi
         return $OCF_SUCCESS
     fi
 

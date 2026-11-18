@@ -9,6 +9,16 @@ else
 	SU=su
 fi
 
+# MariaDB when a mariadbd binary exists, MySQL otherwise. The EL distribution
+# packages install the server in /usr/libexec. Keep in sync with
+# sql_fetch_db_binary in mysql-functions.sh.
+_is_mariadb=0
+_DB_NAME="MySQL"
+if command -v mariadbd >/dev/null 2>&1 || [ -x /usr/sbin/mariadbd ] || [ -x /usr/libexec/mariadbd ]; then
+	_is_mariadb=1
+	_DB_NAME="MariaDB"
+fi
+
 # Attempt to detect a default binary
 OCF_RESKEY_binary_default=$(which mysqld_safe 2> /dev/null)
 if [ "$OCF_RESKEY_binary_default" = "" ]; then
@@ -104,7 +114,12 @@ MYSQL_BINDIR=`dirname ${OCF_RESKEY_binary}`
 
 MYSQL=$OCF_RESKEY_client_binary
 if ocf_is_true "$OCF_RESKEY_replication_require_ssl"; then
-  MYSQL_OPTIONS_LOCAL_SSL_OPTIONS="--ssl"
+  # the MySQL 8 client has no --ssl option
+  if [ "$_is_mariadb" -eq 1 ]; then
+    MYSQL_OPTIONS_LOCAL_SSL_OPTIONS="--ssl"
+  else
+    MYSQL_OPTIONS_LOCAL_SSL_OPTIONS="--ssl-mode=REQUIRED"
+  fi
 else
   MYSQL_OPTIONS_LOCAL_SSL_OPTIONS=""
 fi
@@ -265,6 +280,13 @@ mysql_common_start()
         ocf_exit_reason "Failed to start the $service_name service"
         return $OCF_ERR_GENERIC
     fi
+    # Without the pid file, the start would wait for the timeout and leave
+    # an unmanaged server behind
+    if [ ! -s "$OCF_RESKEY_pid" ]; then
+        systemctl stop "$service_name"
+        ocf_exit_reason "The $service_name service started without writing $OCF_RESKEY_pid: set the pid parameter to the pid-file of the server"
+        return $OCF_ERR_CONFIGURED
+    fi
     pid=$(cat $OCF_RESKEY_pid)
 
     # Spin waiting for the server to come up.
@@ -347,8 +369,7 @@ mysql_common_stop()
 
 greater_than_equal_long()
 {
-    # there are values we need to compare in this script
-    # that are too large for shell -gt to process
+    # GTID sequence numbers can exceed what the shell's -gt handles
     local true=$(echo "$1 > $2" | bc)
     if [ "$true" -eq "1" ]; then
         return 0
@@ -364,7 +385,7 @@ mysql_gtid_set_count()
     # "\n", are ignored). Writes on each new source add its UUID to the set,
     # so a single UUID cannot tell which node is the most up to date. Without
     # errant transactions both nodes share one history, so the node that
-    # executed the most transactions is.
+    # executed the most transactions is the most up to date.
     echo "$1" | sed 's/\\n//g' | tr -d ' \n' | awk -F, '
     {
         for (i = 1; i <= NF; i++) {
@@ -384,7 +405,6 @@ mysql_gtid_set_count()
 
 greater_than_gtid()
 {
-    # $_is_mariadb is set by the resource agent
     local gtid1_transaction_id
     local gtid2_transaction_id
 

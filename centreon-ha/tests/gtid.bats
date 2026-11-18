@@ -44,22 +44,41 @@ $UUID_B:1-20"
 
 # greater_than_gtid
 
+# A "! cmd" line does not fail a bats test (errexit ignores it): negative
+# checks use run and $status.
+
 @test "greater_than_gtid: MySQL, the node with the transactions of the last source wins" {
   load_ocf_common 0
   # Both nodes replicated uuid A; after a failover, only one has all of uuid B
-  greater_than_gtid "$UUID_A:1-100,$UUID_B:1-50" "$UUID_A:1-100,$UUID_B:1-49"
-  ! greater_than_gtid "$UUID_A:1-100,$UUID_B:1-49" "$UUID_A:1-100,$UUID_B:1-50"
-  ! greater_than_gtid "$UUID_A:1-100" "$UUID_A:1-100,$UUID_B:1-1"
+  run greater_than_gtid "$UUID_A:1-100,$UUID_B:1-50" "$UUID_A:1-100,$UUID_B:1-49"
+  [ "$status" -eq 0 ]
+  run greater_than_gtid "$UUID_A:1-100,$UUID_B:1-49" "$UUID_A:1-100,$UUID_B:1-50"
+  [ "$status" -eq 1 ]
+  run greater_than_gtid "$UUID_A:1-100" "$UUID_A:1-100,$UUID_B:1-1"
+  [ "$status" -eq 1 ]
 }
 
 @test "greater_than_gtid: MySQL, any GTID set beats the initial 0" {
   load_ocf_common 0
-  greater_than_gtid "$UUID_A:1" 0
+  run greater_than_gtid "$UUID_A:1" 0
+  [ "$status" -eq 0 ]
+}
+
+@test "greater_than_gtid: equal sets do not win, so the first candidate stays" {
+  load_ocf_common 0
+  run greater_than_gtid "$UUID_A:1-100" "$UUID_A:1-100"
+  [ "$status" -eq 1 ]
+  load_ocf_common 1
+  run greater_than_gtid 0-1-100 0-1-100
+  [ "$status" -eq 1 ]
 }
 
 @test "greater_than_gtid: MariaDB compares the sequence numbers" {
   load_ocf_common 1
-  greater_than_gtid 0-1-101 0-1-100
-  ! greater_than_gtid 0-1-100 0-1-101
-  greater_than_gtid 0-1-100 0
+  run greater_than_gtid 0-1-101 0-1-100
+  [ "$status" -eq 0 ]
+  run greater_than_gtid 0-1-100 0-1-101
+  [ "$status" -eq 1 ]
+  run greater_than_gtid 0-1-100 0
+  [ "$status" -eq 0 ]
 }

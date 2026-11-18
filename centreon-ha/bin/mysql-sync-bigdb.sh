@@ -163,8 +163,6 @@ fi
 
 slave_hostname=$(get_other_db_hostname)
 master_hostname=$(get_other_db_hostname $slave_hostname)
-# SQL_SYSTEMD_SERVICE is detected on this node and reused on the other one:
-# both nodes must run the same engine on the same distribution
 echo "Connection to slave Server (verify mysql stopped): $slave_hostname"
 result=$($USER_SUDO ssh -p $SSH_PORT $slave_hostname 'if ps --no-headers -C mariadbd,mysqld >/dev/null; then echo "yes" ; else echo "no"; fi')
 if [ "$result" != "no" ] ; then
@@ -183,8 +181,8 @@ fi
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
     gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
 else
-    # gtid_executed separates its members with ",\n": strip the newlines so
-    # that the value can be reused in SET GLOBAL gtid_purged
+    # mysql -B would print the newlines between the members of gtid_executed
+    # as a literal \n: strip them to get a one-line GTID set
     gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only = ON; SELECT REPLACE(@@gtid_executed, '\n', '')")
 fi
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
@@ -304,6 +302,8 @@ lvremove -f /dev/$vg_name/dbbackupdatadir
 ###
 
 echo "Start MySQL Slave"
+# SQL_SYSTEMD_SERVICE and SQL_IS_MARIADB come from this node: both nodes must
+# run the same engine on the same distribution
 $USER_SUDO ssh -p $SSH_PORT $slave_hostname -- "$SUDO_MYSQL_START_SLAVE systemctl start '$SQL_SYSTEMD_SERVICE' &"
 i=0
 until mysqlshow -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
@@ -330,6 +330,9 @@ RESET SLAVE;"
 CHANGE MASTER TO MASTER_HOST='$master_hostname', MASTER_USER='$DBREPLUSER', MASTER_PASSWORD='$DBREPLPASSWORD', master_use_gtid=slave_pos;
 START SLAVE;
 SHOW PROCESSLIST;"
+    status_sql="SHOW SLAVE STATUS\G"
+    io_running_field="Slave_IO_Running"
+    sql_running_field="Slave_SQL_Running"
 else
     reset_sql="STOP REPLICA;
 RESET REPLICA ALL;
@@ -341,15 +344,42 @@ RESET BINARY LOGS AND GTIDS;"
 CHANGE REPLICATION SOURCE TO SOURCE_HOST='$master_hostname', SOURCE_USER='$DBREPLUSER', SOURCE_PASSWORD='$DBREPLPASSWORD', SOURCE_AUTO_POSITION=1, SOURCE_SSL=1;
 START REPLICA;
 SHOW PROCESSLIST;"
+    status_sql="SHOW REPLICA STATUS\G"
+    io_running_field="Replica_IO_Running"
+    sql_running_field="Replica_SQL_Running"
 fi
 # The datadir copied from the master can hold a stale replication
 # configuration that makes the reset statements fail: keep going (-f), the
 # next step fails if the reset was incomplete
-mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$reset_sql"
+if ! reset_output=$(mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$reset_sql" 2>&1) ; then
+    echo "WARNING: The reset of the replication reported errors, ignored as the setup below fails if it is incomplete:" >&2
+    echo "$reset_output" >&2
+fi
 # No -f: never start the replication on a partial setup
 if ! mysql -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$replication_sql" ; then
     echo "ERROR: Can't start the replication on '$slave_hostname'." >&2
     exit 1
 fi
+
+# START SLAVE/REPLICA returns before the threads connect: wait for them
+echo -n "Wait for the replication threads:"
+i=0
+while : ; do
+    replica_status=$(mysql -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" -e "$status_sql")
+    if echo "$replica_status" | grep -qE "^ *${io_running_field}: Yes$" \
+        && echo "$replica_status" | grep -qE "^ *${sql_running_field}: Yes$" ; then
+        break
+    fi
+    if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
+        echo ""
+        echo "ERROR: The replication does not run on '$slave_hostname':" >&2
+        echo "$replica_status" | grep -E "^ *(${io_running_field}|${sql_running_field}|Last_IO_Error|Last_SQL_Error):" >&2
+        exit 1
+    fi
+    echo -n "."
+    sleep 1
+    i=$(($i + 1))
+done
+echo "OK"
 
 exit 0

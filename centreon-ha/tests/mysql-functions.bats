@@ -35,6 +35,7 @@ load helpers
 @test "sql_get_option: keeps the = in values" {
   load_mysql_functions mysqld "" ""
   run sql_get_option init-connect $'--init-connect=SET a=1'
+  [ "$status" -eq 0 ]
   [ "$output" = "SET a=1" ]
 }
 
@@ -71,14 +72,37 @@ load helpers
   [ "$SQL_CONF_RELAY_LOG" = "$DATADIR/node1-relay-bin" ]
 }
 
-@test "sql_fetch_db_config: MySQL valueless log-bin is named after the host" {
-  load_mysql_functions mysqld "--datadir=@DATADIR@ --log-bin" ""
+@test "sql_fetch_db_config: MySQL valueless log-bin is named after the host, not the pid file" {
+  load_mysql_functions mysqld "--datadir=@DATADIR@ --log-bin --pid-file=/run/mysqld/db1.pid" ""
   fetch_db_config
+  [ "$SQL_CONF_LOG_BIN_ARG" = "--log-bin" ]
   [ "$SQL_CONF_LOG_BIN" = "$DATADIR/node1-bin" ]
+  [ "$SQL_CONF_RELAY_LOG" = "$DATADIR/node1-relay-bin" ]
+}
+
+@test "sql_fetch_db_config: MySQL empty log-bin is named after the host" {
+  load_mysql_functions mysqld "--datadir=@DATADIR@ --log-bin=" ""
+  fetch_db_config
+  [ "$SQL_CONF_LOG_BIN_ARG" = "--log-bin" ]
+  [ "$SQL_CONF_LOG_BIN" = "$DATADIR/node1-bin" ]
+}
+
+@test "sql_fetch_db_config: MariaDB log-basename names the logs" {
+  load_mysql_functions mariadbd "--datadir=@DATADIR@ --log-basename=centreon --log-bin --pid-file=/run/mariadb/db1.pid" ""
+  fetch_db_config
+  [ "$SQL_CONF_LOG_BIN" = "$DATADIR/centreon-bin" ]
+  [ "$SQL_CONF_RELAY_LOG" = "$DATADIR/centreon-relay-bin" ]
 }
 
 @test "sql_fetch_db_config: a later skip-log-bin disables binary logging" {
   load_mysql_functions mysqld "--datadir=@DATADIR@ --log-bin=/logs/mysql-bin" "--skip-log-bin"
+  fetch_db_config
+  [ "$SQL_CONF_LOG_BIN_ARG" = "" ]
+  [ "$SQL_CONF_LOG_BIN" = "" ]
+}
+
+@test "sql_fetch_db_config: a later loose-disable-log-bin disables binary logging" {
+  load_mysql_functions mysqld "--datadir=@DATADIR@ --log-bin=/logs/mysql-bin --loose-disable-log-bin" ""
   fetch_db_config
   [ "$SQL_CONF_LOG_BIN_ARG" = "" ]
 }
@@ -86,7 +110,15 @@ load helpers
 @test "sql_fetch_db_config: a later log-bin enables binary logging again" {
   load_mysql_functions mysqld "--datadir=@DATADIR@ --skip-log-bin --log-bin=/logs/mysql-bin" ""
   fetch_db_config
+  [ "$SQL_CONF_LOG_BIN_ARG" = "--log-bin" ]
   [ "$SQL_CONF_LOG_BIN" = "/logs/mysql-bin" ]
+}
+
+@test "sql_fetch_db_config: resolves a symlinked datadir" {
+  load_mysql_functions mariadbd "--datadir=$BATS_TEST_TMPDIR/datadir-link" ""
+  ln -s "$DATADIR" "$BATS_TEST_TMPDIR/datadir-link"
+  fetch_db_config
+  [ "$SQL_CONF_DATADIR" = "$DATADIR" ]
 }
 
 @test "sql_fetch_db_config: the arguments of the running server win over the option files" {
@@ -115,6 +147,34 @@ EOF
   printf '#!/bin/bash\nexit 1\n' > "$STUB_DIR/mysqld"
   run sql_fetch_db_config
   [ "$status" -eq 1 ]
+  [[ "$output" == *"Cannot read the option files"* ]]
+}
+
+# sql_fetch_db_binary
+
+@test "sql_fetch_db_binary: prefers mariadbd, as MariaDB installs a mysqld symlink" {
+  load_mysql_functions mysqld "" ""
+  printf '#!/bin/bash\n' > "$STUB_DIR/mariadbd"
+  chmod +x "$STUB_DIR/mariadbd"
+  SQL_DB_BINARY=
+  SQL_IS_MARIADB=0
+  run_without_errexit sql_fetch_db_binary
+  [ "$SQL_DB_BINARY" = "mariadbd" ]
+  [ "$SQL_DB_BINARY_PATH" = "$STUB_DIR/mariadbd" ]
+  [ "$SQL_IS_MARIADB" -eq 1 ]
+}
+
+@test "sql_fetch_db_binary: falls back to mysqld" {
+  if command -v mariadbd >/dev/null || [ -x /usr/sbin/mariadbd ] || [ -x /usr/libexec/mariadbd ]; then
+    skip "MariaDB is installed on this host"
+  fi
+  load_mysql_functions mysqld "" ""
+  SQL_DB_BINARY=
+  SQL_IS_MARIADB=1
+  run_without_errexit sql_fetch_db_binary
+  [ "$SQL_DB_BINARY" = "mysqld" ]
+  [ "$SQL_DB_BINARY_PATH" = "$STUB_DIR/mysqld" ]
+  [ "$SQL_IS_MARIADB" -eq 0 ]
 }
 
 # sql_fetch_server_engine

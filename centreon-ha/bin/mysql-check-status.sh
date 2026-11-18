@@ -11,7 +11,8 @@
 . /etc/centreon-ha/mysql-resources.sh
 
 # Ask the servers, as this script also runs on central nodes without a
-# database server. When none answers, the connection checks report it.
+# database server. When neither answers, fall back to the local binary; the
+# connection checks below report the failure.
 if ! sql_fetch_server_engine "$DBHOSTNAMEMASTER" && ! sql_fetch_server_engine "$DBHOSTNAMESLAVE" ; then
 	sql_fetch_db_binary
 fi

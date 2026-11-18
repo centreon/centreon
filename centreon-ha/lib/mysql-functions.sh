@@ -16,9 +16,11 @@ SQL_CONF_DATADIR=
 SQL_CONF_DEFAULTS_FILE=
 # "--log-bin" when binary logging is enabled, empty otherwise
 SQL_CONF_LOG_BIN_ARG=
-# Base path of the binary and relay logs, absolute or relative to the datadir
+# Base path of the binary logs, absolute or relative to the datadir
 SQL_CONF_LOG_BIN=
+# Base name of the pid file, without directory or extension
 SQL_CONF_PID_FILE=
+# Base path of the relay logs, absolute or relative to the datadir
 SQL_CONF_RELAY_LOG=
 
 sql_fetch_db_binary()
@@ -47,6 +49,8 @@ sql_fetch_db_binary()
             SQL_DB_BINARY_PATH="$_test_path"
             if [ "$_test_binary" = "mariadbd" ] ; then
                 SQL_IS_MARIADB=1
+            else
+                SQL_IS_MARIADB=0
             fi
             return 0
         fi
@@ -97,7 +101,7 @@ sql_fetch_server_engine()
     # Set SQL_IS_MARIADB from the version of the server on host $1. Return 1
     # when the server cannot be queried.
     local _version
-    _version=$(mysql -N -B -u "$DBROOTUSER" -h "$1" "-p$DBROOTPASSWORD" -e 'SELECT VERSION()' 2>/dev/null)
+    _version=$(mysql -N -B --connect-timeout=5 -u "$DBROOTUSER" -h "$1" "-p$DBROOTPASSWORD" -e 'SELECT VERSION()' 2>/dev/null)
     if [ -z "$_version" ] ; then
         return 1
     fi
@@ -162,7 +166,7 @@ sql_fetch_db_config()
 
     SQL_CONF_DATADIR=$(sql_get_option datadir "$_options")
     if [ -z "$SQL_CONF_DATADIR" ] ; then
-        # compiled-in default of both MariaDB and MySQL
+        # default of the MariaDB and MySQL packages
         SQL_CONF_DATADIR="/var/lib/mysql"
     fi
 
@@ -180,10 +184,13 @@ sql_fetch_db_config()
     fi
 
     # Default base name of the binary and relay logs when log-bin or
-    # relay-log has no value: MariaDB derives it from the pid file name,
-    # MySQL from the host name (log-basename is not supported)
+    # relay-log has no value: MariaDB derives it from log-basename or the pid
+    # file name, MySQL from the host name
     if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
-        _default_basename="$SQL_CONF_PID_FILE"
+        _default_basename=$(sql_get_option log-basename "$_options")
+        if [ -z "$_default_basename" ] ; then
+            _default_basename="$SQL_CONF_PID_FILE"
+        fi
     else
         _default_basename=$(hostname -s)
     fi

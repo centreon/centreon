@@ -29,6 +29,8 @@ fi
 
 echo "MySQL datadir found: $datadir"
 
+status=0
+
 #####
 # Check for each
 # Request = SELECT PARTITION_NAME FROM information_schema.PARTITIONS WHERE TABLE_NAME='data_bin' AND TABLE_SCHEMA='centreon_storage';
@@ -36,7 +38,8 @@ echo "MySQL datadir found: $datadir"
 for partition in $PARTITION_NAME; do
 	num=$(ls "$datadir/$partition#P#"* 2> /dev/null | wc -l)
 	if [ -z "$num" ] || [ "$num" -eq 0 ] ; then
-		echo "ERROR: Can't find partition for table '$table'." >&2
+		echo "ERROR: Can't find partition for table '$partition'." >&2
+		status=1
 		continue
 	fi
 
@@ -67,4 +70,4 @@ for partition in $PARTITION_NAME; do
 	done
 done
 
-exit 0
+exit $status

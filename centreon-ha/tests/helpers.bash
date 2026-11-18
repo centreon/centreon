@@ -7,6 +7,7 @@ CENTREON_HA_DIR="$(cd "$BATS_TEST_DIRNAME/.." && pwd)"
 #   $1: mariadbd or mysqld
 #   $2: output of --print-defaults (one string, arguments separated by spaces)
 #   $3: arguments of the running server, empty when it is stopped
+# @DATADIR@ in $2 and $3 is replaced with the test datadir.
 load_mysql_functions() {
   local binary="$1" defaults="$2" process_args="$3"
 
@@ -55,13 +56,17 @@ load_ocf_common() {
   _is_mariadb="$1"
 }
 
-# Run sql_fetch_db_config in the current shell, so that its variables can be
+# Run a command in the current shell, so that the variables it sets can be
 # checked, but without errexit
-fetch_db_config() {
+run_without_errexit() {
   local rc
   set +e
-  sql_fetch_db_config
+  "$@"
   rc=$?
   set -e
   return "$rc"
+}
+
+fetch_db_config() {
+  run_without_errexit sql_fetch_db_config
 }
