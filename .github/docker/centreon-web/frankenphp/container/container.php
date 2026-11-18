@@ -43,6 +43,8 @@ const CRON_JOBS = [
     'centreon-tokens' => ['* * * * *', 'cron/outdated-token-removal.php'],
     'centreon-purge' => ['0 2 * * *', 'cron/centstorage_purge.php'],
     'centreon-partitioning' => ['0 4 * * *', 'cron/centreon-partitioning.php'],
+    // Pollers and first configuration of enrolled collectors (feature flag collector_enrolment).
+    'collector-enrolment' => ['* * * * *', 'cron/centreon-collector-enrolment.php'],
 ];
 
 function out(string $message): void
@@ -545,6 +547,17 @@ function configureOptions(PDO $root): void
     out("Using the Gorgone API at {$address}:{$port} (local gorgoned is not started).");
     $root->exec("DELETE FROM `options` WHERE `key` IN ('gorgone_api_username', 'gorgone_api_password')");
     replaceOptions($root, $gorgone);
+
+    // Collector enrolment: the gorgone-server address the collectors dial, the central broker
+    // address their results go to, and the image of the docker run line given to the admin.
+    $collector = array_filter([
+        'collector_server_url' => env('COLLECTOR_SERVER_URL'),
+        'collector_broker_address' => env('COLLECTOR_BROKER_ADDRESS'),
+        'collector_image' => env('COLLECTOR_IMAGE'),
+    ], static fn (?string $value): bool => $value !== null);
+    if ($collector !== []) {
+        replaceOptions($root, $collector);
+    }
 
     $victoriaMetricsUrl = (string) env('VICTORIA_METRICS_URL');
     out("Reading the graphs from VictoriaMetrics at {$victoriaMetricsUrl}.");

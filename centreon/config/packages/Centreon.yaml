@@ -345,6 +345,16 @@ services:
     Core\Gorgone\Application\Repository\ReadGorgoneNodeRepositoryInterface:
         class: Core\Gorgone\Infrastructure\Repository\DbReadGorgoneNodeRepository
 
+    # Enrolment of collectors (feature flag collector_enrolment)
+    Core\Gorgone\Application\Repository\CollectorEnrolmentRepositoryInterface:
+        class: Core\Gorgone\Infrastructure\Repository\ApiCollectorEnrolmentRepository
+
+    Core\Gorgone\Application\Repository\CollectorProvisionerInterface:
+        class: Core\Gorgone\Infrastructure\Repository\LegacyCollectorProvisioner
+
+    Core\Gorgone\Application\Repository\CollectorDeployerInterface:
+        class: Core\Gorgone\Infrastructure\Repository\ClapiCollectorDeployer
+
     Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterface:
         class: Core\Gorgone\Infrastructure\Repository\FsReadGorgoneConfigurationRepository
         arguments:

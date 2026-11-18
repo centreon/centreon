@@ -144,11 +144,14 @@ abstract class ServerConnectionConfigurationService
     }
 
     /**
+     * @param int|null $creatorId creator of the default agent configuration, the logged-in user when null
+     * @param string|null $creatorName
+     *
      * @throws \Exception
      *
      * @return int
      */
-    public function insert(): int
+    public function insert(?int $creatorId = null, ?string $creatorName = null): int
     {
         global $centreon;
 
@@ -183,8 +186,8 @@ abstract class ServerConnectionConfigurationService
         } else {
             $request = new DeployDefaultAgentConfigurationForPollerRequest(
                 pollerId: $serverID,
-                creatorId: $centreon->user->user_id,
-                creatorName: $centreon->user->alias,
+                creatorId: $creatorId ?? $centreon->user->user_id,
+                creatorName: $creatorName ?? $centreon->user->alias,
             );
             $deployAgentConfiguration($request);
         }

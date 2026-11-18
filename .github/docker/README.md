@@ -186,6 +186,12 @@ The feature flag `gorgone_api_commands` is always on in this image. `CENTREON_FE
 
 With `broker_managed_pki`, the BBDO connections whose TLS is on (`tls` of the poller module outputs and of the central broker input) use certificates the web issues itself: a certificate authority created on first need and the certificates of the pollers and of the central broker, all in the table `broker_pki`, private keys encrypted with the engine-context key (`CENTREON_ENGINE_CONTEXT` or `ENGINE_CONTEXT_PATH`, the same in every replica). The C++ Broker gets them as files in `pki/` of its configuration, centreon-engine inline in its structured configuration. Replacing the engine-context key makes the stored keys unreadable: the export then fails until the table is emptied, which issues a new CA and new certificates for every poller.
 
+With `collector_enrolment` (it needs `engine_structured_configuration` too), an administrator adds a collector, a poller run by centreon-engine, with `POST /api/latest/configuration/collectors/enrolments`: `{"name": "..."}` creates the poller at once with a single-use token, `{"fleet": true, "max_uses": n}` gives a token the machines use to enrol under their host name; tokens expire (`expires_in`, 24 hours by default). The answer holds the token, shown once (gorgone-server keeps its SHA-256 only), and the `docker run` command to start the collector with nothing but the gorgone-server address and that token. The cron job `collector-enrolment` (every minute) creates the pollers of fleet enrolments as the poller wizard does, sends the first configuration (generate, move, restart) to each collector once it is connected, and deletes in gorgone-server the node of a deleted poller, which revokes its credential. Set by the `install` role into the options of the same name:
+
+* `COLLECTOR_SERVER_URL` (`collector_server_url`): the agent gateway of gorgone-server as the collectors reach it; default `http(s)://<GORGONE_API_ADDRESS>:5556`.
+* `COLLECTOR_BROKER_ADDRESS` (`collector_broker_address`): the central broker input the collectors send to; default the address of the central in the platform topology.
+* `COLLECTOR_IMAGE` (`collector_image`): image of the command given to the administrator; default `centreon-engine`.
+
 ```bash
 docker build -f .github/docker/centreon-web/frankenphp/Dockerfile -t centreon-web-frankenphp:local .
 ```

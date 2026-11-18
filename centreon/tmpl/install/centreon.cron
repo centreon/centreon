@@ -38,3 +38,7 @@ CRONTAB_EXEC_USER=""
 ##########################
 # Cron for Outdated Token removal
 * * * * * @WEB_USER@ @INSTALL_DIR_CENTREON@/cron/outdated-token-removal.php >> @CENTREON_LOG@/centreon-tokens.log 2>&1
+
+##########################
+# Cron for the enrolment of collectors (feature flag collector_enrolment)
+* * * * * @WEB_USER@ @INSTALL_DIR_CENTREON@/cron/centreon-collector-enrolment.php >> @CENTREON_LOG@/centreon-collector-enrolment.log 2>&1

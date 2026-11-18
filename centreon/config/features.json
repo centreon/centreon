@@ -9,5 +9,6 @@
   "gorgone_api_commands": 0,
   "engine_recurring_downtimes": 0,
   "engine_structured_configuration": 0,
-  "broker_managed_pki": 0
+  "broker_managed_pki": 0,
+  "collector_enrolment": 0
 }
