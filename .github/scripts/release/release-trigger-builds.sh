@@ -101,6 +101,9 @@ prepare() {
   local mode=legacy
   [[ "$(jq -r '.testing_tag_builds // false' "$components_file")" == "true" ]] && mode=testing
   echo "Mode: $mode (testing_tag_builds at the target)"
+  if [[ "$mode" == "legacy" && -n "${RELEASE_NUMBER:-}" ]]; then
+    echo "::warning::release_number $RELEASE_NUMBER is ignored: $branch is not in testing-tag mode"
+  fi
 
   if [[ "$exists" == "false" && "$mode" == "legacy" ]]; then
     create_branch "$branch" "$base" "$head_sha"
@@ -154,18 +157,24 @@ remote_url() {
   printf "${REMOTE_URL_TEMPLATE:-https://x-access-token:%s@github.com/${GITHUB_REPOSITORY%%/*}/%s.git}" "$REMOTE_TOKEN" "$1"
 }
 
+# primes the cache of one repository; returns 1 when its refs can't be read (never cached then)
+fetch_remote_refs() {
+  local cache="$RUNNER_TEMP/refs-$1.txt" listing
+  [[ -f "$cache" ]] && return 0
+  listing=$(git ls-remote --refs "$(remote_url "$1")" 'refs/tags/testing-*' 'refs/tags/release-*' 'refs/heads/*-next') \
+    || return 1
+  awk '{print $2}' <<< "$listing" > "$cache.tmp" && mv "$cache.tmp" "$cache"
+}
+
+# reads only primed caches: validate() primes the 3 repositories first and fails if one is unreadable
 remote_refs() {
   local cache="$RUNNER_TEMP/refs-$1.txt"
-  if [[ ! -f "$cache" ]]; then
-    git ls-remote --refs "$(remote_url "$1")" 'refs/tags/testing-*' 'refs/tags/release-*' 'refs/heads/*-next' \
-      | awk '{print $2}' > "$cache" \
-      || fail "Cannot read the tags and branches of $1"
-  fi
+  [[ -f "$cache" ]] || { echo "::error::refs of $1 not loaded" >&2; return 1; }
   cat "$cache"
 }
 
 remote_tags() { remote_refs "$1" | sed -n 's|^refs/tags/||p'; }
-remote_has_branch() { remote_refs "$1" | grep -qx "refs/heads/$2"; }
+remote_has_branch() { remote_refs "$1" | grep -Fqx "refs/heads/$2"; }
 
 # iterations N already tagged in a repository for one release: testing-<scope>-<type>-<number>-<major>-N
 bundle_iterations() {
@@ -208,11 +217,16 @@ validate() {
   for i in "${!CHAIN[@]}"; do [[ "${CHAIN[$i]}" == "$repo" ]] && self_index=$i; done
   (( self_index >= 0 )) || fail "$repo is not part of the bundle chain ${CHAIN[*]}"
 
+  # fail closed: a repository whose refs can't be read would look like a repository without tags
+  local r
+  for r in "${CHAIN[@]}"; do
+    fetch_remote_refs "$r" || fail "Cannot read the tags and branches of $r (token access, GitHub outage?)"
+  done
   local all_tags
   all_tags=$(for r in "${CHAIN[@]}"; do remote_tags "$r"; done | sort -u)
 
   # release not cut yet
-  grep -qx "release-$scope-$number-$major" <<< "$all_tags" \
+  grep -Fqx "release-$scope-$number-$major" <<< "$all_tags" \
     && fail "Release $number is already cut: stable bundle tag release-$scope-$number-$major exists"
 
   # line order: never below the highest release number of the line (get-environment would refuse the runs)
@@ -221,7 +235,7 @@ validate() {
   highest=$(tail -n 1 <<< "$line_numbers")
   if [[ -n "$highest" ]]; then
     (( number < highest )) && fail "Release number $number is lower than $highest, the latest of the line $scope $type $major"
-    if (( number > highest )) && ! grep -qx "release-$scope-$highest-$major" <<< "$all_tags"; then
+    if (( number > highest )) && ! grep -Fqx "release-$scope-$highest-$major" <<< "$all_tags"; then
       echo "::warning::Release $highest of the line $scope $type $major was never cut, its bundles are superseded by $number"
     fi
   fi
@@ -232,7 +246,7 @@ validate() {
     [[ "$type" == "hotfix" ]] && other=release
     while read -r n; do
       [[ -n "$n" ]] || continue
-      grep -qx "release-cloud-$n-$major" <<< "$all_tags" || open_other+=" $n"
+      grep -Fqx "release-cloud-$n-$major" <<< "$all_tags" || open_other+=" $n"
     done < <(sed -n "s|^testing-cloud-$other-\([0-9]\{8\}\)-${major//./\\.}-[1-9][0-9]*$|\1|p" <<< "$all_tags" | sort -u)
     [[ -z "$open_other" ]] || fail "Cloud $other train(s)$open_other still open on $major: a cloud release and hotfix never share a major"
   fi
@@ -242,7 +256,7 @@ validate() {
   for (( i = 0; i < self_index; i++ )); do
     remote_has_branch "${CHAIN[$i]}" "$BRANCH" && upstream+=("${CHAIN[$i]}")
   done
-  local prefix="testing-$scope-$type-$number-$major" latest=0 n r
+  local prefix="testing-$scope-$type-$number-$major" latest=0 n
   for r in "${CHAIN[@]}"; do
     n=$(bundle_iterations "$r" "$prefix" | tail -n 1)
     [[ -n "$n" ]] && (( n > latest )) && latest=$n
@@ -272,10 +286,10 @@ validate() {
     iteration=$latest
     (( latest > 0 )) || fail "No bundle of $number yet: dispatch ${upstream[0]} first, it opens the bundle"
     for r in "${upstream[@]}"; do
-      bundle_iterations "$r" "$prefix" | grep -qx "$latest" \
+      bundle_iterations "$r" "$prefix" | grep -Fqx "$latest" \
         || errors+=("$r has $BRANCH but is not tagged in $prefix-$latest: dispatch $r first")
     done
-    if bundle_iterations "$repo" "$prefix" | grep -qx "$latest"; then
+    if bundle_iterations "$repo" "$prefix" | grep -Fqx "$latest"; then
       errors+=("$prefix-$latest is already started here: to rebuild, start bundle $((latest + 1)) from ${upstream[0]}")
     fi
     # chain guard: every component expected by the earlier repositories delivered successfully
@@ -318,7 +332,7 @@ validate() {
           echo "::warning::No $wf run on $BRANCH yet"
         elif [[ "$(jq -r '.[0].status' <<< "$runs")" != "completed" ]]; then
           errors+=("$wf is running on $BRANCH ($(jq -r '.[0].url' <<< "$runs")): wait for it, then re-run")
-        elif [[ "$(jq -r '.[0].conclusion' <<< "$runs")" != "success" ]]; then
+        elif ! [[ "$(jq -r '.[0].conclusion' <<< "$runs")" =~ ^(success|skipped|neutral)$ ]]; then
           errors+=("The last $wf run on $BRANCH did not succeed ($(jq -r '.[0].url' <<< "$runs"))")
         fi
       done
@@ -330,9 +344,12 @@ validate() {
   plan=$(build_manifest testing "$scope" "$DISPATCH_CONTENT" "${CHANGED_FILE:-}")
   while read -r wf; do
     [[ -n "$wf" ]] || continue
-    if ! git show "$HEAD_SHA:.github/workflows/$wf" > "$RUNNER_TEMP/target-workflow.yml" 2> /dev/null \
-      || ! workflow_on "$RUNNER_TEMP/target-workflow.yml" | jq -e 'any(.events[]; . == "workflow_dispatch")' > /dev/null; then
-      errors+=("$wf is missing at $HEAD_SHA or does not accept workflow_dispatch")
+    if ! git show "$HEAD_SHA:.github/workflows/$wf" > "$RUNNER_TEMP/target-workflow.yml" 2> /dev/null; then
+      errors+=("$wf is missing at $HEAD_SHA")
+    elif ! workflow_on "$RUNNER_TEMP/target-workflow.yml" > "$RUNNER_TEMP/target-on.json"; then
+      errors+=("$wf at $HEAD_SHA can't be parsed as YAML")
+    elif ! jq -e 'any(.events[]; . == "workflow_dispatch")' "$RUNNER_TEMP/target-on.json" > /dev/null; then
+      errors+=("$wf at $HEAD_SHA does not accept workflow_dispatch")
     fi
   done < <(jq -r '.[] | select(.action == "dispatch" or .action == "dry-run") | .workflow' <<< "$plan")
 
@@ -432,8 +449,8 @@ build_manifest() {
         | (($mode == "legacy") or any($c.scopes[]; . == $scope)) as $in_scope
         | del(.scopes)
         | . + {expected: ($mode == "testing" and $c.selected and $in_scope and $c.bundle_component != null),
-               action: (if ($c.selected | not) then "skipped"
-                        elif ($in_scope | not) then "out-of-scope"
+               action: (if ($in_scope | not) then "out-of-scope"
+                        elif ($c.selected | not) then "skipped"
                         elif $dry == "true" then "dry-run" else "dispatch" end)}
         | del(.selected))
   ' "$COMPONENTS_FILE"
@@ -563,7 +580,7 @@ dispatch() {
     for wf in "${workflows[@]}"; do
       args=()
       [[ "$mode" == "testing" && -n "${takes_labels[$wf]:-}" ]] && args=(-f "labels=$LABELS_VALUE")
-      echo "[dry-run] gh workflow run $wf --ref $ref ${args[*]:-}"
+      echo "[dry-run] gh workflow run $wf --ref $ref${args[*]:+ ${args[*]}}"
     done
     return 0
   fi
@@ -575,8 +592,18 @@ dispatch() {
   for wf in "${workflows[@]}"; do
     args=()
     if [[ "$mode" == "testing" ]]; then
-      existing=$(gh run list --workflow "$wf" --branch "$ref" --event workflow_dispatch --limit 1 \
-                   --json databaseId --jq length 2> /dev/null || echo 0)
+      existing=""
+      for (( attempt = 1; attempt <= 3; attempt++ )); do
+        existing=$(gh run list --workflow "$wf" --branch "$ref" --event workflow_dispatch --limit 1 \
+                     --json databaseId --jq length) && break
+        existing=""
+        (( attempt < 3 )) && sleep $(( attempt * ${RETRY_DELAY:-5} ))
+      done
+      if [[ ! "$existing" =~ ^[0-9]+$ ]]; then
+        echo "::error::Cannot list the runs of $wf on $ref: not dispatched, to never start it twice"
+        failed+=("$wf")
+        continue
+      fi
       if [[ "$existing" != "0" ]]; then
         echo "$wf already has a run on $ref, not dispatched again"
         continue
@@ -585,7 +612,7 @@ dispatch() {
     fi
     ok=false
     for (( attempt = 1; attempt <= tries; attempt++ )); do
-      echo "Dispatching $wf on $ref ${args[*]:-}"
+      echo "Dispatching $wf on $ref${args[*]:+ ${args[*]}}"
       if gh workflow run "$wf" --ref "$ref" "${args[@]}"; then ok=true; break; fi
       (( attempt < tries )) && sleep $(( attempt * ${RETRY_DELAY:-5} ))
     done

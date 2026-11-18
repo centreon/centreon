@@ -1,6 +1,6 @@
 ---
 name: release-trigger-builds
-run-name: 'release-trigger-builds ${{ inputs.dispatch_target_release_branch }} ${{ inputs.dispatch_content }} ${{ inputs.release_number }}${{ inputs.dry_run && '' (dry run)'' || '''' }}'
+run-name: 'release-trigger-builds ${{ inputs.dispatch_target_release_branch }} ${{ inputs.dispatch_content }}${{ inputs.release_number && format('' {0}'', inputs.release_number) || '''' }}${{ inputs.dry_run && '' (dry run)'' || '''' }}'
 
 # Two modes, chosen by "testing_tag_builds" in release-components.json at the target branch:
 # legacy (dispatch on the branch, job 1 only) or testing tag (job 1 checks + tags, job 2 records + dispatches).
@@ -29,6 +29,11 @@ on:
         required: false
         type: boolean
         default: true
+
+# one run at a time per branch: two runs would pick the same bundle number, the second one would fail late
+concurrency:
+  group: release-trigger-builds-${{ inputs.dispatch_target_release_branch }}
+  cancel-in-progress: false
 
 env:
   BUCKET: release-orchestrator
@@ -71,6 +76,7 @@ jobs:
         id: prepare
         env:
           DISPATCH_TARGET_RELEASE_BRANCH: ${{ inputs.dispatch_target_release_branch }}
+          RELEASE_NUMBER: ${{ inputs.release_number }}
           DRY_RUN: ${{ inputs.dry_run }}
           BRANCH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
         run: .github/scripts/release/release-trigger-builds.sh prepare

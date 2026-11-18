@@ -1,5 +1,6 @@
 # Bundle status files in S3, shared by report.sh (component final jobs) and release-trigger-builds.
 # Sourced, not executed. Needs: BUCKET, aws cli 2.22+ (conditional writes), jq.
+# Functions check every command: they run inside $(...), where set -e doesn't apply.
 # Layout and schemas: delivery-tooling docs/release/testing-bundles.md
 
 BUNDLE_TAG_REGEX='^testing-(cloud|onprem)-(release|hotfix)-([0-9]{8})-([0-9]{2}\.[0-9]{2})-([1-9][0-9]*)$'
@@ -44,13 +45,18 @@ bundle_s3_update_global() {
   work=$(mktemp -d)
   for attempt in $(seq 1 "$max"); do
     if aws s3api get-object --bucket "$BUCKET" --key "$key" "$work/global.json" > "$work/head.json" 2> "$work/get.err"; then
-      condition=(--if-match "$(jq -r .ETag "$work/head.json")")
+      local etag
+      etag=$(jq -r '.ETag // empty' "$work/head.json") && [[ -n "$etag" ]] \
+        && jq -e 'type == "object"' "$work/global.json" > /dev/null \
+        || { rm -rf "$work"; echo "::error::s3://$BUCKET/$key is not a readable status file, not overwritten" >&2; return 1; }
+      condition=(--if-match "$etag")
     elif grep -q -E "\(NoSuchKey\)|\(404\)" "$work/get.err"; then
       condition=(--if-none-match '*')
       jq -n --arg bundle "$bundle" --arg scope "$scope" --arg type "$type" --arg major "$major" \
         --arg number "$number" --argjson iteration "$iteration" \
         '{schema_version: 1, bundle: $bundle, scope: $scope, type: $type, major: $major,
-          release_number: $number, iteration: $iteration, repos: {}, components: {}}' > "$work/global.json"
+          release_number: $number, iteration: $iteration, repos: {}, components: {}}' > "$work/global.json" \
+        || { rm -rf "$work"; return 1; }
     else
       cat "$work/get.err" >&2
       rm -rf "$work"
@@ -67,7 +73,8 @@ bundle_s3_update_global() {
       | .status = (if ($expected | length) > 0
                      and ([$expected[] as $c | .components[$c].state] | all(. == "success"))
                    then "complete" else "incomplete" end)
-    ' "$work/global.json" > "$work/global.new.json"
+    ' "$work/global.json" > "$work/global.new.json" && jq -e '.status' "$work/global.new.json" > /dev/null \
+      || { rm -rf "$work"; echo "::error::Cannot update the $kind.$name section of s3://$BUCKET/$key" >&2; return 1; }
 
     if aws s3api put-object --bucket "$BUCKET" --key "$key" --body "$work/global.new.json" \
          --content-type application/json "${condition[@]}" > /dev/null 2> "$work/put.err"; then
