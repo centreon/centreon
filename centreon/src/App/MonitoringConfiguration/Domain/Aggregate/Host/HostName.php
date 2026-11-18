@@ -38,9 +38,8 @@ final readonly class HostName
         // The name is used as a plain identifier in the monitoring engine's configuration
         // (command lines, config file tokens), where a raw space would break parsing — so it
         // never carries one, wherever the value is built from.
-        $value = str_replace(' ', '_', trim($value));
+        $value = str_replace(' ', '_', trim(EngineConfigurationValue::toSingleLine($value)));
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
-        Assert::notRegex($value, EngineConfigurationValue::CONTROL_CHARACTERS_PATTERN, '[HostName::value] The value must not contain control characters');
         $this->value = $value;
     }
 }
