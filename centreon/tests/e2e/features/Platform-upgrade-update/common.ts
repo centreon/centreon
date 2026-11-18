@@ -130,10 +130,17 @@ const getStableRepositoryIndexPath = (majorVersion: string): string => {
   return `apt-standard-${majorVersion}-stable/dists/${Cypress.env('WEB_IMAGE_OS')}/Release`;
 };
 
+// cy.request()'s failOnStatusCode only tolerates a non-2xx status, not a host that fails
+// to resolve at all; curl keeps that failure on the Cypress/Node side, where we control it.
 const isRepositoryReachable = (url: string): Cypress.Chainable<boolean> =>
   cy
-    .request({ failOnStatusCode: false, url })
-    .then(({ status }) => status === 200);
+    .exec(
+      `curl -s -o /dev/null -w '%{http_code}' --max-time 10 "${url}" || true`,
+      {
+        failOnNonZeroExit: false
+      }
+    )
+    .then(({ stdout }) => stdout.trim() === '200');
 
 // End-of-life major versions leave packages.centreon.com and only their stable
 // repository is kept on archives.centreon.com (APT only for now).
