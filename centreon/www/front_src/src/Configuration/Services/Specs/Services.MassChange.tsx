@@ -8,10 +8,7 @@ import {
   labelFailedToUpdateSomeResources,
   labelMassChange
 } from '../../ConfigurationBase/translatedLabels';
-import {
-  labelReplacementOverwritesLists,
-  labelSharedServicesKeepFirstHost
-} from '../translatedLabels';
+import { labelReplacementOverwritesLists } from '../translatedLabels';
 import initialize, { patchableServiceIds } from './initialize';
 import { getSharedServiceListingResponse } from './utils';
 
@@ -219,7 +216,7 @@ export default () => {
       });
     });
 
-    it('patches a service linked to several hosts once, warning that it keeps its first host only', async () => {
+    it('patches a service linked to several hosts once', async () => {
       await initializeListing({
         listingResponse: getSharedServiceListingResponse()
       });
@@ -232,28 +229,9 @@ export default () => {
       await pick('service-form-service-groups', 'Web services');
       await save();
       await expectConfirmation('The changes will be applied to 1 service.');
-      expect(
-        await screen.findByTestId('mass-change-warning')
-      ).toHaveTextContent(labelSharedServicesKeepFirstHost);
       await confirm();
 
       await expectPatchedServices([5], { service_group_ids_to_add: [1] });
-    });
-
-    it('warns about a shared service even when only one of its rows is selected', async () => {
-      await initializeListing({
-        listingResponse: getSharedServiceListingResponse()
-      });
-
-      await tickRow('10_5');
-      await openMassChange();
-
-      await pick('service-form-service-groups', 'Web services');
-      await save();
-
-      expect(
-        await screen.findByTestId('mass-change-warning')
-      ).toHaveTextContent(labelSharedServicesKeepFirstHost);
     });
 
     it('names the services that failed and keeps the panel open on them alone', async () => {

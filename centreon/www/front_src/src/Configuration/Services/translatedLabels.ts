@@ -46,8 +46,6 @@ export const labelMustBeIntegerBetweenZeroAndOneHundred =
   'Must be an integer between 0 and 100';
 
 // Mass change. Wording to confirm with UX.
-export const labelSharedServicesKeepFirstHost =
-  'Some selected services are linked to several hosts: saving them will keep only their first host.';
 export const labelReplacementOverwritesLists =
   'The lists set to Replace will overwrite those of every selected service, and empty the entries you can see when left blank.';
 export const labelNoneNeedsReplacement =

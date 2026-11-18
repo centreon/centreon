@@ -21590,9 +21590,6 @@ msgstr "es ist erforderlich"
 msgid "The lists set to Replace will overwrite those of every selected service, and empty the entries you can see when left blank."
 msgstr ""
 
-#: centreon/www/install/front_translate.php
-msgid "Some selected services are linked to several hosts: saving them will keep only their first host."
-msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "None excludes the other notification options: set them to Replace, or the services that have some will refuse the change."
