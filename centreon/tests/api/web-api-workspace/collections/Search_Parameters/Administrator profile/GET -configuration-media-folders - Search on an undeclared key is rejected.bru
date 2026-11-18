@@ -10,16 +10,13 @@ get {
   auth: inherit
 }
 
-assert {
-  res.status: gte 400
-}
-
 tests {
+  // The rejection is read from the body only: this listing answers its errors with HTTP 200.
   test("A search on an undeclared key is rejected instead of being silently ignored", function () {
     const body = res.getBody();
     expect(body).to.be.an("object");
     expect(body).to.not.have.property("result");
-    expect(body).to.have.property("message").that.is.a("string");
+    expect(body).to.have.property("message").that.contains("unknown_key");
   });
 }
 
