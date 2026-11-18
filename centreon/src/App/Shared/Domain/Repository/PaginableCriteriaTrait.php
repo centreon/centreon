@@ -31,7 +31,7 @@ trait PaginableCriteriaTrait
     private ?Pagination $pagination = null;
 
     /**
-     * @throws \InvalidArgumentException when $page or $itemsPerPage is not a positive integer
+     * @throws \InvalidArgumentException when the values break a {@see Pagination} invariant
      */
     public function withPagination(int $page, int $itemsPerPage): static
     {
