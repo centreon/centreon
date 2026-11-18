@@ -28,7 +28,6 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\YesNoDefault;
 use Core\Domain\Common\GeoCoords;
-use Webmozart\Assert\Assert;
 
 class Host extends NewHost
 {
@@ -193,7 +192,6 @@ class Host extends NewHost
         $this->name = $this->formatName($name);
         Assertion::notEmptyString($this->name, "{$this->shortName}::name");
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$this->shortName}::name");
-        Assert::notRegex($this->name, self::CONTROL_CHARACTERS, "[{$this->shortName}::name] The value must not contain control characters");
     }
 
     /**
@@ -203,9 +201,8 @@ class Host extends NewHost
      */
     public function setAlias(string $alias): void
     {
-        $this->alias = trim($alias);
+        $this->alias = trim(self::toSingleLine($alias));
         Assertion::maxLength($this->alias, self::MAX_ALIAS_LENGTH, "{$this->shortName}::alias");
-        Assert::notRegex($this->alias, self::CONTROL_CHARACTERS, "[{$this->shortName}::alias] The value must not contain control characters");
     }
 
     /**
@@ -241,9 +238,8 @@ class Host extends NewHost
      */
     public function setSnmpCommunity(string $snmpCommunity): void
     {
-        $this->snmpCommunity = trim($snmpCommunity);
+        $this->snmpCommunity = trim(self::toSingleLine($snmpCommunity));
         Assertion::maxLength($this->snmpCommunity, self::MAX_SNMP_COMMUNITY_LENGTH, "{$this->shortName}::snmpCommunity");
-        Assert::notRegex($this->snmpCommunity, self::CONTROL_CHARACTERS, "[{$this->shortName}::snmpCommunity] The value must not contain control characters");
     }
 
     /**
@@ -253,9 +249,8 @@ class Host extends NewHost
      */
     public function setNote(string $note): void
     {
-        $this->note = trim($note);
+        $this->note = trim(self::toSingleLine($note));
         Assertion::maxLength($this->note, self::MAX_NOTE_LENGTH, "{$this->shortName}::note");
-        Assert::notRegex($this->note, self::CONTROL_CHARACTERS, "[{$this->shortName}::note] The value must not contain control characters");
     }
 
     /**
@@ -265,9 +260,8 @@ class Host extends NewHost
      */
     public function setNoteUrl(string $noteUrl): void
     {
-        $this->noteUrl = trim($noteUrl);
+        $this->noteUrl = trim(self::toSingleLine($noteUrl));
         Assertion::maxLength($this->noteUrl, self::MAX_NOTE_URL_LENGTH, "{$this->shortName}::noteUrl");
-        Assert::notRegex($this->noteUrl, self::CONTROL_CHARACTERS, "[{$this->shortName}::noteUrl] The value must not contain control characters");
     }
 
     /**
@@ -277,9 +271,8 @@ class Host extends NewHost
      */
     public function setActionUrl(string $actionUrl): void
     {
-        $this->actionUrl = trim($actionUrl);
+        $this->actionUrl = trim(self::toSingleLine($actionUrl));
         Assertion::maxLength($this->actionUrl, self::MAX_ACTION_URL_LENGTH, "{$this->shortName}::actionUrl");
-        Assert::notRegex($this->actionUrl, self::CONTROL_CHARACTERS, "[{$this->shortName}::actionUrl] The value must not contain control characters");
     }
 
     /**
@@ -289,9 +282,8 @@ class Host extends NewHost
      */
     public function setIconAlternative(string $iconAlternative): void
     {
-        $this->iconAlternative = trim($iconAlternative);
+        $this->iconAlternative = trim(self::toSingleLine($iconAlternative));
         Assertion::maxLength($this->iconAlternative, self::MAX_ICON_ALT_LENGTH, "{$this->shortName}::iconAlternative");
-        Assert::notRegex($this->iconAlternative, self::CONTROL_CHARACTERS, "[{$this->shortName}::iconAlternative] The value must not contain control characters");
     }
 
     /**
