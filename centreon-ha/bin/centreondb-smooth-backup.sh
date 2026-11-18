@@ -65,6 +65,7 @@ fi
 
 logbin_activated=1
 backup_status=0
+binlog_gap=0
 
 #####
 # Functions
@@ -124,15 +125,21 @@ get_current_logbin_file() {
 	echo "$file" | awk -F. '{ print $NF - 1 }'
 }
 
-save_current_logbin_file() {
-	if ! current_logbin_file=$(get_current_logbin_file 0) ; then
-		# Without a checkpoint, the next incremental backup is a total one
-		rm -f "$SAVE_LAST_DIR/centreondb-smooth-backup.save"
-		output_log "ERROR: Can't get the current binary log: the next incremental backup will be a total one." 1
+write_checkpoint() {
+	# $1: index of the last binary log that the backups hold
+	if ! echo "$1" > "$SAVE_LAST_DIR/centreondb-smooth-backup.save" ; then
+		output_log "ERROR: Can't write the incremental backup checkpoint." 1
 		return 1
 	fi
-	output_log "Save current logbin file = $current_logbin_file"
-	echo "$current_logbin_file" > "$SAVE_LAST_DIR/centreondb-smooth-backup.save"
+	output_log "Save current logbin file = $1"
+}
+
+drop_checkpoint() {
+	# Without a checkpoint, the next incremental backup is a total one
+	output_log "ERROR: $1: the next incremental backup will be a total one (previous checkpoint: '$(cat "$SAVE_LAST_DIR/centreondb-smooth-backup.save" 2>/dev/null)')." 1
+	if ! rm -f "$SAVE_LAST_DIR/centreondb-smooth-backup.save" ; then
+		output_log "ERROR: Can't remove $SAVE_LAST_DIR/centreondb-smooth-backup.save: remove it by hand." 1
+	fi
 }
 
 output_log() {
@@ -322,26 +329,32 @@ if [ "$OPT_INCR" -ne "0" ] ; then
 		if [ -f "$file_test" ] ; then
 			save_bin_logs="$save_bin_logs \"$file_test\" "
 		else
-			output_log "ERROR: Missing binary log '$file_test', the backup chain has a gap." 1
-			backup_status=1
+			output_log "ERROR: Missing binary log '$file_test'." 1
+			binlog_gap=1
 		fi
 	done
 	
 	echo "Save files"
-	if [ "$DO_ARCHIVE" -eq "0" ] ; then
-		copy_command="cp -pf $save_bin_logs \"$BACKUP_DIR_TOTAL/\""
-	else
-		copy_command="tar czvf \"$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz\" $save_bin_logs"
+	if [ -n "$save_bin_logs" ] ; then
+		if [ "$DO_ARCHIVE" -eq "0" ] ; then
+			copy_command="cp -pf $save_bin_logs \"$BACKUP_DIR_TOTAL/\""
+		else
+			copy_command="tar czvf \"$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz\" $save_bin_logs"
+		fi
+		# Advance the checkpoint only once the binary logs are saved
+		if ! eval "$copy_command" ; then
+			output_log "ERROR: Can't save the binary logs, the incremental backup checkpoint is not updated." 1
+			exit 1
+		fi
 	fi
-	# Advance the checkpoint only once the binary logs are saved
-	if [ -z "$save_bin_logs" ] || ! eval "$copy_command" ; then
-		output_log "ERROR: Can't save the binary logs, the incremental backup checkpoint is not updated." 1
+	# The chain cannot be restored past a missing binary log
+	if [ "$binlog_gap" -eq 1 ] ; then
+		drop_checkpoint "The binary logs have a gap"
 		exit 1
 	fi
-	output_log "Save current logbin file = $current_binlog_file"
-	echo "$current_binlog_file" > "$SAVE_LAST_DIR/centreondb-smooth-backup.save"
+	write_checkpoint "$current_binlog_file" || exit 1
 	
-	exit $backup_status
+	exit 0
 fi
 
 echo "#####################"
@@ -412,8 +425,10 @@ fi
 # Get Index path
 ###
 
-if [ "$logbin_activated" -ne "0" ] && ! save_current_logbin_file ; then
-	backup_status=1
+# Saved as checkpoint once the total backup succeeds
+total_checkpoint=""
+if [ "$logbin_activated" -ne "0" ] && ! total_checkpoint=$(get_current_logbin_file 0) ; then
+	total_checkpoint=""
 fi
 
 concat_datadir=$(echo "$datadir" | sed "s#^${mount_point}##")
@@ -456,13 +471,16 @@ for tmp_file in $(find "$tmp_path" -type f); do
 done
 
 output_log "Save files"
-cd $SNAPSHOT_MOUNT
-if [ "$DO_ARCHIVE" -eq "0" ] ; then
-	eval cp --parent -pf $save_files \"$BACKUP_DIR_TOTAL/\"
-else
-	eval tar czvf \"$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz\" $save_files
+copy_status=1
+if cd "$SNAPSHOT_MOUNT" ; then
+	if [ "$DO_ARCHIVE" -eq "0" ] ; then
+		eval cp --parent -pf $save_files \"$BACKUP_DIR_TOTAL/\"
+	else
+		eval tar czvf \"$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz\" $save_files
+	fi
+	copy_status=$?
+	cd -
 fi
-cd -
 
 ###
 # Suppression du snapshot
@@ -471,6 +489,21 @@ cd -
 output_log "Umount and Delete LVM snapshot"
 umount "$SNAPSHOT_MOUNT"
 lvremove -f /dev/$vg_name/dbbackup
+
+# A failed copy keeps the previous checkpoints: the previous backups stay
+# valid
+if [ "$copy_status" -ne 0 ] ; then
+	output_log "ERROR: Can't save the database files, the backup checkpoints are not updated." 1
+	exit 1
+fi
+if [ "$logbin_activated" -ne "0" ] ; then
+	if [ -z "$total_checkpoint" ] ; then
+		drop_checkpoint "Can't get the current binary log"
+		backup_status=1
+	elif ! write_checkpoint "$total_checkpoint" ; then
+		backup_status=1
+	fi
+fi
 
 echo "$save_timestamp" > "$SAVE_LAST_DIR/$SAVE_LAST_FILE"
 

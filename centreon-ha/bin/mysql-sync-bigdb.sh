@@ -181,19 +181,20 @@ fi
 #############
 
 restore_master_writable() {
-    # Run on any exit between making the master read-only and writable again
-    if $MYSQLADMIN -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" ping > /dev/null 2>&1 ; then
-        if mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF' ; then
-            echo "The master '$master_hostname' is writable again." >&2
-        else
-            echo "ERROR: Can't make the master '$master_hostname' writable again: run 'SET GLOBAL read_only = OFF' on it." >&2
-        fi
+    # Run on any exit between making the master read-only and writable again.
+    # A second interrupt must not stop the restore.
+    trap '' INT TERM
+    if mysql -B -N --connect-timeout=10 -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF' ; then
+        echo "The master '$master_hostname' is writable again." >&2
+    elif $MYSQLADMIN --connect-timeout=10 -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" ping > /dev/null 2>&1 ; then
+        echo "ERROR: Can't make the master '$master_hostname' writable again: run 'SET GLOBAL read_only = OFF' on it." >&2
     else
         echo "ERROR: The master '$master_hostname' is stopped or stopping: start it with 'systemctl start $SQL_SYSTEMD_SERVICE'." >&2
     fi
 }
 trap restore_master_writable EXIT
-trap 'exit 130' INT TERM
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
     gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
@@ -314,7 +315,9 @@ echo "Rsync in progress (exclude MySQL, ${logbin_files}, ${relaylog_files})"
 rsync -av $RSYNC_EXTRA_OPTIONS --delete --progress --exclude="mysql" --exclude="${SQL_CONF_PID_FILE}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude="auto.cnf" --exclude="mysqld-auto.cnf" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$SQL_CONF_DATADIR/ || abort_copy
 
 mysql_ibd_system=''
-for file in $(ls "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/"*.ibd); do
+# MySQL keeps its system tables in mysql.ibd, copied above: mysql/ has no .ibd
+for file in "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/"*.ibd; do
+    [ -e "$file" ] || continue
     filename=$(basename $file | sed 's/\.ibd//')
     mysql_ibd_system="$mysql_ibd_system \"$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.ibd\""
     # rsync fails on a missing source file
