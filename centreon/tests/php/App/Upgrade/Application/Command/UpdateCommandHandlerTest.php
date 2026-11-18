@@ -27,6 +27,7 @@ use App\Upgrade\Application\Command\UpdateCommand;
 use App\Upgrade\Application\Command\UpdateCommandHandler;
 use App\Upgrade\Application\Service\MigrationApplier;
 use App\Upgrade\Application\Service\TargetVersionRecorder;
+use App\Upgrade\Domain\Exception\ClosingStepsFailedException;
 use App\Upgrade\Domain\Exception\MigrationFailedException;
 use App\Upgrade\Domain\Model\MigrationSet;
 use App\Upgrade\Domain\Model\WebMigrationSetEnum;
@@ -101,7 +102,6 @@ final class UpdateCommandHandlerTest extends TestCase
 
         ($this->handler)(new UpdateCommand());
 
-        // Each available update is run in order, then the platform version is recorded.
         self::assertSame(['24.10.1', '24.10.2', self::TARGET_VERSION], $this->updateRepository->updatesRun);
         self::assertTrue($this->updateRepository->postUpdateCalled);
         self::assertTrue($this->locker->unlockCalled);
@@ -200,8 +200,8 @@ final class UpdateCommandHandlerTest extends TestCase
         try {
             ($this->handler)(new UpdateCommand());
             self::fail('Expected the cache clear failure to propagate');
-        } catch (\RuntimeException $exception) {
-            self::assertSame('cache clear failed', $exception->getMessage());
+        } catch (ClosingStepsFailedException $exception) {
+            self::assertSame('The closing steps of the update failed. cache_clear: cache clear failed.', $exception->getMessage());
         }
 
         self::assertTrue($this->locker->unlockCalled, 'Lock must be released even when a wrapped step fails');
@@ -261,8 +261,8 @@ final class UpdateCommandHandlerTest extends TestCase
         try {
             ($this->handler)(new UpdateCommand());
             self::fail('Expected the cache clear failure to propagate');
-        } catch (\RuntimeException $exception) {
-            self::assertSame('cache clear failed', $exception->getMessage());
+        } catch (ClosingStepsFailedException $exception) {
+            self::assertSame('The closing steps of the update failed. cache_clear: cache clear failed.', $exception->getMessage());
         }
 
         $methods = $this->loggedMethods();
@@ -276,12 +276,11 @@ final class UpdateCommandHandlerTest extends TestCase
             'start must be called before failure'
         );
 
-        // The failure routes the versions into from/to and the original message, pinning the handler
-        // call-site argument order (the target version is the platform version, not the last legacy script).
+        // Pins the from/to order: the target is the platform version, not the last legacy script.
         $failure = $this->callFor('failure');
         self::assertSame('24.10.0', $failure['fromVersion']);
         self::assertSame(self::TARGET_VERSION, $failure['toVersion']);
-        self::assertSame('cache clear failed', $failure['message']);
+        self::assertSame('The closing steps of the update failed. cache_clear: cache clear failed.', $failure['message']);
     }
 
     public function testRunsTheLegacyScriptsThenTheMigrationsThenTheClosingSteps(): void
@@ -342,6 +341,20 @@ final class UpdateCommandHandlerTest extends TestCase
         self::assertSame(['24.10.1'], $this->updateRepository->updatesRun, 'The platform version is not recorded');
     }
 
+    public function testKeepsTheLegacyVersionWithoutTheInstallDirectory(): void
+    {
+        $this->scriptFinder->availableUpdates = ['24.10.1'];
+        $this->updateRepository->installDirectoryPresent = false;
+
+        ($this->handler)(new UpdateCommand());
+
+        self::assertSame('24.10.1', $this->callFor('start')['toVersion']);
+        self::assertSame(['24.10.1'], $this->updateRepository->updatesRun, 'The platform version is not recorded');
+        self::assertSame('Kept the platform version 24.10.1: without the install directory, a pending Update-next.php cannot be detected.', $this->callFor('warning')['message']);
+        self::assertNotContains('backup_install_directory', array_column($this->logger->calls, 'stepName'));
+        self::assertContains('success', $this->loggedMethods());
+    }
+
     public function testStopsAtTheFirstFailingMigrationSetAndReleasesTheLock(): void
     {
         $this->migrationRunner->failingSets = [WebMigrationSetEnum::Realtime->value];
@@ -368,8 +381,8 @@ final class UpdateCommandHandlerTest extends TestCase
         try {
             ($this->handler)(new UpdateCommand());
             self::fail('Expected the module failure to be reported');
-        } catch (\RuntimeException $exception) {
-            self::assertSame('Some updates failed. bam: upgrade.sql failed', $exception->getMessage());
+        } catch (ClosingStepsFailedException $exception) {
+            self::assertSame('The closing steps of the update failed. modules_update: Some updates failed. bam: upgrade.sql failed.', $exception->getMessage());
         }
 
         self::assertSame(1, $this->widgetRepository->updates);
@@ -379,17 +392,19 @@ final class UpdateCommandHandlerTest extends TestCase
         self::assertContains('failure', $this->loggedMethods());
     }
 
-    public function testTheFirstClosingStepFailureIsReportedWhateverFailsAfterIt(): void
+    public function testEveryClosingStepFailureIsReported(): void
     {
-        $this->moduleRepository->updateFailure = new \RuntimeException('Some updates failed. bam: upgrade.sql failed');
+        $moduleFailure = new \RuntimeException('Some updates failed. bam: upgrade.sql failed');
+        $this->moduleRepository->updateFailure = $moduleFailure;
         $this->widgetRepository->failure = new \RuntimeException('engine-status failed');
         $this->cacheClearer->failure = new \RuntimeException('cache:clear failed');
 
         try {
             ($this->handler)(new UpdateCommand());
-            self::fail('Expected the module failure to be reported');
-        } catch (\RuntimeException $exception) {
-            self::assertSame('Some updates failed. bam: upgrade.sql failed', $exception->getMessage());
+            self::fail('Expected the closing step failures to be reported');
+        } catch (ClosingStepsFailedException $exception) {
+            self::assertSame('The closing steps of the update failed. modules_update: Some updates failed. bam: upgrade.sql failed; widgets_update: engine-status failed; cache_clear: cache:clear failed.', $exception->getMessage());
+            self::assertSame($moduleFailure, $exception->getPrevious());
         }
 
         self::assertSame(1, $this->engineContextWriter->writes);
