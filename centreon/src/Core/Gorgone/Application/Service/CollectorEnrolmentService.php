@@ -30,9 +30,11 @@ use Core\Common\Infrastructure\FeatureFlags;
 use Core\Gorgone\Application\EngineConfiguration\EngineConfigurationBuilder;
 use Core\Gorgone\Application\Exception\CollectorEnrolmentException;
 use Core\Gorgone\Application\Repository\CollectorDeployerInterface;
+use Core\Gorgone\Application\Repository\CollectorEnrolmentRecordRepositoryInterface;
 use Core\Gorgone\Application\Repository\CollectorEnrolmentRepositoryInterface;
 use Core\Gorgone\Application\Repository\CollectorProvisionerInterface;
 use Core\Gorgone\Domain\Model\CollectorEnrolment;
+use Core\Gorgone\Domain\Model\CollectorEnrolmentToken;
 use Core\Gorgone\Domain\Model\CreatedCollectorEnrolment;
 
 /**
@@ -81,6 +83,7 @@ final class CollectorEnrolmentService
      * @param CollectorDeployerInterface $deployer
      * @param OptionServiceInterface $optionService
      * @param ConfigurationLoaderApiInterface $gorgoneConfiguration
+     * @param CollectorEnrolmentRecordRepositoryInterface $records pollers chosen by the cron, and its lock
      * @param (\Closure(int): string)|null $randomBytes source of the tokens, random_bytes() by default
      */
     public function __construct(
@@ -90,6 +93,7 @@ final class CollectorEnrolmentService
         private readonly CollectorDeployerInterface $deployer,
         private readonly OptionServiceInterface $optionService,
         private readonly ConfigurationLoaderApiInterface $gorgoneConfiguration,
+        private readonly CollectorEnrolmentRecordRepositoryInterface $records,
         ?\Closure $randomBytes = null,
     ) {
         $this->randomBytes = $randomBytes ?? random_bytes(...);
@@ -112,6 +116,7 @@ final class CollectorEnrolmentService
      * @param int|null $maxUses fleet only, null for no limit until it expires
      * @param int $creatorId
      * @param string $creatorName
+     * @param bool $approvalRequired fleet only: each machine waits for an admin before its poller is created
      *
      * @throws CollectorEnrolmentException
      * @throws \Throwable
@@ -126,6 +131,7 @@ final class CollectorEnrolmentService
         ?int $maxUses,
         int $creatorId,
         string $creatorName,
+        bool $approvalRequired = false,
     ): CreatedCollectorEnrolment {
         $this->assertEnabled();
         $expiresIn ??= self::DEFAULT_VALIDITY_SECONDS;
@@ -140,6 +146,9 @@ final class CollectorEnrolmentService
         }
         if ($maxUses !== null && (! $isFleet || $maxUses < 1)) {
             throw CollectorEnrolmentException::invalid('max_uses is a positive number, for a fleet token only');
+        }
+        if ($approvalRequired && ! $isFleet) {
+            throw CollectorEnrolmentException::invalid('approval_required is for a fleet token only');
         }
 
         $pollerName = null;
@@ -179,7 +188,8 @@ final class CollectorEnrolmentService
             $pollerId,
             $pollerName,
             $expiresIn,
-            $maxUses
+            $maxUses,
+            $approvalRequired
         );
 
         $environment = [
@@ -197,6 +207,7 @@ final class CollectorEnrolmentService
             maxUses: $isFleet ? $maxUses : 1,
             environment: $environment,
             command: $this->buildCommand($environment, $pollerName),
+            approvalRequired: $approvalRequired,
         );
     }
 
@@ -214,48 +225,188 @@ final class CollectorEnrolmentService
     }
 
     /**
-     * Web cron: creates the pollers of the fleet enrolments, sends their first configuration to the
-     * collectors that connected without one, and deletes the nodes of deleted pollers. Each step
-     * is retried at the next run when it fails.
+     * @throws CollectorEnrolmentException
+     * @throws \Throwable
+     *
+     * @return list<CollectorEnrolmentToken>
+     */
+    public function findTokens(): array
+    {
+        $this->assertEnabled();
+
+        return $this->enrolmentRepository->findTokens();
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return array<int, string> poller names by id, to show the poller of an enrolment
+     */
+    public function findPollerNames(): array
+    {
+        return array_column($this->provisioner->findPollers(), 'name', 'id');
+    }
+
+    /**
+     * Revoke a token: it enrols nothing more; the collectors it enrolled keep their credential.
+     *
+     * @param string $tokenId
+     *
+     * @throws CollectorEnrolmentException
+     * @throws \Throwable
+     */
+    public function revokeToken(string $tokenId): void
+    {
+        $this->assertEnabled();
+        if (! $this->enrolmentRepository->deleteToken($tokenId)) {
+            throw CollectorEnrolmentException::notFound(sprintf('Unknown enrolment token %s', $tokenId));
+        }
+        $this->info('Collector enrolment: token revoked', ['token' => $tokenId]);
+    }
+
+    /**
+     * Approve a pending fleet enrolment: the cron creates its poller at its next run.
+     *
+     * @param string $enrolmentId
+     *
+     * @throws CollectorEnrolmentException
+     * @throws \Throwable
+     */
+    public function approve(string $enrolmentId): void
+    {
+        $this->assertEnabled();
+        $this->enrolmentRepository->approve($enrolmentId);
+        $this->info('Collector enrolment: approved', ['enrolment' => $enrolmentId]);
+    }
+
+    /**
+     * Reject a fleet enrolment that has no poller yet: the collector is refused.
+     *
+     * @param string $enrolmentId
+     *
+     * @throws CollectorEnrolmentException
+     * @throws \Throwable
+     */
+    public function reject(string $enrolmentId): void
+    {
+        $this->assertEnabled();
+        $this->enrolmentRepository->reject($enrolmentId);
+        $this->info('Collector enrolment: rejected', ['enrolment' => $enrolmentId]);
+    }
+
+    /**
+     * Have the collector of a poller replace its credential at its next session.
+     *
+     * @param int $pollerId
+     *
+     * @throws CollectorEnrolmentException
+     * @throws \Throwable
+     */
+    public function rotateCredential(int $pollerId): void
+    {
+        $this->assertEnabled();
+        if (! isset($this->findPollerNames()[$pollerId])) {
+            throw CollectorEnrolmentException::notFound(sprintf('Poller #%d does not exist', $pollerId));
+        }
+        $this->enrolmentRepository->rotateCredential($pollerId);
+        $this->info('Collector enrolment: credential rotation requested', ['poller_id' => $pollerId]);
+    }
+
+    /**
+     * Web cron: creates the pollers of the fleet enrolments (approved ones when their token asks for
+     * it), sends their first configuration to the collectors that connected without one, and deletes
+     * the nodes of deleted pollers. Each step is retried at the next run when it fails.
+     *
+     * The poller of an enrolment is recorded (table collector_enrolment) before it is created, and
+     * found again by that record afterwards: a run that dies anywhere never creates a second poller.
+     * Runs never overlap (MariaDB lock), whoever starts them.
+     *
+     * @param (\Closure(int): void)|null $afterPollerCreated test seam, called with the id of a poller
+     *                                                    just created, before it is recorded
+     *
+     * @throws \Throwable when the lock cannot be taken
      *
      * @return list<string> what was done, for the cron log
      */
-    public function synchronize(): array
+    public function synchronize(?\Closure $afterPollerCreated = null): array
     {
         if (! $this->isEnabled()) {
             return [];
         }
+        if (! $this->records->lock()) {
+            return ['another run is in progress: skipped'];
+        }
+        try {
+            return $this->synchronizeLocked($afterPollerCreated);
+        } finally {
+            $this->records->unlock();
+        }
+    }
+
+    /**
+     * @param (\Closure(int): void)|null $afterPollerCreated
+     *
+     * @return list<string>
+     */
+    private function synchronizeLocked(?\Closure $afterPollerCreated): array
+    {
         $done = [];
         $enrolments = $this->enrolmentRepository->findEnrolments();
         $pollers = $this->provisioner->findPollers();
         $pollerIds = array_column($pollers, 'id');
+        $records = $this->records->findAll();
         $creator = null;
 
         foreach ($enrolments as $enrolment) {
-            if ($enrolment->state !== CollectorEnrolment::STATE_PENDING) {
+            if (! $enrolment->isAssignable()) {
                 continue;
             }
             try {
-                [$name, $address] = $this->chooseIdentity($enrolment, $pollers);
-                // Nobody is logged in here: an administrator is the creator of what the wizard creates.
-                $creator ??= $this->provisioner->findAdministrator();
-                $pollerId = $this->provisioner->createPoller(
-                    $name,
-                    $address,
-                    $this->findBrokerAddress(),
-                    $creator[0],
-                    $creator[1]
-                );
+                $record = $records[$enrolment->id] ?? null;
+                if ($record === null) {
+                    [$name, $address] = $this->chooseIdentity($enrolment, $pollers, $records);
+                    // Recorded first: the name is the poller's identity until its id is known.
+                    $this->records->add($enrolment->id, $name, $address);
+                    $record = ['name' => $name, 'address' => $address, 'pollerId' => null];
+                    $records[$enrolment->id] = $record;
+                }
+                $name = $record['name'];
+                $pollerId = $record['pollerId'] !== null && in_array($record['pollerId'], $pollerIds, true)
+                    ? $record['pollerId']
+                    : $this->findPollerIdByName($pollers, $name);
+                if ($pollerId === null) {
+                    // Nobody is logged in here: an administrator is the creator of what the wizard creates.
+                    $creator ??= $this->provisioner->findAdministrator();
+                    $pollerId = $this->provisioner->createPoller(
+                        $name,
+                        $record['address'],
+                        $this->findBrokerAddress(),
+                        $creator[0],
+                        $creator[1]
+                    );
+                    $pollers[] = ['id' => $pollerId, 'name' => $name, 'address' => $record['address']];
+                    $pollerIds[] = $pollerId;
+                    $done[] = sprintf('enrolment %s: poller %s (#%d) created', $enrolment->id, $name, $pollerId);
+                    if ($afterPollerCreated !== null) {
+                        $afterPollerCreated($pollerId);
+                    }
+                }
+                if ($record['pollerId'] !== $pollerId) {
+                    $this->records->setPoller($enrolment->id, $pollerId);
+                    $records[$enrolment->id]['pollerId'] = $pollerId;
+                }
                 $this->enrolmentRepository->assign($enrolment->id, $pollerId, $name);
-                $pollers[] = ['id' => $pollerId, 'name' => $name, 'address' => $address];
-                $pollerIds[] = $pollerId;
-                $done[] = sprintf('enrolment %s: poller %s (#%d) created', $enrolment->id, $name, $pollerId);
+                $done[] = sprintf('enrolment %s: assigned to poller #%d', $enrolment->id, $pollerId);
             } catch (\Throwable $ex) {
-                $this->error('Collector enrolment: poller not created', [
+                $this->error('Collector enrolment: poller not set up', [
                     'enrolment' => $enrolment->id,
                     'exception' => $ex,
                 ]);
-                $done[] = sprintf('enrolment %s: poller not created: %s', $enrolment->id, $ex->getMessage());
+                $done[] = sprintf(
+                    'enrolment %s: poller not set up, retried next run: %s',
+                    $enrolment->id,
+                    $ex->getMessage()
+                );
             }
         }
 
@@ -319,11 +470,16 @@ final class CollectorEnrolmentService
      *
      * @param CollectorEnrolment $enrolment
      * @param list<array{id: int, name: string, address: string}> $pollers
+     * @param array<string, array{name: string, address: string, pollerId: int|null}> $records names
+     *        reserved by other enrolments, whose poller may not exist yet
      *
      * @return array{string, string}
      */
-    private function chooseIdentity(CollectorEnrolment $enrolment, array $pollers): array
+    private function chooseIdentity(CollectorEnrolment $enrolment, array $pollers, array $records): array
     {
+        foreach ($records as $record) {
+            $pollers[] = ['id' => 0, 'name' => $record['name'], 'address' => $record['address']];
+        }
         $base = substr(trim((string) preg_replace('/[^A-Za-z0-9._-]+/', '-', $enrolment->name), '-._'), 0, 32);
         if ($base === '') {
             $base = 'collector';
@@ -342,6 +498,21 @@ final class CollectorEnrolmentService
         }
 
         return [$name, $address];
+    }
+
+    /**
+     * @param list<array{id: int, name: string, address: string}> $pollers
+     * @param string $name
+     */
+    private function findPollerIdByName(array $pollers, string $name): ?int
+    {
+        foreach ($pollers as $poller) {
+            if (strcasecmp($poller['name'], $name) === 0) {
+                return $poller['id'];
+            }
+        }
+
+        return null;
     }
 
     private function findPollerName(int $pollerId): ?string

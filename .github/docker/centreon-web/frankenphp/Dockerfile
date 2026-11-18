@@ -9,9 +9,11 @@
 #
 # - frankenphp: static (musl) FrankenPHP binary built by FrankenPHP's own static builder
 #   (static-php-cli), with only the PHP extensions centreon-web uses;
+# - front: the React bundles (www/static, www/index.html) built from the checkout, so that
+#   its pages, new ones included, are the ones served; node stays in this stage;
 # - app: the application as installed in the published monolith image, with the
-#   application sources of the checkout laid over it (as Dockerfile.slim), then trimmed to
-#   what is served or executed at run time;
+#   application sources of the checkout and the front bundles laid over it (as
+#   Dockerfile.slim), then trimmed to what is served or executed at run time;
 # - rootfs: the files of the final image (binary, application, configuration, users);
 # - final: that root filesystem on scratch.
 #
@@ -22,6 +24,35 @@
 ARG WEB_IMAGE=docker.centreon.com/centreon/centreon-web-alma9:develop
 # FrankenPHP v1.13.3 (2026-10-23) static builder, musl flavor.
 ARG FRANKENPHP_BUILDER_IMAGE=dunglas/frankenphp:static-builder-musl-1.13.3@sha256:30e83214dcd19b1c772d5b05920b759d1c502af52b390b4e37217c66abb7b53d
+# Node 24 and pnpm 10, as the frontend-build action of the CI.
+ARG NODE_IMAGE=node:24-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54
+ARG PNPM_VERSION=10.34.9
+
+FROM ${NODE_IMAGE} AS front
+
+ARG PNPM_VERSION
+# Install options of the frontend-build action; no test browser is downloaded.
+ENV CYPRESS_INSTALL_BINARY=0 \
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+
+# The pnpm store stays in a cache mount, and node_modules (1.7 GB) never leaves this RUN: only
+# the bundles (/out) reach a layer.
+RUN --mount=type=bind,src=centreon,dst=/tmp/centreon-src \
+    --mount=type=cache,id=centreon-web-pnpm-store,target=/pnpm-store bash -e <<'EOF'
+npm install --global --no-fund --no-audit "pnpm@${PNPM_VERSION}" > /dev/null
+mkdir /front
+tar -C /tmp/centreon-src --exclude=./vendor --exclude=node_modules --exclude=./www/static \
+  -cf - . | tar -C /front -xf -
+cd /front
+pnpm install --frozen-lockfile --store-dir /pnpm-store --config.trustPolicy=no-downgrade \
+  --config.minimumReleaseAge=2880 --config.blockExoticSubdeps=true --reporter=append-only
+pnpm centreon:build
+mkdir /out
+mv www/static www/index.html /out/
+find /out -name '*.map' -type f -delete
+cd / && rm -rf /front
+EOF
 
 FROM ${FRANKENPHP_BUILDER_IMAGE} AS frankenphp
 
@@ -81,6 +112,15 @@ find /tmp/overlay -type f -print0 | xargs -0 sed -i -f /tmp/macros.sed
 tar -C /tmp/overlay -cf - . | tar -C /usr/share/centreon -xf - --no-overwrite-dir
 chown -R centreon:centreon /usr/share/centreon/src /usr/share/centreon/www
 rm -rf /tmp/overlay /tmp/macros.sed
+EOF
+
+# The bundles of the checkout replace those of the base image (stale hashed chunks removed).
+RUN --mount=type=bind,from=front,src=/out,dst=/tmp/front bash -e <<'EOF'
+cd /usr/share/centreon/www
+rm -rf static index.html
+cp -a /tmp/front/static static
+cp /tmp/front/index.html index.html
+chown -R centreon:centreon static index.html
 EOF
 
 COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /usr/share/centreon/www/install/tmp

@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Gorgone\Application\Repository;
 
+use Core\Gorgone\Application\Exception\CollectorEnrolmentException;
 use Core\Gorgone\Application\Exception\GorgoneCommandException;
 use Core\Gorgone\Domain\Model\CollectorEnrolment;
+use Core\Gorgone\Domain\Model\CollectorEnrolmentToken;
 
 /**
  * Enrolment tokens and enrolments kept by gorgone-server: it checks the tokens collectors present.
@@ -40,6 +42,7 @@ interface CollectorEnrolmentRepositoryInterface
      * @param string|null $name
      * @param int $expiresInSeconds
      * @param int|null $maxUses fleet token only, null for no limit
+     * @param bool $approvalRequired fleet token only: its enrolments wait for an admin
      *
      * @throws GorgoneCommandException
      */
@@ -50,7 +53,56 @@ interface CollectorEnrolmentRepositoryInterface
         ?string $name,
         int $expiresInSeconds,
         ?int $maxUses,
+        bool $approvalRequired = false,
     ): void;
+
+    /**
+     * @throws GorgoneCommandException
+     *
+     * @return list<CollectorEnrolmentToken> the tokens, without their hash
+     */
+    public function findTokens(): array;
+
+    /**
+     * Revoke a token: it enrols nothing more. The enrolments made with it stay.
+     *
+     * @param string $tokenId
+     *
+     * @throws GorgoneCommandException
+     *
+     * @return bool false when it does not exist
+     */
+    public function deleteToken(string $tokenId): bool;
+
+    /**
+     * Approve a pending enrolment of a token that requires it: the cron then creates its poller.
+     *
+     * @param string $enrolmentId
+     *
+     * @throws CollectorEnrolmentException unknown enrolment, or not pending
+     * @throws GorgoneCommandException
+     */
+    public function approve(string $enrolmentId): void;
+
+    /**
+     * Reject a pending or approved enrolment: the collector is refused and gets no poller.
+     *
+     * @param string $enrolmentId
+     *
+     * @throws CollectorEnrolmentException unknown enrolment, or already bound
+     * @throws GorgoneCommandException
+     */
+    public function reject(string $enrolmentId): void;
+
+    /**
+     * Ask the collector of a poller to replace its credential at its next session.
+     *
+     * @param int $pollerId
+     *
+     * @throws CollectorEnrolmentException unknown node, or a node without credential
+     * @throws GorgoneCommandException
+     */
+    public function rotateCredential(int $pollerId): void;
 
     /**
      * @throws GorgoneCommandException

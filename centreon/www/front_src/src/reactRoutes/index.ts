@@ -68,6 +68,10 @@ const reactRoutes = [
     path: routeMap.agentConfigurations
   },
   {
+    comp: lazy(() => import('../Collectors/Page')),
+    path: routeMap.collectors
+  },
+  {
     comp: lazy(() => import('../Configuration/HostGroups')),
     path: routeMap.hostGroups
   },

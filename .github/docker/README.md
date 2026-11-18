@@ -192,6 +192,17 @@ With `collector_enrolment` (it needs `engine_structured_configuration` too), an 
 * `COLLECTOR_BROKER_ADDRESS` (`collector_broker_address`): the central broker input the collectors send to; default the address of the central in the platform topology.
 * `COLLECTOR_IMAGE` (`collector_image`): image of the command given to the administrator; default `centreon-engine`.
 
+The page **Configuration > Pollers > Collectors** (React, admin only, shown with the flag) does the same from the UI: it lists the enrolment tokens (kind, uses, expiry, last use) and the collectors that used them (state, poller, address and version they reported), creates a named or fleet enrolment and shows its token and command once with a copy button, revokes a token, approves or rejects a pending fleet enrolment and asks a collector to rotate its credential. Its API, all admin only:
+
+* `GET /configuration/collectors/enrolments`: `{"result": [{id, token_id, kind, state, approval_required, poller_id, poller_name, name, address, agent_version, created_at, updated_at}]}`; states `pending`, `approved`, `enrolled`, `completed`, `rejected`, `revoked`.
+* `GET /configuration/collectors/enrolment-tokens`: `{"result": [{id, kind, poller_id, poller_name, name, expires_at, expired, max_uses, uses, spent, approval_required, created_at, last_used_at}]}`, never a token; `DELETE /configuration/collectors/enrolment-tokens/{id}` revokes one (it enrols nothing more, the collectors it enrolled keep working).
+* `POST /configuration/collectors/enrolments` with `"approval_required": true` (fleet only): each machine that enrols stays `pending` until `POST /configuration/collectors/enrolments/{id}/approve` (the cron then creates its poller) or `/reject` (the collector is refused, no poller).
+* `POST /configuration/collectors/{pollerId}/rotate-credential`: the collector replaces its credential with a new one it generates, at its next session.
+
+The cron records the poller it chooses for a fleet enrolment in the table `collector_enrolment` (created on first use) before creating it, then its id: a run that dies between the creation and the assignment finds the same poller again, so a collector never gets two pollers. Runs never overlap (MariaDB lock `centreon-collector-enrolment`), whoever starts them. Test hook of the integration bench only: with `COLLECTOR_ENROLMENT_TEST_CRASH_AFTER_POLLER=1`, `cron/centreon-collector-enrolment.php` exits (code 137) right after creating a poller, as a killed cron would.
+
+The installer of this image is the one of the base image: the `install` role adds the menu entry of the Collectors page itself (topology page 60906, as `Update-next.php` does on a package install). The React bundles are built from the checkout in the `front` stage (node 24, pnpm 10, as the CI; the pnpm store in a cache mount) and replace those of the base image, so pages added on the branch are served; node stays in that stage. Measured on the bench host: the stage takes 152 s with an empty pnpm store (2,930 packages downloaded) and 40 s with the store cached (install 20 s, rspack build about 10 s); a whole image build then takes 83 s (223 s cold). The image size does not change (365 MB: 11 MB of bundles, source maps removed, replace those of the base image).
+
 ```bash
 docker build -f .github/docker/centreon-web/frankenphp/Dockerfile -t centreon-web-frankenphp:local .
 ```

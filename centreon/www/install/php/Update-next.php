@@ -59,6 +59,49 @@ $createBrokerPkiTable = function () use ($pearDB, &$errorMessage, $version): voi
 };
 
 /**
+ * Pollers created for fleet collector enrolments (feature flag collector_enrolment): written before the
+ * poller is created, so that a cron run that dies never creates a second one.
+ */
+$createCollectorEnrolmentTable = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to create the table collector_enrolment';
+    LoggerUpgrade::create()->info($version, 'Creating the table collector_enrolment');
+    $pearDB->executeStatement(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `collector_enrolment` (
+              `enrolment_id` varchar(64) NOT NULL COMMENT 'gorgone-server enrolment id',
+              `poller_name` varchar(255) NOT NULL COMMENT 'chosen before the poller is created',
+              `poller_address` varchar(255) NOT NULL,
+              `poller_id` int(11) DEFAULT NULL COMMENT 'nagios_server.id once created',
+              `created_at` bigint UNSIGNED NOT NULL COMMENT 'Unix time',
+              PRIMARY KEY (`enrolment_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Pollers created for fleet collector enrolments (collector_enrolment)';
+            SQL
+    );
+};
+
+/**
+ * Configuration > Pollers > Collectors (feature flag collector_enrolment).
+ */
+$insertCollectorsTopology = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to insert the Collectors page';
+    LoggerUpgrade::create()->info($version, 'Inserting the Collectors page');
+    $exists = $pearDB->fetchOne(
+        'SELECT 1 FROM `topology` WHERE `topology_page` = :page',
+        QueryParameters::create([QueryParameter::int('page', 60906)])
+    );
+    if ($exists === false) {
+        $pearDB->insert(
+            <<<'SQL'
+                INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`,
+                  `topology_page`, `topology_order`, `topology_group`, `topology_show`, `topology_feature_flag`)
+                VALUES ('Collectors', '/configuration/pollers/collectors', '1', '1', 609, 60906, 60, 1, '1',
+                  'collector_enrolment')
+                SQL
+        );
+    }
+};
+
+/**
  * Graph data source (Administration > Parameters > Data): RRD files by default, VictoriaMetrics optional.
  */
 $insertMetricsDataSourceOptions = function () use ($pearDB, &$errorMessage, $version): void {
@@ -244,6 +287,7 @@ try {
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
     $createBrokerPkiTable();
+    $createCollectorEnrolmentTable();
 
     // Transactional queries for configuration database
     $errorMessage = 'Unable to start the configuration database transaction';
@@ -254,6 +298,7 @@ try {
     // TODO add your function calls to update the configuration database data here
     $insertMetricsDataSourceOptions();
     $createBrokerOutputVictoriaMetrics();
+    $insertCollectorsTopology();
 
     $errorMessage = 'Unable to commit the configuration database transaction';
     $pearDB->commitTransaction();

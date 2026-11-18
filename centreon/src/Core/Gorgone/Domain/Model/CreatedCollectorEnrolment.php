@@ -39,6 +39,7 @@ final class CreatedCollectorEnrolment
      * @param int|null $maxUses
      * @param array<string, string> $environment variables the collector needs, and only these
      * @param string $command command to run on the collector
+     * @param bool $approvalRequired each machine waits for an admin
      */
     public function __construct(
         public readonly string $id,
@@ -50,6 +51,7 @@ final class CreatedCollectorEnrolment
         public readonly ?int $maxUses,
         public readonly array $environment,
         public readonly string $command,
+        public readonly bool $approvalRequired = false,
     ) {
     }
 }

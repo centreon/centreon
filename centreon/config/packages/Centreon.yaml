@@ -355,6 +355,9 @@ services:
     Core\Gorgone\Application\Repository\CollectorDeployerInterface:
         class: Core\Gorgone\Infrastructure\Repository\ClapiCollectorDeployer
 
+    Core\Gorgone\Application\Repository\CollectorEnrolmentRecordRepositoryInterface:
+        class: Core\Gorgone\Infrastructure\Repository\DbCollectorEnrolmentRecordRepository
+
     Core\Gorgone\Application\Repository\ReadGorgoneConfigurationRepositoryInterface:
         class: Core\Gorgone\Infrastructure\Repository\FsReadGorgoneConfigurationRepository
         arguments:

@@ -58,14 +58,22 @@ final class FindCollectorEnrolmentsController extends AbstractController
         }
         try {
             $result = [];
-            foreach ($this->service->findEnrolments() as $enrolment) {
+            $enrolments = $this->service->findEnrolments();
+            $pollerNames = $this->service->findPollerNames();
+            foreach ($enrolments as $enrolment) {
                 $result[] = [
                     'id' => $enrolment->id,
+                    'token_id' => $enrolment->tokenId,
+                    'kind' => $enrolment->isFleet ? 'fleet' : 'named',
                     'state' => $enrolment->state,
+                    'approval_required' => $enrolment->approvalRequired,
                     'poller_id' => $enrolment->pollerId,
+                    'poller_name' => $enrolment->pollerId !== null ? ($pollerNames[$enrolment->pollerId] ?? null) : null,
                     'name' => $enrolment->name,
                     'address' => $enrolment->address,
                     'agent_version' => $enrolment->agentVersion,
+                    'created_at' => self::isoDate($enrolment->createdAt),
+                    'updated_at' => self::isoDate($enrolment->updatedAt),
                 ];
             }
 
@@ -80,5 +88,15 @@ final class FindCollectorEnrolmentsController extends AbstractController
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
+    }
+
+    /**
+     * @param int $milliseconds Unix time, 0 when unknown
+     */
+    public static function isoDate(int $milliseconds): ?string
+    {
+        return $milliseconds > 0
+            ? (new \DateTimeImmutable('@' . intdiv($milliseconds, 1000)))->format(\DateTimeInterface::ATOM)
+            : null;
     }
 }

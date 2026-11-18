@@ -558,6 +558,16 @@ function configureOptions(PDO $root): void
     if ($collector !== []) {
         replaceOptions($root, $collector);
     }
+    // The installer of this image is the one of its base image: the menu entry of the Collectors
+    // page (Update-next.php, insertTopology.sql of the checkout) is added here, once. It shows only
+    // with the feature flag collector_enrolment.
+    $root->exec(
+        "INSERT INTO topology (topology_name, topology_url, readonly, is_react, topology_parent, topology_page,
+           topology_order, topology_group, topology_show, topology_feature_flag)
+         SELECT 'Collectors', '/configuration/pollers/collectors', '1', '1', 609, 60906, 60, 1, '1',
+           'collector_enrolment'
+         FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM topology WHERE topology_page = 60906)"
+    );
 
     $victoriaMetricsUrl = (string) env('VICTORIA_METRICS_URL');
     out("Reading the graphs from VictoriaMetrics at {$victoriaMetricsUrl}.");

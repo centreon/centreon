@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\Gorgone\Infrastructure\Repository;
 
 use Centreon\Infrastructure\Gorgone\Interfaces\ConfigurationLoaderApiInterface;
+use Core\Gorgone\Application\Exception\CollectorEnrolmentException;
 use Core\Gorgone\Application\Exception\GorgoneCommandException;
 use Core\Gorgone\Domain\Model\CollectorEnrolment;
 use Core\Gorgone\Infrastructure\Repository\ApiCollectorEnrolmentRepository;
@@ -112,4 +113,70 @@ it('reports a refused token', function (): void {
 
     expect(fn () => $this->repository->addToken('t1', str_repeat('ab', 32), null, null, 60, 3))
         ->toThrow(GorgoneCommandException::class, 'already registered');
+});
+
+it('asks for approval on fleet tokens only when told', function (): void {
+    $this->answer = ['{"id":"t2"}', 201];
+    $this->repository->addToken('t2', str_repeat('cd', 32), null, null, 600, 4, true);
+
+    expect(json_decode($this->requests[0]['body'], true))->toBe([
+        'token_hash' => str_repeat('cd', 32),
+        'expires_in_s' => 600,
+        'max_uses' => 4,
+        'approval_required' => true,
+    ]);
+});
+
+it('reads the tokens without their hash', function (): void {
+    $this->answer = [json_encode(['tokens' => [
+        ['id' => 't1', 'node_id' => '12', 'name' => 'c1', 'expires_at' => 2000, 'max_uses' => 1, 'uses' => 1,
+            'created_at' => 1000, 'approval_required' => false, 'last_used_at' => 1500],
+        ['id' => 't2', 'node_id' => null, 'name' => null, 'expires_at' => 3000, 'max_uses' => null, 'uses' => 0,
+            'created_at' => 1000, 'approval_required' => true, 'last_used_at' => null],
+    ]]), 200];
+
+    $tokens = $this->repository->findTokens();
+
+    expect($tokens)->toHaveCount(2)
+        ->and($tokens[0]->pollerId)->toBe(12)
+        ->and($tokens[0]->isSpent(1800))->toBeTrue()
+        ->and($tokens[0]->lastUsedAt)->toBe(1500)
+        ->and($tokens[1]->isFleet())->toBeTrue()
+        ->and($tokens[1]->approvalRequired)->toBeTrue()
+        ->and($tokens[1]->isSpent(1800))->toBeFalse();
+});
+
+it('revokes a token, and tells an unknown one', function (): void {
+    $this->answer = ['', 204];
+    expect($this->repository->deleteToken('t1'))->toBeTrue()
+        ->and($this->requests[0]['method'])->toBe('DELETE')
+        ->and($this->requests[0]['url'])->toBe('http://gorgone:8085/v1/enrolment-tokens/t1');
+    $this->answer = ['{"error":"not_found","message":"unknown enrolment token"}', 404];
+    expect($this->repository->deleteToken('t1'))->toBeFalse();
+});
+
+it('approves and rejects enrolments, with the refusal of the server', function (): void {
+    $this->answer = ['', 204];
+    $this->repository->approve('e1');
+    $this->repository->reject('e2');
+    expect(array_column($this->requests, 'url'))->toBe([
+        'http://gorgone:8085/v1/enrolments/e1/approve',
+        'http://gorgone:8085/v1/enrolments/e2/reject',
+    ]);
+
+    $this->answer = ['{"error":"conflict","message":"enrolment is completed"}', 409];
+    expect(fn () => $this->repository->approve('e1'))
+        ->toThrow(CollectorEnrolmentException::class, 'enrolment is completed');
+    $this->answer = ['{"error":"not_found","message":"unknown enrolment"}', 404];
+    expect(fn () => $this->repository->reject('e3'))->toThrow(CollectorEnrolmentException::class, 'Unknown');
+});
+
+it('requests a credential rotation of a node', function (): void {
+    $this->answer = ['{"node_id":"12"}', 202];
+    $this->repository->rotateCredential(12);
+    expect($this->requests[0]['method'])->toBe('POST')
+        ->and($this->requests[0]['url'])->toBe('http://gorgone:8085/v1/nodes/12/rotate-credential');
+
+    $this->answer = ['{"error":"not_found","message":"unknown node"}', 404];
+    expect(fn () => $this->repository->rotateCredential(13))->toThrow(CollectorEnrolmentException::class);
 });

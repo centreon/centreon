@@ -40,7 +40,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Creates an enrolment and answers its token, once, with the command to run on the collector.
  *
  * Body: {"name": "poller-name"} (creates the poller), {"poller_id": 12} (existing poller) or
- * {"fleet": true, "max_uses": 10}; optional "expires_in" in seconds (24 hours by default).
+ * {"fleet": true, "max_uses": 10, "approval_required": true}; optional "expires_in" in seconds (24 hours by
+ * default).
  */
 final class AddCollectorEnrolmentController extends AbstractController
 {
@@ -73,6 +74,9 @@ final class AddCollectorEnrolmentController extends AbstractController
         if ((isset($body['name']) && ! is_string($body['name'])) || (isset($body['fleet']) && ! is_bool($body['fleet']))) {
             return self::error(Response::HTTP_BAD_REQUEST, 'name must be a string and fleet a boolean');
         }
+        if (isset($body['approval_required']) && ! is_bool($body['approval_required'])) {
+            return self::error(Response::HTTP_BAD_REQUEST, 'approval_required must be a boolean');
+        }
 
         try {
             $created = $this->service->create(
@@ -83,6 +87,7 @@ final class AddCollectorEnrolmentController extends AbstractController
                 maxUses: $integer('max_uses'),
                 creatorId: (int) $currentUser->getId(),
                 creatorName: (string) $currentUser->getAlias(),
+                approvalRequired: ($body['approval_required'] ?? false) === true,
             );
         } catch (CollectorEnrolmentException $ex) {
             return self::error(Response::HTTP_BAD_REQUEST, $ex->getMessage());
@@ -99,6 +104,7 @@ final class AddCollectorEnrolmentController extends AbstractController
             'poller_name' => $created->pollerName,
             'expires_at' => (new \DateTimeImmutable('@' . $created->expiresAt))->format(\DateTimeInterface::ATOM),
             'max_uses' => $created->maxUses,
+            'approval_required' => $created->approvalRequired,
             // Shown once: only its hash is kept, by gorgone-server.
             'token' => $created->token,
             'environment' => $created->environment,

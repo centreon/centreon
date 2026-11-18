@@ -28,13 +28,31 @@ namespace Core\Gorgone\Application\Exception;
  */
 final class CollectorEnrolmentException extends \Exception
 {
+    /** Codes are the HTTP statuses the API answers with. */
+    public const INVALID = 400;
+    public const NOT_FOUND = 404;
+    public const CONFLICT = 409;
+
     public static function featureDisabled(string $featureFlag): self
     {
-        return new self(sprintf('Collector enrolment needs the feature flag "%s"', $featureFlag));
+        return new self(sprintf('Collector enrolment needs the feature flag "%s"', $featureFlag), self::INVALID);
     }
 
     public static function invalid(string $message): self
     {
-        return new self($message);
+        return new self($message, self::INVALID);
+    }
+
+    public static function notFound(string $message): self
+    {
+        return new self($message, self::NOT_FOUND);
+    }
+
+    /**
+     * @param string $message what gorgone-server refused, e.g. "enrolment is completed"
+     */
+    public static function conflict(string $message): self
+    {
+        return new self($message, self::CONFLICT);
     }
 }

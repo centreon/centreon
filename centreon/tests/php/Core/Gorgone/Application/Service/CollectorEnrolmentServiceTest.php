@@ -29,10 +29,12 @@ use Centreon\Infrastructure\Gorgone\Interfaces\ConfigurationLoaderApiInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Gorgone\Application\Exception\CollectorEnrolmentException;
 use Core\Gorgone\Application\Repository\CollectorDeployerInterface;
+use Core\Gorgone\Application\Repository\CollectorEnrolmentRecordRepositoryInterface;
 use Core\Gorgone\Application\Repository\CollectorEnrolmentRepositoryInterface;
 use Core\Gorgone\Application\Repository\CollectorProvisionerInterface;
 use Core\Gorgone\Application\Service\CollectorEnrolmentService;
 use Core\Gorgone\Domain\Model\CollectorEnrolment;
+use Core\Gorgone\Domain\Model\CollectorEnrolmentToken;
 
 /**
  * gorgone-server as the service sees it: tokens by hash, enrolments, nodes.
@@ -51,6 +53,12 @@ final class InMemoryEnrolments implements CollectorEnrolmentRepositoryInterface
     /** @var list<int> */
     public array $deletedNodes = [];
 
+    /** @var list<array{string, int}> */
+    public array $assignments = [];
+
+    /** @var list<int> */
+    public array $rotations = [];
+
     public function addToken(
         string $id,
         string $tokenHash,
@@ -58,8 +66,63 @@ final class InMemoryEnrolments implements CollectorEnrolmentRepositoryInterface
         ?string $name,
         int $expiresInSeconds,
         ?int $maxUses,
+        bool $approvalRequired = false,
     ): void {
-        $this->tokens[$id] = compact('tokenHash', 'pollerId', 'name', 'expiresInSeconds', 'maxUses');
+        $this->tokens[$id] = compact('tokenHash', 'pollerId', 'name', 'expiresInSeconds', 'maxUses', 'approvalRequired');
+    }
+
+    public function findTokens(): array
+    {
+        $tokens = [];
+        foreach ($this->tokens as $id => $token) {
+            $tokens[] = new CollectorEnrolmentToken(
+                (string) $id,
+                $token['pollerId'],
+                $token['name'],
+                1_000_000 + $token['expiresInSeconds'] * 1000,
+                $token['maxUses'],
+                0,
+                1_000_000,
+                $token['approvalRequired'],
+                null,
+            );
+        }
+
+        return $tokens;
+    }
+
+    public function deleteToken(string $tokenId): bool
+    {
+        $known = isset($this->tokens[$tokenId]);
+        unset($this->tokens[$tokenId]);
+
+        return $known;
+    }
+
+    public function approve(string $enrolmentId): void
+    {
+        $enrolment = $this->enrolments[$enrolmentId] ?? throw CollectorEnrolmentException::notFound('unknown');
+        if ($enrolment->state === CollectorEnrolment::STATE_APPROVED) {
+            return;
+        }
+        if (! $enrolment->awaitsApproval()) {
+            throw CollectorEnrolmentException::conflict('enrolment is ' . $enrolment->state);
+        }
+        $this->set($enrolmentId, CollectorEnrolment::STATE_APPROVED);
+    }
+
+    public function reject(string $enrolmentId): void
+    {
+        $enrolment = $this->enrolments[$enrolmentId] ?? throw CollectorEnrolmentException::notFound('unknown');
+        if (! in_array($enrolment->state, [CollectorEnrolment::STATE_PENDING, CollectorEnrolment::STATE_APPROVED, CollectorEnrolment::STATE_REJECTED], true)) {
+            throw CollectorEnrolmentException::conflict('enrolment is ' . $enrolment->state);
+        }
+        $this->set($enrolmentId, CollectorEnrolment::STATE_REJECTED);
+    }
+
+    public function rotateCredential(int $pollerId): void
+    {
+        $this->rotations[] = $pollerId;
     }
 
     public function findEnrolments(): array
@@ -69,6 +132,11 @@ final class InMemoryEnrolments implements CollectorEnrolmentRepositoryInterface
 
     public function assign(string $enrolmentId, int $pollerId, string $name): void
     {
+        // As gorgone-server: an enrolment that waits for an admin cannot be assigned.
+        if (! $this->enrolments[$enrolmentId]->isAssignable()) {
+            throw CollectorEnrolmentException::conflict('enrolment awaits approval');
+        }
+        $this->assignments[] = [$enrolmentId, $pollerId];
         $this->set($enrolmentId, CollectorEnrolment::STATE_ENROLLED, $pollerId, $name);
     }
 
@@ -92,15 +160,78 @@ final class InMemoryEnrolments implements CollectorEnrolmentRepositoryInterface
         }
     }
 
-    public function enrol(string $id, string $state, ?int $pollerId, string $name, string $address): void
-    {
-        $this->enrolments[$id] = new CollectorEnrolment($id, $state, $pollerId, $name, $address, '0.1.0');
+    public function enrol(
+        string $id,
+        string $state,
+        ?int $pollerId,
+        string $name,
+        string $address,
+        bool $approvalRequired = false,
+    ): void {
+        $this->enrolments[$id] = new CollectorEnrolment(
+            $id,
+            $state,
+            $pollerId,
+            $name,
+            $address,
+            '0.1.0',
+            'token-of-' . $id,
+            true,
+            $approvalRequired,
+        );
     }
 
     private function set(string $id, string $state, ?int $pollerId = null, ?string $name = null): void
     {
         $old = $this->enrolments[$id];
-        $this->enrol($id, $state, $pollerId ?? $old->pollerId, $name ?? $old->name, $old->address);
+        $this->enrol(
+            $id,
+            $state,
+            $pollerId ?? $old->pollerId,
+            $name ?? $old->name,
+            $old->address,
+            $old->approvalRequired
+        );
+    }
+}
+
+/**
+ * Table collector_enrolment and the cron lock.
+ */
+final class InMemoryRecords implements CollectorEnrolmentRecordRepositoryInterface
+{
+    /** @var array<string, array{name: string, address: string, pollerId: int|null}> */
+    public array $records = [];
+
+    public bool $locked = false;
+
+    public function lock(): bool
+    {
+        if ($this->locked) {
+            return false;
+        }
+
+        return $this->locked = true;
+    }
+
+    public function unlock(): void
+    {
+        $this->locked = false;
+    }
+
+    public function findAll(): array
+    {
+        return $this->records;
+    }
+
+    public function add(string $enrolmentId, string $name, string $address): void
+    {
+        $this->records[$enrolmentId] ??= ['name' => $name, 'address' => $address, 'pollerId' => null];
+    }
+
+    public function setPoller(string $enrolmentId, int $pollerId): void
+    {
+        $this->records[$enrolmentId]['pollerId'] = $pollerId;
     }
 }
 
@@ -156,6 +287,7 @@ final class InMemoryProvisioner implements CollectorProvisionerInterface
 
 beforeEach(function (): void {
     $this->enrolments = new InMemoryEnrolments();
+    $this->records = new InMemoryRecords();
     $this->provisioner = new InMemoryProvisioner();
     $this->deployed = [];
     $this->deployOutcome = true;
@@ -190,6 +322,7 @@ beforeEach(function (): void {
         $deployer,
         $optionService,
         $gorgone,
+        $this->records,
         function (int $length): string {
             $this->randomCalls++;
 
@@ -284,7 +417,7 @@ it('creates the poller of a pending fleet enrolment and assigns it', function ()
         ->and($this->enrolments->enrolments['e1']->pollerId)->toBe(6)
         ->and($this->enrolments->enrolments['e1']->state)->toBe(CollectorEnrolment::STATE_ENROLLED)
         ->and($this->enrolments->enrolments['e2']->name)->toBe('web-02-2')
-        ->and($done)->toHaveCount(2)
+        ->and($done)->toHaveCount(4)
         // Not connected yet: nothing exported.
         ->and($this->deployed)->toBe([]);
 });
@@ -347,4 +480,123 @@ it('does nothing when the feature flag is off', function (): void {
 
     expect(($this->createService)(['collector_enrolment' => 0])->synchronize())->toBe([])
         ->and($this->provisioner->created)->toBe([]);
+});
+
+it('creates a fleet token whose enrolments wait for an admin', function (): void {
+    $created = ($this->createService)()->create(null, null, true, 600, null, 7, 'jdoe', true);
+
+    expect($created->approvalRequired)->toBeTrue()
+        ->and($this->enrolments->tokens[$created->id]['approvalRequired'])->toBeTrue();
+    expect(fn () => ($this->createService)()->create('named-1', null, false, null, null, 7, 'jdoe', true))
+        ->toThrow(CollectorEnrolmentException::class, 'approval_required');
+});
+
+it('creates no poller for an enrolment that waits for approval, then one once approved', function (): void {
+    $this->enrolments->enrol('e1', CollectorEnrolment::STATE_PENDING, null, 'edge-01', '10.0.0.1', true);
+    $service = ($this->createService)();
+
+    $service->synchronize();
+    expect($this->provisioner->created)->toBe([])
+        ->and($this->records->records)->toBe([])
+        ->and($this->enrolments->enrolments['e1']->state)->toBe(CollectorEnrolment::STATE_PENDING);
+
+    $service->approve('e1');
+    // Approving again is harmless.
+    $service->approve('e1');
+    expect($this->enrolments->enrolments['e1']->state)->toBe(CollectorEnrolment::STATE_APPROVED);
+
+    $service->synchronize();
+    expect($this->provisioner->created)->toHaveCount(1)
+        ->and($this->enrolments->enrolments['e1']->state)->toBe(CollectorEnrolment::STATE_ENROLLED)
+        ->and($this->enrolments->enrolments['e1']->pollerId)->toBe(2)
+        ->and($this->records->records['e1'])->toBe(['name' => 'edge-01', 'address' => '10.0.0.1', 'pollerId' => 2]);
+});
+
+it('creates no poller for a rejected enrolment, and refuses decisions on bound ones', function (): void {
+    $this->enrolments->enrol('e1', CollectorEnrolment::STATE_PENDING, null, 'edge-01', '10.0.0.1', true);
+    $this->provisioner->pollers[] = ['id' => 2, 'name' => 'c2', 'address' => 'c2'];
+    $this->enrolments->enrol('e2', CollectorEnrolment::STATE_COMPLETED, 2, 'c2', 'c2');
+    $service = ($this->createService)();
+
+    $service->reject('e1');
+    $service->synchronize();
+    expect($this->enrolments->enrolments['e1']->state)->toBe(CollectorEnrolment::STATE_REJECTED)
+        ->and($this->provisioner->created)->toBe([]);
+
+    expect(fn () => $service->approve('e1'))->toThrow(CollectorEnrolmentException::class, 'rejected');
+    expect(fn () => $service->reject('e2'))->toThrow(CollectorEnrolmentException::class, 'completed');
+    expect(fn () => $service->approve('nope'))->toThrow(CollectorEnrolmentException::class);
+});
+
+it('never creates a second poller when a run dies after creating one', function (): void {
+    $this->enrolments->enrol('e1', CollectorEnrolment::STATE_PENDING, null, 'edge-01', '10.0.0.1');
+    $service = ($this->createService)();
+
+    // The run dies right after the creation: nothing recorded the poller id, nothing assigned it.
+    $service->synchronize(static function (int $pollerId): never {
+        throw new \RuntimeException("killed after poller #{$pollerId}");
+    });
+    expect($this->provisioner->created)->toHaveCount(1)
+        ->and($this->enrolments->assignments)->toBe([])
+        ->and($this->records->records['e1']['pollerId'])->toBeNull()
+        ->and($this->records->locked)->toBeFalse();
+
+    // The next run finds the poller by the name recorded before its creation.
+    $service->synchronize();
+    $service->synchronize();
+    expect($this->provisioner->created)->toHaveCount(1)
+        ->and($this->enrolments->assignments)->toBe([['e1', 2]])
+        ->and($this->records->records['e1']['pollerId'])->toBe(2)
+        ->and(array_column($this->provisioner->pollers, 'name'))->toBe(['Central', 'edge-01']);
+});
+
+it('reuses the recorded poller when the run died before the assignment', function (): void {
+    $this->enrolments->enrol('e1', CollectorEnrolment::STATE_PENDING, null, 'edge-01', '10.0.0.1');
+    // Created and recorded by a former run, renamed since by an admin.
+    $this->provisioner->pollers[] = ['id' => 7, 'name' => 'renamed', 'address' => '10.0.0.1'];
+    $this->records->records['e1'] = ['name' => 'edge-01', 'address' => '10.0.0.1', 'pollerId' => 7];
+
+    ($this->createService)()->synchronize();
+
+    expect($this->provisioner->created)->toBe([])
+        ->and($this->enrolments->assignments)->toBe([['e1', 7]]);
+});
+
+it('keeps the names reserved by other enrolments whose poller is not created yet', function (): void {
+    $this->records->records['e0'] = ['name' => 'edge', 'address' => 'edge', 'pollerId' => null];
+    $this->enrolments->enrol('e1', CollectorEnrolment::STATE_PENDING, null, 'edge', 'edge');
+
+    ($this->createService)()->synchronize();
+
+    expect($this->provisioner->created[0][0])->toBe('edge-2');
+});
+
+it('skips a run while another one holds the lock', function (): void {
+    $this->enrolments->enrol('e1', CollectorEnrolment::STATE_PENDING, null, 'edge-01', '10.0.0.1');
+    $this->records->locked = true;
+
+    expect(($this->createService)()->synchronize())->toBe(['another run is in progress: skipped'])
+        ->and($this->provisioner->created)->toBe([]);
+});
+
+it('lists and revokes tokens', function (): void {
+    $service = ($this->createService)();
+    $created = $service->create(null, null, true, 600, 3, 7, 'jdoe');
+
+    $tokens = $service->findTokens();
+    expect($tokens)->toHaveCount(1)
+        ->and($tokens[0]->isFleet())->toBeTrue()
+        ->and($tokens[0]->maxUses)->toBe(3);
+
+    $service->revokeToken($created->id);
+    expect($service->findTokens())->toBe([]);
+    expect(fn () => $service->revokeToken($created->id))->toThrow(CollectorEnrolmentException::class, 'Unknown');
+});
+
+it('asks the collector of an existing poller to rotate its credential', function (): void {
+    $service = ($this->createService)();
+
+    $service->rotateCredential(1);
+    expect($this->enrolments->rotations)->toBe([1]);
+    expect(fn () => $service->rotateCredential(42))->toThrow(CollectorEnrolmentException::class, 'does not exist');
 });

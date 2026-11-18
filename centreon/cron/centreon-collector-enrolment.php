@@ -35,8 +35,19 @@ if (! $service instanceof CollectorEnrolmentService || ! $service->isEnabled()) 
     exit(0);
 }
 
+// Test hook (integration bench only): with COLLECTOR_ENROLMENT_TEST_CRASH_AFTER_POLLER=1 the run dies
+// right after creating a poller, before recording it and assigning it, as a killed cron would.
+$crash = null;
+if (getenv('COLLECTOR_ENROLMENT_TEST_CRASH_AFTER_POLLER') === '1') {
+    $crash = static function (int $pollerId): never {
+        echo date('Y-m-d H:i:s') . " collector enrolment: test hook: dying after creating poller #{$pollerId}\n";
+
+        exit(137);
+    };
+}
+
 try {
-    foreach ($service->synchronize() as $line) {
+    foreach ($service->synchronize($crash) as $line) {
         echo date('Y-m-d H:i:s') . ' collector enrolment: ' . $line . "\n";
     }
 } catch (Throwable $ex) {

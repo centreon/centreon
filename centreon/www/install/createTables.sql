@@ -2782,6 +2782,15 @@ CREATE TABLE IF NOT EXISTS `broker_pki` (
   PRIMARY KEY (`subject`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Managed PKI of the BBDO connections (broker_managed_pki)';
 
+CREATE TABLE IF NOT EXISTS `collector_enrolment` (
+  `enrolment_id` varchar(64) NOT NULL COMMENT 'gorgone-server enrolment id',
+  `poller_name` varchar(255) NOT NULL COMMENT 'chosen before the poller is created',
+  `poller_address` varchar(255) NOT NULL,
+  `poller_id` int(11) DEFAULT NULL COMMENT 'nagios_server.id once created',
+  `created_at` bigint UNSIGNED NOT NULL COMMENT 'Unix time',
+  PRIMARY KEY (`enrolment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Pollers created for fleet collector enrolments (collector_enrolment)';
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
