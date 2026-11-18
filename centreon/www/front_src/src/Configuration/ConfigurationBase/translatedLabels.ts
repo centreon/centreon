@@ -34,24 +34,24 @@ export const labelModalTitle = ({
   return `${action} ${article} ${type}`;
 };
 
-export const labelDeleteResource = (type) => `Delete ${type}`;
-export const labelDuplicateResource = (type) => `Duplicate ${type}`;
+export const labelDeleteResource = (type: string) => `Delete ${type}`;
+export const labelDuplicateResource = (type: string) => `Duplicate ${type}`;
 
 // API messages
-export const labelResourceDisabled = (type) => `${type} disabled`;
-export const labelResourceEnabled = (type) => `${type} enabled`;
-export const labelResourceDuplicated = (type) => `${type} duplicated`;
-export const labelResourceDeleted = (type) => `${type} deleted`;
-export const labelResourceCreated = (type) => `${type} created`;
-export const labelResourceUpdated = (type) => `${type} updated`;
+export const labelResourceDisabled = (type: string) => `${type} disabled`;
+export const labelResourceEnabled = (type: string) => `${type} enabled`;
+export const labelResourceDuplicated = (type: string) => `${type} duplicated`;
+export const labelResourceDeleted = (type: string) => `${type} deleted`;
+export const labelResourceCreated = (type: string) => `${type} created`;
+export const labelResourceUpdated = (type: string) => `${type} updated`;
 
-export const labelFailedToDeleteResources = (type) =>
+export const labelFailedToDeleteResources = (type: string) =>
   `Failed to delete the ${type}`;
-export const labelFailedToDuplicateResources = (type) =>
+export const labelFailedToDuplicateResources = (type: string) =>
   `Failed to duplicate the ${type}`;
-export const labelFailedToEnableResources = (type) =>
+export const labelFailedToEnableResources = (type: string) =>
   `Failed to enable the ${type}`;
-export const labelFailedToDisableResources = (type) =>
+export const labelFailedToDisableResources = (type: string) =>
   `Failed to disable the ${type}`;
 
 export const labelFailedToDeleteSomeResources = 'Failed to delete';
@@ -60,16 +60,46 @@ export const labelFailedToEnableSomeResources = 'Failed to enable';
 export const labelFailedToDisableSomeResources = 'Failed to disable';
 
 // dialogs content
-export const labelDeleteResourceConfirmation = (type) =>
+export const labelDeleteResourceConfirmation = (type: string) =>
   `You are about to delete the <strong>{{ name }}</strong> ${type}. This action cannot be undone. Do you want to delete it?`;
 
-export const labelDeleteResourcesConfirmation = (type) =>
+export const labelDeleteResourcesConfirmation = (type: string) =>
   `You are about to delete <strong>{{ count }} ${type}.</strong> This action cannot be undone. Do you want to delete them?`;
 
-export const labelDuplicateResourceConfirmation = (type) =>
+export const labelDuplicateResourceConfirmation = (type: string) =>
   `You are about to duplicate the <strong>{{ name }}</strong> ${type}. How many duplications would you like to make?`;
-export const labelDuplicateResourcesConfirmation = (type) =>
+export const labelDuplicateResourcesConfirmation = (type: string) =>
   `You are about to duplicate <strong>{{ count }} ${type}.</strong> How many duplications would you like to make?`;
+
+export const labelSingleDuplicateResourceConfirmation = (type: string) =>
+  `You are about to duplicate the <strong>{{ name }}</strong> ${type}.`;
+export const labelSingleDuplicateResourcesConfirmation = (type: string) =>
+  `You are about to duplicate <strong>{{ count }} ${type}.</strong>`;
 
 // Form
 export const labelSave = 'Save';
+
+export const labelClose = 'Close';
+export const labelReset = 'Reset';
+export const labelDoYouWantToResetTheForm = 'Do you want to reset the form?';
+export const labelMassChange = 'Mass Change';
+export const labelApply = 'Apply';
+export const labelApplyChangesTo = (type: string) =>
+  `The changes will be applied to {{count}} ${type}.`;
+export const labelFailedToUpdateResources = (type: string) =>
+  `Failed to update the ${type}`;
+// Followed by the names of the rows that failed.
+export const labelFailedToUpdateSomeResources = 'An error occurred';
+
+// Custom macros
+export const labelAddNewEntry = 'Add new entry';
+export const labelValue = 'Value';
+export const labelPassword = 'Password';
+export const labelRevertToPreviousPassword = 'Revert to previous password';
+export const labelTemplateInheritance = 'Template inheritance';
+export const labelCommandInheritance = 'Command inheritance';
+export const labelRequired = 'Required';
+export const labelAlreadyExists = 'Already exists';
+export const labelReservedMacroName = 'You cannot override reserved macros';
+export const labelMustBeAtMostCharacters =
+  '{{label}} can be at most {{max}} characters';

@@ -1,0 +1,47 @@
+meta {
+  name: POST /host-severities - Add host severity with mandatory properties - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostSeverity2Name}}",
+    "alias": "{{HostSeverity2Alias}}",
+    "level": 5,
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host severity has been successfully created, with name '{{HostSeverity2Name}}' and alias '{{HostSeverity2Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostSeverity2Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("HostSeverity2Name"),
+      "alias": bru.getEnvVar("HostSeverity2Alias"),
+      "level": 5,
+      "icon_id": 1
+    });
+  });
+
+  test("The Location parameter is in the header.", function () {
+    expect(res.getHeaders()).to.have.property("location");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

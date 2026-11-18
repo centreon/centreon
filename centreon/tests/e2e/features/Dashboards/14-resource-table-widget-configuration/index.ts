@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   checkHostsAreMonitored,
@@ -53,11 +54,11 @@ const resultsToSubmit = [
 before(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+    url: INTERCEPTORS.api.generate_reload_pollers
   }).as('generateAndReloadPollers');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
@@ -159,19 +160,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards**'
+    url: `${INTERCEPTORS.api.dashboard_configuration}**`
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: '/centreon/api/latest/configuration/dashboards/*'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*`
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -183,15 +184,15 @@ beforeEach(() => {
   }).as('resourceRequest');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/monitoring/resources/hosts?page=1&limit=10&sort_by=**'
+    url: `${INTERCEPTORS.api.monitor_resources}/hosts?page=1&limit=30&sort_by=**`
   }).as('resourceRequestByHost');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/monitoring/resources/downtime'
+    url: `${INTERCEPTORS.api.monitor_resources}/downtime`
   }).as('setDowntime');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/monitoring/resources/acknowledge'
+    url: `${INTERCEPTORS.api.monitor_resources}/acknowledge`
   }).as('setAcknowledge');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
@@ -346,12 +347,37 @@ When(
 Then(
   'all the resources having the status selected are displayed in the resource table Widget',
   () => {
-    cy.getCellContent(1, 2).then((myTableContent) => {
-      expect(myTableContent[1]).to.include('Critical');
-      expect(myTableContent[2]).to.include('Warning');
-      expect(myTableContent[3]).to.match(/Pending|Unknown/);
-      expect(myTableContent[6]).to.match(/Pending|Unknown/);
-    });
+    // Centreon-Server is in Linux-Servers too and its real checks can be in any
+    // status: check the resources created by the test, not the row order.
+    cy.get('[role="table"]')
+      .eq(1)
+      .find('[role="row"]')
+      .should((rows) => {
+        const statusOf = (resource: string, parent = ''): string => {
+          const cells = rows
+            .toArray()
+            .map((row) =>
+              // MUI sets no role on the cells: a row's children are its cells
+              Array.from(row.children, (cell) => cell.textContent ?? '')
+            )
+            .find(
+              ([, , resourceCell = '', parentCell = '']) =>
+                resourceCell.includes(resource) && parentCell.includes(parent)
+            );
+
+          return cells?.[1] ?? '';
+        };
+
+        expect(
+          statusOf(services.serviceCritical.name, services.serviceWarning.host)
+        ).to.include('Critical');
+        expect(
+          statusOf(services.serviceWarning.name, services.serviceWarning.host)
+        ).to.include('Warning');
+        expect(statusOf(services.serviceCritical.host)).to.match(
+          /Pending|Unknown/
+        );
+      });
   }
 );
 
@@ -567,7 +593,9 @@ Given('a dashboard with a resource table widget', () => {
   cy.getByLabel({ label: 'RichTextEditor' })
     .eq(0)
     .type(genericTextWidgets.default.description, { force: true });
-  cy.contains('host2').eq(0).should('be.visible');
+  cy.get('.MuiTable-root')
+    .contains('.MuiTableCell-root', 'host2')
+    .should('exist');
 });
 
 When('the dashboard administrator clicks on a random resource', () => {
@@ -600,9 +628,29 @@ Given('a dashboard containing a resource table widget', () => {
 });
 
 When(
-  'the dashboard administrator clicks on a random resource from the resource table',
-  () => {
-    cy.get('[aria-label^="Select row"]').eq(0).click({ force: true });
+  'the dashboard administrator clicks on a random resource from the resource table {string}',
+  (index: string) => {
+    // Wait until element are visible on the resource table widget
+    cy.waitUntil(
+      () =>
+        cy.get('body').then((body) => {
+          const element = body.find('span:contains("Warning")');
+
+          return element.length > 0 && element.is(':visible');
+        }),
+      {
+        errorMsg: 'The element is not visible',
+        interval: 2000,
+        timeout: 50000
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error('The element is not visible');
+      }
+    });
+    cy.getByLabel({ label: `Select row ${index}` })
+      .eq(1)
+      .click({ force: true });
   }
 );
 
@@ -644,7 +692,7 @@ Then(
   'the dashboard administrator clicks on the acknowledge button and submits',
   () => {
     cy.getByTestId({ testId: 'mainAcknowledge' }).eq(1).click({ force: true });
-    cy.getByTestId({ testId: 'Confirm' }).eq(1).click();
+    cy.getByTestId({ testId: 'Confirm' }).contains('Acknowledge').click();
     cy.wait('@setAcknowledge');
   }
 );

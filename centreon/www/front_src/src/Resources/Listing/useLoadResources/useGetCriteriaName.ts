@@ -6,7 +6,7 @@ import { CriteriaValue } from '../../Filter/Criterias/models';
 import { getCriteriaValueDerivedAtom } from '../../Filter/filterAtoms';
 
 interface UseGetCriteriaNamesState {
-  getCriteriaNames: (name: string) => Array<string | number> | undefined;
+  getCriteriaNames: (name: string) => Array<string>;
   getCriteriaIds: (name: string) => Array<string | number> | undefined;
   getCriteriaValue: (name: string) => CriteriaValue | undefined;
 }

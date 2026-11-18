@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
@@ -39,27 +40,27 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/hosts/groups?page=1&limit=*'
+    url: `${INTERCEPTORS.api.hosts_configuration}/groups?page=1&limit=*`
   }).as('getGroups');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/hosts?page=1*'
+    url: `${INTERCEPTORS.api.hosts_configuration}?page=1*`
   }).as('getHosts');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/hosts/groups/*'
+    url: `${INTERCEPTORS.api.hosts_configuration}/groups/*`
   }).as('getGroupDetails');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/icons?page=*'
+    url: `${INTERCEPTORS.api.icons_configuration}?page=*`
   }).as('getIcons');
 });
 

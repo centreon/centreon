@@ -1,0 +1,28 @@
+meta {
+  name: GET /monitoring/hosts - List hosts - HTTP 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/hosts
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Operator Profile can list monitoring hosts.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("result").that.is.an("array");
+    expect(body).to.have.property("meta").that.is.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,34 @@
+meta {
+  name: POST /monitoring/resources/comments - Add comment forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/resources/comments
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "resources": [
+      {
+        "type": "host",
+        "id": {{Host1Id}},
+        "parent": null,
+        "comment": "Should be forbidden",
+        "date": "2026-01-01T00:00:00Z"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

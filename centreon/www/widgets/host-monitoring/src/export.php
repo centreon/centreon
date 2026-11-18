@@ -382,7 +382,7 @@ try {
                         data
                     FROM comments
                     WHERE host_id = :hostId
-                        AND service_id IS NULL
+                        AND service_id = 0
                     ORDER BY entry_time DESC
                     LIMIT 1
                     SQL
@@ -485,7 +485,7 @@ $memoryFile = fopen('php://memory', 'w');
 // loop over the input array
 foreach ($lines as $line) {
     // generate csv lines from the inner arrays
-    fputcsv($memoryFile, $line, ';');
+    fputcsv($memoryFile, $line, ';', '"', '\\');
 }
 // reset the file pointer to the start of the file
 fseek($memoryFile, 0);

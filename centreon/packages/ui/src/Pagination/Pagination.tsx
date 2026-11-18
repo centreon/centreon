@@ -22,7 +22,9 @@ interface Props {
   api: {
     baseEndpoint: string;
     queryKey: Array<string>;
-    searchConditions?;
+    searchConditions?: Array<
+      import('../api/buildListingEndpoint/models').ConditionsSearchParameter
+    >;
   };
   labelHasNoElements?: string;
   onItemClick?: ({ id }: { id: number }) => void;
@@ -65,7 +67,7 @@ const Pagination = ({
     }
   });
 
-  const pagesCount = Math.ceil(data?.meta.total / limit);
+  const pagesCount = Math.ceil((data?.meta?.total ?? 0) / limit);
   const arePaginationComponentsDisplayed = !equals(pagesCount, 1);
 
   const hasNoElements = useMemo(

@@ -1,6 +1,12 @@
 import type { Thresholds } from '../common/models';
 import type { Metric } from '../common/timeSeries/models';
 
+export interface ShowTooltipArgs<T = {}> {
+  tooltipData?: T;
+  tooltipLeft?: number;
+  tooltipTop?: number;
+}
+
 export interface GaugeProps {
   adaptedMaxValue: number;
   baseColor?: string;
@@ -8,7 +14,7 @@ export interface GaugeProps {
   hideTooltip: () => void;
   metric: Metric;
   radius: number;
-  showTooltip: (args) => void;
+  showTooltip: (args: ShowTooltipArgs) => void;
   thresholds: Thresholds;
   width: number;
 }

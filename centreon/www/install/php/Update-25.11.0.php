@@ -195,8 +195,13 @@ $fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage, $version
 
 /**
  * Update SAML provider configuration:
- *      - If requested_authn_context exists, set requested_authn_context_comparison to its value and requested_authn_context to true
- *      - If requested_authn_context does not exist, set requested_authn_context_comparison to 'exact' and requested_authn_context to false
+ *      - If requested_authn_context_comparison is already a valid comparison value, keep it (idempotent rerun).
+ *      - Else if requested_authn_context is a valid legacy comparison value, move it to requested_authn_context_comparison.
+ *      - Else default requested_authn_context_comparison to 'exact' (recovers from a prior buggy run that stored a boolean or an invalid string).
+ *      - In all cases, force requested_authn_context to false.
+ *
+ * Valid comparison values mirror RequestedAuthnContextComparisonEnum and are whitelisted locally so the
+ * migration never writes a value that CustomConfiguration::createFromValues() would reject.
  */
 $updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to retrieve SAML provider configuration';
@@ -232,25 +237,38 @@ $updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $ve
         message: "UPGRADE - {$version}: SAML provider configuration found, checking for requested_authn_context"
     );
 
-    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
+    $customConfiguration = json_decode(
+        json: $samlConfiguration['custom_configuration'],
+        associative: true,
+        flags: JSON_THROW_ON_ERROR
+    );
 
-    if (isset($customConfiguration['requested_authn_context'])) {
-        $customConfiguration['requested_authn_context_comparison'] = $customConfiguration['requested_authn_context'];
-        $customConfiguration['requested_authn_context'] = true;
+    $validComparisonValues = ['minimum', 'exact', 'better', 'maximum'];
+    $existingComparison = $customConfiguration['requested_authn_context_comparison'] ?? null;
+    $legacyValue = $customConfiguration['requested_authn_context'] ?? null;
+
+    if (is_string($existingComparison) && in_array($existingComparison, $validComparisonValues, true)) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: requested_authn_context_comparison already set to a valid value, keeping existing value"
+        );
+    } elseif (is_string($legacyValue) && in_array($legacyValue, $validComparisonValues, true)) {
+        $customConfiguration['requested_authn_context_comparison'] = $legacyValue;
 
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: requested_authn_context found, requested_authn_context_comparison takes the value of requested_authn_context, and requested_authn_context is set to true"
+            message: "UPGRADE - {$version}: requested_authn_context holds a valid legacy value, moved it to requested_authn_context_comparison"
         );
     } else {
         $customConfiguration['requested_authn_context_comparison'] = 'exact';
-        $customConfiguration['requested_authn_context'] = false;
 
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: requested_authn_context not found, setting requested_authn_context to false and requested_authn_context_comparison to 'exact'"
+            message: "UPGRADE - {$version}: requested_authn_context_comparison missing or invalid, defaulting to 'exact'"
         );
     }
+
+    $customConfiguration['requested_authn_context'] = false;
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
@@ -260,10 +278,13 @@ $updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $ve
     $query = <<<'SQL'
             UPDATE `provider_configuration`
             SET `custom_configuration` = :custom_configuration
-            WHERE `type` = 'saml'
+            WHERE `id` = :id
         SQL;
     $queryParameters = QueryParameters::create(
-        [QueryParameter::string('custom_configuration', json_encode($customConfiguration, JSON_THROW_ON_ERROR))]
+        [
+            QueryParameter::string('custom_configuration', json_encode($customConfiguration, JSON_THROW_ON_ERROR)),
+            QueryParameter::int('id', (int) $samlConfiguration['id']),
+        ]
     );
     $pearDB->update($query, $queryParameters);
 

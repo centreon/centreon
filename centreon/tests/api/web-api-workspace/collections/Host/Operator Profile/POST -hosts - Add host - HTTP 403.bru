@@ -1,0 +1,70 @@
+meta {
+  name: POST /hosts - Add host - HTTP 403
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Host2Name}}",
+    "alias": "{{Host2Alias}}",
+    "address": "127.0.0.1",
+    "monitoring_server_id": 1,
+    "snmp_version": "2c",
+    "timezone_id": 1,
+    "severity_id": {{HostSeverity1Id}},
+    "check_timeperiod_id": 1,
+    "note_url": "noteUrl-value",
+    "note": "note-value",
+    "action_url": "actionUrl-value",
+    "max_check_attempts": 3,
+    "normal_check_interval": 5,
+    "retry_check_interval": 2,
+    "icon_id": 1,
+    "categories": [ {{HostCategory1Id}}
+    ],
+    "templates": [ {{HostTemplate1Id}}
+    ],
+    "geo_coords": "48.51,2.20",
+    "groups": [ {{HostGroup1Id}}
+    ],
+    "macros": [
+      {
+        "name": "nameC",
+        "value": "valueC",
+        "is_password": false,
+        "description": "some text"
+      },
+      {
+        "name": "nameD",
+        "value": "valueD",
+        "is_password": true,
+        "description": null
+      }
+    ],
+    "is_activated": true
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  const body = res.getBody();
+  
+  test("Response is a 403 Forbidden error", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

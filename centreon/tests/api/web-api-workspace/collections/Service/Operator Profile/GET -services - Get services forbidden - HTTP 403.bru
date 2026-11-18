@@ -1,0 +1,26 @@
+meta {
+  name: GET /services - Get services forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The services list is not accessible because the user does not have the correct rights.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

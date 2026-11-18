@@ -54,6 +54,7 @@ final class FindAgentConfigurationsPresenter extends AbstractPresenter implement
                     'id' => $agentConfiguration->id,
                     'name' => $agentConfiguration->name,
                     'type' => $agentConfiguration->type->value,
+                    'is_agent_initiated' => $agentConfiguration->isAgentInitiated,
                     'pollers' => array_map(
                         fn ($poller) => ['id' => $poller->id, 'name' => $poller->name, 'is_central' => $poller->isCentral],
                         $agentConfiguration->pollers

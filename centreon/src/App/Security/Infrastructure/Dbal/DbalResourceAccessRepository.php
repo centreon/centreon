@@ -1,0 +1,796 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\Security\Infrastructure\Dbal;
+
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectory;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\Security\Domain\Aggregate\AccessGroupId;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Repository\AccessGroupRepository;
+use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Domain\Aggregate\AclScopedInterface;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Collection;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+
+final readonly class DbalResourceAccessRepository implements ResourceAccessRepository
+{
+    public function __construct(
+        #[Autowire(service: 'doctrine.dbal.default_connection')]
+        private Connection $connection,
+        #[Autowire(service: 'doctrine.dbal.realtime_connection')]
+        private Connection $realTimeConnection,
+        private AccessGroupRepository $accessGroupRepository,
+    ) {
+    }
+
+    /**
+     * @param AggregateRoot<AggregateRootId>&AclScopedInterface $resource
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void
+    {
+        // Any other ACL-scoped aggregate must be mapped here before an event creates one (see AclScopedInterface).
+        [$hostId, $serviceId] = match (true) {
+            $resource instanceof Host => [$resource->id()->value, null],
+            $resource instanceof Service => [$resource->hostId->value, $resource->id()->value],
+            default => throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class)),
+        };
+
+        $this->grant($hostId, $serviceId, $accessGroupIds);
+    }
+
+    public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void
+    {
+        $this->grant($hostId->value, $serviceId->value, $accessGroupIds);
+    }
+
+    public function findAccessGroupIdsGrantingService(ServiceId $serviceId, Collection $hostIds): Collection
+    {
+        if ($hostIds->count() === 0) {
+            return new Collection([], AccessGroupId::class);
+        }
+
+        $qb = $this->realTimeConnection->createQueryBuilder();
+        $qb->select('DISTINCT group_id')
+            ->from('centreon_acl')
+            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId->value, ParameterType::INTEGER)))
+            ->andWhere($qb->expr()->in(
+                'host_id',
+                $qb->createNamedParameter(
+                    array_values(array_map(static fn (HostId $id): int => $id->value, $hostIds->toArray())),
+                    ArrayParameterType::INTEGER,
+                ),
+            ))
+            ->orderBy('group_id', 'ASC');
+
+        /** @var list<int|string> $groupIds */
+        $groupIds = $qb->executeQuery()->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $id): AccessGroupId => new AccessGroupId((int) $id), $groupIds),
+            AccessGroupId::class,
+        );
+    }
+
+    public function flagAllResourcesAsChanged(): void
+    {
+        $this->connection->executeStatement('UPDATE acl_resources SET changed = 1');
+    }
+
+    public function duplicateHostAccess(HostId $sourceHostId, HostId $newHostId): void
+    {
+        // Configuration relations (main connection). INSERT ... SELECT keeps the copy in one round trip
+        // and writes nothing when the source has no relation. Legacy centreonACL::duplicateHostAcl.
+        foreach (['acl_resources_host_relations', 'acl_resources_hostex_relations'] as $table) {
+            $this->connection->executeStatement(
+                sprintf(
+                    'INSERT INTO %s (host_host_id, acl_res_id)
+                        SELECT :newHostId, acl_res_id FROM %s WHERE host_host_id = :sourceHostId',
+                    $table,
+                    $table,
+                ),
+                ['newHostId' => $newHostId->value, 'sourceHostId' => $sourceHostId->value],
+            );
+        }
+
+        // Real-time cache (centreon_storage connection): copy the source's host-level rows per group so
+        // a non-admin sees the copy immediately. Read and inserts share the real-time connection, so a
+        // single INSERT ... SELECT does it in one round trip and writes nothing when the source has no
+        // row. Legacy updateACL('DUP'); the service-level rows are written by duplicateHostServiceAccess()
+        // after the copy's services exist.
+        $this->realTimeConnection->executeStatement(
+            'INSERT INTO centreon_acl (group_id, host_id, service_id)
+                SELECT DISTINCT group_id, :newHostId, NULL FROM centreon_acl
+                WHERE host_id = :sourceHostId AND service_id IS NULL',
+            ['newHostId' => $newHostId->value, 'sourceHostId' => $sourceHostId->value],
+        );
+    }
+
+    public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
+    {
+        // The copy's services (cloned + re-linked), read from the configuration connection where
+        // host_service_relation lives; nothing to scope when the copy has no service.
+        /** @var list<int|string> $serviceIds */
+        $serviceIds = $this->connection->fetchFirstColumn(
+            'SELECT service_service_id FROM host_service_relation WHERE host_host_id = :newHostId',
+            ['newHostId' => $newHostId->value],
+        );
+        if ($serviceIds === []) {
+            return;
+        }
+
+        // Groups that already see the source host (its host-level rows), from the real-time cache.
+        /** @var list<int|string> $groupIds */
+        $groupIds = $this->realTimeConnection->fetchFirstColumn(
+            'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :sourceHostId AND service_id IS NULL',
+            ['sourceHostId' => $sourceHostId->value],
+        );
+
+        foreach ($groupIds as $groupId) {
+            foreach ($serviceIds as $serviceId) {
+                // ON DUPLICATE KEY UPDATE keeps it idempotent, as legacy updateACL('DUP') does.
+                $this->realTimeConnection->executeStatement(
+                    'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
+                        ON DUPLICATE KEY UPDATE service_id = service_id',
+                    ['groupId' => (int) $groupId, 'hostId' => $newHostId->value, 'serviceId' => (int) $serviceId],
+                );
+            }
+        }
+    }
+
+    public function hasAccessToAllPollers(UserId $userId): bool
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // No ACL resources means no restrictions apply — the user has access to all pollers.
+        if (! $this->connection->fetchOne($accessibleAclResQb->getSQL(), ['contactId' => $userId->value])) {
+            return true;
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        // Legacy (centreonACL::setPollers()) unions the poller relations across every accessible
+        // resource and only falls back to "all pollers" when that union is entirely empty — not
+        // as soon as a single resource happens to carry no relation. A user holding one resource
+        // restricted to a poller and another resource with no poller relation at all must still
+        // see only the restricted poller, not everything.
+        return ! (bool) $this->connection->fetchOne($qb->getSQL(), ['contactId' => $userId->value]);
+    }
+
+    public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool
+    {
+        if ($this->hasAccessToAllPollers($userId)) {
+            return true;
+        }
+
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
+            ->where('arpr.poller_id = :pollerId')
+            ->setParameter('contactId', $userId->value)
+            ->setParameter('pollerId', $pollerId->value)
+            ->setMaxResults(1);
+
+        return (bool) $this->connection->fetchOne($qb->getSQL(), [
+            'contactId' => $userId->value,
+            'pollerId' => $pollerId->value,
+        ]);
+    }
+
+    public function findHostCategoryAccessScope(UserId $userId): AccessScope
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // Tier 1 — legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource
+        // is fully restricted (fails closed), not unrestricted. Restricting the scope to nothing keeps the
+        // "sees nothing" contract distinct from the "sees everything" unrestricted scope below.
+        $hasAccessibleResourceQb = $this->connection->createQueryBuilder();
+        $hasAccessibleResourceQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasAccessibleResourceQb->getSQL(), ['contactId' => $userId->value]) === false) {
+            return AccessScope::restrictedTo(HostCategoryId::class, []);
+        }
+
+        // Tier 2 — legacy `hasRestrictedAccessToHostCategories() === false`: accessible resources exist
+        // but none carry a host-category ACL relation (of any level), so no category restriction is in
+        // force and the user sees every category.
+        $hasHostCategoryRelationQb = $this->connection->createQueryBuilder();
+        $hasHostCategoryRelationQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_hc_relations', 'arhcr', 'arhcr.acl_res_id = accessible_res.acl_res_id')
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasHostCategoryRelationQb->getSQL(), ['contactId' => $userId->value]) === false) {
+            return AccessScope::unrestricted(HostCategoryId::class);
+        }
+
+        // Tier 3 — legacy `AND hc.hc_id IN (<granted categories>)` on a `hc.level IS NULL` join: the user
+        // is restricted to the regular (levelless) categories their accessible resources grant. A levelless
+        // host category is a regular category; one carrying a level is a host "severity", a distinct
+        // concept. A user granted only severities yields an empty set and therefore sees no category,
+        // matching legacy findAllByAccessGroupIds, which filters level IS NULL over the grant.
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arhcr.hc_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_hc_relations', 'arhcr', 'arhcr.acl_res_id = accessible_res.acl_res_id')
+            ->innerJoin('arhcr', 'hostcategories', 'hc', 'hc.hc_id = arhcr.hc_id')
+            ->where('hc.level IS NULL')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<array{hc_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return AccessScope::restrictedTo(HostCategoryId::class, new Collection(
+            array_map(static fn (array $row): HostCategoryId => new HostCategoryId((int) $row['hc_id']), $rows),
+            HostCategoryId::class,
+        ));
+    }
+
+    public function findHostSeverityAccessScope(UserId $userId): AccessScope
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // Tier 1 — legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource
+        // is fully restricted (fails closed), not unrestricted. Restricting the scope to nothing keeps the
+        // "sees nothing" contract distinct from the "sees everything" unrestricted scope below.
+        $hasAccessibleResourceQb = $this->connection->createQueryBuilder();
+        $hasAccessibleResourceQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasAccessibleResourceQb->getSQL(), ['contactId' => $userId->value]) === false) {
+            return AccessScope::restrictedTo(HostSeverityId::class, []);
+        }
+
+        // Tier 2 — legacy `hasRestrictedAccessToHostCategories() === false`: accessible resources exist
+        // but none carry a host-category ACL relation (of any level), so no category restriction is in
+        // force and the user sees host templates of any severity.
+        $hasHostCategoryRelationQb = $this->connection->createQueryBuilder();
+        $hasHostCategoryRelationQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_hc_relations', 'arhcr', 'arhcr.acl_res_id = accessible_res.acl_res_id')
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasHostCategoryRelationQb->getSQL(), ['contactId' => $userId->value]) === false) {
+            return AccessScope::unrestricted(HostSeverityId::class);
+        }
+
+        // Tiers 3 & 4 — legacy `AND hc.hc_id IN (<granted categories>)` on a `hc.level IS NOT NULL`
+        // join: the user is restricted to the host severities (level-bearing categories) their
+        // accessible resources grant. A user granted only regular (levelless) categories yields an
+        // empty set and therefore sees nothing, matching legacy — which never surfaces a severity-less
+        // template once a category restriction is in force.
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arhcr.hc_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_hc_relations', 'arhcr', 'arhcr.acl_res_id = accessible_res.acl_res_id')
+            ->innerJoin('arhcr', 'hostcategories', 'hc', 'hc.hc_id = arhcr.hc_id')
+            ->where('hc.level IS NOT NULL')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<array{hc_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return AccessScope::restrictedTo(HostSeverityId::class, new Collection(
+            array_map(static fn (array $row): HostSeverityId => new HostSeverityId((int) $row['hc_id']), $rows),
+            HostSeverityId::class,
+        ));
+    }
+
+    public function findPollerAccessScope(UserId $userId): AccessScope
+    {
+        if ($this->hasAccessToAllPollers($userId)) {
+            return AccessScope::unrestricted(PollerId::class);
+        }
+
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arpr.poller_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
+            // poller_id is nullable: a relation left without poller grants nothing.
+            ->where('arpr.poller_id IS NOT NULL')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<array{poller_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return AccessScope::restrictedTo(PollerId::class, new Collection(
+            array_map(static fn (array $row): PollerId => new PollerId((int) $row['poller_id']), $rows),
+            PollerId::class,
+        ));
+    }
+
+    public function findHostGroupAccessScope(UserId $userId): AccessScope
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // Unlike pollers, host groups carry an explicit "all host groups" flag on the ACL resource
+        // itself (acl_resources.all_hostgroups). A resource simply carrying no host-group relation
+        // row is NOT the same thing as this flag — it means that resource grants zero host groups,
+        // not every host group. Legacy (HostGroupRepositoryTrait::hasAccessToAllHostGroups()) only
+        // treats the user as unrestricted when at least one accessible resource has the flag set.
+        $allHostGroupsQb = $this->connection->createQueryBuilder();
+        $allHostGroupsQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources', 'res', "res.acl_res_id = accessible_res.acl_res_id AND res.all_hostgroups = '1'")
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($allHostGroupsQb->getSQL(), ['contactId' => $userId->value]) !== false) {
+            return AccessScope::unrestricted(HostGroupId::class);
+        }
+
+        // No "all host groups" flag anywhere: the accessible set is the union of host-group
+        // relations across every accessible resource (legacy findAllByAccessGroupIds()). This is
+        // naturally empty — not "everything" — for a user with no accessible resource at all, or
+        // whose accessible resources carry no host-group relation.
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arhr.hg_hg_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_hg_relations', 'arhr', 'arhr.acl_res_id = accessible_res.acl_res_id')
+            // hg_hg_id is nullable: a relation left without host group grants nothing.
+            ->where('arhr.hg_hg_id IS NOT NULL')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<array{hg_hg_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return AccessScope::restrictedTo(HostGroupId::class, new Collection(
+            array_map(static fn (array $row): HostGroupId => new HostGroupId((int) $row['hg_hg_id']), $rows),
+            HostGroupId::class,
+        ));
+    }
+
+    public function findServiceGroupAccessScope(UserId $userId): AccessScope
+    {
+        // Built on the active ACL resources only (acl_res_activate = '1'): an inactive resource grants
+        // neither its "all service groups" flag nor its relations. Disabled service groups stay
+        // accessible: sg_activate is not read, whereas legacy centreonACL hides them
+        // from restricted users unless an ACL resource grants all service groups.
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // Like host groups, service groups carry an explicit "all service groups" flag on the ACL
+        // resource (acl_resources.all_servicegroups); a resource without relation rows grants none.
+        $allServiceGroupsQb = $this->connection->createQueryBuilder();
+        $allServiceGroupsQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources', 'res', "res.acl_res_id = accessible_res.acl_res_id AND res.all_servicegroups = '1'")
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($allServiceGroupsQb->getSQL(), ['contactId' => $userId->value]) !== false) {
+            return AccessScope::unrestricted(ServiceGroupId::class);
+        }
+
+        // No flag anywhere: the union of service-group relations across every accessible resource,
+        // naturally empty for a user with no accessible resource or no relation.
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arsr.sg_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_sg_relations', 'arsr', 'arsr.acl_res_id = accessible_res.acl_res_id')
+            ->where('arsr.sg_id IS NOT NULL');
+
+        /** @var list<array{sg_id: int|numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return AccessScope::restrictedTo(ServiceGroupId::class, new Collection(
+            array_map(static fn (array $row): ServiceGroupId => new ServiceGroupId((int) $row['sg_id']), $rows),
+            ServiceGroupId::class,
+        ));
+    }
+
+    public function findServiceCategoryAccessScope(UserId $userId): AccessScope
+    {
+        $ids = $this->findGrantedServiceCategoryIdValues($userId, withLevel: false);
+
+        return $ids === null
+            ? AccessScope::unrestricted(ServiceCategoryId::class)
+            : AccessScope::restrictedTo(
+                ServiceCategoryId::class,
+                array_map(static fn (int $id): ServiceCategoryId => new ServiceCategoryId($id), $ids),
+            );
+    }
+
+    public function findServiceSeverityAccessScope(UserId $userId): AccessScope
+    {
+        $ids = $this->findGrantedServiceCategoryIdValues($userId, withLevel: true);
+
+        return $ids === null
+            ? AccessScope::unrestricted(ServiceSeverityId::class)
+            : AccessScope::restrictedTo(
+                ServiceSeverityId::class,
+                array_map(static fn (int $id): ServiceSeverityId => new ServiceSeverityId($id), $ids),
+            );
+    }
+
+    public function findImageFolderAccessScope(UserId $userId): AccessScope
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // Unlike pollers, image folders carry an explicit "all image folders" flag on the ACL
+        // resource itself (acl_resources.all_image_folders). A resource simply carrying no
+        // image-folder relation row is NOT the same thing as this flag — it means that resource
+        // grants zero folders, not every folder. Legacy (DbReadImageFolderRepository::
+        // hasAccessToAllImageFolders()) only treats the user as unrestricted when at least one
+        // accessible resource has the flag set.
+        $allImageFoldersQb = $this->connection->createQueryBuilder();
+        $allImageFoldersQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources', 'res', "res.acl_res_id = accessible_res.acl_res_id AND res.all_image_folders = '1'")
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($allImageFoldersQb->getSQL(), ['contactId' => $userId->value]) !== false) {
+            return AccessScope::unrestricted(MediaDirectoryId::class);
+        }
+
+        // No "all image folders" flag anywhere: the accessible set is the union of image-folder
+        // relations across every accessible resource (legacy findByRequestParametersAndAccessGroups()),
+        // plus the system folders, readable whatever the ACL. So a user with no accessible resource
+        // at all, or whose resources carry no image-folder relation, still gets the system folders.
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arifr.dir_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_image_folder_relations', 'arifr', 'arifr.acl_res_id = accessible_res.acl_res_id')
+            // dir_id is nullable: a relation left without folder grants nothing.
+            ->where('arifr.dir_id IS NOT NULL')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<numeric-string> $grantedIds */
+        $grantedIds = $this->connection->fetchFirstColumn($qb->getSQL(), ['contactId' => $userId->value]);
+
+        // Binary comparison: the names must match exactly, whereas the column collation would
+        // also accept "PPM" or "Dashboards". CAST rather than the BINARY operator, deprecated by MySQL.
+        /** @var list<numeric-string> $systemIds */
+        $systemIds = $this->connection->fetchFirstColumn(
+            'SELECT dir_id FROM view_img_dir WHERE CAST(dir_name AS BINARY) IN (:systemNames)',
+            ['systemNames' => MediaDirectory::SYSTEM_NAMES],
+            ['systemNames' => ArrayParameterType::STRING],
+        );
+
+        $ids = array_values(array_unique(array_map('intval', [...$grantedIds, ...$systemIds])));
+
+        return AccessScope::restrictedTo(MediaDirectoryId::class, new Collection(
+            array_map(static fn (int $id): MediaDirectoryId => new MediaDirectoryId($id), $ids),
+            MediaDirectoryId::class,
+        ));
+    }
+
+    public function findContactAccessScope(UserId $userId): AccessScope
+    {
+        $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
+        if ($accessGroupIds === []) {
+            return AccessScope::restrictedTo(NotificationContactId::class, []);
+        }
+
+        // Two bounded queries unioned in PHP rather than one query with an OR across both join
+        // paths: the OR variant multiplies the two relation tables together for contacts matching
+        // both, which the DISTINCT then has to collapse.
+        $contactIds = array_unique([
+            ...$this->findContactIdsDirectlyLinkedToAccessGroups($accessGroupIds),
+            ...$this->findContactIdsLinkedViaContactGroupToAccessGroups($accessGroupIds),
+        ]);
+
+        return AccessScope::restrictedTo(NotificationContactId::class, new Collection(
+            array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), array_values($contactIds)),
+            NotificationContactId::class,
+        ));
+    }
+
+    public function findContactGroupAccessScope(UserId $userId): AccessScope
+    {
+        $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
+
+        $contactGroupIds = [];
+        if ($accessGroupIds !== []) {
+            $qb = $this->connection->createQueryBuilder();
+            $qb->select('DISTINCT gcgr.cg_cg_id AS id')
+                ->from('acl_group_contactgroups_relations', 'gcgr')
+                ->where($qb->expr()->in(
+                    'gcgr.acl_group_id',
+                    $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)
+                ))
+                ->andWhere('gcgr.cg_cg_id IS NOT NULL');
+
+            /** @var list<array{id: int|string}> $rows */
+            $rows = $qb->executeQuery()->fetchAllAssociative();
+            foreach ($rows as $row) {
+                $contactGroupIds[] = (int) $row['id'];
+            }
+        }
+
+        // A user always reaches the contact groups they are themselves a member of, even when no
+        // Access Group grants them any.
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT ccr.contactgroup_cg_id AS id')
+            ->from('contactgroup_contact_relation', 'ccr')
+            ->innerJoin('ccr', 'contact', 'c', 'c.contact_id = ccr.contact_contact_id')
+            ->where('ccr.contact_contact_id = :userId')
+            ->andWhere($qb->expr()->eq('c.contact_register', $qb->createNamedParameter('1')))
+            ->andWhere('ccr.contactgroup_cg_id IS NOT NULL')
+            ->setParameter('userId', $userId->value);
+
+        /** @var list<array{id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+        foreach ($rows as $row) {
+            $contactGroupIds[] = (int) $row['id'];
+        }
+
+        return AccessScope::restrictedTo(ContactGroupId::class, new Collection(
+            array_map(
+                static fn (int $id): ContactGroupId => new ContactGroupId($id),
+                array_values(array_unique($contactGroupIds)),
+            ),
+            ContactGroupId::class,
+        ));
+    }
+
+    /**
+     * Host-level ACL is a real-time cache (`centreon_acl`, on a separate connection than the
+     * `host` table) mapping accessible host ids per Access Group — mirrors legacy exactly.
+     * Kept as two bounded queries (Access Group ids, then host ids), never a per-host lookup:
+     * the query count stays constant regardless of how many hosts exist or are returned.
+     */
+    public function findHostAccessScope(UserId $userId, ?Collection $among = null): AccessScope
+    {
+        if ($among?->count() === 0) {
+            return $this->hostAccessScope([], $among);
+        }
+
+        $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
+        if ($accessGroupIds === []) {
+            return $this->hostAccessScope([], $among);
+        }
+
+        $qb = $this->realTimeConnection->createQueryBuilder();
+        $qb->select('DISTINCT host_id')
+            ->from('centreon_acl')
+            ->where('service_id IS NULL')
+            ->andWhere($qb->expr()->in('group_id', $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)));
+        if ($among instanceof Collection) {
+            $amongIds = array_values(array_map(static fn (HostId $id): int => $id->value, $among->toArray()));
+            $qb->andWhere($qb->expr()->in('host_id', $qb->createNamedParameter($amongIds, ArrayParameterType::INTEGER)));
+        }
+
+        /** @var list<array{host_id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return $this->hostAccessScope(
+            array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
+            $among,
+        );
+    }
+
+    public function findServiceAccessGroupScope(UserId $userId): AccessScope
+    {
+        return AccessScope::restrictedTo(AccessGroupId::class, $this->accessGroupRepository->findActiveGroupIdsForUser($userId));
+    }
+
+    /**
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    private function grant(int $hostId, ?int $serviceId, Collection $accessGroupIds): void
+    {
+        // A service moved back to a host before the cache is recomputed still holds its row there.
+        foreach ($accessGroupIds as $accessGroupId) {
+            $this->realTimeConnection->executeStatement(
+                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
+                    ON DUPLICATE KEY UPDATE group_id = group_id',
+                ['groupId' => $accessGroupId->value, 'hostId' => $hostId, 'serviceId' => $serviceId],
+            );
+        }
+    }
+
+    /**
+     * @param list<HostId> $ids
+     * @param ?Collection<HostId> $among
+     *
+     * @return AccessScope<HostId>
+     */
+    private function hostAccessScope(array $ids, ?Collection $among): AccessScope
+    {
+        return $among instanceof Collection
+            ? AccessScope::partiallyRestrictedTo(HostId::class, $ids)
+            : AccessScope::restrictedTo(HostId::class, $ids);
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function findActiveAccessGroupIdValues(UserId $userId): array
+    {
+        return array_values(array_map(
+            static fn (AccessGroupId $id): int => $id->value,
+            iterator_to_array($this->accessGroupRepository->findActiveGroupIdsForUser($userId)),
+        ));
+    }
+
+    /**
+     * @param list<int> $accessGroupIds
+     *
+     * @return list<int>
+     */
+    private function findContactIdsDirectlyLinkedToAccessGroups(array $accessGroupIds): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT c.contact_id')
+            ->from('contact', 'c')
+            ->innerJoin('c', 'acl_group_contacts_relations', 'agcr', 'agcr.contact_contact_id = c.contact_id')
+            ->where("c.contact_register = '1'")
+            ->andWhere($qb->expr()->in('agcr.acl_group_id', $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{contact_id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return array_map(static fn (array $row): int => (int) $row['contact_id'], $rows);
+    }
+
+    /**
+     * @param list<int> $accessGroupIds
+     *
+     * @return list<int>
+     */
+    private function findContactIdsLinkedViaContactGroupToAccessGroups(array $accessGroupIds): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT c.contact_id')
+            ->from('contact', 'c')
+            ->innerJoin('c', 'contactgroup_contact_relation', 'ccr', 'ccr.contact_contact_id = c.contact_id')
+            ->innerJoin('ccr', 'acl_group_contactgroups_relations', 'agccgr', 'agccgr.cg_cg_id = ccr.contactgroup_cg_id')
+            ->where("c.contact_register = '1'")
+            ->andWhere($qb->expr()->in('agccgr.acl_group_id', $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{contact_id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return array_map(static fn (array $row): int => (int) $row['contact_id'], $rows);
+    }
+
+    /**
+     * Service categories and service severities share the `service_categories` table (a severity is a
+     * category carrying a level) and the `acl_resources_sc_relations` grants, so both follow the same
+     * three tiers, built on the user's active ACL resources only, like the host categories:
+     *  - no accessible ACL resource → restricted to nothing (fails closed): an empty list
+     *  - accessible resources, none carrying a service-category relation of any level → no
+     *    restriction: null (an unrestricted scope)
+     *  - otherwise → the granted rows of the requested kind only (levelless categories, or severities);
+     *    a user granted only the other kind gets an empty list
+     *
+     * Disabled categories and severities stay grantable: sc_activate is not read.
+     *
+     * @return list<int>|null
+     */
+    private function findGrantedServiceCategoryIdValues(UserId $userId, bool $withLevel): ?array
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+        $parameters = ['contactId' => $userId->value];
+
+        $hasAccessibleResourceQb = $this->connection->createQueryBuilder();
+        $hasAccessibleResourceQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasAccessibleResourceQb->getSQL(), $parameters) === false) {
+            return [];
+        }
+
+        $hasServiceCategoryRelationQb = $this->connection->createQueryBuilder();
+        $hasServiceCategoryRelationQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_sc_relations', 'arscr', 'arscr.acl_res_id = accessible_res.acl_res_id')
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasServiceCategoryRelationQb->getSQL(), $parameters) === false) {
+            return null;
+        }
+
+        // the inner join on service_categories also drops relation rows whose sc_id is NULL
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arscr.sc_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_sc_relations', 'arscr', 'arscr.acl_res_id = accessible_res.acl_res_id')
+            ->innerJoin('arscr', 'service_categories', 'sc', 'sc.sc_id = arscr.sc_id')
+            ->where($withLevel ? 'sc.level IS NOT NULL' : 'sc.level IS NULL');
+
+        /** @var list<int|numeric-string> $ids */
+        $ids = $this->connection->fetchFirstColumn($qb->getSQL(), $parameters);
+
+        return array_map(intval(...), $ids);
+    }
+
+    private function getAccessibleAclResourcesQueryBuilder(): QueryBuilder
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT ar.acl_res_id')
+            ->from('acl_resources', 'ar')
+            ->innerJoin('ar', 'acl_res_group_relations', 'argr', 'argr.acl_res_id = ar.acl_res_id')
+            ->innerJoin('argr', 'acl_groups', 'ag', "ag.acl_group_id = argr.acl_group_id AND ag.acl_group_activate = '1'")
+            ->leftJoin('ag', 'acl_group_contacts_relations', 'agcr', 'agcr.acl_group_id = ag.acl_group_id AND agcr.contact_contact_id = :contactId')
+            ->leftJoin('ag', 'acl_group_contactgroups_relations', 'agcgr', 'agcgr.acl_group_id = ag.acl_group_id')
+            ->leftJoin('agcgr', 'contactgroup_contact_relation', 'cgcr', 'cgcr.contactgroup_cg_id = agcgr.cg_cg_id AND cgcr.contact_contact_id = :contactId')
+            ->where("ar.acl_res_activate = '1'")
+            ->andWhere(
+                $qb->expr()->or(
+                    'agcr.contact_contact_id IS NOT NULL',
+                    'cgcr.contact_contact_id IS NOT NULL'
+                )
+            );
+
+        return $qb;
+    }
+}

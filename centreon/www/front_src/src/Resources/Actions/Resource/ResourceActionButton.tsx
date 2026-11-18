@@ -2,6 +2,7 @@ import { Tooltip } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
 
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { labelActionNotPermitted } from '../../translatedLabels';
@@ -12,7 +13,7 @@ interface Props {
   displayCondensed?: boolean;
   icon: JSX.Element;
   label: string;
-  onClick: (event) => void;
+  onClick: (event: React.MouseEvent<HTMLElement>) => void;
   permitted?: boolean;
   testId: string;
 }

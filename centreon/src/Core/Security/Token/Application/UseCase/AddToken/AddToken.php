@@ -139,7 +139,9 @@ final class AddToken
      */
     private function createToken(AddTokenRequest $request): string
     {
-        $this->validation->assertIsValidUser($request->userId);
+        if ($request->userId !== null) {
+            $this->validation->assertIsValidUser($request->userId);
+        }
         $this->validation->assertIsValidName($request->name, $request->userId);
 
         $newToken = TokenFactory::createNew(

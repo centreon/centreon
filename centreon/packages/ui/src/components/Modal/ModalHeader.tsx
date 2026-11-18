@@ -7,8 +7,6 @@ import type { ReactElement, ReactNode } from 'react';
 
 import '../../../src/ThemeProvider/tailwindcss.css';
 
-import { modalHeader } from './modal.module.css';
-
 export type ModalHeaderProps = {
   children?: ReactNode;
 };
@@ -18,7 +16,10 @@ const ModalHeader = ({
   ...rest
 }: ModalHeaderProps & DialogTitleProps): ReactElement => {
   return (
-    <div className={modalHeader}>
+    <div
+      className="flex gap-4 justify-between [&_.MuiDialogTitle-root]:p-0"
+      data-testid="modal-header"
+    >
       <MuiDialogTitle
         className="p-0 font-bold text-2xl"
         color="primary"

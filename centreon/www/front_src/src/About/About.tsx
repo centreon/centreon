@@ -1,76 +1,53 @@
-import { Container, Paper, Typography } from '@mui/material';
-
-import { CentreonLogo } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
+import type { ReactElement } from 'react';
 
-import Community from './Sections/Community';
-import Contributors from './Sections/Contibutors';
+import Hero from './Hero';
+import Row from './Row';
 import Copyright from './Sections/Copyright';
-import Developers from './Sections/Developers';
-import ProjectLeaders from './Sections/ProjectLeaders';
-import SectionTitle from './SectionTitle';
-import {
-  labelCentreon,
-  labelContributors,
-  labelDevelopers,
-  labelManyThanksToAllContributorsToTheSecurity,
-  labelProjectLeaders,
-  labelSecurityAcknowledgement
-} from './translatedLabels';
+import Credits from './Sections/Credits';
+import ResourcesGrid from './Sections/ResourcesGrid';
+import SecurityNotice from './Sections/SecurityNotice';
+import { labelProjectAndContributors, labelSecurity } from './translatedLabels';
 
-const useStyles = makeStyles()((theme) => ({
-  aboutContainer: {
-    alignItems: 'flex-start',
-    columnGap: theme.spacing(2),
-    display: 'grid',
-    gridTemplateColumns: '0.5fr 1fr',
-    maxHeight: '85vh',
-    overflowY: 'auto',
-    padding: theme.spacing(2),
-    rowGap: theme.spacing(2)
-  },
-  developerSection: {
-    alignItems: 'center',
-    columnGap: theme.spacing(2),
-    display: 'grid',
-    gridTemplateColumns: '0.8fr 1fr'
-  }
-}));
+export const pendoSlotId = 'about-pendo-slot';
 
-const About = (): JSX.Element => {
-  const { classes } = useStyles();
-  const { t } = useTranslation();
-
+const About = (): ReactElement => {
   const platformVersion = useAtomValue(platformVersionsAtom);
 
   return (
-    <Container maxWidth="md">
-      <Paper className={classes.aboutContainer}>
-        <SectionTitle
-          title={`${labelCentreon} ${platformVersion?.web.version}`}
-        />
-        <Community />
-        <SectionTitle title={labelProjectLeaders} />
-        <ProjectLeaders />
-        <SectionTitle title={labelDevelopers} />
-        <div className={classes.developerSection}>
-          <Developers />
-          <CentreonLogo />
+    <div className="px-4" id="about-page">
+      <div className="rounded border border-divider bg-background-paper">
+        <Hero version={platformVersion?.web.version} />
+        <div className="px-8 pb-1">
+          <div className="flex flex-col gap-2 lg:flex-row lg:gap-6">
+            <div className="min-w-0 flex-1 pt-1">
+              <Row
+                id="about-project-and-contributors"
+                label={labelProjectAndContributors}
+                withTopDivider={false}
+              >
+                <Credits />
+              </Row>
+              <Row id="about-security" label={labelSecurity}>
+                <SecurityNotice />
+              </Row>
+              <ResourcesGrid />
+            </div>
+            {/* Filled by Pendo at runtime. It must stay childless: React would
+                wipe any content injected into an element it renders children in.
+                Hidden while empty, so the page is unchanged without Pendo. On
+                wide screens it spans from the hero down to the resources. */}
+            <div
+              className="empty:hidden lg:w-1/2 lg:shrink-0"
+              id={pendoSlotId}
+            />
+          </div>
+          <Copyright />
         </div>
-        <SectionTitle title={labelContributors} />
-        <Contributors />
-        <SectionTitle title={labelSecurityAcknowledgement} />
-        <Typography>
-          {t(labelManyThanksToAllContributorsToTheSecurity)}
-        </Typography>
-        <div />
-        <Copyright />
-      </Paper>
-    </Container>
+      </div>
+    </div>
   );
 };
 

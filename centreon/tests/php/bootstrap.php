@@ -27,9 +27,10 @@ foreach ($mockedPathConstants as $mockedPathConstant) {
     }
 }
 
+// Keep _CENTREON_MARIA_DB_MIN_VERSION_ in sync with config/centreon.config.php.template (source of truth).
 $mockedPreRequisiteConstants = [
-    '_CENTREON_PHP_VERSION_' => '8.2',
-    '_CENTREON_MARIA_DB_MIN_VERSION_' => '10.5',
+    '_CENTREON_PHP_VERSION_' => '8.4',
+    '_CENTREON_MARIA_DB_MIN_VERSION_' => '11.8',
 ];
 foreach ($mockedPreRequisiteConstants as $mockedPreRequisiteConstant => $value) {
     if (! defined($mockedPreRequisiteConstant)) {
@@ -45,8 +46,7 @@ foreach ($mockedVarConstants as $mockedVarConstant) {
     }
 }
 
-// Disable warnings for PEAR.
-error_reporting(E_ALL & ~E_STRICT);
+error_reporting(E_ALL);
 
 require_once realpath(__DIR__ . '/polyfill.php');
 $loader = require realpath(__DIR__ . '/../../vendor/autoload.php');

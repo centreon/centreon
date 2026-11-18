@@ -36,3 +36,5 @@ $register_providers['GlpiRestApi'] = 11;
 $register_providers['RequestTracker2'] = 12;
 $register_providers['Itop'] = 13;
 $register_providers['EasyVistaRest'] = 14;
+$register_providers['Ivanti'] = 15;
+$register_providers['Matrix42'] = 16;

@@ -1,4 +1,4 @@
-import type { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import type { ReactNode } from 'react';
 
 import type { BarStyle } from '../BarChart/models';
@@ -74,7 +74,7 @@ export interface ThresholdTooltip {
   thresholdLabel?: string;
 }
 export interface Tooltip {
-  mode: 'all' | 'single' | 'hidden';
+  mode: 'all' | 'single' | 'hidden' | 'defined';
   renderComponent?: (args: TooltipData) => ReactNode;
   sortOrder: 'name' | 'ascending' | 'descending';
 }
@@ -188,7 +188,7 @@ export interface LegendModel {
 export interface GetDate {
   positionX: number;
   timeSeries: Array<TimeValue>;
-  xScale: ScaleLinear<number, number>;
+  xScale: ScaleLinear<number, number> | ScaleTime<number, number>;
 }
 
 export interface GraphTooltipData {

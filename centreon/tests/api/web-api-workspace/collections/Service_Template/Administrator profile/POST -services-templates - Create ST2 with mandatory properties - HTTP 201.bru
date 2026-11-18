@@ -1,0 +1,54 @@
+meta {
+  name: POST /services/templates - Create ST2 with mandatory properties - HTTP 201
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceTemplate2Name}}",
+    "alias": "{{ServiceTemplate2Alias}}"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The service template ST2 has been successfully created with only mandatory properties.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("ServiceTemplate2Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("ServiceTemplate2Name"),
+      "alias": bru.getEnvVar("ServiceTemplate2Alias"),
+      "service_template_id": null,
+      "check_timeperiod_id": null,
+      "max_check_attempts": null,
+      "normal_check_interval": null,
+      "retry_check_interval": null,
+      "note": null,
+      "note_url": null,
+      "action_url": null,
+      "icon_id": null,
+      "severity_id": null,
+      "is_locked": false
+    });
+    expect(body.host_templates).to.be.an("array").that.is.empty;
+    expect(body.macros).to.be.an("array").that.is.empty;
+    expect(body.categories).to.be.an("array").that.is.empty;
+    expect(body.groups).to.be.an("array").that.is.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

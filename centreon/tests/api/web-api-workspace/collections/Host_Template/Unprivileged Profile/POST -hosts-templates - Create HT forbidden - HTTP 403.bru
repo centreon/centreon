@@ -1,0 +1,45 @@
+meta {
+  name: POST /hosts/templates - Create HT forbidden - HTTP 403
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "host-template-forbidden",
+    "alias": "This creation should be forbidden",
+    "snmp_version": "1",
+    "snmp_community": "",
+    "categories": [ {{HostCategory1Id}} ],
+    "templates": [4],
+    "macros": [
+      {
+        "name": "Coucou",
+        "value": "Oh no",
+        "is_password": true,
+        "description": "null"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The user does not have the correct rights to create host template.", function () {
+    expect(res.getBody().message).to.match(/not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

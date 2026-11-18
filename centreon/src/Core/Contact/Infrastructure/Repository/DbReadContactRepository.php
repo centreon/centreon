@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
@@ -188,8 +190,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function exist(array $userIds): array
     {
         $bind = [];
-        foreach ($userIds as $key => $userId) {
+        $key = 0;
+        foreach ($userIds as $userId) {
             $bind[":user_{$key}"] = $userId;
+            $key++;
         }
         if ($bind === []) {
             return [];
@@ -217,8 +221,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findContactIdsByContactGroups(array $contactGroupIds): array
     {
         $bind = [];
-        foreach ($contactGroupIds as $key => $contactGroupId) {
+        $key = 0;
+        foreach ($contactGroupIds as $contactGroupId) {
             $bind[":contactGroup_{$key}"] = $contactGroupId;
+            $key++;
         }
         if ($bind === []) {
             return [];
@@ -248,8 +254,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function existInAccessGroups(int $contactId, array $accessGroupIds): bool
     {
         $bind = [];
-        foreach ($accessGroupIds as $key => $accessGroupId) {
+        $key = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
+            $key++;
         }
         if ($bind === []) {
             return false;
@@ -348,11 +356,76 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     /**
      * @inheritDoc
      */
+    public function findContactIdsByUser(ContactInterface $user): array
+    {
+        $query = <<<'SQL'
+            SELECT DISTINCT c.contact_id
+            FROM `:db`.contact c
+            LEFT JOIN `:db`.contactgroup_contact_relation ccr
+                ON c.contact_id = ccr.contact_contact_id
+            LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                ON c.contact_id = gcr.contact_contact_id
+            LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                ON ccr.contactgroup_cg_id = gcgr.cg_cg_id
+            WHERE gcr.acl_group_id IN (
+                    SELECT acl_group_id
+                    FROM `:db`.acl_group_contacts_relations
+                    WHERE contact_contact_id = :userId1
+                    UNION
+                    SELECT user_acl_cg.acl_group_id
+                    FROM `:db`.acl_group_contactgroups_relations user_acl_cg
+                    INNER JOIN `:db`.contactgroup_contact_relation user_cg
+                        ON user_cg.contactgroup_cg_id = user_acl_cg.cg_cg_id
+                    WHERE user_cg.contact_contact_id = :userId2
+                )
+                OR gcgr.acl_group_id IN (
+                    SELECT acl_group_id
+                    FROM `:db`.acl_group_contacts_relations
+                    WHERE contact_contact_id = :userId3
+                    UNION
+                    SELECT user_acl_cg2.acl_group_id
+                    FROM `:db`.acl_group_contactgroups_relations user_acl_cg2
+                    INNER JOIN `:db`.contactgroup_contact_relation user_cg2
+                        ON user_cg2.contactgroup_cg_id = user_acl_cg2.cg_cg_id
+                    WHERE user_cg2.contact_contact_id = :userId4
+                )
+                OR ccr.contactgroup_cg_id IN (
+                    SELECT contactgroup_cg_id
+                    FROM `:db`.contactgroup_contact_relation
+                    WHERE contact_contact_id = :userId5
+                )
+            SQL;
+
+        try {
+            $userId = $user->getId();
+            $queryParameters = new QueryParameters();
+            foreach ([':userId1', ':userId2', ':userId3', ':userId4', ':userId5'] as $token) {
+                $queryParameters->add($token, QueryParameter::int($token, $userId));
+            }
+
+            return $this->db->fetchFirstColumn(
+                $this->translateDbName($query),
+                $queryParameters
+            );
+        } catch (\Exception $exception) {
+            throw new RepositoryException(
+                message: 'Error while searching contact IDs by user',
+                context: ['user_id' => $user->getId()],
+                previous: $exception
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findContactIdsByAccessGroups(array $accessGroupIds): array
     {
         $bind = [];
-        foreach ($accessGroupIds as $key => $accessGroupId) {
+        $key = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
+            $key++;
         }
         if ($bind === []) {
             return [];
@@ -390,8 +463,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findAdminsByIds(array $contactIds): array
     {
         $bind = [];
-        foreach ($contactIds as $key => $contactId) {
+        $key = 0;
+        foreach ($contactIds as $contactId) {
             $bind[':contact' . $key] = $contactId;
+            $key++;
         }
         if ($bind === []) {
             return [];

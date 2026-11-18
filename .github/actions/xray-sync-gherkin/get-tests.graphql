@@ -1,0 +1,15 @@
+# Query a batch of Tests (by JQL) with their current Gherkin definition and Test Type.
+query GetTestsGherkin($jql: String!, $limit: Int!, $start: Int!) {
+  getTests(jql: $jql, limit: $limit, start: $start) {
+    total
+    results {
+      issueId
+      gherkin
+      testType {
+        name
+        kind
+      }
+      jira(fields: ["key"])
+    }
+  }
+}

@@ -4,11 +4,15 @@ import { ThresholdLine } from './ThresholdLine';
 
 export const groupMargin = 25;
 
+interface ShowTooltipArgs {
+  tooltipData: string;
+}
+
 interface Props extends Pick<SingleBarProps, 'direction'> {
   barHeight: number;
   hideTooltip: () => void;
   isSmall: boolean;
-  showTooltip: (args) => void;
+  showTooltip: (args: ShowTooltipArgs) => void;
   size: 'small' | 'medium';
   thresholds: ThresholdsModel;
   xScale: (value: number) => number;

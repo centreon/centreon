@@ -105,9 +105,7 @@ final class PartialUpdateDashboardController extends AbstractController
             $thumbnail,
             [
                 new Assert\NotBlank(),
-                new Assert\Image([
-                    'mimeTypes' => ['image/png'],
-                ]),
+                new Assert\Image(mimeTypes: ['image/png']),
             ]
         );
 

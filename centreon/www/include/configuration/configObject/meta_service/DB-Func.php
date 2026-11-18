@@ -379,14 +379,16 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             continue;
         }
         $row['meta_id'] = null;
+        $originalName = $row['meta_name'];
+        $columns = array_keys($row);
+        $qbInsert = $pearDB->createQueryBuilder();
+        $insertQuery = $qbInsert->insert('meta_service')
+            ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
+            ->getQuery();
+
         for ($i = 1; $i <= $nbrDup[$metaId]; $i++) {
-            $metaName = $row['meta_name'] . '_' . $i;
+            $metaName = $originalName . '_' . $i;
             $row['meta_name'] = $metaName;
-            $columns = array_keys($row);
-            $qbInsert = $pearDB->createQueryBuilder();
-            $insertQuery = $qbInsert->insert('meta_service')
-                ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
-                ->getQuery();
 
             try {
                 if (! testExistence($metaName)) {
@@ -400,7 +402,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                 $newMetaId = $pearDB->getLastInsertId();
                 if ($newMetaId) {
                     $metaObj = new CentreonMeta($pearDB);
-                    $metaObj->insertVirtualService($newMetaId, addslashes($metaName));
+                    $metaObj->insertVirtualService($newMetaId, $metaName);
 
                     // Duplicate contacts
                     $qbContacts = $pearDB->createQueryBuilder();
@@ -744,9 +746,9 @@ function insertMetaService($ret = [])
         return 0;
     }
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog('meta', $metaId, addslashes($ret['meta_name']), 'a', $fields);
+    $centreon->CentreonLogAction->insertLog('meta', $metaId, $ret['meta_name'], 'a', $fields);
     $metaObj = new CentreonMeta($pearDB);
-    $metaObj->insertVirtualService($metaId, addslashes($ret['meta_name']));
+    $metaObj->insertVirtualService($metaId, $ret['meta_name']);
 
     return $metaId;
 }
@@ -829,9 +831,9 @@ function updateMetaService($metaId = null)
         );
     }
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog('meta', $metaId, addslashes($ret['meta_name']), 'c', $fields);
+    $centreon->CentreonLogAction->insertLog('meta', $metaId, $ret['meta_name'], 'c', $fields);
     $metaObj = new CentreonMeta($pearDB);
-    $metaObj->insertVirtualService($metaId, addslashes($ret['meta_name']));
+    $metaObj->insertVirtualService($metaId, $ret['meta_name']);
 }
 
 /**
@@ -974,27 +976,52 @@ function updateAclResourcesMetaRelations(int $metaId): void
 
     // get ACL resources IDs for the current user
     $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
+    $accessGroupIds = array_filter(
+        explode(',', $acl->getAccessGroupsString('ID')),
+        fn ($id) => is_numeric(trim($id))
+    );
+    $accessGroupIds = array_map(fn ($id) => (int) trim($id), $accessGroupIds);
+
+    if ($accessGroupIds === []) {
+        return;
+    }
+
+    $aclGroupParams = [];
+    $aclGroupPlaceholders = [];
+    foreach ($accessGroupIds as $idx => $groupId) {
+        $key = 'aclGroupId' . $idx;
+        $aclGroupPlaceholders[] = ':' . $key;
+        $aclGroupParams[] = QueryParameter::int($key, $groupId);
+    }
+
     $selectAclQuery = "SELECT DISTINCT ar.acl_res_id
             FROM acl_res_group_relations argr
             INNER JOIN acl_resources ar on ar.acl_res_id = argr.acl_res_id and ar.acl_res_activate = '1'
-            WHERE acl_group_id IN ({$acl->getAccessGroupsString('ID')})";
+            WHERE acl_group_id IN (" . implode(', ', $aclGroupPlaceholders) . ')';
     try {
-        $aclResIds = $pearDB->fetchAllAssociative($selectAclQuery);
+        $aclResIds = $pearDB->fetchAllAssociative($selectAclQuery, QueryParameters::create($aclGroupParams));
         if ($aclResIds !== []) {
-            $aclResIdsImploded = implode(',', array_map(fn ($row) => $row['acl_res_id'], $aclResIds));
-
             // clean old relations
-            $queryClean = "DELETE FROM acl_resources_meta_relations WHERE meta_id = :metaId AND acl_res_id IN ({$aclResIdsImploded})";
-            $pearDB->delete($queryClean, QueryParameters::create([
-                QueryParameter::int('metaId', (int) $metaId),
-            ]));
+            $deleteParams = [QueryParameter::int('metaId', (int) $metaId)];
+            $deletePlaceholders = [];
+            foreach ($aclResIds as $idx => $row) {
+                $key = 'aclResId' . $idx;
+                $deletePlaceholders[] = ':' . $key;
+                $deleteParams[] = QueryParameter::int($key, (int) $row['acl_res_id']);
+            }
+
+            $queryClean = 'DELETE FROM acl_resources_meta_relations WHERE meta_id = :metaId AND acl_res_id IN (' . implode(', ', $deletePlaceholders) . ')';
+            $pearDB->delete($queryClean, QueryParameters::create($deleteParams));
 
             // insert new relations
-            $paramsAcl = [QueryParameter::int('metaId', (int) $metaId)];
+            $paramsAcl = [];
             $values = [];
-            foreach ($aclResIds as $aclResId) {
-                $values[] = " (:acl_res_id_{$aclResId['acl_res_id']}, :metaId)";
-                $paramsAcl[] = QueryParameter::int("acl_res_id_{$aclResId['acl_res_id']}", (int) $aclResId['acl_res_id']);
+            foreach ($aclResIds as $idx => $aclResId) {
+                $key = 'aclResId' . $idx;
+                $metaKey = 'metaId' . $idx;
+                $values[] = " (:{$key}, :{$metaKey})";
+                $paramsAcl[] = QueryParameter::int($key, (int) $aclResId['acl_res_id']);
+                $paramsAcl[] = QueryParameter::int($metaKey, (int) $metaId);
             }
             // update acl_resources_meta_relations
             if ($values !== []) {

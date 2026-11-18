@@ -4,11 +4,17 @@ import { equals } from 'ramda';
 
 import { margin } from '../../Chart/common';
 
+interface ShowTooltipArgs {
+  tooltipData: string;
+  tooltipLeft: number;
+  tooltipTop: number;
+}
+
 interface Props {
   hideTooltip: () => void;
   isHorizontal: boolean;
   label: string;
-  showTooltip: (args) => void;
+  showTooltip: (args: ShowTooltipArgs) => void;
   thresholdType: string;
   value: number;
   width: number;

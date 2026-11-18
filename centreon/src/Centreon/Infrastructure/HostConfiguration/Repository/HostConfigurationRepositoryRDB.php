@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\HostConfiguration\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\HostConfiguration\Exception\HostCategoryException;
@@ -169,16 +171,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
             return null;
         }
 
-        $accessGroupRequest = ' INNER JOIN `:db`.acl_resources_host_relations arhr
-            ON host.host_id = arhr.host_host_id
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON ag.acl_group_id IN (' . implode(',', $accessGroupIds) . ') ';
-
-        return $this->findHostRequest($hostId, $accessGroupRequest);
+        return $this->findHostRequest($hostId, $accessGroupIds);
     }
 
     /**
@@ -192,8 +185,27 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     /**
      * @inheritDoc
      */
-    public function findHostRequest(int $hostId, ?string $accessGroupRequest = null): ?Host
+    public function findHostRequest(int $hostId, array $accessGroupIds = []): ?Host
     {
+        $accessGroupBindParameters = [];
+        $accessGroupClause = '';
+        if ($accessGroupIds !== []) {
+            $accessGroupPlaceholders = [];
+            foreach ($accessGroupIds as $idx => $accessGroupId) {
+                $name = 'ag_' . $idx;
+                $accessGroupPlaceholders[] = ':' . $name;
+                $accessGroupBindParameters[] = QueryParameter::int($name, (int) $accessGroupId);
+            }
+            $accessGroupClause = ' INNER JOIN `:db`.acl_resources_host_relations arhr
+                ON host.host_id = arhr.host_host_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arhr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id IN (' . implode(', ', $accessGroupPlaceholders) . ') ';
+        }
+
         $request = $this->translateDbName(
             'SELECT host.host_id, host.host_name, host.host_alias, host.display_name AS host_display_name,
             host.host_address AS host_ip_address, host.host_comment, host.geo_coords AS host_geo_coords,
@@ -206,15 +218,20 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                 ON host_server.host_host_id = host.host_id
             INNER JOIN `:db`.nagios_server nagios
                 ON nagios.id = host_server.nagios_server_id '
-            . ($accessGroupRequest ?? '')
+            . $accessGroupClause
             . 'WHERE host.host_id = :host_id
             AND host.host_register = \'1\''
         );
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
-        $statement->execute();
 
-        if (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+        $record = $this->db->fetchAssociative(
+            $request,
+            QueryParameters::create([
+                QueryParameter::int('host_id', $hostId),
+                ...$accessGroupBindParameters,
+            ])
+        );
+
+        if ($record !== false) {
             return $this->createHost($record);
         }
 

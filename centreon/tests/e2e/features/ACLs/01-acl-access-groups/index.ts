@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/acls/acl-data.json';
@@ -22,20 +23,17 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+    url: `${INTERCEPTORS.api.centreon_topcounter}&action=user`
   }).as('getTopCounter');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
-  cy.intercept(
-    'HEAD',
-    'https://guide.centreon.com/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'
-  ).as('pendoRequest');
+  cy.intercept('HEAD', INTERCEPTORS.static.pendo).as('pendoRequest');
 });
 
 afterEach(() => {

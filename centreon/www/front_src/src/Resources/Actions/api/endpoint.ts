@@ -8,8 +8,8 @@ const csvExportEndpoint = `${resourcesEndpoint}/export`;
 
 export {
   acknowledgeEndpoint,
-  downtimeEndpoint,
   checkEndpoint,
   commentEndpoint,
-  csvExportEndpoint
+  csvExportEndpoint,
+  downtimeEndpoint
 };

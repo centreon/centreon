@@ -1,0 +1,26 @@
+meta {
+  name: POST /platform/updates - Update platform - HTTP 204
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/platform/updates
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Super administrator can trigger a platform update.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

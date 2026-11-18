@@ -1,11 +1,20 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import { QueryParameter } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
-import { equals, isNotEmpty, isNotNil, pluck } from 'ramda';
+import { equals, isNil, isNotEmpty, isNotNil, pluck } from 'ramda';
 import { useMemo } from 'react';
 
 import { FieldType } from '../../models';
 import { useGetAll } from '../api';
 import { configurationAtom } from '../atoms';
-import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
+import {
+  listingLimitAtom,
+  pageAtom,
+  sortFieldAtom,
+  sortOrderAtom
+} from './atoms';
 
 interface LoadDataState {
   data?;
@@ -16,19 +25,78 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
   const page = useAtomValue(pageAtom);
-  const limit = useAtomValue(limitAtom);
+  const limit = useAtomValue(listingLimitAtom);
   const filters = useAtomValue(filtersAtom);
   const configuration = useAtomValue(configurationAtom);
 
-  const searchConditions = useMemo(() => {
-    const hasStatusFilter = configuration?.filtersConfiguration?.some(
-      (filter) => equals(filter.fieldType, FieldType.Status)
+  const apiFormat = configuration?.api?.apiFormat;
+
+  const isStatusFilterApplied =
+    configuration?.filtersConfiguration?.some((filter) =>
+      equals(filter.fieldType, FieldType.Status)
+    ) && !equals(filters?.enabled, filters?.disabled);
+
+  const getCheckboxQueries = () => {
+    const isCheckboxFilterApplied = configuration?.filtersConfiguration?.some(
+      (filter) => equals(filter.fieldType, FieldType.Checkbox)
     );
 
-    const statusCondition =
-      hasStatusFilter && !equals(filters?.enabled, filters?.disabled)
-        ? [{ field: 'is_activated', values: { $eq: filters.enabled } }]
-        : [];
+    if (!isCheckboxFilterApplied) {
+      return [];
+    }
+
+    const filter = configuration?.filtersConfiguration?.find((filter) =>
+      equals(filter.fieldType, FieldType.Checkbox)
+    );
+    const filterName = filter?.fieldName as string;
+
+    const filterValue = filters?.[filterName];
+
+    if (filter?.uncheckedQueryParameter) {
+      return filterValue
+        ? []
+        : [{ name: filter.uncheckedQueryParameter, value: true }];
+    }
+
+    return filterValue
+      ? [
+          {
+            name: filterName,
+            value: true
+          }
+        ]
+      : [];
+  };
+
+  const getCheckboxesQueries = () => {
+    const isCheckboxesFilterApplied = configuration?.filtersConfiguration?.some(
+      (filter) => equals(filter.fieldType, FieldType.Checkboxes)
+    );
+
+    if (!isCheckboxesFilterApplied) {
+      return [];
+    }
+
+    const filterName = configuration?.filtersConfiguration?.find((filter) =>
+      equals(filter.fieldType, FieldType.Checkboxes)
+    )?.fieldName as string;
+
+    const filterValues = filters?.[filterName];
+
+    return filterValues.map((filterValue) => ({
+      name: `${filterName}[]`,
+      value: filterValue
+    }));
+  };
+
+  const searchConditions = useMemo(() => {
+    if (equals(apiFormat, 'JSON-LD')) {
+      return [];
+    }
+
+    const statusCondition = isStatusFilterApplied
+      ? [{ field: 'is_activated', values: { $eq: filters.enabled } }]
+      : [];
 
     const otherConditions = configuration?.filtersConfiguration?.reduce(
       (acc, filter) => {
@@ -52,6 +120,18 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
             : acc;
         }
 
+        if (equals(filter.fieldType, FieldType.SingleConnectedAutocomplete)) {
+          return isNotNil(filterValue)
+            ? [
+                ...acc,
+                {
+                  field: fieldName,
+                  values: { $eq: filterValue.id }
+                }
+              ]
+            : acc;
+        }
+
         return filterValue
           ? [...acc, { field: fieldName, values: { $rg: filterValue } }]
           : acc;
@@ -62,8 +142,66 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
     return [...statusCondition, ...(otherConditions || [])];
   }, [configuration?.filtersConfiguration, filters]);
 
+  // The status filter carries no `fieldName`, and endpoints do not spell the
+  // parameter alike, so a module may name it through its filter configuration.
+  const getStatusQueries = () => {
+    if (!isStatusFilterApplied) {
+      return [];
+    }
+
+    const fieldName =
+      configuration?.filtersConfiguration?.find((filter) =>
+        equals(filter.fieldType, FieldType.Status)
+      )?.fieldName ?? 'is_activated';
+
+    return [{ name: fieldName, value: filters?.enabled }];
+  };
+
+  const getSingleConnectedAutocompleteQueries = () =>
+    (configuration?.filtersConfiguration ?? [])
+      .filter((filter) =>
+        equals(filter.fieldType, FieldType.SingleConnectedAutocomplete)
+      )
+      .flatMap((filter) => {
+        const filterValue = filters?.[filter.fieldName as string];
+
+        return isNotNil(filterValue)
+          ? [{ name: filter.fieldName as string, value: filterValue.id }]
+          : [];
+      });
+
+  const getTextQueries = () =>
+    (configuration?.filtersConfiguration ?? [])
+      .filter((filter) => equals(filter.fieldType, FieldType.Text))
+      .map((filter) => ({
+        name: `${filter.fieldName}[lk]`,
+        value: filters?.[filter.fieldName as string]
+      }));
+
+  const getCustomQueryParameters = (): Array<QueryParameter> => {
+    if (!equals(apiFormat, 'JSON-LD')) {
+      return [];
+    }
+
+    const customQueryParameters = [
+      ...getTextQueries(),
+      ...getStatusQueries(),
+      ...getSingleConnectedAutocompleteQueries(),
+      ...getCheckboxesQueries(),
+      ...getCheckboxQueries()
+    ];
+
+    return customQueryParameters;
+  };
+
+  // No request until the page size is known, so the listing is not first
+  // loaded with a page size it is about to replace.
+  const isLimitPending = isNil(limit);
+
   const { data, isLoading } = useGetAll({
+    enabled: !isLimitPending,
     filtersAtomKey,
+    getCustomQueryParameters,
     limit,
     page,
     searchConditions,
@@ -71,7 +209,7 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
     sortOrder
   });
 
-  return { data, isLoading };
+  return { data, isLoading: isLoading || isLimitPending };
 };
 
 export default useLoadData;

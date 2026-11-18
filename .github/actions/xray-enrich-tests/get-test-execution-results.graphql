@@ -1,0 +1,14 @@
+# Query the per-test run statuses of a Test Execution (to decide pass vs fail).
+query GetTestExecutionResults($id: String!, $start: Int!) {
+  getTestExecution(issueId: $id) {
+    testRuns(limit: 100, start: $start) {
+      total
+      results {
+        id
+        status {
+          name
+        }
+      }
+    }
+  }
+}

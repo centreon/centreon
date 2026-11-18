@@ -3,6 +3,8 @@ interface EllipsisTypography {
   formattedString: string;
 }
 
+export type RowRecord = Record<string, unknown>;
+
 export interface ComponentColumnProps {
   isHovered: boolean;
   isSelected: boolean;
@@ -10,7 +12,7 @@ export interface ComponentColumnProps {
     className,
     formattedString
   }: EllipsisTypography) => JSX.Element;
-  row;
+  row: RowRecord;
 }
 
 export interface Column {
@@ -21,11 +23,11 @@ export interface Column {
   disablePadding?: boolean;
   disabled?: boolean;
   displaySubItemsCaret?: boolean;
-  getColSpan?: (isSelected) => number | undefined;
-  getFormattedString?: (row) => string | null;
-  getHiddenCondition?: (isSelected) => boolean;
-  getRenderComponentCondition?: (row) => boolean;
-  getRenderComponentOnRowUpdateCondition?: (row) => boolean;
+  getColSpan?: (isSelected: boolean) => number | undefined;
+  getFormattedString?: (row: RowRecord) => string | null;
+  getHiddenCondition?: (isSelected: boolean) => boolean;
+  getRenderComponentCondition?: (row: RowRecord) => boolean;
+  getRenderComponentOnRowUpdateCondition?: (row: RowRecord) => boolean;
   hasHoverableComponent?: boolean;
   id: string;
   isTruncated?: boolean;
@@ -45,7 +47,7 @@ export enum ColumnType {
 
 export interface RowColorCondition {
   color: string;
-  condition: (row) => boolean;
+  condition: (row: RowRecord) => boolean;
   name: string;
 }
 
@@ -60,7 +62,7 @@ export type SortOrder = 'asc' | 'desc';
 
 export interface PredefinedRowSelection {
   label: string;
-  rowCondition: (row) => boolean;
+  rowCondition: (row: RowRecord) => boolean;
 }
 
 export interface TableStyleAtom {
@@ -80,7 +82,7 @@ export interface TableStyleAtom {
 export interface ListingSubItems {
   canCheckSubItems: boolean;
   enable: boolean;
-  getRowProperty: (row?) => string;
+  getRowProperty: (row?: RowRecord) => string;
   labelCollapse: string;
   labelExpand: string;
 }

@@ -110,15 +110,15 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'waitForElementInIframe',
   (iframeSelector, elementSelector) => {
+    // Return the visibility: within() yields the body, which passed the wait at once
     cy.waitUntil(
       () =>
         cy
           .get(iframeSelector)
           .its('0.contentDocument.body')
           .should('not.be.empty')
-          .then(cy.wrap)
-          .within(() => {
-            const element = Cypress.$(elementSelector);
+          .then((body) => {
+            const element = Cypress.$(body).find(elementSelector);
 
             return element.length > 0 && element.is(':visible');
           }),
@@ -459,13 +459,14 @@ Output:\n${displayedOutput}`);
 
 interface RequestOnDatabaseProps {
   database: string;
+  params?: Array<string | number>;
   query: string;
 }
 
 Cypress.Commands.add(
   'requestOnDatabase',
-  ({ database, query }: RequestOnDatabaseProps): Cypress.Chainable => {
-    return cy.task('requestOnDatabase', { database, query });
+  ({ database, query, params }: RequestOnDatabaseProps): Cypress.Chainable => {
+    return cy.task('requestOnDatabase', { database, query, params });
   }
 );
 
@@ -497,6 +498,16 @@ Cypress.Commands.add(
       );
   }
 );
+
+// The token is set once in the feature's before(), so it is missing when a
+// test is retried: get it again only in that case.
+Cypress.Commands.add('ensureUserTokenApiV1', (): Cypress.Chainable => {
+  if (window.localStorage.getItem('userTokenApiV1')) {
+    return cy.wrap(null);
+  }
+
+  return cy.setUserTokenApiV1();
+});
 
 interface PortBinding {
   destination: number;
@@ -531,6 +542,8 @@ Cypress.Commands.add(
 interface StartContainersProps {
   composeFile?: string;
   databaseImage?: string;
+  dbConfiguration?: string;
+  dbStorage?: string;
   moduleName?: string;
   openidImage?: string;
   profiles?: Array<string>;
@@ -545,12 +558,14 @@ Cypress.Commands.add(
   ({
     composeFile,
     databaseImage = Cypress.env('DATABASE_IMAGE'),
+    dbConfiguration = Cypress.env('MYSQL_DB_CONFIGURATION'),
+    dbStorage = Cypress.env('MYSQL_DB_STORAGE'),
     moduleName = 'centreon-web',
-    openidImage = `docker.centreon.com/centreon/keycloak:${Cypress.env(
+    openidImage = `ghcr.io/centreon/centreon/keycloak:${Cypress.env(
       'OPENID_IMAGE_VERSION'
     )}`,
     profiles = [],
-    samlImage = `docker.centreon.com/centreon/keycloak:${Cypress.env(
+    samlImage = `ghcr.io/centreon/centreon/keycloak:${Cypress.env(
       'SAML_IMAGE_VERSION'
     )}`,
     useSlim = true,
@@ -578,6 +593,8 @@ Cypress.Commands.add(
         {
           composeFile: composeFilePath,
           databaseImage,
+          dbConfiguration,
+          dbStorage,
           openidImage,
           profiles,
           samlImage,
@@ -642,8 +659,8 @@ Cypress.Commands.add(
     cy.log(`Getting logs from container ${name} ...`);
 
     return cy.getLogDirectory().then((logDirectory) => {
-      let sourcePhpLogs = '/var/log/php8.2-fpm-centreon-error.log';
-      let targetPhpLogs = `${logDirectory}/php8.2-fpm-centreon-error.log`;
+      let sourcePhpLogs = '/var/log/centreon/prod.web.log';
+      let targetPhpLogs = `${logDirectory}/prod.web.log`;
       let sourceApacheLogs = '/var/log/apache2';
       let targetApacheLogs = `${logDirectory}/apache2`;
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
@@ -993,6 +1010,7 @@ declare global {
       ) => Cypress.Chainable;
       copyWebContainerLogs: (props: CopyWebContainerLogsProps) => Cypress.Chainable;
       createDirectory: (directoryPath: string) => Cypress.Chainable;
+      ensureUserTokenApiV1: () => Cypress.Chainable;
       execInContainer: (
         props: ExecInContainerProps,
         options?: ExecInContainerOptions
@@ -1046,7 +1064,8 @@ declare global {
       }: NavigateToProps) => Cypress.Chainable;
       requestOnDatabase: ({
         database,
-        query
+        query,
+        params
       }: RequestOnDatabaseProps) => Cypress.Chainable;
       setUserTokenApiV1: ({
         login,

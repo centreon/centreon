@@ -47,7 +47,7 @@ function testHostGroupDependencyExistence(?string $name = null): bool
             ->getQuery();
 
         $params = QueryParameters::create([
-            QueryParameter::string('depName', CentreonDB::escape($name)),
+            QueryParameter::string('depName', $name),
         ]);
 
         $row = $pearDB->fetchAssociative($query, $params);
@@ -155,42 +155,30 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
             if (! $row) {
                 continue;
             }
-            $row['dep_id'] = null;
+            unset($row['dep_id']);
+
+            $columns = array_keys($row);
+            $insertQuery = $pearDB->createQueryBuilder()
+                ->insert('dependency')
+                ->values(array_combine(
+                    $columns,
+                    array_map(fn ($col) => ':' . $col, $columns)
+                ))
+                ->getQuery();
+
             for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-                $val = null;
-                foreach ($row as $key2 => $value2) {
-                    $value2 = is_int($value2) ? (string) $value2 : $value2;
-                    if ($key2 == 'dep_name') {
-                        $dep_name = $value2 . '_' . $i;
-                        $value2 = $value2 . '_' . $i;
-                    }
-                    $val
-                        ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                        : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-                    if ($key2 != 'dep_id') {
-                        $fields[$key2] = $value2;
-                    }
-                    if (isset($dep_name)) {
-                        $fields['dep_name'] = $dep_name;
-                    }
-                }
+                $dep_name = $row['dep_name'] . '_' . $i;
                 if (isset($dep_name) && testHostGroupDependencyExistence($dep_name)) {
-                    $columns = ['dep_id', 'dep_name', 'dep_description', 'inherits_parent', 'execution_failure_criteria',
-                        'notification_failure_criteria', 'dep_comment'];
+                    $dup = $row;
+                    $dup['dep_name'] = $dep_name;
 
-                    $qb = $pearDB->createQueryBuilder()
-                        ->insert('dependency')
-                        ->values(
-                            array_combine($columns,
-                                explode(
-                                    ', ',
-                                    $val
-                                )
-                            )
-                        )
-                        ->getQuery();
-
-                    $pearDB->executeStatement($qb);
+                    $insertParams = [];
+                    $fields = [];
+                    foreach ($dup as $col => $val) {
+                        $insertParams[] = QueryParameter::string($col, $val);
+                        $fields[$col] = $val;
+                    }
+                    $pearDB->insert($insertQuery, QueryParameters::create($insertParams));
 
                     $qb = $pearDB->createQueryBuilder()
                         ->select('MAX(dep_id) AS max_dep_id')

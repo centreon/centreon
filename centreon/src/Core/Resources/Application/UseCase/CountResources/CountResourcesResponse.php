@@ -37,6 +37,9 @@ final class CountResourcesResponse
     /** @var int */
     private int $totalResources = 0;
 
+    /** @var bool */
+    private bool $isApproximate = false;
+
     /**
      * @return int
      */
@@ -73,6 +76,26 @@ final class CountResourcesResponse
     public function setTotalResources(int $totalResources): self
     {
         $this->totalResources = $totalResources;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isApproximate(): bool
+    {
+        return $this->isApproximate;
+    }
+
+    /**
+     * @param bool $isApproximate
+     *
+     * @return $this
+     */
+    public function setIsApproximate(bool $isApproximate): self
+    {
+        $this->isApproximate = $isApproximate;
 
         return $this;
     }

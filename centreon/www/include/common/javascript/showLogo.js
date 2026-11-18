@@ -33,8 +33,14 @@
  */
 
 function showLogo(_img_dst, _value) {
-	var _img = document.getElementById(_img_dst);        
-	if (_value && _value.indexOf('REP') < 0) {            
+	var _img = document.getElementById(_img_dst);
+	// Some forms (the OnPrem service/template ones) render the icon inside the
+	// select2 selection and carry no preview node: nothing to refresh, so return
+	// rather than dereference a missing element.
+	if (!_img) {
+	    return;
+	}
+	if (_value && _value.indexOf('REP') < 0) {
             _img.src = 'include/common/getHiddenImage.php?id=' + _value + '&logo=1';            
         } else {
             _img.src = './img/blank.gif';

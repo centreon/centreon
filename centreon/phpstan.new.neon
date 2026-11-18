@@ -1,5 +1,6 @@
 includes:
     - ../php-tools/phpstan/config/common.neon
+    - phpstan.new.baseline.neon
 
 parameters:
 

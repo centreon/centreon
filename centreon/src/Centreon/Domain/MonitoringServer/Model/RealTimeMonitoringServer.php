@@ -35,7 +35,6 @@ class RealTimeMonitoringServer
     public const MAX_NAME_LENGTH = 255;
     public const MIN_NAME_LENGTH = 1;
     public const MAX_ADDRESS_LENGTH = 128;
-    public const MAX_DESCRIPTION_LENGTH = 128;
     public const MAX_VERSION_LENGTH = 16;
 
     /** @var int defines the Monitoring Server id */
@@ -46,9 +45,6 @@ class RealTimeMonitoringServer
 
     /** @var string|null Defines the IP address of the Monitoring Server */
     private $address;
-
-    /** @var string|null Defines a short description of the Monitoring Server */
-    private $description;
 
     /** @var int|null Defines the last time when Monitoring Server was alive (timestamp) */
     private $lastAlive;
@@ -191,29 +187,6 @@ class RealTimeMonitoringServer
             Assertion::maxLength($version, self::MAX_VERSION_LENGTH, 'RealTimeMonitoringServer::version');
         }
         $this->version = $version;
-
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param string|null $description
-     * @throws \Assert\AssertionFailedException
-     * @return RealTimeMonitoringServer
-     */
-    public function setDescription(?string $description): RealTimeMonitoringServer
-    {
-        if ($description !== null) {
-            Assertion::maxLength($description, self::MAX_DESCRIPTION_LENGTH, 'RealTimeMonitoringServer::description');
-        }
-        $this->description = $description;
 
         return $this;
     }

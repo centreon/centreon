@@ -1,0 +1,38 @@
+meta {
+  name: POST /services/categories - Create second service category - HTTP 201
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceCategory2Name}}",
+    "alias": "{{ServiceCategory2Alias}}"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The second service category has been successfully created.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("ServiceCategory2Id", body.id);
+    expect(body).to.include({
+      "name": bru.getEnvVar("ServiceCategory2Name"),
+      "alias": bru.getEnvVar("ServiceCategory2Alias")
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

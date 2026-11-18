@@ -46,43 +46,43 @@ class Centreon_Object_Contact extends Centreon_Object
      */
     public function insert($params = [])
     {
-        $sql = "INSERT INTO {$this->table} ";
-        $sqlFields = '';
-        $sqlValues = '';
-        $sqlParams = [];
-
-        // Store password value and remove it from the array to not inserting it in contact table.
         if (isset($params['contact_passwd'])) {
             $password = $params['contact_passwd'];
             unset($params['contact_passwd']);
         }
+
+        $fields = [];
+        $placeholders = [];
+        $bindParams = [];
         foreach ($params as $key => $value) {
+            $key = $this->sanitizeIdentifier($key);
             if ($key == $this->primaryKey) {
                 continue;
             }
-            if ($sqlFields != '') {
-                $sqlFields .= ',';
-            }
-            if ($sqlValues != '') {
-                $sqlValues .= ',';
-            }
-            $sqlFields .= $key;
-            $sqlValues .= '?';
-            $sqlParams[] = trim($value);
-        }
-        if ($sqlFields && $sqlValues) {
-            $sql .= '(' . $sqlFields . ') VALUES (' . $sqlValues . ')';
-            $this->db->query($sql, $sqlParams);
-            $contactId = $this->db->lastInsertId();
-            if (isset($password, $contactId)) {
-                $contact = new CentreonContact($this->db);
-                $contact->addPasswordByContactId($contactId, $password);
-            }
-
-            return $contactId;
+            $fields[] = $key;
+            $placeholders[] = ':' . $key;
+            $bindParams[':' . $key] = trim($value);
         }
 
-        return null;
+        if ($fields === []) {
+            return null;
+        }
+
+        $sql = "INSERT INTO {$this->table} (" . implode(',', $fields) . ') VALUES ('
+            . implode(',', $placeholders) . ')';
+        $statement = $this->db->prepare($sql);
+        foreach ($bindParams as $paramName => $paramValue) {
+            $statement->bindValue($paramName, $paramValue);
+        }
+        $statement->execute();
+
+        $contactId = $this->db->lastInsertId();
+        if (isset($password, $contactId)) {
+            $contact = new CentreonContact($this->db);
+            $contact->addPasswordByContactId($contactId, $password);
+        }
+
+        return $contactId;
     }
 
     /**
@@ -102,6 +102,7 @@ class Centreon_Object_Contact extends Centreon_Object
         }
 
         if (is_array($parameterNames)) {
+            $parameterNames = array_map([$this, 'sanitizeIdentifier'], $parameterNames);
             if (($key = array_search('contact_id', $parameterNames)) !== false) {
                 $parameterNames[$key] = $this->table . '.contact_id';
             }
@@ -109,39 +110,57 @@ class Centreon_Object_Contact extends Centreon_Object
         } elseif ($parameterNames === 'contact_id') {
             $params = $this->table . '.contact_id';
         } else {
-            $params = $parameterNames;
+            $params = $parameterNames !== '*' ? $this->sanitizeIdentifier($parameterNames) : $parameterNames;
         }
         $sql = "SELECT {$params} FROM {$this->table}";
-        $filterTab = [];
-        if (count($filters)) {
-            foreach ($filters as $key => $rawvalue) {
-                if ($filterTab === []) {
-                    $sql .= " WHERE {$key} ";
-                } else {
-                    $sql .= " {$filterType} {$key} ";
+        $bindParams = [];
+        $filterIndex = 0;
+        $whereClauses = [];
+        foreach ($filters as $key => $rawvalue) {
+            $key = $this->sanitizeIdentifier($key);
+            if (is_array($rawvalue)) {
+                if ($rawvalue === []) {
+                    $whereClauses[] = '1 = 0';
+                    continue;
                 }
-                if (is_array($rawvalue)) {
-                    $sql .= ' IN (' . str_repeat('?,', count($rawvalue) - 1) . '?) ';
-                    $filterTab = array_merge($filterTab, $rawvalue);
-                } else {
-                    $sql .= ' LIKE ? ';
-                    $value = trim($rawvalue);
-                    $value = str_replace('\\', '\\\\', $value);
-                    $value = str_replace('_', "\_", $value);
-                    $value = str_replace(' ', "\ ", $value);
-                    $filterTab[] = $value;
+                $inPlaceholders = [];
+                foreach ($rawvalue as $inValue) {
+                    $paramName = ':filter_' . $filterIndex++;
+                    $inPlaceholders[] = $paramName;
+                    $bindParams[$paramName] = $inValue;
                 }
+                $whereClauses[] = "{$key} IN (" . implode(',', $inPlaceholders) . ')';
+            } else {
+                $paramName = ':filter_' . $filterIndex++;
+                $value = trim($rawvalue);
+                $value = str_replace('\\', '\\\\', $value);
+                $value = str_replace('_', "\_", $value);
+                $value = str_replace(' ', "\ ", $value);
+                $whereClauses[] = "{$key} LIKE {$paramName}";
+                $bindParams[$paramName] = $value;
             }
         }
-        if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+        if ($whereClauses !== []) {
+            $sql .= ' WHERE ' . implode(" {$filterType} ", $whereClauses);
+        }
+        if (isset($order, $sort) && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $order = $this->sanitizeIdentifier($order);
             $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->db->limit($sql, $count, $offset);
         }
 
-        $contacts = $this->getResult($sql, $filterTab, 'fetchAll');
+        $statement = $this->db->prepare($sql);
+        foreach ($bindParams as $paramName => $paramValue) {
+            $statement->bindValue($paramName, $paramValue);
+        }
+        $statement->execute();
+        $contacts = $statement->fetchAll();
         foreach ($contacts as &$contact) {
+            if (! isset($contact['contact_id'])) {
+                continue;
+            }
             $statement = $this->db->prepare(
                 'SELECT password FROM contact_password WHERE contact_id = :contactId '
                 . 'ORDER BY creation_date DESC LIMIT 1'
@@ -159,10 +178,7 @@ class Centreon_Object_Contact extends Centreon_Object
      */
     public function update($contactId, $params = []): void
     {
-        $sql = "UPDATE {$this->table} SET ";
-        $sqlUpdate = '';
-        $sqlParams = [];
-        $not_null_attributes = [];
+        $notNullAttributes = [];
 
         // Store password value and remove it from the array to not inserting it in contact table.
         if (isset($params['contact_passwd'])) {
@@ -184,37 +200,41 @@ class Centreon_Object_Contact extends Centreon_Object
             }
         }
 
-        if (array_search('', $params)) {
-            $sql_attr = "SHOW FIELDS FROM {$this->table}";
-            $res = $this->getResult($sql_attr, [], 'fetchAll');
+        if (array_search('', $params, true) !== false) {
+            $res = $this->getResult("SHOW FIELDS FROM {$this->table}", [], 'fetchAll');
             foreach ($res as $tab) {
                 if ($tab['Null'] == 'NO') {
-                    $not_null_attributes[$tab['Field']] = true;
+                    $notNullAttributes[$tab['Field']] = true;
                 }
             }
         }
 
+        $setClauses = [];
+        $bindParams = [];
         foreach ($params as $key => $value) {
+            $key = $this->sanitizeIdentifier($key);
             if ($key == $this->primaryKey) {
                 continue;
             }
-            if ($sqlUpdate != '') {
-                $sqlUpdate .= ',';
-            }
-            $sqlUpdate .= $key . ' = ? ';
-            if ($value === '' && ! isset($not_null_attributes[$key])) {
+            $setClauses[] = $key . ' = :' . $key;
+            if ($value === '' && ! isset($notNullAttributes[$key])) {
                 $value = null;
             }
             if (! is_null($value)) {
                 $value = str_replace('<br/>', "\n", $value);
             }
-            $sqlParams[] = $value;
+            $bindParams[':' . $key] = $value;
         }
 
-        if ($sqlUpdate) {
-            $sqlParams[] = $contactId;
-            $sql .= $sqlUpdate . " WHERE {$this->primaryKey} = ?";
-            $this->db->query($sql, $sqlParams);
+        if ($setClauses !== []) {
+            $sql = "UPDATE {$this->table} SET " . implode(',', $setClauses)
+                . " WHERE {$this->primaryKey} = :primaryKeyId";
+            $statement = $this->db->prepare($sql);
+            foreach ($bindParams as $paramName => $paramValue) {
+                $statement->bindValue($paramName, $paramValue);
+            }
+            $statement->bindValue(':primaryKeyId', $contactId, PDO::PARAM_INT);
+            $statement->execute();
         }
 
         if (isset($password, $contactId)) {

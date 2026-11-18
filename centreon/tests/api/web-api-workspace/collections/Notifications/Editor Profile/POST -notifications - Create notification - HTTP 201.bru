@@ -1,0 +1,53 @@
+meta {
+  name: POST /notifications - Create notification - HTTP 201
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/notifications
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{EditorNotificationName}}",
+    "timeperiod_id": 1,
+    "users": [{{currentUserID}}],
+    "contactgroups": [],
+    "messages": [
+      {
+        "channel": "Email",
+        "subject": "Editor notification",
+        "message": "Editor message",
+        "formatted_message": "<p>Editor message</p>"
+      }
+    ],
+    "resources": [
+      {
+        "type": "hostgroup",
+        "ids": [{{NotificationHostGroupId}}],
+        "events": 5
+      }
+    ],
+    "is_activated": true
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Editor can create a notification. ID stored.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("id").that.is.a("number");
+    bru.setEnvVar("EditorNotificationId", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

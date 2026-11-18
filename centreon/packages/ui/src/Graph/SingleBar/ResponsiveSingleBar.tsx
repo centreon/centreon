@@ -20,6 +20,8 @@ import type { SingleBarProps } from './models';
 import { barHeights, lineMargins } from './ThresholdLine';
 import Thresholds, { groupMargin } from './Thresholds';
 
+const AnimatedRect = animated('rect');
+
 interface Props extends SingleBarProps {
   height: number;
   width: number;
@@ -41,6 +43,7 @@ const ResponsiveSingleBar = ({
   const { classes } = useTooltipStyles();
   const theme = useTheme();
 
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const metric = getMetricWithLatestData(data) as Metric;
   const latestMetricData = head(metric.data) as number;
   const thresholdValues = thresholds.enabled
@@ -166,6 +169,7 @@ const ResponsiveSingleBar = ({
           classes={{
             tooltip: classes.tooltip
           }}
+          // @ts-expect-error - suppressing pre-existing type mismatch
           label={tooltipData}
           open={tooltipOpen}
           placement="top"
@@ -174,7 +178,7 @@ const ResponsiveSingleBar = ({
             <title>single bar</title>
             <Group.Group>
               {text}
-              <animated.rect
+              <AnimatedRect
                 data-testid={`${latestMetricData}-bar-${barColor}`}
                 fill={barColor}
                 height={realBarHeight}

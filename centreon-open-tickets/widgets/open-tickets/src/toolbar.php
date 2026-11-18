@@ -50,7 +50,7 @@ $template = SmartyBC::createSmartyTemplate($path . 'templates/', './');
 
 /** @var Centreon $centreon */
 $centreon = $_SESSION['centreon'];
-$widgetId = $_POST['widgetId'];
+$widgetId = filter_input(INPUT_POST, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $db = new CentreonDB();
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);

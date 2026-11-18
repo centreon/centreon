@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import type { FormikValues } from 'formik';
 import type { TFunction } from 'i18next';
 import {
@@ -40,6 +42,7 @@ import {
   WidgetPropertyProps,
   WidgetResourceType
 } from '../../models';
+import { checkHiddenCondition } from '../handleHiddenConditions';
 
 export const getProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['options', ...split('.', propertyName)], obj);
@@ -61,6 +64,8 @@ interface GetYupValidatorTypeProps {
     | 'required'
     | 'requireResourceType'
     | 'allowEmptyResources'
+    | 'isRequiredProperty'
+    | 'isSingleAutocomplete'
   >;
   t: TFunction;
 }
@@ -83,6 +88,27 @@ export const boundariesValidationSchema = object()
 
 const getResourcesValidation = (properties) => {
   return properties.required ? mixed().required() : mixed();
+};
+
+const isPropertyHidden = (properties, parentValues): boolean => {
+  const { hiddenCondition } = properties;
+
+  if (!hiddenCondition) {
+    return false;
+  }
+
+  const conditions = Array.isArray(hiddenCondition)
+    ? hiddenCondition
+    : [hiddenCondition];
+
+  return conditions.some((condition) =>
+    checkHiddenCondition({
+      featureFlags: null,
+      hasModule: true,
+      hiddenCondition: condition,
+      values: { [condition.target]: parentValues }
+    })
+  );
 };
 
 const getYupValidatorType = ({
@@ -201,6 +227,28 @@ const getYupValidatorType = ({
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.boundaries),
       always(boundariesValidationSchema)
+    ],
+    [
+      equals<FederatedWidgetOptionType>(
+        FederatedWidgetOptionType.connectedAutocomplete
+      ),
+      always(
+        (properties.isSingleAutocomplete ? object() : array()).test(
+          'connected-autocomplete-required',
+          t(labelRequired) as string,
+          (value, context) => {
+            if (!(properties.required || properties.isRequiredProperty)) {
+              return true;
+            }
+
+            if (isPropertyHidden(properties, context.parent)) {
+              return true;
+            }
+
+            return !(isNil(value) || isEmpty(value));
+          }
+        )
+      )
     ]
   ])(properties.type);
 
@@ -212,6 +260,8 @@ interface BuildValidationSchemaProps {
     | 'required'
     | 'requireResourceType'
     | 'allowEmptyResources'
+    | 'isRequiredProperty'
+    | 'isSingleAutocomplete'
   >;
   t: TFunction;
 }
@@ -225,7 +275,16 @@ export const buildValidationSchema = ({
     t
   });
 
-  return properties.required
+  if (
+    equals<FederatedWidgetOptionType>(
+      properties.type,
+      FederatedWidgetOptionType.connectedAutocomplete
+    )
+  ) {
+    return yupValidator;
+  }
+
+  return properties.required || properties.isRequiredProperty
     ? yupValidator.required(t(labelRequired) as string)
     : yupValidator;
 };

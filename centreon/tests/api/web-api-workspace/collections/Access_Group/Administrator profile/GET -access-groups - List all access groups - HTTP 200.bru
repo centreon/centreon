@@ -1,0 +1,39 @@
+meta {
+  name: GET /access-groups - List all access groups - HTTP 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/access-groups
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The access groups are listed with all their parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+    expect(body).to.have.property("meta").that.is.an("object");
+
+    const allGroup = body.result.find(r => r.name === bru.getEnvVar("AllGroupName"));
+    if (allGroup !== undefined) {
+      expect(allGroup).to.include({
+        "id": parseInt(bru.getEnvVar("AllGroupId")),
+        "name": bru.getEnvVar("AllGroupName"),
+        "alias": bru.getEnvVar("AllGroupAlias"),
+        "is_activated": true
+      });
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

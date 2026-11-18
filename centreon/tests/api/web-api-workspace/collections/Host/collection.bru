@@ -1,0 +1,48 @@
+meta {
+  name: Host
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+vars:pre-request {
+  api_login_admin_cloud:
+  api_password_admin_cloud:
+  api_login_user_RW:
+  api_password_user_RW:
+  api_login_user_RW_filters:
+  api_password_user_RW_filters:
+  api_login_user_Read:
+  api_password_user_Read:
+  api_login_user_Read_filters:
+  api_password_user_Read_filters:
+  ServiceGroup0Name:
+  ServiceGroup0Alias:
+  ServiceGroup0Id:
+  api_login_user_Nothing:
+  api_password_user_Nothing:
+  api_login_admin_cloud_Id:
+  api_login_user_RW_Id:
+  api_login_user_RW_filters_Id:
+  api_login_user_Read_Id:
+  api_login_user_Read_filters_Id:
+  api_login_user_Nothing_Id:
+  RuleId:
+  HostSeverity1Id:
+  HostSeverity2Id:
+  HostCategory1Id:
+  HostCategory2Id:
+  HostGroup1Id:
+  HostTemplate1Id:
+  Host1Id:
+  Host2Id:
+  Host3Name:
+  Host3Alias:
+  Host3Id:
+}

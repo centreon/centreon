@@ -34,6 +34,9 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
     use LoggerTrait;
     use VaultTrait;
 
+    /** @var array<string, array<string, string>> */
+    private array $responseCache = [];
+
     /**
      * @inheritDoc
      */
@@ -53,9 +56,15 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
             . '/v1/' . $customPath;
         $url = sprintf('%s://%s', parent::DEFAULT_SCHEME, $url);
 
+        if (isset($this->responseCache[$url])) {
+            return $this->responseCache[$url];
+        }
+
         $responseContent = $this->sendRequest('GET', $url);
         if (is_array($responseContent) && isset($responseContent['data']['data'])) {
-            return $responseContent['data']['data'];
+            $this->responseCache[$url] = $responseContent['data']['data'];
+
+            return $this->responseCache[$url];
         }
 
         return [];

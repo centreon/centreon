@@ -250,14 +250,14 @@ describe('View by host', () => {
       cy.get('[data-status="up"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(136, 185, 34)');
+        .should('have.css', 'background-color', 'rgb(159, 199, 78)');
 
       cy.contains('Passive_server_1').should('be.visible');
       cy.get('[data-status="down"]').should('be.visible');
       cy.get('[data-status="down"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(255, 102, 102)');
+        .should('have.css', 'background-color', 'rgb(255, 110, 110)');
 
       cy.contains('Passive_server').should('be.visible');
       cy.get('[data-status="unknown"]').should('be.visible');
@@ -318,7 +318,7 @@ describe('View by host', () => {
       cy.get('[data-status="up"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(136, 185, 34)');
+        .should('have.css', 'background-color', 'rgb(159, 199, 78)');
 
       cy.makeSnapshot();
     });
@@ -381,7 +381,7 @@ describe('View by service', () => {
       cy.get('[data-resourcename="Ping"]').should(
         'have.css',
         'color',
-        'rgb(136, 185, 34)'
+        'rgb(159, 199, 78)'
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
@@ -399,7 +399,7 @@ describe('View by service', () => {
       cy.get('[data-resourcename="Centreon_Pass"]').should(
         'have.css',
         'color',
-        'rgb(255, 102, 102)'
+        'rgb(255, 110, 110)'
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
@@ -409,7 +409,7 @@ describe('View by service', () => {
       cy.contains(labelValue).should('exist');
 
       cy.contains('rta').should('be.visible');
-      cy.contains('1').should('have.css', 'color', 'rgb(253, 155, 39)');
+      cy.contains('1').should('have.css', 'color', 'rgb(252, 196, 129)');
 
       cy.makeSnapshot();
     });
@@ -422,7 +422,7 @@ describe('View by service', () => {
       cy.get('[data-resourcename="Passive"]').should(
         'have.css',
         'color',
-        'rgb(253, 155, 39)'
+        'rgb(252, 196, 129)'
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
@@ -432,7 +432,7 @@ describe('View by service', () => {
       cy.contains(labelValue).should('exist');
 
       cy.contains('rta').should('be.visible');
-      cy.contains('1').should('have.css', 'color', 'rgb(253, 155, 39)');
+      cy.contains('1').should('have.css', 'color', 'rgb(252, 196, 129)');
 
       cy.makeSnapshot();
     });

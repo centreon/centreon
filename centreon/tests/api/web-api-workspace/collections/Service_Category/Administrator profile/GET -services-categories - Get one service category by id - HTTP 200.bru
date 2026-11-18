@@ -1,0 +1,32 @@
+meta {
+  name: GET /services/categories - Get one service category by id - HTTP 200
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/categories/{{ServiceCategory2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The service category retrieved is listed with all of its parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceCategory2Id")),
+      "name": bru.getEnvVar("ServiceCategory2Name"),
+      "alias": bru.getEnvVar("ServiceCategory2Alias"),
+      "is_activated": true
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -2,6 +2,7 @@ import { Column, ColumnType } from '@centreon/ui';
 
 import { useTranslation } from 'react-i18next';
 
+import { ResourcesType } from '../models';
 import {
   labelActions,
   labelChannels,
@@ -20,7 +21,7 @@ const useListingColumns = (): Array<Column> => {
   return [
     {
       disablePadding: false,
-      getFormattedString: ({ name }): string => name,
+      getFormattedString: ({ name }): string => name as string,
       id: 'name',
       label: t(labelName),
       sortable: true,
@@ -39,7 +40,7 @@ const useListingColumns = (): Array<Column> => {
     {
       disablePadding: false,
       getFormattedString: ({ resources }): string =>
-        formatResourcesForListing(resources),
+        formatResourcesForListing(resources as Array<ResourcesType>),
       id: 'resources',
       label: t(labelResources),
       sortable: true,
@@ -48,7 +49,8 @@ const useListingColumns = (): Array<Column> => {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ timeperiod }): string => timeperiod?.name,
+      getFormattedString: ({ timeperiod }): string =>
+        (timeperiod as { name: string } | undefined)?.name ?? '',
       id: 'timeperiod',
       label: t(labelPeriod),
       type: ColumnType.string

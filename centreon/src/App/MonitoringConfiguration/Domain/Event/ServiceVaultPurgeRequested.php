@@ -1,0 +1,56 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Domain\Event;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
+use App\Shared\Domain\Event\EventInterface;
+
+/**
+ * Deferred because a vault purge cannot be rolled back: it must only happen once the write that makes it safe is
+ * committed.
+ *
+ * Fired for a deleted service, and for a service whose save released its vault entry (see
+ * {@see Service::releasesVaultEntryOf()}): $service is then the service as it was before the save, the one still
+ * pointing to the entry.
+ */
+final readonly class ServiceVaultPurgeRequested implements DeliveredAfterCommitInterface, EventInterface
+{
+    /**
+     * @param bool $bestEffort a failed purge is only logged instead of reported to the caller: set it when the
+     *                         service was removed as a side effect of a successful save, or the purge merely
+     *                         tidies up an entry left by one, an orphan entry being harmless
+     */
+    public function __construct(
+        public Service $service,
+        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
+        public bool $bestEffort = false,
+    ) {
+    }
+
+    public function firedAt(): \DateTimeImmutable
+    {
+        return $this->firedAt;
+    }
+}

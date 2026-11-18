@@ -1,0 +1,27 @@
+meta {
+  name: Service_Template
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+
+vars:pre-request {
+  ServiceSeverity1Id:
+  ServiceCategory1Id:
+  ServiceGroup1Id:
+  ServiceGroup2Id:
+  HostTemplate1Id:
+  HostTemplate2Id:
+  ServiceTemplate0Id:
+  ServiceTemplate1Id:
+  ServiceTemplate2Id:
+  ServiceTemplate3Id:
+  ServiceTemplate4Id:
+}

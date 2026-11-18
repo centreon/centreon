@@ -1,0 +1,27 @@
+meta {
+  name: GET /openid - Verify updated OpenID configuration - HTTP 200
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/authentication/providers/openid
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("OpenID configuration reflects updates", function () {
+    const body = res.getBody();
+    expect(body.is_active).to.equal(false);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

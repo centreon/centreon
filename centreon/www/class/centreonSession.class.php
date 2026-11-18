@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 /**
  * Class
  *
@@ -178,17 +181,16 @@ class CentreonSession
      */
     public static function getUser($sessionId, $pearDB)
     {
-        $sessionId = str_replace(['_', '%'], ['', ''], $sessionId);
-        $DBRESULT = $pearDB->query(
-            "SELECT user_id FROM session
-                WHERE `session_id` = '" . htmlentities(trim($sessionId), ENT_QUOTES, 'UTF-8') . "'"
+        $sessionId = mb_trim(str_replace(['_', '%'], ['', ''], $sessionId));
+        $userId = $pearDB->fetchOne(
+            'SELECT user_id FROM session WHERE `session_id` = :session_id',
+            QueryParameters::create([QueryParameter::string('session_id', $sessionId)])
         );
-        $row = $DBRESULT->fetchRow();
-        if (! $row) {
+        if ($userId === false) {
             return 0;
         }
 
-        return $row['user_id'];
+        return $userId;
     }
 
     public static function resolveSessionCookie(): string
@@ -206,9 +208,9 @@ class CentreonSession
             if (isset($_COOKIE[$sessionName]) && is_string($_COOKIE[$sessionName])) {
                 $sessionId = $_COOKIE[$sessionName];
             } else {
-                // Last resort: find any cookie starting with PHPSESSID (e.g., PHPSESSID_{SITE})
+                // Last resort: find any cookie starting with session name (e.g., PHPSESSID_{SITE})
                 foreach ($_COOKIE as $cookieKey => $cookieVal) {
-                    if (is_string($cookieKey) && str_starts_with($cookieKey, 'PHPSESSID') && is_string($cookieVal)) {
+                    if (is_string($cookieKey) && str_starts_with($cookieKey, $sessionName) && is_string($cookieVal)) {
                         $sessionName = $cookieKey;
                         $sessionId = $cookieVal;
                         break;

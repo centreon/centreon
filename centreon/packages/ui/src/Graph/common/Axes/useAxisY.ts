@@ -61,8 +61,8 @@ const useAxisY = ({
   );
 
   const formatTick =
-    ({ unit }) =>
-    (value): string => {
+    ({ unit }: { unit: string }) =>
+    (value: unknown): string => {
       if (isNil(value)) {
         return '';
       }
@@ -70,7 +70,7 @@ const useAxisY = ({
       return formatMetricValueWithUnit({
         base: data.baseAxis,
         unit,
-        value
+        value: value as number
       }) as string;
     };
 

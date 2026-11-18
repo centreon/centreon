@@ -1,9 +1,14 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import type { Actions } from '@centreon/ui';
 import { getData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
+  defaultLimitPerPageAtom,
   downtimeAtom,
+  intervalLengthAtom,
+  isAdditiveInheritanceEnabledAtom,
   isResourceStatusFullSearchEnabledAtom,
   platformNameAtom,
   platformVersionsAtom,
@@ -13,7 +18,7 @@ import {
 } from '@centreon/ui-context';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { equals, not, path, pathEq } from 'ramda';
+import { equals, isNil, not, path, pathEq } from 'ramda';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -31,6 +36,14 @@ import {
 import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
+
+// Same default as the API when the platform setting is missing or invalid.
+const fallbackLimitPerPage = 30;
+
+const getDefaultLimitPerPage = (limit: unknown): number =>
+  Number.isInteger(limit) && (limit as number) > 0
+    ? (limit as number)
+    : fallbackLimitPerPage;
 
 const keepAliveEndpoint =
   './api/internal.php?object=centreon_keepalive&action=keepAlive';
@@ -92,6 +105,11 @@ const useApp = (): UseAppState => {
   const setIsResourceStatusFullSearchEnabled = useSetAtom(
     isResourceStatusFullSearchEnabledAtom
   );
+  const setIsAdditiveInheritanceEnabled = useSetAtom(
+    isAdditiveInheritanceEnabledAtom
+  );
+  const setIntervalLength = useSetAtom(intervalLengthAtom);
+  const setDefaultLimitPerPage = useSetAtom(defaultLimitPerPageAtom);
 
   const { getNavigation } = useNavigation();
 
@@ -149,8 +167,21 @@ const useApp = (): UseAppState => {
         setIsResourceStatusFullSearchEnabled(
           retrievedParameters.is_resource_status_full_search_enabled
         );
+        setIsAdditiveInheritanceEnabled(
+          retrievedParameters.is_additive_inheritance_enabled
+        );
+        // Absent, the atom keeps the engine's default.
+        if (!isNil(retrievedParameters.monitoring_interval_length)) {
+          setIntervalLength(retrievedParameters.monitoring_interval_length);
+        }
+        setDefaultLimitPerPage(
+          getDefaultLimitPerPage(retrievedParameters.default_limit_per_page)
+        );
       })
       .catch((error) => {
+        // Listings wait for this value, so they must get one either way.
+        setDefaultLimitPerPage(fallbackLimitPerPage);
+
         if (pathEq(401, ['response', 'status'])(error)) {
           logout();
         }

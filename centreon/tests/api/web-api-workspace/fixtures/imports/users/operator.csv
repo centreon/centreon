@@ -1,0 +1,4 @@
+CONTACT;ADD;user_operator;user_operator;user_operator@localhost;Centreon!123;0;1;en_US;local
+CONTACT;SETPARAM;user_operator;reach_api;1
+CONTACT;SETPARAM;user_operator;reach_api_rt;1
+ACLGROUP;ADDCONTACT;customer_user_acl;user_operator

@@ -18,7 +18,9 @@ interface UsePlatformVersionsState {
 const usePlatformVersions = (): UsePlatformVersionsState => {
   const { sendRequest: sendPlatformVersions } = useRequest<PlatformVersions>({
     decoder: platformVersionsDecoder,
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<PlatformVersions>
   });
 
   const [platformVersions, setPlatformVersions] = useAtom(platformVersionsAtom);

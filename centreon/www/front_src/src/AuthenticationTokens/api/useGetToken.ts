@@ -1,6 +1,11 @@
 import { useFetchQuery } from '@centreon/ui';
 
-const useGetToken = ({ endpoint, queryKey }) => {
+interface UseGetTokenProps {
+  endpoint: string;
+  queryKey: Array<unknown>;
+}
+
+const useGetToken = ({ endpoint, queryKey }: UseGetTokenProps) => {
   const { fetchQuery, isFetching } = useFetchQuery({
     getEndpoint: () => endpoint,
     getQueryKey: () => queryKey,

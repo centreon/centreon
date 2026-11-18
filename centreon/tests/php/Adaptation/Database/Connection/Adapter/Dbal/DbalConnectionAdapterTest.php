@@ -1551,17 +1551,17 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
             $pdo = $db->getNativeConnection();
             $db->startUnbufferedQuery();
             expect($db->isUnbufferedQueryActive())->toBeTrue()
-                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBeFalsy();
             $pdoStmt = $pdo->prepare('SELECT * FROM contact WHERE contact_id = 1');
             $pdoStmt->execute();
 
             $contact = $pdoStmt->fetch(\PDO::FETCH_ASSOC);
             expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
                 ->and($db->isUnbufferedQueryActive())->toBeTrue()
-                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBeFalsy();
             $db->stopUnbufferedQuery();
             expect($db->isUnbufferedQueryActive())->toBeFalse()
-                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(1);
+                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBeTruthy();
         }
     );
 

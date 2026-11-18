@@ -32,17 +32,29 @@ final class FakeActivityLogRepository implements ActivityLogRepository
     /** @var array<int, ActivityLog> */
     public array $activityLogs = [];
 
-    public function add(ActivityLog $activityLog): void
+    public function add(ActivityLog ...$activityLogs): void
     {
-        do {
-            $id = mt_rand();
-        } while (isset($this->activityLogs[$id]));
+        foreach ($activityLogs as $activityLog) {
+            do {
+                $id = mt_rand();
+            } while (isset($this->activityLogs[$id]));
 
-        $reflection = new \ReflectionProperty($activityLog, 'id');
-        $reflection->setAccessible(true);
-        $reflection->setValue($activityLog, new ActivityLogId($id));
+            $reflection = new \ReflectionProperty($activityLog, 'id');
+            $reflection->setAccessible(true);
+            $reflection->setValue($activityLog, new ActivityLogId($id));
 
-        $this->activityLogs[$id] = $activityLog;
+            $this->activityLogs[$id] = $activityLog;
+        }
+    }
+
+    /**
+     * @param array<ActivityLog> $activityLogs
+     */
+    public function addMultiple(array $activityLogs): void
+    {
+        foreach ($activityLogs as $activityLog) {
+            $this->add($activityLog);
+        }
     }
 
     public function count(): int

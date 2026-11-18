@@ -1,0 +1,195 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
+
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
+use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
+use App\Shared\Domain\Collection;
+
+final class FakePollerRepository implements PollerRepository
+{
+    /** @var array<int, Poller> */
+    public array $pollers = [];
+
+    /** @var list<AggregateRoot<AggregateRootId>&PollerScopedInterface> */
+    public array $flaggedResources = [];
+
+    /** @var list<int> */
+    public array $flaggedPollerIds = [];
+
+    public function add(Poller $poller): void
+    {
+        do {
+            $id = mt_rand();
+        } while (isset($this->pollers[$id]));
+
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($poller, new PollerId($id));
+
+        $this->pollers[$id] = $poller;
+    }
+
+    public function findOneByName(PollerName $name): ?Poller
+    {
+        foreach ($this->pollers as $poller) {
+            if ($poller->name->value === $name->value) {
+                return $poller;
+            }
+        }
+
+        return null;
+    }
+
+    public function findOneByAddress(PollerAddress $address): ?Poller
+    {
+        foreach ($this->pollers as $poller) {
+            if ($poller->address->value === $address->value) {
+                return $poller;
+            }
+        }
+
+        return null;
+    }
+
+    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection
+    {
+        return new Collection([], Poller::class);
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $names = [];
+        foreach ($ids as $id) {
+            if (isset($this->pollers[$id->value])) {
+                $names[$id->value] = $this->pollers[$id->value]->name;
+            }
+        }
+
+        return new Collection($names, PollerName::class);
+    }
+
+    /**
+     * Note: actor-based ACL scoping is not modeled here (it has no equivalent data in this fake) —
+     * it is exercised by DbalPollerRepositoryTest against real ACL tables instead.
+     */
+    public function findAll(PollerCriteria $criteria): \IteratorAggregate&\Countable
+    {
+        $pollers = array_values($this->pollers);
+
+        if ($criteria->getName() !== null) {
+            $needle = mb_strtolower($criteria->getName());
+            $pollers = array_values(array_filter(
+                $pollers,
+                static fn (Poller $poller): bool => str_contains(mb_strtolower($poller->name->value), $needle)
+            ));
+        }
+
+        if ($criteria->excludeUnknownCentral()) {
+            $pollers = array_values(array_filter($pollers, static fn (Poller $poller): bool => ! $poller->isCentral));
+        }
+
+        $pagination = $criteria->getPagination();
+        if ($pagination instanceof \App\Shared\Domain\Repository\Pagination) {
+            $pollers = array_slice($pollers, $pagination->getOffset(), $pagination->itemsPerPage);
+        }
+
+        return new Collection($pollers, Poller::class);
+    }
+
+    public function get(PollerId $pollerId): Poller
+    {
+        return $this->pollers[$pollerId->value] ?? throw new PollerNotFoundException(['id' => $pollerId->value]);
+    }
+
+    /**
+     * Records the flagged resource; a service with no poller to flag is skipped, as in the real repository.
+     */
+    public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
+    {
+        if ($resource instanceof Service && ! $resource->pollerToFlag() instanceof PollerId) {
+            return;
+        }
+
+        $this->flaggedResources[] = $resource;
+    }
+
+    public function flagIdAsChanged(PollerId $pollerId): void
+    {
+        $this->flaggedPollerIds[] = $pollerId->value;
+    }
+
+    /**
+     * A poller that exists under the given id, whatever its other properties.
+     */
+    public function seed(int $id): Poller
+    {
+        $poller = new Poller(
+            id: null,
+            name: new PollerName('Poller ' . $id),
+            address: new PollerAddress('127.0.0.1'),
+            isCentral: false,
+            isDefault: false,
+            isActivated: true,
+            pollerType: PollerTypeEnum::VM,
+            uid: new PollerUid(123456789012345),
+            globalMacros: new Collection([], GlobalMacro::class),
+            gorgoneConfiguration: new GorgoneConfiguration(),
+            engineInformation: new EngineInformation(),
+            brokerInformation: new BrokerInformation(),
+            connectorConfiguration: new ConnectorConfiguration(),
+            trapConfiguration: new TrapConfiguration(),
+            pollerCommands: new Collection([], PollerCommand::class),
+        );
+
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setValue($poller, new PollerId($id));
+        $this->pollers[$id] = $poller;
+
+        return $poller;
+    }
+
+    public function withCmaCertificates(): self
+    {
+        return clone $this;
+    }
+}

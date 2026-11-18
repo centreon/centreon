@@ -1,0 +1,83 @@
+meta {
+  name: POST /services/templates - Create ST3 with special chars - HTTP 201
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceTemplate3Name}}",
+    "alias": "{{ServiceTemplate3Alias}}",
+    "host_templates": [ {{HostTemplate1Id}}, {{HostTemplate2Id}} ],
+    "check_timeperiod_id": 1,
+    "note_url": "noteUrl!!!!",
+    "note": "notéé",
+    "action_url": "actionUrl-ouêp",
+    "max_check_attempts": 6,
+    "normal_check_interval": 5,
+    "retry_check_interval": 2,
+    "icon_id": 1,
+    "service_groups": [
+      {
+        "service_group_id": {{ServiceGroup1Id}},
+        "host_template_id": {{HostTemplate1Id}}
+      },
+      {
+        "service_group_id": {{ServiceGroup2Id}},
+        "host_template_id": {{HostTemplate2Id}}
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The service template ST3 has been successfully created with special characters.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("ServiceTemplate3Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("ServiceTemplate3Name"),
+      "alias": bru.getEnvVar("ServiceTemplate3Alias"),
+      "service_template_id": null,
+      "check_timeperiod_id": 1,
+      "max_check_attempts": 6,
+      "normal_check_interval": 5,
+      "retry_check_interval": 2,
+      "note": "notéé",
+      "note_url": "noteUrl!!!!",
+      "action_url": "actionUrl-ouêp",
+      "icon_id": 1,
+      "severity_id": null,
+      "is_locked": false
+    });
+    expect(body.host_templates).to.include.members([
+      parseInt(bru.getEnvVar("HostTemplate1Id")),
+      parseInt(bru.getEnvVar("HostTemplate2Id"))
+    ]);
+    expect(body.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "host_template_id": parseInt(bru.getEnvVar("HostTemplate1Id"))
+    });
+    expect(body.groups[1]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup2Id")),
+      "host_template_id": parseInt(bru.getEnvVar("HostTemplate2Id"))
+    });
+    expect(body.macros).to.eql([]);
+    expect(body.categories).to.eql([]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -4,6 +4,10 @@
   "description": "Centreon UI shared context",
   "main": "src/index.ts",
   "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/centreon/centreon.git"
+  },
   "author": "centreon@centreon.com",
   "license": "MIT",
   "scripts": {

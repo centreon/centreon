@@ -64,6 +64,8 @@ class AddHostSaasPresenter extends AbstractPresenter implements AddHostPresenter
                         'timezone_id' => $response->timezoneId,
                         'severity_id' => $response->severityId,
                         'check_timeperiod_id' => $response->checkTimeperiodId,
+                        'freshness_checked' => $response->freshnessChecked,
+                        'freshness_threshold' => $response->freshnessThreshold,
                         'event_handler_enabled' => $response->eventHandlerEnabled,
                         'event_handler_command_args' => $response->eventHandlerCommandArgs,
                         'check_command_id' => $response->checkCommandId,

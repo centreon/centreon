@@ -1,0 +1,47 @@
+meta {
+  name: GET /hosts/templates - Get 1 host template - HTTP 200
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/templates?sort_by={"id":"DESC"}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The host templates are listed with all of their parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const ht1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostTemplate1Id")));
+    expect(ht1).to.include({
+      "id": parseInt(bru.getEnvVar("HostTemplate1Id")),
+      "name": bru.getEnvVar("HostTemplate1Name"),
+      "alias": bru.getEnvVar("HostTemplate1Alias"),
+      "snmp_version": "2c",
+      "timezone_id": 1,
+      "severity_id": parseInt(bru.getEnvVar("HostSeverity1Id")),
+      "check_timeperiod_id": 1,
+      "max_check_attempts": 3,
+      "normal_check_interval": 5,
+      "retry_check_interval": 2,
+      "note_url": "noteUrl-value",
+      "note": "note-value",
+      "action_url": "actionUrl-value",
+      "icon_id": 1,
+      "is_locked": false
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

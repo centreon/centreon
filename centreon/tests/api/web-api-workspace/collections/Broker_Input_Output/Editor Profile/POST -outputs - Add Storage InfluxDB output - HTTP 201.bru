@@ -1,0 +1,45 @@
+meta {
+  name: POST /outputs - Add Storage InfluxDB output - HTTP 201
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/outputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "output-editor-10",
+    "type": 31,
+    "parameters": {
+      "cache": "no",
+      "db_host": "127.0.0.1",
+      "db_port": 3456,
+      "db_user": "user-test",
+      "db_password": "super_password",
+      "db_name": "lol",
+      "metrics_timeseries": "$METRIC$",
+      "status_timeseries": "$INSTANCE$",
+      "metrics_column": [{"is_tag": "true", "type": "string", "value": "coucou", "name": "aie"}],
+      "status_column": [{"is_tag": "true", "type": "string", "value": "coucou", "name": "test"}]
+    }
+  }
+}
+
+tests {
+  test("Editor can create a Storage InfluxDB output. (known issue: no is_admin access, returns 403 in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 403]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

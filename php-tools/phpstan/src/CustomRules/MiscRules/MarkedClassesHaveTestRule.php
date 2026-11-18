@@ -65,8 +65,8 @@ final readonly class MarkedClassesHaveTestRule implements Rule
 
         $parts = explode('src', $scope->getFile());
 
-        $projectPath = trim($parts[0], '/');
-        $pathFromProject = trim($parts[1], '/');
+        $projectPath = mb_trim($parts[0], '/');
+        $pathFromProject = mb_trim($parts[1], '/');
 
         $classUnderTestPath = \sprintf('/%s/tests/php/%s', $projectPath, $pathFromProject);
         $classUnderTestPath = str_replace(
@@ -77,7 +77,7 @@ final readonly class MarkedClassesHaveTestRule implements Rule
 
         $pathFromTest = \sprintf(
             'tests/%s',
-            ltrim(explode('tests', $classUnderTestPath)[1], '/'),
+            mb_ltrim(explode('tests', $classUnderTestPath)[1], '/'),
         );
 
         if (file_exists($classUnderTestPath)) {

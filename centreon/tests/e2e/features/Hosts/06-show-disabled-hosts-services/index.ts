@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 const services = {
@@ -10,11 +11,11 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -50,7 +51,13 @@ Given('a host with configured services', () => {
 Given('the host is disabled', () => {
   cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
-  cy.getIframeBody().find('img[alt="Disabled"]').eq(1).click();
+  // Disable the fixture host's own row: a positional eq(1) picks whichever row
+  // the listing happens to render second, so a dataset change would disable the
+  // wrong host while the assertions keep reading this one.
+  cy.getIframeBody()
+    .contains('tr', services.serviceOk.host)
+    .find('img[alt="Disabled"]')
+    .click();
   cy.exportConfig();
 });
 

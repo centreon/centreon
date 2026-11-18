@@ -35,9 +35,11 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
+use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Domain\YesNoDefault;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -88,6 +90,7 @@ beforeEach(closure: function (): void {
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
         $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
     );
 });
 
@@ -604,6 +607,149 @@ it('should present a NoContentResponse when everything has gone well for a non-a
         ->expects($this->once())
         ->method('assertServiceCategories')
         ->with($request->serviceCategories, $this->user, $accessGroups);
+
+    ($this->useCase)($request, $this->presenter);
+
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+});
+
+it('should load command macros from an inherited template command when the service template defines none', function (): void {
+    $serviceTemplateId = 20;
+    $parentTemplateId = 9;
+    $inheritedCommandId = 42;
+
+    $serviceTemplate = new ServiceTemplate(
+        id: $serviceTemplateId,
+        name: 'fake_name',
+        alias: 'fake_alias',
+        commandId: null,
+    );
+    $parentTemplate = new ServiceTemplate(
+        id: $parentTemplateId,
+        name: 'parent_name',
+        alias: 'parent_alias',
+        commandId: $inheritedCommandId,
+    );
+    $commandMacro = new CommandMacro(1, CommandMacroType::Service, 'TIMEOUT');
+
+    // Existing direct macro saved from a previous update with a non-empty value
+    $existingMacro = new Macro(null, $serviceTemplateId, 'TIMEOUT', 'myvalue');
+
+    $request = new PartialUpdateServiceTemplateRequest($serviceTemplateId);
+    // Submit TIMEOUT with empty value — should remove the macro from the service template
+    $request->macros = [new MacroDto('TIMEOUT', '', false, null)];
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->with($serviceTemplateId)
+        ->willReturn($serviceTemplate);
+
+    $this->vaultEligibilityService
+        ->method('shouldUseVault')
+        ->willReturn(false);
+
+    $this->storageEngine
+        ->expects($this->once())
+        ->method('startTransaction');
+    $this->storageEngine
+        ->expects($this->once())
+        ->method('commitTransaction');
+
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn([]);
+
+    $this->writeServiceTemplateRepository
+        ->expects($this->once())
+        ->method('update');
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findParents')
+        ->willReturn([new ServiceTemplateInheritance($parentTemplateId, $serviceTemplateId)]);
+
+    $this->readServiceMacroRepository
+        ->expects($this->once())
+        ->method('findByServiceIds')
+        ->with($serviceTemplateId, $parentTemplateId)
+        ->willReturn([$existingMacro]);
+
+    // The fix: look up parent templates to find the inherited command
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findByIds')
+        ->with($parentTemplateId)
+        ->willReturn([$parentTemplate]);
+
+    $this->readCommandMacroRepository
+        ->expects($this->once())
+        ->method('findByCommandIdAndType')
+        ->with($inheritedCommandId, CommandMacroType::Service)
+        ->willReturn([$commandMacro->getName() => $commandMacro]);
+
+    // Clearing a previously-set value matching the command macro default should delete it
+    $this->writeServiceMacroRepository
+        ->expects($this->once())
+        ->method('delete');
+    $this->writeServiceMacroRepository
+        ->expects($this->never())
+        ->method('add');
+    $this->writeServiceMacroRepository
+        ->expects($this->never())
+        ->method('update');
+
+    ($this->useCase)($request, $this->presenter);
+
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+});
+
+it('should call linkToHosts once with deduplicated IDs when host_templates contains duplicates', function (): void {
+    $request = new PartialUpdateServiceTemplateRequest(1);
+    $request->hostTemplates = [1, 1];
+    $accessGroups = [9, 11];
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturnMap([[Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true]]);
+
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->with($this->user)
+        ->willReturn($accessGroups);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findByIdAndAccessGroups')
+        ->with($request->id)
+        ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertHostTemplateIds')
+        ->with($request->hostTemplates);
+
+    $this->writeServiceTemplateRepository
+        ->expects($this->once())
+        ->method('unlinkHosts')
+        ->with($request->id);
+
+    $this->writeServiceTemplateRepository
+        ->expects($this->once())
+        ->method('linkToHosts')
+        ->with($request->id, [1]);
 
     ($this->useCase)($request, $this->presenter);
 

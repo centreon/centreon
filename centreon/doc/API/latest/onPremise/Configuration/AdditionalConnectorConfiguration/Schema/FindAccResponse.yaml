@@ -37,36 +37,41 @@ properties:
     type: object
     description: |
       Configuration parameters, varies depending on the ACC type.
-      Credential values are not readable and will always be null.
+      Password value is not readable and will always be null.
     example:
       port: 4242
       vcenters: [
         {
+          "id": 2,
           "name": "my-vcenter",
           "url": "http://10.10.10.10/sdk",
-          "username": null,
+          "username": "username2",
           "password": null
         }
       ]
   created_by:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id: { type: integer, description: "Creation contact ID", example: 1 }
       name: { type: string,  description: "Creation contact name", example: "admin" }
   created_at:
-    type: string
+    type:
+      - string
+      - 'null'
     format: date-time
-    nullable: true
     description: "Creation date (ISO8601)"
   updated_by:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id: { type: integer, description: "Update contact ID", example: 1 }
       name: { type: string,  description: "Update contact name", example: "admin" }
   updated_at:
-    type: string
+    type:
+      - string
+      - 'null'
     format: date-time
-    nullable: true
     description: "Update date (ISO8601)"

@@ -46,8 +46,8 @@ if (isset($_SESSION['centreon'])) {
  *  Centreon >= 24.10 doesn't support PHP < 8.2
  *
  */
-if (version_compare(phpversion(), '8.2') < 0) {
-    echo "<div class='msg'> PHP version is < 8.2. Please Upgrade PHP</div>";
+if (version_compare(phpversion(), '8.4') < 0) {
+    echo "<div class='msg'> PHP version is < 8.4. Please Upgrade PHP</div>";
 
     return;
 }

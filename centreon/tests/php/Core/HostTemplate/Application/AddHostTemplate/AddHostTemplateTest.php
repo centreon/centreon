@@ -40,7 +40,9 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Application\InheritanceManager;
 use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -69,6 +71,7 @@ beforeEach(function (): void {
     $this->useCase = new AddHostTemplate(
         $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class),
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
+        $this->inheritanceManager = $this->createMock(InheritanceManager::class),
         $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
         $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
@@ -81,7 +84,8 @@ beforeEach(function (): void {
         $this->validation = $this->createMock(AddHostTemplateValidation::class),
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
-        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class)
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -488,6 +492,32 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
                 $this->request->templates
             )->getMessage()
         );
+});
+
+it('should write nothing and present an InvalidArgumentResponse when a parent template is not licensed', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->vaultEligibilityService
+        ->method('shouldUseVault')
+        ->willReturn(true);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertAreLicensedTemplates')
+        ->with($this->request->templates)
+        ->willThrowException(HostTemplateException::templatesNotLicensed($this->request->templates));
+
+    $this->writeVaultRepository->expects($this->never())->method('upsert');
+    $this->writeHostTemplateRepository->expects($this->never())->method('add');
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->and($this->presenter->response->getMessage())
+        ->toBe(HostTemplateException::templatesNotLicensed($this->request->templates)->getMessage());
 });
 
 it('should present an ErrorResponse if the newly created host template cannot be retrieved', function (): void {

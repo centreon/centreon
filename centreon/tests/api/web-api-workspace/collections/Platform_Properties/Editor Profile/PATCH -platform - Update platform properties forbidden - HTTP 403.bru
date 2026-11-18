@@ -1,0 +1,41 @@
+meta {
+  name: PATCH /platform - Update platform properties forbidden - HTTP 403
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrlWeb}}/platform
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "platformName": "Centreon-Central",
+    "isRemote": false,
+    "address": "127.0.0.1",
+    "centralServerAddress": "127.0.0.1",
+    "apiUsername": "admin",
+    "apiCredentials": "centreon",
+    "apiScheme": "http",
+    "apiPort": 80,
+    "apiPath": "centreon",
+    "peerValidation": false,
+    "proxy": {
+      "host": null,
+      "port": null,
+      "user": null,
+      "password": null
+    }
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

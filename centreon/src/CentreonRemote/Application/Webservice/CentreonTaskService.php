@@ -23,9 +23,6 @@ namespace CentreonRemote\Application\Webservice;
 
 use Centreon\Domain\Entity\Task;
 
-/**
- * @OA\Tag(name="centreon_task_service", description="")
- */
 class CentreonTaskService extends CentreonWebServiceAbstract
 {
     /**
@@ -39,65 +36,6 @@ class CentreonTaskService extends CentreonWebServiceAbstract
     }
 
     /**
-     * @OA\Post(
-     *   path="/internal.php?object=centreon_task_service&action=getTaskStatus",
-     *   description="Get Status of task",
-     *   tags={"centreon_task_service"},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_task_service"},
-     *          default="centreon_task_service"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"getTaskStatus"},
-     *          default="getTaskStatus"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\RequestBody(
-     *       required=true,
-     *
-     *       @OA\JsonContent(
-     *          required={
-     *              "task_id"
-     *          },
-     *
-     *          @OA\Property(
-     *              property="task_id",
-     *              type="string",
-     *              description="Id of the task you want to get status of"
-     *          )
-     *       )
-     *   ),
-     *
-     *   @OA\Response(
-     *       response=200,
-     *       description="JSON",
-     *
-     *       @OA\JsonContent(
-     *
-     *          @OA\Property(property="success", type="boolean"),
-     *          @OA\Property(property="status", type="string")
-     *       )
-     *   )
-     * )
-     *
      * Get Status of task
      *
      * @throws \RestBadRequestException

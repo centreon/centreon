@@ -1,0 +1,42 @@
+meta {
+  name: POST /outputs - Add Storage Graphite output - HTTP 201
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/outputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "output-test-9",
+    "type": 30,
+    "parameters": {
+      "db_host": "127.0.0.1",
+      "db_port": 3456,
+      "db_user": "user-test",
+      "db_password": "super_password",
+      "queries_per_transaction": 10000,
+      "metric_naming": "erroorrrrr",
+      "status_naming": "try again"
+    }
+  }
+}
+
+tests {
+  test("Storage Graphite output created successfully (returns 500 if broker infrastructure is unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 500]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

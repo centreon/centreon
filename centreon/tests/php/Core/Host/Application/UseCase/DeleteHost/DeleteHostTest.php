@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
@@ -58,6 +59,7 @@ beforeEach(closure: function (): void {
         readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         writeMonitoringServerRepository: $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
         writeVaultRepository: $this->createMock(WriteVaultRepositoryInterface::class),
+        vaultEligibilityService: $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
         readHostMacroRepository: $this->createMock(ReadHostMacroRepositoryInterface::class),
         readServiceMacroRepository: $this->createMock(ReadServiceMacroRepositoryInterface::class),
     );

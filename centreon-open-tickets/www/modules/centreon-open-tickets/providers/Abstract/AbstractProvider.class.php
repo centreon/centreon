@@ -467,7 +467,75 @@ abstract class AbstractProvider
         $tpl->loadPlugin('smarty_function_service_get_servicegroups');
         $tpl->loadPlugin('smarty_function_sortgroup');
 
+        $this->enableSmartySecurity($tpl);
+
         return $tpl;
+    }
+
+    /**
+     * Apply a restrictive Smarty security policy to the engine used to render
+     * user-configured rule fields (message_confirm, format_popup, url, body
+     * lists, provider field mappings, ...).
+     *
+     * Those fields are stored verbatim and rendered through {eval}, so with no
+     * security policy an authenticated user can inject template code to read
+     * arbitrary files, dump environment secrets or execute PHP. The policy keeps
+     * the templating features the module legitimately relies on ({if}, {foreach},
+     * {$var}, {include} of module templates, formatting modifiers) while blocking
+     * the dangerous ones. Because {eval} reuses this Smarty instance, the policy
+     * also applies to the evaluated payload.
+     *
+     * @param SmartyBC $tpl
+     *
+     * @throws SmartyException
+     *
+     * @return void
+     */
+    protected function enableSmartySecurity(SmartyBC $tpl): void
+    {
+        $security = new Smarty_Security($tpl);
+
+        // Restrict {include}/{fetch} file access to the module "providers"
+        // directory only (every legitimate template include resolves there):
+        // blocks reads of /etc/passwd, .env, gorgone/broker/engine config files.
+        $providersDir = realpath($this->centreon_open_tickets_path . 'providers');
+        $security->secure_dir = $providersDir !== false ? [$providersDir] : [];
+        $security->trusted_uri = [];
+        $security->streams = ['file'];
+
+        // Block server-side variable disclosure: $smarty.env dumps APP_SECRET /
+        // MAP_SECRET, $smarty.server exposes the environment, etc.
+        $security->disabled_special_smarty_vars = [
+            'env', 'server', 'get', 'post', 'cookies', 'request', 'session', 'globals',
+        ];
+        $security->allow_constants = false;
+        $security->allow_super_globals = false;
+
+        // No direct static class access from templates: a non-empty allowlist
+        // that no real class name matches blocks every static class/method call.
+        $security->static_classes = ['none'];
+
+        // Allow only a safe, display-oriented set of raw PHP functions/modifiers.
+        // Smarty's own modifiers (date_format, cat, regex_replace, escape, ...) are
+        // governed by $allowed_modifiers (left empty = all allowed) and remain
+        // available; the lists below only gate raw PHP functions, which is where
+        // the RCE risk lives (e.g. {$value|system}).
+        $security->php_functions = [
+            'isset', 'empty', 'count', 'sizeof', 'in_array', 'is_array',
+            'is_string', 'is_null', 'time',
+        ];
+        $security->php_modifiers = [
+            // pre-registered by SmartyBC for backward compatibility
+            'count', 'sizeof', 'in_array', 'is_array', 'time', 'urlencode',
+            'rawurlencode', 'json_encode', 'strtotime', 'number_format', 'is_string',
+            // common safe formatting helpers used in rule templates
+            'strlen', 'strtoupper', 'strtolower', 'ucfirst', 'ucwords', 'trim',
+            'ltrim', 'rtrim', 'substr', 'str_replace', 'sprintf', 'nl2br', 'date',
+            'htmlentities', 'htmlspecialchars', 'implode', 'explode', 'wordwrap',
+        ];
+
+        // {php} / {include_php} are disabled automatically once security is on.
+        $tpl->enableSecurity($security);
     }
 
     /**
@@ -1592,67 +1660,57 @@ Output: {$service.output|substr:0:1024}
             $db_storage->beginTransaction();
 
             if ($extra_args['no_create_ticket_id'] == false) {
-                $db_storage->query(
-                    'INSERT INTO mod_open_tickets
-                        (`timestamp`, `user`' . (is_null($extra_args['ticket_value']) ? '' : ', `ticket_value`') . ")
-                    VALUES ('" . $result['ticket_time'] . "', '"
-                    . $db_storage->escape($extra_args['contact']['name']) . "'"
-                    . (is_null($extra_args['ticket_value']) ? '' : ", '"
-                    . $db_storage->escape($extra_args['ticket_value']) . "'") . ')'
-                );
-                $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
+                if (is_null($extra_args['ticket_value'])) {
+                    $insertTicket = $db_storage->prepare('INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES (:timestamp, :user)');
+                    $insertTicket->bindValue(':timestamp', $result['ticket_time'], PDO::PARAM_INT);
+                    $insertTicket->bindValue(':user', $extra_args['contact']['name']);
+                } else {
+                    $insertTicket = $db_storage->prepare('INSERT INTO mod_open_tickets (`timestamp`, `user`, `ticket_value`) VALUES (:timestamp, :user, :ticketValue)');
+                    $insertTicket->bindValue(':timestamp', $result['ticket_time'], PDO::PARAM_INT);
+                    $insertTicket->bindValue(':user', $extra_args['contact']['name']);
+                    $insertTicket->bindValue(':ticketValue', $extra_args['ticket_value']);
+                }
+                $insertTicket->execute();
+                $result['ticket_id'] = $db_storage->lastInsertId();
             }
 
             if (is_null($extra_args['ticket_value'])) {
-                $db_storage->query(
-                    "UPDATE mod_open_tickets SET `ticket_value` = '" . $db_storage->escape($result['ticket_id']) . "'
-                    WHERE `ticket_id` = '" . $db_storage->escape($result['ticket_id']) . "'"
-                );
+                $updateTicket = $db_storage->prepare('UPDATE mod_open_tickets SET `ticket_value` = :ticketValue WHERE `ticket_id` = :ticketId');
+                $updateTicket->bindValue(':ticketValue', $result['ticket_id']);
+                $updateTicket->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
+                $updateTicket->execute();
             }
 
+            $insertHostLink = $db_storage->prepare('INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`) VALUES (:ticketId, :hostId, :hostState, :hostname)');
             foreach ($extra_args['host_problems'] as $row) {
-                $db_storage->query(
-                    "INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`) VALUES (
-                        '" . $db_storage->escape($result['ticket_id']) . "',
-                        '" . $db_storage->escape($row['host_id']) . "',
-                        '" . $db_storage->escape($row['host_state']) . "',
-                        '" . $db_storage->escape($row['name']) . "'
-                    )"
-                );
+                $insertHostLink->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
+                $insertHostLink->bindValue(':hostId', (int) $row['host_id'], PDO::PARAM_INT);
+                $insertHostLink->bindValue(':hostState', (int) $row['host_state'], PDO::PARAM_INT);
+                $insertHostLink->bindValue(':hostname', $row['name']);
+                $insertHostLink->execute();
             }
+            $insertSvcLink = $db_storage->prepare(
+                'INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`, `service_id`, `service_state`, `service_description`)
+                 VALUES (:ticketId, :hostId, :hostState, :hostname, :serviceId, :serviceState, :serviceDescription)'
+            );
             foreach ($extra_args['service_problems'] as $row) {
-                $db_storage->query(
-                    "INSERT INTO mod_open_tickets_link (
-                        `ticket_id`,
-                        `host_id`,
-                        `host_state`,
-                        `hostname`,
-                        `service_id`,
-                        `service_state`,
-                        `service_description`
-                    ) VALUES (
-                        '" . $db_storage->escape($result['ticket_id']) . "',
-                        '" . $db_storage->escape($row['host_id']) . "',
-                        '" . $db_storage->escape($row['host_state']) . "',
-                        '" . $db_storage->escape($row['host_name']) . "',
-                        '" . $db_storage->escape($row['service_id']) . "',
-                        '" . $db_storage->escape($row['service_state']) . "',
-                        '" . $db_storage->escape($row['description']) . "'
-                    )"
-                );
+                $insertSvcLink->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':hostId', (int) $row['host_id'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':hostState', (int) $row['host_state'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':hostname', $row['host_name']);
+                $insertSvcLink->bindValue(':serviceId', (int) $row['service_id'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':serviceState', (int) $row['service_state'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':serviceDescription', $row['description']);
+                $insertSvcLink->execute();
             }
 
             if (! is_null($extra_args['data_type']) && ! is_null($extra_args['data'])) {
-                $db_storage->query(
-                    "INSERT INTO mod_open_tickets_data (
-                        `ticket_id`, `subject`, `data_type`, `data`
-                    ) VALUES (
-                        '" . $db_storage->escape($result['ticket_id']) . "',
-                        '" . $db_storage->escape($extra_args['subject']) . "',
-                        '" . $db_storage->escape($extra_args['data_type']) . "',
-                        '" . $db_storage->escape($extra_args['data']) . "'
-                    )"
-                );
+                $insertData = $db_storage->prepare('INSERT INTO mod_open_tickets_data (`ticket_id`, `subject`, `data_type`, `data`) VALUES (:ticketId, :subject, :dataType, :data)');
+                $insertData->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
+                $insertData->bindValue(':subject', $extra_args['subject']);
+                $insertData->bindValue(':dataType', (string) $extra_args['data_type']);
+                $insertData->bindValue(':data', $extra_args['data']);
+                $insertData->execute();
             }
 
             $result['ticket_id'] = is_null($extra_args['ticket_value'])

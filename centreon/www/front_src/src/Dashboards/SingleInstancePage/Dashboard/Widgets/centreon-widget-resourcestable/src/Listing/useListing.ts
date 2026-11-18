@@ -1,4 +1,4 @@
-import { type Column, useSnackbar } from '@centreon/ui';
+import { type Column, useFetchQuery, useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
@@ -7,8 +7,9 @@ import { useTranslation } from 'react-i18next';
 
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
+import { buildCountEndpoint } from '../api/endpoints';
 import {
-  openTicketAtom,
+  openTicketContextAtom,
   resourcesToAcknowledgeAtom,
   resourcesToOpenTicketAtom,
   resourcesToSetDowntimeAtom,
@@ -18,6 +19,7 @@ import type { PanelOptions } from '../models';
 import useColumns from './Columns/useColumns';
 import {
   DisplayType,
+  type Resource as ListingResource,
   type NamedEntity,
   type ResourceListing,
   type Ticket
@@ -25,29 +27,43 @@ import {
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import useLoadResources from './useLoadResources';
 
+interface CountResponse {
+  count: number;
+  is_approximate: boolean;
+}
+
 interface UseListingState {
   cancelAcknowledge: () => void;
   cancelSetDowntime: () => void;
-  changeLimit: (value) => void;
-  changePage: (updatedPage) => void;
-  changeSort: ({ sortOrder, sortField }) => void;
+  changeLimit: (value: number) => void;
+  changePage: (updatedPage: number) => void;
+  changeSort: ({
+    sortOrder,
+    sortField
+  }: {
+    sortField: string;
+    sortOrder: SortOrder;
+  }) => void;
   columns: Array<Column>;
   confirmAcknowledge: () => void;
   confirmSetDowntime: () => void;
   data: ResourceListing | undefined;
   defaultSelectedColumnIds: Array<string>;
-  goToResourceStatusPage?: (row) => void;
+  exactCount: number | null;
+  goToResourceStatusPage?: (row: ListingResource) => void;
   hasMetaService: boolean;
+  isExactCountLoading: boolean;
   isLoading: boolean;
   onTicketClose: () => void;
   page: number | undefined;
+  requestExactCount: () => void;
   resetColumns: () => void;
-  resourcesToAcknowledge;
+  resourcesToAcknowledge: Array<ListingResource>;
   resourcesToOpenTicket: Array<Ticket>;
-  resourcesToSetDowntime;
+  resourcesToSetDowntime: Array<ListingResource>;
   selectColumns: (updatedColumnIds: Array<string>) => void;
-  selectedResources;
-  setSelectedResources;
+  selectedResources: Array<ListingResource>;
+  setSelectedResources: (resources: Array<ListingResource>) => void;
 }
 
 interface UseListingProps
@@ -55,12 +71,11 @@ interface UseListingProps
     CommonWidgetProps<PanelOptions>,
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
-  changeViewMode?: (displayType) => void;
+  changeViewMode?: (displayType: DisplayType) => void;
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
   isFromPreview?: boolean;
   limit?: number;
-  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -71,6 +86,7 @@ interface UseListingProps
   states: Array<string>;
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
+  isInViewport: boolean;
 }
 
 const useListing = ({
@@ -92,10 +108,18 @@ const useListing = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities
+  serviceSeverities,
+  isInViewport
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
+  const {
+    displayResources,
+    isDownHostHidden,
+    isOpenTicketEnabled,
+    isUnreachableHostHidden,
+    provider
+  } = useAtomValue(openTicketContextAtom);
 
   const [page, setPage] = useState(1);
   const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
@@ -113,7 +137,59 @@ const useListing = ({
     resourcesToSetDowntimeAtom
   );
 
-  const { isOpenTicketEnabled } = useAtomValue(openTicketAtom);
+  const [exactCount, setExactCount] = useState<number | null>(null);
+
+  const getCountEndpoint = (): string =>
+    buildCountEndpoint({
+      displayResources: isOpenTicketEnabled ? displayResources : undefined,
+      hostSeverities,
+      isDownHostHidden: isOpenTicketEnabled ? isDownHostHidden : undefined,
+      isUnreachableHostHidden: isOpenTicketEnabled
+        ? isUnreachableHostHidden
+        : undefined,
+      provider: isOpenTicketEnabled ? provider : undefined,
+      resources,
+      serviceSeverities,
+      states,
+      statuses,
+      statusTypes,
+      type: displayType
+    });
+
+  const {
+    data: countData,
+    isFetching: isExactCountLoading,
+    refetch
+  } = useFetchQuery<CountResponse>({
+    getEndpoint: getCountEndpoint,
+    getQueryKey: () => ['exactCount', getCountEndpoint()],
+    queryOptions: {
+      enabled: false,
+      suspense: false
+    }
+  });
+
+  useEffect(() => {
+    if (countData?.count !== undefined) {
+      setExactCount(countData.count);
+    }
+  }, [countData]);
+
+  useEffect(() => {
+    setExactCount(null);
+  }, [
+    displayType,
+    JSON.stringify(resources),
+    JSON.stringify(states),
+    JSON.stringify(statuses),
+    JSON.stringify(statusTypes),
+    JSON.stringify(hostSeverities),
+    JSON.stringify(serviceSeverities)
+  ]);
+
+  const requestExactCount = (): void => {
+    refetch();
+  };
 
   useEffect(() => {
     if (isOpenTicketEnabled && isFromPreview) {
@@ -128,7 +204,7 @@ const useListing = ({
     displayType,
     hostSeverities,
     id,
-    isOpenTicketEnabled,
+    isInViewport,
     limit,
     page,
     playlistHash,
@@ -144,7 +220,7 @@ const useListing = ({
     widgetPrefixQuery
   });
 
-  const goToResourceStatusPage = (row): void => {
+  const goToResourceStatusPage = (row: ListingResource): void => {
     if (isFromPreview) {
       return;
     }
@@ -170,19 +246,24 @@ const useListing = ({
     [resources]
   );
 
-  const changeSort = (sortParameters): void => {
+  const changeSort = (sortParameters: {
+    sortField: string;
+    sortOrder: SortOrder;
+  }): void => {
     setPanelOptions?.(sortParameters);
   };
 
-  const changeLimit = (value): void => {
+  const changeLimit = (value: number): void => {
     setPanelOptions?.({ limit: value });
   };
 
-  const changePage = (updatedPage): void => {
+  const changePage = (updatedPage: number): void => {
     setPage(updatedPage + 1);
   };
 
-  const { columns, defaultSelectedColumnIds } = useColumns({ displayType });
+  const { columns, defaultSelectedColumnIds } = useColumns({
+    displayType
+  });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
     if (updatedColumnIds.length < 3) {
@@ -241,11 +322,14 @@ const useListing = ({
     confirmSetDowntime,
     data,
     defaultSelectedColumnIds,
+    exactCount,
     goToResourceStatusPage,
     hasMetaService,
+    isExactCountLoading,
     isLoading,
     onTicketClose,
     page,
+    requestExactCount,
     resetColumns,
     resourcesToAcknowledge,
     resourcesToOpenTicket,

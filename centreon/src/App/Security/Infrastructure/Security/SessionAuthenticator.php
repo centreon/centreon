@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Security;
 
-use App\Security\Domain\Exception\CredentialDoesNotExistException;
-use App\Security\Domain\Exception\TokenDoesNotExistException;
+use App\Security\Domain\Exception\CredentialNotFoundException;
+use App\Security\Domain\Exception\TokenNotFoundException;
 use App\Security\Domain\Exception\TokenRefreshException;
 use App\Security\Domain\Exception\TokenRefreshUnavailableException;
 use App\Security\Domain\Repository\CredentialRepository;
@@ -78,7 +78,7 @@ final class SessionAuthenticator extends AbstractAuthenticator
     {
         try {
             $token = $this->tokenRepository->get($sessionId);
-        } catch (TokenDoesNotExistException) {
+        } catch (TokenNotFoundException) {
             throw new BadCredentialsException();
         }
 
@@ -92,7 +92,7 @@ final class SessionAuthenticator extends AbstractAuthenticator
 
         try {
             $credential = $this->credentialRepository->getBySession($sessionId);
-        } catch (CredentialDoesNotExistException) {
+        } catch (CredentialNotFoundException) {
             throw new UserNotFoundException();
         }
 

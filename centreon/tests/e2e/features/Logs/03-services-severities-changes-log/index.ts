@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import severities from '../../../fixtures/services/severity.json';
@@ -7,11 +8,11 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -63,7 +64,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
@@ -140,7 +141,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
@@ -171,7 +172,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
@@ -247,7 +248,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
@@ -285,6 +286,6 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );

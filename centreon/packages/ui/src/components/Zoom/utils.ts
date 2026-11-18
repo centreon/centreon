@@ -15,7 +15,9 @@ export const applyTranformStylesForZoom = ({
     width: contentClientRect?.width || 1
   };
   const isPortrait = contentRect.height > contentRect.width;
-  const sizes = isPortrait ? ['width', 'height'] : ['height', 'width'];
+  const sizes: Array<'width' | 'height'> = isPortrait
+    ? ['width', 'height']
+    : ['height', 'width'];
   const sizeScale = contentRect[sizes[0]] / contentRect[sizes[1]];
 
   const lengthToUse = isPortrait

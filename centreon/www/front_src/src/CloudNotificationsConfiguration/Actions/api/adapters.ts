@@ -2,6 +2,15 @@ import { map, pipe, prop } from 'ramda';
 
 import { ResourceType } from '../../Panel/models';
 
+interface AdaptNotificationInput {
+  contactgroups: Array<{ id: number }>;
+  isActivated: boolean;
+  messages: Array<{ formattedMessage: string } & Record<string, unknown>>;
+  name: string;
+  resources: Array<ResourceType>;
+  users: Array<{ id: number }>;
+}
+
 export const adaptNotification = ({
   isActivated,
   messages,
@@ -9,7 +18,7 @@ export const adaptNotification = ({
   resources,
   users,
   contactgroups
-}): object => ({
+}: AdaptNotificationInput): object => ({
   contactgroups: map(prop('id'), contactgroups),
   is_activated: isActivated,
   messages: [

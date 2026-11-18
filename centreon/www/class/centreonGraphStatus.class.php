@@ -214,9 +214,11 @@ class CentreonGraphStatus
      */
     public static function getIndexId($hostId, $serviceId, $dbc)
     {
-        $query = 'SELECT id, 1 AS REALTIME FROM index_data WHERE host_id = ' . $hostId . ' AND service_id = '
-            . $serviceId;
-        $res = $dbc->query($query);
+        $query = 'SELECT id, 1 AS REALTIME FROM index_data WHERE host_id = :hostId AND service_id = :serviceId';
+        $res = $dbc->prepare($query);
+        $res->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+        $res->bindValue(':serviceId', (int) $serviceId, PDO::PARAM_INT);
+        $res->execute();
         $row = $res->fetch();
 
         if ($row == false) {

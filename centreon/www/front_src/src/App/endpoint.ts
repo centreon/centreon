@@ -9,10 +9,10 @@ const userPermissionsEndpoint = `${baseEndpoint}/users/acl/permissions`;
 const aclEndpoint = `${baseEndpoint}/users/acl/actions`;
 
 export {
-  parametersEndpoint,
+  aclEndpoint,
   externalTranslationEndpoint,
   internalTranslationEndpoint,
-  aclEndpoint,
+  parametersEndpoint,
   userEndpoint,
   userPermissionsEndpoint
 };

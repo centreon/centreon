@@ -1,18 +1,21 @@
+import { getTicks } from '@visx/scale';
+import { ScaleLinear } from 'd3-scale';
 import { isEmpty } from 'ramda';
 import { useMemo } from 'react';
 
 import type { ChartAxis } from '../../Chart/models';
-import type { Data } from '../Axes/models';
-import type { Thresholds } from '../models';
-import { getFormattedAxisValues } from '../utils';
+import useAxisY from '../Axes/useAxisY';
+import { Line } from '../timeSeries/models';
 
 interface UseComputeYAxisMaxCharactersProps {
-  firstUnit: string;
-  secondUnit: string;
-  thresholdUnit?: string;
-  thresholds?: Thresholds;
-  graphData: Data;
   axis?: ChartAxis;
+  base: number;
+  displayedLines: Array<Line>;
+  graphWidth: number;
+  graphHeight: number;
+  isHorizontal: boolean;
+  leftScale: ScaleLinear<number, number, never>;
+  rightScale: ScaleLinear<number, number, never>;
 }
 
 interface UseComputteYAxisMaxCharactersState {
@@ -21,71 +24,52 @@ interface UseComputteYAxisMaxCharactersState {
 }
 
 export const useComputeYAxisMaxCharacters = ({
-  thresholds,
-  firstUnit,
-  secondUnit,
-  graphData,
   axis,
-  thresholdUnit
+  base,
+  displayedLines,
+  graphWidth,
+  graphHeight,
+  isHorizontal,
+  leftScale,
+  rightScale
 }: UseComputeYAxisMaxCharactersProps): UseComputteYAxisMaxCharactersState => {
-  const maxLeftValue = useMemo(
-    () =>
-      getFormattedAxisValues({
-        axisUnit: axis?.axisYLeft?.unit ?? firstUnit,
-        base: graphData?.baseAxis,
-        lines: graphData?.lines ?? [],
-        threshold: thresholds?.critical ?? [],
-        thresholdUnit,
-        timeSeries: graphData?.timeSeries ?? []
-      }),
-    [
-      thresholds?.critical,
-      axis?.axisYLeft?.unit,
-      firstUnit,
-      graphData?.timeSeries,
-      thresholdUnit,
-      graphData?.lines,
-      graphData?.baseAxis
-    ]
-  );
+  const { axisLeft, axisRight } = useAxisY({
+    data: {
+      baseAxis: base,
+      lines: displayedLines,
+      ...axis
+    },
+    graphHeight,
+    graphWidth,
+    isHorizontal
+  });
 
-  const maxRightValue = useMemo(
-    () =>
-      getFormattedAxisValues({
-        axisUnit: axis?.axisYRight?.unit ?? secondUnit,
-        base: graphData.baseAxis,
-        lines: graphData.lines ?? [],
-        threshold: thresholds?.critical ?? [],
-        thresholdUnit,
-        timeSeries: graphData.timeSeries ?? []
-      }),
-    [
-      thresholds?.critical,
-      axis?.axisYRight?.unit,
-      secondUnit,
-      graphData.timeSeries,
-      thresholdUnit,
-      graphData.lines,
-      graphData.baseAxis
-    ]
-  );
+  // Always add a space in case the algorithm does not compute the displayed value in axis.
+  const maxLeftAxisCharacters = useMemo(() => {
+    if (!leftScale) {
+      return 0;
+    }
 
-  // Always add a character space in case the algorithm does not compute the displayed value in axis.
-  const maxLeftAxisCharacters = useMemo(
-    () =>
-      isEmpty(maxLeftValue)
-        ? 2
-        : Math.max(...maxLeftValue.map((value) => value.length), 2) + 1,
-    [maxLeftValue]
-  );
+    const ticks = getTicks(leftScale, axisLeft.numTicks);
+    const formattedTicks = ticks.map(axisLeft.tickFormat);
 
-  const maxRightAxisCharacters = useMemo(
-    () =>
-      isEmpty(maxRightValue)
-        ? 5
-        : Math.max(...maxRightValue.map((value) => value.length), 5) + 1,
-    [maxRightValue]
-  );
+    return isEmpty(formattedTicks)
+      ? 2
+      : Math.max(...formattedTicks.map((value) => value.length), 2) + 3;
+  }, [leftScale, axisLeft]);
+
+  const maxRightAxisCharacters = useMemo(() => {
+    if (!rightScale) {
+      return 0;
+    }
+
+    const ticks = getTicks(rightScale, axisRight.numTicks);
+    const formattedTicks = ticks.map(axisRight.tickFormat);
+
+    return isEmpty(formattedTicks)
+      ? 2
+      : Math.max(...formattedTicks.map((value) => value.length), 2) + 3;
+  }, [rightScale, axisRight]);
 
   return {
     maxLeftAxisCharacters,

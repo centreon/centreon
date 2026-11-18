@@ -1,0 +1,34 @@
+meta {
+  name: GET /configuration/services - Assert the source service is still attached - HTTP 200
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services?search={"host.id":{{Host1Id}}}&limit=100
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The source host keeps its exclusive service after the duplication", function () {
+    const body = res.getBody();
+
+    const sourceServices = body.result.filter(
+      (service) => service.id === Number(bru.getEnvVar("Service1Id"))
+    );
+    expect(
+      sourceServices,
+      "the source service is untouched: same id, still linked to the source host"
+    ).to.have.lengthOf(1);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

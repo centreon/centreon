@@ -58,6 +58,9 @@ interface ReadMediaRepositoryInterface
     public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable;
 
     /**
+     * Find the media of the image folders granted to the access groups, plus those of the system
+     * folders, which are always readable (see ImageFolder::SYSTEM_FOLDER_NAMES).
+     *
      * @param RequestParametersInterface $requestParameters
      * @param AccessGroup[] $accessGroups
      *
@@ -86,4 +89,16 @@ interface ReadMediaRepositoryInterface
      * @return array<int,Media>
      */
     public function findByIds(array $mediaIds): array;
+
+    /**
+     * Return true if media is found the provided access groups
+     *
+     * @param int $mediaId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsByAccessGroups(int $mediaId, array $accessGroups): bool;
 }

@@ -1,5 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, isNotNil } from 'ramda';
+import { isNotNil } from 'ramda';
 import { useCallback, useMemo } from 'react';
 
 import { Modal } from '../..';
@@ -33,7 +33,7 @@ const UpdateModal = <TItem extends { id: number; name: string }, TItemForm>({
   });
 
   const isModalOpen = useMemo(
-    () => isNotNil(openFormModal) && !equals('add', openFormModal),
+    () => isNotNil(openFormModal) && openFormModal !== 'add',
     [openFormModal]
   );
 

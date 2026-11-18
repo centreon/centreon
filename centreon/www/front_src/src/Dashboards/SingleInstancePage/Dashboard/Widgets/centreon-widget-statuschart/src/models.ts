@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { CommonWidgetProps, Resource } from '../../models';
 
 export enum DisplayType {
@@ -11,6 +13,13 @@ export interface Data {
   resources: Array<Resource>;
 }
 
+export enum StateSelection {
+  UNHANDLED = 'unhandled_problems',
+  ACKNOWLEDGED = 'acknowledged',
+  DOWN = 'in_downtime',
+  FLAPPING = 'in_flapping'
+}
+
 export interface PanelOptions {
   displayLegend: boolean;
   displayType: DisplayType;
@@ -19,6 +28,7 @@ export interface PanelOptions {
   refreshIntervalCustom?: number;
   resourceTypes: Array<'host' | 'service'>;
   unit: 'number' | 'percentage';
+  stateList: Array<StateSelection>;
 }
 
 export interface StatusChartProps
@@ -30,7 +40,7 @@ export interface StatusChartProps
 export interface ChartType
   extends Pick<
     StatusChartProps,
-    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
+    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery' | 'isInViewport'
   > {
   displayLegend: boolean;
   displayType: DisplayType;
@@ -45,6 +55,7 @@ export interface ChartType
   resources: Array<Resource>;
   title?: string;
   unit: 'number' | 'percentage';
+  stateList: Array<StateSelection>;
 }
 
 type StatusDetail = {

@@ -1,0 +1,78 @@
+meta {
+  name: GET /hosts/groups - Get 4 host groups - HTTP 200
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/groups
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The host groups are listed with all of their parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const hg2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostGroup2Id")));
+    const hg3 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostGroup3Id")));
+    const hg4 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostGroup4Id")));
+    const hg5 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostGroup5Id")));
+
+    expect(hg2).to.eql({
+      "id": parseInt(bru.getEnvVar("HostGroup2Id")),
+      "name": bru.getEnvVar("HostGroup2Name"),
+      "alias": null,
+      "icon": null,
+      "geo_coords": null,
+      "comment": null,
+      "is_activated": true,
+      "enabled_hosts_count": 1,
+      "disabled_hosts_count": 0
+    });
+    expect(hg3).to.eql({
+      "id": parseInt(bru.getEnvVar("HostGroup3Id")),
+      "name": bru.getEnvVar("HostGroup3Name"),
+      "alias": bru.getEnvVar("HostGroup3Alias"),
+      "icon": null,
+      "geo_coords": null,
+      "comment": null,
+      "is_activated": true,
+      "enabled_hosts_count": 0,
+      "disabled_hosts_count": 0
+    });
+    expect(hg4).to.eql({
+      "id": parseInt(bru.getEnvVar("HostGroup4Id")),
+      "name": bru.getEnvVar("HostGroup4Name"),
+      "alias": bru.getEnvVar("HostGroup4Alias"),
+      "icon": null,
+      "geo_coords": null,
+      "comment": null,
+      "is_activated": true,
+      "enabled_hosts_count": 0,
+      "disabled_hosts_count": 0
+    });
+    expect(hg5).to.eql({
+      "id": parseInt(bru.getEnvVar("HostGroup5Id")),
+      "name": bru.getEnvVar("HostGroup5Name"),
+      "alias": bru.getEnvVar("HostGroup5Alias"),
+      "icon": null,
+      "geo_coords": null,
+      "comment": null,
+      "is_activated": true,
+      "enabled_hosts_count": 0,
+      "disabled_hosts_count": 0
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

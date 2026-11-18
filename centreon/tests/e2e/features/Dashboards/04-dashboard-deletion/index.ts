@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
@@ -17,11 +18,11 @@ after(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards**'
+    url: `${INTERCEPTORS.api.dashboard_configuration}**`
   }).as('listAllDashboards');
   cy.loginByTypeOfUser({
     jsonName: 'user-dashboard-creator',

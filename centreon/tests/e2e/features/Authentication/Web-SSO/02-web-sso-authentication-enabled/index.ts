@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { initializeWebSsoUserAndGetLoginPage } from '../common';
@@ -12,19 +13,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/administration/authentication/providers/web-sso'
+    url: `${INTERCEPTORS.api.authentication_provider}/web-sso`
   }).as('getWebSSOProvider');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/administration/authentication/providers/web-sso'
+    url: `${INTERCEPTORS.api.authentication_provider}/web-sso`
   }).as('updateWebSSOProvider');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
+    url: INTERCEPTORS.api.local_authentication
   }).as('postLocalAuthentification');
 });
 

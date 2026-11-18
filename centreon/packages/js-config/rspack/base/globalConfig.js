@@ -28,6 +28,11 @@ module.exports = {
                 react: {
                   development: isDev,
                   refresh: isDev
+                },
+                reactCompiler: !enableCoverage && {
+                  compilationMode: 'infer',
+                  panicThreshold: 'none',
+                  target: '19'
                 }
               }
             }
@@ -51,7 +56,12 @@ module.exports = {
         type: 'asset/resource'
       },
       {
+        test: /\.module\.css$/,
+        type: 'css/module'
+      },
+      {
         test: /\.css$/,
+        exclude: /\.module\.css$/,
         type: 'css/auto',
         use: [
           {

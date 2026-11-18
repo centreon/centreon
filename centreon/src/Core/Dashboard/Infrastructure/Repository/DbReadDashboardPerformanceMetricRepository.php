@@ -382,7 +382,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     {
         $bindValues = [];
         foreach ($serviceCategoryIds as $serviceCategoryId) {
-            $bindValues[':servicecategory_' . $serviceCategoryId] = [$serviceCategoryId => \PDO::PARAM_INT];
+            $bindValues[':servicecategory_' . (int) $serviceCategoryId] = [$serviceCategoryId => \PDO::PARAM_INT];
         }
         $boundTokens = implode(', ', array_keys($bindValues));
 
@@ -554,7 +554,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                     m.max, r.parent_name, r.name, r.id as service_id, r.parent_id
                     FROM `:dbstg`.`metrics` AS m
                     INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
-                    INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
+                    INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id AND r.parent_id = id.host_id
                 SQL_WRAP;
 
         $accessGroupIds = array_map(

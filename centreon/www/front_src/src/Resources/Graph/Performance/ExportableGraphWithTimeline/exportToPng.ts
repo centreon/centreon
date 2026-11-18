@@ -32,6 +32,10 @@ const exportToPng = async ({
     width: element.offsetWidth * ratio
   });
 
+  if (!blob) {
+    return;
+  }
+
   return saveAs(blob, `${title}-${dateTime}.png`);
 };
 

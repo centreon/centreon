@@ -38,8 +38,8 @@ const DeleteModal = (): JSX.Element => {
 
   const confirm = useCallback(() => {
     deleteItem({
-      agentId: itemToDeleteRef.current?.agent.id,
-      pollerId: itemToDeleteRef.current?.poller?.id
+      agentId: itemToDeleteRef.current?.agent.id as number,
+      pollerId: itemToDeleteRef.current?.poller?.id as number | undefined
     }).then(close);
   }, [itemToDelete]);
 

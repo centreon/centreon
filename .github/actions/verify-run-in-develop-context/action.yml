@@ -1,0 +1,30 @@
+name: verify-run-in-develop-context
+description: "Verify that a workflow is run in a develop context"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout .version (current branch)
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        path: centreon-current
+        sparse-checkout: .version
+
+    - name: Checkout .version (develop branch)
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        ref: develop
+        path: centreon-develop
+        sparse-checkout: .version
+
+    - name: Check if this workflow is run on a branch in the develop context
+      shell: bash
+      run: |
+        source centreon-current/.version
+        current_version=${MAJOR}
+        source centreon-develop/.version
+        develop_version=${MAJOR}
+        if [[ "${current_version}" != "${develop_version}" ]]; then
+          echo "::error:: Please run this workflow on either develop or a branch that targets develop."
+          exit 1
+        fi

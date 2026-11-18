@@ -11,8 +11,16 @@ const useStyles = makeStyles()((theme) => ({
     '&:hover': {
       textDecoration: 'underline'
     },
-    fontSize: 'small',
-    textDecoration: 'none'
+    color: theme.palette.text.secondary,
+    display: 'block',
+    fontSize: '0.75rem',
+    fontWeight: theme.typography.fontWeightMedium,
+    lineHeight: 1,
+    textDecoration: 'none',
+    whiteSpace: 'nowrap'
+  },
+  linkLast: {
+    color: theme.palette.primary.main
   },
   optionalLabel: {
     marginLeft: theme.spacing(1)
@@ -25,7 +33,7 @@ interface Props {
 }
 
 const Breadcrumb = ({ last, breadcrumb }: Props): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
   const { t } = useTranslation();
 
   const optionalLabel = breadcrumb.is_react && !!breadcrumb.options && (
@@ -39,8 +47,7 @@ const Breadcrumb = ({ last, breadcrumb }: Props): JSX.Element => {
   return (
     <div>
       <Link
-        className={classes.link}
-        color={last ? 'primary' : 'inherit'}
+        className={cx(classes.link, { [classes.linkLast]: last })}
         component={RouterLink}
         to={breadcrumb.link}
       >

@@ -1,0 +1,407 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Application\EventHandler;
+
+use App\MonitoringConfiguration\Application\EventHandler\FlagPollerChangedEventHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
+use App\MonitoringConfiguration\Domain\Event\HostCreated;
+use App\MonitoringConfiguration\Domain\Event\HostDeleted;
+use App\MonitoringConfiguration\Domain\Event\HostDisabled;
+use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
+use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
+use App\MonitoringConfiguration\Domain\Event\PollerCreated;
+use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
+use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
+use App\MonitoringConfiguration\Domain\Event\ServiceDisabled;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
+use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Collection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
+
+final class FlagPollerChangedEventHandlerTest extends TestCase
+{
+    public function testItFlagsTheHostsPollerAsChanged(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostCreated($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+    }
+
+    public function testItAlsoFlagsThePollerAHostWasMovedAwayFrom(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostMassChanged($host, 1, previousPollerId: new PollerId(2)));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+        self::assertSame([2], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testItFlagsOnlyTheCurrentPollerWhenTheHostDidNotMove(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostMassChanged($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+        self::assertSame([], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testItFlagsTheHostsPollerOnActivationChange(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // HostDisabled is an AggregateUpdated: the handler was broadened to flag the poller on it too.
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostDisabled($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+    }
+
+    public function testItDoesNothingForAnAggregateThatIsNotPollerScoped(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $handler(new PollerCreated($this->createPoller(), 1));
+
+        self::assertSame([], $pollerRepository->flaggedResources);
+    }
+
+    public function testItDoesNothingForANonPollerScopedUpdate(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // CommandUpdated is an AggregateUpdated too, but Command is not poller-scoped: ignore it.
+        $handler(new CommandUpdated($this->createCommand(), 1));
+
+        self::assertSame([], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsTheHostsPollerAsChangedOnDelete(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // The host is still carried in memory by the event even though its row is already gone,
+        // so the poller it belonged to can still be resolved and flagged.
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostDeleted($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsTheHostsPollerAsChangedOnDuplicate(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // Guards the AggregateDuplicated branch of the handled union: narrowing it back would leave
+        // this fast test as the only tripwire before the slow end-to-end duplication test.
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostDuplicated($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsThePollerOfTheEnabledHostOfACreatedService(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $service = $this->createService(hostActivated: true);
+        $handler(new ServiceCreated($service, 1));
+
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+    }
+
+    /**
+     * A disabled host is not monitored: creating a service on it leaves its poller alone.
+     */
+    public function testServiceCreatedOnADisabledHost(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $handler(new ServiceCreated($this->createService(hostActivated: false), 1));
+
+        self::assertSame([], $pollerRepository->flaggedResources);
+        self::assertSame([], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testItFlagsThePollerOfTheEnabledHostOfADeletedService(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $service = $this->createService(hostActivated: true);
+        $handler(new ServiceDeleted($service, 1));
+
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsNoPollerForADeletedServiceOfADisabledHost(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $handler(new ServiceDeleted($this->createService(hostActivated: false), 1));
+
+        self::assertSame([], $pollerRepository->flaggedResources);
+        self::assertSame([], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testItFlagsThePollerOfTheEnabledHostOfADisabledService(): void
+    {
+        // Enabling or disabling a service is an update: caught through the AggregateUpdated supertype.
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $service = $this->createService(hostActivated: true);
+        $handler(new ServiceDisabled($service, 1));
+
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsNoPollerForADisabledServiceOfADisabledHost(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $handler(new ServiceDisabled($this->createService(hostActivated: false), 1));
+
+        self::assertSame([], $pollerRepository->flaggedResources);
+        self::assertSame([], $pollerRepository->flaggedPollerIds);
+    }
+
+    /**
+     * A service moved to another host regenerates the poller of its new host and, when it is another one, the
+     * poller of the host it left.
+     */
+    public function testServiceUpdatedFlagsThePreviousPoller(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $service = $this->createService(hostActivated: true);
+        $handler(new ServiceUpdated($service, 1, previousPollerId: new PollerId(2), previousHostId: new HostId(9)));
+
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+        self::assertSame([2], $pollerRepository->flaggedPollerIds);
+    }
+
+    /**
+     * @param list<int> $flagged
+     */
+    #[DataProvider('massChangeProvider')]
+    public function testServiceMassChangedFlagsThePollersItNames(bool $hostActivated, ?int $previousPollerId, array $flagged): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $handler(ServiceMassChanged::of(
+            $this->createService($hostActivated),
+            1,
+            previousPollerId: $previousPollerId !== null ? new PollerId($previousPollerId) : null,
+            previousHostId: $previousPollerId !== null ? new HostId(9) : null,
+        ));
+
+        self::assertSame([], $pollerRepository->flaggedResources);
+        self::assertSame($flagged, $pollerRepository->flaggedPollerIds);
+    }
+
+    /**
+     * @return iterable<string, array{bool, ?int, list<int>}>
+     */
+    public static function massChangeProvider(): iterable
+    {
+        yield 'moved off another poller' => [true, 2, [5, 2]];
+
+        yield 'stayed' => [true, null, [5]];
+
+        yield 'on a disabled host' => [false, null, []];
+    }
+
+    /**
+     * The pollers of the other host links the save dropped are flagged too, after those the event names.
+     */
+    public function testServiceMassChangedFlagsThePollersOfTheDroppedHostLinks(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $handler(ServiceMassChanged::of(
+            $this->createService(hostActivated: true),
+            1,
+            previousPollerId: new PollerId(2),
+            previousHostId: new HostId(9),
+            droppedHostLinks: new DroppedHostLinks([new HostId(11), new HostId(12)], [new PollerId(6), new PollerId(7)]),
+        ));
+
+        self::assertSame([5, 2, 6, 7], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testServiceUpdatedFlagsThePollersOfTheDroppedHostLinks(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $service = $this->createService(hostActivated: true);
+        $handler(new ServiceUpdated(
+            $service,
+            1,
+            loggable: false,
+            droppedHostLinks: new DroppedHostLinks([new HostId(11), new HostId(12)], [new PollerId(6), new PollerId(7)]),
+        ));
+
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+        self::assertSame([6, 7], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testServiceUpdatedWithoutPreviousPollerFlagsTheCurrentOneOnly(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $service = $this->createService(hostActivated: true);
+        $handler(new ServiceUpdated($service, 1, loggable: false));
+
+        self::assertSame([$service], $pollerRepository->flaggedResources);
+        self::assertSame([], $pollerRepository->flaggedPollerIds);
+    }
+
+    private function createService(bool $hostActivated): Service
+    {
+        return new Service(
+            id: new ServiceId(1),
+            name: new ServiceName('ping'),
+            hostId: new HostId(1),
+            hostActivated: $hostActivated,
+            hostPollerId: new PollerId(5),
+        );
+    }
+
+    private function createCommand(): Command
+    {
+        return new Command(
+            id: new CommandId(1),
+            name: new CommandName('check-something'),
+            type: CommandTypeEnum::Check,
+            commandLine: new CommandLine('/bin/true'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
+    }
+
+    private function createHost(int $pollerId): Host
+    {
+        $host = new Host(
+            id: null,
+            name: new HostName('server-01'),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+        );
+
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($host, new HostId(1));
+
+        return $host;
+    }
+
+    private function createPoller(): Poller
+    {
+        $poller = new Poller(
+            id: null,
+            name: new PollerName('Central'),
+            address: new PollerAddress('127.0.0.1'),
+            isCentral: true,
+            isDefault: true,
+            isActivated: true,
+            pollerType: PollerTypeEnum::VM,
+            uid: new PollerUid(123456789012345),
+            globalMacros: new Collection([], GlobalMacro::class),
+            gorgoneConfiguration: new GorgoneConfiguration(),
+            engineInformation: new EngineInformation(),
+            brokerInformation: new BrokerInformation(),
+            connectorConfiguration: new ConnectorConfiguration(),
+            trapConfiguration: new TrapConfiguration(),
+            pollerCommands: new Collection([], PollerCommand::class),
+        );
+
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($poller, new PollerId(1));
+
+        return $poller;
+    }
+}

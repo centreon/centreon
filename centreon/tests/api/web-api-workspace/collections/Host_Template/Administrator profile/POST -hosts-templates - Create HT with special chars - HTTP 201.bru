@@ -1,0 +1,69 @@
+meta {
+  name: POST /hosts/templates - Create HT with special chars - HTTP 201
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostTemplate3Name}}",
+    "alias": "{{HostTemplate3Alias}}",
+    "snmp_version": "2c",
+    "snmp_community": "snmpCommunity-tést",
+    "timezone_id": 2,
+    "check_timeperiod_id": 1,
+    "note_url": "noteUrl!!!!",
+    "note": "notéé",
+    "action_url": "actionUrl-ouêp",
+    "max_check_attempts": 6,
+    "normal_check_interval": 5,
+    "retry_check_interval": 2,
+    "icon_id": 1,
+    "categories": [ {{HostCategory1Id}} ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host template has been successfully created, with name '{{HostTemplate3Name}}' and alias '{{HostTemplate3Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostTemplate3Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("HostTemplate3Name"),
+      "alias": bru.getEnvVar("HostTemplate3Alias"),
+      "snmp_version": "2c",
+      "timezone_id": 2,
+      "severity_id": null,
+      "check_timeperiod_id": 1,
+      "note_url": "noteUrl!!!!",
+      "note": "notéé",
+      "action_url": "actionUrl-ouêp",
+      "max_check_attempts": 6,
+      "normal_check_interval": 5,
+      "retry_check_interval": 2,
+      "icon_id": 1,
+      "is_locked": false
+    });
+    expect(body.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("HostCategory1Id")),
+      "name": bru.getEnvVar("HostCategory1Name")
+    });
+    expect(body.templates).to.be.an("array").that.is.empty;
+    expect(body.macros).to.be.an("array").that.is.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -25,6 +25,9 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory;
 
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
+/**
+ * @extends AggregateRoot<ServiceCategoryId>
+ */
 final class ServiceCategory extends AggregateRoot
 {
     public function __construct(

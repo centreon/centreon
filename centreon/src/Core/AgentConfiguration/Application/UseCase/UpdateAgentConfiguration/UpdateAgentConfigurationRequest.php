@@ -31,8 +31,6 @@ final class UpdateAgentConfigurationRequest
 
     public string $name = '';
 
-    public string $type = '';
-
     public ConnectionModeEnum $connectionMode = ConnectionModeEnum::SECURE;
 
     /** @var int[] */

@@ -19,16 +19,30 @@ export interface Resource {
   resources: Array<SelectEntry>;
 }
 
+interface ResourceDetails {
+  id: number | string;
+  parentId?: number | string;
+  uuid?: string;
+}
+
 interface GetResourcesUrlProps {
   allResources: Array<Resource>;
   isForOneResource: boolean;
-  resource?;
+  resource?: ResourceDetails;
   states: Array<string>;
   statuses: Array<string>;
   type: string;
 }
 
-export const getDetailsPanelQueriers = ({ resource, type }): object => {
+interface GetDetailsPanelQueriersProps {
+  resource: ResourceDetails;
+  type: string;
+}
+
+export const getDetailsPanelQueriers = ({
+  resource,
+  type
+}: GetDetailsPanelQueriersProps): object => {
   const { id, parentId, uuid } = resource;
 
   const resourcesDetailsEndpoint = cond([
@@ -158,7 +172,10 @@ export const getResourcesUrl = ({
     return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
   }
 
-  const detailsPanelQueriers = getDetailsPanelQueriers({ resource, type });
+  const detailsPanelQueriers = getDetailsPanelQueriers({
+    resource: resource as ResourceDetails,
+    type
+  });
 
   const encodedDetailsParams = encodeURIComponent(
     JSON.stringify(detailsPanelQueriers)

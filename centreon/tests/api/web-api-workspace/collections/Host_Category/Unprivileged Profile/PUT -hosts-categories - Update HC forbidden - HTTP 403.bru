@@ -1,0 +1,36 @@
+meta {
+  name: PUT /hosts/categories - Update HC forbidden - HTTP 403
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrlWeb}}/configuration/hosts/categories/{{HostCategory4Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostCategory4Name}}",
+    "alias": "{{HostCategory4Alias}}",
+    "is_activated": false,
+    "comment": "I was created by the Read/Write user"
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The user does not have the correct rights to update host categories.", function () {
+    const body = res.getBody();
+    expect(body.message).to.match(/not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

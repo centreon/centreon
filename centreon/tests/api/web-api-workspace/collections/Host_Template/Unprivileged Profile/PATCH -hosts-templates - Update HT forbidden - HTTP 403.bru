@@ -1,0 +1,32 @@
+meta {
+  name: PATCH /hosts/templates - Update HT forbidden - HTTP 403
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/hosts/templates/{{HostTemplate4Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "timezone_id": 3
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The user does not have the correct rights to update host template.", function () {
+    expect(res.getBody().message).to.match(/not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

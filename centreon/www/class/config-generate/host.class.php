@@ -170,11 +170,95 @@ class Host extends AbstractHost
 
         $isPollerEncryptionReady = $readMonitoringServerRepository->isEncryptionReady($pollerId);
 
+        // ---- Batch pre-loading phase (reduces N*M queries to 6 constant queries) ----
+        $allHostIds = array_keys($this->hosts);
+
+        /** @var ReadHostRepositoryInterface $readHostRepository */
+        $readHostRepository = $this->kernel->getContainer()->get(ReadHostRepositoryInterface::class);
+        /** @var ReadHostMacroRepositoryInterface $readHostMacroRepository */
+        $readHostMacroRepository = $this->kernel->getContainer()->get(ReadHostMacroRepositoryInterface::class);
+        /** @var ReadServiceRepositoryInterface $readServiceRepository */
+        $readServiceRepository = $this->kernel->getContainer()->get(ReadServiceRepositoryInterface::class);
+        /** @var ReadServiceMacroRepositoryInterface $readServiceMacroRepository */
+        $readServiceMacroRepository = $this->kernel->getContainer()->get(ReadServiceMacroRepositoryInterface::class);
+
+        // 1. Batch-load host template parents (1 query)
+        $allHostParents = $readHostRepository->findParentsByHostIds($allHostIds);
+
+        // 2. Compute host inheritance lines, collect all host+template IDs
+        $hostInheritanceLines = [];
+        $allHostAndTemplateIds = [];
+        foreach ($allHostIds as $hostId) {
+            $parents = $allHostParents[$hostId] ?? [];
+            $inheritanceLine = InheritanceManager::findInheritanceLine($hostId, $parents);
+            $hostInheritanceLines[$hostId] = $inheritanceLine;
+            $allHostAndTemplateIds[] = $hostId;
+            array_push($allHostAndTemplateIds, ...$inheritanceLine);
+        }
+        $allHostAndTemplateIds = array_values(array_unique($allHostAndTemplateIds));
+
+        // 3. Batch-load all host macros (1 query)
+        $hostMacrosByOwnerId = $this->indexMacrosByOwnerId(
+            $readHostMacroRepository->findByHostIds($allHostAndTemplateIds)
+        );
+
+        // 4. Batch-load service IDs per host (2 queries)
+        $serviceIdsByHostDirect = $readServiceRepository->findServiceIdsLinkedToHostIds($allHostIds);
+        $serviceIdsByHostHg = $readServiceRepository->findServiceIdsLinkedToHostsThroughHostGroups($allHostIds);
+
+        // 5. Merge and deduplicate service IDs per host, collect all unique service IDs
+        $serviceIdsByHost = [];
+        $allUniqueServiceIds = [];
+        foreach ($allHostIds as $hostId) {
+            $direct = $serviceIdsByHostDirect[$hostId] ?? [];
+            $hg = $serviceIdsByHostHg[$hostId] ?? [];
+            $merged = array_values(array_unique(array_merge($direct, $hg)));
+            $serviceIdsByHost[$hostId] = $merged;
+            foreach ($merged as $sid) {
+                $allUniqueServiceIds[$sid] = true;
+            }
+        }
+        $allUniqueServiceIds = array_keys($allUniqueServiceIds);
+
+        // 6. Batch-load service template parents (1 query)
+        $allServiceParents = $readServiceRepository->findParentsByServiceIds($allUniqueServiceIds);
+
+        // 7. Compute service inheritance lines, collect all service+template IDs
+        $serviceInheritanceLines = [];
+        $allServiceAndTemplateIds = [];
+        foreach ($allUniqueServiceIds as $serviceId) {
+            $parents = $allServiceParents[$serviceId] ?? [];
+            $inheritanceLine = ServiceInheritance::createInheritanceLine($serviceId, $parents);
+            $serviceInheritanceLines[$serviceId] = $inheritanceLine;
+            $allServiceAndTemplateIds[] = $serviceId;
+            array_push($allServiceAndTemplateIds, ...$inheritanceLine);
+        }
+        $allServiceAndTemplateIds = array_values(array_unique($allServiceAndTemplateIds));
+
+        // 8. Batch-load all service macros (1 query)
+        $serviceMacrosByOwnerId = $allServiceAndTemplateIds !== []
+            ? $this->indexMacrosByOwnerId($readServiceMacroRepository->findByServiceIds(...$allServiceAndTemplateIds))
+            : [];
+
+        // ---- Per-host loop (uses only pre-loaded data, no additional queries) ----
         foreach ($this->hosts as $host_id => &$host) {
             $this->hosts_by_name[$host['host_name']] = $host_id;
             $host['host_id'] = $host_id;
-            [$hostMacros, $hostTemplateMacros] = $this->findHostRelatedMacros($host_id, $isPollerEncryptionReady);
-            [$serviceMacros, $serviceTemplateMacros] = $this->findServiceRelatedMacros($host_id, $isPollerEncryptionReady);
+
+            [$hostMacros, $hostTemplateMacros] = $this->resolveHostMacrosFromCache(
+                $host_id,
+                $hostInheritanceLines[$host_id] ?? [],
+                $hostMacrosByOwnerId,
+                $isPollerEncryptionReady
+            );
+
+            [$serviceMacros, $serviceTemplateMacros] = $this->resolveServiceMacrosFromCache(
+                $serviceIdsByHost[$host_id] ?? [],
+                $serviceInheritanceLines,
+                $serviceMacrosByOwnerId,
+                $isPollerEncryptionReady
+            );
+
             $this->generateFromHostId($host, $hostMacros, $hostTemplateMacros, $serviceMacros, $serviceTemplateMacros);
         }
 
@@ -343,16 +427,64 @@ class Host extends AbstractHost
         $this->hosts[$host_id_arg]['severity_id_for_services'] = $severity_instance->getHostSeverityById($severity_id);
     }
 
-    private function findHostRelatedMacros(int $hostId, bool $isPollerEncryptionReady): array
+    /**
+     * Index macros by owner ID. Each macro is keyed by its position in the original list,
+     * so that the original order can be restored when collecting macros of several owners.
+     *
+     * @param Macro[] $macros
+     *
+     * @return array<int, array<int, Macro>>
+     */
+    private function indexMacrosByOwnerId(array $macros): array
     {
-        /** @var ReadHostRepositoryInterface $readHostRepository */
-        $readHostRepository = $this->kernel->getContainer()->get(ReadHostRepositoryInterface::class);
-        /** @var ReadHostMacroRepositoryInterface $readHostMacroRepository */
-        $readHostMacroRepository = $this->kernel->getContainer()->get(ReadHostMacroRepositoryInterface::class);
+        $macrosByOwnerId = [];
+        $position = 0;
+        foreach ($macros as $macro) {
+            $macrosByOwnerId[$macro->getOwnerId()][$position++] = $macro;
+        }
 
-        $templateParents = $readHostRepository->findParents($hostId);
-        $inheritanceLine = InheritanceManager::findInheritanceLine($hostId, $templateParents);
-        $existingHostMacros = $readHostMacroRepository->findByHostIds(array_merge([$hostId], $inheritanceLine));
+        return $macrosByOwnerId;
+    }
+
+    /**
+     * Collect the macros belonging to the given owners, in their original order.
+     *
+     * @param array<int, array<int, Macro>> $macrosByOwnerId Macros indexed by owner ID
+     * @param int[] $ownerIds
+     *
+     * @return Macro[]
+     */
+    private function collectMacrosOfOwners(array $macrosByOwnerId, array $ownerIds): array
+    {
+        $macros = [];
+        foreach ($ownerIds as $ownerId) {
+            $macros += $macrosByOwnerId[$ownerId] ?? [];
+        }
+        ksort($macros);
+
+        return array_values($macros);
+    }
+
+    /**
+     * Resolve host macros using pre-loaded data.
+     *
+     * @param int $hostId
+     * @param int[] $inheritanceLine Pre-computed inheritance line
+     * @param array<int, array<int, Macro>> $hostMacrosByOwnerId All host macros pre-loaded in bulk, indexed by owner ID
+     * @param bool $isPollerEncryptionReady
+     *
+     * @return array{Macro[], Macro[]}
+     */
+    private function resolveHostMacrosFromCache(
+        int $hostId,
+        array $inheritanceLine,
+        array $hostMacrosByOwnerId,
+        bool $isPollerEncryptionReady,
+    ): array {
+        $existingHostMacros = $this->collectMacrosOfOwners(
+            $hostMacrosByOwnerId,
+            array_merge([$hostId], $inheritanceLine)
+        );
 
         array_walk(
             $existingHostMacros,
@@ -360,31 +492,54 @@ class Host extends AbstractHost
             $isPollerEncryptionReady
         );
 
-        return  Macro::resolveInheritance($existingHostMacros, $inheritanceLine, $hostId);
+        $directMacros = array_values(array_filter(
+            $existingHostMacros,
+            fn (Macro $macro) => $macro->getOwnerId() === $hostId
+        ));
+
+        $allTemplateMacros = array_values(array_filter(
+            $existingHostMacros,
+            fn (Macro $macro) => $macro->getOwnerId() !== $hostId
+        ));
+
+        return [$directMacros, $allTemplateMacros];
     }
 
-    private function findServiceRelatedMacros(int $hostId, bool $isPollerEncryptionReady): array
-    {
-        /** @var ReadServiceRepositoryInterface $readServiceRepository */
-        $readServiceRepository = $this->kernel->getContainer()->get(ReadServiceRepositoryInterface::class);
-        /** @var ReadServiceMacroRepositoryInterface $readServiceMacroRepository */
-        $readServiceMacroRepository = $this->kernel->getContainer()->get(ReadServiceMacroRepositoryInterface::class);
-
-        $serviceByHg = $readServiceRepository->findServiceIdsLinkedToHostThroughHostGroups($hostId);
-        $services = $readServiceRepository->findServiceIdsLinkedToHostId($hostId);
-        $services = array_unique(array_merge($services, $serviceByHg));
+    /**
+     * Resolve service macros using pre-loaded data.
+     *
+     * @param int[] $serviceIds Services linked to this host
+     * @param array<int, int[]> $serviceInheritanceLines Pre-computed per-service
+     * @param array<int, array<int, Macro>> $serviceMacrosByOwnerId All service macros pre-loaded in bulk, indexed by owner ID
+     * @param bool $isPollerEncryptionReady
+     *
+     * @return array{Macro[], Macro[]}
+     */
+    private function resolveServiceMacrosFromCache(
+        array $serviceIds,
+        array $serviceInheritanceLines,
+        array $serviceMacrosByOwnerId,
+        bool $isPollerEncryptionReady,
+    ): array {
         $serviceMacros = [];
         $serviceTemplateMacros = [];
-        foreach ($services as $serviceId) {
-            $serviceTemplateInheritances = $readServiceRepository->findParents($serviceId);
-            $inheritanceLine = ServiceInheritance::createInheritanceLine(
-                $serviceId,
-                $serviceTemplateInheritances
+
+        foreach ($serviceIds as $serviceId) {
+            $inheritanceLine = $serviceInheritanceLines[$serviceId] ?? [];
+
+            $existingMacros = $this->collectMacrosOfOwners(
+                $serviceMacrosByOwnerId,
+                array_merge([$serviceId], $inheritanceLine)
             );
-            $existingMacros = $readServiceMacroRepository->findByServiceIds($serviceId, ...$inheritanceLine);
+
             [$directMacros, $indirectMacros] = Macro::resolveInheritance($existingMacros, $inheritanceLine, $serviceId);
             $serviceMacros = array_merge($serviceMacros, array_values($directMacros));
-            $serviceTemplateMacros = array_merge($serviceTemplateMacros, array_values($indirectMacros));
+
+            $allTemplateMacros = array_filter(
+                $existingMacros,
+                fn (Macro $macro): bool => $macro->getOwnerId() !== $serviceId
+            );
+            $serviceTemplateMacros = array_merge($serviceTemplateMacros, array_values($allTemplateMacros));
         }
 
         array_walk(

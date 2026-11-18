@@ -1,0 +1,35 @@
+meta {
+  name: PATCH /services/templates - Update ST4 - HTTP 204
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/services/templates/{{ServiceTemplate4Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "check_timeperiod_id": 1,
+    "max_check_attempts": 5,
+    "normal_check_interval": 3,
+    "retry_check_interval": 2
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The service template ST4 has been successfully updated.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

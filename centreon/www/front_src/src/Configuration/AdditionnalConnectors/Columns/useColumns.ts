@@ -20,7 +20,7 @@ const useColumns = (): {
   const { t } = useTranslation();
   const { format } = useLocaleDateTimeFormat();
 
-  const columns = [
+  const columns: Array<Column> = [
     {
       Component: Name,
       disablePadding: false,
@@ -32,8 +32,8 @@ const useColumns = (): {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ type }) =>
-        equals(type, 'vmware_v6') ? 'VMWare 6/7' : type,
+      getFormattedString: ({ type }: Record<string, unknown>) =>
+        equals(type, 'vmware_v6') ? 'VMWare 6/7' : (type as string),
       id: 'type',
       label: t(labelType),
       sortable: true,
@@ -42,7 +42,8 @@ const useColumns = (): {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ description }) => description,
+      getFormattedString: ({ description }: Record<string, unknown>) =>
+        description as string,
       id: 'description',
       label: t(labelDescription),
       sortField: 'description',
@@ -50,7 +51,8 @@ const useColumns = (): {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ createdBy }): string => createdBy?.name || '',
+      getFormattedString: ({ createdBy }: Record<string, unknown>): string =>
+        (createdBy as { name?: string })?.name || '',
       id: 'created_by',
       label: t(labelCreator),
       sortable: true,
@@ -59,9 +61,9 @@ const useColumns = (): {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ createdAt }): string =>
+      getFormattedString: ({ createdAt }: Record<string, unknown>): string =>
         format({
-          date: createdAt,
+          date: createdAt as string,
           formatString: 'L'
         }),
       id: 'created_at',
@@ -72,7 +74,8 @@ const useColumns = (): {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ updatedBy }): string => updatedBy?.name || '',
+      getFormattedString: ({ updatedBy }: Record<string, unknown>): string =>
+        (updatedBy as { name?: string })?.name || '',
       id: 'updated_by',
       label: t(labelUpdateBy),
       sortable: true,
@@ -81,10 +84,10 @@ const useColumns = (): {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ updatedAt }): string =>
+      getFormattedString: ({ updatedAt }: Record<string, unknown>): string =>
         updatedAt
           ? format({
-              date: updatedAt,
+              date: updatedAt as string,
               formatString: 'L'
             })
           : '',

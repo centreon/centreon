@@ -1,10 +1,11 @@
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 Cypress.Commands.add('visitApiTokens', () => {
   cy.intercept({
     method: 'GET',
     times: 1,
-    url: '/centreon/api/latest/administration/tokens?*'
+    url: `${INTERCEPTORS.api.administration_tokens}?*`
   }).as('getTokens');
 
   cy.visit(PAGES.configuration.authenticationTokens);

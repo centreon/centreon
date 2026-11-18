@@ -78,7 +78,7 @@ const selectableCriterias: CriteriaById = {
 
 export {
   criteriaValueNameById,
-  selectableStatuses,
   selectableCriterias,
+  selectableStatuses,
   selectableTypes
 };

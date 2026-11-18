@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\ResourceAccess\Application\UseCase\FindRules;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
@@ -51,13 +52,11 @@ final class FindRules
     public function __invoke(FindRulesPresenterInterface $presenter): void
     {
         try {
-            $presenter->presentResponse(
-                $this->createResponse(
-                    $this->adminResolver->isAdmin($this->user)
-                        ? $this->repository->findAllByRequestParameters($this->requestParameters)
-                        : $this->repository->findAllByRequestParametersAndUserId($this->requestParameters, $this->user->getId())
-                )
-            );
+            $presenter->presentResponse($this->createResponse(
+                $this->canUserListAllRules()
+                    ? $this->repository->findAllByRequestParameters($this->requestParameters)
+                    : $this->repository->findAllByRequestParametersAndUserId($this->requestParameters, $this->user->getId())
+            ));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -87,5 +86,21 @@ final class FindRules
         }
 
         return $response;
+    }
+
+    /**
+     * Check if current user is authorized to perform the action.
+     * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+     * are authorized to add a Resource Access Rule.
+     *
+     * @return bool
+     */
+    private function canUserListAllRules(): bool
+    {
+        if ($this->adminResolver->isAdmin($this->user)) {
+            return true;
+        }
+
+        return $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
     }
 }

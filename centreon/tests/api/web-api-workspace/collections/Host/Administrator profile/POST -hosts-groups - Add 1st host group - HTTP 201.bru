@@ -1,0 +1,53 @@
+meta {
+  name: POST /hosts/groups - Add 1st host group - HTTP 201
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostGroup1Name}}",
+    "alias": "{{HostGroup1Alias}}",
+    "icon_id": null,
+    "geo_coords": "",
+    "hosts": []
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Response schema is valid", function () {
+    const body = res.getBody();
+  
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("id").that.is.a("number");
+    expect(body).to.have.property("name").that.is.a("string").and.equals(bru.getEnvVar("HostGroup1Name"));
+    expect(body).to.have.property("alias").that.is.an("string").and.equals(bru.getEnvVar("HostGroup1Alias"));
+    expect(body).to.have.property("geo_coords").that.satisfy(
+      v => v === null || typeof v === "string"
+    );
+    expect(body).to.have.property("icon_id").that.satisfy(
+      v => v === null || typeof v === "number"
+    );
+    expect(body).to.have.property("comment").that.is.satisfy(
+      v => v === null || typeof v === "string"
+    )
+    expect(body).to.have.property("hosts").that.is.an("array");
+  
+    bru.setEnvVar("HostGroup1Id", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

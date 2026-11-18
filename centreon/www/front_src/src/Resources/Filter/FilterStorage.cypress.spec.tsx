@@ -362,6 +362,10 @@ describe('Filter storage', () => {
       response: emptyListData
     });
 
+    cy.window().then((win) =>
+      win.history.pushState({}, '', win.location.pathname)
+    );
+
     cy.mount({
       Component: <FilterWithProvider />
     });
@@ -379,6 +383,7 @@ describe('Filter storage', () => {
     );
 
     cy.getAllLocalStorage().should('deep.equal', {
+      // biome-ignore lint/plugin: Cypress component test origin
       'http://localhost:9092': {
         'centreon-resource-status-23.10-filter': JSON.stringify(expectedFilter),
         MSW_COOKIE_STORE: '[]'

@@ -25,12 +25,64 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
 
 interface PollerRepository
 {
+    public function add(Poller $poller): void;
+
+    public function findOneByName(PollerName $name): ?Poller;
+
+    public function findOneByAddress(PollerAddress $address): ?Poller;
+
     /**
      * @return Collection<Poller>
      */
     public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
+
+    /**
+     * Every requested id's name, for bulk display purposes (e.g. a sibling aggregate that only
+     * references a poller by id). An id absent from the result no longer exists.
+     *
+     * @param Collection<PollerId> $ids
+     *
+     * @return Collection<PollerName> indexed by poller id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * @return \IteratorAggregate<int, Poller>&\Countable
+     */
+    public function findAll(PollerCriteria $criteria): \IteratorAggregate&\Countable;
+
+    /**
+     * @throws PollerNotFoundException
+     */
+    public function get(PollerId $pollerId): Poller;
+
+    /**
+     * Raises `nagios_server.updated` on the poller referenced by the given poller-scoped
+     * resource, so its configuration is regenerated — anything that changes what a poller
+     * monitors (adding a host, for instance) must call this, or the monitoring engine keeps
+     * running on stale configuration. A resource with no poller to flag (a service whose host
+     * is disabled or has no poller) flags nothing.
+     *
+     * @param AggregateRoot<AggregateRootId>&PollerScopedInterface $resource
+     */
+    public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void;
+
+    /**
+     * Same flag, for a poller that is no longer the one a resource references (a host moved away).
+     */
+    public function flagIdAsChanged(PollerId $pollerId): void;
+
+    public function withCmaCertificates(): self;
 }

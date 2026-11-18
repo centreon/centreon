@@ -1,0 +1,38 @@
+meta {
+  name: POST /hosts/groups - Create second host group - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostGroup2Name}}",
+    "alias": "{{HostGroup2Alias}}",
+    "hosts": []
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host group has been successfully created, with name '{{HostGroup2Name}}' and alias '{{HostGroup2Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostGroup2Id", body.id);
+    expect(body).to.have.property("id").that.is.a("number");
+    expect(body).to.have.property("name").that.equals(bru.getEnvVar("HostGroup2Name"));
+    expect(body).to.have.property("alias").that.equals(bru.getEnvVar("HostGroup2Alias"));
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

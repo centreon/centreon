@@ -1,0 +1,13 @@
+meta {
+  name: Contact_Templates
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}

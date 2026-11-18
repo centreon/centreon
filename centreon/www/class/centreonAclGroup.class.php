@@ -53,9 +53,9 @@ class CentreonAclGroup
         $listValues = '';
         $queryValues = [];
         if (! empty($values)) {
-            foreach ($values as $k => $v) {
-                $listValues .= ':group' . $v . ',';
-                $queryValues['group' . $v] = (int) $v;
+            foreach (array_values($values) as $k => $v) {
+                $listValues .= ':group' . $k . ',';
+                $queryValues['group' . $k] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {

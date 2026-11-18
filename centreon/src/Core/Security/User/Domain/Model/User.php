@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\User\Domain\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 class User
 {
     /**
@@ -37,6 +39,7 @@ class User
         private int $id,
         private string $alias,
         private array $oldPasswords,
+        #[Sensitive]
         private UserPassword $password,
         private ?int $loginAttempts,
         private ?\DateTimeImmutable $blockingTime,

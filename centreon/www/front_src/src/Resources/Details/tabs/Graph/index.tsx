@@ -2,7 +2,7 @@ import { type Parameters, TimePeriods } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import GraphOptions from '../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions';
 import memoizeComponent from '../../../memoizedComponent';
@@ -32,9 +32,9 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
     equalsMetaService(type) ||
     equalsAnomalyDetection(type);
 
-  const getTimePeriodsParameters = (data: Parameters): void => {
+  const getTimePeriodsParameters = useCallback((data: Parameters): void => {
     setGraphTimeParameters(data);
-  };
+  }, []);
 
   return (
     <div className={classes.graphTabContainer}>

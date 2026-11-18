@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type CancelToken } from 'axios';
 import { defaultTo, includes, or, path, pathOr } from 'ramda';
 import { useEffect, useState } from 'react';
 import type { JsonDecoder } from 'ts.data.json';
@@ -10,13 +10,13 @@ import useCancelTokenSource from '../useCancelTokenSource';
 export interface RequestParams<TResult> {
   decoder?: JsonDecoder.Decoder<TResult>;
   defaultFailureMessage?: string;
-  getErrorMessage?: (error) => string;
+  getErrorMessage?: (error: unknown) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
-  request: (token) => (params?) => Promise<TResult>;
+  request: (token: CancelToken) => (params?: unknown) => Promise<TResult>;
 }
 
 export interface RequestResult<TResult> {
-  sendRequest: (params?) => Promise<TResult>;
+  sendRequest: (params?: unknown) => Promise<TResult>;
   sending: boolean;
 }
 
@@ -36,8 +36,8 @@ const useRequest = <TResult>({
     return (): void => cancel();
   }, [cancel]);
 
-  const showRequestErrorMessage = (error): void => {
-    errorLog(error.message);
+  const showRequestErrorMessage = (error: { message?: string }): void => {
+    errorLog(error.message ?? '');
 
     const message = or(
       pathOr(undefined, ['response', 'data', 'message'], error),
@@ -49,7 +49,7 @@ const useRequest = <TResult>({
     showErrorMessage(errorMessage as string);
   };
 
-  const sendRequest = (params): Promise<TResult> => {
+  const sendRequest = (params?: unknown): Promise<TResult> => {
     setSending(true);
 
     return request(token)(params)
@@ -64,7 +64,7 @@ const useRequest = <TResult>({
       .catch((error) => {
         setSending(false);
         if (axios.isCancel(error)) {
-          warnLog(error);
+          warnLog(error as unknown as string);
 
           throw error;
         }

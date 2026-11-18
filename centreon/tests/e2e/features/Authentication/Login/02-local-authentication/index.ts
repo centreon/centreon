@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { getUserContactId } from '../../../../commons';
@@ -18,19 +19,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+    url: `${INTERCEPTORS.api.events_view_users}?page=1&limit=100`
   }).as('getLastestUserFilters');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: 'centreon/api/latest/configuration/users?page=1&sort_by=%7B%22alias%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%7B%22provider_name%22%3A%7B%22%24eq%22%3A%22local%22%7D%7D%5D%7D'
+    url: `${INTERCEPTORS.api.users_configuration}?page=1&sort_by=%7B%22alias%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%7B%22provider_name%22%3A%7B%22%24eq%22%3A%22local%22%7D%7D%5D%7D`
   }).as('getListContact');
 
   getUserContactId('user1')

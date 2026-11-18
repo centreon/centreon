@@ -1,0 +1,41 @@
+name: "Xray sync Gherkin"
+description: "Rewrite the Gherkin definition of Xray Tests whose @<KEY>-tagged e2e scenario differs from it (empty included)."
+
+inputs:
+  features_dir:
+    description: "Directory scanned recursively for .feature files."
+    required: true
+  project_key:
+    description: "Jira project key of the scenario tags (e.g. MON for @MON-12345)."
+    required: false
+    default: "MON"
+  test_keys:
+    description: "Comma or space separated Test keys to limit the sync to (empty = every tagged scenario)."
+    required: false
+    default: ""
+  gherkin_test_type:
+    description: "Xray Test Type set on a non-Gherkin Test before writing its definition."
+    required: false
+    default: "Cucumber"
+  dry_run:
+    description: "List the delta without writing anything to Xray."
+    required: false
+    default: "false"
+  xray_token:
+    description: "Xray API bearer token (optional in dry-run: without it, only the features are parsed)."
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Sync Xray Gherkin definitions
+      shell: bash
+      env:
+        FEATURES_DIR: ${{ inputs.features_dir }}
+        PROJECT_KEY: ${{ inputs.project_key }}
+        TEST_KEYS: ${{ inputs.test_keys }}
+        GHERKIN_TEST_TYPE: ${{ inputs.gherkin_test_type }}
+        DRY_RUN: ${{ inputs.dry_run }}
+        XRAY_TOKEN: ${{ inputs.xray_token }}
+      run: node "${{ github.action_path }}/sync-gherkin.js"

@@ -1,0 +1,53 @@
+meta {
+  name: POST /services - Create service 2 with mandatory properties - HTTP 201
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Service2Name}}",
+    "host_id": {{Host2Id}},
+    "service_template_id": {{ServiceTemplate1Id}}
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Service 2 has been successfully created with mandatory properties only.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("Service2Id", body.id);
+    expect(body).to.include({
+      "name": bru.getEnvVar("Service2Name"),
+      "host_id": parseInt(bru.getEnvVar("Host2Id")),
+      "service_template_id": parseInt(bru.getEnvVar("ServiceTemplate1Id")),
+      "check_timeperiod_id": null,
+      "max_check_attempts": null,
+      "normal_check_interval": null,
+      "retry_check_interval": null,
+      "note": null,
+      "note_url": null,
+      "action_url": null,
+      "icon_id": null,
+      "severity_id": null,
+      "geo_coords": null
+    });
+    expect(body.macros).to.be.an("array").that.is.empty;
+    expect(body.categories).to.be.an("array").that.is.empty;
+    expect(body.groups).to.be.an("array").that.is.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

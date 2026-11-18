@@ -1,0 +1,34 @@
+meta {
+  name: PUT /hosts/groups - Update host group - HTTP 204
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{baseUrlWeb}}/configuration/hosts/groups/{{HostGroup5Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostGroup5Name}}",
+    "alias": "{{HostGroup5Alias}}",
+    "hosts": []
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The host group has been successfully updated by editor, with name '{{HostGroup5Name}}' and alias '{{HostGroup5Alias}}'.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

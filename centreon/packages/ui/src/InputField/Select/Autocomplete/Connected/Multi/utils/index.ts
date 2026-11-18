@@ -1,8 +1,11 @@
 import { buildListingEndpoint } from '../../../../../..';
+import type { BuildListingEndpointParameters } from '../../../../../../api/buildListingEndpoint/models';
 
 export const baseEndpoint = './endpoint';
 
-export const getEndpoint = (parameters): string => {
+export const getEndpoint = (
+  parameters: BuildListingEndpointParameters['parameters']
+): string => {
   return buildListingEndpoint({ baseEndpoint, parameters });
 };
 

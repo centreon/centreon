@@ -1,0 +1,5 @@
+{
+    "poller_id" : 1,
+    "windows_installation_command": "installcma.ps /FINGERPRINT=wwwww  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4318",
+    "linux_installation_command": "installcma.ps /FINGERPRINT=lllllll  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4317"
+  }

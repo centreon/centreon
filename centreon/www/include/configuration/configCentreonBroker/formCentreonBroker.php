@@ -192,7 +192,7 @@ if (isset($_GET['o']) && $_GET['o'] == ADD_BROKER_CONFIGURATION) {
             'stats_activate' => '1',
             'activate' => '1',
             'activate_watchdog' => '1',
-            'bbdo_version' => '3.0.1',
+            'bbdo_version' => '3.1.0',
         ],
         $defaultLog
     );

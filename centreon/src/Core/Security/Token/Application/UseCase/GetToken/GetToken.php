@@ -23,14 +23,17 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Application\UseCase\GetToken;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\JwtToken;
+use Core\Security\Token\Domain\Model\PollerToken;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 final class GetToken
@@ -40,6 +43,7 @@ final class GetToken
     public function __construct(
         private readonly ReadTokenRepositoryInterface $readTokenRepository,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -51,15 +55,19 @@ final class GetToken
                 $userId ?? $this->user->getId()
             );
 
+            if ($token === null && $userId === null && $this->canDisplayAllTokens()) {
+                $token = $this->readTokenRepository->findByNames([$tokenName])[$tokenName] ?? null;
+            }
+
             if (
                 $token === null
-                || $token->getType() !== TokenTypeEnum::CMA
+                || ! in_array($token->getType(), [TokenTypeEnum::CMA, TokenTypeEnum::POLLER], true)
             ) {
 
                 return new NotFoundResponse('Token');
             }
 
-            /** @var JwtToken $token */
+            /** @var JwtToken|PollerToken $token */
             return new GetTokenResponse($token, $token->getToken());
         } catch (\Throwable $ex) {
             $this->error(
@@ -73,5 +81,10 @@ final class GetToken
 
             return new ErrorResponse(TokenException::errorWhileRetrievingObject()->getMessage());
         }
+    }
+
+    private function canDisplayAllTokens(): bool
+    {
+        return $this->adminResolver->isAdmin($this->user) || $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS);
     }
 }

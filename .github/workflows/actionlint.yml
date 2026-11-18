@@ -21,22 +21,29 @@ on:
 jobs:
   action-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Download actionlint
         id: get_actionlint
-        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/v1.7.10/scripts/download-actionlint.bash)
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash)
         shell: bash
 
       - name: Check workflow files
         env:
           SHELLCHECK_OPTS: "--severity=error"
+          ACTIONLINT_EXECUTABLE: ${{ steps.get_actionlint.outputs.executable }}
         run: |
-          ${{ steps.get_actionlint.outputs.executable }} \
-            -ignore 'label "centreon-(collect-arm64|ubuntu-22.04|common|perf-testing)" is unknown' \
+          "$ACTIONLINT_EXECUTABLE" \
+            -ignore 'label "centreon-(collect-arm64|perf-testing)" is unknown' \
+            -ignore 'label "centreon-ubuntu-26\.04[a-z-]*" is unknown' \
             -ignore 'label "infrastructure" is unknown' \
+            -ignore 'label "documentation" is unknown' \
             -ignore '"github.head_ref" is potentially untrusted' \
             -pyflakes= \
             -color
@@ -50,11 +57,15 @@ jobs:
 
   yaml-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.12'
 

@@ -41,16 +41,23 @@ if (isset($_POST['searchMS']) || isset($_GET['searchMS'])) {
 }
 
 // Meta Service list
+$searchBindValues = [];
 $rq = 'SELECT SQL_CALC_FOUND_ROWS * FROM meta_service ';
 if ($search) {
-    $rq .= "WHERE meta_name LIKE '%" . $search . "%' "
+    $rq .= 'WHERE meta_name LIKE :searchName '
         . $acl->queryBuilder('AND', 'meta_id', $metaStr);
+    $searchBindValues[':searchName'] = '%' . $search . '%';
 } else {
     $rq .= $acl->queryBuilder('WHERE', 'meta_id', $metaStr);
 }
-$rq .= ' ORDER BY meta_name LIMIT ' . $num * $limit . ', ' . $limit;
+$rq .= ' ORDER BY meta_name LIMIT ' . (int) ($num * $limit) . ', ' . (int) $limit;
 
-$dbResult = $pearDB->query($rq);
+$stmt = $pearDB->prepare($rq);
+foreach ($searchBindValues as $param => $value) {
+    $stmt->bindValue($param, $value);
+}
+$stmt->execute();
+$dbResult = $stmt;
 $rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
 include './include/common/checkPagination.php';

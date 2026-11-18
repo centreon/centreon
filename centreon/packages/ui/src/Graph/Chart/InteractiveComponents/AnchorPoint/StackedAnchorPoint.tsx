@@ -13,22 +13,25 @@ interface Props {
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
-  hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
 }
 
 interface GetYAnchorPoint {
   stackValues: Array<StackValue>;
   timeTick: Date | null;
-  yScale: ScaleTime<number, number>;
+  yScale: ScaleLinear<number, number> | ScaleTime<number, number>;
 }
 
 const getStackedDates = (stackValues: Array<StackValue>): Array<Date> => {
-  const toTimeTick = (stackValue): string => stackValue?.data?.timeTick;
+  const toTimeTick = (stackValue: { data?: { timeTick: string } }): string =>
+    stackValue?.data?.timeTick as string;
 
   const toDate = (tick: string): Date => new Date(tick);
 
-  return pipe(map(toTimeTick), map(toDate))(stackValues);
+  return pipe(
+    map(toTimeTick),
+    map(toDate)
+  )(stackValues as unknown as Array<{ data?: { timeTick: string } }>);
 };
 
 export const getYAnchorPoint = ({
@@ -38,8 +41,10 @@ export const getYAnchorPoint = ({
 }: GetYAnchorPoint): number | null => {
   const index = bisectDate(getStackedDates(stackValues), timeTick);
   const timeValue = stackValues[index];
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const { key } = stackValues;
 
+  // @ts-expect-error - suppressing pre-existing type mismatch
   if (isNil(timeValue.data[key])) {
     return null;
   }
@@ -53,11 +58,9 @@ const StackedAnchorPoint = ({
   stackValues,
   timeSeries,
   lineColor,
-  hasSecondUnit,
   maxLeftAxisCharacters
 }: Props): JSX.Element | null => {
   const { tickAxisBottom: timeTick } = useTickGraph({
-    hasSecondUnit,
     maxLeftAxisCharacters,
     timeSeries,
     xScale

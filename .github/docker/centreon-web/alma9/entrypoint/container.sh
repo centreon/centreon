@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 #set -e
-set -x
+[ "${DEBUG:-0}" = "1" ] && set -x
 
 # Run each startup script located in BASEDIR.
 # ls is required to ensure that the scripts are properly sorted by name.
@@ -10,7 +10,7 @@ for file in $(find "$BASEDIR" -maxdepth 1 -type f -printf '%f\n' | sort); do
   case "$file" in
     *_background*)
       # Execute background script and store PID
-      if . "$BASEDIR/$file" > /tmp/bg_${file}.log & then
+      if . "$BASEDIR/$file" & then
         pid=$!
         echo $pid >> /tmp/background_pids
       else

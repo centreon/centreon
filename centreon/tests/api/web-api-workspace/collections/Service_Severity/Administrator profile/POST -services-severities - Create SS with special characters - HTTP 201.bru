@@ -1,0 +1,44 @@
+meta {
+  name: POST /services/severities - Create SS with special characters - HTTP 201
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceSeverity3Name}}",
+    "alias": "{{ServiceSeverity3Alias}}",
+    "level": 3,
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The service severity has been successfully created, with name '{{ServiceSeverity3Name}}' and alias '{{ServiceSeverity3Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("ServiceSeverity3Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("ServiceSeverity3Name"),
+      "alias": bru.getEnvVar("ServiceSeverity3Alias"),
+      "level": 3,
+      "icon_id": 1,
+      "is_activated": true
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

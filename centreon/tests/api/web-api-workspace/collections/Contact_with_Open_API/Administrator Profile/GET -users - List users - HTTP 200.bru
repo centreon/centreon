@@ -1,0 +1,27 @@
+meta {
+  name: GET /users - List users - HTTP 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/users
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Administrator can list users.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("result").that.is.an("array");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

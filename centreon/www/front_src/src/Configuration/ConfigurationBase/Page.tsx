@@ -1,28 +1,46 @@
 import { LoadingSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { useAtom, useSetAtom } from 'jotai';
-import { isNil, isNotEmpty, or } from 'ramda';
+import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, isNil, isNotEmpty, or } from 'ramda';
 import { JSX, useLayoutEffect } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { ConfigurationBase } from '../models';
-import { modalStateAtom } from './atoms';
-import { DeleteDialog, DuplicateDialog } from './Dialogs';
+import { configurationAtom, formStateAtom } from './atoms';
+import {
+  DeleteDialog,
+  DuplicateDialog,
+  DuplicateWithNameDialog
+} from './Dialogs';
 import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
 import { Listing } from './Listing';
 import useLoadData from './Listing/useLoadData';
 import { Modal } from './Modal';
+import Navbar from './NavBar';
+import { PanelLayout } from './Panel';
+import useSyncFormStateWithUrl from './useSyncFormStateWithUrl';
+
+interface WelcomePageProps {
+  labels: ConfigurationBase<unknown>['labels']['welcomePage'];
+  dataTestId: string;
+  onCreate: () => void;
+  // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+  filtersAtom: PrimitiveAtom<any>;
+  filtersAtomKey: string;
+  isWelcomePageDisplayedAtom: PrimitiveAtom<boolean>;
+  hasWriteAccess: boolean;
+}
 
 const WelcomePage = ({
-  hasWriteAccess,
   labels,
   dataTestId,
   onCreate,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
-}) => {
+  isWelcomePageDisplayedAtom,
+  hasWriteAccess
+}: WelcomePageProps) => {
   const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
@@ -58,7 +76,11 @@ const Page = <TFilters,>({
   selectedColumnIdsAtom,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
+  isWelcomePageDisplayedAtom,
+  navbar,
+  formVariant = 'modal',
+  formPanelWidth,
+  getRowId
 }: Pick<
   ConfigurationBase<TFilters>,
   | 'columns'
@@ -70,67 +92,100 @@ const Page = <TFilters,>({
   | 'filtersAtom'
   | 'filtersAtomKey'
   | 'isWelcomePageDisplayedAtom'
+  | 'navbar'
+  | 'formVariant'
+  | 'formPanelWidth'
+  | 'getRowId'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
-  const setModalState = useSetAtom(modalStateAtom);
+  const setFormState = useSetAtom(formStateAtom);
+  const isDuplicateWithName =
+    !!useAtomValue(configurationAtom)?.api?.isDuplicateWithName;
   const [isWelcomePageDisplayed, setIsWelcomePageDisplayed] = useAtom(
     isWelcomePageDisplayedAtom
   );
 
   const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
-  const openCreatetModal = (): void => {
+  const hasFormAccess = or(!!actions?.edit, !!actions?.viewDetails);
+  const isFormInPanel = equals(formVariant, 'panel');
+
+  useSyncFormStateWithUrl({ hasFormAccess });
+
+  const openCreateForm = (): void => {
     setSearchParams({ mode: 'add' });
 
-    setModalState({ id: null, isOpen: true, mode: 'add' });
+    setFormState({ id: null, isOpen: true, mode: 'add', resource: null });
 
     setIsWelcomePageDisplayed(false);
   };
 
+  const listing = (
+    <DataTable
+      isEmpty={isWelcomePageDisplayed}
+      variant={isWelcomePageDisplayed ? 'grid' : 'listing'}
+    >
+      {isWelcomePageDisplayed ? (
+        <WelcomePage
+          dataTestId={`create-${resourceType}`}
+          filtersAtom={filtersAtom}
+          filtersAtomKey={filtersAtomKey}
+          hasWriteAccess={!!actions?.edit}
+          isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+          labels={labels.welcomePage}
+          onCreate={openCreateForm}
+        />
+      ) : (
+        <Listing<TFilters>
+          actions={actions}
+          columns={columns}
+          data={data}
+          filtersAtom={filtersAtom}
+          filtersAtomKey={filtersAtomKey}
+          getRowId={getRowId}
+          hasWriteAccess={!!actions?.edit}
+          isLoading={isLoading}
+          selectedColumnIdsAtom={selectedColumnIdsAtom}
+        />
+      )}
+    </DataTable>
+  );
+
   return (
-    <PageLayout>
+    // A positioning context only where the panel needs one: the modules that
+    // keep the modal render exactly the page they rendered before.
+    <PageLayout className={isFormInPanel && hasFormAccess ? 'relative' : ''}>
       <PageLayout.Header>
         <PageHeader>
           <PageHeader.Main>
-            <PageHeader.Title title={labels.title} />
+            <PageHeader.Title
+              description={labels.description}
+              descriptionPosition={labels.description ? 'inline' : 'below'}
+              title={labels.title}
+            />
           </PageHeader.Main>
+          {!!navbar && (
+            <PageHeader.Actions>
+              <Navbar navbar={navbar} />
+            </PageHeader.Actions>
+          )}
         </PageHeader>
       </PageLayout.Header>
-      <PageLayout.Body>
-        <DataTable
-          isEmpty={isWelcomePageDisplayed}
-          variant={isWelcomePageDisplayed ? 'grid' : 'listing'}
-        >
-          {isWelcomePageDisplayed ? (
-            <WelcomePage
-              dataTestId={`create-${resourceType}`}
-              filtersAtom={filtersAtom}
-              filtersAtomKey={filtersAtomKey}
-              hasWriteAccess={!!actions?.edit}
-              isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
-              labels={labels.welcomePage}
-              onCreate={openCreatetModal}
-            />
-          ) : (
-            <Listing<TFilters>
-              actions={actions}
-              columns={columns}
-              data={data}
-              filtersAtom={filtersAtom}
-              filtersAtomKey={filtersAtomKey}
-              hasWriteAccess={!!actions?.edit}
-              isLoading={isLoading}
-              selectedColumnIdsAtom={selectedColumnIdsAtom}
-            />
-          )}
-        </DataTable>
-      </PageLayout.Body>
-      {or(!!actions?.edit, !!actions?.viewDetails) && (
+      <PageLayout.Body>{listing}</PageLayout.Body>
+      {isFormInPanel && hasFormAccess && (
+        <PanelLayout
+          form={form}
+          hasWriteAccess={!!actions?.edit}
+          width={formPanelWidth}
+        />
+      )}
+      {hasFormAccess && !isFormInPanel && (
         <Modal form={form} hasWriteAccess={!!actions?.edit} />
       )}
       {actions?.delete && <DeleteDialog />}
       {actions?.duplicate && <DuplicateDialog />}
+      {actions?.duplicate && isDuplicateWithName && <DuplicateWithNameDialog />}
     </PageLayout>
   );
 };

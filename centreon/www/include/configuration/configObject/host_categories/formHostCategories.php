@@ -105,10 +105,10 @@ switch ($o) {
         $form->addElement('header', 'title', _('Add a host category'));
         break;
     case 'c':
-        $form->addElement('header', 'title', _('Modify a  host category'));
+        $form->addElement('header', 'title', _('Modify a host category'));
         break;
     case 'w':
-        $form->addElement('header', 'title', _('View a  host category'));
+        $form->addElement('header', 'title', _('View a host category'));
         break;
 }
 
@@ -155,7 +155,7 @@ $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 $init = $form->addElement('hidden', 'initialValues');
-$init->setValue(serialize($initialValues));
+$init->setValue(json_encode($initialValues, JSON_THROW_ON_ERROR));
 
 // Form Rules
 function myReplace()

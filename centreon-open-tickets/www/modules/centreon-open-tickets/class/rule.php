@@ -51,9 +51,9 @@ class Centreon_OpenTickets_Rule
             return $result;
         }
 
-        $dbResult = $this->_db->query(
-            "SELECT alias, provider_id FROM mod_open_tickets_rule WHERE rule_id = '" . $rule_id . "' LIMIT 1"
-        );
+        $dbResult = $this->_db->prepare('SELECT alias, provider_id FROM mod_open_tickets_rule WHERE rule_id = :ruleId LIMIT 1');
+        $dbResult->bindValue(':ruleId', (int) $rule_id, PDO::PARAM_INT);
+        $dbResult->execute();
         if (($row = $dbResult->fetch())) {
             $result['alias'] = $row['alias'];
             $result['provider_id'] = $row['provider_id'];
@@ -151,7 +151,7 @@ class Centreon_OpenTickets_Rule
 
             if (! $centreon_bg->is_admin) {
                 $aclGroupIdsCondition = '';
-                foreach (explode(',', str_replace("'", '', $centreon_bg->grouplistStr)) as $aclId) {
+                foreach ($centreon_bg->access->getAccessGroups()->getIds() as $aclId) {
                     if (empty($aclGroupIdsCondition)) {
                         $aclGroupIdsCondition .= ':acl_' . $aclId;
                     } else {
@@ -236,7 +236,7 @@ class Centreon_OpenTickets_Rule
 
             if (! $centreon_bg->is_admin) {
                 $aclGroupIdsCondition = '';
-                foreach (explode(',', str_replace("'", '', $centreon_bg->grouplistStr)) as $aclId) {
+                foreach ($centreon_bg->access->getAccessGroups()->getIds() as $aclId) {
                     if (empty($aclGroupIdsCondition)) {
                         $aclGroupIdsCondition .= ':acl_' . $aclId;
                     } else {
@@ -627,7 +627,7 @@ class Centreon_OpenTickets_Rule
                             ])
                         );
 
-                        $duplicatedRuleId = $this->_db->lastInsertId('mod_open_tickets_rule');
+                        $duplicatedRuleId = $this->_db->lastInsertId();
 
                         // Get form values from initial rule
                         $ruleFormValues = $this->_db->fetchAllAssociative(
@@ -760,13 +760,13 @@ class Centreon_OpenTickets_Rule
     public function getHostgroup($filter)
     {
         $result = [];
-        $where = '';
         if (! is_null($filter) && $filter != '') {
-            $where = " hg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+            $dbResult = $this->_db->prepare("SELECT hg_id, hg_name FROM hostgroup WHERE hg_name LIKE :filter AND hg_activate = '1' ORDER BY hg_name ASC");
+            $dbResult->bindValue(':filter', $filter);
+            $dbResult->execute();
+        } else {
+            $dbResult = $this->_db->query("SELECT hg_id, hg_name FROM hostgroup WHERE hg_activate = '1' ORDER BY hg_name ASC");
         }
-        $dbResult = $this->_db->query(
-            'SELECT hg_id, hg_name FROM hostgroup WHERE ' . $where . " hg_activate = '1' ORDER BY hg_name ASC"
-        );
         while (($row = $dbResult->fetch())) {
             $result[$row['hg_id']] = $row['hg_name'];
         }
@@ -777,13 +777,13 @@ class Centreon_OpenTickets_Rule
     public function getContactgroup($filter)
     {
         $result = [];
-        $where = '';
         if (! is_null($filter) && $filter != '') {
-            $where = " cg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+            $dbResult = $this->_db->prepare("SELECT cg_id, cg_name FROM contactgroup WHERE cg_name LIKE :filter AND cg_activate = '1' ORDER BY cg_name ASC");
+            $dbResult->bindValue(':filter', $filter);
+            $dbResult->execute();
+        } else {
+            $dbResult = $this->_db->query("SELECT cg_id, cg_name FROM contactgroup WHERE cg_activate = '1' ORDER BY cg_name ASC");
         }
-        $dbResult = $this->_db->query(
-            'SELECT cg_id, cg_name FROM contactgroup WHERE ' . $where . " cg_activate = '1' ORDER BY cg_name ASC"
-        );
         while (($row = $dbResult->fetch())) {
             $result[$row['cg_id']] = $row['cg_name'];
         }
@@ -794,13 +794,13 @@ class Centreon_OpenTickets_Rule
     public function getServicegroup($filter)
     {
         $result = [];
-        $where = '';
         if (! is_null($filter) && $filter != '') {
-            $where = " sg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+            $dbResult = $this->_db->prepare("SELECT sg_id, sg_name FROM servicegroup WHERE sg_name LIKE :filter AND sg_activate = '1' ORDER BY sg_name ASC");
+            $dbResult->bindValue(':filter', $filter);
+            $dbResult->execute();
+        } else {
+            $dbResult = $this->_db->query("SELECT sg_id, sg_name FROM servicegroup WHERE sg_activate = '1' ORDER BY sg_name ASC");
         }
-        $dbResult = $this->_db->query(
-            'SELECT sg_id, sg_name FROM servicegroup WHERE ' . $where . " sg_activate = '1' ORDER BY sg_name ASC"
-        );
         while (($row = $dbResult->fetch())) {
             $result[$row['sg_id']] = $row['sg_name'];
         }
@@ -811,16 +811,13 @@ class Centreon_OpenTickets_Rule
     public function getHostcategory($filter)
     {
         $result = [];
-        $where = '';
         if (! is_null($filter) && $filter != '') {
-            $where = " hc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+            $dbResult = $this->_db->prepare("SELECT hc_id, hc_name FROM hostcategories WHERE hc_name LIKE :filter AND hc_activate = '1' ORDER BY hc_name ASC");
+            $dbResult->bindValue(':filter', $filter);
+            $dbResult->execute();
+        } else {
+            $dbResult = $this->_db->query("SELECT hc_id, hc_name FROM hostcategories WHERE hc_activate = '1' ORDER BY hc_name ASC");
         }
-        $dbResult = $this->_db->query(
-            'SELECT hc_id, hc_name
-            FROM hostcategories
-            WHERE ' . $where . " hc_activate = '1'
-            ORDER BY hc_name ASC"
-        );
         while (($row = $dbResult->fetch())) {
             $result[$row['hc_id']] = $row['hc_name'];
         }
@@ -831,17 +828,13 @@ class Centreon_OpenTickets_Rule
     public function getHostseverity($filter)
     {
         $result = [];
-        $where = '';
         if (! is_null($filter) && $filter != '') {
-            $where = " hc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+            $dbResult = $this->_db->prepare("SELECT hc_id, hc_name FROM hostcategories WHERE hc_name LIKE :filter AND level IS NOT NULL AND hc_activate = '1' ORDER BY level ASC");
+            $dbResult->bindValue(':filter', $filter);
+            $dbResult->execute();
+        } else {
+            $dbResult = $this->_db->query("SELECT hc_id, hc_name FROM hostcategories WHERE level IS NOT NULL AND hc_activate = '1' ORDER BY level ASC");
         }
-        $dbResult = $this->_db->query(
-            'SELECT hc_id, hc_name
-            FROM hostcategories
-            WHERE ' . $where . " level IS NOT NULL
-            AND hc_activate = '1'
-            ORDER BY level ASC"
-        );
         while (($row = $dbResult->fetch())) {
             $result[$row['hc_id']] = $row['hc_name'];
         }
@@ -852,16 +845,13 @@ class Centreon_OpenTickets_Rule
     public function getServicecategory($filter)
     {
         $result = [];
-        $where = '';
         if (! is_null($filter) && $filter != '') {
-            $where = " sc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+            $dbResult = $this->_db->prepare("SELECT sc_id, sc_name FROM service_categories WHERE sc_name LIKE :filter AND sc_activate = '1' ORDER BY sc_name ASC");
+            $dbResult->bindValue(':filter', $filter);
+            $dbResult->execute();
+        } else {
+            $dbResult = $this->_db->query("SELECT sc_id, sc_name FROM service_categories WHERE sc_activate = '1' ORDER BY sc_name ASC");
         }
-        $dbResult = $this->_db->query(
-            'SELECT sc_id, sc_name
-            FROM service_categories
-            WHERE ' . $where . " sc_activate = '1'
-            ORDER BY sc_name ASC"
-        );
         while (($row = $dbResult->fetch())) {
             $result[$row['sc_id']] = $row['sc_name'];
         }
@@ -872,17 +862,19 @@ class Centreon_OpenTickets_Rule
     public function getServiceseverity($filter)
     {
         $result = [];
-        $where = '';
         if (! is_null($filter) && $filter != '') {
-            $where = " sc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
+            $dbResult = $this->_db->prepare(
+                "SELECT sc_id, sc_name
+                FROM service_categories
+                WHERE sc_name LIKE :filter AND level IS NOT NULL
+                AND sc_activate = '1'
+                ORDER BY level ASC"
+            );
+            $dbResult->bindValue(':filter', $filter);
+            $dbResult->execute();
+        } else {
+            $dbResult = $this->_db->query("SELECT sc_id, sc_name FROM service_categories WHERE level IS NOT NULL AND sc_activate = '1' ORDER BY level ASC");
         }
-        $dbResult = $this->_db->query(
-            'SELECT sc_id, sc_name
-            FROM service_categories
-            WHERE ' . $where . " level IS NOT NULL
-            AND sc_activate = '1'
-            ORDER BY level ASC"
-        );
         while (($row = $dbResult->fetch())) {
             $result[$row['sc_id']] = $row['sc_name'];
         }

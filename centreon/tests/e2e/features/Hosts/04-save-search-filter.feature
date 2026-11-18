@@ -6,14 +6,14 @@ Feature: Save last search for filter
   Background:
     Given an admin user is logged in a Centreon server
 
-  @TEST_MON-151739
+  @MON-151739
   Scenario: Search a string in host template
     Given a search on the host template listing
     When the user changes page
     And the user goes back to the host template listing
     Then the search on the host template page is filled with the previous search
 
-  @TEST_MON-151740
+  @MON-151740
   Scenario: Search a string in traps
     Given a search on the traps listing
     When the user changes page

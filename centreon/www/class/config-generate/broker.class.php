@@ -36,6 +36,7 @@ class Broker extends AbstractObjectJSON
     use VaultTrait;
     private const STREAM_BBDO_SERVER = 'bbdo_server';
     private const STREAM_BBDO_CLIENT = 'bbdo_client';
+    private const EVENT_SCRIPT_LOGGER_MINIMUM_VERSION = '25.10.3';
 
     /** @var array|null */
     protected $engine = null;
@@ -86,6 +87,7 @@ class Broker extends AbstractObjectJSON
     /** @var string */
     protected $attributes_engine_parameters = '
         id,
+        uid,
         name,
         centreonbroker_module_path,
         centreonbroker_cfg_path,
@@ -109,6 +111,12 @@ class Broker extends AbstractObjectJSON
 
     /** @var CentreonDBStatement|null */
     protected $stmt_engine_parameters = null;
+
+    /** @var CentreonDBStatement|null */
+    protected $stmt_poller_version = null;
+
+    /** @var array<int, string|null> */
+    protected $cachePollerVersion = [];
 
     /** @var array|null */
     protected $cacheExternalValue = null;
@@ -205,6 +213,34 @@ class Broker extends AbstractObjectJSON
     }
 
     /**
+     * @param int $pollerId
+     * @param int|null $pollerUid
+     *
+     * @throws PDOException
+     * @return string|null
+     */
+    private function getPollerVersion(int $pollerId, ?int $pollerUid): ?string
+    {
+        if (! array_key_exists($pollerId, $this->cachePollerVersion)) {
+            if (is_null($this->stmt_poller_version)) {
+                $this->stmt_poller_version = $this->backend_instance->db_cs->prepare(
+                    "SELECT `version` FROM instances
+                    WHERE instance_id IN (:poller_id, :poller_uid)
+                    AND `version` IS NOT NULL AND `version` <> ''
+                    ORDER BY last_alive DESC LIMIT 1"
+                );
+            }
+            $this->stmt_poller_version->bindValue(':poller_id', $pollerId, PDO::PARAM_INT);
+            $this->stmt_poller_version->bindValue(':poller_uid', $pollerUid ?? $pollerId, PDO::PARAM_INT);
+            $this->stmt_poller_version->execute();
+            $version = $this->stmt_poller_version->fetchColumn();
+            $this->cachePollerVersion[$pollerId] = is_string($version) && $version !== '' ? $version : null;
+        }
+
+        return $this->cachePollerVersion[$pollerId];
+    }
+
+    /**
      * @param $poller_id
      * @param $localhost
      * @param mixed $pollerId
@@ -255,6 +291,9 @@ class Broker extends AbstractObjectJSON
             $object['broker_id'] = (int) $row['config_id'];
             $object['broker_name'] = $row['config_name'];
             $object['poller_id'] = (int) $this->engine['id'];
+            if ($this->engine['uid'] !== null) {
+                $object['uid'] = (int) $this->engine['uid'];
+            }
             $object['poller_name'] = $this->engine['name'];
             $object['module_directory'] = (string) $this->engine['broker_modules_path'];
             $object['log_timestamp'] = filter_var($row['config_write_timestamp'], FILTER_VALIDATE_BOOLEAN);
@@ -289,6 +328,21 @@ class Broker extends AbstractObjectJSON
             $object['log']['max_size'] = filter_var($row['log_max_size'], FILTER_VALIDATE_INT);
             $this->getLogsValues();
             $logs = $this->cacheLogValue[$object['broker_id']];
+
+            // brokers < 25.10.3 reject unknown loggers
+            if (isset($logs['event_script'])) {
+                $pollerVersion = $this->getPollerVersion(
+                    (int) $pollerId,
+                    $this->engine['uid'] !== null ? (int) $this->engine['uid'] : null
+                );
+                if (
+                    $pollerVersion === null
+                    || version_compare($pollerVersion, self::EVENT_SCRIPT_LOGGER_MINIMUM_VERSION, '<')
+                ) {
+                    unset($logs['event_script']);
+                }
+            }
+
             $object['log']['loggers'] = $logs;
 
             $reindexedObjectKeys = [];
@@ -325,7 +379,7 @@ class Broker extends AbstractObjectJSON
                         ) {
                             continue;
                         }
-                        if ($subvalue['config_key'] === 'category') {
+                        if (in_array($subvalue['config_key'], ['category', 'event'])) {
                             $object[$key][$subvalue['config_group_id']]['filters'][$subvalue['config_key']][]
                                 = $subvalue['config_value'];
                         } elseif (in_array($subvalue['config_key'], ['rrd_cached_option', 'rrd_cached'])) {
@@ -449,16 +503,42 @@ class Broker extends AbstractObjectJSON
                     $this->processVaultOutput($output, $outputIndex, $object);
                 }
             }
-
             $shouldBeEncrypted = $this->readMonitoringServerRepository->isEncryptionReady($pollerId);
+            $dbSslEnabled = null;
+            if (isset($_ENV['DATABASE_SSL_ENABLED'])) {
+                $dbSslEnabled = filter_var($_ENV['DATABASE_SSL_ENABLED'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                if ($dbSslEnabled === null) {
+                    throw new InvalidArgumentException(
+                        sprintf('Invalid value "%s" for DATABASE_SSL_ENABLED: expected a boolean value.', $_ENV['DATABASE_SSL_ENABLED'])
+                    );
+                }
+            }
+            $dbSslVerifyCert = null;
+            if (isset($_ENV['DATABASE_VERIFY_SERVER_CERT'])) {
+                $dbSslVerifyCert = filter_var($_ENV['DATABASE_VERIFY_SERVER_CERT'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                if ($dbSslVerifyCert === null) {
+                    throw new InvalidArgumentException(
+                        sprintf('Invalid value "%s" for DATABASE_VERIFY_SERVER_CERT: expected a boolean value.', $_ENV['DATABASE_VERIFY_SERVER_CERT'])
+                    );
+                }
+            }
+            $dbSslCa = $_ENV['DATABASE_CA_PATH'] ?? null;
             foreach ($object['output'] as &$output) {
-                if (
-                    ($output['type'] === 'sql' || $output['type'] === 'storage')
-                    && array_key_exists('db_password', $output)
-                ) {
-                    $output['db_password'] = $shouldBeEncrypted
-                        ? 'encrypt::' . $this->engineContextEncryption->crypt($output['db_password'])
-                        : $output['db_password'];
+                if (in_array($output['type'], ['sql', 'storage', 'unified_sql'])) {
+                    if ($dbSslEnabled !== null) {
+                        $output['db_ssl_enabled'] = $dbSslEnabled;
+                    }
+                    if ($dbSslVerifyCert !== null) {
+                        $output['db_ssl_verify_cert'] = $dbSslVerifyCert;
+                    }
+                    if ($dbSslCa !== null) {
+                        $output['db_ssl_ca'] = $dbSslCa;
+                    }
+                    if (array_key_exists('db_password', $output)) {
+                        $output['db_password'] = $shouldBeEncrypted
+                            ? 'encrypt::' . $this->engineContextEncryption->crypt($output['db_password'])
+                            : $output['db_password'];
+                    }
                 }
                 if (! isset($output['lua_parameter']) || ! is_array($output['lua_parameter'])) {
                     continue;
@@ -556,6 +636,7 @@ class Broker extends AbstractObjectJSON
         try {
             $row = $this->stmt_engine_parameters->fetch(PDO::FETCH_ASSOC);
             $this->engine['id'] = $row['id'];
+            $this->engine['uid'] = $row['uid'];
             $this->engine['name'] = $row['name'];
             $this->engine['broker_modules_path'] = $row['centreonbroker_module_path'];
             $this->engine['broker_cfg_path'] = $row['centreonbroker_cfg_path'];
@@ -585,22 +666,19 @@ class Broker extends AbstractObjectJSON
             [$key, $value] = explode('=', $config);
             switch ($key) {
                 case 'D':
-                    $s_db = $value;
+                    $s_db = (string) $value;
                     break;
                 case 'T':
-                    $s_table = $value;
+                    $s_table = (string) $value;
                     break;
                 case 'C':
-                    $s_column = $value;
-                    break;
-                case 'F':
-                    $s_filter = $value;
+                    $s_column = (string) $value;
                     break;
                 case 'K':
-                    $s_key = $value;
+                    $s_key = (string) $value;
                     break;
                 case 'CK':
-                    $s_column_key = $value;
+                    $s_column_key = (string) $value;
                     break;
                 case 'RPN':
                     $s_rpn = $value;
@@ -611,9 +689,16 @@ class Broker extends AbstractObjectJSON
         if (! isset($s_table) || ! isset($s_column)) {
             return false;
         }
+        // Table/column names cannot be bound as parameters: validate them as
+        // strict SQL identifiers to prevent injection through the config string.
+        $s_table = $this->validateSqlIdentifier($s_table);
+        $s_column = $this->validateSqlIdentifier($s_column);
+
+        $hasKeyFilter = isset($s_column_key, $s_key);
         $query = 'SELECT `' . $s_column . '` FROM `' . $s_table . '`';
-        if (isset($s_column_key, $s_key)) {
-            $query .= ' WHERE `' . $s_column_key . "` = '" . $s_key . "'";
+        if ($hasKeyFilter) {
+            $s_column_key = $this->validateSqlIdentifier($s_column_key);
+            $query .= ' WHERE `' . $s_column_key . '` = :key';
         }
 
         // Execute the query
@@ -624,9 +709,16 @@ class Broker extends AbstractObjectJSON
             case 'centreon_storage':
                 $db = $this->backend_instance->db_cs;
                 break;
+            default:
+                throw new InvalidArgumentException(
+                    sprintf('Unknown database "%s"', $s_db)
+                );
         }
 
         $stmt = $db->prepare($query);
+        if ($hasKeyFilter) {
+            $stmt->bindValue(':key', $s_key, PDO::PARAM_STR);
+        }
         $stmt->execute();
 
         $infos = [];
@@ -645,6 +737,28 @@ class Broker extends AbstractObjectJSON
         }
 
         return $infos;
+    }
+
+    /**
+     * Validate a string used as a SQL identifier (table or column name).
+     *
+     * Identifiers cannot be passed as bound parameters, so they must be
+     * restricted to a safe character set before being concatenated into a query.
+     *
+     * @param string $identifier
+     *
+     * @throws InvalidArgumentException
+     * @return string
+     */
+    private function validateSqlIdentifier(string $identifier): string
+    {
+        if (preg_match('/^[A-Za-z0-9_]+$/', $identifier) !== 1) {
+            throw new InvalidArgumentException(
+                sprintf('Invalid SQL identifier "%s"', $identifier)
+            );
+        }
+
+        return $identifier;
     }
 
     /**
@@ -703,8 +817,8 @@ class Broker extends AbstractObjectJSON
      */
     private function getCentreonPlatformUuid(): ?string
     {
-        global $pearDB;
-        $result = $pearDB->query("SELECT `value` FROM informations WHERE `key` = 'uuid'");
+        $db = $this->backend_instance->db;
+        $result = $db->query("SELECT `value` FROM informations WHERE `key` = 'uuid'");
 
         if (! $record = $result->fetch(PDO::FETCH_ASSOC)) {
             return null;
@@ -722,7 +836,7 @@ class Broker extends AbstractObjectJSON
      */
     private function generateAnomalyDetectionLuaParameters(): array
     {
-        global $pearDB;
+        $pearDB = $this->backend_instance->db;
 
         $sql = <<<'SQL'
             SELECT

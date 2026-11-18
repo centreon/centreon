@@ -24,8 +24,9 @@ const DuplicateDialog = (): JSX.Element => {
     duplicatesCount,
     changeDuplicateCount,
     isOpened,
-    bodyContent,
-    headerContent
+    getBodyContent,
+    headerContent,
+    isSingleDuplicate
   } = useDuplicate();
 
   return (
@@ -35,35 +36,37 @@ const DuplicateDialog = (): JSX.Element => {
         <Typography>
           <Trans
             components={{ bold: <strong /> }}
-            defaults={bodyContent.label}
-            values={bodyContent.value}
+            defaults={getBodyContent().label}
+            values={getBodyContent().value}
           />
         </Typography>
-        <div className={classes.duplicationCount}>
-          <Typography className={classes.duplicationCountTitle}>
-            {t(labelDuplications)}
-          </Typography>
-          <NumberField
-            autoSize
-            autoSizeDefaultWidth={20}
-            dataTestId={labelDuplications}
-            defaultValue={duplicatesCount}
-            disabled={isMutating}
-            fallbackValue={1}
-            onChange={changeDuplicateCount}
-            size="compact"
-            textFieldSlotsAndSlotProps={{
-              slotProps: {
-                htmlInput: {
-                  'aria-label': t(labelDuplications),
-                  max: 10,
-                  min: 1
+        {!isSingleDuplicate && (
+          <div className={classes.duplicationCount}>
+            <Typography className={classes.duplicationCountTitle}>
+              {t(labelDuplications)}
+            </Typography>
+            <NumberField
+              autoSize
+              autoSizeDefaultWidth={20}
+              dataTestId={labelDuplications}
+              defaultValue={duplicatesCount}
+              disabled={isMutating}
+              fallbackValue={1}
+              onChange={changeDuplicateCount}
+              size="compact"
+              textFieldSlotsAndSlotProps={{
+                slotProps: {
+                  htmlInput: {
+                    'aria-label': t(labelDuplications),
+                    max: 10,
+                    min: 1
+                  }
                 }
-              }
-            }}
-            type="number"
-          />
-        </div>
+              }}
+              type="number"
+            />
+          </div>
+        )}
       </Modal.Body>
       <Modal.Actions
         disabled={isMutating}

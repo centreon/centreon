@@ -47,7 +47,17 @@ export const lastDayForwardDate = '2023-06-07';
 export const getCustomText = (text: string): string =>
   `<span style="color:#1EA7FD;fontSize:12px">(${text})</span>`;
 
-export const getBodyDescription = ({ key, description, type }): string => {
+interface BodyDescriptionProps {
+  key: string;
+  description: string;
+  type?: string;
+}
+
+export const getBodyDescription = ({
+  key,
+  description,
+  type
+}: BodyDescriptionProps): string => {
   const body = !type
     ? `${description} <br>`
     : `${description} ${getCustomText(type)} <br>`;

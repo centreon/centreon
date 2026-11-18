@@ -52,6 +52,7 @@ return [
             'tests/php/Centreon',
             'tests/php/CentreonLegacy',
             'tests/php/CentreonRemote',
+            'tests/php/EventSubscriber',
             'tests/php/mock',
             'tests/php/Security',
             'tests/php/Utility',

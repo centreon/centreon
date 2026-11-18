@@ -1,0 +1,7 @@
+GetMedia:
+  methods: GET
+  path: /configuration/medias/{mediaId}
+  requirements:
+    mediaId: '\d+'
+  controller: 'Core\Media\Infrastructure\API\GetMedia\GetMediaController'
+  condition: "request.attributes.get('version') >= 25.10"

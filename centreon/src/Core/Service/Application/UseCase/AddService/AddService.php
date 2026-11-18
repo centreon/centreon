@@ -35,13 +35,16 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Contact\Domain\AdminResolver;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
@@ -50,6 +53,7 @@ use Core\Macro\Domain\Model\MacroManager;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
@@ -65,6 +69,7 @@ use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
+use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 
 final class AddService
 {
@@ -94,8 +99,12 @@ final class AddService
         private readonly bool $isCloudPlatform,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         private readonly WriteRealTimeServiceRepositoryInterface $writeRealTimeServiceRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
+        private readonly AdminResolver $adminResolver,
+        private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -119,7 +128,7 @@ final class AddService
                 return;
             }
 
-            if (! $this->user->isAdmin()) {
+            if (! $this->adminResolver->isAdmin($this->user)) {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $this->validation->accessGroups = $this->accessGroups;
             }
@@ -144,7 +153,7 @@ final class AddService
 
                 return;
             }
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $serviceCategories = $this->readServiceCategoryRepository->findByService($newServiceId);
                 $serviceGroups = $this->readServiceGroupRepository->findByService($newServiceId);
             } else {
@@ -214,7 +223,7 @@ final class AddService
             }
             $this->info('Add the macro ' . $macro->getName());
 
-            if ($this->writeVaultRepository->isVaultConfigured() === true && $macro->isPassword() === true) {
+            if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
                 $vaultPaths = $this->writeVaultRepository->upsert(
                     $this->uuid ?? null,
                     ['_SERVICE' . $macro->getName() => $macro->getValue()],
@@ -251,7 +260,7 @@ final class AddService
             }
             if ($command->isCentreonMonitoringAgentCommand()) {
                 $request->checkFreshness = 1;
-                $request->freshnessThreshold = 120;
+                $request->freshnessThreshold = Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
             }
         }
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
@@ -443,6 +452,10 @@ final class AddService
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($monitoringServer->getId());
             }
 
+            $this->adminResolver->isAdmin($this->user)
+                ? $this->writeAccessGroupRepository->updateAclResourcesFlag()
+                : $this->writeAccessGroupRepository->updateAclGroupsFlag($this->accessGroups);
+
             $this->storageEngine->commitTransaction();
 
             return $newServiceId;
@@ -479,9 +492,10 @@ final class AddService
 
         /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
-        if ($checkCommandId !== null) {
+        $effectiveCommandId = $checkCommandId ?? $this->findInheritedCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $checkCommandId,
+                $effectiveCommandId,
                 CommandMacroType::Service
             );
 
@@ -489,11 +503,39 @@ final class AddService
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,
         ];
+    }
+
+    /**
+     * Return the command ID of the first ancestor service template that defines one.
+     *
+     * @param int[] $inheritanceLine
+     *
+     * @throws \Throwable
+     *
+     * @return int|null
+     */
+    private function findInheritedCommandId(array $inheritanceLine): ?int
+    {
+        if ($inheritanceLine === []) {
+            return null;
+        }
+        $templates = $this->readServiceTemplateRepository->findByIds(...$inheritanceLine);
+        $indexed = [];
+        foreach ($templates as $template) {
+            $indexed[$template->getId()] = $template;
+        }
+        foreach ($inheritanceLine as $parentId) {
+            if (isset($indexed[$parentId]) && $indexed[$parentId]->getCommandId() !== null) {
+                return $indexed[$parentId]->getCommandId();
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -47,7 +47,7 @@
     },
     {
       "name": "d-token",
-      "type": "api",
+      "type": "poller",
       "user": {
         "id": 23,
         "name": "Jane Doe"
@@ -92,7 +92,7 @@
     },
     {
       "name": "g-token",
-      "type": "api",
+      "type": "poller",
       "user": {
         "id": 23,
         "name": "Jane Doe"

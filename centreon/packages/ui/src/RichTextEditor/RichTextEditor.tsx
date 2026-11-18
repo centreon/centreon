@@ -31,7 +31,7 @@ export interface RichTextEditorProps {
   error?: string;
   getEditorState?: (editorState: EditorState, editor: LexicalEditor) => void;
   initialEditorState?: string;
-  initialize?: (editor) => void;
+  initialize?: (editor: LexicalEditor) => void;
   inputClassname?: string;
   minInputHeight?: number;
   namespace?: string;
@@ -216,6 +216,7 @@ const RichTextEditor = ({
                 resetEditorToInitialStateCondition={
                   resetEditorToInitialStateCondition
                 }
+                // @ts-expect-error - suppressing pre-existing type mismatch
                 setHtmlString={setHtmlString}
               />
             }

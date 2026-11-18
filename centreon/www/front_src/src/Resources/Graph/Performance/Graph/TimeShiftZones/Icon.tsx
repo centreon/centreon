@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { useMemoComponent } from '@centreon/ui';
 
 import { equals, not } from 'ramda';

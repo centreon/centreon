@@ -39,10 +39,12 @@ const WrapperResourceActions = ({
 
   const onSuccessCheckAction = (): void => {
     showSuccessMessage(t(labelCheckCommandSent));
+    initialize();
   };
 
   const onSuccessForcedCheckAction = (): void => {
     showSuccessMessage(t(labelForcedCheckCommandSent));
+    initialize();
   };
 
   const checkAction: CheckActionModel = {

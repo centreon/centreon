@@ -94,7 +94,7 @@ export interface Props {
   minWidth?: number;
   onClose?: () => void;
   onResize?: (newWidth: number) => void;
-  onTabSelect?: (event, id: number) => void;
+  onTabSelect?: (event: React.SyntheticEvent, id: number) => void;
   selectedTab: ReactElement;
   selectedTabId?: number;
   tabs?: Array<JSX.Element>;
@@ -154,7 +154,7 @@ const Panel = forwardRef(
     };
 
     const moveMouse = useCallback(
-      (e) => {
+      (e: MouseEvent) => {
         e.preventDefault();
 
         const maxWidth = getMaxWidth();

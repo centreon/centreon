@@ -1,0 +1,36 @@
+meta {
+  name: GET /services/groups - Get 1 service group - HTTP 200
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/groups
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The service groups are listed with all of their parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const sg1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("ServiceGroup1Id")));
+    expect(sg1).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "name": bru.getEnvVar("ServiceGroup1Name"),
+      "alias": bru.getEnvVar("ServiceGroup1Alias"),
+      "is_activated": false
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

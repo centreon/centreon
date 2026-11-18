@@ -34,4 +34,4 @@ const disacknowledgeResources =
     });
   };
 
-export { disacknowledgeResources, disacknowledgeEndpoint };
+export { disacknowledgeEndpoint, disacknowledgeResources };

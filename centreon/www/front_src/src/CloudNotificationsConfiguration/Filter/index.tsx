@@ -15,12 +15,12 @@ const Filter = (): JSX.Element => {
   const setSearchValue = useSetAtom(searchAtom);
 
   const searchDebounced = useRef(
-    debounce<(search) => void>((debouncedSearch): void => {
+    debounce<(search: string) => void>((debouncedSearch: string): void => {
       setSearchValue(debouncedSearch);
     }, 500)
   );
 
-  const onChange = ({ target }): void => {
+  const onChange = ({ target }: React.ChangeEvent<HTMLInputElement>): void => {
     searchDebounced.current(target.value);
   };
 

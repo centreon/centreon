@@ -1,0 +1,45 @@
+meta {
+  name: PATCH /services/templates - Update ST3 - HTTP 204
+  type: http
+  seq: 20
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/services/templates/{{ServiceTemplate3Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "macros": [
+      {
+        "name": "key_updated",
+        "value": "value_Updated",
+        "is_password": false,
+        "description": "I was updated"
+      }
+    ],
+    "service_groups": [
+      {
+        "service_group_id": {{ServiceGroup2Id}},
+        "host_template_id": {{HostTemplate2Id}}
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The service template ST3 has been successfully updated.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

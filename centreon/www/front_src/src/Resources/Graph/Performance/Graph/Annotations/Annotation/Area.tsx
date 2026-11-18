@@ -15,7 +15,7 @@ import {
 import Annotation, { Props as AnnotationProps, iconSize, yMargin } from '.';
 
 type Props = {
-  Icon: (props) => JSX.Element;
+  Icon: (props: Record<string, unknown>) => JSX.Element;
   ariaLabel: string;
   color: string;
   endDate: string;

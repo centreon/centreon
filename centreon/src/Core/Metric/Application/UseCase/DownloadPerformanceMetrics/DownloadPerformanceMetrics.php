@@ -100,7 +100,8 @@ final class DownloadPerformanceMetrics
                 $this->debug('Filtering by access groups', ['access_groups' => $accessGroups]);
                 $isServiceExists = $this->readServiceRepository->existsByAccessGroups(
                     $request->serviceId,
-                    $accessGroups
+                    $accessGroups,
+                    $request->hostId,
                 );
                 if (! $isServiceExists) {
                     $this->error(

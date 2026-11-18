@@ -1,0 +1,104 @@
+meta {
+  name: POST /hosts/templates - Add 1st host template - HTTP 201
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostTemplate1Name}}",
+    "alias": "{{HostTemplate1Alias}}",
+    "timezone_id": 1,
+    "severity_id": {{HostSeverity2Id}},
+    "check_timeperiod_id": 1,
+    "note_url": "noteUrl-value",
+    "note": "note-value",
+    "action_url": "actionUrl-value",
+    "max_check_attempts": 3,
+    "normal_check_interval": 5,
+    "retry_check_interval": 2,
+    "icon_id": 1,
+    "categories": [
+          {{HostCategory1Id}}
+    ],
+    "macros": [
+      {
+        "name": "nameA",
+        "value": "valueA",
+        "is_password": false,
+        "description": "some text"
+      },
+      {
+        "name": "nameB",
+        "value": "valueB",
+        "is_password": true,
+        "description": null
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  const body = res.getBody();
+  
+  test("Response schema is valid", function () {
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("id").that.is.a("number");
+    expect(body).to.have.property("name").that.is.a("string").and.equals(bru.getEnvVar("HostTemplate1Name"));
+    expect(body).to.have.property("alias").that.is.an("string").and.equals(bru.getEnvVar("HostTemplate1Alias"));
+    expect(body).to.have.property("timezone_id").that.is.a("number");
+    expect(body).to.have.property("severity_id").that.is.an("number").and.equals(Number(bru.getEnvVar("HostSeverity2Id")));
+    expect(body).to.have.property("check_timeperiod_id").that.is.a("number");
+    expect(body).to.have.property("note_url").that.is.a("string");
+    expect(body).to.have.property("note").that.is.a("string");
+    expect(body).to.have.property("action_url").that.is.a("string");
+    expect(body).to.have.property("max_check_attempts").that.is.a("number");
+    expect(body).to.have.property("normal_check_interval").that.is.a("number");
+    expect(body).to.have.property("retry_check_interval").that.is.a("number");
+    expect(body).to.have.property("icon_id").that.satisfy(
+      v => v === null || typeof v === "number"
+    );
+    expect(body).to.have.property("is_locked").that.is.an("boolean");
+    expect(body).to.have.property("templates").that.is.an("array");
+    expect(body).to.have.property("macros").that.is.an("array");
+  
+    bru.setEnvVar("HostTemplate1Id", body.id);
+  });
+  
+  test("Macros values match the request", function () {
+    const requestBody = req.getBody();
+    const responseMacros = body.macros;
+  
+    requestBody.macros.forEach((sentMacro, index) => {
+      const receivedMacro = responseMacros[index];
+  
+      // API uppercases macro names (Centreon standard behavior)
+      expect(receivedMacro.name).to.equal(sentMacro.name.toUpperCase());
+  
+      // Password macros have their value masked (null) in the response
+      if (sentMacro.is_password) {
+        expect(receivedMacro.value).to.be.null;
+      } else {
+        expect(receivedMacro.value).to.equal(sentMacro.value);
+      }
+  
+      expect(receivedMacro.is_password).to.equal(sentMacro.is_password);
+      expect(receivedMacro.description).to.equal(sentMacro.description);
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

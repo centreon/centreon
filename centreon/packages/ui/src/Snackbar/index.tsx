@@ -30,7 +30,7 @@ const useStyles = makeStyles()((theme) => ({
 
 export interface SnackbarProps {
   id: string | number;
-  message: string;
+  message: string | JSX.Element;
   severity: Severity;
 }
 
@@ -41,7 +41,9 @@ const Snackbar = forwardRef(
   ): JSX.Element => {
     const { classes } = useStyles();
     const { closeSnackbar } = useSnackbar();
-    const timeoutId = useRef<NodeJS.Timeout | undefined>();
+    const timeoutId = useRef<ReturnType<typeof setTimeout> | undefined>(
+      undefined
+    );
 
     useEffect((): void => {
       timeoutId.current = setTimeout(() => {
@@ -55,7 +57,9 @@ const Snackbar = forwardRef(
       }
       closeSnackbar(id);
     };
-    const sanitizedMessage = sanitizedHTML({ initialContent: message });
+    const sanitizedMessage = sanitizedHTML({
+      initialContent: message as string
+    });
 
     const formatedMessage =
       typeof message === 'string' ? <div>{sanitizedMessage}</div> : message;

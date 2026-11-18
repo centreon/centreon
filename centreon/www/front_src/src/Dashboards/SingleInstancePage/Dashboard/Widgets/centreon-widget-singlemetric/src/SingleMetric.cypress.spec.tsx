@@ -301,7 +301,7 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('34%').should('have.css', 'color', 'rgb(46, 104, 170)');
+      cy.contains('34%').should('have.css', 'color', 'rgb(19, 29, 90)');
       cy.contains('Warning: 70%').should('not.exist');
       cy.contains('Critical: 90%').should('not.exist');
 
@@ -426,8 +426,8 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('34%').should('have.css', 'fill', 'rgb(46, 104, 170)');
-      cy.findByTestId('34-bar-#2E68AA').should('be.visible');
+      cy.contains('34%').should('have.css', 'fill', 'rgb(19, 29, 90)');
+      cy.findByTestId('34-bar-#131D5A').should('be.visible');
 
       cy.findByTestId('warning-line-70').should('not.exist');
       cy.findByTestId('critical-line-90').should('not.exist');
@@ -546,8 +546,8 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('34%').should('have.css', 'fill', 'rgb(46, 104, 170)');
-      cy.findByTestId('34-arc').should('have.attr', 'fill', '#2E68AA');
+      cy.contains('34%').should('have.css', 'fill', 'rgb(19, 29, 90)');
+      cy.findByTestId('34-arc').should('have.attr', 'fill', '#131D5A');
 
       cy.findAllByTestId('5-arc').should('not.exist');
 

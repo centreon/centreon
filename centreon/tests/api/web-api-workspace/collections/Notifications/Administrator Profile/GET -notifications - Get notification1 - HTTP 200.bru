@@ -1,0 +1,29 @@
+meta {
+  name: GET /notifications - Get notification1 - HTTP 200
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/notifications/{{Notification1Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Notification1 detail returned correctly.", function () {
+    const body = res.getBody();
+    expect(body.id).to.equal(parseInt(bru.getEnvVar("Notification1Id")));
+    expect(body.name).to.equal(bru.getEnvVar("Notification1Name"));
+    expect(body.is_activated).to.equal(true);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

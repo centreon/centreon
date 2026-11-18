@@ -1,0 +1,39 @@
+meta {
+  name: POST /login - Login with administrator - HTTP 200
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrlWeb}}/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "security": {
+      "credentials": {
+        "login": "{{api_login}}",
+        "password": "{{api_password}}"
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+
+tests {
+  test("Login successful.", function () {
+    bru.setGlobalEnvVar("authToken", res.getBody().security.token);
+    expect(res.status).to.equal(200);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

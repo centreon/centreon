@@ -70,6 +70,10 @@ const reactRoutes = [
   {
     comp: lazy(() => import('../Configuration/HostGroups')),
     path: routeMap.hostGroups
+  },
+  {
+    comp: lazy(() => import('../Configuration/Commands')),
+    path: routeMap.commands
   }
 ];
 

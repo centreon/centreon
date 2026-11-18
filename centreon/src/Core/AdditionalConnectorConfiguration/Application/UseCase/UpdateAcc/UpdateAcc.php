@@ -42,8 +42,9 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Application\VaultEligibilityService;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class UpdateAcc
@@ -65,9 +66,10 @@ final class UpdateAcc
      * @param AccFactory $factory
      * @param DataStorageEngineInterface $dataStorageEngine
      * @param ContactInterface $user
-     * @param FeatureFlags $flags
+     * @param VaultEligibilityService $vaultEligibilityService
      * @param \Traversable<WriteVaultAccRepositoryInterface> $writeVaultAccRepositories
      * @param \Traversable<ReadVaultAccRepositoryInterface> $readVaultAccRepositories
+     * @param WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository
      */
     public function __construct(
         private readonly ReadAccRepositoryInterface $readAccRepository,
@@ -78,9 +80,10 @@ final class UpdateAcc
         private readonly AccFactory $factory,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
-        private readonly FeatureFlags $flags,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         \Traversable $writeVaultAccRepositories,
         \Traversable $readVaultAccRepositories,
+        private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
     ) {
         $this->writeVaultAccRepositories = iterator_to_array($writeVaultAccRepositories);
         $this->readVaultAccRepositories = iterator_to_array($readVaultAccRepositories);
@@ -115,9 +118,19 @@ final class UpdateAcc
 
             $this->validator->validateRequestOrFail($request, $acc);
 
-            $updatedAcc = $this->updateAcc($request, $acc);
+            $decryptedPreviousAcc = $this->retrieveCredentials($acc);
+            $updatedAcc = $this->factory->updateAcc(
+                acc: $decryptedPreviousAcc,
+                name: $request->name,
+                updatedBy: $this->user->getId(),
+                description: $request->description,
+                parameters: $request->parameters
+            );
 
-            if ($this->flags->isEnabled('vault_gorgone')) {
+            $parametersChanged = $decryptedPreviousAcc->getParameters()->getDecryptedData()
+                !== $updatedAcc->getParameters()->getDecryptedData();
+
+            if ($this->vaultEligibilityService->shouldUseVault('vault_gorgone')) {
                 $parameters = $updatedAcc->getParameters();
 
                 foreach ($this->writeVaultAccRepositories as $repository) {
@@ -142,7 +155,7 @@ final class UpdateAcc
                 $updatedAcc = $vaultedAcc;
             }
 
-            $this->update($updatedAcc, $request->pollers);
+            $this->update($updatedAcc, $request->pollers, $parametersChanged);
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (AssertionFailedException|\InvalidArgumentException $ex) {
@@ -192,27 +205,6 @@ final class UpdateAcc
     }
 
     /**
-     * @param UpdateAccRequest $request
-     * @param Acc $acc
-     *
-     * @throws AssertionFailedException
-     *
-     * @return Acc
-     */
-    private function updateAcc(UpdateAccRequest $request, Acc $acc): Acc
-    {
-        $acc = $this->retrieveCredentials($acc);
-
-        return $this->factory->updateAcc(
-            acc: $acc,
-            name: $request->name,
-            updatedBy: $this->user->getId(),
-            description: $request->description,
-            parameters: $request->parameters
-        );
-    }
-
-    /**
      * @param Acc $acc
      *
      * @throws \Throwable
@@ -244,13 +236,20 @@ final class UpdateAcc
     /**
      * @param Acc $acc
      * @param int[] $pollers
+     * @param bool $parametersChanged
      *
      * @throws \Throwable
      */
-    private function update(Acc $acc, array $pollers): void
+    private function update(Acc $acc, array $pollers, bool $parametersChanged): void
     {
         try {
             $this->dataStorageEngine->startTransaction();
+
+            // Get previous pollers before re-linking (they may need VMWare restart too if removed)
+            $previousPollerIds = array_map(
+                static fn (Poller $poller): int => $poller->id,
+                $this->readAccRepository->findPollersByAccId($acc->getId())
+            );
 
             $this->writeAccRepository->update($acc);
             $this->writeAccRepository->removePollers($acc->getId());
@@ -258,6 +257,20 @@ final class UpdateAcc
                 $acc->getId(),
                 $pollers
             );
+
+            // Pollers needing a VMWare restart:
+            //  - if the parameters changed: every poller that had or now has the ACC linked
+            //  - otherwise: only pollers that just gained or lost the link
+            $pollersToNotify = $parametersChanged
+                ? array_values(array_unique(array_merge($previousPollerIds, $pollers)))
+                : array_values(array_unique(array_merge(
+                    array_diff($pollers, $previousPollerIds),
+                    array_diff($previousPollerIds, $pollers)
+                )));
+
+            if ($pollersToNotify !== []) {
+                $this->writeMonitoringServerRepository->notifyVmwareConfigurationChange(...$pollersToNotify);
+            }
 
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {

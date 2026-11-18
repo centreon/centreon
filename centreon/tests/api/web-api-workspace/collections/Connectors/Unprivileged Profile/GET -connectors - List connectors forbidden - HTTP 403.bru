@@ -1,0 +1,27 @@
+meta {
+  name: GET /connectors - List connectors forbidden - HTTP 403
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/connectors
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Unprivileged user cannot list connectors.", function () {
+
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

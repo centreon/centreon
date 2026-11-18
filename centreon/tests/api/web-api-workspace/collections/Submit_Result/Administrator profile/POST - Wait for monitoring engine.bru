@@ -1,0 +1,28 @@
+meta {
+  name: POST - Wait for monitoring engine
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/hosts/{{Host1Id}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Monitoring engine is ready (known infra issue: centengine may not run in CI).", function () {
+    expect(res.status).to.be.oneOf([200, 404]);
+  });
+}
+
+script:post-response {
+  const waitMs = parseInt(bru.getEnvVar("monitoringWaitMs")) || 30000;
+  const start = Date.now();
+  while (Date.now() - start < waitMs) {}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -192,7 +192,7 @@ class HostTemplate extends NewHostTemplate
      */
     public function setAlias(string $alias): void
     {
-        $this->alias = trim($alias);
+        $this->alias = mb_trim($alias);
         Assertion::notEmptyString($this->alias, "{$this->shortName}::alias");
         Assertion::maxLength($this->alias, self::MAX_ALIAS_LENGTH, "{$this->shortName}::alias");
     }
@@ -215,8 +215,6 @@ class HostTemplate extends NewHostTemplate
 
     /**
      * @param SnmpVersion|null $snmpVersion
-     *
-     * @throws AssertionFailedException
      */
     public function setSnmpVersion(SnmpVersion|null $snmpVersion): void
     {
@@ -230,7 +228,7 @@ class HostTemplate extends NewHostTemplate
      */
     public function setSnmpCommunity(string $snmpCommunity): void
     {
-        $this->snmpCommunity = trim($snmpCommunity);
+        $this->snmpCommunity = mb_trim($snmpCommunity);
         Assertion::maxLength($this->snmpCommunity, self::MAX_SNMP_COMMUNITY_LENGTH, "{$this->shortName}::snmpCommunity");
     }
 
@@ -241,7 +239,7 @@ class HostTemplate extends NewHostTemplate
      */
     public function setNote(string $note): void
     {
-        $this->note = trim($note);
+        $this->note = mb_trim($note);
         Assertion::maxLength($this->note, self::MAX_NOTE_LENGTH, "{$this->shortName}::note");
     }
 
@@ -252,7 +250,7 @@ class HostTemplate extends NewHostTemplate
      */
     public function setNoteUrl(string $noteUrl): void
     {
-        $this->noteUrl = trim($noteUrl);
+        $this->noteUrl = mb_trim($noteUrl);
         Assertion::maxLength($this->noteUrl, self::MAX_NOTE_URL_LENGTH, "{$this->shortName}::noteUrl");
     }
 
@@ -263,7 +261,7 @@ class HostTemplate extends NewHostTemplate
      */
     public function setActionUrl(string $actionUrl): void
     {
-        $this->actionUrl = trim($actionUrl);
+        $this->actionUrl = mb_trim($actionUrl);
         Assertion::maxLength($this->actionUrl, self::MAX_ACTION_URL_LENGTH, "{$this->shortName}::actionUrl");
     }
 
@@ -274,7 +272,7 @@ class HostTemplate extends NewHostTemplate
      */
     public function setIconAlternative(string $iconAlternative): void
     {
-        $this->iconAlternative = trim($iconAlternative);
+        $this->iconAlternative = mb_trim($iconAlternative);
         Assertion::maxLength($this->iconAlternative, self::MAX_ICON_ALT_LENGTH, "{$this->shortName}::iconAlternative");
     }
 
@@ -285,7 +283,7 @@ class HostTemplate extends NewHostTemplate
      */
     public function setComment(string $comment): void
     {
-        $this->comment = trim($comment);
+        $this->comment = mb_trim($comment);
         Assertion::maxLength($this->comment, self::MAX_COMMENT_LENGTH, "{$this->shortName}::comment");
     }
 

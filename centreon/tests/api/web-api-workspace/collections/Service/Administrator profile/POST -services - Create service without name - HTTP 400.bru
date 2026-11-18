@@ -1,0 +1,34 @@
+meta {
+  name: POST /services - Create service without name - HTTP 400
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "host_id": {{Host1Id}},
+    "service_template_id": {{ServiceTemplate1Id}}
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service has not been created because the name is missing.", function () {
+    const body = res.getBody();
+    expect(body.message).to.equal("[name] The property name is required\n");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

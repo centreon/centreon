@@ -1,0 +1,3 @@
+CONTACT;ADD;user_super_administrator;user_super_administrator;user_super_administrator@localhost;Centreon!123;1;1;en_US;local
+CONTACT;SETPARAM;user_super_administrator;reach_api;1
+CONTACT;SETPARAM;user_super_administrator;reach_api_rt;1

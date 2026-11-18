@@ -1,0 +1,34 @@
+meta {
+  name: PATCH /hosts - Change host name - HTTP 403
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/hosts/{{Host2Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "hostname-editor-name-patched"
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  const body = res.getBody();
+
+  test("Response is a 403 Forbidden error", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

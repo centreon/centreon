@@ -28,12 +28,18 @@ use App\Shared\Domain\Event\EventInterface;
 
 final class EventBusSpy implements EventBus
 {
+    /** @var ?\Closure(EventInterface): void called on each fire, to observe the state at that moment */
+    public ?\Closure $onFire = null;
+
     /** @var list<EventInterface> */
     private array $events = [];
 
     public function fire(EventInterface $event): void
     {
         $this->events[] = $event;
+        if ($this->onFire instanceof \Closure) {
+            ($this->onFire)($event);
+        }
     }
 
     /**
@@ -55,5 +61,26 @@ final class EventBusSpy implements EventBus
     public function shouldNotHaveDispatched(string $eventClass): bool
     {
         return ! $this->shouldHaveDispatched($eventClass);
+    }
+
+    /**
+     * @return list<class-string<EventInterface>> in firing order
+     */
+    public function getDispatchedEventClasses(): array
+    {
+        return array_map(static fn (EventInterface $event): string => $event::class, $this->events);
+    }
+
+    /**
+     * @template T of EventInterface
+     *
+     * @param class-string<T> $eventClass
+     *
+     * @return list<T>
+     */
+    public function getDispatchedEvents(string $eventClass): array
+    {
+        /** @var list<T> */
+        return array_values(array_filter($this->events, static fn ($event): bool => $event::class === $eventClass));
     }
 }

@@ -41,6 +41,7 @@ use Centreon_Object_Service_Extended;
 use Centreon_Object_Timezone;
 use Core\Host\Domain\Model\NewHost;
 use Exception;
+use PDO;
 use PDOException;
 use Pimple\Container;
 
@@ -1412,6 +1413,7 @@ class CentreonHost extends CentreonObject
      * @param array $fields
      *
      * @throws PDOException
+     * @throws \InvalidArgumentException when a requested field is not allowlisted
      * @return array
      */
     public function getTemplateChain(
@@ -1434,17 +1436,34 @@ class CentreonHost extends CentreonObject
 
             if (empty($fields)) {
                 $fields = ! $allFields ? 'h.host_id, h.host_name' : ' * ';
+            } else {
+                // The SELECT column list cannot be bound as a parameter, so each requested
+                // column is validated against an allowlist to prevent SQL injection.
+                $allowedFields = [
+                    '*', 'h.host_id', 'h.host_name', 'host_id', 'host_name', 'command_command_id',
+                ];
+                $requestedFields = array_map('trim', explode(',', (string) $fields));
+                foreach ($requestedFields as $requestedField) {
+                    if (! in_array($requestedField, $allowedFields, true)) {
+                        throw new \InvalidArgumentException(
+                            sprintf('Invalid field requested in host template chain: %s', $requestedField)
+                        );
+                    }
+                }
+                $fields = implode(', ', $requestedFields);
             }
 
             $sql = 'SELECT ' . $fields . ' '
                 . ' FROM host h, host_template_relation htr'
                 . ' WHERE h.host_id = htr.host_tpl_id'
-                . " AND htr.host_host_id = '" . $hostId . "'"
+                . ' AND htr.host_host_id = :hostId'
                 . " AND host_activate = '1'"
                 . " AND host_register = '0'"
                 . ' ORDER BY `order` ASC';
 
-            $DBRESULT = $this->db->query($sql);
+            $DBRESULT = $this->db->prepare($sql);
+            $DBRESULT->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+            $DBRESULT->execute();
 
             while ($row = $DBRESULT->fetch()) {
                 if (! $allFields) {

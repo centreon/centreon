@@ -1,0 +1,28 @@
+meta {
+  name: GET /monitoring/hosts/categories - List host categories - HTTP 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/hosts/categories
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Unprivileged user gets empty host categories list (no ACL access).", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("result").that.is.an("array");
+    expect(body.result).to.have.lengthOf(0);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

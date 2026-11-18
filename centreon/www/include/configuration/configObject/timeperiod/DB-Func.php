@@ -26,8 +26,9 @@ if (! isset($centreon)) {
 }
 
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Infrastructure\Common\Api\Router;
-use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
@@ -35,33 +36,41 @@ function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
     global $pearDB;
 
     // Insert inclusions
-    if (isset($includeTab) && is_array($includeTab)) {
-        $str = '';
-        foreach ($includeTab as $tpIncludeId) {
-            if ($str != '') {
-                $str .= ', ';
-            }
-            $str .= "('" . $tpId . "', '" . $tpIncludeId . "')";
+    if (isset($includeTab) && is_array($includeTab) && $includeTab !== []) {
+        $placeholders = [];
+        $bindValues = [];
+        foreach (array_values($includeTab) as $i => $tpIncludeId) {
+            $placeholders[] = '(:tpId' . $i . ', :tpIncludeId' . $i . ')';
+            $bindValues[':tpId' . $i] = [(int) $tpId, PDO::PARAM_INT];
+            $bindValues[':tpIncludeId' . $i] = [(int) $tpIncludeId, PDO::PARAM_INT];
         }
-        if (strlen($str)) {
-            $query = 'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id ) VALUES ' . $str;
-            $pearDB->query($query);
+        $stmt = $pearDB->prepare(
+            'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id) VALUES '
+            . implode(', ', $placeholders)
+        );
+        foreach ($bindValues as $param => [$value, $type]) {
+            $stmt->bindValue($param, $value, $type);
         }
+        $stmt->execute();
     }
 
     // Insert exclusions
-    if (isset($excludeTab) && is_array($excludeTab)) {
-        $str = '';
-        foreach ($excludeTab as $tpExcludeId) {
-            if ($str != '') {
-                $str .= ', ';
-            }
-            $str .= "('" . $tpId . "', '" . $tpExcludeId . "')";
+    if (isset($excludeTab) && is_array($excludeTab) && $excludeTab !== []) {
+        $placeholders = [];
+        $bindValues = [];
+        foreach (array_values($excludeTab) as $i => $tpExcludeId) {
+            $placeholders[] = '(:tpId' . $i . ', :tpExcludeId' . $i . ')';
+            $bindValues[':tpId' . $i] = [(int) $tpId, PDO::PARAM_INT];
+            $bindValues[':tpExcludeId' . $i] = [(int) $tpExcludeId, PDO::PARAM_INT];
         }
-        if (strlen($str)) {
-            $query = 'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id ) VALUES ' . $str;
-            $pearDB->query($query);
+        $stmt = $pearDB->prepare(
+            'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id) VALUES '
+            . implode(', ', $placeholders)
+        );
+        foreach ($bindValues as $param => [$value, $type]) {
+            $stmt->bindValue($param, $value, $type);
         }
+        $stmt->execute();
     }
 }
 
@@ -99,10 +108,15 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         global $pearDB;
 
         $fields = [];
-        $dbResult = $pearDB->query("SELECT * FROM timeperiod WHERE tp_id = '" . $key . "' LIMIT 1");
+        $stmt = $pearDB->prepare('SELECT * FROM timeperiod WHERE tp_id = :tpId LIMIT 1');
+        $stmt->bindValue(':tpId', (int) $key, PDO::PARAM_INT);
+        $stmt->execute();
+        $dbResult = $stmt;
 
-        $query = "SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = '" . $key . "'";
-        $res = $pearDB->query($query);
+        $exStmt = $pearDB->prepare('SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :tpId');
+        $exStmt->bindValue(':tpId', (int) $key, PDO::PARAM_INT);
+        $exStmt->execute();
+        $res = $exStmt;
         while ($row = $res->fetch()) {
             foreach ($row as $keyz => $valz) {
                 $fields[$keyz] = $valz;
@@ -200,9 +214,11 @@ function getTimeperiodIdByName($name)
     global $pearDB;
 
     $id = 0;
-    $res = $pearDB->query("SELECT tp_id FROM timeperiod WHERE tp_name = '" . $pearDB->escape($name) . "'");
-    if ($res->rowCount()) {
-        $row = $res->fetch();
+    $stmt = $pearDB->prepare('SELECT tp_id FROM timeperiod WHERE tp_name = :tpName');
+    $stmt->bindValue(':tpName', $name, PDO::PARAM_STR);
+    $stmt->execute();
+    if ($stmt->rowCount()) {
+        $row = $stmt->fetch();
         $id = $row['tp_id'];
     }
 
@@ -423,7 +439,6 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
-    $client = new CurlHttpClient();
 
     $payload = getPayloadForTimePeriod($formData);
     $url = $router->generate(
@@ -432,29 +447,26 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    $headers = [
-        'Content-Type' => 'application/json',
-        'Cookie' => CentreonSession::resolveSessionCookie(),
-    ];
-    $response = $client->request(
-        'POST',
-        $url,
-        [
-            'headers' => $headers,
-            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
-        ],
-    );
+    /** @var ServiceLocator $serviceLocator */
+    $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
 
-    if ($response->getStatusCode() !== 201) {
-        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
-
-        throw new Exception($content->message ?? 'Unexpected return status');
+    if (! $serviceLocator->has('internal_api_client')) {
+        throw new RuntimeException('internal_api_client service is not registered in the service locator');
     }
 
-    $data = $response->toArray();
+    /** @var InternalApiClient $client */
+    $client = $serviceLocator->get('internal_api_client');
 
-    /** @var array{id:int} $data */
-    return $data['id'];
+    $response = $client->request($url, 'POST', CentreonSession::resolveSessionCookie(), $payload);
+
+    if ($response['status_code'] !== 201) {
+        $message = $response['content']['message'] ?? 'Unexpected return status';
+
+        throw new Exception($message);
+    }
+
+    /** @var array{id:int} $response['content'] */
+    return $response['content']['id'];
 }
 
 /**
@@ -506,7 +518,6 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
-    $client = new CurlHttpClient();
 
     $payload = getPayloadForTimePeriod($formData);
     $url = $router->generate(
@@ -515,23 +526,22 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    $headers = [
-        'Content-Type' => 'application/json',
-        'Cookie' => CentreonSession::resolveSessionCookie(),
-    ];
-    $response = $client->request(
-        'PUT',
-        $url,
-        [
-            'headers' => $headers,
-            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
-        ],
-    );
+    /** @var ServiceLocator $serviceLocator */
+    $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
 
-    if ($response->getStatusCode() !== 204) {
-        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
+    if (! $serviceLocator->has('internal_api_client')) {
+        throw new RuntimeException('internal_api_client service is not registered in the service locator');
+    }
 
-        throw new Exception($content->message ?? 'Unexpected return status');
+    /** @var InternalApiClient $client */
+    $client = $serviceLocator->get('internal_api_client');
+
+    $response = $client->request($url, 'PUT', CentreonSession::resolveSessionCookie(), $payload);
+
+    if ($response['status_code'] !== 204) {
+        $message = $response['content']['message'] ?? 'Unexpected return status';
+
+        throw new Exception($message);
     }
 }
 
@@ -573,12 +583,18 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
-    $client = new CurlHttpClient();
 
-    $headers = [
-        'Content-Type' => 'application/json',
-        'Cookie' => CentreonSession::resolveSessionCookie(),
-    ];
+    /** @var ServiceLocator $serviceLocator */
+    $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
+
+    if (! $serviceLocator->has('internal_api_client')) {
+        throw new RuntimeException('internal_api_client service is not registered in the service locator');
+    }
+
+    /** @var InternalApiClient $client */
+    $client = $serviceLocator->get('internal_api_client');
+
+    $sessionCookie = CentreonSession::resolveSessionCookie();
 
     foreach ($timePeriodIds as $id) {
         $url = $router->generate(
@@ -587,11 +603,10 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
 
-        $response = $client->request('DELETE', $url, ['headers' => $headers]);
+        $response = $client->request($url, 'DELETE', $sessionCookie);
 
-        if ($response->getStatusCode() !== 204) {
-            $content = json_decode($response->getContent(false), true);
-            $message = $content['message'] ?? 'Unknown error';
+        if ($response['status_code'] !== 204) {
+            $message = $response['content']['message'] ?? 'Unknown error';
 
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,

@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace Core\Service\Infrastructure\API\FindRealTimeServiceStatusesCount;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Service\Application\UseCase\FindRealTimeServiceStatusesCount\FindRealTimeServiceStatusesCountPresenterInterface;
 use Core\Service\Application\UseCase\FindRealTimeServiceStatusesCount\FindRealTimeServiceStatusesCountResponse;
 
@@ -36,6 +38,9 @@ class FindRealTimeServiceStatusesCountPresenter extends AbstractPresenter implem
     public function presentResponse(FindRealTimeServiceStatusesCountResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
+            if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+                ExceptionLogger::create()->log($response->getException());
+            }
             $this->setResponseStatus($response);
         } else {
             $this->present([

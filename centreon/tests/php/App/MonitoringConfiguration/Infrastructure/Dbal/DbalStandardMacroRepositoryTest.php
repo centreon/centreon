@@ -27,25 +27,43 @@ use App\MonitoringConfiguration\Domain\Aggregate\StandardMacro\StandardMacro;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\StandardMacroCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalStandardMacroRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class DbalStandardMacroRepositoryTest extends KernelTestCase
 {
+    use ClearsInstalledPlatformRows;
+
     private DbalStandardMacroRepository $repository;
 
     protected function setUp(): void
     {
         /** @var DbalStandardMacroRepository $repository */
         $repository = self::getContainer()->get(DbalStandardMacroRepository::class);
-
         $this->repository = $repository;
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->clearInstalledPlatformRows($connection, 'nagios_macro');
+
+        $macros = [
+            [1, '$HOSTNAME$'],
+            [2, '$HOSTALIAS$'],
+            [3, '$HOSTADDRESS$'],
+            [4, '$SERVICENAME$'],
+            [5, '$SERVICEALIAS$'],
+        ];
+        foreach ($macros as [$macroId, $name]) {
+            $connection->insert('nagios_macro', ['macro_id' => $macroId, 'macro_name' => $name]);
+        }
     }
 
     public function testFindAll(): void
     {
         $globalMacros = $this->repository->findAll();
         self::containsOnlyInstancesOf(StandardMacro::class);
-        self::assertCount(110, $globalMacros);
+        self::assertCount(5, $globalMacros);
     }
 
     public function testFindAllWithNameCriteria(): void
@@ -75,8 +93,8 @@ final class DbalStandardMacroRepositoryTest extends KernelTestCase
         self::assertCount(1, $paginator);
         self::assertSame(1, $paginator->getCurrentPage());
         self::assertSame(1, $paginator->getItemsPerPage());
-        self::assertSame(110, $paginator->getTotalItems());
-        self::assertSame(110, $paginator->getLastPage());
+        self::assertSame(5, $paginator->getTotalItems());
+        self::assertSame(5, $paginator->getLastPage());
     }
 
     public function testFindAllWithNameCriteriaAndPagination(): void
@@ -91,8 +109,8 @@ final class DbalStandardMacroRepositoryTest extends KernelTestCase
         self::assertCount(2, $paginator);
         self::assertSame(1, $paginator->getCurrentPage());
         self::assertSame(2, $paginator->getItemsPerPage());
-        self::assertSame(10, $paginator->getTotalItems());
-        self::assertSame(5, $paginator->getLastPage());
+        self::assertSame(4, $paginator->getTotalItems());
+        self::assertSame(2, $paginator->getLastPage());
 
         $criteria = new StandardMacroCriteria();
         $criteria = $criteria->withName('$HOSTALIAS$', StandardMacroCriteria::OPERATOR_EQUAL);

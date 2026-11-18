@@ -12,7 +12,7 @@ const StateChip = ({ label, state }: Props): JSX.Element => {
   const { classes, cx } = useListStyles();
 
   return (
-    <div className={cx(classes.state)}>
+    <div className={cx((classes as Record<string, string>).state)}>
       <Chip
         className={classes.stateChip}
         data-state={state}

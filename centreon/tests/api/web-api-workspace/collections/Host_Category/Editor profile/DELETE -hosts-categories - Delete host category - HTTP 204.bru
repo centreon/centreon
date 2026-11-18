@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /hosts/categories - Delete host category - HTTP 204
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/hosts/categories/{{HostCategory3Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The host category '{{HostCategory3Name}}' has been successfully deleted by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

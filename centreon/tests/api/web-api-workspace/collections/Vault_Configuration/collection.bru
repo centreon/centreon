@@ -1,0 +1,13 @@
+meta {
+  name: Vault_Configuration
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}

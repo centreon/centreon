@@ -1,0 +1,55 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\Upgrade\Infrastructure\ApiPlatform\State;
+
+use ApiPlatform\Metadata\Post;
+use App\Shared\Application\Command\CommandBus;
+use App\Upgrade\Application\Command\UpdateCommand;
+use App\Upgrade\Infrastructure\ApiPlatform\Resource\UpdateResource;
+use App\Upgrade\Infrastructure\ApiPlatform\State\UpdateProcessor;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+
+final class UpdateProcessorTest extends TestCase
+{
+    private CommandBus&MockObject $commandBus;
+
+    private UpdateProcessor $processor;
+
+    protected function setUp(): void
+    {
+        $this->commandBus = $this->createMock(CommandBus::class);
+        $this->processor = new UpdateProcessor($this->commandBus);
+    }
+
+    public function testProcessDispatchesUpdateCommand(): void
+    {
+        $this->commandBus
+            ->expects(self::once())
+            ->method('execute')
+            ->with(self::isInstanceOf(UpdateCommand::class));
+
+        $this->processor->process(new UpdateResource(), new Post());
+    }
+}

@@ -13,6 +13,10 @@ const getSkeleton = cond<Array<InputType>, JSX.Element>([
     always(<LoadingSkeleton height={104} />)
   ],
   [
+    equals(InputType.SegmentedButtons) as (b: InputType) => boolean,
+    always(<LoadingSkeleton height={56} />)
+  ],
+  [
     equals(InputType.Text) as (b: InputType) => boolean,
     always(<LoadingSkeleton height={52} />)
   ],
@@ -46,6 +50,10 @@ const getSkeleton = cond<Array<InputType>, JSX.Element>([
   ],
   [
     equals(InputType.Custom) as (b: InputType) => boolean,
+    always(<LoadingSkeleton height={52} />)
+  ],
+  [
+    equals(InputType.IconSelector) as (b: InputType) => boolean,
     always(<LoadingSkeleton height={52} />)
   ]
 ]);

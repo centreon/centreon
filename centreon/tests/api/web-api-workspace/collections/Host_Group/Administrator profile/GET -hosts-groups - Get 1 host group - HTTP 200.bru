@@ -1,0 +1,42 @@
+meta {
+  name: GET /hosts/groups - Get 1 host group - HTTP 200
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/groups
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("A list of host groups has been successfully fetched.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+    expect(body.result.length).to.be.at.least(1);
+
+    const hg1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostGroup1Id")));
+    expect(hg1).to.eql({
+      "id": parseInt(bru.getEnvVar("HostGroup1Id")),
+      "name": bru.getEnvVar("HostGroup1Name"),
+      "alias": bru.getEnvVar("HostGroup1Alias"),
+      "icon": null,
+      "geo_coords": null,
+      "comment": "Hello world! 1",
+      "is_activated": true,
+      "enabled_hosts_count": 0,
+      "disabled_hosts_count": 0
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

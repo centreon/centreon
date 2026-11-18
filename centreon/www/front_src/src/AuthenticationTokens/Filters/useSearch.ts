@@ -8,7 +8,7 @@ import { filtersAtom } from '../atoms';
 import { Filter } from '../models';
 
 interface UseSearch {
-  onChange: (event) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   filters: Filter;
 }
 
@@ -27,7 +27,7 @@ const useSearch = (): UseSearch => {
     }, 500)
   );
 
-  const onChange = ({ target }): void => {
+  const onChange = ({ target }: React.ChangeEvent<HTMLInputElement>): void => {
     setFilters({ ...filters, name: target.value });
 
     searchDebounced.current(target.value);

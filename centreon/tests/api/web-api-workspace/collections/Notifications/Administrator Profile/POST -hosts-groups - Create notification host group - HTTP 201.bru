@@ -1,0 +1,35 @@
+meta {
+  name: POST /hosts/groups - Create notification host group - HTTP 201
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{NotificationHostGroupName}}",
+    "hosts": []
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Host group created for notifications setup.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("id").that.is.a("number");
+    bru.setEnvVar("NotificationHostGroupId", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

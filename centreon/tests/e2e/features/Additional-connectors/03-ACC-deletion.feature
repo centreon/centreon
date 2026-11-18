@@ -4,7 +4,7 @@ Feature: Delete an Additional Connector Configuration
   I want to visit the Additional Connector Configuration page
   To delete additional connector configuration
 
-  @TEST_MON-150326
+  @MON-150326
   Scenario: Delete an ACC
     Given a non-admin user is in the Additional Connector Configuration page
     And an additional connector configuration is already created
@@ -12,7 +12,7 @@ Feature: Delete an Additional Connector Configuration
     And the user confirms on the pop-up
     Then the additional connector configuration is no longer displayed in the listing page
 
-  @TEST_MON-150327
+  @MON-150327
   Scenario: Cancel a deletion pop-up
     Given a non-admin user is in the Additional Connector Configuration page
     And an additional connector configuration is already created

@@ -16,7 +16,25 @@ const getBaseConfiguration = ({
   postCssBase
 }) => ({
   cache,
-  module: getModuleConfiguration(enableCoverage, postCssBase),
+  module: {
+    ...getModuleConfiguration(enableCoverage, postCssBase),
+    parser: {
+      'css/auto': {
+        namedExports: false
+      },
+      'css/module': {
+        namedExports: false
+      }
+    },
+    generator: {
+      'css/auto': {
+        exportsOnly: false
+      },
+      'css/module': {
+        exportsOnly: false
+      }
+    }
+  },
   optimization,
   output: {
     ...output,
@@ -76,9 +94,6 @@ const getBaseConfiguration = ({
   ].filter(Boolean),
   resolve: {
     alias: {
-      '@centreon/ui/fonts': path.resolve(
-        './node_modules/@centreon/ui/public/fonts'
-      ),
       react: path.resolve('./node_modules/react')
     },
     extensions: ['.js', '.jsx', '.ts', '.tsx']

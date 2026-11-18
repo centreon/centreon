@@ -7,7 +7,7 @@ import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   dateTime: {
-    color: theme.palette.common.white,
+    color: theme.palette.text.primary,
     display: 'flex',
     flexDirection: 'column',
     height: '100%',

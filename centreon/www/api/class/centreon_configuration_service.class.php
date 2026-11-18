@@ -58,14 +58,22 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
         $aclServices = '';
+        $aclServiceBindParams = [];
         $aclMetaServices = '';
         $range = [];
 
         // Get ACL if user is not admin
         if (! $isAdmin) {
-            $acl = new CentreonACL($userId, $isAdmin);
-            $aclServices .= 'AND s.service_id IN (' . $acl->getServicesString('ID', $this->pearDBMonitoring) . ') ';
-            $aclMetaServices .= 'AND ms.service_id IN ('
+            $acl = new CentreonACL($userId, false);
+            $allowedServiceIds = array_map('intval', array_filter(explode(',', $acl->getServicesString('ID', $this->pearDBMonitoring, false)), 'is_numeric'));
+            if ($allowedServiceIds !== []) {
+                $placeholders = array_map(fn ($k) => ':aclSvc' . $k, array_keys($allowedServiceIds));
+                $aclServiceBindParams = array_combine($placeholders, $allowedServiceIds);
+                $aclServices = 'AND s.service_id IN (' . implode(',', $placeholders) . ') ';
+            } else {
+                $aclServices = 'AND 1 = 0 ';
+            }
+            $aclMetaServices = 'AND ms.service_id IN ('
                 . $acl->getMetaServiceString() . ') ';
         }
 
@@ -75,7 +83,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         // Check for service enable
         if (isset($this->arguments['e'])) {
             $enableList = ['enable', 'disable'];
-            if (in_array(strtolower($this->arguments['e']), $enableList)) {
+            if (in_array(mb_strtolower($this->arguments['e']), $enableList, true)) {
                 $e = $this->arguments['e'];
             } else {
                 throw new RestBadRequestException('Error, bad enable status');
@@ -87,7 +95,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         // Check for service type
         if (isset($this->arguments['t'])) {
             $typeList = ['hostgroup', 'host'];
-            if (in_array(strtolower($this->arguments['t']), $typeList)) {
+            if (in_array(mb_strtolower($this->arguments['t']), $typeList, true)) {
                 $t = $this->arguments['t'];
             } else {
                 throw new RestBadRequestException('Error, bad service type');
@@ -100,7 +108,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         $g = false;
         if (isset($this->arguments['g'])) {
             $g = $this->arguments['g'];
-            if ($g == '1') {
+            if ($g === '1') {
                 $g = true;
             }
         }
@@ -108,13 +116,25 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         // Check for service type
         if (isset($this->arguments['s'])) {
             $sTypeList = ['s', 'm', 'all'];
-            if (in_array(strtolower($this->arguments['s']), $sTypeList)) {
+            if (in_array(mb_strtolower($this->arguments['s']), $sTypeList, true)) {
                 $s = $this->arguments['s'];
             } else {
                 throw new RestBadRequestException('Error, bad service type');
             }
         } else {
             $s = 'all';
+        }
+
+        // Check for host filter
+        $hostIds = [];
+        if (isset($this->arguments['host'])) {
+            $hosts = is_array($this->arguments['host']) ? $this->arguments['host'] : [$this->arguments['host']];
+            foreach ($hosts as $hostId) {
+                if (! is_numeric($hostId)) {
+                    throw new RestBadRequestException('Error, host id must be numerical');
+                }
+                $hostIds[] = (int) $hostId;
+            }
         }
 
         if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
@@ -133,10 +153,10 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         switch ($t) {
             default:
             case 'host':
-                $serviceList = $this->getServicesByHost($q, $aclServices, $range, $g, $aclMetaServices, $s, $e);
+                $serviceList = $this->getServicesByHost($q, $aclServices, $aclServiceBindParams, $range, $g, $aclMetaServices, $s, $e, $hostIds);
                 break;
             case 'hostgroup':
-                $serviceList = $this->getServicesByHostgroup($q, $aclServices, $range);
+                $serviceList = $this->getServicesByHostgroup($q, $aclServices, $aclServiceBindParams, $range);
                 break;
         }
 
@@ -151,23 +171,35 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
      * @param $aclMetaServices
      * @param $s
      * @param $e
+     * @param mixed $hostIds
+     * @param mixed $aclServiceBindParams
      * @throws Exception
      * @return array
      */
     private function getServicesByHost(
         $q,
         $aclServices,
+        $aclServiceBindParams = [],
         $range = [],
         $hasGraph = false,
         $aclMetaServices = '',
         $s = 'all',
         $e = 'enable',
+        $hostIds = [],
     ) {
         $queryValues = [];
-        if ($e == 'enable') {
+        $hostFilter = '';
+        $hostBindParams = [];
+        if ($hostIds !== []) {
+            $placeholders = array_map(fn ($k) => ':hostId' . $k, array_keys($hostIds));
+            $hostBindParams = array_combine($placeholders, $hostIds);
+            $hostFilter = 'AND h.host_id IN (' . implode(',', $placeholders) . ') ';
+        }
+
+        if ($e === 'enable') {
             $enableQuery = 'AND s.service_activate = \'1\' AND h.host_activate = \'1\' ';
             $enableQueryMeta = 'AND ms.service_activate = \'1\' AND mh.host_activate = \'1\' ';
-        } elseif ($e == 'disable') {
+        } elseif ($e === 'disable') {
             $enableQuery = 'AND ( s.service_activate = \'0\' OR h.host_activate = \'0\' ) ';
             $enableQueryMeta = 'AND ( ms.service_activate = \'0\' OR mh.host_activate = \'0\') ';
         } else {
@@ -187,7 +219,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
                     . 'AND h.host_register = "1" '
                     . 'AND (s.service_register = "1" OR s.service_register = "3") '
                     . 'AND CONCAT(h.host_name, " - ", s.service_description) LIKE :description '
-                    . $enableQuery . $aclServices . ') '
+                    . $hostFilter . $enableQuery . $aclServices . ') '
                     . 'UNION ALL ( '
                     . 'SELECT DISTINCT CONCAT("Meta - ", ms.display_name) as fullname, ms.service_id, mh.host_id, ms.service_activate '
                     . 'FROM host mh, service ms '
@@ -210,6 +242,12 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
                     $stmt->bindValue(':offset', $queryValues['offset'], PDO::PARAM_INT);
                     $stmt->bindValue(':limit', $queryValues['limit'], PDO::PARAM_INT);
                 }
+                foreach ($hostBindParams as $placeholder => $hostId) {
+                    $stmt->bindValue($placeholder, $hostId, PDO::PARAM_INT);
+                }
+                foreach ($aclServiceBindParams as $placeholder => $serviceId) {
+                    $stmt->bindValue($placeholder, $serviceId, PDO::PARAM_INT);
+                }
                 $dbResult = $stmt->execute();
                 break;
             case 's':
@@ -221,7 +259,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
                     . 'AND h.host_register = "1" '
                     . 'AND (s.service_register = "1" OR s.service_register = "3") '
                     . 'AND CONCAT(h.host_name, " - ", s.service_description) LIKE :description '
-                    . $enableQuery . $aclServices
+                    . $hostFilter . $enableQuery . $aclServices
                     . 'ORDER BY fullname ';
 
                 if (! empty($range)) {
@@ -235,6 +273,12 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
                 if (isset($queryValues['offset'])) {
                     $stmt->bindValue(':offset', $queryValues['offset'], PDO::PARAM_INT);
                     $stmt->bindValue(':limit', $queryValues['limit'], PDO::PARAM_INT);
+                }
+                foreach ($hostBindParams as $placeholder => $hostId) {
+                    $stmt->bindValue($placeholder, $hostId, PDO::PARAM_INT);
+                }
+                foreach ($aclServiceBindParams as $placeholder => $serviceId) {
+                    $stmt->bindValue($placeholder, $serviceId, PDO::PARAM_INT);
                 }
                 $dbResult = $stmt->execute();
                 break;
@@ -297,10 +341,11 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
      * @param $q
      * @param $aclServices
      * @param array $range
+     * @param mixed $aclServiceBindParams
      * @throws Exception
      * @return array
      */
-    private function getServicesByHostgroup($q, $aclServices, $range = [])
+    private function getServicesByHostgroup($q, $aclServices, $aclServiceBindParams = [], $range = [])
     {
         $queryValues = [];
         $queryService = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT CONCAT(hg.hg_name, " - ", s.service_description) '
@@ -323,6 +368,9 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         if (isset($queryValues['offset'])) {
             $stmt->bindValue(':offset', $queryValues['offset'], PDO::PARAM_INT);
             $stmt->bindValue(':limit', $queryValues['limit'], PDO::PARAM_INT);
+        }
+        foreach ($aclServiceBindParams as $placeholder => $serviceId) {
+            $stmt->bindValue($placeholder, $serviceId, PDO::PARAM_INT);
         }
         $dbResult = $stmt->execute();
         if (! $dbResult) {

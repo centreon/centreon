@@ -21,7 +21,7 @@ const muiColorMap: Record<
 type IconButtonProps = {
   disabled?: boolean;
   icon?: string | ReactNode;
-  onClick?: (e) => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   size?: 'small' | 'medium' | 'large';
   variant?: 'primary' | 'secondary' | 'ghost';
 } & AriaLabelingAttributes &
@@ -48,6 +48,7 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     return (
       <MuiIconButton
         className={classes.iconButton}
+        color={muiColorMap[variant]}
         data-size={size}
         data-variant={variant}
         disabled={disabled}
@@ -55,12 +56,11 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         ref={ref}
         size={size}
         {...attr}
-        // Mui overrides
-        color={muiColorMap[variant]}
       >
         {icon}
       </MuiIconButton>
     );
   }
 );
+
 export { IconButton };

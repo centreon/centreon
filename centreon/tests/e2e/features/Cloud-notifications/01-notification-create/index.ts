@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { CopyToContainerContentType } from '../../../../../packages/js-config/cypress/e2e/commands';
@@ -29,20 +30,20 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.loginByTypeOfUser({ jsonName: 'admin' });
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
+    url: `${INTERCEPTORS.api.notifications_configuration}/?page=1&limit=10*`
   }).as('getNotifications');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users?page=1*'
+    url: `${INTERCEPTORS.api.users_configuration}/?page=1*`
   }).as('getUsers');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/timeperiods*'
+    url: `${INTERCEPTORS.api.timeperiods_configuration}*`
   }).as('getTimeperiods');
 
   globalResourceType = '';
@@ -247,12 +248,16 @@ When('the hard state has been reached', () => {
       }
     ]);
   } else {
-    checkServicesAreMonitored(
-      Array.from({ length: 1000 - 13 }, (_, i) => ({
-        name: `service_${i + 13}`,
-        status: 'ok',
-        statusType: 'hard'
-      }))
+    // One count query: a condition per service made the logged query exhaust the browser memory
+    cy.waitUntil(
+      () =>
+        cy
+          .requestOnDatabase({
+            database: 'centreon_storage',
+            query: `SELECT COUNT(resource_id) AS count_services FROM resources WHERE enabled = 1 AND type = 0 AND name REGEXP '^service_[0-9]+$' AND CAST(SUBSTRING(name, 9) AS UNSIGNED) BETWEEN 13 AND 999 AND status = 0 AND status_confirmed = 1`
+          })
+          .then(([rows]) => rows[0].count_services >= 987),
+      { interval: 5000, timeout: 600000 }
     );
   }
 });

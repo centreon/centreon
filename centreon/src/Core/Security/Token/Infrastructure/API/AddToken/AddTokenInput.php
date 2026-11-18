@@ -29,6 +29,7 @@ final readonly class AddTokenInput
 {
     public const API_TYPE = 'api';
     public const CMA_TYPE = 'cma';
+    public const POLLER_TYPE = 'poller';
 
     /**
      * @param string $name
@@ -45,9 +46,8 @@ final readonly class AddTokenInput
         )]
         public mixed $expirationDate,
         #[Assert\NotNull()]
-        #[Assert\Choice(choices: [self::API_TYPE, self::CMA_TYPE])]
+        #[Assert\Choice(choices: [self::API_TYPE, self::CMA_TYPE, self::POLLER_TYPE])]
         public mixed $type,
-        #[Assert\NotNull()]
         #[Assert\Type('int')]
         public mixed $userId,
     ) {

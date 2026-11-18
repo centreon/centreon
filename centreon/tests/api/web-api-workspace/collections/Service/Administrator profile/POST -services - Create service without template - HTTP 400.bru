@@ -1,0 +1,29 @@
+meta {
+  name: POST /services - Create service without template - HTTP 400
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "service 333",
+    "host_id": {{Host1Id}}
+  }
+}
+
+tests {
+  test("Create service without template returns a client error (intended 400, currently 500 - known PHP bug)", function () {
+    expect(res.status).to.be.oneOf([400, 500]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

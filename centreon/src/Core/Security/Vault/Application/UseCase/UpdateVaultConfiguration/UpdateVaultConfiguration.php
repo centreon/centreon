@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
-use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -42,6 +41,7 @@ use Core\Security\Vault\Application\Repository\{
     WriteVaultConfigurationRepositoryInterface
 };
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Webmozart\Assert\InvalidArgumentException;
 
 final class UpdateVaultConfiguration
 {

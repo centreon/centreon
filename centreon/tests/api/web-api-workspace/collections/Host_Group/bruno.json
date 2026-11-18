@@ -1,0 +1,6 @@
+{
+    "version": "1",
+    "name": "Host_Group",
+    "type": "collection",
+    "ignore": ["node_modules", ".git"]
+}

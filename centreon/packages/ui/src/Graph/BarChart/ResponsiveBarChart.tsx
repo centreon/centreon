@@ -91,11 +91,14 @@ const ResponsiveBarChart = ({
   zoomPreview,
   annotationEvent
 }: Props): ReactElement => {
+  const maxLeftAxisCharactersRef = useRef(0);
+  const maxRightAxisCharactersRef = useRef(0);
+
   const { title, timeSeries, baseAxis, lines } = graphData || {};
 
   const { classes, cx } = useTooltipStyles();
 
-  const [linesGraph, setLinesGraph] = useState<Array<Line>>(lines);
+  const [linesGraph, setLinesGraph] = useState<Array<Line>>(lines || []);
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
   const [tooltipData, setTooltipData] = useAtom(tooltipDataAtom);
@@ -109,17 +112,7 @@ const ResponsiveBarChart = ({
   );
 
   const [firstUnit, secondUnit] = getUnits(displayedLines);
-  const allUnits = getUnits(lines);
-
-  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
-    useComputeYAxisMaxCharacters({
-      axis,
-      firstUnit,
-      graphData,
-      secondUnit,
-      thresholds,
-      thresholdUnit
-    });
+  const allUnits = getUnits(lines || []);
 
   const { legendRef, graphWidth, graphHeight, titleRef } =
     useComputeBaseChartDimensions({
@@ -127,7 +120,8 @@ const ResponsiveBarChart = ({
       height,
       legendDisplay: legend?.display,
       legendPlacement: legend?.placement,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      maxLeftAxisCharacters: maxLeftAxisCharactersRef.current,
+      maxRightAxisCharacters: maxRightAxisCharactersRef.current,
       title,
       units: allUnits,
       width
@@ -200,13 +194,29 @@ const ResponsiveBarChart = ({
     ]
   );
 
-  const leftScale = yScalesPerUnit[firstUnit];
-  const rightScale = yScalesPerUnit[secondUnit];
+  const leftScale = yScalesPerUnit[firstUnit ?? allUnits[0]];
+  const rightScale = yScalesPerUnit[secondUnit ?? allUnits[1]];
+
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      axis,
+      base: baseAxis,
+      displayedLines,
+      graphHeight,
+      graphWidth,
+      isHorizontal,
+      leftScale,
+      rightScale
+    });
+
+  maxRightAxisCharactersRef.current = maxRightAxisCharacters;
+  maxLeftAxisCharactersRef.current = maxLeftAxisCharacters;
+
   const pixelsToShift = computPixelsToShiftMouse(xScaleLinear);
 
   useEffect(
     () => {
-      setLinesGraph(lines);
+      setLinesGraph(lines || []);
     },
     useDeepCompare([lines])
   );
@@ -242,17 +252,21 @@ const ResponsiveBarChart = ({
       isHorizontal={isHorizontal}
       legend={{
         displayLegend,
+        // @ts-expect-error - suppressing pre-existing type mismatch
         mode: legend?.mode,
+        // @ts-expect-error - suppressing pre-existing type mismatch
         placement: legend?.placement,
         renderExtraComponent: legend?.renderExtraComponent,
         secondaryClick: legend?.secondaryClick,
         showCalculations: legend?.showCalculations
       }}
+      // @ts-expect-error - suppressing pre-existing type mismatch
       legendRef={legendRef}
       limitLegend={limitLegend}
       lines={linesGraph}
       setLines={setLinesGraph}
       title={title}
+      // @ts-expect-error - suppressing pre-existing type mismatch
       titleRef={titleRef}
     >
       <Tooltip
@@ -282,9 +296,8 @@ const ResponsiveBarChart = ({
             graphHeight={graphHeight}
             graphWidth={graphWidth - (isHorizontal ? 0 : margin.left - 15)}
             gridLinesType={axis?.gridLinesType}
-            hasSecondUnit={Boolean(secondUnit)}
             leftScale={leftScale}
-            maxAxisCharacters={maxLeftAxisCharacters}
+            maxLeftAxisCharacters={maxLeftAxisCharacters}
             orientation={isHorizontal ? 'horizontal' : 'vertical'}
             rightScale={rightScale}
             showGridLines={showGridLines}

@@ -25,9 +25,9 @@ use CentreonLegacy\Core\Menu\Menu;
 
 // Set logging options
 if (defined('E_DEPRECATED')) {
-    ini_set('error_reporting', E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+    ini_set('error_reporting', E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 } else {
-    ini_set('error_reporting', E_ALL & ~E_NOTICE & ~E_STRICT);
+    ini_set('error_reporting', E_ALL & ~E_NOTICE);
 }
 
 // Purge Values

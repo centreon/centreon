@@ -27,9 +27,9 @@ export const useHostConfigurations = (): UseHostConfigurationsState => {
           address: '',
           pollerCaCertificate: '',
           pollerCaName: '',
-          port: '',
+          port: '' as unknown as number,
           token: null
-        },
+        } as HostConfiguration,
         hosts
       )
     );

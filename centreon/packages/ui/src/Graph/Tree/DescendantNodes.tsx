@@ -1,6 +1,7 @@
 import { Group } from '@visx/group';
 import type { HierarchyPointNode } from '@visx/hierarchy/lib/types';
 import { gt, isNil, pluck } from 'ramda';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { useState } from 'react';
 
 import type { BaseProp, Node, TreeProps } from './models';
@@ -26,13 +27,13 @@ const DescendantNodes = <TData extends BaseProp>({
     null
   );
 
-  const mouseDown = (e: MouseEvent): void => {
+  const mouseDown = (e: ReactMouseEvent): void => {
     setPressEventTimeStamp(e.timeStamp);
   };
 
   const mouseUp =
-    (callback) =>
-    (e: MouseEvent): void => {
+    (callback: () => void) =>
+    (e: ReactMouseEvent): void => {
       if (isNil(pressEventTimeStamp)) {
         callback();
 
@@ -64,6 +65,7 @@ const DescendantNodes = <TData extends BaseProp>({
       <Group key={key} left={left} top={top}>
         <foreignObject
           height={nodeSize.height}
+          overflow="visible"
           style={{ userSelect: 'none' }}
           width={nodeSize.width}
           x={-nodeSize.width / 2}

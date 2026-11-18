@@ -105,9 +105,10 @@ function createTranslationFile(
                     $translation .= $matches[2];
                 }
             } elseif (!empty($id) && !empty($translation)) {
-                $englishTranslation[$id] = $id;
-                if (!$isDefaultTranslation) {
-                    // Only if the code of language is not 'en'
+                if ($isDefaultTranslation) {
+                    $englishTranslation[$id] = $translation;
+                } else {
+                    $englishTranslation[$id] = $id;
                     $translations[$id] = $translation;
                 }
                 $id = null;
@@ -119,8 +120,10 @@ function createTranslationFile(
     }
 
     if (!empty($id) && !empty($translation)) {
-        $englishTranslation[$id] = $id;
-        if (!$isDefaultTranslation) {
+        if ($isDefaultTranslation) {
+            $englishTranslation[$id] = $translation;
+        } else {
+            $englishTranslation[$id] = $id;
             $translations[$id] = $translation;
         }
     }
@@ -130,7 +133,7 @@ function createTranslationFile(
         // Only if the code of language is not 'en'
         $final[$languageCode] = $translations;
     }
-    if (0 === file_put_contents($destinationFile, serialize($final))) {
+    if (0 === file_put_contents($destinationFile, json_encode($final))) {
         exit(
             sprintf("Impossible to create destination file '%s'\n", $destinationFile)
         );

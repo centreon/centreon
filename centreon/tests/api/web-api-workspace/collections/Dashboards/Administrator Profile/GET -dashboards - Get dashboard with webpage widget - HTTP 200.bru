@@ -1,0 +1,29 @@
+meta {
+  name: GET /dashboards - Get dashboard with webpage widget - HTTP 200
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Dashboard successfully retrieved with webpage widget.", function () {
+    const body = res.getBody();
+    expect(res.status).to.equal(200);
+    expect(body.name).to.equal("Dashboard-Test-API-1002");
+    expect(body.panels[0].name).to.equal("centreon-widget-webpage");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

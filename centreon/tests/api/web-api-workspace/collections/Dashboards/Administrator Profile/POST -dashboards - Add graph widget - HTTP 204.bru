@@ -1,0 +1,40 @@
+meta {
+  name: POST /dashboards - Add graph widget - HTTP 204
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "panels": [
+      {
+        "id": null,
+        "name": "centreon-widget-graph",
+        "widget_type": "/widgets/graph",
+        "layout": { "x": 0, "y": 0, "width": 5, "height": 3, "min_width": 2, "min_height": 2 },
+        "widget_settings": "{\"data\":{\"resources\":[{\"resourceType\":\"host\",\"resources\":[{\"id\":14,\"name\":\"Centreon-Server\"}]}],\"metrics\":[{\"id\":3,\"name\":\"rtmax\",\"unit\":\"ms\",\"includeAllMetrics\":true}]},\"options\":{\"displayType\":\"bar\",\"refreshInterval\":\"default\",\"showLegend\":true,\"scale\":\"linear\"}}"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Graph widget added successfully.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

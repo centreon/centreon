@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
-import { ColumnType } from '../../../';
+import { type Column, ColumnType } from '../../../';
 import { MemoizedListing } from '../../Listing';
 import Actions from './Actions/Actions';
 import {
@@ -34,7 +34,7 @@ const Listing = <TData extends { id: number; name: string }>({
   const changeSort = useSetAtom(changeSortAtom);
 
   const listingColumns = columns.concat({
-    Component: ColumnActions,
+    Component: ColumnActions as Column['Component'],
     clickable: true,
     id: 'actions',
     label: '',
@@ -47,14 +47,15 @@ const Listing = <TData extends { id: number; name: string }>({
       actions={<Actions filters={filters} labels={labels} />}
       columns={listingColumns}
       currentPage={page}
+      isActionBarVisible
       limit={limit}
       loading={isLoading}
-      onLimitChange={setLimit}
+      onLimitChange={(newLimit) => setLimit(Number(newLimit))}
       onPaginate={setPage}
       onSort={changeSort}
       rows={rows}
       sortField={sortField}
-      sortOrder={sortOrder}
+      sortOrder={sortOrder as 'asc' | 'desc' | undefined}
       subItems={subItems}
       totalRows={total}
     />

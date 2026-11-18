@@ -38,7 +38,7 @@ class PartEngine
      */
     public function createParts($table, $db, $createPastPartitions): void
     {
-        $tableName = '`' . $table->getSchema() . '`.' . $table->getName();
+        $tableName = $this->buildTableName($table);
         if ($table->exists()) {
             throw new Exception('Warning: Table ' . $tableName . " already exists\n");
         }
@@ -55,7 +55,7 @@ class PartEngine
         }
 
         try {
-            $dbResult = $db->query('use `' . $table->getSchema() . '`');
+            $dbResult = $db->query('use `' . $this->sanitizeIdentifier($table->getSchema()) . '`');
         } catch (PDOException $e) {
             throw new Exception(
                 'SQL Error: Cannot use database '
@@ -97,30 +97,34 @@ class PartEngine
             $condition = $this->purgeDailyPartitionCondition($table);
         }
 
-        $tableName = '`' . $table->getSchema() . '`.' . $table->getName();
+        $tableName = $this->buildTableName($table);
         if (! $table->exists()) {
             throw new Exception('Error: Table ' . $tableName . " does not exists\n");
         }
 
-        $request = "SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS
-            WHERE TABLE_NAME='" . $table->getName() . "'
-            AND TABLE_SCHEMA='" . $table->getSchema() . "'
-            AND CONVERT(PARTITION_DESCRIPTION, SIGNED INTEGER) IS NOT NULL ";
+        $request = 'SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS
+            WHERE TABLE_NAME = :tableName
+            AND TABLE_SCHEMA = :tableSchema
+            AND CONVERT(PARTITION_DESCRIPTION, SIGNED INTEGER) IS NOT NULL ';
         $request .= $condition;
 
         try {
-            $dbResult = $db->query($request);
+            $stmt = $db->prepare($request);
+            $stmt->bindValue(':tableName', $table->getName(), PDO::PARAM_STR);
+            $stmt->bindValue(':tableSchema', $table->getSchema(), PDO::PARAM_STR);
+            $stmt->execute();
         } catch (PDOException $e) {
             throw new Exception('Error : Cannot get partitions to purge for table '
                 . $tableName . ', ' . $e->getMessage() . "\n");
         }
 
-        while ($row = $dbResult->fetch()) {
-            $request = 'ALTER TABLE ' . $tableName . ' DROP PARTITION `' . $row['PARTITION_NAME'] . '`;';
+        while ($row = $stmt->fetch()) {
+            $partitionName = $this->sanitizeIdentifier($row['PARTITION_NAME']);
+            $request = 'ALTER TABLE ' . $tableName . ' DROP PARTITION `' . $partitionName . '`;';
             try {
-                $dbResult2 = & $db->query($request);
+                $db->query($request);
             } catch (PDOException $e) {
-                throw new Exception('Error : Cannot drop partition ' . $row['PARTITION_NAME'] . ' of table '
+                throw new Exception('Error : Cannot drop partition ' . $partitionName . ' of table '
                     . $tableName . ', ' . $e->getMessage() . "\n");
             }
         }
@@ -142,7 +146,7 @@ class PartEngine
      */
     public function migrate($table, $db): void
     {
-        $tableName = '`' . $table->getSchema() . '`.' . $table->getName();
+        $tableName = $this->buildTableName($table);
 
         $db->query('SET bulk_insert_buffer_size= 1024 * 1024 * 256');
 
@@ -191,7 +195,7 @@ class PartEngine
      */
     public function updateParts($table, $db): void
     {
-        $tableName = '`' . $table->getSchema() . '`.' . $table->getName();
+        $tableName = $this->buildTableName($table);
 
         // verifying if table is partitioned
         if ($this->isPartitioned($table, $db) === false) {
@@ -218,7 +222,7 @@ class PartEngine
      */
     public function listParts($table, $db, $throwException = true)
     {
-        $tableName = '`' . $table->getSchema() . '`.' . $table->getName();
+        $tableName = $this->buildTableName($table);
         if (! $table->exists()) {
             throw new Exception('Parts list error: Table ' . $tableName . " does not exists\n");
         }
@@ -231,11 +235,14 @@ class PartEngine
         $request .= 'PARTITION_NAME, PARTITION_ORDINAL_POSITION, '
             . 'INDEX_LENGTH, DATA_LENGTH, CREATE_TIME, TABLE_ROWS ';
         $request .= 'FROM information_schema.`PARTITIONS` ';
-        $request .= "WHERE `TABLE_NAME`='" . $table->getName() . "' ";
-        $request .= "AND TABLE_SCHEMA='" . $table->getSchema() . "' ";
+        $request .= 'WHERE `TABLE_NAME` = :tableName ';
+        $request .= 'AND TABLE_SCHEMA = :tableSchema ';
         $request .= 'ORDER BY PARTITION_NAME DESC ';
         try {
-            $dbResult = $db->query($request);
+            $stmt = $db->prepare($request);
+            $stmt->bindValue(':tableName', $table->getName(), PDO::PARAM_STR);
+            $stmt->bindValue(':tableSchema', $table->getSchema(), PDO::PARAM_STR);
+            $stmt->execute();
         } catch (PDOException $e) {
             throw new Exception(
                 'Error : Cannot get table schema information  for '
@@ -244,7 +251,7 @@ class PartEngine
         }
 
         $partitions = [];
-        while ($row = $dbResult->fetch()) {
+        while ($row = $stmt->fetch()) {
             if (! is_null($row['PARTITION_NAME'])) {
                 $row['INDEX_LENGTH'] = round($row['INDEX_LENGTH'] / (1024 * 1024), 2);
                 $row['DATA_LENGTH'] = round($row['DATA_LENGTH'] / (1024 * 1024), 2);
@@ -270,23 +277,30 @@ class PartEngine
      */
     public function backupParts($table, $db): void
     {
-        $tableName = '`' . $table->getSchema() . '`.' . $table->getName();
+        $tableName = $this->buildTableName($table);
         if (! $table->exists()) {
             throw new Exception('Error: Table ' . $tableName . " does not exists\n");
         }
         $format = 'PARTITION_DESCRIPTION';
         if (! is_null($table->getBackupFormat()) && $table->getType() == 'date' && $table->getDuration() == 'daily') {
-            $format = "date_format(FROM_UNIXTIME(PARTITION_DESCRIPTION), '" . $table->getBackupFormat() . "')";
+            $backupFormat = $table->getBackupFormat();
+            if (preg_match('/^[%a-zA-Z\-_\/]+$/', $backupFormat) !== 1) {
+                throw new InvalidArgumentException("Invalid backup format: {$backupFormat}");
+            }
+            $format = "date_format(FROM_UNIXTIME(PARTITION_DESCRIPTION), '" . $backupFormat . "')";
         }
 
         $request = 'SELECT PARTITION_NAME, PARTITION_DESCRIPTION, '
             . $format . ' as filename FROM information_schema.`PARTITIONS` ';
-        $request .= "WHERE `TABLE_NAME`='" . $table->getName() . "' ";
-        $request .= "AND TABLE_SCHEMA='" . $table->getSchema() . "' ";
-        $request .= 'ORDER BY  PARTITION_ORDINAL_POSITION desc ';
+        $request .= 'WHERE `TABLE_NAME` = :tableName ';
+        $request .= 'AND TABLE_SCHEMA = :tableSchema ';
+        $request .= 'ORDER BY PARTITION_ORDINAL_POSITION desc ';
         $request .= 'LIMIT 2';
         try {
-            $dbResult = $db->query($request);
+            $stmt = $db->prepare($request);
+            $stmt->bindValue(':tableName', $table->getName(), PDO::PARAM_STR);
+            $stmt->bindValue(':tableSchema', $table->getSchema(), PDO::PARAM_STR);
+            $stmt->execute();
         } catch (PDOException $e) {
             throw new Exception(
                 'Error : Cannot get table schema information  for '
@@ -297,9 +311,10 @@ class PartEngine
         $filename = $table->getBackupFolder() . '/' . $tableName;
         $start = '';
         $end = '';
-        while ($row = $dbResult->fetch()) {
+        while ($row = $stmt->fetch()) {
             if (! $count) {
-                $filename .= '_' . $row['PARTITION_NAME'] . '_' . $row['filename'];
+                $partName = $this->sanitizeIdentifier($row['PARTITION_NAME']);
+                $filename .= '_' . $partName . '_' . $row['filename'];
                 $end = $row['PARTITION_DESCRIPTION'];
                 $count++;
             } else {
@@ -311,15 +326,23 @@ class PartEngine
         }
         $filename .= '_' . date('Ymd-hi') . '.dump';
 
-        $dbResult->closeCursor();
+        if (str_contains($filename, "'") || str_contains($filename, '..') || preg_match('/[\x00-\x1f;\\\\]/', $filename) === 1) {
+            throw new InvalidArgumentException("Invalid backup filename: {$filename}");
+        }
 
+        $stmt->closeCursor();
+
+        $columnName = $this->sanitizeIdentifier($table->getColumn());
         $request = 'SELECT * FROM ' . $tableName;
-        $request .= ' WHERE ' . $table->getColumn() . ' >= ' . $start;
-        $request .= ' AND ' . $table->getColumn() . ' < ' . $end;
+        $request .= ' WHERE ' . $columnName . ' >= :rangeStart';
+        $request .= ' AND ' . $columnName . ' < :rangeEnd';
         $request .= " INTO OUTFILE '" . $filename . "'";
 
         try {
-            $dbResult = $db->query($request);
+            $stmt = $db->prepare($request);
+            $stmt->bindValue(':rangeStart', $start);
+            $stmt->bindValue(':rangeEnd', $end);
+            $stmt->execute();
         } catch (PDOException $e) {
             throw new Exception(
                 'FATAL : Cannot dump table ' . $tableName
@@ -366,6 +389,10 @@ class PartEngine
             $dbType = match ($versionName) {
                 'MariaDB' => 'mariadb',
                 'MySQL','Source distribution','Percona Server' => 'mysql',
+                // Fallback DBMS-family discriminator for unknown version_comment values, NOT a
+                // minimum-supported-version gate: MariaDB reports 10.x/11.x, MySQL reports 8.x.
+                // The threshold only needs to sit below the lowest supported MariaDB and above the
+                // highest MySQL, so it stays at 10.5.0 to keep classifying platforms mid-upgrade correctly.
                 default => (($versionNumber === null || version_compare($versionNumber, '10.5.0', '>=')) ? 'mariadb' : 'mysql'),
             };
             if ($dbType === 'mysql') {
@@ -389,7 +416,7 @@ class PartEngine
     {
         try {
             $dbResult = $db->query(
-                'SHOW CREATE TABLE `' . $table->getSchema() . '`.`' . $table->getName() . '`'
+                'SHOW CREATE TABLE ' . $this->buildTableName($table)
             );
         } catch (PDOException $e) {
             throw new Exception('Cannot get partition information');
@@ -402,6 +429,21 @@ class PartEngine
         }
 
         return false;
+    }
+
+    private function sanitizeIdentifier(string $name): string
+    {
+        $name = trim(trim($name), '`');
+        if ($name === '' || preg_match('/[;\'"\\\\#]|--|\/\*/', $name) === 1) {
+            throw new InvalidArgumentException("Invalid identifier: {$name}");
+        }
+
+        return $name;
+    }
+
+    private function buildTableName($table): string
+    {
+        return '`' . $this->sanitizeIdentifier($table->getSchema()) . '`.`' . $this->sanitizeIdentifier($table->getName()) . '`';
     }
 
     /**
@@ -562,7 +604,7 @@ class PartEngine
         date_default_timezone_set($table->getTimezone());
         $ltime = localtime();
 
-        $createPart = ' PARTITION BY RANGE(' . $table->getColumn() . ') (';
+        $createPart = ' PARTITION BY RANGE(' . $this->sanitizeIdentifier($table->getColumn()) . ') (';
 
         // Create past partitions if needed (not needed in fresh install)
         $num_days = ($createPastPartitions === true) ? $table->getRetention() : 0;
@@ -624,7 +666,7 @@ class PartEngine
         $error = false;
         try {
             $dbResult = $db->query(
-                'SHOW CREATE TABLE `' . $table->getSchema() . '`.`' . $table->getName() . '`'
+                'SHOW CREATE TABLE ' . $this->buildTableName($table)
             );
         } catch (PDOException $e) {
             $error = true;
@@ -663,7 +705,7 @@ class PartEngine
     {
         // Check if we need to create it
         try {
-            $dbResult = $db->query('SHOW CREATE TABLE `' . $table->getSchema() . '`.`' . $table->getName() . '`');
+            $dbResult = $db->query('SHOW CREATE TABLE ' . $this->buildTableName($table));
         } catch (PDOException $e) {
             throw new Exception(
                 'Error : Cannot get partition maxvalue information for table '

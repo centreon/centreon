@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import serviceMacros from '../../../fixtures/macros/services.json';
 
@@ -21,19 +22,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_host&*'
+    url: `${INTERCEPTORS.pages.centreon_configuration_host}&*`
   }).as('getHostsList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+    url: INTERCEPTORS.api.generate_reload_pollers
   }).as('exportConf');
 });
 
@@ -98,7 +99,16 @@ Then('all the properties, including the macros, are successfully saved', () => {
 
 Then('the export configuration is done with success', () => {
   cy.exportConfig();
-  cy.wait('@exportConf').its('response.statusCode').should('eq', 204);
+  // The export request can be sent twice: wait for one that answered 204
+  cy.waitUntil(
+    () =>
+      cy
+        .get<Array<{ response?: { statusCode: number } }>>('@exportConf.all')
+        .then((calls) =>
+          calls.some((call) => call.response?.statusCode === 204)
+        ),
+    { interval: 1000, timeout: 60000 }
+  );
 });
 
 Then('the macros are exported to the file {string}', (fileName: string) => {
@@ -313,6 +323,17 @@ Given(
 When(
   'the non-admin user creates a new Service Template {string} with {string} as its parent',
   (child: string, parent: string) => {
+    // A retry reuses the containers: remove the template of a previous attempt
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: `SELECT service_id FROM service WHERE service_description = '${child}' AND service_register = '0'`
+    }).then(([rows]) => {
+      if (rows.length > 0) {
+        cy.setUserTokenApiV1().executeActionViaClapi({
+          bodyContent: { action: 'DEL', object: 'STPL', values: child }
+        });
+      }
+    });
     clickToAddService();
     // Fill mandatory fields
     cy.getIframeBody()

@@ -3,7 +3,7 @@ Feature: Filtering resources using regex in dashboard widgets
     I want to configure widgets using regex-based filters
     so that I can display only the relevant hosts or services in my dashboard.
 
-  @TEST_MON-178797
+  @MON-178797
   Scenario: Create and configure a "Group monitoring" widget with regex-based host group selection
     Given a dashboard exists in the dashboard administrator's library
     When the dashboard administrator user selects the option to add a new widget
@@ -16,7 +16,7 @@ Feature: Filtering resources using regex in dashboard widgets
     When the user saves the "Group monitoring" widget
     Then the Group monitoring widget is added in the dashboard's layout
 
-  @TEST_MON-178798
+  @MON-178798
   Scenario: Creating and configuring a "Resource table" widget with regex-based host filtering
     Given a dashboard exists in the dashboard administrator's library
     When the dashboard administrator user selects the option to add a new widget
@@ -26,7 +26,7 @@ Feature: Filtering resources using regex in dashboard widgets
     And the user saves the "Resource table" widget
     Then the resource table widget is added to the dashboard layout and correctly displays the filtered hosts
 
-  @TEST_MON-178799
+  @MON-178799
   Scenario: Create and configure a "Resource Table" widget with regex-based service filtering
     Given a dashboard exists in the dashboard administrator's library
     When the dashboard administrator user selects the option to add a new widget

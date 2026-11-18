@@ -1,0 +1,20 @@
+meta {
+  name: GET /pollers/installation-command - Unknown token name - HTTP 404
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/pollers/installation-command/{{CreatedPollerId}}?token-name={{UnknownPollerTokenName}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 404
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

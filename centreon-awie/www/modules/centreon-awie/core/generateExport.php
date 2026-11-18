@@ -21,7 +21,7 @@
 
 require_once __DIR__ . '/../../../../bootstrap.php';
 
-error_reporting(E_ALL & ~E_STRICT);
+error_reporting(E_ALL);
 ini_set('display_errors', false);
 
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/class/Export.class.php';

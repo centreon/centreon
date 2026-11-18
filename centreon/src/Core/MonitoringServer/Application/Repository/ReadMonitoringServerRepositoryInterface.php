@@ -39,6 +39,17 @@ interface ReadMonitoringServerRepositoryInterface
     public function exists(int $monitoringServerId): bool;
 
     /**
+     * Find the configuration id (nagios_server.id) of a monitoring server from the
+     * instance id reported by Broker, which is the Snowflake uid, or the id for
+     * pollers unaware of the uid.
+     *
+     * @param int $instanceId
+     *
+     * @return int|null
+     */
+    public function findIdByInstanceId(int $instanceId): ?int;
+
+    /**
      * Determine if a monitoring server exists by its ID and access groups.
      *
      * @param int $monitoringServerId

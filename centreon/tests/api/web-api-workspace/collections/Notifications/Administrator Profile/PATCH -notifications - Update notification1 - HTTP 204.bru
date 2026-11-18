@@ -1,0 +1,32 @@
+meta {
+  name: PATCH /notifications - Update notification1 - HTTP 204
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/notifications/{{Notification1Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "is_activated": false
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Notification1 partially updated (deactivated).", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

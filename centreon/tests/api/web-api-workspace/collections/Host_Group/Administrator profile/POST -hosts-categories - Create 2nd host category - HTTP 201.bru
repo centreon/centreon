@@ -1,0 +1,39 @@
+meta {
+  name: POST /hosts/categories - Create 2nd host category - HTTP 201
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostCategory2Name}}",
+    "alias": "{{HostCategory2Alias}}",
+    "is_activated": true
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host category has been successfully created, with name '{{HostCategory2Name}}' and alias '{{HostCategory2Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostCategory2Id", body.id);
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("id").that.is.a("number");
+    expect(body).to.have.property("name").that.equals(bru.getEnvVar("HostCategory2Name"));
+    expect(body).to.have.property("alias").that.equals(bru.getEnvVar("HostCategory2Alias"));
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

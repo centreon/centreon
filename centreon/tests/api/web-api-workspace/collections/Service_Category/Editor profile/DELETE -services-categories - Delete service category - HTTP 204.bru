@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /services/categories - Delete service category - HTTP 204
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/services/categories/{{ServiceCategory4Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The service category '{{ServiceCategory4Name}}' has been successfully deleted by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

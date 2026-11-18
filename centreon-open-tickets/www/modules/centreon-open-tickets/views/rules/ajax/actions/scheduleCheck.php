@@ -28,7 +28,7 @@ $result = [
 $selected_values = explode(',', $get_information['form']['selection']);
 $forced = $get_information['form']['forced'];
 $isService = $get_information['form']['isService'];
-$db_storage = new CentreonDBManager('centstorage');
+$db_storage = new CentreonDB('centstorage');
 
 $problems = [];
 
@@ -39,16 +39,30 @@ $hosts_selected_str = '';
 $hosts_selected_str_append = '';
 $hostsDone = [];
 $servicesDone = [];
-foreach ($selected_values as $value) {
+$queryParams = [];
+foreach ($selected_values as $key => $value) {
     $str = explode(';', $value);
-    $selected_str .= $selected_str_append . 'services.host_id = ' . $str[0] . ' AND services.service_id = ' . $str[1];
+    $hostId = (int) $str[0];
+    $serviceId = (int) ($str[1] ?? 0);
+    $selected_str .= $selected_str_append
+        . 'services.host_id = :host_id_' . $key
+        . ' AND services.service_id = :service_id_' . $key;
+    $queryParams[':host_id_' . $key] = [$hostId, PDO::PARAM_INT];
+    $queryParams[':service_id_' . $key] = [$serviceId, PDO::PARAM_INT];
     $selected_str_append = ' OR ';
 
-    if (! isset($hosts_done[$str[0]])) {
-        $hosts_selected_str .= $hosts_selected_str_append . $str[0];
+    if (! isset($hostsDone[$hostId])) {
+        $hosts_selected_str .= $hosts_selected_str_append . ':hosts_host_id_' . $key;
+        $queryParams[':hosts_host_id_' . $key] = [$hostId, PDO::PARAM_INT];
         $hosts_selected_str_append = ', ';
-        $hosts_done[$str[0]] = 1;
+        $hostsDone[$hostId] = 1;
     }
+}
+
+$accessGroupIds = '';
+if (! $centreon_bg->is_admin) {
+    $ids = $centreon_bg->access->getAccessGroups()->getIds();
+    $accessGroupIds = empty($ids) ? '0' : implode(',', $ids);
 }
 
 $query = '(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id
@@ -60,7 +74,7 @@ if (! $centreon_bg->is_admin) {
     $query .= " AND EXISTS (
         SELECT *
         FROM centreon_acl
-        WHERE centreon_acl.group_id IN ({$centreon_bg->grouplistStr})
+        WHERE centreon_acl.group_id IN ({$accessGroupIds})
         AND hosts.host_id = centreon_acl.host_id
         AND services.service_id = centreon_acl.service_id
     )";
@@ -72,7 +86,7 @@ $query .= ") UNION ALL (
 if (! $centreon_bg->is_admin) {
     $query .= " AND EXISTS (
         SELECT * FROM centreon_acl
-        WHERE centreon_acl.group_id IN ({$centreon_bg->grouplistStr})
+        WHERE centreon_acl.group_id IN ({$accessGroupIds})
         AND hosts.host_id = centreon_acl.host_id
     )";
 }
@@ -80,7 +94,8 @@ $query .= ') ORDER BY `host_name`, `description`';
 
 $hosts_done = [];
 
-$dbResult = $db_storage->query($query);
+$dbResult = $db_storage->prepareQuery($query);
+$db_storage->executePreparedQuery($dbResult, $queryParams, true);
 while (($row = $dbResult->fetch())) {
     if (isset($hosts_done[$row['host_name'] . ';' . $row['description']])) {
         continue;

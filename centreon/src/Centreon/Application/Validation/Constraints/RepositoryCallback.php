@@ -23,6 +23,7 @@ namespace Centreon\Application\Validation\Constraints;
 
 use Centreon\Application\Validation\Validator\RepositoryCallbackValidator;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 
 class RepositoryCallback extends Constraint
 {
@@ -35,20 +36,42 @@ class RepositoryCallback extends Constraint
         self::NOT_VALID_REPO_CALLBACK => 'NOT_VALID_REPO_CALLBACK',
     ];
 
-    /** @var string|null */
-    public $fieldAccessor = null;
+    /**
+     * @param string $errorMessage Validation error message
+     * @param mixed|null $payload
+     */
+    public function __construct(
+        public string $field,
+        public string $fieldAccessor,
+        public string $repository,
+        public string $repositoryMethod,
+        public string $errorMessage,
+        ?array $groups = null,
+        mixed $payload = null,
+    ) {
+        $this->field = trim($this->field);
+        if ($this->field === '') {
+            throw new ConstraintDefinitionException('The field name cannot be empty.');
+        }
+        $this->fieldAccessor = trim($this->fieldAccessor);
+        if ($this->fieldAccessor === '') {
+            throw new ConstraintDefinitionException('The field accessor cannot be empty.');
+        }
+        $this->repository = trim($this->repository);
+        if ($this->repository === '') {
+            throw new ConstraintDefinitionException('The repository cannot be empty.');
+        }
+        $this->repositoryMethod = trim($this->repositoryMethod);
+        if ($this->repositoryMethod === '') {
+            throw new ConstraintDefinitionException('The repository method cannot be empty.');
+        }
+        $this->errorMessage = trim($this->errorMessage);
+        if ($this->errorMessage === '') {
+            throw new ConstraintDefinitionException('The validation error message cannot be empty.');
+        }
 
-    /** @var string|null */
-    public $repoMethod = null;
-
-    /** @var string|null */
-    public $repository = null;
-
-    /** @var string */
-    public $fields = '';
-
-    /** @var string */
-    public $message = 'Does not satisfy validation callback. Check Repository.';
+        parent::__construct(groups: $groups, payload: $payload);
+    }
 
     /**
      * {@inheritDoc}

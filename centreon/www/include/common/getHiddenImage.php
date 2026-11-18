@@ -55,7 +55,7 @@ if (isset($_GET['id']) && $_GET['id'] && is_numeric($_GET['id'])) {
                 switch ($mimeType) {
                     case 'image/jpeg':
                         /**
-                         * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                         * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
                          */
                         $image = @imagecreatefromjpeg($imgPath);
                         if (! $image || ! imagejpeg($image)) {
@@ -74,7 +74,7 @@ if (isset($_GET['id']) && $_GET['id'] && is_numeric($_GET['id'])) {
                         break;
                     case 'image/png':
                         /**
-                         * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                         * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
                          */
                         $image = @imagecreatefrompng($imgPath);
                         if (! $image || ! imagepng($image)) {
@@ -93,7 +93,7 @@ if (isset($_GET['id']) && $_GET['id'] && is_numeric($_GET['id'])) {
                         break;
                     case 'image/gif':
                         /**
-                         * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                         * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
                          */
                         $image = @imagecreatefromgif($imgPath);
                         if (! $image || ! imagegif($image)) {

@@ -11,7 +11,7 @@ interface Props {
   labels: Labels['list'];
 }
 
-const Stats = ({ labels }: Props): JSX.Element => {
+const Stats = ({ labels }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { hasStats, addedItems, updatedItems, removedItems } =
     useAtomValue(statsDerivedAtom);

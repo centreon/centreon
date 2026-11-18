@@ -18,7 +18,7 @@ const useStyles = makeStyles()(() => ({
 
 interface Props {
   Chip: () => JSX.Element;
-  children: (props?) => JSX.Element;
+  children: (props?: Record<string, unknown>) => JSX.Element;
   isHovered?: boolean;
   label: string;
   onClick?: () => void;

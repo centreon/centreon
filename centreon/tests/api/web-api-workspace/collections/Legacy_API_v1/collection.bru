@@ -1,0 +1,13 @@
+meta {
+  name: Legacy_API_v1
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}

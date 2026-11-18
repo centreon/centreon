@@ -4,6 +4,7 @@ import {
   Then,
   When
 } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 const token = {
   duration: '7 days',
@@ -16,15 +17,15 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: 'centreon/api/latest/administration/tokens?*'
+    url: `${INTERCEPTORS.api.administration_tokens}?*`
   }).as('getTokens');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users?*'
+    url: `${INTERCEPTORS.api.users_configuration}?*`
   }).as('getUsers');
 });
 
@@ -42,7 +43,7 @@ Given('I am on the Authentication tokens page', () => {
 });
 
 When('I click on the "Add" button', () => {
-  cy.getByLabel({ label: 'create' }).click();
+  cy.getByLabel({ label: 'Add' }).click();
 });
 
 When('I fill in the following required fields', (dataTable: DataTable) => {
@@ -89,7 +90,7 @@ Then(
 );
 
 Given('a basic Authentication token is generated', () => {
-  cy.getByLabel({ label: 'create' }).click();
+  cy.getByLabel({ label: 'Add' }).click();
 
   cy.get('#Name').type(token.name);
 

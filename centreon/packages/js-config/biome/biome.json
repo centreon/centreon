@@ -72,7 +72,9 @@
         "noUnknownFunction": "error",
         "useIsNan": "error"
       },
-      "nursery": {},
+      "nursery": {
+        "useReactCompiler": "info"
+      },
       "suspicious": {
         "noConsole": "error",
         "useAwait": "error"

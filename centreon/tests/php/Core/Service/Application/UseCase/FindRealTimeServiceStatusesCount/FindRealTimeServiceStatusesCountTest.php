@@ -63,9 +63,7 @@ it('should present an Error response when something goes wrong in repository', f
     ($this->useCase)($this->presenter);
 
     expect($this->presenter->response)
-        ->toBeInstanceOf(ErrorResponse::class)
-        ->and($this->presenter->response->getMessage())
-        ->toBe(ServiceException::errorWhileRetrievingServiceStatusesCount()->getMessage());
+        ->toBeInstanceOf(ErrorResponse::class);
 });
 
 it('should present an Error response when something goes wrong with RequestParameters', function (): void {

@@ -17,8 +17,10 @@ const useCreate = (): UseCreateProps => {
   const endpoint = configuration?.api?.endpoints?.create as string;
 
   const queryClient = useQueryClient();
+  const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
 
   const { mutateAsync } = useMutationQuery({
+    baseEndpoint: writeBaseEndpoint,
     getEndpoint: () => endpoint,
     method: Method.POST,
     onSuccess: () => {
@@ -26,7 +28,9 @@ const useCreate = (): UseCreateProps => {
       queryClient.resetQueries({ queryKey: ['getDetails'] });
     }
   });
-  const createMutation = (payload) => {
+  const createMutation = (
+    payload: Record<string, string | Array<number> | object | null>
+  ) => {
     return mutateAsync({
       payload
     });

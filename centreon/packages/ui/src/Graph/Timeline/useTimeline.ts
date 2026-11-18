@@ -1,5 +1,6 @@
 import { usePluralizedTranslation } from '@centreon/ui';
 
+import type { ScaleTime } from 'd3-scale';
 import dayjs, { type Dayjs } from 'dayjs';
 import { lt } from 'ramda';
 import { useCallback } from 'react';
@@ -19,7 +20,7 @@ interface StartEndProps {
 
 interface GetWidthProps extends StartEndProps {
   timezone: string;
-  xScale;
+  xScale: ScaleTime<number, number>;
 }
 
 interface UseTimelineState {

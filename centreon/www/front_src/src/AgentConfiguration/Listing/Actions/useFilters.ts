@@ -1,12 +1,17 @@
 import { SelectEntry } from '@centreon/ui';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { useAtom } from 'jotai';
-import { equals, isNil, map, pick, propEq, reject } from 'ramda';
-import { useEffect, useState } from 'react';
+import { useAtom, useSetAtom } from 'jotai';
+import { equals, isNil, map, pick } from 'ramda';
+import { SyntheticEvent, useEffect, useState } from 'react';
 
-import { filtersAtom } from '../../atoms';
-import { filtersInitialValues } from '../../utils';
+import {
+  changeFilterAtom,
+  deleteFilterEntryAtom,
+  filtersAtom,
+  pageAtom
+} from '../../atoms';
+import { FiltersState, filtersInitialValues } from '../../utils';
 
 type NamedEntity = {
   id: number;
@@ -15,15 +20,18 @@ type NamedEntity = {
 
 interface UseFiltersState {
   isClearDisabled: boolean;
-  changeName: (event) => void;
-  changeTypes: (_, types: Array<SelectEntry>) => void;
-  changerPollers: (_, values) => void;
-  deletePoller: (_, item) => void;
-  deleteType: (_, item) => void;
-  isOptionEqualToValue: (option, selectedValue) => boolean;
+  changeName: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  changeTypes: (_: SyntheticEvent, types: Array<SelectEntry>) => void;
+  changerPollers: (_: SyntheticEvent, values: Array<SelectEntry>) => void;
+  deletePoller: (_: SyntheticEvent, item: SelectEntry) => void;
+  deleteType: (_: SyntheticEvent, item: SelectEntry) => void;
+  isOptionEqualToValue: (
+    option: SelectEntry,
+    selectedValue: SelectEntry
+  ) => boolean;
   reload: () => void;
   reset: () => void;
-  filters;
+  filters: FiltersState;
 }
 
 export const useFilters = (): UseFiltersState => {
@@ -32,46 +40,49 @@ export const useFilters = (): UseFiltersState => {
   const [isClearClicked, setIsClearClicked] = useState(false);
 
   const [filters, setFilters] = useAtom(filtersAtom);
+  const setPage = useSetAtom(pageAtom);
+  const changeFilter = useSetAtom(changeFilterAtom);
+  const deleteFilterEntry = useSetAtom(deleteFilterEntryAtom);
 
   const isClearDisabled = equals(filters, filtersInitialValues);
 
-  const changeName = (event): void => {
-    setFilters({ ...filters, name: event.target.value });
+  const changeName = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    changeFilter({ field: 'name', newEntries: event.target.value });
   };
 
-  const changeTypes = (_, types: Array<SelectEntry>): void => {
+  const changeTypes = (_: SyntheticEvent, types: Array<SelectEntry>): void => {
     const selectedTypes = map(
       pick(['id', 'name']),
       types || []
     ) as Array<NamedEntity>;
 
-    setFilters({ ...filters, type: selectedTypes });
+    changeFilter({ field: 'type', newEntries: selectedTypes });
   };
 
-  const changerPollers = (_, values): void => {
-    const pollers = map(pick(['id', 'name']), values);
-    setFilters({ ...filters, 'poller.id': pollers });
+  const changerPollers = (
+    _: SyntheticEvent,
+    values: Array<SelectEntry>
+  ): void => {
+    const pollers = map(
+      pick(['id', 'name']),
+      values || []
+    ) as Array<NamedEntity>;
+
+    changeFilter({ field: 'poller.id', newEntries: pollers });
   };
 
-  const deletePoller = (_, item): void => {
-    const pollers = reject(
-      ({ name }) => equals(item.name, name),
-      filters['poller.id']
-    );
-
-    setFilters({ ...filters, 'poller.id': pollers });
+  const deletePoller = (_: SyntheticEvent, item: SelectEntry): void => {
+    deleteFilterEntry({ entryToDelete: item, field: 'poller.id' });
   };
 
-  const deleteType = (_, option): void => {
-    const newItems = reject(propEq(option.id, 'id'), filters.type);
-
-    setFilters({
-      ...filters,
-      type: newItems
-    });
+  const deleteType = (_: SyntheticEvent, option: SelectEntry): void => {
+    deleteFilterEntry({ entryToDelete: option, field: 'type' });
   };
 
-  const isOptionEqualToValue = (option, selectedValue): boolean => {
+  const isOptionEqualToValue = (
+    option: SelectEntry,
+    selectedValue: SelectEntry
+  ): boolean => {
     return isNil(option)
       ? false
       : equals(option.name.toString(), selectedValue.name.toString());
@@ -83,6 +94,7 @@ export const useFilters = (): UseFiltersState => {
 
   const reset = (): void => {
     setFilters(filtersInitialValues);
+    setPage(0);
 
     setIsClearClicked(true);
   };

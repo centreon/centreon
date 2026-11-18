@@ -94,7 +94,7 @@
         'min-width': '360px',
       });
       formSpan.find('.select2-selection--multiple .select2-selection__rendered').css({
-        'resize': 'vertical'
+        'resize': 'both'
       });
     },
     /**

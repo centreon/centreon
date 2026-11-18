@@ -1,7 +1,3 @@
-/* eslint-disable default-param-last */
-/* eslint-disable global-require */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable no-param-reassign */
 import fs from 'fs';
 import path from 'path';
 

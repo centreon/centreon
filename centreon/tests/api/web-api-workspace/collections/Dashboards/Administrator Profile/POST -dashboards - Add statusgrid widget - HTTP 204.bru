@@ -1,0 +1,40 @@
+meta {
+  name: POST /dashboards - Add statusgrid widget - HTTP 204
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "panels": [
+      {
+        "id": null,
+        "name": "centreon-widget-statusgrid",
+        "widget_type": "/widgets/statusgrid",
+        "layout": { "x": 0, "y": 0, "width": 5, "height": 3, "min_width": 2, "min_height": 2 },
+        "widget_settings": "{\"data\":{\"resources\":[{\"resourceType\":\"host\",\"resources\":[{\"id\":14,\"name\":\"Centreon-Server\"}]}]},\"options\":{\"viewMode\":\"standard\",\"resourceType\":\"service\",\"statuses\":[\"warning\",\"problem\",\"pending\",\"success\",\"undefined\"],\"sortBy\":\"status_severity_code\",\"tiles\":100,\"refreshInterval\":\"default\"}}"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Statusgrid widget added successfully.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

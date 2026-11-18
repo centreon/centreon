@@ -27,56 +27,35 @@
  */
 class centreonGraphPoller
 {
-    /** @var */
-    public $rrdOptions;
+    public array $rrdOptions;
 
-    /** @var */
-    public $arguments;
+    public array $arguments;
 
-    /** @var */
-    public $metrics;
+    public array $metrics;
 
-    /** @var */
-    public $graphData;
+    public array $graphData;
 
-    /** @var */
-    protected $generalOpt;
+    protected array $generalOpt;
 
-    /** @var */
-    protected $extraDatas;
+    protected array $extraDatas;
 
-    /** @var string Rrdtool command line */
-    private $commandLine;
+    private int $pollerId;
 
-    /** @var int Poller id */
-    private $pollerId;
+    private array $title;
 
-    /** @var array Graph titles */
-    private $title;
+    private array $options;
 
-    /** @var array */
-    private $options;
+    private array $differentStats;
 
-    /** @var array */
-    private $differentStats;
+    private array $colors;
 
-    /** @var array */
-    private $colors;
+    private CentreonDB $db;
 
-    /** @var CentreonDB */
-    private $db;
+    private CentreonDB $dbMonitoring;
 
-    /** @var CentreonDB */
-    private $dbMonitoring;
+    private string $graphName;
 
-    /** @var string */
-    private $graphName;
-
-    /** @var string */
-    private $nagiosStatsPath;
-
-    /** @var array */
-    private $metricsInfos = [];
+    private string $nagiosStatsPath;
 
     /**
      * centreonGraphPoller constructor
@@ -177,22 +156,31 @@ class centreonGraphPoller
 
         $metrics = $this->differentStats[$this->options[$this->graphName]];
 
-        $i = 0;
+        $index = 0;
         foreach ($metrics as $metric) {
             $path = $this->nagiosStatsPath . '/perfmon-' . $this->pollerId . '/' . $this->options[$this->graphName];
             if (file_exists($path) === false) {
-                throw new RuntimeException();
+                continue;
             }
 
             $displayformat = '%7.2lf';
-            $this->addArgument('DEF:v' . $i . '=' . $path . ':' . $metric . ':AVERAGE');
-            $this->addArgument('VDEF:v' . $i . $metric . '=v' . $i . ',AVERAGE');
-            $this->addArgument('LINE1:v' . $i . '#0000ff:v' . $i);
-            $this->addArgument('GPRINT:v' . $i . $metric . ':"' . $metric . "\:" . $displayformat . '" ');
+            $this->addArgument('DEF:v' . $index . '=' . $path . ':' . $metric . ':AVERAGE');
+            $this->addArgument('VDEF:v' . $index . $metric . '=v' . $index . ',AVERAGE');
+            $this->addArgument('LINE1:v' . $index . '#0000ff:v' . $index);
+            $this->addArgument('GPRINT:v' . $index . $metric . ':"' . $metric . "\:" . $displayformat . '" ');
 
-            $this->metrics[] = ['metric_id' => $i, 'metric' => $metric, 'metric_legend' => $metric, 'legend' => $metric, 'ds_data' => ['ds_filled' => 0, 'ds_color_line' => $this->colors[$metric]]];
+            $this->metrics[] = [
+                'metric_id' => $index,
+                'metric' => $metric,
+                'metric_legend' => $metric,
+                'legend' => $metric,
+                'ds_data' => [
+                    'ds_filled' => 0,
+                    'ds_color_line' => $this->colors[$metric],
+                ],
+            ];
 
-            $i++;
+            $index++;
         }
     }
 
@@ -219,13 +207,61 @@ class centreonGraphPoller
      */
     private function initGraphOptions(): void
     {
-        $this->title = ['active_host_check' => _('Host Check Execution Time'), 'active_host_last' => _('Hosts Actively Checked'), 'host_latency' => _('Host check latency'), 'active_service_check' => _('Service Check Execution Time'), 'active_service_last' => _('Services Actively Checked'), 'service_latency' => _('Service check latency'), 'cmd_buffer' => _('Commands in buffer'), 'host_states' => _('Host status'), 'service_states' => _('Service status')];
+        $this->title = [
+            'active_host_check' => _('Host Check Execution Time'),
+            'active_host_last' => _('Hosts Actively Checked'),
+            'host_latency' => _('Host check latency'),
+            'active_service_check' => _('Service Check Execution Time'),
+            'active_service_last' => _('Services Actively Checked'),
+            'service_latency' => _('Service check latency'),
+            'cmd_buffer' => _('Commands in buffer'),
+            'host_states' => _('Host status'),
+            'service_states' => _('Service status'),
+        ];
 
-        $this->colors = ['Min' => '#88b917', 'Max' => '#e00b3d', 'Average' => '#00bfb3', 'Last_Min' => '#00bfb3', 'Last_5_Min' => '#88b917', 'Last_15_Min' => '#ff9a13', 'Last_Hour' => '#F91D05', 'Up' => '#88b917', 'Down' => '#e00b3d', 'Unreach' => '#818285', 'Ok' => '#88b917', 'Warn' => '#ff9a13', 'Crit' => '#F91D05', 'Unk' => '#bcbdc0', 'In_Use' => '#88b917', 'Max_Used' => '#F91D05', 'Total_Available' => '#00bfb3'];
+        $this->colors = [
+            'Min' => '#88b917',
+            'Max' => '#e00b3d',
+            'Average' => '#00bfb3',
+            'Last_Min' => '#00bfb3',
+            'Last_5_Min' => '#88b917',
+            'Last_15_Min' => '#ff9a13',
+            'Last_Hour' => '#F91D05',
+            'Up' => '#88b917',
+            'Down' => '#e00b3d',
+            'Unreach' => '#818285',
+            'Ok' => '#88b917',
+            'Warn' => '#ff9a13',
+            'Crit' => '#F91D05',
+            'Unk' => '#bcbdc0',
+            'In_Use' => '#88b917',
+            'Max_Used' => '#F91D05',
+            'Total_Available' => '#00bfb3',
+        ];
 
-        $this->options = ['active_host_check' => 'nagios_active_host_execution.rrd', 'active_host_last' => 'nagios_active_host_last.rrd', 'host_latency' => 'nagios_active_host_latency.rrd', 'active_service_check' => 'nagios_active_service_execution.rrd', 'active_service_last' => 'nagios_active_service_last.rrd', 'service_latency' => 'nagios_active_service_latency.rrd', 'cmd_buffer' => 'nagios_cmd_buffer.rrd', 'host_states' => 'nagios_hosts_states.rrd', 'service_states' => 'nagios_services_states.rrd'];
+        $this->options = [
+            'active_host_check' => 'nagios_active_host_execution.rrd',
+            'active_host_last' => 'nagios_active_host_last.rrd',
+            'host_latency' => 'nagios_active_host_latency.rrd',
+            'active_service_check' => 'nagios_active_service_execution.rrd',
+            'active_service_last' => 'nagios_active_service_last.rrd',
+            'service_latency' => 'nagios_active_service_latency.rrd',
+            'cmd_buffer' => 'nagios_cmd_buffer.rrd',
+            'host_states' => 'nagios_hosts_states.rrd',
+            'service_states' => 'nagios_services_states.rrd',
+        ];
 
-        $this->differentStats = ['nagios_active_host_execution.rrd' => ['Min', 'Max', 'Average'], 'nagios_active_host_last.rrd' => ['Last_Min', 'Last_5_Min', 'Last_15_Min', 'Last_Hour'], 'nagios_active_host_latency.rrd' => ['Min', 'Max', 'Average'], 'nagios_active_service_execution.rrd' => ['Min', 'Max', 'Average'], 'nagios_active_service_last.rrd' => ['Last_Min', 'Last_5_Min', 'Last_15_Min', 'Last_Hour'], 'nagios_active_service_latency.rrd' => ['Min', 'Max', 'Average'], 'nagios_cmd_buffer.rrd' => ['In_Use', 'Max_Used', 'Total_Available'], 'nagios_hosts_states.rrd' => ['Up', 'Down', 'Unreach'], 'nagios_services_states.rrd' => ['Ok', 'Warn', 'Crit', 'Unk']];
+        $this->differentStats = [
+            'nagios_active_host_execution.rrd' => ['Min', 'Max', 'Average'],
+            'nagios_active_host_last.rrd' => ['Last_Min', 'Last_5_Min', 'Last_15_Min', 'Last_Hour'],
+            'nagios_active_host_latency.rrd' => ['Min', 'Max', 'Average'],
+            'nagios_active_service_execution.rrd' => ['Min', 'Max', 'Average'],
+            'nagios_active_service_last.rrd' => ['Last_Min', 'Last_5_Min', 'Last_15_Min', 'Last_Hour'],
+            'nagios_active_service_latency.rrd' => ['Min', 'Max', 'Average'],
+            'nagios_cmd_buffer.rrd' => ['In_Use', 'Max_Used', 'Total_Available'],
+            'nagios_hosts_states.rrd' => ['Up', 'Down', 'Unreach'],
+            'nagios_services_states.rrd' => ['Ok', 'Warn', 'Crit', 'Unk'],
+        ];
     }
 
     /**
@@ -326,7 +362,7 @@ class centreonGraphPoller
             $rrdData = json_decode($str, true);
         }
 
-        $this->formatByMetrics($rrdData);
+        $this->formatByMetrics($rrdData ?? []);
 
         return $this->graphData;
     }
@@ -334,21 +370,21 @@ class centreonGraphPoller
     /**
      * Parse rrdtool result
      *
-     * @param mixed $rrdData
+     * @param array $rrdData
      *
      * @return void
      */
-    private function formatByMetrics($rrdData): void
+    private function formatByMetrics(array $rrdData): void
     {
         $this->graphData['times'] = [];
-        $size = count($rrdData['data']);
-        $gprintsSize = count($rrdData['meta']['gprints']);
+        $size = count($rrdData['data'] ?? []);
+        $gprintsSize = count($rrdData['meta']['gprints'] ?? []);
 
-        for ($i = 0; $i < $size; $i++) {
-            $this->graphData['times'][] = $rrdData['data'][$i][0];
+        for ($index = 0; $index < $size; $index++) {
+            $this->graphData['times'][] = $rrdData['data'][$index][0];
         }
 
-        $i = 1;
+        $index = 1;
         $gprintsPos = 0;
         foreach ($this->graphData['metrics'] as &$metric) {
             $metric['data'] = [];
@@ -368,10 +404,10 @@ class centreonGraphPoller
                 }
             }
 
-            for ($j = 0; $j < $size; $j++) {
-                $metric['data'][] = $rrdData['data'][$j][$i];
+            for ($currentSize = 0; $currentSize < $size; $currentSize++) {
+                $metric['data'][] = $rrdData['data'][$currentSize][$index];
             }
-            $i++;
+            $index++;
         }
     }
 }

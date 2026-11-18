@@ -4,17 +4,33 @@ const hostCriterias = {
   name: 'resource_types',
   value: [{ id: 'host', name: 'Host' }]
 };
-const serviceCriteria = {
+const getServiceCriterias = ({
+  isAnomalyDetectionInstalled = false
+}: {
+  isAnomalyDetectionInstalled?: boolean;
+} = {}): {
+  name: string;
+  value: Array<{ id: string; name: string }>;
+} => ({
   name: 'resource_types',
-  value: [{ id: 'service', name: 'Service' }]
-};
+  value: [
+    { id: 'service', name: 'Service' },
+    { id: 'metaservice', name: 'Meta-Service' },
+    ...(isAnomalyDetectionInstalled
+      ? [{ id: 'anomaly-detection', name: 'Anomaly detection' }]
+      : [])
+  ]
+});
 
 interface StatusCriterias {
   name: string;
   value: CriteriaValue;
 }
 
-const getStatusCriterias = (status): StatusCriterias => {
+const getStatusCriterias = (status: {
+  id: string;
+  name: string;
+}): StatusCriterias => {
   return { name: 'statuses', value: [status] };
 };
 
@@ -38,11 +54,17 @@ const unhandledStateCriterias = {
   value: [{ id: 'unhandled_problems', name: 'Unhandled' }]
 };
 
+interface ResourcesUrlProps {
+  resourceTypeCriterias: { name: string; value: unknown };
+  statusCriterias: { name: string; value: unknown };
+  stateCriterias: { name: string; value: unknown };
+}
+
 const getResourcesUrl = ({
   resourceTypeCriterias,
   statusCriterias,
   stateCriterias
-}): string => {
+}: ResourcesUrlProps): string => {
   const filterQueryParameter = {
     criterias: [
       resourceTypeCriterias,
@@ -58,8 +80,8 @@ const getResourcesUrl = ({
 };
 
 interface Criterias {
-  stateCriterias?: { name; value };
-  statusCriterias?: { name; value };
+  stateCriterias?: { name: string; value: unknown };
+  statusCriterias?: { name: string; value: unknown };
 }
 
 const getHostResourcesUrl = ({
@@ -78,26 +100,26 @@ const getServiceResourcesUrl = ({
   stateCriterias = { name: 'states', value: [] }
 }: Criterias = {}): string => {
   return getResourcesUrl({
-    resourceTypeCriterias: serviceCriteria,
+    resourceTypeCriterias: getServiceCriterias(),
     stateCriterias,
     statusCriterias
   });
 };
 
 export {
-  hostCriterias,
-  serviceCriteria,
-  downCriterias,
-  unreachableCriterias,
-  upCriterias,
-  pendingCriterias,
-  getHostResourcesUrl,
   criticalCriterias,
-  unknownCriterias,
-  warningCriterias,
-  okCriterias,
-  unhandledStateCriterias,
+  downCriterias,
+  getHostResourcesUrl,
+  getResourcesUrl,
+  getServiceCriterias,
   getServiceResourcesUrl,
   getStatusCriterias,
-  getResourcesUrl
+  hostCriterias,
+  okCriterias,
+  pendingCriterias,
+  unhandledStateCriterias,
+  unknownCriterias,
+  unreachableCriterias,
+  upCriterias,
+  warningCriterias
 };

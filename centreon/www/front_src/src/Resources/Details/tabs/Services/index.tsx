@@ -14,7 +14,9 @@ import LoadingSkeleton from './LoadingSkeleton';
 
 const ServicesTab = (): JSX.Element => {
   const { sendRequest, sending } = useRequest({
-    request: listResources
+    request: listResources as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ListingModel<Resource>>
   });
 
   const details = useAtomValue(detailsAtom);

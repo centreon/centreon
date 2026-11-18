@@ -24,13 +24,17 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Authentication\Application\UseCase\LogoutSession;
 
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
-use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSession;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSessionPresenterInterface;
+use Core\Security\Authentication\Infrastructure\Provider\OpenId;
+use Core\Security\Authentication\Infrastructure\Provider\SAML;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration as SamlCustomConfiguration;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -38,73 +42,181 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 class LogoutSessionTest extends TestCase
 {
-    /** @var WriteSessionTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
-    private $writeSessionTokenRepository;
-
-    /** @var WriteSessionRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
+    /** @var WriteSessionRepositoryInterface&MockObject */
     private $writeSessionRepository;
 
-    /** @var WriteTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
-    private $writeTokenRepository;
+    /** @var ProviderAuthenticationFactoryInterface&MockObject */
+    private $providerFactory;
 
-    /** @var LogoutSessionPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
-    private $logoutSessionPresenter;
+    /** @var RequestStack&MockObject */
+    private $requestStack;
 
-    /** @var ReadTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
-    private ReadTokenRepositoryInterface $readTokenRepository;
+    /** @var LogoutSessionPresenterInterface&MockObject */
+    private $presenter;
 
-    /** @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject */
-    private ProviderAuthenticationFactoryInterface $providerFactory;
-
-    /** @var RequestStack&\PHPUnit\Framework\MockObject\MockObject */
-    private RequestStack $requestStack;
-
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->writeSessionTokenRepository = $this->createMock(WriteSessionTokenRepositoryInterface::class);
         $this->writeSessionRepository = $this->createMock(WriteSessionRepositoryInterface::class);
-        $this->writeTokenRepository = $this->createMock(WriteTokenRepositoryInterface::class);
-        $this->logoutSessionPresenter = $this->createMock(LogoutSessionPresenterInterface::class);
-        $this->readTokenRepository = $this->createMock(ReadTokenRepositoryInterface::class);
         $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
         $this->requestStack = $this->createMock(RequestStack::class);
+        $this->presenter = $this->createMock(LogoutSessionPresenterInterface::class);
     }
 
-    /**
-     * test Logout.
-     */
-    public function testLogout(): void
+    public function testReturnsErrorWhenTokenIsMissing(): void
     {
-        $logoutSession = new LogoutSession(
-            $this->writeSessionRepository,
-        );
-
-        $session = new Session(new MockArraySessionStorage());
-        $session->setId('session_abcd');
-        $this->requestStack
-            ->expects($this->any())
-            ->method('getSession')
-            ->willReturn($session);
-
-        $this->writeSessionRepository->expects($this->once())
-            ->method('invalidate');
-
-        $logoutSession('token', $this->logoutSessionPresenter);
-    }
-
-    /**
-     * test Logout with bad token.
-     */
-    public function testLogoutFailed(): void
-    {
-        $logoutSession = new LogoutSession(
-            $this->writeSessionRepository,
-        );
-
-        $this->logoutSessionPresenter->expects($this->once())
+        $this->presenter->expects($this->once())
             ->method('setResponseStatus')
             ->with(new ErrorResponse('No session token provided'));
+        $this->writeSessionRepository->expects($this->never())->method('invalidate');
+        $this->providerFactory->expects($this->never())->method('create');
 
-        $logoutSession(null, $this->logoutSessionPresenter);
+        ($this->createUseCase())(null, $this->presenter);
+    }
+
+    public function testLocalUserOnlyInvalidatesSession(): void
+    {
+        $this->requestStack->method('getSession')->willReturn($this->createSession(Provider::LOCAL));
+
+        $this->providerFactory->expects($this->never())->method('create');
+        $this->writeSessionRepository->expects($this->once())->method('invalidate');
+
+        ($this->createUseCase())('token', $this->presenter);
+    }
+
+    public function testSamlLogoutFromIdpIsTriggeredBeforeInvalidate(): void
+    {
+        $calls = [];
+        $this->requestStack->method('getSession')->willReturn($this->createSession(Provider::SAML));
+
+        $provider = $this->createSamlProvider(isActive: true, logoutFromIdp: true);
+        $provider->expects($this->once())->method('logout')
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'saml_logout';
+            });
+        $this->providerFactory->method('create')->with(Provider::SAML)->willReturn($provider);
+
+        $this->writeSessionRepository->expects($this->once())->method('invalidate')
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'invalidate';
+            });
+
+        ($this->createUseCase())('token', $this->presenter);
+
+        // The SAML LogoutRequest reads identifiers still held in session, so it must run first.
+        self::assertSame(['saml_logout', 'invalidate'], $calls);
+    }
+
+    public function testSamlLocalLogoutDoesNotTriggerProviderLogout(): void
+    {
+        $this->requestStack->method('getSession')->willReturn($this->createSession(Provider::SAML));
+
+        $provider = $this->createSamlProvider(isActive: true, logoutFromIdp: false);
+        $provider->expects($this->never())->method('logout');
+        $this->providerFactory->method('create')->with(Provider::SAML)->willReturn($provider);
+
+        $this->writeSessionRepository->expects($this->once())->method('invalidate');
+
+        ($this->createUseCase())('token', $this->presenter);
+    }
+
+    public function testSamlLogoutIsSkippedWhenProviderIsInactive(): void
+    {
+        $this->requestStack->method('getSession')->willReturn($this->createSession(Provider::SAML));
+
+        $provider = $this->createSamlProvider(isActive: false, logoutFromIdp: true);
+        $provider->expects($this->never())->method('logout');
+        $this->providerFactory->method('create')->with(Provider::SAML)->willReturn($provider);
+
+        $this->writeSessionRepository->expects($this->once())->method('invalidate');
+
+        ($this->createUseCase())('token', $this->presenter);
+    }
+
+    public function testOpenIdLogoutIsTriggeredAfterInvalidate(): void
+    {
+        $calls = [];
+        $this->requestStack->method('getSession')
+            ->willReturn($this->createSession(Provider::OPENID, 'id-token-xyz'));
+
+        $configuration = $this->createMock(Configuration::class);
+        $configuration->method('isActive')->willReturn(true);
+        $provider = $this->createMock(OpenId::class);
+        $provider->method('getConfiguration')->willReturn($configuration);
+        $provider->expects($this->once())->method('logout')
+            ->with('id-token-xyz', false)
+            ->willReturnCallback(static function () use (&$calls): ?string {
+                $calls[] = 'openid_logout';
+
+                return null;
+            });
+        $this->providerFactory->method('create')->with(Provider::OPENID)->willReturn($provider);
+
+        $this->writeSessionRepository->expects($this->once())->method('invalidate')
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'invalidate';
+            });
+
+        ($this->createUseCase())('token', $this->presenter);
+
+        // OpenID has no /saml/sls-like callback: the local session must be wiped before redirecting.
+        self::assertSame(['invalidate', 'openid_logout'], $calls);
+    }
+
+    public function testSetsErrorResponseWhenInvalidateFails(): void
+    {
+        $this->requestStack->method('getSession')->willReturn($this->createSession(Provider::LOCAL));
+
+        $exception = new RepositoryException('boom');
+        $this->writeSessionRepository->method('invalidate')->willThrowException($exception);
+
+        $this->presenter->expects($this->once())
+            ->method('setResponseStatus')
+            ->with(new ErrorResponse('An error occurred during session logout', exception: $exception));
+
+        ($this->createUseCase())('token', $this->presenter);
+    }
+
+    private function createUseCase(): LogoutSession
+    {
+        return new LogoutSession(
+            $this->writeSessionRepository,
+            $this->providerFactory,
+            $this->requestStack,
+        );
+    }
+
+    private function createSession(string $authType, string $idToken = ''): Session
+    {
+        $session = new Session(new MockArraySessionStorage());
+
+        $centreon = new \stdClass();
+        $centreon->user = new \stdClass();
+        $centreon->user->authType = $authType;
+        $session->set('centreon', $centreon);
+
+        if ($idToken !== '') {
+            $session->set('openid_id_token', $idToken);
+        }
+
+        return $session;
+    }
+
+    /**
+     * @return SAML&MockObject
+     */
+    private function createSamlProvider(bool $isActive, bool $logoutFromIdp): SAML
+    {
+        $customConfiguration = (new \ReflectionClass(SamlCustomConfiguration::class))
+            ->newInstanceWithoutConstructor();
+        $customConfiguration->setLogoutFrom($logoutFromIdp);
+
+        $configuration = $this->createMock(Configuration::class);
+        $configuration->method('isActive')->willReturn($isActive);
+        $configuration->method('getCustomConfiguration')->willReturn($customConfiguration);
+
+        $provider = $this->createMock(SAML::class);
+        $provider->method('getConfiguration')->willReturn($configuration);
+
+        return $provider;
     }
 }

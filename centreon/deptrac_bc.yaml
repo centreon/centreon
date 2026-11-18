@@ -23,10 +23,17 @@ parameters:
               - type: directory
                 value: src/App/Shared/.*
 
+        - name: Upgrade
+          collectors:
+              - type: directory
+                value: src/App/Upgrade/.*
+
         - name: Vendors
           collectors:
               - { type: classNameRegex, value: '#^ApiPlatform\\#' }
               - { type: classNameRegex, value: '#^Doctrine\\#' }
+              - { type: classNameRegex, value: '#^Godruoyi\\#' }
+              - { type: classNameRegex, value: '#^Monolog\\#' }
               - { type: classNameRegex, value: '#^Psr\\#' }
               - { type: classNameRegex, value: '#^Symfony\\#' }
               - { type: classNameRegex, value: '#^Webmozart\\#' }
@@ -34,8 +41,12 @@ parameters:
         - name: Legacy
           collectors:
               - { type: classNameRegex, value: '#^App\\Kernel$#' }
-              - { type: classNameRegex, value: '#^Adaptation\\$#' }
+              - { type: classNameRegex, value: '#^Adaptation\\(?!Log\\)#' } # Adaptation\Log has its own AdaptationLog layer
               - { type: classNameRegex, value: '#^Centreon*\\#' }
+              - { type: classNameRegex, value: '#^CentreonDB#' } # legacy global classes
+              - { type: classNameRegex, value: '#^Centreon$#' }
+              - { type: classNameRegex, value: '#^CentreonUser$#' }
+              - { type: classNameRegex, value: '#^CentreonLogAction$#' }
               - { type: classNameRegex, value: '#^Core\\#' }
               - { type: classNameRegex, value: '#^EventSubscriber\\#' }
               - { type: classNameRegex, value: '#^Security\\#' }
@@ -45,12 +56,22 @@ parameters:
           collectors:
               - { type: classNameRegex, value: '#TypeAlias$#' }
 
+        - name: PhpNative # PHP built-in attributes and classes
+          collectors:
+              - { type: classNameRegex, value: '#^Deprecated$#' }
+              - { type: classNameRegex, value: '#^Random\\#' }
+
+        - name: AdaptationLog # hexagonal-arch adapters for logging
+          collectors:
+              - { type: classNameRegex, value: '#^Adaptation\\Log\\#' }
+
     ruleset:
-        ActivityLogging: [ MonitoringConfiguration, Security, Shared, Vendors, TypeAliases ]
-        MonitoringConfiguration: [ Security, Shared, Vendors, TypeAliases ]
-        Security: [ ActivityLogging, MonitoringConfiguration, Shared, Vendors, TypeAliases ]
-        Shared: [ Vendors, TypeAliases ]
-        Legacy: [ Vendors, TypeAliases ]
+        ActivityLogging: [ MonitoringConfiguration, Security, Shared, Vendors, TypeAliases, PhpNative ]
+        MonitoringConfiguration: [ Security, Shared, Vendors, TypeAliases, PhpNative, AdaptationLog ]
+        Security: [ ActivityLogging, MonitoringConfiguration, Shared, Vendors, TypeAliases, PhpNative ]
+        Shared: [ Vendors, TypeAliases, PhpNative ]
+        Upgrade: [ Shared, Vendors, TypeAliases, PhpNative ]
+        Legacy: [ Vendors, TypeAliases, PhpNative ]
 
     skip_violations:
         App\Shared\Infrastructure\Legacy\LegacyKernelWrapper:
@@ -59,7 +80,33 @@ parameters:
             - App\Kernel
         App\Shared\Infrastructure\Legacy\LegacyHttpExceptionListener:
             - Centreon\Domain\Exception\EntityNotFoundException
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceDeployerWrapper:
+            - Centreon\Domain\Contact\Contact
+            - Centreon\Domain\Contact\Interfaces\ContactInterface
+            - Centreon\Domain\Contact\Interfaces\ContactServiceInterface
+            - Core\Service\Application\UseCase\DeployServices\DeployServices
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCloner:
+            - Centreon
+            - CentreonDBInstance
+            - CentreonUser
+            - CentreonLogAction
+        App\MonitoringConfiguration\Infrastructure\Legacy\CapturingDeployServicesPresenter:
+            - Core\Application\Common\UseCase\AbstractResponse
+            - Core\Application\Common\UseCase\ResponseStatusInterface
+            - Core\Service\Application\UseCase\DeployServices\DeployServicesPresenterInterface
+            - Core\Service\Application\UseCase\DeployServices\DeployServicesResponse
         App\Shared\Infrastructure\Legacy\LegacyVaultWrapper:
             - Core\Common\Application\Repository\ReadVaultRepositoryInterface
+            - Core\Common\Application\Repository\WriteVaultRepositoryInterface
+            - Core\Common\Application\VaultEligibilityService
         App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper:
             - Security\TokenAPIAuthenticator
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGorgoneNodesSynchronizer:
+            - Centreon\Domain\Gorgone\Command\NodesSync
+            - Centreon\Domain\Gorgone\GorgoneException
+            - Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface
+        App\Upgrade\Infrastructure\Legacy\LegacyUpgradeLoggerWrapper:
+            - Adaptation\Log\LoggerUpgrade
+        App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory:
+            - CentreonDB
+            - Adaptation\Database\Connection\Model\ConnectionConfig

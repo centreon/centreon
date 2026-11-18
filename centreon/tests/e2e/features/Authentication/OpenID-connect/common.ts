@@ -110,8 +110,8 @@ const saveOpenIdFormIfEnabled = () => {
 };
 
 export {
-  removeContact,
-  initializeOidcUserAndGetLoginPage,
   configureOpenIdConnect,
+  initializeOidcUserAndGetLoginPage,
+  removeContact,
   saveOpenIdFormIfEnabled
 };

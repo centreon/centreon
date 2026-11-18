@@ -16,7 +16,7 @@ import {
   resourcesEndpoint,
   viewByHostEndpoint
 } from '../api/endpoints';
-import { openTicketAtom } from '../atom';
+import Widget from '../index';
 import {
   acknowledgeEndpoint,
   checkEndpoint,
@@ -26,6 +26,7 @@ import { DisplayType } from '../Listing/models';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
+  labelAction,
   labelCheck,
   labelCheckCommandSent,
   labelCloseATicket,
@@ -36,6 +37,7 @@ import {
   labelEndDateGreaterThanStartDate,
   labelForcedCheck,
   labelForcedCheckCommandSent,
+  labelNotes,
   labelOpenTicketForHost,
   labelOpenTicketForService,
   labelSetDowntime,
@@ -43,7 +45,6 @@ import {
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
-import ResourcesTable from '../ResourcesTable';
 import {
   columnsForViewByHost,
   columnsForViewByService,
@@ -110,16 +111,7 @@ const store = createStore();
 const render = ({ options, data, isPublic = false }: Props): void => {
   store.set(isOnPublicPageAtom, isPublic);
   store.set(aclAtom, mockAcl());
-  store.set(openTicketAtom, {
-    displayResources: options.displayResources,
-    enableHostTicketCreation: options.enableHostTicketCreation,
-    enableServiceTicketCreation: options.enableServiceTicketCreation,
-    isDownHostHidden: options.isDownHostHidden,
-    isOpenTicketEnabled: options.isOpenTicketEnabled,
-    isOpenTicketInstalled: true,
-    isUnreachableHostHidden: options.isUnreachableHostHidden,
-    provider: options.provider
-  });
+  store.set(platformVersionsAtom, platformVersions);
 
   cy.window().then((window) => {
     cy.stub(window, 'open').as('windowOpen');
@@ -134,7 +126,7 @@ const render = ({ options, data, isPublic = false }: Props): void => {
           <SnackbarProvider>
             <Provider store={store}>
               <div style={{ height: '100vh', width: '100%' }}>
-                <ResourcesTable
+                <Widget
                   dashboardId={1}
                   globalRefreshInterval={{
                     interval: 30,
@@ -146,6 +138,7 @@ const render = ({ options, data, isPublic = false }: Props): void => {
                   panelOptions={options}
                   playlistHash="hash"
                   refreshCount={0}
+                  widgetPrefixQuery="widget"
                 />
               </div>
             </Provider>
@@ -401,6 +394,9 @@ describe('View by all', () => {
 
     cy.waitForRequest('@getResources');
 
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
+
     cy.findByLabelText('arrow').click();
     cy.contains(labelCheck).click();
     cy.findByLabelText('arrow').click();
@@ -428,6 +424,9 @@ describe('View by all', () => {
     });
 
     cy.waitForRequest('@getResources');
+
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
 
     cy.findByLabelText(labelAcknowledge).click();
     cy.contains(labelSticky).click();
@@ -909,6 +908,120 @@ describe('Open tickets', () => {
     });
 
     cy.contains(labelTicketClosed).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Notes and Action URL columns', () => {
+  beforeEach(resourcesRequests);
+
+  const columnIdsWithUrls = [...selectedColumnIds, 'notes_url', 'action_url'];
+
+  it('does not display the Notes and Action URL columns by default', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: undefined }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findAllByTestId('LinkIcon').should('not.exist');
+    cy.findAllByTestId('FlashOnIcon').should('not.exist');
+
+    cy.findByLabelText('Add columns').click();
+
+    cy.contains(`${labelNotes} (N)`).should('be.visible');
+    cy.contains(`${labelAction} (A)`).should('be.visible');
+
+    cy.findByLabelText('Add columns').click();
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a clickable link icon with the note as tooltip when a resource has a note and a note URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('Restart me')
+      .parents('a')
+      .should('have.attr', 'href', 'https://example.com/restart');
+
+    cy.findByTestId('Restart me').trigger('mouseover');
+
+    cy.contains('Restart me').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a non-clickable icon with the note as tooltip when a resource has a note but no note URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('Maintenance info').should('contain.text', 'N');
+
+    cy.findByTestId('Maintenance info').parents('a').should('not.exist');
+
+    cy.findByTestId('Maintenance info').trigger('mouseover');
+
+    cy.contains('Maintenance info').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a clickable link icon with the note URL as tooltip when a resource has a note URL but no note', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('https://example.com/manual')
+      .parents('a')
+      .should('have.attr', 'href', 'https://example.com/manual');
+
+    cy.findByTestId('https://example.com/manual').trigger('mouseover');
+
+    cy.contains('https://example.com/manual').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a clickable action icon when a resource has an action URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('https://example.com/action')
+      .parents('a')
+      .should('have.attr', 'href', 'https://example.com/action');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays no icon for resources without note, note URL and action URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findAllByTestId('LinkIcon').should('have.length', 2);
+    cy.findAllByTestId('FlashOnIcon').should('have.length', 1);
+    cy.findByTestId('Maintenance info').should('be.visible');
 
     cy.makeSnapshot();
   });

@@ -23,6 +23,7 @@ namespace CentreonClapi;
 
 use App\Kernel;
 use Centreon\Domain\Entity\Task;
+use Centreon\Infrastructure\Service\VmwareConfigurationService;
 use CentreonDB;
 use CentreonRemote\ServiceProvider;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
@@ -570,6 +571,18 @@ class CentreonConfigPoller
                 }
             }
 
+            // VMWare configuration
+            $listVmWareFile = glob($this->vmWareCachePath . '/' . $pollerId . '/*.json');
+            if (is_array($listVmWareFile) && count($listVmWareFile) > 0) {
+                if (! copy($listVmWareFile[0], _CENTREON_ETC_ . '/centreon_vmware.json')) {
+                    $msg_copy .= _('Could not copy VMWare configuration file') . " - KO\n";
+                    $return = 1;
+                }
+            }
+
+            $this->container->get(VmwareConfigurationService::class)
+                ->restartIfConfigurationChanged((int) $pollerId, true);
+
             if (strlen($msg_copy) == 0) {
                 $msg_copy .= _('OK: All configuration files copied with success.');
             }
@@ -628,6 +641,9 @@ class CentreonConfigPoller
                 );
             }
             $return = $this->writeToCentcorePipe('SENDCFGFILE', $host['id']);
+
+            $this->container->get(VmwareConfigurationService::class)
+                ->restartIfConfigurationChanged((int) $host['id'], false);
 
             $msg_copy .= _(
                 "OK: All configuration will be send to '"
@@ -714,11 +730,24 @@ class CentreonConfigPoller
      */
     public function getPollerState()
     {
+        // instances.instance_id (centreon_storage) holds the Snowflake UID stored in
+        // nagios_server.uid; map it back to the poller config id so callers can look up
+        // the state by nagios_server.id.
+        $uidToId = [];
+        $nagiosResult = $this->DB->query('SELECT id, uid FROM nagios_server');
+        while ($row = $nagiosResult->fetchRow()) {
+            $uidToId[$row['uid']] = $row['id'];
+            // Legacy pollers unaware of the Snowflake UID still report nagios_server.id as instance_id.
+            $uidToId[$row['id']] = $row['id'];
+        }
+
         $pollerState = [];
-        $dbResult = $this->DBC->query('SELECT instance_id, running, name FROM instances');
+        $dbResult = $this->DBC->query('SELECT instance_id, running FROM instances');
 
         while ($row = $dbResult->fetchRow()) {
-            $pollerState[$row['instance_id']] = $row['running'];
+            if (isset($uidToId[$row['instance_id']])) {
+                $pollerState[$uidToId[$row['instance_id']]] = $row['running'];
+            }
         }
 
         return $pollerState;

@@ -24,11 +24,16 @@ export const getDefaultParameters = (index: number) => ({
 
 export const availableConnectorTypes = [{ id: 1, name: 'vmware_v6' }];
 
-export const findConnectorTypeById = (id): NamedEntity | undefined => {
-  return find(propEq(Number.parseInt(id, 10), 'id'), availableConnectorTypes);
+export const findConnectorTypeById = (
+  id: string | number
+): NamedEntity | undefined => {
+  return find(
+    propEq(Number.parseInt(String(id), 10), 'id'),
+    availableConnectorTypes
+  );
 };
 
-export const splitURL = (url) => {
+export const splitURL = (url: string) => {
   const includesHTTPPrefix = url.match(/https?:\/\//);
 
   if (!includesHTTPPrefix) {

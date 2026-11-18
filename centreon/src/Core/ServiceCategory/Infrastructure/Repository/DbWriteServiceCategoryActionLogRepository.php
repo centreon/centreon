@@ -33,11 +33,14 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\NewServiceCategory;
+use Core\ServiceCategory\Domain\Model\ServiceCategory;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB implements WriteServiceCategoryRepositoryInterface
 {
     use LoggerTrait;
     public const SERVICE_CATEGORY_PROPERTIES_MAP = [
+        'id' => 'sc_id',
         'name' => 'sc_name',
         'alias' => 'sc_alias',
         'isActivated' => 'sc_activate',
@@ -47,7 +50,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
         private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
-        private readonly ContactInterface $user,
+        private readonly TokenStorageInterface $tokenStorage,
         DatabaseConnection $db,
     ) {
         $this->db = $db;
@@ -69,7 +72,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
                 objectId: $serviceCategoryId,
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_DELETE,
-                contactId: $this->user->getId()
+                contactId: $this->getContactId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -97,7 +100,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
                 objectId: $serviceCategoryId,
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_ADD,
-                contactId: $this->user->getId()
+                contactId: $this->getContactId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -132,6 +135,45 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
     }
 
     /**
+     * @inheritDoc
+     */
+    public function update(ServiceCategory $serviceCategory): void
+    {
+        try {
+            $this->writeServiceCategoryRepository->update($serviceCategory);
+
+            $actionLog = new ActionLog(
+                objectType: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
+                objectId: $serviceCategory->getId(),
+                objectName: $serviceCategory->getName(),
+                actionType: ActionLog::ACTION_TYPE_CHANGE,
+                contactId: $this->getContactId()
+            );
+            $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+            $actionLog->setId($actionLogId);
+            $details = $this->getServiceCategoryAsArray($serviceCategory);
+
+            $this->writeActionLogRepository->addActionDetails($actionLog, $details);
+
+            return;
+        } catch (\Throwable $ex) {
+            $this->error(
+                'Error while updating a service category',
+                ['serviceCategory' => $serviceCategory, 'trace' => (string) $ex]
+            );
+
+            throw $ex;
+        }
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
+    }
+
+    /**
      * Format the Service Category as property => value array.
      *
      * @param NewServiceCategory $serviceCategory
@@ -139,7 +181,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
      * @return array<string, string>
      */
     private function getServiceCategoryAsArray(
-        NewServiceCategory $serviceCategory,
+        NewServiceCategory|ServiceCategory $serviceCategory,
     ): array {
         $reflection = new \ReflectionClass($serviceCategory);
         $properties = $reflection->getProperties();
@@ -150,6 +192,9 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
             if ($property->getName() === 'isActivated') {
                 $serviceCategoryAsArray[self::SERVICE_CATEGORY_PROPERTIES_MAP[$property->getName()]]
                     = $property->getValue($serviceCategory) ? '1' : '0';
+            } elseif ($property->getName() === 'id') {
+                $serviceCategoryAsArray[self::SERVICE_CATEGORY_PROPERTIES_MAP[$property->getName()]]
+                    = (string) ($property->getValue($serviceCategory));
             } else {
                 $serviceCategoryAsArray[self::SERVICE_CATEGORY_PROPERTIES_MAP[$property->getName()]]
                     = is_string($property->getValue($serviceCategory))

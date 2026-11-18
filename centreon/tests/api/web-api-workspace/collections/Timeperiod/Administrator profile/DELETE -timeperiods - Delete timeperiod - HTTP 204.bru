@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /timeperiods - Delete timeperiod - HTTP 204
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/timeperiods/{{Timeperiod1Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Timeperiod 1 has been successfully deleted.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

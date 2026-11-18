@@ -25,6 +25,7 @@ namespace Tests\Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\RealTime\Repository\ReadIndexDataRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
 use Core\Domain\RealTime\Model\IndexData;
@@ -228,3 +229,101 @@ it(
         ),
     ],
 ]);
+
+it('passes hostId to the ACL check so meta services resolve through centreon_acl', function (): void {
+    $indexDataRepository = $this->createMock(ReadIndexDataRepositoryInterface::class);
+    $indexDataRepository
+        ->expects($this->once())
+        ->method('findIndexByHostIdAndServiceId')
+        ->with($this->equalTo($this->hostId), $this->equalTo($this->serviceId))
+        ->willReturn($this->indexId);
+    $indexDataRepository
+        ->expects($this->once())
+        ->method('findHostNameAndServiceDescriptionByIndex')
+        ->willReturn(null);
+
+    $metricRepository = $this->createMock(ReadMetricRepositoryInterface::class);
+    $performanceDataRepository = $this->createMock(ReadPerformanceDataRepositoryInterface::class);
+    $performanceDataRepository
+        ->expects($this->once())
+        ->method('findDataByMetricsAndDates')
+        ->willReturn([]);
+
+    $readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn([]);
+
+    $readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class);
+    $readServiceRepository
+        ->expects($this->once())
+        ->method('existsByAccessGroups')
+        ->with($this->equalTo($this->serviceId), $this->equalTo([]), $this->equalTo($this->hostId))
+        ->willReturn(true);
+
+    $contact = $this->createMock(ContactInterface::class);
+    $contact->method('hasTopologyRole')->willReturn(true);
+    $contact->method('isAdmin')->willReturn(false);
+
+    $useCase = new DownloadPerformanceMetrics(
+        $indexDataRepository,
+        $metricRepository,
+        $performanceDataRepository,
+        $readAccessGroupRepository,
+        $readServiceRepository,
+        $contact,
+    );
+
+    $useCase(
+        new DownloadPerformanceMetricRequest(
+            $this->hostId,
+            $this->serviceId,
+            new DateTimeImmutable('2022-01-01'),
+            new DateTimeImmutable('2023-01-01')
+        ),
+        $this->createMock(DownloadPerformanceMetricPresenterInterface::class)
+    );
+});
+
+it('returns NotFoundResponse when the (host, service) pair is not in the user ACL', function (): void {
+    $indexDataRepository = $this->createMock(ReadIndexDataRepositoryInterface::class);
+    $indexDataRepository->expects($this->never())->method('findIndexByHostIdAndServiceId');
+
+    $readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $readAccessGroupRepository->method('findByContact')->willReturn([]);
+
+    $readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class);
+    $readServiceRepository
+        ->expects($this->once())
+        ->method('existsByAccessGroups')
+        ->with($this->equalTo($this->serviceId), $this->equalTo([]), $this->equalTo($this->hostId))
+        ->willReturn(false);
+
+    $contact = $this->createMock(ContactInterface::class);
+    $contact->method('hasTopologyRole')->willReturn(true);
+    $contact->method('isAdmin')->willReturn(false);
+
+    $presenter = new DownloadPerformanceMetricsPresenterStub($this->createMock(PresenterFormatterInterface::class));
+
+    $useCase = new DownloadPerformanceMetrics(
+        $indexDataRepository,
+        $this->createMock(ReadMetricRepositoryInterface::class),
+        $this->createMock(ReadPerformanceDataRepositoryInterface::class),
+        $readAccessGroupRepository,
+        $readServiceRepository,
+        $contact,
+    );
+
+    $useCase(
+        new DownloadPerformanceMetricRequest(
+            $this->hostId,
+            $this->serviceId,
+            new DateTimeImmutable('2022-01-01'),
+            new DateTimeImmutable('2023-01-01')
+        ),
+        $presenter
+    );
+
+    expect($presenter->getPresentedData())->toBeInstanceOf(NotFoundResponse::class);
+});

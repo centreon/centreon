@@ -1,11 +1,11 @@
 import {
   Box,
   InputAdornment,
-  type InputProps,
+  InputProps,
   TextField as MuiTextField,
-  type TextFieldProps,
-  type TextFieldSlotsAndSlotProps,
-  type Theme,
+  TextFieldProps,
+  TextFieldSlotsAndSlotProps,
+  Theme,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -77,7 +77,7 @@ const OptionalLabelInputAdornment = ({
 type SizeVariant = 'large' | 'medium' | 'small' | 'compact';
 
 export type TextProps = {
-  EndAdornment?: React.FC | JSX.Element;
+  EndAdornment?: React.FC | React.ReactNode;
   StartAdornment?: React.FC;
   ariaLabel?: string;
   autoSize?: boolean;
@@ -85,7 +85,7 @@ export type TextProps = {
   autoSizeDefaultWidth?: number;
   className?: string;
   containerClassName?: string;
-  dataTestId: string;
+  dataTestId?: string;
   debounced?: boolean;
   displayErrorInTooltip?: boolean;
   error?: string;
@@ -123,6 +123,7 @@ const TextField = forwardRef(
       type,
       textFieldSlotsAndSlotProps,
       forceUncontrolled,
+      helperText,
       ...rest
     }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -160,13 +161,16 @@ const TextField = forwardRef(
           <MuiTextField
             data-testid={dataTestId}
             error={!isNil(error)}
-            helperText={displayErrorInTooltip ? undefined : error}
+            helperText={
+              (displayErrorInTooltip ? undefined : error) || helperText
+            }
             id={getNormalizedId(dataTestId || '')}
             label={label}
             onChange={changeInputValue}
             ref={ref}
             size={size || 'small'}
             {...getValueProps()}
+            autoComplete="off"
             className={classes.textField}
             required={required}
             slotProps={{
@@ -188,9 +192,17 @@ const TextField = forwardRef(
                 endAdornment: (
                   <OptionalLabelInputAdornment label={label} position="end">
                     {EndAdornment ? (
-                      <EndAdornment />
+                      typeof EndAdornment === 'function' ? (
+                        <EndAdornment />
+                      ) : (
+                        EndAdornment
+                      )
                     ) : (
-                      textFieldSlotsAndSlotProps?.slotProps?.input?.endAdornment
+                      (
+                        textFieldSlotsAndSlotProps?.slotProps?.input as
+                          | Record<string, React.ReactNode>
+                          | undefined
+                      )?.endAdornment
                     )}
                   </OptionalLabelInputAdornment>
                 ),

@@ -6,7 +6,7 @@ Feature: URI
   Background:
     Given a user is logged in a Centreon server
 
-  @TEST_MON-160981
+  @MON-160981
   Scenario: Add URI in service output
     Given a configured passive host
     And a configured passive service linked to the host
@@ -21,7 +21,7 @@ Feature: URI
     When the user clicks on the link in the "status information"
     Then a new tab is open to the link
 
-  @TEST_MON-160982
+  @MON-160982
   Scenario: Add URI in comments
     When the user visits "Monitoring > Status Details > Services"
     And the user adds a comment to a configured passive service

@@ -27,7 +27,7 @@ const ActionsBar = ({
 }: ActionsBarProps): JSX.Element => {
   const { classes } = useStyles();
 
-  const preventEnterKey = (keyEvent): void => {
+  const preventEnterKey = (keyEvent: React.KeyboardEvent): void => {
     if ((keyEvent.charCode || keyEvent.keyCode) === 13) {
       keyEvent.preventDefault();
     }
@@ -45,7 +45,7 @@ const ActionsBar = ({
       direction="row"
       justifyContent="flex-end"
     >
-      <Grid item>
+      <Grid>
         {!isFirstStep && (
           <Button
             aria-label={labelPrevious}
@@ -56,7 +56,7 @@ const ActionsBar = ({
           </Button>
         )}
       </Grid>
-      <Grid item>
+      <Grid>
         <Button
           aria-label={labelNextFinish}
           color="primary"

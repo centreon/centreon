@@ -1,4 +1,4 @@
-import type { ThemeOptions } from '@mui/material';
+import type { PaletteOptions } from '@mui/material';
 import { createGenerateClassName, StylesProvider } from '@mui/styles';
 
 import type { QueryClient } from '@tanstack/react-query';
@@ -14,8 +14,8 @@ export interface ModuleProps {
   seedName: string;
   store: ReturnType<typeof createStore>;
   overrideTheme?: {
-    light: Partial<ThemeOptions>;
-    dark: Partial<ThemeOptions>;
+    light: Partial<PaletteOptions>;
+    dark: Partial<PaletteOptions>;
   };
 }
 

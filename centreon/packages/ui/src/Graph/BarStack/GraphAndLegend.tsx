@@ -1,3 +1,4 @@
+import type { ScaleOrdinal } from 'd3-scale';
 import { equals, props } from 'ramda';
 import { memo, useMemo } from 'react';
 
@@ -21,7 +22,7 @@ interface Props
   displayLegend: boolean;
   height: number;
   width: number;
-  colorScale;
+  colorScale: ScaleOrdinal<string, string>;
   total: number;
 }
 

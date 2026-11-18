@@ -14,7 +14,7 @@ import type { Parameters } from '../api/buildListingEndpoint/models';
 import type { Listing } from '../api/models';
 
 interface UseInfiniteScrollListing<T> {
-  elementRef: (node) => void;
+  elementRef: (node: Element | null) => void;
   elements: Array<T>;
   isLoading: boolean;
   total?: number;
@@ -49,6 +49,15 @@ export const useInfiniteScrollListing = <T>({
 
   const [page, setPage] = useAtom(pageAtom);
 
+  // Shared by the active query and the next page prefetch, so that the
+  // prefetched page is reused instead of being requested again
+  const getQueryKey = (queryPage: number): Array<string | number> => [
+    queryKeyName,
+    queryPage,
+    JSON.stringify(parameters),
+    JSON.stringify(customQueryParameters)
+  ];
+
   const { data, isLoading, prefetchNextPage, fetchStatus } = useFetchQuery<
     Listing<T>
   >({
@@ -59,12 +68,7 @@ export const useInfiniteScrollListing = <T>({
         customQueryParameters,
         parameters: { limit, page: params?.page || page, ...parameters }
       }),
-    getQueryKey: () => [
-      queryKeyName,
-      page,
-      JSON.stringify(parameters),
-      JSON.stringify(customQueryParameters)
-    ],
+    getQueryKey: () => getQueryKey(page),
     isPaginated: true,
     queryOptions: {
       enabled,
@@ -110,7 +114,7 @@ export const useInfiniteScrollListing = <T>({
     }
 
     prefetchNextPage({
-      getPrefetchQueryKey: (newPage) => ['dashboards', newPage],
+      getPrefetchQueryKey: getQueryKey,
       page
     });
   }, [data, limit, page, prefetchNextPage]);

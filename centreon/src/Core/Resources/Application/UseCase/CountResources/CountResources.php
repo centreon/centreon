@@ -62,7 +62,7 @@ final readonly class CountResources
 
         try {
             if ($request->isAdmin) {
-                $countFilteredResources = $this->readResourceRepository->countResourcesByFilter(
+                $countResult = $this->readResourceRepository->countResourcesByFilter(
                     $request->resourceFilter,
                     $request->allPages
                 );
@@ -71,7 +71,7 @@ final readonly class CountResources
                 $accessGroups = $this->accessGroupRepository->findByContactId($request->contactId);
                 $accessGroupIds = $accessGroups->getIds();
 
-                $countFilteredResources = $this->readResourceRepository->countResourcesByFilterAndAccessGroupIds(
+                $countResult = $this->readResourceRepository->countResourcesByFilterAndAccessGroupIds(
                     $request->resourceFilter,
                     $request->allPages,
                     $accessGroupIds
@@ -80,8 +80,9 @@ final readonly class CountResources
                 $countTotalResources = $this->readResourceRepository->countAllResourcesByAccessGroupIds($accessGroupIds);
             }
 
-            $response->setTotalFilteredResources($countFilteredResources);
+            $response->setTotalFilteredResources($countResult->count);
             $response->setTotalResources($countTotalResources);
+            $response->setIsApproximate($countResult->isApproximate);
 
             $presenter->presentResponse($response);
         } catch (RepositoryException $exception) {

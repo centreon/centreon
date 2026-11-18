@@ -82,37 +82,41 @@ foreach ($resources as $resource) {
 
 }
 $mainQueryParameters = [];
-$hostQuery = '';
-$serviceQuery = '';
+$pairQuery = '';
 // Prepare the query concatenation and the bind values
 $firstResult = true;
 
 $mainQueryParameters = [];
 
-foreach ($exportList as $key => $Id) {
-    if (
-        ! isset($exportList[$key][1])
-        || (int) $exportList[$key][0] === 0
-        || (int) $exportList[$key][1] === 0
-    ) {
+foreach ($exportList as $key => $ids) {
+    $hostId = (int) ($ids[0] ?? 0);
+    $serviceId = (int) ($ids[1] ?? 0);
+
+    if ($hostId <= 0 || $serviceId <= 0) {
         // skip missing serviceId in combinations or non consistent data
         continue;
     }
-    if ($firstResult === false) {
-        $hostQuery .= ', ';
-        $serviceQuery .= ', ';
-    }
-    $hostQuery .= ':' . $key . 'hId' . $exportList[$key][0];
+    $hostPlaceholder = 'hId_' . $key;
     $mainQueryParameters[] = QueryParameter::int(
-        $key . 'hId' . $exportList[$key][0],
-        (int) $exportList[$key][0]
+        $hostPlaceholder,
+        $hostId
     );
 
-    $serviceQuery .= ':' . $key . 'sId' . $exportList[$key][1];
+    $servicePlaceholder = 'sId_' . $key;
 
     $mainQueryParameters[] = QueryParameter::int(
-        $key . 'sId' . $exportList[$key][1],
-        (int) $exportList[$key][1]
+        $servicePlaceholder,
+        $serviceId
+    );
+
+    if ($firstResult === false) {
+        $pairQuery .= ' OR ';
+    }
+
+    $pairQuery .= sprintf(
+        '(h.host_id = :%s AND s.service_id = :%s)',
+        $hostPlaceholder,
+        $servicePlaceholder
     );
     $firstResult = false;
 }
@@ -184,7 +188,7 @@ $query = <<<'SQL'
         LEFT JOIN customvariables cv2
             ON cv2.service_id = s.service_id
             AND cv2.host_id = s.host_id
-            AND cv2.name = 'CRITICALITY_ID';
+            AND cv2.name = 'CRITICALITY_ID'
     SQL;
 
 if (! $centreon->user->admin) {
@@ -207,6 +211,11 @@ if (! $centreon->user->admin) {
     $mainQueryParameters = [...$accessGroupParameters, ...$mainQueryParameters];
 }
 
+if ($firstResult === true) {
+    // Do not fallback to a full export when the selection contains no valid host/service pairs.
+    exit();
+}
+
 $query .= <<<'SQL'
         WHERE h.name NOT LIKE '_Module_%'
           AND s.enabled = 1
@@ -214,7 +223,7 @@ $query .= <<<'SQL'
     SQL;
 
 if ($firstResult === false) {
-    $query .= " AND h.host_id IN ({$hostQuery}) AND s.service_id IN ({$serviceQuery}) ";
+    $query .= " AND ({$pairQuery}) ";
 }
 
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != '') {
@@ -416,17 +425,20 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
 
 $query .= ' ORDER BY ' . $orderby;
 
-$data = [];
 $outputLength = $preferences['output_length'] ?? 50;
 $commentLength = $preferences['comment_length'] ?? 50;
+$csvOutput = fopen('php://output', 'w');
+$header = [];
+$headerWritten = false;
 
 $hostObj = new CentreonHost($configurationDatabase);
 $svcObj = new CentreonService($configurationDatabase);
+$gmt = new CentreonGMT();
+$gmt->getMyGMTFromSession(session_id());
 foreach ($realtimeDatabase->iterateAssociative($query, QueryParameters::create($mainQueryParameters)) as $row) {
+    $lineData = [];
     foreach ($row as $key => $value) {
         if ($key == 'last_check') {
-            $gmt = new CentreonGMT();
-            $gmt->getMyGMTFromSession(session_id());
             $value = $gmt->getDate('Y-m-d H:i:s', $value);
         } elseif ($key == 'last_state_change' || $key == 'last_hard_state_change') {
             $value = time() - $value;
@@ -444,7 +456,7 @@ foreach ($realtimeDatabase->iterateAssociative($query, QueryParameters::create($
             $critData = $criticality->getData($row['criticality_id'], 1);
             $value = $critData['sc_name'];
         }
-        $data[$row['host_id'] . '_' . $row['service_id']][$key] = $value;
+        $lineData[$key] = $value;
     }
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
         $commentQuery = <<<'SQL'
@@ -462,112 +474,86 @@ foreach ($realtimeDatabase->iterateAssociative($query, QueryParameters::create($
             QueryParameter::int('service_id', $row['service_id']),
         ];
 
-        $data[$row['host_id'] . '_' . $row['service_id']]['comment'] = '-';
+        $lineData['comment'] = '-';
 
         foreach ($realtimeDatabase->iterateAssociative($commentQuery, QueryParameters::create($commentQueryParameters)) as $comment) {
-            $data[$row['host_id'] . '_' . $row['service_id']]['comment'] = substr($comment['data'], 0, $commentLength);
+            $lineData['comment'] = substr($comment['data'], 0, $commentLength);
         }
     }
-    $data[$row['host_id'] . '_' . $row['service_id']]['encoded_description'] = urlencode(
-        $data[$row['host_id'] . '_' . $row['service_id']]['description']
-    );
-    $data[$row['host_id'] . '_' . $row['service_id']]['encoded_hostname'] = urlencode(
-        $data[$row['host_id'] . '_' . $row['service_id']]['hostname']
-    );
-}
-
-$autoRefresh = (isset($preferences['refresh_interval']) && (int) $preferences['refresh_interval'] > 0)
-    ? (int) $preferences['refresh_interval']
-    : 30;
-
-$lines = [];
-foreach ($data as $lineData) {
-    $lines[0] = [];
     $line = [];
 
     // Export if set in preferences : severities
     if ($preferences['display_severities']) {
-        $lines[0][] = 'Severity';
+        $header[] = 'Severity';
         $line[] = $lineData['criticality_id'];
     }
     // Export if set in preferences : name column
     if ($preferences['display_host_name'] && $preferences['display_host_alias']) {
-        $lines[0][] = 'Host Name - Host Alias';
+        $header[] = 'Host Name - Host Alias';
         $line[] = $lineData['hostname'] . ' - ' . $lineData['hostalias'];
     } elseif ($preferences['display_host_alias']) {
-        $lines[0][] = 'Host Alias';
+        $header[] = 'Host Alias';
         $line[] = $lineData['hostalias'];
     } else {
-        $lines[0][] = 'Host Name';
+        $header[] = 'Host Name';
         $line[] = $lineData['hostname'];
     }
     // Export if set in preferences : service description
     if ($preferences['display_svc_description']) {
-        $lines[0][] = 'Description';
+        $header[] = 'Description';
         $line[] = $lineData['description'];
     }
     // Export if set in preferences : output
     if ($preferences['display_output']) {
-        $lines[0][] = 'Output';
+        $header[] = 'Output';
         $line[] = $lineData['output'];
     }
     // Export if set in preferences : status
     if ($preferences['display_status']) {
-        $lines[0][] = 'Status';
+        $header[] = 'Status';
         $line[] = $lineData['s_state'];
     }
     // Export if set in preferences : last check
     if ($preferences['display_last_check']) {
-        $lines[0][] = 'Last Check';
+        $header[] = 'Last Check';
         $line[] = $lineData['last_check'];
     }
     // Export if set in preferences : duration
     if ($preferences['display_duration']) {
-        $lines[0][] = 'Duration';
+        $header[] = 'Duration';
         $line[] = $lineData['last_state_change'];
     }
     // Export if set in preferences : hard state duration
     if ($preferences['display_hard_state_duration']) {
-        $lines[0][] = 'Hard State Duration';
+        $header[] = 'Hard State Duration';
         $line[] = $lineData['last_hard_state_change'];
     }
     // Export if set in preferences : Tries
     if ($preferences['display_tries']) {
-        $lines[0][] = 'Attempt';
+        $header[] = 'Attempt';
         $line[] = $lineData['check_attempt'];
     }
     // Export if set in preferences : Last comment
     if ($preferences['display_last_comment']) {
-        $lines[0][] = 'Last comment';
+        $header[] = 'Last comment';
         $line[] = $lineData['comment'];
     }
 
     // Export if set in preferences : Latency
     if ($preferences['display_latency']) {
-        $lines[0][] = 'Latency';
+        $header[] = 'Latency';
         $line[] = $lineData['latency'];
     }
     // Export if set in preferences : Latency
     if ($preferences['display_execution_time']) {
-        $lines[0][] = 'Execution time';
+        $header[] = 'Execution time';
         $line[] = $lineData['execution_time'];
     }
 
-    $lines[] = $line;
+    if (! $headerWritten) {
+        fputcsv($csvOutput, $header, ';', '"', '\\');
+        $headerWritten = true;
+    }
+    fputcsv($csvOutput, $line, ';', '"', '\\');
+    $header = [];
 }
-
-// open raw memory as file so no temp files needed, you might run out of memory though
-$memoryFile = fopen('php://memory', 'w');
-// loop over the input array
-foreach ($lines as $line) {
-    // generate csv lines from the inner arrays
-    fputcsv($memoryFile, $line, ';');
-}
-// reset the file pointer to the start of the file
-fseek($memoryFile, 0);
-// tell the browser it's going to be a csv file
-header('Content-Type: application/csv');
-// tell the browser we want to save it instead of displaying it
-header('Content-Disposition: attachment; filename="services-monitoring.csv";');
-// make php send the generated csv lines to the browser
-fpassthru($memoryFile);

@@ -5,7 +5,6 @@ import {
   always,
   cond,
   equals,
-  filter,
   gt,
   has,
   isNil,
@@ -20,6 +19,7 @@ import { useLocaleDateTimeFormat } from '../../../utils';
 import type { Tooltip } from '../../Chart/models';
 import { formatMetricValueWithUnit } from '../../common/timeSeries';
 import type { TimeValue } from '../../common/timeSeries/models';
+import { isMetricDisplayedInTooltip } from '../../common/utils';
 import { tooltipDataAtom } from '../atoms';
 import { useBarChartTooltipStyles } from './useBarChartTooltipStyles';
 
@@ -49,25 +49,28 @@ const BarChartTooltip = ({
   const date = timeSeries[tooltipData.index].timeTick;
   const formattedDateTime = format({ date, formatString: 'L LTS' });
 
-  const isSingleMode = equals(mode, 'single');
-
-  const filteredMetrics = isSingleMode
-    ? filter(
-        ({ metric }) => equals(metric.metric_id, tooltipData.highlightedMetric),
-        tooltipData.data
-      )
-    : tooltipData.data;
+  const filteredMetrics = tooltipData.data.filter(({ metric, value }) =>
+    isMetricDisplayedInTooltip({
+      isHighlighted: equals(metric.metric_id, tooltipData.highlightedMetric),
+      mode,
+      value
+    })
+  );
 
   const displayHighLightedMetric = gt(filteredMetrics.length, 1);
 
   const sortedMetrics = cond([
+    // @ts-expect-error - suppressing pre-existing type mismatch
     [equals('name'), always(sortBy(path(['metric', 'name']), filteredMetrics))],
+    // @ts-expect-error - suppressing pre-existing type mismatch
     [equals('ascending'), always(sortBy(prop('value'), filteredMetrics))],
     [
       equals('descending'),
+      // @ts-expect-error - suppressing pre-existing type mismatch
       always(reverse(sortBy(prop('value'), filteredMetrics)))
     ],
     [T, always(filteredMetrics)]
+    // @ts-expect-error - suppressing pre-existing type mismatch
   ])(sortOrder);
 
   return (

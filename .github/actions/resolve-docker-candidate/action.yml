@@ -1,0 +1,79 @@
+name: "resolve docker candidate"
+description: >
+  Resolve a validated Harbor candidate (deterministic version_tag) to its
+  index digest, the single subject every delivery registry and attestation
+  then shares. Fails if the candidate is missing or isn't a plain amd64+arm64
+  index. Needs crane on PATH and Harbor credentials.
+inputs:
+  image:
+    description: "Source image ref on Harbor, no tag"
+    required: true
+  tag:
+    description: >
+      Deterministic version_tag candidate (e.g. 26.10.5), only ever written
+      after the image's own container e2e tests passed.
+    required: true
+
+outputs:
+  ref:
+    description: "Candidate pinned by digest (<image>@sha256:...)"
+    value: ${{ steps.resolve.outputs.ref }}
+  digest:
+    description: "Candidate index digest"
+    value: ${{ steps.resolve.outputs.digest }}
+  amd64_digest:
+    description: "amd64 platform manifest digest, for SBOM scanning"
+    value: ${{ steps.resolve.outputs.amd64_digest }}
+  arm64_digest:
+    description: "arm64 platform manifest digest, for SBOM scanning"
+    value: ${{ steps.resolve.outputs.arm64_digest }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Resolve candidate digest
+      id: resolve
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.image }}
+        TAG: ${{ inputs.tag }}
+      run: |
+        set -euo pipefail
+
+        if ! digest=$(crane digest "$IMAGE:$TAG"); then
+          echo "::error::No candidate image found on Harbor at $IMAGE:$TAG."
+          exit 1
+        fi
+        manifest=$(crane manifest "$IMAGE@$digest")
+
+        media_type=$(jq -r '.mediaType // empty' <<< "$manifest")
+        case "$media_type" in
+          application/vnd.oci.image.index.v1+json|application/vnd.docker.distribution.manifest.list.v2+json) ;;
+          *)
+            echo "::error::$IMAGE:$TAG is not a multi-arch index (mediaType '$media_type')."
+            exit 1
+            ;;
+        esac
+
+        # BuildKit attestation manifests (unknown/unknown) make Pulp 500 and
+        # crane copies the index as-is: the build must keep provenance/sbom off.
+        unknown=$(jq '[.manifests[] | select((.platform.architecture // "unknown") == "unknown")] | length' <<< "$manifest")
+        if [[ "$unknown" -ne 0 ]]; then
+          echo "::error::$IMAGE@$digest carries $unknown non-platform manifest(s) (BuildKit attestations?), refusing to promote it."
+          exit 1
+        fi
+
+        amd64_digest=$(jq -r '[.manifests[] | select(.platform.os == "linux" and .platform.architecture == "amd64") | .digest][0] // empty' <<< "$manifest")
+        arm64_digest=$(jq -r '[.manifests[] | select(.platform.os == "linux" and .platform.architecture == "arm64") | .digest][0] // empty' <<< "$manifest")
+        if [[ -z "$amd64_digest" || -z "$arm64_digest" ]]; then
+          echo "::error::$IMAGE@$digest is missing the amd64 or arm64 platform manifest."
+          exit 1
+        fi
+
+        echo "Candidate $IMAGE:$TAG -> $digest (amd64: $amd64_digest, arm64: $arm64_digest)"
+        {
+          echo "ref=$IMAGE@$digest"
+          echo "digest=$digest"
+          echo "amd64_digest=$amd64_digest"
+          echo "arm64_digest=$arm64_digest"
+        } >> "$GITHUB_OUTPUT"

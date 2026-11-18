@@ -22,7 +22,13 @@ const DefaultLegend = ({ scale, direction }: LegendProps): JSX.Element => (
 
 type Placement = 'left' | 'right' | 'top' | 'bottom';
 
-const getTooltipPlacement = ({ radianX, radianY }): Placement => {
+const getTooltipPlacement = ({
+  radianX,
+  radianY
+}: {
+  radianX: number;
+  radianY: number;
+}): Placement => {
   if (gt(Math.abs(radianX), Math.abs(radianY))) {
     return ifElse<[b: number], Placement, Placement>(
       lt(0),

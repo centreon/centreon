@@ -1,0 +1,195 @@
+{
+  "@context": "/centreon/api/latest/contexts/StandardMacroResource",
+  "@id": "/centreon/api/latest/configuration/standard-macros",
+  "@type": "Collection",
+  "totalItems": 110,
+  "member": [
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/1",
+  "@type": "StandardMacroResource",
+  "id": 1,
+  "name": "$HOSTNAME$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/2",
+  "@type": "StandardMacroResource",
+  "id": 2,
+  "name": "$_HOSTSNMPCOMMUNITY$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/3",
+  "@type": "StandardMacroResource",
+  "id": 3,
+  "name": "$_HOSTSNMPVERSION$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/5",
+  "@type": "StandardMacroResource",
+  "id": 5,
+  "name": "$ARGn$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/6",
+  "@type": "StandardMacroResource",
+  "id": 6,
+  "name": "$HOSTALIAS$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/7",
+  "@type": "StandardMacroResource",
+  "id": 7,
+  "name": "$HOSTADDRESS$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/8",
+  "@type": "StandardMacroResource",
+  "id": 8,
+  "name": "$HOSTSTATE$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/9",
+  "@type": "StandardMacroResource",
+  "id": 9,
+  "name": "$HOSTSTATEID$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/10",
+  "@type": "StandardMacroResource",
+  "id": 10,
+  "name": "$HOSTSTATETYPE$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/11",
+  "@type": "StandardMacroResource",
+  "id": 11,
+  "name": "$HOSTATTEMPT$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/12",
+  "@type": "StandardMacroResource",
+  "id": 12,
+  "name": "$HOSTLATENCY$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/13",
+  "@type": "StandardMacroResource",
+  "id": 13,
+  "name": "$HOSTEXECUTIONTIME$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/14",
+  "@type": "StandardMacroResource",
+  "id": 14,
+  "name": "$HOSTDURATION$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/15",
+  "@type": "StandardMacroResource",
+  "id": 15,
+  "name": "$HOSTDURATIONSEC$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/16",
+  "@type": "StandardMacroResource",
+  "id": 16,
+  "name": "$HOSTDOWNTIME$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/17",
+  "@type": "StandardMacroResource",
+  "id": 17,
+  "name": "$HOSTPERCENTCHANGE$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/18",
+  "@type": "StandardMacroResource",
+  "id": 18,
+  "name": "$HOSTGROUPNAME$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/19",
+  "@type": "StandardMacroResource",
+  "id": 19,
+  "name": "$HOSTGROUPALIAS$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/20",
+  "@type": "StandardMacroResource",
+  "id": 20,
+  "name": "$LASTHOSTCHECK$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/21",
+  "@type": "StandardMacroResource",
+  "id": 21,
+  "name": "$LASTHOSTSTATECHANGE$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/22",
+  "@type": "StandardMacroResource",
+  "id": 22,
+  "name": "$LASTHOSTUP$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/23",
+  "@type": "StandardMacroResource",
+  "id": 23,
+  "name": "$LASTHOSTDOWN$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/24",
+  "@type": "StandardMacroResource",
+  "id": 24,
+  "name": "$LASTHOSTUNREACHABLE$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/25",
+  "@type": "StandardMacroResource",
+  "id": 25,
+  "name": "$HOSTOUTPUT$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/26",
+  "@type": "StandardMacroResource",
+  "id": 26,
+  "name": "$HOSTPERFDATA$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/27",
+  "@type": "StandardMacroResource",
+  "id": 27,
+  "name": "$HOSTCHECKCOMMAND$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/30",
+  "@type": "StandardMacroResource",
+  "id": 30,
+  "name": "$HOSTACTIONURL$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/31",
+  "@type": "StandardMacroResource",
+  "id": 31,
+  "name": "$HOSTNOTESURL$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/32",
+  "@type": "StandardMacroResource",
+  "id": 32,
+  "name": "$HOSTNOTES$"
+  },
+  {
+  "@id": "/centreon/api/latest/standard_macro_resources/33",
+  "@type": "StandardMacroResource",
+  "id": 33,
+  "name": "$SERVICEDESC$"
+  }
+  ],
+  "view": {
+  "@id": "/centreon/api/latest/configuration/standard-macros?page=1",
+  "@type": "PartialCollectionView",
+  "first": "/centreon/api/latest/configuration/standard-macros?page=1",
+  "last": "/centreon/api/latest/configuration/standard-macros?page=4",
+  "next": "/centreon/api/latest/configuration/standard-macros?page=2"
+  }
+  }

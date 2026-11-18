@@ -9,15 +9,20 @@ const useGetDetails = ({ id }: { id: number | null }) => {
   const configuration = useAtomValue(configurationAtom);
 
   const resourceType = configuration?.resourceType;
+  const baseEndpoint = configuration?.api?.baseEndpoint;
   const endpoint = configuration?.api?.endpoints?.getOne;
   const decoder = configuration?.api?.decoders?.getOne;
 
-  const { data, isFetching } = useFetchQuery({
-    decoder,
-    getEndpoint: () => endpoint?.({ id }) as string,
+  const { data, isFetching } = useFetchQuery<object>({
+    baseEndpoint,
+    decoder: decoder as
+      | import('ts.data.json').JsonDecoder.Decoder<object>
+      | undefined,
+    getEndpoint: () => endpoint?.({ id: id as number | string }) as string,
     getQueryKey: () => ['getDetails', id, resourceType],
     queryOptions: {
-      enabled: isNotNil(id),
+      // No detail query when the module declares no detail endpoint.
+      enabled: isNotNil(id) && isNotNil(endpoint),
       suspense: false
     }
   });

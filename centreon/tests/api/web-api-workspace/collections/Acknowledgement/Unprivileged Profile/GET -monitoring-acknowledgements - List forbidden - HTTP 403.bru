@@ -1,0 +1,26 @@
+meta {
+  name: GET /monitoring/acknowledgements - List forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/acknowledgements
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Unprivileged user cannot list acknowledgements.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

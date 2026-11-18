@@ -1,4 +1,4 @@
-import type { ListingModel } from '@centreon/ui';
+import type { ListingMeta, ListingModel } from '@centreon/ui';
 
 export enum ResourceType {
   anomalyDetection = 'anomaly-detection',
@@ -9,6 +9,7 @@ export enum ResourceType {
 
 export enum ResourceCategory {
   'anomaly-detection' = 'service',
+  // biome-ignore lint/suspicious/noDuplicateEnumValues: anomaly detection is a service category
   service = 'service',
   host = 'host',
   metaservice = 'metaservice'
@@ -62,7 +63,13 @@ export interface Resource extends NamedEntity {
   type: ResourceType;
 }
 
-export type ResourceListing = ListingModel<Resource>;
+export interface ResourceListingMeta extends ListingMeta {
+  is_approximate?: boolean;
+}
+
+export interface ResourceListing extends Omit<ListingModel<Resource>, 'meta'> {
+  meta: ResourceListingMeta;
+}
 
 export interface Downtime {
   author_name: string;

@@ -24,7 +24,15 @@ declare(strict_types=1);
 use PhpCsFixer\Config;
 use Tools\PhpCsFixer\PhpCsFixerRuleSet;
 
-return (new Config())
+// CS Fixer 3.76 does not declare PHP 8.4 support. This flag suppresses the version-check abort.
+// Pinned at 3.76 to avoid cosmetic side effects introduced in 3.77+ (phpdoc_order phpstan/psalm
+// annotation reordering) and to stay backport-compatible with dev-25.10.x.
+// setUnsupportedPhpVersionAllowed() exists only on Config (not ConfigInterface), so it must be
+// called before any fluent method that narrows the return type to ConfigInterface.
+$config = new Config();
+$config->setUnsupportedPhpVersionAllowed(true);
+
+return $config
     // @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/pull/7777
     ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setRiskyAllowed(false)

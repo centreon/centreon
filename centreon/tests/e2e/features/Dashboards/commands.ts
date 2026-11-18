@@ -405,35 +405,6 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('getCellContent', (rowIndex, columnIndex) => {
-  cy.waitUntil(
-    () =>
-      cy
-        .get(
-          `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(${rowIndex}) .MuiTableCell-root:nth-child(${columnIndex})`
-        )
-        .should('be.visible')
-        .then(() => true),
-    { interval: 1000, timeout: 10000 }
-  );
-
-  return cy
-    .get(
-      `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(${rowIndex}) .MuiTableCell-root:nth-child(${columnIndex})`
-    )
-    .invoke('text')
-    .then((content) => {
-      const columnContents = content ? content.match(/[A-Z][a-z]*/g) || [] : [];
-      cy.log(
-        `Column contents (${rowIndex}, ${columnIndex}): ${columnContents
-          .join(',')
-          .trim()}`
-      );
-
-      return cy.wrap(columnContents);
-    });
-});
-
 Cypress.Commands.add('applyAcl', () => {
   const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
     ? 'apache'
@@ -451,7 +422,8 @@ Cypress.Commands.add(
     index: number,
     expectedColors: Array<string>,
     expectedValues: Array<string>,
-    alternativeValues: Array<string> = []
+    alternativeValues: Array<string> = [],
+    secondAlternativeValues: Array<string> = []
   ): Cypress.Chainable => {
     cy.get('[data-testid="Legend"] > *')
       .eq(index)
@@ -475,6 +447,10 @@ Cypress.Commands.add(
 
                   if (alternativeValues[i]) {
                     possibleValues.push(alternativeValues[i]);
+                  }
+
+                  if (secondAlternativeValues[i]) {
+                    possibleValues.push(secondAlternativeValues[i]);
                   }
 
                   expect(text.trim()).to.match(
@@ -670,7 +646,6 @@ declare global {
       editDashboard: (name: string) => Cypress.Chainable;
       editWidget: (nameOrPosition: string | number) => Cypress.Chainable;
       enableDashboardFeature: () => Cypress.Chainable;
-      getCellContent: (rowIndex: number, colIndex: number) => Cypress.Chainable;
       getServiceIdByName: (serviceName: string) => Cypress.Chainable;
       insertDashboardWithDoubleWidget: (
         dashboard: Dashboard,
@@ -699,7 +674,8 @@ declare global {
         index: number,
         expectedColors: Array<string>,
         expectedValue: Array<string>,
-        alternativeValues?: Array<string>
+        alternativeValues?: Array<string>,
+        secondAlternativeValues?: Array<string>
       ) => Cypress.Chainable;
       visitDashboard: (name: string) => Cypress.Chainable;
       visitDashboards: () => Cypress.Chainable;

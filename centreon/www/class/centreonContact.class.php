@@ -28,6 +28,16 @@ use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
  */
 class CentreonContact
 {
+    private const ALLOWED_CONTACT_FIELDS = [
+        'contact_id', 'contact_name', 'contact_alias', 'contact_email', 'contact_pager',
+        'contact_comment', 'contact_host_notification_options', 'contact_service_notification_options',
+        'contact_activate', 'contact_admin', 'contact_oreon', 'contact_auth_type',
+        'contact_lang', 'contact_template_id', 'contact_register', 'contact_location',
+        'timeperiod_tp_id', 'timeperiod_tp_id2', 'contact_enable_notifications',
+        'contact_type_msg', 'contact_ldap_dn', 'ar_id', 'contact_autologin_key',
+        'default_page', 'reach_api', 'reach_api_rt', 'show_deprecated_pages',
+    ];
+
     /** @var CentreonDB */
     protected $db;
 
@@ -56,27 +66,52 @@ class CentreonContact
     {
         $fieldStr = '*';
         if (count($fields)) {
-            $fieldStr = implode(', ', $fields);
+            $validFields = array_intersect($fields, self::ALLOWED_CONTACT_FIELDS);
+            $fieldStr = count($validFields) ? implode(', ', $validFields) : '*';
         }
+
         $filterStr = " WHERE contact_register = '0' ";
+        $bindParams = [];
+        $paramIndex = 0;
         foreach ($filters as $k => $v) {
-            $filterStr .= " AND {$k} LIKE '{$this->db->escape($v)}' ";
+            if (! in_array($k, self::ALLOWED_CONTACT_FIELDS, true)) {
+                continue;
+            }
+            $paramName = ':filter_' . $paramIndex++;
+            $filterStr .= " AND {$k} LIKE {$paramName} ";
+            $bindParams[$paramName] = $v;
         }
+
         $orderStr = '';
-        if (count($order) === 2) {
+        if (
+            count($order) === 2
+            && in_array($order[0], self::ALLOWED_CONTACT_FIELDS, true)
+            && in_array(strtoupper($order[1]), ['ASC', 'DESC'], true)
+        ) {
             $orderStr = " ORDER BY {$order[0]} {$order[1]} ";
         }
+
         $limitStr = '';
         if (count($limit) === 2) {
-            $limitStr = " LIMIT {$limit[0]},{$limit[1]}";
+            $limitStr = ' LIMIT :limitOffset, :limitCount';
+            $bindParams[':limitOffset'] = (int) $limit[0];
+            $bindParams[':limitCount'] = (int) $limit[1];
         }
-        $res = $this->db->query("SELECT SQL_CALC_FOUND_ROWS {$fieldStr} 
-                                FROM contact 
-                                {$filterStr}
-                                {$orderStr}
-                                {$limitStr}");
+
+        $statement = $this->db->prepare(
+            "SELECT SQL_CALC_FOUND_ROWS {$fieldStr} FROM contact {$filterStr} {$orderStr} {$limitStr}"
+        );
+        foreach ($bindParams as $paramName => $paramValue) {
+            $statement->bindValue(
+                $paramName,
+                $paramValue,
+                is_int($paramValue) ? PDO::PARAM_INT : PDO::PARAM_STR
+            );
+        }
+        $statement->execute();
+
         $arr = [];
-        while ($row = $res->fetchRow()) {
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
             $arr[] = $row;
         }
 
@@ -94,14 +129,17 @@ class CentreonContact
      */
     public static function getContactGroupsFromContact($db, $contactId)
     {
-        $sql = 'SELECT cg_id, cg_name
-            FROM contactgroup_contact_relation r, contactgroup cg 
+        $statement = $db->prepare(
+            'SELECT cg_id, cg_name
+            FROM contactgroup_contact_relation r, contactgroup cg
             WHERE cg.cg_id = r.contactgroup_cg_id
-            AND r.contact_contact_id = ' . $db->escape($contactId);
-        $stmt = $db->query($sql);
+            AND r.contact_contact_id = :contactId'
+        );
+        $statement->bindValue(':contactId', (int) $contactId, PDO::PARAM_INT);
+        $statement->execute();
 
         $cgs = [];
-        while ($row = $stmt->fetchRow()) {
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
             $cgs[$row['cg_id']] = $row['cg_name'];
         }
 

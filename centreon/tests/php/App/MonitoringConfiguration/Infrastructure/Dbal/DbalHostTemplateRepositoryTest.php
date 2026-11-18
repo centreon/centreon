@@ -1,0 +1,1154 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateListingTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
+use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Service\AccessScopeResolver;
+use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
+use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
+use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Domain\Repository\SortDirectionEnum;
+use Doctrine\DBAL\Connection;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Uid\Uuid;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
+
+final class DbalHostTemplateRepositoryTest extends KernelTestCase
+{
+    private Connection $connection;
+
+    private DbalHostTemplateRepository $repository;
+
+    private string $tag;
+
+    protected function setUp(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->connection = $connection;
+
+        /** @var Connection $realTimeConnection */
+        $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+
+        // The repository has no ApiPlatform consumer yet (that lands with the Provider), so the
+        // container would prune it; construct it directly from the always-public DBAL connection.
+        $this->repository = new DbalHostTemplateRepository(
+            $this->connection,
+            new HostTemplateTransformer(),
+            new HostTemplateListingTransformer(),
+            new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
+            new DbalModuleRepository($this->connection),
+        );
+
+        // unique per test run so assertions are isolated from any pre-seeded host templates
+        $this->tag = Uuid::v4()->toRfc4122();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->executeStatement('DROP TEMPORARY TABLE IF EXISTS mod_ppm_pluginpack_host');
+        $this->connection->executeStatement('DROP TEMPORARY TABLE IF EXISTS mod_ppm_pluginpack');
+
+        parent::tearDown();
+    }
+
+    public function testFindAllReturnsHostTemplatesAndExcludesRegularHosts(): void
+    {
+        $templateName = "tpl-{$this->tag}";
+        $hostName = "host-{$this->tag}";
+        $this->insertHostTemplate($templateName);
+        $this->insertRegularHost($hostName);
+
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()));
+
+        self::assertContains($templateName, $names);
+        self::assertNotContains($hostName, $names, 'A regular host (host_register = 1) must not appear among host templates.');
+    }
+
+    public function testFindAllExcludesTheRequestedIds(): void
+    {
+        $keptName = "kept-{$this->tag}";
+        $this->insertHostTemplate($keptName);
+        $excludedName = "excluded-{$this->tag}";
+        $excludedId = $this->insertHostTemplate($excludedName);
+
+        $names = $this->names($this->repository->findAll(
+            HostTemplateCriteria::unscoped()->withName($this->tag)->withExcludedIds(new Collection([new HostTemplateId($excludedId)], HostTemplateId::class))
+        ));
+
+        self::assertContains($keptName, $names);
+        self::assertNotContains($excludedName, $names);
+    }
+
+    public function testFindAllFiltersById(): void
+    {
+        $wantedId = $this->insertHostTemplate("wanted-{$this->tag}");
+        $this->insertHostTemplate("other-{$this->tag}");
+
+        $names = $this->names($this->repository->findAll(
+            HostTemplateCriteria::unscoped()->withId(new HostTemplateId($wantedId))
+        ));
+
+        self::assertSame(["wanted-{$this->tag}"], $names);
+    }
+
+    public function testFindAllFiltersByNameUsingLike(): void
+    {
+        $this->insertHostTemplate("match-{$this->tag}");
+        $this->insertHostTemplate("other-{$this->tag}");
+
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()->withName("match-{$this->tag}")));
+
+        self::assertSame(["match-{$this->tag}"], $names);
+    }
+
+    public function testFindAllPaginatesAndReturnsATotalAcrossAllPages(): void
+    {
+        $this->insertHostTemplate("pg-{$this->tag}-A");
+        $this->insertHostTemplate("pg-{$this->tag}-B");
+        $this->insertHostTemplate("pg-{$this->tag}-C");
+
+        // scope to our own rows via the name filter so pre-seeded templates cannot skew the total.
+        // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
+        $result = $this->repository->findAll(
+            HostTemplateCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
+        );
+
+        self::assertInstanceOf(Paginator::class, $result);
+        self::assertSame(3, $result->getTotalItems());
+        // rows are ordered by host_id (insertion order A, B, C), so page 2 is the second row
+        self::assertSame(["pg-{$this->tag}-B"], $this->names($result));
+    }
+
+    public function testFindAllMatchesTheSearchedValueInTheNameOrTheAlias(): void
+    {
+        // one search matches the name or the alias (legacy parity)
+        $this->insertListedTemplate("ht3-{$this->tag}", alias: "ht1-{$this->tag}-alias");
+        $this->insertListedTemplate("ht1-{$this->tag}");
+        $this->insertListedTemplate("other-{$this->tag}", alias: "unrelated-{$this->tag}");
+
+        $byAlias = $this->names($this->repository->findAll(
+            HostTemplateCriteria::unscoped()->withNameOrAlias("ht1-{$this->tag}")->withSort('name', SortDirectionEnum::ASC)
+        ));
+        $byName = $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()->withNameOrAlias("ht3-{$this->tag}")));
+
+        self::assertSame(["ht1-{$this->tag}", "ht3-{$this->tag}"], $byAlias);
+        self::assertSame(["ht3-{$this->tag}"], $byName);
+    }
+
+    public function testWithNameStillMatchesTheNameOnly(): void
+    {
+        // the choices endpoint keeps its name-only search
+        $this->insertListedTemplate("name-{$this->tag}");
+        $this->insertListedTemplate("other-{$this->tag}", alias: "name-{$this->tag}-alias");
+
+        self::assertSame(["name-{$this->tag}"], $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()->withName("name-{$this->tag}"))));
+    }
+
+    public function testFindAllLeavesOutTheLockedTemplatesOnlyOnRequest(): void
+    {
+        $this->insertListedTemplate("lock-{$this->tag}-unlocked", locked: 0);
+        $this->insertListedTemplate("lock-{$this->tag}-locked", locked: 1);
+        // like legacy's "host_locked = 0", a NULL lock state is left out as well
+        $this->insertListedTemplate("lock-{$this->tag}-null", locked: null);
+
+        $criteria = HostTemplateCriteria::unscoped()->withName("lock-{$this->tag}-");
+
+        self::assertSame(["lock-{$this->tag}-unlocked"], $this->names($this->repository->findAll($criteria->withoutLocked())));
+        // by default every template is kept, in id order: the choices endpoint relies on both
+        self::assertSame(
+            ["lock-{$this->tag}-unlocked", "lock-{$this->tag}-locked", "lock-{$this->tag}-null"],
+            $this->names($this->repository->findAll($criteria))
+        );
+    }
+
+    public function testFindAllKeepsTheIdOrderWithoutARequestedSort(): void
+    {
+        $this->insertListedTemplate("order-{$this->tag}-c");
+        $this->insertListedTemplate("order-{$this->tag}-a");
+        $this->insertListedTemplate("order-{$this->tag}-b");
+
+        self::assertSame(
+            ["order-{$this->tag}-c", "order-{$this->tag}-a", "order-{$this->tag}-b"],
+            $this->names($this->repository->findAll(HostTemplateCriteria::unscoped()->withName("order-{$this->tag}-")))
+        );
+    }
+
+    public function testFindAllSortsByName(): void
+    {
+        $this->insertListedTemplate("sort-{$this->tag}-b");
+        $this->insertListedTemplate("sort-{$this->tag}-c");
+        $this->insertListedTemplate("sort-{$this->tag}-a");
+        $criteria = HostTemplateCriteria::unscoped()->withName("sort-{$this->tag}-");
+
+        self::assertSame(
+            ["sort-{$this->tag}-a", "sort-{$this->tag}-b", "sort-{$this->tag}-c"],
+            $this->names($this->repository->findAll($criteria->withSort('name', SortDirectionEnum::ASC)))
+        );
+        self::assertSame(
+            ["sort-{$this->tag}-c", "sort-{$this->tag}-b", "sort-{$this->tag}-a"],
+            $this->names($this->repository->findAll($criteria->withSort('name', 'DESC')))
+        );
+    }
+
+    public function testFindAllSortsByAliasThenById(): void
+    {
+        // tied aliases: id ascending breaks the tie in both directions
+        $this->insertListedTemplate("alias-{$this->tag}-1", alias: 'b');
+        $this->insertListedTemplate("alias-{$this->tag}-2", alias: 'a');
+        $this->insertListedTemplate("alias-{$this->tag}-3", alias: 'a');
+        $criteria = HostTemplateCriteria::unscoped()->withName("alias-{$this->tag}-");
+
+        self::assertSame(
+            ["alias-{$this->tag}-2", "alias-{$this->tag}-3", "alias-{$this->tag}-1"],
+            $this->names($this->repository->findAll($criteria->withSort('alias', SortDirectionEnum::ASC)))
+        );
+        self::assertSame(
+            ["alias-{$this->tag}-1", "alias-{$this->tag}-2", "alias-{$this->tag}-3"],
+            $this->names($this->repository->findAll($criteria->withSort('alias', SortDirectionEnum::DESC)))
+        );
+    }
+
+    public function testFindAllSortsTheTemplatesWithoutAliasFirstInAscendingOrder(): void
+    {
+        // MySQL sorts NULL first: alias-less templates lead ascending, trail descending
+        $this->insertListedTemplate("nullalias-{$this->tag}-1", alias: 'a');
+        $this->insertListedTemplate("nullalias-{$this->tag}-2");
+        $this->insertListedTemplate("nullalias-{$this->tag}-3", alias: 'b');
+        $criteria = HostTemplateCriteria::unscoped()->withName("nullalias-{$this->tag}-");
+
+        self::assertSame(
+            ["nullalias-{$this->tag}-2", "nullalias-{$this->tag}-1", "nullalias-{$this->tag}-3"],
+            $this->names($this->repository->findAll($criteria->withSort('alias', SortDirectionEnum::ASC)))
+        );
+        self::assertSame(
+            ["nullalias-{$this->tag}-3", "nullalias-{$this->tag}-1", "nullalias-{$this->tag}-2"],
+            $this->names($this->repository->findAll($criteria->withSort('alias', SortDirectionEnum::DESC)))
+        );
+    }
+
+    public function testFindAllPaginatesTheSortedResult(): void
+    {
+        $this->insertListedTemplate("page-{$this->tag}-c");
+        $this->insertListedTemplate("page-{$this->tag}-a");
+        $this->insertListedTemplate("page-{$this->tag}-b");
+
+        $result = $this->repository->findAll(
+            HostTemplateCriteria::unscoped()->withName("page-{$this->tag}-")->withSort('name', SortDirectionEnum::ASC)->withPagination(2, 2)
+        );
+
+        self::assertInstanceOf(Paginator::class, $result);
+        self::assertSame(3, $result->getTotalItems());
+        self::assertSame(["page-{$this->tag}-c"], $this->names($result));
+    }
+
+    public function testFindAllHydratesTheListedFields(): void
+    {
+        $iconId = $this->insertImage();
+        $firstParentId = $this->insertListedTemplate("parent-a-{$this->tag}");
+        $secondParentId = $this->insertListedTemplate("parent-b-{$this->tag}");
+        $templateId = $this->insertListedTemplate("full-{$this->tag}", alias: 'An alias', locked: 1);
+        $this->setIcon($templateId, $iconId);
+        // inserted out of order on purpose: `order`, not insertion, gives the parents' order
+        $this->linkHostToTemplate($templateId, $secondParentId, 1);
+        $this->linkHostToTemplate($templateId, $firstParentId, 2);
+        $bareId = $this->insertListedTemplate("bare-{$this->tag}", alias: '  ');
+
+        $templates = [];
+        foreach ($this->repository->findAll(HostTemplateCriteria::unscoped()->withName($this->tag)) as $template) {
+            $templates[$template->id()->value] = $template;
+        }
+
+        $full = $templates[$templateId];
+        self::assertSame('An alias', $full->alias?->value);
+        self::assertTrue($full->isLocked);
+        self::assertSame($iconId, $full->extendedInformations?->iconId?->value);
+        self::assertSame([$secondParentId, $firstParentId], $this->idValues($full->parentTemplateIds));
+
+        $bare = $templates[$bareId];
+        self::assertNull($bare->alias, 'A blank alias is read as no alias.');
+        self::assertFalse($bare->isLocked);
+        self::assertNull($bare->extendedInformations);
+        self::assertSame([], $this->idValues($bare->parentTemplateIds));
+    }
+
+    public function testFindTemplatesInheritedIconIdsIgnoresTheTemplateOwnIcon(): void
+    {
+        $ownIconId = $this->insertImage();
+        $parentIconId = $this->insertImage();
+        $parentId = $this->insertListedTemplate("parent-{$this->tag}");
+        $this->setIcon($parentId, $parentIconId);
+        $templateId = $this->insertListedTemplate("tpl-{$this->tag}");
+        $this->setIcon($templateId, $ownIconId);
+        $this->linkHostToTemplate($templateId, $parentId, 1);
+
+        self::assertSame([$templateId => $parentIconId], $this->templatesInheritedIconIds($templateId));
+    }
+
+    public function testFindTemplatesInheritedIconIdsIsDepthFirstByRelationOrder(): void
+    {
+        $deepIconId = $this->insertImage();
+        $secondIconId = $this->insertImage();
+        $deepId = $this->insertListedTemplate("deep-{$this->tag}");
+        $this->setIcon($deepId, $deepIconId);
+        $firstId = $this->insertListedTemplate("first-{$this->tag}");
+        $this->linkHostToTemplate($firstId, $deepId, 1);
+        $secondId = $this->insertListedTemplate("second-{$this->tag}");
+        $this->setIcon($secondId, $secondIconId);
+        $templateId = $this->insertListedTemplate("tpl-{$this->tag}");
+        $this->linkHostToTemplate($templateId, $secondId, 2);
+        $this->linkHostToTemplate($templateId, $firstId, 1);
+
+        self::assertSame([$templateId => $deepIconId], $this->templatesInheritedIconIds($templateId));
+    }
+
+    public function testFindTemplatesInheritedIconIdsSkipsAnIconInNoFolderAndOmitsTemplatesWithoutIcon(): void
+    {
+        $folderlessIconId = $this->insertImage(inFolder: false);
+        $nextIconId = $this->insertImage();
+        $folderlessId = $this->insertListedTemplate("folderless-{$this->tag}");
+        $this->setIcon($folderlessId, $folderlessIconId);
+        $nextId = $this->insertListedTemplate("next-{$this->tag}");
+        $this->setIcon($nextId, $nextIconId);
+        $templateId = $this->insertListedTemplate("tpl-{$this->tag}");
+        $this->linkHostToTemplate($templateId, $folderlessId, 1);
+        $this->linkHostToTemplate($templateId, $nextId, 2);
+        $withoutIconId = $this->insertListedTemplate("without-{$this->tag}");
+        $this->linkHostToTemplate($withoutIconId, $this->insertListedTemplate("iconless-parent-{$this->tag}"), 1);
+
+        self::assertSame([$templateId => $nextIconId], $this->templatesInheritedIconIds($templateId, $withoutIconId));
+        self::assertCount(0, $this->repository->findTemplatesInheritedIconIds(new Collection([], HostTemplateId::class)));
+    }
+
+    public function testFindTemplatesInheritedIconIdsSurvivesALoopThroughTheRequestedTemplate(): void
+    {
+        $loopIconId = $this->insertImage();
+        // A -> B -> A, B with an icon: A inherits it
+        $withIconId = $this->insertListedTemplate("loop-a-{$this->tag}");
+        $iconParentId = $this->insertListedTemplate("loop-b-{$this->tag}");
+        $this->setIcon($iconParentId, $loopIconId);
+        $this->linkHostToTemplate($withIconId, $iconParentId, 1);
+        $this->linkHostToTemplate($iconParentId, $withIconId, 1);
+        // C -> D -> C, no icon anywhere: C is absent
+        $iconlessId = $this->insertListedTemplate("loop-c-{$this->tag}");
+        $iconlessParentId = $this->insertListedTemplate("loop-d-{$this->tag}");
+        $this->linkHostToTemplate($iconlessId, $iconlessParentId, 1);
+        $this->linkHostToTemplate($iconlessParentId, $iconlessId, 1);
+        // E -> F -> E, only E has an icon: its own icon does not come back through the loop
+        $ownIconOnlyId = $this->insertListedTemplate("loop-e-{$this->tag}");
+        $this->setIcon($ownIconOnlyId, $this->insertImage());
+        $ownIconOnlyParentId = $this->insertListedTemplate("loop-f-{$this->tag}");
+        $this->linkHostToTemplate($ownIconOnlyId, $ownIconOnlyParentId, 1);
+        $this->linkHostToTemplate($ownIconOnlyParentId, $ownIconOnlyId, 1);
+
+        self::assertSame(
+            [$withIconId => $loopIconId],
+            $this->templatesInheritedIconIds($withIconId, $iconlessId, $ownIconOnlyId)
+        );
+    }
+
+    public function testCountLinkedServiceTemplatesCountsTheDirectLinksOnly(): void
+    {
+        $parentId = $this->insertListedTemplate("parent-{$this->tag}");
+        $templateId = $this->insertListedTemplate("tpl-{$this->tag}");
+        $this->linkHostToTemplate($templateId, $parentId, 1);
+        $unlinkedId = $this->insertListedTemplate("unlinked-{$this->tag}");
+        $this->linkServiceToHost($this->insertService(null, null), $templateId);
+        $this->linkServiceToHost($this->insertService(null, null), $templateId);
+        // the parent's links are not the template's own
+        $this->linkServiceToHost($this->insertService(null, null), $parentId);
+
+        $counts = $this->repository->countLinkedServiceTemplates(new Collection(
+            [new HostTemplateId($templateId), new HostTemplateId($unlinkedId)],
+            HostTemplateId::class,
+        ));
+        ksort($counts);
+
+        self::assertSame([$templateId => 2, $unlinkedId => 0], $counts);
+        self::assertSame([], $this->repository->countLinkedServiceTemplates(new Collection([], HostTemplateId::class)));
+    }
+
+    public function testFindNamesByIds(): void
+    {
+        $templateName = "tpl-{$this->tag}";
+        $templateId = $this->insertHostTemplate($templateName);
+
+        $names = $this->repository->findNamesByIds(
+            new Collection([new HostTemplateId($templateId), new HostTemplateId($templateId + 999)], HostTemplateId::class)
+        );
+
+        self::assertCount(1, $names);
+        self::assertSame($templateName, $names->toArray()[$templateId]->value);
+    }
+
+    public function testFindNamesByIdsReturnsAnEmptyCollectionForNoIds(): void
+    {
+        $names = $this->repository->findNamesByIds(new Collection([], HostTemplateId::class));
+
+        self::assertCount(0, $names);
+    }
+
+    public function testFindNamesByIdsExcludesRegularHosts(): void
+    {
+        // host_template_relation.host_tpl_id carries no host_register-based constraint, so
+        // nothing at the schema level stops a regular host id from ending up there; this
+        // asserts findNamesByIds() itself never resolves one as a template name regardless.
+        $regularHostId = $this->insertRegularHost("host-{$this->tag}");
+
+        $names = $this->repository->findNamesByIds(new Collection([new HostTemplateId($regularHostId)], HostTemplateId::class));
+
+        self::assertCount(0, $names);
+    }
+
+    public function testFindAllRestrictsToAccessibleSeveritiesForARestrictedActor(): void
+    {
+        // legacy scopes restricted actors by host *severities* (categories with a level), not by
+        // regular host categories, even when the regular category is in the actor's ACL.
+        $severityId = $this->insertHostCategory("sev-{$this->tag}", level: 1);
+        $regularId = $this->insertHostCategory("reg-{$this->tag}");
+
+        $inSeverity = $this->insertHostTemplate("acl-severity-{$this->tag}");
+        $this->linkTemplateToCategory($inSeverity, $severityId);
+        $inRegular = $this->insertHostTemplate("acl-regular-{$this->tag}");
+        $this->linkTemplateToCategory($inRegular, $regularId);
+        $uncategorizedName = "acl-none-{$this->tag}";
+        $this->insertHostTemplate($uncategorizedName);
+
+        // the actor's ACL grants BOTH the severity and the regular category
+        $actorId = new UserId($this->createContactRestrictedToHostCategories([$severityId, $regularId]));
+
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::forActor(TestActingUsers::restricted($actorId->value))));
+
+        self::assertContains("acl-severity-{$this->tag}", $names);
+        self::assertNotContains("acl-regular-{$this->tag}", $names, 'A template linked only to a regular (levelless) category is excluded even though that category is in the ACL — legacy scopes by severities.');
+        self::assertNotContains($uncategorizedName, $names, 'A template with no category is excluded for a restricted actor.');
+        self::assertContains($uncategorizedName, $this->names($this->repository->findAll(HostTemplateCriteria::forActor(TestActingUsers::unrestricted($actorId->value)))), 'An unrestricted actor is not scoped by ACL.');
+    }
+
+    public function testFindAllReturnsAllTemplatesForAActorWithNoCategoryRestriction(): void
+    {
+        $severityId = $this->insertHostCategory("sev-{$this->tag}", level: 1);
+        $categorizedId = $this->insertHostTemplate("acl-in-{$this->tag}");
+        $this->linkTemplateToCategory($categorizedId, $severityId);
+        $uncategorizedName = "acl-out-{$this->tag}";
+        $this->insertHostTemplate($uncategorizedName);
+
+        // ACL resource without any host-category relation → no restriction → sees everything
+        $actorId = new UserId($this->createContactRestrictedToHostCategories([]));
+
+        $names = $this->names($this->repository->findAll(HostTemplateCriteria::forActor(TestActingUsers::restricted($actorId->value))));
+
+        self::assertContains("acl-in-{$this->tag}", $names);
+        self::assertContains($uncategorizedName, $names);
+    }
+
+    public function testFindAllReturnsNothingForAActorGrantedOnlyRegularCategories(): void
+    {
+        // An actor whose ACL restricts to host categories but grants only regular (levelless) ones has
+        // an empty accessible-severity set. Legacy fails closed here (the category restriction is in
+        // force yet no severity matches), so the actor must see no host template — not everything.
+        $regularId = $this->insertHostCategory("reg-{$this->tag}");
+        $severityId = $this->insertHostCategory("sev-{$this->tag}", level: 1);
+
+        $categorized = $this->insertHostTemplate("acl-sev-{$this->tag}");
+        $this->linkTemplateToCategory($categorized, $severityId);
+        $this->insertHostTemplate("acl-none-{$this->tag}");
+
+        $actorId = new UserId($this->createContactRestrictedToHostCategories([$regularId]));
+
+        $criteria = HostTemplateCriteria::forActor(TestActingUsers::restricted($actorId->value));
+
+        self::assertSame([], $this->names($this->repository->findAll($criteria)), 'An actor granted only regular categories sees no host template.');
+
+        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        self::assertInstanceOf(Paginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
+        self::assertSame(0, $paginated->getTotalItems());
+        self::assertSame([], $this->names($paginated));
+    }
+
+    public function testFindInheritedIconIdsReturnsTheIconOfADirectTemplate(): void
+    {
+        $iconId = $this->insertImage();
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->setIcon($templateId, $iconId);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $templateId, 1);
+
+        self::assertSame([$hostId => $iconId], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsWalksUpTheTemplateChain(): void
+    {
+        $iconId = $this->insertImage();
+        $grandParentId = $this->insertHostTemplate("grand-parent-{$this->tag}");
+        $this->setIcon($grandParentId, $iconId);
+        $parentId = $this->insertHostTemplate("parent-{$this->tag}");
+        $this->linkHostToTemplate($parentId, $grandParentId, 1);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $parentId, 1);
+
+        self::assertSame([$hostId => $iconId], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsIsDepthFirstByRelationOrder(): void
+    {
+        // legacy fully explores the first template (in order) before moving to the next one, so an
+        // icon inherited through the first template wins over the second template's own icon
+        $deepIconId = $this->insertImage();
+        $secondIconId = $this->insertImage();
+        $deepTemplateId = $this->insertHostTemplate("deep-{$this->tag}");
+        $this->setIcon($deepTemplateId, $deepIconId);
+        $firstTemplateId = $this->insertHostTemplate("first-{$this->tag}");
+        $this->linkHostToTemplate($firstTemplateId, $deepTemplateId, 1);
+        $secondTemplateId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->setIcon($secondTemplateId, $secondIconId);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        // inserted out of order on purpose: `order`, not insertion, drives the traversal
+        $this->linkHostToTemplate($hostId, $secondTemplateId, 2);
+        $this->linkHostToTemplate($hostId, $firstTemplateId, 1);
+
+        self::assertSame([$hostId => $deepIconId], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsPrefersATemplateOwnIconOverItsParents(): void
+    {
+        $ownIconId = $this->insertImage();
+        $parentIconId = $this->insertImage();
+        $parentId = $this->insertHostTemplate("parent-{$this->tag}");
+        $this->setIcon($parentId, $parentIconId);
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->setIcon($templateId, $ownIconId);
+        $this->linkHostToTemplate($templateId, $parentId, 1);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $templateId, 1);
+
+        self::assertSame([$hostId => $ownIconId], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsOmitsHostsWithoutAnyInheritedIcon(): void
+    {
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->setIcon($templateId, null);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $templateId, 1);
+        $orphanHostId = $this->insertRegularHost("orphan-{$this->tag}");
+
+        self::assertSame([], $this->inheritedIconIds($hostId, $orphanHostId));
+    }
+
+    public function testFindInheritedIconIdsSurvivesATemplateLoop(): void
+    {
+        $firstId = $this->insertHostTemplate("loop-a-{$this->tag}");
+        $secondId = $this->insertHostTemplate("loop-b-{$this->tag}");
+        $this->linkHostToTemplate($firstId, $secondId, 1);
+        $this->linkHostToTemplate($secondId, $firstId, 1);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $firstId, 1);
+
+        self::assertSame([], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsSkipsAnIconWhoseImageIsInNoFolder(): void
+    {
+        // legacy cannot build the URL of an image outside any folder, so it moves on to the next template
+        $folderlessIconId = $this->insertImage(inFolder: false);
+        $nextIconId = $this->insertImage();
+        $firstTemplateId = $this->insertHostTemplate("first-{$this->tag}");
+        $this->setIcon($firstTemplateId, $folderlessIconId);
+        $secondTemplateId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->setIcon($secondTemplateId, $nextIconId);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $firstTemplateId, 1);
+        $this->linkHostToTemplate($hostId, $secondTemplateId, 2);
+
+        self::assertSame([$hostId => $nextIconId], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsResolvesEachHostOfTheBatchIndependently(): void
+    {
+        $firstIconId = $this->insertImage();
+        $secondIconId = $this->insertImage();
+        $firstTemplateId = $this->insertHostTemplate("first-{$this->tag}");
+        $this->setIcon($firstTemplateId, $firstIconId);
+        $secondTemplateId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->setIcon($secondTemplateId, $secondIconId);
+        $firstHostId = $this->insertRegularHost("host-a-{$this->tag}");
+        $this->linkHostToTemplate($firstHostId, $firstTemplateId, 1);
+        $secondHostId = $this->insertRegularHost("host-b-{$this->tag}");
+        $this->linkHostToTemplate($secondHostId, $secondTemplateId, 1);
+        $sharingHostId = $this->insertRegularHost("host-c-{$this->tag}");
+        $this->linkHostToTemplate($sharingHostId, $firstTemplateId, 1);
+
+        $iconIds = $this->inheritedIconIds($firstHostId, $secondHostId, $sharingHostId);
+        ksort($iconIds);
+
+        self::assertSame(
+            [$firstHostId => $firstIconId, $secondHostId => $secondIconId, $sharingHostId => $firstIconId],
+            $iconIds,
+        );
+    }
+
+    public function testFindInheritedIconIdsBreaksAnOrderTieByTemplateId(): void
+    {
+        // legacy reads ties in primary-key order (host_host_id, host_tpl_id), so the lower template id wins
+        $firstIconId = $this->insertImage();
+        $secondIconId = $this->insertImage();
+        $firstTemplateId = $this->insertHostTemplate("first-{$this->tag}");
+        $this->setIcon($firstTemplateId, $firstIconId);
+        $secondTemplateId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->setIcon($secondTemplateId, $secondIconId);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $secondTemplateId, 1);
+        $this->linkHostToTemplate($hostId, $firstTemplateId, 1);
+
+        self::assertSame([$hostId => $firstIconId], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsReturnsAnEmptyCollectionForNoIds(): void
+    {
+        self::assertCount(0, $this->repository->findInheritedIconIds(new Collection([], HostId::class)));
+    }
+
+    public function testFindServiceTemplateIdsFollowsTheInheritanceChain(): void
+    {
+        $parentId = $this->insertHostTemplate('parent-template');
+        $childId = $this->insertHostTemplate('child-template');
+        $unrelatedId = $this->insertHostTemplate('unrelated-template');
+        $this->linkHostToTemplate($childId, $parentId, 0);
+        $ownServiceTemplate = $this->insertService(null, null);
+        $inheritedServiceTemplate = $this->insertService(null, null);
+        $unrelatedServiceTemplate = $this->insertService(null, null);
+        $this->linkServiceToHost($ownServiceTemplate, $childId);
+        $this->linkServiceToHost($inheritedServiceTemplate, $parentId);
+        $this->linkServiceToHost($unrelatedServiceTemplate, $unrelatedId);
+
+        $ids = $this->repository->findServiceTemplateIds(new Collection([new HostTemplateId($childId)], HostTemplateId::class));
+
+        sort($ids);
+        self::assertSame([$ownServiceTemplate, $inheritedServiceTemplate], $ids);
+    }
+
+    public function testFindServiceTemplateIdsIgnoresARegularServiceAndAnEmptyInput(): void
+    {
+        $templateId = $this->insertHostTemplate('template');
+        $regularService = $this->insertService(null, null, '1');
+        $this->linkServiceToHost($regularService, $templateId);
+
+        self::assertSame([], $this->repository->findServiceTemplateIds(new Collection([new HostTemplateId($templateId)], HostTemplateId::class)));
+        self::assertSame([], $this->repository->findServiceTemplateIds(new Collection([], HostTemplateId::class)));
+    }
+
+    public function testFindInheritanceLineReturnsTheDirectTemplatesWithTheirMacros(): void
+    {
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        // macro_order is a legacy display property: ignored, the macros come in insertion order.
+        $passwordId = $this->insertMacro($templateId, '$_HOSTPWD$', 'secret::vault::x', isPassword: true, order: 1);
+        $plainId = $this->insertMacro($templateId, '$_HOSTPLAIN$', 'value', isPassword: false, order: 0);
+
+        $line = $this->inheritanceLine($templateId);
+
+        self::assertSame([$templateId], array_keys($line));
+        $macros = $line[$templateId]->checkOptions->macros;
+        self::assertCount(2, $macros);
+        // With their own ids.
+        self::assertSame($passwordId, $macros[0]->id?->value);
+        self::assertTrue($macros[0]->isPassword);
+        self::assertSame('PLAIN', $macros[1]->name->value);
+        self::assertSame($plainId, $macros[1]->id?->value);
+        self::assertSame('value', $macros[1]->value);
+        self::assertFalse($macros[1]->isPassword);
+    }
+
+    public function testFindInheritanceLineIsDepthFirstByRelationOrderNearestFirst(): void
+    {
+        // host -> [first -> [first-parent], second]: first's own ancestors come before second.
+        $firstParentId = $this->insertHostTemplate("first-parent-{$this->tag}");
+        $firstId = $this->insertHostTemplate("first-{$this->tag}");
+        $this->linkHostToTemplate($firstId, $firstParentId, 1);
+        $secondId = $this->insertHostTemplate("second-{$this->tag}");
+
+        self::assertSame([$firstId, $firstParentId, $secondId], array_keys($this->inheritanceLine($firstId, $secondId)));
+    }
+
+    public function testFindInheritanceLineKeepsASharedAncestorAtItsNearestPosition(): void
+    {
+        $sharedId = $this->insertHostTemplate("shared-{$this->tag}");
+        $firstId = $this->insertHostTemplate("first-{$this->tag}");
+        $secondId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->linkHostToTemplate($firstId, $sharedId, 1);
+        $this->linkHostToTemplate($secondId, $sharedId, 1);
+
+        self::assertSame([$firstId, $sharedId, $secondId], array_keys($this->inheritanceLine($firstId, $secondId)));
+    }
+
+    public function testFindInheritanceLineSkipsInactiveAncestors(): void
+    {
+        $inactiveId = $this->insertHostTemplate("inactive-{$this->tag}");
+        $this->connection->update('host', ['host_activate' => '0'], ['host_id' => $inactiveId]);
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->linkHostToTemplate($templateId, $inactiveId, 1);
+
+        self::assertSame([$templateId], array_keys($this->inheritanceLine($templateId)));
+    }
+
+    public function testFindInheritanceLineCarriesTheStoredDirectParentsOfEachTemplate(): void
+    {
+        $grandParentId = $this->insertHostTemplate("grand-parent-{$this->tag}");
+        $firstParentId = $this->insertHostTemplate("first-parent-{$this->tag}");
+        $this->linkHostToTemplate($firstParentId, $grandParentId, 1);
+        $secondParentId = $this->insertHostTemplate("second-parent-{$this->tag}");
+        $inactiveParentId = $this->insertHostTemplate("inactive-parent-{$this->tag}");
+        $this->connection->update('host', ['host_activate' => '0'], ['host_id' => $inactiveParentId]);
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        // inserted out of order on purpose: `order`, not insertion, gives the parents' order
+        $this->linkHostToTemplate($templateId, $inactiveParentId, 3);
+        $this->linkHostToTemplate($templateId, $firstParentId, 2);
+        $this->linkHostToTemplate($templateId, $secondParentId, 1);
+
+        $line = $this->inheritanceLine($templateId);
+
+        // the inactive parent is out of the line, yet still one of the template's stored parents
+        self::assertSame([$templateId, $secondParentId, $firstParentId, $grandParentId], array_keys($line));
+        self::assertSame([$secondParentId, $firstParentId, $inactiveParentId], $this->idValues($line[$templateId]->parentTemplateIds));
+        self::assertSame([$grandParentId], $this->idValues($line[$firstParentId]->parentTemplateIds));
+        self::assertSame([], $this->idValues($line[$grandParentId]->parentTemplateIds));
+    }
+
+    public function testFindInheritanceLineSkipsAnInactiveDirectTemplate(): void
+    {
+        // Legacy getTemplateChain() keeps active templates only, the direct ones included.
+        $inactiveId = $this->insertHostTemplate("inactive-{$this->tag}");
+        $this->connection->update('host', ['host_activate' => '0'], ['host_id' => $inactiveId]);
+        $activeId = $this->insertHostTemplate("active-{$this->tag}");
+
+        self::assertSame([$activeId], array_keys($this->inheritanceLine($inactiveId, $activeId)));
+    }
+
+    public function testFindInheritanceLineLoadsTheTemplateCheckCommand(): void
+    {
+        $commandId = $this->insertCommand();
+        $withCommandId = $this->insertHostTemplate("with-command-{$this->tag}");
+        $this->connection->update('host', ['command_command_id' => $commandId], ['host_id' => $withCommandId]);
+        $withoutCommandId = $this->insertHostTemplate("without-command-{$this->tag}");
+        $this->linkHostToTemplate($withCommandId, $withoutCommandId, 1);
+
+        $line = $this->inheritanceLine($withCommandId);
+
+        self::assertSame($commandId, $line[$withCommandId]->checkOptions->checkCommandId?->value);
+        self::assertNull($line[$withoutCommandId]->checkOptions->checkCommandId);
+    }
+
+    public function testFindInheritanceLineLoadsTheCheckCommandsOfTheLinkedServiceTemplates(): void
+    {
+        // Legacy getServicesTemplates(): each linked service template, in relation order, followed
+        // by its own templates nearest first; services (register = '1') and command-less ones are
+        // skipped.
+        $firstCommandId = $this->insertCommand();
+        $parentCommandId = $this->insertCommand();
+        $secondCommandId = $this->insertCommand();
+        $parentServiceId = $this->insertService(templateId: null, commandId: $parentCommandId);
+        $firstServiceId = $this->insertService(templateId: $parentServiceId, commandId: $firstCommandId);
+        $commandlessServiceId = $this->insertService(templateId: null, commandId: null);
+        $secondServiceId = $this->insertService(templateId: null, commandId: $secondCommandId);
+        $regularServiceId = $this->insertService(templateId: null, commandId: $this->insertCommand(), register: '1');
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        foreach ([$firstServiceId, $commandlessServiceId, $regularServiceId, $secondServiceId] as $serviceId) {
+            $this->connection->insert('host_service_relation', ['host_host_id' => $templateId, 'service_service_id' => $serviceId]);
+        }
+
+        $commandIds = array_map(
+            static fn (CommandId $id): int => $id->value,
+            $this->inheritanceLine($templateId)[$templateId]->serviceTemplateCheckCommandIds->toArray(),
+        );
+
+        self::assertSame([$firstCommandId, $parentCommandId, $secondCommandId], $commandIds);
+    }
+
+    public function testFindInheritanceLineSkipsAnIdThatIsNotAHostTemplate(): void
+    {
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+
+        self::assertSame([], $this->inheritanceLine($hostId));
+    }
+
+    public function testFindInheritanceLineSurvivesATemplateLoop(): void
+    {
+        $firstId = $this->insertHostTemplate("first-{$this->tag}");
+        $secondId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->linkHostToTemplate($firstId, $secondId, 1);
+        $this->linkHostToTemplate($secondId, $firstId, 1);
+
+        self::assertSame([$firstId, $secondId], array_keys($this->inheritanceLine($firstId)));
+    }
+
+    public function testFindInheritanceLineIgnoresARowNotInTheHostMacroForm(): void
+    {
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->insertMacro($templateId, 'NOT_A_HOST_MACRO', 'x', isPassword: false, order: 0);
+
+        self::assertSame([], $this->inheritanceLine($templateId)[$templateId]->checkOptions->macros);
+    }
+
+    public function testFindInheritanceLineReturnsAnEmptyCollectionForNoIds(): void
+    {
+        self::assertSame([], $this->inheritanceLine());
+    }
+
+    public function testFindMonitoringConnectorTemplateIdsReturnsTheConnectorTemplatesAndTheirChildren(): void
+    {
+        [$paidId, $paidChildId, $freeId, $standaloneId] = $this->insertMonitoringConnectors();
+
+        $ids = $this->monitoringConnectorTemplateIds(['base-generic']);
+
+        self::assertContains($paidId, $ids);
+        self::assertContains($paidChildId, $ids);
+        self::assertNotContains($freeId, $ids);
+        self::assertNotContains($standaloneId, $ids);
+    }
+
+    public function testFindMonitoringConnectorTemplateIdsReturnsEveryConnectorTemplateWithoutExcludedConnectors(): void
+    {
+        [$paidId, , $freeId, $standaloneId] = $this->insertMonitoringConnectors();
+
+        $ids = $this->monitoringConnectorTemplateIds([]);
+
+        self::assertContains($paidId, $ids);
+        self::assertContains($freeId, $ids);
+        self::assertNotContains($standaloneId, $ids);
+    }
+
+    public function testFindMonitoringConnectorTemplateIdsReturnsNothingWithoutThePluginPackManager(): void
+    {
+        $this->insertMonitoringConnectors(pluginPackManagerInstalled: false);
+
+        self::assertSame([], $this->monitoringConnectorTemplateIds([]));
+    }
+
+    /**
+     * The plugin pack manager tables belong to its module, absent from the test database: they are
+     * created as temporary tables, which neither commit the test's transaction nor outlive it.
+     *
+     * @return array{int, int, int, int} a paid connector's template, a template inheriting from it, a
+     *                                   free connector's template, a template of no connector
+     */
+    private function insertMonitoringConnectors(bool $pluginPackManagerInstalled = true): array
+    {
+        // The test database may already list the module: only the requested state is kept.
+        $this->connection->executeStatement("DELETE FROM modules_informations WHERE name = 'centreon-pp-manager'");
+        if ($pluginPackManagerInstalled) {
+            $this->connection->insert('modules_informations', ['name' => 'centreon-pp-manager']);
+        }
+        $this->connection->executeStatement(
+            'CREATE TEMPORARY TABLE mod_ppm_pluginpack (pluginpack_id INT AUTO_INCREMENT PRIMARY KEY, slug VARCHAR(255) NOT NULL)'
+        );
+        $this->connection->executeStatement(
+            'CREATE TEMPORARY TABLE mod_ppm_pluginpack_host (pluginpack_id INT NOT NULL, host_id INT NOT NULL)'
+        );
+
+        $paidId = $this->insertHostTemplate("paid-{$this->tag}");
+        $paidChildId = $this->insertHostTemplate("paid-custom-{$this->tag}");
+        $this->linkHostToTemplate($paidChildId, $paidId, 1);
+        $freeId = $this->insertHostTemplate("free-{$this->tag}");
+        $standaloneId = $this->insertHostTemplate("standalone-{$this->tag}");
+        $this->insertMonitoringConnector('cloud-aws-ec2-' . $this->tag, $paidId);
+        $this->insertMonitoringConnector('base-generic', $freeId);
+        // A host using a paid template is not a template: it is never returned.
+        $this->linkHostToTemplate($this->insertRegularHost("host-{$this->tag}"), $paidId, 1);
+
+        return [$paidId, $paidChildId, $freeId, $standaloneId];
+    }
+
+    private function insertMonitoringConnector(string $slug, int $templateId): void
+    {
+        $this->connection->insert('mod_ppm_pluginpack', ['slug' => $slug]);
+        $this->connection->insert('mod_ppm_pluginpack_host', [
+            'pluginpack_id' => (int) $this->connection->lastInsertId(),
+            'host_id' => $templateId,
+        ]);
+    }
+
+    /**
+     * @param list<string> $excludedConnectorSlugs
+     *
+     * @return list<int>
+     */
+    private function monitoringConnectorTemplateIds(array $excludedConnectorSlugs): array
+    {
+        return array_values(array_map(
+            static fn (HostTemplateId $id): int => $id->value,
+            $this->repository->findMonitoringConnectorTemplateIds($excludedConnectorSlugs)->toArray(),
+        ));
+    }
+
+    private function linkServiceToHost(int $serviceId, int $hostId): void
+    {
+        $this->connection->insert('host_service_relation', [
+            'host_host_id' => $hostId,
+            'service_service_id' => $serviceId,
+        ]);
+    }
+
+    /**
+     * @return array<int, HostTemplate> the line, indexed by template id, in order
+     */
+    private function inheritanceLine(int ...$templateIds): array
+    {
+        $line = [];
+        foreach ($this->repository->findInheritanceLine(new Collection(
+            array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $templateIds),
+            HostTemplateId::class,
+        )) as $template) {
+            $line[$template->id()->value] = $template;
+        }
+
+        return $line;
+    }
+
+    private function insertCommand(): int
+    {
+        $this->connection->insert('command', [
+            'command_name' => 'cmd-' . Uuid::v4()->toBase58(),
+            'command_line' => '$USER1$/check',
+            'command_type' => 2,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertService(?int $templateId, ?int $commandId, string $register = '0'): int
+    {
+        $this->connection->insert('service', [
+            'service_description' => 'svc-' . Uuid::v4()->toBase58(),
+            'service_register' => $register,
+            'service_template_model_stm_id' => $templateId,
+            'command_command_id' => $commandId,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertMacro(int $hostId, string $name, string $value, bool $isPassword, int $order): int
+    {
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => $name,
+            'host_macro_value' => $value,
+            'is_password' => $isPassword ? 1 : null,
+            'host_host_id' => $hostId,
+            'macro_order' => $order,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @param \IteratorAggregate<int, HostTemplate>&\Countable $result
+     *
+     * @return list<string>
+     */
+    private function names(\IteratorAggregate&\Countable $result): array
+    {
+        return array_values(array_map(
+            static fn (HostTemplate $hostTemplate): string => $hostTemplate->name->value,
+            iterator_to_array($result)
+        ));
+    }
+
+    /**
+     * @return array<int> inherited icon id indexed by host id
+     */
+    private function inheritedIconIds(int ...$hostIds): array
+    {
+        $result = $this->repository->findInheritedIconIds(new Collection(
+            array_map(static fn (int $hostId): HostId => new HostId($hostId), $hostIds),
+            HostId::class,
+        ));
+
+        return array_map(static fn (MediaId $iconId): int => $iconId->value, $result->toArray());
+    }
+
+    private function insertImage(bool $inFolder = true): int
+    {
+        $name = "icon-{$this->tag}-" . Uuid::v4()->toBase58() . '.png';
+        $this->connection->insert('view_img', ['img_name' => $name, 'img_path' => $name]);
+        $imageId = (int) $this->connection->lastInsertId();
+
+        if ($inFolder) {
+            $this->connection->insert('view_img_dir', ['dir_name' => "dir-{$name}"]);
+            $this->connection->insert('view_img_dir_relation', [
+                'dir_dir_parent_id' => (int) $this->connection->lastInsertId(),
+                'img_img_id' => $imageId,
+            ]);
+        }
+
+        return $imageId;
+    }
+
+    private function setIcon(int $hostId, ?int $iconId): void
+    {
+        $this->connection->insert('extended_host_information', [
+            'host_host_id' => $hostId,
+            'ehi_icon_image' => $iconId,
+        ]);
+    }
+
+    private function linkHostToTemplate(int $hostId, int $templateId, int $order): void
+    {
+        $this->connection->insert('host_template_relation', [
+            'host_host_id' => $hostId,
+            'host_tpl_id' => $templateId,
+            '`order`' => $order,
+        ]);
+    }
+
+    private function insertHostTemplate(string $name): int
+    {
+        $this->connection->insert('host', [
+            'host_name' => $name,
+            'host_register' => '0',
+            'host_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertListedTemplate(string $name, ?string $alias = null, ?int $locked = 0): int
+    {
+        $this->connection->insert('host', [
+            'host_name' => $name,
+            'host_alias' => $alias,
+            'host_locked' => $locked,
+            'host_register' => '0',
+            'host_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @param Collection<HostTemplateId> $ids
+     *
+     * @return list<int>
+     */
+    private function idValues(Collection $ids): array
+    {
+        return array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $ids->toArray()));
+    }
+
+    /**
+     * @return array<int> inherited icon id indexed by host template id
+     */
+    private function templatesInheritedIconIds(int ...$templateIds): array
+    {
+        $result = $this->repository->findTemplatesInheritedIconIds(new Collection(
+            array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $templateIds),
+            HostTemplateId::class,
+        ));
+
+        return array_map(static fn (MediaId $iconId): int => $iconId->value, $result->toArray());
+    }
+
+    private function insertRegularHost(string $name): int
+    {
+        $this->connection->insert('host', ['host_name' => $name, 'host_register' => '1', 'host_activate' => '1']);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertHostCategory(string $name, ?int $level = null): int
+    {
+        // a host category with a level is a host "severity"; a levelless one is a regular category
+        $this->connection->insert('hostcategories', ['hc_name' => $name, 'hc_activate' => '1', 'level' => $level]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkTemplateToCategory(int $hostTemplateId, int $hostCategoryId): void
+    {
+        $this->connection->insert('hostcategories_relation', [
+            'hostcategories_hc_id' => $hostCategoryId,
+            'host_host_id' => $hostTemplateId,
+        ]);
+    }
+
+    /**
+     * @param list<int> $accessibleHostCategoryIds empty means the ACL resource carries no host-category restriction
+     */
+    private function createContactRestrictedToHostCategories(array $accessibleHostCategoryIds): int
+    {
+        $alias = "actor-{$this->tag}";
+        $this->connection->insert('contact', [
+            'contact_name' => $alias,
+            'contact_alias' => $alias,
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+            'contact_email' => $alias . '@email.com',
+        ]);
+        $contactId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => "group-{$this->tag}",
+            'acl_group_alias' => "group-{$this->tag}",
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => "resource-{$this->tag}",
+            'acl_res_alias' => "resource-{$this->tag}",
+            'acl_res_activate' => '1',
+        ]);
+        $aclResId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_res_group_relations', [
+            'acl_res_id' => $aclResId,
+            'acl_group_id' => $aclGroupId,
+        ]);
+
+        foreach ($accessibleHostCategoryIds as $hostCategoryId) {
+            $this->connection->insert('acl_resources_hc_relations', [
+                'acl_res_id' => $aclResId,
+                'hc_id' => $hostCategoryId,
+            ]);
+        }
+
+        return $contactId;
+    }
+}

@@ -1,0 +1,33 @@
+meta {
+  name: GET centreon_acl_group list - HTTP 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUriCentreonApiWeb}}/index.php?object=centreon_acl_group&action=list
+  body: none
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Legacy API v1 healthcheck: response has result and status properties", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result");
+    expect(body).to.have.property("status");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

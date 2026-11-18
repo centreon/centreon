@@ -2,7 +2,7 @@ import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 
 const Comment =
-  (classes) =>
+  (classes: { comment: string }) =>
   ({ comment }: { comment: string }): JSX.Element => {
     return (
       <span className={classes.comment}>

@@ -24,6 +24,7 @@ export const useStyles = makeStyles()((theme) => ({
     padding: theme.spacing(2),
     width: theme.spacing(44)
   },
+
   filters: {
     maxWidth: theme.spacing(60),
     minWidth: theme.spacing(20),
@@ -34,14 +35,5 @@ export const useStyles = makeStyles()((theme) => ({
   },
   popoverMenu: {
     zIndex: theme.zIndex.modal
-  },
-  statusFilter: {
-    alignItems: 'center',
-    display: 'flex',
-    justifyContent: 'space-between',
-    paddingInlineStart: theme.spacing(1)
-  },
-  statusFilterName: {
-    fontWeight: theme.typography.fontWeightMedium
   }
 }));

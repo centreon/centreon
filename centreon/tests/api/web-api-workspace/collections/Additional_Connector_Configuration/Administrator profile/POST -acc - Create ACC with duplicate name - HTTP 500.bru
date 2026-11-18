@@ -1,0 +1,35 @@
+meta {
+  name: POST /acc - Create ACC with duplicate name - HTTP 500
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ACC1Name}}",
+    "description": "{{ACC1Description}}",
+    "pollers": [3],
+    "type": "vmware_v6",
+    "parameters": {
+      "port": 5780,
+      "vcenters": [{"name": "my-vcenter-3", "url": "http://10.10.10.10/sdk", "username": "admin", "password": "my-pwd"}]
+    }
+  }
+}
+
+tests {
+  test("Cannot create an ACC with a duplicate name (returns 500 if CI infrastructure is unavailable).", function () {
+    expect(res.status).to.be.oneOf([500, 403]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

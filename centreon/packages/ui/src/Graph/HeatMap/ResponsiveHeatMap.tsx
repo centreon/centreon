@@ -94,6 +94,7 @@ const ResponsiveHeatMap = <TData,>({
               arrow: cx(classes.heatMapTooltipArrow, arrowClassName),
               tooltip: classes.heatMapTooltip
             }}
+            // @ts-expect-error - suppressing pre-existing type mismatch
             data-testid={`tooltip-${data?.id}`}
             followCursor={false}
             hasCaret

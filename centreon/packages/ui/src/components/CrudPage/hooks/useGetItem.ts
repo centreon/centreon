@@ -1,4 +1,4 @@
-import { equals, isNotNil } from 'ramda';
+import { isNotNil } from 'ramda';
 
 import { useFetchQuery } from '../../..';
 import type { GetItem } from '../models';
@@ -22,10 +22,10 @@ export const useGetItem = <
 }): UseGetItem<TItemForm> => {
   const { data, isLoading } = useFetchQuery<TItem>({
     decoder,
-    getEndpoint: () => baseEndpoint(id),
+    getEndpoint: () => baseEndpoint(id as number),
     getQueryKey: () => [itemQueryKey, id],
     queryOptions: {
-      enabled: isNotNil(id) && !equals('add', id),
+      enabled: isNotNil(id) && id !== 'add',
       suspense: false
     }
   });

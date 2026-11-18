@@ -258,10 +258,10 @@ class TimelineController extends AbstractController
                 throw new \RuntimeException('Unable to generate file');
             }
             $header = ['type', 'date', 'content', 'contact', 'status', 'tries'];
-            fputcsv($handle, $header, ';');
+            fputcsv($handle, $header, ';', '"', '\\');
 
             foreach ($timeLines as $timeLine) {
-                fputcsv($handle, $timeLine, ';');
+                fputcsv($handle, $timeLine, ';', '"', '\\');
             }
 
             fclose($handle);

@@ -1,0 +1,43 @@
+meta {
+  name: POST /hosts - Add host linked with HC2 and HG2 - HTTP 201
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Host2Name}}",
+    "alias": "{{Host2Alias}}",
+    "address": "127.0.0.1",
+    "monitoring_server_id": 1,
+    "categories": [ {{HostCategory2Id}} ],
+    "groups": [ {{HostGroup2Id}} ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host has been successfully created, with name '{{Host2Name}}' and alias '{{Host2Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("Host2Id", body.id);
+    expect(body).to.have.property("id").that.is.a("number");
+    expect(body).to.have.property("name").that.equals(bru.getEnvVar("Host2Name"));
+    expect(body).to.have.property("alias").that.equals(bru.getEnvVar("Host2Alias"));
+    expect(body).to.have.property("address").that.equals("127.0.0.1");
+    expect(body).to.have.property("monitoring_server_id").that.equals(1);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

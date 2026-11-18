@@ -8,7 +8,7 @@ import { useRef } from 'react';
 import { configurationAtom } from '../atoms';
 
 interface UseSearch<TFilters> {
-  onChange: (event) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   filters: TFilters;
   areAdvancedFiltersVisible: boolean;
 }
@@ -37,7 +37,7 @@ const useSearch = <TFilters>({
     }, 500)
   );
 
-  const onChange = ({ target }): void => {
+  const onChange = ({ target }: React.ChangeEvent<HTMLInputElement>): void => {
     setFilters({ ...filters, name: target.value });
 
     searchDebounced.current(target.value);

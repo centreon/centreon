@@ -93,12 +93,12 @@ interface Entity extends FieldsTableContextProps {
 }
 
 interface ContentProps extends Entity {
-  attributes;
+  attributes: Record<string, unknown>;
   index: number;
   isDragging: boolean;
   itemRef: React.RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
-  style;
+  style: React.CSSProperties;
 }
 
 const SortableRow = ({
@@ -269,25 +269,36 @@ const FieldsTable = ({
     }
   }, [fieldsTable, values, getSortableDefined]);
 
-  const updatePriorities = (items): Array<unknown> =>
-    items.reduce((acc, curr, index) => {
-      const row = acc[curr];
+  const updatePriorities = (items: Array<string>): Array<unknown> =>
+    items.reduce(
+      (
+        acc: Array<TableRowValue>,
+        curr: string,
+        index: number
+      ): Array<TableRowValue> => {
+        const row = acc[Number(curr)];
 
-      if (isNil(row)) {
+        if (isNil(row)) {
+          return acc;
+        }
+
+        (row as Record<string, unknown>).priority = index;
+
         return acc;
-      }
-
-      row.priority = index;
-
-      return acc;
-    }, clone(tableValues));
+      },
+      clone(tableValues)
+    );
 
   const dragEnd = ({ items }: DragEnd): void => {
     const updatedPriorities = updatePriorities(items);
     setFieldValue(fieldName, updatedPriorities);
   };
 
-  const disableOverItemSortableCondition = ({ id }): boolean =>
+  const disableOverItemSortableCondition = ({
+    id
+  }: {
+    id: number | string;
+  }): boolean =>
     Number(id) === tableValues.length || not(isNil(fieldsTableError));
 
   return useMemoComponent({

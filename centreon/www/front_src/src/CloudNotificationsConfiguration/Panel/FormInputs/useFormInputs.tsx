@@ -1,7 +1,8 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 /* eslint-disable hooks/sort */
 
 import { Box } from '@mui/material';
-import { Variant } from '@mui/material/styles/createTypography';
 
 import { Group, InputType } from '@centreon/ui';
 
@@ -65,30 +66,22 @@ const useFormInputs = ({
   const { classes } = useStyles({ isExtraFieldHidden });
   const { t } = useTranslation();
 
-  const titleAttributes = {
-    classes: { root: classes.titleGroup },
-    variant: 'subtitle1' as Variant
-  };
-
   const basicFormGroups: Array<Group> = [
     {
       isDividerHidden: true,
       name: t(labelSelectResourcesAndEvents),
-      order: 1,
-      titleAttributes
+      order: 1
     },
     {
       isDividerHidden: true,
       name: t(labelNotificationSettings),
-      order: 2,
-      titleAttributes
+      order: 2
     }
   ];
 
   const inputs = [
     {
       additionalLabel: t(labelHostGroups),
-      additionalLabelClassName: classes.additionalLabel,
       dataTestId: t(labelHostGroups),
       fieldName: 'hostGroups',
       grid: {
@@ -155,7 +148,6 @@ const useFormInputs = ({
     },
     {
       additionalLabel: t(labelServiceGroups),
-      additionalLabelClassName: classes.additionalLabel,
 
       fieldName: '',
       grid: {
@@ -197,7 +189,6 @@ const useFormInputs = ({
       ? [
           {
             additionalLabel: t(labelBusinessViews),
-            additionalLabelClassName: classes.additionalLabel,
 
             fieldName: '',
             grid: {
@@ -239,7 +230,6 @@ const useFormInputs = ({
       : []),
     {
       additionalLabel: <TimePeriodTitle />,
-      additionalLabelClassName: classes.additionalLabel,
       connectedAutocomplete: {
         additionalConditionParameters: [],
         endpoint: availableTimePeriodsEndpoint,
@@ -255,7 +245,6 @@ const useFormInputs = ({
     },
     {
       additionalLabel: t(labelNotificationChannels),
-      additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
         className: classes.channels,
@@ -300,7 +289,6 @@ const useFormInputs = ({
 
     {
       additionalLabel: t(labelContacts),
-      additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
         columns: [

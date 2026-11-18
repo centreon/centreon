@@ -1,0 +1,37 @@
+meta {
+  name: GET /services - Get 2 services after delete and update - HTTP 200
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services?sort_by={"id":"DESC"}&limit=100
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The services list is correct after delete and update.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const s3 = body.result.find(r => r.name === bru.getEnvVar("Service3Name"));
+    expect(s3).to.be.undefined;
+
+    const s4 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service4Id")));
+    expect(s4.check_timeperiod).to.include({ "id": 2, "name": "none" });
+
+    const s1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service1Id")));
+    expect(s1).to.exist;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

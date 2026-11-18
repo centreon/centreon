@@ -1,7 +1,7 @@
-ARG REGISTRY_URL=docker.centreon.com/centreon
-ARG FROM_IMAGE_VERSION=develop
+ARG REGISTRY_URL=ghcr.io/centreon/centreon
+ARG FROM_IMAGE_VERSION=develop-alma9
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-alma9:${FROM_IMAGE_VERSION}
+FROM ${REGISTRY_URL}/centreon-web-dependencies-collect:${FROM_IMAGE_VERSION}
 
 ARG STABILITY
 ARG MAJOR_VERSION
@@ -13,6 +13,10 @@ COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /us
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
 RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
+
+if ! grep -q '^tsflags=nodocs' /etc/dnf/dnf.conf; then
+  echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf
+fi
 
 if [[ "$STABILITY" == "testing" ]]; then
   dnf config-manager --set-disabled 'centreon*unstable*'
@@ -32,8 +36,26 @@ fi
 
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php.d/20-timezone.ini
 
-touch /var/log/php-fpm/centreon-error.log
-chown apache:apache /var/log/php-fpm/centreon-error.log
+if [[ "$STABILITY" == "stable" ]]; then
+  # Released packages may predate the postinstall that creates it 0664.
+  [ -e /var/log/centreon/prod.web.log ] || install -o apache -g apache -m 0664 /dev/null /var/log/centreon/prod.web.log
+else
+  # Packages from this build: the centreon-web postinstall must have created it.
+  find /var/log/centreon/prod.web.log -perm 0664 -user apache -group apache | grep -q . || {
+    echo "prod.web.log was not created 0664 apache:apache by the centreon-web postinstall" >&2
+    ls -l /var/log/centreon >&2
+    exit 1
+  }
+fi
+
+# Tune php-fpm for CI: ondemand mode to avoid spawning idle workers at startup
+sed -i 's/^pm = .*/pm = ondemand/' /etc/php-fpm.d/*.conf
+sed -i 's/^pm\.max_children = .*/pm.max_children = 10/' /etc/php-fpm.d/*.conf
+if grep -Eq '^[;[:space:]]*pm\.process_idle_timeout\s*=' /etc/php-fpm.d/www.conf; then
+  sed -Ei 's|^[;[:space:]]*pm\.process_idle_timeout\s*=.*|pm.process_idle_timeout = 10s|' /etc/php-fpm.d/www.conf
+else
+  echo 'pm.process_idle_timeout = 10s' >> /etc/php-fpm.d/www.conf
+fi
 
 systemctl stop gorgoned
 systemctl stop centengine
@@ -41,6 +63,7 @@ systemctl stop cbd
 systemctl stop httpd
 systemctl stop php-fpm
 systemctl stop snmpd
+systemctl stop crond
 
 dnf clean all
 

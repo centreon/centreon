@@ -5,7 +5,7 @@ import { useMemoComponent } from '@centreon/ui';
 import type { ReactElement } from 'react';
 
 import type { LineChartHeader } from './models';
-import { ussHeaderChartStyles } from './useHeaderStyles';
+import { useHeaderChartStyles } from './useHeaderStyles';
 
 interface Props {
   header?: LineChartHeader;
@@ -13,7 +13,7 @@ interface Props {
 }
 
 const Header = ({ title, header }: Props): ReactElement => {
-  const { classes } = ussHeaderChartStyles();
+  const { classes } = useHeaderChartStyles();
 
   const displayTitle = header?.displayTitle ?? true;
 

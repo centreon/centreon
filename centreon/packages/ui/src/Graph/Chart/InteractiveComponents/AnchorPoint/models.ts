@@ -16,7 +16,7 @@ export interface RegularLinesAnchorPoint extends AnchorPoint {
 }
 
 export interface StackedAnchorPoint extends AnchorPoint {
-  stack;
+  stack: Array<StackValue>;
 }
 
 export interface StackData {
@@ -28,9 +28,8 @@ export interface GuidingLines {
   graphHeight: number;
   graphWidth: number;
   timeSeries: Array<TimeValue>;
-  xScale: ScaleLinear<number, number>;
+  xScale: ScaleTime<number, number>;
   maxLeftAxisCharacters: number;
-  hasSecondUnit?: boolean;
   leftScale?: ScaleLinear<number, number>;
   lines: Array<Line>;
   rightScale?: ScaleLinear<number, number>;

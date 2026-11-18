@@ -161,6 +161,7 @@ export const complexData: Node<ComplexData> = {
               children: [
                 { data: { id: 6, name: 'Indicator 2', status: 'ok' } }
               ],
+              // @ts-expect-error - suppressing pre-existing type mismatch
               data: {
                 count: 1,
                 name: 'ok',
@@ -275,6 +276,7 @@ export const moreComplexData: Node<ComplexData> = {
               children: [
                 { data: { id: 11, name: 'Indicator 11', status: 'ok' } }
               ],
+              // @ts-expect-error - suppressing pre-existing type mismatch
               data: {
                 count: 1,
                 name: 'ok',

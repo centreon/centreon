@@ -1,0 +1,39 @@
+meta {
+  name: PUT /web-sso - Update WebSSO configuration forbidden - HTTP 403
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrlWeb}}/administration/authentication/providers/web-sso
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "is_active": false,
+    "is_forced": false,
+    "trusted_client_addresses": [],
+    "blacklist_client_addresses": [],
+    "login_header_attribute": "",
+    "pattern_matching_login": "",
+    "pattern_replace_login": ""
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Editor cannot update the WebSSO provider configuration.", function () {
+
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

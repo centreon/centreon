@@ -6,11 +6,17 @@ import { getUnits, getYScale } from '../timeSeries';
 import type { Line } from '../timeSeries/models';
 import { ThresholdLine } from './ThresholdLine';
 
+interface ShowTooltipArgs {
+  tooltipData: string;
+  tooltipLeft: number;
+  tooltipTop: number;
+}
+
 interface Props {
   displayedLines: Array<Line>;
   hideTooltip: () => void;
   isHorizontal?: boolean;
-  showTooltip: (props) => void;
+  showTooltip: (props: ShowTooltipArgs) => void;
   thresholdUnit?: string;
   thresholds: ThresholdsModel;
   width: number;

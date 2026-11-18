@@ -1,0 +1,50 @@
+meta {
+  name: GET /services/templates - Get 1 service template - HTTP 200
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/templates?sort_by={"id":"DESC"}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The service templates are listed with all of their parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const st1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("ServiceTemplate1Id")));
+    expect(st1).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceTemplate1Id")),
+      "name": bru.getEnvVar("ServiceTemplate1Name"),
+      "alias": bru.getEnvVar("ServiceTemplate1Alias"),
+      "service_template_id": parseInt(bru.getEnvVar("ServiceTemplate0Id")),
+      "check_timeperiod_id": 1,
+      "max_check_attempts": 5,
+      "normal_check_interval": 3,
+      "retry_check_interval": 2,
+      "note": "note",
+      "note_url": "note_url",
+      "action_url": "action url",
+      "icon_id": 1,
+      "severity_id": parseInt(bru.getEnvVar("ServiceSeverity1Id")),
+      "is_locked": false
+    });
+    expect(st1.host_templates).to.include.members([
+      parseInt(bru.getEnvVar("HostTemplate1Id")),
+      parseInt(bru.getEnvVar("HostTemplate2Id"))
+    ]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

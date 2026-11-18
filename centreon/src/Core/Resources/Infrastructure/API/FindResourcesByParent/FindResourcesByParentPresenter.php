@@ -25,7 +25,9 @@ namespace Core\Resources\Infrastructure\API\FindResourcesByParent;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
@@ -55,6 +57,7 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
         private readonly \Traversable $extraDataNormalizers,
+        private readonly ExceptionLogger $exceptionLogger,
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -64,24 +67,29 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
      */
     public function presentResponse(FindResourcesByParentResponse|ResponseStatusInterface $response): void
     {
-        if ($response instanceof FindResourcesByParentResponse) {
-            $result = [];
-            foreach ($response->resources as $resourcesByParent) {
-                $parent = $this->createResourceFromResponse($resourcesByParent->parent, $response->extraData);
-                $parent['children']['resources'] = $this->createChildrenFromResponse($resourcesByParent->children, $response->extraData);
-                $parent['children']['total'] = $resourcesByParent->total;
-                $parent['children']['status_count'] = $this->createStatusesCountFromResponse($resourcesByParent);
-
-                $result[] = $parent;
+        if ($response instanceof ResponseStatusInterface) {
+            if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+                $this->exceptionLogger->log($response->getException());
             }
-
-            $this->present([
-                'result' => $result,
-                'meta' => $this->requestParameters->toArray(),
-            ]);
-        } else {
             $this->setResponseStatus($response);
+
+            return;
         }
+
+        $result = [];
+        foreach ($response->resources as $resourcesByParent) {
+            $parent = $this->createResourceFromResponse($resourcesByParent->parent, $response->extraData);
+            $parent['children']['resources'] = $this->createChildrenFromResponse($resourcesByParent->children, $response->extraData);
+            $parent['children']['total'] = $resourcesByParent->total;
+            $parent['children']['status_count'] = $this->createStatusesCountFromResponse($resourcesByParent);
+
+            $result[] = $parent;
+        }
+
+        $this->present([
+            'result' => $result,
+            'meta' => $this->requestParameters->toArray(),
+        ]);
     }
 
     /**

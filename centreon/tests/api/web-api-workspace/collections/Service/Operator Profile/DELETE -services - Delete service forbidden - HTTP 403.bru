@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /services - Delete service forbidden - HTTP 403
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/services/{{Service1Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The service has not been deleted because the user does not have the correct rights.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

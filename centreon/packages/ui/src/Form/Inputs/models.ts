@@ -1,10 +1,39 @@
 import type { SvgIconProps, TypographyProps } from '@mui/material';
 
-import type { FormikValues } from 'formik';
+import type { FormikErrors, FormikTouched, FormikValues } from 'formik';
+import type { JsonDecoder } from 'ts.data.json';
 
 import type { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
 import type { SelectEntry } from '../../InputField/Select';
+import type { GetEndpointParams } from '../../InputField/Select/Autocomplete/Connected';
 import type { QueryParameter } from '../../queryParameters/models';
+
+export interface ChangeArgs {
+  setFieldValue: (
+    field: string,
+    value: unknown,
+    shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
+  ) => Promise<void | FormikErrors<FormikValues>>;
+  setFieldTouched: (
+    field: string,
+    isTouched?: boolean,
+    shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
+  ) => Promise<void | FormikErrors<FormikValues>>;
+  setValues: (
+    values: React.SetStateAction<FormikValues>,
+    shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
+  ) => Promise<void | FormikErrors<FormikValues>>;
+  setTouched: (
+    touched: FormikTouched<FormikValues>,
+    shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
+  ) => Promise<void | FormikErrors<FormikValues>>;
+  value: unknown;
+  values: FormikValues;
+}
 
 export enum InputType {
   Switch = 0,
@@ -22,7 +51,10 @@ export enum InputType {
   CheckboxGroup = 12,
   List = 13,
   File = 14,
-  Divider = 15
+  Divider = 15,
+  ExclusiveCheckboxGroup = 16,
+  SegmentedButtons = 17,
+  IconSelector = 18
 }
 
 interface FieldsTableGetRequiredProps {
@@ -49,30 +81,51 @@ export interface InputProps {
     setValues,
     values,
     setTouched
-  }) => void;
+  }: ChangeArgs) => void;
   checkbox?: {
     direction?: 'horizontal' | 'vertical';
     labelPlacement?: LabelPlacement;
     options?: Array<string>;
   };
   connectedAutocomplete?: {
+    useNewAPIFormat?: boolean;
     additionalConditionParameters: Array<ConditionsSearchParameter>;
     customQueryParameters: Array<QueryParameter>;
+    // The API the options are read from. Left out, the request goes to the
+    // default `./api/latest` as it always has.
+    baseEndpoint?: string;
+    // What the options are cached under. Left out, the field's label is used,
+    // which two fields reading different endpoints can share.
+    queryKey?: string;
     chipColor?: string;
     endpoint?: string;
     filterKey?: string;
-    getRenderedOptionText?: (option) => string | JSX.Element;
-    getOptionLabel?: (option) => string;
+    getRenderedOptionText?: (option: { name: string }) => string | JSX.Element;
+    getOptionLabel?: (option: string | SelectEntry) => string;
+    helperText?: string;
     optionProperty?: string;
     disableSelectAll?: boolean;
     limitTags?: number;
-    decoder?;
+    decoder?: JsonDecoder.Decoder<unknown>;
+  };
+  exclusiveCheckboxGroup?: {
+    direction?: 'horizontal' | 'vertical';
+    exclusiveLabel: string;
+    exclusiveOption: string;
+    labelPlacement?: LabelPlacement;
+    options: Array<string>;
+    // The options as chips instead of checkboxes; the exclusive one stays a switch.
+    variant?: 'checkboxes' | 'chips';
   };
   file?: {
     multiple?: boolean;
     accept?: string;
     maxFileSize?: number;
-    CustomDropZoneContent: ({ files }) => JSX.Element;
+    CustomDropZoneContent: ({
+      files
+    }: {
+      files: FileList | null;
+    }) => JSX.Element;
   };
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;
@@ -95,15 +148,25 @@ export interface InputProps {
   grid?: {
     alignItems?: string;
     className?: string;
+    // A dashed vertical line in the gap between two columns, never left of
+    // the first one, whatever the number of columns the layout shows. To set
+    // on the grids that place groups of fields side by side.
+    columnSeparator?: boolean;
     columns: Array<Omit<InputProps, 'group'>>;
     gridTemplateColumns?: string;
   };
   group: string;
   hideInput?: (values: FormikValues) => boolean;
+  // `InputType.IconSelector`: the listing of the images to pick from.
+  iconSelector?: {
+    getEndpoint: (parameters: GetEndpointParams) => string;
+  };
   inputClassName?: string;
   label: string;
   list?: {
-    AddItem: React.ComponentType<{ addItem }>;
+    AddItem: React.ComponentType<{
+      addItem: (newItem: SelectEntry) => void;
+    }>;
     SortContent: React.ComponentType<object>;
     addItemLabel?: string;
     itemProps: Array<string>;
@@ -117,8 +180,16 @@ export interface InputProps {
     row?: boolean;
   };
   required?: boolean;
+  segmentedButtons?: {
+    // Leaves the label out of the display; it stays the group's accessible name.
+    hideLabel?: boolean;
+    options: Array<{
+      label: string;
+      value: string;
+    }>;
+  };
   switchInput?: {
-    getChecked?: (value) => boolean;
+    getChecked?: (value: unknown) => boolean;
   };
   text?: {
     endAdornment?: JSX.Element;

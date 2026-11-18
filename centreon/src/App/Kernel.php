@@ -27,6 +27,8 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\ErrorHandler\Debug;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 /**
@@ -41,8 +43,8 @@ class Kernel extends BaseKernel
     /** @var string cache path */
     private string $cacheDir = '/var/cache/centreon/symfony';
 
-    /** @var string Log path */
-    private string $logDir = '/var/log/centreon/symfony';
+    /** @var string|null memoized config file set fingerprint */
+    private ?string $configFingerprint = null;
 
     /**
      * Kernel constructor.
@@ -50,9 +52,6 @@ class Kernel extends BaseKernel
     public function __construct(string $environment, bool $debug)
     {
         parent::__construct($environment, $debug);
-        if (\defined('_CENTREON_LOG_')) {
-            $this->logDir = _CENTREON_LOG_ . '/symfony';
-        }
         if (\defined('_CENTREON_CACHEDIR_')) {
             $this->cacheDir = _CENTREON_CACHEDIR_ . '/symfony';
         }
@@ -74,6 +73,10 @@ class Kernel extends BaseKernel
                 : 'prod';
             self::$instance = new self($env, (bool) $_SERVER['APP_DEBUG']);
             self::$instance->boot();
+            $request = Request::createFromGlobals();
+            /** @var RequestStack $requestStack */
+            $requestStack = self::$instance->getContainer()->get('request_stack');
+            $requestStack->push($request);
         }
 
         return self::$instance;
@@ -96,19 +99,22 @@ class Kernel extends BaseKernel
         }
     }
 
+    #[\Override]
     public function getProjectDir(): string
     {
         return \dirname(__DIR__, 2);
     }
 
+    #[\Override]
     public function getCacheDir(): string
     {
-        return $this->cacheDir;
+        return $this->cacheDir . '/' . $this->getConfigFingerprint();
     }
 
+    #[\Override]
     public function getLogDir(): string
     {
-        return $this->logDir;
+        return defined('_CENTREON_LOG_') ? (string) _CENTREON_LOG_ : '/var/log/centreon';
     }
 
     protected function build(ContainerBuilder $container): void
@@ -120,5 +126,35 @@ class Kernel extends BaseKernel
             $compilerPass = new $class();
             $container->addCompilerPass($compilerPass);
         }
+    }
+
+    /**
+     * Modules drop yaml files under config/routes and config/packages after the container
+     * may already have been compiled. Keying the cache directory on the config file set
+     * makes such a stale container unreachable instead of fatal.
+     *
+     * The shared kernel computes its own fingerprint the same way. Sharing the code is not an
+     * option: the deptrac Legacy layer must not depend on App\Shared.
+     */
+    private function getConfigFingerprint(): string
+    {
+        if ($this->configFingerprint === null) {
+            // filemtime() and filesize() read PHP's stat cache, which must not hand back
+            // pre-write values to a process that just wrote a configuration file.
+            clearstatcache();
+
+            $files = array_merge(
+                glob($this->getProjectDir() . '/config/{routes,packages}/{*,*/*}.yaml', \GLOB_BRACE) ?: [],
+                glob($this->getProjectDir() . '/config/bundles.php') ?: []
+            );
+            sort($files);
+            $entries = array_map(
+                static fn (string $file): string => $file . ':' . (filemtime($file) ?: 0) . ':' . (filesize($file) ?: 0),
+                $files
+            );
+            $this->configFingerprint = mb_substr(md5(implode('|', $entries)), 0, 8);
+        }
+
+        return $this->configFingerprint;
     }
 }

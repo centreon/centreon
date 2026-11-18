@@ -1,0 +1,20 @@
+meta {
+  name: GET /platform/topology - Get platform topology - HTTP 403
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/platform/topology
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

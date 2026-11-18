@@ -17,14 +17,14 @@ import EllipsisTypography from './EllipsisTypography';
 
 interface Props {
   column: Column;
-  disableRowCondition: (row) => boolean;
-  getHighlightRowCondition?: (row) => boolean;
+  disableRowCondition: (row: Record<string, unknown>) => boolean;
+  getHighlightRowCondition?: (row: Record<string, unknown>) => boolean;
   isRowHovered: boolean;
   isRowSelected: boolean;
   labelCollapse?: string;
   labelExpand?: string;
   listingVariant?: ListingVariant;
-  row?;
+  row: Record<string, unknown>;
   rowColorConditions?: Array<RowColorCondition>;
   subItemsRowProperty?: string;
 }
@@ -113,7 +113,6 @@ const DataCell = ({
               if (!clickable) {
                 return;
               }
-              e.preventDefault();
               e.stopPropagation();
             }}
             {...commonCellProps}
@@ -130,7 +129,6 @@ const DataCell = ({
             if (!clickable) {
               return;
             }
-            e.preventDefault();
             e.stopPropagation();
           }}
           style={{

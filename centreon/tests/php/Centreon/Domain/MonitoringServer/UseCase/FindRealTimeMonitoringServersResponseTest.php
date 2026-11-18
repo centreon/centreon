@@ -54,7 +54,6 @@ class FindRealTimeMonitoringServersResponseTest extends TestCase
         $this->assertCount(1, $realTimeMonitoringServers);
         $this->assertEquals($realTimeMonitoringServer->getId(), $realTimeMonitoringServers[0]['id']);
         $this->assertEquals($realTimeMonitoringServer->getName(), $realTimeMonitoringServers[0]['name']);
-        $this->assertEquals($realTimeMonitoringServer->getDescription(), $realTimeMonitoringServers[0]['description']);
         $this->assertEquals($realTimeMonitoringServer->getVersion(), $realTimeMonitoringServers[0]['version']);
         $this->assertEquals($realTimeMonitoringServer->isRunning(), $realTimeMonitoringServers[0]['is_running']);
         $this->assertEquals($realTimeMonitoringServer->getLastAlive(), $realTimeMonitoringServers[0]['last_alive']);

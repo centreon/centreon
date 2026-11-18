@@ -70,6 +70,14 @@ class ServiceGroupException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileUpdating(): self
+    {
+        return new self(_('Error while updating a service group'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorWhileRetrievingJustCreated(): self
     {
         return new self(_('Error while retrieving newly created service group'));
@@ -83,5 +91,21 @@ class ServiceGroupException extends \Exception
     public static function nameAlreadyExists(string $serviceGroupName): self
     {
         return new self(sprintf(_("The service group name '%s' already exists"), $serviceGroupName), self::CODE_CONFLICT);
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrieving(): self
+    {
+        return new self(_('Error while retrieving service group'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function editNotAllowed(): self
+    {
+        return new self(_('You are not allowed to update service groups'));
     }
 }

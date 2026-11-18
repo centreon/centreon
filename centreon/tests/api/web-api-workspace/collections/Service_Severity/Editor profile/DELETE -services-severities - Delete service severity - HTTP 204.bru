@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /services/severities - Delete service severity - HTTP 204
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/services/severities/{{ServiceSeverity4Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The service severity '{{ServiceSeverity4Name}}' has been successfully deleted by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

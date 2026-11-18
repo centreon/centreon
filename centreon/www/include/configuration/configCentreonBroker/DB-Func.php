@@ -42,15 +42,17 @@ function testExistence($name = null)
         $id = $form->getSubmitValue('id');
     }
 
-    $dbResult = $pearDB->query("SELECT config_name, config_id
-                                FROM `cfg_centreonbroker`
-                                WHERE `config_name` = '" . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'");
-    $ndomod = $dbResult->fetch();
-    if ($dbResult->rowCount() >= 1 && $ndomod['config_id'] == $id) {
+    $statement = $pearDB->prepare(
+        'SELECT config_name, config_id FROM `cfg_centreonbroker` WHERE `config_name` = :name'
+    );
+    $statement->bindValue(':name', htmlentities($name, ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
+    $statement->execute();
+    $ndomod = $statement->fetch();
+    if ($statement->rowCount() >= 1 && $ndomod['config_id'] == $id) {
         return true;
     }
 
-    return ! ($dbResult->rowCount() >= 1 && $ndomod['config_id'] != $id);
+    return ! ($statement->rowCount() >= 1 && $ndomod['config_id'] != $id);
 }
 
 /**
@@ -143,11 +145,14 @@ function getCentreonBrokerInformation($id)
             event_queues_total_size, cache_directory, command_file, daemon, pool_size, log_directory, log_filename,
             log_max_size, bbdo_version
         FROM cfg_centreonbroker
-        WHERE config_id = ' . $id;
+        WHERE config_id = :config_id';
     try {
-        $res = $pearDB->query($query);
+        $statement = $pearDB->prepare($query);
+        $statement->bindValue(':config_id', (int) $id, PDO::PARAM_INT);
+        $statement->execute();
+        $res = $statement;
     } catch (PDOException $e) {
-        $brokerConf = [
+        return [
             'name' => '',
             'filename' => '',
             'log_directory' => '/var/log/centreon-broker/',
@@ -189,9 +194,12 @@ function getCentreonBrokerInformation($id)
             FROM `cb_log` log
             LEFT JOIN `cfg_centreonbroker_log` relation
                 ON relation.`id_log`  = log.`id`
-            WHERE relation.`id_centreonbroker` = ' . $id;
+            WHERE relation.`id_centreonbroker` = :config_id';
     try {
-        $res = $pearDB->query($query);
+        $statement = $pearDB->prepare($query);
+        $statement->bindValue(':config_id', (int) $id, PDO::PARAM_INT);
+        $statement->execute();
+        $res = $statement;
     } catch (PDOException $e) {
         return $brokerConf;
     }

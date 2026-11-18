@@ -2,13 +2,13 @@ import { Box, capitalize } from '@mui/material';
 
 import { Group, InputProps, InputType } from '@centreon/ui';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { equals, isNil, map } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { pollersEndpoint } from '../api/endpoints';
-import { agentTypeFormAtom } from '../atoms';
-import { AgentType, ConnectionMode } from '../models';
+import { agentTypeFormAtom, isEditingAtom } from '../atoms';
+import { AgentConfigurationForm, AgentType, ConnectionMode } from '../models';
 import {
   labelAgent,
   labelAgentType,
@@ -29,7 +29,6 @@ import {
   labelTLS
 } from '../translatedLabels';
 import ConnectionInitiated from './ConnectionInitiated/ConnectionInitiated';
-import { useInputsStyles } from './Modal.styles';
 import EncryptionLevelWarning from './Warning/Warning';
 
 interface SelectEntry {
@@ -55,15 +54,10 @@ export const useInputs = (): {
   groups: Array<Group>;
   inputs: Array<InputProps>;
 } => {
-  const { classes } = useInputsStyles();
   const { t } = useTranslation();
 
   const [agentTypeForm, setAgentTypeForm] = useAtom(agentTypeFormAtom);
-
-  const titleAttributes = {
-    classes: { root: classes.titleGroup },
-    variant: 'subtitle1'
-  };
+  const isEditing = useAtomValue(isEditingAtom);
 
   const isCMA = equals(agentTypeForm, AgentType.CMA);
   const publicCertificateProperty = 'configuration.otelPublicCertificate';
@@ -75,14 +69,12 @@ export const useInputs = (): {
       {
         isDividerHidden: true,
         name: t(labelAgent),
-        order: 1,
-        titleAttributes
+        order: 1
       },
       {
         isDividerHidden: true,
         name: t(labelParameters),
-        order: 2,
-        titleAttributes
+        order: 2
       }
     ],
     inputs: [
@@ -101,10 +93,11 @@ export const useInputs = (): {
                 options: agentTypes
               },
               change: ({ value, setValues, values, setTouched }) => {
-                setAgentTypeForm(value.id);
+                const typedValue = value as SelectEntry;
+                setAgentTypeForm(typedValue.id as AgentType);
                 setValues({
-                  ...values,
-                  configuration: equals(value.id, AgentType.Telegraf)
+                  ...(values as AgentConfigurationForm),
+                  configuration: equals(typedValue.id, AgentType.Telegraf)
                     ? {
                         confCertificate: '',
                         confPrivateKey: '',
@@ -122,11 +115,12 @@ export const useInputs = (): {
                         pollerInitiated: false,
                         port: 4317
                       },
-                  type: value
+                  type: typedValue
                 });
                 setTouched({}, false);
               },
               fieldName: 'type',
+              getDisabled: () => isEditing,
               label: t(labelAgentType),
               required: true,
               type: InputType.SingleAutocomplete
@@ -134,7 +128,7 @@ export const useInputs = (): {
             {
               autocomplete: {
                 options: map(
-                  ({ id, name }) => ({ id, name: t(name) }),
+                  ({ id, name }: SelectEntry) => ({ id, name: t(name) }),
                   connectionModes
                 )
               },
@@ -156,10 +150,17 @@ export const useInputs = (): {
         },
         fieldName: '',
         group: t(labelAgent),
-        hideInput: (values) =>
-          isNil(values.type) ||
-          isNil(values?.connectionMode) ||
-          !equals(values?.connectionMode?.id, ConnectionMode.noTLS),
+        hideInput: (values) => {
+          const typedValues = values as AgentConfigurationForm;
+          return (
+            isNil(typedValues.type) ||
+            isNil(typedValues?.connectionMode) ||
+            !equals(
+              (typedValues?.connectionMode as { id?: string })?.id,
+              ConnectionMode.noTLS
+            )
+          );
+        },
         label: '',
         type: InputType.Custom
       },

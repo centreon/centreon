@@ -156,3 +156,23 @@ it('should compute macros has expected', function (): void {
         ->and($macrosDiff->removedMacros)->toEqual($removedMacros)
         ->and($macrosDiff->unchangedMacros)->toEqual($unchangedMacros);
 });
+
+it('should not save an empty non-password macro when there is no match context', function (): void {
+    $emptyMacro = new Macro(null, 1, 'ORPHAN', '');
+
+    $macrosDiff = new MacroDifference();
+    $macrosDiff->compute([], [], [], ['ORPHAN' => $emptyMacro]);
+
+    expect($macrosDiff->addedMacros)->toBeEmpty()
+        ->and($macrosDiff->unchangedMacros)->toHaveKey('ORPHAN');
+});
+
+it('should save an empty password macro even when there is no match context', function (): void {
+    $emptyPassword = new Macro(null, 1, 'SECRET', '');
+    $emptyPassword->setIsPassword(true);
+
+    $macrosDiff = new MacroDifference();
+    $macrosDiff->compute([], [], [], ['SECRET' => $emptyPassword]);
+
+    expect($macrosDiff->addedMacros)->toHaveKey('SECRET');
+});

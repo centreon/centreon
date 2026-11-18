@@ -366,7 +366,11 @@ if (! is_null($host_id)) {
 
         // Ajust data for beeing displayed in template
         $centreon->CentreonGMT->getMyGMTFromSession(session_id(), $pearDB);
-        $service_status['command_line'] = str_replace(' -', "\n\t-", $service_status['command_line']);
+        // A service is forced to have a command line, but if the ACL user is not allowed to
+        // see the command line, $service_status['command_line'] stays as the default empty string.
+        $service_status['command_line'] = isset($service_status['command_line'])
+            ? str_replace(' -', "\n\t-", $service_status['command_line'])
+            : '';
         $service_status['performance_data'] = CentreonUtils::escapeAll(
             str_replace(' \'', "\n'", $service_status['performance_data'])
         );

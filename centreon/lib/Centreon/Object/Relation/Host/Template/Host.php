@@ -111,6 +111,8 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      */
     public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId)
     {
+        $targetKey = $this->sanitizeColumnIdentifier($targetKey);
+        $sourceKey = $this->sanitizeColumnIdentifier($sourceKey);
         if (! is_array($sourceId)) {
             $sourceId = [$sourceId];
         }
@@ -137,6 +139,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      * @param mixed $offset
      *
      * @throws Exception
+     * @throws InvalidArgumentException
      * @return array
      */
     public function getMergedParameters(
@@ -152,19 +155,24 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
         if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');
         }
+        $filterType = strtoupper($filterType);
+        if ($filterType !== 'OR' && $filterType !== 'AND') {
+            throw new InvalidArgumentException('Invalid input');
+        }
+
         $fString = '';
         $sString = '';
         foreach ($firstTableParams as $fparams) {
             if ($fString != '') {
                 $fString .= ',';
             }
-            $fString .= 'h.' . $fparams;
+            $fString .= 'h.' . $this->sanitizeIdentifier($fparams);
         }
         foreach ($secondTableParams as $sparams) {
             if ($fString != '' || $sString != '') {
                 $sString .= ',';
             }
-            $sString .= 'h2.' . $sparams;
+            $sString .= 'h2.' . $this->sanitizeIdentifier($sparams);
         }
         $sql = 'SELECT ' . $fString . $sString . '
         		FROM ' . $this->firstObject->getTableName() . ' h,' . $this->relationTable . '
@@ -173,6 +181,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
         $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
+                $key = $this->sanitizeColumnIdentifier($key);
                 $sql .= " {$filterType} {$key} LIKE ? ";
                 $value = trim($rawvalue);
                 $value = str_replace('_', "\_", $value);
@@ -181,7 +190,17 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
             }
         }
         if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
-            $sql .= " ORDER BY {$order} {$sort} ";
+            $orderColumns = [];
+            foreach (explode(',', $order) as $orderColumn) {
+                $orderColumn = trim($orderColumn);
+                $isQuoted = str_starts_with($orderColumn, '`') && str_ends_with($orderColumn, '`');
+                $orderColumn = $this->sanitizeIdentifier($orderColumn);
+                if (preg_match('/^[a-zA-Z_][a-zA-Z0-9_.]*$/', $orderColumn) !== 1) {
+                    throw new InvalidArgumentException("Invalid order column: {$orderColumn}");
+                }
+                $orderColumns[] = $isQuoted ? "`{$orderColumn}`" : $orderColumn;
+            }
+            $sql .= ' ORDER BY ' . implode(',', $orderColumns) . " {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->db->limit($sql, $count, $offset);

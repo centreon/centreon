@@ -217,6 +217,7 @@ $redirect->setValue($o);
 // Form Rules
 $form->applyFilter('__ALL__', 'myTrim');
 $form->addRule('directories', _('Required Field'), 'required');
+$form->addRule('directories', _('Invalid directory name. Only alphanumeric characters, hyphens and underscores are allowed.'), 'regex', '/^[a-zA-Z0-9_-]+$/');
 $form->setRequiredNote(_('Required Field'));
 
 // watch/view

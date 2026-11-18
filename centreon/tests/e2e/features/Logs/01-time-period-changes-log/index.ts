@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import periods from '../../../fixtures/time-periods/time-period.json';
@@ -7,15 +8,15 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/main.php?p=508&object_type=timeperiod&object_id=5&searchU=&searchO=&otype='
+    url: `${INTERCEPTORS.pages.time_period_object}&object_id=5&searchU=&searchO=&otype=`
   }).as('getTimePeriod');
 });
 
@@ -63,7 +64,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'timeperiod');
+      .should('contain.text', 'Time period');
   }
 );
 
@@ -155,7 +156,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'timeperiod');
+      .should('contain.text', 'Time period');
   }
 );
 
@@ -214,6 +215,6 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'timeperiod');
+      .should('contain.text', 'Time period');
   }
 );

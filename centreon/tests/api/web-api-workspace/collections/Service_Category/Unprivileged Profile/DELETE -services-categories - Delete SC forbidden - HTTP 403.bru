@@ -1,0 +1,27 @@
+meta {
+  name: DELETE /services/categories - Delete SC forbidden - HTTP 403
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/services/categories/{{ServiceCategory2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The user does not have the correct rights to delete a service category.", function () {
+    const body = res.getBody();
+    expect(body.message).to.match(/not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

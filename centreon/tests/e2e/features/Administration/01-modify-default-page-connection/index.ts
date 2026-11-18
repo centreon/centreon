@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 beforeEach(() => {
@@ -8,11 +9,11 @@ beforeEach(() => {
   );
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -100,9 +101,11 @@ When('the non-admin user logs back to Centreon', () => {
 });
 
 Then('the active page is Configuration > Hosts', () => {
-  cy.getIframeBody()
-    .find('a.pathWay')
+  // The breadcrumb now lives in the React top banner (outside the legacy
+  // iframe) instead of the legacy `.pathWay` links inside the page.
+  cy.get('[data-cy="breadcrumb"]')
+    .find('a')
     .eq(0)
     .should('have.text', 'Configuration');
-  cy.getIframeBody().find('a.pathWay').eq(1).should('have.text', 'Hosts');
+  cy.get('[data-cy="breadcrumb"]').find('a').eq(1).should('have.text', 'Hosts');
 });

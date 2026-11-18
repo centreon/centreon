@@ -1,0 +1,177 @@
+name: cypress-e2e-debug-analysis
+
+on:
+  workflow_call:
+    inputs:
+      name:
+        description: "Same 'name' input given to cypress-e2e-parallelization.yml for every leg (used to find its artifacts)"
+        required: true
+        type: string
+      os_and_database_matrix:
+        description: "The os_and_database_matrix output used to matrix e2e-test, so every combo's artifacts can be gathered into one analysis"
+        required: true
+        type: string
+      triggering_actor:
+        description: "github.triggering_actor from the caller — the user who triggered this run (e.g. via 'Re-run with debug logging'), not github.actor which stays the original run's user"
+        required: true
+        type: string
+    secrets:
+      claude_code_oauth_token:
+        description: "Resolved by the caller from secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', <sanitized triggering_actor>)] — this workflow has no access to the full secret store to do that lookup itself."
+        required: false
+
+jobs:
+  analyze:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    steps:
+      - name: Check that debug logging is enabled for this run
+        id: debug-check
+        run: echo "is_debug=${{ runner.debug == '1' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Check for a Claude token for the triggering user
+        id: token-check
+        if: steps.debug-check.outputs.is_debug == 'true'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.claude_code_oauth_token }}
+          TRIGGERING_ACTOR: ${{ inputs.triggering_actor }}
+        run: |
+          if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+            secret_actor="${TRIGGERING_ACTOR//-/_}"
+            {
+              echo "## AI failure analysis skipped"
+              echo ""
+              echo "No Claude token configured for @$TRIGGERING_ACTOR. To enable this analysis on your debug re-runs:"
+              echo '```'
+              echo "claude setup-token"
+              echo "gh secret set CLAUDE_CODE_OAUTH_TOKEN_$secret_actor --repo ${{ github.repository }}"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout sources
+        if: ${{ steps.token-check.outputs.ready == 'true' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Download reports and failed-test artifacts for every os/database combo
+        if: ${{ steps.token-check.outputs.ready == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OS_AND_DATABASE_MATRIX: ${{ inputs.os_and_database_matrix }}
+          NAME: ${{ inputs.name }}
+        run: |
+          echo "$OS_AND_DATABASE_MATRIX" | jq -c '.operating_systems[]' | while read -r combo; do
+            os=$(echo "$combo" | jq -r '.operating_system')
+            db_id=$(echo "$combo" | jq -r '.db_id')
+            leg="${NAME}-${os}-${db_id}"
+            if ! gh run download "${{ github.run_id }}" --repo "${{ github.repository }}" \
+                 -n "${leg}-test-reports" -D "debug-analysis/test-reports/${os}-${db_id}"; then
+              echo "::warning::Could not download ${leg}-test-reports — ${os}-${db_id} won't be included in the analysis."
+            fi
+            if ! gh run download "${{ github.run_id }}" --repo "${{ github.repository }}" \
+                 -n "${leg}-test-results" -D "debug-analysis/test-results/${os}-${db_id}"; then
+              echo "::warning::Could not download ${leg}-test-results — screenshots/videos for ${os}-${db_id} won't be available to Claude."
+            fi
+          done
+
+      - name: Merge mochawesome reports and check whether anything actually failed
+        id: failure-check
+        if: ${{ steps.token-check.outputs.ready == 'true' }}
+        run: |
+          shopt -s globstar nullglob
+          report_files=(debug-analysis/test-reports/**/*-report.json)
+          if [ ${#report_files[@]} -eq 0 ]; then
+            echo "No mochawesome report files were found (test-reports artifacts may be missing for every combo)."
+            echo "reports_found=false" >> "$GITHUB_OUTPUT"
+            failures=0
+          else
+            npx --yes mochawesome-merge@5.1.1 "debug-analysis/test-reports/**/*-report.json" > debug-analysis/mochawesome.json
+            failures=$(jq '.stats.failures // 0' debug-analysis/mochawesome.json)
+            echo "reports_found=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "This run has $failures failing scenario(s) across all os/database combos."
+          echo "has_failures=$( [ "$failures" -gt 0 ] && echo true || echo false )" >> "$GITHUB_OUTPUT"
+
+      - name: Explain why no Claude analysis will run
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'false' }}
+        run: |
+          {
+            echo "## 🐛 Debug analysis — run attempt ${{ github.run_attempt }}"
+            echo ""
+            if [ "${{ steps.failure-check.outputs.reports_found }}" == "true" ]; then
+              echo "No failing scenario was found in the Cypress reports, so no AI analysis was run."
+              echo "The job failure likely comes from a different step (artifact upload, Xray import, etc.)."
+            else
+              echo "No mochawesome report could be downloaded for any os/database combo, so no AI analysis was run."
+              echo "Check the warnings on the download step above and the e2e-test job's own artifacts."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Get PR diff
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' && github.event.pull_request != null }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} > debug-analysis/pr.diff || true
+
+      - name: Install Claude Code CLI
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' }}
+        run: npm install -g @anthropic-ai/claude-code@2.1.287
+
+      - name: Analyze failures with Claude
+        id: claude-analysis
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' }}
+        continue-on-error: true
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.claude_code_oauth_token }}
+        run: |
+          bash .github/scripts/debug-analysis/analyze-with-claude.sh \
+            "You are running in CI with no human present. This Cypress e2e run failed, \
+            and debug logging was explicitly enabled for this re-run (that is how this job got \
+            triggered). Read debug-analysis/mochawesome.json for every failing scenario across \
+            all os/database combos (error message, stack trace), look at screenshots/videos \
+            under debug-analysis/test-results/<os>-<database>/ if useful (the subfolder name \
+            tells you which combo it's from), and read debug-analysis/pr.diff (if present) for \
+            what this PR actually changed. For each failing scenario, decide: is the failure \
+            caused by this PR's diff (cite the specific line(s)/change), or does it look flaky / \
+            pre-existing / environment-related and unrelated to the diff (explain why — e.g. a \
+            timing-sensitive wait, a known-flaky selector pattern, an infra timeout)? If the same \
+            scenario fails on more than one combo, say so instead of repeating the analysis. \
+            Answer directly with your conclusion as markdown (this is your final response text, \
+            you have no tool available to write files or run commands), one heading per failing \
+            scenario, each with exactly these three parts in this order: a '**Verdict:**' line \
+            stating caused by this PR's diff or flaky/pre-existing, an 'Explanation' section with \
+            your reasoning (cite the specific line(s)/change or the flaky pattern), and a \
+            'Proposed fix' section with a concrete, actionable suggestion (e.g. the exact line to \
+            revert or change, or how to stabilize a flaky step)."
+
+      - name: Write debug analysis summary
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' && !cancelled() }}
+        run: |
+          {
+            echo "## 🐛 Debug analysis — run attempt ${{ github.run_attempt }}"
+            echo ""
+            if [ -s debug-analysis/summary.md ]; then
+              cat debug-analysis/summary.md
+            else
+              echo "### AI failure analysis did not complete"
+              echo ""
+              echo "The analysis step did not produce a verdict (outcome: ${{ steps.claude-analysis.outcome }})."
+              echo "Check the run logs and, if present, the \`claude-debug-analysis.jsonl\` artifact for details."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload analysis transcript
+        if: ${{ steps.token-check.outputs.ready == 'true' && steps.failure-check.outputs.has_failures == 'true' && !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ inputs.name }}-debug-analysis
+          path: claude-debug-analysis.jsonl
+          retention-days: 7

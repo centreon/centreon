@@ -141,13 +141,20 @@ class CentreonMainCfg
             return false;
         }
 
-        $query = "SELECT bk_mod_id FROM `cfg_nagios_broker_module` WHERE cfg_nagios_id = '" . $iId . "'";
-        $dbResult = $this->DB->query($query);
-        if ($dbResult->rowCount() == 0) {
-            $sQuery = "INSERT INTO cfg_nagios_broker_module (`broker_module`, `cfg_nagios_id`) VALUES ('"
-                . $this->aDefaultBrokerDirective[$source] . "', " . $iId . ')';
+        $stmt = $this->DB->prepare(
+            'SELECT bk_mod_id FROM `cfg_nagios_broker_module` WHERE cfg_nagios_id = :cfgNagiosId'
+        );
+        $stmt->bindValue(':cfgNagiosId', $iId, PDO::PARAM_INT);
+        $stmt->execute();
+        if ($stmt->rowCount() == 0) {
             try {
-                $res = $this->DB->query($sQuery);
+                $insertStmt = $this->DB->prepare(
+                    'INSERT INTO cfg_nagios_broker_module (`broker_module`, `cfg_nagios_id`)
+                    VALUES (:brokerModule, :cfgNagiosId)'
+                );
+                $insertStmt->bindValue(':brokerModule', $this->aDefaultBrokerDirective[$source], PDO::PARAM_STR);
+                $insertStmt->bindValue(':cfgNagiosId', $iId, PDO::PARAM_INT);
+                $insertStmt->execute();
             } catch (PDOException $e) {
                 return false;
             }
@@ -223,7 +230,9 @@ class CentreonMainCfg
             return false;
         }
 
-        $res = $this->DB->query('SELECT * FROM cfg_nagios WHERE  nagios_server_id = ' . $source);
+        $res = $this->DB->prepare('SELECT * FROM cfg_nagios WHERE nagios_server_id = :serverId');
+        $res->bindValue(':serverId', $source, PDO::PARAM_INT);
+        $res->execute();
         $baseValues = $res->rowCount() == 0 ? $this->aInstanceDefaultValues : $res->fetch();
 
         $rq = 'INSERT INTO `cfg_nagios` (
@@ -355,7 +364,7 @@ class CentreonMainCfg
                 if ($paramName === ':nagios_server_id') {
                     $stmt->bindValue($paramName, $paramValue, PDO::PARAM_INT);
                 } else {
-                    $stmt->bindValue($paramName, empty($paramValue) ? null : $paramValue, PDO::PARAM_STR);
+                    $stmt->bindValue($paramName, $paramValue === null || $paramValue === '' ? null : $paramValue, PDO::PARAM_STR);
                 }
             }
             $stmt->execute();
@@ -379,7 +388,10 @@ class CentreonMainCfg
      */
     public function getBrokerModules($id)
     {
-        $dbResult = $this->DB->query('SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ' . $id);
+        $dbResult = $this->DB->prepare('SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :cfgNagiosId');
+        $dbResult->bindValue(':cfgNagiosId', $id, PDO::PARAM_INT);
+        $dbResult->execute();
+        $entries = [];
         while ($row = $dbResult->fetch()) {
             $entries[] = $row;
         }
@@ -413,6 +425,13 @@ class CentreonMainCfg
      */
     private function setEngineOptions(): void
     {
+        // Flap detection and host_down_disable_service_checks default to enabled on Cloud only.
+        $enabledOnCloud = filter_var(
+            $_ENV['IS_CLOUD_PLATFORM'] ?? false,
+            FILTER_VALIDATE_BOOL,
+            FILTER_NULL_ON_FAILURE
+        ) === true ? '1' : '0';
+
         $this->aInstanceDefaultValues = [
             'log_file' => '/var/log/centreon-engine/centengine.log',
             'cfg_dir' => '/etc/centreon-engine/',
@@ -449,7 +468,7 @@ class CentreonMainCfg
             'max_host_check_spread' => '15',
             'check_result_reaper_frequency' => '5',
             'auto_reschedule_checks' => '0',
-            'enable_flap_detection' => '1',
+            'enable_flap_detection' => $enabledOnCloud,
             'low_service_flap_threshold' => '25.0',
             'high_service_flap_threshold' => '50.0',
             'low_host_flap_threshold' => '25.0',
@@ -476,7 +495,7 @@ class CentreonMainCfg
             'nagios_server_id' => '1',
             'enable_predictive_host_dependency_checks' => '1',
             'enable_predictive_service_dependency_checks' => '1',
-            'host_down_disable_service_checks' => '1',
+            'host_down_disable_service_checks' => $enabledOnCloud,
             'passive_host_checks_are_soft' => '0',
             'enable_environment_macros' => '0',
             'debug_file' => '/var/log/centreon-engine/centengine.debug',

@@ -110,7 +110,7 @@ $hostgroupName = getHostgroupNameFromId($hostgroupId);
 header('Cache-Control: public');
 header('Pragma: public');
 header('Content-Type: application/octet-stream');
-header('Content-disposition: filename=' . $hostgroupName . '.csv');
+header('Content-Disposition: attachment; filename="' . str_replace(['"', "\r", "\n"], '', $hostgroupName) . '.csv"');
 
 echo _('Hostgroup') . ';'
     . _('Begin date') . '; '

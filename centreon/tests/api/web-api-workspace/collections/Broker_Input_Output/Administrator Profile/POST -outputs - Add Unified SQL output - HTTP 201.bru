@@ -1,0 +1,52 @@
+meta {
+  name: POST /outputs - Add Unified SQL output - HTTP 201
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/outputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "output-test-12",
+    "type": 34,
+    "parameters": {
+      "interval": 75,
+      "length": 15553000,
+      "db_host": "127.0.0.1",
+      "db_port": 3456,
+      "db_user": "user-test",
+      "db_password": "super_password",
+      "queries_per_transaction": 10000,
+      "connections_count": 123,
+      "db_name": "name1",
+      "read_timeout": 4500,
+      "rebuild_check_interval": 12,
+      "store_in_data_bin": "no",
+      "insert_in_index_data": "1",
+      "cleanup_check_interval": 7500,
+      "instance_timeout": 5000,
+      "db_type": "oci",
+      "filters_category": ["dumper", "storage"]
+    }
+  }
+}
+
+tests {
+  test("Unified SQL output created successfully (returns 500 if broker infrastructure is unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 500]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

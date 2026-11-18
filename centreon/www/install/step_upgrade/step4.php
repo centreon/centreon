@@ -58,7 +58,7 @@ if (version_compare($current, '2.8.0-beta1') < 0) {
 
     $troubleshootTxt1 = _('You seem to be having trouble with your upgrade.');
     $troubleshootTxt1bis = sprintf(
-        _('Please check the "upgrade.log" and the "sql-error.log" located in "%s" for more details'),
+        _('Please check the "prod.upgrade.log" and the "prod.web.log" located in "%s" for more details'),
         _CENTREON_LOG_
     );
     $troubleshootTxt2 = _('You may refer to the line in the specified file in order to correct the issue.');

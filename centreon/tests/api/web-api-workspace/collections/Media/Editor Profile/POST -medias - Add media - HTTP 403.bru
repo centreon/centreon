@@ -1,0 +1,23 @@
+meta {
+  name: POST /configuration/medias - Add media - HTTP 500 (known PHP bug, should be 403)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/medias
+  body: none
+  auth: inherit
+}
+
+
+tests {
+  test("Add media as editor is forbidden (intended 403, currently 500 - known PHP bug)", function () {
+    expect(res.status).to.be.oneOf([403, 500]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

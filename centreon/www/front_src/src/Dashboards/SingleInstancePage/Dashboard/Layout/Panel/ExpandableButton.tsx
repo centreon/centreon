@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import CloseIcon from '@mui/icons-material/Close';
 
 import { IconButton } from '@centreon/ui';

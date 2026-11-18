@@ -1,0 +1,38 @@
+meta {
+  name: GET /services/severities - Get 1 service severity - HTTP 200
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/severities
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The service severities are listed with all of their parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const ss1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("ServiceSeverity1Id")));
+    expect(ss1).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceSeverity1Id")),
+      "name": bru.getEnvVar("ServiceSeverity1Name"),
+      "alias": bru.getEnvVar("ServiceSeverity1Alias"),
+      "level": 10,
+      "icon_id": 1,
+      "is_activated": false
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

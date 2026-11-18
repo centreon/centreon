@@ -1,0 +1,26 @@
+meta {
+  name: GET /hosts/templates - Get host templates forbidden - HTTP 403
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/templates
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The host templates have not been listed, because the user does not have the correct rights.", function () {
+    expect(res.getBody().message).to.match(/not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

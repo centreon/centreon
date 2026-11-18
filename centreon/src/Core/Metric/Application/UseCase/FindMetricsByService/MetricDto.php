@@ -40,4 +40,8 @@ class MetricDto
     public ?float $criticalHighThreshold = null;
 
     public ?float $criticalLowThreshold = null;
+
+    public ?float $min = null;
+
+    public ?float $max = null;
 }

@@ -1,6 +1,7 @@
 import { Form, Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import { useQueryClient } from '@tanstack/react-query';
+import type { FormikHelpers } from 'formik';
 import { useTranslation } from 'react-i18next';
 
 import { adaptWebSSOConfigurationToAPI } from '../../api/adapters';
@@ -45,7 +46,7 @@ const WebSSOForm = ({
 
   const submit = (
     values: WebSSOConfiguration,
-    { setSubmitting }
+    { setSubmitting }: FormikHelpers<WebSSOConfiguration>
   ): Promise<void> => {
     return mutateAsync({ payload: adaptWebSSOConfigurationToAPI(values) })
       .then(() => {

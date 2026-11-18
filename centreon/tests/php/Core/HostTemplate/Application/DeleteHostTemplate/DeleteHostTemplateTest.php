@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
@@ -52,6 +53,7 @@ beforeEach(function (): void {
         $this->user,
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
+        $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
     );
 });
 

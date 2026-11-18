@@ -1,0 +1,66 @@
+meta {
+  name: POST /hosts/templates - Create HT with wrong type - HTTP 400
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": true,
+    "alias": 1,
+    "snmp_version": false,
+    "snmp_community": 1,
+    "timezone_id": "1",
+    "severity_id": "{{HostSeverity1Id}}",
+    "check_timeperiod_id": "1",
+    "note_url": 2,
+    "note": 0,
+    "action_url": 43,
+    "max_check_attempts": "3",
+    "normal_check_interval": "5",
+    "retry_check_interval": "2",
+    "icon_id": "1",
+    "categories": [ "{{HostCategory1Id}}" ],
+    "templates": ["4"],
+    "macros": [
+      {
+        "name": true,
+        "value": false,
+        "is_password": "false",
+        "description": 1
+      },
+      {
+        "name": 2,
+        "value": 1,
+        "is_password": 2,
+        "description": 1
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The host template has not been created, because there are values of the wrong type.", function () {
+    const msg = res.getBody().message;
+    expect(msg).to.include("[name] Boolean value found, but a string is required");
+    expect(msg).to.include("[alias] Integer value found, but a string is required");
+    expect(msg).to.include("[snmp_version] Boolean value found, but a null or a string is required");
+    expect(msg).to.include("[macros[0].name] Boolean value found, but a string is required");
+    expect(msg).to.include("[macros[0].is_password] String value found, but a boolean is required");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

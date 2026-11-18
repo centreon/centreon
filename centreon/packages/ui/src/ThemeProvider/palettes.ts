@@ -45,6 +45,7 @@ declare module '@mui/material/styles' {
       main: string;
     };
     statusBackground: StatusBackground;
+    tile: TypeTile;
   }
   interface StatusBackground {
     error: string;
@@ -64,6 +65,13 @@ declare module '@mui/material/styles' {
       main: string;
     };
     statusBackground: StatusBackground;
+    tile: TypeTile;
+  }
+
+  interface TypeTile {
+    background: string;
+    border: string;
+    borderHover: string;
   }
 
   interface TypeBackground {
@@ -179,7 +187,7 @@ export const lightPalette: PaletteOptions = {
   },
   background: {
     default: '#F4F4F4',
-    listingHeader: '#666666',
+    listingHeader: '#D9D9D9',
     panel: '#EDEDED',
     panelGroups: '#F5F5F5',
     paper: '#FFFFFF',
@@ -198,6 +206,8 @@ export const lightPalette: PaletteOptions = {
   divider: '#E3E3E3',
   error: {
     contrastText: '#000',
+    dark: '#B23333',
+    light: '#FF6E6E',
     main: '#FF4A4A'
   },
   header: {
@@ -267,9 +277,9 @@ export const lightPalette: PaletteOptions = {
   },
   primary: {
     contrastText: '#fff',
-    dark: '#255891',
-    light: '#cde7fc',
-    main: '#2E68AA'
+    dark: '#2A3575',
+    light: '#D8DCE9',
+    main: '#131D5A'
   },
   secondary: {
     contrastText: '#fff',
@@ -278,15 +288,17 @@ export const lightPalette: PaletteOptions = {
     main: '#C772D6'
   },
   statusBackground: {
-    error: '#FF6666',
+    error: '#FF6E6E',
     none: alpha('#2E68AA', 0.1),
     pending: '#1EBEB3',
-    success: '#88B922',
+    success: '#9FC74E',
     unknown: '#E3E3E3',
-    warning: '#FD9B27'
+    warning: '#FCC481'
   },
   success: {
     contrastText: '#000',
+    dark: '#5F8117',
+    light: '#9FC74E',
     main: '#88B922'
   },
   text: {
@@ -294,9 +306,14 @@ export const lightPalette: PaletteOptions = {
     primary: '#000000',
     secondary: '#666666'
   },
+  tile: {
+    background: '#FFFFFF',
+    border: '#E3E3E3',
+    borderHover: '#CCCCCC'
+  },
   warning: {
     contrastText: '#000',
-    dark: '#FC7E00',
+    dark: '#B16C1B',
     light: '#FCC481',
     main: '#FD9B27'
   }
@@ -342,7 +359,9 @@ export const darkPalette: PaletteOptions = {
   divider: '#666666',
   error: {
     contrastText: '#fff',
-    main: '#D60101'
+    dark: '#B23333',
+    light: '#FF6E6E',
+    main: '#FF4A4A'
   },
   header: {
     page: {
@@ -407,7 +426,7 @@ export const darkPalette: PaletteOptions = {
   mode: ThemeMode.dark,
   pending: {
     contrastText: '#fff',
-    main: '#118077'
+    main: '#1EBEB3'
   },
   primary: {
     contrastText: '#000',
@@ -420,25 +439,34 @@ export const darkPalette: PaletteOptions = {
     main: '#7C1FA2'
   },
   statusBackground: {
-    error: '#D60101',
+    error: '#FF4A4A',
     none: alpha('#2E68AA', 0.1),
-    pending: '#118077',
-    success: '#5F8118',
+    pending: '#1EBEB3',
+    success: '#88B922',
     unknown: '#666666',
-    warning: '#C55400'
+    warning: '#FD9B27'
   },
   success: {
     contrastText: '#fff',
-    main: '#5F8118'
+    dark: '#5F8117',
+    light: '#9FC74E',
+    main: '#88B922'
   },
   text: {
     disabled: '#666666',
     primary: '#FFFFFF',
     secondary: '#CCCCCC'
   },
+  tile: {
+    background: '#2E2E2E',
+    border: '#4A4A4A',
+    borderHover: '#6D6D6D'
+  },
   warning: {
     contrastText: '#fff',
-    main: '#C55400'
+    dark: '#B16C1B',
+    light: '#FCC481',
+    main: '#FD9B27'
   }
 };
 

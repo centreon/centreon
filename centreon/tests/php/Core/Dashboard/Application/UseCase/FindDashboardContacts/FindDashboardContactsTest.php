@@ -188,6 +188,13 @@ it(
             ->method('findByContact')
             ->willReturn([new AccessGroup(1, 'name', 'alias')]);
 
+        $this->contact->expects($this->atLeastOnce())
+            ->method('getId')
+            ->willReturn(42);
+
+        $this->readContactGroupRepository->expects($this->once())
+            ->method('findAllByUserId');
+
         $this->readDashboardShareRepository->expects($this->once())
             ->method('findContactsWithAccessRightByACLGroupsAndRequestParameters')
             ->willThrowException(new \Exception());
@@ -219,7 +226,21 @@ it(
 
         $this->readDashboardShareRepository->expects($this->once())
             ->method('findContactsWithAccessRightByACLGroupsAndRequestParameters')
+            ->with(
+                $this->requestParameters,
+                [1],
+                [10]
+            )
             ->willReturn([$userDashboardRole]);
+
+        $this->contact->expects($this->once())
+            ->method('getId')
+            ->willReturn(42);
+
+        $this->readContactGroupRepository->expects($this->once())
+            ->method('findAllByUserId')
+            ->with(42)
+            ->willReturn([new ContactGroup(10, 'cg', 'cg-alias')]);
 
         $response = ($this->useCaseOnPremise)();
 
@@ -230,6 +251,56 @@ it(
             ->and($contacts[0]->id)->toBe(1)
             ->and($contacts[0]->name)->toBe('test')
             ->and($contacts[0]->email)->toBe('email')
+            ->and($contacts[0]->mostPermissiveRole)->toBe(DashboardGlobalRole::Creator);
+    }
+);
+
+it(
+    'should search sharable contacts with ACL groups and contact groups in a single repository call - AS USER - OnPremise',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(false);
+
+        $this->readAccessGroupRepository->expects($this->any())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(1, 'name', 'alias')]);
+
+        $contactFromMergedScope = new DashboardContactRole(
+            contactId: 1,
+            contactName: 'same-user',
+            contactEmail: 'same-user@email',
+            roles: [DashboardGlobalRole::Creator]
+        );
+
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactsWithAccessRightByACLGroupsAndRequestParameters')
+            ->with(
+                $this->requestParameters,
+                [1],
+                [10]
+            )
+            ->willReturn([$contactFromMergedScope]);
+
+        $this->contact->expects($this->once())
+            ->method('getId')
+            ->willReturn(42);
+
+        $this->readContactGroupRepository->expects($this->once())
+            ->method('findAllByUserId')
+            ->with(42)
+            ->willReturn([new ContactGroup(10, 'cg', 'cg-alias')]);
+
+        $response = ($this->useCaseOnPremise)();
+
+        $contacts = $response->getData();
+
+        expect($response)->toBeInstanceOf(FindDashboardContactsResponse::class)
+            ->and($contacts)->toHaveCount(1)
+            ->and($contacts[0])->toBeInstanceOf(ContactsResponseDto::class)
+            ->and($contacts[0]->id)->toBe(1)
+            ->and($contacts[0]->name)->toBe('same-user')
+            ->and($contacts[0]->email)->toBe('same-user@email')
             ->and($contacts[0]->mostPermissiveRole)->toBe(DashboardGlobalRole::Creator);
     }
 );

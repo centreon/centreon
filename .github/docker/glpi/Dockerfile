@@ -1,4 +1,4 @@
-FROM debian:bookworm
+FROM debian:trixie
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -9,7 +9,7 @@ RUN bash -e <<EOF
 apt-get update
 apt-get install -y ca-certificates wget curl gnupg2
 
-echo "deb https://packages.sury.org/php/ bookworm main" | tee /etc/apt/sources.list.d/sury-php.list
+echo "deb https://packages.sury.org/php/ trixie main" | tee /etc/apt/sources.list.d/sury-php.list
 wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 
 apt-get update

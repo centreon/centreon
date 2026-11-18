@@ -35,7 +35,6 @@ use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Common\Domain\TrimmedString;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use ValueError;
 
 class Validator
 {
@@ -65,7 +64,7 @@ class Validator
      * @param UpdateAgentConfigurationRequest $request
      * @param AgentConfiguration $agentConfiguration
      *
-     * @throws AgentConfigurationException|ValueError|AssertionFailedException
+     * @throws AgentConfigurationException|AssertionFailedException
      */
     public function validateRequestOrFail(
         UpdateAgentConfigurationRequest $request,
@@ -73,8 +72,7 @@ class Validator
     ): void {
         $this->validateNameOrFail($request, $agentConfiguration);
         $this->validatePollersOrFail($request, $agentConfiguration);
-        $this->validateTypeOrFail($request, $agentConfiguration);
-        $this->validateParametersOrFail($request);
+        $this->validateParametersOrFail($request, $agentConfiguration);
     }
 
     /**
@@ -96,25 +94,6 @@ class Validator
             && $this->readAcRepository->existsByName($trimmedName)
         ) {
             throw AgentConfigurationException::nameAlreadyExists($trimmedName->value);
-        }
-    }
-
-    /**
-     * Check type validity.
-     *
-     * @param UpdateAgentConfigurationRequest $request
-     * @param AgentConfiguration $agentConfiguration
-     *
-     * @throws AgentConfigurationException|ValueError
-     */
-    public function validateTypeOrFail(
-        UpdateAgentConfigurationRequest $request,
-        AgentConfiguration $agentConfiguration,
-    ): void {
-        $type = Type::from($request->type);
-
-        if ($type->name !== $agentConfiguration->getType()->name) {
-            throw AgentConfigurationException::typeChangeNotAllowed();
         }
     }
 
@@ -176,13 +155,16 @@ class Validator
 
     /**
      * @param UpdateAgentConfigurationRequest $request
+     * @param AgentConfiguration $agentConfiguration
      *
      * @throws AgentConfigurationException|AssertionFailedException
      */
-    public function validateParametersOrFail(UpdateAgentConfigurationRequest $request): void
-    {
+    public function validateParametersOrFail(
+        UpdateAgentConfigurationRequest $request,
+        AgentConfiguration $agentConfiguration,
+    ): void {
         foreach ($this->parametersValidators as $validator) {
-            if ($validator->isValidFor(Type::from($request->type))) {
+            if ($validator->isValidFor($agentConfiguration->getType())) {
                 $validator->validateParametersOrFail($request);
             }
         }

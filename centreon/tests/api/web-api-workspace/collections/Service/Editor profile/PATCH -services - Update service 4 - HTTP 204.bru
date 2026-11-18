@@ -1,0 +1,37 @@
+meta {
+  name: PATCH /services - Update service 4 - HTTP 204
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/services/{{Service4Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "service_template_id": {{ServiceTemplate1Id}},
+    "check_timeperiod_id": 2,
+    "note": "Bloubloublou",
+    "note_url": "Hakuna Matata",
+    "action_url": "Chachacha",
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Service 4 has been successfully updated.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

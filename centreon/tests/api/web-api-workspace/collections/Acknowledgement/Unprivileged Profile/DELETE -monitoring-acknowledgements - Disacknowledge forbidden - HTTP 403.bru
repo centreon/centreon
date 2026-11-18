@@ -1,0 +1,41 @@
+meta {
+  name: DELETE /monitoring/acknowledgements - Disacknowledge forbidden - HTTP 403
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrlWeb}}/monitoring/resources/acknowledgements
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "disacknowledgement": {
+      "with_services": true
+    },
+    "resources": [
+      {
+        "type": "host",
+        "id": {{Host1Id}},
+        "parent": null
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Unprivileged user cannot remove acknowledgements.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

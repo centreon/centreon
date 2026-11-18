@@ -10,25 +10,21 @@ import { useTranslation } from 'react-i18next';
 
 import { filtersAtom } from '../atoms';
 import { labelDisabled, labelEnabled, labelStatus } from '../translatedLabels';
-import { useStyles } from './Filters.styles';
 
 const Status = (): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useStyles();
 
   const [filters, setFilters] = useAtom(filtersAtom);
 
   const change =
-    (key) =>
-    (event): void => {
+    (key: string) =>
+    (event: React.ChangeEvent<HTMLInputElement>): void => {
       setFilters({ ...filters, [key]: event.target.checked });
     };
 
   return (
-    <div className={classes.statusFilter}>
-      <Typography className={classes.statusFilterName}>
-        {t(labelStatus)}
-      </Typography>
+    <div className="flex flex-col justify-between items-start pl-2">
+      <Typography className="font-medium">{t(labelStatus)}</Typography>
       <FormGroup row>
         <FormControlLabel
           control={

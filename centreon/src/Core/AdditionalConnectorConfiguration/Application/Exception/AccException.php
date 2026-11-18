@@ -137,4 +137,16 @@ class AccException extends \Exception
             self::CODE_CONFLICT
         );
     }
+
+    public static function invalidArgument(string $argumentName, string $expectedType): self
+    {
+        return new self(
+            sprintf(
+                _("Invalid argument for '%s', expected type: %s"),
+                $argumentName,
+                $expectedType
+            ),
+            self::CODE_CONFLICT
+        );
+    }
 }

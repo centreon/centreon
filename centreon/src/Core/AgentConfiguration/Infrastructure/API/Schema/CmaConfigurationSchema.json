@@ -18,6 +18,7 @@
                 "otel_private_key",
                 "port",
                 "hosts",
+                "create_host_auto",
                 "tokens"
             ],
             "properties": {
@@ -67,6 +68,9 @@
                             }
                         }
                     }
+                },
+                "create_host_auto": {
+                    "type": "boolean"
                 },
                 "hosts": {
                     "type": "array",

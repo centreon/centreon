@@ -1,0 +1,33 @@
+meta {
+  name: POST /services/groups - Create SG without alias - HTTP 400
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Test_Ghost_SG"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service group has not been created, because the alias is mandatory.", function () {
+    const body = res.getBody();
+    expect(body.message).to.eql("[alias] The property alias is required\n");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

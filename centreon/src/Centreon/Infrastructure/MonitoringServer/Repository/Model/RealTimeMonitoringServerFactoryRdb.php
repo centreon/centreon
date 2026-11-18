@@ -26,9 +26,9 @@ namespace Centreon\Infrastructure\MonitoringServer\Repository\Model;
 use Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServer;
 
 /**
- * This class is designed to provide a way to create the HostCategory entity from the database.
+ * This class is designed to provide a way to create the RealTimeMonitoringServer entity from the database.
  *
- * @package Centreon\Infrastructure\HostConfiguration\Repository\Model
+ * @package Centreon\Infrastructure\MonitoringServer\Repository\Model
  */
 class RealTimeMonitoringServerFactoryRdb
 {
@@ -45,7 +45,6 @@ class RealTimeMonitoringServerFactoryRdb
             ->setRunning((bool) $data['running'])
             ->setLastAlive((int) $data['last_alive'])
             ->setVersion($data['version'])
-            ->setDescription($data['description'])
-            ->setAddress($data['address']);
+            ->setAddress($data['ns_ip_address']);
     }
 }
