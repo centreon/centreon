@@ -293,8 +293,7 @@ export const getServiceFormCommandsResponse = () =>
     { id: 9, name: 'check-centreon-cpu' }
   ]);
 
-// As the API sends them: the template's own macros first, without a parent and
-// a password without its value, then those it inherits.
+// `skip_null_values` drops a null `parent`, `value` or `id`.
 export const getServiceTemplateMacrosResponse = () => ({
   '@type': 'ServiceTemplateMacrosOutput',
   id: 30,

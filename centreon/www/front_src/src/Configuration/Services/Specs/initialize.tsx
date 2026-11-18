@@ -220,7 +220,6 @@ const initialize = ({
     response: getContactGroupsResponse()
   });
 
-  // Enable, disable and edit are a partial update, answered without a body.
   [0, 1, 2].forEach((id) => {
     interceptRequest(
       Method.PATCH,
@@ -258,7 +257,7 @@ const initialize = ({
       <SnackbarProvider>
         <QueryClientProvider client={queryClient}>
           <Provider store={store}>
-            <div style={{ height: '100vh' }}>
+            <div className="h-screen">
               <Services />
             </div>
           </Provider>
