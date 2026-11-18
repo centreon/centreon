@@ -79,7 +79,7 @@ final readonly class MergeDocumentationCommand
          *   },
          * }
          */
-        $newDoc = $this->normalizer->normalize(($this->openApiFactory)(), 'json', ['spec_version' => '3.2.0']);
+        $newDoc = $this->normalizer->normalize(($this->openApiFactory)(), 'json');
         /** @var array{paths: array<string, array<string, mixed>>, tags: array<array{name: string, ...}>, components: array{parameters: array<string, mixed>, responses: array<string, mixed>, schemas: array<string, mixed>}} $newDoc */
         $newDoc = $this->removeEmptyLinks($newDoc);
         /** @var array{paths: array<string, array<string, mixed>>, tags: array<array{name: string, ...}>, components: array{parameters: array<string, mixed>, responses: array<string, mixed>, schemas: array<string, mixed>}} $newDoc */
