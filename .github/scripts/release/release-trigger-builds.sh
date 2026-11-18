@@ -254,7 +254,7 @@ validate() {
       || version_major=""
   fi
   if [[ "$version_major" != "$major" ]]; then
-    errors+=(".version at $HEAD_SHA has MAJOR=${version_major:-(not readable)} but $BRANCH is a $major branch: the component builds would all be refused. $([[ "$BRANCH_EXISTS" == "true" ]] && echo "Set MAJOR=$major in .version on the branch (or dispatch the branch of $version_major)" || echo "$BRANCH doesn't exist yet and its base has another major: create it by hand with MAJOR=$major in .version"), then dispatch again")
+    errors+=(".version at $HEAD_SHA has MAJOR=${version_major:-(not readable)} but $BRANCH is a $major branch: the component builds would all be refused. $([[ "$BRANCH_EXISTS" == "true" ]] && echo "Set MAJOR=$major in .version on the branch (or dispatch the branch of $version_major)" || echo "$BRANCH doesn't exist yet and the .version of its base doesn't say $major: create it by hand with MAJOR=$major in .version"), then dispatch again")
   fi
 
   local self_index=-1 i
@@ -358,7 +358,8 @@ validate() {
               soft_fail "Cannot list the runs of $abandoned_bundle in $r"
               continue
             fi
-            busy+=$(jq -r --arg r "$r" '.[] | select(.status != "completed") | " \($r)/\(.workflowName)"' <<< "$runs_n")
+            busy+=$(jq -r --arg r "$r" '[.[] | select(.status != "completed") | " \($r)/\(.workflowName)"] | unique | join("")' \
+                      <<< "$runs_n") || fail "Unreadable run list of $abandoned_bundle in $r"
           done
           [[ -z "$busy" ]] || errors+=("Bundle $abandoned_bundle still has runs in progress:$busy. Cancel them first, then dispatch again with abandon_previous_bundle ticked")
         elif [[ "$abandon" == "true" ]]; then
