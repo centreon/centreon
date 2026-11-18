@@ -184,6 +184,8 @@ Graphs from VictoriaMetrics, set at each start:
 
 The feature flag `gorgone_api_commands` is always on in this image. `CENTREON_FEATURE_FLAGS` turns on more flags of `config/features.json`, comma separated, for instance `engine_recurring_downtimes`: the pollers then receive the recurring downtimes in their configuration (`recurringdowntimes.cfg`) and Engine schedules them, the `downtimeManager` cron sends nothing. It needs an Engine (and the central Broker, whose `unified_sql` parses the poller configuration) that knows the `recurringdowntime` object; a change to a recurring downtime applies at the next configuration export.
 
+With `broker_managed_pki`, the BBDO connections whose TLS is on (`tls` of the poller module outputs and of the central broker input) use certificates the web issues itself: a certificate authority created on first need and the certificates of the pollers and of the central broker, all in the table `broker_pki`, private keys encrypted with the engine-context key (`CENTREON_ENGINE_CONTEXT` or `ENGINE_CONTEXT_PATH`, the same in every replica). The C++ Broker gets them as files in `pki/` of its configuration, centreon-engine inline in its structured configuration. Replacing the engine-context key makes the stored keys unreadable: the export then fails until the table is emptied, which issues a new CA and new certificates for every poller.
+
 ```bash
 docker build -f .github/docker/centreon-web/frankenphp/Dockerfile -t centreon-web-frankenphp:local .
 ```

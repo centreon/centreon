@@ -2773,6 +2773,15 @@ CREATE TABLE IF NOT EXISTS `authentication_tokens` (
     REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for tokens not used for api/ui login';
 
+CREATE TABLE IF NOT EXISTS `broker_pki` (
+  `subject` varchar(255) NOT NULL COMMENT 'ca, central or poller:<id>',
+  `certificate` text NOT NULL COMMENT 'PEM',
+  `private_key` text NOT NULL COMMENT 'PEM encrypted with the engine-context key',
+  `fingerprint` char(64) NOT NULL COMMENT 'SHA-256 of the certificate',
+  `not_after` bigint UNSIGNED NOT NULL COMMENT 'end of validity, Unix time',
+  PRIMARY KEY (`subject`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Managed PKI of the BBDO connections (broker_managed_pki)';
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;

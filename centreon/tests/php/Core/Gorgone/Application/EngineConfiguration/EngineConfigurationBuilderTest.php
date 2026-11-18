@@ -37,7 +37,7 @@ beforeEach(function (): void {
 
 it('should build the smallest document from the poller and its broker module', function (): void {
     expect($this->builder->build())->toBe([
-        'version' => 4,
+        'version' => 5,
         'poller' => ['id' => 3, 'name' => 'poller-3'],
         'broker' => ['address' => '10.0.0.1:5669', 'name' => 'poller-3-module'],
     ]);
@@ -436,6 +436,16 @@ it('should keep the TLS settings of the output to the central broker', function 
             'encryption' => 'yes', 'ca_certificate' => '/etc/ca.crt'],
         ['tls' => 'yes', 'ca_certificate' => '/etc/ca.crt'],
     ],
+    // The managed PKI (broker_managed_pki): certificates inline, the key encrypted; each replaces its path.
+    'managed pki' => [
+        ['type' => 'ipv4', 'host' => 'central', 'port' => '5669', 'tls' => 'yes',
+            'ca_certificate' => '/etc/ca.crt', 'ca_certificate_pem' => "-----BEGIN CERTIFICATE-----\nCA\n",
+            'public_cert_pem' => "-----BEGIN CERTIFICATE-----\nP\n", 'private_key_pem' => 'encrypt::abc',
+            'tls_hostname' => 'central'],
+        ['tls' => 'yes', 'tls_hostname' => 'central',
+            'ca_certificate_pem' => "-----BEGIN CERTIFICATE-----\nCA\n",
+            'public_cert_pem' => "-----BEGIN CERTIFICATE-----\nP\n", 'private_key_pem' => 'encrypt::abc'],
+    ],
 ]);
 
 it('should keep the first TCP output to the central broker', function (array $outputs, string $address): void {
@@ -686,7 +696,10 @@ it('should match the schema the engine reads', function (): void {
             'service_escalations'
         )
         ->and(array_keys($schema['properties']['broker']['properties']['tls']['properties']))
-        ->toBe(['tls', 'private_key', 'public_cert', 'ca_certificate', 'tls_hostname'])
+        ->toBe([
+            'tls', 'private_key', 'public_cert', 'ca_certificate', 'tls_hostname', 'ca_certificate_pem',
+            'public_cert_pem', 'private_key_pem',
+        ])
         ->and(array_keys($schema['$defs']['contact']['properties']))
         ->toContain('name', 'use', 'contact_name', 'email', 'host_notification_commands', 'timezone')
         ->and(array_keys($schema['$defs']['escalation']['properties']))

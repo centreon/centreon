@@ -34,6 +34,9 @@ final class TarArchive
     private const NAME_MAX_LENGTH = 100;
     private const PREFIX_MAX_LENGTH = 155;
     private const FILE_MODE = 0644;
+    /** Private keys (".key", the managed PKI of the broker): not readable by others on the poller. */
+    private const PRIVATE_FILE_MODE = 0640;
+    private const PRIVATE_SUFFIX = '.key';
     private const BYTES = '8bit';
 
     /** @var array<string, string> */
@@ -87,7 +90,8 @@ final class TarArchive
         $archive = '';
         foreach ($this->files as $name => $content) {
             $size = mb_strlen($content, self::BYTES);
-            $archive .= self::buildHeader((string) $name, $size, $modificationTime) . $content;
+            $mode = str_ends_with((string) $name, self::PRIVATE_SUFFIX) ? self::PRIVATE_FILE_MODE : self::FILE_MODE;
+            $archive .= self::buildHeader((string) $name, $size, $modificationTime, $mode) . $content;
             $padding = (self::BLOCK_SIZE - $size % self::BLOCK_SIZE) % self::BLOCK_SIZE;
             $archive .= str_repeat("\0", $padding);
         }
@@ -96,14 +100,14 @@ final class TarArchive
         return $archive . str_repeat("\0", 2 * self::BLOCK_SIZE);
     }
 
-    private static function buildHeader(string $name, int $size, int $modificationTime): string
+    private static function buildHeader(string $name, int $size, int $modificationTime, int $mode): string
     {
         [$prefix, $baseName] = self::splitName($name);
 
         $header = pack(
             'a100a8a8a8a12a12a8a1a100a6a2a32a32a8a8a155a12',
             $baseName,
-            sprintf('%07o', self::FILE_MODE),
+            sprintf('%07o', $mode),
             sprintf('%07o', 0),
             sprintf('%07o', 0),
             sprintf('%011o', $size),

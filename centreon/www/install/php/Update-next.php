@@ -39,6 +39,26 @@ $errorMessage = '';
 // TODO add your functions here
 
 /**
+ * Certificates of the managed PKI of the BBDO connections (feature flag broker_managed_pki).
+ */
+$createBrokerPkiTable = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to create the table broker_pki';
+    LoggerUpgrade::create()->info($version, 'Creating the table broker_pki');
+    $pearDB->executeStatement(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `broker_pki` (
+              `subject` varchar(255) NOT NULL COMMENT 'ca, central or poller:<id>',
+              `certificate` text NOT NULL COMMENT 'PEM',
+              `private_key` text NOT NULL COMMENT 'PEM encrypted with the engine-context key',
+              `fingerprint` char(64) NOT NULL COMMENT 'SHA-256 of the certificate',
+              `not_after` bigint UNSIGNED NOT NULL COMMENT 'end of validity, Unix time',
+              PRIMARY KEY (`subject`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Managed PKI of the BBDO connections (broker_managed_pki)';
+            SQL
+    );
+};
+
+/**
  * Graph data source (Administration > Parameters > Data): RRD files by default, VictoriaMetrics optional.
  */
 $insertMetricsDataSourceOptions = function () use ($pearDB, &$errorMessage, $version): void {
@@ -223,6 +243,7 @@ try {
 
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
+    $createBrokerPkiTable();
 
     // Transactional queries for configuration database
     $errorMessage = 'Unable to start the configuration database transaction';

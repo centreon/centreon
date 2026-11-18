@@ -90,6 +90,14 @@ it('should write ustar headers without leading directory', function (): void {
         ->and(mb_strlen($content, '8bit'))->toBe(512 * 4);
 });
 
+it('should keep private keys from the others (mode 0640)', function (): void {
+    $content = (new TarArchive(['pki/poller.key' => 'k', 'pki/ca.crt' => 'c']))->toString(0);
+
+    // Header of the first entry, then of the second one, after its data block.
+    expect(mb_substr($content, 100, 7, '8bit'))->toBe('0000640')
+        ->and(mb_substr($content, 1024 + 100, 7, '8bit'))->toBe('0000644');
+});
+
 it('should count the sizes in bytes', function (): void {
     $files = [
         'accents.cfg' => "alias Serveur de météo à Besançon – 日本\n",

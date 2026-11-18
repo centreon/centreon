@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\Gorgone\Application\EngineConfiguration;
 
 /**
- * Builds the JSON configuration of a poller run by centreon-engine (schema engine-configuration.v4.json)
+ * Builds the JSON configuration of a poller run by centreon-engine (schema engine-configuration.v5.json)
  * from the attributes the .cfg generator writes, as it writes them. Only the fields of the schema are
  * kept: centreon-engine refuses a document with an unknown field. Values are kept as written, "encrypt::"
  * and "raw::" included: centreon-engine reads them as Engine does, with the key of the engine_context target.
@@ -43,8 +43,9 @@ final class EngineConfigurationBuilder
      * Version 3: groups, severities, tags, parents, dependencies, acknowledgement timeouts, event log settings.
      * Version 4: contacts, contact groups, escalations, notification, event handler, flapping and freshness
      * settings of the objects and of the engine, TLS of the connection to the central broker.
+     * Version 5: the certificates of that connection inline (managed PKI, feature flag broker_managed_pki).
      */
-    public const VERSION = 4;
+    public const VERSION = 5;
     public const KIND_HOST = 'host';
     public const KIND_HOST_TEMPLATE = 'host_template';
     public const KIND_SERVICE = 'service';
@@ -149,6 +150,12 @@ final class EngineConfigurationBuilder
     ];
     /** TLS keys of the cbmod output to the central broker; the paths are on the poller. */
     private const BROKER_TLS_FIELDS = ['private_key', 'public_cert', 'ca_certificate', 'tls_hostname'];
+    /** The same certificates inline (managed PKI), the key an "encrypt::" value; each one replaces its path. */
+    private const BROKER_TLS_PEM_FIELDS = [
+        'ca_certificate_pem' => 'ca_certificate',
+        'public_cert_pem' => 'public_cert',
+        'private_key_pem' => 'private_key',
+    ];
     private const DEPENDENCY_LISTS = [
         'host_name', 'hostgroup_name', 'dependent_host_name', 'dependent_hostgroup_name', 'service_description',
         'servicegroup_name', 'dependent_service_description', 'dependent_servicegroup_name',
@@ -884,6 +891,13 @@ final class EngineConfigurationBuilder
         foreach (self::BROKER_TLS_FIELDS as $field) {
             $value = trim((string) ($output[$field] ?? ''));
             if ($value !== '') {
+                $tls[$field] = $value;
+            }
+        }
+        foreach (self::BROKER_TLS_PEM_FIELDS as $field => $path) {
+            $value = (string) ($output[$field] ?? '');
+            if (trim($value) !== '') {
+                unset($tls[$path]);
                 $tls[$field] = $value;
             }
         }

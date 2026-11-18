@@ -337,6 +337,11 @@ services:
     Core\Gorgone\Application\Repository\ReadGorgoneJobRepositoryInterface:
         class: Core\Gorgone\Infrastructure\Repository\ApiReadGorgoneJobRepository
 
+    # Certificates of the managed PKI of the BBDO connections (feature flag broker_managed_pki)
+    Core\Broker\Application\Repository\BrokerPkiRepositoryInterface:
+        class: Core\Broker\Infrastructure\Repository\DbBrokerPkiRepository
+        public: true
+
     Core\Gorgone\Application\Repository\ReadGorgoneNodeRepositoryInterface:
         class: Core\Gorgone\Infrastructure\Repository\DbReadGorgoneNodeRepository
 

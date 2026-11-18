@@ -20,7 +20,10 @@
  */
 
 use App\Kernel;
+use Core\Broker\Application\Pki\BrokerPki;
+use Core\Broker\Application\Repository\BrokerPkiRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
@@ -38,6 +41,10 @@ class Broker extends AbstractObjectJSON
     use VaultTrait;
     private const STREAM_BBDO_SERVER = 'bbdo_server';
     private const STREAM_BBDO_CLIENT = 'bbdo_client';
+    /** Streams whose TLS keys are tls, public_cert, private_key, ca_certificate and tls_hostname. */
+    private const STREAMS_TCP = ['ipv4', 'ipv6', 'tcp'];
+    /** Directory of the managed PKI files, in the broker configuration directory of the poller. */
+    private const PKI_DIRECTORY = 'pki';
     private const EVENT_SCRIPT_LOGGER_MINIMUM_VERSION = '25.10.3';
 
     /** @var array|null */
@@ -131,6 +138,12 @@ class Broker extends AbstractObjectJSON
 
     private ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository;
 
+    /** The managed PKI of the BBDO connections, null when the feature flag is off. */
+    private ?BrokerPki $brokerPki = null;
+
+    /** @var list<string>|null host names of the TLS outputs of every broker configuration */
+    private ?array $tlsOutputHosts = null;
+
     /**
      * Broker constructor
      *
@@ -152,6 +165,12 @@ class Broker extends AbstractObjectJSON
         $this->readMonitoringServerRepository = $kernel->getContainer()->get(
             ReadMonitoringServerRepositoryInterface::class
         );
+        if ($kernel->getContainer()->get(FeatureFlags::class)->isEnabled(BrokerPki::FEATURE_FLAG)) {
+            $this->brokerPki = new BrokerPki(
+                $kernel->getContainer()->get(BrokerPkiRepositoryInterface::class),
+                $this->engineContextEncryption
+            );
+        }
     }
 
     /**
@@ -495,6 +514,16 @@ class Broker extends AbstractObjectJSON
             // Remove unnecessary element form inputs and output for stream types bbdo
             $object = $this->cleanBbdoStreams($object);
 
+            // Certificates of the managed PKI: inline for centreon-engine, files for the C++ Broker
+            $inlineTls = [];
+            if ($this->brokerPki !== null) {
+                $inlineTls = $this->applyManagedPki(
+                    $object,
+                    $localhost === '1' || $localhost === 1 || $localhost === true,
+                    $row['daemon'] != '1' && EngineConfigurationCapture::isActive()
+                );
+            }
+
             // Add vault path if vault if defined
             if ($this->readVaultConfigurationRepository->exists()) {
                 $object['vault_configuration'] = $this->readVaultConfigurationRepository->getLocation();
@@ -565,10 +594,17 @@ class Broker extends AbstractObjectJSON
             }
             // A module (cbmod) gives centreon-engine the address of the central broker
             if ($row['daemon'] != '1') {
-                EngineConfigurationCapture::recordBrokerModule(
-                    (string) $object['broker_name'],
-                    $object['output'] ?? []
-                );
+                $moduleOutputs = $object['output'] ?? [];
+                foreach ($inlineTls as $index => $tls) {
+                    unset(
+                        $moduleOutputs[$index]['public_cert'],
+                        $moduleOutputs[$index]['certificate'],
+                        $moduleOutputs[$index]['private_key'],
+                        $moduleOutputs[$index]['ca_certificate']
+                    );
+                    $moduleOutputs[$index] = array_merge($moduleOutputs[$index], $tls);
+                }
+                EngineConfigurationCapture::recordBrokerModule((string) $object['broker_name'], $moduleOutputs);
             }
 
             // Generate file
@@ -615,6 +651,21 @@ class Broker extends AbstractObjectJSON
                 }
             }
         }
+        foreach (['input', 'output'] as $direction) {
+            foreach ($config[$direction] ?? [] as $key => $endpoint) {
+                if (
+                    in_array($endpoint['type'] ?? null, self::STREAMS_TCP, true)
+                    && ! in_array(strtolower((string) ($endpoint['tls'] ?? 'no')), ['yes', 'auto'], true)
+                ) {
+                    unset(
+                        $config[$direction][$key]['private_key'],
+                        $config[$direction][$key]['public_cert'],
+                        $config[$direction][$key]['ca_certificate'],
+                        $config[$direction][$key]['tls_hostname']
+                    );
+                }
+            }
+        }
         if (isset($config['output'])) {
             foreach ($config['output'] as $key => $inputCfg) {
                 if ($inputCfg['type'] === self::STREAM_BBDO_SERVER && ($inputCfg['encryption'] ?? null) === 'no') {
@@ -629,6 +680,155 @@ class Broker extends AbstractObjectJSON
         }
 
         return $config;
+    }
+
+    /**
+     * TLS of the BBDO streams with the certificates of the managed PKI: each TCP output with TLS on gets the
+     * client certificate of its poller, the CA and the name of its peer to check (tls_hostname = its host); each
+     * TCP input with TLS on of the central gets the server certificate of the central broker and the CA, so that it
+     * asks for the certificate of the pollers and checks it (mutual authentication). The files are written in
+     * pki/ next to the configuration file, the keys in clear for the C++ Broker (0600 here, sent as 0640). A
+     * centreon-engine module ($inline) gets them inline instead, its key encrypted, and no file.
+     *
+     * @param array<string,mixed> $object configuration of the broker, changed in place
+     * @param bool $central whether the broker runs on the central server
+     * @param bool $inline module of a poller run by centreon-engine
+     *
+     * @throws Throwable
+     * @return array<int, array<string, string>> inline TLS keys of the outputs, by index
+     */
+    private function applyManagedPki(array &$object, bool $central, bool $inline): array
+    {
+        $directory = rtrim((string) $this->engine['broker_cfg_path'], '/') . '/' . self::PKI_DIRECTORY;
+        $files = [];
+        $inlineTls = [];
+        foreach ($object['output'] ?? [] as $index => $output) {
+            $kind = self::tlsStream($output);
+            $host = trim((string) ($output['host'] ?? ''), " []\t");
+            if ($kind === null || $host === '') {
+                continue;
+            }
+            $issued = $this->brokerPki->pollerCertificate((int) $this->engine['id'], (string) $this->engine['name']);
+            if ($inline) {
+                $inlineTls[$index] = [
+                    'ca_certificate_pem' => $issued->authority,
+                    'public_cert_pem' => $issued->certificate,
+                    'private_key_pem' => $issued->encryptedKey,
+                    'tls_hostname' => $host,
+                ];
+
+                continue;
+            }
+            $files['ca.crt'] = $issued->authority;
+            $files['poller.crt'] = $issued->certificate;
+            $files['poller.key'] = $this->brokerPki->privateKey($issued);
+            $object['output'][$index][$kind === 'bbdo' ? 'certificate' : 'public_cert'] = "{$directory}/poller.crt";
+            $object['output'][$index]['private_key'] = "{$directory}/poller.key";
+            $object['output'][$index]['ca_certificate'] = "{$directory}/ca.crt";
+            $object['output'][$index]['tls_hostname'] = $host;
+        }
+        if ($central && ! $inline) {
+            foreach ($object['input'] ?? [] as $index => $input) {
+                $kind = self::tlsStream($input);
+                if ($kind === null) {
+                    continue;
+                }
+                $issued = $this->brokerPki->centralCertificate($this->findTlsOutputHosts());
+                $files['ca.crt'] = $issued->authority;
+                $files['central.crt'] = $issued->certificate;
+                $files['central.key'] = $this->brokerPki->privateKey($issued);
+                $object['input'][$index][$kind === 'bbdo' ? 'certificate' : 'public_cert'] = "{$directory}/central.crt";
+                $object['input'][$index]['private_key'] = "{$directory}/central.key";
+                $object['input'][$index]['ca_certificate'] = "{$directory}/ca.crt";
+                // The name of a client is not checked: any poller certificate of the CA is accepted.
+                unset($object['input'][$index]['tls_hostname']);
+            }
+        }
+        $this->writePkiFiles($files);
+
+        return $inlineTls;
+    }
+
+    /**
+     * Kind of a BBDO stream over TCP with TLS on: "tcp" (keys tls, public_cert) or "bbdo" (bbdo_client and
+     * bbdo_server over TCP: keys encryption, certificate); null otherwise (gRPC has its own TLS).
+     *
+     * @param mixed $endpoint
+     */
+    private static function tlsStream(mixed $endpoint): ?string
+    {
+        if (! is_array($endpoint)) {
+            return null;
+        }
+        $type = (string) ($endpoint['type'] ?? '');
+        if (in_array($type, self::STREAMS_TCP, true)) {
+            return in_array(strtolower((string) ($endpoint['tls'] ?? 'no')), ['yes', 'auto'], true) ? 'tcp' : null;
+        }
+        if (
+            in_array($type, [self::STREAM_BBDO_CLIENT, self::STREAM_BBDO_SERVER], true)
+            && strtolower((string) ($endpoint['transport_protocol'] ?? 'tcp')) === 'tcp'
+            && strtolower((string) ($endpoint['encryption'] ?? 'no')) === 'yes'
+        ) {
+            return 'bbdo';
+        }
+
+        return null;
+    }
+
+    /**
+     * Hosts of the outputs with TLS on of every active broker configuration: the names the central broker
+     * certificate must hold.
+     *
+     * @throws PDOException
+     * @return list<string>
+     */
+    private function findTlsOutputHosts(): array
+    {
+        if ($this->tlsOutputHosts === null) {
+            $statement = $this->backend_instance->db->prepare(
+                <<<'SQL'
+                    SELECT DISTINCT h.config_value
+                    FROM cfg_centreonbroker_info h
+                    JOIN cfg_centreonbroker b ON b.config_id = h.config_id AND b.config_activate = '1'
+                    JOIN cfg_centreonbroker_info t ON t.config_id = h.config_id AND t.config_group = 'output'
+                        AND t.config_group_id = h.config_group_id
+                        AND ((t.config_key = 'tls' AND t.config_value IN ('yes', 'auto'))
+                            OR (t.config_key = 'encryption' AND t.config_value = 'yes'))
+                    WHERE h.config_group = 'output' AND h.config_key = 'host' AND h.config_value <> ''
+                    SQL
+            );
+            $statement->execute();
+            $this->tlsOutputHosts = array_values(array_map('strval', $statement->fetchAll(PDO::FETCH_COLUMN)));
+        }
+
+        return $this->tlsOutputHosts;
+    }
+
+    /**
+     * @param array<string, string> $files content by name, in pki/ of the generated configuration
+     *
+     * @throws RuntimeException
+     */
+    private function writePkiFiles(array $files): void
+    {
+        if ($files === []) {
+            return;
+        }
+        $directory = $this->backend_instance->getPath() . '/' . self::PKI_DIRECTORY;
+        if (! is_dir($directory) && ! mkdir($directory, 0770, true) && ! is_dir($directory)) {
+            throw new RuntimeException("Cannot create the directory '{$directory}'");
+        }
+        foreach ($files as $name => $content) {
+            $path = "{$directory}/{$name}";
+            $private = str_ends_with($name, '.key');
+            if (
+                file_put_contents($path, '') === false
+                || ! chmod($path, $private ? 0600 : 0660)
+                || file_put_contents($path, $content) === false
+            ) {
+                throw new RuntimeException("Cannot write the broker certificate file '{$path}'");
+            }
+        }
     }
 
     /**
