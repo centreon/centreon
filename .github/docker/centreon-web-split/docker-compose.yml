@@ -76,7 +76,7 @@ services:
       RUN_INSTALL: "true"
       MYSQL_HOST: db
       MYSQL_PORT: "${MYSQL_PORT:-3306}"
-      CENTREON_INTERNAL_API_BASE_URL: "http://httpd:80"
+      CENTREON_INTERNAL_API_BASE_URL: "http://httpd:8080"
       # Read by generate-broker-configuration.php to poll gorgone's own
       # connection-status API (GET /internal/constatus, confirmed reachable
       # here over plain HTTP, no auth) before attempting config delivery —
@@ -225,7 +225,7 @@ services:
       RRD_VOLUMES_CHOWN: "false"
       MYSQL_HOST: db
       MYSQL_PORT: "${MYSQL_PORT:-3306}"
-      CENTREON_INTERNAL_API_BASE_URL: "http://httpd:80"
+      CENTREON_INTERNAL_API_BASE_URL: "http://httpd:8080"
       CENTREON_API_USERNAME: centreon-gorgone
       CENTREON_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
       # Same pair as fpm's — this replica decrypts the same
@@ -259,7 +259,7 @@ services:
       fpm:
         condition: service_healthy
     ports:
-      - "${HTTPD_PORT:-18080}:80"
+      - "${HTTPD_PORT:-18080}:8080"
     environment:
       PHP_FPM_UPSTREAM: "fpm:9000"
       HTTPD_SERVER_NAME: "${HTTPD_SERVER_NAME:-localhost:18080}"
@@ -332,7 +332,7 @@ services:
       # centreon-gorgone system contact (see 12-install.sh) rather than
       # admin, so gorgone's own REST calls to Centreon don't silently depend
       # on the admin account's password never changing.
-      CENTREON_API_BASE_URL: "http://httpd/centreon/api/latest/"
+      CENTREON_API_BASE_URL: "http://httpd:8080/centreon/api/latest/"
       CENTREON_API_USERNAME: centreon-gorgone
       CENTREON_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
       # MON-213814 (G8): the reverse pair — gorgone's own inbound API auth,
@@ -372,7 +372,7 @@ services:
       SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
       GORGONE_UID: "1"                 # must match the Central nagios_server.id
       CENTRAL_HOST: httpd
-      CENTRAL_PORT: "80"                # httpd's internal port, not the mapped host port
+      CENTRAL_PORT: "8080"              # httpd's internal port, not the mapped host port
       # Native token auto-fetch: gorgone-central-poller logs in to the
       # Centreon API itself at startup and fetches the real "poller-default"
       # token value, no manually-pasted GORGONE_TOKEN that goes stale after
@@ -383,7 +383,7 @@ services:
       # Poller UI) and handing it Centreon admin-API credentials on top
       # would be a real privilege increase for no benefit.
       PULLWSS_TOKEN_NAME: poller-default
-      CENTREON_API_BASE_URL: "http://httpd/centreon/api/latest/"
+      CENTREON_API_BASE_URL: "http://httpd:8080/centreon/api/latest/"
       CENTREON_API_USERNAME: admin
       CENTREON_API_PASSWORD: "Centreon!2021"
       # Default 30 retries x 2s per phase (login, then fetch) is ~2min

@@ -117,7 +117,8 @@ done
 record "stack healthy ($(wc -l <<<"$services") services)" ok
 
 # REST login through httpd -> php-fpm, with the install's default admin.
-port=$(compose port httpd 80 | awk -F: '{print $NF}')
+# MON-215446: httpd's container-side port is 8080, not 80 (non-root Alpine).
+port=$(compose port httpd 8080 | awk -F: '{print $NF}')
 login_status=$(curl -s -o "$LOG_DIR/login.json" -w '%{http_code}' \
   -H 'Content-Type: application/json' \
   -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' \
