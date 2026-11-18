@@ -297,9 +297,22 @@ fi
 scenario "A gap in the binary logs makes the next backup a total one"
 checkpoint="$(backup_checkpoint "${replica}")"
 log_base="$(sql "${replica}" "SELECT @@log_bin_basename" || true)"
-# Close two binary logs and purge the first one
-if [[ ! "${checkpoint}" =~ ^[0-9]+$ ]] || [[ -z "${log_base}" ]] \
-  || ! sql "${replica}" "FLUSH BINARY LOGS; FLUSH BINARY LOGS; PURGE BINARY LOGS TO '${log_base##*/}.$(printf '%06d' "$((checkpoint + 2))")'"; then
+purged=0
+# Close two binary logs and purge the first one. Right after a flush, MariaDB
+# can keep a log that crash recovery still needs: retry until it is gone.
+if [[ "${checkpoint}" =~ ^[0-9]+$ ]] && [[ -n "${log_base}" ]] \
+  && sql "${replica}" "FLUSH BINARY LOGS; FLUSH BINARY LOGS"; then
+  gap_log="${log_base##*/}.$(printf '%06d' "$((checkpoint + 1))")"
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    sql "${replica}" "PURGE BINARY LOGS TO '${log_base##*/}.$(printf '%06d' "$((checkpoint + 2))")'" || true
+    if logs="$(sql "${replica}" "SHOW BINARY LOGS")" && ! grep -q "^${gap_log}[[:space:]]" <<< "${logs}"; then
+      purged=1
+      break
+    fi
+    sleep 2
+  done
+fi
+if ((!purged)); then
   fail "cannot remove the binary log after the checkpoint '${checkpoint}' on ${replica}"
 elif output="$(node_run "${replica}" /usr/share/centreon-ha/bin/centreondb-smooth-backup.sh -i 2>&1)"; then
   fail "centreondb-smooth-backup.sh -i succeeded despite the gap"

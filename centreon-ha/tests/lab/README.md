@@ -20,7 +20,7 @@ The nodes are set up like the database nodes of the Centreon HA installation gui
 ./lab.sh destroy
 ```
 
-The engine is `mariadb` or `mysql`, the distribution `alma9` (default) or `debian13`. `up` runs every step. They can also be run one by one:
+The engine is `mariadb` or `mysql`, the distribution `alma9` (default) or `debian13`. `up` runs every step; `create` and `provision` work on both nodes at once, and prefix their output lines with the node name. The steps can also be run one by one:
 
 | Command                | What it does                                                                                           |
 | ---------------------- | ------------------------------------------------------------------------------------------------------ |

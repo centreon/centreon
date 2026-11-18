@@ -54,6 +54,51 @@ node_ip() {
   node_run "$1" ip -4 -o route get 1.1.1.1 | awk '{ for (i = 1; i < NF; i++) if ($i == "src") print $(i + 1) }'
 }
 
+prefix_lines() {
+  # Prefix each line of the input with [$1]
+  local line
+  while IFS= read -r line || [[ -n "${line}" ]]; do
+    printf '[%s] %s\n' "$1" "${line}"
+  done
+}
+
+stop_node_jobs() {
+  # Stop the jobs of run_on_nodes, then die of signal $1 rather than exit, so
+  # that a caller such as matrix stops too on an interrupt
+  local pid
+  for pid in ${pids[@]+"${pids[@]}"}; do
+    kill -TERM -- "-${pid}" 2> /dev/null || true
+  done
+  trap - INT TERM HUP
+  kill "-$1" "$$"
+}
+
+run_on_nodes() {
+  # Run "$1 <node> <index> <other arguments>" on both nodes at once, and fail
+  # if it fails on either
+  local action="$1" index pids=() failed=0
+  shift
+  # A process group per job (set -m): an interrupt stops each job with all it
+  # started, which background jobs of a script would otherwise survive
+  trap 'stop_node_jobs INT' INT
+  trap 'stop_node_jobs TERM' TERM
+  trap 'stop_node_jobs HUP' HUP
+  set -m
+  for index in 0 1; do
+    ( "${action}" "${NODES[${index}]}" "${index}" "$@" 2>&1 | prefix_lines "${NODES[${index}]}" ) < /dev/null &
+    pids+=("$!")
+  done
+  set +m
+  for index in 0 1; do
+    if ! wait "${pids[${index}]}"; then
+      echo "ERROR: ${action} failed on ${NODES[${index}]}" >&2
+      failed=1
+    fi
+  done
+  trap - INT TERM HUP
+  return "${failed}"
+}
+
 lab_engine() {
   [[ -f "${ENGINE_FILE}" ]] || die "no engine provisioned, run: $0 provision <mariadb|mysql>"
   cat "${ENGINE_FILE}"
@@ -78,26 +123,41 @@ needs_emulation() {
   [[ "$1" == "mysql" && "$2" == "debian13" && "$(uname -m)" != "x86_64" ]]
 }
 
+create_node() {
+  # $1: node, $2: index, $3: Lima template, then the architecture options
+  local node="$1" template="$3"
+  shift 3
+  if grep -qx "${node}" <<< "$(limactl list --quiet 2>/dev/null)"; then
+    echo "${node} already exists"
+    return
+  fi
+  limactl disk create "${node}-data" --size "${DISK_SIZE}"
+  limactl create --tty=false --name "${node}" \
+    --cpus "${VM_CPUS}" --memory "${VM_MEMORY}" ${1+"$@"} \
+    --network lima:user-v2 \
+    --set ".additionalDisks=[{\"name\": \"${node}-data\", \"format\": false}]" \
+    "${template}"
+  limactl start "${node}"
+}
+
 cmd_create() {
-  local os="${1:-alma9}" engine="${2:-}" node template arch_options=()
+  local os="${1:-alma9}" engine="${2:-}" template arch_options=()
   template="$(lima_template "${os}")"
   if needs_emulation "${engine}" "${os}"; then
     echo "WARNING: MySQL has no ${os} packages for $(uname -m): emulating x86_64 VMs, which is much slower" >&2
     arch_options=(--arch x86_64 --vm-type qemu)
   fi
-  for node in "${NODES[@]}"; do
-    if grep -qx "${node}" <<< "$(limactl list --quiet 2>/dev/null)"; then
-      echo "${node} already exists"
-      continue
-    fi
-    limactl disk create "${node}-data" --size "${DISK_SIZE}"
-    limactl create --tty=false --name "${node}" \
-      --cpus "${VM_CPUS}" --memory "${VM_MEMORY}" ${arch_options[@]+"${arch_options[@]}"} \
-      --network lima:user-v2 \
-      --set ".additionalDisks=[{\"name\": \"${node}-data\", \"format\": false}]" \
-      "${template}"
-    limactl start "${node}"
-  done
+  run_on_nodes create_node "${template}" ${arch_options[@]+"${arch_options[@]}"}
+}
+
+provision_node() {
+  # $1: node, $2: index, $3: engine, $4 and $5: IP addresses of the nodes
+  echo "### Provision $1 ($3)"
+  node_run "$1" env \
+    ENGINE="$3" NODE_ID="$(($2 + 1))" NODE_NAME="$1" \
+    NODE1_NAME="${NODES[0]}" NODE1_IP="$4" \
+    NODE2_NAME="${NODES[1]}" NODE2_IP="$5" \
+    bash "${LAB_DIR}/node-provision.sh"
 }
 
 cmd_provision() {
@@ -110,15 +170,8 @@ cmd_provision() {
   fi
   node1_ip="$(node_ip "${NODES[0]}")"
   node2_ip="$(node_ip "${NODES[1]}")"
-  for index in 0 1; do
-    node="${NODES[${index}]}"
-    echo "### Provision ${node} (${engine})"
-    node_run "${node}" env \
-      ENGINE="${engine}" NODE_ID="$((index + 1))" NODE_NAME="${node}" \
-      NODE1_NAME="${NODES[0]}" NODE1_IP="${node1_ip}" \
-      NODE2_NAME="${NODES[1]}" NODE2_IP="${node2_ip}" \
-      bash "${LAB_DIR}/node-provision.sh"
-  done
+  # The nodes only need each other's address: provision them at once
+  run_on_nodes provision_node "${engine}" "${node1_ip}" "${node2_ip}"
   # Let the mysql user of each node ssh to the other, for mysql-sync-bigdb.sh
   for index in 0 1; do
     node_run "${NODES[${index}]}" cat /home/mysql/.ssh/id_ed25519.pub \
