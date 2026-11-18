@@ -49,8 +49,9 @@ Decisions taken by the PHP team on the backend architecture, by topic. The terms
 
 | ADR | Decision | Status |
 |---|---|---|
-| [0073](0073-core-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in `src/Core` | Accepted |
-| [0074](0074-legacy-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in legacy code | Accepted |
+| [0073](0073-apip-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every `json_encode()` and `json_decode()` call in `src/App` | Accepted |
+| [0074](0074-core-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in `src/Core` | Accepted |
+| [0075](0075-legacy-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in legacy code | Accepted |
 
 ## Security
 

@@ -1,4 +1,4 @@
-# ADR-0073: Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in `src/Core`
+# ADR-0074: Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in `src/Core`
 
 - **Status:** Accepted
 - **Date:** 2026-11-17
@@ -10,7 +10,7 @@ Many `src/Core` calls to `json_encode()` and `json_decode()` omit `JSON_THROW_ON
 
 Without the flag, `json_encode()` returns `false` and `json_decode()` returns `null` on an error. `null` is also the result of decoding the valid JSON `null`, and a `false` written to a file or a column becomes an empty string, so malformed data travels silently.
 
-In `src/App` and `src/Adaptation`, a Rector rule adds the flag to every call. It is not enabled on `src/Core`: some callers rely on the `false` or `null` result, such as the empty body decoded by `InternalApiClient` after a `204` response, and adding the flag everywhere would turn them into errors.
+In `src/App` and `src/Adaptation`, a Rector rule adds the flag to every call ([ADR-0073](0073-apip-pass-json-throw-on-error-to-every-json-call.md)). It is not enabled on `src/Core`: some callers rely on the `false` or `null` result, such as the empty body decoded by `InternalApiClient` after a `204` response, and adding the flag everywhere would turn them into errors.
 
 Three alternatives were weighed:
 

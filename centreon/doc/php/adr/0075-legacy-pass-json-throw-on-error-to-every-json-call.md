@@ -1,4 +1,4 @@
-# ADR-0074: Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in legacy code
+# ADR-0075: Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in legacy code
 
 - **Status:** Accepted
 - **Date:** 2026-11-17
@@ -10,7 +10,7 @@ Many legacy calls to `json_encode()` and `json_decode()` omit `JSON_THROW_ON_ERR
 
 Without the flag, `json_encode()` returns `false` and `json_decode()` returns `null` on an error. `null` is also the result of decoding the valid JSON `null`, and a `false` written to a file or a column becomes an empty string, so malformed data travels silently.
 
-In `src/App` and `src/Adaptation`, a Rector rule adds the flag to every call. It is not enabled on the rest of the legacy code: many callers test the `false` or `null` result to detect invalid input, and adding the flag everywhere would turn them into errors.
+In `src/App` and `src/Adaptation`, a Rector rule adds the flag to every call ([ADR-0073](0073-apip-pass-json-throw-on-error-to-every-json-call.md)). It is not enabled on the rest of the legacy code: many callers test the `false` or `null` result to detect invalid input, and adding the flag everywhere would turn them into errors.
 
 Three alternatives were weighed:
 
