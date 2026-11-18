@@ -14,7 +14,7 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
 out() { echo "$1=$2" >> "$GITHUB_OUTPUT"; }
 summary() { cat >> "${GITHUB_STEP_SUMMARY:-/dev/null}"; }
-fail() { echo "::error::$*"; exit 1; }
+fail() { echo "::error::$*" >&2; exit 1; }
 
 # a check that needs data we could not read: a dry run warns and goes on, a real run fails
 soft_fail() {
@@ -134,7 +134,10 @@ check_mapping() {
     and ((.full_extras // []) | type == "array" and all(.[];
           (.workflow | type == "string") and (.bundle_component | type == "string" or . == null)))
     and ((.testing_tag_builds // false) | type == "boolean")
-    and ((.pre_tag_workflows // []) | type == "array" and all(.[]; type == "string" and length > 0))
+    and ((.pre_tag_workflows // []) | type == "array" and all(.[];
+          (type == "string" and length > 0)
+          or (type == "object" and (.workflow | type == "string" and length > 0)
+              and ((.allowed_failed_steps // []) | type == "array" and all(.[]; type == "string" and length > 0)))))
   ' "$1" > /dev/null
 }
 
@@ -154,15 +157,23 @@ create_branch() {
 # --- remote state of the 3 repositories (tags, -next branches), read once per repository ---
 
 remote_url() {
-  # shellcheck disable=SC2059 # the template is ours: "%s" placeholders for the token and the repository
-  printf "${REMOTE_URL_TEMPLATE:-https://x-access-token:%s@github.com/${GITHUB_REPOSITORY%%/*}/%s.git}" "$REMOTE_TOKEN" "$1"
+  # shellcheck disable=SC2059 # the template is ours: one "%s" placeholder, the repository
+  printf "${REMOTE_URL_TEMPLATE:-https://github.com/${GITHUB_REPOSITORY%%/*}/%s.git}" "$1"
+}
+
+# git with the PAT in a header passed through the environment: never in the URL nor on the command line
+remote_git() {
+  local auth
+  auth=$(printf 'x-access-token:%s' "$REMOTE_TOKEN" | base64 | tr -d '\n')
+  GIT_TERMINAL_PROMPT=0 GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.extraHeader \
+    GIT_CONFIG_VALUE_0="Authorization: Basic $auth" git "$@"
 }
 
 # primes the cache of one repository; returns 1 when its refs can't be read (never cached then)
 fetch_remote_refs() {
   local cache="$RUNNER_TEMP/refs-$1.txt" listing
   [[ -f "$cache" ]] && return 0
-  listing=$(git ls-remote --refs "$(remote_url "$1")" 'refs/tags/testing-*' 'refs/tags/release-*' 'refs/heads/*-next') \
+  listing=$(remote_git ls-remote --refs "$(remote_url "$1")" 'refs/tags/testing-*' 'refs/tags/release-*' 'refs/heads/*-next') \
     || return 1
   awk '{print $2}' <<< "$listing" > "$cache.tmp" && mv "$cache.tmp" "$cache"
 }
@@ -197,10 +208,27 @@ read_global() {
   bundle_s3_get_global "$key" "$out"
 }
 
+# failed run of a pre-tag workflow: accepted only when every failed step is one of the allowed ones
+# usage: pre_tag_failure_allowed <run id> <allowed step names, JSON array>; prints the failed steps,
+# returns 0 accepted, 1 refused, 2 jobs unreadable
+pre_tag_failure_allowed() {
+  local jobs
+  jobs=$(gh run view "$1" -R "$GITHUB_REPOSITORY" --json jobs) || return 2
+  jq -r '[.jobs[]? | (.steps // [])[] | select(.conclusion == "failure") | .name] | unique | join(", ")' <<< "$jobs" \
+    || return 2
+  jq -e --argjson allowed "$2" '
+    [.jobs[]? | (.steps // [])[] | select(.conclusion == "failure") | .name] as $failed
+    | ($failed | length) > 0 and ($failed - $allowed | length) == 0
+      and all(.jobs[]? | select(.conclusion | IN("success", "skipped", "neutral") | not);
+              any((.steps // [])[]; .conclusion == "failure"))' <<< "$jobs" > /dev/null || return 1
+}
+
 # in (job 1, testing-tag mode): RELEASE_NUMBER, BRANCH, BRANCH_EXISTS, HEAD_SHA, RELEASE_SCOPE, RELEASE_TYPE,
 #   MAJOR, COMPONENTS_FILE, PREVIOUS_STABLE_BUNDLE_TAG_SHA, DISPATCH_CONTENT, DRY_RUN, GITHUB_REPOSITORY,
-#   REMOTE_TOKEN (PAT, reads the 3 repositories), GH_TOKEN (runs of this repository), BUCKET, S3_AVAILABLE
-# out: tag, iteration, role, bundle_path, upstream, stop_after_branch
+#   REMOTE_TOKEN (PAT, reads the 3 repositories), GH_TOKEN (runs of this repository), BUCKET, S3_AVAILABLE,
+#   ABANDON_PREVIOUS_BUNDLE (opener only: open N+1 although bundle N has components without state)
+# out: tag, iteration, role, bundle_path, upstream, stop_after_branch,
+#      abandoned_bundle, abandoned_components, abandoned_repos (only when a bundle is abandoned)
 # shellcheck disable=SC2153 # inputs come from the environment
 validate() {
   local scope=$RELEASE_SCOPE type=$RELEASE_TYPE major=$MAJOR number=$RELEASE_NUMBER
@@ -214,6 +242,18 @@ validate() {
   local nn=${BASH_REMATCH[2]}
   [[ "$type" == "release" && "$nn" != "00" ]] && fail "A release number ends in 00 (got $number for $BRANCH)"
   [[ "$type" == "hotfix" && "$nn" == "00" ]] && fail "A hotfix number never ends in 00 (got $number for $BRANCH)"
+
+  # .version at the target, parsed like get-environment (sourced, here without the environment):
+  # another major there and every component run dies in get-environment, the bundle can never be closed
+  local version_major=""
+  if git show "$HEAD_SHA:.version" > "$RUNNER_TEMP/target-version" 2> /dev/null; then
+    # shellcheck disable=SC2016 # expanded by the inner shell
+    version_major=$(env -i bash -c '. "$1" > /dev/null 2>&1; printf "%s" "${MAJOR:-}"' _ "$RUNNER_TEMP/target-version") \
+      || version_major=""
+  fi
+  if [[ "$version_major" != "$major" ]]; then
+    errors+=(".version at $HEAD_SHA has MAJOR=${version_major:-(not readable)} but $BRANCH is a $major branch: the component builds would all be refused. Set MAJOR=$major in .version on the branch (or dispatch the branch of $version_major), then dispatch again")
+  fi
 
   local self_index=-1 i
   for i in "${!CHAIN[@]}"; do [[ "${CHAIN[$i]}" == "$repo" ]] && self_index=$i; done
@@ -230,6 +270,11 @@ validate() {
   # release not cut yet
   grep -Fqx "release-$scope-$number-$major" <<< "$all_tags" \
     && fail "Release $number is already cut: stable bundle tag release-$scope-$number-$major exists"
+  local latest_stable
+  latest_stable=$(sed -n "s|^release-$scope-\([0-9]\{8\}\)-${major//./\\.}$|\1|p" <<< "$all_tags" | sort -n | tail -n 1)
+  if [[ -n "$latest_stable" ]] && (( number <= latest_stable )); then
+    fail "Release number $number is not above $latest_stable, the latest release of $major"
+  fi
 
   # line order: never below the highest release number of the line (get-environment would refuse the runs)
   local line_numbers highest
@@ -263,7 +308,8 @@ validate() {
     n=$(bundle_iterations "$r" "$prefix" | tail -n 1)
     [[ -n "$n" ]] && (( n > latest )) && latest=$n
   done
-  local role iteration root global
+  local role iteration root global abandon=${ABANDON_PREVIOUS_BUNDLE:-false}
+  local abandoned_bundle="" abandoned_components="" abandoned_repos="" finding
   root=$(status_root)
   global="$RUNNER_TEMP/global-build-status.json"
   if (( ${#upstream[@]} == 0 )); then
@@ -280,9 +326,30 @@ validate() {
           grep -Fqx "$latest" <<< "$(bundle_iterations "$r" "$prefix")" || continue
           [[ "$(jq --arg r "$r" '(.repos // {}) | has($r)' "$global")" == "true" ]] || unrecorded+=" $r"
         done
-        [[ -z "$unrecorded" ]] || errors+=("Bundle $prefix-$latest is tagged but not recorded yet in:$unrecorded. Wait for their release-trigger-builds, or re-run its failed jobs; if that run can't be re-run any more, ask the delivery team to delete the tag $prefix-$latest there")
         pending=$(jq -r '([.repos[]?.expected[]?] | unique) - (.components | keys) | join(" ")' "$global")
-        [[ -z "$pending" ]] || errors+=("Bundle $prefix-$latest is still building, no state yet for: $pending. Wait, or cancel their runs")
+        if [[ -n "$unrecorded" ]]; then
+          finding="Bundle $prefix-$latest is tagged but not recorded yet in:$unrecorded."
+          if [[ "$abandon" == "true" ]]; then
+            echo "::warning::$finding Abandoned (abandon_previous_bundle): $prefix-$iteration opens without it"
+            abandoned_repos=${unrecorded# }
+          else
+            errors+=("$finding Wait for their release-trigger-builds, or re-run its failed jobs; if that run can't be re-run any more, ask the delivery team to delete the tag $prefix-$latest there. Last resort, once re-running failed: dispatch again with abandon_previous_bundle ticked")
+          fi
+        fi
+        if [[ -n "$pending" ]]; then
+          finding="Bundle $prefix-$latest is still building, no state yet for: $pending."
+          if [[ "$abandon" == "true" ]]; then
+            echo "::warning::$finding Abandoned (abandon_previous_bundle): $prefix-$iteration opens without them"
+            abandoned_components=$pending
+          else
+            errors+=("$finding Wait, or cancel their runs; if they are stuck, re-run them first. Last resort, once re-running failed: dispatch again with abandon_previous_bundle ticked")
+          fi
+        fi
+        if [[ -n "$abandoned_repos$abandoned_components" ]]; then
+          abandoned_bundle="$prefix-$latest"
+        elif [[ "$abandon" == "true" ]]; then
+          echo "::warning::abandon_previous_bundle is ticked but bundle $prefix-$latest is finished: nothing to abandon"
+        fi
       elif (( rc == 3 )); then
         echo "::warning::Bundle $prefix-$latest has no status file: nothing to wait for"
       else
@@ -292,6 +359,7 @@ validate() {
   else
     role=joiner
     iteration=$latest
+    [[ "$abandon" != "true" ]] || echo "::warning::abandon_previous_bundle is ignored: $repo joins a bundle, only the opener (${upstream[0]}) abandons one"
     (( latest > 0 )) || fail "No bundle of $number yet: dispatch ${upstream[0]} first, it opens the bundle"
     for r in "${upstream[@]}"; do
       grep -Fqx "$latest" <<< "$(bundle_iterations "$r" "$prefix")" \
@@ -326,29 +394,49 @@ validate() {
   tag="$prefix-$iteration"
 
   # workflows committing to the branch must be done before it is tagged
-  local stop_after_branch=false wf runs
+  local stop_after_branch=false wf runs conclusion allowed failed_steps rc_steps
   local -a pre_tag=()
-  mapfile -t pre_tag < <(jq -r '.pre_tag_workflows // [] | .[]' "$COMPONENTS_FILE")
+  mapfile -t pre_tag < <(jq -r '.pre_tag_workflows // [] | .[] | if type == "object" then .workflow else . end' "$COMPONENTS_FILE")
   if (( ${#pre_tag[@]} > 0 )); then
     if [[ "$BRANCH_EXISTS" != "true" ]]; then
       stop_after_branch=true
     else
       for wf in "${pre_tag[@]}"; do
         runs=$(gh run list -R "$GITHUB_REPOSITORY" --workflow "$wf" --branch "$BRANCH" --limit 1 \
-                 --json status,conclusion,url,headSha) || { soft_fail "Cannot list the $wf runs on $BRANCH"; continue; }
+                 --json status,conclusion,url,headSha,databaseId) || { soft_fail "Cannot list the $wf runs on $BRANCH"; continue; }
         if [[ "$(jq length <<< "$runs")" == 0 ]]; then
           soft_fail "No $wf run on $BRANCH yet: wait for it to start (or start it), then dispatch again once it is done"
+          continue
         elif [[ "$(jq -r '.[0].status' <<< "$runs")" != "completed" ]]; then
           errors+=("$wf is running on $BRANCH ($(jq -r '.[0].url' <<< "$runs")): wait for it, then re-run")
-        elif ! [[ "$(jq -r '.[0].conclusion' <<< "$runs")" =~ ^(success|skipped|neutral)$ ]]; then
-          errors+=("The last $wf run on $BRANCH did not succeed ($(jq -r '.[0].url' <<< "$runs"))")
-        elif [[ "$(jq -r '.[0].headSha' <<< "$runs")" != "$HEAD_SHA" ]]; then
+          continue
+        fi
+        conclusion=$(jq -r '.[0].conclusion' <<< "$runs")
+        if ! [[ "$conclusion" =~ ^(success|skipped|neutral)$ ]]; then
+          # a workflow may end in failure on purpose, after its work is done: only its allowed steps may fail
+          allowed=$(jq -c --arg wf "$wf" '[.pre_tag_workflows[] | objects | select(.workflow == $wf)
+                                           | (.allowed_failed_steps // [])[]]' "$COMPONENTS_FILE")
+          failed_steps="" rc_steps=1
+          if [[ "$conclusion" == "failure" && "$allowed" != "[]" ]]; then
+            rc_steps=0
+            failed_steps=$(pre_tag_failure_allowed "$(jq -r '.[0].databaseId' <<< "$runs")" "$allowed") || rc_steps=$?
+          fi
+          if (( rc_steps == 2 )); then
+            soft_fail "Cannot read the jobs of the last $wf run on $BRANCH ($(jq -r '.[0].url' <<< "$runs"))"
+            continue
+          elif (( rc_steps != 0 )); then
+            errors+=("The last $wf run on $BRANCH did not succeed ($(jq -r '.[0].url' <<< "$runs"))${failed_steps:+, failed steps: $failed_steps}")
+            continue
+          fi
+          echo "$wf ended in failure on $BRANCH only in its allowed steps ($failed_steps): accepted"
+        fi
+        if [[ "$(jq -r '.[0].headSha' <<< "$runs")" != "$HEAD_SHA" ]]; then
           errors+=("The last $wf run on $BRANCH ran on $(jq -r '.[0].headSha' <<< "$runs"), not on its head $HEAD_SHA: start $wf on the branch, then dispatch again")
         fi
       done
       # a pre-tag workflow may have pushed since the checkout: the tag must carry its commit
       local remote_head
-      remote_head=$(git ls-remote "$(remote_url "$repo")" "refs/heads/$BRANCH" | cut -f1) || remote_head=""
+      remote_head=$(remote_git ls-remote "$(remote_url "$repo")" "refs/heads/$BRANCH" | cut -f1) || remote_head=""
       if [[ -z "$remote_head" ]]; then
         soft_fail "Cannot read the head of $BRANCH in $repo"
       elif [[ "$remote_head" != "$HEAD_SHA" ]]; then
@@ -388,6 +476,7 @@ validate() {
     echo "| release number | $number |"
     echo "| dry run | $DRY_RUN |"
     [[ "$stop_after_branch" == "true" ]] && echo "| note | the branch is created first; re-run once ${pre_tag[*]} is done |"
+    [[ -n "$abandoned_bundle" ]] && echo "| abandoned | $abandoned_bundle (no state: ${abandoned_components:-none}; not recorded: ${abandoned_repos:-none}) |"
     echo ""
     echo "| component | workflow | action |"
     echo "|---|---|---|"
@@ -400,6 +489,11 @@ validate() {
   out bundle_path "bundles/$scope/$major/$type/$number/$iteration"
   out upstream "$upstream_list"
   out stop_after_branch "$stop_after_branch"
+  if [[ -n "$abandoned_bundle" ]]; then
+    out abandoned_bundle "$abandoned_bundle"
+    out abandoned_components "$abandoned_components"
+    out abandoned_repos "$abandoned_repos"
+  fi
 }
 
 # in: BRANCH, BRANCH_EXISTS, BRANCH_BASE, HEAD_SHA, TAG, STOP_AFTER_BRANCH, DRY_RUN, GITHUB_REPOSITORY, BRANCH_TOKEN
@@ -475,8 +569,10 @@ build_manifest() {
 }
 
 # in (job 2): TAG, BRANCH, HEAD_SHA, ROLE, RELEASE_SCOPE, PREVIOUS_STABLE_BUNDLE_TAG, DISPATCH_CONTENT,
-#   COMPONENTS_FILE, CHANGED_FILE, COMMIT_LISTS_DIR, BUCKET, STATUS_DRY_RUN, DRY_RUN
-# writes repos/<repo>.json, the repos.<repo> section of the global file and a trigger event
+#   COMPONENTS_FILE, CHANGED_FILE, COMMIT_LISTS_DIR, BUCKET, STATUS_DRY_RUN, DRY_RUN,
+#   ABANDONED_BUNDLE (tag of the bundle the opener abandoned, empty otherwise)
+# writes repos/<repo>.json, the repos.<repo> section of the global file and a trigger event;
+# plus an "abandoned" event under the abandoned bundle
 # shellcheck disable=SC2153 # inputs come from the environment
 record() {
   local repo=${GITHUB_REPOSITORY#*/} plan run_url now
@@ -513,8 +609,15 @@ record() {
 
   [[ "$TAG" =~ ^testing-(cloud|onprem)-(release|hotfix)-([0-9]{8})-([0-9]{2}\.[0-9]{2})-([1-9][0-9]*)$ ]] \
     || fail "Invalid testing bundle tag '$TAG'"
-  local prefix
+  local prefix abandoned_prefix=""
   prefix="$(status_root)/${BASH_REMATCH[1]}/${BASH_REMATCH[4]}/${BASH_REMATCH[2]}/${BASH_REMATCH[3]}/${BASH_REMATCH[5]}"
+  if [[ -n "${ABANDONED_BUNDLE:-}" ]]; then
+    [[ "$ABANDONED_BUNDLE" =~ ^testing-(cloud|onprem)-(release|hotfix)-([0-9]{8})-([0-9]{2}\.[0-9]{2})-([1-9][0-9]*)$ ]] \
+      || fail "Invalid abandoned bundle tag '$ABANDONED_BUNDLE'"
+    abandoned_prefix="$(status_root)/${BASH_REMATCH[1]}/${BASH_REMATCH[4]}/${BASH_REMATCH[2]}/${BASH_REMATCH[3]}/${BASH_REMATCH[5]}"
+    jq -c --arg bundle "$ABANDONED_BUNDLE" '.bundle = $bundle | .type = "abandoned" | .status = "abandoned"' \
+      "$work/event.json" > "$work/abandoned.json"
+  fi
   {
     echo "### Bundle record: $TAG"
     echo ""
@@ -528,6 +631,10 @@ record() {
 
   if [[ "$DRY_RUN" == "true" ]]; then
     echo "[dry-run] would write s3://$BUCKET/$prefix/repos/$repo.json, its global section and a trigger event"
+    if [[ -n "$abandoned_prefix" ]]; then
+      echo "[dry-run] would write an abandoned event under s3://$BUCKET/$abandoned_prefix/events/:"
+      jq . "$work/abandoned.json"
+    fi
     rm -rf "$work"
     return 0
   fi
@@ -538,6 +645,11 @@ record() {
     --content-type application/json > /dev/null || fail "Cannot write s3://$BUCKET/$prefix/repos/$repo.json"
   bundle_s3_put_event "$prefix/events/$(date -u +%Y%m%dT%H%M%SZ)_${repo}_trigger_${GITHUB_RUN_ID:-0}-${GITHUB_RUN_ATTEMPT:-1}.json" \
     "$work/event.json"
+  if [[ -n "$abandoned_prefix" ]]; then
+    bundle_s3_put_event "$abandoned_prefix/events/$(date -u +%Y%m%dT%H%M%SZ)_${repo}_abandoned_${GITHUB_RUN_ID:-0}-${GITHUB_RUN_ATTEMPT:-1}.json" \
+      "$work/abandoned.json"
+    echo "Recorded $ABANDONED_BUNDLE as abandoned by $repo"
+  fi
   local status
   status=$(bundle_s3_update_global "$prefix/global-build-status.json" "$TAG" repos "$repo" "$work/section.json")
   echo "Recorded $repo in $TAG (bundle $status)"

@@ -29,6 +29,11 @@ on:
         required: false
         type: boolean
         default: true
+      abandon_previous_bundle:
+        description: "Tick only after re-running the stuck component runs failed: the opener then opens bundle N+1 although bundle N has components without state"
+        required: false
+        type: boolean
+        default: false
 
 # one run at a time per branch (two runs would pick the same bundle number); GitHub keeps at most one
 # waiting run per group: a third dispatch cancels the one still waiting
@@ -67,6 +72,7 @@ jobs:
       tag: ${{ steps.validate.outputs.tag }}
       role: ${{ steps.validate.outputs.role }}
       stopped: ${{ steps.tag.outputs.stopped }}
+      abandoned_bundle: ${{ steps.validate.outputs.abandoned_bundle }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -148,6 +154,7 @@ jobs:
           RELEASE_NUMBER: ${{ inputs.release_number }}
           DISPATCH_CONTENT: ${{ inputs.dispatch_content }}
           DRY_RUN: ${{ inputs.dry_run }}
+          ABANDON_PREVIOUS_BUNDLE: ${{ inputs.abandon_previous_bundle }}
           BRANCH: ${{ steps.prepare.outputs.branch }}
           BRANCH_EXISTS: ${{ steps.prepare.outputs.branch_exists }}
           HEAD_SHA: ${{ steps.prepare.outputs.head_sha }}
@@ -190,6 +197,7 @@ jobs:
       ROLE: ${{ needs.release-trigger-builds.outputs.role }}
       RELEASE_SCOPE: ${{ needs.release-trigger-builds.outputs.release_scope }}
       PREVIOUS_STABLE_BUNDLE_TAG: ${{ needs.release-trigger-builds.outputs.previous_stable_bundle_tag }}
+      ABANDONED_BUNDLE: ${{ needs.release-trigger-builds.outputs.abandoned_bundle }}
       CHANGED_FILE: artifacts/changed-components.txt
       COMMIT_LISTS_DIR: artifacts/commit-lists
     steps:

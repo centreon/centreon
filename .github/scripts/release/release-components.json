@@ -7,7 +7,12 @@
       "bundle_component": "centreon-web",
       "paths": [
         "centreon",
-        ".version.centreon-web"
+        ".version.centreon-web",
+        ".version",
+        ".github/docker/centreon-trapd",
+        ".github/scripts/centreon-trapd-docker-boot-test.sh",
+        ".github/scripts/centreon-trapd-docker-config-wiring-test.sh",
+        ".github/scripts/lib/centreon-trapd-common.sh"
       ]
     },
     "centreon-awie": {
@@ -15,7 +20,8 @@
       "bundle_component": "centreon-awie",
       "paths": [
         "centreon-awie",
-        ".version.centreon-awie"
+        ".version.centreon-awie",
+        ".version"
       ]
     },
     "centreon-dsm": {
@@ -23,7 +29,8 @@
       "bundle_component": "centreon-dsm",
       "paths": [
         "centreon-dsm",
-        ".version.centreon-dsm"
+        ".version.centreon-dsm",
+        ".version"
       ]
     },
     "centreon-ha": {
@@ -31,7 +38,8 @@
       "bundle_component": "centreon-ha",
       "paths": [
         "centreon-ha",
-        ".version.centreon-ha"
+        ".version.centreon-ha",
+        ".version"
       ],
       "scopes": [
         "onprem"
@@ -42,14 +50,16 @@
       "bundle_component": "centreon-open-tickets",
       "paths": [
         "centreon-open-tickets",
-        ".version.centreon-open-tickets"
+        ".version.centreon-open-tickets",
+        ".version"
       ]
     },
     "helm": {
       "workflow": "helm.yml",
       "bundle_component": null,
       "paths": [
-        ".github/helm"
+        ".github/helm",
+        ".version"
       ]
     }
   },
