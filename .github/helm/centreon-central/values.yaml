@@ -292,6 +292,26 @@ httpd:
   replicas: 1
   # Same graceful-stop logic as fpm; long-lived websockets end with it.
   terminationGracePeriodSeconds: 30
+  # Port Apache listens on in the pod (the image runs as non-root, so it is
+  # above 1024). The Service keeps httpd.service.port (80) and targets it by
+  # name, so in-cluster URLs (http://httpd:80) do not change.
+  containerPort: 8080
+  # The image runs as Alpine's www-data (82:82), not Debian's 33 like fpm and
+  # cron. No fsGroup: it would chgrp the media volume fpm shares; httpd only
+  # needs to read it (fpm writes it world-readable).
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 82
+    runAsGroup: 82
+    seccompProfile: { type: RuntimeDefault }
+  # With readOnlyRootFilesystem, /tmp (PidFile, readiness marker) is an
+  # emptyDir, and so is conf/extra, filled by an init container with the
+  # image's copy, because the entrypoint writes the vhost (centreon.conf)
+  # there at start.
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities: { drop: [ALL] }
   # With UseCanonicalName On, Apache rebuilds self-referential URLs (incl.
   # the /centreon -> /centreon/ redirect) from this value, not from the Host
   # header. Empty = derived: ingress.host (https:// prefixed when
