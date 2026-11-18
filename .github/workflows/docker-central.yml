@@ -315,11 +315,20 @@ jobs:
       # Native build per architecture, pushed by digest; the manifest list is
       # assembled by merge-manifests. The AUTODISCO_IMAGE and ENGINE_IMAGE
       # build-args and the perl-libs build context come from dependencies.env.
-      # FPM_IMAGE is only ever meaningful for the cron target (its own ARG
-      # default, "fpm", is what every other target's build keeps using —
-      # see the Dockerfile) — passed unconditionally anyway, same convention
-      # as ENGINE_IMAGE/AUTODISCO_IMAGE above being passed to httpd too,
-      # which never reads them either.
+      # FPM_IMAGE is only ever meaningful for the cron target, but — unlike
+      # ENGINE_IMAGE/AUTODISCO_IMAGE, which are passed to every target too
+      # and simply ignored by the ones that don't read them — it can't be
+      # passed as an empty string for httpd/rrdcached here (confirmed by a
+      # real CI failure: "base name (${FPM_IMAGE}) should not be blank").
+      # steps.fpm-image.outputs.value is only ever set when matrix.target ==
+      # 'cron' (that step is gated on it); for every other target the
+      # expression below is empty, which would override the Dockerfile's own
+      # `ARG FPM_IMAGE=fpm` default with a blank value — and BuildKit parses
+      # every `FROM` line's variable substitution up front to build the full
+      # stage graph, even for stages the current --target never reaches, so
+      # a blank `FROM ${FPM_IMAGE}` fails the build immediately regardless of
+      # which target is being built. `|| 'fpm'` keeps the Dockerfile's own
+      # default for every target except cron.
       - name: Docker build and push by digest
         id: build
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
@@ -337,7 +346,7 @@ jobs:
           build-args: |
             AUTODISCO_IMAGE=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-autodisco-trixie:${{ needs.prepare.outputs.autodisco_tag }}
             ENGINE_IMAGE=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-engine-trixie:${{ needs.prepare.outputs.engine_tag }}
-            FPM_IMAGE=${{ steps.fpm-image.outputs.value }}
+            FPM_IMAGE=${{ steps.fpm-image.outputs.value || 'fpm' }}
             BUILD_DATE=${{ steps.build-date.outputs.date }}
             BUILD_VERSION=${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}-${{ needs.get-environment.outputs.release }}
             GIT_REVISION=${{ github.event.pull_request.head.sha || github.sha }}
