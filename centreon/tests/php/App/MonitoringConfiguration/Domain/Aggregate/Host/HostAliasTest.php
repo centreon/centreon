@@ -56,10 +56,8 @@ final class HostAliasTest extends TestCase
         new HostAlias(str_repeat('a', 201));
     }
 
-    public function testItRejectsAnAliasWithALineBreak(): void
+    public function testItReplacesControlCharactersWithASpace(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-
-        new HostAlias("my-alias\nother");
+        self::assertSame('my-alias other', new HostAlias("\tmy-alias\r\n\x01other\n")->value);
     }
 }
