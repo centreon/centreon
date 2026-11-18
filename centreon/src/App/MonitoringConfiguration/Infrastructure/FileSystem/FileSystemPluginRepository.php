@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\FileSystem;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginCommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginDescription;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginName;
 use App\MonitoringConfiguration\Domain\Exception\PluginNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PluginRepository;
+use App\Shared\Domain\Aggregate\Option\OptionValue;
 use App\Shared\Domain\Collection;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;

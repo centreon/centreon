@@ -21,13 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
+namespace Tests\App\Shared\Double;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
-use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
+use App\Shared\Domain\Aggregate\Option\Option;
+use App\Shared\Domain\Aggregate\Option\OptionName;
+use App\Shared\Domain\Aggregate\Option\OptionValue;
+use App\Shared\Domain\Exception\OptionDoesNotExistException;
+use App\Shared\Domain\Repository\OptionRepository;
 
 final class FakeOptionRepository implements OptionRepository
 {

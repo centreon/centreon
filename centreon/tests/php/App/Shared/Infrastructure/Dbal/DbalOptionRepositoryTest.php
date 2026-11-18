@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
+namespace Tests\App\Shared\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
-use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
+use App\Shared\Domain\Aggregate\Option\Option;
+use App\Shared\Domain\Aggregate\Option\OptionName;
+use App\Shared\Domain\Exception\OptionDoesNotExistException;
+use App\Shared\Domain\Repository\OptionRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
