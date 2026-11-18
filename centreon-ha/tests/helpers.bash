@@ -32,7 +32,9 @@ EOF
 
   # shellcheck source=../lib/mysql-functions.sh
   source "$CENTREON_HA_DIR/lib/mysql-functions.sh"
-  # Skip the detection, so that a server installed on the test host is ignored
+  # Skip the detection, so that a database installed on the test host is
+  # ignored: the tests stub the mysql client
+  SQL_CLIENT="mysql"
   SQL_DB_BINARY="$binary"
   SQL_DB_BINARY_PATH="$STUB_DIR/$binary"
   if [ "$binary" = "mariadbd" ]; then
@@ -43,15 +45,15 @@ EOF
 }
 
 # Load the GTID helpers of the resource agent, with stubs for the OCF
-# functions that mariadb-centreon-common.sh calls when it is sourced.
+# functions that db-centreon-common.sh calls when it is sourced.
 #   $1: 1 for MariaDB, 0 for MySQL
 load_ocf_common() {
   ocf_is_true() { [ "$1" = "true" ]; }
   ocf_local_nodename() { echo node1; }
   # The scripts are not written for errexit, which bats enables
   set +e
-  # shellcheck source=../ocf-scripts/mariadb-centreon-common.sh
-  source "$CENTREON_HA_DIR/ocf-scripts/mariadb-centreon-common.sh"
+  # shellcheck source=../ocf-scripts/db-centreon-common.sh
+  source "$CENTREON_HA_DIR/ocf-scripts/db-centreon-common.sh"
   set -e
   _is_mariadb="$1"
 }

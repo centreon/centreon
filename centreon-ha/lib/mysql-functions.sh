@@ -23,6 +23,21 @@ SQL_CONF_PID_FILE=
 # Absolute base path of the relay logs
 SQL_CONF_RELAY_LOG=
 
+sql_fetch_clients()
+{
+    # MariaDB warns when its clients are called by their mysql* names, which
+    # MySQL alone ships: call them by the names of the installed engine
+    if command -v mariadb > /dev/null 2>&1 ; then
+        SQL_CLIENT="mariadb"
+        SQL_ADMIN="mariadb-admin"
+        SQL_SHOW="mariadb-show"
+    else
+        SQL_CLIENT="mysql"
+        SQL_ADMIN="mysqladmin"
+        SQL_SHOW="mysqlshow"
+    fi
+}
+
 sql_fetch_db_binary()
 {
     if [ -n "$SQL_DB_BINARY" ] ; then
@@ -101,7 +116,7 @@ sql_fetch_server_engine()
     # Set SQL_IS_MARIADB from the version of the server on host $1. Return 1
     # when the server cannot be queried.
     local _version
-    _version=$(mysql -N -B --connect-timeout=5 -u "$DBROOTUSER" -h "$1" "-p$DBROOTPASSWORD" -e 'SELECT VERSION()' 2>/dev/null)
+    _version=$("$SQL_CLIENT" -N -B --connect-timeout=5 -u "$DBROOTUSER" -h "$1" "-p$DBROOTPASSWORD" -e 'SELECT VERSION()' 2>/dev/null)
     if [ -z "$_version" ] ; then
         return 1
     fi
@@ -267,10 +282,17 @@ get_ip()
 
 mysql_connection_test()
 {
-        mysql -f -u "$DBROOTUSER" -h "$1" "-p$DBROOTPASSWORD" << EOF
+	local _output
+	_output=$("$SQL_CLIENT" -f -u "$DBROOTUSER" -h "$1" "-p$DBROOTPASSWORD" 2>&1 << EOF
 quit
 EOF
+)
 	status=$?
+	# The MySQL client warns about any password given on its command line:
+	# not an error of the connection
+	if [ -n "$_output" ] ; then
+		echo "$_output" | grep -v 'Using a password on the command line interface can be insecure' >&2
+	fi
 	if [ $status -ne 0 ] ; then
 		echo "Impossible de se connecter au serveur '$1'." >&2
 		if [ $status -eq 1 ] ; then
@@ -281,3 +303,6 @@ EOF
 	return 0
 }
 
+
+# The client commands of the installed engine, for the scripts
+sql_fetch_clients

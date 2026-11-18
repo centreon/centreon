@@ -40,7 +40,7 @@ REPLICATION_TIMEOUT=120
 SNAPSHOT_MOUNT_PATH="/mnt/"
 USER="mysql"
 USER_SUDO="sudo -u $USER"
-MYSQLADMIN="mysqladmin"
+MYSQLADMIN="$SQL_ADMIN"
 SUDO_MYSQL_START_SLAVE="sudo"
 SSH_PORT="22"
 RSYNC_EXTRA_OPTIONS="--checksum"
@@ -184,9 +184,9 @@ restore_master_writable() {
     # Run on any exit between making the master read-only and writable again.
     # A second interrupt must not stop the restore.
     trap '' INT TERM
-    if mysql -B -N --connect-timeout=10 -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF' ; then
+    if "$SQL_CLIENT" -B -N --connect-timeout=10 -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF' ; then
         echo "The master '$master_hostname' is writable again." >&2
-    elif $MYSQLADMIN --connect-timeout=10 -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" ping > /dev/null 2>&1 ; then
+    elif "$MYSQLADMIN" --connect-timeout=10 -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" ping > /dev/null 2>&1 ; then
         echo "ERROR: Can't make the master '$master_hostname' writable again: run 'SET GLOBAL read_only = OFF' on it." >&2
     else
         echo "ERROR: The master '$master_hostname' is stopped or stopping: start it with 'systemctl start $SQL_SYSTEMD_SERVICE'." >&2
@@ -197,13 +197,13 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
-    gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
+    gtid_current_pos=$("$SQL_CLIENT" -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
 else
     # mysql -B prints the newlines of gtid_executed as a literal \n: strip them.
     # super_read_only also blocks the CONNECTION_ADMIN sessions that read_only
     # lets write, so that the copy matches the GTID set. Setting read_only=OFF
     # clears it.
-    gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL super_read_only = ON; SELECT REPLACE(@@gtid_executed, '\n', '')")
+    gtid_current_pos=$("$SQL_CLIENT" -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL super_read_only = ON; SELECT REPLACE(@@gtid_executed, '\n', '')")
 fi
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
     _gtid_pattern='[0-9]+-[0-9]+-[0-9]+'
@@ -220,7 +220,7 @@ echo "gtid_current_pos = " $gtid_current_pos
 
 i=0
 echo -n "Stopping $SQL_DB_BINARY:"
-if ! $MYSQLADMIN -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" shutdown ; then
+if ! "$MYSQLADMIN" -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" shutdown ; then
     echo ""
     echo "ERROR: Can't stop MySQL Server" >&2
     exit 1
@@ -254,7 +254,7 @@ fi
 echo "Start $SQL_DB_BINARY: (systemctl start $SQL_SYSTEMD_SERVICE)"
 systemctl start "$SQL_SYSTEMD_SERVICE" &
 i=0
-until mysqlshow -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
+until "$SQL_SHOW" -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
     if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
         echo ""
         echo "ERROR: Can't start MySQL server" >&2
@@ -271,7 +271,7 @@ echo "OK"
 ###
 
 echo "Remove read_only on master"
-if ! mysql -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=off" ; then
+if ! "$SQL_CLIENT" -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=off" ; then
     echo "ERROR: Can't remove read_only on master" >&2
     exit 1
 fi
@@ -312,7 +312,10 @@ abort_copy() {
 }
 
 echo "Rsync in progress (exclude MySQL, ${logbin_files}, ${relaylog_files})"
-rsync -av $RSYNC_EXTRA_OPTIONS --delete --progress --exclude="mysql" --exclude="${SQL_CONF_PID_FILE}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude="auto.cnf" --exclude="mysqld-auto.cnf" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$SQL_CONF_DATADIR/ || abort_copy
+# The packages leave root-owned markers of their version in the datadir
+# (debian-*.flag, *_upgrade_info): each node keeps its own, and rsync,
+# running as mysql, cannot update them
+rsync -av $RSYNC_EXTRA_OPTIONS --delete --progress --exclude="mysql" --exclude="debian-*.flag" --exclude="mariadb_upgrade_info" --exclude="mysql_upgrade_info" --exclude="${SQL_CONF_PID_FILE}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude="auto.cnf" --exclude="mysqld-auto.cnf" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$SQL_CONF_DATADIR/ || abort_copy
 
 mysql_ibd_system=''
 # MySQL keeps its system tables in mysql.ibd, copied above: mysql/ has no .ibd
@@ -350,7 +353,7 @@ echo "Start MySQL Slave"
 # run the same engine on the same distribution
 $USER_SUDO ssh -p $SSH_PORT $slave_hostname -- "$SUDO_MYSQL_START_SLAVE systemctl start '$SQL_SYSTEMD_SERVICE' &"
 i=0
-until mysqlshow -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
+until "$SQL_SHOW" -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
         if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
                 echo ""
                 echo "ERROR: Can't start MySQL server" >&2
@@ -395,12 +398,12 @@ fi
 # The datadir copied from the master can hold a stale replication
 # configuration that makes the reset statements fail: keep going (-f), the
 # next step fails if the reset was incomplete
-if ! reset_output=$(mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$reset_sql" 2>&1) ; then
+if ! reset_output=$("$SQL_CLIENT" -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$reset_sql" 2>&1) ; then
     echo "WARNING: The reset of the replication reported errors, ignored as the setup below fails if it is incomplete:" >&2
     echo "$reset_output" >&2
 fi
 # No -f: never start the replication on a partial setup
-if ! mysql -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$replication_sql" ; then
+if ! "$SQL_CLIENT" -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$replication_sql" ; then
     echo "ERROR: Can't start the replication on '$slave_hostname'." >&2
     exit 1
 fi
@@ -411,7 +414,7 @@ echo -n "Wait for the replication threads:"
 i=0
 running=0
 while : ; do
-    if replica_status=$(mysql -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" -e "$status_sql") ; then
+    if replica_status=$("$SQL_CLIENT" -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" -e "$status_sql") ; then
         if echo "$replica_status" | grep -qE "^ *${io_running_field}: Yes$" \
             && echo "$replica_status" | grep -qE "^ *${sql_running_field}: Yes$" \
             && echo "$replica_status" | grep -qE "^ *Last_IO_Errno: 0$" \

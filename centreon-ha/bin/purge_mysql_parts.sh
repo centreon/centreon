@@ -52,7 +52,7 @@ for partition in $PARTITION_NAME; do
 		password_args=(-p"$DB_ROOT_PASSWORD")
 	fi
 	# Without the list of partitions, every file would be deleted
-	if ! result=$(mysql -B -N -u "$DB_ROOT_USER" "${password_args[@]}" -e "$request") || [ -z "$result" ] ; then
+	if ! result=$("$SQL_CLIENT" -B -N -u "$DB_ROOT_USER" "${password_args[@]}" -e "$request") || [ -z "$result" ] ; then
 		echo "ERROR: Can't get the partitions of '$partition', nothing deleted." >&2
 		exit 1
 	fi

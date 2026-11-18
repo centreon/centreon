@@ -255,3 +255,47 @@ stub_systemctl() {
   run sql_fetch_systemd_service
   [ "$status" -eq 1 ]
 }
+
+# mysql_connection_test
+
+@test "mysql_connection_test: ignores the MySQL client warning about passwords" {
+  load_mysql_functions mysqld "" ""
+  printf '#!/bin/bash\necho "mysql: [Warning] Using a password on the command line interface can be insecure." >&2\nexit 0\n' > "$STUB_DIR/mysql"
+  chmod +x "$STUB_DIR/mysql"
+  run bash -c 'source "$1"; PATH="$2:$PATH"; SQL_CLIENT=mysql; mysql_connection_test db1 2>&1' _ "$CENTREON_HA_DIR/lib/mysql-functions.sh" "$STUB_DIR"
+  [ "$status" -eq 0 ]
+  [ "$output" = "" ]
+}
+
+@test "mysql_connection_test: reports the other client messages" {
+  load_mysql_functions mysqld "" ""
+  printf '#!/bin/bash\necho "mysql: [Warning] Using a password on the command line interface can be insecure." >&2\necho "ERROR 1045 (28000): Access denied" >&2\nexit 1\n' > "$STUB_DIR/mysql"
+  chmod +x "$STUB_DIR/mysql"
+  run bash -c 'source "$1"; PATH="$2:$PATH"; SQL_CLIENT=mysql; mysql_connection_test db1 2>&1' _ "$CENTREON_HA_DIR/lib/mysql-functions.sh" "$STUB_DIR"
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"Access denied"* ]]
+  [[ "$output" != *"Using a password"* ]]
+}
+
+# sql_fetch_clients
+
+@test "sql_fetch_clients: uses the MariaDB names when the mariadb client exists" {
+  load_mysql_functions mariadbd "" ""
+  printf '#!/bin/bash\n' > "$STUB_DIR/mariadb"
+  chmod +x "$STUB_DIR/mariadb"
+  sql_fetch_clients
+  [ "$SQL_CLIENT" = "mariadb" ]
+  [ "$SQL_ADMIN" = "mariadb-admin" ]
+  [ "$SQL_SHOW" = "mariadb-show" ]
+}
+
+@test "sql_fetch_clients: uses the mysql names otherwise" {
+  if command -v mariadb >/dev/null; then
+    skip "a mariadb client is installed on this host"
+  fi
+  load_mysql_functions mysqld "" ""
+  sql_fetch_clients
+  [ "$SQL_CLIENT" = "mysql" ]
+  [ "$SQL_ADMIN" = "mysqladmin" ]
+  [ "$SQL_SHOW" = "mysqlshow" ]
+}

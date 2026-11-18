@@ -48,12 +48,12 @@ OCF_RESKEY_node_list_default=""
 
 : ${OCF_FUNCTIONS_DIR=${OCF_ROOT}/lib/heartbeat}
 . ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
-. ${OCF_FUNCTIONS_DIR}/mariadb-centreon-common.sh
+. ${OCF_FUNCTIONS_DIR}/db-centreon-common.sh
 
 #######################################################################
 # MySQL 8.4 removed the SLAVE/MASTER statements; their replacements (8.0.22+)
 # name the status columns Source_*/Replica_*. _is_mariadb comes from
-# mariadb-centreon-common.sh.
+# db-centreon-common.sh.
 if [ "$_is_mariadb" -eq 1 ] ; then
     _SQL_SHOW_REPLICA_STATUS="SHOW SLAVE STATUS"
     _SQL_START_REPLICA="START SLAVE"
@@ -104,7 +104,7 @@ meta_data() {
    cat <<END
 <?xml version="1.0"?>
 <!DOCTYPE resource-agent SYSTEM "ra-api-1.dtd">
-<resource-agent name="mariadb" version="1.0">
+<resource-agent name="db-centreon" version="1.0">
 <version>1.0</version>
 
 <longdesc lang="en">

@@ -77,7 +77,7 @@ check_readonly() {
         return 0
     fi
     
-    readonly_value=$(mysql -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e 'SELECT @@global.read_only')
+    readonly_value=$("$SQL_CLIENT" -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e 'SELECT @@global.read_only')
     if [ "$?" -ne "0" ] ; then
         output_log "ERROR: cannot get readonly option value" 1
 	exit 1
@@ -94,14 +94,14 @@ set_readonly() {
         return 0
     fi
     # we let the default if we don't know before
-        mysql -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=$readonly_value"
+        "$SQL_CLIENT" -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=$readonly_value"
 }
 
 get_current_logbin_file() {
 	up_logbin=$1
 
 	if [ "$up_logbin" -eq 1 ] ; then
-		mysqladmin --user="$DBROOTUSER" --password="$DBROOTPASSWORD" flush-logs
+		"$SQL_ADMIN" --user="$DBROOTUSER" --password="$DBROOTPASSWORD" flush-logs
 	fi
 
 	if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
@@ -115,7 +115,7 @@ get_current_logbin_file() {
 		_password_args=(-p"$DBROOTPASSWORD")
 	fi
 	# Print nothing and fail when the current binary log is unknown
-	if ! _status=$(mysql -B -u "$DBROOTUSER" "${_password_args[@]}" -e "$_show_status\G") ; then
+	if ! _status=$("$SQL_CLIENT" -B -u "$DBROOTUSER" "${_password_args[@]}" -e "$_show_status\G") ; then
 		return 1
 	fi
 	file=$(echo "$_status" | awk '$1 == "File:" { print $2 }')
@@ -368,7 +368,7 @@ if [ "$PACEMAKER_ON" = "1" ] ; then
 fi
 i=0
 output_log "Stopping $SQL_DB_BINARY:" 0 1
-mysqladmin --user="$DBROOTUSER" --password="$DBROOTPASSWORD"  shutdown
+"$SQL_ADMIN" --user="$DBROOTUSER" --password="$DBROOTPASSWORD"  shutdown
 while ps -o args --no-headers -C "$SQL_DB_BINARY" >/dev/null; do
 	if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
 		output_log ""
@@ -396,6 +396,18 @@ output_log "Start $SQL_DB_BINARY:"
 systemctl start "$SQL_SYSTEMD_SERVICE"
 
 set_readonly
+
+# The backup runs on the replica: skip-slave-start keeps its replication
+# stopped after the restart, and the resource agent does not restart it
+if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+	_start_replica="START SLAVE"
+else
+	_start_replica="START REPLICA"
+fi
+if ! "$SQL_CLIENT" -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "$_start_replica" ; then
+	output_log "ERROR: Can't restart the replication, run '$_start_replica' on this node." 1
+	backup_status=1
+fi
 
 ###
 # Pacemaker start
