@@ -102,6 +102,23 @@ describe('getMassChangeAdapter', () => {
     });
   });
 
+  it('sends each list under its own mode in one body', () => {
+    expect(
+      apply({
+        ...mergeDeepRight(
+          withMode('categories', 'removal'),
+          withMode('snmpTraps', 'replacement')
+        ),
+        categories: [{ id: 4, name: 'Ping' }],
+        groups: [webGroup]
+      })
+    ).toEqual({
+      category_ids_to_remove: [4],
+      service_group_ids_to_add: [1],
+      trap_ids: []
+    });
+  });
+
   it('sends nothing for a list set to Removal with nothing picked', () => {
     expect(apply(withMode('groups', 'removal'))).toEqual({});
   });

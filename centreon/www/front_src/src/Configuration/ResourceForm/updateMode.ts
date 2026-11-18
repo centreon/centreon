@@ -30,7 +30,7 @@ const updateModeLabels: Record<UpdateMode, string> = {
   replacement: labelReplacement
 };
 
-export const defaultModes: Array<UpdateMode> = ['incremental', 'replacement'];
+const defaultModes: Array<UpdateMode> = ['incremental', 'replacement'];
 
 interface UpdateModeInputProps {
   field: string;

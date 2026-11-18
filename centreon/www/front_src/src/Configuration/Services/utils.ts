@@ -34,6 +34,32 @@ export const getServiceRowId = (row: ResourceRow): string => {
   return `${host.id}_${id}`;
 };
 
+// The selected services the listing shows on more than one host, among the
+// rows it has loaded.
+export const getSharedServiceIds = (
+  selectedRows: Array<ResourceRow>,
+  shownRows: Array<ResourceRow>
+): Array<number> => {
+  const hostIdsByService = [...selectedRows, ...shownRows].reduce(
+    (byService, row) => {
+      const { host, id } = row as unknown as ServiceListItem;
+
+      return byService.set(
+        id,
+        new Set([...(byService.get(id) ?? []), host?.id])
+      );
+    },
+    new Map<number, Set<number | undefined>>()
+  );
+  const selectedIds = new Set(
+    selectedRows.map((row) => (row as unknown as ServiceListItem).id)
+  );
+
+  return [...hostIdsByService]
+    .filter(([id, hostIds]) => selectedIds.has(id) && hostIds.size > 1)
+    .map(([id]) => id);
+};
+
 // Both forms are still legacy pages.
 export const getHostConfigurationUrl = (id: number): string =>
   `${centreonBaseURL}/main.php?p=60101&o=c&host_id=${encodeURIComponent(id)}`;

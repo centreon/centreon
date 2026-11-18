@@ -1,4 +1,4 @@
-import { getServiceRowId, toDuration } from './utils';
+import { getServiceRowId, getSharedServiceIds, toDuration } from './utils';
 
 describe('toDuration', () => {
   it('returns null for an interval nothing sets', () => {
@@ -29,5 +29,26 @@ describe('getServiceRowId', () => {
     expect(getServiceRowId({ ...row, host: { id: 11, name: 'host B' } })).toBe(
       '11_5'
     );
+  });
+});
+
+describe('getSharedServiceIds', () => {
+  const ping = (hostId: number) => ({
+    host: { id: hostId, name: `host ${hostId}` },
+    id: 5,
+    name: 'ping'
+  });
+  const cpu = { host: { id: 10, name: 'host 10' }, id: 0, name: 'cpu' };
+
+  it('finds a selected service shown on several hosts, selected or not', () => {
+    expect(getSharedServiceIds([ping(10), ping(11)], [])).toEqual([5]);
+    expect(getSharedServiceIds([ping(10)], [ping(10), ping(11), cpu])).toEqual([
+      5
+    ]);
+  });
+
+  it('ignores a service shown on one host, and a shared one left unselected', () => {
+    expect(getSharedServiceIds([cpu], [cpu, cpu])).toEqual([]);
+    expect(getSharedServiceIds([cpu], [ping(10), ping(11)])).toEqual([]);
   });
 });

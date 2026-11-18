@@ -24702,3 +24702,7 @@ msgstr "Suppression"
 #: centreon/www/install/front_translate.php
 msgid "The lists set to Replacement will overwrite those of every selected service, and empty them when left blank."
 msgstr "Les listes en mode Remplacement écraseront celles de chaque service sélectionné, et les videront si elles sont laissées vides."
+
+#: centreon/www/install/front_translate.php
+msgid "Some selected services are linked to several hosts: saving them will keep only their first host."
+msgstr "Certains services sélectionnés sont liés à plusieurs hôtes : les enregistrer ne conservera que leur premier hôte."

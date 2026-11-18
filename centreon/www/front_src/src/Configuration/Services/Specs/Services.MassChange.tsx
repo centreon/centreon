@@ -8,7 +8,10 @@ import {
   labelFailedToUpdateSomeResources,
   labelMassChange
 } from '../../ConfigurationBase/translatedLabels';
-import { labelReplacementOverwritesLists } from '../translatedLabels';
+import {
+  labelReplacementOverwritesLists,
+  labelSharedServicesKeepFirstHost
+} from '../translatedLabels';
 import initialize, { patchedServiceIds } from './initialize';
 import { getSharedServiceListingResponse } from './utils';
 
@@ -95,6 +98,8 @@ const expectPatchedServices = async (
       const calls = getRequestCalls(`patchService${id}`);
       const { request } = calls[calls.length - 1];
 
+      // A partial update, whatever the edit form sends.
+      expect(request.method).toBe('PATCH');
       expect(request.url.pathname).toMatch(
         new RegExp(`/api/configuration/services/${id}$`)
       );
@@ -182,7 +187,28 @@ export default () => {
       await expectPatchedServices([0, 2], { service_group_ids: [] });
     });
 
-    it('patches a service linked to several hosts once', async () => {
+    it('removes contacts and contact groups together when their mode is Removal', async () => {
+      await initializeListing();
+
+      await tickRow('10_0');
+      await openMassChange();
+
+      await setMode('contacts', 'removal');
+      await pick('service-form-notifications-contact-groups', 'Guests');
+
+      await save();
+      await expectConfirmation('The changes will be applied to 1 service.');
+      expect(
+        screen.queryByTestId('mass-change-warning')
+      ).not.toBeInTheDocument();
+      await confirm();
+
+      await expectPatchedServices([0], {
+        notifications: { contact_groups_to_remove: [4] }
+      });
+    });
+
+    it('patches a service linked to several hosts once, warning that it keeps its first host only', async () => {
       await initializeListing({
         listingResponse: getSharedServiceListingResponse()
       });
@@ -195,9 +221,28 @@ export default () => {
       await pick('service-form-service-groups', 'Web services');
       await save();
       await expectConfirmation('The changes will be applied to 1 service.');
+      expect(
+        await screen.findByTestId('mass-change-warning')
+      ).toHaveTextContent(labelSharedServicesKeepFirstHost);
       await confirm();
 
       await expectPatchedServices([5], { service_group_ids_to_add: [1] });
+    });
+
+    it('warns about a shared service even when only one of its rows is selected', async () => {
+      await initializeListing({
+        listingResponse: getSharedServiceListingResponse()
+      });
+
+      await tickRow('10_5');
+      await openMassChange();
+
+      await pick('service-form-service-groups', 'Web services');
+      await save();
+
+      expect(
+        await screen.findByTestId('mass-change-warning')
+      ).toHaveTextContent(labelSharedServicesKeepFirstHost);
     });
 
     it('names the services that failed and keeps the panel open on them alone', async () => {
@@ -211,7 +256,7 @@ export default () => {
       await save();
       await confirm();
 
-      await expectPatchedServices([0, 2]);
+      await expectPatchedServices([0, 2], { service_group_ids_to_add: [1] });
 
       expect(
         await screen.findByText(`${labelFailedToUpdateSomeResources}: disk`)
@@ -224,8 +269,10 @@ export default () => {
       await expectConfirmation('The changes will be applied to 1 service.');
       await confirm();
 
-      // Service 0 is not written to again.
-      await expectPatchedServices([0, 2, 2]);
+      // Service 0 is not written to again, service 2 gets the same changes.
+      await expectPatchedServices([0, 2, 2], {
+        service_group_ids_to_add: [1]
+      });
     });
   });
 };

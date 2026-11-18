@@ -15,3 +15,7 @@ export const filtersAtom = atomWithStorage<Filters>(
 );
 
 export const isWelcomePageDisplayedAtom = atom<boolean>(true);
+
+// The services of the mass change selection that the listing shows on several
+// hosts: saving one keeps only its first host.
+export const sharedServiceIdsAtom = atom<Array<number>>([]);

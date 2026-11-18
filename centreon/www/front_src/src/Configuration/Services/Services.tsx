@@ -6,7 +6,8 @@ import {
   userPermissionsAtom
 } from '@centreon/ui-context';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { type QueryClient, useQueryClient } from '@tanstack/react-query';
+import { useAtom, useAtomValue } from 'jotai';
 import { prop, uniqBy } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,11 +15,13 @@ import { useTranslation } from 'react-i18next';
 import ConfigurationBase from '../ConfigurationBase';
 import { formStateAtom } from '../ConfigurationBase/atoms';
 import { labelMassChange } from '../ConfigurationBase/translatedLabels';
-import { type Actions, ResourceType } from '../models';
+import { type Actions, type ResourceRow, ResourceType } from '../models';
+import type { FormValues } from '../ResourceForm/models';
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
-  selectedColumnIdsAtom
+  selectedColumnIdsAtom,
+  sharedServiceIdsAtom
 } from './atoms';
 import useColumns from './Columns/useColumns';
 import {
@@ -34,6 +37,7 @@ import {
   labelCreateService,
   labelServices,
   labelServicesDescription,
+  labelSharedServicesKeepFirstHost,
   labelWelcomeToServices
 } from './translatedLabels';
 import useServices from './useServices';
@@ -43,8 +47,18 @@ import {
   defaultSortField,
   filtersAtomKey,
   filtersInitialValues,
-  getServiceRowId
+  getServiceRowId,
+  getSharedServiceIds
 } from './utils';
+
+// The service rows the listing has loaded, whatever the page.
+const getShownRows = (queryClient: QueryClient): Array<ResourceRow> =>
+  queryClient
+    .getQueriesData<{ result?: Array<ResourceRow> }>({
+      queryKey: ['listResources']
+    })
+    .filter(([queryKey]) => queryKey.includes(ResourceType.Service))
+    .flatMap(([, data]) => data?.result ?? []);
 
 const Services = () => {
   const { t } = useTranslation();
@@ -83,22 +97,41 @@ const Services = () => {
     isCloudPlatform,
     isMassChange: true
   });
+  const [formState, setFormState] = useAtom(formStateAtom);
+  const [sharedServiceIds, setSharedServiceIds] = useAtom(sharedServiceIdsAtom);
+  const queryClient = useQueryClient();
+
+  // Still read on the rows left after a partial failure.
+  const hasSharedService = (formState.selection ?? []).some(({ id }) =>
+    sharedServiceIds.includes(id)
+  );
+
   const massChange = useMemo(() => {
     const context = {
       isAdditiveInheritanceEnabled,
       isCloudPlatform,
       isMassChange: true
     };
+    const getListsWarning = getMassChangeWarning(t);
 
     return {
       adapter: getMassChangeAdapter(context),
       defaultValues: getMassChangeDefaultValues(context),
-      getConfirmationWarning: getMassChangeWarning(t),
+      // The API saves a service linked to several hosts on its first host
+      // only.
+      getConfirmationWarning: (values: FormValues): string | null =>
+        [
+          hasSharedService ? t(labelSharedServicesKeepFirstHost) : null,
+          getListsWarning(values)
+        ]
+          .filter(Boolean)
+          .join(' ') || null,
       groups: massChangeGroups,
       inputs: massChangeInputs,
       validationSchema: massChangeValidationSchema
     };
   }, [
+    hasSharedService,
     isAdditiveInheritanceEnabled,
     isCloudPlatform,
     massChangeGroups,
@@ -106,7 +139,6 @@ const Services = () => {
     massChangeValidationSchema,
     t
   ]);
-  const setFormState = useSetAtom(formStateAtom);
 
   const actions: Actions = useMemo(
     () => ({
@@ -120,7 +152,10 @@ const Services = () => {
           dataTestId: 'mass-change',
           Icon: MassChangeIcon,
           label: labelMassChange,
-          onClick: (rows) =>
+          onClick: (rows) => {
+            setSharedServiceIds(
+              getSharedServiceIds(rows, getShownRows(queryClient))
+            );
             setFormState({
               id: null,
               isOpen: true,
@@ -131,7 +166,8 @@ const Services = () => {
                 id: id as number,
                 name: name as string
               }))
-            })
+            });
+          }
         }
       ],
       // Keeps the status toggle on screen, disabled, for a read-only user.
@@ -139,7 +175,7 @@ const Services = () => {
       // A row opens its service, read-only without write access.
       viewDetails: true
     }),
-    [canEdit, setFormState]
+    [canEdit, queryClient, setFormState, setSharedServiceIds]
   );
 
   return (
