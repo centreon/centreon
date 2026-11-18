@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   title: 'Centreon Web RestAPI'
   description: |
@@ -12372,10 +12372,12 @@ components:
           default: 0
           type: integer
         parent_templates:
+          description: 'the direct parent templates, in inheritance order'
           type: array
           items:
             $ref: '#/components/schemas/HostTemplateOutput'
         icon:
+          description: "the template's own icon, otherwise the first one inherited, otherwise null"
           anyOf:
             -
               $ref: '#/components/schemas/HostIconOutput'
@@ -12402,10 +12404,12 @@ components:
               default: 0
               type: integer
             parent_templates:
+              description: 'the direct parent templates, in inheritance order'
               type: array
               items:
                 $ref: '#/components/schemas/HostTemplateOutput.jsonld'
             icon:
+              description: "the template's own icon, otherwise the first one inherited, otherwise null"
               anyOf:
                 -
                   $ref: '#/components/schemas/HostIconOutput.jsonld'
@@ -12709,6 +12713,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/CreateHostNotificationsInput'
@@ -12961,6 +12966,7 @@ components:
           items:
             type: string
         macros:
+          description: "the host's own custom macros"
           type: array
           items:
             $ref: '#/components/schemas/HostMacroInput'
@@ -13301,6 +13307,7 @@ components:
       type: object
       properties:
         command:
+          description: 'the check command, null when none is set'
           anyOf:
             -
               $ref: '#/components/schemas/HostCheckCommandOutput'
@@ -13312,6 +13319,7 @@ components:
           items:
             type: string
         macros:
+          description: "the host's own custom macros (post inheritance strip)"
           type: array
           items:
             $ref: '#/components/schemas/HostMacroOutput'
@@ -13319,6 +13327,7 @@ components:
       type: object
       properties:
         command:
+          description: 'the check command, null when none is set'
           anyOf:
             -
               $ref: '#/components/schemas/HostCheckCommandOutput.jsonld'
@@ -13330,6 +13339,7 @@ components:
           items:
             type: string
         macros:
+          description: "the host's own custom macros (post inheritance strip)"
           type: array
           items:
             $ref: '#/components/schemas/HostMacroOutput.jsonld'
@@ -13934,6 +13944,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/PatchHostNotificationsInput'
@@ -14046,6 +14057,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/CreateHostNotificationsInput'
@@ -14067,10 +14079,12 @@ components:
           items:
             type: string
         macros:
+          description: 'Replaces the custom macros: the host''s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.'
           type: array
           items:
             $ref: '#/components/schemas/HostMacroInput'
         macros_to_upsert:
+          description: 'Writes these macros and keeps the other ones. Same macros as above.'
           type: array
           items:
             $ref: '#/components/schemas/HostMacroInput'
@@ -14332,6 +14346,7 @@ components:
             -
               type: 'null'
         traps:
+          description: 'null, and so left out, on a Cloud platform'
           type: array
           items:
             $ref: '#/components/schemas/ServiceTrapOutput'
@@ -14389,6 +14404,7 @@ components:
                 -
                   type: 'null'
             traps:
+              description: 'null, and so left out, on a Cloud platform'
               type: array
               items:
                 $ref: '#/components/schemas/ServiceTrapOutput.jsonld'
@@ -14492,6 +14508,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/PatchServiceNotificationsInput'
@@ -14730,6 +14747,9 @@ components:
           items:
             type: string
         macros:
+          description: |-
+            every macro the service effectively has: its own, then the ones it
+            inherits
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroOutput'
@@ -14748,6 +14768,9 @@ components:
           items:
             type: string
         macros:
+          description: |-
+            every macro the service effectively has: its own, then the ones it
+            inherits
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroOutput.jsonld'
@@ -15244,6 +15267,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/ServiceNotificationsInput'
@@ -15375,6 +15399,7 @@ components:
           items:
             type: string
         macros:
+          description: "the service's own custom macros, and the inherited ones it overrides"
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroInput'
@@ -15541,6 +15566,7 @@ components:
           items:
             $ref: '#/components/schemas/HostCategoryOutput'
         templates:
+          description: 'in relation order'
           type: array
           items:
             $ref: '#/components/schemas/HostTemplateOutput'
@@ -15612,6 +15638,7 @@ components:
               items:
                 $ref: '#/components/schemas/HostCategoryOutput.jsonld'
             templates:
+              description: 'in relation order'
               type: array
               items:
                 $ref: '#/components/schemas/HostTemplateOutput.jsonld'
@@ -15825,6 +15852,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/ServiceNotificationsInput'
@@ -15978,10 +16006,12 @@ components:
           items:
             type: string
         macros:
+          description: 'Replaces the custom macros: the service''s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.'
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroInput'
         macros_to_upsert:
+          description: 'Writes these macros and keeps the other ones. Same macros as above.'
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroInput'
