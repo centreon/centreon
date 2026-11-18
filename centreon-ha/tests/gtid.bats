@@ -5,6 +5,34 @@ load helpers
 UUID_A=3e11fa47-71ca-11e1-9e33-c80aa9429562
 UUID_B=8a94f357-aab4-11df-86ab-c80aa9429562
 
+# gtid_set_valid
+
+@test "gtid_set_valid: MySQL accepts untagged and tagged GTID sets" {
+  load_ocf_common 0
+  run gtid_set_valid "$UUID_A:1-5"
+  [ "$status" -eq 0 ]
+  run gtid_set_valid "$UUID_A:batch:1"
+  [ "$status" -eq 0 ]
+  run gtid_set_valid "$UUID_A:1-5,$UUID_B:batch:1-3"
+  [ "$status" -eq 0 ]
+}
+
+@test "gtid_set_valid: MySQL rejects empty sets and MariaDB GTIDs" {
+  load_ocf_common 0
+  run gtid_set_valid ""
+  [ "$status" -eq 1 ]
+  run gtid_set_valid "0-1-100"
+  [ "$status" -eq 1 ]
+}
+
+@test "gtid_set_valid: MariaDB accepts domain-server-sequence GTIDs only" {
+  load_ocf_common 1
+  run gtid_set_valid "0-1-100"
+  [ "$status" -eq 0 ]
+  run gtid_set_valid ""
+  [ "$status" -eq 1 ]
+}
+
 # mysql_gtid_set_count
 
 @test "mysql_gtid_set_count: counts ranges and single transactions" {

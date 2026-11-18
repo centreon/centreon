@@ -266,7 +266,7 @@ mysql_common_start()
     # mysql-functions.sh: the resource agent only sources files from
     # OCF_FUNCTIONS_DIR.
     for service_name in mariadb mysqld mysql; do
-        if systemctl list-unit-files "$service_name.service" 2>/dev/null | grep -q "$service_name.service"; then
+        if systemctl list-unit-files --no-legend "$service_name.service" 2>/dev/null | awk -v unit="$service_name.service" '$1 == unit && $2 != "masked" { found = 1 } END { exit !found }'; then
             break
         fi
         service_name=""
@@ -378,6 +378,17 @@ greater_than_equal_long()
         return 0
     else
         return 1
+    fi
+}
+
+gtid_set_valid()
+{
+    # Whether $1 looks like a GTID set: domain-server-sequence for MariaDB;
+    # uuid:interval, or uuid:tag:interval with GTID tags, for MySQL
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        echo "$1" | grep -qE '[0-9]+-[0-9]+-[0-9]+'
+    else
+        echo "$1" | grep -qE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}:'
     fi
 }
 

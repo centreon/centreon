@@ -16,11 +16,11 @@ SQL_CONF_DATADIR=
 SQL_CONF_DEFAULTS_FILE=
 # "--log-bin" when binary logging is enabled, empty otherwise
 SQL_CONF_LOG_BIN_ARG=
-# Base path of the binary logs, absolute or relative to the datadir
+# Absolute base path of the binary logs
 SQL_CONF_LOG_BIN=
 # Base name of the pid file, without directory or extension
 SQL_CONF_PID_FILE=
-# Base path of the relay logs, absolute or relative to the datadir
+# Absolute base path of the relay logs
 SQL_CONF_RELAY_LOG=
 
 sql_fetch_db_binary()
@@ -69,7 +69,7 @@ sql_fetch_systemd_service()
     # MySQL is mysqld on EL and mysql on Debian
     local _test_service
     for _test_service in mariadb mysqld mysql; do
-        if systemctl list-unit-files "$_test_service.service" 2>/dev/null | grep -q "$_test_service.service"; then
+        if systemctl list-unit-files --no-legend "$_test_service.service" 2>/dev/null | awk -v unit="$_test_service.service" '$1 == unit && $2 != "masked" { found = 1 } END { exit !found }'; then
             SQL_SYSTEMD_SERVICE="$_test_service"
             return 0
         fi
@@ -223,6 +223,16 @@ sql_fetch_db_config()
     if [ -z "$SQL_CONF_RELAY_LOG" ] ; then
         SQL_CONF_RELAY_LOG="$SQL_CONF_DATADIR/$_default_basename-relay-bin"
     fi
+
+    # The server writes relative log paths under the datadir
+    case "$SQL_CONF_LOG_BIN" in
+        ""|/*) ;;
+        *) SQL_CONF_LOG_BIN="$SQL_CONF_DATADIR/$SQL_CONF_LOG_BIN" ;;
+    esac
+    case "$SQL_CONF_RELAY_LOG" in
+        /*) ;;
+        *) SQL_CONF_RELAY_LOG="$SQL_CONF_DATADIR/$SQL_CONF_RELAY_LOG" ;;
+    esac
 }
 
 get_other_db_hostname()

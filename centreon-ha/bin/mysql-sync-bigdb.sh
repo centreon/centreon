@@ -184,13 +184,16 @@ if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
     gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
 else
     # mysql -B would print the newlines between the members of gtid_executed
-    # as a literal \n: strip them to get a one-line GTID set
-    gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only = ON; SELECT REPLACE(@@gtid_executed, '\n', '')")
+    # as a literal \n: strip them to get a one-line GTID set. super_read_only
+    # also blocks the sessions that bypass read_only (CONNECTION_ADMIN), so
+    # that the copy matches the GTID set; disabling read_only disables it.
+    gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL super_read_only = ON; SELECT REPLACE(@@gtid_executed, '\n', '')")
 fi
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
     _gtid_pattern='[0-9]+-[0-9]+-[0-9]+'
 else
-    _gtid_pattern='[0-9a-fA-F-]+:[0-9]+'
+    # uuid:interval, or uuid:tag:interval with GTID tags
+    _gtid_pattern='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}:'
 fi
 if ! echo "$gtid_current_pos" | grep -qE "$_gtid_pattern" ; then
     mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF;'
@@ -275,8 +278,17 @@ $USER_SUDO ssh -p $SSH_PORT $slave_hostname "rm -f \"${logbin_loc}/${logbin_file
 # Rsync
 ###
 
+abort_copy() {
+    # Leave the slave stopped: starting it on a partial copy would mark
+    # transactions as executed without their data
+    echo "ERROR: The copy to '$slave_hostname' is incomplete, its database is left stopped." >&2
+    umount "$SNAPSHOT_DATADIR_MOUNT"
+    lvremove -f /dev/$vg_name/dbbackupdatadir
+    exit 1
+}
+
 echo "Rsync in progress (exclude MySQL, ${logbin_files}, ${relaylog_files})"
-rsync -av $RSYNC_EXTRA_OPTIONS --delete --progress --exclude="mysql" --exclude="${SQL_CONF_PID_FILE}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude="auto.cnf" --exclude="mysqld-auto.cnf" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$SQL_CONF_DATADIR/
+rsync -av $RSYNC_EXTRA_OPTIONS --delete --progress --exclude="mysql" --exclude="${SQL_CONF_PID_FILE}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude="auto.cnf" --exclude="mysqld-auto.cnf" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$SQL_CONF_DATADIR/ || abort_copy
 
 mysql_ibd_system=''
 for file in $(ls "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/"*.ibd); do
@@ -284,7 +296,7 @@ for file in $(ls "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/"*.ibd); do
     mysql_ibd_system="$mysql_ibd_system \"$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.ibd\" \"$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.frm\""
 done
 if [ -n "$mysql_ibd_system" ] ; then
-    eval rsync -av $RSYNC_EXTRA_OPTIONS --progress $mysql_ibd_system -e \"\$USER_SUDO ssh -p $SSH_PORT\" \$slave_hostname:\"\$SQL_CONF_DATADIR/mysql/\"
+    eval rsync -av $RSYNC_EXTRA_OPTIONS --progress $mysql_ibd_system -e \"\$USER_SUDO ssh -p $SSH_PORT\" \$slave_hostname:\"\$SQL_CONF_DATADIR/mysql/\" || abort_copy
 fi
 
 # Mode Fastest. Uncomment this and comment line above

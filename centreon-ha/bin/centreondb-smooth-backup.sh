@@ -108,16 +108,29 @@ get_current_logbin_file() {
 		_show_status="SHOW BINARY LOG STATUS"
 	fi
 
-	if [ -z "$DBROOTPASSWORD" ] ; then
-		file=$(mysql -B -u "$DBROOTUSER" -e "$_show_status\G" 2>&1 | grep 'File:' | awk '{ print $2 }')
-	else
-		file=$(mysql -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "$_show_status\G" 2>&1 | grep 'File:' | awk '{ print $2 }')
+	_password_args=()
+	if [ -n "$DBROOTPASSWORD" ] ; then
+		_password_args=(-p"$DBROOTPASSWORD")
 	fi
-	if [ "$?" -ne "0" ] ; then
-		output_log "ERROR: connection MySQL to get index file." 1
-		exit 1
+	# Print nothing and fail when the status cannot be read, so that the
+	# callers keep the previous checkpoint
+	if ! _status=$(mysql -B -u "$DBROOTUSER" "${_password_args[@]}" -e "$_show_status\G") ; then
+		return 1
 	fi
-	echo "$file" | awk -F. '{ print $2 - 1 }'
+	file=$(echo "$_status" | awk '$1 == "File:" { print $2 }')
+	if ! echo "$file" | grep -qE '\.[0-9]+$' ; then
+		return 1
+	fi
+	echo "$file" | awk -F. '{ print $NF - 1 }'
+}
+
+save_current_logbin_file() {
+	if ! current_logbin_file=$(get_current_logbin_file 0) ; then
+		output_log "ERROR: Can't get the current binary log, the incremental backup checkpoint is not updated." 1
+		return
+	fi
+	output_log "Save current logbin file = $current_logbin_file"
+	echo "$current_logbin_file" > "$SAVE_LAST_DIR/centreondb-smooth-backup.save"
 }
 
 output_log() {
@@ -307,9 +320,7 @@ if [ "$OPT_INCR" -ne "0" ] ; then
 	done
 	
 	if [ "$logbin_activated" -ne "0" ] ; then
-		current_logbin_file=$(get_current_logbin_file 0)
-		output_log "Save current logbin file = $current_logbin_file"
-		echo "$current_logbin_file" > "$SAVE_LAST_DIR/centreondb-smooth-backup.save"
+		save_current_logbin_file
 	fi
 	
 	echo "Save files"
@@ -391,9 +402,7 @@ fi
 ###
 
 if [ "$logbin_activated" -ne "0" ] ; then
-	current_logbin_file=$(get_current_logbin_file 0)
-	output_log "Save current logbin file = $current_logbin_file"
-	echo "$current_logbin_file" > "$SAVE_LAST_DIR/centreondb-smooth-backup.save"
+	save_current_logbin_file
 fi
 
 concat_datadir=$(echo "$datadir" | sed "s#^${mount_point}##")

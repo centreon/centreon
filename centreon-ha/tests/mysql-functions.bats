@@ -114,6 +114,20 @@ load helpers
   [ "$SQL_CONF_LOG_BIN" = "/logs/mysql-bin" ]
 }
 
+@test "sql_fetch_db_config: resolves relative log paths against the datadir" {
+  load_mysql_functions mysqld "--datadir=@DATADIR@ --log-bin=logs/mysql-bin --relay-log=logs/relay" ""
+  fetch_db_config
+  [ "$SQL_CONF_LOG_BIN" = "$DATADIR/logs/mysql-bin" ]
+  [ "$SQL_CONF_RELAY_LOG" = "$DATADIR/logs/relay" ]
+}
+
+@test "sql_fetch_db_config: keeps absolute log paths" {
+  load_mysql_functions mysqld "--datadir=@DATADIR@ --log-bin=/logs/mysql-bin --relay-log=/logs/relay" ""
+  fetch_db_config
+  [ "$SQL_CONF_LOG_BIN" = "/logs/mysql-bin" ]
+  [ "$SQL_CONF_RELAY_LOG" = "/logs/relay" ]
+}
+
 @test "sql_fetch_db_config: resolves a symlinked datadir" {
   load_mysql_functions mariadbd "--datadir=$BATS_TEST_TMPDIR/datadir-link" ""
   ln -s "$DATADIR" "$BATS_TEST_TMPDIR/datadir-link"
@@ -127,7 +141,7 @@ load helpers
   [ "$SQL_IS_RUNNING" -eq 1 ]
   [ "$SQL_CONF_DATADIR" = "$DATADIR" ]
   [ "$SQL_CONF_LOG_BIN" = "/logs/other-bin" ]
-  [ "$SQL_CONF_RELAY_LOG" = "relay" ]
+  [ "$SQL_CONF_RELAY_LOG" = "$DATADIR/relay" ]
 }
 
 @test "sql_fetch_db_config: passes --defaults-file of the running server first" {

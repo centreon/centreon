@@ -115,9 +115,9 @@ uses look at the mysql resource agent which supports older replication
 forms which mysql and mariadb have in common.
 
 With MySQL, version 8.4 or later is required, with gtid_mode=ON,
-enforce_gtid_consistency=ON, skip_replica_start=ON and the
-rpl_semi_sync_source and rpl_semi_sync_replica plugins loaded. Both nodes must
-run the same database engine.
+enforce_gtid_consistency=ON, skip_replica_start=ON, log_bin=ON,
+log_replica_updates=ON and the rpl_semi_sync_source and rpl_semi_sync_replica
+plugins loaded. Both nodes must run the same database engine.
 
 The resource must be setup to use notifications. Set 'notify=true' in the metadata
 attributes when defining a MariaDB/MySQL master/slave instance.
@@ -240,7 +240,8 @@ MariaDB/MySQL test user password
 
 <parameter name="enable_creation" unique="0" required="0">
 <longdesc lang="en">
-If the MariaDB/MySQL database does not exist, it will be created
+If the MariaDB database does not exist, it will be created. MariaDB only:
+initialize the MySQL datadir before the agent starts it.
 </longdesc>
 <shortdesc lang="en">Create the database if it does not exist</shortdesc>
 <content type="boolean" default="${OCF_RESKEY_enable_creation_default}"/>
@@ -309,7 +310,7 @@ END
 set_gtid() {
     # Sets the GTID in CIB using attrd_updater for this node.
 
-    local gtid _gtid_valid
+    local gtid
     if [ "$_is_mariadb" -eq 1 ] ; then
         gtid=$($MYSQL $MYSQL_OPTIONS_REPL \
                         -s -N -e "show global variables like 'gtid_current_pos'" | cut -f 2)
@@ -320,13 +321,7 @@ set_gtid() {
                         -s -N -e "SELECT REPLACE(@@gtid_executed, '\\n', '')")
     fi
 
-    # Ensure that we got something like a valid GTID
-    if [ "$_is_mariadb" -eq 1 ] ; then
-        _gtid_valid=$(echo $gtid | grep -cE '[0-9]+-[0-9]+-[0-9]+')
-    else
-        _gtid_valid=$(echo $gtid | grep -cE '[0-9a-fA-F-]+:[0-9]+')
-    fi
-    if [ "$_gtid_valid" -eq 0 ]; then
+    if ! gtid_set_valid "$gtid"; then
         ocf_exit_reason "Unable to read GTID from $_DB_NAME"
         ocf_log err "Unable to read GTID from $_DB_NAME"
         return $OCF_ERR_GENERIC
@@ -851,14 +846,16 @@ check_mysql_prerequisites() {
     fi
 
     # skip_replica_start: the agent configures the replication itself, and
-    # CHANGE REPLICATION SOURCE TO fails while replica threads run
+    # CHANGE REPLICATION SOURCE TO fails while replica threads run.
+    # log_bin and log_replica_updates: once promoted, a replica must serve
+    # the transactions it applied to the other node.
     if ! settings=$($MYSQL $MYSQL_OPTIONS_TEST -s -N \
-        -e "SELECT CONCAT(@@gtid_mode, '/', @@enforce_gtid_consistency, '/', @@skip_replica_start)"); then
-        ocf_exit_reason "Unable to read gtid_mode, enforce_gtid_consistency and skip_replica_start"
+        -e "SELECT CONCAT(@@gtid_mode, '/', @@enforce_gtid_consistency, '/', @@skip_replica_start, '/', @@log_bin, '/', @@log_replica_updates)"); then
+        ocf_exit_reason "Unable to read the MySQL replication settings"
         return $OCF_ERR_GENERIC
     fi
-    if [ "$settings" != "ON/ON/1" ]; then
-        ocf_exit_reason "MySQL needs gtid_mode=ON, enforce_gtid_consistency=ON and skip_replica_start=ON (gtid_mode/enforce_gtid_consistency/skip_replica_start='$settings')"
+    if [ "$settings" != "ON/ON/1/1/1" ]; then
+        ocf_exit_reason "MySQL needs gtid_mode=ON, enforce_gtid_consistency=ON, skip_replica_start=ON, log_bin=ON and log_replica_updates=ON (gtid_mode/enforce_gtid_consistency/skip_replica_start/log_bin/log_replica_updates='$settings')"
         return $OCF_ERR_INSTALLED
     fi
 

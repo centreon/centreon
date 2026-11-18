@@ -46,13 +46,13 @@ for partition in $PARTITION_NAME; do
 	tmp_db=$(dirname "$partition")
 	tmp_table=$(basename "$partition")
 
-	request="SELECT CONCAT('\"', PARTITION_NAME, '\"') FROM information_schema.PARTITIONS WHERE TABLE_NAME='$tmp_table' AND TABLE_SCHEMA='$tmp_db'"
+	request="SELECT CONCAT('\"', PARTITION_NAME, '\"') FROM information_schema.PARTITIONS WHERE TABLE_NAME='$tmp_table' AND TABLE_SCHEMA='$tmp_db' AND PARTITION_NAME IS NOT NULL"
 	password_args=()
 	if [ -n "$DB_ROOT_PASSWORD" ] ; then
 		password_args=(-p"$DB_ROOT_PASSWORD")
 	fi
 	# Without the list of partitions, every file would be deleted
-	if ! result=$(mysql -B -u "$DB_ROOT_USER" "${password_args[@]}" -e "$request") || [ -z "$result" ] ; then
+	if ! result=$(mysql -B -N -u "$DB_ROOT_USER" "${password_args[@]}" -e "$request") || [ -z "$result" ] ; then
 		echo "ERROR: Can't get the partitions of '$partition', nothing deleted." >&2
 		exit 1
 	fi
