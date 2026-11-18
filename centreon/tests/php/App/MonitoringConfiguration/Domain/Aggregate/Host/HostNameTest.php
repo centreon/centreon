@@ -63,10 +63,8 @@ final class HostNameTest extends TestCase
         new HostName(str_repeat('a', 201));
     }
 
-    public function testItRejectsANameWithALineBreak(): void
+    public function testItReplacesControlCharactersWithASpace(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-
-        new HostName("my-host\nother");
+        self::assertSame('my-host_other', new HostName("\tmy-host\r\n\x01other\n")->value);
     }
 }
