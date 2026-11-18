@@ -14,6 +14,13 @@ OCF_RESKEY_binary_default=$(which mysqld_safe 2> /dev/null)
 if [ "$OCF_RESKEY_binary_default" = "" ]; then
 	OCF_RESKEY_binary_default=$(which safe_mysqld 2> /dev/null)
 fi
+# The MySQL packages for systemd ship no mysqld_safe. The server is started
+# with systemctl, so the binary is only checked to exist.
+for _binary in /usr/sbin/mariadbd /usr/libexec/mariadbd /usr/sbin/mysqld /usr/libexec/mysqld; do
+	if [ "$OCF_RESKEY_binary_default" = "" ] && [ -x "$_binary" ]; then
+		OCF_RESKEY_binary_default="$_binary"
+	fi
+done
 
 # Fill in some defaults if no values are specified
 HOSTOS=`uname`
@@ -239,10 +246,11 @@ mysql_common_start()
     local pid
     local service_name
 
-    # Auto-detect the systemd service name.
-    # This duplicates logic from mysql-functions.sh because this OCF script
-    # runs under Pacemaker with #!/bin/sh and must remain self-contained.
-    for service_name in mariadb mysql; do
+    # mariadb installs mysql and mysqld aliases, and MySQL is mysqld on EL
+    # and mysql on Debian. Keep in sync with sql_fetch_systemd_service in
+    # mysql-functions.sh: the resource agent only sources files from
+    # OCF_FUNCTIONS_DIR.
+    for service_name in mariadb mysqld mysql; do
         if systemctl list-unit-files "$service_name.service" 2>/dev/null | grep -q "$service_name.service"; then
             break
         fi
@@ -253,7 +261,10 @@ mysql_common_start()
         return $OCF_ERR_INSTALLED
     fi
 
-    systemctl start "$service_name"
+    if ! systemctl start "$service_name"; then
+        ocf_exit_reason "Failed to start the $service_name service"
+        return $OCF_ERR_GENERIC
+    fi
     pid=$(cat $OCF_RESKEY_pid)
 
     # Spin waiting for the server to come up.
@@ -332,4 +343,60 @@ mysql_common_stop()
     rm -f $OCF_RESKEY_socket
     return $OCF_SUCCESS
 
+}
+
+greater_than_equal_long()
+{
+    # there are values we need to compare in this script
+    # that are too large for shell -gt to process
+    local true=$(echo "$1 > $2" | bc)
+    if [ "$true" -eq "1" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+mysql_gtid_set_count()
+{
+    # Print the number of transactions in a MySQL GTID set, like
+    # "uuid1:1-1000:1005-1010,uuid2[:tag]:1-20" (newlines, raw or printed as
+    # "\n", are ignored). Writes on each new source add its UUID to the set,
+    # so a single UUID cannot tell which node is the most up to date. Without
+    # errant transactions both nodes share one history, so the node that
+    # executed the most transactions is.
+    echo "$1" | sed 's/\\n//g' | tr -d ' \n' | awk -F, '
+    {
+        for (i = 1; i <= NF; i++) {
+            n = split($i, parts, ":")
+            for (j = 2; j <= n; j++) {
+                if (parts[j] ~ /^[0-9]+-[0-9]+$/) {
+                    split(parts[j], range, "-")
+                    total += range[2] - range[1] + 1
+                } else if (parts[j] ~ /^[0-9]+$/) {
+                    total += 1
+                }
+            }
+        }
+    }
+    END { printf "%.0f\n", total }'
+}
+
+greater_than_gtid()
+{
+    # $_is_mariadb is set by the resource agent
+    local gtid1_transaction_id
+    local gtid2_transaction_id
+
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        # MariaDB GTID format: domain-server-sequence
+        gtid1_transaction_id=$(echo $1 | cut -d - -f 3)
+        gtid2_transaction_id=$(echo $2 | cut -d - -f 3)
+    else
+        gtid1_transaction_id=$(mysql_gtid_set_count "$1")
+        gtid2_transaction_id=$(mysql_gtid_set_count "$2")
+    fi
+
+    greater_than_equal_long $gtid1_transaction_id $gtid2_transaction_id
+    return $?
 }

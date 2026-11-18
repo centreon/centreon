@@ -51,15 +51,18 @@ OCF_RESKEY_node_list_default=""
 . ${OCF_FUNCTIONS_DIR}/mariadb-centreon-common.sh
 
 #######################################################################
-# Detect MariaDB vs MySQL
+# MariaDB when a mariadbd binary exists, MySQL otherwise. The EL distribution
+# packages install the server in /usr/libexec. Keep in sync with
+# sql_fetch_db_binary in mysql-functions.sh.
 _is_mariadb=0
 _DB_NAME="MySQL"
-if command -v mariadbd &>/dev/null; then
+if command -v mariadbd &>/dev/null || [ -x /usr/sbin/mariadbd ] || [ -x /usr/libexec/mariadbd ]; then
     _is_mariadb=1
     _DB_NAME="MariaDB"
 fi
 
-# SQL command and field name compatibility
+# MySQL 8.4 removed the SLAVE/MASTER statements and renamed the status
+# columns to Source_*/Replica_*
 if [ "$_is_mariadb" -eq 1 ] ; then
     _SQL_SHOW_REPLICA_STATUS="SHOW SLAVE STATUS"
     _SQL_START_REPLICA="START SLAVE"
@@ -70,7 +73,6 @@ if [ "$_is_mariadb" -eq 1 ] ; then
     _SQL_FIELD_USER="Master_User"
     _SQL_FIELD_PORT="Master_Port"
     _SQL_FIELD_LOG_FILE="Master_Log_File"
-    _SQL_FIELD_USING_GTID="Using_Gtid"
     _SQL_FIELD_SQL_RUNNING="Slave_SQL_Running"
     _SQL_FIELD_IO_RUNNING="Slave_IO_Running"
     _SQL_FIELD_SECS_BEHIND="Seconds_Behind_Master"
@@ -84,7 +86,6 @@ else
     _SQL_FIELD_USER="Source_User"
     _SQL_FIELD_PORT="Source_Port"
     _SQL_FIELD_LOG_FILE="Source_Log_File"
-    _SQL_FIELD_USING_GTID="Auto_Position"
     _SQL_FIELD_SQL_RUNNING="Replica_SQL_Running"
     _SQL_FIELD_IO_RUNNING="Replica_IO_Running"
     _SQL_FIELD_SECS_BEHIND="Seconds_Behind_Source"
@@ -122,10 +123,16 @@ Manages a complete master/slave replication setup with GTID, for simpler
 uses look at the mysql resource agent which supports older replication
 forms which mysql and mariadb have in common.
 
+With MySQL, version 8.4 or later is required, with gtid_mode=ON,
+enforce_gtid_consistency=ON and the rpl_semi_sync_source and
+rpl_semi_sync_replica plugins loaded. Both nodes must run the same database
+engine.
+
 The resource must be setup to use notifications. Set 'notify=true' in the metadata
 attributes when defining a MariaDB/MySQL master/slave instance.
 
-The default behavior is to use uname -n values in the change master to command.
+The default behavior is to use uname -n values in the CHANGE MASTER TO (or
+CHANGE REPLICATION SOURCE TO) command.
 Other IPs can be specified manually by adding a node attribute
 \${INSTANCE_ATTR_NAME}_mysql_master_IP giving the IP to use for replication.
 For example, if the mariadb primitive you are using is p_mariadb, the
@@ -307,48 +314,20 @@ END
 }
 
 # Convenience functions
-
-greater_than_equal_long()
-{
-    # there are values we need to compare in this script
-    # that are too large for shell -gt to process
-    local true=$(echo "$1 > $2" | bc)
-    if [ "$true" -eq "1" ]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-greater_than_gtid()
-{
-    local gtid1_transaction_id
-    local gtid2_transaction_id
-
-    if [ "$_is_mariadb" -eq 1 ] ; then
-        # MariaDB GTID format: domain-server-sequence
-        gtid1_transaction_id=$(echo $1 | cut -d - -f 3)
-        gtid2_transaction_id=$(echo $2 | cut -d - -f 3)
-    else
-        # MySQL GTID format: uuid:1-N (extract N, the last transaction number)
-        gtid1_transaction_id=$(echo $1 | grep -oE '[0-9]+$')
-        gtid2_transaction_id=$(echo $2 | grep -oE '[0-9]+$')
-    fi
-
-    greater_than_equal_long $gtid1_transaction_id $gtid2_transaction_id
-    return $?
-}
+# (the GTID comparison functions are in mariadb-centreon-common.sh)
 
 set_gtid() {
     # Sets the GTID in CIB using attrd_updater for this node.
 
-    local gtid
+    local gtid _gtid_valid
     if [ "$_is_mariadb" -eq 1 ] ; then
         gtid=$($MYSQL $MYSQL_OPTIONS_REPL \
                         -s -N -e "show global variables like 'gtid_current_pos'" | cut -f 2)
     else
+        # Strip the newlines between the members of the set, which the client
+        # would print as a literal \n
         gtid=$($MYSQL $MYSQL_OPTIONS_REPL \
-                        -s -N -e "SELECT @@gtid_executed")
+                        -s -N -e "SELECT REPLACE(@@gtid_executed, '\\n', '')")
     fi
 
     # Ensure that we got something like a valid GTID
@@ -566,7 +545,6 @@ get_slave_info() {
             master_host=$(parse_slave_info $_SQL_FIELD_HOST $tmpfile)
             master_user=$(parse_slave_info $_SQL_FIELD_USER $tmpfile)
             master_port=$(parse_slave_info $_SQL_FIELD_PORT $tmpfile)
-            master_using_gtid=$(parse_slave_info $_SQL_FIELD_USING_GTID $tmpfile)
             master_log_file=$(parse_slave_info $_SQL_FIELD_LOG_FILE $tmpfile)
             slave_sql=$(parse_slave_info $_SQL_FIELD_SQL_RUNNING $tmpfile)
             slave_io=$(parse_slave_info $_SQL_FIELD_IO_RUNNING $tmpfile)
@@ -642,7 +620,6 @@ check_slave() {
             # Remove reader vip
             set_reader_attr 0
 
-            # try to restart replica
             ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
                 -e "$_SQL_START_REPLICA"
 
@@ -667,7 +644,7 @@ set_master() {
     # from. Accepts one mandatory argument which must contain the host
     # name of the new master host. The master must either be unchanged
     # from the laste master the slave replicated from, or freshly
-    # reset with RESET MASTER.
+    # reset with RESET MASTER (RESET BINARY LOGS AND GTIDS on MySQL).
     ocf_log info "Changing $_DB_NAME configuration to replicate from $new_master."
 
     if [ "$_is_mariadb" -eq 1 ] ; then
@@ -678,12 +655,16 @@ set_master() {
             MASTER_PASSWORD='$OCF_RESKEY_replication_passwd', \
             MASTER_USE_GTID=current_pos";
     else
+        # GET_SOURCE_PUBLIC_KEY=1: without TLS, caching_sha2_password (the
+        # default plugin) needs the RSA public key of the source whenever the
+        # source has not cached the password yet, e.g. after a restart
         ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
             -e "CHANGE REPLICATION SOURCE TO SOURCE_HOST='$new_master', \
             SOURCE_PORT=$OCF_RESKEY_replication_port, \
             SOURCE_USER='$OCF_RESKEY_replication_user', \
             SOURCE_PASSWORD='$OCF_RESKEY_replication_passwd', \
-            SOURCE_AUTO_POSITION=1";
+            SOURCE_AUTO_POSITION=1, \
+            GET_SOURCE_PUBLIC_KEY=1";
     fi
 }
 
@@ -726,7 +707,7 @@ unset_master(){
     done
     rm -f $tmpfile
 
-    # Now, stop all replica activity and unset the master host
+    # Now, stop all replica activity and unset the source
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
         -e "$_SQL_STOP_REPLICA"
     if [ $? -gt 0 ]; then
@@ -847,6 +828,63 @@ mysql_monitor() {
     fi
 }
 
+check_mysql_prerequisites() {
+    # MariaDB has semi-sync built in and always logs GTIDs. MySQL needs
+    # gtid_mode=ON (for SOURCE_AUTO_POSITION) and the semi-sync plugins. The
+    # centreon-ha scripts use SHOW BINARY LOG STATUS and RESET BINARY LOGS AND
+    # GTIDS (MySQL 8.2+); 8.4 is the first LTS release with them.
+    # A failing query is an error, not a misconfiguration: OCF_ERR_INSTALLED
+    # would ban the node until a cleanup.
+    local version major minor settings plugins
+
+    if ! version=$($MYSQL $MYSQL_OPTIONS_TEST -s -N -e "SELECT @@version"); then
+        ocf_exit_reason "Unable to read the MySQL version"
+        return $OCF_ERR_GENERIC
+    fi
+    case "$version" in
+        *MariaDB*)
+            ocf_exit_reason "The server is MariaDB $version, but no mariadbd binary was found"
+            return $OCF_ERR_INSTALLED
+            ;;
+    esac
+    major=$(echo "$version" | cut -d . -f 1)
+    minor=$(echo "$version" | cut -d . -f 2)
+    case "$major$minor" in
+        ''|*[!0-9]*)
+            ocf_exit_reason "Unable to read the MySQL version (version='$version')"
+            return $OCF_ERR_GENERIC
+            ;;
+    esac
+    if [ "$major" -lt 8 ] || { [ "$major" -eq 8 ] && [ "$minor" -lt 4 ]; }; then
+        ocf_exit_reason "MySQL $version is not supported, MySQL 8.4 or later is required"
+        return $OCF_ERR_INSTALLED
+    fi
+
+    if ! settings=$($MYSQL $MYSQL_OPTIONS_TEST -s -N \
+        -e "SELECT CONCAT(@@gtid_mode, '/', @@enforce_gtid_consistency)"); then
+        ocf_exit_reason "Unable to read gtid_mode and enforce_gtid_consistency"
+        return $OCF_ERR_GENERIC
+    fi
+    if [ "$settings" != "ON/ON" ]; then
+        ocf_exit_reason "MySQL needs gtid_mode=ON and enforce_gtid_consistency=ON (gtid_mode/enforce_gtid_consistency='$settings')"
+        return $OCF_ERR_INSTALLED
+    fi
+
+    if ! plugins=$($MYSQL $MYSQL_OPTIONS_TEST -s -N \
+        -e "SELECT COUNT(*) FROM information_schema.PLUGINS \
+            WHERE PLUGIN_NAME IN ('rpl_semi_sync_source', 'rpl_semi_sync_replica') \
+            AND PLUGIN_STATUS = 'ACTIVE'"); then
+        ocf_exit_reason "Unable to list the semi-sync plugins"
+        return $OCF_ERR_GENERIC
+    fi
+    if [ "$plugins" != "2" ]; then
+        ocf_exit_reason "MySQL needs the rpl_semi_sync_source and rpl_semi_sync_replica plugins (semisync_source.so and semisync_replica.so)"
+        return $OCF_ERR_INSTALLED
+    fi
+
+    return $OCF_SUCCESS
+}
+
 mysql_start() {
     local rc
     
@@ -872,9 +910,15 @@ mysql_start() {
         return $rc
     fi
 
+    if [ "$_is_mariadb" -eq 0 ] ; then
+        check_mysql_prerequisites
+        rc=$?
+        if [ $rc -ne $OCF_SUCCESS ]; then
+            return $rc
+        fi
+    fi
+
     # Enable semi-sync
-    # Note: the MySQL branch uses variable names introduced in MySQL 8.0.26
-    # (rpl_semi_sync_source_*, sync_source_info). MySQL < 8.0.26 is not supported.
     if [ "$_is_mariadb" -eq 1 ] ; then
         ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
                 -e "SET GLOBAL rpl_semi_sync_slave_enabled='OFF', \

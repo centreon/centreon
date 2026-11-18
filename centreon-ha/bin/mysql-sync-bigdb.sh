@@ -61,14 +61,11 @@ fi
 ###
 # Get DB parameters
 ###
-sql_fetch_db_binary
-sql_fetch_systemd_service
-sql_fetch_db_config
-
-if [ -z "$SQL_DB_BINARY" ] ; then
-    echo "Cannot find MariaDB/MySQL binary." >&2
+if ! sql_fetch_db_config ; then
+    echo "ERROR: Cannot find the MariaDB/MySQL configuration." >&2
     exit 1
 fi
+sql_fetch_systemd_service
 
 if [ -z "$SQL_SYSTEMD_SERVICE" ] ; then
     echo "Cannot find MariaDB/MySQL systemd service." >&2
@@ -166,10 +163,10 @@ fi
 
 slave_hostname=$(get_other_db_hostname)
 master_hostname=$(get_other_db_hostname $slave_hostname)
-# Note: SQL_DB_BINARY and SQL_SYSTEMD_SERVICE are detected locally.
-# Both HA nodes are assumed to run the same database engine.
+# SQL_SYSTEMD_SERVICE is detected on this node and reused on the other one:
+# both nodes must run the same engine on the same distribution
 echo "Connection to slave Server (verify mysql stopped): $slave_hostname"
-result=$($USER_SUDO ssh -p $SSH_PORT $slave_hostname 'if ps --no-headers -C '"$SQL_DB_BINARY"' >/dev/null; then echo "yes" ; else echo "no"; fi')
+result=$($USER_SUDO ssh -p $SSH_PORT $slave_hostname 'if ps --no-headers -C mariadbd,mysqld >/dev/null; then echo "yes" ; else echo "no"; fi')
 if [ "$result" != "no" ] ; then
     echo "ERROR: MySQL is launched or problem to connect to the server." >&2
     exit 1
@@ -186,7 +183,9 @@ fi
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
     gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
 else
-    gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_executed')
+    # gtid_executed separates its members with ",\n": strip the newlines so
+    # that the value can be reused in SET GLOBAL gtid_purged
+    gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only = ON; SELECT REPLACE(@@gtid_executed, '\n', '')")
 fi
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
     _gtid_pattern='[0-9]+-[0-9]+-[0-9]+'
@@ -277,7 +276,7 @@ $USER_SUDO ssh -p $SSH_PORT $slave_hostname "rm -f \"${logbin_loc}/${logbin_file
 ###
 
 echo "Rsync in progress (exclude MySQL, ${logbin_files}, ${relaylog_files})"
-rsync -av $RSYNC_EXTRA_OPTIONS --delete --progress --exclude="mysql" --exclude="${SQL_CONF_PID_FILE}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude="auto.cnf" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$SQL_CONF_DATADIR/
+rsync -av $RSYNC_EXTRA_OPTIONS --delete --progress --exclude="mysql" --exclude="${SQL_CONF_PID_FILE}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude="auto.cnf" --exclude="mysqld-auto.cnf" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$SQL_CONF_DATADIR/
 
 mysql_ibd_system=''
 for file in $(ls "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/"*.ibd); do
@@ -324,27 +323,33 @@ echo "OK"
 ###
 echo "Start Replication"
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
-    mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" << EOF
-RESET MASTER;
+    reset_sql="RESET MASTER;
 STOP SLAVE;
-RESET SLAVE;
-SET GLOBAL gtid_slave_pos = '$gtid_current_pos';
+RESET SLAVE;"
+    replication_sql="SET GLOBAL gtid_slave_pos = '$gtid_current_pos';
 CHANGE MASTER TO MASTER_HOST='$master_hostname', MASTER_USER='$DBREPLUSER', MASTER_PASSWORD='$DBREPLPASSWORD', master_use_gtid=slave_pos;
 START SLAVE;
-SHOW PROCESSLIST;
-quit
-EOF
+SHOW PROCESSLIST;"
 else
-    mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" << EOF
-RESET BINARY LOGS AND GTIDS;
-STOP REPLICA;
+    reset_sql="STOP REPLICA;
 RESET REPLICA ALL;
-SET GLOBAL gtid_purged = '$gtid_current_pos';
-CHANGE REPLICATION SOURCE TO SOURCE_HOST='$master_hostname', SOURCE_USER='$DBREPLUSER', SOURCE_PASSWORD='$DBREPLPASSWORD', SOURCE_AUTO_POSITION=1;
+RESET BINARY LOGS AND GTIDS;"
+    # GET_SOURCE_PUBLIC_KEY=1: without TLS, caching_sha2_password (the
+    # default plugin) needs the RSA public key of the source whenever the
+    # source has not cached the password yet, e.g. after a restart
+    replication_sql="SET GLOBAL gtid_purged = '$gtid_current_pos';
+CHANGE REPLICATION SOURCE TO SOURCE_HOST='$master_hostname', SOURCE_USER='$DBREPLUSER', SOURCE_PASSWORD='$DBREPLPASSWORD', SOURCE_AUTO_POSITION=1, GET_SOURCE_PUBLIC_KEY=1;
 START REPLICA;
-SHOW PROCESSLIST;
-quit
-EOF
+SHOW PROCESSLIST;"
+fi
+# The datadir copied from the master can hold a stale replication
+# configuration that makes the reset statements fail: keep going (-f), the
+# next step fails if the reset was incomplete
+mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$reset_sql"
+# No -f: never start the replication on a partial setup
+if ! mysql -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$replication_sql" ; then
+    echo "ERROR: Can't start the replication on '$slave_hostname'." >&2
+    exit 1
 fi
 
 exit 0

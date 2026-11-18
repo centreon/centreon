@@ -6,8 +6,17 @@ PARTITION_NAME="centreon_storage/data_bin"
 DB_ROOT_USER="root"
 DB_ROOT_PASSWORD=""
 
-sql_fetch_db_binary
-sql_fetch_db_config
+if ! sql_fetch_db_config ; then
+	echo "ERROR: Cannot find the MariaDB configuration." >&2
+	exit 1
+fi
+
+# MySQL tracks the partition files in its data dictionary: they must not be
+# deleted behind its back
+if [ "$SQL_IS_MARIADB" -ne 1 ] ; then
+	echo "ERROR: This script only supports MariaDB." >&2
+	exit 1
+fi
 
 ####
 # Find DATADIR
@@ -35,10 +44,14 @@ for partition in $PARTITION_NAME; do
 	tmp_table=$(basename "$partition")
 
 	request="SELECT CONCAT('\"', PARTITION_NAME, '\"') FROM information_schema.PARTITIONS WHERE TABLE_NAME='$tmp_table' AND TABLE_SCHEMA='$tmp_db'"
-	if [ -z "$DB_ROOT_PASSWORD" ] ; then
-		result=$(mysql -B -u "$DB_ROOT_USER" -e "$request")
-	else
-		result=$(mysql -B -u "$DB_ROOT_USER" -p"$DB_ROOT_PASSWORD" -e "$request")
+	password_args=()
+	if [ -n "$DB_ROOT_PASSWORD" ] ; then
+		password_args=(-p"$DB_ROOT_PASSWORD")
+	fi
+	# Without the list of partitions, every file would be deleted
+	if ! result=$(mysql -B -u "$DB_ROOT_USER" "${password_args[@]}" -e "$request") || [ -z "$result" ] ; then
+		echo "ERROR: Can't get the partitions of '$partition', nothing deleted." >&2
+		exit 1
 	fi
 
 	for file in "$datadir/$partition#P#"* ; do

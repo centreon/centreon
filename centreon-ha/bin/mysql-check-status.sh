@@ -10,11 +10,10 @@
 . /usr/share/centreon-ha/lib/mysql-functions.sh
 . /etc/centreon-ha/mysql-resources.sh
 
-sql_fetch_db_binary
-
-if [ -z "$SQL_DB_BINARY" ] ; then
-	echo "ERROR: Cannot find MariaDB/MySQL binary." >&2
-	exit 1
+# Ask the servers, as this script also runs on central nodes without a
+# database server. When none answers, the connection checks report it.
+if ! sql_fetch_server_engine "$DBHOSTNAMEMASTER" && ! sql_fetch_server_engine "$DBHOSTNAMESLAVE" ; then
+	sql_fetch_db_binary
 fi
 
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then

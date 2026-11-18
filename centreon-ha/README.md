@@ -8,11 +8,19 @@ Centreon-HA project's purpose is to provide a versioned repository of the files 
 
 Centreon-HA repository contains:
 
-* scripts (`bin`)
-* libraries (`lib`)
-* default configuration files (`etc`)
-* service definitions (`systemd`)
-* custom cluster resource types (`ocf-scripts`)
+- scripts (`bin`)
+- libraries (`lib`)
+- default configuration files (`etc`)
+- service definitions (`systemd`)
+- custom cluster resource types (`ocf-scripts`)
+
+## Supported databases
+
+Both database nodes must run the same engine on the same distribution:
+
+- MariaDB.
+- MySQL 8.4 or later, with `gtid_mode=ON`, `enforce_gtid_consistency=ON` and the `rpl_semi_sync_source` and `rpl_semi_sync_replica` plugins loaded (`semisync_source.so` and `semisync_replica.so`). The `mariadb-centreon` resource agent checks these prerequisites when it starts the database.
+  MySQL ships no `mysqld_safe`: set the `binary` parameter of the resource to the server binary (`/usr/sbin/mysqld`), and the `pid` and `socket` parameters to the `pid-file` and `socket` of the MySQL configuration.
 
 ## How to install Centreon-HA
 

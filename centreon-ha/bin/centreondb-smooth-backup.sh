@@ -47,20 +47,16 @@ DO_ARCHIVE=1
 PARTITION_NAME="centreon_storage/data_bin centreon_storage/logs"
 PACEMAKER_ON="1"
 PACEMAKER_RSC_MYSQL="ms_mysql"
-MYSQL_CNF="/etc/my.cnf.d/server.cnf"
 READONLY_CHECK=1
 
 ###
 # Get DB parameters
 ###
-sql_fetch_db_binary
-sql_fetch_systemd_service
-sql_fetch_db_config
-
-if [ -z "$SQL_DB_BINARY" ] ; then
-    echo "ERROR: Cannot find MariaDB/MySQL binary." >&2
+if ! sql_fetch_db_config ; then
+    echo "ERROR: Cannot find the MariaDB/MySQL configuration." >&2
     exit 1
 fi
+sql_fetch_systemd_service
 
 if [ -z "$SQL_SYSTEMD_SERVICE" ] ; then
     echo "ERROR: Cannot find MariaDB/MySQL systemd service." >&2
@@ -275,7 +271,8 @@ fi
 # Verify if there is partition
 ###
 for table in $PARTITION_NAME ; do
-	num=$(ls "$datadir/$table#P#"* 2> /dev/null | wc -l)
+	# MariaDB names the partition files "#P#", MySQL "#p#"
+	num=$(ls "$datadir/$table#"[Pp]"#"* 2> /dev/null | wc -l)
 	if [ -z "$num" ] || [ "$num" -eq 0 ] ; then
 		output_log "ERROR: Can't find partition for table '$table'." 1
 		exit 1
