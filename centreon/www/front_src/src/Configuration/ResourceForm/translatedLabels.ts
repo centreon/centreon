@@ -110,3 +110,6 @@ export const labelUpdateMode = 'Update mode';
 export const labelIncremental = 'Incremental';
 export const labelReplacement = 'Replacement';
 export const labelRemoval = 'Removal';
+// Wording to confirm with UX.
+export const labelHostRecipientsReplaceOwn =
+  'Inheriting only the contacts and contact groups of the host removes those of each selected resource that you can see.';

@@ -1,6 +1,9 @@
 import { mergeDeepRight } from 'ramda';
 
-import { labelNone } from '../../ResourceForm/translatedLabels';
+import {
+  labelHostRecipientsReplaceOwn,
+  labelNone
+} from '../../ResourceForm/translatedLabels';
 import {
   labelNoneNeedsReplacement,
   labelReplacementOverwritesLists
@@ -167,6 +170,23 @@ describe('getMassChangeAdapter', () => {
 
 describe('getMassChangeWarning', () => {
   const getWarning = getMassChangeWarning(((label: string) => label) as never);
+
+  it('warns that inheriting only the host recipients removes the services own, on Yes only', () => {
+    const values = getMassChangeDefaultValues(onPremise) as Record<
+      string,
+      unknown
+    >;
+    const withHostOnly = (value: string) =>
+      mergeDeepRight(values, {
+        notifications: { useOnlyContactsFromHost: value }
+      }) as Record<string, unknown>;
+
+    expect(getWarning(withHostOnly('true'))).toBe(
+      labelHostRecipientsReplaceOwn
+    );
+    expect(getWarning(withHostOnly('false'))).toBeNull();
+    expect(getWarning(values)).toBeNull();
+  });
 
   it('warns when None is added rather than replacing the notification options', () => {
     const values = mergeDeepRight(getMassChangeDefaultValues(onPremise), {

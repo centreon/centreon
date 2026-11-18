@@ -24710,3 +24710,7 @@ msgstr "Certains services sélectionnés sont liés à plusieurs hôtes : les en
 #: centreon/www/install/front_translate.php
 msgid "None excludes the other notification options: set them to Replacement, or the services that have some will refuse the change."
 msgstr "Aucun exclut les autres options de notification : passez-les en Remplacement, sinon les services qui en ont refuseront la modification."
+
+#: centreon/www/install/front_translate.php
+msgid "Inheriting only the contacts and contact groups of the host removes those of each selected resource that you can see."
+msgstr "Hériter uniquement des contacts et groupes de contacts de l'hôte supprime ceux de chaque ressource sélectionnée que vous voyez."

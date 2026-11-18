@@ -32,6 +32,7 @@ import {
   labelContactGroupAdditiveInheritance,
   labelContactsToNotify,
   labelFirstNotificationDelay,
+  labelHostRecipientsReplaceOwn,
   labelInheritContactsFromHost,
   labelLinkedContactGroups,
   labelLinkedContacts,
@@ -363,6 +364,13 @@ export const getNotificationRecipientsBlock = ({
           ...(withUseOnlyContactsFromHost && { useOnlyContactsFromHost: null })
         }
       },
+      // Yes removes each resource's own recipients, whatever the list modes.
+      ...(withUseOnlyContactsFromHost && {
+        getWarning: (t) => (values) =>
+          isUsingOnlyContactsFromHost(values)
+            ? t(labelHostRecipientsReplaceOwn)
+            : null
+      }),
       updateModeFields: {
         contacts: [
           ['notifications', 'contacts'],
