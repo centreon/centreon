@@ -30,9 +30,9 @@ use App\Shared\Domain\Event\AsEventHandler;
 use Psr\Log\LoggerInterface;
 
 /**
- * A failure is logged at error and swallowed: the copy is already committed, and legacy behaves the
- * same, service duplication being a separate step there — an escaping exception would turn a
- * duplicated host into a 5xx.
+ * A failure is logged at error and swallowed: the copy is already committed and is kept without the
+ * source's services (the command copies them all or none), and the response stays HTTP 204 — an
+ * escaping exception would turn a duplicated host into a 5xx.
  */
 #[AsEventHandler]
 final readonly class DuplicateHostServicesEventHandler

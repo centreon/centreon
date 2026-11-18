@@ -29,16 +29,15 @@ use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
 use App\Shared\Domain\Event\EventInterface;
 
 /**
- * Deferred because the legacy service duplication reads through its own connection and the copy must
- * already be committed to be seen — mirrors {@see HostServicesDeploymentRequested}.
+ * Deferred so that the services are copied in their own transaction, once the host copy is committed:
+ * a failure to copy them never rolls the host copy back.
  */
 final readonly class HostServicesDuplicationRequested implements DeliveredAfterCommitInterface, EventInterface
 {
     public function __construct(
         public HostId $sourceHostId,
         public HostId $newHostId,
-        // The actor who triggered the duplication, so the deferred legacy clone can be attributed and
-        // ACL-scoped to them even on a token-authenticated request (no ambient legacy session).
+        // The actor who triggered the duplication, the author of the copied services.
         public UserId $duplicatedBy,
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {
