@@ -253,8 +253,8 @@ try {
 
     foreach ($tab_server as $host) {
         if (isset($pollers) && ($pollers == 0 || in_array($host['id'], $pollers))) {
-            $listBrokerFile = glob($centreonBrokerPath . $host['id'] . '/*.{xml,json,cfg,sql}', GLOB_BRACE);
-            $listVmWareFile = glob($vmWareConfigPath . $host['id'] . '/*.json', GLOB_BRACE);
+            $listBrokerFile = \App\Shared\Infrastructure\Symfony\ConfigFingerprint::glob($centreonBrokerPath . $host['id'] . '/*.{xml,json,cfg,sql}');
+            $listVmWareFile = \App\Shared\Infrastructure\Symfony\ConfigFingerprint::glob($vmWareConfigPath . $host['id'] . '/*.json');
             // With the Gorgone API, the central poller gets its files like the others: nothing is copied here
             if (! $isGorgoneApiEnabled && isset($host['localhost']) && $host['localhost'] == 1) {
                 // Check if monitoring engine's configuration directory existss
@@ -280,7 +280,7 @@ try {
                     );
                 }
                 // Copy monitoring engine's configuration files
-                foreach (glob($nagiosCFGPath . $host['id'] . '/*.{json,cfg}', GLOB_BRACE) as $filename) {
+                foreach (\App\Shared\Infrastructure\Symfony\ConfigFingerprint::glob($nagiosCFGPath . $host['id'] . '/*.{json,cfg}') as $filename) {
                     $targetFilePath = rtrim($nagiosCfg['cfg_dir'], '/') . '/' . basename($filename);
                     $succeded = @copy($filename, $targetFilePath);
                     if (! $succeded) {

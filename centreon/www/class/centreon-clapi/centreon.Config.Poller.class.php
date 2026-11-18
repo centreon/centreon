@@ -435,7 +435,7 @@ class CentreonConfigPoller
             chgrp($this->engineCachePath . "/{$poller_id}", $apacheUser);
 
             // engine-configuration.json: poller run by centreon-engine
-            foreach (glob($this->engineCachePath . "/{$poller_id}/*.{cfg,json}", GLOB_BRACE) as $file) {
+            foreach (\App\Shared\Infrastructure\Symfony\ConfigFingerprint::glob($this->engineCachePath . "/{$poller_id}/*.{cfg,json}") as $file) {
                 chown($file, $apacheUser);
                 chgrp($file, $apacheUser);
             }
@@ -449,7 +449,7 @@ class CentreonConfigPoller
             chown($this->brokerCachePath . "/{$poller_id}", $apacheUser);
             chgrp($this->brokerCachePath . "/{$poller_id}", $apacheUser);
 
-            foreach (glob($this->brokerCachePath . "/{$poller_id}/*.{xml,json,cfg}", GLOB_BRACE) as $file) {
+            foreach (\App\Shared\Infrastructure\Symfony\ConfigFingerprint::glob($this->brokerCachePath . "/{$poller_id}/*.{xml,json,cfg}") as $file) {
                 chown($file, $apacheUser);
                 chgrp($file, $apacheUser);
             }
@@ -462,7 +462,7 @@ class CentreonConfigPoller
              * Change VMWare files owner to '660 apache centreon'
              * RW for centreon group are necessary for Gorgone Daemon.
              */
-            foreach (glob($this->vmWareCachePath . "/{$poller_id}/*.{json}", GLOB_BRACE) as $file) {
+            foreach (\App\Shared\Infrastructure\Symfony\ConfigFingerprint::glob($this->vmWareCachePath . "/{$poller_id}/*.{json}") as $file) {
                 chmod($file, 0660);
                 chown($file, $apacheUser);
                 chgrp($file, self::CENTREON_SYSTEM_USER);
@@ -529,7 +529,7 @@ class CentreonConfigPoller
             $Nagioscfg = $statement->fetchRow();
             $statement->closeCursor();
 
-            foreach (glob($this->engineCachePath . '/' . $pollerId . '/*.{json,cfg}', GLOB_BRACE) as $filename) {
+            foreach (\App\Shared\Infrastructure\Symfony\ConfigFingerprint::glob($this->engineCachePath . '/' . $pollerId . '/*.{json,cfg}') as $filename) {
                 $bool = @copy($filename, $Nagioscfg['cfg_dir'] . '/' . basename($filename));
                 $result = explode('/', $filename);
                 $filename = array_pop($result);
@@ -541,7 +541,7 @@ class CentreonConfigPoller
 
             // Change files owner
             if ($apacheUser != '') {
-                foreach (glob($Nagioscfg['cfg_dir'] . '/*.{json,cfg}', GLOB_BRACE) as $file) {
+                foreach (\App\Shared\Infrastructure\Symfony\ConfigFingerprint::glob($Nagioscfg['cfg_dir'] . '/*.{json,cfg}') as $file) {
                     if ($file === $Nagioscfg['cfg_dir'] . '/engine-context.json') {
                         continue;
                     }
@@ -570,7 +570,7 @@ class CentreonConfigPoller
             }
 
             // Centreon Broker configuration
-            $listBrokerFile = glob($this->brokerCachePath . '/' . $host['id'] . '/*.{xml,json,cfg}', GLOB_BRACE);
+            $listBrokerFile = \App\Shared\Infrastructure\Symfony\ConfigFingerprint::glob($this->brokerCachePath . '/' . $host['id'] . '/*.{xml,json,cfg}');
             if (count($listBrokerFile) > 0) {
                 $centreonBrokerDirCfg = getCentreonBrokerDirCfg($host['id']);
                 if (! is_null($centreonBrokerDirCfg)) {
@@ -603,7 +603,7 @@ class CentreonConfigPoller
 
                 // Change files owner
                 if ($apacheUser != '') {
-                    foreach (glob(rtrim($centreonBrokerDirCfg, '/') . '/' . '/*.{xml,json,cfg}', GLOB_BRACE) as $file) {
+                    foreach (\App\Shared\Infrastructure\Symfony\ConfigFingerprint::glob(rtrim($centreonBrokerDirCfg, '/') . '/' . '/*.{xml,json,cfg}') as $file) {
                         // handle path traversal vulnerability
                         if (str_contains($file, '..')) {
                             throw new Exception('Path traversal found');
