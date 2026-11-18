@@ -475,6 +475,24 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         return $this->hydrate($hostId, $rows);
     }
 
+    public function findIdsExclusivelyLinkedToHostId(HostId $hostId): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('s.service_id')
+            ->from(self::TABLE_NAME, 's')
+            ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
+            ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
+            ->andWhere("h.host_register = '1'")
+            ->orderBy('s.service_id', 'ASC');
+        $this->keepOnlyServicesWithASingleRelation($qb);
+
+        return new Collection(
+            array_map(static fn (int $value): ServiceId => new ServiceId($value), $this->fetchIds($qb)),
+            ServiceId::class,
+        );
+    }
+
     public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
     {
         if ($serviceTemplateIds === []) {
@@ -565,6 +583,39 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             ...$this->findRelationIds($id->value, (int) $row['host_id']),
             'macros' => $this->findMacroRowsByServiceIds([$id->value])[$id->value] ?? [],
         ]);
+    }
+
+    public function findIdsSharedWithOthers(HostId $hostId): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT s.service_id')
+            ->from(self::TABLE_NAME, 's')
+            ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
+            ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
+            ->innerJoin(
+                's',
+                '(SELECT service_service_id FROM host_service_relation GROUP BY service_service_id HAVING COUNT(*) > 1)',
+                'shared',
+                'shared.service_service_id = s.service_id',
+            )
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
+            ->andWhere("h.host_register = '1'")
+            ->orderBy('s.service_id', 'ASC');
+
+        return new Collection(
+            array_map(static fn (int $value): ServiceId => new ServiceId($value), $this->fetchIds($qb)),
+            ServiceId::class,
+        );
+    }
+
+    public function addHostLink(ServiceId $id, HostId $hostId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('host_service_relation')
+            ->values(['host_host_id' => ':hostId', 'service_service_id' => ':serviceId'])
+            ->setParameter('hostId', $hostId->value, ParameterType::INTEGER)
+            ->setParameter('serviceId', $id->value, ParameterType::INTEGER)
+            ->executeStatement();
     }
 
     public function updateActivationStatus(ServiceId $id, bool $activated): void
