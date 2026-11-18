@@ -130,27 +130,30 @@ final class ExtendedInformationsTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, string>}>
+     * @return array<string, array{string}>
      */
-    public static function singleLineFieldWithALineBreakProvider(): array
+    public static function singleLineFieldProvider(): array
     {
         return [
-            'note URL' => [['noteUrl' => "https://example.com\nnotes"]],
-            'note' => [['note' => "a free-text\nnote"]],
-            'action URL' => [['actionUrl' => "https://example.com\nactions"]],
-            'alternative icon text' => [['altIcon' => "server\nicon"]],
+            'note URL' => ['noteUrl'],
+            'note' => ['note'],
+            'action URL' => ['actionUrl'],
+            'alternative icon text' => ['altIcon'],
         ];
     }
 
-    /**
-     * @param array<string, string> $fields
-     */
-    #[DataProvider('singleLineFieldWithALineBreakProvider')]
-    public function testItRejectsALineBreakInASingleLineField(array $fields): void
+    #[DataProvider('singleLineFieldProvider')]
+    public function testItReplacesControlCharactersWithASpaceInASingleLineField(string $field): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        self::assertSame('first second', new ExtendedInformations(...[$field => "\tfirst\r\n\x01second\n"])->{$field});
+    }
 
-        new ExtendedInformations(...$fields);
+    #[DataProvider('singleLineFieldProvider')]
+    public function testWithKeepsAStoredSingleLineFieldOnASingleLine(string $field): void
+    {
+        $stored = new ExtendedInformations(...[$field => "first\nsecond"]);
+
+        self::assertSame('first second', $stored->with(comment: 'updated')->{$field});
     }
 
     public function testItAcceptsACommentSpanningSeveralLines(): void

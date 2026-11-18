@@ -40,11 +40,10 @@ final readonly class SnmpCommunity
 
     public function __construct(string $value)
     {
-        $value = trim($value);
+        $value = trim(EngineConfigurationValue::toSingleLine($value));
         // The column's width: the caller builds this from whatever will land there, plaintext
         // or `secret::` reference.
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
-        Assert::notRegex($value, EngineConfigurationValue::CONTROL_CHARACTERS_PATTERN, '[SnmpCommunity::value] The value must not contain control characters');
         $this->value = $value;
     }
 }
