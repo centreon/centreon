@@ -40,6 +40,7 @@ class NewHost
     public const MAX_ACTION_URL_LENGTH = 65535;
     public const MAX_ICON_ALT_LENGTH = 200;
     public const MAX_COMMENT_LENGTH = 65535;
+    private const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]+/';
 
     /**
      * @param int $monitoringServerId
@@ -133,14 +134,14 @@ class NewHost
 
         // Formating and assertions on string properties
         $this->name = self::formatName($name);
-        $this->alias = trim($alias);
+        $this->alias = trim(self::toSingleLine($alias));
         $this->checkCommandArgs = array_map(trim(...), $checkCommandArgs);
         $this->eventHandlerCommandArgs = array_map(trim(...), $eventHandlerCommandArgs);
-        $this->snmpCommunity = trim($snmpCommunity);
-        $this->note = trim($note);
-        $this->noteUrl = trim($noteUrl);
-        $this->actionUrl = trim($actionUrl);
-        $this->iconAlternative = trim($iconAlternative);
+        $this->snmpCommunity = trim(self::toSingleLine($snmpCommunity));
+        $this->note = trim(self::toSingleLine($note));
+        $this->noteUrl = trim(self::toSingleLine($noteUrl));
+        $this->actionUrl = trim(self::toSingleLine($actionUrl));
+        $this->iconAlternative = trim(self::toSingleLine($iconAlternative));
         $this->comment = trim($comment);
         $this->address = trim($this->address);
 
@@ -196,7 +197,7 @@ class NewHost
      */
     final public static function formatName(string $name): string
     {
-        return str_replace(' ', '_', trim($name));
+        return str_replace(' ', '_', trim(self::toSingleLine($name)));
     }
 
     public function getName(): string
@@ -411,5 +412,18 @@ class NewHost
     public function getGeoCoordinates(): GeoCoords|null
     {
         return $this->geoCoordinates;
+    }
+
+    /**
+     * Replaces each run of control characters (line breaks, tabs, NUL, DEL) with a space.
+     *
+     * Applied to the single-line values written as-is into the monitoring engine configuration
+     * (name, alias, SNMP community, note, URLs, icon alternative): those files hold one directive
+     * per line. The API rejects such characters on input; this keeps a value stored with one
+     * (CLAPI, older data) loadable.
+     */
+    protected static function toSingleLine(string $value): string
+    {
+        return (string) preg_replace(self::CONTROL_CHARACTERS, ' ', $value);
     }
 }
