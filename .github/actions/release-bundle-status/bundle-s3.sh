@@ -78,7 +78,9 @@ bundle_s3_update_global() {
 
     if aws s3api put-object --bucket "$BUCKET" --key "$key" --body "$work/global.new.json" \
          --content-type application/json "${condition[@]}" > /dev/null 2> "$work/put.err"; then
-      jq -r .status "$work/global.new.json"
+      local status
+      status=$(jq -r .status "$work/global.new.json") || status=unknown
+      echo "$status"
       rm -rf "$work"
       return 0
     fi

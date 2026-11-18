@@ -174,7 +174,8 @@ remote_refs() {
 }
 
 remote_tags() { remote_refs "$1" | sed -n 's|^refs/tags/||p'; }
-remote_has_branch() { remote_refs "$1" | grep -Fqx "refs/heads/$2"; }
+# here-strings, not "| grep -q": grep exiting early would make pipefail report a SIGPIPE as "not found"
+remote_has_branch() { grep -Fqx "refs/heads/$2" <<< "$(remote_refs "$1")"; }
 
 # iterations N already tagged in a repository for one release: testing-<scope>-<type>-<number>-<major>-N
 bundle_iterations() {
@@ -286,10 +287,10 @@ validate() {
     iteration=$latest
     (( latest > 0 )) || fail "No bundle of $number yet: dispatch ${upstream[0]} first, it opens the bundle"
     for r in "${upstream[@]}"; do
-      bundle_iterations "$r" "$prefix" | grep -Fqx "$latest" \
+      grep -Fqx "$latest" <<< "$(bundle_iterations "$r" "$prefix")" \
         || errors+=("$r has $BRANCH but is not tagged in $prefix-$latest: dispatch $r first")
     done
-    if bundle_iterations "$repo" "$prefix" | grep -Fqx "$latest"; then
+    if grep -Fqx "$latest" <<< "$(bundle_iterations "$repo" "$prefix")"; then
       errors+=("$prefix-$latest is already started here: to rebuild, start bundle $((latest + 1)) from ${upstream[0]}")
     fi
     # chain guard: every component expected by the earlier repositories delivered successfully
@@ -562,16 +563,18 @@ dispatch() {
   local wf missing=()
   declare -A takes_labels=()
   for wf in "${workflows[@]}"; do
-    if git show "$HEAD_SHA:.github/workflows/$wf" > "$RUNNER_TEMP/target-workflow.yml" 2> /dev/null \
-      && workflow_on "$RUNNER_TEMP/target-workflow.yml" > "$RUNNER_TEMP/target-on.json" \
-      && jq -e 'any(.events[]; . == "workflow_dispatch")' "$RUNNER_TEMP/target-on.json" > /dev/null; then
-      jq -e '.inputs | has("labels")' "$RUNNER_TEMP/target-on.json" > /dev/null && takes_labels[$wf]=1
+    if ! git show "$HEAD_SHA:.github/workflows/$wf" > "$RUNNER_TEMP/target-workflow.yml" 2> /dev/null; then
+      missing+=("$wf (missing)")
+    elif ! workflow_on "$RUNNER_TEMP/target-workflow.yml" > "$RUNNER_TEMP/target-on.json"; then
+      missing+=("$wf (not valid YAML)")
+    elif ! jq -e 'any(.events[]; . == "workflow_dispatch")' "$RUNNER_TEMP/target-on.json" > /dev/null; then
+      missing+=("$wf (no workflow_dispatch)")
     else
-      missing+=("$wf")
+      jq -e '.inputs | has("labels")' "$RUNNER_TEMP/target-on.json" > /dev/null && takes_labels[$wf]=1
     fi
   done
   if (( ${#missing[@]} > 0 )); then
-    echo "::error::Not dispatchable on $ref (missing or without workflow_dispatch): ${missing[*]}"
+    echo "::error::Not dispatchable on $ref: ${missing[*]}"
     exit 1
   fi
 

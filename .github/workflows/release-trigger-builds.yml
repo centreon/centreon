@@ -30,7 +30,8 @@ on:
         type: boolean
         default: true
 
-# one run at a time per branch: two runs would pick the same bundle number, the second one would fail late
+# one run at a time per branch (two runs would pick the same bundle number); GitHub keeps at most one
+# waiting run per group: a third dispatch cancels the one still waiting
 concurrency:
   group: release-trigger-builds-${{ inputs.dispatch_target_release_branch }}
   cancel-in-progress: false
