@@ -617,11 +617,11 @@ class Broker extends AbstractObjectJSON
         }
         if (isset($config['output'])) {
             foreach ($config['output'] as $key => $inputCfg) {
-                if ($inputCfg['type'] === self::STREAM_BBDO_SERVER && $config['output'][$key]['encrypt'] === 'no') {
+                if ($inputCfg['type'] === self::STREAM_BBDO_SERVER && ($inputCfg['encryption'] ?? null) === 'no') {
                     unset($config['output'][$key]['private_key'], $config['output'][$key]['certificate']);
 
                 }
-                if ($inputCfg['type'] === self::STREAM_BBDO_CLIENT && $config['output'][$key]['encrypt'] === 'no') {
+                if ($inputCfg['type'] === self::STREAM_BBDO_CLIENT && ($inputCfg['encryption'] ?? null) === 'no') {
                     unset($config['output'][$key]['ca_certificate'], $config['output'][$key]['ca_name']);
 
                 }
