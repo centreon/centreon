@@ -42,6 +42,23 @@ check_as() {
   echo "----- ${name}" >>"$LOG_FILE"
 }
 
+# Same as check, but no --user override: proves what the image's own USER
+# directive (or lack of one) actually defaults to, not just that some UID
+# can run the command (MON-215446: that's the one thing a `check_as <user>`
+# call can't tell us — it forces the user, so it stays green even if the
+# image silently went back to running as root).
+check_default_user() {
+  local name="$1"; shift 1
+  if docker run --rm --platform "$PLATFORM" --entrypoint /bin/sh "$IMAGE" -c "$*" >>"$LOG_FILE" 2>&1; then
+    results+=("| ${name} | :white_check_mark: |")
+  else
+    results+=("| ${name} | :x: |")
+    failures=$((failures + 1))
+    echo "::error::${ROLE} (${PLATFORM}): ${name} failed, see ${LOG_FILE}"
+  fi
+  echo "----- ${name}" >>"$LOG_FILE"
+}
+
 arch=$(docker image inspect --format '{{.Architecture}}' "$IMAGE")
 expected_arch="${PLATFORM#linux/}"
 if [[ "$arch" != "$expected_arch" ]]; then
@@ -55,6 +72,11 @@ case "$ROLE" in
     check "no PHP source shipped" '! find /usr/share/centreon/www -name "*.php" -print -quit | grep -q .'
     check "httpd binary runs" 'httpd -v'
     check "entrypoint present" 'test -x /usr/local/lib/centreon-httpd/container.sh'
+    # MON-215446: httpd:2.4-alpine, non-root by default (USER www-data,
+    # UID/GID 82 — different from fpm/cron's Debian www-data, 33).
+    check_default_user "runs as non-root by default" 'test "$(id -u)" != 0'
+    check_as www-data "www-data UID is the Alpine one (82)" 'test "$(id -u)" = 82'
+    check "listens on 8080, not 80 (unprivileged port, non-root)" 'grep -qx "Listen 8080" conf/httpd.conf'
     ;;
   fpm)
     check "php-fpm config valid" 'php-fpm -t'

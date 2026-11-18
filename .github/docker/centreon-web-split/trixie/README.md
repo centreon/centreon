@@ -1167,14 +1167,19 @@ findings applied beyond the SEC-09 module-fetch fix documented above:
   <<EOF ... EOF` heredocs — content lives in the Dockerfile as a real
   block, not escaped inside a shell string, and the shim keeps its
   `--chmod=755` directly on the `COPY`.
-- **SEC-01**: still no explicit `USER` in either final stage — this is
-  intentional, not an oversight: httpd's master needs root to bind port 80
-  and fork workers, php-fpm's master needs root to create/chown its own
+- **SEC-01**: at the time, no explicit `USER` in either final stage — this
+  was intentional, not an oversight: httpd's master needs root to bind port
+  80 and fork workers, php-fpm's master needs root to create/chown its own
   runtime state and to spawn workers as `www-data` per the pool's own `user
   = www-data` directive. Both already drop worker privilege internally,
   same reasoning the official `httpd`/`php:8.4-fpm` images rely on for not
   setting `USER` themselves. Documented inline in the Dockerfile right
   above each `ENTRYPOINT` rather than left unexplained.
+  **Superseded for httpd, MON-215446**: moving to `Listen 8080` (an
+  unprivileged port) removed the one reason the master process needed root
+  in the first place — see "Base image decision (MON-215446)" below. `fpm`
+  is unaffected (still binds no privileged port, but still needs root for
+  the other reason given above — creating/chowning its own runtime state).
 - **COMP-09**: new build-time check in the `fpm` stage, right after the
   SourceGuardian ini is written — `php -m | grep gnupg` and `php -v | grep
   SourceGuardian`, failing the build if either didn't load. Both failure
@@ -1241,14 +1246,15 @@ login `200`, static asset `200`.
 
 Still open, not applied — found on the same full re-read, genuinely minor
 or already-decided, not silently missed:
-- **OPT-08** (MEDIUM): `httpd:2.4`/`php:8.4-fpm` are not slim/alpine
-  variants. Not an oversight — this was an explicit, already-documented
-  decision (see "Base image decision" in the project's own history):
-  matches the Pillar-1 page's own validated manual smoke test, and
-  switching to Alpine means a different libc (musl) and package manager,
-  a real compatibility risk for the compiled PHP extensions this image
-  already depends on (SourceGuardian's `.lin` loader, `pecl install
-  gnupg`) — not something to change as a drive-by Dockerfile-review fix.
+- **OPT-08** (MEDIUM): **partially superseded, MON-215446** — `httpd` did
+  move to `httpd:2.4-alpine` (see "Base image decision (MON-215446)" below),
+  since it never runs the compiled PHP extensions this note's original
+  musl/SourceGuardian compatibility concern was about — httpd ships no PHP
+  at all, only static assets + a reverse proxy. `fpm` stays on
+  `debian:trixie-slim` (rebased off `php:${PHP_VERSION}-fpm`, not Alpine):
+  that concern remains fully valid there, SourceGuardian's `.lin` loader and
+  `pecl install gnupg` are both glibc builds with no musl ABI guarantee.
+  `cron` is now `FROM` the fpm image, so it inherits the same glibc base.
 - **OPT-04** (LOW): no `apt.conf.d/99custom` heredoc globally disabling
   recommends/suggests. Redundant in practice — every `apt-get install` in
   this file already passes `--no-install-recommends` per-line (OPT-03,
@@ -1757,6 +1763,92 @@ docker compose -f .../docker-compose.yml -f .../docker-compose.db-tls.yml \
 # both must exit 0 with no "SSL connection error"/plaintext-rejected message
 ```
 
+## Base image decision (MON-215446): slim fpm, cron FROM fpm, httpd on Alpine non-root
+
+Reduces per-node download size and CVE surface without changing the role
+split. Builds on the measurements in the Obsidian note "Docker web-split -
+Étude layout images httpd, fpm, cron" (and "- Étude serveur web httpd
+(Apache, nginx, Caddy)" for the httpd base choice).
+
+- **fpm**: final stage rebased from `php:${PHP_VERSION}-fpm` onto
+  `debian:trixie-slim`. The compiled PHP runtime itself (php, php-fpm, every
+  extension `.so`, `conf.d`) is still built in `fpm_extensions` (unchanged,
+  still `FROM php:${PHP_VERSION}-fpm`) and copied in wholesale (`COPY
+  --from=fpm_extensions /usr/local/ /usr/local/`) — nothing here recompiles
+  PHP, this only drops the base image that compiled it from the final
+  layer. `php:${PHP_VERSION}-fpm`'s own build toolchain
+  (`$PHPIZE_DEPS`/`libc6-dev`/`linux-libc-dev`, 611 OS CVEs on its own) is
+  gone, since it's never shipped in the first place rather than purged
+  after the fact. The runtime package list (`apt-get install` in the `fpm`
+  stage) is explicit, not a blind copy of "every package the CI image
+  happens to have": derived from `ldd` on `/usr/local/bin/php`,
+  `/usr/local/sbin/php-fpm` and every extension `.so` in the real CI fpm
+  image, diffed against what `debian:trixie-slim` already ships, each
+  missing library mapped back to its Debian package. The same build-time
+  `ldd`/`php -m`/SourceGuardian check this file already had (now extended to
+  cover the php/php-fpm binaries themselves, not just the extensions) is
+  the actual safety net if that list is ever incomplete — it fails the
+  build, not a vague runtime symptom. Measured: 269.2 -> 154.4 MB
+  compressed, identical file tree and Trivy result (0 content/CVE diff
+  outside the usual `--chown`/`--chmod` of the 8 Centreon root
+  directories).
+- **cron**: `FROM ${FPM_IMAGE}` (variant B), default `fpm` — this file's own
+  `fpm` stage for a local/compose build, the just-published fpm image
+  pinned by digest in CI (`docker-central.yml`'s `dockerize-fpm` job runs
+  before `dockerize`, and `dockerize`'s own cron entries resolve
+  `FPM_IMAGE` from `dockerize-fpm`'s per-arch digest artifact — the only
+  way `FROM fpm` actually shares layers instead of rebuilding fpm from
+  scratch with fresh mtimes inside cron's own job). One shared PHP runtime
+  and app tree instead of a second, independent Debian-PHP-8.4 + app-tree
+  copy: the old cron-specific user/group setup, SourceGuardian ini and app
+  tree `COPY`s are all gone, already inherited from fpm. What's still
+  cron's own: `cron` + `procps` (a real gap — the Perl jobs' SQL lock shells
+  out to `ps`, and that used to come for free with Debian's php8.4 packages)
+  + the Perl stack, a CLI `php.ini` (docker-library PHP ships none active by
+  default: without one, `memory_limit` silently drops to 128M instead of
+  the Debian CLI parity value of -1 this cron image used to have), `pam.d/cron`
+  and the entrypoint. `HEALTHCHECK NONE`/`CMD []` are both explicit
+  overrides, not redundant: without them this stage would silently inherit
+  fpm's own `/tmp/docker.ready` healthcheck (never created here) and `CMD
+  ["php-fpm"]` (container.sh would try to exec php-fpm as the main process
+  instead of starting the cron daemon). Measured: 131.5 -> ~173 MB
+  compressed, but ~49% less to download on a node that runs both roles (20
+  of cron's 25 layers are shared with fpm).
+- **httpd**: `httpd:2.4-alpine`, non-root (`USER www-data`, UID/GID 82 —
+  Alpine's own, not Debian's 33 that fpm/cron still use). `Listen 8080`, not
+  80: an unprivileged port is what makes non-root possible at all — the
+  previous "no explicit `USER`" reasoning (SEC-01 in the dockerfile-review
+  history above) was specifically about binding port 80, not a general
+  "Apache can't run non-root". `PidFile /tmp/httpd.pid` (the image's own
+  `logs/` is root-owned) and `conf/extra` explicitly `chown`'d to www-data
+  (10-config.sh resolves `centreon.conf.template` into that directory at
+  container start, as www-data now). The Service port stays 80 everywhere
+  outside the container (compose host mapping unchanged, k8s Service port);
+  only the container's own listening port moved — every
+  `CENTREON_INTERNAL_API_BASE_URL`/`CENTREON_API_BASE_URL`/`CENTRAL_PORT`
+  env var and the `docker-compose.yml` port mapping that pointed at
+  `httpd:80` now point at `httpd:8080` (5 call sites, see that file's git
+  history for MON-215446). Media uploads (`centreon-media` volume, written
+  by fpm as Debian's www-data/33, mounted `:ro` into httpd for Alpine's
+  www-data/82 to read) must stay world-readable for this to keep working —
+  already the case, not something this Dockerfile controls (fpm's own
+  upload code writes those files). Measured: 61.9 -> ~37 MB compressed, CVE
+  389/1C/115H -> 0.
+- Verified locally (light checks, no full compose replay re-run in this
+  pass — that's the next step, a separate full compose/k3d replay on the
+  CI-published images): isolated `docker build --target httpd`/`--target
+  cron` both passed (cron's build pulling in the real `fpm` stage as its
+  base, proving the `FROM ${FPM_IMAGE}` mechanism end to end, not just the
+  Dockerfile parsing); httpd's own build-time module/SourceGuardian check
+  (inherited from fpm) passed inside cron; a plain `docker run` of the
+  built httpd image (no `--user` override) confirmed `uid=82(www-data)`
+  and a real `Listen 8080`/`PidFile /tmp/httpd.pid`/`<VirtualHost
+  *:8080>`, then a full `httpd -D FOREGROUND` boot responded `HTTP 302` on
+  8080 without ever running as root.
+- Not done here: fpm itself running as non-root (`www-data`) — next step,
+  C26 (MON-215446's own "Out of scope" section). The chart (`containerPort`,
+  internal URL) is k8s-helm's side of this ticket, not this file's.
+
 ## Explicitly out of scope for this first pass
 
 - Not wired into `.github/workflows/web.yml` yet (no CI job builds/publishes these).
@@ -1795,5 +1887,10 @@ docker compose -f .../docker-compose.yml -f .../docker-compose.db-tls.yml \
   config files off gorgone's **own local disk**, path only, never file
   content over the API, so `fpm` and `gorgone-central` still need to share
   the generated-config cache volume regardless.
-- Root vs non-root not decided (currently whatever `httpd:2.4`/`php:8.4-fpm`
-  default to).
+- Root vs non-root: **httpd** decided and applied (MON-215446, `httpd:2.4-alpine`,
+  `USER www-data`, `Listen 8080`) — see "Base image decision (MON-215446):
+  slim fpm, cron FROM fpm, httpd on Alpine non-root" above. **fpm/cron**
+  still run as root by design (php-fpm's master needs root to create/chown
+  its own runtime state and spawn workers; cron's own daemon needs root to
+  switch to each cron.d line's declared user) — fpm running as `www-data`
+  itself is the next step (C26), not done here.

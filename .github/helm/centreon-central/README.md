@@ -345,7 +345,7 @@ config delivery run again, and the broker pod restarts with the sidecar.
 
 | Service | Port | Exposed? | Used by |
 |---------|------|----------|---------|
-| `httpd` | 80 | via the Ingress (or `httpd.service.type`) | users, REST API, pollers' pullwss |
+| `httpd` | 80 (pod: 8080) | via the Ingress (or `httpd.service.type`) | users, REST API, pollers' pullwss |
 | `centreon-broker` | 5669 BBDO | `broker.service.type` (LoadBalancer in prod, raw TCP: no Ingress) | Central poller, remote pollers |
 | `cbd` | 51001 gRPC | never (ClusterIP, no auth, NetworkPolicy: Central poller pod only) | gorgone's reload after an export |
 | `gorgone-central` | 8085, 8087 | never (NetworkPolicy) | fpm, cron, config-delivery Job, httpd |
@@ -357,6 +357,18 @@ config delivery run again, and the broker pod restarts with the sidecar.
 | poller pods (engine gRPC) | 50155 | never (NetworkPolicy `<release>-pollers`: only 4317 reachable, from `networkPolicy.pollers.otelFrom`) | gorgone in the same pod |
 | `<release>-central-poller-hl`, `<release>-poller-<name>` | 50155 | never (headless: governing Services of the poller StatefulSets, pod DNS only) | none (pollers dial out) |
 | `db` | `database.port` (3306) | never | install, config-delivery, fpm, cron, autodiscovery worker, gorgone-central, broker |
+
+httpd runs as non-root: Alpine's www-data (82:82, `httpd.podSecurityContext`),
+listening on `httpd.containerPort` (8080). The Service keeps port 80 and
+targets the port by name, so `http://httpd:80` (fpm, the autodiscovery worker,
+the config-delivery Job, gorgone) and the Ingress do not change.
+`httpd.securityContext` drops all capabilities and sets
+`readOnlyRootFilesystem`. With it, `/tmp` (PidFile, readiness marker) is a
+memory emptyDir, and `conf/extra` is an emptyDir filled by the `seed-conf`
+init container from the image, because the entrypoint writes the vhost there
+at start. There is no fsGroup, because it would change the group of the media
+volume fpm shares. httpd only reads the media files, which fpm (Debian
+www-data 33) writes world-readable.
 
 The Ingress routes `host/` to httpd: UI, API and the pullwss websocket of
 pollers outside the cluster (`/centreon/gorgone/pullwss/websocket`). With
@@ -461,7 +473,7 @@ gorgone image (`10-create-config.sh`, centreon-collect).
   config-delivery Job POSTs `/api/centreon/nodes/sync` until the Central
   poller is connected.
 - **Probes.** fpm: startup + readiness on `/tmp/docker.ready`, liveness on
-  9000. httpd: readiness on `/tmp/docker.ready`, liveness on 80. broker:
+  9000. httpd: readiness on `/tmp/docker.ready`, liveness on 8080. broker:
   readiness = cbd listening on 5669 (read from `/proc/net/tcp`, no
   connection); its rrdcached sidecar: startup + readiness on PING.
   gorgone-central: readiness on 8087. Autodiscovery worker: startup on

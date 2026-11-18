@@ -38,6 +38,14 @@ ARG AUTODISCO_IMAGE=docker.centreon.com/centreon/centreon-autodisco-trixie:devel
 # engine_verifier below. Multi-arch, Debian trixie, same base family as
 # php:8.4-fpm, unlike AUTODISCO_IMAGE above: no --platform pin needed.
 ARG ENGINE_IMAGE=docker.centreon.com/centreon/centreon-engine-trixie:develop
+# cron is FROM this image (MON-215446, variant B): one shared PHP runtime and
+# app tree instead of a second copy. Default "fpm" resolves to this file's own
+# `fpm` stage below — local/compose builds (docker build/compose build, no
+# build-arg override) share nothing across separate `docker build` invocations
+# but still work standalone. CI overrides it with the just-published,
+# per-architecture fpm image pinned by digest (docker-central.yml), so the
+# cron image's manifest actually lists fpm's own layers — see that stage.
+ARG FPM_IMAGE=fpm
 
 #############################################
 # Stage 1: frontend build (pnpm / rspack)
@@ -456,38 +464,72 @@ RUN find . -type f \( -name '*.php' -o -name '*.ihtml' \) -delete && \
 
 #############################################
 # Stage 5 (final): httpd — static assets + reverse proxy to php-fpm
+#
+# httpd:2.4-alpine, non-root (MON-215446), not httpd:2.4 running as root.
+# Listen 8080, not 80: an unprivileged (>1024) port is what makes running as
+# www-data possible at all — the master process on port 80 needs root to
+# bind it, same reasoning this stage used to rely on for SEC-01 (see the old
+# comment this replaced, now at the end of this stage: it was correct for
+# why running as root was unavoidable AT PORT 80, not a blanket "Apache
+# can't run non-root"). The Service port stays 80 everywhere outside the
+# container (compose host mapping, k8s Service) — only the container's own
+# listening port changes, see docker-compose.yml/README for the env vars
+# and port mapping this moved. Measured: 61.9 -> 36.x MB compressed, CVE
+# 389/1C/115H -> 0 (apk's own package set carries none of the Debian CVE
+# backlog) — see the Obsidian notes "Docker web-split - Étude layout images
+# httpd, fpm, cron" and "- Étude serveur web httpd (Apache, nginx, Caddy)".
 #############################################
-FROM httpd:2.4 AS httpd
+FROM httpd:2.4-alpine AS httpd
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    bash -e <<'EOF'
-apt-get update
-apt-get install -y --no-install-recommends gettext-base
-rm -rf /var/lib/apt/lists/*
-EOF
+# gettext-envsubst: Alpine's own subset package for envsubst alone (used by
+# 10-config.sh), not the full gettext toolchain gettext-base pulls on
+# Debian.
+RUN apk add --no-cache gettext-envsubst
 
+# sh, not bash (MON-215446): Alpine ships none by default, unlike the
+# Debian stage this replaced — busybox's ash handles this heredoc and these
+# plain sed/ln commands fine, no GNU-specific syntax used here.
+#
 # headers/setenvif/alias are already loaded by this image by default; only
-# these are missing (see the pillar-1 page's Apache module list).
-RUN bash -e <<'EOF'
+# these are missing (see the pillar-1 page's Apache module list). Listen
+# 8080 and PidFile under /tmp: the master process no longer runs as root
+# (see USER below), so it can't bind <1024 or write to the image's own
+# /usr/local/apache2/logs (root-owned) for its pidfile.
+RUN sh -e <<'EOF'
 sed -i \
     -e 's/^#LoadModule deflate_module/LoadModule deflate_module/' \
     -e 's/^#LoadModule proxy_module/LoadModule proxy_module/' \
     -e 's/^#LoadModule proxy_fcgi_module/LoadModule proxy_fcgi_module/' \
     -e 's/^#LoadModule proxy_wstunnel_module/LoadModule proxy_wstunnel_module/' \
+    -e 's/^Listen 80$/Listen 8080/' \
     conf/httpd.conf
 echo 'ServerName localhost' >> conf/httpd.conf
 echo 'Include conf/extra/centreon.conf' >> conf/httpd.conf
+echo 'PidFile /tmp/httpd.pid' >> conf/httpd.conf
 ln -sf /dev/stdout logs/access_log
 ln -sf /dev/stderr logs/error_log
 EOF
 
+# www-data here is Alpine's own (UID/GID 82, not Debian's 33 — fpm/cron's
+# own www-data): this image has no shared volume with fpm/cron written as
+# that other UID, except centreon-media (compose/chart mounts it :ro here),
+# which must stay world-readable (not 750/640) for 82 to read what 33
+# wrote — already the case, confirmed by study-cron-fpm's own 18/18-check
+# prototype, not something this Dockerfile itself controls (fpm's own
+# upload code writes those files, not this stage).
 COPY --from=www_httpd_subset --chown=www-data:www-data \
     /usr/share/centreon/www /usr/share/centreon/www
 COPY --chown=www-data:www-data .github/docker/centreon-web-split/trixie/configuration/httpd/centreon.conf.template \
     /usr/local/apache2/conf/extra/centreon.conf.template
 COPY --chmod=755 .github/docker/centreon-web-split/trixie/entrypoint/httpd \
     /usr/local/lib/centreon-httpd/
+# 10-config.sh (entrypoint) resolves centreon.conf.template into
+# conf/extra/centreon.conf at container start — www-data (this stage's own
+# runtime USER, see below) needs write access to the directory it lands in,
+# the vhost's own <VirtualHost *:80> is now :8080 to match Listen above.
+RUN sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8080>/' \
+      conf/extra/centreon.conf.template && \
+    chown www-data:www-data conf/extra
 
 # ServerName/UseCanonicalName and the php-fpm upstream target are deployment-
 # specific (compose service name, k8s Service name, ...) — never bake a value
@@ -514,20 +556,25 @@ LABEL org.opencontainers.image.title="Centreon web (httpd)" \
       org.opencontainers.image.source="https://github.com/centreon/centreon" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.vendor="Centreon" \
-      org.centreon.base-image="httpd:2.4" \
+      org.centreon.base-image="httpd:2.4-alpine" \
       org.centreon.release-stage="alpha"
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
     CMD test -f /tmp/docker.ready || exit 1
 
-EXPOSE 80
+EXPOSE 8080
 
-# No explicit USER here on purpose (SEC-01): httpd's own master process needs
-# root to bind port 80 and fork workers, and already drops worker privilege
-# to www-data internally via the base image's User/Group directives — the
-# same reasoning the official httpd image itself relies on for not setting
-# USER. Setting USER www-data here would break the master process, not
-# harden it.
+# USER www-data (MON-215446): Listen 8080 (an unprivileged port, see above)
+# is what makes this possible at all — the previous comment here (now
+# obsolete) said the master process needed root to bind port 80 and fork
+# workers; that was true for port 80 specifically, not a general "Apache
+# can't run non-root" (see the Obsidian "Étude serveur web httpd" note: this
+# SEC-01 exception was never actually load-bearing, just port 80's own
+# >1024 rule). Workers already ran as www-data either way, via the base
+# image's own User/Group directives — only the master process's identity
+# changes here.
+USER www-data
+
 ENTRYPOINT ["/usr/local/lib/centreon-httpd/container.sh"]
 CMD ["httpd-foreground"]
 
@@ -573,8 +620,25 @@ EOF
 
 #############################################
 # Stage 6 (final): fpm — full application tree
+#
+# debian:trixie-slim, not php:${PHP_VERSION}-fpm (MON-215446): the official
+# image's own build toolchain ($PHPIZE_DEPS: gcc, g++, make, libc6-dev,
+# dpkg-dev, autoconf, re2c, pkg-config) and PHP sources stay fully downloaded
+# and stored even after the final apt-get purge below removes them from the
+# merged filesystem view — Docker layers are additive, so purging in this
+# stage never shrinks the layers it came in on. Measured: 269.2 -> 154.4 MB
+# compressed, same file tree (27105 entries, 0 content/mode/owner diffs
+# outside the 8 directories --chown/--chmod already fix up below), same
+# `php -m`, same Trivy result (591/7C/171H, identical CVE list) — see the
+# Obsidian note "Docker web-split - Étude layout images httpd, fpm, cron".
+# The compiled PHP runtime itself (php, php-fpm, every extension .so, the
+# resolved php-fpm.d/conf.d from fpm_extensions/app_assembler above) is taken
+# wholesale from fpm_extensions below (COPY --from=fpm_extensions
+# /usr/local/), which is still FROM php:${PHP_VERSION}-fpm — nothing here
+# recompiles PHP, this stage only drops the base image fpm_extensions itself
+# built on top of.
 #############################################
-FROM php:${PHP_VERSION}-fpm AS fpm
+FROM debian:trixie-slim AS fpm
 
 # Same fixed UIDs/GIDs as every other Centreon container image (see
 # centreon-collect/.github/docker/centreon-gorgone/trixie/Dockerfile) — for
@@ -599,11 +663,31 @@ usermod -aG centreon-gorgone,centreon www-data
 usermod -aG centreon,centreon-engine,centreon-broker,www-data centreon-gorgone
 EOF
 
-# Runtime libraries of the extensions built in fpm_extensions (from `ldd` on
-# each .so), plus the tools the entrypoint uses. mariadb-client-core, not
-# default-mysql-client: the entrypoint only runs `mysql`, and the full client
-# pulls Perl and ~80MB of admin tools (mysqldump is only used by
-# centreon-backup.pl, which runs in the cron image).
+# Runtime libraries for the whole /usr/local copied in below: both the
+# compiled PHP/php-fpm binaries themselves (debian:trixie-slim carries none
+# of php:${PHP_VERSION}-fpm's own dependencies) and the extensions built in
+# fpm_extensions (from `ldd` on each .so). Plus the tools the entrypoint
+# uses. mariadb-client-core, not default-mysql-client: the entrypoint only
+# runs `mysql`, and the full client pulls Perl and ~80MB of admin tools
+# (mysqldump is only used by centreon-backup.pl, which runs in the cron
+# image). ca-certificates: php:fpm's own base ships it (used by curl/gnupg
+# at runtime — plugin-pack and license checks), but it lives under /etc, not
+# /usr/local, so the wholesale COPY below doesn't carry it across.
+#
+# The first 9 packages were already required before this rebase (the
+# extensions this image itself builds); everything after them is new,
+# covering php:${PHP_VERSION}-fpm's OWN runtime (php, php-fpm and PHP's
+# built-in extensions: openssl, curl, mbstring, xml, sodium, readline...),
+# which debian:trixie-slim doesn't ship and the base php:fpm image used to
+# provide for free. Derived empirically, not guessed: `ldd` on
+# /usr/local/bin/php, /usr/local/sbin/php-fpm and every extension .so from
+# the real CI fpm image, diffed against what debian:trixie-slim already has
+# (`ldconfig -p`), each missing library mapped back to its owning package via
+# `dpkg -S` inside that same CI image. Confirmed complete with a throwaway
+# build of this exact list (same packages, same wholesale /usr/local COPY,
+# same ldd/php -m checks as below) — no missing library, no missing
+# extension. The ldd check further down still runs on every real build, to
+# catch a future omission instead of trusting this list blindly.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     bash -e <<'EOF'
@@ -611,11 +695,24 @@ apt-get update
 apt-get install -y --no-install-recommends \
     libicu76 libldap2 libsnmp40t64 libzip5 libpng16-16t64 \
     libjpeg62-turbo libwebp7 libfreetype6 libgpgme11t64 \
-    mariadb-client-core rrdtool gettext-base
+    mariadb-client-core rrdtool gettext-base ca-certificates \
+    libargon2-1 libassuan9 libbrotli1 libcom-err2 libcurl4t64 libffi8 \
+    libgnutls30t64 libgpg-error0 libgssapi-krb5-2 libidn2-0 libk5crypto3 \
+    libkeyutils1 libkrb5-3 libkrb5support0 libnghttp2-14 libnghttp3-9 \
+    libonig5 libp11-kit0 libpsl5t64 libreadline8t64 librtmp1 libsasl2-2 \
+    libsharpyuv0 libsodium23 libssh2-1t64 libtasn1-6 libunistring5 libxml2
+rm -rf /var/lib/apt/lists/*
 EOF
 
-COPY --from=fpm_extensions --link /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
-COPY --from=fpm_extensions --link /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
+# The whole compiled PHP runtime (docker-library build): php, php-fpm, its
+# default php-fpm.d/conf.d (still the stock `www` pool at this point — the
+# centreon pool replaces it and the stock files are removed further below,
+# same as before this rebase), every extension .so. Replaces this stage's
+# own base image, not just its extensions, so no COPY --chown needed here —
+# ownership of the PHP runtime itself doesn't matter, only the app tree
+# below runs as www-data.
+COPY --from=fpm_extensions --link /usr/local/ /usr/local/
+RUN ldconfig
 
 COPY --from=app_assembler --chown=www-data:www-data \
     /usr/share/centreon /usr/share/centreon
@@ -642,11 +739,15 @@ COPY --from=packs_fetcher --link /packs/extracted/usr/share/centreon-packs/ \
 # found by actually hitting the failing code path, not by the build failing)
 # — fail the build itself instead of shipping an image where either silently
 # didn't load.
-# Same for the extensions copied from fpm_extensions: a missing runtime
-# library only shows up as a PHP startup warning, so check ldd and the
-# loaded module list here.
+# Same for the extensions copied from fpm_extensions, AND for the php/
+# php-fpm binaries themselves (MON-215446: this stage no longer inherits
+# php:${PHP_VERSION}-fpm, so their own runtime libraries are this image's
+# responsibility now too, see the apt-get install above) — a missing
+# runtime library only shows up as a PHP startup warning or a hard crash, so
+# check ldd and the loaded module list here.
 RUN bash -eo pipefail <<'EOF'
-for so in "$(php -r 'echo ini_get("extension_dir");')"/*.so; do
+for so in /usr/local/bin/php /usr/local/sbin/php-fpm \
+    "$(php -r 'echo ini_get("extension_dir");')"/*.so; do
   if ldd "$so" | grep 'not found'; then echo "missing runtime library for $so" >&2; exit 1; fi
 done
 mods=$(php -m 2>&1)
@@ -655,6 +756,18 @@ for ext in gd gettext gnupg intl ldap mysqli pcntl pdo_mysql redis snmp sysvsem 
   grep -qix "$ext" <<<"$mods" || { echo "$ext extension not loaded" >&2; exit 1; }
 done
 grep -qi 'SourceGuardian' <<<"$(php -v)" || { echo "SourceGuardian loader not active" >&2; exit 1; }
+# gnupg loading (checked above) isn't enough: the extension itself shells
+# out to the `gpg` binary via gpgme, which neither `ldd` nor `php -m` can
+# see (study-cron-fpm, cross-checking this package list) — "loaded, but
+# every real call fails" is a real, silent failure mode here, not a
+# hypothetical: `gpg` is NOT in this stage's own apt list above, it only
+# arrives transitively (libgpgme11t64 Depends: gpg, confirmed via `apt-cache
+# depends`) and loads fine either way (`php -m` shows gnupg whether or not
+# `gpg` is actually installed) — only an actual call proves it. Without
+# `gpg`, `keyinfo()` fails with "could not init keylist" instead of
+# returning an array. Catches a future Debian repackaging that drops that
+# transitive pull silently, instead of the next real license upload doing it.
+php -r '$k = (new gnupg())->keyinfo(""); if (!is_array($k)) { fwrite(STDERR, "gnupg keyinfo() failed - no working gpg binary?\n"); exit(1); }'
 EOF
 
 COPY --chown=www-data:www-data .github/docker/centreon-web-split/trixie/configuration/fpm/centreon.ini.template \
@@ -804,21 +917,15 @@ ENV CENTREON_INTERNAL_API_BASE_URL=http://centreon-httpd:80
 # which Symfony would read as a path.
 ENV FILE_FEATURE_FLAGS=/usr/share/centreon/config/features.json
 
-# The official php:8.4-fpm base image keeps its own build toolchain
-# ($PHPIZE_DEPS: gcc, g++, make, libc6-dev, dpkg-dev, autoconf, re2c,
-# pkg-config) installed — confirmed directly on the base image itself, not
-# assumed. libc6-dev alone pulls linux-libc-dev, which by itself accounted
-# for all 611 OS CVEs (45 HIGH/CRITICAL) Trivy found on this image. Every
-# PHP extension this image ships is compiled in the separate fpm_extensions
-# stage above and copied in as a prebuilt .so (see the COPY --from=
-# fpm_extensions block above) — nothing in this final stage ever compiles
-# anything, so the toolchain this base image carries is pure dead weight
-# here. Purge last, right before the final php-fpm/php -m sanity checks
-# below, so a build-time failure here still proves nothing *runtime* broke:
-# --auto-remove also drops linux-libc-dev (only pulled in by libc6-dev), but
-# named explicitly too as a safety net in case that dependency chain ever
-# changes upstream.
-RUN apt-get purge -y --auto-remove $PHPIZE_DEPS libc6-dev linux-libc-dev
+# MON-215446: no build-toolchain purge here anymore. The official
+# php:8.4-fpm base image used to keep its own build toolchain ($PHPIZE_DEPS:
+# gcc, g++, make, libc6-dev, dpkg-dev, autoconf, re2c, pkg-config) installed
+# — libc6-dev alone pulled linux-libc-dev, which by itself accounted for all
+# 611 OS CVEs (45 HIGH/CRITICAL) Trivy found on the pre-rebase image — but
+# this stage is debian:trixie-slim now, was never going to carry that
+# toolchain in the first place, and never compiles anything (every PHP
+# extension is built in the separate fpm_extensions stage and copied in as
+# a prebuilt .so, see the COPY --from=fpm_extensions block above).
 
 RUN php-fpm -t
 
@@ -834,7 +941,7 @@ LABEL org.opencontainers.image.title="Centreon web (php-fpm)" \
       org.opencontainers.image.source="https://github.com/centreon/centreon" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.vendor="Centreon" \
-      org.centreon.base-image="php:8.4-fpm" \
+      org.centreon.base-image="debian:trixie-slim" \
       org.centreon.release-stage="alpha"
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
@@ -852,34 +959,34 @@ ENTRYPOINT ["/usr/local/lib/centreon-fpm/container.sh"]
 CMD ["php-fpm"]
 
 #############################################
-# Stage 6b: application tree for the cron image, without the compiled front
-# (www/static): the cron jobs are PHP/Perl scripts, nothing serves assets.
-# Removed here, not after the COPY in the cron stage: layers are additive.
-#############################################
-FROM app_assembler AS app_cron
-RUN rm -rf /usr/share/centreon/www/static
-
-#############################################
 # Stage 7 (final): cron — scheduled jobs real RPM/DEB installs get for free
 # via /etc/cron.d/{centreon,centstorage} + the cronie/cron package dependency
 # (packaging/centreon-web.yaml), never ported to this split image before now
 # (Fabien: "petit détail qu'on a jamais géré"). A dedicated image/container,
 # not folded into fpm: 2 of the jobs are Perl (eventReportBuilder,
-# dashboardBuilder) — fpm has no Perl at all and has no reason to — and a
-# persistent scheduler daemon inside fpm would multiply
-# per fpm replica if that image is ever scaled (the same class of problem
-# INSTALL_DB_STEPS exists to avoid for the install step). On k8s, this
-# image's jobs should become native CronJob resources with `command`
+# dashboardBuilder), and a persistent scheduler daemon inside fpm would
+# multiply per fpm replica if that image is ever scaled (the same class of
+# problem INSTALL_DB_STEPS exists to avoid for the install step). On k8s,
+# this image's jobs should become native CronJob resources with `command`
 # overriding `cron -f` to invoke one script directly — no daemon needed
 # there, the cluster's own scheduler replaces cron entirely.
-#
-# Debian's own PHP 8.4 (packages, nothing compiled) on debian:trixie-slim,
-# not the official php image: that one keeps its build toolchain (gcc, g++,
-# headers, PHP sources: ~300MB) for docker-php-ext-install, useless for
-# running scripts. The SourceGuardian loader is the Debian
-# php8.4-sourceguardian-loader build, so it matches this PHP.
 # centreon-backup.pl is not supported (no MariaDB client, no mysqldump): back
 # up the database and the volumes instead.
+#
+# MON-215446, variant B: FROM the fpm image (FPM_IMAGE, default "fpm" — see
+# that ARG's own comment above), not a second debian:trixie-slim + Debian
+# PHP 8.4 packages build. One shared PHP runtime (docker-library build, same
+# as fpm) and one shared app tree instead of two independent copies (−85 MB
+# per node that runs both roles — see the Obsidian note). Already present
+# from fpm, nothing to redo here: the `centreon`/`centreon-engine`/
+# `centreon-broker`/`centreon-gorgone` users (www-data already in the
+# `centreon` group too), the full /usr/share/centreon app tree (including
+# www/static — unused here but not worth a second COPY+rm to strip, see the
+# Obsidian note's measured delta), centengine + its packs, and the
+# SourceGuardian loader + its conf.d ini (shared by the CLI and fpm SAPIs via
+# the same /usr/local/etc/php/conf.d scan dir). The only things this stage
+# still needs on top: cron + Perl, procps (a real gap found only by waiting
+# for a scheduled run, see below), and a CLI php.ini (ditto).
 #############################################
 # Centreon Perl modules (centreon-collect perl-libs/lib), for the Perl jobs
 # (eventReportBuilder/dashboardBuilder: centreon::script::*). Intentionally
@@ -888,27 +995,19 @@ RUN rm -rf /usr/share/centreon/www/static
 # build fails instead of mixing in Perl modules from another collect branch.
 FROM scratch AS perl-libs
 
-FROM debian:trixie-slim AS cron
+FROM ${FPM_IMAGE} AS cron
 
-# Same UID/GID setup as fpm (volume/ownership consistency) — only `centreon`
-# is actually needed here (these jobs never touch engine/broker/gorgone
-# paths), but kept identical to fpm's block rather than a trimmed-down copy
-# that could silently drift. www-data already exists in this base image
-# (inherited from Debian, not created by fpm's own block either) — added to
-# the `centreon` group so @WEB_USER@ (www-data) cron lines can still read
-# the @CENTREON_USER@-owned /etc/centreon/centreon.conf.php below (mode 640).
-RUN bash -e <<'EOF'
-groupadd -g 900 centreon
-useradd -u 900 -g centreon -M -r -l -d /var/spool/centreon -s /usr/sbin/nologin centreon
-usermod -aG centreon www-data
-EOF
-
-# Same PHP extension set as fpm (the PHP cron scripts reuse the exact same
-# legacy class library, e.g. CentreonDB), plus `cron` itself and the Perl
-# stack 2 of the jobs need. No MySQL client: the PHP jobs use PDO and the
-# Perl ones DBI. `ps` comes with ucf (pulled by the php8.4 packages): the
-# Perl jobs' lock relies on it, see container.sh for the stale-lock release a
-# container needs (same PID on every run).
+# PHP extensions the cron jobs need are already on this image (inherited
+# from fpm: gd, intl, ldap, snmp, zip, mysqli/pdo_mysql, plus every built-in
+# — see the build-time check further down). Only `cron` itself and the Perl
+# stack 2 of the jobs need are new here. No MySQL client: the PHP jobs use
+# PDO and the Perl ones DBI. procps (`ps`): used to come for free with
+# Debian's php8.4 packages (pulled in by ucf) when this stage had its own
+# PHP install — lost when that was replaced by FROM fpm, and genuinely
+# needed, not cosmetic: the Perl jobs' SQL lock (centreon::common::lock::sql)
+# shells out to `ps` to detect a stale PID from a previous run (see
+# container.sh). Found only by actually running a Perl job for real, not by
+# the build succeeding.
 #
 # The Perl modules come from the perl-libs stage; their runtime dependencies
 # are the Depends of the centreon-perl-libs and centreon-perl-libs-common
@@ -930,11 +1029,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     bash -e <<'EOF'
 apt-get update
-apt-get install -y --no-install-recommends \
-    php8.4-cli php8.4-mysql php8.4-intl php8.4-ldap php8.4-snmp php8.4-zip \
-    php8.4-gd php8.4-xml php8.4-mbstring php8.4-curl php8.4-sqlite3 \
-    php8.4-readline php8.4-opcache \
-    cron curl ca-certificates gnupg
+apt-get install -y --no-install-recommends cron procps curl ca-certificates gnupg
 curl -sfL https://apt-key.centreon.com/ | gpg --dearmor > /etc/apt/trusted.gpg.d/centreon.gpg
 echo "deb https://packages.centreon.com/plugins/apt-stable/ trixie main" \
   > /etc/apt/sources.list.d/centreon-plugins-stable.list
@@ -983,29 +1078,29 @@ account  required   pam_permit.so
 session  required   pam_permit.so
 EOF
 
-# Full application tree (same source as fpm/httpd): the PHP cron scripts
-# reuse Centreon's legacy class library directly (require_once ../config/
-# centreon.config.php, www/class/*), and the Perl scripts live in the same
-# cron/ directory. From app_cron: the same tree without www/static.
-COPY --from=app_cron --chown=www-data:www-data \
-    /usr/share/centreon /usr/share/centreon
-
-# Same SourceGuardian loader as fpm (see that stage for the full story) —
-# needed here too, found only by waiting for a real scheduled run:
-# centKnowledgeSynchronizer.php's own DI container bootstrap autoloads
-# CentreonAutoDiscovery\ServiceProvider (a T0 module's SourceGuardian-encoded
-# class) regardless of what that specific job actually does, same shared
-# legacy bootstrap as fpm. gnupg (fpm's other PECL extension) is NOT needed
-# here — nothing in the cron jobs touches license upload/verification.
-# Debian's own extension dir (API 20240924) and CLI conf.d.
-COPY --from=modules_fetcher --link /modules/extracted/usr/lib/php/20240924/ixed.8.4.lin \
-    /usr/lib/php/20240924/ixed.8.4.lin
-COPY <<EOF /etc/php/8.4/cli/conf.d/05-sourceguardian.ini
-zend_extension = /usr/lib/php/20240924/ixed.8.4.lin
+# CLI php.ini: without one, docker-library PHP falls back to its compiled-in
+# defaults (memory_limit=128M, display_errors=1, error_reporting=E_ALL,
+# log_errors=0, short_open_tag=1) — a real behavioural regression against
+# the Debian php8.4-cli package this replaced (production defaults,
+# memory_limit=-1), found only by diffing `php -i` output, not by anything
+# failing outright. php.ini-production ships with every docker-library PHP
+# build (fpm's own stage never activates it — php-fpm gets its settings
+# from container.d/01-config.sh instead), zz-cron-cli.ini on top for the one
+# setting that still needs to differ from the packaged production defaults
+# (large reporting jobs need unbounded memory, same reasoning as fpm's own
+# PHP_MEMORY_LIMIT).
+RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
+COPY <<EOF /usr/local/etc/php/conf.d/zz-cron-cli.ini
+memory_limit = -1
 EOF
-# Build-time check: the same PHP modules as the official-image build this
-# replaced (a missing one only shows up when a job hits it), no startup
-# warning, SourceGuardian active.
+
+# Build-time check: every PHP module the cron jobs need is already loaded
+# (inherited from fpm's own docker-library PHP build, see that stage) — no
+# startup warning, SourceGuardian active. Same list as the Debian php8.4-*
+# build this replaced: study-cron-fpm's prototype confirmed every one of
+# these still resolves (plus gnupg/redis gained from fpm, and calendar/exif/
+# ffi/ftp/shmop/sockets/sysvmsg/sysvshm/xsl dropped — none of which were
+# ever required here).
 RUN bash -eo pipefail <<'EOF'
 mods=$(php -m 2>&1)
 if grep -i 'warning' <<<"$mods"; then echo "PHP startup warning" >&2; exit 1; fi
@@ -1018,20 +1113,14 @@ done
 grep -qi 'SourceGuardian' <<<"$(php -v)" || { echo "SourceGuardian loader not active" >&2; exit 1; }
 EOF
 
-# Same install-fixture JSON fpm's own container.sh reads (www/install/tmp/
-# database.json) — fpm gets this via its own direct COPY from the build
-# context (not part of app_assembler's output, see the fpm stage above),
-# needed here too since container.sh (this stage's own entrypoint) derives
-# this container's local centreon.conf.php/conf.pm from the same file.
-COPY --chown=www-data:www-data .github/docker/centreon-web/trixie/configuration \
-    /usr/share/centreon/www/install/tmp
-
 COPY --chmod=755 .github/docker/centreon-web-split/trixie/entrypoint/cron \
     /usr/local/lib/centreon-cron/
 
-# PHP's date.timezone, written by container.sh. Must match fpm's PHP_TIMEZONE
-# (the timezone the install created the database partitions in).
-ENV PHP_TIMEZONE=UTC
+# PHP_TIMEZONE, the install-fixture JSON at www/install/tmp and
+# CENTREON_INTERNAL_API_BASE_URL/FILE_FEATURE_FLAGS are all already set by
+# the fpm stage this one is FROM — not redeclared here, same values apply
+# (container.sh writes date.timezone from PHP_TIMEZONE itself, see that
+# script; the last two env vars are unused by cron but harmless to inherit).
 
 ARG BUILD_DATE
 ARG BUILD_VERSION=unknown
@@ -1045,12 +1134,17 @@ LABEL org.opencontainers.image.title="Centreon web (cron)" \
       org.opencontainers.image.source="https://github.com/centreon/centreon" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.vendor="Centreon" \
-      org.centreon.base-image="debian:trixie-slim" \
+      org.centreon.base-image="centreon-web-split-fpm-trixie (variant B, see FPM_IMAGE)" \
       org.centreon.release-stage="alpha"
 
-# No HEALTHCHECK: cron itself has no request/port to probe. `docker compose
-# ps`'s own Up/Restarting state already reflects whether the daemon is
-# alive (same reasoning a plain systemd cron unit would give you on a VM).
+# HEALTHCHECK NONE: cron itself has no request/port to probe (`docker
+# compose ps`'s own Up/Restarting state already reflects whether the daemon
+# is alive, same reasoning a plain systemd cron unit would give you on a
+# VM) — and, now that this stage is FROM fpm (MON-215446), NOT optional
+# anymore: without it, this image would silently inherit fpm's own
+# `/tmp/docker.ready`-based HEALTHCHECK, which cron's own container.sh never
+# creates, permanently reporting unhealthy.
+HEALTHCHECK NONE
 
 # No explicit USER here on purpose (SEC-01), same class of exception as
 # fpm/httpd: cron's own daemon needs root to switch to each cron.d line's
@@ -1058,6 +1152,12 @@ LABEL org.opencontainers.image.title="Centreon web (cron)" \
 # of /etc/cron.d's per-line user column, not something a non-root PID 1
 # could do itself.
 ENTRYPOINT ["/usr/local/lib/centreon-cron/container.sh"]
+# Must be reset: without it, this stage would silently inherit fpm's own
+# CMD ["php-fpm"] (FROM fpm, MON-215446) — container.sh treats any non-empty
+# argv as "run this one job and exit" (see that script), so a cron container
+# started with no explicit command would try to exec php-fpm as its main
+# process instead of starting the cron daemon.
+CMD []
 
 #############################################
 # Stage (final): rrdcached — TCP write-cache sidecar for centreon-broker's
