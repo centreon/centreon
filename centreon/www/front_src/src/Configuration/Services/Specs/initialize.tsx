@@ -220,22 +220,12 @@ const initialize = ({
     response: getContactGroupsResponse()
   });
 
-  // Service 0 carries notification settings, service 1 none, service 2 some.
-  [0, 1, 2].forEach((id) => {
-    interceptAPIRequest({
-      alias: `updateService${id}`,
-      method: Method.PUT,
-      path: `**${getServiceEndpoint({ id })}`,
-      response: {}
-    });
-  });
-
-  // Enable and disable are a partial update of the service, one request each.
+  // Enable, disable and edit are a partial update, answered without a body.
   [0, 1, 2].forEach((id) => {
     interceptRequest(
       Method.PATCH,
       `**${getServiceEndpoint({ id })}`,
-      () => HttpResponse.json({}),
+      () => new HttpResponse(null, { status: 204 }),
       `patchService${id}`
     );
   });

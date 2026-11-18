@@ -287,7 +287,7 @@ export default () => {
 
     await save();
 
-    const { request } = await waitForRequest('@updateService0');
+    const { request } = await waitForRequest('@patchService0');
 
     expect((request.body as { check_options: unknown }).check_options).toEqual({
       args: ['80', '90'],

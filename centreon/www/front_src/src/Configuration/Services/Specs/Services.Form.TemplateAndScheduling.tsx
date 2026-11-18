@@ -181,9 +181,8 @@ export default () => {
 
       await save();
 
-      const body = await getRequestBody('@updateService0');
+      const body = await getRequestBody('@patchService0');
 
-      // The update replaces the whole service, its activation included.
       expectOnlyApiKeys(body, updateServiceKeys);
       expect(body).toMatchObject({
         activated: true,
@@ -227,7 +226,7 @@ export default () => {
 
       await save();
 
-      const body = await getRequestBody('@updateService1');
+      const body = await getRequestBody('@patchService1');
 
       expect(body.service_template_id).toBeNull();
       expect(body.monitoring_engine).toMatchObject(defaultScheduling);
@@ -249,7 +248,7 @@ export default () => {
 
       await save();
 
-      const body = await getRequestBody('@updateService0');
+      const body = await getRequestBody('@patchService0');
 
       expect(body.service_template_id).toBeNull();
     });

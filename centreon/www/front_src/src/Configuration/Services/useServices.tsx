@@ -56,9 +56,8 @@ const getApi = (context: PlatformContext): APIType => ({
   methods: {
     disable: Method.PATCH,
     enable: Method.PATCH,
-    // The form sends the whole service, where enable and disable send only
-    // `activated`.
-    update: Method.PUT
+    // A partial update: a key the form leaves out keeps its stored value.
+    update: Method.PATCH
   },
   writeBaseEndpoint: servicesBaseEndpoint
 });
