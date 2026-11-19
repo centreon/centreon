@@ -99,6 +99,14 @@ The guides show how to apply the records; the code examples live there.
 | [0014](0014-apip-one-aggregate-per-command.md)               | Change one aggregate per command, and let other aggregates react through events           | APIP  | Accepted |
 | [0020](0020-apip-let-the-command-bus-own-the-transaction.md) | Let the command bus own the transaction, and keep handlers free of transaction management | APIP  | Accepted |
 
+## Error handling
+
+| ADR | Decision | Status |
+|---|---|---|
+| [0073](0073-apip-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every `json_encode()` and `json_decode()` call in `src/App` | Accepted |
+| [0074](0074-core-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in `src/Core` | Accepted |
+| [0075](0075-legacy-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in legacy code | Accepted |
+
 ## Security
 
 | ADR                                                                                        | Decision                                                                                     | Scope  | Status   |
