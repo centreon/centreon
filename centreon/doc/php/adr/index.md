@@ -110,11 +110,15 @@ The guides show how to apply the records; the code examples live there.
 
 ## Error handling
 
-| ADR | Decision | Status |
-|---|---|---|
-| [0073](0073-apip-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every `json_encode()` and `json_decode()` call in `src/App` | Accepted |
-| [0074](0074-core-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in `src/Core` | Accepted |
-| [0075](0075-legacy-pass-json-throw-on-error-to-every-json-call.md) | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in legacy code | Accepted |
+| ADR                                                                        | Decision                                                                                        | Scope  | Status   |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------ | -------- |
+| [0062](0062-apip-never-silence-an-error-with-the-at-operator.md)           | Never silence an error with the `@` operator in `src/App`                                       | APIP   | Accepted |
+| [0073](0073-apip-pass-json-throw-on-error-to-every-json-call.md)           | Pass `JSON_THROW_ON_ERROR` to every `json_encode()` and `json_decode()` call in `src/App`       | APIP   | Accepted |
+| [0063](0063-core-never-silence-an-error-with-the-at-operator.md)           | Never silence an error with the `@` operator in `src/Core`                                      | Core   | Accepted |
+| [0067](0067-core-build-src-core-exceptions-with-named-static-factories.md) | Build `src/Core` exceptions with named static factories                                         | Core   | Accepted |
+| [0074](0074-core-pass-json-throw-on-error-to-every-json-call.md)           | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in `src/Core`  | Core   | Accepted |
+| [0064](0064-legacy-never-silence-an-error-with-the-at-operator.md)         | Never silence an error with the `@` operator in legacy code                                     | Legacy | Accepted |
+| [0075](0075-legacy-pass-json-throw-on-error-to-every-json-call.md)         | Pass `JSON_THROW_ON_ERROR` to every new `json_encode()` and `json_decode()` call in legacy code | Legacy | Accepted |
 
 ## Security
 
@@ -127,15 +131,6 @@ The guides show how to apply the records; the code examples live there.
 | [0048](0048-core-drop-the-driver-exception-when-a-repository-write-of-a-secret-fails.md)   | Drop the driver exception when a `src/Core` repository write of a secret fails               | Core   | Accepted |
 | [0022](0022-legacy-escape-at-www-html-output.md)                                           | Escape user-controlled and database-sourced strings at the point of `www/` HTML output       | Legacy | Accepted |
 | [0049](0049-legacy-drop-the-driver-exception-when-a-repository-write-of-a-secret-fails.md) | Drop the driver exception when a legacy repository write of a secret fails                   | Legacy | Accepted |
-
-## Error handling
-
-| ADR                                                                        | Decision                                                    | Scope  | Status   |
-| -------------------------------------------------------------------------- | ----------------------------------------------------------- | ------ | -------- |
-| [0062](0062-apip-never-silence-an-error-with-the-at-operator.md)           | Never silence an error with the `@` operator in `src/App`   | APIP   | Accepted |
-| [0063](0063-core-never-silence-an-error-with-the-at-operator.md)           | Never silence an error with the `@` operator in `src/Core`  | Core   | Accepted |
-| [0067](0067-core-build-src-core-exceptions-with-named-static-factories.md) | Build `src/Core` exceptions with named static factories     | Core   | Accepted |
-| [0064](0064-legacy-never-silence-an-error-with-the-at-operator.md)         | Never silence an error with the `@` operator in legacy code | Legacy | Accepted |
 
 ## Static analysis
 
