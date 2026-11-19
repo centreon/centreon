@@ -21,11 +21,11 @@ Settled in [#12663](https://github.com/centreon/centreon/pull/12663).
 
 **Do not use the `@` error-control operator.** Handle the failure explicitly instead: check the precondition before the call, test the return value and throw an exception that names the operation, or use an API that throws, such as Symfony's `Filesystem`.
 
-**The only exception is a deprecation notice**, `@trigger_error($message, E_USER_DEPRECATED)`, which is the PHP and Symfony idiom: the notice reaches the deprecation log and stays silent elsewhere.
+**The only exception is a deprecation notice**, `@trigger_error($message, E_USER_DEPRECATED)`, which is the PHP and Symfony idiom: the notice reaches the deprecation log where Symfony's `ErrorHandler` is registered, and stays silent elsewhere.
 
 ## Consequences
 
-- A failed call surfaces with its cause instead of being ignored.
+- A failed call surfaces instead of being ignored: the warning, no longer silenced, carries its cause, and the exception names the operation.
 - Existing `@` calls stay until their line is touched.
 - The rule follows [ADR-0062](0062-apip-never-silence-an-error-with-the-at-operator.md).
 - The rule is enforced in review: a search for `@` before a call is only a heuristic, and a hit is confirmed by reading the code.

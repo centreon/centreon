@@ -6,7 +6,7 @@
 
 ## Context
 
-deptrac does not parse PHPStan type aliases: it reads a `@phpstan-type` or `@phpstan-import-type` name as a class it cannot place in any layer, and reports it. `deptrac_hexa.yaml` and `deptrac_bc.yaml` therefore collect every name ending in `TypeAlias` in a layer that every layer may use. An alias named otherwise fails `backend-lint`, and the error does not say why.
+deptrac does not parse PHPStan type aliases: it reads a `@phpstan-type` or `@phpstan-import-type` name as a class it cannot place in any layer, and reports it. `deptrac_hexa.yaml` and `deptrac_bc.yaml` therefore collect every name ending in `TypeAlias` in a layer that every `src/App` layer and context may use. An alias named otherwise fails `backend-lint`, and the error does not say why.
 
 Two alternatives were weighed:
 
