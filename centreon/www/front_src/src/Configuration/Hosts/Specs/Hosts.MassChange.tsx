@@ -142,6 +142,11 @@ export default () => {
         screen.getByTestId(`host-form-notifications-options-${labelDown}`)
       );
 
+      // The hosts PATCH takes no Removal.
+      expect(
+        screen.queryByTestId('host-form-update-mode-categories-removal')
+      ).not.toBeInTheDocument();
+
       // Replacement with nothing picked clears the categories.
       await userEvent.click(
         screen.getByTestId('host-form-update-mode-categories-replacement')

@@ -24079,3 +24079,17 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
+
+
+#: centreon/www/install/front_translate.php
+msgid "Lists set to Replace will overwrite the corresponding lists of all selected services. If you leave a list set to Replace blank, its existing entries will be deleted from all selected services. Entries you don't have access to are unaffected."
+msgstr ""
+
+
+#: centreon/www/install/front_translate.php
+msgid "\"None\" can't be combined with other options. Set this list to Replace, or services with other options won't be updated."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
+msgstr ""
