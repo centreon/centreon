@@ -76,6 +76,20 @@ export const labelEventHandlerEnabled = 'Enable event handler';
 // Legacy's label for the arguments of the check command and the event handler.
 export const labelArgs = 'Args';
 export const labelSeconds = 'seconds';
+export const labelEventHandlerArgumentsNeedAnEventHandler =
+  'No event handler selected';
+export const labelForbiddenEventHandlerArguments =
+  'The following arguments are not valid: {{arguments}}';
+// The on-premise directives of a service (legacy msgids).
+export const labelMiscellaneous = 'Miscellaneous';
+export const labelObsessOverService = 'Obsess Over Service';
+export const labelRetainStatusInformation = 'Retain Status Information';
+export const labelRetainNonStatusInformation = 'Retain Non Status Information';
+export const labelStalkingOptions = 'Stalking Options';
+export const labelOk = 'Ok';
+export const labelWarning = 'Warning';
+export const labelUnknown = 'Unknown';
+export const labelCritical = 'Critical';
 // The unit of the delays the engine counts in intervals of one minute.
 export const labelTimesSixtySeconds = '* 60 seconds';
 

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
+  labelCritical,
   labelDefault,
   labelLinkedContactGroups,
   labelLinkedContacts,
@@ -11,15 +12,14 @@ import {
   labelNo,
   labelNone,
   labelNotifications,
+  labelUnknown,
+  labelWarning,
   labelYes
 } from '../../ResourceForm/translatedLabels';
 import {
-  labelCritical,
   labelDowntimeScheduled,
   labelFlapping,
-  labelRecovery,
-  labelUnknown,
-  labelWarning
+  labelRecovery
 } from '../translatedLabels';
 import initialize from './initialize';
 import { untouchedNotificationsPayload } from './utils';

@@ -8,6 +8,13 @@ import {
 } from '../../../ResourceForm/blocks';
 import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
 import {
+  getAcknowledgmentTimeoutBlock,
+  getEventHandlerBlock,
+  getFlappingBlock,
+  getFreshnessBlock,
+  getObsessRetainAndStalkingBlock
+} from '../../../ResourceForm/fieldBlocks/dataProcessing';
+import {
   getActionUrlAndGeoCoordinatesBlock,
   getCommentBlock,
   getNotesAndIconsBlock
@@ -28,13 +35,17 @@ import { getSeverityBlock } from '../../../ResourceForm/fieldBlocks/severity';
 import type {
   Blocks,
   DetailOfBlocks,
+  FormValues,
   PlatformContext,
   ResourceOptions,
   SectionContext
 } from '../../../ResourceForm/models';
 import {
+  labelCritical,
   labelNone,
-  labelRequired
+  labelRequired,
+  labelUnknown,
+  labelWarning
 } from '../../../ResourceForm/translatedLabels';
 import {
   serviceFormCommandsEndpoint,
@@ -52,15 +63,13 @@ import {
   serviceTemplatesEndpoint
 } from '../../api/endpoints';
 import {
-  labelCritical,
   labelDowntimeScheduled,
   labelFlapping,
+  labelMustBeIntegerBetweenZeroAndOneHundred,
   labelRecovery,
   labelServiceCategories,
   labelServiceGroups,
-  labelServiceSeverity,
-  labelUnknown,
-  labelWarning
+  labelServiceSeverity
 } from '../../translatedLabels';
 import { getGraphTemplateBlock } from '../blocks/graphTemplate';
 import { getServiceIdentityBlock } from '../blocks/serviceIdentity';
@@ -79,7 +88,7 @@ const resource = serviceResource;
 // Where the services API keeps what the host API calls its scheduling options
 // and most of its extended informations.
 const monitoringEngineGroup = 'monitoring_engine';
-// And where it keeps the comment, with the data processing.
+// And where it keeps the data processing, and the comment with it.
 const advancedGroup = 'advanced';
 
 // Legacy `w,u,c,r,f,s,n`, as the services API spells them.
@@ -92,6 +101,14 @@ const serviceNotificationOptions: NotificationOptions = [
   [labelDowntimeScheduled, 'downtime_scheduled'],
   [labelNone, 'none']
 ];
+
+// As the service detail says (`Command::isCentreonMonitoringAgent()`).
+const hasCentreonMonitoringAgentCommand = (values: FormValues): boolean =>
+  (
+    values.checkOptions as {
+      command?: { isCentreonMonitoringAgent?: boolean } | null;
+    } | null
+  )?.command?.isCentreonMonitoringAgent === true;
 
 // A value, unless the row is still what the service inherits (not sent) or a
 // stored password left as is (sent as null, the server keeps it).
@@ -208,6 +225,27 @@ export const blocks = [
     resource,
     timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
   }),
+  getEventHandlerBlock({
+    apiGroup: advancedGroup,
+    commandsEndpoint: serviceFormCommandsEndpoint,
+    resource,
+    withArgumentsRules: true
+  }),
+  getFreshnessBlock({
+    apiGroup: advancedGroup,
+    isForced: hasCentreonMonitoringAgentCommand,
+    resource
+  }),
+  getAcknowledgmentTimeoutBlock({ apiGroup: advancedGroup, resource }),
+  getFlappingBlock({
+    apiGroup: advancedGroup,
+    maxThreshold: {
+      max: 100,
+      message: labelMustBeIntegerBetweenZeroAndOneHundred
+    },
+    resource
+  }),
+  getObsessRetainAndStalkingBlock({ apiGroup: advancedGroup, resource }),
   getCommentBlock({ apiGroup: advancedGroup, resource })
 ] as const;
 

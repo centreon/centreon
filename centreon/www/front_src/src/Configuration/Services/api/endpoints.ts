@@ -22,7 +22,9 @@ export const serviceFormHostsEndpoint = '/configuration/services/hosts';
 export const serviceFormTimePeriodsEndpoint =
   '/configuration/services/timeperiods';
 
-// The form's check command selector, granted by the service write right.
+// The form's check command and event handler selector, granted by the service
+// write right. The check command asks for the active check commands only, the
+// event handler for every command, whatever its type.
 export const serviceFormCommandsEndpoint = '/configuration/services/commands';
 
 // Placeholder until the backend exposes it, on the model of the hosts'
