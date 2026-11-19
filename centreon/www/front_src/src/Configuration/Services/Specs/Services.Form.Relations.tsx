@@ -137,7 +137,7 @@ export default () => {
 
       await save();
 
-      const { request } = await waitForRequest('@updateService0');
+      const { request } = await waitForRequest('@patchService0');
 
       expect(request.body).toMatchObject({
         service_group_ids: [1, 2],
@@ -217,7 +217,7 @@ export default () => {
 
       await save();
 
-      const { request } = await waitForRequest('@updateService0');
+      const { request } = await waitForRequest('@patchService0');
 
       expect(request.body).toHaveProperty('service_group_ids', []);
       expect(request.body).not.toHaveProperty('trap_ids');

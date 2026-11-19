@@ -115,10 +115,6 @@ const expectPatchedServices = async (
       // Answered too, not only sent: requests are logged on arrival.
       expect(calls.every(({ answered }) => answered)).toBe(true);
     });
-
-    [0, 1, 2].forEach((id) => {
-      expect(getRequestCalls(`updateService${id}`)).toHaveLength(0);
-    });
   });
 };
 

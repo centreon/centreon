@@ -178,7 +178,7 @@ export default () => {
 
     await save();
 
-    const body = await getRequestBody('@updateService1');
+    const body = await getRequestBody('@patchService1');
 
     expect(body.notifications).toEqual({
       ...untouchedNotificationsPayload,
@@ -197,7 +197,7 @@ export default () => {
 
     await save();
 
-    const body = await getRequestBody('@updateService2');
+    const body = await getRequestBody('@patchService2');
 
     expect(body.notifications).toEqual({
       ...untouchedNotificationsPayload,
@@ -310,7 +310,7 @@ export default () => {
 
     await save();
 
-    const body = await getRequestBody('@updateService0');
+    const body = await getRequestBody('@patchService0');
 
     expect(body.notifications).toMatchObject({
       contact_additive_inheritance: false,
