@@ -4807,7 +4807,7 @@ paths:
                 type: object
                 description: 'Plugins.jsonld collection.'
                 allOf:
-                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination' }
                   - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Plugins.jsonld' } } } }
             application/json:
               schema:
@@ -4816,31 +4816,7 @@ paths:
                   $ref: '#/components/schemas/Plugins'
       summary: 'Retrieves the collection of Plugins resources.'
       description: 'Retrieves the collection of Plugins resources.'
-      parameters:
-        -
-          name: page
-          in: query
-          description: 'The collection page number'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 1
-            minimum: 1
-          style: form
-          explode: true
-        -
-          name: itemsPerPage
-          in: query
-          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-          style: form
-          explode: true
+      parameters: []
   /api/configuration/pollers:
     post:
       operationId: api_configurationpollers_post
