@@ -27,14 +27,12 @@ export const serviceFormTimePeriodsEndpoint =
 // event handler for every command, whatever its type.
 export const serviceFormCommandsEndpoint = '/configuration/services/commands';
 
-// Placeholder until the backend exposes it, on the model of the hosts'
-// `/configuration/hosts/host_templates/{id}`: one service template's macros,
-// its own and those it inherits.
+// One template's macros, its own and those it inherits.
 export const getServiceTemplateMacrosEndpoint = ({
   id
 }: {
   id: number;
-}): string => `${serviceTemplatesEndpoint}/${id}`;
+}): string => `${serviceTemplatesEndpoint}/${id}/macros`;
 
 // The service groups the user may see, as the host groups of a host.
 export const serviceFormServiceGroupsEndpoint =

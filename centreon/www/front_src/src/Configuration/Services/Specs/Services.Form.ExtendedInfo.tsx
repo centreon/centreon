@@ -293,7 +293,7 @@ export default () => {
 
     await save();
 
-    const { request } = await waitForRequest('@updateService0');
+    const { request } = await waitForRequest('@patchService0');
     const body = request.body as Record<string, unknown>;
 
     expect(body.monitoring_engine).toMatchObject({
