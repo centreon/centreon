@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
+- **Scope:** APIP
 
 ## Context
 
@@ -61,14 +62,14 @@ Scope services by the actor's **Access Groups**: `AccessScopeResolver::serviceAc
 
 The repository resolves it from the acting user, as for any other scope: through its criteria for a listing (`$criteria->accessScope($this->accessScopes->serviceAccessGroups(...), AccessGroupId::class)`), or from the `ActingUser` it is given for a single service. It then applies it in SQL instead of narrowing with `allows()` or `filter()`: when the scope is restricted, it binds the allowed group ids (`allowedIdValues()`) as an array parameter of an `EXISTS` subquery, which keeps a (host, service) pair only if `centreon_acl` holds a row for one of those groups, that host and that service. When it allows nothing, the repository answers without running the query (an empty listing, or not found).
 
-`centreon_acl` lives in the real-time database. Both connections point to the same database server, so the subquery reads it across databases, prefixed with the real-time database name taken from the `dbcstg` environment variable, as legacy does.
+`centreon_acl` lives in the real-time database. The two databases are assumed to be on the same server, so the subquery reads it across databases through the default connection, prefixed with the real-time database name taken from the `dbcstg` environment variable, as legacy does.
 
 ### Consequences
 
 - The "unrestricted user" decision stays in `AccessScopeResolver`. Only the condition on `centreon_acl` lives in SQL.
 - Sorting, filtering, counting and paging stay in one SQL query, whatever the number of services.
 - Services cannot be checked with `allows()`, `filter()` or `missing()`: the scope lists groups, not services. Only the repository that joins `centreon_acl` can tell whether a service is granted.
-- A query on services depends on both databases being on the same server, as the application configuration already assumes: both connections use the same host.
+- A query on services depends on both databases being on the same server, as legacy already assumes, although the `default` and `realtime` connections take their host from two settings (`hostCentreon`, `hostCentstorage`).
 - The `centreon_acl` condition only says whether a (host, service) pair is granted. Which pairs a query considers (direct links, registered hosts and services, host group links) stays the repository's own rule.
 
 ## When to Amend

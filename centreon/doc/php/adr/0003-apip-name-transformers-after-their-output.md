@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-09-03
+- **Scope:** APIP
 
 ## Context
 
@@ -9,7 +10,7 @@ Transformer names are inconsistent and partly inverted: `Infrastructure/ApiPlatf
 
 The input format is given by the folder: a scalar array on the Dbal side, a resource object on the API Platform side. The output is what identifies the class.
 
-One alternative was weighed: rename the Dbal Transformers to `XxxHydrator`, behind a `Hydrator` interface. It lost because a Transformer does more than hydrate, as explained in [ADR-0004](0004-transformers-are-dedicated-classes.md).
+One alternative was weighed: rename the Dbal Transformers to `XxxHydrator`, behind a `Hydrator` interface. It lost because a Transformer does more than hydrate: it also converts between a resource and a domain object.
 
 ## Decision
 

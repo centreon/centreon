@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-21
+- **Scope:** APIP
 
 ## Context
 
@@ -13,7 +14,7 @@ Three cases were raised against a strict rule:
 - Poller creation also creates the Engine and Broker configurations, which can also be created on their own today, and all of it rolls back together.
 - Host creation deploys the host's services, while services can also be created on their own.
 
-The answers: if the configurations must roll back with the poller, they are part of the poller aggregate and are changed through its root ([ADR-0012](0012-change-aggregate-internals-through-the-root.md)) once they move to the new architecture. Service deployment need not make host creation fail, so it is not transactional with it and belongs in an event handler. Writing a log after a change is the same: an event, not the same handler.
+The answers: if the configurations must roll back with the poller, they are part of the poller aggregate and are changed through its root ([ADR-0012](0012-apip-change-aggregate-internals-through-the-root.md)) once they move to the new architecture. Service deployment need not make host creation fail, so it is not transactional with it and belongs in an event handler. Writing a log after a change is the same: an event, not the same handler.
 
 ## Decision
 
