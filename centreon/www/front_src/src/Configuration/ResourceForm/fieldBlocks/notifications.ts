@@ -32,6 +32,7 @@ import {
   labelContactGroupAdditiveInheritance,
   labelContactsToNotify,
   labelFirstNotificationDelay,
+  labelHostRecipientsReplaceOwn,
   labelInheritContactsFromHost,
   labelLinkedContactGroups,
   labelLinkedContacts,
@@ -171,7 +172,7 @@ const isUsingOnlyContactsFromHost = (values: FormikValues): boolean =>
 export const getNotificationRecipientsBlock = ({
   contactGroupsEndpoint,
   contactsEndpoint,
-  resource: { baseEndpoint, idPrefix },
+  resource: { baseEndpoint, idPrefix, relationUpdateModes },
   withOptionalDetailKeys = false,
   withUseOnlyContactsFromHost = false
 }: {
@@ -337,7 +338,14 @@ export const getNotificationRecipientsBlock = ({
             // One choice for contacts and contact groups, as legacy's
             // `mc_mod_hcg`.
             ...(isMassChange
-              ? [getUpdateModeInput({ field: 'contacts', idPrefix, t })]
+              ? [
+                  getUpdateModeInput({
+                    field: 'contacts',
+                    idPrefix,
+                    modes: relationUpdateModes,
+                    t
+                  })
+                ]
               : [])
           ],
           idPrefix,
@@ -356,6 +364,13 @@ export const getNotificationRecipientsBlock = ({
           ...(withUseOnlyContactsFromHost && { useOnlyContactsFromHost: null })
         }
       },
+      // Yes removes each resource's own recipients, whatever the list modes.
+      ...(withUseOnlyContactsFromHost && {
+        getWarning: ({ t, values }) =>
+          isUsingOnlyContactsFromHost(values)
+            ? t(labelHostRecipientsReplaceOwn)
+            : null
+      }),
       updateModeFields: {
         contacts: [
           ['notifications', 'contacts'],

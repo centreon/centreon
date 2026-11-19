@@ -57,6 +57,9 @@ import {
   getTrapsResponse
 } from './utils';
 
+// The services a partial update can reach, each under `patchService<id>`.
+export const patchableServiceIds = [0, 1, 2, 5];
+
 interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
@@ -66,6 +69,8 @@ interface Props {
   isAdditiveInheritanceEnabled?: boolean;
   isCloudPlatform?: boolean;
   listingResponse?: object;
+  // The services whose partial update the API refuses.
+  patchFails?: Array<number>;
   // Opens the page on a deep link, such as `?mode=edit&id=0`.
   searchParams?: string;
 }
@@ -77,6 +82,7 @@ const initialize = ({
   isAdditiveInheritanceEnabled = false,
   isCloudPlatform = false,
   listingResponse = getListingResponse(),
+  patchFails = [],
   searchParams = ''
 }: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
@@ -231,12 +237,21 @@ const initialize = ({
     });
   });
 
-  // Enable and disable are a partial update of the service, one request each.
-  [0, 1, 2].forEach((id) => {
+  // Enable, disable and mass change are a partial update of the service, one
+  // request each.
+  patchableServiceIds.forEach((id) => {
+    const fails = patchFails.includes(id);
+
     interceptRequest(
       Method.PATCH,
       `**${getServiceEndpoint({ id })}`,
-      () => HttpResponse.json({}),
+      () =>
+        fails
+          ? HttpResponse.json(
+              { code: 422, message: 'Refused' },
+              { status: 422 }
+            )
+          : new HttpResponse(null, { status: 204 }),
       `patchService${id}`
     );
   });

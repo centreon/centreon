@@ -170,6 +170,9 @@ export interface APIType {
   apiFormat?: 'Standard' | 'JSON-LD';
   methods?: {
     update?: Method;
+    // The mass change's own write, when the edit replaces the record: a
+    // selection only sends what changed. Falls back to `update`.
+    massUpdate?: Method;
     enable?: Method;
     disable?: Method;
   };
