@@ -30,7 +30,8 @@ import {
   defaultSelectedColumnIds,
   defaultSortField,
   filtersAtomKey,
-  filtersInitialValues
+  filtersInitialValues,
+  getServiceRowId
 } from './utils';
 
 const Services = () => {
@@ -93,6 +94,7 @@ const Services = () => {
       filtersPanelWidth={60}
       form={{ defaultValues, groups, inputs, validationSchema }}
       formVariant="panel"
+      getRowId={getServiceRowId}
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{
         description: t(labelServicesDescription),

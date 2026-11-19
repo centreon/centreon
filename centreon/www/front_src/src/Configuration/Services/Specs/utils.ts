@@ -46,6 +46,17 @@ export const getListingResponse = () => ({
   totalItems: 3
 });
 
+// One service linked to two hosts: the API returns it once per host, with the
+// same id.
+export const getSharedServiceListingResponse = () => ({
+  ...getListingResponse(),
+  member: [
+    { activated: true, host: { id: 10, name: 'host A' }, id: 5, name: 'ping' },
+    { activated: true, host: { id: 11, name: 'host B' }, id: 5, name: 'ping' }
+  ],
+  totalItems: 2
+});
+
 export const emptyListingResponse = {
   '@context': '/centreon/api/contexts/Service',
   '@id': '/centreon/api/configuration/services',
