@@ -172,9 +172,11 @@ const ReactRouterContent = ({
                 />
               ))}
             {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
-              const isLogoutPage = path === routeMap.logout;
+              // These pages are reachable by every user, whatever their ACL.
+              const isPublicPage =
+                path === routeMap.logout || path === routeMap.about;
               const isAllowed =
-                isLogoutPage || isAllowedPage({ allowedPages, path });
+                isPublicPage || isAllowedPage({ allowedPages, path });
 
               return (
                 <Route

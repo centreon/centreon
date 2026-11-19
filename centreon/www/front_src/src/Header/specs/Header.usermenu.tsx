@@ -1,4 +1,5 @@
 import {
+  labelAbout,
   labelCopyAutologinLink,
   labelEditProfile,
   labelFullscreen,
@@ -95,6 +96,17 @@ export default (): void => {
         .click()
         .then(() => {
           expect(navigates).to.have.been.calledWith('/main.php?p=50104&o=c');
+        });
+    });
+
+    it('navigates to the about page when the button is clicked', () => {
+      const navigates = initialize();
+
+      cy.get('[data-cy=userIcon]').click();
+      cy.contains(labelAbout)
+        .click()
+        .then(() => {
+          expect(navigates).to.have.been.calledWith('/administration/about');
         });
     });
 

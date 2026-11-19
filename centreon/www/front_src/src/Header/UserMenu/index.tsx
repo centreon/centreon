@@ -45,6 +45,7 @@ import { userEndpoint } from '../api/endpoints';
 import Clock from '../Clock';
 import SwitchMode from './SwitchThemeMode';
 import {
+  labelAbout,
   labelCopyAutologinLink,
   labelEditProfile,
   labelFullscreen,
@@ -316,6 +317,11 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
     closeUserMenu();
   };
 
+  const navigateToAboutAndCloseUserMenu = (): void => {
+    navigate(routeMap.about);
+    closeUserMenu();
+  };
+
   const logoutFromSession = (e: MouseEvent): void => {
     e.preventDefault();
     logout();
@@ -461,6 +467,20 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                       </ListItemButton>
                     </ListItem>
                   )}
+                  <ListItem className={classes.listItem}>
+                    {/* Text only until a pictogram is chosen: the left padding keeps it aligned with the iconed items. */}
+                    <ListItemButton
+                      className={cx(classes.listItemButton, 'pl-7')}
+                      data-testid="user-menu-about"
+                      onClick={navigateToAboutAndCloseUserMenu}
+                    >
+                      <ListItemText
+                        primaryTypographyProps={primaryTypographyProps}
+                      >
+                        {t(labelAbout)}
+                      </ListItemText>
+                    </ListItemButton>
+                  </ListItem>
                   {data.autologinkey && (
                     <ListItem className={classes.listItem}>
                       <ListItemButton
