@@ -192,7 +192,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
             'name' => 'test-ac-' . $pollerId,
             'type' => 'centreon-agent',
             'connection_mode' => 'no-tls',
-            'configuration' => (string) json_encode($configData),
+            'configuration' => json_encode($configData, flags: JSON_THROW_ON_ERROR),
         ]);
         $acId = (int) $connection->lastInsertId();
 

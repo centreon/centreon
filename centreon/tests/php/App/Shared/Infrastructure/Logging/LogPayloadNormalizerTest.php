@@ -280,7 +280,7 @@ final class LogPayloadNormalizerTest extends TestCase
 
         self::assertStringContainsString(
             'max depth',
-            (string) json_encode($payload, JSON_UNESCAPED_UNICODE),
+            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
         );
     }
 
@@ -300,7 +300,7 @@ final class LogPayloadNormalizerTest extends TestCase
 
         self::assertStringContainsString(
             'log truncated',
-            (string) json_encode($payload, JSON_UNESCAPED_UNICODE),
+            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
         );
     }
 

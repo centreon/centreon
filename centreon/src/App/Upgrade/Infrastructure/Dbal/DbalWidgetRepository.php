@@ -117,7 +117,7 @@ final readonly class DbalWidgetRepository implements WidgetRepository
                 continue;
             }
 
-            $config = json_decode(json_encode($xml) ?: '{}', true);
+            $config = json_decode(json_encode($xml, flags: JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR);
             if (! is_array($config)) {
                 continue;
             }
