@@ -64,7 +64,9 @@ final class DbalOptionRepositoryTest extends KernelTestCase
     {
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
-        $connection->insert('options', ['key' => 'null_valued_option', 'value' => null]);
+        $connection->executeStatement(
+            "INSERT INTO `options` (`key`, `value`) VALUES ('null_valued_option', NULL)"
+        );
 
         $this->expectException(OptionDoesNotExistException::class);
         $this->repository->getByName(new OptionName('null_valued_option'));
