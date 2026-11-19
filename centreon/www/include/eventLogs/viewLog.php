@@ -307,6 +307,8 @@ if (! $getInputs['engine']) {
             window.history.pushState("", "", "main.php?p=20301" + openid[1]);
         }
         document.getElementById('openid').innerHTML = args;
+        // A new search starts from the first page.
+        _num = 1;
         logs(args, '', '');
     }
 
@@ -321,6 +323,8 @@ if (! $getInputs['engine']) {
         searchRunning = running;
         if (_engine == 0) {
             jQuery('#div1 [name=graph]').prop('disabled', running);
+            // A page size changed during a search would not reload the list.
+            jQuery('#logView4xml select[name=l]').prop('disabled', running);
         }
     }
 
@@ -337,6 +341,9 @@ if (! $getInputs['engine']) {
     var _num = 0;
 
     function log_4_host_page(id, formu, num) {
+        if (searchRunning) {
+            return;
+        }
         _num = num;
         logs(id, formu, '');
     }

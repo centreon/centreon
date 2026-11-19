@@ -642,11 +642,17 @@ if (! $is_admin && $engine == 'true') {
 $whereClause = 'WHERE ' . implode(' AND ', $whereClauses);
 $orderClause = 'ORDER BY logs.ctime DESC';
 
+// The Event Logs page does not count the matching rows: the count reads all the rows of the period
+// and can take minutes. It reads one more row than the page size to know if a next page exists.
+// The engine logs page keeps its numbered pagination, based on the count.
+$isEventLogsPage = $engine != 'true';
+$pageNumber = max(1, (int) $num);
+
 $limitClause = '';
 if (! $export) {
     $offset = (($num - 1) * $limit);
     $queryValues[':offset'] = [$offset > 0 ? $offset : 0, PDO::PARAM_INT];
-    $queryValues[':limit'] = [$limit, PDO::PARAM_INT];
+    $queryValues[':limit'] = [$isEventLogsPage ? $limit + 1 : $limit, PDO::PARAM_INT];
     $limitClause = 'LIMIT :limit OFFSET :offset';
 }
 
@@ -668,14 +674,16 @@ $countQuery = "
 
 $paginator = new Paginator((int) $num, (int) $limit);
 try {
-    // Execute the count query
-    $countqueryValues = $queryValues;
-    unset($countqueryValues[':limit'], $countqueryValues[':offset']);
-    $countStatement = $pearDBO->prepareQuery($countQuery);
-    $pearDBO->executePreparedQuery($countStatement, $countqueryValues, true);
-    $totalRows = $pearDBO->fetchColumn($countStatement);
-    $paginator = $paginator->withTotalRecordCount((int) $totalRows);
-    $pearDBO->closeQuery($countStatement);
+    if (! $isEventLogsPage) {
+        // Execute the count query
+        $countqueryValues = $queryValues;
+        unset($countqueryValues[':limit'], $countqueryValues[':offset']);
+        $countStatement = $pearDBO->prepareQuery($countQuery);
+        $pearDBO->executePreparedQuery($countStatement, $countqueryValues, true);
+        $totalRows = $pearDBO->fetchColumn($countStatement);
+        $paginator = $paginator->withTotalRecordCount((int) $totalRows);
+        $pearDBO->closeQuery($countStatement);
+    }
 
     // Prepare and execute the query using CentreonDB methods
     $statement = $pearDBO->prepareQuery($sqlQuery);
@@ -683,7 +691,7 @@ try {
     $rows = $statement->rowCount();
 
     // If the current page is out of bounds, adjust it
-    if (! $export && $rows === 0 && $paginator->isOutOfUpperBound()) {
+    if (! $isEventLogsPage && ! $export && $rows === 0 && $paginator->isOutOfUpperBound()) {
         // Update the offset in both $queryValues and $flatQueryValues
         $newOffset = $paginator->getOffsetMaximum();
         $queryValues[':offset'] = [$newOffset, PDO::PARAM_INT];
@@ -712,8 +720,17 @@ $buffer->writeElement('limit', $limit);
 $buffer->endElement();
 
 // add generated pages into xml
-$paginationRenderer = new PaginationRenderer($buffer);
-$paginationRenderer->render($paginator);
+if (! $isEventLogsPage) {
+    $paginationRenderer = new PaginationRenderer($buffer);
+    $paginationRenderer->render($paginator);
+} elseif (! $export) {
+    if ($pageNumber > 1) {
+        $buffer->writeElement('previousPageNumber', (string) ($pageNumber - 1));
+    }
+    if (count($logs) > $limit) {
+        $buffer->writeElement('nextPageNumber', (string) ($pageNumber + 1));
+    }
+}
 
 // Display logs
 $cpts = 0;
@@ -877,6 +894,8 @@ $buffer->writeElement('o', _('Output'), 0);
 $buffer->writeElement('c', _('Contact'), 0);
 $buffer->writeElement('C', _('Command'), 0);
 $buffer->writeElement('P', _('Poller'), 0);
+$buffer->writeElement('previousPage', _('Previous page'), 0);
+$buffer->writeElement('nextPage', _('Next page'), 0);
 
 $buffer->endElement();
 $buffer->endElement();

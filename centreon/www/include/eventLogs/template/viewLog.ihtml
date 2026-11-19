@@ -1,6 +1,15 @@
 <script language='javascript' src='./include/common/javascript/tool.js'></script>
 <style>
-    {literal}#div1 input[name=graph]:disabled { opacity: 0.5; cursor: not-allowed; }{/literal}
+    {literal}
+    #div1 input[name=graph]:disabled { opacity: 0.5; cursor: not-allowed; }
+    /* Centers the "Previous page" and "Next page" buttons between the empty cell and the export tools. */
+    .eventLogsPager .ToolbarTR td:first-child, .eventLogsPager .ToolbarTR td.Toolbar_pagelimit { width: 30%; }
+    .eventLogsPager td.ToolbarPagination { text-align: center; white-space: nowrap; }
+    .eventLogsPager td.ToolbarPagination input + input { margin-left: 8px; }
+    .eventLogsPager td.ToolbarPagination input:disabled { opacity: 0.5; cursor: not-allowed; }
+    /* Leaves some room under the list. A padding, as a margin collapses with the page bottom. */
+    .eventLogsPagerBottom { padding-bottom: 24px; }
+    {/literal}
 </style>
 <div id="div1" style="position:relative;">
     <table class="ajaxOption table" border='0'>
