@@ -92,12 +92,14 @@ final readonly class ListCommandsProvider implements ProviderInterface
             $allowedTypes = array_intersect($requestedTypes, $allowedTypes);
         }
 
+        // Resolved before the early return so an invalid page is rejected whatever types the user can see.
+        $pagination = $this->paginationResolver->resolve($operation, $context);
         if ($allowedTypes === []) {
             return [];
         }
 
         $criteria = new CommandCriteria();
-        if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
+        if ($pagination instanceof Pagination) {
             $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
         }
 
