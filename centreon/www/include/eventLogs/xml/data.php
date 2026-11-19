@@ -734,8 +734,10 @@ if (! $isEventLogsPage) {
 
 // Display logs
 $cpts = 0;
-// The query retrieves more than $limit results, but only the first $limit elements should be displayed
-foreach (array_slice($logs, 0, $limit) as $log) {
+// The page query reads one more row than the page size. The Event Logs XML export, like the CSV one,
+// keeps all the rows of the search.
+$displayedLogs = $isEventLogsPage && $export ? $logs : array_slice($logs, 0, $limit);
+foreach ($displayedLogs as $log) {
     $buffer->startElement('line');
     $buffer->writeElement('msg_type', $log['msg_type']);
 
@@ -835,7 +837,7 @@ foreach (array_slice($logs, 0, $limit) as $log) {
             // Default output when meta pattern is missing
             $buffer->writeElement('host_name', $log['host_name'], false);
             if ($export) {
-                $buffer->writeElement('address', $HostCache[$log['host_name']], false);
+                $buffer->writeElement('address', $HostCache[$log['host_name']] ?? '', false);
             }
             $buffer->writeElement('service_description', $log['service_description'], false);
             $buffer->writeElement('real_service_name', $log['service_description'], false);
@@ -843,7 +845,7 @@ foreach (array_slice($logs, 0, $limit) as $log) {
     } else {
         $buffer->writeElement('host_name', $log['host_name'], false);
         if ($export) {
-            $buffer->writeElement('address', $HostCache[$log['host_name']], false);
+            $buffer->writeElement('address', $HostCache[$log['host_name']] ?? '', false);
         }
         $buffer->writeElement('service_description', $log['service_description'], false);
         $buffer->writeElement('real_service_name', $log['service_description'], false);

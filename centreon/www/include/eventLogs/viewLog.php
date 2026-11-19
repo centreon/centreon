@@ -339,13 +339,16 @@ if (! $getInputs['engine']) {
     }
 
     var _num = 0;
+    // Query string of the displayed list, without the page and the page size.
+    var lastSearchParams = '';
 
+    // The other pages and page sizes keep the filters of the displayed list.
     function log_4_host_page(id, formu, num) {
         if (searchRunning) {
             return;
         }
         _num = num;
-        logs(id, formu, '');
+        loadLogsPage();
     }
 
     function log_4_engine_page(id, formu, num) {
@@ -506,6 +509,21 @@ if (! $getInputs['engine']) {
         }
     }
 
+    // Loads the current page of the displayed list.
+    function loadLogsPage() {
+        setSearchRunning(true);
+        var proc = new Transformation();
+        proc.setXml('./include/eventLogs/xml/data.php?' + lastSearchParams + '&num=' + _num + '&limit=' + _limit);
+        proc.setXslt("./include/eventLogs/xsl/log.xsl");
+        proc.setCallback(function(t){formatDateMoment(t); proc = null; setSearchRunning(false);});
+        // xslt.js is cached by browsers: after an upgrade, an older copy without
+        // setErrorCallback can still be loaded.
+        if (typeof proc.setErrorCallback === 'function') {
+            proc.setErrorCallback(function(){proc = null; setSearchRunning(false);});
+        }
+        proc.transform("logView4xml");
+    }
+
     function logs(id, formu, type) {
         opid = id;
         if (jQuery("#output") !== "undefined") {
@@ -528,17 +546,14 @@ if (! $getInputs['engine']) {
         if (document.formu2 && document.formu2.search_H) _search_H = document.formu2.search_H.checked;
         if (document.formu2 && document.formu2.search_S) _search_S = document.formu2.search_S.checked;
 
-        var proc = new Transformation();
-        var _addrXSL = "./include/eventLogs/xsl/log.xsl";
-
         if (!type) {
-            setSearchRunning(true);
-            var _addr = './include/eventLogs/xml/data.php?output=' + _output + '&oh=' + _oh + '&warning=' + _warning +
+            // The other pages and the exports reuse the filters of the displayed list, even if the form changed since.
+            lastSearchParams = 'output=' + _output + '&oh=' + _oh + '&warning=' + _warning +
                 '&unknown=' + _unknown + '&critical=' + _critical + '&ok=' + _ok + '&unreachable=' + _unreachable +
-                '&down=' + _down + '&up=' + _up + '&num=' + _num + '&error=' + _error + '&alert=' + _alert +
+                '&down=' + _down + '&up=' + _up + '&error=' + _error + '&alert=' + _alert +
                 '&notification=' + _notification + '&search_H=' + _search_H + '&search_S=' + _search_S +
                 '&period=' + period + '&StartDate=' + StartDate + '&EndDate=' + EndDate + '&StartTime=' + StartTime +
-                '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + id
+                '&EndTime=' + EndTime + '&id=' + id
                 <?php
                 if (isset($search) && $search) {
                     echo ' + &search_host=' . $search;
@@ -547,52 +562,14 @@ if (isset($search_service) && $search_service) {
     echo ' + &search_service=' . $search_service;
 }
 ?>;
-
-            proc.setXml(_addr)
-            proc.setXslt(_addrXSL)
-            proc.setCallback(function(t){formatDateMoment(t); proc = null; setSearchRunning(false);});
-            // xslt.js is cached by browsers: after an upgrade, an older copy without
-            // setErrorCallback can still be loaded.
-            if (typeof proc.setErrorCallback === 'function') {
-                proc.setErrorCallback(function(){proc = null; setSearchRunning(false);});
-            }
-            proc.transform("logView4xml");
+            loadLogsPage();
         } else {
-            var openid = document.getElementById('openid').innerHTML;
             if (_engine == 0) {
+                // The export buttons are part of the list, so a search has always run before.
                 if (type == 'CSV') {
-                    var _addr = './include/eventLogs/export/data.php?output=' + _output + '&oh=' + _oh +
-                        '&warning=' + _warning + '&unknown=' + _unknown + '&critical=' + _critical +
-                        '&ok=' + _ok + '&unreachable=' + _unreachable + '&down=' + _down + '&up=' + _up +
-                        '&num=' + _num + '&error=' + _error + '&alert=' + _alert + '&notification=' + _notification +
-                        '&search_H=' + _search_H + '&search_S=' + _search_S + '&period=' + period +
-                        '&StartDate=' + StartDate + '&EndDate=' + EndDate + '&StartTime=' + StartTime +
-                        '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + openid
-                        <?php
-        if (isset($search) && $search) {
-            echo ' + &search_host=' . $search;
-        }
-if (isset($search_service) && $search_service) {
-    echo ' + &search_service=' . $search_service;
-}
-?> +'&export=1';
+                    var _addr = './include/eventLogs/export/data.php?' + lastSearchParams + '&export=1';
                 } else if (type == 'XML') {
-                    var _addr = './include/eventLogs/xml/data.php?output=' + _output + '&oh=' + _oh +
-                        '&warning=' + _warning + '&unknown=' + _unknown + '&critical=' + _critical +
-                        '&ok=' + _ok + '&unreachable=' + _unreachable + '&down=' + _down + '&up=' + _up +
-                        '&num=' + _num + '&error=' + _error + '&alert=' + _alert + '&notification=' + _notification +
-                        '&search_H=' + _search_H + '&search_S=' + _search_S + '&period=' + period +
-                        '&StartDate=' + StartDate + '&EndDate=' + EndDate + '&StartTime=' + StartTime +
-                        '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + openid
-                        <?php
-if (isset($search) && $search) {
-    echo ' + &search_host=' . $search;
-    echo '&search_host=' . $search;
-}
-if (isset($search_service) && $search_service) {
-    echo ' + &search_service=' . $search_service;
-}
-?> +'&export=1';
+                    var _addr = './include/eventLogs/xml/data.php?' + lastSearchParams + '&export=1';
                 }
             } else {
                 var poller_value = jQuery("#poller_filter").val();
