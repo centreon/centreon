@@ -56,6 +56,7 @@ const getApi = (context: PlatformContext): APIType => ({
   methods: {
     disable: Method.PATCH,
     enable: Method.PATCH,
+    massUpdate: Method.PATCH,
     // A partial update: a key the form leaves out keeps its stored value.
     update: Method.PATCH
   },

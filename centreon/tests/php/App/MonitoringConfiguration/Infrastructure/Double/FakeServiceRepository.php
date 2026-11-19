@@ -52,6 +52,21 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var list<ServiceCriteria> */
     public array $requestedCriteria = [];
 
+    /**
+     * @var list<int> ids of stored services also linked to another host or a host group: {@see findIdsSharedWithOthers()}
+     *                lists them, {@see findExclusivelyLinkedToHostId()} leaves them out
+     */
+    public array $sharedServiceIds = [];
+
+    /** @var list<array{serviceId: int, hostId: int}> */
+    public array $addedHostLinks = [];
+
+    /**
+     * @var list<int> ids of stored services {@see findExclusivelyLinkedToHostId()} still lists but
+     *                {@see findOneOnHost()} no longer finds, as when a service is deleted between the two reads
+     */
+    public array $goneBeforeLoadIds = [];
+
     /** @var list<int> ids of stored services that {@see findOne()} hides from an actor whose access is restricted */
     public array $outOfRestrictedScopeIds = [];
 
@@ -83,11 +98,18 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var list<Service> */
     public array $relationsReplacedServices = [];
 
+    /** Thrown by add(), to stand for a failure after the vault was written. */
+    public ?\Throwable $addThrows = null;
+
     /** Thrown by update(), to stand for a failure after the vault was written. */
     public ?\Throwable $updateThrows = null;
 
     public function add(Service $service): void
     {
+        if ($this->addThrows instanceof \Throwable) {
+            throw $this->addThrows;
+        }
+
         do {
             $id = mt_rand();
         } while (isset($this->services[$id]));
@@ -166,10 +188,38 @@ final class FakeServiceRepository implements ServiceRepository
     {
         $services = array_values(array_filter(
             $this->services,
-            static fn (Service $service): bool => $service->hostId->value === $hostId->value,
+            fn (Service $service): bool => $service->hostId->value === $hostId->value
+                && ! in_array($service->id()->value, $this->sharedServiceIds, true),
         ));
 
         return new Collection($services, Service::class);
+    }
+
+    public function findIdsExclusivelyLinkedToHostId(HostId $hostId): Collection
+    {
+        $ids = array_map(
+            static fn (Service $service): int => $service->id()->value,
+            $this->findExclusivelyLinkedToHostId($hostId)->toArray(),
+        );
+        sort($ids);
+
+        return new Collection(array_map(static fn (int $id): ServiceId => new ServiceId($id), $ids), ServiceId::class);
+    }
+
+    public function findIdsSharedWithOthers(HostId $hostId): Collection
+    {
+        $ids = array_values(array_filter(
+            $this->sharedServiceIds,
+            fn (int $id): bool => ($this->services[$id] ?? null)?->hostId->value === $hostId->value,
+        ));
+        sort($ids);
+
+        return new Collection(array_map(static fn (int $id): ServiceId => new ServiceId($id), $ids), ServiceId::class);
+    }
+
+    public function addHostLink(ServiceId $id, HostId $hostId): void
+    {
+        $this->addedHostLinks[] = ['serviceId' => $id->value, 'hostId' => $hostId->value];
     }
 
     /**
@@ -193,6 +243,9 @@ final class FakeServiceRepository implements ServiceRepository
     public function findOneOnHost(ServiceId $id, HostId $hostId): ?Service
     {
         $service = $this->services[$id->value] ?? null;
+        if (in_array($id->value, $this->goneBeforeLoadIds, true)) {
+            return null;
+        }
 
         return $service?->hostId->value === $hostId->value ? $service : null;
     }

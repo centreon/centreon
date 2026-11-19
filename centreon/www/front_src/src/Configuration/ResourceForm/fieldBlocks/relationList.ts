@@ -33,7 +33,7 @@ export const getRelationListBlock = <Id extends BlockId>({
   label,
   name,
   payloadKey,
-  resource: { baseEndpoint, idPrefix },
+  resource: { baseEndpoint, idPrefix, relationUpdateModes },
   withOptionalDetailKey = false
 }: {
   // As the decoder reports a failure: one entity, then the list.
@@ -102,6 +102,7 @@ export const getRelationListBlock = <Id extends BlockId>({
           type: InputType.MultiConnectedAutocomplete
         },
         isMassChange: context.isMassChange,
+        modes: relationUpdateModes,
         t: context.t
       })
     }),

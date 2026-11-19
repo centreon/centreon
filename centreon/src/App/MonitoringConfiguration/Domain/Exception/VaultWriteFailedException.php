@@ -48,6 +48,14 @@ final class VaultWriteFailedException extends \RuntimeException
         );
     }
 
+    public static function forServiceCopy(ServiceId $sourceId, \Throwable $previous): self
+    {
+        return new self(
+            sprintf('Service %d was not duplicated: its credentials could not be read from or written to the vault.', $sourceId->value),
+            previous: $previous,
+        );
+    }
+
     /**
      * @param ?ServiceId $serviceId the service being updated, null for a service being created (it has no id yet)
      */

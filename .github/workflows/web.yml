@@ -27,6 +27,7 @@ on:
       - ".github/scripts/centreon-trapd-docker-boot-test.sh"
       - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
       - ".github/scripts/lib/centreon-trapd-common.sh"
+      - ".github/scripts/test/ci.sh"
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
@@ -43,6 +44,7 @@ on:
       - ".github/scripts/centreon-trapd-docker-boot-test.sh"
       - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
       - ".github/scripts/lib/centreon-trapd-common.sh"
+      - ".github/scripts/test/ci.sh"
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
@@ -122,6 +124,7 @@ jobs:
         "centreon/libinstall/**"
         "centreon/logrotate/**"
         "centreon/lua/**"
+        "centreon/migrations/**"
         "centreon/packaging/**"
         "centreon/selinux/**"
         "centreon/snmptrapd/**"
@@ -148,12 +151,14 @@ jobs:
         "!centreon/**/__snapshots__/**"
         "!centreon/**/__mocks__/**"
       backend_test_paths: |
+        ".github/scripts/test/ci.sh"
         "centreon/.php-cs-fixer*"
         "centreon/castor.php"
         "centreon/codingstyle.xml"
         "centreon/phpstan.*"
         "centreon/phpunit*.xml"
         "centreon/rector.*"
+        "centreon/tests/acl/**"
         "centreon/tests/php/**"
       frontend_test_paths: |
         "centreon/cypress.config.ts"
@@ -174,6 +179,7 @@ jobs:
         "centreon/tests/performance/**"
       upgrade_test_paths: |
         "centreon/www/install/**"
+        "centreon/migrations/**"
         "centreon/packaging/**"
         "centreon/tests/e2e/features/Platform-upgrade-update/**"
       translation_paths: |
@@ -206,6 +212,7 @@ jobs:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-web
       installation_file: centreon/www/install/insertBaseConf.sql
+      migrations_version_file: centreon/config.new/packages/centreon.yaml
       update_file: centreon/www/install/php/Update-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}.php
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -222,6 +229,12 @@ jobs:
         uses: ./.github/actions/check-version-consistency
         with:
           file: ${{ env.installation_file }}
+          version: ${{ env.version }}
+
+      - name: Check ${{ env.migrations_version_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.migrations_version_file }}
           version: ${{ env.version }}
 
       - name: Check ${{ env.update_file }}
@@ -678,6 +691,13 @@ jobs:
       - name: Run Core integration tests
         run: composer run test:core
         working-directory: centreon
+
+      - name: Check ACL computation on dataset S
+        # After the PHPUnit suites: their bootstrap created the schema, and they leave no ACL data behind.
+        # See centreon/tests/acl/README.md.
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: .github/scripts/test/ci.sh
 
       - name: Display application logs
         if: failure()

@@ -697,6 +697,20 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class, 1));
     }
 
+    public function testTheServicesDeploymentIsRequestedForTheActingUser(): void
+    {
+        $this->seedHost(templateIds: [1]);
+        $actor = TestActingUsers::unrestricted(9);
+
+        ($this->handler)($this->command(alias: new HostAlias('front'), deployServicesFromTemplates: true, actor: $actor));
+
+        /** @var list<HostServicesDeploymentRequested> $requests */
+        $requests = $this->eventBus->getDispatchedEvents(HostServicesDeploymentRequested::class);
+        self::assertCount(1, $requests);
+        self::assertSame(self::HOST_ID, $requests[0]->hostId->value);
+        self::assertSame($actor, $requests[0]->actor);
+    }
+
     public function testNothingIsDeployedUnlessAskedOrWithoutTemplates(): void
     {
         $this->seedHost(templateIds: [1]);
