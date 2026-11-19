@@ -34,8 +34,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Documents the pagination query parameters as {@see PaginationResolver} applies them: API Platform
- * documents a fixed default page size and a minimum of 0, while the default comes from a platform
- * setting at runtime and both parameters must be positive.
+ * documents no minimum for the page, and a fixed default and a minimum of 0 for the page size, while
+ * both must be at least 1 and the default page size comes from a platform setting at runtime.
  */
 #[AsDecorator('api_platform.openapi.factory')]
 final readonly class PaginationOpenApiFactory implements OpenApiFactoryInterface
