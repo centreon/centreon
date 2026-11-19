@@ -15,7 +15,7 @@ export const defaultSelectedColumnIds = [
 export const filtersInitialValues: Filters = {
   disabled: false,
   enabled: false,
-  'host.name': '',
+  host_name: '',
   include_disabled_hosts: false,
   name: '',
   template_id: null
@@ -25,7 +25,7 @@ export const filtersAtomKey = 'filters_services';
 export const columnsAtomKey = 'columns_services';
 
 // Sorted on the host, as in the legacy listing.
-export const defaultSortField = 'host.name';
+export const defaultSortField = 'host_name';
 
 // A service linked to several hosts comes once per host, with the same id.
 export const getServiceRowId = (row: ResourceRow): string => {

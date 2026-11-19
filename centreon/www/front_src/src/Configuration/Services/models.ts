@@ -25,7 +25,7 @@ export interface ServiceListItem extends NamedEntity {
 
 export interface Filters {
   name: string;
-  'host.name': string;
+  host_name: string;
   template_id: NamedEntity | null;
   include_disabled_hosts: boolean;
   enabled: boolean;
