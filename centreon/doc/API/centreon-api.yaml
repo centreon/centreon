@@ -4252,7 +4252,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -4604,7 +4604,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -4743,7 +4743,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -4832,7 +4832,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -4974,7 +4974,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -5160,7 +5160,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -5331,7 +5331,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -5438,7 +5438,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -5580,7 +5580,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -5722,7 +5722,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -5793,7 +5793,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -5864,7 +5864,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -5935,7 +5935,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -6006,7 +6006,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -6077,7 +6077,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -6150,7 +6150,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
@@ -6755,7 +6755,7 @@ paths:
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:

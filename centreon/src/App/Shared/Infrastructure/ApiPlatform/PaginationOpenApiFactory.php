@@ -90,7 +90,8 @@ final readonly class PaginationOpenApiFactory implements OpenApiFactoryInterface
 
             return $parameter
                 ->withDescription(sprintf(
-                    'The number of items per page, at most %d. Defaults to the "Limit per page" platform setting, or to %d when it is not set.',
+                    'The number of items per page. Values above %d are capped to %d. Defaults to the "Limit per page" platform setting, or to %d when it is not set or invalid.',
+                    Pagination::MAX_ITEMS_PER_PAGE,
                     Pagination::MAX_ITEMS_PER_PAGE,
                     $this->fallbackItemsPerPage,
                 ))

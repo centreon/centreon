@@ -40,7 +40,7 @@ final class PaginationOpenApiFactoryTest extends TestCase
         $itemsPerPage = $this->parameter('/configuration/hosts', 'itemsPerPage');
 
         self::assertSame(
-            'The number of items per page, at most 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set.',
+            'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.',
             $itemsPerPage->getDescription()
         );
         self::assertSame(['type' => 'integer', 'minimum' => 1, 'maximum' => 100], $itemsPerPage->getSchema());
