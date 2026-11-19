@@ -34,24 +34,24 @@ describe('data processing payload', () => {
     });
   });
 
-  it.each([false, true])(
-    'forces the freshness settings of a Centreon Monitoring Agent command (cloud: %s)',
-    (isCloudPlatform) => {
-      const payload = getPayload(
-        blocks,
-        getValues({
-          args: '',
-          command: { id: 2, isCentreonMonitoringAgent: true, name: 'cma' }
-        }),
-        { isCloudPlatform }
-      );
+  it.each([
+    false,
+    true
+  ])('forces the freshness settings of a Centreon Monitoring Agent command (cloud: %s)', (isCloudPlatform) => {
+    const payload = getPayload(
+      blocks,
+      getValues({
+        args: '',
+        command: { id: 2, isCentreonMonitoringAgent: true, name: 'cma' }
+      }),
+      { isCloudPlatform }
+    );
 
-      expect(payload.advanced).toMatchObject({
-        check_freshness: 'true',
-        freshness_threshold: 500
-      });
-    }
-  );
+    expect(payload.advanced).toMatchObject({
+      check_freshness: 'true',
+      freshness_threshold: 500
+    });
+  });
 
   it('leaves the on-premise fields out on a cloud platform', () => {
     const payload = getPayload(blocks, getValues({ args: '', command: null }), {

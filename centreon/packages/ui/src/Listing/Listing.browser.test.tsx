@@ -548,17 +548,17 @@ describe('Listing', () => {
           '150'
         ]
       }
-    ])(
-      'adds the page size $limit to the options when it is not one of them',
-      async ({ limit, options }) => {
-        const listbox = await openRowsPerPage(limit);
+    ])('adds the page size $limit to the options when it is not one of them', async ({
+      limit,
+      options
+    }) => {
+      const listbox = await openRowsPerPage(limit);
 
-        expect(getOptionLabels(listbox)).toEqual(options);
-        expect(
-          within(listbox).getByRole('option', { name: `${limit}` })
-        ).toHaveAttribute('aria-selected', 'true');
-      }
-    );
+      expect(getOptionLabels(listbox)).toEqual(options);
+      expect(
+        within(listbox).getByRole('option', { name: `${limit}` })
+      ).toHaveAttribute('aria-selected', 'true');
+    });
 
     it('keeps the default options when the page size is one of them', async () => {
       const listbox = await openRowsPerPage(30);

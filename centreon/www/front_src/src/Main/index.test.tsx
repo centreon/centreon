@@ -40,6 +40,7 @@ import {
   retrievedWeb
 } from './testUtils';
 import { labelCentreonIsLoading } from './translatedLabels';
+import { areUserParametersLoadedAtom } from './useUser';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -523,21 +524,24 @@ describe('Main', () => {
     });
   });
 
-  it.each([0, -5, '30', 12.5, null])(
-    'falls back to a default page size of 30 when the platform parameters have %p',
-    async (defaultLimitPerPage) => {
-      mockGetRequestsByUrl({
-        ...retrievedParameters,
-        default_limit_per_page: defaultLimitPerPage
-      });
+  it.each([
+    0,
+    -5,
+    '30',
+    12.5,
+    null
+  ])('falls back to a default page size of 30 when the platform parameters have %p', async (defaultLimitPerPage) => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      default_limit_per_page: defaultLimitPerPage
+    });
 
-      renderMain();
+    renderMain();
 
-      await waitFor(() => {
-        expect(store.get(defaultLimitPerPageAtom)).toBe(30);
-      });
-    }
-  );
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+  });
 
   it('falls back to a default page size of 30 when the platform parameters cannot be retrieved', async () => {
     mockGetRequestsByUrl(retrievedParameters, { parametersStatus: 500 });

@@ -59,19 +59,18 @@ describe('layout', () => {
     expect(getPlacedBlockIds().filter((id) => !handedOver.has(id))).toEqual([]);
   });
 
-  it.each(contexts)(
-    'places every block the sections hand over (%s)',
-    (_name, context) => {
-      const placed = new Set<string>(getPlacedBlockIds());
-      const blockIds = getAvailableSections(context).flatMap(({ section }) =>
-        Object.keys(section.getInputs(context))
-      );
+  it.each(
+    contexts
+  )('places every block the sections hand over (%s)', (_name, context) => {
+    const placed = new Set<string>(getPlacedBlockIds());
+    const blockIds = getAvailableSections(context).flatMap(({ section }) =>
+      Object.keys(section.getInputs(context))
+    );
 
-      // Merged into one object, a block two sections named would hide one.
-      expect(new Set(blockIds).size).toBe(blockIds.length);
-      expect(blockIds.filter((id) => !placed.has(id))).toEqual([]);
-    }
-  );
+    // Merged into one object, a block two sections named would hide one.
+    expect(new Set(blockIds).size).toBe(blockIds.length);
+    expect(blockIds.filter((id) => !placed.has(id))).toEqual([]);
+  });
 
   it('opens on the general information, then the check command', () => {
     expect(getSectionLabels({ isCloudPlatform: false, t }).slice(0, 2)).toEqual(
@@ -142,16 +141,13 @@ describe('layout', () => {
       ]
     ],
     ['cloud', true, ['eventHandler', 'freshness']]
-  ])(
-    'places the data processing blocks in the advanced section (%s)',
-    (_name, isCloudPlatform, expected) => {
-      const handedOver = getBlocks({ isCloudPlatform, t });
+  ])('places the data processing blocks in the advanced section (%s)', (_name, isCloudPlatform, expected) => {
+    const handedOver = getBlocks({ isCloudPlatform, t });
 
-      expect(
-        getSectionBlockIds(labelAdvanced).filter((id) => id in handedOver)
-      ).toEqual(expected);
-    }
-  );
+    expect(
+      getSectionBlockIds(labelAdvanced).filter((id) => id in handedOver)
+    ).toEqual(expected);
+  });
 
   it('places the macros next to the check command', () => {
     const [, checkCommandSection] = placeBlocks({
