@@ -77,7 +77,8 @@ var xslt_js = {
 
 /**
  * URL of the XSLT polyfill, resolved relative to this script so it works from any page;
- * falls back to a path relative to the web root when document.currentScript is unavailable.
+ * falls back to a path relative to the current page (main.php / main.get.php) when
+ * document.currentScript is unavailable.
  *
  * @type String
  * @final
@@ -103,8 +104,18 @@ function hasNativeXsltSupport() {
         return true;
     }
 
-    return typeof XSLTProcessor === 'function'
-        && XSLTProcessor.toString().indexOf('[native code]') !== -1;
+    if (typeof XSLTProcessor !== 'function' || XSLTProcessor.toString().indexOf('[native code]') === -1) {
+        return false;
+    }
+
+    // A browser can keep the native class but make it throw when XSLT is disabled.
+    try {
+        new XSLTProcessor();
+    } catch (error) {
+        return false;
+    }
+
+    return true;
 }
 
 /**
