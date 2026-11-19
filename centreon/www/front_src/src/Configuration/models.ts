@@ -77,6 +77,8 @@ export interface Actions {
         disable?: boolean;
       };
   edit?: boolean;
+  // Whether an opened resource can be changed; every one by default.
+  editable?: (resource: ResourceRow) => boolean;
   viewDetails?: boolean;
   rowActions?: Array<RowAction>;
   massiveActions?: Array<MassiveAction>;
