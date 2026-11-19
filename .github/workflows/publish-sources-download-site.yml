@@ -27,6 +27,9 @@ on:
       CENTREON_TECHNIQUE_PAT:
         description: 'Token with contents and pull-requests write on the download site repository'
         required: true
+      WEBAPP_REPO:
+        description: 'Download site repository, kept as a secret so it stays masked in public logs'
+        required: true
   workflow_dispatch:
     inputs:
       bundle_tag:
@@ -59,7 +62,6 @@ jobs:
     env:
       BUNDLE_TAG: ${{ inputs.bundle_tag }}
       WEBAPP_REPO: centreon/WebApp-download
-      WEBAPP_BASE: develop
 
     steps:
       - name: Checkout sources
@@ -101,6 +103,8 @@ jobs:
         id: pnpm-version
         env:
           GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          WEBAPP_REPO: ${{ secrets.WEBAPP_REPO }}
+          WEBAPP_BASE: develop
         run: |
           set -euo pipefail
           pm="$(gh api -H 'Accept: application/vnd.github.raw' \
