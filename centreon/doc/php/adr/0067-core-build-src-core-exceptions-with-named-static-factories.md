@@ -21,7 +21,7 @@ Settled in [#12663](https://github.com/centreon/centreon/pull/12663).
 
 A new case adds a factory to the exception class of its context; the factory takes the business values it needs and the caught exception as `previous` when there is one.
 
-A repository's `Core\Common\Domain\Exception\RepositoryException` is out of this rule: it is built with `new`, with the message and context of each call, as set by [ADR-0029](0029-core-make-src-core-repositories-throw-repository-exception.md).
+A repository's `Core\Common\Domain\Exception\RepositoryException` is out of this rule: it is built with `new`, with the message and context of each call, as described in [ADR-0029](0029-core-make-src-core-repositories-throw-repository-exception.md).
 
 ## Consequences
 

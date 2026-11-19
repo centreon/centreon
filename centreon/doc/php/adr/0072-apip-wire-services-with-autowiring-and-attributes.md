@@ -17,7 +17,7 @@ Settled in [#12663](https://github.com/centreon/centreon/pull/12663).
 
 ## Decision
 
-**Wire a `src/App` class by autowiring and autoconfiguration**, and **complete it with attributes on the class** when its types are not enough: `#[Autowire(service: …)]`, `#[Autowire(env: …)]`, `#[Autowire(param: …)]`, `#[AutowireLocator]`, `#[AutowireIterator]`, `#[AsTaggedItem]`, `#[AsDecorator]`, `#[AsAlias]`.
+**Wire a `src/App` class by autowiring and autoconfiguration**, and **complete it with attributes in the class** when its types are not enough: on its constructor parameters, `#[Autowire(service: …)]`, `#[Autowire(env: …)]`, `#[Autowire(param: …)]`, `#[AutowireLocator]`, `#[AutowireIterator]`; on the class, `#[AsTaggedItem]`, `#[AsDecorator]`, `#[AsAlias]`.
 
 **A `config.new/services/*.php` file holds only** the loading of its context, the parameters, and the definitions that an attribute cannot express: a class `src/App` does not own (the Monolog processors, `ConnectionConfig`), a service that another configuration references by id (`monolog.processor.sanitizing`), or a second instance of one class (`upgrade.realtime_connection_config`).
 

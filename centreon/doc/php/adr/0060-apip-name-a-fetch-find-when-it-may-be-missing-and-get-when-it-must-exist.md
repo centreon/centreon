@@ -23,7 +23,7 @@ Settled in [#12663](https://github.com/centreon/centreon/pull/12663).
 
 **It is named `get*` when the object must exist**: it returns a non-nullable type (`T`) and throws a dedicated not-found exception (`CommandNotFoundException`) when the object is missing, declared in its `@throws`.
 
-**A method that fetches a set is named `find*`** and returns an empty set when nothing matches. **A fetch uses no other verb**, such as `resolve*` or `load*`.
+**A method that fetches a set is named `find*`** and returns an empty set when nothing matches. **A fetch uses no other verb**, such as `resolve*` or `load*`. A fetch reads one object, or a set, from storage or an external source by its key or criteria; a method that computes or resolves a value, even when it reads data to do so (`InheritedHostMacrosResolver::resolve()`), is not a fetch and keeps its own verb.
 
 This applies to a repository and to any port or service method that fetches.
 

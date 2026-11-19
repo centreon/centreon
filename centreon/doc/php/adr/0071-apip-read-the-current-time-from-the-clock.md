@@ -21,7 +21,7 @@ Settled in [#12663](https://github.com/centreon/centreon/pull/12663).
 
 **Read the current time from an injected `Psr\Clock\ClockInterface`**, never from `new \DateTimeImmutable()`, `new \DateTimeImmutable('now')`, `time()` or `date()` without a timestamp.
 
-**The Domain receives the current time as a parameter** from its caller (`$token->isExpired($now)`), since it has no services. A handler passes `$this->clock->now()` to the event it fires instead of relying on a `firedAt` default.
+**An aggregate or a value object receives the current time as a parameter** from its caller (`$token->isExpired($now)`); a Domain service may inject `ClockInterface`. A handler passes `$this->clock->now()` to the event it fires instead of relying on a `firedAt` default.
 
 **A test fixes the time** with `Symfony\Component\Clock\MockClock`.
 

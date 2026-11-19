@@ -25,10 +25,10 @@ Settled in [#12663](https://github.com/centreon/centreon/pull/12663).
 
 ## Consequences
 
-- Every set of objects in `src/App` has one type, whose items are checked when the collection is built.
+- Every set of objects in `src/App` has one type, whose items are checked when the collection is built or, for a lazy one, when it is first read.
 - Existing methods that return an array of objects keep it until they are touched.
 - The rule is enforced in review.
 
 ## When to Amend
 
-- `App\Shared\Domain\Collection` is replaced, or a set needs a behaviour it cannot offer, such as lazy loading of a large result.
+- `App\Shared\Domain\Collection` is replaced, or a set needs a behaviour it cannot offer, such as streaming a result too large to hold in memory.
