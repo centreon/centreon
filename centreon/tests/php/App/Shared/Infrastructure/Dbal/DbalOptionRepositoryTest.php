@@ -59,4 +59,14 @@ final class DbalOptionRepositoryTest extends KernelTestCase
         $this->expectException(OptionDoesNotExistException::class);
         $this->repository->getByName(new OptionName('foo'));
     }
+
+    public function testItThrowExceptionWhenOptionValueIsNull(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('options', ['key' => 'null_valued_option', 'value' => null]);
+
+        $this->expectException(OptionDoesNotExistException::class);
+        $this->repository->getByName(new OptionName('null_valued_option'));
+    }
 }

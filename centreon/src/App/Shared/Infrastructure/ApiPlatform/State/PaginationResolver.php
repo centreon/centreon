@@ -94,14 +94,14 @@ final readonly class PaginationResolver
     }
 
     /**
-     * The setting is only checked as numeric by its form, so an invalid value falls back to
-     * API Platform's default instead of failing every collection.
+     * The setting is only checked as numeric by its form, so an invalid or empty value falls back
+     * to API Platform's default instead of failing every collection.
      */
     private function defaultItemsPerPage(): int
     {
         try {
             $setting = $this->optionRepository->getByName(new OptionName(self::DEFAULT_ITEMS_PER_PAGE_OPTION))->value->value;
-        } catch (OptionDoesNotExistException) {
+        } catch (OptionDoesNotExistException|\InvalidArgumentException) {
             return $this->fallbackItemsPerPage;
         }
 

@@ -59,6 +59,8 @@ final readonly class DbalOptionRepository extends DbalRepository implements Opti
         $qb->select('`key` AS option_name', '`value` AS option_value')
             ->from(self::TABLE_NAME)
             ->where('`key` = :name')
+            // The column is nullable, and a NULL setting is treated as an unset one.
+            ->andWhere('`value` IS NOT NULL')
             ->setParameter('name', $name->value)
             ->setMaxResults(1);
         /** @var RowTypeAlias|false $row */

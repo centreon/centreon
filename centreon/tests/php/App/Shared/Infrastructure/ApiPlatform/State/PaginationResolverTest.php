@@ -102,6 +102,8 @@ final class PaginationResolverTest extends TestCase
         yield 'decimal' => ['12.5'];
 
         yield 'not a number' => ['abc'];
+
+        yield 'empty' => [''];
     }
 
     #[DataProvider('invalidSettingProvider')]
