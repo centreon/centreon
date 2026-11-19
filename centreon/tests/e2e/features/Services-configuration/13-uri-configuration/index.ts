@@ -265,8 +265,9 @@ When('the user clicks on the link', () => {
 When(
   'the user visits the services status page in a browser without native XSLT',
   () => {
-    // Visit the iframe content directly: onBeforeLoad does not reach the legacy iframe
-    cy.visit(PAGES.monitoring.statusDetailsServicesLegacyFrame, {
+    // Visit the iframe content directly: onBeforeLoad does not reach the legacy iframe.
+    // Open it on the 'All' filter, as the default 'Unhandled Problems' one hides an OK service.
+    cy.visit(`${PAGES.monitoring.statusDetailsServicesLegacyFrame}&o=svc`, {
       onBeforeLoad: (win) => {
         // Simulate a browser that removed XSLT, like recent Chrome versions
         Reflect.deleteProperty(win, 'XSLTProcessor');
@@ -280,7 +281,5 @@ Then('the XSLT compatibility module is loaded', () => {
 });
 
 Then('the configured passive service is listed', () => {
-  // Chose the 'All' option as Service Status filter, which transforms the list again
-  cy.get('select#statusService').select('All');
   cy.contains('a', services.serviceOk.name).should('exist');
 });
