@@ -44,6 +44,7 @@ export const INTERCEPTORS = {
   pages: {
     time_zone: '/centreon/include/common/userTimezone.php',
     monitor_time_zone: '/monitor/include/common/userTimezone.php',
+    xslt_polyfill: '/centreon/include/common/javascript/xslt-polyfill/*.min.js',
     centreon_proxy: '/centreon/include/common/webServices/rest/internal.php?object=centreon_proxy',
     centreon_administration_aclgroup: '/centreon/include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup',
     centreon_configuration_contact: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_contact',

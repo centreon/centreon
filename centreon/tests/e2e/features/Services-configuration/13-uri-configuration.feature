@@ -28,3 +28,9 @@ Feature: URI
     Then the comment is displayed on "Monitoring > Downtimes > Comments" listing page
     When the user clicks on the link
     Then a new tab is open to the link
+
+  @MON-215240
+  Scenario: Display the services status page in a browser without native XSLT
+    When the user visits the services status page in a browser without native XSLT
+    Then the XSLT compatibility module is loaded
+    And the configured passive service is listed

@@ -35,6 +35,10 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.pages.xslt_polyfill
+  }).as('getXsltPolyfill');
 });
 
 after(() => {
@@ -256,4 +260,27 @@ Then(
 When('the user clicks on the link', () => {
   // Check that the link is added as comments
   cy.waitForElementInIframe('#main-content', `a:contains("${link}")`);
+});
+
+When(
+  'the user visits the services status page in a browser without native XSLT',
+  () => {
+    // Visit the iframe content directly: onBeforeLoad does not reach the legacy iframe
+    cy.visit(PAGES.monitoring.statusDetailsServicesLegacyFrame, {
+      onBeforeLoad: (win) => {
+        // Simulate a browser that removed XSLT, like recent Chrome versions
+        Reflect.deleteProperty(win, 'XSLTProcessor');
+      }
+    });
+  }
+);
+
+Then('the XSLT compatibility module is loaded', () => {
+  cy.wait('@getXsltPolyfill');
+});
+
+Then('the configured passive service is listed', () => {
+  // Chose the 'All' option as Service Status filter, which transforms the list again
+  cy.get('select#statusService').select('All');
+  cy.contains('a', services.serviceOk.name).should('exist');
 });
