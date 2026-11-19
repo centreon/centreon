@@ -93,7 +93,7 @@ final readonly class ListServicesProvider implements ProviderInterface
 
         $criteria = ServiceCriteria::forActor($credentialUser->credential->actingUser());
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
         $criteria = $this->filter($criteria, $filters);
 

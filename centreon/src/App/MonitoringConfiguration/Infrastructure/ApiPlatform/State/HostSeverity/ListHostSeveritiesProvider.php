@@ -71,7 +71,7 @@ final readonly class ListHostSeveritiesProvider implements ProviderInterface
         // FindHostSeverities::isUserAdmin) see every host severity; others are scoped to their accessible severities.
         $criteria = HostSeverityCriteria::forActor($credentialUser->credential->actingUser());
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array{name?: mixed} $filters */

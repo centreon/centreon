@@ -69,7 +69,7 @@ final readonly class ListContactGroupsChoicesProvider implements ProviderInterfa
 
         $criteria = ContactGroupCriteria::forActor($credentialUser->credential->actingUser());
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array<string, mixed> $filters */

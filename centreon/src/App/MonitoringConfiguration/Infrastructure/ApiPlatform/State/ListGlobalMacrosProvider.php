@@ -62,7 +62,7 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
     {
         $criteria = new GlobalMacroCriteria();
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array<string, mixed> $filters */

@@ -71,7 +71,7 @@ final readonly class ListContactGroupsProvider implements ProviderInterface
         // scoped to the contact groups they may see, resolved by the repository from the actor.
         $criteria = ContactGroupCriteria::forActor($credentialUser->credential->actingUser());
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array<string, mixed> $filters */

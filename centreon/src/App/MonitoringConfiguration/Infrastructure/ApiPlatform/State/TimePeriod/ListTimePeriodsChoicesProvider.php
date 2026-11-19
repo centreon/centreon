@@ -64,7 +64,7 @@ final readonly class ListTimePeriodsChoicesProvider implements ProviderInterface
         // the permission gate sees them all, exactly as legacy FindTimePeriods does.
         $criteria = new TimePeriodCriteria();
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array{name?: mixed} $filters */

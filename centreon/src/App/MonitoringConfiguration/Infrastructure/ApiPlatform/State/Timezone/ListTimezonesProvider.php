@@ -62,7 +62,7 @@ final readonly class ListTimezonesProvider implements ProviderInterface
     {
         $criteria = new TimezoneCriteria();
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array{name?: mixed} $filters */

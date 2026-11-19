@@ -31,10 +31,7 @@ namespace App\Shared\Domain\Repository;
  */
 interface PaginableCriteria
 {
-    /**
-     * @throws \InvalidArgumentException when the values break a {@see Pagination} invariant
-     */
-    public function withPagination(int $page, int $itemsPerPage): static;
+    public function withPagination(Pagination $pagination): static;
 
     public function getPagination(): ?Pagination;
 }

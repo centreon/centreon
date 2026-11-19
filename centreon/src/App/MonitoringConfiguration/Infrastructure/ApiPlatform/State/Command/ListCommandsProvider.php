@@ -100,7 +100,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
 
         $criteria = new CommandCriteria();
         if ($pagination instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         $criteria = $this->handleTypeFilter($allowedTypes, $criteria);

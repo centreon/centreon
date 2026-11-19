@@ -65,7 +65,7 @@ final readonly class ListCommandsChoicesProvider implements ProviderInterface
         // No command permission here: the read-write permission of the operation's form is the only gate.
         $criteria = new CommandCriteria();
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array{name?: mixed, type?: mixed, is_activated?: mixed} $filters */

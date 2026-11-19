@@ -77,7 +77,7 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
         // Not ACL-scoped: like legacy, the page permission alone gates access.
         $criteria = HostTemplateCriteria::unscoped();
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array<string, mixed> $filters */

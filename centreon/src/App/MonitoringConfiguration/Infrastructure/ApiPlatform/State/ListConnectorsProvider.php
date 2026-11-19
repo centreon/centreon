@@ -62,7 +62,7 @@ final readonly class ListConnectorsProvider implements ProviderInterface
     {
         $criteria = new ConnectorCriteria();
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array<string, mixed> $filters */

@@ -64,7 +64,7 @@ final readonly class ListHostSeveritiesChoicesProvider implements ProviderInterf
         // ignores ACL visibility, unlike the generic /configuration/host_severities endpoint.
         $criteria = HostSeverityCriteria::unscoped();
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array{name?: mixed} $filters */

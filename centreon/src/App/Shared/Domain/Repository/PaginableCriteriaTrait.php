@@ -30,13 +30,10 @@ trait PaginableCriteriaTrait
 {
     private ?Pagination $pagination = null;
 
-    /**
-     * @throws \InvalidArgumentException when the values break a {@see Pagination} invariant
-     */
-    public function withPagination(int $page, int $itemsPerPage): static
+    public function withPagination(Pagination $pagination): static
     {
         $clone = clone $this;
-        $clone->pagination = new Pagination($page, $itemsPerPage);
+        $clone->pagination = $pagination;
 
         return $clone;
     }

@@ -67,7 +67,7 @@ final readonly class ListServiceTemplatesChoicesProvider implements ProviderInte
         // Monitoring Connectors are excluded once the license host limit is reached, as the host form does.
         $criteria = new ServiceTemplateCriteria();
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array{name?: mixed} $filters */

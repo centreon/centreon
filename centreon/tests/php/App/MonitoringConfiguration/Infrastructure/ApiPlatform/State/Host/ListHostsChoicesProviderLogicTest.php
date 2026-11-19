@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\State\Pagination\Pagination;
+use ApiPlatform\State\Pagination\Pagination as ApiPlatformPagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Model\HostChoice;
@@ -39,6 +39,7 @@ use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -130,7 +131,7 @@ final class ListHostsChoicesProviderLogicTest extends TestCase
         $this->provide([], $role);
 
         self::assertEquals(
-            HostChoiceCriteria::forActor(new ActingUser(new UserId(self::VIEWER_ID), $unrestricted))->withPagination(1, 30),
+            HostChoiceCriteria::forActor(new ActingUser(new UserId(self::VIEWER_ID), $unrestricted))->withPagination(new Pagination(1, 30)),
             $this->repository->receivedCriteria,
         );
     }
@@ -171,7 +172,7 @@ final class ListHostsChoicesProviderLogicTest extends TestCase
         $provider = new ListHostsChoicesProvider(
             new HostChoicesTransformer(),
             $this->repository,
-            new PaginationResolver(new Pagination(['client_items_per_page' => true]), new FakeOptionRepository(), fallbackItemsPerPage: 30),
+            new PaginationResolver(new ApiPlatformPagination(['client_items_per_page' => true]), new FakeOptionRepository(), fallbackItemsPerPage: 30),
             new Security($container),
         );
 

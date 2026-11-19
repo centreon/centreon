@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Trap;
 
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\State\Pagination\Pagination;
+use ApiPlatform\State\Pagination\Pagination as ApiPlatformPagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\Trap;
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
@@ -37,6 +37,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Trap\TrapCho
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Trap\ListTrapsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Trap\TrapChoicesTransformer;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use PHPUnit\Framework\TestCase;
@@ -60,7 +61,7 @@ final class ListTrapsChoicesProviderLogicTest extends TestCase
         $this->provider = new ListTrapsChoicesProvider(
             new TrapChoicesTransformer(),
             $this->repository,
-            new PaginationResolver(new Pagination(['client_items_per_page' => true]), new FakeOptionRepository(), fallbackItemsPerPage: 30),
+            new PaginationResolver(new ApiPlatformPagination(['client_items_per_page' => true]), new FakeOptionRepository(), fallbackItemsPerPage: 30),
         );
     }
 
@@ -126,7 +127,7 @@ final class ListTrapsChoicesProviderLogicTest extends TestCase
     {
         $this->provide([]);
 
-        self::assertEquals((new TrapCriteria())->withPagination(1, 30), $this->repository->receivedCriteria);
+        self::assertEquals((new TrapCriteria())->withPagination(new Pagination(1, 30)), $this->repository->receivedCriteria);
     }
 
     /**

@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceGroup;
 
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\State\Pagination\Pagination;
+use ApiPlatform\State\Pagination\Pagination as ApiPlatformPagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
@@ -40,6 +40,7 @@ use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -131,7 +132,7 @@ final class ListServiceGroupsChoicesProviderLogicTest extends TestCase
         $this->provide([], $role);
 
         self::assertEquals(
-            ServiceGroupCriteria::forActor(new ActingUser(new UserId(self::VIEWER_ID), $unrestricted))->withPagination(1, 30),
+            ServiceGroupCriteria::forActor(new ActingUser(new UserId(self::VIEWER_ID), $unrestricted))->withPagination(new Pagination(1, 30)),
             $this->repository->receivedCriteria,
         );
     }
@@ -172,7 +173,7 @@ final class ListServiceGroupsChoicesProviderLogicTest extends TestCase
         $provider = new ListServiceGroupsChoicesProvider(
             new ServiceGroupChoicesTransformer(),
             $this->repository,
-            new PaginationResolver(new Pagination(['client_items_per_page' => true]), new FakeOptionRepository(), fallbackItemsPerPage: 30),
+            new PaginationResolver(new ApiPlatformPagination(['client_items_per_page' => true]), new FakeOptionRepository(), fallbackItemsPerPage: 30),
             new Security($container),
         );
 

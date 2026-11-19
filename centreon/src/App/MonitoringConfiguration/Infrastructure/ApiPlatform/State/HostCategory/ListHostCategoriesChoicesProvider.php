@@ -70,7 +70,7 @@ final readonly class ListHostCategoriesChoicesProvider implements ProviderInterf
         // Unrestricted users see every host category; others are scoped to their accessible categories.
         $criteria = HostCategoryCriteria::forActor($credentialUser->credential->actingUser());
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array{name?: mixed} $filters */

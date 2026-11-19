@@ -63,7 +63,7 @@ final readonly class ListStandardMacrosProvider implements ProviderInterface
     {
         $criteria = new StandardMacroCriteria();
         if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
-            $criteria = $criteria->withPagination($pagination->page, $pagination->itemsPerPage);
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array<string, mixed> $filters */
