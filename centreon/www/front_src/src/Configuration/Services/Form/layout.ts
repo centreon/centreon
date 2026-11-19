@@ -13,6 +13,7 @@ import {
   type PlacedSection,
   placeBlocks as placeLayoutBlocks
 } from '../../ResourceForm/layout';
+import { labelNotifications } from '../../ResourceForm/translatedLabels';
 import {
   labelAdvanced,
   labelGeneralInformation,
@@ -91,6 +92,25 @@ export const layout: Array<LayoutSection> = [
         columns: ['checkPeriodAndIntervals', 'activeAndPassiveChecks'],
         name: 'scheduling-options',
         title: labelSchedulingOptions
+      }
+    ]
+  },
+  {
+    // Absent on cloud, where no notification block is available.
+    label: labelNotifications,
+    nodes: [
+      {
+        className: twoColumnsFromWide,
+        columnSeparator: true,
+        columns: [
+          'notificationRecipients',
+          {
+            className: stackedColumns,
+            columns: ['notifyOn', 'notificationDelays'],
+            name: 'notifications-when'
+          }
+        ],
+        name: 'notifications-layout'
       }
     ]
   },

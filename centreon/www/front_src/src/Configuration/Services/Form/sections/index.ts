@@ -13,6 +13,12 @@ import {
   getNotesAndIconsBlock
 } from '../../../ResourceForm/fieldBlocks/extendedInfos';
 import { getMacrosBlock } from '../../../ResourceForm/fieldBlocks/macros';
+import {
+  getNotificationDelaysBlock,
+  getNotificationRecipientsBlock,
+  getNotifyOnBlock,
+  type NotificationOptions
+} from '../../../ResourceForm/fieldBlocks/notifications';
 import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
 import {
   getActiveAndPassiveChecksBlock,
@@ -26,9 +32,14 @@ import type {
   ResourceOptions,
   SectionContext
 } from '../../../ResourceForm/models';
-import { labelRequired } from '../../../ResourceForm/translatedLabels';
+import {
+  labelNone,
+  labelRequired
+} from '../../../ResourceForm/translatedLabels';
 import {
   serviceFormCommandsEndpoint,
+  serviceFormContactGroupsEndpoint,
+  serviceFormContactsEndpoint,
   serviceFormGraphTemplatesEndpoint,
   serviceFormHostsEndpoint,
   serviceFormMediasEndpoint,
@@ -41,9 +52,15 @@ import {
   serviceTemplatesEndpoint
 } from '../../api/endpoints';
 import {
+  labelCritical,
+  labelDowntimeScheduled,
+  labelFlapping,
+  labelRecovery,
   labelServiceCategories,
   labelServiceGroups,
-  labelServiceSeverity
+  labelServiceSeverity,
+  labelUnknown,
+  labelWarning
 } from '../../translatedLabels';
 import { getGraphTemplateBlock } from '../blocks/graphTemplate';
 import { getServiceIdentityBlock } from '../blocks/serviceIdentity';
@@ -64,6 +81,17 @@ const resource = serviceResource;
 const monitoringEngineGroup = 'monitoring_engine';
 // And where it keeps the comment, with the data processing.
 const advancedGroup = 'advanced';
+
+// Legacy `w,u,c,r,f,s,n`, as the services API spells them.
+const serviceNotificationOptions: NotificationOptions = [
+  [labelWarning, 'warning'],
+  [labelUnknown, 'unknown'],
+  [labelCritical, 'critical'],
+  [labelRecovery, 'recovery'],
+  [labelFlapping, 'flapping'],
+  [labelDowntimeScheduled, 'downtime_scheduled'],
+  [labelNone, 'none']
+];
 
 // A value, unless the row is still what the service inherits (not sent) or a
 // stored password left as is (sent as null, the server keeps it).
@@ -162,6 +190,23 @@ export const blocks = [
     apiGroup: monitoringEngineGroup,
     resource,
     withVolatile: true
+  }),
+  getNotificationRecipientsBlock({
+    contactGroupsEndpoint: serviceFormContactGroupsEndpoint,
+    contactsEndpoint: serviceFormContactsEndpoint,
+    resource,
+    // A key the detail leaves out keeps its default.
+    withOptionalDetailKeys: true,
+    withUseOnlyContactsFromHost: true
+  }),
+  getNotifyOnBlock({
+    options: serviceNotificationOptions,
+    resource,
+    withOptionalDetailKeys: true
+  }),
+  getNotificationDelaysBlock({
+    resource,
+    timePeriodsEndpoint: serviceFormTimePeriodsEndpoint
   }),
   getCommentBlock({ apiGroup: advancedGroup, resource })
 ] as const;
