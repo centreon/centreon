@@ -48,6 +48,7 @@ export type BlockId =
   | 'eventHandler'
   | 'flapping'
   | 'freshness'
+  | 'graphTemplate'
   | 'groups'
   | 'macros'
   | 'notesAndIcons'
