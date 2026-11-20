@@ -32,6 +32,26 @@ services:
       timeout: 15s
       retries: 20
 
+  # PHP session store for fpm (MON-214095), replacing the old shared
+  # centreon-sessions volume — ephemeral on purpose (no RDB/AOF
+  # persistence): session content is reconstructible by logging in again,
+  # not data worth surviving a Valkey restart, and the session.gc_maxlifetime
+  # ini value (centreon.ini.template) is what actually expires each key.
+  # 8.1.11, not the 8.0.2 this started on: that tag predates the fixes for
+  # CVE-2025-49844 (Lua use-after-free, RCE — fixed 8.0.6/8.1.4/7.2.11) and
+  # CVE-2025-21605 (output-buffer DoS). Digest pinned to the multi-arch
+  # index (amd64+arm64), not a single-platform manifest.
+  valkey:
+    image: "${VALKEY_IMAGE:-valkey/valkey:8.1.11-alpine@sha256:2602ace2be6569bc2bbb06f873776516ab9089821525be34f4305c67eb9db02a}"
+    environment:
+      VALKEY_PASSWORD: "${VALKEY_PASSWORD:-centreon-valkey-dev}"
+    command: ["sh", "-c", "exec valkey-server --requirepass \"$$VALKEY_PASSWORD\" --save '' --appendonly no"]
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli -a \"$$VALKEY_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   fpm:
     build:
       context: ../../..
@@ -41,6 +61,8 @@ services:
       - ../.env
     depends_on:
       db:
+        condition: service_healthy
+      valkey:
         condition: service_healthy
     environment:
       RUN_INSTALL: "true"
@@ -87,6 +109,15 @@ services:
       # image itself defaults to UTC (Dockerfile), this dev stack keeps the
       # value it always had rather than silently changing behavior.
       PHP_TIMEZONE: "${PHP_TIMEZONE:-Europe/Paris}"
+      # MON-214095: PHP sessions in Valkey instead of the (now removed)
+      # centreon-sessions volume — fpm replicas no longer need shared RWX
+      # storage for session state. PHP_SESSION_SAVE_PATH carries no
+      # credentials (01-config.sh appends ?auth=<rawurlencoded> itself from
+      # PHP_SESSION_REDIS_PASSWORD below), so this value stays the same
+      # regardless of the password's own characters.
+      PHP_SESSION_HANDLER: redis
+      PHP_SESSION_SAVE_PATH: "tcp://valkey:6379"
+      PHP_SESSION_REDIS_PASSWORD: "${VALKEY_PASSWORD:-centreon-valkey-dev}"
       # Fixed dev secret, not regenerated on every recreate (neither .env*
       # nor engine-context.json are persisted — a random secret would drift
       # on every `up --force-recreate fpm`, invalidating sessions and
@@ -134,15 +165,6 @@ services:
       # its auto-discovery license check needs to see whatever fpm last wrote
       # here, not a build-time snapshot of its own image layer.
       - centreon-license:/etc/centreon/license.d
-      # PHP's own session store (session.save_handler=files, session.save_path
-      # in centreon-pool.conf) — without this, every fpm recreate silently
-      # logs every user out: the DB-side `session` table only tracks whether
-      # a session id is still valid (CentreonSession::checkSession()), it
-      # never holds the actual $_SESSION content ($_SESSION['centreon'], the
-      # hydrated contact object) — that lives only in these files. A plain
-      # `docker compose restart fpm` already survives this (container
-      # filesystem untouched), only a recreate needed the volume.
-      - centreon-sessions:/var/lib/php/sessions
     healthcheck:
       test: ["CMD-SHELL", "test -f /tmp/docker.ready"]
       interval: 5s
@@ -552,7 +574,6 @@ volumes:
   centreon-metrics:
   centreon-media:
   centreon-license:
-  centreon-sessions:
   poller-etc:
   poller-engine:
   poller-broker:
