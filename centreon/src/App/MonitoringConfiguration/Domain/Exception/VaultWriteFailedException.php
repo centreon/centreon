@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 
 /**
  * A secret could not be written to the vault before saving: nothing was persisted.
@@ -52,6 +53,27 @@ final class VaultWriteFailedException extends \RuntimeException
     {
         return new self(
             sprintf('Host template %d was not duplicated: its credentials could not be read from or written to the vault.', $sourceId->value),
+            previous: $previous,
+        );
+    }
+
+    public static function forServiceCopy(ServiceId $sourceId, \Throwable $previous): self
+    {
+        return new self(
+            sprintf('Service %d was not duplicated: its credentials could not be read from or written to the vault.', $sourceId->value),
+            previous: $previous,
+        );
+    }
+
+    /**
+     * @param ?ServiceId $serviceId the service being updated, null for a service being created (it has no id yet)
+     */
+    public static function forService(?ServiceId $serviceId, \Throwable $previous): self
+    {
+        return new self(
+            $serviceId instanceof ServiceId
+                ? sprintf('Service %d was not updated: its credentials could not be written to the vault.', $serviceId->value)
+                : 'The service was not created: its credentials could not be written to the vault.',
             previous: $previous,
         );
     }

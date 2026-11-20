@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
@@ -81,4 +82,26 @@ interface ServiceTemplateRepository
      * @return Collection<ServiceCheckIntervals> indexed by service id
      */
     public function findInheritedCheckIntervals(Collection $serviceIds): Collection;
+
+    /**
+     * The template chain from $templateId, nearest first, through service templates only; stops at a dangling
+     * id or a loop. Empty when the id is not a service template.
+     *
+     * @return Collection<ServiceTemplate>
+     */
+    public function findInheritanceLine(ServiceTemplateId $templateId): Collection;
+
+    /**
+     * The service templates a host gets services from: those linked to the host templates of its template chain,
+     * the host's own templates by `order`, each followed depth-first by its ancestors, each host template once at
+     * its first visit (a loop ends there); within one host template by ascending id; each service template once,
+     * at its first place. Host templates and service templates are taken enabled or not. Templates linked to the
+     * host itself are not part of it.
+     *
+     * Hydrated with the name, the raw alias and the distinct groups of all its `servicegroup_relation` rows,
+     * whatever host, host template or host group the row names and whether the group is enabled or not.
+     *
+     * @return Collection<ServiceTemplate>
+     */
+    public function findDeployableOnHost(HostId $hostId): Collection;
 }

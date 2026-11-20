@@ -166,10 +166,10 @@ final readonly class ListServicesProvider implements ProviderInterface
         $templateIds = [];
         foreach ($services as $service) {
             $hostIds[$service->hostId->value] = $service->hostId;
-            if (! $service->iconId instanceof MediaId) {
+            if (! $service->extendedInformations?->iconId instanceof MediaId) {
                 $serviceIdsWithoutIcon[$service->id()->value] = $service->id();
             }
-            if ($service->checkIntervals->normal === null || $service->checkIntervals->retry === null) {
+            if ($service->schedulingOptions->normalCheckInterval === null || $service->schedulingOptions->retryCheckInterval === null) {
                 $serviceIdsMissingAnInterval[$service->id()->value] = $service->id();
             }
             if ($service->templateId instanceof ServiceTemplateId) {
@@ -207,8 +207,9 @@ final readonly class ListServicesProvider implements ProviderInterface
             $mediaIds[$mediaId->value] = $mediaId;
         }
         foreach ($services as $service) {
-            if ($service->iconId instanceof MediaId) {
-                $mediaIds[$service->iconId->value] = $service->iconId;
+            $iconId = $service->extendedInformations?->iconId;
+            if ($iconId instanceof MediaId) {
+                $mediaIds[$iconId->value] = $iconId;
             }
         }
         /** @var array<int, Media> $media indexed by media id */
@@ -229,11 +230,11 @@ final readonly class ListServicesProvider implements ProviderInterface
             }
             $output->host = $host;
 
-            $output->icon = $this->icon($service->iconId ?? $inheritedIconIds[$service->id()->value] ?? null, $media);
+            $output->icon = $this->icon($service->extendedInformations->iconId ?? $inheritedIconIds[$service->id()->value] ?? null, $media);
 
             $inherited = $inheritedIntervals[$service->id()->value] ?? null;
-            $output->normalCheckInterval = $service->checkIntervals->normal ?? $inherited?->normal;
-            $output->retryCheckInterval = $service->checkIntervals->retry ?? $inherited?->retry;
+            $output->normalCheckInterval = $service->schedulingOptions->normalCheckInterval ?? $inherited?->normal;
+            $output->retryCheckInterval = $service->schedulingOptions->retryCheckInterval ?? $inherited?->retry;
 
             // A template that no longer exists (no foreign key on the reference) shows none, as in the host listing.
             if ($service->templateId instanceof ServiceTemplateId && isset($templateNames[$service->templateId->value])) {

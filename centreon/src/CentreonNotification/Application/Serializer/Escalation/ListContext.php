@@ -25,13 +25,6 @@ use Centreon\Application\Serializer\SerializerContextInterface;
 use CentreonNotification\Domain\Entity\Escalation;
 
 /**
- * @OA\Schema(
- *   schema="EscalationEntity",
- *
- *       @OA\Property(property="id", type="integer"),
- *       @OA\Property(property="name", type="string")
- * )
- *
  * Serialize Escalation entity for list
  */
 class ListContext implements SerializerContextInterface

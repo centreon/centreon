@@ -39,7 +39,8 @@ use App\Shared\Domain\VaultInterface;
  *   editing or deleting the template cannot change or purge the host's secret. The only such
  *   references are those HostMacroChangesResolver carries over when an inherited password is
  *   promoted to direct with its stored value kept: the API rejects any submitted reference;
- * - a reference already in the host's entry is left untouched, even after a rename;
+ * - a reference already in the host's entry, under the key of the macro's name, is left untouched;
+ *   after a rename, the secret is written again under the new name and the old key deleted;
  * - an empty value is stored as is, nothing vaulted;
  * - a key of the host's entry no macro references any more (macro removed, reverted to inherited as
  *   redundant, or no longer a password) is deleted from the entry.
@@ -81,14 +82,14 @@ final readonly class HostMacroSecretsSynchronizer
 
         /** @var array<int, string> $toWrite plaintext indexed by position in $macros */
         $toWrite = [];
-        /** @var array<string, int> $firstIndexByName */
-        $firstIndexByName = [];
+        /** @var array<string, true> $seenNames */
+        $seenNames = [];
         foreach ($macros as $index => $macro) {
             // A host holds one macro per name, the first one wins whatever its type (see CheckOptions).
-            if (isset($firstIndexByName[$macro->name->value])) {
+            if (isset($seenNames[$macro->name->value])) {
                 continue;
             }
-            $firstIndexByName[$macro->name->value] = $index;
+            $seenNames[$macro->name->value] = true;
             if (! $macro->isPassword) {
                 continue;
             }
@@ -96,8 +97,9 @@ final readonly class HostMacroSecretsSynchronizer
             if ($macro->value === '') {
                 continue;
             }
-
-            if ($this->isInHostEntry($macro->value, $hostVaultUuid)) {
+            // Every secret is read here, before the single write below, so renames and swaps cannot
+            // overwrite a key another macro still has to read.
+            if ($this->isInHostEntry($macro->value, $hostVaultUuid) && $this->keyOf($macro->value) === $this->keyFor($macro)) {
                 continue;
             }
 
@@ -106,31 +108,15 @@ final readonly class HostMacroSecretsSynchronizer
                 : $macro->value;
         }
 
-        // A renamed password whose key another macro claims moves under its own name; repeat for chained renames.
-        $claimedKeys = [];
+        $writtenKeys = [];
         foreach (array_keys($toWrite) as $index) {
-            $claimedKeys[$this->keyFor($macros[$index])] = true;
+            $writtenKeys[$this->keyFor($macros[$index])] = true;
         }
-        do {
-            $claimedKeyCount = count($claimedKeys);
-            foreach ($macros as $index => $macro) {
-                if (
-                    $firstIndexByName[$macro->name->value] === $index
-                    && ! isset($toWrite[$index])
-                    && $macro->isPassword
-                    && $this->isInHostEntry($macro->value, $hostVaultUuid)
-                    && isset($claimedKeys[$this->keyOf($macro->value)])
-                    && $this->keyOf($macro->value) !== $this->keyFor($macro)
-                ) {
-                    $toWrite[$index] = $this->vault->resolve($macro->value);
-                    $claimedKeys[$this->keyFor($macro)] = true;
-                }
-            }
-        } while (count($claimedKeys) > $claimedKeyCount);
+        $keptKeys = $this->hostEntryKeys(array_values(array_diff_key($macros, $toWrite)), $hostVaultUuid);
 
         $credentials = VaultCredentials::empty();
         foreach (array_keys($previousKeys) as $key) {
-            if (! isset($claimedKeys[$key]) && ! $this->isKeptBy($key, $macros, $hostVaultUuid, $toWrite)) {
+            if (! isset($writtenKeys[$key]) && ! isset($keptKeys[$key])) {
                 $credentials = $credentials->clear($key);
             }
         }
@@ -163,26 +149,6 @@ final readonly class HostMacroSecretsSynchronizer
         }
 
         return $keys;
-    }
-
-    /**
-     * @param list<HostMacro> $macros
-     * @param array<int, string> $toWrite
-     */
-    private function isKeptBy(string $key, array $macros, ?string $hostVaultUuid, array $toWrite): bool
-    {
-        foreach ($macros as $index => $macro) {
-            if (
-                ! isset($toWrite[$index])
-                && $macro->isPassword
-                && $this->isInHostEntry($macro->value, $hostVaultUuid)
-                && $this->keyOf($macro->value) === $key
-            ) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function isInHostEntry(string $value, ?string $hostVaultUuid): bool

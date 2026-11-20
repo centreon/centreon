@@ -11,6 +11,11 @@ export const labelCommand = 'Command';
 export const labelFreshnessCheck = 'Freshness check';
 export const labelDataProcessing = 'Data processing';
 export const labelFlapDetection = 'Flap detection';
+export const labelCustomMacros = 'Custom macros';
+
+// Templates
+export const labelSelectATemplate = 'Select a template';
+export const labelEditTemplate = 'Modify';
 
 // Form validation
 export const labelRequired = 'Required';
@@ -48,6 +53,9 @@ export const labelNotificationEnabled = 'Enable notifications';
 export const labelContactAdditiveInheritance = 'Add to inherited contacts';
 export const labelContactGroupAdditiveInheritance =
   'Add to inherited contact groups';
+// Only a service may notify its host's recipients instead of its own.
+export const labelInheritContactsFromHost =
+  'Inherit only contacts/contacts group from host';
 export const labelLinkedContacts = 'Linked contacts';
 export const labelLinkedContactGroups = 'Linked contact groups';
 export const labelNotificationInterval = 'Notify again every';
@@ -68,6 +76,20 @@ export const labelEventHandlerEnabled = 'Enable event handler';
 // Legacy's label for the arguments of the check command and the event handler.
 export const labelArgs = 'Args';
 export const labelSeconds = 'seconds';
+export const labelEventHandlerArgumentsNeedAnEventHandler =
+  'No event handler selected';
+export const labelForbiddenEventHandlerArguments =
+  'The following arguments are not valid: {{arguments}}';
+// The on-premise directives of a service (legacy msgids).
+export const labelMiscellaneous = 'Miscellaneous';
+export const labelObsessOverService = 'Obsess Over Service';
+export const labelRetainStatusInformation = 'Retain Status Information';
+export const labelRetainNonStatusInformation = 'Retain Non Status Information';
+export const labelStalkingOptions = 'Stalking Options';
+export const labelOk = 'Ok';
+export const labelWarning = 'Warning';
+export const labelUnknown = 'Unknown';
+export const labelCritical = 'Critical';
 // The unit of the delays the engine counts in intervals of one minute.
 export const labelTimesSixtySeconds = '* 60 seconds';
 
@@ -80,7 +102,14 @@ export const labelAltIcon = 'Alt icon';
 export const labelGeographicCoordinates = 'Geographic coordinates';
 export const labelComments = 'Comments';
 
-// Mass change
+// A severity option, as the legacy select shows it.
+export const labelSeverityWithLevel = '{{name}} ({{level}})';
+
+// Mass change: the update modes are named after what they do to each list.
 export const labelUpdateMode = 'Update mode';
-export const labelIncremental = 'Incremental';
-export const labelReplacement = 'Replacement';
+export const labelIncremental = 'Add';
+export const labelReplacement = 'Replace';
+export const labelRemoval = 'Delete';
+// Wording to confirm with UX.
+export const labelHostRecipientsReplaceOwn =
+  'When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected.';

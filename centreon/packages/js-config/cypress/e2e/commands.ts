@@ -110,15 +110,15 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'waitForElementInIframe',
   (iframeSelector, elementSelector) => {
+    // Return the visibility: within() yields the body, which passed the wait at once
     cy.waitUntil(
       () =>
         cy
           .get(iframeSelector)
           .its('0.contentDocument.body')
           .should('not.be.empty')
-          .then(cy.wrap)
-          .within(() => {
-            const element = Cypress.$(elementSelector);
+          .then((body) => {
+            const element = Cypress.$(body).find(elementSelector);
 
             return element.length > 0 && element.is(':visible');
           }),

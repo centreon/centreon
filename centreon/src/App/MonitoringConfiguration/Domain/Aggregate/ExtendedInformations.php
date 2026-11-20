@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Model\EngineConfigurationValue;
 use App\Shared\Domain\NoValue;
 use Webmozart\Assert\Assert;
 
@@ -67,22 +68,23 @@ final readonly class ExtendedInformations
         ?string $comment = null,
         public ?GeoCoordinates $geoCoordinates = null,
     ) {
-        $noteUrl = $noteUrl !== null ? trim($noteUrl) : null;
+        $noteUrl = $noteUrl !== null ? trim(EngineConfigurationValue::toSingleLine($noteUrl)) : null;
         Assert::nullOrLengthBetween($noteUrl, self::MIN_NOTE_URL_LENGTH, self::MAX_NOTE_URL_LENGTH);
         $this->noteUrl = $noteUrl;
 
-        $note = $note !== null ? trim($note) : null;
+        $note = $note !== null ? trim(EngineConfigurationValue::toSingleLine($note)) : null;
         Assert::nullOrLengthBetween($note, self::MIN_NOTE_LENGTH, self::MAX_NOTE_LENGTH);
         $this->note = $note;
 
-        $actionUrl = $actionUrl !== null ? trim($actionUrl) : null;
+        $actionUrl = $actionUrl !== null ? trim(EngineConfigurationValue::toSingleLine($actionUrl)) : null;
         Assert::nullOrLengthBetween($actionUrl, self::MIN_ACTION_URL_LENGTH, self::MAX_ACTION_URL_LENGTH);
         $this->actionUrl = $actionUrl;
 
-        $altIcon = $altIcon !== null ? trim($altIcon) : null;
+        $altIcon = $altIcon !== null ? trim(EngineConfigurationValue::toSingleLine($altIcon)) : null;
         Assert::nullOrLengthBetween($altIcon, self::MIN_ALT_ICON_LENGTH, self::MAX_ALT_ICON_LENGTH);
         $this->altIcon = $altIcon;
 
+        // Not written into the monitoring engine configuration: it may span several lines.
         $comment = $comment !== null ? trim($comment) : null;
         Assert::nullOrLengthBetween($comment, self::MIN_COMMENT_LENGTH, self::MAX_COMMENT_LENGTH);
         $this->comment = $comment;

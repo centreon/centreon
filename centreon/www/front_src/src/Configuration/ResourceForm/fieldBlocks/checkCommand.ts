@@ -11,7 +11,7 @@ import {
   type TestContext
 } from 'yup';
 
-import { optionalNamedEntityDecoder } from '../api/decoders';
+import { namedEntityDecoder } from '../api/decoders';
 import { argumentsToText, textToArguments } from '../commandArguments';
 import { getBlock } from '../grid';
 import type {
@@ -29,9 +29,13 @@ import {
   labelRequired
 } from '../translatedLabels';
 
+// The detail tells a Centreon Monitoring Agent command, whose freshness check
+// the server forces. A command picked in the selector is never one.
+type CheckCommand = NamedEntity & { isCentreonMonitoringAgent?: boolean };
+
 interface CheckCommandValues {
   args: string;
-  command: NamedEntity | null;
+  command: CheckCommand | null;
 }
 
 // Within the API's `check_options`, which other blocks fill too.
@@ -50,7 +54,18 @@ const checkCommandDecoder = JsonDecoder.object<CheckCommandValues>(
     args: JsonDecoder.optional(
       JsonDecoder.array(JsonDecoder.string, 'Check command arguments')
     ).map((value) => argumentsToText(value ?? [])),
-    command: optionalNamedEntityDecoder('Check command')
+    command: JsonDecoder.optional(
+      JsonDecoder.nullable(
+        JsonDecoder.object<CheckCommand>(
+          {
+            ...namedEntityDecoder,
+            isCentreonMonitoringAgent: JsonDecoder.optional(JsonDecoder.boolean)
+          },
+          'Check command',
+          { isCentreonMonitoringAgent: 'is_centreon_monitoring_agent' }
+        )
+      )
+    ).map((value) => value ?? null)
   },
   'Check options'
 );
