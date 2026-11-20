@@ -428,7 +428,7 @@ jobs:
       - name: Resolve Pulp registry host
         id: pulp-registry
         env:
-          PULP_API_URL: ${{ vars.PULP_API_URL }}
+          PULP_API_URL: https://pulp-api-dev.int.centreon.com
         run: |
           host="${PULP_API_URL#*://}"
           echo "host=${host%%/*}" >> "$GITHUB_OUTPUT"
@@ -440,7 +440,7 @@ jobs:
           SOURCE_REF: ${{ steps.candidate.outputs.ref }}
           DEST_IMAGE: ${{ steps.pulp-registry.outputs.host }}/default/centreon/charts/${{ matrix.chart }}
           DEST_TAGS: ${{ steps.candidate.outputs.version }}
-          PULP_OIDC_AUDIENCE: ${{ vars.PULP_OIDC_AUDIENCE }}
+          PULP_OIDC_AUDIENCE: https://pulp.dev.centreon.io
         run: bash .github/scripts/docker-promote.sh
         shell: bash
 

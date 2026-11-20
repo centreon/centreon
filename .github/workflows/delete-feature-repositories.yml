@@ -107,8 +107,8 @@ jobs:
       - name: Setup pulp-cli
         uses: ./.github/actions/setup-pulp-cli
         with:
-          pulp_url: ${{ vars.PULP_API_URL }}
-          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+          pulp_url: https://pulp-api-dev.int.centreon.com
+          audience: https://pulp.dev.centreon.io
 
       - name: Delete feature repositories
         shell: bash

@@ -2272,9 +2272,9 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
-          pulp_url: ${{ vars.PULP_API_URL }}
-          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
-          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+          pulp_url: https://pulp-api-dev.int.centreon.com
+          pulp_content_url: https://packages-dev.centreon.com
+          audience: https://pulp.dev.centreon.io
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   promote-pulp:
@@ -2311,9 +2311,9 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          pulp_url: ${{ vars.PULP_API_URL }}
-          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
-          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+          pulp_url: https://pulp-api-dev.int.centreon.com
+          pulp_content_url: https://packages-dev.centreon.com
+          audience: https://pulp.dev.centreon.io
 
   promote-docker-to-ghcr:
     needs: [get-environment]
@@ -2444,7 +2444,7 @@ jobs:
       - name: Resolve Pulp registry host
         id: pulp-registry
         env:
-          PULP_API_URL: ${{ vars.PULP_API_URL }}
+          PULP_API_URL: https://pulp-api-dev.int.centreon.com
         run: |
           host="${PULP_API_URL#*://}"
           echo "host=${host%%/*}" >> "$GITHUB_OUTPUT"
@@ -2459,7 +2459,7 @@ jobs:
           source_tag: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
           dest_image: ${{ steps.pulp-registry.outputs.host }}/default/centreon/${{ matrix.component }}
           dest_tags: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} ${{ needs.get-environment.outputs.major_version }}
-          pulp_oidc_audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+          pulp_oidc_audience: https://pulp.dev.centreon.io
 
       - name: Attest SBOM
         id: attest-sbom

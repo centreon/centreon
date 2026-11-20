@@ -50,7 +50,7 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
-      labels: ${{ inputs.labels || '' }}
+      labels: ${{ inputs.labels || '' }},skip-all-tests
 
   check-version-consistency:
     runs-on: ubuntu-24.04
@@ -236,7 +236,7 @@ jobs:
       packages: read
 
     container:
-      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.operating_system }}
+      image: ghcr.io/centreon/delivery-tooling/packaging:27.01-${{ matrix.operating_system }}
 
     name: package ${{ matrix.distrib }}
 
@@ -358,9 +358,9 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
-          pulp_url: ${{ vars.PULP_API_URL }}
-          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
-          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+          pulp_url: https://pulp-api-dev.int.centreon.com
+          pulp_content_url: https://packages-dev.centreon.com
+          audience: https://pulp.dev.centreon.io
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   promote-pulp:
@@ -398,9 +398,9 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          pulp_url: ${{ vars.PULP_API_URL }}
-          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
-          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+          pulp_url: https://pulp-api-dev.int.centreon.com
+          pulp_content_url: https://packages-dev.centreon.com
+          audience: https://pulp.dev.centreon.io
 
   # Reports this run's delivery to its testing bundle: runs on testing-* tags only.
   release-bundle-status:
