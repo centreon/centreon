@@ -18,7 +18,18 @@ runs:
             throw new Error(`❌ Nightly should not be run on weekend days.`);
           }
 
-          const maintenanceBranches = ['dev-24.10.x', 'dev-25.10.x', 'dev-26.10.x'];
+          // Maintained majors: .github/maintained-majors.json (needs a checkout). Remove a version there at its end of life
+          let majors;
+          try {
+            ({ majors } = JSON.parse(require('fs').readFileSync('.github/maintained-majors.json', 'utf8')));
+          } catch (e) {
+            throw new Error(`Cannot read .github/maintained-majors.json (is the repository checked out?): ${e.message}`);
+          }
+          if (!Array.isArray(majors) || majors.length === 0 || !majors.every((m) => /^[0-9]{2}\.(04|10)$/.test(m)) || new Set(majors).size !== majors.length) {
+            throw new Error('.github/maintained-majors.json must hold a non-empty "majors" list of distinct XX.04 or XX.10');
+          }
+          // Sorted, so the rotation does not depend on the order in the file
+          const maintenanceBranches = [...majors].sort().map((major) => `dev-${major}.x`);
           const referenceDate = new Date('2025-01-01');
 
           // Calculate the number of working days since the reference date
