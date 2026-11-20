@@ -1,0 +1,37 @@
+meta {
+  name: POST centreon_clapi - Apply configuration after cleanup - HTTP 200
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUriCentreonCLAPI}}
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "APPLYCFG",
+    "values": "{{PollerName}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("CLAPI reloads the central poller without the deleted host (cleanup)", function () {
+    expect(res.getBody()).to.have.property("result");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

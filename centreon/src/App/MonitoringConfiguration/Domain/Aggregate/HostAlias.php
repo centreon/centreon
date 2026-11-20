@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate;
 
+use App\MonitoringConfiguration\Domain\Model\EngineConfigurationValue;
 use Webmozart\Assert\Assert;
 
 final readonly class HostAlias
@@ -34,7 +35,7 @@ final readonly class HostAlias
 
     public function __construct(string $value)
     {
-        $value = trim($value);
+        $value = trim(EngineConfigurationValue::toSingleLine($value));
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
         $this->value = $value;
     }

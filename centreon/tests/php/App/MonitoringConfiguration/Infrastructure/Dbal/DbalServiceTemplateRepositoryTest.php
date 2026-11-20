@@ -23,9 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroParentEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateName;
@@ -185,6 +189,17 @@ final class DbalServiceTemplateRepositoryTest extends KernelTestCase
         self::assertSame([], $this->monitoringConnectorTemplateIds([]));
     }
 
+    /**
+     * A template loop below a connector template ends the walk instead of running forever.
+     */
+    public function testFindMonitoringConnectorTemplateIdsStopsOnATemplateLoop(): void
+    {
+        [$paidId, $childId, $grandChildId] = $this->insertMonitoringConnectors();
+        $this->connection->update('service', ['service_template_model_stm_id' => $grandChildId], ['service_id' => $paidId]);
+
+        self::assertSame([$paidId, $childId, $grandChildId], $this->monitoringConnectorTemplateIds(['base-generic']));
+    }
+
     public function testFindNamesByIdsReturnsTemplateNamesIndexedById(): void
     {
         $firstId = $this->insertService("tpl-a-{$this->tag}");
@@ -304,6 +319,207 @@ final class DbalServiceTemplateRepositoryTest extends KernelTestCase
             [$firstServiceId => new ServiceCheckIntervals(normal: 1), $secondServiceId => new ServiceCheckIntervals(retry: 2)],
             $this->inheritedCheckIntervals($firstServiceId, $secondServiceId),
         );
+    }
+
+    public function testFindInheritanceLineWalksUpTheChainNearestFirstWithWhatEachLevelGives(): void
+    {
+        $checkCommandId = $this->insertCommand('check');
+        $eventHandlerId = $this->insertCommand('handler');
+        $root = $this->insertTemplateLevel('root', checkCommandId: $checkCommandId);
+        $middle = $this->insertTemplateLevel('middle', parentId: $root, eventHandlerId: $eventHandlerId);
+        $nearest = $this->insertTemplateLevel('nearest', parentId: $middle);
+        $passwordMacroId = $this->insertMacro($middle, '$_SERVICETOKEN$', 'secret', isPassword: true);
+        $plainMacroId = $this->insertMacro($middle, '$_SERVICEPORT$', '443', isPassword: false);
+
+        $line = $this->repository->findInheritanceLine(new ServiceTemplateId($nearest))->toArray();
+
+        self::assertSame([$nearest, $middle, $root], array_map(static fn (ServiceTemplate $template): int => $template->id()->value, $line));
+        [$nearestTemplate, $middleTemplate, $rootTemplate] = $line;
+        self::assertSame("nearest-{$this->tag}", $nearestTemplate->name->value);
+        self::assertSame($middle, $nearestTemplate->parentId?->value);
+        self::assertSame($root, $middleTemplate->parentId?->value);
+        self::assertNull($rootTemplate->parentId);
+        self::assertSame($checkCommandId, $rootTemplate->checkCommandId?->value);
+        self::assertNull($middleTemplate->checkCommandId);
+        self::assertSame($eventHandlerId, $middleTemplate->eventHandlerCommandId?->value);
+        self::assertNull($rootTemplate->eventHandlerCommandId);
+        self::assertSame([], $nearestTemplate->macrosAsInherited());
+        self::assertSame(
+            [[$passwordMacroId, 'TOKEN', 'secret', true], [$plainMacroId, 'PORT', '443', false]],
+            array_map(
+                static fn (ServiceMacro $macro): array => [$macro->id?->value, $macro->name->value, $macro->value, $macro->isPassword],
+                $middleTemplate->macrosAsInherited(),
+            ),
+        );
+        self::assertSame(ServiceMacroParentEnum::Template, $middleTemplate->macrosAsInherited()[0]->parent);
+    }
+
+    public function testFindInheritanceLineKeepsDisabledTemplates(): void
+    {
+        $root = $this->insertTemplateLevel('root', activate: '0');
+        $nearest = $this->insertTemplateLevel('nearest', parentId: $root);
+
+        self::assertSame([$nearest, $root], $this->lineIds($nearest));
+    }
+
+    public function testFindInheritanceLineStopsOnALoop(): void
+    {
+        $first = $this->insertTemplateLevel('first');
+        $second = $this->insertTemplateLevel('second', parentId: $first);
+        $this->connection->update('service', ['service_template_model_stm_id' => $second], ['service_id' => $first]);
+
+        self::assertSame([$second, $first], $this->lineIds($second));
+    }
+
+    public function testFindInheritanceLineStopsAtAParentThatIsNotAServiceTemplate(): void
+    {
+        $realService = $this->insertChainLevel('real-service', register: '1');
+        $dangling = $this->insertTemplateLevel('dangling', parentId: $realService + 1000000);
+        $onAService = $this->insertTemplateLevel('on-a-service', parentId: $realService);
+
+        self::assertSame([$dangling], $this->lineIds($dangling));
+        self::assertSame([$onAService], $this->lineIds($onAService));
+    }
+
+    public function testFindInheritanceLineIsEmptyForAnIdThatIsNotAServiceTemplate(): void
+    {
+        $realService = $this->insertChainLevel('real-service', register: '1');
+
+        self::assertSame([], $this->lineIds($realService));
+        self::assertSame([], $this->lineIds($realService + 1000000));
+    }
+
+    public function testFindInheritanceLineIgnoresAMacroRowNotInTheServiceMacroForm(): void
+    {
+        $template = $this->insertTemplateLevel('template');
+        $this->insertMacro($template, 'NOT_A_MACRO', 'v', isPassword: false);
+        $this->insertMacro($template, '$_SERVICEKEPT$', 'v', isPassword: false);
+
+        $line = $this->repository->findInheritanceLine(new ServiceTemplateId($template))->toArray();
+
+        self::assertSame(['KEPT'], array_map(static fn (ServiceMacro $macro): string => $macro->name->value, $line[0]->macrosAsInherited()));
+    }
+
+    /**
+     * The templates of the host's own host templates and of all their ancestors, enabled or not; what is linked to
+     * the host itself, real services and unrelated host templates are not part of it.
+     */
+    public function testFindDeployableOnHostCoversTheWholeChain(): void
+    {
+        $hostId = $this->insertHost('host', register: '1');
+        $direct = $this->insertHost('direct');
+        $disabledAncestor = $this->insertHost('disabled-ancestor', activate: '0');
+        $unrelated = $this->insertHost('unrelated');
+        $this->linkHostTemplate($hostId, $direct, 1);
+        $this->linkHostTemplate($direct, $disabledAncestor, 1);
+        $onDirect = $this->insertDeployableTemplate('on-direct', [$direct]);
+        $disabledOnAncestor = $this->insertDeployableTemplate('disabled-on-ancestor', [$disabledAncestor], activate: '0');
+        $this->insertDeployableTemplate('on-the-host', [$hostId]);
+        $this->insertDeployableTemplate('on-unrelated', [$unrelated]);
+        $this->linkToHost($this->insertService("real-service-{$this->tag}", register: '1'), $direct);
+
+        self::assertSame([$onDirect, $disabledOnAncestor], $this->deployableIds($hostId));
+    }
+
+    /**
+     * The host's own templates by `order`, each followed depth-first by its ancestors, a host template being visited
+     * once, at its first visit; within one host template by ascending id.
+     */
+    public function testFindDeployableOnHostWalksTheChainDepthFirstByOrder(): void
+    {
+        $hostId = $this->insertHost('host', register: '1');
+        $second = $this->insertHost('second');
+        $first = $this->insertHost('first');
+        $sharedAncestor = $this->insertHost('shared-ancestor');
+        $this->linkHostTemplate($hostId, $second, 2);
+        $this->linkHostTemplate($hostId, $first, 1);
+        $this->linkHostTemplate($first, $sharedAncestor, 1);
+        $this->linkHostTemplate($second, $sharedAncestor, 1);
+        $onSecond = $this->insertDeployableTemplate('on-second', [$second]);
+        $onAncestor = $this->insertDeployableTemplate('on-ancestor', [$sharedAncestor]);
+        $firstOnFirst = $this->insertDeployableTemplate('first-on-first', []);
+        $secondOnFirst = $this->insertDeployableTemplate('second-on-first', [$first]);
+        // linked after the higher id, so only an ordering by id puts it first
+        $this->linkToHost($firstOnFirst, $first);
+
+        self::assertSame([$firstOnFirst, $secondOnFirst, $onAncestor, $onSecond], $this->deployableIds($hostId));
+    }
+
+    /**
+     * A loop in the host template relations, even one back to the host, ends the walk; a service template linked to
+     * several host templates of the chain is listed once, at its first place.
+     */
+    public function testFindDeployableOnHostStopsLoopsAndListsATemplateOnce(): void
+    {
+        $hostId = $this->insertHost('host', register: '1');
+        $first = $this->insertHost('first');
+        $second = $this->insertHost('second');
+        $this->linkHostTemplate($hostId, $first, 1);
+        $this->linkHostTemplate($first, $second, 1);
+        $this->linkHostTemplate($second, $first, 1);
+        $this->linkHostTemplate($second, $hostId, 2);
+        $onSecond = $this->insertDeployableTemplate('on-second', [$second]);
+        $onBoth = $this->insertDeployableTemplate('on-both', [$first, $second]);
+        $this->insertDeployableTemplate('on-the-host', [$hostId]);
+
+        self::assertSame([$onBoth, $onSecond], $this->deployableIds($hostId));
+    }
+
+    /**
+     * The alias is read raw (untrimmed, NULL kept); the groups are those of every row of the template, whatever host
+     * template or host group the row names, enabled or not, each once; a row without a group is skipped.
+     */
+    public function testFindDeployableOnHostHydratesAliasAndServiceGroups(): void
+    {
+        $hostId = $this->insertHost('host', register: '1');
+        $hostTemplateId = $this->insertHost('template');
+        $otherHostTemplateId = $this->insertHost('other-template');
+        $this->linkHostTemplate($hostId, $hostTemplateId, 1);
+        $padded = $this->insertDeployableTemplate('padded', [$hostTemplateId], alias: '  Ping  ');
+        $withoutAlias = $this->insertDeployableTemplate('without-alias', [$hostTemplateId], alias: null);
+        $onTemplate = $this->insertServiceGroup();
+        $onHostGroup = $this->insertServiceGroup();
+        $disabled = $this->insertServiceGroup(activate: '0');
+        $this->linkToServiceGroup($padded, $onTemplate, hostId: $hostTemplateId);
+        $this->linkToServiceGroup($padded, $onTemplate, hostId: $otherHostTemplateId);
+        $this->linkToServiceGroup($padded, $onHostGroup, hostGroupId: $this->insertHostGroup());
+        $this->linkToServiceGroup($padded, $disabled, hostId: $otherHostTemplateId);
+        $this->linkToServiceGroup($padded, null, hostId: $hostTemplateId);
+
+        [$paddedTemplate, $withoutAliasTemplate] = $this->repository->findDeployableOnHost(new HostId($hostId))->toArray();
+
+        self::assertSame([$padded, "padded-{$this->tag}", '  Ping  '], [$paddedTemplate->id()->value, $paddedTemplate->name->value, $paddedTemplate->alias]);
+        $groupIds = array_map(static fn (ServiceGroupId $id): int => $id->value, $paddedTemplate->serviceGroupIds->toArray());
+        sort($groupIds);
+        self::assertSame([$onTemplate, $onHostGroup, $disabled], $groupIds);
+        self::assertSame([$withoutAlias, null, []], [$withoutAliasTemplate->id()->value, $withoutAliasTemplate->alias, $withoutAliasTemplate->serviceGroupIds->toArray()]);
+    }
+
+    /**
+     * A nameless template is not a valid state: it is skipped rather than failing the whole read.
+     */
+    public function testFindDeployableOnHostSkipsATemplateWithoutAName(): void
+    {
+        $hostId = $this->insertHost('host', register: '1');
+        $hostTemplateId = $this->insertHost('template');
+        $this->linkHostTemplate($hostId, $hostTemplateId, 1);
+        $named = $this->insertDeployableTemplate('named', [$hostTemplateId]);
+        foreach ([null, ''] as $name) {
+            $this->connection->insert('service', ['service_description' => $name, 'service_alias' => 'alias', 'service_register' => '0']);
+            $this->linkToHost((int) $this->connection->lastInsertId(), $hostTemplateId);
+        }
+
+        self::assertSame([$named], $this->deployableIds($hostId));
+    }
+
+    public function testFindDeployableOnHostIsEmptyWithoutTemplates(): void
+    {
+        $withoutTemplate = $this->insertHost('without-template', register: '1');
+        $withAnEmptyTemplate = $this->insertHost('with-an-empty-template', register: '1');
+        $this->linkHostTemplate($withAnEmptyTemplate, $this->insertHost('empty'), 1);
+
+        self::assertSame([], $this->deployableIds($withoutTemplate));
+        self::assertSame([], $this->deployableIds($withAnEmptyTemplate));
     }
 
     /**
@@ -466,5 +682,138 @@ final class DbalServiceTemplateRepositoryTest extends KernelTestCase
         }
 
         return $imageId;
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function lineIds(int $templateId): array
+    {
+        return array_values(array_map(
+            static fn (ServiceTemplate $template): int => $template->id()->value,
+            $this->repository->findInheritanceLine(new ServiceTemplateId($templateId))->toArray(),
+        ));
+    }
+
+    private function insertTemplateLevel(
+        string $name,
+        ?int $parentId = null,
+        ?int $checkCommandId = null,
+        ?int $eventHandlerId = null,
+        string $activate = '1',
+    ): int {
+        $this->connection->insert('service', [
+            'service_description' => "{$name}-{$this->tag}",
+            'service_register' => '0',
+            'service_activate' => $activate,
+            'service_template_model_stm_id' => $parentId,
+            'command_command_id' => $checkCommandId,
+            'command_command_id2' => $eventHandlerId,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertCommand(string $name): int
+    {
+        $this->connection->insert('command', [
+            'command_name' => "{$name}-{$this->tag}",
+            'command_line' => '$USER1$/check',
+            'command_type' => 2,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertMacro(int $serviceId, string $name, string $value, bool $isPassword): int
+    {
+        $this->connection->insert('on_demand_macro_service', [
+            'svc_macro_name' => $name,
+            'svc_macro_value' => $value,
+            'is_password' => $isPassword ? 1 : 0,
+            'svc_svc_id' => $serviceId,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function deployableIds(int $hostId): array
+    {
+        return array_values(array_map(
+            static fn (ServiceTemplate $template): int => $template->id()->value,
+            $this->repository->findDeployableOnHost(new HostId($hostId))->toArray(),
+        ));
+    }
+
+    /**
+     * A host template by default.
+     */
+    private function insertHost(string $name, string $register = '0', string $activate = '1'): int
+    {
+        $this->connection->insert('host', [
+            'host_name' => "{$name}-{$this->tag}",
+            'host_register' => $register,
+            'host_activate' => $activate,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkHostTemplate(int $hostId, int $templateId, int $order): void
+    {
+        $this->connection->insert('host_template_relation', ['host_host_id' => $hostId, 'host_tpl_id' => $templateId, '`order`' => $order]);
+    }
+
+    /**
+     * @param list<int> $hostTemplateIds
+     */
+    private function insertDeployableTemplate(string $name, array $hostTemplateIds, ?string $alias = 'alias', string $activate = '1'): int
+    {
+        $this->connection->insert('service', [
+            'service_description' => "{$name}-{$this->tag}",
+            'service_alias' => $alias,
+            'service_register' => '0',
+            'service_activate' => $activate,
+        ]);
+        $templateId = (int) $this->connection->lastInsertId();
+
+        foreach ($hostTemplateIds as $hostTemplateId) {
+            $this->linkToHost($templateId, $hostTemplateId);
+        }
+
+        return $templateId;
+    }
+
+    private function linkToHost(int $serviceId, int $hostId): void
+    {
+        $this->connection->insert('host_service_relation', ['host_host_id' => $hostId, 'service_service_id' => $serviceId]);
+    }
+
+    private function insertServiceGroup(string $activate = '1'): int
+    {
+        $name = 'sg-' . Uuid::v4()->toRfc4122();
+        $this->connection->insert('servicegroup', ['sg_name' => $name, 'sg_alias' => $name, 'sg_activate' => $activate]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertHostGroup(): int
+    {
+        $this->connection->insert('hostgroup', ['hg_name' => "hg-{$this->tag}", 'hg_alias' => "hg-{$this->tag}"]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkToServiceGroup(int $serviceId, ?int $serviceGroupId, ?int $hostId = null, ?int $hostGroupId = null): void
+    {
+        $this->connection->insert('servicegroup_relation', [
+            'service_service_id' => $serviceId,
+            'servicegroup_sg_id' => $serviceGroupId,
+            'host_host_id' => $hostId,
+            'hostgroup_hg_id' => $hostGroupId,
+        ]);
     }
 }

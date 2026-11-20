@@ -26,9 +26,6 @@ use Centreon\ServiceProvider;
 use CentreonUser\Application\Serializer;
 use CentreonUser\Domain\Repository;
 
-/**
- * @OA\Tag(name="centreon_timeperiod", description="Resource for authorized access")
- */
 class TimeperiodWebservice extends Webservice\WebServiceAbstract implements Webservice\WebserviceAutorizeRestApiInterface
 {
     use Webservice\DependenciesTrait;
@@ -54,97 +51,6 @@ class TimeperiodWebservice extends Webservice\WebServiceAbstract implements Webs
     }
 
     /**
-     * @OA\Get(
-     *   path="/external.php?object=centreon_timeperiod&action=list",
-     *   description="Get list of timeperiods",
-     *   tags={"centreon_timeperiod"},
-     *   security={{"Session": {}}},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_timeperiod"},
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"list"}
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="search",
-     *
-     *       @OA\Schema(
-     *          type="string"
-     *       ),
-     *       description="filter the list by name of the entity"
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="searchByIds",
-     *
-     *       @OA\Schema(
-     *          type="string"
-     *       ),
-     *       description="filter by IDs for more than one separate them with a comma sign"
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="offset",
-     *
-     *       @OA\Schema(
-     *          type="integer"
-     *       ),
-     *       description="the argument specifies the offset of the first row to return"
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="limit",
-     *
-     *       @OA\Schema(
-     *          type="integer"
-     *       ),
-     *       description="maximum entities in the list"
-     *   ),
-     *
-     *   @OA\Response(
-     *       response="200",
-     *       description="OK",
-     *
-     *       @OA\JsonContent(
-     *
-     *          @OA\Property(
-     *              property="entities",
-     *              type="array",
-     *
-     *              @OA\Items(ref="#/components/schemas/TimeperiodEntity")
-     *          ),
-     *
-     *          @OA\Property(
-     *              property="pagination",
-     *              ref="#/components/schemas/Pagination"
-     *          )
-     *      )
-     *   )
-     * )
-     *
      * Get list of timeperiods
      *
      * @throws \RestBadRequestException

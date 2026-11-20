@@ -23,19 +23,21 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\EventHandler;
 
-use App\MonitoringConfiguration\Application\Command\DeployHostServicesCommand;
+use App\MonitoringConfiguration\Application\Command\DeployHostServicesFromTemplatesCommand;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Event\AsEventHandler;
 use Psr\Log\LoggerInterface;
 
 /**
- * A failure is logged and swallowed: the host is already committed, and legacy behaves the same,
- * deployment being a separate call there.
+ * A failure is logged at error and swallowed: the host is already committed and is kept without the
+ * services (the command deploys them all or none), and the response keeps its success status.
  */
 #[AsEventHandler]
 final readonly class DeployHostServicesEventHandler
 {
+    private const FAILURE_MESSAGE = 'Unable to deploy the services of the host templates';
+
     public function __construct(
         private CommandBus $commandBus,
         private LoggerInterface $logger,
@@ -45,7 +47,7 @@ final readonly class DeployHostServicesEventHandler
     public function __invoke(HostServicesDeploymentRequested $event): void
     {
         try {
-            $this->commandBus->execute(new DeployHostServicesCommand($event->hostId, $event->requestedBy));
+            $this->commandBus->execute(new DeployHostServicesFromTemplatesCommand($event->hostId, $event->actor));
         } catch (\Throwable $exception) {
             $this->logFailure($event, $exception);
         }
@@ -53,12 +55,12 @@ final readonly class DeployHostServicesEventHandler
 
     /**
      * Delivered after the commit, so nothing can be rolled back: an escaping exception would turn
-     * a created host into a 5xx. A failing logger has to stop here too.
+     * a saved host into a 5xx. A failing logger has to stop here too.
      */
     private function logFailure(HostServicesDeploymentRequested $event, \Throwable $exception): void
     {
         try {
-            $this->logger->error('Unable to deploy the services of the newly created host', [
+            $this->logger->error(self::FAILURE_MESSAGE, [
                 'host_id' => $event->hostId->value,
                 'exception' => $exception,
             ]);

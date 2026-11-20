@@ -45,6 +45,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
@@ -339,6 +340,17 @@ final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
 
         self::assertSame([], $this->repository->addedIds);
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostTemplateCreated::class));
+    }
+
+    public function testAnInvalidCommunityIsNotReportedAsAVaultFailure(): void
+    {
+        try {
+            ($this->handler)($this->command(snmpCommunity: str_repeat('a', SnmpCommunity::MAX_LENGTH + 1)));
+            self::fail('An oversized community must be refused.');
+        } catch (\InvalidArgumentException) {
+        }
+
+        self::assertSame([], $this->repository->addedIds);
     }
 
     public function testAFailedSavePurgesTheVaultEntryMintedForTheCommunity(): void

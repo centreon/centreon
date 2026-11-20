@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateName;
@@ -40,13 +42,28 @@ use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
+ * @phpstan-import-type MacroRowTypeAlias from ServiceTransformer
+ *
  * @phpstan-type RowTypeAlias = array{
- *   service_id: int,
+ *   service_id: int|string,
  *   service_description: string,
+ *   parent_id?: int|string|null,
+ *   check_command_id?: int|string|null,
+ *   event_handler_command_id?: int|string|null,
+ *   macros?: list<MacroRowTypeAlias>,
  * }
+ * @phpstan-type LineRowTypeAlias = array{
+ *   service_id: int|string,
+ *   service_description: string,
+ *   parent_id: int|string|null,
+ *   check_command_id: int|string|null,
+ *   event_handler_command_id: int|string|null,
+ * }
+ * @phpstan-type DeployableRowTypeAlias array{service_id: int|string, service_description: string, service_alias: string|null}
  * @phpstan-type InheritedValuesTypeAlias array{icon_id: int|null, normal_check_interval: int|null, retry_check_interval: int|null}
  */
 final readonly class DbalServiceTemplateRepository extends DbalRepository implements ServiceTemplateRepository
@@ -206,6 +223,226 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
     }
 
     /**
+     * One recursive query, walked in PHP; a loop ends both. Disabled templates are kept, as in legacy.
+     */
+    public function findInheritanceLine(ServiceTemplateId $templateId): Collection
+    {
+        $sql = <<<'SQL'
+            WITH RECURSIVE chain (id) AS (
+                SELECT service_id
+                FROM service
+                WHERE service_id = :id AND service_register = '0'
+                UNION
+                SELECT p.service_id
+                FROM service s
+                INNER JOIN chain c ON c.id = s.service_id
+                INNER JOIN service p ON p.service_id = s.service_template_model_stm_id AND p.service_register = '0'
+            )
+            SELECT
+                t.service_id,
+                t.service_description,
+                t.service_template_model_stm_id AS parent_id,
+                t.command_command_id AS check_command_id,
+                t.command_command_id2 AS event_handler_command_id
+            FROM service t
+            INNER JOIN chain c ON c.id = t.service_id
+            SQL;
+
+        /** @var list<LineRowTypeAlias> $rows */
+        $rows = $this->connection->executeQuery(
+            $sql,
+            ['id' => $templateId->value],
+            ['id' => ParameterType::INTEGER],
+        )->fetchAllAssociative();
+
+        $levels = [];
+        foreach ($rows as $row) {
+            $levels[(int) $row['service_id']] = $row;
+        }
+
+        $line = [];
+        $currentId = $templateId->value;
+        while ($currentId !== null && isset($levels[$currentId]) && ! isset($line[$currentId])) {
+            $line[$currentId] = $levels[$currentId];
+            $currentId = $levels[$currentId]['parent_id'] !== null ? (int) $levels[$currentId]['parent_id'] : null;
+        }
+
+        $macrosByOwner = $this->findMacroRowsByOwner(array_keys($line));
+
+        return new Collection(
+            array_values(array_map(
+                fn (array $row): ServiceTemplate => $this->transformer->transform([
+                    ...$row,
+                    'macros' => $macrosByOwner[(int) $row['service_id']] ?? [],
+                ]),
+                $line,
+            )),
+            ServiceTemplate::class,
+        );
+    }
+
+    /**
+     * One query fetches every host template relation reachable from the host, enabled or not (as legacy
+     * deployment); the depth-first walk is done in PHP. UNION dedupes the reached ids, and the walk stops on an id
+     * already visited, the host included, so a loop in the data ends both.
+     */
+    public function findDeployableOnHost(HostId $hostId): Collection
+    {
+        $sql = <<<'SQL'
+            WITH RECURSIVE chain (id) AS (
+                SELECT :hostId
+                UNION
+                SELECT htr.host_tpl_id
+                FROM host_template_relation htr
+                INNER JOIN chain c ON c.id = htr.host_host_id
+            )
+            SELECT htr.host_host_id, htr.host_tpl_id
+            FROM host_template_relation htr
+            INNER JOIN chain c ON c.id = htr.host_host_id
+            ORDER BY htr.host_host_id, htr.`order`, htr.host_tpl_id
+            SQL;
+
+        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string}> $relations */
+        $relations = $this->connection->executeQuery(
+            $sql,
+            ['hostId' => $hostId->value],
+            ['hostId' => ParameterType::INTEGER],
+        )->fetchAllAssociative();
+
+        /** @var array<int, list<int>> $parentIdsById */
+        $parentIdsById = [];
+        foreach ($relations as $relation) {
+            $parentIdsById[(int) $relation['host_host_id']][] = (int) $relation['host_tpl_id'];
+        }
+
+        $hostTemplateIds = [];
+        $visited = [$hostId->value => true];
+        foreach ($parentIdsById[$hostId->value] ?? [] as $directTemplateId) {
+            $this->walkHostTemplateChain($directTemplateId, $parentIdsById, $visited, $hostTemplateIds);
+        }
+
+        $rowsByHostTemplate = $this->findRowsLinkedToHostTemplates($hostTemplateIds);
+
+        $rows = [];
+        foreach ($hostTemplateIds as $hostTemplateId) {
+            foreach ($rowsByHostTemplate[$hostTemplateId] ?? [] as $row) {
+                $rows[(int) $row['service_id']] ??= $row;
+            }
+        }
+
+        $groupIdsByTemplate = $this->findServiceGroupIdsByTemplate(array_keys($rows));
+
+        return new Collection(
+            array_values(array_map(
+                static fn (array $row): ServiceTemplate => new ServiceTemplate(
+                    new ServiceTemplateId((int) $row['service_id']),
+                    new ServiceTemplateName($row['service_description']),
+                    alias: $row['service_alias'],
+                    serviceGroupIds: new Collection(
+                        array_map(
+                            static fn (int $groupId): ServiceGroupId => new ServiceGroupId($groupId),
+                            $groupIdsByTemplate[(int) $row['service_id']] ?? [],
+                        ),
+                        ServiceGroupId::class,
+                    ),
+                ),
+                $rows,
+            )),
+            ServiceTemplate::class,
+        );
+    }
+
+    /**
+     * @param array<int, list<int>> $parentIdsById
+     * @param array<int, true> $visited
+     * @param list<int> $line
+     */
+    private function walkHostTemplateChain(int $id, array $parentIdsById, array &$visited, array &$line): void
+    {
+        if (isset($visited[$id])) {
+            return;
+        }
+        $visited[$id] = true;
+        $line[] = $id;
+
+        foreach ($parentIdsById[$id] ?? [] as $parentId) {
+            $this->walkHostTemplateChain($parentId, $parentIdsById, $visited, $line);
+        }
+    }
+
+    /**
+     * @param list<int> $hostTemplateIds
+     *
+     * @return array<int, list<DeployableRowTypeAlias>> the service templates of each host template, by ascending id
+     */
+    private function findRowsLinkedToHostTemplates(array $hostTemplateIds): array
+    {
+        if ($hostTemplateIds === []) {
+            return [];
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hsr.host_host_id', 's.service_id', 's.service_description', 's.service_alias')
+            ->from('host_service_relation', 'hsr')
+            ->innerJoin('hsr', self::TABLE_NAME, 's', "s.service_id = hsr.service_service_id AND s.service_register = '0'")
+            ->innerJoin('hsr', 'host', 'h', "h.host_id = hsr.host_host_id AND h.host_register = '0'")
+            ->where($qb->expr()->in('hsr.host_host_id', $qb->createNamedParameter($hostTemplateIds, ArrayParameterType::INTEGER)))
+            // A nameless template is not a valid state: this only guards against the nullable schema column,
+            // so one malformed row cannot fail the whole deployment.
+            ->andWhere("s.service_description IS NOT NULL AND s.service_description != ''")
+            ->orderBy('hsr.host_host_id')
+            ->addOrderBy('s.service_id');
+
+        /** @var list<array{host_host_id: int|string, service_id: int|string, service_description: string, service_alias: string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $byHostTemplate = [];
+        foreach ($rows as $row) {
+            $byHostTemplate[(int) $row['host_host_id']][] = [
+                'service_id' => $row['service_id'],
+                'service_description' => $row['service_description'],
+                'service_alias' => $row['service_alias'],
+            ];
+        }
+
+        return $byHostTemplate;
+    }
+
+    /**
+     * Every row of the templates counts, whatever host, host template or host group it names; a row without a group
+     * is skipped.
+     *
+     * @param list<int> $templateIds
+     *
+     * @return array<int, list<int>> distinct group ids by template id
+     */
+    private function findServiceGroupIdsByTemplate(array $templateIds): array
+    {
+        if ($templateIds === []) {
+            return [];
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('sgr.service_service_id', 'sgr.servicegroup_sg_id')
+            ->distinct()
+            ->from('servicegroup_relation', 'sgr')
+            ->where($qb->expr()->in('sgr.service_service_id', $qb->createNamedParameter($templateIds, ArrayParameterType::INTEGER)))
+            ->andWhere('sgr.servicegroup_sg_id IS NOT NULL')
+            ->orderBy('sgr.service_service_id')
+            ->addOrderBy('sgr.servicegroup_sg_id');
+
+        /** @var list<array{service_service_id: int|string, servicegroup_sg_id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $byTemplate = [];
+        foreach ($rows as $row) {
+            $byTemplate[(int) $row['service_service_id']][] = (int) $row['servicegroup_sg_id'];
+        }
+
+        return $byTemplate;
+    }
+
+    /**
      * @param array<RowTypeAlias> $rows
      *
      * @return Collection<ServiceTemplate>
@@ -219,6 +456,46 @@ final readonly class DbalServiceTemplateRepository extends DbalRepository implem
             ),
             ServiceTemplate::class
         );
+    }
+
+    /**
+     * The custom macros the given templates own, grouped by template, in insertion order. A row not in the
+     * engine form `$_SERVICE<NAME>$` is not a service macro and is left out.
+     *
+     * @param list<int> $ownerIds
+     *
+     * @return array<int, list<MacroRowTypeAlias>>
+     */
+    private function findMacroRowsByOwner(array $ownerIds): array
+    {
+        if ($ownerIds === []) {
+            return [];
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('svc_macro_id AS id', 'svc_svc_id', 'svc_macro_name AS name', 'svc_macro_value AS value', 'is_password', 'description')
+            ->from('on_demand_macro_service')
+            ->where($qb->expr()->in('svc_svc_id', $qb->createNamedParameter($ownerIds, ArrayParameterType::INTEGER)))
+            ->orderBy('svc_macro_id');
+
+        /** @var list<array{id: int|string, svc_svc_id: int|string, name: string, value: string, is_password: int|string|null, description: string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $byOwner = [];
+        foreach ($rows as $row) {
+            if (preg_match('/^\$_SERVICE.+\$$/', $row['name']) !== 1) {
+                continue;
+            }
+            $byOwner[(int) $row['svc_svc_id']][] = [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'value' => $row['value'],
+                'is_password' => $row['is_password'],
+                'description' => $row['description'],
+            ];
+        }
+
+        return $byOwner;
     }
 
     /**

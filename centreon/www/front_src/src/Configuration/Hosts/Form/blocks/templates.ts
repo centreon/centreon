@@ -10,6 +10,7 @@ import type {
   NamedEntity,
   ResourceOptions
 } from '../../../ResourceForm/models';
+import type { TemplateRow } from '../../../ResourceForm/OrderedTemplates';
 import { toIds } from '../../../ResourceForm/selector';
 import { withUpdateMode } from '../../../ResourceForm/updateMode';
 import {
@@ -17,7 +18,7 @@ import {
   labelTemplateReplacementDeletesServices,
   labelTemplates
 } from '../../translatedLabels';
-import Templates, { type TemplateRow } from '../Templates';
+import Templates from '../Templates';
 
 interface TemplatesDetail {
   createServicesLinkedToTemplates: boolean;
@@ -88,7 +89,7 @@ export const getTemplatesBlock = ({
     defaultValues: { createServicesLinkedToTemplates: false },
     // Replacing a host's templates deletes the services they created, on
     // every selected host: the confirmation says so.
-    getWarning: (t) => (values) =>
+    getWarning: ({ t, values }) =>
       getPath(['massChangeModes', 'templates'], values) === 'replacement'
         ? t(labelTemplateReplacementDeletesServices)
         : null,

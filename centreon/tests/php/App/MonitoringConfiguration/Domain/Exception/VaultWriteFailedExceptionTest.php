@@ -1,0 +1,61 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Domain\Exception;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
+use PHPUnit\Framework\TestCase;
+
+final class VaultWriteFailedExceptionTest extends TestCase
+{
+    public function testItReportsAServiceThatCouldNotBeCreated(): void
+    {
+        $previous = new \RuntimeException('vault unreachable');
+
+        $exception = VaultWriteFailedException::forService(null, $previous);
+
+        self::assertSame('The service was not created: its credentials could not be written to the vault.', $exception->getMessage());
+        self::assertSame($previous, $exception->getPrevious());
+    }
+
+    public function testItReportsAServiceThatCouldNotBeUpdated(): void
+    {
+        $previous = new \RuntimeException('vault unreachable');
+
+        $exception = VaultWriteFailedException::forService(new ServiceId(42), $previous);
+
+        self::assertSame('Service 42 was not updated: its credentials could not be written to the vault.', $exception->getMessage());
+        self::assertSame($previous, $exception->getPrevious());
+    }
+
+    public function testItReportsAServiceThatCouldNotBeDuplicated(): void
+    {
+        $previous = new \RuntimeException('vault unreachable');
+
+        $exception = VaultWriteFailedException::forServiceCopy(new ServiceId(42), $previous);
+
+        self::assertSame('Service 42 was not duplicated: its credentials could not be read from or written to the vault.', $exception->getMessage());
+        self::assertSame($previous, $exception->getPrevious());
+    }
+}

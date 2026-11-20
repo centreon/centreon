@@ -29,9 +29,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectory;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
@@ -46,6 +49,7 @@ use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -66,19 +70,47 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      */
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void
     {
-        // Only Host is mapped: Service is ACL-scoped too, but nothing creates one through an
-        // event yet — map it here before something does (see AclScopedInterface).
-        if (! $resource instanceof Host) {
-            throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class));
+        // Any other ACL-scoped aggregate must be mapped here before an event creates one (see AclScopedInterface).
+        [$hostId, $serviceId] = match (true) {
+            $resource instanceof Host => [$resource->id()->value, null],
+            $resource instanceof Service => [$resource->hostId->value, $resource->id()->value],
+            default => throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class)),
+        };
+
+        $this->grant($hostId, $serviceId, $accessGroupIds);
+    }
+
+    public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void
+    {
+        $this->grant($hostId->value, $serviceId->value, $accessGroupIds);
+    }
+
+    public function findAccessGroupIdsGrantingService(ServiceId $serviceId, Collection $hostIds): Collection
+    {
+        if ($hostIds->count() === 0) {
+            return new Collection([], AccessGroupId::class);
         }
 
-        $hostId = $resource->id()->value;
-        foreach ($accessGroupIds as $accessGroupId) {
-            $this->realTimeConnection->executeStatement(
-                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, NULL)',
-                ['groupId' => $accessGroupId->value, 'hostId' => $hostId],
-            );
-        }
+        $qb = $this->realTimeConnection->createQueryBuilder();
+        $qb->select('DISTINCT group_id')
+            ->from('centreon_acl')
+            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId->value, ParameterType::INTEGER)))
+            ->andWhere($qb->expr()->in(
+                'host_id',
+                $qb->createNamedParameter(
+                    array_values(array_map(static fn (HostId $id): int => $id->value, $hostIds->toArray())),
+                    ArrayParameterType::INTEGER,
+                ),
+            ))
+            ->orderBy('group_id', 'ASC');
+
+        /** @var list<int|string> $groupIds */
+        $groupIds = $qb->executeQuery()->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $id): AccessGroupId => new AccessGroupId((int) $id), $groupIds),
+            AccessGroupId::class,
+        );
     }
 
     public function flagAllResourcesAsChanged(): void
@@ -113,6 +145,13 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 WHERE host_id = :sourceHostId AND service_id IS NULL',
             ['newHostId' => $newHostId->value, 'sourceHostId' => $sourceHostId->value],
         );
+
+        /** @var list<int|string> $groupIds */
+        $groupIds = $this->realTimeConnection->fetchFirstColumn(
+            'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :newHostId AND service_id IS NULL',
+            ['newHostId' => $newHostId->value],
+        );
+        $this->invalidateAclFingerprints(array_map('intval', $groupIds));
     }
 
     public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
@@ -145,6 +184,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 );
             }
         }
+        $this->invalidateAclFingerprints(array_map('intval', $groupIds));
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool
@@ -463,9 +503,9 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         }
 
         // No "all image folders" flag anywhere: the accessible set is the union of image-folder
-        // relations across every accessible resource (legacy findByRequestParametersAndAccessGroups()).
-        // This is naturally empty — not "everything" — for a user with no accessible resource at
-        // all, or whose accessible resources carry no image-folder relation.
+        // relations across every accessible resource (legacy findByRequestParametersAndAccessGroups()),
+        // plus the system folders, readable whatever the ACL. So a user with no accessible resource
+        // at all, or whose resources carry no image-folder relation, still gets the system folders.
         $qb = $this->connection->createQueryBuilder();
         $qb
             ->select('DISTINCT arifr.dir_id')
@@ -475,11 +515,22 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->where('arifr.dir_id IS NOT NULL')
             ->setParameter('contactId', $userId->value);
 
-        /** @var list<array{dir_id: numeric-string}> $rows */
-        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+        /** @var list<numeric-string> $grantedIds */
+        $grantedIds = $this->connection->fetchFirstColumn($qb->getSQL(), ['contactId' => $userId->value]);
+
+        // Binary comparison: the names must match exactly, whereas the column collation would
+        // also accept "PPM" or "Dashboards". CAST rather than the BINARY operator, deprecated by MySQL.
+        /** @var list<numeric-string> $systemIds */
+        $systemIds = $this->connection->fetchFirstColumn(
+            'SELECT dir_id FROM view_img_dir WHERE CAST(dir_name AS BINARY) IN (:systemNames)',
+            ['systemNames' => MediaDirectory::SYSTEM_NAMES],
+            ['systemNames' => ArrayParameterType::STRING],
+        );
+
+        $ids = array_values(array_unique(array_map('intval', [...$grantedIds, ...$systemIds])));
 
         return AccessScope::restrictedTo(MediaDirectoryId::class, new Collection(
-            array_map(static fn (array $row): MediaDirectoryId => new MediaDirectoryId((int) $row['dir_id']), $rows),
+            array_map(static fn (int $id): MediaDirectoryId => new MediaDirectoryId($id), $ids),
             MediaDirectoryId::class,
         ));
     }
@@ -592,6 +643,45 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
     public function findServiceAccessGroupScope(UserId $userId): AccessScope
     {
         return AccessScope::restrictedTo(AccessGroupId::class, $this->accessGroupRepository->findActiveGroupIdsForUser($userId));
+    }
+
+    /**
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    private function grant(int $hostId, ?int $serviceId, Collection $accessGroupIds): void
+    {
+        $groupIds = [];
+        // A pair may already be granted: a service moved back to a host before the cache is recomputed keeps the row
+        // of its first stay there, which the unique key of the table would refuse to insert again.
+        foreach ($accessGroupIds as $accessGroupId) {
+            $this->realTimeConnection->executeStatement(
+                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
+                    ON DUPLICATE KEY UPDATE group_id = group_id',
+                ['groupId' => $accessGroupId->value, 'hostId' => $hostId, 'serviceId' => $serviceId],
+            );
+            $groupIds[] = $accessGroupId->value;
+        }
+        $this->invalidateAclFingerprints($groupIds);
+    }
+
+    /**
+     * cron/centAcl.php skips an access group whose fingerprint still matches the rows it computes for it. A row
+     * written here, outside the cron, removes that fingerprint, so that the next recompute of the group compares its
+     * rows instead of skipping it.
+     *
+     * @param list<int> $groupIds
+     */
+    private function invalidateAclFingerprints(array $groupIds): void
+    {
+        if ($groupIds === []) {
+            return;
+        }
+
+        $this->realTimeConnection->executeStatement(
+            'DELETE FROM centreon_acl_checksum WHERE group_id IN (:groupIds)',
+            ['groupIds' => $groupIds],
+            ['groupIds' => ArrayParameterType::INTEGER],
+        );
     }
 
     /**

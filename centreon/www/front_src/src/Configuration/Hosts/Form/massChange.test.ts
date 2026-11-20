@@ -131,7 +131,9 @@ describe('getMassChangeAdapter', () => {
 });
 
 describe('getMassChangeWarning', () => {
-  const getWarning = getMassChangeWarning(((label: string) => label) as never);
+  const t = ((label: string) => label) as never;
+  const getWarning = (values: Record<string, unknown>) =>
+    getMassChangeWarning({ t, values });
 
   it('warns only when the templates are replaced', () => {
     const values = getMassChangeDefaultValues(onPremise) as Record<

@@ -19,12 +19,9 @@
  *
  */
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\LoggerUpgrade;
-use Core\Command\Domain\Model\Command;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -39,72 +36,20 @@ $errorMessage = '';
 
 // TODO add your functions here
 
-$removeDuplicateHostGroupRelations = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to remove the duplicate host group relations';
-    LoggerUpgrade::create()->info($version, 'Removing the duplicate host group relations');
+$createAclFingerprintTable = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to create the centreon_acl_checksum table';
+    LoggerUpgrade::create()->info($version, 'Creating the centreon_acl_checksum table');
 
-    // Saving a host group as a non-admin user used to insert again every kept host,
-    // so the same host/host group pair could be stored several times. Keep the oldest row.
-    $deletedRows = $pearDB->delete(
+    // Fingerprint of the centreon_acl rows of each access group: centAcl.php skips the groups whose rows did not change.
+    $pearDBO->executeStatement(
         <<<'SQL'
-            DELETE duplicate
-            FROM `hostgroup_relation` duplicate
-            INNER JOIN `hostgroup_relation` kept
-                ON kept.`hostgroup_hg_id` = duplicate.`hostgroup_hg_id`
-                AND kept.`host_host_id` = duplicate.`host_host_id`
-                AND kept.`hgr_id` < duplicate.`hgr_id`
+            CREATE TABLE IF NOT EXISTS `centreon_acl_checksum` (
+                `group_id` int(11) NOT NULL,
+                `checksum` char(32) NOT NULL,
+                PRIMARY KEY (`group_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8
             SQL
     );
-
-    LoggerUpgrade::create()->info($version, "Successfully removed {$deletedRows} duplicate host group relations");
-};
-
-/**
- * Hosts, services and their templates checked by a Centreon Monitoring Agent command had their freshness
- * threshold forced to 120s, which triggers too many re-checks: move the ones still at 120s to the new value.
- * The command filter mirrors Command::isCentreonMonitoringAgentCommand().
- */
-$updateCentreonMonitoringAgentFreshnessThreshold = function () use ($pearDB, &$errorMessage, $version): void {
-    $queryParameters = QueryParameters::create([
-        QueryParameter::int('previousThreshold', 120),
-        QueryParameter::int('newThreshold', Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD),
-    ]);
-
-    $errorMessage = 'Unable to update the freshness threshold of hosts using a Centreon Monitoring Agent command';
-    LoggerUpgrade::create()->info($version, 'Updating the freshness threshold of hosts using a Centreon Monitoring Agent command');
-
-    $updatedHosts = $pearDB->update(
-        <<<'SQL'
-            UPDATE `host` h
-            INNER JOIN `command` c
-                ON c.`command_id` = h.`command_command_id`
-            SET h.`host_freshness_threshold` = :newThreshold
-            WHERE c.`command_locked` = 1
-                AND (c.`command_name` LIKE BINARY '%Centreon-Monitoring-Agent%' OR c.`command_name` LIKE BINARY '%-CMA-%')
-                AND h.`host_freshness_threshold` = :previousThreshold
-            SQL,
-        $queryParameters
-    );
-
-    LoggerUpgrade::create()->info($version, "Updated the freshness threshold of {$updatedHosts} host(s) and host template(s)");
-
-    $errorMessage = 'Unable to update the freshness threshold of services using a Centreon Monitoring Agent command';
-    LoggerUpgrade::create()->info($version, 'Updating the freshness threshold of services using a Centreon Monitoring Agent command');
-
-    $updatedServices = $pearDB->update(
-        <<<'SQL'
-            UPDATE `service` s
-            INNER JOIN `command` c
-                ON c.`command_id` = s.`command_command_id`
-            SET s.`service_freshness_threshold` = :newThreshold
-            WHERE c.`command_locked` = 1
-                AND (c.`command_name` LIKE BINARY '%Centreon-Monitoring-Agent%' OR c.`command_name` LIKE BINARY '%-CMA-%')
-                AND s.`service_freshness_threshold` = :previousThreshold
-            SQL,
-        $queryParameters
-    );
-
-    LoggerUpgrade::create()->info($version, "Updated the freshness threshold of {$updatedServices} service(s) and service template(s)");
 };
 
 try {
@@ -112,6 +57,7 @@ try {
 
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
+    $createAclFingerprintTable();
 
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
@@ -123,8 +69,6 @@ try {
     }
 
     // TODO add your function calls to update the configuration database data here
-    $removeDuplicateHostGroupRelations();
-    $updateCentreonMonitoringAgentFreshnessThreshold();
 
     $errorMessage = 'Unable to commit the configuration database transaction';
     $pearDB->commitTransaction();

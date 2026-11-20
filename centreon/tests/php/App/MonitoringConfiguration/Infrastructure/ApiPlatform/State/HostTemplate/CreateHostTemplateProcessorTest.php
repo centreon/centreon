@@ -23,10 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\CreateHostTemplateProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\HostTemplateResourceBuilder;
+use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\VaultInterface;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\GrantsHostTemplateTopologyRole;
@@ -202,6 +207,16 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(409);
     }
 
+    public function testANameUsedByATemplateOnceItsInnerSpacesAreReplacedIsAConflict(): void
+    {
+        $this->insertRow('host', ['host_name' => "taken_x-{$this->tag}", 'host_register' => '0']);
+        $this->login();
+
+        $this->request('POST', self::URI, ['json' => ['name' => "taken x-{$this->tag}", 'alias' => 'alias']]);
+
+        self::assertResponseStatusCodeSame(409);
+    }
+
     public function testInnerSpacesBecomeUnderscores(): void
     {
         $this->login();
@@ -245,6 +260,32 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         yield 'null' => [['alias' => null]];
 
         yield 'blank' => [['alias' => '  ']];
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     */
+    #[DataProvider('provideNamesRefused')]
+    public function testTheNameIsMandatory(array $body): void
+    {
+        $this->login();
+
+        $response = $this->request('POST', self::URI, ['json' => $body + ['alias' => 'alias']]);
+
+        self::assertResponseStatusCodeSame(422);
+        $this->assertRefusedOn('name', $response);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function provideNamesRefused(): iterable
+    {
+        yield 'missing' => [[]];
+
+        yield 'null' => [['name' => null]];
+
+        yield 'blank' => [['name' => '  ']];
     }
 
     /**
@@ -415,6 +456,58 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         yield 'arguments over 65535 bytes' => [['check_options' => ['args' => [str_repeat('a', 65536)]]], 'check_options.args'];
 
         yield 'an alias over 200' => [['alias' => str_repeat('a', 201)], 'alias'];
+
+        yield 'a name with a line break' => [['name' => "tpl\nx"], 'name'];
+
+        yield 'an snmp community that is a vault reference' => [
+            ['snmp_community' => 'secret::vault::monitoring/hosts/x::_HOSTSNMPCOMMUNITY'],
+            'snmp_community',
+        ];
+
+        yield 'a comment over 65535 bytes' => [['extended_informations' => ['comment' => str_repeat('é', 40000)]], 'extended_informations.comment'];
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     */
+    #[DataProvider('provideUnknownReferences')]
+    public function testAnUnknownReferenceIsRefusedOnItsField(array $body, string $field): void
+    {
+        $this->login();
+
+        $response = $this->request('POST', self::URI, ['json' => $body + ['name' => "tpl-{$this->tag}", 'alias' => 'alias']]);
+
+        self::assertResponseStatusCodeSame(422);
+        $this->assertRefusedOn($field, $response);
+        self::assertFalse($this->connection->fetchOne('SELECT 1 FROM host WHERE host_name = ?', ["tpl-{$this->tag}"]));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function provideUnknownReferences(): iterable
+    {
+        $unknown = \PHP_INT_MAX >> 33;
+
+        yield 'check command' => [['check_options' => ['command_id' => $unknown]], 'check_options.command_id'];
+
+        yield 'check time period' => [['scheduling_options' => ['check_timeperiod_id' => $unknown]], 'scheduling_options.check_timeperiod_id'];
+
+        yield 'notification time period' => [['notifications' => ['timeperiod_id' => $unknown]], 'notifications.timeperiod_id'];
+
+        yield 'timezone' => [['timezone_id' => $unknown], 'timezone_id'];
+
+        yield 'severity' => [['severity_id' => $unknown], 'severity_id'];
+
+        yield 'category' => [['category_ids' => [$unknown]], 'category_ids'];
+
+        yield 'contact' => [['notifications' => ['contacts' => [$unknown]]], 'notifications.contacts'];
+
+        yield 'contact group' => [['notifications' => ['contact_groups' => [$unknown]]], 'notifications.contact_groups'];
+
+        yield 'icon' => [['extended_informations' => ['icon_id' => $unknown]], 'extended_informations.icon_id'];
+
+        yield 'event handler command' => [['data_processing' => ['event_handler_command_id' => $unknown]], 'data_processing.event_handler_command_id'];
     }
 
     public function testTheValuesOnTheBoundsAreAccepted(): void
@@ -441,16 +534,22 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         self::assertSame([2147483647, 100], [$this->asInt($row['host_check_interval']), $this->asInt($row['host_high_flap_threshold'])]);
     }
 
-    public function testAReservedMacroNameIsAccepted(): void
+    public function testAReservedMacroNameIsRefused(): void
     {
         if ($this->connection->fetchOne('SELECT 1 FROM nagios_macro WHERE macro_name = ?', ['$_HOSTSNMPCOMMUNITY$']) === false) {
             $this->connection->insert('nagios_macro', ['macro_name' => '$_HOSTSNMPCOMMUNITY$']);
         }
         $this->login();
 
-        $id = $this->create(['name' => "macro-{$this->tag}", 'alias' => 'alias', 'check_options' => ['macros' => [['name' => 'SNMPCOMMUNITY', 'value' => 'x']]]]);
+        $response = $this->request('POST', self::URI, ['json' => [
+            'name' => "macro-{$this->tag}",
+            'alias' => 'alias',
+            'check_options' => ['macros' => [['name' => 'snmpcommunity', 'value' => 'x', 'is_password' => true]]],
+        ]]);
 
-        self::assertSame('$_HOSTSNMPCOMMUNITY$', $this->connection->fetchOne('SELECT host_macro_name FROM on_demand_macro_host WHERE host_host_id = ?', [$id]));
+        self::assertResponseStatusCodeSame(422);
+        $this->assertRefusedOn('check_options.macros[0].name', $response);
+        self::assertFalse($this->connection->fetchOne('SELECT 1 FROM host WHERE host_name = ?', ["macro-{$this->tag}"]));
     }
 
     public function testAnInheritedMacroResentUnchangedIsNotStored(): void
@@ -536,7 +635,174 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         );
         self::assertSame('Logged', $details['host_alias'] ?? null);
         self::assertSame('4', $details['host_max_check_attempts'] ?? null);
+        self::assertSame('2', $details['host_notifications_enabled'] ?? null);
         self::assertArrayNotHasKey('host_address', $details);
+    }
+
+    public function testOnACloudPlatformNoNotificationFieldIsLogged(): void
+    {
+        $this->forceCloudPlatform();
+        $this->login();
+        $name = "cloud-{$this->tag}";
+
+        $this->create(['name' => $name, 'alias' => 'Cloud']);
+
+        $fields = $this->realTimeConnection->fetchFirstColumn(
+            'SELECT lam.field_name
+             FROM log_action_modification lam
+             INNER JOIN log_action la ON la.action_log_id = lam.action_log_id
+             WHERE la.object_name = ?',
+            [$name],
+        );
+        self::assertContains('host_alias', $fields);
+        self::assertNotContains('host_notifications_enabled', $fields);
+    }
+
+    public function testItGrantsNoRealTimeAclAccess(): void
+    {
+        $this->loginAsHostTemplateReadWriteUser($this->connection, $this->tag);
+
+        $id = $this->create(['name' => "no-acl-{$this->tag}", 'alias' => 'alias']);
+
+        self::assertFalse($this->realTimeConnection->fetchOne('SELECT 1 FROM centreon_acl WHERE host_id = ?', [$id]));
+    }
+
+    public function testEveryFieldIsStoredInItsColumn(): void
+    {
+        $checkCommandId = $this->insertRow('command', ['command_name' => "check-{$this->tag}", 'command_line' => '$USER1$/check', 'command_type' => 2]);
+        $handlerId = $this->insertRow('command', ['command_name' => "handler-{$this->tag}", 'command_line' => '$USER1$/handler', 'command_type' => 2]);
+        $checkPeriodId = $this->insertRow('timeperiod', ['tp_name' => "check-period-{$this->tag}", 'tp_alias' => 'check']);
+        $notificationPeriodId = $this->insertRow('timeperiod', ['tp_name' => "notification-period-{$this->tag}", 'tp_alias' => 'notification']);
+        $timezoneId = $this->insertRow('timezone', ['timezone_name' => "zone-{$this->tag}", 'timezone_offset' => '+00:00', 'timezone_dst_offset' => '+00:00']);
+        $severityId = $this->insertRow('hostcategories', ['hc_name' => "severity-{$this->tag}", 'hc_alias' => 'severity', 'hc_activate' => '1', 'level' => 1]);
+        $directoryId = $this->insertRow('view_img_dir', ['dir_name' => "dir-{$this->tag}"]);
+        $iconId = $this->insertRow('view_img', ['img_name' => "icon-{$this->tag}", 'img_path' => "icon-{$this->tag}.png"]);
+        $this->connection->insert('view_img_dir_relation', ['dir_dir_parent_id' => $directoryId, 'img_img_id' => $iconId]);
+        $contactGroupId = $this->insertRow('contactgroup', ['cg_name' => "group-{$this->tag}", 'cg_alias' => 'group', 'cg_type' => 'local', 'cg_activate' => '1']);
+        $this->login();
+
+        $id = $this->create([
+            'name' => "mapped-{$this->tag}",
+            'alias' => 'Mapped',
+            'snmp_version' => '3',
+            'timezone_id' => $timezoneId,
+            'severity_id' => $severityId,
+            'check_options' => ['command_id' => $checkCommandId, 'args' => ['-c', '95']],
+            'extended_informations' => [
+                'note_url' => 'https://notes.example.com',
+                'note' => 'A note',
+                'action_url' => 'https://action.example.com',
+                'icon_id' => $iconId,
+                'alt_icon' => 'An icon',
+                'comment' => 'A comment',
+            ],
+            'scheduling_options' => [
+                'check_timeperiod_id' => $checkPeriodId,
+                'max_check_attempts' => 3,
+                'normal_check_interval' => 5,
+                'retry_check_interval' => 7,
+                'active_check_enabled' => 'true',
+                'passive_check_enabled' => 'false',
+            ],
+            'data_processing' => [
+                'check_freshness' => 'false',
+                'freshness_threshold' => 11,
+                'event_handler_enabled' => 'true',
+                'event_handler_command_id' => $handlerId,
+                'event_handler_args' => ['restart'],
+                'acknowledgment_timeout' => 13,
+                'flap_detection_enabled' => 'true',
+                'low_flap_threshold' => 17,
+                'high_flap_threshold' => 19,
+            ],
+            'notifications' => [
+                'enabled' => 'false',
+                'contact_groups' => [$contactGroupId],
+                'options' => ['unreachable', 'flapping', 'downtime_scheduled'],
+                'interval' => 23,
+                'timeperiod_id' => $notificationPeriodId,
+                'first_delay' => 29,
+                'recovery_delay' => 31,
+            ],
+        ]);
+
+        $host = $this->connection->fetchAssociative(
+            'SELECT host_alias, host_snmp_version, host_location, command_command_id, command_command_id_arg1,
+                    timeperiod_tp_id, host_max_check_attempts, host_check_interval, host_retry_check_interval,
+                    host_active_checks_enabled, host_passive_checks_enabled, host_check_freshness, host_freshness_threshold,
+                    host_event_handler_enabled, command_command_id2, command_command_id_arg2, host_acknowledgement_timeout,
+                    host_flap_detection_enabled, host_low_flap_threshold, host_high_flap_threshold, host_comment,
+                    host_notifications_enabled, host_notification_options, host_notification_interval, timeperiod_tp_id2,
+                    host_first_notification_delay, host_recovery_notification_delay
+             FROM host WHERE host_id = ?',
+            [$id],
+        );
+        self::assertIsArray($host);
+        self::assertSame(
+            [
+                'host_alias' => 'Mapped',
+                'host_snmp_version' => '3',
+                'host_location' => (string) $timezoneId,
+                'command_command_id' => (string) $checkCommandId,
+                'command_command_id_arg1' => '!-c!95',
+                'timeperiod_tp_id' => (string) $checkPeriodId,
+                'host_max_check_attempts' => '3',
+                'host_check_interval' => '5',
+                'host_retry_check_interval' => '7',
+                'host_active_checks_enabled' => '1',
+                'host_passive_checks_enabled' => '0',
+                'host_check_freshness' => '0',
+                'host_freshness_threshold' => '11',
+                'host_event_handler_enabled' => '1',
+                'command_command_id2' => (string) $handlerId,
+                'command_command_id_arg2' => '!restart',
+                'host_acknowledgement_timeout' => '13',
+                'host_flap_detection_enabled' => '1',
+                'host_low_flap_threshold' => '17',
+                'host_high_flap_threshold' => '19',
+                'host_comment' => 'A comment',
+                'host_notifications_enabled' => '0',
+                'host_notification_options' => 'u,f,s',
+                'host_notification_interval' => '23',
+                'timeperiod_tp_id2' => (string) $notificationPeriodId,
+                'host_first_notification_delay' => '29',
+                'host_recovery_notification_delay' => '31',
+            ],
+            array_map($this->asNullableString(...), $host),
+        );
+
+        $extended = $this->connection->fetchAssociative(
+            'SELECT ehi_notes_url, ehi_notes, ehi_action_url, ehi_icon_image, ehi_icon_image_alt FROM extended_host_information WHERE host_host_id = ?',
+            [$id],
+        );
+        self::assertIsArray($extended);
+        self::assertSame(
+            ['https://notes.example.com', 'A note', 'https://action.example.com', (string) $iconId, 'An icon'],
+            array_map($this->asNullableString(...), array_values($extended)),
+        );
+        self::assertSame($severityId, $this->asInt($this->connection->fetchOne('SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = ?', [$id])));
+        self::assertSame($contactGroupId, $this->asInt($this->connection->fetchOne('SELECT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = ?', [$id])));
+    }
+
+    /**
+     * IS_CLOUD_PLATFORM is fixed for the whole kernel: the processor is rebuilt with the flag forced.
+     */
+    private function forceCloudPlatform(): void
+    {
+        $container = self::getContainer();
+        /** @var CommandBus $commandBus */
+        $commandBus = $container->get(CommandBus::class);
+        /** @var Security $security */
+        $security = $container->get(Security::class);
+        /** @var HostTemplateRepository $repository */
+        $repository = $container->get(HostTemplateRepository::class);
+        /** @var HostTemplateResourceBuilder $resourceBuilder */
+        $resourceBuilder = $container->get(HostTemplateResourceBuilder::class);
+
+        $container->set(
+            CreateHostTemplateProcessor::class,
+            new CreateHostTemplateProcessor($commandBus, $security, $repository, $resourceBuilder, isCloudPlatform: true),
+        );
     }
 
     private function assertRefusedOn(string $field, ResponseInterface $response): void
@@ -572,6 +838,13 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         $this->connection->insert($table, $columns);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    private function asNullableString(mixed $value): ?string
+    {
+        self::assertTrue($value === null || is_scalar($value), 'Expected a scalar column value.');
+
+        return $value === null ? null : (string) $value;
     }
 
     private function asInt(mixed $value): int
