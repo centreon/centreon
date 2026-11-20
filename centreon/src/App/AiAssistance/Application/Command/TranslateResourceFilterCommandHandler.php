@@ -234,15 +234,15 @@ final readonly class TranslateResourceFilterCommandHandler
         if ($intent === 'filter') {
             return new TranslateResourceFilterResult(
                 intent: 'filter',
-                query: trim($decoded['query']),
+                query: trim($decoded['query'] ?? ''),
                 scope: null,
             );
         }
 
         return new TranslateResourceFilterResult(
             intent: 'explain',
-            query: trim($decoded['query']),
-            scope: $decoded['scope'],
+            query: trim($decoded['query'] ?? ''),
+            scope: $decoded['scope'] ?? null,
         );
     }
 

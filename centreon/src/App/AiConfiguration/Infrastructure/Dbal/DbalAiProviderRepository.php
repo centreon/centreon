@@ -31,6 +31,7 @@ use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Repository\Criteria\AiProviderCriteria;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -52,6 +53,8 @@ use Webmozart\Assert\Assert;
  */
 final readonly class DbalAiProviderRepository extends DbalRepository implements AiProviderRepository
 {
+    use DbalCriteriaApplierTrait;
+
     public const TABLE_NAME = 'ai_provider_configuration';
 
     /**
@@ -296,7 +299,7 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
                 ->setParameter('is_activated', $criteria->getIsActivated() ? 1 : 0);
         }
 
-        $this->sort($qb, 'ap', $criteria);
+        $this->applySort($qb, 'ap', $criteria);
     }
 
     private function countOnQueryBuilder(QueryBuilder $qb): int
