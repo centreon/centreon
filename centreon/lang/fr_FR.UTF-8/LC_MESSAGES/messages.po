@@ -25073,20 +25073,20 @@ msgid "Sends a minimal request to the provider (billed by the provider, not coun
 msgstr "Envoie une requête minimale au fournisseur (facturée par le fournisseur, non comptée dans la limite de dépense)"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "Fill prices from LiteLLM"
-msgstr "Remplir les prix depuis LiteLLM"
+msgid "Prefill model prices"
+msgstr "Préremplir les prix des modèles"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Fetching prices…"
 msgstr "Récupération des prix…"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "Downloads current USD prices from LiteLLM (github.com, a third party). Available only when the currency is USD."
-msgstr "Télécharge les prix actuels en USD depuis LiteLLM (github.com, un tiers). Disponible uniquement lorsque la devise est USD."
+msgid "Downloads current USD prices from the LiteLLM catalog on github.com (a third party). Available only when the currency is USD."
+msgstr "Télécharge les prix actuels en USD depuis le catalogue LiteLLM sur github.com (un tiers). Disponible uniquement lorsque la devise est USD."
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "Prices filled from LiteLLM (USD)"
-msgstr "Prix remplis depuis LiteLLM (USD)"
+msgid "Prices prefilled (USD)"
+msgstr "Prix préremplis (USD)"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "No published prices found for these models"

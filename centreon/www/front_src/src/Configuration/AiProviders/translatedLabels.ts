@@ -58,11 +58,11 @@ export const labelFetchModelsFailed = 'Could not fetch the models';
 export const labelFetchModelsHint =
   'Lists the models the provider exposes, using the token entered above. Doubles as a connection test.';
 
-export const labelFetchPrices = 'Fill prices from LiteLLM';
+export const labelFetchPrices = 'Prefill model prices';
 export const labelFetchingPrices = 'Fetching prices…';
 export const labelFetchPricesHint =
-  'Downloads current USD prices from LiteLLM (github.com, a third party). Available only when the currency is USD.';
-export const labelPricesFilled = 'Prices filled from LiteLLM (USD)';
+  'Downloads current USD prices from the LiteLLM catalog on github.com (a third party). Available only when the currency is USD.';
+export const labelPricesFilled = 'Prices prefilled (USD)';
 export const labelPricesNotFound = 'No published prices found for these models';
 export const labelFetchPricesFailed = 'Could not fetch the prices';
 
