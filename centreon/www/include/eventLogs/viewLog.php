@@ -348,7 +348,7 @@ if (! $getInputs['engine']) {
             return;
         }
         _num = num;
-        loadLogsPage();
+        loadLogsPage(lastSearchParams);
     }
 
     function log_4_engine_page(id, formu, num) {
@@ -509,13 +509,19 @@ if (! $getInputs['engine']) {
         }
     }
 
-    // Loads the current page of the displayed list.
-    function loadLogsPage() {
+    // Loads a page of the list for these filters. They become the filters of the
+    // displayed list only once it renders, so a failed search keeps the previous ones.
+    function loadLogsPage(searchParams) {
         setSearchRunning(true);
         var proc = new Transformation();
-        proc.setXml('./include/eventLogs/xml/data.php?' + lastSearchParams + '&num=' + _num + '&limit=' + _limit);
+        proc.setXml('./include/eventLogs/xml/data.php?' + searchParams + '&num=' + _num + '&limit=' + _limit);
         proc.setXslt("./include/eventLogs/xsl/log.xsl");
-        proc.setCallback(function(t){formatDateMoment(t); proc = null; setSearchRunning(false);});
+        proc.setCallback(function(t){
+            lastSearchParams = searchParams;
+            formatDateMoment(t);
+            proc = null;
+            setSearchRunning(false);
+        });
         // xslt.js is cached by browsers: after an upgrade, an older copy without
         // setErrorCallback can still be loaded.
         if (typeof proc.setErrorCallback === 'function') {
@@ -547,8 +553,8 @@ if (! $getInputs['engine']) {
         if (document.formu2 && document.formu2.search_S) _search_S = document.formu2.search_S.checked;
 
         if (!type) {
-            // The other pages and the exports reuse the filters of the displayed list, even if the form changed since.
-            lastSearchParams = 'output=' + _output + '&oh=' + _oh + '&warning=' + _warning +
+            // Filters of the new search. The other pages and the exports keep those of the displayed list.
+            var searchParams = 'output=' + _output + '&oh=' + _oh + '&warning=' + _warning +
                 '&unknown=' + _unknown + '&critical=' + _critical + '&ok=' + _ok + '&unreachable=' + _unreachable +
                 '&down=' + _down + '&up=' + _up + '&error=' + _error + '&alert=' + _alert +
                 '&notification=' + _notification + '&search_H=' + _search_H + '&search_S=' + _search_S +
@@ -562,7 +568,7 @@ if (isset($search_service) && $search_service) {
     echo ' + &search_service=' . $search_service;
 }
 ?>;
-            loadLogsPage();
+            loadLogsPage(searchParams);
         } else {
             if (_engine == 0) {
                 // The export buttons are part of the list, so a search has always run before.
