@@ -62,6 +62,7 @@ case "$ROLE" in
     check "application tree present" 'test -f /usr/share/centreon/bin/console && test -d /usr/share/centreon/vendor'
     check_as www-data "Symfony console boots (www-data)" 'cd /usr/share/centreon && php bin/console --version'
     check "bin/ scripts are executable (git tracks them 644)" 'test -x /usr/share/centreon/bin/generateSqlLite && test -x /usr/share/centreon/bin/centFillTrapDB'
+    check "real centengine for config-verification" 'centengine -V'
     check "entrypoint present" 'test -x /usr/local/lib/centreon-fpm/container.sh'
     ;;
   cron)
