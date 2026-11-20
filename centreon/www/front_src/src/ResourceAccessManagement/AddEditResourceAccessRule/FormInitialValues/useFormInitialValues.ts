@@ -13,17 +13,14 @@ interface UseFormState {
   isLoading: boolean;
 }
 
-export const query = {
-  useQueryClient
-};
-
 const useFormInitialValues = (): UseFormState => {
   const modalState = useAtomValue(modalStateAtom);
   const editRuleId = useAtomValue(editedResourceAccessRuleIdAtom);
 
-  const data = query
-    .useQueryClient()
-    .getQueryData(['resource-access-rule', editRuleId]);
+  const data = useQueryClient().getQueryData([
+    'resource-access-rule',
+    editRuleId
+  ]);
 
   const isFetching = useIsFetching({
     queryKey: ['resource-access-rule', editRuleId]
