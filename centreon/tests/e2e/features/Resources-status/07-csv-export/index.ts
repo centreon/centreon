@@ -375,8 +375,8 @@ Then('the admin user exports only visible columns and pages', () => {
   cy.getByLabel({ label: 'exportCsvButton', tag: 'button' }).click();
   cy.wait('@getResourceCount');
   cy.getByTestId({ testId: 'Visible columns only' }).click();
+  // No count request here: the current page lines come from the listing
   cy.getByTestId({ testId: 'Current page only' }).click();
-  cy.wait('@getResourceCount');
   cy.getByLabel({ label: 'Export', tag: 'button' }).click();
   // The download is awaited by the next step: the progress snackbar can vanish unseen
 });

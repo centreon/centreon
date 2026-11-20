@@ -15,6 +15,7 @@ const ResourceTable = ({
   setPanelOptions,
   changeViewMode,
   isFromPreview,
+  isEditingDashboard,
   id,
   dashboardId,
   playlistHash,
@@ -52,6 +53,7 @@ const ResourceTable = ({
         displayType={displayType}
         hostSeverities={hostSeverities}
         id={id}
+        isEditingDashboard={isEditingDashboard}
         isFromPreview={isFromPreview}
         isInViewport={isInViewport}
         limit={limit}

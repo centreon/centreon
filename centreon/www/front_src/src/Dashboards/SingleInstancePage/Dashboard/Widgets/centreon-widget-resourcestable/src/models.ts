@@ -34,6 +34,7 @@ export interface PanelOptions {
 
 export interface ResourcesTableProps extends CommonWidgetProps<PanelOptions> {
   changeViewMode?: (displayType: DisplayType) => void;
+  isEditingDashboard?: boolean;
   panelData: Data;
   panelOptions: PanelOptions;
 }

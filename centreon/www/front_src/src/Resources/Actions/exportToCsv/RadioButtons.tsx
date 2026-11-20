@@ -21,7 +21,7 @@ interface Props<T> {
   defaultChecked: PrimitiveAtom<T>;
   options: Array<SelectEntry>;
   title: string;
-  getData: (label: string) => void;
+  getData?: (label: string) => void;
 }
 
 const RadioButtons = <T extends string>({
@@ -43,7 +43,7 @@ const RadioButtons = <T extends string>({
 
       setChecked(event.currentTarget.value);
 
-      getData(event.currentTarget.value);
+      getData?.(event.currentTarget.value);
     },
     [checked]
   );
