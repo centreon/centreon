@@ -1,0 +1,108 @@
+{{- if .Values.valkey.enabled }}
+# Valkey for fpm's PHP sessions (single replica): fpm replicas share their
+# sessions without the shared sessions volume. Without valkey.persistence a
+# Valkey restart logs every user out (sessions only, nothing else lives here).
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: valkey
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: valkey
+spec:
+  serviceName: valkey
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "valkey") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "valkey") | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      {{- include "centreon-central.podScheduling" . | nindent 6 }}
+      # The image's valkey user; the entrypoint (root, chown + su-exec) is
+      # bypassed.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: valkey
+          image: {{ include "centreon-central.image" .Values.images.valkey }}
+          imagePullPolicy: {{ .Values.images.valkey.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: [ALL] }
+          # The password goes into a private config file, not into the
+          # arguments (visible in the process list).
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              umask 077
+              printf 'requirepass "%s"\n' "$VALKEY_PASSWORD" > /tmp/valkey.conf
+              exec valkey-server /tmp/valkey.conf --dir /data \
+              {{- if .Values.valkey.persistence.enabled }}
+                --appendonly yes --save ""
+              {{- else }}
+                --appendonly no --save ""
+              {{- end }}
+          env:
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "VALKEY_PASSWORD" "key" "VALKEY_PASSWORD") | nindent 12 }}
+          ports:
+            - { name: valkey, containerPort: 6379 }
+          # A real authenticated PING (the password through the environment).
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", 'REDISCLI_AUTH="$VALKEY_PASSWORD" valkey-cli -h 127.0.0.1 ping | grep -q PONG']
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", 'REDISCLI_AUTH="$VALKEY_PASSWORD" valkey-cli -h 127.0.0.1 ping | grep -q PONG']
+            periodSeconds: 20
+            failureThreshold: 3
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: tmp, mountPath: /tmp }
+          {{- with .Values.valkey.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: { medium: Memory, sizeLimit: 1Mi }
+        {{- if not .Values.valkey.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
+  {{- if .Values.valkey.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        {{- with .Values.valkey.persistence.storageClass }}
+        storageClassName: {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.valkey.persistence.size }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # Fixed name: fpm's PHP_SESSION_SAVE_PATH.
+  name: valkey
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: valkey
+spec:
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "valkey") | nindent 4 }}
+  ports:
+    - { name: valkey, port: 6379, targetPort: valkey }
+{{- end }}

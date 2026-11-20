@@ -1,0 +1,128 @@
+{{- $otelTlsSecret := include "centreon-central.otelTlsSecret" . -}}
+{{- $p := dict "name" "gorgone-central-poller" "uid" .Values.centralPoller.gorgone.uid "central" true "timezone" (.Values.centralPoller.engine.timezone | default .Values.timezone) "gorgoneResources" .Values.centralPoller.gorgone.resources "engineResources" .Values.centralPoller.engine.resources "otelTlsSecret" $otelTlsSecret "otelTlsMountPath" .Values.centralPoller.otel.tls.mountPath "traps" .Values.centralPoller.traps "vmware" .Values.centralPoller.vmware -}}
+# Central poller: Central's own engine, reached by gorgone-central through
+# pullwss like any poller. Its broker config dir (pollerBroker) is shared
+# with the centreon-broker pod; logs and the cbmod queue are in pollerSpool,
+# everything else in pollerData.
+# StatefulSet with one replica: never two pods on its RWO volumes (a
+# Deployment may start a replacement while a lost node still holds them).
+# Pod host name <release>-central-poller-0 (forced by the controller); the
+# CMA TLS identity for agents dialing an FQDN is centralPoller.otel.tls.
+# The volumes are the chart's PVCs (pvc.yaml), not volumeClaimTemplates, so
+# they survive a change of the pod spec and match the Deployment era.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-central-poller
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: central-poller
+spec:
+  serviceName: {{ .Release.Name }}-central-poller-hl
+  replicas: 1
+  # Replaced even when NotReady (centengine crash-loops until the first
+  # config delivery).
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "central-poller") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "central-poller") | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- include "centreon-central.pollerPodSpec" (dict "ctx" . "p" $p) | nindent 6 }}
+      volumes:
+        {{- range list "poller-data" "poller-spool" "poller-broker" }}
+        - name: {{ . }}
+          persistentVolumeClaim:
+            claimName: {{ include "centreon-central.pvcName" (dict "ctx" $ "name" .) }}
+        {{- end }}
+        # FIFO: in-pod only, recreated by centengine at startup.
+        - name: poller-centcmd
+          emptyDir: {}
+        {{- with include "centreon-central.vaultVolume" . }}{{ . | nindent 8 }}{{ end }}
+        {{- if .Values.centralPoller.traps.enabled }}
+        # Traps waiting for centreontrapd: processed within seconds.
+        - name: poller-traps-spool
+          emptyDir: {}
+        {{- end }}
+        {{- if .Values.persistence.migrateLegacyVolumes }}
+        {{- $legacy := dict "legacy-engine" "poller-engine" "legacy-etc" "poller-etc" "legacy-centlog" "poller-centlog" "legacy-cma-pki" "poller-cma-pki" "legacy-cbmod-cache" "poller-cbmod-cache" }}
+        {{- if .Values.centralPoller.traps.enabled }}
+        {{- $_ := set $legacy "legacy-traps-config" "poller-traps-config" }}
+        {{- end }}
+        {{- range $vol, $old := $legacy }}
+        - name: {{ $vol }}
+          persistentVolumeClaim:
+            claimName: {{ include "centreon-central.pvcName" (dict "ctx" $ "name" $old) }}
+            readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- with $otelTlsSecret }}
+        # Only seed-engine reads the Secret; it copies it into otel-tls owned
+        # by centengine (key 0600). No fsGroup: it would re-own the PVCs.
+        - name: otel-tls-src
+          secret:
+            secretName: {{ . }}
+            defaultMode: 0400
+        - name: otel-tls
+          emptyDir:
+            medium: Memory
+        {{- end }}
+---
+# Governing Service of the StatefulSet (pod DNS only, no traffic).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-central-poller-hl
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: central-poller
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "central-poller") | nindent 4 }}
+  ports:
+    - { name: engine-grpc, port: 50155, targetPort: engine-grpc }
+{{- if .Values.centralPoller.otel.service.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # Centreon Monitoring Agents (CMA) send to the Central engine's
+  # OpenTelemetry gRPC server here. Raw gRPC/TCP: a LoadBalancer (or
+  # NodePort) for agents outside the cluster, not the HTTP Ingress.
+  name: {{ .Release.Name }}-central-engine-otel
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: central-poller
+  {{- with .Values.centralPoller.otel.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- include "centreon-central.serviceSpecType" .Values.centralPoller.otel.service | nindent 2 }}
+  # Keep the endpoint while centengine restarts or the pod is NotReady:
+  # agents just retry, removing the endpoint only makes them fail faster.
+  publishNotReadyAddresses: true
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "central-poller") | nindent 4 }}
+  ports:
+    - name: otel
+      port: {{ .Values.centralPoller.otel.service.port }}
+      targetPort: otel
+      {{- if and .Values.centralPoller.otel.service.nodePort (ne .Values.centralPoller.otel.service.type "ClusterIP") }}
+      nodePort: {{ .Values.centralPoller.otel.service.nodePort }}
+      {{- end }}
+{{- end }}
+{{- if .Values.centralPoller.traps.enabled }}
+---
+{{ include "centreon-central.trapsService" (dict "ctx" . "name" (printf "%s-central-snmptrap" .Release.Name) "component" "central-poller" "svc" .Values.centralPoller.traps.service) }}
+{{- end }}

@@ -1,0 +1,103 @@
+{{- $all := list (dict "vols" .Values.persistence.shared "mode" .Values.persistence.sharedAccessMode "class" (.Values.persistence.sharedStorageClass | default .Values.persistence.storageClass)) (dict "vols" .Values.persistence.local "mode" "ReadWriteOnce" "class" .Values.persistence.storageClass) }}
+{{- range $set := $all }}
+{{- range $key, $vol := $set.vols }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "centreon-central.pvcName" (dict "ctx" $ "name" ($key | kebabcase)) }}
+  labels:
+    {{- include "centreon-central.labels" $ | nindent 4 }}
+  {{- if $.Values.persistence.keepOnUninstall }}
+  annotations:
+    helm.sh/resource-policy: keep
+    # ArgoCD ignores helm's resource-policy: its own equivalent.
+    argocd.argoproj.io/sync-options: Delete=false,Prune=false
+  {{- end }}
+spec:
+  accessModes:
+    - {{ $set.mode }}
+  {{- with $set.class }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $vol.size }}
+{{- end }}
+{{- end }}
+{{- /*
+Volumes of chart <= 0.40 (one per directory). While migrating they stay in the
+release with resource-policy keep, so no upgrade ever deletes them before the
+init containers copied them; afterwards they are orphaned, not deleted. The
+live spec is reused when the cluster is reachable (lookup), a PVC spec must
+not change; otherwise (helm template, ArgoCD) the old chart defaults.
+*/}}
+{{- $legacy := dict
+  "centreon-media" (list "shared" "1Gi") "centreon-sessions" (list "shared" "256Mi")
+  "centreon-license" (list "shared" "16Mi") "centreon-cache-config" (list "shared" "1Gi")
+  "centreon-varlib" (list "shared" "1Gi") "centreon-status" (list "shared" "5Gi")
+  "centreon-metrics" (list "shared" "20Gi")
+  "poller-engine" (list "local" "256Mi") "poller-etc" (list "local" "256Mi")
+  "poller-centlog" (list "local" "2Gi") "poller-cma-pki" (list "local" "16Mi")
+  "poller-cbmod-cache" (list "local" "1Gi") }}
+{{- if .Values.centralPoller.traps.enabled }}
+{{- $_ := set $legacy "poller-traps-config" (list "local" "64Mi") }}
+{{- end }}
+{{- if not (include "centreon-central.legacyLicense" .) }}
+{{- $_ := unset $legacy "centreon-license" }}
+{{- end }}
+{{- if .Values.persistence.migrateLegacyVolumes }}
+{{- range $name, $def := $legacy }}
+{{- $pvc := include "centreon-central.pvcName" (dict "ctx" $ "name" $name) }}
+{{- $live := lookup "v1" "PersistentVolumeClaim" $.Release.Namespace $pvc }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $pvc }}
+  labels:
+    {{- include "centreon-central.labels" $ | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Delete=false,Prune=false
+    centreon.com/legacy-volume: "migrated by persistence.migrateLegacyVolumes, delete by hand once checked"
+spec:
+  {{- if $live }}
+  accessModes: {{ toJson $live.spec.accessModes }}
+  {{- with $live.spec.storageClassName }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $live.spec.resources.requests.storage }}
+  {{- else }}
+  accessModes:
+    - {{ eq (index $def 0) "shared" | ternary $.Values.persistence.sharedAccessMode "ReadWriteOnce" }}
+  {{- with (eq (index $def 0) "shared" | ternary ($.Values.persistence.sharedStorageClass | default $.Values.persistence.storageClass) $.Values.persistence.storageClass) }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ index $def 1 }}
+  {{- end }}
+{{- end }}
+{{- else }}
+{{- /* Not migrating. An empty lookup means either "no such volume" or "no
+       cluster access" (helm template, ArgoCD): the release's own namespace,
+       which always exists, tells them apart. Without cluster access the
+       operator must declare the starting layout (true/false): an ArgoCD
+       prune of the old volumes would otherwise delete them before any copy.
+       With access, the first upgrade from <= 0.40 (old volumes there, the
+       new web volume not yet) is refused, even with an explicit false: it
+       would drop the old volumes from the release without copying them. */}}
+{{- $declared := not (kindIs "invalid" .Values.persistence.migrateLegacyVolumes) }}
+{{- $cluster := lookup "v1" "Namespace" "" .Release.Namespace }}
+{{- if and (not $cluster) (not $declared) }}
+{{- fail "persistence.migrateLegacyVolumes must be set when rendering without cluster access (helm template, ArgoCD): true for the upgrade from chart <= 0.40, false for a new install or once migrated (see README, 'Upgrading from 0.40 or earlier: volumes')." }}
+{{- end }}
+{{- $old := lookup "v1" "PersistentVolumeClaim" .Release.Namespace (include "centreon-central.pvcName" (dict "ctx" . "name" "centreon-media")) }}
+{{- $new := lookup "v1" "PersistentVolumeClaim" .Release.Namespace (include "centreon-central.pvcName" (dict "ctx" . "name" "centreon-web")) }}
+{{- if and $old (not $new) }}
+{{- fail "This release still has the per-directory volumes of chart <= 0.40: upgrade once with persistence.migrateLegacyVolumes=true (see README, 'Upgrading from 0.40 or earlier: volumes')." }}
+{{- end }}
+{{- end }}

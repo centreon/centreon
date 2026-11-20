@@ -1,0 +1,281 @@
+# centreon-broker: central-broker-master (RRD output merged in). Singleton:
+# it is the one writer to the Centreon storage DB for every poller. Its
+# config is delivered by the Central poller's gorgone into pollerBroker.
+# StatefulSet with one replica: never two cbd on the cache volume (RWO).
+# Volumes are the chart's PVCs (pvc.yaml), not volumeClaimTemplates.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-broker
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: broker
+spec:
+  serviceName: {{ .Release.Name }}-broker-hl
+  replicas: 1
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "broker") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "broker") | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- include "centreon-central.podScheduling" . | nindent 6 }}
+      # Time for cbd to save its queues to cache_directory on stop.
+      terminationGracePeriodSeconds: {{ .Values.broker.terminationGracePeriodSeconds }}
+      initContainers:
+        {{- if .Values.persistence.migrateLegacyVolumes }}
+        # Upgrade from chart <= 0.40: RRD volumes into centreon-rrd.
+        - name: migrate-volumes
+          image: {{ include "centreon-central.image" .Values.images.broker }}
+          imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+          securityContext:
+            runAsUser: 0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              {{- include "centreon-central.migrateFn" . | nindent 14 }}
+              migrate /old/status /new/status /new/.migrated/status
+              migrate /old/metrics /new/metrics /new/.migrated/metrics
+          volumeMounts:
+            - { name: centreon-rrd, mountPath: /new }
+            - { name: legacy-status, mountPath: /old/status, readOnly: true }
+            - { name: legacy-metrics, mountPath: /old/metrics, readOnly: true }
+        {{- end }}
+        # Top-level directories only: a recursive chown over the RRD files
+        # would be slow on every restart. Created here, before the containers
+        # mount them by subPath.
+        - name: own-volumes
+          image: {{ include "centreon-central.image" .Values.images.broker }}
+          imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+          securityContext:
+            runAsUser: 0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              {{- include "centreon-central.seedFn" . | nindent 14 }}
+              mkdir -p /seed/rrd/status /seed/rrd/metrics
+              own 902:902 775 /seed/rrd/status
+              own 902:902 775 /seed/rrd/metrics
+              own 902:902 775 /seed/broker
+              own 902:902 775 /seed/cache
+              ls -lnd /seed/rrd/* /seed/broker /seed/cache
+          volumeMounts:
+            - { name: centreon-rrd, mountPath: /seed/rrd }
+            - { name: poller-broker, mountPath: /seed/broker }
+            - { name: broker-cache, mountPath: /seed/cache }
+        # Waits for the config the Central poller's gorgone delivers (first
+        # export) instead of crash-looping on its absence. Also lets the
+        # entrypoint compute the log path from the real config: with
+        # BROKER_LOG_STDOUT, a config landing between the entrypoint and cbd's
+        # start left the log a plain, untailed file. The package-default
+        # config (image fingerprint) counts as not delivered, like in the
+        # entrypoint.
+        - name: wait-config
+          image: {{ include "centreon-central.image" .Values.images.broker }}
+          imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cfg=/etc/centreon-broker/central-broker.json
+              default=$(cat /var/lib/centreon-broker/.default-config.sha256 2>/dev/null || true)
+              # Without the image's fingerprint the package default can't be
+              # told from a delivered config: only "present" is checked (fine
+              # on a volume that starts empty), and said so.
+              [ -n "$default" ] || echo "WARNING: no package-default fingerprint in this image, waiting for $cfg to exist only."
+              waited=0
+              until [ -s "$cfg" ] && { [ -z "$default" ] || [ "$(sha256sum "$cfg" | cut -d' ' -f1)" != "$default" ]; }; do
+                [ $((waited % 60)) -eq 0 ] && echo "Waiting for $cfg (delivered by the Central poller's gorgone on export)..."
+                sleep 2
+                waited=$((waited + 2))
+              done
+              echo "Broker config delivered."
+          volumeMounts:
+            - { name: poller-broker, mountPath: /etc/centreon-broker, readOnly: true }
+        {{- with include "centreon-central.vaultInit" . }}{{ . | nindent 8 }}{{ end }}
+        {{- if .Values.rrdcached.enabled }}
+        # rrdcached batches cbd's RRD writes (rrd_cached_option tcp, set by
+        # the install Job from RRDCACHED_PORT). cbd connects to 127.0.0.1
+        # (RRDCACHED_HOST; older brokers: "localhost", hardcoded), hence the
+        # same pod; fpm flushes it before drawing a
+        # graph through Service centreon-rrdcached. Native sidecar: up (PING
+        # answered) before cbd starts, stopped after cbd, then flushes its
+        # pending updates to the RRD files (-F) on SIGTERM.
+        - name: rrdcached
+          image: {{ include "centreon-central.image" .Values.images.rrdcached }}
+          imagePullPolicy: {{ .Values.images.rrdcached.pullPolicy }}
+          restartPolicy: Always
+          ports:
+            - { name: rrdcached, containerPort: 42217 }
+          startupProbe:
+            exec:
+              command: {{ include "centreon-central.rrdcachedPing" . }}
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command: {{ include "centreon-central.rrdcachedPing" . }}
+            periodSeconds: 10
+          volumeMounts:
+            - { name: centreon-rrd, mountPath: /var/lib/centreon/status, subPath: status }
+            - { name: centreon-rrd, mountPath: /var/lib/centreon/metrics, subPath: metrics }
+            # Updates not yet written to the RRD files: lost with the pod
+            # only on an abrupt death (a clean stop flushes them).
+            - { name: rrdcached-journal, mountPath: /var/lib/rrdcached/journal }
+          {{- with .Values.rrdcached.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      containers:
+        # Pure image defaults: the entrypoint writes its own private
+        # engine-context.json from APP_SECRET/SALT and refuses the
+        # package-default config (wait-config above keeps it from starting
+        # before the real one), then execs cbd: PID 1 is cbd itself, which
+        # handles SIGTERM (saves its queues) and SIGHUP (reload).
+        - name: centreon-broker
+          image: {{ include "centreon-central.image" .Values.images.broker }}
+          imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+          env:
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" "APP_SECRET") | nindent 12 }}
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "SALT" "key" "SALT") | nindent 12 }}
+            # cbd logs straight to stdout (its log file becomes a symlink to
+            # /dev/stdout) instead of a file in the container tailed by the
+            # image. Ignored by images without it.
+            - { name: BROKER_LOG_STDOUT, value: "true" }
+          ports:
+            - { name: bbdo, containerPort: 5669 }
+            # cbd's gRPC API: 51000 + the config_id of central-broker-master
+            # (1). gorgone's action module calls SignalProcess on it to reload
+            # cbd after an export (Service "cbd").
+            - { name: grpc, containerPort: 51001 }
+          # Ready once cbd listens on BBDO 5669 (0x1625); the image has no
+          # health endpoint. Read from /proc, not a TCP connect: cbd logs every
+          # connection closed before the BBDO handshake as an error.
+          readinessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "grep -qE ':1625 [0-9A-F]+:0000 0A' /proc/net/tcp /proc/net/tcp6"]
+            periodSeconds: 10
+          volumeMounts:
+            - { name: poller-broker, mountPath: /etc/centreon-broker, readOnly: true }
+            - { name: centreon-rrd, mountPath: /var/lib/centreon/status, subPath: status }
+            - { name: centreon-rrd, mountPath: /var/lib/centreon/metrics, subPath: metrics }
+            # Used once the master's config has cache_directory pointing here
+            # (install Job, BROKER_CACHE_DIRECTORY).
+            - { name: broker-cache, mountPath: {{ .Values.broker.cacheDirectory }} }
+            {{- with include "centreon-central.vaultMounts" (dict "ctx" . "collect" true) }}{{ . | nindent 12 }}{{ end }}
+            # db_ssl_ca in the delivered JSON is the web's DATABASE_CA_PATH.
+            {{- with include "centreon-central.dbTlsMounts" . }}{{ . | nindent 12 }}{{ end }}
+          {{- with .Values.broker.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        {{- range list "poller-broker" "centreon-rrd" "broker-cache" }}
+        - name: {{ . }}
+          persistentVolumeClaim:
+            claimName: {{ include "centreon-central.pvcName" (dict "ctx" $ "name" .) }}
+        {{- end }}
+        {{- if .Values.persistence.migrateLegacyVolumes }}
+        {{- range list "status" "metrics" }}
+        - name: legacy-{{ . }}
+          persistentVolumeClaim:
+            claimName: {{ include "centreon-central.pvcName" (dict "ctx" $ "name" (printf "centreon-%s" .)) }}
+            readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- with include "centreon-central.vaultVolume" . }}{{ . | nindent 8 }}{{ end }}
+        {{- with include "centreon-central.dbTlsVolume" . }}{{ . | nindent 8 }}{{ end }}
+        {{- if .Values.rrdcached.enabled }}
+        - name: rrdcached-journal
+          emptyDir: {}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # Fixed name: written into cfg_centreonbroker_info by 12-install.sh
+  # (cbmod output of the Central poller); remote pollers point here too.
+  name: centreon-broker
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: broker
+  {{- with .Values.broker.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- include "centreon-central.serviceSpecType" .Values.broker.service | nindent 2 }}
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "broker") | nindent 4 }}
+  # BBDO only: this Service may be a LoadBalancer for remote pollers.
+  ports:
+    - name: bbdo
+      port: 5669
+      targetPort: bbdo
+      {{- if and .Values.broker.service.nodePort (ne .Values.broker.service.type "ClusterIP") }}
+      nodePort: {{ .Values.broker.service.nodePort }}
+      {{- end }}
+{{- if .Values.rrdcached.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # rrdcached has no auth: its own ClusterIP Service, never exposed with BBDO
+  # (Service centreon-broker may be a LoadBalancer). fpm's
+  # CENTREON_RRDCACHED_HOST.
+  name: centreon-rrdcached
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: broker
+spec:
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "broker") | nindent 4 }}
+  ports:
+    # Numeric: the port is declared on an init (sidecar) container.
+    - { name: rrdcached, port: 42217, targetPort: 42217 }
+{{- end }}
+---
+# Governing Service of the StatefulSet (pod DNS only, no traffic).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-broker-hl
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: broker
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "broker") | nindent 4 }}
+  ports:
+    - { name: bbdo, port: 5669, targetPort: bbdo }
+---
+# gorgone reloads the broker after an export with a gRPC SignalProcess call
+# to "cbd:51001" (action module, broker_grpc; cbd raises SIGHUP on itself).
+# Fixed name: gorgone's default host. No auth (it can also stop cbd): its own
+# ClusterIP Service, never on centreon-broker, NetworkPolicy-restricted. cbd
+# must listen on all interfaces (broker JSON grpc.listen_address), not only
+# on localhost.
+apiVersion: v1
+kind: Service
+metadata:
+  name: cbd
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: broker
+spec:
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "broker") | nindent 4 }}
+  ports:
+    - { name: grpc, port: 51001, targetPort: grpc }
+

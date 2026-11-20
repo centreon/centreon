@@ -1,0 +1,119 @@
+{{- if .Values.database.bundled }}
+# Bundled single-instance MariaDB for dev/test — same image and flags as the
+# compose "db" service. Use a managed database (database.bundled=false) for
+# anything that matters.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: db
+spec:
+  serviceName: db
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "db") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "db") | nindent 8 }}
+    spec:
+      {{- include "centreon-central.podScheduling" . | nindent 6 }}
+      {{- $serverTls := .Values.database.bundledTls.secretName }}
+      {{- if $serverTls }}
+      # mariadbd (mysql, 999) reads the TLS key through its group.
+      securityContext:
+        fsGroup: 999
+      {{- end }}
+      containers:
+        # Official image: its entrypoint starts as root, gives the data
+        # directory to mysql (999), then runs mariadbd as mysql.
+        - name: mariadb
+          image: {{ include "centreon-central.image" .Values.images.mariadb }}
+          imagePullPolicy: {{ .Values.images.mariadb.pullPolicy }}
+          {{- if $serverTls }}
+          # TLS required from every client, like AWS RDS MariaDB 11.8. The
+          # entrypoint's own init goes over the unix socket (allowed).
+          args:
+            - --skip-name-resolve
+            - --ssl-cert=/etc/mysql/tls/tls.crt
+            - --ssl-key=/etc/mysql/tls/tls.key
+            - --ssl-ca=/etc/mysql/tls/ca.crt
+            - --require-secure-transport=ON
+          {{- else }}
+          args: ["--skip-ssl", "--skip-name-resolve"]
+          {{- end }}
+          env:
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MARIADB_ROOT_PASSWORD" "key" "MYSQL_ROOT_PASSWORD") | nindent 12 }}
+            # Pre-creates 'centreon'@'%' (same as the compose .env), which
+            # 12-install.sh's GRANT relies on.
+            - name: MARIADB_USER
+              value: centreon
+            {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MARIADB_PASSWORD" "key" "MYSQL_PASSWORD") | nindent 12 }}
+            # mariadb-upgrade (system tables) when the image's version is
+            # newer than the data's, e.g. the bitnami 11.8.2 data.
+            - { name: MARIADB_AUTO_UPGRADE, value: "1" }
+          ports:
+            - name: mysql
+              containerPort: 3306
+          # A real login: a bare TCP check makes this image log an "Aborted
+          # connection ... unauthenticated" warning every period. Over TCP so
+          # it also matches the bitnami data's root@'%' (no root@localhost).
+          # --skip-ssl: the 11.x client requires TLS by default, the server
+          # runs without it. With bundledTls: TLS, unverified (the certificate
+          # names "db", not 127.0.0.1).
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb-admin {{ ternary "--ssl --disable-ssl-verify-server-cert" "--skip-ssl" (not (empty $serverTls)) }} -h 127.0.0.1 -uroot ping --silent']
+            periodSeconds: 5
+          volumeMounts:
+            # The volume keeps the bitnami layout (datadir in data/), so a
+            # database created by chart <= 0.43 starts as is.
+            - name: data
+              mountPath: /var/lib/mysql
+              subPath: data
+            {{- if $serverTls }}
+            - { name: server-tls, mountPath: /etc/mysql/tls, readOnly: true }
+            {{- end }}
+          {{- with .Values.database.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- if $serverTls }}
+      volumes:
+        - name: server-tls
+          secret:
+            secretName: {{ $serverTls }}
+            defaultMode: 0440
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        {{- with .Values.database.persistence.storageClass }}
+        storageClassName: {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.database.persistence.size }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # Fixed name: the install writes this host into the Centreon DB
+  # (broker db_host) — see values.yaml.
+  name: db
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: db
+spec:
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "db") | nindent 4 }}
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: mysql
+{{- end }}
