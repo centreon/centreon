@@ -633,6 +633,7 @@ abstract class AbstractProvider
     </td>
 </tr>
 {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/groups.ihtml"}
+{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/ack.ihtml"}
 <!--<tr>
     <td class="FormRowField" style="padding-left:15px;">Add graphs</td>
     <td class="FormRowValue" style="padding-left:15px;"><input type="checkbox" name="add_graph" value="1" /></td>
@@ -1390,6 +1391,13 @@ Output: {$service.output|substr:0:1024}
         $groups = [];
         $tpl->assign('custom_message', ['label' => _('Custom message')]);
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        // The acknowledgement options are only relevant when the rule acknowledges on ticket opening
+        $tpl->assign('ack_enabled', $this->doAck() === 1);
+        $tpl->assign('ack_labels', [
+            'title' => _('Acknowledgement options'),
+            'sticky' => _('Sticky'),
+            'notify' => _('Notify'),
+        ]);
 
         if (isset($this->rule_data['clones']['groupList'])) {
             foreach ($this->rule_data['clones']['groupList'] as $values) {

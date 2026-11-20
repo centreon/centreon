@@ -322,6 +322,7 @@ class ItopProvider extends AbstractProvider
 </tr>
 {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/groups.ihtml"}
 {include file="file:$centreon_open_tickets_path/providers/Itop/templates/format_popup_requiredFields.ihtml"}
+{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/ack.ihtml"}
 </table>
 ';
 

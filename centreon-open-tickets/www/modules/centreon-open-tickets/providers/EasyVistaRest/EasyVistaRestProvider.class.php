@@ -260,6 +260,7 @@ class EasyVistaRestProvider extends AbstractProvider
     </tr>
     {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/groups.ihtml"}
     {include file="file:$centreon_open_tickets_path/providers/EasyVistaRest/templates/handle_ci.ihtml"}
+    {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/ack.ihtml"}
 </table>';
 
         // $this->default_data['clones']['groupList'] = [
