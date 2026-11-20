@@ -154,7 +154,9 @@ class CentreonGraphStatus
         $errno = 0;
         $errstr = '';
         if ($this->rrdCachedOptions['rrd_cached_option'] === 'tcp') {
-            $sock = fsockopen('127.0.0.1', trim($this->rrdCachedOptions['rrd_cached']), $errno, $errstr);
+            // rrdcached runs in another container in split deployments
+            $rrdCachedHost = getenv('CENTREON_RRDCACHED_HOST') ?: '127.0.0.1';
+            $sock = fsockopen($rrdCachedHost, trim($this->rrdCachedOptions['rrd_cached']), $errno, $errstr);
         } elseif ($this->rrdCachedOptions['rrd_cached_option'] === 'unix') {
             $sock = fsockopen('unix://' . trim($this->rrdCachedOptions['rrd_cached']), $errno, $errstr);
         } else {
