@@ -65,16 +65,25 @@ services:
       ADMIN_PASSWORD_EXPIRED: "${ADMIN_PASSWORD_EXPIRED:-false}"
       GORGONE_API_USERNAME: centreon-gorgone
       GORGONE_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
-      # centreonGraph{,Ng,Status}.class.php's remote rrdcached host (C7) —
-      # deliberately NOT set here: nothing in this stack runs rrdcached
-      # (centreon-broker's RRD output writes RRD files itself,
-      # rrd_cached_option stays 'disable' per 12-install.sh's broker
-      # adaptation), so pointing this at a service with nothing listening
-      # would just replace today's fast local fallback with a slow timeout.
-      # getenv() unset/empty falls back to 127.0.0.1, confirmed with
-      # gorgone-api — set to "host:port" of a real rrdcached only once one
-      # is actually added to this stack.
-      # CENTREON_RRDCACHED_HOST: ""
+      # centreonGraph{,Ng,Status}.class.php's remote rrdcached host (C7).
+      # DESIGN CHANGE (see trixie/README.md): rrdcached is its own service,
+      # not sharing centreon-broker's network namespace any more — reachable
+      # at its own service name. Must stay aligned with 12-install.sh's own
+      # RRDCACHED_HOST default ('rrdcached'), which is the value it writes
+      # into cfg_centreonbroker_info's 'host' row for Central's rrd output;
+      # fpm has no way to read that row back, so this is a second, redundant
+      # source of truth for the same hostname, not derived from the first.
+      # Harmless to set even while rrd_cached_option stays 'disable'
+      # (RRDCACHED_PORT unset below): nothing calls fsockopen() unless
+      # broker actually attempts an rrd flush, which it doesn't while
+      # disabled.
+      CENTREON_RRDCACHED_HOST: "${RRDCACHED_HOST:-rrdcached}"
+      # Disabled by default until a BROKER_TAG carrying MON-213839's 'host'
+      # key support is in use (C12: G9). 12-install.sh forces
+      # rrd_cached_option back to 'disable' (and drops the 'host' row)
+      # whenever this is unset/empty, idempotently on every start either
+      # way.
+      RRDCACHED_PORT: "${RRDCACHED_PORT:-}"
       # Resolved into centreon.ini at container start (01-config.sh) — the
       # image itself defaults to UTC (Dockerfile), this dev stack keeps the
       # value it always had rather than silently changing behavior.
@@ -397,6 +406,42 @@ services:
       # after a config change) — exposed so it's reachable for that
       # follow-up without another compose edit.
       - "8080:8080"
+
+  # TCP write-cache sidecar for Central's merged RRD output (MON-213837).
+  # DESIGN CHANGE, see trixie/README.md: no longer network_mode:
+  # service:centreon-broker. G9/MON-213839 adds a 'host' key to the rrd
+  # output (find_param(cfg, "host", false, "localhost") in
+  # broker.class.php), so cbd can now dial out to a separate container
+  # instead of requiring netns sharing — its own service/hostname on the
+  # default compose network, reachable at "rrdcached" (12-install.sh's own
+  # RRDCACHED_HOST default, kept aligned with fpm's CENTREON_RRDCACHED_HOST
+  # above). No depends_on: this service is self-contained (shares the RRD
+  # volumes, nothing else), cbd/fpm tolerate it not being up yet the same
+  # way they tolerate any other not-yet-ready peer.
+  #
+  # Disabled by default stack-wide (RRDCACHED_PORT unset, see fpm's own
+  # environment above and 12-install.sh) until a BROKER_TAG carrying the
+  # 'host' key fix is in use (C12: G9). This container still runs and
+  # answers its healthcheck regardless — proves the wiring, does nothing
+  # until broker is told to use it.
+  rrdcached:
+    build:
+      context: ../../..
+      dockerfile: .github/docker/centreon-web-split/trixie/Dockerfile
+      target: rrdcached
+    expose:
+      - "42217"
+    volumes:
+      - centreon-status:/var/lib/centreon/status
+      - centreon-metrics:/var/lib/centreon/metrics
+      # Anonymous volume: a journal replay on restart is a nice-to-have in a
+      # dev stack, not persisted deliberately across a full teardown.
+      - /var/lib/rrdcached/journal
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/42217 && echo PING >&3 && read -t 2 r <&3 && [[ \"$$r\" == *PONG* ]]"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   # Scheduled jobs a real RPM/DEB install gets via /etc/cron.d/{centreon,
   # centstorage} (CentACL, downtime start/stop, token/storage purge,

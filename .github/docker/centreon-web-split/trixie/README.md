@@ -1491,6 +1491,42 @@ logging in through the real UI and getting the expected password-reset
 prompt. `ADMIN_PASSWORD_EXPIRED` is therefore only useful for the web login
 flow, not for API-driven testing.
 
+## rrdcached sidecar (`rrdcached` service), MON-213837
+
+A write-cache TCP sidecar for Central's merged RRD output, disabled by
+default (`RRDCACHED_PORT` unset) and only turned on once a `BROKER_TAG`
+carrying MON-213839's fix is in use (C12). `rrd_cached_option`/`rrd_cached`
+in `cfg_centreonbroker_info` are toggled idempotently by `12-install.sh`.
+
+**DESIGN CHANGE (2026-11-02)**: originally shipped with
+`network_mode: "service:centreon-broker"` — `broker/rrd/src/output.cc`
+hard-coded `"localhost"` for its rrdcached connection, so sharing
+`centreon-broker`'s network namespace was the only way to reach it at all.
+That broke in practice: `centreon-broker`'s own image refuses to start
+(`exit 1`, package-default config guard) until gorgone delivers a real
+config, and `restart: unless-stopped` churns its network namespace on every
+restart — `rrdcached` (`network_mode: service:centreon-broker`) failed to
+even start with `OCI runtime create failed: namespace path: lstat
+/proc/<pid>/ns/net: no such file or directory` while that churn was
+happening. Fixed at the source instead of papering over it in compose:
+MON-213839 (G9) adds a `host` key to the rrd output block
+(`find_param(cfg, "host", false, "localhost")` in `broker.class.php`), so
+`cbd` can now dial out to a separate container. `rrdcached` is therefore its
+own independent service/hostname here, sharing only the RRD volumes, not a
+network namespace — `12-install.sh` upserts `host =
+${RRDCACHED_HOST:-rrdcached}` in the same `cfg_centreonbroker_info` row
+group whenever `RRDCACHED_PORT` is set (and drops that row when it isn't,
+regardless of `RRDCACHED_HOST`), and `CENTREON_RRDCACHED_HOST` on `fpm`
+(centreonGraph{,Ng,Status}.class.php's own remote-rrdcached setting) is kept
+aligned to the same default — the two are separate env vars read by
+different code paths, not derived from one another, so a future change to
+one has to be mirrored in the other by hand.
+
+An explicit `RRDCACHED_HOST` always wins over the `rrdcached` default — the
+Helm chart relies on this, passing `127.0.0.1` for its own sidecar-in-pod
+topology (its `rrdcached` listens on `0.0.0.0`, and `localhost` can resolve
+to `::1` there).
+
 ## Explicitly out of scope for this first pass
 
 - Not wired into `.github/workflows/web.yml` yet (no CI job builds/publishes these).
