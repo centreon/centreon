@@ -111,6 +111,9 @@ services:
       # image itself defaults to UTC (Dockerfile), this dev stack keeps the
       # value it always had rather than silently changing behavior.
       PHP_TIMEZONE: "${PHP_TIMEZONE:-Europe/Paris}"
+      # MON-214472: default unchanged (256M, image's own default) when unset
+      # or empty — raise it for large inventories (MON-213806).
+      PHP_MEMORY_LIMIT: "${PHP_MEMORY_LIMIT:-256M}"
       # MON-214095: PHP sessions in Valkey instead of the (now removed)
       # centreon-sessions volume — fpm replicas no longer need shared RWX
       # storage for session state. PHP_SESSION_SAVE_PATH carries no

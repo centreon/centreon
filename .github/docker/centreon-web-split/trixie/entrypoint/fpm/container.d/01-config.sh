@@ -44,7 +44,7 @@ else
   export PHP_SESSION_REDIS_LOCKING_ENABLED=0
 fi
 
-envsubst '${PHP_TIMEZONE} ${PHP_SESSION_SAVE_HANDLER} ${PHP_SESSION_SAVE_PATH_RESOLVED} ${PHP_SESSION_REDIS_LOCKING_ENABLED}' \
+envsubst '${PHP_TIMEZONE} ${PHP_MEMORY_LIMIT} ${PHP_SESSION_SAVE_HANDLER} ${PHP_SESSION_SAVE_PATH_RESOLVED} ${PHP_SESSION_REDIS_LOCKING_ENABLED}' \
   < /usr/local/etc/php/conf.d/centreon.ini.template \
   > /usr/local/etc/php/conf.d/centreon.ini
 # Contains the Valkey auth= password in clear once resolved above — root:

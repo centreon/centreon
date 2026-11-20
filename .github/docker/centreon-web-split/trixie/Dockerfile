@@ -667,6 +667,9 @@ COPY --chmod=755 .github/docker/centreon-web-split/trixie/entrypoint/fpm \
 # 01-config.sh) — same UTC fallback the real packaging postinstall's
 # setPhpTimezone() uses when it can't detect a host timezone either.
 ENV PHP_TIMEZONE=UTC
+# MON-214472: same packaged default as centreon/packaging/src/php.ini,
+# raised at deployment time (01-config.sh) for large inventories.
+ENV PHP_MEMORY_LIMIT=256M
 # MON-214095: files by default — nothing changes for a deployment that
 # never sets this. Switched to Valkey explicitly (PHP_SESSION_HANDLER=redis
 # + PHP_SESSION_SAVE_PATH, see 01-config.sh/centreon.ini.template).
