@@ -462,6 +462,11 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
             'snmp_community',
         ];
 
+        yield 'an snmp community that is a vault reference after a space' => [
+            ['snmp_community' => ' secret::vault::monitoring/hosts/x::_HOSTSNMPCOMMUNITY'],
+            'snmp_community',
+        ];
+
         yield 'a comment over 65535 bytes' => [['extended_informations' => ['comment' => str_repeat('é', 40000)]], 'extended_informations.comment'];
     }
 

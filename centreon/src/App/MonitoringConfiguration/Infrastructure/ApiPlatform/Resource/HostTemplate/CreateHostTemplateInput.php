@@ -76,6 +76,7 @@ final readonly class CreateHostTemplateInput
             pattern: '/^' . VaultInterface::VAULT_PATH_PREFIX . '/',
             match: false,
             message: 'The SNMP community cannot be a vault reference.',
+            normalizer: 'trim',
         )]
         #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false)]
         #[Sensitive]
