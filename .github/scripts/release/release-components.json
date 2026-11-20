@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "testing_tag_builds": false,
   "components": {
     "centreon": {
       "workflow": "web.yml",
@@ -7,7 +8,11 @@
       "paths": [
         "centreon",
         ".version.centreon-web",
-        "packaging/centreon-web"
+        ".version",
+        ".github/docker/centreon-trapd",
+        ".github/scripts/centreon-trapd-docker-boot-test.sh",
+        ".github/scripts/centreon-trapd-docker-config-wiring-test.sh",
+        ".github/scripts/lib/centreon-trapd-common.sh"
       ]
     },
     "centreon-awie": {
@@ -16,7 +21,7 @@
       "paths": [
         "centreon-awie",
         ".version.centreon-awie",
-        "packaging/centreon-awie"
+        ".version"
       ]
     },
     "centreon-dsm": {
@@ -25,7 +30,7 @@
       "paths": [
         "centreon-dsm",
         ".version.centreon-dsm",
-        "packaging/centreon-dsm"
+        ".version"
       ]
     },
     "centreon-ha": {
@@ -34,7 +39,10 @@
       "paths": [
         "centreon-ha",
         ".version.centreon-ha",
-        "packaging/centreon-ha"
+        ".version"
+      ],
+      "scopes": [
+        "onprem"
       ]
     },
     "centreon-open-tickets": {
@@ -43,14 +51,19 @@
       "paths": [
         "centreon-open-tickets",
         ".version.centreon-open-tickets",
-        "packaging/centreon-open-tickets"
+        ".version"
       ]
     },
     "helm": {
       "workflow": "helm.yml",
       "bundle_component": null,
       "paths": [
-        ".github/helm"
+        ".github/helm",
+        ".version",
+        ".github/scripts/helm-chart-images-check.sh",
+        ".github/scripts/helm-chart-package.sh",
+        ".github/scripts/helm-chart-version-check.sh",
+        ".github/scripts/helm-chart-version.sh"
       ]
     }
   },
