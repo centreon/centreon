@@ -181,6 +181,9 @@ final class InternalApiClient
                     'Cannot build local URL: server address is null.'
                 );
             }
+            if (filter_var($serverAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+                $serverAddress = '[' . $serverAddress . ']';
+            }
             $portSuffix = ($serverPort !== null) ? ':' . $serverPort : '';
             $localUrl = $requestScheme . '://' . $serverAddress . $portSuffix;
         }
