@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Centreon web 2.x\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-11-20 10:34+0000\n"
+"PO-Revision-Date: 2026-11-21 11:34+0000\n"
 "Last-Translator: admin <noreply@centreon.com>\n"
 "Language-Team: Spanish <https://weblate.prod.centreon.io/projects/centreon-infra-monitoring/26-10/web-messages-26-10/es/>\n"
 "Language: es_ES\n"
@@ -14554,7 +14554,7 @@ msgstr "Por favor seleccione un usuario para ver sus notificaciones."
 #: centreon/www/widgets/host-monitoring/src/toolbar.php
 #: centreon/www/widgets/service-monitoring/src/toolbar.php
 msgid "Please select one or more items"
-msgstr "Por favor seleccione uno o más objetos"
+msgstr "Seleccione uno o más elementos"
 
 #: centreon/www/install/step_upgrade/step4.php
 msgid "Please upgrade to an intermediate release (ie. 2.8.x) first."
@@ -15108,7 +15108,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/install/front_translate.php
 msgid "Refresh"
-msgstr ""
+msgstr "Actualizar"
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Refresh Interval for monitoring"
@@ -15489,7 +15489,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "Resolve"
-msgstr "resolver"
+msgstr "Resolver"
 
 #: centreon/www/install/front_translate.php
 msgid "Resolve FQDN"
@@ -15779,7 +15779,7 @@ msgstr "líneas"
 
 #: centreon/www/install/front_translate.php
 msgid "Rows per page"
-msgstr ""
+msgstr "Filas por página"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Rule (ticket provider)"
@@ -15899,7 +15899,7 @@ msgstr "colectores"
 #: centreon/www/include/monitoring/recurrentDowntime/ajaxForms.php
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Saturday"
-msgstr "sábado"
+msgstr "Sábado"
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 #: centreon/www/include/Administration/parameters/api/api.php
@@ -15959,7 +15959,7 @@ msgstr "sábado"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Save"
-msgstr "guardar"
+msgstr "Guardar"
 
 #: centreon/www/install/front_translate.php
 msgid "Save as"
@@ -16143,7 +16143,7 @@ msgstr "Base de búsqueda de grupo DN"
 
 #: centreon/www/install/front_translate.php
 msgid "Search help"
-msgstr ""
+msgstr "Ayuda de búsqueda"
 
 #: centreon/www/install/front_translate.php
 msgid "Search host groups"
@@ -16405,7 +16405,7 @@ msgstr ""
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Selected"
-msgstr "seleccionado"
+msgstr "Seleccionado"
 
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 msgid "Selection Mode"
@@ -16657,11 +16657,11 @@ msgstr "Estado del servicio"
 
 #: centreon/www/include/configuration/configKnowledge/search.php
 msgid "Service Template"
-msgstr "Modelo de servicio"
+msgstr "Plantilla de servicio"
 
 #: centreon/www/install/menu_translation.php
 msgid "Service Templates"
-msgstr "Modelo de servicio"
+msgstr "Plantillas de servicio"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
@@ -17326,7 +17326,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Some examples:"
-msgstr ""
+msgstr "Algunos ejemplos:"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Sort by"
@@ -17645,7 +17645,7 @@ msgstr "Habilitar estadísticas"
 #: centreon/www/install/step_upgrade/step2.php
 #: centreon/www/install/step_upgrade/step4.php
 msgid "Status"
-msgstr "estatus"
+msgstr "Estatus"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -17888,7 +17888,7 @@ msgstr "Registro de datos de rendimiento en la tabla `data_bin`"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "String"
-msgstr "cadena"
+msgstr "Cadena"
 
 #: centreon/www/install/front_translate.php
 msgid "Strong"
@@ -17978,7 +17978,7 @@ msgstr "resumen"
 #: centreon/www/include/monitoring/recurrentDowntime/ajaxForms.php
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Sunday"
-msgstr "domingo"
+msgstr "Domingo"
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Support Information"
@@ -24248,7 +24248,7 @@ msgstr "Esquema de color"
 
 #: unknown
 msgid "Overview"
-msgstr "Visión general"
+msgstr "Descripción general"
 
 #: unknown
 msgid "PENDING"
@@ -24479,7 +24479,7 @@ msgstr "Versión"
 
 #: unknown
 msgid "Replace"
-msgstr "reemplazo"
+msgstr "Reemplazar"
 
 #: unknown
 msgid "Replace existing ones"
@@ -24589,7 +24589,7 @@ msgstr "Configuración del módulo RRDCached: solo funciona con Centreon Broker"
 
 #: unknown
 msgid "Rules"
-msgstr "normas"
+msgstr "Reglas"
 
 #: unknown
 msgid "Run Optimisation test (-s)"
@@ -24653,7 +24653,7 @@ msgstr "Direcciones de clientes de confianza SSO"
 
 #: unknown
 msgid "Scan"
-msgstr "manual"
+msgstr "Escanear"
 
 #: unknown
 msgid "Scheduling Process Information"
