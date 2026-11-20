@@ -63,7 +63,7 @@ final class HostTemplate extends AggregateRoot
     public function __construct(
         ?HostTemplateId $id,
         public readonly HostTemplateName $name,
-        public readonly CheckOptions $checkOptions = new CheckOptions(null),
+        public readonly CheckOptions $checkOptions = new CheckOptions(null, commandMayBeInherited: true),
         public readonly Collection $serviceTemplateCheckCommandIds = new Collection([], CommandId::class),
         public readonly ?HostAlias $alias = null,
         public readonly bool $isLocked = false,
@@ -95,7 +95,7 @@ final class HostTemplate extends AggregateRoot
     public static function create(
         HostTemplateName $name,
         HostAlias $alias,
-        CheckOptions $checkOptions = new CheckOptions(null),
+        CheckOptions $checkOptions = new CheckOptions(null, commandMayBeInherited: true),
         Collection $parentTemplateIds = new Collection([], HostTemplateId::class),
         ?SnmpCommunity $snmpCommunity = null,
         ?SnmpVersionEnum $snmpVersion = null,

@@ -16171,7 +16171,7 @@ components:
             - integer
             - 'null'
         args:
-          description: 'require a check command'
+          description: 'kept without a check command: they apply to the command the parents set'
           type: array
           items:
             type: string

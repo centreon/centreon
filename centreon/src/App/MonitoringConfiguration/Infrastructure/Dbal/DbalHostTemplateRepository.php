@@ -705,6 +705,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
                     new CheckOptions(
                         $templates[$id]['command_id'] !== null ? new CommandId($templates[$id]['command_id']) : null,
                         macros: $macrosByOwner[$id] ?? [],
+                        commandMayBeInherited: true,
                     ),
                     new Collection(
                         array_map(static fn (int $commandId): CommandId => new CommandId($commandId), $serviceTemplateCommandIds[$id] ?? []),

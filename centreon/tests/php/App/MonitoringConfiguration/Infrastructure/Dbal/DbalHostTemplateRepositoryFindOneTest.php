@@ -223,8 +223,6 @@ final class DbalHostTemplateRepositoryFindOneTest extends KernelTestCase
      */
     public static function provideRowsBreakingTheHostInvariants(): iterable
     {
-        yield 'check arguments without a check command' => [['command_command_id_arg1' => '!-w!80']];
-
         yield 'no check attempt' => [['host_max_check_attempts' => 0]];
 
         yield 'no check interval' => [['host_check_interval' => 0]];

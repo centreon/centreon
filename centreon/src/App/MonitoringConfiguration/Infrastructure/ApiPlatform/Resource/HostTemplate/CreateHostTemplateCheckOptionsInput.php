@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 final readonly class CreateHostTemplateCheckOptionsInput
 {
     /**
-     * @param list<string> $args require a check command
+     * @param list<string> $args kept without a check command: they apply to the command the parents set
      * @param list<HostTemplateMacroInput> $macros
      */
     public function __construct(
@@ -47,16 +47,6 @@ final readonly class CreateHostTemplateCheckOptionsInput
         #[Assert\Valid]
         public array $macros = [],
     ) {
-    }
-
-    #[Assert\Callback]
-    public function validateArgumentsRequireACommand(ExecutionContextInterface $context): void
-    {
-        if ($this->commandId === null && $this->args !== []) {
-            $context->buildViolation('Check command arguments require a check command to be set.')
-                ->atPath('args')
-                ->addViolation();
-        }
     }
 
     #[Assert\Callback]
