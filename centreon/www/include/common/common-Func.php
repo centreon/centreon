@@ -71,9 +71,9 @@ function returnSvg(string $svgPath, string $color, float $height, float $width):
         // which breaks the legacy pages transformed with the XSLT polyfill.
         $data = preg_replace_callback(
             '/<svg\b[^>]*>/',
-            static fn (array $match): string => str_replace(
-                '<svg ',
-                "<svg height='{$height}' width='{$width}' ",
+            static fn (array $match): string => preg_replace(
+                '/^<svg\b/',
+                "<svg height='{$height}' width='{$width}'",
                 preg_replace('/\s(?:height|width)=(?:\'[^\']*\'|"[^"]*")/', '', $match[0])
             ),
             $data,
