@@ -168,15 +168,15 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
      * @param array<string, mixed> $body
      */
     #[DataProvider('provideRemovedKeys')]
-    public function testAKeyTheTemplateDoesNotHaveIsABadRequest(array $body): void
+    public function testAKeyTheTemplateDoesNotHaveIsIgnored(array $body): void
     {
         $id = $this->insertTemplate('removed-key', ['host_alias' => 'Kept']);
         $this->login();
 
         $this->patch($id, $body + ['alias' => 'Changed']);
 
-        self::assertResponseStatusCodeSame(400);
-        self::assertSame('Kept', $this->connection->fetchOne('SELECT host_alias FROM host WHERE host_id = ?', [$id]));
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('Changed', $this->connection->fetchOne('SELECT host_alias FROM host WHERE host_id = ?', [$id]));
     }
 
     /**
@@ -479,21 +479,22 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         self::assertSame(['1', '1', '0'], [$this->pollerUpdated($directPollerId), $this->pollerUpdated($indirectPollerId), $this->pollerUpdated($disabledPollerId)]);
     }
 
-    public function testRemovingTheCommandWhileSendingArgumentsIsRefused(): void
+    public function testRemovingTheCommandWhileSendingArgumentsStoresTheArguments(): void
     {
         $commandId = $this->insertRow('command', ['command_name' => "check-{$this->tag}", 'command_line' => '$USER1$/check', 'command_type' => 2]);
-        $id = $this->insertTemplate('arguments', ['command_command_id' => $commandId, 'command_command_id_arg1' => '!-w!80']);
+        $id = $this->insertTemplate('arguments', ['command_command_id' => $commandId, 'command_command_id_arg1' => '!-c!95']);
         $this->login();
 
         $this->patch($id, ['check_options' => ['command_id' => null, 'args' => ['-w', '80']]]);
 
-        self::assertResponseStatusCodeSame(422);
-        $row = $this->connection->fetchAssociative('SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?', [$id]);
-        self::assertIsArray($row);
-        self::assertSame([$commandId, '!-w!80'], [$this->asInt($row['command_command_id']), $row['command_command_id_arg1']]);
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame(
+            ['command_command_id' => null, 'command_command_id_arg1' => '!-w!80'],
+            $this->connection->fetchAssociative('SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?', [$id]),
+        );
     }
 
-    public function testRemovingOnlyTheCommandClearsTheStoredArguments(): void
+    public function testRemovingOnlyTheCommandKeepsTheStoredArguments(): void
     {
         $commandId = $this->insertRow('command', ['command_name' => "check-{$this->tag}", 'command_line' => '$USER1$/check', 'command_type' => 2]);
         $id = $this->insertTemplate('command-only', ['command_command_id' => $commandId, 'command_command_id_arg1' => '!-w!80']);
@@ -503,20 +504,20 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(204);
         self::assertSame(
-            ['command_command_id' => null, 'command_command_id_arg1' => null],
+            ['command_command_id' => null, 'command_command_id_arg1' => '!-w!80'],
             $this->connection->fetchAssociative('SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?', [$id]),
         );
     }
 
-    public function testArgumentsWithoutACommandAreRefused(): void
+    public function testArgumentsWithoutACommandAreStoredForTheCommandOfTheParents(): void
     {
         $id = $this->insertTemplate('arguments-alone');
         $this->login();
 
         $this->patch($id, ['check_options' => ['args' => ['-w', '80']]]);
 
-        self::assertResponseStatusCodeSame(422);
-        self::assertNull($this->connection->fetchOne('SELECT command_command_id_arg1 FROM host WHERE host_id = ?', [$id]));
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('!-w!80', $this->connection->fetchOne('SELECT command_command_id_arg1 FROM host WHERE host_id = ?', [$id]));
     }
 
     /**
@@ -578,6 +579,11 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         yield 'arguments over 65535 bytes' => [['check_options' => ['args' => [str_repeat('a', 65536)]]], 'check_options.args'];
 
         yield 'snmp community 256' => [['snmp_community' => str_repeat('s', 256)], 'snmp_community'];
+
+        yield 'an snmp community that is a vault reference after a space' => [
+            ['snmp_community' => ' secret::vault::monitoring/hosts/x::_HOSTSNMPCOMMUNITY'],
+            'snmp_community',
+        ];
 
         yield 'a name over 200' => [['name' => str_repeat('n', 201)], 'name'];
 

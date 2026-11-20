@@ -38,8 +38,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 final readonly class PatchHostTemplateCheckOptionsInput
 {
     /**
-     * @param ?int $commandId null removes the command and its arguments
-     * @param list<string> $args an empty list clears them; they require a check command
+     * @param ?int $commandId null removes the command; the arguments stay for the command of the parents
+     * @param list<string> $args an empty list clears them; kept without a check command
      * @param list<HostTemplateMacroInput> $macros the template's own macros: the ones left out are removed
      * @param list<HostTemplateMacroInput> $macrosToUpsert written, the other ones kept
      * @param list<int> $macrosToRemove ids of the template's own macros

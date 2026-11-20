@@ -135,6 +135,7 @@ final readonly class CreateHostTemplateCommandHandler
                     $command->checkCommandId,
                     $command->checkCommandArgs,
                     $macros,
+                    commandMayBeInherited: true,
                 ),
                 parentTemplateIds: $command->templateIds,
                 snmpCommunity: $snmpCommunity,

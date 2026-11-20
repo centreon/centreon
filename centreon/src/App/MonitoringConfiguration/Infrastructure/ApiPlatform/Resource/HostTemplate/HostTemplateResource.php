@@ -143,11 +143,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Pa
             itemUriTemplate: '/configuration/host_templates/{id}',
             input: CreateHostTemplateInput::class,
             processor: CreateHostTemplateProcessor::class,
-            denormalizationContext: ['allow_extra_attributes' => false],
             openapi: new Model\Operation(
                 summary: 'Create a host template',
                 responses: [
-                    400 => new Model\Response('A field the host template does not have'),
                     401 => new Model\Response('Authentication required'),
                     403 => new Model\Response('You are not allowed to create host templates'),
                     409 => new Model\Response('A host or host template already uses this name'),
@@ -199,13 +197,12 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Pa
             input: PatchHostTemplateInput::class,
             output: false,
             processor: PatchHostTemplateProcessor::class,
-            denormalizationContext: ['allow_extra_attributes' => false],
             openapi: new Model\Operation(
                 summary: 'Update a host template',
                 description: 'A key left out leaves its value untouched; a key sent as null clears its value where it can be cleared.',
                 responses: [
                     204 => new Model\Response('Host template updated'),
-                    400 => new Model\Response('The host template is locked, or a field the host template does not have'),
+                    400 => new Model\Response('The host template is locked'),
                     401 => new Model\Response('Authentication required'),
                     403 => new Model\Response('You are not allowed to update host templates'),
                     404 => new Model\Response('Host template not found'),
