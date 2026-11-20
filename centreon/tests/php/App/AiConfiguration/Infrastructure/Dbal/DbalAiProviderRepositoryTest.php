@@ -34,6 +34,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Repository\Criteria\AiProviderCriteria;
 use App\AiConfiguration\Infrastructure\Dbal\DbalAiProviderRepository;
+use App\Shared\Domain\Repository\Pagination;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalAiProviderRepositoryTest extends KernelTestCase
@@ -108,6 +109,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
         $aiProvider->rename(new AiProviderName('Anthropic renamed'));
         $aiProvider->updateApiToken(new ApiToken('new-token'));
         $aiProvider->enable();
+
         $this->repository->update($aiProvider);
 
         $fetched = $this->repository->getById($aiProvider->id());
@@ -146,7 +148,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
         $filtered = $this->repository->findAll($criteria);
         self::assertCount(1, $filtered);
 
-        $criteria = (new AiProviderCriteria())->withPagination(1, 1)->withSort('name', 'ASC');
+        $criteria = (new AiProviderCriteria())->withPagination(new Pagination(1, 1))->withSort('name', 'ASC');
         $paginated = $this->repository->findAll($criteria);
         self::assertCount(1, $paginated);
     }

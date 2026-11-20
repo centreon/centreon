@@ -27,10 +27,14 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Repository\Criteria\AiProviderCriteria;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
@@ -54,7 +58,6 @@ use Webmozart\Assert\Assert;
 final readonly class DbalAiProviderRepository extends DbalRepository implements AiProviderRepository
 {
     use DbalCriteriaApplierTrait;
-
     public const TABLE_NAME = 'ai_provider_configuration';
 
     /**
@@ -136,7 +139,8 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
             $this->filterByCriteria($qb, $criteria);
         }
 
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -148,8 +152,8 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
 
         $count = $this->countOnQueryBuilder($qb); // must be done before fetching all rows
 
-        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
-            ->setMaxResults($criteria->getItemsPerPage());
+        $qb->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->itemsPerPage);
 
         /** @var array<RowTypeAlias> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -160,8 +164,8 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
                 AiProvider::class
             ),
             totalItems: $count,
-            currentPage: $criteria->getPage(),
-            itemsPerPage: $criteria->getItemsPerPage(),
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -329,20 +333,20 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
             'default_model' => $aiProvider->defaultModel->value,
             'fast_model' => $aiProvider->fastModel?->value,
             'currency' => $aiProvider->currency?->value,
-            'pricing' => $pricing === null ? null : [
+            'pricing' => $pricing instanceof Pricing ? [
                 'default' => [
                     'input' => $pricing->default->inputPricePerMillion,
                     'output' => $pricing->default->outputPricePerMillion,
                 ],
-                'fast' => $pricing->fast === null ? null : [
+                'fast' => $pricing->fast instanceof TierPricing ? [
                     'input' => $pricing->fast->inputPricePerMillion,
                     'output' => $pricing->fast->outputPricePerMillion,
-                ],
-            ],
-            'limits' => $limit === null ? null : [
+                ] : null,
+            ] : null,
+            'limits' => $limit instanceof SpendLimit ? [
                 'daily' => $limit->daily,
                 'monthly' => $limit->monthly,
-            ],
+            ] : null,
         ], \JSON_THROW_ON_ERROR);
     }
 }

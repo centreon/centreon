@@ -25,7 +25,6 @@ namespace App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider;
 
 use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
@@ -35,7 +34,9 @@ use App\AiConfiguration\Domain\Security\AiProviderActionEnum;
 use App\AiConfiguration\Domain\Usage\UsageSummaryProvider;
 use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\ListAiProviderResource;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\ApiPlatform\State\SortAwareProviderTrait;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -49,7 +50,7 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
     public function __construct(
         private ResourceListAiProviderTransformer $transformer,
         private AiProviderRepository $repository,
-        private Pagination $pagination,
+        private PaginationResolver $paginationResolver,
         private Security $security,
         private AiFeatureAvailability $availability,
         private UsageSummaryProvider $usageSummaryProvider,
@@ -71,11 +72,9 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
         $filters = $context['filters'] ?? [];
 
         $criteria = new AiProviderCriteria();
-        if ($this->pagination->isEnabled($operation, $context)) {
-            $criteria = $criteria->withPagination(
-                $this->pagination->getPage($context),
-                $this->pagination->getLimit($operation, $context)
-            );
+        $pagination = $this->paginationResolver->resolve($operation, $context);
+        if ($pagination instanceof Pagination) {
+            $criteria = $criteria->withPagination($pagination);
         }
 
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
