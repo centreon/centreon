@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
 
-use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContactGroups;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContacts;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExclusiveNotificationOption;
