@@ -100,14 +100,19 @@ final class AnthropicLlmClient implements LlmClientInterface
         try {
             foreach ($this->httpClient->stream($response) as $chunk) {
                 foreach ($parser->push($chunk->getContent()) as $payload) {
-                    /** @var array{
-                     *   type?: string,
-                     *   message?: array{model?: string, usage?: array{input_tokens?: int}},
-                     *   delta?: array{type?: string, text?: string},
-                     *   usage?: array{output_tokens?: int},
-                     *   error?: array{message?: string},
-                     * } $event */
-                    $event = json_decode($payload, true) ?? [];
+                    try {
+                        /** @var array{
+                         *   type?: string,
+                         *   message?: array{model?: string, usage?: array{input_tokens?: int}},
+                         *   delta?: array{type?: string, text?: string},
+                         *   usage?: array{output_tokens?: int},
+                         *   error?: array{message?: string},
+                         * } $event */
+                        $event = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR) ?? [];
+                    } catch (\JsonException) {
+                        // a malformed event is skipped
+                        $event = [];
+                    }
 
                     switch ($event['type'] ?? null) {
                         case 'message_start':
@@ -257,8 +262,13 @@ final class AnthropicLlmClient implements LlmClientInterface
             return 'no response body';
         }
 
-        /** @var array{error?: array{message?: string}}|null $data */
-        $data = json_decode($body, true);
+        try {
+            /** @var array{error?: array{message?: string}}|null $data */
+            $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            // not a JSON error document: the raw body is reported instead
+            $data = null;
+        }
 
         return $data['error']['message'] ?? mb_substr($body, 0, 200);
     }

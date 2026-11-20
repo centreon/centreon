@@ -99,13 +99,18 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
                         continue;
                     }
 
-                    /** @var array{
-                     *   model?: string,
-                     *   choices?: array<array{delta?: array{content?: string|null}}>,
-                     *   usage?: array{prompt_tokens?: int, completion_tokens?: int},
-                     *   error?: array{message?: string},
-                     * } $event */
-                    $event = json_decode($payload, true) ?? [];
+                    try {
+                        /** @var array{
+                         *   model?: string,
+                         *   choices?: array<array{delta?: array{content?: string|null}}>,
+                         *   usage?: array{prompt_tokens?: int, completion_tokens?: int},
+                         *   error?: array{message?: string},
+                         * } $event */
+                        $event = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR) ?? [];
+                    } catch (\JsonException) {
+                        // a malformed event is skipped
+                        $event = [];
+                    }
 
                     if (isset($event['error'])) {
                         throw LlmRequestFailedException::fromInvalidResponse(
@@ -283,8 +288,13 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
             return 'no response body';
         }
 
-        /** @var array{error?: array{message?: string}|string}|null $data */
-        $data = json_decode($body, true);
+        try {
+            /** @var array{error?: array{message?: string}|string}|null $data */
+            $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            // not a JSON error document: the raw body is reported instead
+            $data = null;
+        }
         $error = $data['error'] ?? null;
         if (is_array($error)) {
             return $error['message'] ?? mb_substr($body, 0, 200);

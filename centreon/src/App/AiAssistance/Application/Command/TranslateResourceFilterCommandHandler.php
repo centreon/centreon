@@ -179,7 +179,11 @@ final readonly class TranslateResourceFilterCommandHandler
      */
     private function validate(string $content): ?string
     {
-        $decoded = json_decode($this->stripCodeFences($content), true);
+        try {
+            $decoded = json_decode($this->stripCodeFences($content), true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            $decoded = null;
+        }
         if (! is_array($decoded)) {
             return 'the answer is not a JSON object';
         }
@@ -218,8 +222,9 @@ final readonly class TranslateResourceFilterCommandHandler
 
     private function extract(string $content): TranslateResourceFilterResult
     {
+        // only called once validate() accepted the content as a JSON object
         /** @var array{intent: string, query?: string, scope?: string} $decoded */
-        $decoded = json_decode($this->stripCodeFences($content), true);
+        $decoded = json_decode($this->stripCodeFences($content), true, 512, \JSON_THROW_ON_ERROR);
 
         $intent = $decoded['intent'];
 

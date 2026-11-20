@@ -66,7 +66,7 @@ final class AnthropicLlmClientTest extends TestCase
 
         /** @var array{normalized_headers: array<string, array<string>>, body: string} $capturedOptions */
         /** @var array{model: string, max_tokens: int, system?: string, messages: array<array<string, string>>} $body */
-        $body = json_decode($capturedOptions['body'], true);
+        $body = json_decode($capturedOptions['body'], true, 512, \JSON_THROW_ON_ERROR);
         self::assertSame('claude-sonnet-4-6', $body['model']);
         self::assertSame(16, $body['max_tokens']);
         self::assertSame('a system prompt', $body['system'] ?? null);
@@ -80,7 +80,7 @@ final class AnthropicLlmClientTest extends TestCase
             function (string $method, string $url, array $options): MockResponse {
                 /** @var array{body: string} $options */
                 /** @var array{model: string} $body */
-                $body = json_decode($options['body'], true);
+                $body = json_decode($options['body'], true, 512, \JSON_THROW_ON_ERROR);
                 self::assertSame('claude-haiku-4-5', $body['model']);
 
                 return new MockResponse('{"content":[],"model":"claude-haiku-4-5","usage":{}}');
@@ -102,7 +102,7 @@ final class AnthropicLlmClientTest extends TestCase
             function (string $method, string $url, array $options): MockResponse {
                 /** @var array{body: string} $options */
                 /** @var array{model: string} $body */
-                $body = json_decode($options['body'], true);
+                $body = json_decode($options['body'], true, 512, \JSON_THROW_ON_ERROR);
                 self::assertSame('claude-sonnet-4-6', $body['model']);
 
                 return new MockResponse('{"content":[],"model":"claude-sonnet-4-6","usage":{}}');
