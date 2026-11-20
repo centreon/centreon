@@ -38,8 +38,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Domain\Exception\DuplicateHostTemplateMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateLockedException;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\NoValue;
 use App\Shared\Domain\VaultInterface;
@@ -138,6 +140,10 @@ final class HostTemplate extends AggregateRoot
      * A copy of this template with the provided properties replaced: NoValue keeps the current one, null
      * clears an optional one.
      *
+     * @param NoValue|Collection<HostTemplateId> $parentTemplateIds
+     * @param NoValue|Collection<HostCategoryId> $categoryIds
+     * @param NoValue|Collection<ServiceTemplateId> $linkedServiceTemplateIds
+     *
      * @throws HostTemplateLockedException
      * @throws \InvalidArgumentException when a number does not fit its column
      */
@@ -153,6 +159,9 @@ final class HostTemplate extends AggregateRoot
         NoValue|SchedulingOptions $schedulingOptions = new NoValue(),
         NoValue|DataProcessing $dataProcessing = new NoValue(),
         NoValue|Notifications|null $notifications = new NoValue(),
+        NoValue|Collection $parentTemplateIds = new NoValue(),
+        NoValue|Collection $categoryIds = new NoValue(),
+        NoValue|Collection $linkedServiceTemplateIds = new NoValue(),
     ): self {
         $this->assertUnlocked();
 
@@ -173,7 +182,7 @@ final class HostTemplate extends AggregateRoot
             serviceTemplateCheckCommandIds: $this->serviceTemplateCheckCommandIds,
             alias: NoValue::resolve($alias, $this->alias),
             isLocked: $this->isLocked,
-            parentTemplateIds: $this->parentTemplateIds,
+            parentTemplateIds: NoValue::resolve($parentTemplateIds, $this->parentTemplateIds),
             snmpCommunity: NoValue::resolve($snmpCommunity, $this->snmpCommunity),
             snmpVersion: NoValue::resolve($snmpVersion, $this->snmpVersion),
             timezoneId: NoValue::resolve($timezoneId, $this->timezoneId),
@@ -182,27 +191,76 @@ final class HostTemplate extends AggregateRoot
             schedulingOptions: NoValue::resolve($schedulingOptions, $this->schedulingOptions),
             dataProcessing: NoValue::resolve($dataProcessing, $this->dataProcessing),
             notifications: NoValue::resolve($notifications, $this->notifications),
-            categoryIds: $this->categoryIds,
-            linkedServiceTemplateIds: $this->linkedServiceTemplateIds,
+            categoryIds: NoValue::resolve($categoryIds, $this->categoryIds),
+            linkedServiceTemplateIds: NoValue::resolve($linkedServiceTemplateIds, $this->linkedServiceTemplateIds),
         );
     }
 
     /**
-     * Every field but the relations; contacts and contact groups count through the notifications.
+     * @param list<HostMacro> $macros the template's own macros, replacing the current ones
+     *
+     * @throws HostTemplateLockedException
+     * @throws DuplicateHostTemplateMacroNameException
+     */
+    public function withMacros(array $macros): self
+    {
+        $names = array_map(static fn (HostMacro $macro): string => $macro->name->value, $macros);
+        $duplicates = array_keys(array_filter(array_count_values($names), static fn (int $count): bool => $count > 1));
+        if ($duplicates !== []) {
+            throw new DuplicateHostTemplateMacroNameException(array_map(strval(...), $duplicates));
+        }
+
+        return $this->with(checkOptions: $this->checkOptions->with(macros: $macros));
+    }
+
+    /**
+     * Every field but the relations and the macros; contacts and contact groups count through the notifications.
      */
     public function hasSameConfigurationAs(self $other): bool
     {
+        return $this->hasSameLoggedConfigurationAs($other) && $this->hasSameContactsAs($other);
+    }
+
+    /**
+     * The fields the activity log records: the configuration without the contacts and contact groups.
+     */
+    public function hasSameLoggedConfigurationAs(self $other): bool
+    {
+        $notifications = $this->notifications ?? Notifications::default();
+        $otherNotifications = $other->notifications ?? Notifications::default();
+
         return $this->name->value === $other->name->value
             && $this->alias?->value === $other->alias?->value
             && $this->snmpVersion === $other->snmpVersion
             && $this->snmpCommunity?->value === $other->snmpCommunity?->value
             && $this->timezoneId?->value === $other->timezoneId?->value
             && $this->severityId?->value === $other->severityId?->value
-            && $this->checkOptions->equals($other->checkOptions)
+            && $this->checkOptions->with(macros: [])->equals($other->checkOptions->with(macros: []))
             && $this->schedulingOptions->equals($other->schedulingOptions)
             && $this->dataProcessing->equals($other->dataProcessing)
             && ($this->extendedInformations ?? new ExtendedInformations())->equals($other->extendedInformations ?? new ExtendedInformations())
-            && ($this->notifications ?? Notifications::default())->equals($other->notifications ?? Notifications::default());
+            && $notifications->withContacts($otherNotifications->contactIds, $otherNotifications->contactGroupIds)->equals($otherNotifications);
+    }
+
+    /**
+     * The parents and the linked service templates in order (it sets the inheritance and the macro
+     * priority), the categories as a set.
+     */
+    public function hasSameRelationsAs(self $other): bool
+    {
+        return $this->idValues($this->parentTemplateIds) === $this->idValues($other->parentTemplateIds)
+            && $this->idValues($this->linkedServiceTemplateIds) === $this->idValues($other->linkedServiceTemplateIds)
+            && $this->sortedIdValues($this->categoryIds) === $this->sortedIdValues($other->categoryIds);
+    }
+
+    public function hasSameContactsAs(self $other): bool
+    {
+        return ($this->notifications ?? Notifications::default())->hasSameContactsAs($other->notifications ?? Notifications::default());
+    }
+
+    public function hasSameMacrosAs(self $other): bool
+    {
+        return $this->checkOptions->hasSameMacrosAs($other->checkOptions);
     }
 
     /**
@@ -287,6 +345,33 @@ final class HostTemplate extends AggregateRoot
             static fn (HostMacro $macro): HostMacro => $macro->inheritedFrom(HostMacroParentEnum::Template),
             $this->checkOptions->macros,
         );
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     *
+     * @return list<int>
+     */
+    private function idValues(Collection $ids): array
+    {
+        return array_values(array_map(static fn (AggregateRootId $id): int => $id->value, $ids->toArray()));
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     *
+     * @return list<int>
+     */
+    private function sortedIdValues(Collection $ids): array
+    {
+        $values = $this->idValues($ids);
+        sort($values);
+
+        return $values;
     }
 
     private static function assertSchedulingOptionsBounds(SchedulingOptions $options): void
