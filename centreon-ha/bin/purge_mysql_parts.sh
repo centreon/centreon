@@ -1,34 +1,35 @@
 #!/bin/bash
 
+source /usr/share/centreon-ha/lib/mysql-functions.sh
+
 PARTITION_NAME="centreon_storage/data_bin"
 DB_ROOT_USER="root"
 DB_ROOT_PASSWORD=""
 
-process=$(ps -o args --no-headers -C mysqld)
-started=0
+if ! sql_fetch_db_config ; then
+	echo "ERROR: Cannot find the MariaDB configuration." >&2
+	exit 1
+fi
+
+# MySQL tracks the partition files in its data dictionary: they must not be
+# deleted behind its back
+if [ "$SQL_IS_MARIADB" -ne 1 ] ; then
+	echo "ERROR: This script only supports MariaDB." >&2
+	exit 1
+fi
 
 ####
 # Find DATADIR
 ####
-if [ -n "$process" ] ; then
-	datadir=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--datadir")) { print $i } } }' | awk -F\= '{ print $2 }')
-	etc_file=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--defaults-file")) { print $i } } }' | awk -F\= '{ print $2 }')
-	started=1
-fi
-if [ -z "$etc_file" ] ; then
-	etc_file="/etc/my.cnf"
-fi
-if [ -z "$datadir" ] ; then
-	datadir=$(cat "$etc_file" | grep -E '^datadir' | awk -F\= '{ print $2 }')
-fi
+datadir="$SQL_CONF_DATADIR"
 if [ -z "$datadir" ] ; then
 	echo "ERROR: Can't find MySQL datadir." >&2
 	exit 1
 fi
-### Avoid datadir is a symlink (get the absolute path)
-datadir=$(cd "$datadir"; pwd -P)
 
 echo "MySQL datadir found: $datadir"
+
+status=0
 
 #####
 # Check for each
@@ -37,20 +38,25 @@ echo "MySQL datadir found: $datadir"
 for partition in $PARTITION_NAME; do
 	num=$(ls "$datadir/$partition#P#"* 2> /dev/null | wc -l)
 	if [ -z "$num" ] || [ "$num" -eq 0 ] ; then
-		echo "ERROR: Can't find partition for table '$table'." >&2
+		echo "ERROR: Can't find partition for table '$partition'." >&2
+		status=1
 		continue
 	fi
 
 	tmp_db=$(dirname "$partition")
 	tmp_table=$(basename "$partition")
 
-	request="SELECT CONCAT('\"', PARTITION_NAME, '\"') FROM information_schema.PARTITIONS WHERE TABLE_NAME='$tmp_table' AND TABLE_SCHEMA='$tmp_db'"
-	if [ -z "$DB_ROOT_PASSWORD" ] ; then
-		result=$(mysql -B -u "$DB_ROOT_USER" -e "$request")
-	else
-		result=$(mysql -B -u "$DB_ROOT_USER" -p"$DB_ROOT_PASSWORD" -e "$request")
+	request="SELECT CONCAT('\"', PARTITION_NAME, '\"') FROM information_schema.PARTITIONS WHERE TABLE_NAME='$tmp_table' AND TABLE_SCHEMA='$tmp_db' AND PARTITION_NAME IS NOT NULL"
+	password_args=()
+	if [ -n "$DB_ROOT_PASSWORD" ] ; then
+		password_args=(-p"$DB_ROOT_PASSWORD")
 	fi
-	
+	# Without the list of partitions, every file would be deleted
+	if ! result=$("$SQL_CLIENT" -B -N -u "$DB_ROOT_USER" "${password_args[@]}" -e "$request") || [ -z "$result" ] ; then
+		echo "ERROR: Can't get the partitions of '$partition', nothing deleted." >&2
+		exit 1
+	fi
+
 	for file in "$datadir/$partition#P#"* ; do
 		partition_part=$(basename "$file" | perl -p -e "s/$tmp_table#P#(.*?)\..*/\1/;")
 		if [ -n "$partition_part" ] ; then
@@ -64,4 +70,4 @@ for partition in $PARTITION_NAME; do
 	done
 done
 
-exit 0
+exit $status

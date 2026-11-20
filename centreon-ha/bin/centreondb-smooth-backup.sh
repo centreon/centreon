@@ -9,6 +9,7 @@
 #
 ###################################################
 
+source /usr/share/centreon-ha/lib/mysql-functions.sh
 source /etc/centreon-ha/mysql-resources.sh
 
 OPT_TOTAL=1
@@ -46,15 +47,25 @@ DO_ARCHIVE=1
 PARTITION_NAME="centreon_storage/data_bin centreon_storage/logs"
 PACEMAKER_ON="1"
 PACEMAKER_RSC_MYSQL="ms_mysql"
-MYSQL_CNF="/etc/my.cnf.d/server.cnf"
 READONLY_CHECK=1
 
 ###
-# Check MySQL launch
+# Get DB parameters
 ###
-process=$(ps -o args --no-headers -C mysqld)
-started=1
+if ! sql_fetch_db_config ; then
+    echo "ERROR: Cannot find the MariaDB/MySQL configuration." >&2
+    exit 1
+fi
+sql_fetch_systemd_service
+
+if [ -z "$SQL_SYSTEMD_SERVICE" ] ; then
+    echo "ERROR: Cannot find MariaDB/MySQL systemd service." >&2
+    exit 1
+fi
+
 logbin_activated=1
+backup_status=0
+binlog_gap=0
 
 #####
 # Functions
@@ -66,7 +77,7 @@ check_readonly() {
         return 0
     fi
     
-    readonly_value=$(mysql -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e 'SELECT @@global.read_only')
+    readonly_value=$("$SQL_CLIENT" -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e 'SELECT @@global.read_only')
     if [ "$?" -ne "0" ] ; then
         output_log "ERROR: cannot get readonly option value" 1
 	exit 1
@@ -83,26 +94,52 @@ set_readonly() {
         return 0
     fi
     # we let the default if we don't know before
-        mysql -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=$readonly_value"
+        "$SQL_CLIENT" -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=$readonly_value"
 }
 
 get_current_logbin_file() {
 	up_logbin=$1
 
 	if [ "$up_logbin" -eq 1 ] ; then
-		mysqladmin --user="$DBROOTUSER" --password="$DBROOTPASSWORD" flush-logs
+		"$SQL_ADMIN" --user="$DBROOTUSER" --password="$DBROOTPASSWORD" flush-logs
 	fi
 
-	if [ -z "$DBROOTPASSWORD" ] ; then
-		file=$(mysql -B -u "$DBROOTUSER" -e 'SHOW MASTER STATUS\G' 2>&1 | grep 'File:' | awk '{ print $2 }')
+	if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+		_show_status="SHOW MASTER STATUS"
 	else
-		file=$(mysql -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e 'SHOW MASTER STATUS\G' 2>&1 | grep 'File:' | awk '{ print $2 }')
+		_show_status="SHOW BINARY LOG STATUS"
 	fi
-	if [ "$?" -ne "0" ] ; then
-		output_log "ERROR: connection MySQL to get index file." 1
-		exit 1
+
+	_password_args=()
+	if [ -n "$DBROOTPASSWORD" ] ; then
+		_password_args=(-p"$DBROOTPASSWORD")
 	fi
-	echo "$file" | awk -F. '{ print $2 - 1 }'
+	# Print nothing and fail when the current binary log is unknown
+	if ! _status=$("$SQL_CLIENT" -B -u "$DBROOTUSER" "${_password_args[@]}" -e "$_show_status\G") ; then
+		return 1
+	fi
+	file=$(echo "$_status" | awk '$1 == "File:" { print $2 }')
+	if ! echo "$file" | grep -qE '\.[0-9]+$' ; then
+		return 1
+	fi
+	echo "$file" | awk -F. '{ print $NF - 1 }'
+}
+
+write_checkpoint() {
+	# $1: index of the last binary log that the backups hold
+	if ! echo "$1" > "$SAVE_LAST_DIR/centreondb-smooth-backup.save" ; then
+		output_log "ERROR: Can't write the incremental backup checkpoint." 1
+		return 1
+	fi
+	output_log "Save current logbin file = $1"
+}
+
+drop_checkpoint() {
+	# Without a checkpoint, the next incremental backup is a total one
+	output_log "ERROR: $1: the next incremental backup will be a total one (previous checkpoint: '$(cat "$SAVE_LAST_DIR/centreondb-smooth-backup.save" 2>/dev/null)')." 1
+	if ! rm -f "$SAVE_LAST_DIR/centreondb-smooth-backup.save" ; then
+		output_log "ERROR: Can't remove $SAVE_LAST_DIR/centreondb-smooth-backup.save: remove it by hand." 1
+	fi
 }
 
 output_log() {
@@ -120,53 +157,22 @@ output_log() {
 }
 
 ###
-# Find datadir AND logbin 
+# Find datadir AND logbin
 ###
-if [ -n "$process" ] ; then
-	datadir=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--datadir")) { print $i } } }' | awk -F\= '{ print $2 }')
-	etc_file=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--defaults-file")) { print $i } } }' | awk -F\= '{ print $2 }')
-	logbin=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--log-bin")) { print $i } } }' | awk -F\= '{ print $1 }')
-	logbin_path=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--log-bin")) { print $i } } }' | awk -F\= '{ print $2 }')
-	pidname=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--pid-file")) { print $i } } }' | awk -F\= '{ print $2 }')
-    if [ -n "$etc_file" ] ; then
-		MYSQL_CNF="$etc_file"
-	fi
-fi
+datadir="$SQL_CONF_DATADIR"
 
-if [ -z "$datadir" ] ; then
-	datadir=$(cat "$MYSQL_CNF" | grep -E '^datadir' | awk -F\= '{ print $2 }')
-fi
 if [ -z "$datadir" ] ; then
 	output_log "ERROR: Can't find MySQL datadir." 1
 	exit 1
 fi
-### Avoid datadir is a symlink (get the absolute path)
-datadir=$(cd "$datadir"; pwd -P)
 
-if [ -z "$pidname" ] ; then
-	pidname=$(cat "$MYSQL_CNF" | grep -E '^pid-file' | awk -F\= '{ print $2 }')
-fi
-if [ -z "$pidname" ] ; then
-	pidname=$(hostname | cut -d '.' -f 1)
-else
-	pidname=$(basename "$pidname" | cut -d '.' -f 1)
-fi
-
-if [ -z "$logbin" ] ; then
-	logbin=$(cat "$MYSQL_CNF" | grep -E '^log-bin' | awk -F\= '{ print $1 }')
-	logbin_path=$(cat "$MYSQL_CNF" | grep -E '^log-bin' | awk -F\= '{ print $2 }')
-fi
-if [ -z "$logbin" ] ; then
+if [ -z "$SQL_CONF_LOG_BIN_ARG" ] ; then
 	output_log "'log-bin' option not found. Can't do an incremental backup."
 	logbin_activated=0
 	OPT_INCR=0
 else
-	if [ -n "$logbin_path" ] ; then
-		logbin_files=$(basename "$logbin_path")
-		logbin_loc=$(dirname "$logbin_path")
-	else
-		logbin_files="$pidname-bin"
-	fi
+	logbin_files=$(basename "$SQL_CONF_LOG_BIN")
+	logbin_loc=$(dirname "$SQL_CONF_LOG_BIN")
 	if [ -z "$logbin_loc" ] || [ "$logbin_loc" = "." ] ; then
 		logbin_loc="$datadir"
 	fi
@@ -276,8 +282,11 @@ fi
 # Verify if an problem in incremental numbers
 ###
 if [ "$logbin_activated" -eq "1" ] && [ "$OPT_INCR" -eq 1 ] ; then
-	current_binlog_file=$(get_current_logbin_file 1)
-	if [ -z "$current_binlog_file" ] || ! echo "$last_binlog_file $current_binlog_file" | awk '{ if ($1 < $2 ) { exit(0) } else { exit(1) } }' ; then
+	if ! current_binlog_file=$(get_current_logbin_file 1) ; then
+		output_log "ERROR: Can't read the binary log status, no backup done." 1
+		exit 1
+	fi
+	if ! echo "$last_binlog_file $current_binlog_file" | awk '{ if ($1 < $2 ) { exit(0) } else { exit(1) } }' ; then
 		output_log "Binary logs value error '$last_binlog_file' '$current_binlog_file'. Can't do an incremental backup."
 		OPT_INCR=0
 	fi
@@ -287,7 +296,8 @@ fi
 # Verify if there is partition
 ###
 for table in $PARTITION_NAME ; do
-	num=$(ls "$datadir/$table#P#"* 2> /dev/null | wc -l)
+	# MariaDB names the partition files "#P#", MySQL "#p#"
+	num=$(ls "$datadir/$table#"[Pp]"#"* 2> /dev/null | wc -l)
 	if [ -z "$num" ] || [ "$num" -eq 0 ] ; then
 		output_log "ERROR: Can't find partition for table '$table'." 1
 		exit 1
@@ -309,7 +319,7 @@ if [ "$OPT_INCR" -ne "0" ] ; then
 	echo "Incremental backup launched:"
 	echo "#####################"
 
-	save_bin_logs=""
+	save_bin_logs=()
 	while : ; do
 		last_binlog_file=$(($last_binlog_file + 1))
 		if [ "$last_binlog_file" -gt "$current_binlog_file" ] ; then
@@ -317,22 +327,36 @@ if [ "$OPT_INCR" -ne "0" ] ; then
 		fi
 		file_test=$(echo "$logbin_loc/$logbin_files.$(printf "%06d" $last_binlog_file)")
 		if [ -f "$file_test" ] ; then
-			save_bin_logs="$save_bin_logs \"$file_test\" "
+			save_bin_logs+=("$file_test")
+		else
+			output_log "ERROR: Missing binary log '$file_test'." 1
+			binlog_gap=1
 		fi
 	done
 	
-	if [ "$logbin_activated" -ne "0" ] ; then
-		current_logbin_file=$(get_current_logbin_file 0)
-		output_log "Save current logbin file = $current_logbin_file"
-		echo "$current_logbin_file" > "$SAVE_LAST_DIR/centreondb-smooth-backup.save"
+	# The chain cannot be restored past a missing binary log: drop the
+	# checkpoint whatever happens to the copy of the other ones
+	if [ "$binlog_gap" -eq 1 ] ; then
+		drop_checkpoint "The binary logs have a gap"
 	fi
-	
+
 	echo "Save files"
-	if [ "$DO_ARCHIVE" -eq "0" ] ; then
-		eval cp -pf $save_bin_logs \"$BACKUP_DIR_TOTAL/\"
-	else
-		eval tar czvf \"$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz\" $save_bin_logs
+	if [ "${#save_bin_logs[@]}" -gt 0 ] ; then
+		if [ "$DO_ARCHIVE" -eq "0" ] ; then
+			cp -pf "${save_bin_logs[@]}" "$BACKUP_DIR_TOTAL/"
+		else
+			tar czvf "$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz" "${save_bin_logs[@]}"
+		fi
+		# Advance the checkpoint only once the binary logs are saved
+		if [ $? -ne 0 ] ; then
+			output_log "ERROR: Can't save the binary logs, the incremental backup checkpoint is not updated." 1
+			exit 1
+		fi
 	fi
+	if [ "$binlog_gap" -eq 1 ] ; then
+		exit 1
+	fi
+	write_checkpoint "$current_binlog_file" || exit 1
 	
 	exit 0
 fi
@@ -347,9 +371,9 @@ if [ "$PACEMAKER_ON" = "1" ] ; then
 	pcs resource unmanage "$PACEMAKER_RSC_MYSQL"
 fi
 i=0
-output_log "Stopping mysqld:" 0 1
-mysqladmin --user="$DBROOTUSER" --password="$DBROOTPASSWORD"  shutdown 
-while ps -o args --no-headers -C mysqld >/dev/null; do
+output_log "Stopping $SQL_DB_BINARY:" 0 1
+"$SQL_ADMIN" --user="$DBROOTUSER" --password="$DBROOTPASSWORD"  shutdown
+while ps -o args --no-headers -C "$SQL_DB_BINARY" >/dev/null; do
 	if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
 		output_log ""
 		output_log "ERROR: Can't stop MySQL Server" 1
@@ -372,10 +396,41 @@ lvcreate -l $free_pe -s -n dbbackup $lv_name
 ###
 # Start server
 ###
-output_log "Start mysqld:"
-systemctl start mariadb
+output_log "Start $SQL_DB_BINARY:"
+systemctl start "$SQL_SYSTEMD_SERVICE"
 
-set_readonly
+readonly_restored=1
+if ! set_readonly ; then
+	output_log "ERROR: Can't restore read_only=$readonly_value on this node." 1
+	backup_status=1
+	readonly_restored=0
+fi
+
+# The checkpoint of the snapshot: read before the replication resumes, as
+# replicated writes can rotate the binary log. Saved once the backup succeeds.
+total_checkpoint=""
+if [ "$logbin_activated" -ne "0" ] && ! total_checkpoint=$(get_current_logbin_file 0) ; then
+	total_checkpoint=""
+fi
+
+# The backup runs on the replica: skip-slave-start keeps its replication
+# stopped after the restart, and the resource agent does not restart it.
+# Only on a read-only node, never on a master with stale replica settings.
+if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+	_start_replica="START SLAVE"
+else
+	_start_replica="START REPLICA"
+fi
+if [ "$readonly_value" = "1" ] && [ "$readonly_restored" -eq 0 ] ; then
+	output_log "ERROR: The replication is not restarted on a node that may be writable: run '$_start_replica' once read_only is restored." 1
+elif [ "$readonly_value" = "1" ] ; then
+	if ! "$SQL_CLIENT" -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "$_start_replica" ; then
+		output_log "ERROR: Can't restart the replication, run '$_start_replica' on this node." 1
+		backup_status=1
+	fi
+elif [ "$READONLY_CHECK" -eq "0" ] ; then
+	output_log "WARNING: read_only not checked, so the replication is not restarted: on a replica, run '$_start_replica'."
+fi
 
 ###
 # Pacemaker start
@@ -399,16 +454,6 @@ else
     output_log "Unable to mount device, backup aborted" 
     lvremove -f /dev/$vg_name/dbbackup
     exit 1;
-fi
-
-###
-# Get Index path
-###
-
-if [ "$logbin_activated" -ne "0" ] ; then
-	current_logbin_file=$(get_current_logbin_file 0)
-	output_log "Save current logbin file = $current_logbin_file"
-	echo "$current_logbin_file" > "$SAVE_LAST_DIR/centreondb-smooth-backup.save"
 fi
 
 concat_datadir=$(echo "$datadir" | sed "s#^${mount_point}##")
@@ -440,24 +485,35 @@ if [ -n "$logbin_files" ] ; then
 	done
 fi
 
-save_files=""
+# The file names come from the datadir: pass them as arguments, after --
+# A partial list would make a partial backup: list them all before the copy
+save_files=()
 tmp_path=$(echo "$SNAPSHOT_MOUNT/$concat_datadir" | sed "s#/\+#/#g")
-for tmp_file in $(find "$tmp_path" -type f); do
-	tmp_result=$(echo -e "$ar_exclude_file" | awk -v pattern="$tmp_file" 'BEGIN { message="NOK" } $0 == pattern { message="OK"; exit(0) }  END { print message }')
-	if [ "$tmp_result" = "NOK" ] ; then
-		tmp_file=$(echo "$tmp_file" | sed "s#^$SNAPSHOT_MOUNT/##")
-		save_files="$save_files \"$tmp_file\""
-	fi
-done
+list_status=1
+if file_list=$(mktemp) && find "$tmp_path" -type f -print0 > "$file_list" ; then
+	list_status=0
+	while IFS= read -r -d '' tmp_file ; do
+		tmp_result=$(echo -e "$ar_exclude_file" | awk -v pattern="$tmp_file" 'BEGIN { message="NOK" } $0 == pattern { message="OK"; exit(0) }  END { print message }')
+		if [ "$tmp_result" = "NOK" ] ; then
+			save_files+=("${tmp_file#"$SNAPSHOT_MOUNT"/}")
+		fi
+	done < "$file_list"
+else
+	output_log "ERROR: Can't list the files of the snapshot." 1
+fi
+rm -f "$file_list"
 
 output_log "Save files"
-cd $SNAPSHOT_MOUNT
-if [ "$DO_ARCHIVE" -eq "0" ] ; then
-	eval cp --parent -pf $save_files \"$BACKUP_DIR_TOTAL/\"
-else
-	eval tar czvf \"$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz\" $save_files
+copy_status=1
+if [ "$list_status" -eq 0 ] && cd "$SNAPSHOT_MOUNT" ; then
+	if [ "$DO_ARCHIVE" -eq "0" ] ; then
+		cp --parent -pf -- "${save_files[@]}" "$BACKUP_DIR_TOTAL/"
+	else
+		tar czvf "$BACKUP_DIR_TOTAL/mysql-$(date +%Y-%m-%d).tar.gz" -- "${save_files[@]}"
+	fi
+	copy_status=$?
+	cd - > /dev/null
 fi
-cd -
 
 ###
 # Suppression du snapshot
@@ -467,6 +523,30 @@ output_log "Umount and Delete LVM snapshot"
 umount "$SNAPSHOT_MOUNT"
 lvremove -f /dev/$vg_name/dbbackup
 
-echo "$save_timestamp" > "$SAVE_LAST_DIR/$SAVE_LAST_FILE"
+# A failed copy keeps the previous checkpoints: the previous backups stay
+# valid
+if [ "$copy_status" -ne 0 ] ; then
+	output_log "ERROR: Can't save the database files, the backup checkpoints are not updated." 1
+	exit 1
+fi
+if [ "$logbin_activated" -ne "0" ] ; then
+	if [ -z "$total_checkpoint" ] ; then
+		drop_checkpoint "Can't get the current binary log"
+		backup_status=1
+	elif ! write_checkpoint "$total_checkpoint" ; then
+		backup_status=1
+	fi
+else
+	# A checkpoint of an older backup does not describe this one
+	if ! rm -f "$SAVE_LAST_DIR/centreondb-smooth-backup.save" ; then
+		output_log "ERROR: Can't remove $SAVE_LAST_DIR/centreondb-smooth-backup.save: remove it by hand." 1
+		backup_status=1
+	fi
+fi
 
-exit 0
+if ! echo "$save_timestamp" > "$SAVE_LAST_DIR/$SAVE_LAST_FILE" ; then
+	output_log "ERROR: Can't write $SAVE_LAST_DIR/$SAVE_LAST_FILE." 1
+	backup_status=1
+fi
+
+exit $backup_status
