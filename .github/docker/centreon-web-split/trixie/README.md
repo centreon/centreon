@@ -54,8 +54,7 @@ docker network create centreon-split-net
 docker run -d --name centreon-db --network centreon-split-net \
   -e MARIADB_ROOT_PASSWORD=centreon -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1 \
   -e MARIADB_USER=centreon -e MARIADB_PASSWORD=centreon \
-  -e MARIADB_EXTRA_FLAGS="--skip-ssl --skip-name-resolve" \
-  bitnamilegacy/mariadb:11.8   # same image/creds as .github/docker/docker-compose.yml + .env
+  mariadb:11.8 --skip-ssl --skip-name-resolve   # same image/creds as .github/docker/docker-compose.yml + .env
 
 docker run -d --name centreon-fpm --network centreon-split-net \
   -e RUN_INSTALL=true -e MYSQL_HOST=centreon-db -e MYSQL_ROOT_PASSWORD=centreon \
