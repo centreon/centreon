@@ -131,56 +131,50 @@ class CentreonDowntimeEnabledRelationsTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{list<string>, list<string>, list<string>, bool}>
+     * @return iterable<string, array{list<string>, list<string>, bool}>
      */
     public static function provideServiceKeys(): iterable
     {
-        yield 'service and host enabled' => [['1-10', '2-20'], ['1', '2'], ['10', '20'], true];
+        yield 'every service linked to its host and enabled' => [['1-10', '2-20'], ['1-10', '2-20'], true];
 
-        yield 'one service disabled' => [['1-10', '1-20'], ['1'], ['10'], false];
+        yield 'one service or its host disabled' => [['1-10', '2-20'], ['1-10'], false];
 
-        yield 'one host disabled' => [['1-10', '2-20'], ['1'], ['10', '20'], false];
-
-        // 1 and 20 are both enabled, but not together: '1-20' must not make '2-20' pass
-        yield 'enabled ids from different pairs' => [['1-10', '2-20'], ['1'], ['20'], false];
+        // 1-10 and 2-20 are valid pairs, but service 20 does not belong to host 1
+        yield 'service of another host' => [['1-10', '1-20'], ['1-10', '2-20'], false];
     }
 
     /**
      * @param list<string> $serviceKeys
-     * @param list<string> $enabledHostIds
-     * @param list<string> $enabledServiceIds
+     * @param list<string> $validServiceKeys the keys returned by the database
      */
     #[DataProvider('provideServiceKeys')]
-    public function testAServiceIsEnabledWhenBothItAndItsHostAre(
+    public function testAServiceIsEnabledWhenLinkedToItsEnabledHost(
         array $serviceKeys,
-        array $enabledHostIds,
-        array $enabledServiceIds,
+        array $validServiceKeys,
         bool $expected,
     ): void {
-        // Each lookup must bind the distinct ids of its own side of the '<hostId>-<serviceId>' keys
-        $submittedIds = static fn (int $side): array => array_values(array_unique(array_map(
+        // Each branch of the lookup binds the distinct host ids then the distinct service ids of the keys
+        $distinctIds = static fn (int $side): array => array_values(array_unique(array_map(
             static fn (string $serviceKey): int => (int) explode('-', $serviceKey)[$side],
             $serviceKeys
         )));
-        $boundIds = static fn (QueryParameters $queryParameters): array => array_map(
-            static fn (QueryParameter $queryParameter): mixed => $queryParameter->getValue(),
-            array_values($queryParameters->toArray())
-        );
+        $expectedBoundIds = [...$distinctIds(0), ...$distinctIds(1), ...$distinctIds(0), ...$distinctIds(1)];
 
         $database = $this->createMock(CentreonDB::class);
-        $database->expects($this->exactly(2))
+        $database->expects($this->once())
             ->method('fetchFirstColumn')
             ->willReturnCallback(
                 function (string $query, QueryParameters $queryParameters) use (
-                    $submittedIds,
-                    $boundIds,
-                    $enabledHostIds,
-                    $enabledServiceIds,
+                    $expectedBoundIds,
+                    $validServiceKeys,
                 ): array {
-                    $isHostLookup = str_contains($query, "host_activate = '1'");
-                    $this->assertSame($submittedIds($isHostLookup ? 0 : 1), $boundIds($queryParameters));
+                    $boundIds = array_map(
+                        static fn (QueryParameter $queryParameter): mixed => $queryParameter->getValue(),
+                        array_values($queryParameters->toArray())
+                    );
+                    $this->assertSame($expectedBoundIds, $boundIds);
 
-                    return $isHostLookup ? $enabledHostIds : $enabledServiceIds;
+                    return $validServiceKeys;
                 }
             );
 

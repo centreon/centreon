@@ -1354,7 +1354,7 @@ class CentreonDowntime
      * @param list<string> $serviceKeys '<hostId>-<serviceId>' identifiers
      *
      * @throws ConnectionException
-     * @return list<string> the enabled ones, as '<hostId>-<serviceId>'
+     * @return list<string> the enabled ones whose service belongs to the host, as '<hostId>-<serviceId>'
      */
     private function findEnabledServiceKeys(array $serviceKeys): array
     {
@@ -1369,39 +1369,61 @@ class CentreonDowntime
             return [];
         }
 
-        [$hostParameters, $hostPlaceholders] = $this->createIntQueryParameters(
-            array_map('intval', array_column($idPairs, 0)),
-            'host_id_'
+        $hostIds = array_map('intval', array_column($idPairs, 0));
+        $serviceIds = array_map('intval', array_column($idPairs, 1));
+        // Each branch binds its own copy of the ids: a named parameter cannot be used twice
+        [$directHostParameters, $directHostPlaceholders] = $this->createIntQueryParameters($hostIds, 'direct_host_id_');
+        [$directServiceParameters, $directServicePlaceholders] = $this->createIntQueryParameters(
+            $serviceIds,
+            'direct_service_id_'
         );
-        [$serviceParameters, $servicePlaceholders] = $this->createIntQueryParameters(
-            array_map('intval', array_column($idPairs, 1)),
-            'service_id_'
+        [$groupHostParameters, $groupHostPlaceholders] = $this->createIntQueryParameters($hostIds, 'group_host_id_');
+        [$groupServiceParameters, $groupServicePlaceholders] = $this->createIntQueryParameters(
+            $serviceIds,
+            'group_service_id_'
         );
 
-        $enabledHostIds = array_flip(array_map('strval', $this->db->fetchFirstColumn(
+        // A service key is valid when the service is really linked to that host and both are enabled.
+        // One branch per kind of link, each filtered on the submitted hosts before joining, so a service
+        // linked to a large host group never expands to every host of the group.
+        // Meta services are linked directly to the _Module_Meta host.
+        $validServiceKeys = $this->db->fetchFirstColumn(
             <<<SQL
-                SELECT host_id FROM host
-                WHERE host_activate = '1' AND host_id IN ({$hostPlaceholders})
+                SELECT CONCAT(h.host_id, '-', s.service_id)
+                FROM host_service_relation hsr
+                INNER JOIN host h
+                    ON h.host_id = hsr.host_host_id
+                INNER JOIN service s
+                    ON s.service_id = hsr.service_service_id
+                WHERE h.host_activate = '1'
+                    AND s.service_activate = '1'
+                    AND hsr.host_host_id IN ({$directHostPlaceholders})
+                    AND hsr.service_service_id IN ({$directServicePlaceholders})
+                UNION
+                SELECT CONCAT(h.host_id, '-', s.service_id)
+                FROM hostgroup_relation hgr
+                INNER JOIN host_service_relation hsr
+                    ON hsr.hostgroup_hg_id = hgr.hostgroup_hg_id
+                INNER JOIN host h
+                    ON h.host_id = hgr.host_host_id
+                INNER JOIN service s
+                    ON s.service_id = hsr.service_service_id
+                WHERE h.host_activate = '1'
+                    AND s.service_activate = '1'
+                    AND hgr.host_host_id IN ({$groupHostPlaceholders})
+                    AND hsr.service_service_id IN ({$groupServicePlaceholders})
                 SQL,
-            QueryParameters::create($hostParameters)
-        )));
-        $enabledServiceIds = array_flip(array_map('strval', $this->db->fetchFirstColumn(
-            <<<SQL
-                SELECT service_id FROM service
-                WHERE service_activate = '1' AND service_id IN ({$servicePlaceholders})
-                SQL,
-            QueryParameters::create($serviceParameters)
-        )));
+            QueryParameters::create([
+                ...$directHostParameters,
+                ...$directServiceParameters,
+                ...$groupHostParameters,
+                ...$groupServiceParameters,
+            ])
+        );
 
-        // A service is enabled when both it and its host are
-        $enabledServiceKeys = [];
-        foreach ($idPairs as $serviceKey => [$hostId, $serviceId]) {
-            if (isset($enabledHostIds[$hostId], $enabledServiceIds[$serviceId])) {
-                $enabledServiceKeys[] = (string) $serviceKey;
-            }
-        }
+        $enabledServiceKeys = array_intersect(array_keys($idPairs), array_map('strval', $validServiceKeys));
 
-        return $enabledServiceKeys;
+        return array_values(array_map('strval', $enabledServiceKeys));
     }
 
     /**
