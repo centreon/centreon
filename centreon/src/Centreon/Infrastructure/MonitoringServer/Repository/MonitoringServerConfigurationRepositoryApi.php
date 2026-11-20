@@ -30,8 +30,10 @@ use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
+use Centreon\Domain\MonitoringServer\Exception\PartialDeliveryException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\Repository\RepositoryException;
+use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 use Centreon\Infrastructure\MonitoringServer\Repository\Exception\MonitoringServerConfigurationRepositoryException;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use DateTime;
@@ -150,6 +152,45 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
     }
 
     /**
+     * @inheritDoc
+     */
+    public function moveExportFilesOfAll(array $monitoringServerIds): void
+    {
+        if ($monitoringServerIds !== []) {
+            $this->callHttp(
+                'moveFiles.php',
+                'poller=' . implode(',', $monitoringServerIds),
+                $this->getTimeoutOfAll($monitoringServerIds),
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function reloadConfigurationOfAll(array $monitoringServerIds): void
+    {
+        if ($monitoringServerIds !== []) {
+            $this->callHttp(
+                'restartPollers.php',
+                'mode=1&poller=' . implode(',', $monitoringServerIds),
+                $this->getTimeoutOfAll($monitoringServerIds),
+            );
+        }
+    }
+
+    /**
+     * The monitoring servers are delivered by rounds of a bounded number of them (see
+     * LegacyCommandSender::deliverToPollers): each round has the time of a single call.
+     *
+     * @param list<int> $monitoringServerIds
+     */
+    private function getTimeoutOfAll(array $monitoringServerIds): int
+    {
+        return $this->timeout * LegacyCommandSender::countDeliveryRounds(count($monitoringServerIds));
+    }
+
+    /**
      * @throws \Assert\AssertionFailedException
      */
     private function initUri(): void
@@ -242,6 +283,10 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
                 if (($element = simplexml_load_string($xml)) !== false) {
                     if ((string) $element->statuscode !== '0') {
                         $errorCode = (int) $element->errorcode;
+                        $delivered = array_map('intval', array_filter(explode(',', (string) $element->delivered)));
+                        if (GorgoneDeliveryException::isKnownReason($errorCode) && $delivered !== []) {
+                            throw new PartialDeliveryException((string) $element->error, $errorCode, $delivered);
+                        }
                         if (GorgoneDeliveryException::isKnownReason($errorCode)) {
                             throw new GorgoneDeliveryException((string) $element->error, $errorCode);
                         }

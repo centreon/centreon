@@ -171,7 +171,7 @@ class LegacyCommandSender
      */
     public function deliverToPollers(array $deliveries): array
     {
-        $concurrency = $this->getDeliveryConcurrency();
+        $concurrency = self::getDeliveryConcurrency();
         $timeout = $this->getResultTimeout();
         $failures = [];
         /** @var array<string, array{pollerId: int, deadline: float}> $pending by token */
@@ -214,6 +214,15 @@ class LegacyCommandSender
         }
 
         return $failures;
+    }
+
+    /**
+     * Number of rounds deliverToPollers() takes at most for this number of pollers (each round may last up to
+     * the result timeout).
+     */
+    public static function countDeliveryRounds(int $pollerCount): int
+    {
+        return max(1, (int) ceil($pollerCount / self::getDeliveryConcurrency()));
     }
 
     /**
@@ -572,7 +581,7 @@ class LegacyCommandSender
             : self::DEFAULT_RESULT_TIMEOUT;
     }
 
-    private function getDeliveryConcurrency(): int
+    private static function getDeliveryConcurrency(): int
     {
         $concurrency = getenv(self::DELIVERY_CONCURRENCY_ENV);
 

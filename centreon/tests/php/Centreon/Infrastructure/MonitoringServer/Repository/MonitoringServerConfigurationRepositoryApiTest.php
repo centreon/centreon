@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
+use Centreon\Domain\MonitoringServer\Exception\PartialDeliveryException;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\MonitoringServer\Repository\MonitoringServerConfigurationRepositoryApi;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
@@ -101,6 +102,55 @@ class MonitoringServerConfigurationRepositoryApiTest extends TestCase
             $this->assertSame('Gorgone node 3 is not connected: nothing has been sent', $ex->getMessage());
             $this->assertSame(GorgoneDeliveryException::NODE_NOT_CONNECTED, $ex->getCode());
         }
+    }
+
+    public function testPartialDeliveryKeepsTheDeliveredMonitoringServers(): void
+    {
+        $repository = $this->createRepositoryAnswering(
+            '<response><statuscode>1</statuscode>'
+            . '<error>1 of 3 monitoring servers have not been delivered, the others have: Poller-3: timeout</error>'
+            . '<errorcode>3</errorcode><delivered>2,1</delivered></response>'
+        );
+
+        try {
+            $repository->moveExportFilesOfAll([3, 2, 1]);
+            $this->fail('A PartialDeliveryException was expected');
+        } catch (PartialDeliveryException $ex) {
+            $this->assertStringStartsWith('1 of 3 monitoring servers', $ex->getMessage());
+            $this->assertSame(GorgoneDeliveryException::RESULT_TIMEOUT, $ex->getCode());
+            $this->assertSame([2, 1], $ex->getDeliveredMonitoringServerIds());
+        }
+    }
+
+    public function testEveryMonitoringServerIsSentInASingleCall(): void
+    {
+        putenv('CENTREON_GORGONE_DELIVERY_CONCURRENCY=2');
+        $calls = [];
+        $repository = $this->createRepository(
+            function (string $method, string $url, array $options) use (&$calls): MockResponse {
+                $calls[] = [basename($url), $options['body'], $options['timeout']];
+
+                return new MockResponse('<response><statuscode>0</statuscode></response>');
+            }
+        );
+
+        try {
+            $repository->moveExportFilesOfAll([3, 2, 1]);
+            $repository->reloadConfigurationOfAll([2, 1]);
+            $repository->moveExportFilesOfAll([]);
+            $repository->reloadConfigurationOfAll([]);
+        } finally {
+            putenv('CENTREON_GORGONE_DELIVERY_CONCURRENCY');
+        }
+
+        // the timeout covers every round of deliveries (2 pollers at once here); nothing is called without pollers
+        $this->assertEquals(
+            [
+                ['moveFiles.php', 'poller=3,2,1', 120],
+                ['restartPollers.php', 'mode=1&poller=2,1', 60],
+            ],
+            $calls
+        );
     }
 
     public function testIncompleteGenerationRefusalKeepsItsMessageAndReason(): void

@@ -25,6 +25,7 @@ namespace Centreon\Domain\MonitoringServer\Interfaces;
 
 use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Centreon\Domain\Exception\TimeoutException;
+use Centreon\Domain\MonitoringServer\Exception\PartialDeliveryException;
 use Centreon\Domain\Repository\RepositoryException;
 
 /**
@@ -55,4 +56,26 @@ interface MonitoringServerConfigurationRepositoryInterface
      * @throws AuthenticationException
      */
     public function reloadConfiguration(int $monitoringServerId): void;
+
+    /**
+     * Moves the configuration files of every monitoring server given at once: one which is not delivered does
+     * not stop the others.
+     *
+     * @param list<int> $monitoringServerIds
+     * @throws PartialDeliveryException some of them have not been delivered, the others have
+     * @throws RepositoryException
+     * @throws TimeoutException
+     * @throws AuthenticationException
+     */
+    public function moveExportFilesOfAll(array $monitoringServerIds): void;
+
+    /**
+     * Reloads every monitoring server given at once: one which is not reloaded does not stop the others.
+     *
+     * @param list<int> $monitoringServerIds
+     * @throws RepositoryException
+     * @throws TimeoutException
+     * @throws AuthenticationException
+     */
+    public function reloadConfigurationOfAll(array $monitoringServerIds): void;
 }
