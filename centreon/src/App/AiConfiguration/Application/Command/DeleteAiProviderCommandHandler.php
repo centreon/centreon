@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Application\Command;
 
 use App\AiConfiguration\Domain\Event\AiProviderDeleted;
+use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
+use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Repository\AiProviderTokenStorage;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -39,13 +41,23 @@ final readonly class DeleteAiProviderCommandHandler
     ) {
     }
 
+    /**
+     * @throws AiProviderNotFoundException
+     * @throws VaultWriteFailedException
+     */
     public function __invoke(DeleteAiProviderCommand $command): void
     {
         $aiProvider = $this->repository->getById($command->id);
 
         // deleting the activated provider is allowed: it turns AI features off
         $this->repository->delete($aiProvider);
-        $this->tokenStorage->remove($aiProvider->apiToken);
+
+        // removed within the transaction: an unreachable vault rolls the deletion back
+        try {
+            $this->tokenStorage->remove($aiProvider->apiToken);
+        } catch (\Throwable $exception) {
+            throw VaultWriteFailedException::forDeletion($command->id, $exception);
+        }
 
         $this->eventBus->fire(new AiProviderDeleted($aiProvider, $command->deletedBy));
     }

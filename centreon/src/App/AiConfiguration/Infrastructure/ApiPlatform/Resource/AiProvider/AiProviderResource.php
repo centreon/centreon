@@ -165,6 +165,7 @@ final class AiProviderResource
             openapiContext: ['example' => 'sk-...'],
         )]
         #[Assert\Length(min: 1, max: 4096)]
+        #[Assert\Regex(pattern: '/^secret::/', message: 'The API token cannot be a vault reference.', match: false)]
         public ?string $apiToken = null,
 
         #[ApiProperty(

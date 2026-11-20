@@ -33,6 +33,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Event\AiProviderDeleted;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
+use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderTokenStorage;
@@ -93,6 +94,21 @@ final class DeleteAiProviderCommandHandlerTest extends TestCase
         ($this->handler)(new DeleteAiProviderCommand($aiProvider->id(), deletedBy: 1));
 
         self::assertSame(['initial-token'], $this->tokenStorage->removedTokens);
+    }
+
+    public function testVaultRemovalFailureAbortsTheDeletion(): void
+    {
+        $aiProvider = $this->givenAiProvider('Anthropic production');
+        $this->tokenStorage->removeThrows = true;
+
+        try {
+            ($this->handler)(new DeleteAiProviderCommand($aiProvider->id(), deletedBy: 1));
+            self::fail('A failed vault removal must abort the deletion.');
+        } catch (VaultWriteFailedException) {
+        }
+
+        // the transaction rolls the deletion back; the event is not fired
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderDeleted::class));
     }
 
     public function testDispatchDeletedEvent(): void

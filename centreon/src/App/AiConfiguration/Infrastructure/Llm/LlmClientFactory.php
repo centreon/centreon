@@ -25,12 +25,14 @@ namespace App\AiConfiguration\Infrastructure\Llm;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Usage\AiProviderUsageRepository;
 use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
+use App\Shared\Domain\VaultInterface;
 use App\Shared\Infrastructure\Proxy\HttpProxyProvider;
 use Psr\Clock\ClockInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -46,6 +48,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         private BudgetStatusChecker $budgetChecker,
         private Security $security,
         private ClockInterface $clock,
+        private VaultInterface $vault,
     ) {
     }
 
@@ -79,17 +82,13 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
 
     private function buildClient(AiProvider $aiProvider): LlmClientInterface
     {
-        if ($aiProvider->apiToken->isStoredInVault()) {
-            // vault-backed token resolution is not wired into this container yet
-            throw LlmConfigurationException::unresolvableToken();
-        }
-
+        $apiToken = $this->resolveToken($aiProvider->apiToken);
         $httpClient = $this->httpClient();
 
         $openAiCompatible = fn (): OpenAiCompatibleLlmClient => new OpenAiCompatibleLlmClient(
             $httpClient,
             $aiProvider->endpointUrl,
-            $aiProvider->apiToken,
+            $apiToken,
             $aiProvider->defaultModel,
             $aiProvider->fastModel,
             $aiProvider->type->chatCompletionsPath(),
@@ -105,7 +104,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             AiProviderTypeEnum::Anthropic => new AnthropicLlmClient(
                 $httpClient,
                 $aiProvider->endpointUrl,
-                $aiProvider->apiToken,
+                $apiToken,
                 $aiProvider->defaultModel,
                 $aiProvider->fastModel,
             ),
@@ -113,14 +112,14 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
                 $openAiCompatible(),
                 $httpClient,
                 $aiProvider->endpointUrl,
-                $aiProvider->apiToken,
+                $apiToken,
             ),
             AiProviderTypeEnum::Bedrock => new BedrockLlmClient(
                 $openAiCompatible(),
                 new AnthropicLlmClient(
                     $httpClient,
                     $aiProvider->endpointUrl,
-                    $aiProvider->apiToken,
+                    $apiToken,
                     $aiProvider->defaultModel,
                     $aiProvider->fastModel,
                     '/anthropic/v1/messages',
@@ -132,6 +131,27 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             AiProviderTypeEnum::Mistral,
             AiProviderTypeEnum::OpenAiCompatible => $openAiCompatible(),
         };
+    }
+
+    /**
+     * A token stored in the vault is kept in the database as a "secret::..." reference, read back
+     * here for each client. Users cannot submit such a reference themselves (rejected at input),
+     * so it always designates the provider's own vault entry.
+     *
+     * @throws LlmConfigurationException when the reference cannot be read back (vault disabled,
+     *                                   unreachable, or the entry is gone)
+     */
+    private function resolveToken(ApiToken $apiToken): ApiToken
+    {
+        if (! $apiToken->isStoredInVault()) {
+            return $apiToken;
+        }
+
+        try {
+            return new ApiToken($this->vault->resolve($apiToken->value));
+        } catch (\Throwable $exception) {
+            throw LlmConfigurationException::unresolvableToken($exception);
+        }
     }
 
     /**

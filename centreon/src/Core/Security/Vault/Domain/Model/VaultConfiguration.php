@@ -50,6 +50,7 @@ class VaultConfiguration
     public const DATABASE_PASSWORD_KEY = '_DBPASSWORD';
     public const KNOWLEDGE_BASE_KEY = '_KBPASSWORD';
     public const GORGONE_PASSWORD = '_GORGONE_PASSWORD';
+    public const AI_PROVIDER_API_TOKEN_KEY = '_AI_API_TOKEN';
 
     /** Patterns Constants */
     public const VAULT_PATH_PATTERN = 'secret::';

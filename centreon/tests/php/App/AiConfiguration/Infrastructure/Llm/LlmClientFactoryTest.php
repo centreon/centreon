@@ -29,7 +29,11 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
+use App\AiConfiguration\Domain\Llm\LlmMessage;
+use App\AiConfiguration\Domain\Llm\LlmRequest;
+use App\AiConfiguration\Domain\Llm\LlmRoleEnum;
 use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 use App\AiConfiguration\Infrastructure\Llm\AnthropicLlmClient;
 use App\AiConfiguration\Infrastructure\Llm\BedrockLlmClient;
@@ -41,29 +45,28 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderUsageRepository;
 use Tests\App\Shared\Double\FakeHttpProxyProvider;
+use Tests\App\Shared\Double\FakeVault;
 
 final class LlmClientFactoryTest extends TestCase
 {
+    private const STORED_TOKEN = 'secret::vault::configuration/aiProviders/abc-123::_AI_API_TOKEN';
+
     private FakeAiProviderRepository $repository;
+
+    private FakeVault $vault;
 
     private LlmClientFactory $factory;
 
     protected function setUp(): void
     {
         $this->repository = new FakeAiProviderRepository();
-        $usageRepository = new FakeAiProviderUsageRepository();
-        $this->factory = new LlmClientFactory(
-            $this->repository,
-            new MockHttpClient(),
-            new FakeHttpProxyProvider(),
-            $usageRepository,
-            new BudgetStatusChecker($usageRepository, new MockClock()),
-            $this->createMock(Security::class),
-            new MockClock(),
-        );
+        $this->vault = new FakeVault();
+        $this->factory = $this->createFactory(new MockHttpClient());
     }
 
     public function testAnthropicProviderGetsTheAnthropicClient(): void
@@ -118,16 +121,59 @@ final class LlmClientFactoryTest extends TestCase
         $this->factory->forActivatedProvider();
     }
 
-    public function testVaultStoredTokenIsNotResolvableYet(): void
+    public function testAVaultStoredTokenIsReadBackFromTheVault(): void
     {
-        $aiProvider = $this->createAiProvider(
-            AiProviderTypeEnum::Anthropic,
-            token: 'secret::hashicorp_vault::configuration/ai/uuid::_AI_API_TOKEN'
+        $this->vault->resolved[self::STORED_TOKEN] = 'the-real-token';
+
+        $sentKeys = [];
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url, array $options) use (&$sentKeys): MockResponse {
+                /** @var array{normalized_headers: array<string, list<string>>} $options */
+                $sentKeys = $options['normalized_headers']['x-api-key'] ?? [];
+
+                return new MockResponse(json_encode([
+                    'content' => [['type' => 'text', 'text' => 'pong']],
+                    'model' => 'claude-sonnet-5-5',
+                    'usage' => ['input_tokens' => 1, 'output_tokens' => 1],
+                ], \JSON_THROW_ON_ERROR));
+            }
         );
+
+        $this->createFactory($httpClient)
+            ->forConnectionTest($this->createAiProvider(AiProviderTypeEnum::Anthropic, token: self::STORED_TOKEN))
+            ->complete(new LlmRequest(
+                messages: [new LlmMessage(LlmRoleEnum::User, 'ping')],
+                feature: AiFeatureEnum::ConnectionTest,
+                maxTokens: 16,
+            ));
+
+        // the provider receives the token itself, never the vault reference
+        self::assertSame(['x-api-key: the-real-token'], $sentKeys);
+    }
+
+    public function testAnUnresolvableVaultTokenIsAConfigurationError(): void
+    {
+        $this->vault->resolveThrows = true;
 
         $this->expectException(LlmConfigurationException::class);
 
-        $this->factory->forProvider($aiProvider);
+        $this->factory->forProvider($this->createAiProvider(AiProviderTypeEnum::Anthropic, token: self::STORED_TOKEN));
+    }
+
+    private function createFactory(HttpClientInterface $httpClient): LlmClientFactory
+    {
+        $usageRepository = new FakeAiProviderUsageRepository();
+
+        return new LlmClientFactory(
+            $this->repository,
+            $httpClient,
+            new FakeHttpProxyProvider(),
+            $usageRepository,
+            new BudgetStatusChecker($usageRepository, new MockClock()),
+            $this->createMock(Security::class),
+            new MockClock(),
+            $this->vault,
+        );
     }
 
     private function createAiProvider(

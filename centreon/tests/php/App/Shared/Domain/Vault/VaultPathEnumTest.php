@@ -43,6 +43,7 @@ final class VaultPathEnumTest extends TestCase
             'Gorgone' => 'configuration/gorgone',
             'Broker' => 'configuration/broker',
             'AdditionalConnectorConfigurations' => 'configuration/additionalConnectorConfigurations',
+            'AiProviders' => 'configuration/aiProviders',
             'Database' => 'database',
         ];
 

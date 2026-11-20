@@ -32,6 +32,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Event\AiProviderCreated;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
+use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderTokenStorage;
@@ -102,6 +103,20 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
 
         self::assertSame(['a-token'], $this->tokenStorage->persistedTokens);
         self::assertSame(FakeAiProviderTokenStorage::STORED_PREFIX . 'a-token', $aiProvider->apiToken->value);
+    }
+
+    public function testVaultWriteFailureSavesNothing(): void
+    {
+        $this->tokenStorage->persistThrows = true;
+
+        try {
+            ($this->handler)($this->createCommand('Anthropic production'));
+            self::fail('A failed vault write must abort the creation.');
+        } catch (VaultWriteFailedException) {
+        }
+
+        self::assertSame(0, $this->repository->countAll());
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderCreated::class));
     }
 
     public function testDispatchCreatedEvent(): void

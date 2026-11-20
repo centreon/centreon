@@ -44,6 +44,7 @@ final class TestConnectionInput
 
         #[ApiProperty(description: 'API token to test; omit while editing to test the stored token')]
         #[Assert\Length(min: 1, max: 4096)]
+        #[Assert\Regex(pattern: '/^secret::/', message: 'The API token cannot be a vault reference.', match: false)]
         public ?string $apiToken = null,
 
         #[ApiProperty(description: 'Endpoint URL; only used for OpenAI-compatible providers')]

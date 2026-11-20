@@ -40,4 +40,5 @@ enum VaultKeyEnum: string
     case DatabasePassword = '_DBPASSWORD';
     case KnowledgeBasePassword = '_KBPASSWORD';
     case GorgonePassword = '_GORGONE_PASSWORD';
+    case AiProviderApiToken = '_AI_API_TOKEN';
 }

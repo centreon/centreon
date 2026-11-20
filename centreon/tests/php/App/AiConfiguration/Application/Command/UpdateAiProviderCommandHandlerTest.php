@@ -34,6 +34,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
+use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderTokenStorage;
@@ -135,6 +136,21 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
         self::assertSame(['new-token'], $this->tokenStorage->persistedTokens);
         self::assertSame(FakeAiProviderTokenStorage::STORED_PREFIX . 'new-token', $updated->apiToken->value);
+    }
+
+    public function testVaultWriteFailureKeepsTheStoredToken(): void
+    {
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
+        $this->tokenStorage->persistThrows = true;
+
+        try {
+            ($this->handler)($this->updateCommand($aiProvider, apiToken: 'new-token'));
+            self::fail('A failed vault write must abort the update.');
+        } catch (VaultWriteFailedException) {
+        }
+
+        self::assertSame('initial-token', $this->repository->getById($aiProvider->id())->apiToken->value);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderUpdated::class));
     }
 
     public function testDispatchUpdatedEvent(): void

@@ -44,6 +44,7 @@ abstract class AbstractVaultRepository
     public const DATABASE_VAULT_PATH = 'database';
     public const BROKER_VAULT_PATH = 'configuration/broker';
     public const ACC_VAULT_PATH = 'configuration/additionalConnectorConfigurations';
+    public const AI_PROVIDER_VAULT_PATH = 'configuration/aiProviders';
     protected const DEFAULT_SCHEME = 'https';
 
     /** @var string[] */
@@ -57,6 +58,7 @@ abstract class AbstractVaultRepository
         self::BROKER_VAULT_PATH,
         self::ACC_VAULT_PATH,
         self::GORGONE_VAULT_PATH,
+        self::AI_PROVIDER_VAULT_PATH,
     ];
 
     protected ?VaultConfiguration $vaultConfiguration;

@@ -40,6 +40,7 @@ final class DiscoverModelsInput
 
         #[ApiProperty(description: 'API token to use; omit while editing to use the stored token')]
         #[Assert\Length(min: 1, max: 4096)]
+        #[Assert\Regex(pattern: '/^secret::/', message: 'The API token cannot be a vault reference.', match: false)]
         public ?string $apiToken = null,
 
         #[ApiProperty(description: 'Endpoint URL; only used for OpenAI-compatible and Bedrock providers')]

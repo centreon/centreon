@@ -46,6 +46,7 @@ final class VaultKeyEnumTest extends TestCase
             'DatabasePassword' => '_DBPASSWORD',
             'KnowledgeBasePassword' => '_KBPASSWORD',
             'GorgonePassword' => '_GORGONE_PASSWORD',
+            'AiProviderApiToken' => '_AI_API_TOKEN',
         ];
 
         $actual = [];

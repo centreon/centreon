@@ -22,6 +22,7 @@ api_platform:
         App\Shared\Domain\Exception\AggregateCanNotBeUpdatedException: 422
         App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException: 409
         App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException: 502
+        App\AiConfiguration\Domain\Exception\VaultWriteFailedException: 502 # nothing was saved, the vault (an upstream dependency) failed first
         App\Security\Domain\Exception\CredentialDisabledException: 401
 
     defaults:

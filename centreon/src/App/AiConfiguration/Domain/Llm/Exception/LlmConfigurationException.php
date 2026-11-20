@@ -34,9 +34,9 @@ final class LlmConfigurationException extends LlmException
         return new self('No AI provider is enabled.');
     }
 
-    public static function unresolvableToken(): self
+    public static function unresolvableToken(?\Throwable $previous = null): self
     {
-        return new self('The API token of this AI provider can not be resolved.');
+        return new self('The API token of this AI provider can not be resolved.', previous: $previous);
     }
 
     public static function budgetExceeded(): self

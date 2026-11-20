@@ -39,8 +39,16 @@ final class FakeAiProviderTokenStorage implements AiProviderTokenStorage
     /** @var list<string> */
     public array $removedTokens = [];
 
+    public bool $persistThrows = false;
+
+    public bool $removeThrows = false;
+
     public function persist(ApiToken $token, ?ApiToken $previousToken): ApiToken
     {
+        if ($this->persistThrows) {
+            throw new \RuntimeException('Unable to write the token to the vault');
+        }
+
         $this->persistedTokens[] = $token->value;
 
         return new ApiToken(self::STORED_PREFIX . $token->value);
@@ -48,6 +56,10 @@ final class FakeAiProviderTokenStorage implements AiProviderTokenStorage
 
     public function remove(ApiToken $token): void
     {
+        if ($this->removeThrows) {
+            throw new \RuntimeException('Unable to remove the token from the vault');
+        }
+
         $this->removedTokens[] = $token->value;
     }
 }

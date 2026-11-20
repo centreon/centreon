@@ -27,6 +27,8 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
+use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
+use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Repository\AiProviderTokenStorage;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -42,6 +44,11 @@ final readonly class UpdateAiProviderCommandHandler
     ) {
     }
 
+    /**
+     * @throws AiProviderNotFoundException
+     * @throws AiProviderAlreadyExistsException
+     * @throws VaultWriteFailedException
+     */
     public function __invoke(UpdateAiProviderCommand $command): AiProvider
     {
         $aiProvider = $this->repository->getById($command->id);
@@ -63,9 +70,13 @@ final readonly class UpdateAiProviderCommandHandler
         $aiProvider->updateBilling($command->currency, $command->pricing, $command->limit);
 
         if ($command->apiToken instanceof ApiToken) {
-            $aiProvider->updateApiToken(
-                $this->tokenStorage->persist($command->apiToken, $aiProvider->apiToken)
-            );
+            // written before the configuration is saved, so that an unreachable vault saves nothing
+            try {
+                $apiToken = $this->tokenStorage->persist($command->apiToken, $aiProvider->apiToken);
+            } catch (\Throwable $exception) {
+                throw VaultWriteFailedException::forUpdate($command->id, $exception);
+            }
+            $aiProvider->updateApiToken($apiToken);
         }
 
         $toUpdate = [$aiProvider];

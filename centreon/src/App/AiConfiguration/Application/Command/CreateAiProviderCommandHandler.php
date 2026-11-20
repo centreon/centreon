@@ -26,6 +26,7 @@ namespace App\AiConfiguration\Application\Command;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Event\AiProviderCreated;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
+use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Repository\AiProviderTokenStorage;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -41,6 +42,10 @@ final readonly class CreateAiProviderCommandHandler
     ) {
     }
 
+    /**
+     * @throws AiProviderAlreadyExistsException
+     * @throws VaultWriteFailedException
+     */
     public function __invoke(CreateAiProviderCommand $command): AiProvider
     {
         if ($this->repository->findOneByName($command->name) instanceof AiProvider) {
@@ -54,12 +59,19 @@ final readonly class CreateAiProviderCommandHandler
         // The first configuration is always activated.
         $isActivated = $command->isActivated || $this->repository->countAll() === 0;
 
+        // written before the configuration is saved, so that an unreachable vault saves nothing
+        try {
+            $apiToken = $this->tokenStorage->persist($command->apiToken, null);
+        } catch (\Throwable $exception) {
+            throw VaultWriteFailedException::forCreation($exception);
+        }
+
         $aiProvider = new AiProvider(
             id: null,
             name: $command->name,
             type: $command->type,
             endpointUrl: $command->endpointUrl,
-            apiToken: $this->tokenStorage->persist($command->apiToken, null),
+            apiToken: $apiToken,
             defaultModel: $command->defaultModel,
             fastModel: $command->fastModel,
             description: $command->description,

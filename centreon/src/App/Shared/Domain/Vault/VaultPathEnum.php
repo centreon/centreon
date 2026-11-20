@@ -41,5 +41,6 @@ enum VaultPathEnum: string
     case Gorgone = 'configuration/gorgone';
     case Broker = 'configuration/broker';
     case AdditionalConnectorConfigurations = 'configuration/additionalConnectorConfigurations';
+    case AiProviders = 'configuration/aiProviders';
     case Database = 'database';
 }
