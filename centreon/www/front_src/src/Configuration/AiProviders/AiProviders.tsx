@@ -1,8 +1,12 @@
-import { ReactElement } from 'react';
+import { useFetchQuery } from '@centreon/ui';
+
+import { ReactElement, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { baseEndpoint } from '../../api/endpoint';
 import ConfigurationBase from '../ConfigurationBase';
 import { ResourceType } from '../models';
+import { aiProvidersEndpoint, aiProvidersListDecoder } from './api';
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
@@ -34,6 +38,24 @@ const AiProviders = (): ReactElement => {
 
   const { api, filtersConfiguration } = useAiProviders();
 
+  // The API always activates the very first provider (there must be an enabled
+  // one for AI features to work), so the Enabled switch starts on when no
+  // provider exists yet and off otherwise, where enabling would disable the
+  // currently active one. Only the add form reads these defaults.
+  const { data: providersCount } = useFetchQuery({
+    decoder: aiProvidersListDecoder,
+    getEndpoint: () => `${baseEndpoint}${aiProvidersEndpoint}?page=1&limit=1`,
+    getQueryKey: () => ['aiProvidersCount']
+  });
+
+  const defaultValues = useMemo(
+    () => ({
+      ...initialValues,
+      isActivated: providersCount?.meta?.total === 0
+    }),
+    [providersCount?.meta?.total]
+  );
+
   return (
     <ConfigurationBase<Filters>
       actions={{
@@ -50,7 +72,8 @@ const AiProviders = (): ReactElement => {
       filtersAtomKey={filtersAtomKey}
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
-      form={{ defaultValues: initialValues, groups, inputs, validationSchema }}
+      form={{ defaultValues, groups, inputs, validationSchema }}
+      formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{
         title: t(labelAiProviders),

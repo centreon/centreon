@@ -67,7 +67,7 @@ final readonly class TestAiProviderResource
         #[ApiProperty(
             description: 'Model that answered the test request',
             writable: false,
-            openapiContext: ['example' => 'claude-sonnet-4-6'],
+            openapiContext: ['example' => 'claude-sonnet-5-5'],
         )]
         public ?string $model,
     ) {

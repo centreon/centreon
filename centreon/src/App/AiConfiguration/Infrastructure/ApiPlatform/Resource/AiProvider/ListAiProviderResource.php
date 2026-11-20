@@ -119,13 +119,13 @@ final class ListAiProviderResource
 
         #[ApiProperty(
             description: 'Model used by AI features for this provider',
-            openapiContext: ['example' => 'claude-sonnet-4-6'],
+            openapiContext: ['example' => 'claude-sonnet-5-5'],
         )]
         public string $defaultModel,
 
         #[ApiProperty(
             description: 'Model used by AI features requesting the fast tier',
-            openapiContext: ['example' => 'claude-haiku-4-5'],
+            openapiContext: ['example' => 'claude-haiku-5-5'],
         )]
         public ?string $fastModel,
 

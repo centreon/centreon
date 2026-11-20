@@ -31,7 +31,7 @@ final class TestAiProviderInput
     public function __construct(
         #[ApiProperty(
             description: 'Model to use for the test. Defaults to the default model of the configuration.',
-            openapiContext: ['example' => 'claude-sonnet-4-6'],
+            openapiContext: ['example' => 'claude-sonnet-5-5'],
         )]
         #[Assert\Length(min: 1, max: 255)]
         public ?string $model = null,

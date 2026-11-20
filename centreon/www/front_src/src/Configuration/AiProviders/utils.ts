@@ -43,20 +43,23 @@ interface DefaultModels {
 // the models of OpenAI-compatible providers can not be known in advance
 export const defaultModels: Record<AiProviderType, DefaultModels> = {
   [AiProviderType.Anthropic]: {
-    defaultModel: 'claude-sonnet-4-6',
-    fastModel: 'claude-haiku-4-5'
+    defaultModel: 'claude-sonnet-5-5',
+    fastModel: 'claude-haiku-5-5'
   },
+  // Mistral Medium is retired (its replacement is Large 4), so the general
+  // model is now Large. The -latest aliases track the current version; only the
+  // optional price prefill may lag behind them, and prices can be set by hand.
   [AiProviderType.Mistral]: {
-    defaultModel: 'mistral-medium-latest',
+    defaultModel: 'mistral-large-latest',
     fastModel: 'mistral-small-latest'
   },
   [AiProviderType.OpenAi]: {
-    defaultModel: 'gpt-5.4',
-    fastModel: 'gpt-5.4-mini'
+    defaultModel: 'gpt-6.2-sol',
+    fastModel: 'gpt-6-luna'
   },
   [AiProviderType.Google]: {
-    defaultModel: 'gemini-3.5-flash',
-    fastModel: 'gemini-3.1-flash-lite'
+    defaultModel: 'gemini-4-hydrogen',
+    fastModel: 'gemini-3.5-flash-lite'
   },
   // Bedrock (mantle) exposes bare vendor.model ids (no region prefix) across
   // several vendors. Default to text-only Qwen3 models: they route through the

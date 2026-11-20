@@ -1,3 +1,4 @@
+import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
   labelAiProviders,
   labelAnthropic,
@@ -18,9 +19,16 @@ import {
   labelName,
   labelNameAlreadyExists,
   labelOpenAiCompatible,
-  labelTestConnection
+  labelTestConnection,
+  labelType
 } from '../translatedLabels';
 import initialize from './initialize';
+
+// the provider type is a dropdown: open it, then pick the option by its label
+const selectType = (type: string): void => {
+  cy.findByTestId(labelType).click();
+  cy.findByRole('option', { name: type }).click();
+};
 
 describe('AiProviders', () => {
   beforeEach(() => {
@@ -76,7 +84,7 @@ describe('AiProviders', () => {
     });
   });
 
-  describe('Modal', () => {
+  describe('Form panel', () => {
     it('hides the endpoint URL for curated providers and sends the token when a provider is created', () => {
       cy.waitForRequest('@getAiProviders');
 
@@ -84,32 +92,32 @@ describe('AiProviders', () => {
 
       cy.findAllByTestId(labelName).eq(1).type('Anthropic test');
 
-      cy.findByLabelText(labelAnthropic).click();
+      selectType(labelAnthropic);
 
       // the endpoint of curated providers is enforced by the API
-      cy.get('[data-testid="Modal"]').within(() => {
+      cy.get(`[data-testid="${panelDataTestIds.content}"]`).within(() => {
         cy.findAllByTestId(labelEndpointUrl).should('have.length', 0);
       });
 
       // the models are prefilled for curated providers
       cy.findByTestId(labelDefaultModel).should(
         'have.value',
-        'claude-sonnet-4-6'
+        'claude-sonnet-5-5'
       );
 
-      cy.findByTestId(labelFastModel).should('have.value', 'claude-haiku-4-5');
+      cy.findByTestId(labelFastModel).should('have.value', 'claude-haiku-5-5');
 
       cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
 
-      cy.contains(/^Save$/).click();
+      cy.findByTestId(panelDataTestIds.save).click();
 
       cy.waitForRequest('@createAiProvider').then(({ request }) => {
         expect(request.body.name).to.equal('Anthropic test');
         expect(request.body.type).to.equal('anthropic');
         expect(request.body.api_token).to.equal('a-very-secret-token');
         expect(request.body).to.not.have.property('endpoint_url');
-        expect(request.body.default_model).to.equal('claude-sonnet-4-6');
-        expect(request.body.fast_model).to.equal('claude-haiku-4-5');
+        expect(request.body.default_model).to.equal('claude-sonnet-5-5');
+        expect(request.body.fast_model).to.equal('claude-haiku-5-5');
         // the first provider is enabled by the API regardless of the form switch
         expect(request.body.is_activated).to.equal(false);
       });
@@ -120,7 +128,7 @@ describe('AiProviders', () => {
 
       cy.get('[data-testid="add-resource"]').click();
 
-      cy.findByLabelText(labelAnthropic).click();
+      selectType(labelAnthropic);
       // {selectall} rather than .clear(): the name row sits at the top, under
       // the sticky section nav, where .clear()'s scroll leaves it covered
       cy.findAllByTestId(labelName).eq(1).type('{selectall}Anthropic priced');
@@ -136,7 +144,7 @@ describe('AiProviders', () => {
       cy.findByTestId(labelCurrency).type('USD{esc}');
       cy.findByTestId(labelCurrency).should('have.value', 'USD');
 
-      cy.contains(/^Save$/).click();
+      cy.findByTestId(panelDataTestIds.save).click();
 
       cy.waitForRequest('@createAiProvider').then(({ request }) => {
         expect(request.body.currency).to.equal('USD');
@@ -152,7 +160,7 @@ describe('AiProviders', () => {
       cy.waitForRequest('@getAiProviders');
 
       cy.get('[data-testid="add-resource"]').click();
-      cy.findByLabelText(labelAnthropic).click();
+      selectType(labelAnthropic);
 
       // on creation with no token typed yet, there is nothing to test
       cy.findByTestId(labelTestConnection).should('be.disabled');
@@ -166,7 +174,7 @@ describe('AiProviders', () => {
       cy.waitForRequest('@getAiProviders');
 
       cy.get('[data-testid="add-resource"]').click();
-      cy.findByLabelText(labelAnthropic).click();
+      selectType(labelAnthropic);
 
       // a model is prefilled and the currency is empty: prefill is available
       cy.findByTestId(labelFetchPrices).should('be.enabled');
@@ -184,29 +192,29 @@ describe('AiProviders', () => {
 
       cy.get('[data-testid="add-resource"]').click();
 
-      cy.findByLabelText(labelMistral).click();
+      selectType(labelMistral);
 
       cy.findAllByTestId(labelName).eq(1).should('have.value', 'Mistral');
 
       cy.findByTestId(labelDefaultModel).should(
         'have.value',
-        'mistral-medium-latest'
+        'mistral-large-latest'
       );
 
       // the name and models follow the type while still auto-filled
-      cy.findByLabelText(labelAnthropic).click();
+      selectType(labelAnthropic);
 
       cy.findAllByTestId(labelName).eq(1).should('have.value', 'Anthropic');
 
       cy.findByTestId(labelDefaultModel).should(
         'have.value',
-        'claude-sonnet-4-6'
+        'claude-sonnet-5-5'
       );
 
       // a name chosen by the user is left untouched
       cy.findAllByTestId(labelName).eq(1).type('{selectall}My provider');
 
-      cy.findByLabelText(labelMistral).click();
+      selectType(labelMistral);
 
       cy.findAllByTestId(labelName).eq(1).should('have.value', 'My provider');
     });
@@ -216,7 +224,7 @@ describe('AiProviders', () => {
 
       cy.get('[data-testid="add-resource"]').click();
 
-      cy.findByLabelText(labelAnthropic).click();
+      selectType(labelAnthropic);
 
       cy.findAllByTestId(labelName)
         .eq(1)
@@ -226,7 +234,7 @@ describe('AiProviders', () => {
 
       cy.contains(labelNameAlreadyExists);
 
-      cy.contains(/^Save$/).should('be.disabled');
+      cy.findByTestId(panelDataTestIds.save).should('be.disabled');
 
       cy.makeSnapshot();
     });
@@ -236,14 +244,14 @@ describe('AiProviders', () => {
 
       cy.get('[data-testid="add-resource"]').click();
 
-      cy.findByLabelText(labelOpenAiCompatible).click();
+      selectType(labelOpenAiCompatible);
 
       const isFollowing = (first: Element, second: Element): boolean =>
         (first.compareDocumentPosition(second) &
           Node.DOCUMENT_POSITION_FOLLOWING) !==
         0;
 
-      cy.get('[data-testid="Modal"]').within(() => {
+      cy.get(`[data-testid="${panelDataTestIds.content}"]`).within(() => {
         cy.findAllByTestId(labelEndpointUrl)
           .last()
           .type('https://llm-gateway.example.com');
@@ -263,7 +271,7 @@ describe('AiProviders', () => {
       cy.waitForRequest('@getAiProviders');
 
       cy.get('[data-testid="add-resource"]').click();
-      cy.findByLabelText(labelAnthropic).click();
+      selectType(labelAnthropic);
 
       // no token yet: nothing to authenticate the discovery with
       cy.findByTestId(labelFetchModels).should('be.disabled');
@@ -287,27 +295,27 @@ describe('AiProviders', () => {
 
       cy.get('[data-testid="add-resource"]').click();
 
-      cy.findByLabelText(labelGoogle).click();
+      selectType(labelGoogle);
 
       // Gemini is curated: its endpoint is enforced API-side, not exposed
-      cy.get('[data-testid="Modal"]').within(() => {
+      cy.get(`[data-testid="${panelDataTestIds.content}"]`).within(() => {
         cy.findAllByTestId(labelEndpointUrl).should('have.length', 0);
         cy.findAllByTestId(labelAwsRegion).should('have.length', 0);
       });
 
       cy.findByTestId(labelDefaultModel).should(
         'have.value',
-        'gemini-3.5-flash'
+        'gemini-4-hydrogen'
       );
 
       cy.findAllByTestId(labelApiToken).eq(1).type('a-gemini-key');
 
-      cy.contains(/^Save$/).click();
+      cy.findByTestId(panelDataTestIds.save).click();
 
       cy.waitForRequest('@createAiProvider').then(({ request }) => {
         expect(request.body.type).to.equal('google');
         expect(request.body).to.not.have.property('endpoint_url');
-        expect(request.body.default_model).to.equal('gemini-3.5-flash');
+        expect(request.body.default_model).to.equal('gemini-4-hydrogen');
       });
     });
 
@@ -316,10 +324,10 @@ describe('AiProviders', () => {
 
       cy.get('[data-testid="add-resource"]').click();
 
-      cy.findByLabelText(labelBedrock).click();
+      selectType(labelBedrock);
 
       // the raw endpoint URL field is replaced by an AWS region selector
-      cy.get('[data-testid="Modal"]').within(() => {
+      cy.get(`[data-testid="${panelDataTestIds.content}"]`).within(() => {
         cy.findAllByTestId(labelEndpointUrl).should('have.length', 0);
       });
 
@@ -339,7 +347,7 @@ describe('AiProviders', () => {
         'qwen.qwen3-235b-a22b-2507'
       );
 
-      cy.contains(/^Save$/).click();
+      cy.findByTestId(panelDataTestIds.save).click();
 
       cy.waitForRequest('@createAiProvider').then(({ request }) => {
         expect(request.body.type).to.equal('bedrock');
@@ -368,7 +376,7 @@ describe('AiProviders', () => {
 
       cy.findAllByTestId(labelName).eq(1).type('{selectall}Anthropic renamed');
 
-      cy.contains(/^Save$/).click();
+      cy.findByTestId(panelDataTestIds.save).click();
 
       cy.waitForRequest('@updateAiProvider').then(({ request }) => {
         expect(request.body.name).to.equal('Anthropic renamed');

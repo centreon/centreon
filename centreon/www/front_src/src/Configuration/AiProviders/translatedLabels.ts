@@ -6,16 +6,17 @@ export const labelWelcomePageDescription =
 
 export const labelName = 'Name';
 export const labelType = 'Type';
+export const labelTypePlaceholder = 'Select a provider type';
 export const labelEndpointUrl = 'Endpoint URL';
 export const labelApiToken = 'API token';
 export const labelApiTokenHint =
   'The token is write-only: leave the field empty to keep the current token.';
 export const labelDefaultModel = 'Default model';
 export const labelDefaultModelPlaceholder =
-  'e.g. claude-sonnet-4-6, mistral-medium-latest, gpt-5.4';
+  'e.g. claude-sonnet-5-5, mistral-large-latest, gpt-6.2-sol';
 export const labelFastModel = 'Fast model';
 export const labelFastModelPlaceholder =
-  'e.g. claude-haiku-4-5, mistral-small-latest, gpt-5.4-mini — defaults to the default model';
+  'e.g. claude-haiku-5-5, mistral-small-latest, gpt-6-luna — defaults to the default model';
 export const labelDescription = 'Description';
 export const labelEnabled = 'Enabled';
 

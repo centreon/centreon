@@ -38,7 +38,7 @@ final class TestConnectionInput
         #[Assert\Length(min: 1, max: 50)]
         public string $type,
 
-        #[ApiProperty(description: 'Model to use for the test', openapiContext: ['example' => 'claude-sonnet-4-6'])]
+        #[ApiProperty(description: 'Model to use for the test', openapiContext: ['example' => 'claude-sonnet-5-5'])]
         #[Assert\Length(min: 1, max: 255)]
         public string $defaultModel,
 

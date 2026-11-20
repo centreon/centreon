@@ -30,7 +30,6 @@ import {
   labelSpendLimits,
   labelType
 } from '../translatedLabels';
-import { aiProviderTypeLabels, defaultModels } from '../utils';
 import CurrencyChangeWarning from './CurrencyChangeWarning';
 import CurrencyField from './CurrencyField';
 import FetchModelsButton from './FetchModelsButton';
@@ -39,6 +38,7 @@ import ModelField from './ModelField';
 import MoneyField from './MoneyField';
 import RegionField from './RegionField';
 import TestConnectionButton from './TestConnectionButton';
+import TypeField from './TypeField';
 
 // a money field laid out as a grid column (the group is carried by the grid)
 const moneyColumn = (
@@ -117,60 +117,15 @@ export const useInputs = (): {
         type: InputType.Grid
       },
       {
-        change: ({ setValues, value }): void => {
-          // the change callback replaces the default behavior, and the
-          // updater form is needed: the values passed to the callback can
-          // be stale since the radio does not re-render on other fields
-          setValues((currentValues) => {
-            // default the name and models for the provider type while the
-            // user has not chosen them (empty, or still an auto-filled
-            // value of a previously selected type)
-            const typeLabels = Object.values(aiProviderTypeLabels).map(
-              (label) => t(label)
-            );
-            const autoFilledModels = Object.values(defaultModels)
-              .flatMap((models) => [models.defaultModel, models.fastModel])
-              .filter(Boolean);
-
-            const keepName =
-              currentValues.name && !typeLabels.includes(currentValues.name);
-            const keepDefaultModel =
-              currentValues.defaultModel &&
-              !autoFilledModels.includes(currentValues.defaultModel);
-            const keepFastModel =
-              currentValues.fastModel &&
-              !autoFilledModels.includes(currentValues.fastModel);
-
-            const models = defaultModels[value as AiProviderType];
-
-            return {
-              ...currentValues,
-              defaultModel: keepDefaultModel
-                ? currentValues.defaultModel
-                : (models.defaultModel ?? ''),
-              fastModel: keepFastModel
-                ? currentValues.fastModel
-                : models.fastModel,
-              name: keepName
-                ? currentValues.name
-                : t(aiProviderTypeLabels[value as AiProviderType]),
-              type: value
-            };
-          });
-        },
+        // a dropdown rather than a radio row: it stays compact in the side
+        // panel and scales as providers are added. TypeField keeps the stored
+        // value a plain enum string and defaults the name/models on change.
+        custom: { Component: TypeField },
         fieldName: 'type',
-        getDisabled: () => isEditing,
         group: t(labelGeneralInformation),
         label: t(labelType),
-        radio: {
-          options: Object.values(AiProviderType).map((type) => ({
-            label: t(aiProviderTypeLabels[type]),
-            value: type
-          })),
-          row: true
-        },
         required: true,
-        type: InputType.Radio
+        type: InputType.Custom
       },
       {
         fieldName: 'description',

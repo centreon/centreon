@@ -21,6 +21,16 @@ const initialize = (): void => {
   const store = createStore();
 
   cy.fixture('AiProviders/listAiProviders.json').then((aiProviders) => {
+    // the add form reads the provider total from a dedicated limit=1 request;
+    // registered first (MSW first match wins) and under its own alias so it
+    // does not shift the getAiProviders request sequence the tests rely on
+    cy.interceptAPIRequest({
+      alias: 'getAiProvidersCount',
+      method: Method.GET,
+      path: `**${aiProvidersEndpoint}?page=1&limit=1**`,
+      response: aiProviders
+    });
+
     cy.interceptAPIRequest({
       alias: 'getAiProviders',
       method: Method.GET,
@@ -36,7 +46,7 @@ const initialize = (): void => {
     method: Method.POST,
     path: `**${discoverModelsEndpoint}**`,
     response: {
-      models: ['claude-haiku-4-5', 'claude-opus-4-8', 'claude-sonnet-4-6']
+      models: ['claude-haiku-5-5', 'claude-opus-5-5', 'claude-sonnet-5-5']
     }
   });
 

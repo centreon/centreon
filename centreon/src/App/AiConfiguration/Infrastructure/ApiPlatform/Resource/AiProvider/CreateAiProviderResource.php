@@ -96,7 +96,7 @@ final class CreateAiProviderResource
 
         #[ApiProperty(
             description: 'Model used by AI features for this provider',
-            openapiContext: ['example' => 'claude-sonnet-4-6'],
+            openapiContext: ['example' => 'claude-sonnet-5-5'],
         )]
         #[Assert\Length(min: 1, max: 255)]
         public string $defaultModel,
@@ -114,7 +114,7 @@ final class CreateAiProviderResource
         #[ApiProperty(
             description: 'Model used by AI features requesting the fast tier. '
                 . 'Defaults to the default model when not set.',
-            openapiContext: ['example' => 'claude-haiku-4-5'],
+            openapiContext: ['example' => 'claude-haiku-5-5'],
         )]
         #[Assert\Length(min: 1, max: 255)]
         public ?string $fastModel = null,
