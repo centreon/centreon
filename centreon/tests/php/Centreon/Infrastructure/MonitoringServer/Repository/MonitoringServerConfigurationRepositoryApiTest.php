@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Centreon\Infrastructure\MonitoringServer\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\MonitoringServer\Repository\MonitoringServerConfigurationRepositoryApi;
@@ -32,6 +33,7 @@ use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Security\Domain\Authentication\Interfaces\AuthenticationTokenServiceInterface;
+use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -112,6 +114,77 @@ class MonitoringServerConfigurationRepositoryApiTest extends TestCase
     }
 
     /**
+     * @param int|string|null $generationTimeout
+     */
+    #[DataProvider('provideGenerationTimeouts')]
+    public function testGenerationTimeoutOnlyAppliesToTheGeneration(
+        int|string|null $generationTimeout,
+        int $expectedGenerationTimeout,
+    ): void {
+        $timeouts = [];
+        $repository = $this->createRepository(
+            function (string $method, string $url, array $options) use (&$timeouts): MockResponse {
+                $timeouts[basename($url)] = $options['timeout'];
+
+                return new MockResponse('<response><statuscode>0</statuscode></response>');
+            }
+        );
+        $repository->setGenerationTimeout($generationTimeout);
+
+        $repository->generateConfiguration(3);
+        $repository->moveExportFiles(3);
+        $repository->reloadConfiguration(3);
+
+        $this->assertEquals(
+            [
+                'generateFiles.php' => $expectedGenerationTimeout,
+                'moveFiles.php' => 60,
+                'restartPollers.php' => 60,
+            ],
+            $timeouts
+        );
+    }
+
+    /**
+     * @return iterable<string, array{int|string|null, int}>
+     */
+    public static function provideGenerationTimeouts(): iterable
+    {
+        yield 'unset environment variable' => ['', 60];
+
+        yield 'not set at all' => [null, 60];
+
+        yield 'invalid value' => ['ten', 60];
+
+        yield 'zero' => ['0', 60];
+
+        yield 'raised' => ['900', 900];
+    }
+
+    public function testGenerationTimeoutTellsWhatTimedOut(): void
+    {
+        $repository = $this->createRepository(
+            static fn (): MockResponse => throw new TransportException('Idle timeout reached for "generateFiles.php".')
+        );
+        $repository->setGenerationTimeout('900');
+
+        $this->expectException(TimeoutException::class);
+        $this->expectExceptionMessage('The configuration generation did not finish within 900 seconds');
+        $repository->generateConfiguration(3);
+    }
+
+    public function testOtherCallTimeoutTellsWhatTimedOut(): void
+    {
+        $repository = $this->createRepository(
+            static fn (): MockResponse => throw new TransportException('Idle timeout reached for "moveFiles.php".')
+        );
+
+        $this->expectException(TimeoutException::class);
+        $this->expectExceptionMessage('moveFiles.php did not answer within 60 seconds');
+        $repository->moveExportFiles(3);
+    }
+
+    /**
      * @return iterable<string, array{?string, array<string, string>, string}>
      */
     public static function provideServerUris(): iterable
@@ -157,6 +230,14 @@ class MonitoringServerConfigurationRepositoryApiTest extends TestCase
 
     private function createRepositoryAnswering(string $xml): MonitoringServerConfigurationRepositoryApi
     {
+        return $this->createRepository(new MockResponse($xml));
+    }
+
+    /**
+     * @param MockResponse|callable $responseFactory answer of every call
+     */
+    private function createRepository(MockResponse|callable $responseFactory): MonitoringServerConfigurationRepositoryApi
+    {
         $authenticationTokens = $this->createStub(AuthenticationTokens::class);
         $authenticationTokens->method('getProviderToken')
             ->willReturn(new NewProviderToken('token', new \DateTimeImmutable()));
@@ -166,7 +247,7 @@ class MonitoringServerConfigurationRepositoryApiTest extends TestCase
         return new MonitoringServerConfigurationRepositoryApi(
             $authenticationTokenService,
             $this->createMock(ContactInterface::class),
-            new MockHttpClient(new MockResponse($xml)),
+            new MockHttpClient($responseFactory),
             'http://httpd:80',
         );
     }

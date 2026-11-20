@@ -61,11 +61,12 @@ class MonitoringServerConfigurationRepositoryException extends RepositoryExcepti
 
     /**
      * @param \Throwable $ex
+     * @param string|null $message what timed out, a generic message when null
      * @return TimeoutException
      */
-    public static function timeout(\Throwable $ex): TimeoutException
+    public static function timeout(\Throwable $ex, ?string $message = null): TimeoutException
     {
-        return new TimeoutException(_('Execution was too long and reached timeout'), 0, $ex);
+        return new TimeoutException($message ?? _('Execution was too long and reached timeout'), 0, $ex);
     }
 
     /**

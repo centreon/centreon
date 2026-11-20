@@ -494,7 +494,8 @@ COPY --chmod=755 .github/docker/centreon-web-split/trixie/entrypoint/httpd \
 # in the image, substitute it at container start instead (see 10-config.sh).
 ENV HTTPD_SERVER_NAME=centreon-httpd \
     PHP_FPM_UPSTREAM=php-fpm:9000 \
-    GORGONE_WSS_UPSTREAM=localhost:8087
+    GORGONE_WSS_UPSTREAM=localhost:8087 \
+    HTTPD_PROXY_TIMEOUT=300
 
 # Note: `httpd -t` isn't run at build time on purpose — conf/extra/centreon.conf
 # only exists after 10-config.sh resolves the template at container start, so
@@ -670,6 +671,9 @@ ENV PHP_TIMEZONE=UTC
 # MON-214472: same packaged default as centreon/packaging/src/php.ini,
 # raised at deployment time (01-config.sh) for large inventories.
 ENV PHP_MEMORY_LIMIT=256M
+# MON-214473: same packaged default (300), must stay above the configuration
+# generation timeout (CENTREON_CONFIGURATION_GENERATION_TIMEOUT).
+ENV PHP_MAX_EXECUTION_TIME=300
 # MON-214095: files by default — nothing changes for a deployment that
 # never sets this. Switched to Valkey explicitly (PHP_SESSION_HANDLER=redis
 # + PHP_SESSION_SAVE_PATH, see 01-config.sh/centreon.ini.template).

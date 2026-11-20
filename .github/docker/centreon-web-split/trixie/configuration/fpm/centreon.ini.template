@@ -11,7 +11,9 @@ date.timezone = ${PHP_TIMEZONE}
 ; raise it for large inventories (generateFiles() holding every host/
 ; service row in memory at once, see MON-213806).
 memory_limit = ${PHP_MEMORY_LIMIT}
-max_execution_time = 300
+; MON-214473: resolved from PHP_MAX_EXECUTION_TIME (01-config.sh), must stay
+; above the configuration generation timeout on large inventories.
+max_execution_time = ${PHP_MAX_EXECUTION_TIME}
 upload_max_filesize = 5M
 post_max_size = 8M
 session.use_strict_mode = 1
