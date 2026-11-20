@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContactGroups;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContacts;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExclusiveNotificationOption;
@@ -61,7 +61,7 @@ final readonly class PatchHostTemplateNotificationsInput
 
         #[ApiProperty(
             description: 'State transitions triggering a notification, an empty list clears them. "none" is exclusive. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.',
-            openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => NotificationOptionEnumResolver::API_VALUES]],
+            openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => [NotificationOptionEnum::Down->value, NotificationOptionEnum::Unreachable->value, NotificationOptionEnum::Recovery->value, NotificationOptionEnum::Flapping->value, NotificationOptionEnum::DowntimeScheduled->value, NotificationOptionEnum::None->value]]],
         )]
         #[Assert\Sequentially([
             new Assert\All([new Assert\Choice(callback: [CreateHostTemplateNotificationsInput::class, 'apiOptions'])]),
@@ -71,7 +71,7 @@ final readonly class PatchHostTemplateNotificationsInput
 
         #[ApiProperty(
             description: 'Added to the current options. "none" is exclusive.',
-            openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => NotificationOptionEnumResolver::API_VALUES]],
+            openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => [NotificationOptionEnum::Down->value, NotificationOptionEnum::Unreachable->value, NotificationOptionEnum::Recovery->value, NotificationOptionEnum::Flapping->value, NotificationOptionEnum::DowntimeScheduled->value, NotificationOptionEnum::None->value]]],
         )]
         #[Assert\Sequentially([
             new Assert\All([new Assert\Choice(callback: [CreateHostTemplateNotificationsInput::class, 'apiOptions'])]),
@@ -81,7 +81,7 @@ final readonly class PatchHostTemplateNotificationsInput
 
         #[ApiProperty(
             description: 'Removed from the current options.',
-            openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => NotificationOptionEnumResolver::API_VALUES]],
+            openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => [NotificationOptionEnum::Down->value, NotificationOptionEnum::Unreachable->value, NotificationOptionEnum::Recovery->value, NotificationOptionEnum::Flapping->value, NotificationOptionEnum::DowntimeScheduled->value, NotificationOptionEnum::None->value]]],
         )]
         #[Assert\All([new Assert\Choice(callback: [CreateHostTemplateNotificationsInput::class, 'apiOptions'])])]
         public array $optionsToRemove = [],
