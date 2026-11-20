@@ -26,6 +26,7 @@ namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
+use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
@@ -136,6 +137,34 @@ class GenerateConfigurationTest extends TestCase
         )->getMessage());
 
         $useCase->execute($this->monitoringServer->getId());
+    }
+
+    public function testIncompleteGenerationRefusalIsKeptAsIs(): void
+    {
+        // Refused by the move, not a generation error: no "Generation error" prefix, the REST export answers 409
+        $refusal = new IncompleteGenerationException(
+            'The last configuration generation did not complete',
+            IncompleteGenerationException::REASON
+        );
+        $this->user->method('isAdmin')->willReturn(true);
+        $this->monitoringServerRepository->method('findServer')->willReturn($this->monitoringServer);
+        $this->monitoringServerConfigurationRepository
+            ->method('moveExportFiles')
+            ->willThrowException($refusal);
+
+        $useCase = new GenerateConfiguration(
+            $this->monitoringServerRepository,
+            $this->monitoringServerConfigurationRepository,
+            $this->readAccessGroupsRepository,
+            $this->user
+        );
+
+        try {
+            $useCase->execute($this->monitoringServer->getId());
+            $this->fail('An IncompleteGenerationException was expected');
+        } catch (IncompleteGenerationException $ex) {
+            $this->assertSame($refusal, $ex);
+        }
     }
 
     public function testSuccessAsAdminUser(): void

@@ -26,6 +26,7 @@ namespace Tests\Centreon\Infrastructure\MonitoringServer\Repository;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
+use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\MonitoringServer\Repository\MonitoringServerConfigurationRepositoryApi;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
@@ -99,6 +100,26 @@ class MonitoringServerConfigurationRepositoryApiTest extends TestCase
         } catch (GorgoneDeliveryException $ex) {
             $this->assertSame('Gorgone node 3 is not connected: nothing has been sent', $ex->getMessage());
             $this->assertSame(GorgoneDeliveryException::NODE_NOT_CONNECTED, $ex->getCode());
+        }
+    }
+
+    public function testIncompleteGenerationRefusalKeepsItsMessageAndReason(): void
+    {
+        $repository = $this->createRepositoryAnswering(
+            '<response><statuscode>1</statuscode>'
+            . '<error>The last configuration generation of the monitoring server "Poller" did not complete</error>'
+            . '<errorcode>4</errorcode></response>'
+        );
+
+        try {
+            $repository->reloadConfiguration(3);
+            $this->fail('An IncompleteGenerationException was expected');
+        } catch (IncompleteGenerationException $ex) {
+            $this->assertSame(
+                'The last configuration generation of the monitoring server "Poller" did not complete',
+                $ex->getMessage()
+            );
+            $this->assertSame(IncompleteGenerationException::REASON, $ex->getCode());
         }
     }
 

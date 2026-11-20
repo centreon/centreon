@@ -30,6 +30,7 @@ use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
+use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
 use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
@@ -246,41 +247,37 @@ class MonitoringServerController extends AbstractController
             }
 
             $callable();
-        } catch (TimeoutException $ex) {
-            $this->error($ex->getMessage());
-
-            // The exception code is the HTTP status of the response (see CentreonEventSubscriber).
-            throw new MonitoringServerException($ex->getMessage(), Response::HTTP_GATEWAY_TIMEOUT, $ex);
         } catch (EntityNotFoundException|AccessDeniedException $ex) {
             $this->error($ex->getMessage());
 
             throw $ex;
-        } catch (GorgoneDeliveryException $ex) {
-            $this->error($ex->getMessage());
-
-            // The exception code is the HTTP status of the response (see CentreonEventSubscriber):
-            // 504 when Gorgone did not report the final result in time (the delivery may still happen),
-            // 409 when the poller is not connected to Gorgone or Gorgone reported a failure.
-            throw new MonitoringServerException(
-                $ex->getMessage(),
-                $ex->getCode() === GorgoneDeliveryException::RESULT_TIMEOUT
-                    ? Response::HTTP_GATEWAY_TIMEOUT
-                    : Response::HTTP_CONFLICT,
-                $ex,
-            );
-        } catch (ConfigurationMonitoringServerException $ex) {
-            // Generation or reload failure, with the monitoring server and the reason.
-            $this->error($ex->getMessage());
-
-            throw new MonitoringServerException($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, $ex);
         } catch (\Exception $ex) {
             $this->error($ex->getMessage());
 
-            throw new MonitoringServerException(
+            throw self::toResponseException($ex);
+        }
+    }
+
+    /**
+     * The exception code is the HTTP status of the response (see CentreonEventSubscriber).
+     */
+    private static function toResponseException(\Exception $ex): MonitoringServerException
+    {
+        return match (true) {
+            // The generation, or Gorgone's confirmation of the delivery, did not finish in time (both may still).
+            $ex instanceof TimeoutException,
+            $ex instanceof GorgoneDeliveryException && $ex->getCode() === GorgoneDeliveryException::RESULT_TIMEOUT => new MonitoringServerException($ex->getMessage(), Response::HTTP_GATEWAY_TIMEOUT, $ex),
+            // Poller not connected to Gorgone, failure reported by Gorgone, or last generation incomplete
+            // (nothing moved nor restarted): the request can succeed later, as is.
+            $ex instanceof GorgoneDeliveryException,
+            $ex instanceof IncompleteGenerationException => new MonitoringServerException($ex->getMessage(), Response::HTTP_CONFLICT, $ex),
+            // Generation or reload failure, with the monitoring server and the reason.
+            $ex instanceof ConfigurationMonitoringServerException => new MonitoringServerException($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, $ex),
+            default => new MonitoringServerException(
                 'There was an consistency error in the exported files - please use the legacy export menu to troubleshoot',
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 $ex,
-            );
-        }
+            ),
+        };
     }
 }
