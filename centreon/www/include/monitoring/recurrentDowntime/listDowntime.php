@@ -96,6 +96,7 @@ foreach ($listDowntime as $dt) {
     $style = $style != 'two' ? 'two' : 'one';
 }
 $tpl->assign('elemArr', $elemArr);
+$tpl->assign('aclRefusedMessage', $aclRefusedMessage ?? null);
 
 // Different messages we put in the template
 $tpl->assign(

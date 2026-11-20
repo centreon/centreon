@@ -191,6 +191,12 @@ function validPeriods()
 </div>
 {/if}
 
+{if isset($relations_err) }
+<div style="color: red; text-align: center; font-weight: bold; margin: 4px" >
+    {$relations_err}
+</div>
+{/if}
+
 <form {$form.attributes}>
     <div class="headerTabContainer">
     <ul id="mainnav">

@@ -96,13 +96,23 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
             $aclServicegroups .= ' AND sg_id IN (' . $acl->getServiceGroupsString('ID') . ') ';
         }
 
+        // Check for service group enable
+        $enableFilter = '';
+        if (isset($this->arguments['e'])) {
+            $enableFilter = match (mb_strtolower((string) $this->arguments['e'])) {
+                'enable' => " AND sg.sg_activate = '1' ",
+                'disable' => " AND sg.sg_activate = '0' ",
+                default => throw new RestBadRequestException('Error, bad enable status'),
+            };
+        }
+
         $request = <<<SQL
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
                     sg.sg_id,
                     sg.sg_name,
                     sg.sg_activate
                 FROM servicegroup sg
-                WHERE sg_name LIKE :serviceGroupName {$aclServicegroups}
+                WHERE sg_name LIKE :serviceGroupName {$aclServicegroups} {$enableFilter}
                 ORDER BY sg.sg_name
                 {$range}
             SQL;

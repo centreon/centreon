@@ -51,6 +51,31 @@ class CentreonDowntimeTest extends TestCase
         $this->downtime = new CentreonDowntime($db);
     }
 
+    public function testOnlyMetaServicesCarryAMetaIdInTheRelations(): void
+    {
+        $database = $this->createMock(CentreonDB::class);
+        $database->method('prepare')->willReturnCallback(
+            fn (string $query): CentreonDBStatement => $this->statementIterating(
+                str_contains($query, 'downtime_service_relation')
+                    ? [
+                        ['resource_id' => '1-10', 'activated' => '1', 'meta_id' => null],
+                        ['resource_id' => '2-20', 'activated' => '1', 'meta_id' => '7'],
+                    ]
+                    : []
+            )
+        );
+
+        $relations = (new CentreonDowntime($database))->getRelations(1);
+
+        $this->assertSame(
+            [
+                ['id' => '1-10', 'activated' => '1'],
+                ['id' => '2-20', 'activated' => '1', 'meta_id' => '7'],
+            ],
+            $relations['services']
+        );
+    }
+
     public function testEveryDowntimeTargetingTheSameServiceTemplateIsApplied(): void
     {
         $this->serviceGroupStatement->method('fetch')->willReturnOnConsecutiveCalls(
@@ -223,5 +248,16 @@ class CentreonDowntimeTest extends TestCase
                 . '-' . $downtime['dtp_day_of_week'],
             $downtimes
         );
+    }
+
+    /**
+     * @param list<array<string, string|null>> $records
+     */
+    private function statementIterating(array $records): CentreonDBStatement&MockObject
+    {
+        $statement = $this->createMock(CentreonDBStatement::class);
+        $statement->method('getIterator')->willReturn(new \ArrayIterator($records));
+
+        return $statement;
     }
 }
