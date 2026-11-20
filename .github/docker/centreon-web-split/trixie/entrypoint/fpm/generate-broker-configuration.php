@@ -52,12 +52,17 @@ if ((getenv('GORGONE_API_USERNAME') ?: '') !== '' && (getenv('GORGONE_API_PASSWO
         . base64_encode(getenv('GORGONE_API_USERNAME') . ':' . getenv('GORGONE_API_PASSWORD'))];
 }
 $gorgoneNodeId = $pollerId;
+// generate-and-reload waits for gorgone's final result of each delivery
+// (moveFiles then restartPollers, each bounded by the web's curl.timeout of
+// 60s), so it can legitimately take far longer than the other calls. Kept
+// under httpd's ProxyTimeout (300s).
+$generateAndReloadTimeout = 150;
 
 /**
  * @param array<int,string> $headers
  * @return array{0:int,1:string}
  */
-function apiCall(string $method, string $url, ?string $body, array $headers): array
+function apiCall(string $method, string $url, ?string $body, array $headers, int $timeout = 15): array
 {
     $context = stream_context_create([
         'http' => [
@@ -65,7 +70,7 @@ function apiCall(string $method, string $url, ?string $body, array $headers): ar
             'header' => implode("\r\n", $headers),
             'content' => $body ?? '',
             'ignore_errors' => true,
-            'timeout' => 15,
+            'timeout' => $timeout,
         ],
     ]);
 
@@ -161,6 +166,7 @@ if (! is_string($token) || $token === '') {
     "{$apiBase}/configuration/monitoring-servers/{$pollerId}/generate-and-reload",
     null,
     ["X-AUTH-TOKEN: {$token}"],
+    $generateAndReloadTimeout,
 );
 
 if ($genStatus === 204) {
@@ -168,5 +174,17 @@ if ($genStatus === 204) {
     exit(0);
 }
 
-fwrite(STDERR, "generate-and-reload failed for poller {$pollerId} (HTTP {$genStatus}): {$genBody}\n");
+$decoded = json_decode($genBody, true);
+$reason = is_array($decoded) && is_string($decoded['message'] ?? null) ? $decoded['message'] : $genBody;
+if ($genStatus === 409) {
+    // Poller not connected to gorgone (nothing sent) or gorgone reported a failure.
+    fwrite(STDERR, "Configuration not delivered to poller {$pollerId} yet, will retry (HTTP 409): {$reason}\n");
+} elseif ($genStatus === 504) {
+    // Gorgone did not confirm the delivery in time: it may still land, retrying is harmless.
+    fwrite(STDERR, "Configuration delivery to poller {$pollerId} not confirmed, will retry (HTTP 504): {$reason}\n");
+} elseif ($genStatus === 0) {
+    fwrite(STDERR, "generate-and-reload got no answer within {$generateAndReloadTimeout}s for poller {$pollerId}, will retry.\n");
+} else {
+    fwrite(STDERR, "generate-and-reload failed for poller {$pollerId} (HTTP {$genStatus}): {$reason}\n");
+}
 exit(1);

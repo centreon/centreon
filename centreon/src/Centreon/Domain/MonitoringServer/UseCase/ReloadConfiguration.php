@@ -29,6 +29,7 @@ use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
+use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -98,6 +99,8 @@ class ReloadConfiguration
                 throw ConfigurationMonitoringServerException::timeout($monitoringServerId, $ex->getMessage());
             }
 
+            throw $ex;
+        } catch (GorgoneDeliveryException $ex) {
             throw $ex;
         } catch (\Exception $ex) {
             throw ConfigurationMonitoringServerException::errorOnReload(

@@ -5,7 +5,9 @@
 # base PR (C12d, MON-214157), collect from G10
 # (MON-214281-gorgone-pullwss-retry-backoff, on top of G9's TCP RRD output fix
 # rrdcached needs: pullwss retry backoff, centengine and the broker wait for
-# their delivered config), trapd from C15 (MON-214281: centreontrapd waits
+# their delivered config), except gorgone from G11
+# (MON-214293-gorgone-legacycmd-final-result: the legacycmd final result the
+# export checks), trapd from C15 (MON-214281: centreontrapd waits
 # for its trap database). Move them along
 # with the stack; back to develop once it is merged.
 # APP_SECRET and SALT have no default: placeholders, only to render the Secret.
@@ -28,7 +30,7 @@ images:
     tag: MON-214157-central-compose-db-tls
   gorgone:
     repository: docker.centreon.com/centreon/centreon-gorgone-trixie
-    tag: MON-214281-gorgone-pullwss-retry-backoff
+    tag: MON-214293-gorgone-legacycmd-final-result
   engine:
     repository: docker.centreon.com/centreon/centreon-engine-trixie
     tag: MON-214281-gorgone-pullwss-retry-backoff
