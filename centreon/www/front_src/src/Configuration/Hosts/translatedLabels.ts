@@ -58,7 +58,6 @@ export const labelAddNewEntry = 'Add new entry';
 export const labelCreateServicesLinkedToTemplates =
   'Automatically create services from templates';
 // Custom macros.
-export const labelCustomMacros = 'Custom macros';
 export const labelClear = 'Clear';
 export const labelAlreadyExists = 'Already exists';
 
@@ -89,6 +88,7 @@ export {
   labelContactAdditiveInheritance,
   labelContactGroupAdditiveInheritance,
   labelContactsToNotify,
+  labelCustomMacros,
   labelDataProcessing,
   labelDefault,
   labelEnableFreshnessCheck,

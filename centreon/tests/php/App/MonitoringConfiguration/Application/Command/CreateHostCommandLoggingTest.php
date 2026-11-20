@@ -25,10 +25,10 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
@@ -92,6 +92,6 @@ final class CreateHostCommandLoggingTest extends TestCase
 
         self::assertIsArray($sanitised);
         self::assertSame('***', $sanitised['macro_changes']);
-        self::assertStringNotContainsString('top-secret', (string) json_encode($sanitised));
+        self::assertStringNotContainsString('top-secret', json_encode($sanitised, flags: JSON_THROW_ON_ERROR));
     }
 }

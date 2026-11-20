@@ -54,9 +54,8 @@ const useInheritedMacros = ({
           return response as Array<MacroRow>;
         }
 
-        // A failure leaves the rows as they are. A 404 does so silently: it is
-        // a template the endpoint does not know, or a server without the
-        // endpoint yet, not a template without macros.
+        // A failure leaves the rows as they are. A 404 does so silently: it is a
+        // template the endpoint does not know, not a template without macros.
         if ((response as ResponseError).statusCode !== 404) {
           showErrorMessage((response as ResponseError).message);
         }

@@ -18,7 +18,6 @@ export const labelMonitoringEngineSchedulingOptions =
   'Monitoring engine / Scheduling options';
 export const labelHostBasicInformation = 'Host basic information';
 export const labelHostCheckOptions = 'Host check options';
-export const labelCustomMacros = 'Custom macros';
 export const labelHostDetails = 'Host details';
 export const labelSchedulingOptions = 'Scheduling options';
 

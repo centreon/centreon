@@ -89,7 +89,7 @@ export const getTemplatesBlock = ({
     defaultValues: { createServicesLinkedToTemplates: false },
     // Replacing a host's templates deletes the services they created, on
     // every selected host: the confirmation says so.
-    getWarning: (t) => (values) =>
+    getWarning: ({ t, values }) =>
       getPath(['massChangeModes', 'templates'], values) === 'replacement'
         ? t(labelTemplateReplacementDeletesServices)
         : null,

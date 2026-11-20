@@ -24,19 +24,20 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Event;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
 use App\Shared\Domain\Event\EventInterface;
 
 /**
- * Deferred because the legacy deployer reads through its own connection: inside the command
- * transaction it would see no host at all.
+ * Deferred so that the services are deployed in their own transaction, once the host is committed and
+ * after the cleanup of the services of its removed templates: a failed deployment never rolls the host back.
  */
 final readonly class HostServicesDeploymentRequested implements DeliveredAfterCommitInterface, EventInterface
 {
     public function __construct(
         public HostId $hostId,
-        public UserId $requestedBy,
+        // Its ACL scope bounds the host lookup, and it authors the created services.
+        public ActingUser $actor,
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {
     }

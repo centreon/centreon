@@ -25,13 +25,6 @@ use Centreon\Application\Serializer\SerializerContextInterface;
 use CentreonCommand\Domain\Entity\Command;
 
 /**
- * @OA\Schema(
- *   schema="CommandEntity",
- *
- *       @OA\Property(property="id", type="integer"),
- *       @OA\Property(property="name", type="string")
- * )
- *
  * Serialize Command entity for list
  */
 class ListContext implements SerializerContextInterface

@@ -170,7 +170,6 @@ final class GetHostProviderTest extends ApiTestCase
                 'severity_id' => $severityId,
                 'timezone_id' => $timezoneId,
                 'template_ids' => [$templateId],
-                // Leaving it on would boot the legacy deployer; nothing here asserts deployment.
                 'create_services_linked_to_templates' => false,
                 'parent_host_ids' => [$parentId],
                 'child_host_ids' => [$childId],
