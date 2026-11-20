@@ -35,10 +35,6 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
-  cy.intercept({
-    method: 'GET',
-    url: INTERCEPTORS.pages.xslt_polyfill
-  }).as('getXsltPolyfill');
 });
 
 after(() => {
@@ -277,7 +273,8 @@ When(
 );
 
 Then('the XSLT compatibility module is loaded', () => {
-  cy.wait('@getXsltPolyfill');
+  // Check the window flag rather than the request: a retry serves the script from cache.
+  cy.window().its('xsltPolyfillInstalled').should('equal', true);
 });
 
 Then('the configured passive service is listed', () => {
