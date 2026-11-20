@@ -58,12 +58,21 @@ export default () => {
       expect(within(getRow('memory')).getByText('host B')).toBeVisible();
     });
 
-    it('links the host to its configuration form', async () => {
+    it('links the host to its legacy form while the Hosts page is not granted', async () => {
       await initializeListing();
 
       expect(screen.getByTestId('service-host-link_0')).toHaveAttribute(
         'href',
         '/main.php?p=60101&o=c&host_id=10'
+      );
+    });
+
+    it('links the host to its form in the Hosts page when the menu grants it', async () => {
+      await initializeListing({ allowedPages: ['/configuration/hosts'] });
+
+      expect(screen.getByTestId('service-host-link_0')).toHaveAttribute(
+        'href',
+        '/configuration/hosts?mode=edit&id=10'
       );
     });
 

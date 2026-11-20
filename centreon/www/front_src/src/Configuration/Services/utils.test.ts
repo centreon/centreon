@@ -1,4 +1,4 @@
-import { getServiceRowId, toDuration } from './utils';
+import { getServiceRowId, getServicesOfHostPath, toDuration } from './utils';
 
 describe('toDuration', () => {
   it('returns null for an interval nothing sets', () => {
@@ -28,6 +28,14 @@ describe('getServiceRowId', () => {
     expect(getServiceRowId(row)).toBe('10_5');
     expect(getServiceRowId({ ...row, host: { id: 11, name: 'host B' } })).toBe(
       '11_5'
+    );
+  });
+});
+
+describe('getServicesOfHostPath', () => {
+  it('opens the Services page on the host, encoded', () => {
+    expect(getServicesOfHostPath('web 01&a')).toBe(
+      '/configuration/services?host=web%2001%26a'
     );
   });
 });

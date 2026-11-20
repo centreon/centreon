@@ -14,6 +14,7 @@ import {
   labelServiceTemplate,
   labelStatus
 } from '../translatedLabels';
+import { filtersInitialValues } from '../utils';
 import initialize from './initialize';
 
 const openAdvancedFilters = async (): Promise<HTMLElement> => {
@@ -175,6 +176,27 @@ export default () => {
 
       // An empty text filter is left out of the query altogether.
       expect(request.url.searchParams.get('host_name[lk]')).toBeNull();
+    });
+
+    it('opens on the services of the host given in the URL, then leaves the URL', async () => {
+      // Filters left from an earlier visit give way to the host.
+      window.localStorage.setItem(
+        'filters_services',
+        JSON.stringify({ ...filtersInitialValues, name: 'cpu' })
+      );
+
+      initialize({ searchParams: '?host=host%20A' });
+
+      const { request } = await waitForRequest('@getAllServices');
+
+      expect(request.url.searchParams.get('host_name[lk]')).toBe('host A');
+      expect(request.url.searchParams.get('name[lk]')).toBeNull();
+
+      await waitFor(() => expect(window.location.search).toBe(''));
+
+      const panel = await openAdvancedFilters();
+
+      expect(within(panel).getByLabelText(labelHostName)).toHaveValue('host A');
     });
 
     it('keeps the filters in local storage so they survive navigation', async () => {

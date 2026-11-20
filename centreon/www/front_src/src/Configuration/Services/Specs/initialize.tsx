@@ -19,6 +19,7 @@ import { HttpResponse } from 'msw';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
+import navigationAtom from '../../../Navigation/navigationAtoms';
 import Services from '..';
 import {
   getDuplicateServiceEndpoint,
@@ -60,6 +61,8 @@ import {
 export const patchableServiceIds = [0, 1, 2, 5];
 
 interface Props {
+  // The React pages the menu grants, by URL; none when left out.
+  allowedPages?: Array<string>;
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
   intervalLength?: number;
@@ -75,6 +78,7 @@ interface Props {
 }
 
 const initialize = ({
+  allowedPages = [],
   isEmpty = false,
   hasWriteAccess = true,
   intervalLength = 60,
@@ -104,6 +108,10 @@ const initialize = ({
   } as UserPermissions);
   store.set(intervalLengthAtom, intervalLength);
   store.set(defaultLimitPerPageAtom, 10);
+  store.set(navigationAtom, {
+    result: allowedPages.map((url) => ({ is_react: true, label: url, url })),
+    status: true
+  });
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
 

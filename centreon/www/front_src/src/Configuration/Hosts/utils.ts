@@ -28,3 +28,9 @@ export const getHostTemplateConfigurationUrl = (id: number): string =>
 // `listServiceByHost.php` reads its host filter from `search`, matching on name.
 export const getHostServicesUrl = (name: string): string =>
   `${centreonBaseURL}/main.php?p=60201&search=${encodeURIComponent(name)}`;
+
+// The React Hosts page, reachable once the menu grants it.
+export const hostsPagePath = '/configuration/hosts';
+
+export const getHostFormPath = (id: number): string =>
+  `${hostsPagePath}?mode=edit&id=${encodeURIComponent(id)}`;
